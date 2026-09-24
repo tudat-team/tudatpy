@@ -23,4 +23,5 @@ functions in :ref:`environment_setup`.
    environment_data/sbdb
    environment_data/space_weather
    environment_data/spacetrack
+   environment_data/sp3
    environment_data/spice
