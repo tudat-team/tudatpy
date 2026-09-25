@@ -487,7 +487,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a spherical harmonics gravity field settings object.
 
  Function for settings object, defining a gravity field model through spherical harmonic expansion.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the spherical harmonic field is defined.
 
  The gravitational potential is the defined as:
@@ -698,7 +698,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the gravitational parameter.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
@@ -754,7 +754,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the density.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according

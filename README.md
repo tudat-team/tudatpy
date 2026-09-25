@@ -13,17 +13,10 @@ The next steps outline how to get to a working version of Tudatpy. First we list
 
 ## Prerequisites
 
-- [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install))
-  - All procedures, including the following prerequisite, assume the use of WSL. Power users who wish to do otherwise,
-    must do so at their own risk, with reduced support from the team.
-  - Note that WSL is a, partially separated, Ubuntu terminal environment for Windows. Anaconda/Miniconda, Python and any other dependencies you require while **executing code** from the `Tudatpy` repository, must be installed in its Linux version via the Ubuntu terminal. This does not apply to PyCharm/CLion however, which can be configured to compile and/or run Python code through the WSL.
-  - Note that, to access files and folders of WSL directly in Windows explorer, one can type `\\wsl$` or `Linux` in the Windows explorer access bar, then press enter.
-  - At the opposite, please follow [this guide](https://docs.microsoft.com/en-us/windows/wsl/wsl2-mount-disk) to access Windows file trough WSL.
-  - [This guide from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/setup/environment) contains more information on the possibilities given trough WSL.
-  - In the Ubuntu terminal environment under WSL, run the command `sudo apt-get install build-essential` to install the necessary compilation tools
-- Anaconda/Miniconda installation ([Installing Anaconda](https://docs.tudat.space/en/latest/getting-started/use-of-tools/conda.html))
-- CMake installation
-  - Inside the Ubuntu terminal, install CMake by calling `sudo apt install cmake`.
+- ``conda``: You must have ``conda`` installed on your system to obtain all required dependencies. See our [user guide](https://docs.tudat.space/en/latest/getting-started/use-of-tools/conda.html) for an introduction.
+- **Windows Users**: While local builds on Windows are possible, note that support from the core developer team is limited.
+  - Install [Visual Studio 2022, Version 17](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#evergreen-bootstrappers)
+  - As an alternative, Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install), see also our [user guide](https://docs.tudat.space/en/latest/getting-started/use-of-tools/windows-subsystem-for-linux.html)) can be installed for a Linux environment inside Windows.
 
 ## Setup
 
@@ -94,6 +87,8 @@ python install.py -h                 # Show help and available flags
 python install.py -e                 # Editable development installation
 python install.py                    # Frozen installation of the current build
 ```
+
+If you are using Windows, you might have to run the commands from a shell with admin privileges, since it modifies files inside your conda environment.
 
 > **Note**\
 > This script installs Tudatpy in your active conda environment. Editable mode links the Python files in the environment directly to this source checkout. Source edits and branch switches therefore affect the installed package immediately, while the compiled kernel remains the one in the selected build directory. Use editable mode for active development and keep the checkout on a compatible revision.

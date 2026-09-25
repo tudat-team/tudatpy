@@ -43,7 +43,11 @@ Functions
 
    ionex_ionospheric_light_time_correction
 
+   nequick2_ionospheric_light_time_correction
+
    vmf3_tropospheric_light_time_correction
+
+   vmf3o_tropospheric_light_time_correction
 
    inverse_power_series_solar_corona_light_time_correction
 
@@ -67,7 +71,11 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.ionex_ionospheric_light_time_correction
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.nequick2_ionospheric_light_time_correction
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.vmf3_tropospheric_light_time_correction
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.vmf3o_tropospheric_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.inverse_power_series_solar_corona_light_time_correction
 

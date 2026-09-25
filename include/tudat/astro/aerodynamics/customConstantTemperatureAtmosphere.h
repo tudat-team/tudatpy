@@ -8,11 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References:
- *      Justus, C., Duvall, A., and Keller, V., “Atmospheric Models for Aerocapture,” in
+ *      Justus, C., Duvall, A., and Keller, V., "Atmospheric Models for Aerocapture," in
  *          40th AIAA/ASME/SAE/ASEE Joint propulsion Conference, Fort Lauderdale, Florida,
  *          United States, July 2004.
- *      Jah, M., Lisano, M., Born, G., and Axelrad, P., “Mars Aerobraking Spacecraft State
- *          estimation By Processing Inertial Measurement Unit Data,” Journal of Guidance,
+ *      Jah, M., Lisano, M., Born, G., and Axelrad, P., "Mars Aerobraking Spacecraft State
+ *          estimation By Processing Inertial Measurement Unit Data," Journal of Guidance,
  *          Control, and Dynamics, vol. 31, no. 6, pp. 1802–1812, November–December 2008.
  *
  */
