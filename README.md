@@ -3,7 +3,7 @@
 The **TU Delft Astrodynamics Toolbox (Tudat)** is a powerful set of libraries that support astrodynamics and space research.
 It can be used for a wide variety of purposes, ranging from the simulation studies of reentry dynamics to the processing of real tracking data of interplanetary missions.
 The core functionality of Tudat is implemented in C++ and exposed to Python in the ``tudatpy`` package.
-For a comprehensive overview of functionality and example applications, see our [documentation page](https://docs.tudat.space/en/latest/).
+For a comprehensive overview of functionality and example applications, see our [user guide](https://docs.tudat.space/en/latest/) and the [API documentation](https://py.api.tudat.space/en/latest/).
 
 To get started with Tudat, we recommend the installation of the ``tudatpy`` conda package, described on the [Installation page](https://docs.tudat.space/en/latest/getting-started/installation.html) of our user guide.
 After that, take a look at our [quickstart guide](https://docs.tudat.space/en/latest/getting-started/quickstart.html) to set up your first orbit simulation with Tudat.
