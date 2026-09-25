@@ -188,24 +188,3 @@ class TnfTrackingDataProcessor:
             supplementary_data_list.append(supplementary_data)
 
         return supplementary_data_list
-
-    def set_transponder_turnaround_ratio(self, bodies) -> None:
-        """
-        Set the default transponder turnaround ratio function for the spacecraft, if a spacecraft
-        name was provided at initialization.
-
-        NOTE: It's not optimal to set the transponder turnaround ratio here, but it's done for now.
-
-        Parameters
-        ----------
-        bodies
-            The simulation bodies container.
-
-        Returns
-        -------
-        None
-            The transponder turnaround-ratio model is set in place.
-        """
-        if self.spacecraft_name:
-            spacecraft = bodies.get(self.spacecraft_name)
-            spacecraft.system_models.set_default_transponder_turnaround_ratio_function()

@@ -5,10 +5,12 @@
 
 .. automodule:: tudatpy.data_input.tracking_data.fdets
 
-This submodule contains functionality to load tracking data from Fdets files.
-Fdets files contain Doppler frequency observables and associated metadata such
+This submodule contains functionality to load tracking data from FDETS files, produced by the Joint Institute for VLBI ERIC (JIVE).
+FDETS files contain open-loop Doppler frequency observables and associated metadata such
 as signal-to-noise ratio, spectral maximum, and Doppler noise for observations
-made using the PRIDE experiment. The :func:`read_fdets_data` function is the
+made using the PRIDE experiment.
+
+The :func:`read_fdets_data` function is the
 main interface for loading the data and converting it to objects that Tudat can
 process further; see also
 :ref:`tracking_data`. All other functionality in this module is
@@ -22,7 +24,7 @@ manipulating it, before it is processed into Tudat-compatible objects.
 Supporting API
 --------------
 
-The class below defines how dates are represented in the input Fdets files. It
+The class below defines how dates are represented in the input FDETS files. It
 is used when calling :func:`read_fdets_data`; no separate parsing or conversion
 step is normally needed.
 
