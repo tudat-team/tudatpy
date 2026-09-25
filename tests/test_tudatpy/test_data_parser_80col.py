@@ -155,6 +155,9 @@ def test_80cols_line_parser_logic():
     assert ids[2] == "134341"  # 'D4341' -> 134341 Unpacking
     assert ids[3] == "2025 FA22"  # Provisional Unpacking
 
+    # Column 72 contains the catalogue code, between the band and reference.
+    assert parsed_table.to_pandas()["catalog"].fillna("").tolist() == ["W", "", "", "r"]
+
     # The sample's paired S/s records must also preserve the parallax type and
     # attach the spacecraft position, converted from kilometres to metres.
     eros_row = parsed_table[1]
@@ -162,6 +165,26 @@ def test_80cols_line_parser_logic():
     np.testing.assert_allclose(eros_row["spacecraft_position_x"], -198301940.0)
     np.testing.assert_allclose(eros_row["spacecraft_position_y"], 198171039.0)
     np.testing.assert_allclose(eros_row["spacecraft_position_z"], 56287985.0)
+
+
+@pytest.mark.parametrize("catalog", ["U", "u", "?", " "])
+@pytest.mark.parametrize("space_based", [False, True])
+def test_80cols_preserves_catalog_code(catalog, space_based):
+    """Keep case and unrecognized codes; only a blank field means missing data."""
+    observation = "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+    observation = observation[:71] + catalog + observation[72:]
+    if space_based:
+        lines = [
+            observation,
+            "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57",
+        ]
+    else:
+        lines = [observation[:14] + "C" + observation[15:]]
+    table = parse_80cols_data(lines).to_pandas()
+    assert len(table) == 1
+    assert table["catalog"].fillna("").tolist() == [catalog.strip()]
+    assert table["band"].tolist() == ["V"]
+    assert table["observatory"].tolist() == ["500"]
 
 
 def test_80cols_parser_splits_concatenated_satellite_records():
@@ -210,6 +233,65 @@ def test_80cols_malformed_lines():
 
     with pytest.raises(ValueError, match="Invalid Separator"):
         parse_80cols_data([bad_fmt])
+
+
+@pytest.mark.parametrize(
+    "line, ra_degrees, dec_degrees",
+    [
+        (
+            "00001         A1801 01 11.79783 03 36 43.82 +16 55                      MC004535",
+            15 * (3 + 36 / 60 + 43.82 / 3600),
+            16 + 55 / 60,
+        ),
+        (
+            "00704J10T00C* A1910 10 03.05    01 04.6     +36 05                8.5   AN186037",
+            15 * (1 + 4.6 / 60),
+            36 + 5 / 60,
+        ),
+    ],
+)
+def test_80cols_historical_observations(line, ra_degrees, dec_degrees):
+    """Real Ceres/Interamnia records must load without discarding old astrometry."""
+    table = parse_80cols_data([line])
+    assert len(table) == 1
+    np.testing.assert_allclose(table["RA"], np.deg2rad(ra_degrees), rtol=0, atol=1e-14)
+    np.testing.assert_allclose(table["DEC"], np.deg2rad(dec_degrees), rtol=0, atol=1e-14)
+
+
+@pytest.mark.parametrize(
+    "ra, dec, ra_degrees, dec_degrees",
+    [
+        ("01 04", "+36 05", 16.0, 36 + 5 / 60),
+        ("01 04.6", "-00 05.5", 16.15, -5.5 / 60),
+        ("01 04.625", "+36 05.125", 15 * (1 + 4.625 / 60), 36 + 5.125 / 60),
+        ("01 04 36", "-36 05.5", 16.15, -(36 + 5.5 / 60)),
+        ("01 04.6", "+36 05 30.12", 16.15, 36 + 5 / 60 + 30.12 / 3600),
+    ],
+)
+def test_80cols_mixed_coordinate_precision(ra, dec, ra_degrees, dec_degrees):
+    line = "00704J10T00C* A1910 10 03.05    01 04.6     +36 05                8.5   AN186037"
+    table = parse_80cols_data([line[:32] + f"{ra:<12}{dec:<12}" + line[56:]])
+    np.testing.assert_allclose(table["RA"], np.deg2rad(ra_degrees), rtol=0, atol=1e-14)
+    np.testing.assert_allclose(table["DEC"], np.deg2rad(dec_degrees), rtol=0, atol=1e-14)
+
+
+@pytest.mark.parametrize(
+    "ra, dec",
+    [
+        ("01 60.1", "+36 05"),
+        ("01 04", "+36 60.1"),
+        ("01 04.6 12", "+36 05"),
+        ("01 04", "+36 05.5 12"),
+        ("01", "+36 05"),
+        ("01 04", "+36"),
+        ("01 04.xx", "+36 05"),
+        ("01x04.6", "+36 05"),
+    ],
+)
+def test_80cols_reduced_precision_still_rejects_malformed_coordinates(ra, dec):
+    line = "00704J10T00C* A1910 10 03.05    01 04.6     +36 05                8.5   AN186037"
+    with pytest.raises(ValueError, match="Parsing Error"):
+        parse_80cols_data([line[:32] + f"{ra:<12}{dec:<12}" + line[56:]])
 
 
 def test_parse_80cols_file_io(tmp_path):

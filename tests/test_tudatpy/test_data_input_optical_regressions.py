@@ -8,6 +8,8 @@ import pytest
 
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.obs_80_cols import read_80_column_data
 from tudatpy.data_input.tracking_data.optical_utilities import read_optical_data
 
 optical = importlib.import_module(
@@ -60,6 +62,50 @@ def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypat
     np.testing.assert_allclose(
         np.array(collection.concatenated_observations).reshape(-1) - raw,
         -arcsec * np.array([1.0, 2.0]),
+        rtol=1.0e-10,
+        atol=1.0e-16,
+    )
+
+
+@pytest.mark.parametrize("source", ["file", "mpc"])
+@pytest.mark.parametrize(
+    "catalog, ra_bias, dec_bias",
+    [("U", 1.0, 2.0), ("u", 3.0, 4.0), (" ", 0.0, 0.0), ("?", 0.0, 0.0)],
+)
+def test_mpc80_catalog_reaches_weights_and_corrections(
+    tmp_path, monkeypatch, source, catalog, ra_bias, dec_bias
+):
+    """File and MPC-batch loading must apply the bias for the record's catalogue."""
+    line = "00433         C2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+    line = line[:71] + catalog + line[72:]
+    index = pd.MultiIndex.from_product([range(12), ["U", "u", "unknown"]])
+    bias_map = pd.DataFrame(0.0, index=index, columns=["RA", "DEC", "PMRA", "PMDEC"])
+    bias_map.loc[(slice(None), "U"), ["RA", "DEC"]] = [1.0, 2.0]
+    bias_map.loc[(slice(None), "u"), ["RA", "DEC"]] = [3.0, 4.0]
+    monkeypatch.setattr(optical, "load_bias_file", lambda **kwargs: (bias_map, 1))
+
+    if source == "file":
+        path = tmp_path / "observations.txt"
+        path.write_text(line + "\n")
+        data, _ = read_80_column_data(
+            [str(path)], add_weights=True, add_star_catalog_corrections=True
+        )
+    else:
+        monkeypatch.setattr(
+            BatchMPC, "_fetch_mpc80_records", staticmethod(lambda code, id_type: [line])
+        )
+        batch = BatchMPC()
+        batch.get_observations(["433"], use_mpc80_format=True)
+        data, _ = batch.to_tracking_dataset(add_weights=True, add_star_catalog_corrections=True)
+
+    assert data[0].get_ancillary_settings_string_vector()["catalog"] == [catalog.strip()]
+    raw = np.array(data[0].observations).reshape(-1)
+    collection = create_observation_collection_from_tracking_data(
+        data, weighting_bodies(), apply_corrections=True
+    )
+    np.testing.assert_allclose(
+        np.array(collection.concatenated_observations).reshape(-1) - raw,
+        -np.deg2rad(1.0 / 3600.0) * np.array([ra_bias / np.cos(raw[1]), dec_bias]),
         rtol=1.0e-10,
         atol=1.0e-16,
     )

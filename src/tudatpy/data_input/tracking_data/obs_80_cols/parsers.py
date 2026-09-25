@@ -221,7 +221,10 @@ def parse_80cols_data(lines: list[str]) -> Table:
 
     The function uses vectorized Pandas operations for efficiency. The input
     records may contain optical observations, space-based S/s pairs, and radar
-    R/r pairs. Radar observations are stored as a canonical pandas table in
+    R/r pairs. Historical optical coordinates reported to whole or fractional
+    minutes, with no seconds field, are also supported. Optical catalogue codes
+    are read from column 72, preserving case; a blank code remains missing.
+    Radar observations are stored as a canonical pandas table in
     ``table.meta[RADAR_TABLE_META_KEY]``. A blank radar bounce-point field is
     interpreted as centre of mass (``C``), as found in published historical
     records whose corresponding JPL entries use that value.
@@ -281,7 +284,8 @@ def parse_80cols_data(lines: list[str]) -> Table:
         "gap_1": slice(56, 65),
         "magnitude": slice(65, 70),
         "band": slice(70, 71),
-        "gap_2": slice(71, 77),
+        "catalog": slice(71, 72),
+        "gap_2": slice(72, 77),
         "observatory": slice(77, 80),
     }
 
@@ -294,6 +298,19 @@ def parse_80cols_data(lines: list[str]) -> Table:
 
     for name, sl in {**col_map, **sep_map}.items():
         df[name] = df["clean_line"].str[sl]
+
+    # Historical records may end RA or DEC at (possibly fractional) minutes.
+    # Recognize the entire remaining coordinate field before treating omitted
+    # seconds as zero; malformed or partially missing fields must still fail.
+    for coordinate, field, separator in [
+        ("ra", slice(35, 44), "sep_ra_ms"),
+        ("dec", slice(48, 56), "sep_dec_ms"),
+    ]:
+        minutes = df["clean_line"].str[field]
+        minutes_only = minutes.str.fullmatch(r"[0-9]{2}(?:\.[0-9]+)? *")
+        df.loc[minutes_only, f"{coordinate}_m"] = minutes[minutes_only].str.rstrip()
+        df.loc[minutes_only, f"{coordinate}_s"] = "0"
+        df.loc[minutes_only, separator] = " "
 
     # 3. NUMERIC COERCION
     cols_to_convert = [
@@ -407,6 +424,7 @@ def _optical_output_frame(df_obs: pd.DataFrame) -> pd.DataFrame:
         "note1",
         "note2",
         "band",
+        "catalog",
         "observatory",
     ]:
         df_obs[column] = df_obs[column].str.strip().replace({"": None, np.nan: None})
@@ -438,7 +456,7 @@ def _optical_output_frame(df_obs: pd.DataFrame) -> pd.DataFrame:
             "band": df_obs["band"],
             "note1": df_obs["note1"],
             "note2": df_obs["note2"],
-            "catalog": None,
+            "catalog": df_obs["catalog"],
             "spacecraft_parallax_type": df_obs["spacecraft_parallax_type"],
             **{column: df_obs[column] for column in SPACECRAFT_POSITION_COLUMNS},
         },
