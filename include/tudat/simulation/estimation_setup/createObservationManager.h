@@ -652,6 +652,8 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
         case differenced_time_of_arrival:
         case differenced_frequency_of_arrival:
         case one_way_doppler_measured_frequency:
+        case position_angle:
+        case separation_distance:
             observationManager = createObservationManager< 1, ObservationScalarType, TimeType >( observableType,
                                                                                                  observationModelSettingsList,
                                                                                                  bodies,
@@ -662,6 +664,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
         case angular_position:
         case relative_angular_position:
         case pixel_coordinates:
+        case position_angle_and_separation:
             observationManager = createObservationManager< 2, ObservationScalarType, TimeType >( observableType,
                                                                                                  observationModelSettingsList,
                                                                                                  bodies,

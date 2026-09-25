@@ -124,4 +124,6 @@ TUDAT_ADD_TEST_CASE(OneWayDopplerMeasuredFrequencyObservationModel PRIVATE_LINKS
 
 TUDAT_ADD_TEST_CASE(DifferencedFrequencyOfArrivalObservationModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(PositionAngleAndSeparationObservationModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(ResidualWrapping PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
