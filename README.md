@@ -1,4 +1,4 @@
-![TU Delft Astrodynamics Toolbox (Tudat)](docs/_static/cover_black_small.png)
+![TU Delft Astrodynamics Toolbox (Tudat)](docs/_static/cover_github_grey_small.png)
 
 The **TU Delft Astrodynamics Toolbox (Tudat)** is a powerful set of libraries that support astrodynamics and space research.
 It can be used for a wide variety of purposes, ranging from the simulation studies of reentry dynamics to the processing of real tracking data of interplanetary missions.
