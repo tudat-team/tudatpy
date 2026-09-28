@@ -10,6 +10,8 @@
 
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 
+#include <iterator>
+
 namespace tudat
 {
 
@@ -93,6 +95,44 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator( const std::m
     // Create interpolator
     variationInterpolator_ =
             interpolators::createOneDimensionalInterpolator< double, Eigen::MatrixXd >( sineCosinePairMap, interpolatorType_ );
+
+    canComputeTimeDerivative_ = variationInterpolator_->getInterpolatorType( ) == interpolators::linear_interpolator;
+    derivativeInterpolator_.reset( );
+    if( canComputeTimeDerivative_ )
+    {
+        if( sineCosinePairMap.size( ) < 2 )
+        {
+            throw std::runtime_error( "Error when creating tabulated gravity variations: linear interpolation needs at least two epochs." );
+        }
+
+        // Differentiate each linear segment once, when the table is installed.
+        std::map< double, Eigen::MatrixXd > coefficientRates;
+        for( auto lower = sineCosinePairMap.begin( ), upper = std::next( lower ); upper != sineCosinePairMap.end( ); ++lower, ++upper )
+        {
+            coefficientRates[ lower->first ] = ( upper->second - lower->second ) / ( upper->first - lower->first );
+        }
+        coefficientRates.emplace( sineCosinePairMap.rbegin( )->first, coefficientRates.rbegin( )->second );
+
+        // A constant value outside the table has zero rate; extrapolation retains the end slope.
+        auto derivativeBoundaryHandling = variationInterpolator_->getBoundaryHandling( );
+        const bool useNan = derivativeBoundaryHandling == interpolators::use_nan_value ||
+                derivativeBoundaryHandling == interpolators::use_nan_value_with_warning;
+        if( derivativeBoundaryHandling == interpolators::use_boundary_value || derivativeBoundaryHandling == interpolators::use_nan_value )
+        {
+            derivativeBoundaryHandling = interpolators::use_default_value;
+        }
+        else if( derivativeBoundaryHandling == interpolators::use_boundary_value_with_warning ||
+                 derivativeBoundaryHandling == interpolators::use_nan_value_with_warning )
+        {
+            derivativeBoundaryHandling = interpolators::use_default_value_with_warning;
+        }
+        const Eigen::MatrixXd defaultRates = Eigen::MatrixXd::Constant( numberOfDegrees_, 2 * numberOfOrders_, useNan ? TUDAT_NAN : 0.0 );
+        derivativeInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, Eigen::MatrixXd > >(
+                coefficientRates,
+                variationInterpolator_->getSelectedLookupScheme( ),
+                derivativeBoundaryHandling,
+                std::make_pair( defaultRates, defaultRates ) );
+    }
 }
 
 //! Function for calculating corrections by interpolating tabulated corrections.
@@ -111,6 +151,18 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > TabulatedGravityFieldVariations::c
         throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " +
                                   std::string( caughtException.what( ) ) );
     }
+}
+
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > TabulatedGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative(
+        const double time )
+{
+    if( !canComputeTimeDerivative_ )
+    {
+        return GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
+    }
+    const Eigen::MatrixXd coefficientRates = derivativeInterpolator_->interpolate( time );
+    return std::make_pair( coefficientRates.block( 0, 0, numberOfDegrees_, numberOfOrders_ ),
+                           coefficientRates.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
 }
 
 }  // namespace gravitation

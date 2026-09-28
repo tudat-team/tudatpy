@@ -23,6 +23,13 @@
 namespace tudat
 {
 
+namespace simulation_setup
+{
+
+class FromGravityFieldRigidBodyProperties;
+
+}  // namespace simulation_setup
+
 namespace gravitation
 {
 
@@ -53,21 +60,17 @@ public:
      *  coefficients.
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is
      *  fixed (optional).
-     *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
-     *  empty)
      */
     TimeDependentSphericalHarmonicsGravityField( const double gravitationalParameter,
                                                  const double referenceRadius,
                                                  const Eigen::MatrixXd& nominalCosineCoefficients,
                                                  const Eigen::MatrixXd& nominalSineCoefficients,
-                                                 const std::string& fixedReferenceFrame = "",
-                                                 const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                                 const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField( gravitationalParameter,
                                         referenceRadius,
                                         nominalCosineCoefficients,
                                         nominalSineCoefficients,
-                                        fixedReferenceFrame,
-                                        scaledMeanMomentOfInertia ),
+                                        fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ), nominalCosineCoefficients_( nominalCosineCoefficients )
     {}
 
@@ -90,14 +93,12 @@ public:
                                                  const Eigen::MatrixXd& nominalCosineCoefficients,
                                                  const Eigen::MatrixXd& nominalSineCoefficients,
                                                  const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
-                                                 const std::string& fixedReferenceFrame = "",
-                                                 const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                                 const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField( gravitationalParameter,
                                         referenceRadius,
                                         nominalCosineCoefficients,
                                         nominalSineCoefficients,
-                                        fixedReferenceFrame,
-                                        scaledMeanMomentOfInertia ),
+                                        fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ), nominalCosineCoefficients_( nominalCosineCoefficients ),
         gravityFieldVariationsSet_( gravityFieldVariationUpdateSettings )
     {
@@ -117,6 +118,9 @@ public:
      *  \param time Current time.
      */
     void update( const double time );
+
+    //! Cache gravity-derived rigid-body properties when the Body links or replaces them.
+    void setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties ) override;
 
     //! Update correction functions.
     /*!
@@ -250,7 +254,7 @@ public:
      */
     void setNominalCosineCoefficient( const int degree, const int order, const double coefficient )
     {
-        if( degree <= nominalCosineCoefficients_.rows( ) && order <= nominalCosineCoefficients_.cols( ) )
+        if( degree >= 0 && degree < nominalCosineCoefficients_.rows( ) && order >= 0 && order < nominalCosineCoefficients_.cols( ) )
         {
             nominalCosineCoefficients_( degree, order ) = coefficient;
         }
@@ -289,7 +293,7 @@ public:
      */
     void setNominalSineCoefficient( const int degree, const int order, const double coefficient )
     {
-        if( degree <= nominalSineCoefficients_.rows( ) && order <= nominalSineCoefficients_.cols( ) )
+        if( degree >= 0 && degree < nominalSineCoefficients_.rows( ) && order >= 0 && order < nominalSineCoefficients_.cols( ) )
         {
             nominalSineCoefficients_( degree, order ) = coefficient;
         }
@@ -314,6 +318,12 @@ public:
     }
 
 private:
+    //! Pass the degree-two coefficient rates to gravity-derived rigid-body properties.
+    void updateInertiaTensorDerivative( const double time );
+
+    //! Cached non-owning link, checked once when rigid-body properties are set.
+    std::weak_ptr< simulation_setup::FromGravityFieldRigidBodyProperties > gravityDerivedRigidBodyProperties_;
+
     //! Nominal (i.e. with zero variations) cosine coefficients.
     /*!
      *  Nominal (i.e. with zero variations) cosine coefficients. When calling the update function,

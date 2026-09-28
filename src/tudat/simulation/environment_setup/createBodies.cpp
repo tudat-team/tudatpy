@@ -37,6 +37,40 @@ using namespace gravitation;
 using namespace basic_astrodynamics;
 using namespace electromagnetism;
 
+std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSettings( const std::shared_ptr< BodySettings >& bodySettings )
+{
+    const std::shared_ptr< RigidBodyPropertiesSettings > explicitSettings = bodySettings->rigidBodyPropertiesSettings;
+    if( bodySettings->gravityFieldSettings == nullptr )
+    {
+        return explicitSettings;
+    }
+
+    // The scaled mean moment on gravity settings is retained only for older input files.
+    double legacyScaledMeanMomentOfInertia = TUDAT_NAN;
+    const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings->gravityFieldSettings );
+    if( sphericalHarmonicsSettings != nullptr )
+    {
+        legacyScaledMeanMomentOfInertia = sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( );
+    }
+
+    if( explicitSettings == nullptr )
+    {
+        // A constant mass specified in BodySettings takes precedence over gravity-derived mass.
+        return std::isnan( bodySettings->constantMass ) ? fromGravityFieldRigidBodyPropertiesSettings( legacyScaledMeanMomentOfInertia )
+                                                        : nullptr;
+    }
+
+    const std::shared_ptr< FromGravityFieldRigidBodyPropertiesSettings > gravityDerivedSettings =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyPropertiesSettings >( explicitSettings );
+    if( gravityDerivedSettings != nullptr && !std::isfinite( gravityDerivedSettings->getScaledMeanMomentOfInertia( ) ) &&
+        std::isfinite( legacyScaledMeanMomentOfInertia ) )
+    {
+        return fromGravityFieldRigidBodyPropertiesSettings( legacyScaledMeanMomentOfInertia );
+    }
+    return explicitSettings;
+}
+
 void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
                                          const std::string bodyName,
                                          const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings )
@@ -106,6 +140,18 @@ void addGravityFieldModel( const SystemOfBodies& bodies,
     }
     bodies.at( bodyName )
             ->setGravityFieldModel( createGravityFieldModel( gravityFieldSettings, bodyName, bodies, gravityFieldVariationSettings ) );
+
+    // Keep the legacy settings route functional without copying its value into the runtime
+    // gravity model. Explicit non-gravity rigid-body properties are preserved by Body.
+    const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityDerivedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( bodies.at( bodyName )->getMassProperties( ) );
+    if( sphericalHarmonicsSettings != nullptr && gravityDerivedRigidBodyProperties != nullptr &&
+        std::isfinite( sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( ) ) )
+    {
+        gravityDerivedRigidBodyProperties->setScaledMeanMomentOfInertia( sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( ) );
+    }
 
     if( gravityFieldVariationSettings.size( ) > 0 )
     {

@@ -433,19 +433,20 @@ public:
      *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
-     *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
-     *  empty)
+     *
+     *  This runtime gravity model contains no inertia configuration. Direct C++ callers that
+     *  require gravity-derived inertia must attach a FromGravityFieldRigidBodyProperties object
+     *  with an explicit scaled mean moment through Body.
      */
     SphericalHarmonicsGravityField( const double gravitationalParameter,
                                     const double referenceRadius,
                                     const Eigen::MatrixXd& cosineCoefficients = Eigen::MatrixXd::Identity( 1, 1 ),
                                     const Eigen::MatrixXd& sineCoefficients = Eigen::MatrixXd::Zero( 1, 1 ),
-                                    const std::string& fixedReferenceFrame = "",
-                                    const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                    const std::string& fixedReferenceFrame = "" ):
         GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), fixedReferenceFrame_( fixedReferenceFrame ),
-        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia ), maximumDegree_( cosineCoefficients_.rows( ) - 1 ),
-        maximumOrder_( cosineCoefficients_.cols( ) - 1 ), sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
+        maximumDegree_( cosineCoefficients_.rows( ) - 1 ), maximumOrder_( cosineCoefficients_.cols( ) - 1 ),
+        sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
     {
         if( ( cosineCoefficients.rows( ) != sineCoefficients.rows( ) ) || ( cosineCoefficients.cols( ) != sineCoefficients.cols( ) ) )
         {
@@ -515,10 +516,7 @@ public:
         }
 
         cosineCoefficients_ = cosineCoefficients;
-        if( !( updateInertiaTensor_ == nullptr ) )
-        {
-            updateInertiaTensor_( );
-        }
+        notifyMassDistributionUpdate( );
     }
 
     //! Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
@@ -535,11 +533,7 @@ public:
         }
 
         sineCoefficients_ = sineCoefficients;
-
-        if( !( updateInertiaTensor_ == nullptr ) )
-        {
-            updateInertiaTensor_( );
-        }
+        notifyMassDistributionUpdate( );
     }
 
     //! Function to get a cosine spherical harmonic coefficient block (geodesy normalized)
@@ -750,32 +744,6 @@ public:
         return gravitationalParameter_ * referenceRadius_ * referenceRadius_ / physical_constants::GRAVITATIONAL_CONSTANT;
     }
 
-    virtual Eigen::Vector3d getCenterOfMass( )
-    {
-        if( cosineCoefficients_.size( ) > 1 && sineCoefficients_.size( ) > 1 )
-        {
-            return ( Eigen::Vector3d( ) << cosineCoefficients_( 1, 1 ), sineCoefficients_( 1, 1 ), cosineCoefficients_( 1, 0 ) )
-                           .finished( ) /
-                    referenceRadius_ * std::sqrt( 3.0 );
-        }
-        else
-        {
-            return Eigen::Vector3d::Zero( );
-        }
-    }
-
-    virtual Eigen::Matrix3d getInertiaTensor( );
-
-    double getScaledMeanMomentOfInertia( )
-    {
-        return scaledMeanMomentOfInertia_;
-    }
-
-    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
-    {
-        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
-    }
-
 protected:
     //! Reference radius of spherical harmonic field expansion
     /*!
@@ -800,8 +768,6 @@ protected:
      *  Identifier for body-fixed reference frame
      */
     std::string fixedReferenceFrame_;
-
-    double scaledMeanMomentOfInertia_;
 
     const int maximumDegree_;
 

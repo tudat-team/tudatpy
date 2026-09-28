@@ -128,6 +128,32 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PolynomialGravityFieldVariations::
     return std::make_pair( cosineCorrections, sineCorrections );
 }
 
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PolynomialGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative(
+        const double time )
+{
+    Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    const double timeSinceEpoch = time - referenceEpoch_;
+
+    // Skip constant terms explicitly to avoid evaluating 0 * pow( 0, -1 ) at the reference epoch.
+    for( const auto& amplitude : cosineAmplitudes_ )
+    {
+        if( amplitude.first != 0 )
+        {
+            cosineRates += amplitude.second * ( amplitude.first * std::pow( timeSinceEpoch, amplitude.first - 1 ) );
+        }
+    }
+    for( const auto& amplitude : sineAmplitudes_ )
+    {
+        if( amplitude.first != 0 )
+        {
+            sineRates += amplitude.second * ( amplitude.first * std::pow( timeSinceEpoch, amplitude.first - 1 ) );
+        }
+    }
+
+    return std::make_pair( cosineRates, sineRates );
+}
+
 }  // namespace gravitation
 
 }  // namespace tudat

@@ -851,6 +851,8 @@ double customMassDerivativeFunction( const double time )
     return -1.0;
 }
 
+// Propagate aerodynamic force and moment with constant and mass-dependent inertia, checking
+// the saved loads against the coefficients and the inertia derivative against the prescribed mass loss.
 BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
 {
     // Load Spice kernels.
@@ -924,6 +926,11 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                         initialVehicleMass, &massDependentCenterOfMass, &massDependentInertiaTensor );
 
                 addRigidBodyProperties( bodies, "Apollo", rigidBodyProperties );
+                // I(m) = 5000 * identity - (m - 5000) * ones, hence dI/dt = -dm/dt * ones.
+                std::dynamic_pointer_cast< MassDependentRigidBodyProperties >( bodies.at( "Apollo" )->getMassProperties( ) )
+                        ->setInertiaTensorDerivativeFunction( []( const double time ) -> Eigen::Matrix3d {
+                            return -customMassDerivativeFunction( time ) * Eigen::Matrix3d::Ones( );
+                        } );
 
                 addFlightConditions( bodies, "Apollo", "Earth" );
                 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > momentCoefficientInterface =
@@ -1102,6 +1109,14 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                 // Update environment to current state for comparison
                 dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative( it.first, rawStateOutput.at( it.first ) );
                 aerodynamicCoefficientInterface->updateFullCurrentCoefficients( { machNumber, angleOfAttack, sideslipAngle } );
+
+                // The derivative is zero for constant inertia and includes the actual mass rate for varying inertia.
+                const Eigen::Matrix3d expectedInertiaDerivative = propagationType == 0
+                        ? Eigen::Matrix3d::Zero( ).eval( )
+                        : ( -customMassDerivativeFunction( it.first ) * Eigen::Matrix3d::Ones( ) ).eval( );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodies.at( "Apollo" )->getBodyInertiaTensorDerivative( ),
+                                                   expectedInertiaDerivative,
+                                                   std::numeric_limits< double >::epsilon( ) );
 
                 // Extract aerodynamic coefficients
                 Eigen::Vector3d testMomentCoefficients = aerodynamicCoefficientInterface->getCurrentMomentCoefficients( );

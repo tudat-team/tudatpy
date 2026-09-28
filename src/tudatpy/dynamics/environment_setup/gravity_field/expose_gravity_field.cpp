@@ -92,6 +92,22 @@ namespace environment_setup
 namespace gravity_field
 {
 
+namespace
+{
+
+void warnLegacyScaledMeanMomentOfInertia( )
+{
+    if( PyErr_WarnEx( PyExc_DeprecationWarning,
+                      "SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia is deprecated; set "
+                      "BodySettings.rigid_body_settings = rigid_body.from_gravity_field(scaled_mean_moment_of_inertia=...) instead.",
+                      1 ) < 0 )
+    {
+        throw py::error_already_set( );
+    }
+}
+
+}  // namespace
+
 void expose_gravity_field_setup( py::module& m )
 {
     /////////////////////////////////////////////////////////////////////////////
@@ -307,13 +323,23 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
          :type: bool
       )doc" )
-            .def_property( "scaled_mean_moment_of_inertia",
-                           &tss::SphericalHarmonicsGravityFieldSettings::getScaledMeanMomentOfInertia,
-                           &tss::SphericalHarmonicsGravityFieldSettings::setScaledMeanMomentOfInertia,
-                           R"doc(
+            .def_property(
+                    "scaled_mean_moment_of_inertia",
+                    []( tss::SphericalHarmonicsGravityFieldSettings& settings ) {
+                        warnLegacyScaledMeanMomentOfInertia( );
+                        return settings.getScaledMeanMomentOfInertia( );
+                    },
+                    []( tss::SphericalHarmonicsGravityFieldSettings& settings, const double value ) {
+                        warnLegacyScaledMeanMomentOfInertia( );
+                        settings.setScaledMeanMomentOfInertia( value );
+                    },
+                    R"doc(
 
-         Value of the scaled mean moment of inertia :math:`I_{xx}+I_{yy}+I_{zz}/(MR^{2})`. This value does not influence the gravity field itself,
-         but together with the degree 2 gravity field coefficients defines the body's inertia tensor.
+         Deprecated compatibility input for the scaled mean moment of inertia
+         :math:`(I_{xx}+I_{yy}+I_{zz})/(3MR^{2})`. During body creation this value is transferred to automatically
+         created gravity-derived rigid-body-property settings and is never stored in the runtime gravity field.
+
+         Use :func:`~tudatpy.dynamics.environment_setup.rigid_body.from_gravity_field` for new code.
 
 
          :type: float
@@ -497,17 +523,18 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  with :math:`\mathbf{r}` the position vector of the evaluation point, measured from the body's center of mass. The angles :math:`\phi` and :math:`\theta` are the body-fixed latitude and longitude of the evaluation point, and :math:`\bar{P}_{lm}` is the associated Legendre polynomial (at degree/order :math:`l/m`).
 
- For the spherical harmonic gravity field (including other spherical harmonic functions), the normalized mean moment of inertia must be set by the user, to allow an inertia tensor to be computed. This is done using the :attr:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia` attribute of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class, as in the example below
+ A spherical-harmonic gravity field remains valid without an inertia tensor. To derive one, provide complete degree-two coefficients and configure the normalized mean moment of inertia on the body's gravity-derived rigid-body settings:
 
  .. code-block:: python
 
-   # Add gravity field model settings to body of spherical harmonic type
-   body_settings.get( "Mars" ).gravity_field = ...
+   # Add a spherical-harmonic gravity field to Mars
+   body_settings.get( "Mars" ).gravity_field_settings = ...
 
-   # Add setting for moment of inertia
-   body_settings.get( "Mars" ).gravity_field.scaled_mean_moment_of_inertia = 0.365
+   # Derive mass, center of mass, and inertia from that field
+   body_settings.get( "Mars" ).rigid_body_settings = \
+       environment_setup.rigid_body.from_gravity_field(0.365)
 
- This code snippet will automatically create a rigid body properties for Mars, with the inertia tensor computed from this value of 0.365 and the degree 2 gravity field coefficients. Note that, if gravity field variations are used for the body, time-variability of the degree 1- and 2- coefficients will be reflected in time-variability of the body's center of mass and inertia tensor.
+ This creates rigid-body properties for Mars with an inertia tensor computed from the value 0.365 and the degree-two gravity coefficients. Time-variable degree-one and degree-two coefficients are reflected automatically in the body's center of mass and inertia tensor. The deprecated ``scaled_mean_moment_of_inertia`` property on spherical-harmonic gravity settings remains a compatibility-only input carrier.
 
  Note: Spherical harmonic coefficients used for this environment model must *always* be fully normalized.
  To normalize un-normalized spherical harmonic coefficients, see :func:`~tudatpy.astro.gravitation.normalize_spherical_harmonic_coefficients`.

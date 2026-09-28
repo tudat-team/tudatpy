@@ -649,6 +649,17 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
 
         bodies.getBody( "Phobos" )->getMassProperties( )->update( 0.0 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor( ), 1e-15 );
+
+        const std::shared_ptr< gravitation::GravityFieldModel > runtimeGravityField = bodies.getBody( "Phobos" )->getGravityFieldModel( );
+        // The gravity field shares Phobos's rigid-body properties, so doubling mu doubles the derived inertia.
+        BOOST_CHECK_EQUAL( runtimeGravityField->getRigidBodyProperties( ), bodies.getBody( "Phobos" )->getMassProperties( ) );
+        runtimeGravityField->resetGravitationalParameter( 2.0 * gravitationalParameter );
+        const Eigen::Matrix3d expectedUpdatedInertiaTensor = 2.0 * expectedInertiaTensor;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUpdatedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor( ), 1e-15 );
+        bodies.getBody( "Phobos" )->getMassProperties( )->update( 10.0 );
+        // Resynchronization preserves the mass-scaled tensor; fixed geometry still has zero dI/dt.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUpdatedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor( ), 1e-15 );
+        BOOST_CHECK_SMALL( bodies.getBody( "Phobos" )->getBodyInertiaTensorDerivative( ).norm( ), 1e-30 );
     }
 }
 

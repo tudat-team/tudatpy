@@ -156,6 +156,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
             // Define list of required input.
             std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
             std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
+            std::function< Eigen::Matrix3d( double ) > deformedBodyRotationDerivativeFunction;
             std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions;
             std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
 
@@ -195,6 +196,13 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                 }
             }
 
+            // Select and validate the rotation source once, when creating the model.
+            if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr &&
+                bodies.at( body )->getRotationalEphemeris( ) == nullptr )
+            {
+                throw std::runtime_error( "Error creating tidal variation: no rotational ephemeris for " + body );
+            }
+
             // Set state and orientation functions of perturbed body.
             if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
             {
@@ -203,11 +211,16 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                 deformedBodyOrientationFunction = std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
                                                              bodies.at( body )->getRotationalEphemeris( ),
                                                              std::placeholders::_1 );
+                deformedBodyRotationDerivativeFunction = std::bind( &ephemerides::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
+                                                                    bodies.at( body )->getRotationalEphemeris( ),
+                                                                    std::placeholders::_1 );
             }
             else
             {
                 deformedBodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
                 deformedBodyOrientationFunction = std::bind( &Body::getCurrentRotationToLocalFrame, bodies.at( body ) );
+                deformedBodyRotationDerivativeFunction =
+                        std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, bodies.at( body ) );
             }
 
             std::function< double( ) > gravitionalParameterOfDeformedBody =
@@ -228,7 +241,8 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         basicSolidBodyGravityVariationSettings->getLoveNumbers( ),
                         deformingBodies,
                         basicSolidBodyGravityVariationSettings->getMeanForcingCosineTerms( ),
-                        basicSolidBodyGravityVariationSettings->getMeanForcingSineTerms( ) );
+                        basicSolidBodyGravityVariationSettings->getMeanForcingSineTerms( ),
+                        deformedBodyRotationDerivativeFunction );
             }
             else if( gravityFieldVariationSettings->getBodyDeformationType( ) == mode_coupled_solid_body )
             {
@@ -242,9 +256,9 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         gravitionalParameterOfDeformedBody,
                         gravitionalParametersOfDeformingBodies,
                         modeCoupledSolidBodyGravityVariationSettings->getLoveNumbers( ),
-                        deformingBodies );
+                        deformingBodies,
+                        deformedBodyRotationDerivativeFunction );
             }
-
             break;
         }
         case tabulated_variation: {
