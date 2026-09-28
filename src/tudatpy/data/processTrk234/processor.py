@@ -16,8 +16,8 @@ class Trk234Processor:
     Processor for TNF files using pytrk234.
 
     For a given set of requested observables types (e.g. ['doppler', 'range']),
-    this processor iterates file-by-file, uses each converter’s extract method to obtain per-file data,
-    merges the outputs, and then calls each converter’s process method to produce final observation
+    this processor iterates file-by-file, uses each converter's extract method to obtain per-file data,
+    merges the outputs, and then calls each converter's process method to produce final observation
     collection. If simulation bodies are provided, ramp data are processed and used to set the
     stations' frequency interpolator with the set_tnf_information_in_bodies() method.
 
