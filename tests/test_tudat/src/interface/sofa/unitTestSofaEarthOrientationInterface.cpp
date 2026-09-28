@@ -73,6 +73,26 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
         BOOST_CHECK_SMALL( expectedPolePosition.y( ) - ( cipInGcrs( 1 ) + dYTest ), 5.0E-11 );
         BOOST_CHECK_SMALL( expectedCioLocator - cipInGcrs( 2 ), 2.0E-12 );
     }
+
+    // The Eigen matrices returned by the new interface must be orthogonal, and the
+    // legacy two-argument function must retain its IAU 1976/1980 convention.
+    const Eigen::Matrix3d meanOfDate1976 = getPrecessionMatrix( testJulianDay2, PrecessionNutationModel::iau_1976_1980, testJulianDay1 );
+    const Eigen::Matrix3d meanOfDate2006 = getPrecessionMatrix( testJulianDay2, PrecessionNutationModel::iau_2006_2000a, testJulianDay1 );
+    const Eigen::Matrix3d trueOfDate1980 =
+            getPrecessionNutationMatrix( testJulianDay2, PrecessionNutationModel::iau_1976_1980, testJulianDay1 );
+    const Eigen::Matrix3d trueOfDate2000a =
+            getPrecessionNutationMatrix( testJulianDay2, PrecessionNutationModel::iau_2006_2000a, testJulianDay1 );
+    const Eigen::Matrix3d identity = Eigen::Matrix3d::Identity( );
+    BOOST_CHECK_SMALL( ( meanOfDate1976.transpose( ) * meanOfDate1976 - identity ).norm( ), 1.0e-14 );
+    BOOST_CHECK_SMALL( ( meanOfDate2006.transpose( ) * meanOfDate2006 - identity ).norm( ), 1.0e-14 );
+    BOOST_CHECK_SMALL( ( trueOfDate1980.transpose( ) * trueOfDate1980 - identity ).norm( ), 1.0e-14 );
+    BOOST_CHECK_SMALL( ( trueOfDate2000a.transpose( ) * trueOfDate2000a - identity ).norm( ), 1.0e-14 );
+    BOOST_CHECK_SMALL( ( trueOfDate1980 - getPrecessionNutationMatrix( testJulianDay2, testJulianDay1 ) ).norm( ), 1.0e-15 );
+
+    // The third row of the GCRS-to-true-of-date matrix is the CIP direction in GCRS.
+    const Eigen::Vector3d cip2006 = getPositionOfCipInGcrs( testJulianDay2, testJulianDay1, basic_astrodynamics::iau_2006 );
+    BOOST_CHECK_SMALL( trueOfDate2000a( 2, 0 ) - cip2006( 0 ), 1.0e-14 );
+    BOOST_CHECK_SMALL( trueOfDate2000a( 2, 1 ) - cip2006( 1 ), 1.0e-14 );
 }
 
 //! Test GMST and ERA functions from Sofa.

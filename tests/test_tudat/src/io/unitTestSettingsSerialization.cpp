@@ -500,6 +500,15 @@ BOOST_AUTO_TEST_CASE( test_ObservationAncillarySimulationSettingsSerialization )
     using namespace observation_models;
 
     std::shared_ptr< ObservationAncillarySimulationSettings > settings = std::make_shared< ObservationAncillarySimulationSettings >( );
+    settings->setAncillaryIntData( position_angle_reference_frame, b1950_position_angle_reference_frame );
+    settings->setAncillaryIntData( position_angle_direction_type, aberrated_position_angle_direction );
+    settings->setAncillaryDoubleData( position_angle_reference_epoch, 86400.0 );
+
+    // Enum-valued P/S settings are integer-only; the epoch remains floating-point.
+    BOOST_CHECK_EQUAL( settings->getAncillaryIntData( position_angle_reference_frame ), b1950_position_angle_reference_frame );
+    BOOST_CHECK_EQUAL( settings->getAncillaryIntData( position_angle_direction_type ), aberrated_position_angle_direction );
+    BOOST_CHECK_THROW( settings->setAncillaryDoubleData( position_angle_reference_frame, 1.0 ), std::runtime_error );
+    BOOST_CHECK_THROW( settings->getAncillaryDoubleData( position_angle_direction_type ), std::runtime_error );
 
     std::stringstream ss;
 
@@ -517,6 +526,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationAncillarySimulationSettingsSerialization )
             iarchive( deserializedSettings );
         }
 
+        // Binary serialization must preserve both integer P/S options and the floating-point reference epoch.
         BOOST_CHECK( *settings == *deserializedSettings );
     }
     catch( std::exception& e )
