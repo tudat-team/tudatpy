@@ -248,6 +248,18 @@ bool isClose( const Eigen::MatrixBase< Derived1 >& lhs, const Eigen::MatrixBase<
     return ( lhs - rhs ).norm( ) <= tolerance * std::max( 1.0, std::max( lhs.norm( ), rhs.norm( ) ) );
 }
 
+template< typename Derived1, typename Derived2 >
+bool isSameOptionalVector( const Eigen::MatrixBase< Derived1 >& lhs, const Eigen::MatrixBase< Derived2 >& rhs )
+{
+    const bool lhsIsFinite = lhs.array( ).isFinite( ).all( );
+    const bool rhsIsFinite = rhs.array( ).isFinite( ).all( );
+    if( lhsIsFinite || rhsIsFinite )
+    {
+        return lhsIsFinite && rhsIsFinite && isClose( lhs, rhs );
+    }
+    return lhs.array( ).isNaN( ).all( ) && rhs.array( ).isNaN( ).all( );
+}
+
 void require( const bool condition, const std::string& message )
 {
     if( !condition )
@@ -299,7 +311,11 @@ bool haveSameImageMetadata( const SumImageData& lhs, const SumImageData& rhs )
     return lhs.utcEpochString_ == rhs.utcEpochString_ && lhs.imageSize_ == rhs.imageSize_ && lhs.threshold_ == rhs.threshold_ &&
             lhs.maxDn_ == rhs.maxDn_ && isClose( lhs.focalLengthMm_, rhs.focalLengthMm_ ) &&
             isClose( lhs.opticalCenter_, rhs.opticalCenter_ ) && isClose( lhs.cameraAxes_, rhs.cameraAxes_ ) &&
-            isClose( lhs.kMatrix_, rhs.kMatrix_ );
+            isClose( lhs.kMatrix_, rhs.kMatrix_ ) && isSameOptionalVector( lhs.spacecraftObjectVector_, rhs.spacecraftObjectVector_ ) &&
+            isSameOptionalVector( lhs.sunDirectionBodyFixed_, rhs.sunDirectionBodyFixed_ ) &&
+            isClose( lhs.distortionCoefficients_, rhs.distortionCoefficients_ ) &&
+            isSameOptionalVector( lhs.spacecraftObjectSigma_, rhs.spacecraftObjectSigma_ ) &&
+            isSameOptionalVector( lhs.pointingSigma_, rhs.pointingSigma_ );
 }
 
 bool haveSameLandmarkDefinition( const LmkLandmarkData& lhs, const LmkLandmarkData& rhs )

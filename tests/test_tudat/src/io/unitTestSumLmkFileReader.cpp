@@ -424,10 +424,11 @@ BOOST_AUTO_TEST_CASE( testFortranExponentParsing )
 //! Cross-file duplicate handling: identical duplicates accepted; conflicting (image, landmark) throws.
 BOOST_AUTO_TEST_CASE( testSumCrossFileDuplicateHandling )
 {
-    const std::string baseSum =
+    const std::string baseMetadata =
             "IMGDUPX\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
             "100.0 512.0 512.0 MMFL, CTR\n1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n"
-            "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\nLANDMARKS\n";
+            "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\n";
+    const std::string baseSum = baseMetadata + "LANDMARKS\n";
 
     // Identical (image, landmark) across two files: accepted (no double counting).
     {
@@ -445,6 +446,25 @@ BOOST_AUTO_TEST_CASE( testSumCrossFileDuplicateHandling )
         const std::filesystem::path b = makeTemporaryPath( ".sum" );
         writeTextFile( a, baseSum + "LMK0001 512.0 512.0\nEND FILE\n" );
         writeTextFile( b, baseSum + "LMK0001 600.0 512.0\nEND FILE\n" );
+        BOOST_CHECK_THROW( input_output::sum_lmk::readSumFiles( { a.string( ), b.string( ) } ), std::runtime_error );
+        std::filesystem::remove( a );
+        std::filesystem::remove( b );
+    }
+
+    // All optional image metadata that affects conversion or its a-priori must also agree.
+    const std::vector< std::pair< std::string, std::string > > conflictingMetadataRows = {
+        { "0.0 0.0 -10.0 SCOBJ\n", "0.0 0.0 -11.0 SCOBJ\n" },
+        { "1.0 0.0 0.0 SZ\n", "0.0 1.0 0.0 SZ\n" },
+        { "0.0 0.0 0.0 0.0 DISTORTION\n", "1.0 0.0 0.0 0.0 DISTORTION\n" },
+        { "0.1 SIGMA_VSO\n", "0.2 SIGMA_VSO\n" },
+        { "1.0E-4 SIGMA_PTG\n", "2.0E-4 SIGMA_PTG\n" }
+    };
+    for( const auto& conflictingRows : conflictingMetadataRows )
+    {
+        const std::filesystem::path a = makeTemporaryPath( ".sum" );
+        const std::filesystem::path b = makeTemporaryPath( ".sum" );
+        writeTextFile( a, baseMetadata + conflictingRows.first + "LANDMARKS\nLMK0001 512.0 512.0\nEND FILE\n" );
+        writeTextFile( b, baseMetadata + conflictingRows.second + "LANDMARKS\nLMK0002 513.0 512.0\nEND FILE\n" );
         BOOST_CHECK_THROW( input_output::sum_lmk::readSumFiles( { a.string( ), b.string( ) } ), std::runtime_error );
         std::filesystem::remove( a );
         std::filesystem::remove( b );

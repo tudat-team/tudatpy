@@ -642,6 +642,14 @@ BOOST_AUTO_TEST_CASE( testRealSumLmkReprojection )
     }
 }
 
+//! A null pointing parameter must produce a controlled exception before its name is accessed.
+BOOST_AUTO_TEST_CASE( testCameraPointingPartialRejectsNullParameter )
+{
+    const std::shared_ptr< PixelCoordinatesScaling > scaling;
+    const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > parameter;
+    BOOST_CHECK_THROW( PixelCoordinatesPointingPartial( scaling, parameter ), std::runtime_error );
+}
+
 //! The camera_pointing_correction partial must be created only for the matching receiver camera.
 BOOST_AUTO_TEST_CASE( testCameraPointingPartialRoutingGuard )
 {

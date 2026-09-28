@@ -24,6 +24,16 @@ namespace observation_partials
 namespace
 {
 
+estimatable_parameters::EstimatebleParameterIdentifier getPointingCorrectionParameterName(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >& pointingCorrectionParameter )
+{
+    if( pointingCorrectionParameter == nullptr )
+    {
+        throw std::runtime_error( "Error when creating pixel-coordinate pointing partial: pointing parameter is null." );
+    }
+    return pointingCorrectionParameter->getParameterName( );
+}
+
 Eigen::Matrix3d getLeftJacobianOfSO3( const Eigen::Vector3d& rotationVector )
 {
     const double angle = rotationVector.norm( );
@@ -44,16 +54,12 @@ Eigen::Matrix3d getLeftJacobianOfSO3( const Eigen::Vector3d& rotationVector )
 PixelCoordinatesPointingPartial::PixelCoordinatesPointingPartial(
         const std::shared_ptr< PixelCoordinatesScaling > pixelCoordinatesScaling,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > pointingCorrectionParameter ):
-    ObservationPartial< 2 >( pointingCorrectionParameter->getParameterName( ) ), pixelCoordinatesScaling_( pixelCoordinatesScaling ),
-    pointingCorrectionParameter_( pointingCorrectionParameter )
+    ObservationPartial< 2 >( getPointingCorrectionParameterName( pointingCorrectionParameter ) ),
+    pixelCoordinatesScaling_( pixelCoordinatesScaling ), pointingCorrectionParameter_( pointingCorrectionParameter )
 {
     if( pixelCoordinatesScaling_ == nullptr )
     {
         throw std::runtime_error( "Error when creating pixel-coordinate pointing partial: pixel-coordinate scaling is null." );
-    }
-    if( pointingCorrectionParameter_ == nullptr )
-    {
-        throw std::runtime_error( "Error when creating pixel-coordinate pointing partial: pointing parameter is null." );
     }
     receiverIndex_ =
             observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates ).at( observation_models::receiver );
