@@ -28,6 +28,13 @@ namespace input_output
 namespace sum_lmk
 {
 
+//! Tolerance for the orthonormality and determinant checks on a SUM CX/CY/CZ attitude matrix.
+//!
+//! The SPC archive contains valid matrices with a Frobenius orthogonality error just below 8e-8,
+//! due to its stored numerical precision. This tolerance admits those matrices while still
+//! rejecting matrices that are materially non-rotational.
+constexpr double sumCameraRotationMatrixTolerance = 1.0E-7;
+
 struct SumLandmarkObservation {
     std::string landmarkId_;
     Eigen::Vector2d pixelCoordinates_ = Eigen::Vector2d::Zero( );

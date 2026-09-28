@@ -25,6 +25,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/LU>
 
 #include "tudat/io/readSumLmkFiles.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
@@ -117,6 +118,40 @@ inline std::string sanitizeSumImageIdToCameraName( const std::string& imageId )
 inline bool isFiniteVector( const Eigen::Vector3d& vector )
 {
     return vector.array( ).isFinite( ).all( );
+}
+
+//! Validate SUM camera calibration and attitude inputs, including programmatically constructed SumImageData.
+inline void validateSumImageCalibrationAndAttitude( const input_output::sum_lmk::SumImageData& image )
+{
+    const std::string errorPrefix = "Error when converting SUM image '" + image.imageId_ + "': ";
+    if( image.imageSize_( 0 ) <= 0 || image.imageSize_( 1 ) <= 0 || image.threshold_ < 0 || image.maxDn_ < image.threshold_ )
+    {
+        throw std::runtime_error( errorPrefix + "NPX and NLN must be positive and 0 <= THRSH <= MAXDN." );
+    }
+    if( !std::isfinite( image.focalLengthMm_ ) || image.focalLengthMm_ <= std::numeric_limits< double >::epsilon( ) )
+    {
+        throw std::runtime_error( errorPrefix + "MMFL must be finite and positive." );
+    }
+    if( !image.opticalCenter_.array( ).isFinite( ).all( ) )
+    {
+        throw std::runtime_error( errorPrefix + "CTR coordinates must be finite." );
+    }
+    if( !image.kMatrix_.array( ).isFinite( ).all( ) || !image.kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).isInvertible( ) )
+    {
+        throw std::runtime_error( errorPrefix + "leading 2x2 K-MATRIX block must be finite and nonsingular." );
+    }
+    if( !image.cameraAxes_.array( ).isFinite( ).all( ) )
+    {
+        throw std::runtime_error( errorPrefix + "CX/CY/CZ entries must be finite." );
+    }
+
+    const double orthogonalityError = ( image.cameraAxes_ * image.cameraAxes_.transpose( ) - Eigen::Matrix3d::Identity( ) ).norm( );
+    const double determinantError = std::fabs( image.cameraAxes_.determinant( ) - 1.0 );
+    if( orthogonalityError > input_output::sum_lmk::sumCameraRotationMatrixTolerance ||
+        determinantError > input_output::sum_lmk::sumCameraRotationMatrixTolerance )
+    {
+        throw std::runtime_error( errorPrefix + "CX/CY/CZ must form an orthonormal right-handed rotation matrix." );
+    }
 }
 
 inline bool isCloseVector( const Eigen::Vector3d& lhs, const Eigen::Vector3d& rhs, const double tolerance = 1.0E-9 )
@@ -513,8 +548,12 @@ SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLm
     {
         detail::validateReferencedLandmarksHaveDefinitions( sumImagesToConvert, landmarks );
     }
-    // Do this before adding stations/cameras, so unsupported calibration input leaves the caller's
+    // Do these before adding stations/cameras, so unsupported calibration input leaves the caller's
     // environment unchanged.
+    for( const input_output::sum_lmk::SumImageData& image : sumImagesToConvert )
+    {
+        detail::validateSumImageCalibrationAndAttitude( image );
+    }
     detail::validateSumImageDistortionCoefficients( sumImagesToConvert );
 
     SumLmkObservationConversionResult< ObservationScalarType, TimeType > result;

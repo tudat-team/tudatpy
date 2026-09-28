@@ -21,6 +21,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <Eigen/LU>
+
 namespace tudat
 {
 
@@ -230,6 +232,11 @@ bool isFinite( const Eigen::Matrix< double, 2, 3 >& matrix )
     return matrix.array( ).isFinite( ).all( );
 }
 
+bool isFinite( const Eigen::Vector2d& vector )
+{
+    return vector.array( ).isFinite( ).all( );
+}
+
 bool isClose( const double lhs, const double rhs, const double tolerance = parserTolerance )
 {
     return std::fabs( lhs - rhs ) <= tolerance * std::max( 1.0, std::max( std::fabs( lhs ), std::fabs( rhs ) ) );
@@ -259,11 +266,25 @@ void validateSumImage( const SumImageData& image,
     require( !image.imageId_.empty( ), "Error when reading SUM file " + file + ": missing image ID." );
     require( !image.utcEpochString_.empty( ), "Error when reading SUM file " + file + " (" + image.imageId_ + "): missing UTC epoch." );
     require( hasImageSize, "Error when reading SUM file " + file + " (" + image.imageId_ + "): missing NPX/NLN/THRSH record." );
+    require( image.imageSize_( 0 ) > 0 && image.imageSize_( 1 ) > 0 && image.threshold_ >= 0 && image.maxDn_ >= image.threshold_,
+             "Error when reading SUM file " + file + " (" + image.imageId_ + "): NPX and NLN must be positive and 0 <= THRSH <= MAXDN." );
     require( hasCalibration, "Error when reading SUM file " + file + " (" + image.imageId_ + "): missing MMFL/CTR record." );
+    require( std::isfinite( image.focalLengthMm_ ) && image.focalLengthMm_ > std::numeric_limits< double >::epsilon( ),
+             "Error when reading SUM file " + file + " (" + image.imageId_ + "): MMFL must be finite and positive." );
+    require( isFinite( image.opticalCenter_ ),
+             "Error when reading SUM file " + file + " (" + image.imageId_ + "): CTR coordinates must be finite." );
     require( hasCameraAxes && isFinite( image.cameraAxes_ ),
              "Error when reading SUM file " + file + " (" + image.imageId_ + "): missing one or more CX/CY/CZ records." );
+    const bool hasProperCameraAttitude = ( image.cameraAxes_ * image.cameraAxes_.transpose( ) - Eigen::Matrix3d::Identity( ) ).norm( ) <=
+                    sumCameraRotationMatrixTolerance &&
+            std::fabs( image.cameraAxes_.determinant( ) - 1.0 ) <= sumCameraRotationMatrixTolerance;
+    require( hasProperCameraAttitude,
+             "Error when reading SUM file " + file + " (" + image.imageId_ +
+                     "): CX/CY/CZ must form an orthonormal right-handed rotation matrix." );
     require( hasKMatrix && isFinite( image.kMatrix_ ),
              "Error when reading SUM file " + file + " (" + image.imageId_ + "): missing K-MATRIX record." );
+    require( image.kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).isInvertible( ),
+             "Error when reading SUM file " + file + " (" + image.imageId_ + "): leading 2x2 K-MATRIX block must be nonsingular." );
 }
 
 void validateLmkLandmark( const LmkLandmarkData& landmark, const std::string& file )

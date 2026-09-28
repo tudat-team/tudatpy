@@ -145,7 +145,9 @@ public:
         focalLength_( focalLength ), principalPoint_( principalPoint ), kMatrix_( kMatrix ),
         distortionCoefficients_( distortionCoefficients ), mountingOffsetsDegrees_( mountingOffsetsDegrees ),
         fieldOfViewBounds_( fieldOfViewBounds )
-    {}
+    {
+        validateCalibration( );
+    }
 
     Eigen::Vector2d projectUnitVectorToPixelLine( const Eigen::Vector3d& cameraFrameUnitVector ) const override
     {
@@ -215,11 +217,36 @@ public:
     }
 
 private:
+    void validateCalibration( ) const
+    {
+        if( !std::isfinite( focalLength_ ) || focalLength_ <= std::numeric_limits< double >::epsilon( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: focal length must be finite and positive." );
+        }
+        if( !principalPoint_.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: principal point must be finite." );
+        }
+        if( !kMatrix_.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: K-MATRIX entries must be finite." );
+        }
+        if( !kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).isInvertible( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: leading 2x2 K-MATRIX block must be nonsingular." );
+        }
+        if( !distortionCoefficients_.array( ).isFinite( ).all( ) || !mountingOffsetsDegrees_.array( ).isFinite( ).all( ) ||
+            !fieldOfViewBounds_.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: auxiliary calibration values must be finite." );
+        }
+    }
+
     void validateProjectionDirection( const Eigen::Vector3d& cameraFrameVector ) const
     {
-        if( std::fabs( focalLength_ ) <= std::numeric_limits< double >::epsilon( ) )
+        if( !cameraFrameVector.array( ).isFinite( ).all( ) )
         {
-            throw std::runtime_error( "Error when projecting with PSF camera model: focal length is zero." );
+            throw std::runtime_error( "Error when projecting with PSF camera model: camera-frame vector must be finite." );
         }
         if( cameraFrameVector.z( ) <= std::numeric_limits< double >::epsilon( ) )
         {
@@ -235,6 +262,10 @@ private:
 
     Eigen::Vector2d pixelLineToFocalPlaneCoordinates( const Eigen::Vector2d& pixelLine ) const
     {
+        if( !pixelLine.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when converting PSF pixel/line coordinates: pixel/line values must be finite." );
+        }
         const Eigen::Vector2d target = pixelLine - principalPoint_;
         Eigen::Vector2d focalPlaneCoordinates = kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).solve( target );
 
@@ -254,7 +285,20 @@ private:
             jacobian( 1, 0 ) = kMatrix_( 1, 0 ) + kMatrix_( 1, 2 ) * y;
             jacobian( 1, 1 ) = kMatrix_( 1, 1 ) + kMatrix_( 1, 2 ) * x;
 
-            focalPlaneCoordinates -= jacobian.fullPivLu( ).solve( residual );
+            const Eigen::FullPivLU< Eigen::Matrix2d > jacobianLu = jacobian.fullPivLu( );
+            if( !jacobianLu.isInvertible( ) )
+            {
+                throw std::runtime_error(
+                        "Error when converting PSF pixel/line coordinates to camera-frame unit vector: local K-MATRIX Jacobian is "
+                        "singular." );
+            }
+            focalPlaneCoordinates -= jacobianLu.solve( residual );
+            if( !focalPlaneCoordinates.array( ).isFinite( ).all( ) )
+            {
+                throw std::runtime_error(
+                        "Error when converting PSF pixel/line coordinates to camera-frame unit vector: Newton solve produced non-finite "
+                        "values." );
+            }
         }
 
         throw std::runtime_error( "Error when converting PSF pixel/line coordinates to camera-frame unit vector: Newton solve failed." );

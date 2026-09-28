@@ -13,6 +13,7 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -94,6 +95,25 @@ BOOST_AUTO_TEST_CASE( testReadSumAndLmkFiles )
             projectionModel->projectUnitVectorToPixelLine( image.cameraAxes_ * relativeBodyFixedPosition );
     checkClose( projectedPixelLine( 0 ), 612.0 );
     checkClose( projectedPixelLine( 1 ), 512.0 );
+}
+
+//! The projection model must reject calibrations that cannot define a finite, invertible pixel mapping.
+BOOST_AUTO_TEST_CASE( testPsfCameraCalibrationValidation )
+{
+    const Eigen::Vector2d principalPoint( 512.0, 512.0 );
+    Eigen::Matrix< double, 2, 3 > kMatrix;
+    kMatrix << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
+
+    BOOST_CHECK_NO_THROW( system_models::PsfCameraProjectionModel( 100.0, principalPoint, kMatrix ) );
+    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 0.0, principalPoint, kMatrix ), std::runtime_error );
+
+    Eigen::Vector2d nonFinitePrincipalPoint = principalPoint;
+    nonFinitePrincipalPoint( 0 ) = std::numeric_limits< double >::quiet_NaN( );
+    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 100.0, nonFinitePrincipalPoint, kMatrix ), std::runtime_error );
+
+    Eigen::Matrix< double, 2, 3 > singularKMatrix = kMatrix;
+    singularKMatrix.row( 1 ) = 2.0 * singularKMatrix.row( 0 );
+    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 100.0, principalPoint, singularKMatrix ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( testSumLmkDuplicateFailures )
@@ -239,6 +259,12 @@ BOOST_AUTO_TEST_CASE( testSumLmkRequiredFieldValidation )
             "0.0 0.0 1.0 CZ\n";
     const std::string kMatrix = "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\n";
     const std::string landmarks = "LANDMARKS\nLMK0001 512.0 512.0\nEND FILE\n";
+    const auto checkInvalidSum = []( const std::string& contents ) {
+        const std::filesystem::path path = makeTemporaryPath( ".sum" );
+        writeTextFile( path, contents );
+        BOOST_CHECK_THROW( input_output::sum_lmk::readSumFile( path.string( ) ), std::runtime_error );
+        std::filesystem::remove( path );
+    };
 
     // Missing K-MATRIX.
     {
@@ -255,6 +281,41 @@ BOOST_AUTO_TEST_CASE( testSumLmkRequiredFieldValidation )
         const std::filesystem::path path = makeTemporaryPath( ".sum" );
         writeTextFile( path, headerNoCz + kMatrix + landmarks );
         BOOST_CHECK_THROW( input_output::sum_lmk::readSumFile( path.string( ) ), std::runtime_error );
+        std::filesystem::remove( path );
+    }
+    // Semantically invalid calibration and attitude records must be rejected as well.
+    checkInvalidSum( "IMGREQ\n2015 JUN 05 07:24:42.053\n0 1024 500 65535 NPX, NLN, THRSH\n" + header.substr( header.find( "100.0" ) ) +
+                     kMatrix + landmarks );
+    checkInvalidSum(
+            "IMGREQ\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+            "0.0 512.0 512.0 MMFL, CTR\n"
+            "1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n" +
+            kMatrix + landmarks );
+    checkInvalidSum(
+            "IMGREQ\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+            "100.0 nan 512.0 MMFL, CTR\n"
+            "1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n" +
+            kMatrix + landmarks );
+    checkInvalidSum(
+            "IMGREQ\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+            "100.0 512.0 512.0 MMFL, CTR\n"
+            "1.0 0.0 0.0 CX\n1.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n" +
+            kMatrix + landmarks );
+    checkInvalidSum(
+            "IMGREQ\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+            "100.0 512.0 512.0 MMFL, CTR\n"
+            "1.0 0.0 0.0 CX\n0.0 -1.0 0.0 CY\n0.0 0.0 1.0 CZ\n" +
+            kMatrix + landmarks );
+    checkInvalidSum( header + "10.0 0.0 0.0 20.0 0.0 0.0 K-MATRIX\n" + landmarks );
+    // Valid matrices in the full SPC archive have a Frobenius orthogonality error up to
+    // approximately 7.9e-8 from stored numerical precision. This one has 7.8e-8.
+    {
+        const std::filesystem::path path = makeTemporaryPath( ".sum" );
+        writeTextFile( path,
+                       "IMGARCHIVEPRECISION\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+                       "100.0 512.0 512.0 MMFL, CTR\n1.0000000390 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n" +
+                               kMatrix + landmarks );
+        BOOST_CHECK_NO_THROW( input_output::sum_lmk::readSumFile( path.string( ) ) );
         std::filesystem::remove( path );
     }
     // No landmark rows: a single SUM image parses, but the batch reader discards it.

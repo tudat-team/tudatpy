@@ -408,6 +408,43 @@ BOOST_AUTO_TEST_CASE( testSumNonZeroDistortionIsRejected )
     BOOST_CHECK( bodies.at( "Spacecraft" )->getVehicleSystems( )->getCameraMap( ).empty( ) );
 }
 
+//! Programmatic SUM inputs bypass the file reader, so calibration and attitude must be revalidated
+//! before the converter adds landmarks or cameras to the caller's body system.
+BOOST_AUTO_TEST_CASE( testSumCalibrationAndAttitudeAreValidatedBeforeEnvironmentMutation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    const SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    const auto checkRejectedImage = [ &conversionSettings ]( const input_output::sum_lmk::SumImageData& image,
+                                                             const std::string& expectedDiagnostic ) {
+        SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+        bool threw = false;
+        try
+        {
+            createSumLmkObservationCollection< double, double >( { image }, makeSyntheticLandmarks( ), bodies, conversionSettings );
+        }
+        catch( const std::runtime_error& exception )
+        {
+            threw = true;
+            BOOST_CHECK( std::string( exception.what( ) ).find( expectedDiagnostic ) != std::string::npos );
+        }
+        BOOST_CHECK( threw );
+        BOOST_CHECK( bodies.at( "Target" )->getGroundStationMap( ).empty( ) );
+        BOOST_CHECK( bodies.at( "Spacecraft" )->getVehicleSystems( )->getCameraMap( ).empty( ) );
+    };
+
+    input_output::sum_lmk::SumImageData invalidFocalLength = makeSyntheticSumImage( "IMGBADFOCAL", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    invalidFocalLength.focalLengthMm_ = 0.0;
+    checkRejectedImage( invalidFocalLength, "MMFL" );
+
+    input_output::sum_lmk::SumImageData singularKMatrix = makeSyntheticSumImage( "IMGBADKMAT", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    singularKMatrix.kMatrix_.row( 1 ) = 2.0 * singularKMatrix.kMatrix_.row( 0 );
+    checkRejectedImage( singularKMatrix, "K-MATRIX" );
+
+    input_output::sum_lmk::SumImageData nonOrthonormalAttitude = makeSyntheticSumImage( "IMGBADATT", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    nonOrthonormalAttitude.cameraAxes_( 0, 0 ) = 2.0;
+    checkRejectedImage( nonOrthonormalAttitude, "CX/CY/CZ" );
+}
+
 //! Missing LMK definitions must be reported in one aggregated diagnostic.
 BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkValidation )
 {
