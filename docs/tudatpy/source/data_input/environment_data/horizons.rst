@@ -12,6 +12,7 @@ or :func:`~tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_hor
 is equivalent to :func:`~tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_horizons`,
 but allows the :class:`~tudatpy.data_input.environment_data.horizons.HorizonsQuery`
 to be inspected or modified before conversion to ephemeris settings.
+The interface is based on the `astroquery <https://github.com/astropy/astroquery>`_ :cite:`ginsburg2019astroquery` Python package.
 
 The :class:`~tudatpy.data_input.environment_data.horizons.HorizonsQuery` class can also be used directly to query Horizons
 and inspect the returned vectors. The :class:`~tudatpy.data_input.environment_data.horizons.HorizonsBatch` class is a

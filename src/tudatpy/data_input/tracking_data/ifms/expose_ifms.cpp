@@ -51,19 +51,16 @@ void expose_ifms( py::module& m )
            py::arg( "reception_reference_frequency_band" ) = std::string( "" ),
            py::arg( "doppler_reference_frequency" ) = std::numeric_limits< double >::quiet_NaN( ),
            R"doc(
-         Load IFMS files into tracking data and supplementary data objects.
+         Load Level 2 IFMS Doppler files into tracking data and supplementary data objects.
 
-         IFMS records contain radio science data, typically closed-loop Doppler
-         data, and optionally a station tropospheric-correction column. When
-         ``apply_tropospheric_correction`` is ``True``, the tropospheric
-         correction is subtracted from the averaged-frequency observable before
-         the tracking-data objects are created.
-         The file format is described in
-         :cite:t:`ifmsOccFtp2006`.
+         The file format is described in `IFMS Doppler Processing Software : Level 1a to Level 2, Table 3-2 and 3-3 <https://archives.esac.esa.int/psa/ftp/MARS-EXPRESS/MRS/MEX-M-MRS-1-2-3-EXT9-4441-V1.0/DOCUMENT/MRS_DOC/MEX_MRS_IGM_DS_3035.PDF>`_.
          The reader parses each IFMS file, attaches the corresponding ground
          station name and optional frequency-band metadata, and converts the
          resulting records to Tudat ``TrackingData`` and
          ``TrackingSupplementaryData`` objects.
+         When ``apply_tropospheric_correction`` is ``True``, the tropospheric
+         correction is subtracted from the averaged-frequency observable before
+         the tracking-data objects are created.
 
          Parameters
          ----------
@@ -96,6 +93,38 @@ void expose_ifms( py::module& m )
          -------
          tuple[list[TrackingData], list[TrackingSupplementaryData]]
              Tracking data objects and supplementary data objects.
+
+         Example
+         -------
+
+         In this example, we load two IFMS files for Mars Express (MEX), tracked by New Norcia (NNOR) in X-band.
+         The IFMS files can be downloaded from the `ESA PSA archive <https://archives.esac.esa.int/psa/ftp/MARS-EXPRESS/MRS/MEX-M-MRS-1-2-3-EXT5-3682-V1.0/DATA/LEVEL02/CLOSED_LOOP/IFMS/DP2/>`_.
+
+
+         .. code-block:: python
+
+            from tudatpy.data_input.tracking_data.ifms import read_ifms_data
+
+            sc_name = "MEX"
+
+            ifms_file_names = [
+                "M32ICL2L02_D2X_150050821_00.TAB",
+                "M32ICL2L02_D2X_150080523_00.TAB",
+            ]
+
+            station_mapping = {"32": "NNOR"}
+            ground_station_names_per_file = [station_mapping[f[1:3]] for f in ifms_file_names]
+
+            tracking_data, tracking_supplementary_data = read_ifms_data(
+                ifms_file_names,
+                spacecraft_name=sc_name,
+                ground_station_names=ground_station_names_per_file,
+                frequency_bands=["X-band", "X-band"],
+                reception_reference_frequency_band="X-band",
+                apply_tropospheric_correction=False,
+            )
+
+
       )doc" );
 }
 
