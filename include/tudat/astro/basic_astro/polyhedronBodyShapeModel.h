@@ -10,11 +10,18 @@
  *    References:
  *       "EXTERIOR GRAVITATION OF A POLYHEDRON DERIVED AND COMPARED WITH HARMONIC AND MASCON GRAVITATION REPRESENTATIONS
  *          OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy
- *       Avillez (2022), MSc thesis (TU Delft) - TODO: add proper reference
+ *       "Landing Trajectory Design Using Invariant Manifolds of Quasi Satellite Orbits: A Phobos Case Study",
+ *          Avillez (2022), MSc thesis, Delft University of Technology. Sec. 2.3 gives the altitude algorithm
+ *          implemented here: Eqs. 2.44-2.50 for the distances to vertices, facets and edges with their validity
+ *          tests, and the restriction of the search to the neighbourhood of the closest vertex.
+ *       "The Ballistic Deployment of Asteroid Landers", Van wal (2014), MSc thesis, Delft University of Technology.
+ *          Source of the vertex/facet/edge distance decomposition that Avillez (2022) follows. The same material,
+ *          with a latitude-longitude "atlas" of local worlds in place of the closest-vertex restriction, appears in
+ *          "High-Fidelity Simulation of Small-Body Lander/Rover Spacecraft", Van wal (2018), PhD thesis, University
+ *          of Colorado Boulder, Sec. 2.2.2.
  *       "P2M: A Fast Solver for Querying Distance from Point to Mesh Surface", Zong et al. (2023), ACM Transactions
- *          on Graphics 42(4), doi:10.1145/3592439 - localisation of point-to-mesh distance queries via the nearest
- *          mesh vertex, and the cases in which that localisation misses the truly closest primitive
- *       "Real-Time Collision Detection", Ericson (2005), Morgan Kaufmann, Sec. 5.1.5 - closest point on a triangle
+ *          on Graphics 42(4), doi:10.1145/3592439 - the general case of localising point-to-mesh distance queries
+ *          via the nearest mesh vertex, and the cases in which that localisation misses the closest primitive.
  */
 
 #ifndef TUDAT_POLYHEDRONBODYSHAPEMODEL_H
@@ -76,9 +83,12 @@ public:
      *
      *  Note that restricting the search to the neighbourhood of the closest vertex is an approximation: the closest
      *  primitive of the mesh is not necessarily incident to the closest vertex, a case termed an "interception" by
-     *  Zong et al. (2023). The returned altitude is then too large. The error is negligible for meshes whose facets
-     *  are of comparable size and shape, but grows with the spread in facet size and aspect ratio; it is not bounded
-     *  by convexity, and relative errors of a few percent are reachable on strongly anisotropic convex meshes.
+     *  Zong et al. (2023), and the returned altitude is then too large. Avillez (2022) notes that no neighbourhood,
+     *  however large, removes this error, and identifies clustered thin facets with very acute angles as the case
+     *  in which it appears; the argument given there for it being tolerable is that the Delaunay triangulations
+     *  typically used to build polyhedron models avoid such facets. The error is accordingly negligible for meshes
+     *  whose facets are of comparable size and shape, but is not bounded by convexity: relative errors of a few
+     *  percent have been measured on strongly anisotropic convex meshes.
      *
      *  \param bodyFixedPosition Cartesian, body-fixed position of the point at which the altitude
      *  is to be determined.
