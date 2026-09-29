@@ -41,11 +41,11 @@ from tudatpy.kernel import constants
 from tudatpy.kernel.dynamics import environment, environment_setup
 from tudatpy.kernel.dynamics.environment_setup import (
     ephemeris,
-    ground_station,
     rotation_model,
     shape,
     shape_deformation,
 )
+from tudatpy.dynamics.environment_setup import ground_station
 from tudatpy.kernel.estimation.observable_models_setup import (
     biases,
     light_time_corrections,
