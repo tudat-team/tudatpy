@@ -103,6 +103,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatr
                                                                                           const Eigen::MatrixXd& weightMatrix )
 {
     const auto indices = getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} );
+    completeWeightData_.reset( );
     observationWeights_.setBlock( indices, indices, weightMatrix );
     auto& structure = setMetadata_.at( setId ).weightStructure_;
     structure = std::max( structure, ObservationWeightStructure::per_set );
@@ -154,6 +155,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatr
                                                                                                   const Eigen::MatrixXd& weightMatrix )
 {
     const auto indices = getScalarComponentIdsForObservationSelection( { observationId }, {} );
+    completeWeightData_.reset( );
     observationWeights_.setBlock( indices, indices, weightMatrix );
     auto& structure = setMetadata_.at( getObservationRow( observationId ).setId_ ).weightStructure_;
     structure = std::max( structure, ObservationWeightStructure::per_observation );
@@ -182,6 +184,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
 {
     const auto rows = getScalarComponentIdsForObservationSelection( rowObservationIds, rowComponents );
     const auto columns = getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents );
+    completeWeightData_.reset( );
     observationWeights_.setBlock( rows, columns, weightBlock );
     // Only update metadata after validation. An existing cross-set connection may have been removed.
     if( std::any_of( rowObservationIds.begin( ), rowObservationIds.end( ), [ this ]( unsigned int id ) {

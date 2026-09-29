@@ -332,6 +332,7 @@ public:
     //! Set the representation and values used to weight these observations.
     void setObservationWeightSettings( const observation_models::ObservationWeightSettings& observationWeightSettings )
     {
+        observationWeightSettings.validateDimensions( numberOfObservations_, singleObservationSize_ );
         observationWeightSettings_ = observationWeightSettings;
     }
 

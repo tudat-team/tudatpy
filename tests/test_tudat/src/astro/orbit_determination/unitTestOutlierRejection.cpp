@@ -541,6 +541,8 @@ BOOST_AUTO_TEST_CASE( test_DecideRejectionStatus )
     // An observation that is out of the fit is recovered when its chi-squared drops below the recovery threshold, for
     // which the comparison is strict as well
     BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, 7.0, iterationRejectionThreshold ), false );
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, 0.0, iterationRejectionThreshold ), false );
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, 0.0, iterationRejectionThreshold ), false );
     BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, recoveryThreshold, iterationRejectionThreshold ), true );
 
     // The recovery threshold is lower than the rejection threshold, so an observation with a chi-squared in between
@@ -554,9 +556,9 @@ BOOST_AUTO_TEST_CASE( test_DecideRejectionStatus )
 
     // A chi-squared that is not a usable number cannot be compared against a threshold, and leaves the status of the
     // observation unchanged. A negative value indicates a residual covariance that is not positive definite.
-    const std::vector< double > invalidChiSquaredValues = {
-        -1.0, 0.0, std::numeric_limits< double >::quiet_NaN( ), std::numeric_limits< double >::infinity( )
-    };
+    const std::vector< double > invalidChiSquaredValues = { -1.0,
+                                                            std::numeric_limits< double >::quiet_NaN( ),
+                                                            std::numeric_limits< double >::infinity( ) };
     for( const double invalidChiSquared : invalidChiSquaredValues )
     {
         BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, invalidChiSquared, iterationRejectionThreshold ),

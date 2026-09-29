@@ -206,15 +206,22 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationV
     result.structuralVersion_ = structuralVersion_;
     result.vectorDataVersion_ = vectorDataVersion_;
     result.uniqueObservationIdsBySet_.resize( setMetadata_.size( ) );
-    // Covariance queries use all observations, independently of the estimation vector selection below.
-    result.completeWeights_ = observationWeights_;
-    result.completeWeightSetMetadata_ = setMetadata_;
-    result.completeWeightObservationIdsBySet_ = observationIdsBySet_;
-    result.completeWeightObservationMapping_.reserve( observationRows_.size( ) );
-    for( const auto& row : observationRows_ )
+    // Rejection changes the selection, not the complete weights or their covariance cache.
+    if( !completeWeightData_ || completeWeightData_->structuralVersion_ != structuralVersion_ )
     {
-        result.completeWeightObservationMapping_.emplace( row.observationId_, std::make_pair( row.firstScalarComponent_, row.setId_ ) );
+        auto data = std::make_shared< typename ObservationVectorData< ObservationScalarType, TimeType >::CompleteWeightData >( );
+        data->weights_ = observationWeights_;
+        data->setMetadata_ = setMetadata_;
+        data->observationIdsBySet_ = observationIdsBySet_;
+        data->structuralVersion_ = structuralVersion_;
+        data->observationMapping_.reserve( observationRows_.size( ) );
+        for( const auto& row : observationRows_ )
+        {
+            data->observationMapping_.emplace( row.observationId_, std::make_pair( row.firstScalarComponent_, row.setId_ ) );
+        }
+        completeWeightData_ = std::move( data );
     }
+    result.completeWeightData_ = completeWeightData_;
     std::vector< unsigned int > selected;
     for( const unsigned int id : selectedObservationIds )
     {

@@ -695,6 +695,29 @@ std::shared_ptr< data::TrackingData<> > angularTracking( const double epoch = 10
             "TDB" );
 }
 
+BOOST_AUTO_TEST_CASE( testWeightSettingsAreCheckedBeforeReplacement )
+{
+    auto tracking = angularTracking( );
+    tracking->setObservationWeightSettings( ObservationWeightSettings::setBlock( Eigen::Matrix2d::Identity( ) ) );
+    const std::vector< ObservationWeightSettings > invalidSettings = {
+        ObservationWeightSettings::scalarPerObservation( {} ),
+        ObservationWeightSettings::diagonalPerObservation( {} ),
+        ObservationWeightSettings::diagonalPerObservation( { Eigen::VectorXd::Ones( 1 ) } ),
+        ObservationWeightSettings::constantBlock( Eigen::MatrixXd::Identity( 1, 1 ) ),
+        ObservationWeightSettings::blockPerObservation( {} ),
+        ObservationWeightSettings::blockPerObservation( { Eigen::MatrixXd::Identity( 1, 1 ) } ),
+        ObservationWeightSettings::setBlock( Eigen::MatrixXd::Identity( 1, 1 ) )
+    };
+    for( const auto& settings : invalidSettings )
+    {
+        BOOST_CHECK_THROW( tracking->setObservationWeightSettings( settings ), std::runtime_error );
+        BOOST_CHECK( tracking->getObservationWeightSettings( ).weightBlock_.isApprox( Eigen::Matrix2d::Identity( ) ) );
+    }
+    BOOST_CHECK_NO_THROW( tracking->removeSingleObservationEntry( 0 ) );
+    BOOST_CHECK( tracking->getObservations( ).empty( ) );
+    BOOST_CHECK_EQUAL( tracking->getObservationWeightSettings( ).weightBlock_.rows( ), 0 );
+}
+
 // Give two angle measurements separate weights, reject incorrectly sized replacements,
 // and verify that the valid weights remain unchanged.
 BOOST_AUTO_TEST_CASE( testVectorWeightSetterShapeAndExceptionSafety )

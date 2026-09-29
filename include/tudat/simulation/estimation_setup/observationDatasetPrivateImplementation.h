@@ -339,6 +339,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightValu
     {
         throw std::runtime_error( "Observation weight component size is inconsistent." );
     }
+    completeWeightData_.reset( );
     observationWeights_.setObservationDiagonal( row.firstScalarComponent_, weight );
 }
 

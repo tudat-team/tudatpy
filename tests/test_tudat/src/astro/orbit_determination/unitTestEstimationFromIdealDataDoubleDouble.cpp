@@ -133,6 +133,11 @@ BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
         Eigen::VectorXd rangeObservations = dataset->getObservationVectorForObservableType( observation_models::one_way_range );
         rangeObservations( 0 ) += 1.0E6;
         dataset->setObservationVectorForObservableType( observation_models::one_way_range, rangeObservations );
+        const auto rangeIds = dataset->getObservationIdsMatchingCondition(
+                observation_models::ObservationSelectionCondition< double, double >::observableType( observation_models::one_way_range ) );
+        const double crossWeight =
+                0.1 * std::sqrt( dataset->getWeightValue( rangeIds.at( 0 ) )( 0 ) * dataset->getWeightValue( rangeIds.at( 1 ) )( 0 ) );
+        dataset->setWeightBlock( { rangeIds.at( 0 ) }, { rangeIds.at( 1 ) }, Eigen::MatrixXd::Constant( 1, 1, crossWeight ) );
         input->setOutlierRejectionSettings( simulation_setup::simpleOutlierRejectionSettings( 1.0E5, 0, false ) );
     };
 
@@ -146,6 +151,16 @@ BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
     BOOST_CHECK_EQUAL( dataset->createOrderedObservationVectorData( false ).getObservationVector( ).size( ),
                        dataset->createOrderedObservationVectorData( true ).getObservationVector( ).size( ) - 1 );
     BOOST_CHECK( podData.first->parameterEstimate_.allFinite( ) );
+    const auto allData = dataset->createOrderedObservationVectorData( true );
+    auto bestDataset = *dataset;
+    bestDataset.restoreObservations( observation_models::ObservationSelectionCondition< double, double >::all( ) );
+    bestDataset.rejectObservations( observation_models::ObservationSelectionCondition< double, double >(
+            [ & ]( const auto&, const int id ) { return !activeFlags( allData.getVectorRow( id, 0 ), podData.first->bestIteration_ ); } ) );
+    const Eigen::MatrixXd savedWeights = podData.first->getWeightsMatrix( );
+    const Eigen::MatrixXd expectedWeights = bestDataset.createOrderedObservationVectorData( false ).getSparseWeightMatrix( );
+    BOOST_REQUIRE_EQUAL( savedWeights.rows( ), expectedWeights.rows( ) );
+    BOOST_CHECK_MESSAGE( savedWeights.isApprox( expectedWeights ),
+                         "Saved weights differ from the best iteration by " << ( savedWeights - expectedWeights ).cwiseAbs( ).maxCoeff( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -11,6 +11,8 @@
 #ifndef TUDAT_OBSERVATION_WEIGHT_SETTINGS_H
 #define TUDAT_OBSERVATION_WEIGHT_SETTINGS_H
 
+#include <algorithm>
+#include <stdexcept>
 #include <vector>
 
 #include <Eigen/Core>
@@ -91,6 +93,49 @@ struct ObservationWeightSettings {
         settings.type_ = WeightsBlockType::set_block;
         settings.weightBlock_ = weightBlock;
         return settings;
+    }
+
+    //! Validate sizes before storing settings or constructing numerical weights.
+    void validateDimensions( const std::size_t numberOfObservations, const unsigned int singleObservationSize ) const
+    {
+        const auto isObservationBlock = [ singleObservationSize ]( const Eigen::MatrixXd& block ) {
+            return block.rows( ) == singleObservationSize && block.cols( ) == singleObservationSize;
+        };
+        bool valid = false;
+        switch( type_ )
+        {
+            case WeightsBlockType::default_weights:
+            case WeightsBlockType::constant_scalar:
+                return;
+            case WeightsBlockType::scalar_per_observation:
+                valid = scalarWeights_.size( ) == numberOfObservations;
+                break;
+            case WeightsBlockType::diagonal_per_observation:
+                valid = diagonalWeights_.size( ) == numberOfObservations &&
+                        std::all_of( diagonalWeights_.begin( ),
+                                     diagonalWeights_.end( ),
+                                     [ singleObservationSize ]( const Eigen::VectorXd& diagonal ) {
+                                         return diagonal.size( ) == singleObservationSize;
+                                     } );
+                break;
+            case WeightsBlockType::constant_block:
+                valid = isObservationBlock( weightBlock_ );
+                break;
+            case WeightsBlockType::block_per_observation:
+                valid = weightBlocks_.size( ) == numberOfObservations &&
+                        std::all_of( weightBlocks_.begin( ), weightBlocks_.end( ), isObservationBlock );
+                break;
+            case WeightsBlockType::set_block:
+                valid = weightBlock_.rows( ) == static_cast< Eigen::Index >( numberOfObservations * singleObservationSize ) &&
+                        weightBlock_.cols( ) == weightBlock_.rows( );
+                break;
+            default:
+                break;
+        }
+        if( !valid )
+        {
+            throw std::runtime_error( "Observation weight settings have an invalid type or inconsistent dimensions." );
+        }
     }
 
     //! Selected weight representation.

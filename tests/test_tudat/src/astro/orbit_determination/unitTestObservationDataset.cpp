@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <sstream>
 
@@ -2568,6 +2569,48 @@ BOOST_AUTO_TEST_CASE( test_observation_covariance_invalid_weights )
         BOOST_CHECK_THROW( vectorData.getInverseWeightMatrixForObservation( dataset.getObservationIdsForSet( setId ).front( ) ),
                            std::runtime_error );
     }
+}
+
+//! Selection changes reuse complete weights; weight and structure changes leave old snapshots intact.
+BOOST_AUTO_TEST_CASE( test_complete_weight_data_is_shared_until_weights_change )
+{
+    ObservationDataset<> dataset;
+    const unsigned int setId = dataset.addObservationSet( one_way_range,
+                                                          createOneWayLinkDefinition( "Station1" ),
+                                                          { Eigen::VectorXd::Ones( 1 ), Eigen::VectorXd::Ones( 1 ) },
+                                                          { 1.0, 2.0 },
+                                                          receiver );
+    const unsigned int id = dataset.getObservationIdsForSet( setId ).front( );
+    const auto original = dataset.createObservationVectorData( true );
+    const Eigen::MatrixXd& originalCovariance = original.getInverseWeightMatrixForObservation( id );
+    dataset.rejectObservations( ObservationSelectionCondition<>::timeBounds( 2.0, 2.0 ) );
+    const auto selected = dataset.createObservationVectorData( );
+    BOOST_CHECK( &selected.getInverseWeightMatrixForObservation( id ) == &originalCovariance );
+
+    const std::vector< std::function< void( ) > > updates = {
+        [ & ] { dataset.setWeightMatrixForSet( setId, 2.0 * Eigen::Matrix2d::Identity( ) ); },
+        [ & ] { dataset.setWeightMatrixForObservation( id, Eigen::MatrixXd::Constant( 1, 1, 3.0 ) ); },
+        [ & ] { dataset.setWeightBlock( { id }, { id }, Eigen::MatrixXd::Constant( 1, 1, 4.0 ) ); },
+        [ & ] { dataset.setWeightVectorForSet( setId, Eigen::Vector2d::Constant( 5.0 ) ); },
+        [ & ] { dataset.setConstantSingleObservationScalarWeightForSet( setId, 6.0 ); }
+    };
+    double expectedWeight = 1.0;
+    for( const auto& update : updates )
+    {
+        const auto before = dataset.createObservationVectorData( );
+        update( );
+        const auto after = dataset.createObservationVectorData( );
+        BOOST_CHECK_CLOSE_FRACTION( before.getInverseWeightMatrixForObservation( id )( 0, 0 ), 1.0 / expectedWeight, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( after.getInverseWeightMatrixForObservation( id )( 0, 0 ), 1.0 / ++expectedWeight, 1.0E-14 );
+    }
+    const auto beforeRemoval = dataset.createObservationVectorData( true );
+    const auto removedId = dataset.getObservationIdsForSet( setId ).back( );
+    dataset.removeObservations( ObservationSelectionCondition<>::timeBounds( 2.0, 2.0 ) );
+    const auto afterRemoval = dataset.createObservationVectorData( true );
+    BOOST_CHECK( &beforeRemoval.getInverseWeightMatrixForObservation( id ) != &afterRemoval.getInverseWeightMatrixForObservation( id ) );
+    BOOST_CHECK_NO_THROW( beforeRemoval.getInverseWeightMatrixForObservation( removedId ) );
+    BOOST_CHECK_THROW( afterRemoval.getInverseWeightMatrixForObservation( removedId ), std::runtime_error );
+    BOOST_CHECK_EQUAL( originalCovariance( 0, 0 ), 1.0 );
 }
 
 //! Verify overlapping weight selections are validated before assignment.

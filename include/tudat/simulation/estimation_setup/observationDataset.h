@@ -939,6 +939,10 @@ private:
     //! Compact observation weight storage; materialized into vectors/matrices only on request.
     ObservationWeights observationWeights_;
 
+    //! Reused until weights or observation structure change; existing selections keep their original copy.
+    mutable std::shared_ptr< const typename ObservationVectorData< ObservationScalarType, TimeType >::CompleteWeightData >
+            completeWeightData_;
+
     //! Version number for the dataset structure recorded in ObservationVectorData.
     //! It increases when observation rows or set metadata change; writeback is rejected if the stored number differs.
     std::size_t structuralVersion_ = 0;

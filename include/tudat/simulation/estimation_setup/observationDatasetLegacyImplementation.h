@@ -63,6 +63,7 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightVectorForSet( const unsigned int setId,
                                                                                           const Eigen::VectorXd& weightVector )
 {
+    completeWeightData_.reset( );
     observationWeights_.setDiagonal( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ), weightVector );
     auto& structure = setMetadata_.at( setId ).weightStructure_;
     if( structure != ObservationWeightStructure::inter_set_weights )

@@ -438,7 +438,7 @@ protected:
 
     bool decideRejectionStatus( const bool isCurrentlyRejected, const double chiSquared, const double chiSquaredRejectionThreshold ) const
     {
-        if( chiSquared > 0 && std::isfinite( chiSquared ) )
+        if( chiSquared >= 0 && std::isfinite( chiSquared ) )
         {
             if( isCurrentlyRejected )
             {

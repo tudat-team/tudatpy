@@ -1733,6 +1733,16 @@ public:
     //! Save estimation output to a binary file
     TUDAT_DEFINE_BINARY_IO( EstimationOutput< ObservationScalarType, TimeType > )
 
+    bool operator==( const EstimationOutput& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const EstimationOutput& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
     bool equals( const EstimationOutput& rhs ) const
     {
@@ -1743,6 +1753,7 @@ protected:
                 ( parameterEstimate_ == rhs.parameterEstimate_ ) && ( residuals_ == rhs.residuals_ ) &&
                 ( bestIteration_ == rhs.bestIteration_ ) && ( residualStandardDeviation_ == rhs.residualStandardDeviation_ ) &&
                 ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
+                ( activeFlagsPerIteration_ == rhs.activeFlagsPerIteration_ ) &&
                 ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
                 ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
                 ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
@@ -1768,13 +1779,17 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
     }
 
     //! Deserialize estimation output fields for the requested archive version.
     template< class Archive >
     void load( Archive& ar, const std::uint32_t version )
     {
-        static_cast< void >( version );
+        if( version > 1 )
+        {
+            throw std::runtime_error( "Unsupported estimation output archive version." );
+        }
         ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
         ar( CEREAL_NVP( parameterEstimate_ ) );
         ar( CEREAL_NVP( residuals_ ) );
@@ -1787,6 +1802,11 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        activeFlagsPerIteration_.clear( );
+        if( version >= 1 )
+        {
+            ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
+        }
     }
 };
 
@@ -1818,6 +1838,12 @@ namespace detail
 //! Cereal version marker for covariance outputs containing sparse weights.
 template< typename ObservationScalarType, typename TimeType >
 struct Version< tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType > > {
+    static constexpr std::uint32_t version = 1;
+};
+
+//! Version one also saves which observations were used in each estimation iteration.
+template< typename ObservationScalarType, typename TimeType >
+struct Version< tudat::simulation_setup::EstimationOutput< ObservationScalarType, TimeType > > {
     static constexpr std::uint32_t version = 1;
 };
 }  // namespace detail

@@ -200,13 +200,21 @@ public:
         {
             result.diagonal_.push_back( diagonal_.at( index ) );
         }
-        for( const auto& entry : offDiagonal_ )
+        if( indices.empty( ) )
         {
-            const auto row = selected.find( entry.first.first );
-            const auto column = selected.find( entry.first.second );
+            return result;
+        }
+        // A small observation block only visits stored entries in its own row range.
+        const auto bounds = std::minmax_element( indices.begin( ), indices.end( ) );
+        for( auto entry = offDiagonal_.lower_bound( { *bounds.first, 0 } );
+             entry != offDiagonal_.end( ) && entry->first.first <= *bounds.second;
+             ++entry )
+        {
+            const auto row = selected.find( entry->first.first );
+            const auto column = selected.find( entry->first.second );
             if( row != selected.end( ) && column != selected.end( ) )
             {
-                result.offDiagonal_.emplace( std::minmax( row->second, column->second ), entry.second );
+                result.offDiagonal_.emplace( std::minmax( row->second, column->second ), entry->second );
             }
         }
         return result;
@@ -350,6 +358,7 @@ inline ObservationWeights createObservationWeightsForSet( const std::size_t numb
     {
         throw std::runtime_error( "Observation weight dimensions exceed scalar storage capacity." );
     }
+    weightSettings.validateDimensions( numberOfObservations, singleObservationSize );
 
     ObservationWeights result;
     Eigen::VectorXd diagonal = Eigen::VectorXd::Ones( numberOfObservations * singleObservationSize );
@@ -360,27 +369,15 @@ inline ObservationWeights createObservationWeightsForSet( const std::size_t numb
             diagonal.setConstant( weightSettings.scalarWeight_ );
             break;
         case WeightsBlockType::scalar_per_observation:
-            if( weightSettings.scalarWeights_.size( ) != numberOfObservations )
-            {
-                throw std::runtime_error( "Observation scalar weight count is inconsistent." );
-            }
             for( std::size_t i = 0; i < numberOfObservations; ++i )
             {
                 diagonal.segment( i * singleObservationSize, singleObservationSize ).setConstant( weightSettings.scalarWeights_.at( i ) );
             }
             break;
         case WeightsBlockType::diagonal_per_observation:
-            if( weightSettings.diagonalWeights_.size( ) != numberOfObservations )
-            {
-                throw std::runtime_error( "Observation diagonal weight count is inconsistent." );
-            }
             for( std::size_t i = 0; i < numberOfObservations; ++i )
             {
                 const Eigen::VectorXd& observationDiagonal = weightSettings.diagonalWeights_.at( i );
-                if( observationDiagonal.size( ) != singleObservationSize )
-                {
-                    throw std::runtime_error( "Observation diagonal weight size is inconsistent." );
-                }
                 ObservationWeights::validateDiagonal( observationDiagonal );
                 diagonal.segment( i * singleObservationSize, singleObservationSize ) = observationDiagonal;
             }
@@ -403,12 +400,6 @@ inline ObservationWeights createObservationWeightsForSet( const std::size_t numb
     }
     else if( weightSettings.type_ == WeightsBlockType::constant_block || weightSettings.type_ == WeightsBlockType::block_per_observation )
     {
-        if( weightSettings.type_ == WeightsBlockType::block_per_observation &&
-            weightSettings.weightBlocks_.size( ) != numberOfObservations )
-        {
-            throw std::runtime_error( "Observation weight block count is inconsistent." );
-        }
-
         std::vector< ObservationWeights::Index > indices( singleObservationSize );
         if( weightSettings.type_ == WeightsBlockType::constant_block )
         {
