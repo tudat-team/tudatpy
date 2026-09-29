@@ -9,6 +9,9 @@
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000.
+ *      Baumgardner J R, Frederickson P O. Icosahedral Discretization of the Two-Sphere, SIAM Journal on Numerical
+ *          Analysis, 22(6):1107-1115, 1985, doi:10.1137/0722066.
+ *      Ericson C. Real-Time Collision Detection, Morgan Kaufmann, 2005.
  *
  */
 
@@ -41,6 +44,12 @@ namespace
 
 //! Create a once-subdivided icosahedron, projected onto a sphere of the given radius.
 /*!
+ *  Standard icosahedral discretization of the sphere (Baumgardner and Frederickson, 1985): start from the
+ *  twelve vertices of a regular icosahedron, split every facet into four by joining its edge midpoints, and
+ *  project the resulting vertices radially onto the sphere. One subdivision level is used here. The starting
+ *  vertices are the regular icosahedron's, namely the cyclic permutations of (0, +/-1, +/-phi) with phi the
+ *  golden ratio, which place them on three mutually orthogonal golden rectangles.
+ *
  *  Produces a closed, purely triangular surface with 42 vertices, 80 facets and 120 edges. This
  *  satisfies the Euler relations (F = 2V - 4, E = 3V - 6) that PolyhedronBodyShapeModel requires of
  *  its input. The mesh is convex and near-uniform, its facet areas lying within 16% of one another,
@@ -106,8 +115,9 @@ void createSubdividedIcosphere( const double radius, Eigen::MatrixXd& verticesCo
 
 //! Compute the point of a triangle closest to the given field point.
 /*!
- *  Voronoi-region algorithm of Ericson, Real-Time Collision Detection (2005), Sec. 5.1.5. The
- *  returned point lies on a vertex, an edge or the interior of the triangle, whichever is closest.
+ *  Voronoi-region algorithm of Ericson, Real-Time Collision Detection, Morgan Kaufmann, 2005, Sec. 5.1.5
+ *  ("Closest Point on Triangle to Point"), transcribed from the ClosestPtPointTriangle routine given there.
+ *  The returned point lies on a vertex, an edge or the interior of the triangle, whichever is closest.
  */
 Eigen::Vector3d computeClosestPointOnTriangle( const Eigen::Vector3d& fieldPoint,
                                                const Eigen::Vector3d& vertex0,
