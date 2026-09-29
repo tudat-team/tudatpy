@@ -5,10 +5,11 @@
 
 .. automodule:: tudatpy.data_input.tracking_data.fdets
 
-This submodule contains functionality to load tracking data from FDETS files, produced by the Joint Institute for VLBI ERIC (JIVE).
+This submodule contains functionality to load tracking data from FDETS files, as produced by the PRIDE experiment (see the `data processing description <https://doi.org/10.1017/pasa.2021.56>`_).
 FDETS files contain open-loop Doppler frequency observables and associated metadata such
 as signal-to-noise ratio, spectral maximum, and Doppler noise for observations
 made using the PRIDE experiment.
+To use these data in an orbit estimation, the transmitter frequency needs to be defined, or loaded from another data source (such as ODF or IFMS files).
 
 The :func:`read_fdets_data` function is the
 main interface for loading the data and converting it to objects that Tudat can
