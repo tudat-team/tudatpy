@@ -568,7 +568,7 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "correction_type_filter" ) = std::vector< tom::LightTimeCorrectionType >( ),
            R"doc(
         Function to create a dependent variable that saves each light-time correction contribution
-        individually for a single leg (transmitter → receiver) of the observable.
+        individually for a single leg (transmitter -> receiver) of the observable.
 
         The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
         on the selected leg, in light-time-calculator order and registration order within each calculator. If ``correction_type_filter`` is supplied,

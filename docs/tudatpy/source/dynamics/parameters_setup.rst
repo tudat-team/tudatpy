@@ -37,6 +37,8 @@ Functions
 
    radiation_pressure_coefficient
 
+   three_coefficient_radiation_pressure_coefficients
+
    arcwise_radiation_pressure_coefficient
 
    radiation_pressure_target_direction_scaling
@@ -193,6 +195,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.lift_component_scaling
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_coefficient
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.three_coefficient_radiation_pressure_coefficients
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_radiation_pressure_coefficient
 

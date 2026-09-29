@@ -1374,10 +1374,10 @@ where the sign is defined by the ``subtract_doppler_signature`` input (negative 
 
 Computing this observable requires the following ancillary settings to be set:
 
-* ``doppler_integration_time`` — Defines the observable integration time at the receiver (in UTC seconds).
-* ``doppler_reference_frequency`` — The Doppler reference frequency :math:`f_{\text{ref}}`. If not used, must be set to 0.
-* ``frequency_bands`` — The frequency band for the up- and downlink, used to compute the turnaround ratio :math:`M_{2}` on the spacecraft.
-* ``reception_reference_frequency_band`` — The receiver reference frequency band used to compute :math:`M_{2_{R}}`.
+* ``doppler_integration_time``: Defines the observable integration time at the receiver (in UTC seconds).
+* ``doppler_reference_frequency``: The Doppler reference frequency :math:`f_{\text{ref}}`. If not used, must be set to 0.
+* ``frequency_bands``: The frequency band for the up- and downlink, used to compute the turnaround ratio :math:`M_{2}` on the spacecraft.
+* ``reception_reference_frequency_band``: The receiver reference frequency band used to compute :math:`M_{2_{R}}`.
 
 Typically, these quantities are loaded automatically from the tracking data files.
 
@@ -1486,7 +1486,7 @@ The range observable at time tag :math:`t_{R}` (in TDB) is computed as follows, 
 
    h = \mod\left(F, 2^{n+6}\right)
 
-This observable gives the range in “range units” (RU), modulo the factor :math:`2^{n+6}`. The conversion factor from
+This observable gives the range in "range units" (RU), modulo the factor :math:`2^{n+6}`. The conversion factor from
 range units to meters depends on the transmitted frequency and can therefore not (if the signal is ramped) be computed
 a priori. The conversion factor is equal to:
 

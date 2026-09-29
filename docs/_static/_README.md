@@ -1,0 +1,2 @@
+This directory contains the Tudat logo in `.svg` format and `.png` format derived from it.
+The `.svg` files use the `Cabin` font type, which needs to be installed on your system to export the `.png` from it.
