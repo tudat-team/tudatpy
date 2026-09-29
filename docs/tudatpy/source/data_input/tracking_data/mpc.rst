@@ -30,7 +30,8 @@ Supporting API
 The class below exposes the intermediate MPC batch used by
 :func:`read_mpc_data`. It can be used directly to retrieve observations,
 inspect the resulting table and metadata, and then convert the batch to Tudat
-tracking-data objects.
+tracking-data objects. It also provides a method for converting spacecraft
+positions from space-based observations into state histories.
 
 .. autoclass:: BatchMPC
    :members:
