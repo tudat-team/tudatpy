@@ -687,21 +687,24 @@ void expose_estimation_analysis( py::module& m )
                               std::shared_ptr< tss::EstimationConvergenceChecker > convergenceChecker,
                               const Eigen::MatrixXd considerCovariance,
                               const Eigen::VectorXd considerParametersDeviations,
-                              const bool applyFinalParameterCorrection ) {
+                              const bool applyFinalParameterCorrection,
+                              const std::shared_ptr< tss::OutlierRejectionSettings > outlierRejectionSettings ) {
                     warnLegacyEstimationObservationInterface( "EstimationInput(ObservationCollection)", "EstimationInput" );
                     return std::make_shared< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >( observationsAndTimes,
                                                                                                      inverseAprioriCovariance,
                                                                                                      convergenceChecker,
                                                                                                      considerCovariance,
                                                                                                      considerParametersDeviations,
-                                                                                                     applyFinalParameterCorrection );
+                                                                                                     applyFinalParameterCorrection,
+                                                                                                     outlierRejectionSettings );
                 } ),
                 py::arg( "observations_and_times" ),
                 py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                 py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
                 py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                 py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
-                py::arg( "apply_final_parameter_correction" ) = true );
+                py::arg( "apply_final_parameter_correction" ) = true,
+                py::arg( "outlier_rejection_settings" ) = nullptr );
     }
 
     estimationInputClass
@@ -710,7 +713,8 @@ void expose_estimation_analysis( py::module& m )
                             std::shared_ptr< tss::EstimationConvergenceChecker >,
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
-                            const bool >( ),
+                            const bool,
+                            const std::shared_ptr< tss::OutlierRejectionSettings > >( ),
                   py::arg( "observation_dataset" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg_v( "convergence_checker",
@@ -719,6 +723,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
+                  py::arg( "outlier_rejection_settings" ) = nullptr,
                   R"doc(
 
          Class constructor using the dataset-backed observation representation.
@@ -740,11 +745,26 @@ void expose_estimation_analysis( py::module& m )
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
              Whether to apply the final estimated parameter correction to the simulation models after convergence.
+         outlier_rejection_settings : tudatpy.estimation.estimation_analysis.OutlierRejectionSettings, default = None
+             Settings for the algorithm that rejects (and recovers) outlying observations during the estimation. No
+             outlier rejection is performed when this input is left empty.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
              Instance of the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` class, defining the data and other settings to be used for the estimation.
      )doc" )
+            .def_property( "outlier_rejection_settings",
+                           &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getOutlierRejectionSettings,
+                           &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setOutlierRejectionSettings,
+                           R"doc(
+
+         Settings for the algorithm that rejects (and recovers) outlying observations during the estimation, which is
+         applied once per iteration of the estimation. No outlier rejection is performed when this attribute is empty
+         (which is the default). Observations that are rejected during the estimation are marked as rejected in the
+         :class:`~tudatpy.estimation.observations.ObservationDataset` that was provided to this object.
+
+         :type: :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings`
+      )doc" )
             .def( "define_estimation_settings",
                   &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -1124,9 +1144,20 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Residual vectors, concatenated per iteration into a matrix; the :math:`i^{th}` column has the residuals from the :math:`i^{th}` iteration.
+         Residual vectors, concatenated per iteration into a matrix. The :math:`i^{th}` column contains the residuals from the :math:`i^{th}` iteration. Vector residuals are flattened into its scalar components (e.g. ``[dRA1,dDEC1,dRA2,dDEC2...]`` for angular observations).
+         This holds the residuals for **all** observations, including those that were inactive/rejected.
 
          :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
+            .def_property_readonly( "active_flags_per_iteration",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getActiveFlagsPerIterationMatrix,
+                                    R"doc(
+
+         **read-only**
+
+         Boolean flags indicating which observations were active in each estimation iteration. This matrix has the same shape and row ordering as :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`. ``True`` means the observation was included in the fit for that iteration.
+
+         :type: numpy.ndarray[numpy.bool_[m, n]]
       )doc" )
             .def_property_readonly( "parameter_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getParameterHistoryMatrix,
@@ -1154,7 +1185,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Vector of post-fit observation residuals, for the iteration with the lowest rms residuals.
+         Vector of post-fit observation residuals for the iteration with the lowest rms residuals, active observations only.
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )

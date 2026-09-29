@@ -10,6 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <limits>
 
 #include <boost/test/included/unit_test.hpp>
@@ -17,6 +18,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 #include "tudat/simulation/estimation_setup/executeEarthOrbiterParameterEstimationTestCase.h"
+#include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
 
 namespace tudat
 {
@@ -112,6 +114,38 @@ BOOST_AUTO_TEST_CASE( testIntegratedStateInterpolatorAfterPropagationAndEstimati
     // Verify that the initial propagation and the estimation reintegration both use the requested order.
     BOOST_CHECK_EQUAL( interpolatorOrders.first, 8 );
     BOOST_CHECK_EQUAL( interpolatorOrders.second, 8 );
+}
+
+//! Check that rejecting one corrupted measurement changes the active set used by the next estimation iteration.
+BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
+{
+    std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
+               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
+            podData;
+
+    const auto configureEstimation = []( const std::shared_ptr< observation_models::ObservationDataset< double, double > >& dataset,
+                                         const std::shared_ptr< simulation_setup::EstimationInput< double, double > >& input ) {
+        const std::vector< double > times = dataset->createOrderedObservationVectorData( ).getTimes( );
+        const double firstTime = *std::min_element( times.begin( ), times.end( ) );
+        dataset->removeObservations(
+                observation_models::ObservationSelectionCondition< double, double >::timeGreaterThan( firstTime + 1000.0 ) );
+
+        Eigen::VectorXd rangeObservations = dataset->getObservationVectorForObservableType( observation_models::one_way_range );
+        rangeObservations( 0 ) += 1.0E6;
+        dataset->setObservationVectorForObservableType( observation_models::one_way_range, rangeObservations );
+        input->setOutlierRejectionSettings( simulation_setup::simpleOutlierRejectionSettings( 1.0E5, 0, false ) );
+    };
+
+    executeEarthOrbiterParameterEstimation< double, double >( podData, 1.0E7, 1, 2, false, false, nullptr, configureEstimation );
+
+    const auto dataset = podData.second->getObservationDataset( );
+    const auto activeFlags = podData.first->getActiveFlagsPerIterationMatrix( );
+    BOOST_REQUIRE_GE( activeFlags.cols( ), 2 );
+    BOOST_CHECK_EQUAL( activeFlags.col( 0 ).cast< int >( ).sum( ), activeFlags.rows( ) );
+    BOOST_CHECK_EQUAL( activeFlags.col( 1 ).cast< int >( ).sum( ), activeFlags.rows( ) - 1 );
+    BOOST_CHECK_EQUAL( dataset->createOrderedObservationVectorData( false ).getObservationVector( ).size( ),
+                       dataset->createOrderedObservationVectorData( true ).getObservationVector( ).size( ) - 1 );
+    BOOST_CHECK( podData.first->parameterEstimate_.allFinite( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
