@@ -8,9 +8,8 @@
 This submodule retrieves small-body radar astrometry from the
 `JPL Small-Body Radar Astrometry API <https://ssd-api.jpl.nasa.gov/doc/sb_radar.html>`_.
 Delay and Doppler measurements are converted to Tudat tracking-data objects,
-and known JPL radar station identifiers are mapped to their MPC observatory
-codes. The :func:`read_jpl_radar_data` function provides the direct conversion
-interface.
+with JPL radar station positions defined directly in the code. The
+:func:`read_jpl_radar_data` function provides the direct conversion interface.
 
 .. currentmodule:: tudatpy.data_input.tracking_data.jpl_radar
 
