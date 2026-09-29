@@ -13,6 +13,7 @@ import tudatpy.data_input.tracking_data.jpl_radar.jpl_radar as jpl_radar_backend
 from tudatpy.data_input.tracking_data.jpl_radar import (
     JPLRadarQuery,
     get_available_radar_targets,
+    read_jpl_radar_data,
 )
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.obs_80_cols import read_80_column_data
@@ -286,9 +287,9 @@ def test_jpl_radar_query_returns_canonical_radar_data(monkeypatch):
     monkeypatch.setattr(jpl_radar_backend, "_query", lambda params, timeout: _JPL_RESPONSE)
     table = JPLRadarQuery("1997 WQ23").to_radar_data()
 
-    # All API measurements must survive, with known JPL stations mapped to MPC codes.
+    # All API measurements must survive with source-qualified JPL station names.
     assert len(table) == 3
-    assert set(table["transmitter"]) == set(table["receiver"]) == {"251"}
+    assert set(table["transmitter"]) == set(table["receiver"]) == {"JPL:-1"}
 
     # Delay values and sigmas must be converted from microseconds to metres.
     delay = (
@@ -302,19 +303,28 @@ def test_jpl_radar_query_returns_canonical_radar_data(monkeypatch):
     assert doppler["value"] == pytest.approx(2380.0e6 - 124458.2215)
 
 
-def test_jpl_radar_query_epoch_filter_and_station_positions(monkeypatch):
-    # Check datetime filtering and conversion of JPL geodetic station coordinates.
-    monkeypatch.setattr(jpl_radar_backend, "_query", lambda params, timeout: _JPL_RESPONSE)
-    query = JPLRadarQuery("1997 WQ23")
-    table = query.to_radar_data(epoch_start=datetime.datetime(2013, 11, 20))
+def test_jpl_radar_uses_local_jpl_station_position(monkeypatch):
+    # The observation request must not download coordinates from JPL.
+    def fake_query(params, timeout):
+        assert params == {"des": "1997 WQ23"}
+        return {key: value for key, value in _JPL_RESPONSE.items() if key != "coords"}
+
+    monkeypatch.setattr(jpl_radar_backend, "_query", fake_query)
+    tracking_data, _ = read_jpl_radar_data("1997 WQ23", epoch_start=datetime.datetime(2013, 11, 20))
 
     # Only the measurement inside the requested epoch interval must remain.
-    assert len(table) == 1
+    assert len(tracking_data) == 1
+    assert tracking_data[0].link_ends[0][0] == ("Earth", "JPL:-1")
 
-    # Altitude stays in metres and angular coordinates are converted to radians.
+    # The source-qualified link end selects the locally stored JPL position.
+    settings = {
+        setting.station_name: setting for setting in ground_station.optical_telescope_stations()
+    }
     np.testing.assert_allclose(
-        query.station_geodetic_positions()["251"],
-        [453.34, np.deg2rad(18.3442199), np.deg2rad(293.2473068)],
+        settings["JPL:-1"].station_position,
+        [2390487.547561, -5564731.651048, 1994725.930000],
+        rtol=0.0,
+        atol=1.0e-6,
     )
 
 
@@ -329,22 +339,22 @@ def test_jpl_empty_response_gives_empty_table(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "jpl_code, mpc_code",
+    "jpl_code",
     [
-        ("-1", "251"),
-        ("-2", "254"),
-        ("-9", "256"),
-        ("-13", "252"),
-        ("-14", "253"),
-        ("-25", "257"),
-        ("-38", "255"),
-        ("-73", "259"),
-        ("-99", "JPL:-99"),
+        "-1",
+        "-2",
+        "-9",
+        "-13",
+        "-14",
+        "-25",
+        "-38",
+        "-73",
+        "-99",
     ],
 )
-def test_jpl_station_codes_map_to_mpc_codes(jpl_code, mpc_code):
-    # Check every supported JPL-to-MPC station mapping and the unknown-code fallback.
-    assert jpl_radar_backend._station_id(jpl_code) == mpc_code
+def test_jpl_station_codes_are_source_qualified(jpl_code):
+    # JPL station names must not select the positions of same-site MPC stations.
+    assert jpl_radar_backend._station_id(jpl_code) == f"JPL:{jpl_code}"
 
 
 def test_radar_data_converts_with_weights_and_link_ends():

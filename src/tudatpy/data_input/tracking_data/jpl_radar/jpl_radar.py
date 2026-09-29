@@ -5,7 +5,6 @@ import functools
 import numpy as np
 import pandas as pd
 import requests
-from astropy import units as u
 
 from tudatpy.astro import time_representation
 from tudatpy.data_input.tracking_data.radar_utilities import (
@@ -16,16 +15,6 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
 )
 
 _API_URL = "https://ssd-api.jpl.nasa.gov/sb_radar.api"
-_JPL_TO_MPC_STATION = {
-    "-1": "251",
-    "-2": "254",
-    "-9": "256",
-    "-13": "252",
-    "-14": "253",
-    "-25": "257",
-    "-38": "255",
-    "-73": "259",
-}
 
 
 def _query(params: dict, timeout: float) -> dict:
@@ -40,7 +29,7 @@ def _as_frame(content: dict) -> pd.DataFrame:
 
 def _station_id(jpl_code) -> str:
     jpl_code = str(jpl_code).strip()
-    return _JPL_TO_MPC_STATION.get(jpl_code, f"JPL:{jpl_code}")
+    return f"JPL:{jpl_code}"
 
 
 def get_available_radar_targets(timeout: float = 30.0) -> list[str]:
@@ -85,7 +74,7 @@ class JPLRadarQuery:
 
     @functools.cached_property
     def _content(self) -> dict:
-        return _query({"des": self.target, "coords": 1}, self.timeout)
+        return _query({"des": self.target}, self.timeout)
 
     @property
     def raw_data(self) -> pd.DataFrame:
@@ -97,32 +86,6 @@ class JPLRadarQuery:
         """
         return _as_frame(self._content)
 
-    def station_geodetic_positions(self) -> dict[str, np.ndarray]:
-        """Return the geodetic positions of stations used by the observations.
-
-        Returns
-        -------
-        dict[str, numpy.ndarray]
-            MPC station codes mapped to arrays containing altitude [m],
-            latitude [rad] and longitude [rad], in that order. Unmapped JPL
-            stations use an identifier of the form ``"JPL:<code>"``.
-
-        Raises
-        ------
-        requests.HTTPError
-            If the JPL API request is unsuccessful.
-        """
-        return {
-            _station_id(code): np.array(
-                [
-                    (float(station["altitude"]) * u.Unit(station["alt_units"])).to_value(u.m),
-                    np.deg2rad(float(station["latitude"])),
-                    np.deg2rad(float(station["longitude"])),
-                ]
-            )
-            for code, station in self._content.get("coords", {}).items()
-        }
-
     def to_radar_data(
         self,
         target_body=None,
@@ -133,7 +96,8 @@ class JPLRadarQuery:
         """Return the measurements as a canonical radar table.
 
         Delays [us] become round-trip ranges [m]; Doppler shifts [Hz] become
-        received frequencies. Known JPL station codes are mapped to MPC codes.
+        received frequencies. Station codes are prefixed with ``"JPL:"`` so
+        that the matching JPL station positions are used.
 
         Parameters
         ----------
