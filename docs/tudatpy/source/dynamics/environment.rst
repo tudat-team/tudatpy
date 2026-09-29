@@ -215,3 +215,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.SystemOfBodies
    :members:
+   :exclude-members: get_body

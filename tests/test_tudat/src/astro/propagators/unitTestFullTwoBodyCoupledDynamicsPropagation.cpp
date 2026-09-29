@@ -165,8 +165,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAndTorqueInCoupledOrbitRotation
     dependentVariablesList.push_back( totalAccelerationDependentVariable( "Io" ) );
     dependentVariablesList.push_back( singleTorqueVariable( full_two_body_spherical_harmonic_gravitational_torque, "Io", "Jupiter" ) );
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEpoch, integrationStep );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationStep );
     std::shared_ptr< PropagationTerminationSettings > terminationSettings =
             std::make_shared< PropagationTimeTerminationSettings >( finalEpoch );
 

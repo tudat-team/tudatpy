@@ -114,14 +114,22 @@ int main( )
     dependentVariables.push_back(
             std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "Vehicle" ) );
 
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+            120.0, CoefficientSets::rungeKuttaFehlberg78, 120.0, 120.0, 1.0, 1.0 );
+
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalTime, cowell, dependentVariables );
-
-    // Create integrator settings
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            initialTime, 120.0, CoefficientSets::rungeKuttaFehlberg78, 120.0, 120.0, 1.0, 1.0 );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    initialState,
+                    initialTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalTime ),
+                    cowell,
+                    dependentVariables );
 
     // Define link ends.
     LinkEnds stationTransmitterLinkEnds;
@@ -200,8 +208,8 @@ int main( )
         }
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         std::vector< double > baseTimeList;
         double observationInterval = 600.0;

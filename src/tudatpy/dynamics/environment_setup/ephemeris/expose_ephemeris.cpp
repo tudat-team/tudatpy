@@ -14,7 +14,6 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup/createEphemeris.h>
 
 #include "scalarTypes.h"
@@ -38,24 +37,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-inline std::shared_ptr< EphemerisSettings > customEphemerisSettingsDeprecated(
-        const std::function< Eigen::Vector6d( const double ) > customStateFunction,
-        const std::string& frameOrigin = "SSB",
-        const std::string& frameOrientation = "ECLIPJ2000" )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.environment_setup.ephemeris."
-                "custom",
-                "tudatpy.dynamics.environment_setup.ephemeris."
-                "custom_ephemeris" );
-        isWarningPrinted = true;
-    }
-
-    return customEphemerisSettings( customStateFunction, frameOrigin, frameOrientation );
-}
 }  // namespace simulation_setup
 }  // namespace tudat
 
@@ -1180,7 +1161,7 @@ void expose_ephemeris_setup( py::module& m )
    frame_origin = "SSB"
    frame_orientation = "J2000"
    # Make the ephemeris settings
-   body_settings.get("Earth").ephemeris_settings = environment_setup.ephemeris.custom(
+   body_settings.get("Earth").ephemeris_settings = environment_setup.ephemeris.custom_ephemeris(
        custom_state_function,
        frame_origin,
        frame_orientation)
@@ -1249,12 +1230,6 @@ void expose_ephemeris_setup( py::module& m )
 
 
      )doc" );
-
-    m.def( "custom",
-           &tss::customEphemerisSettingsDeprecated,
-           py::arg( "custom_state_function" ),
-           py::arg( "frame_origin" ) = "SSB",
-           py::arg( "frame_orientation" ) = "ECLIPJ2000" );
 }
 
 }  // namespace ephemeris

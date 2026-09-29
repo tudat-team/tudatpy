@@ -35,6 +35,7 @@ from tudatpy.dynamics.propagation_setup import dependent_variable as dep_var
 from tudatpy.dynamics.propagation_setup import torque
 from tudatpy.dynamics.propagation_setup import propagator
 from tudatpy.dynamics.propagation_setup import acceleration as acc
+from tudatpy.dynamics.environment_setup import radiation_pressure
 from tudatpy.dynamics import environment
 from tudatpy.dynamics.environment_setup.aerodynamic_coefficients import AerodynamicsReferenceFrames
 from tudatpy.dynamics.environment_setup.gravity_field_variation import BodyDeformationTypes
@@ -176,7 +177,7 @@ class TestAccelerationSettingsFileIO:
             acc.point_mass_gravity(),
             acc.spherical_harmonic_gravity(4, 4),
             acc.radiation_pressure(),
-            acc.cannonball_radiation_pressure(),
+            acc.radiation_pressure(radiation_pressure.cannonball_target),
             acc.relativistic_correction(
                 use_schwarzschild=True, use_lense_thirring=False, use_de_sitter=False
             ),
@@ -203,7 +204,7 @@ class TestAccelerationSettingsFileIO:
             acc.point_mass_gravity(),
             acc.spherical_harmonic_gravity(4, 4),
             acc.radiation_pressure(),
-            acc.cannonball_radiation_pressure(),
+            acc.radiation_pressure(radiation_pressure.cannonball_target),
             acc.relativistic_correction(
                 use_schwarzschild=True, use_lense_thirring=False, use_de_sitter=False
             ),

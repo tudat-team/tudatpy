@@ -22,6 +22,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createOccultationModel.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/basics/testMacros.h"
@@ -39,6 +40,22 @@ Eigen::Vector3d customAcceleration( const double time )
              -2.0E-6 * std::sin( 2.0 * mathematical_constants::PI * time / 3.0E4 + 0.5 ),
              -8.0E-7 * std::sin( 2.0 * mathematical_constants::PI * time / 5.0E4 + 1.5 ) )
             .finished( );
+}
+
+std::function< double( const double ) > createOccultationScalingFunction( const simulation_setup::SystemOfBodies& bodies,
+                                                                          const std::string& sourceBody,
+                                                                          const std::string& occultingBody,
+                                                                          const std::string& shadowedBody )
+{
+    const auto occultationModel = simulation_setup::createOccultationModel( { occultingBody }, bodies );
+    const auto source = bodies.at( sourceBody );
+    const auto target = bodies.at( shadowedBody );
+
+    return [ occultationModel, source, target ]( const double time ) {
+        occultationModel->updateMembers( time );
+        return occultationModel->evaluateReceivedFractionFromExtendedSource(
+                source->getPosition( ), source->getShapeModel( ), target->getPosition( ) );
+    };
 }
 
 BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
@@ -102,7 +119,7 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
             std::placeholders::_1 );
 
     std::function< double( const double ) > customAccelerationScalingFunction =
-            tudat::simulation_setup::getOccultationFunction( bodies, "Sun", "Earth", "Vehicle" );
+            createOccultationScalingFunction( bodies, "Sun", "Earth", "Vehicle" );
 
     accelerationsOfVehicle[ "Earth" ].push_back(
             std::make_shared< CustomAccelerationSettings >( customAccelerationFunction, customAccelerationScalingFunction ) );
@@ -138,8 +155,7 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     // Create propagator settings.
     // Set variables to save
@@ -311,7 +327,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
             std::placeholders::_1 );
 
     std::function< double( const double ) > customTorqueScalingFunction =
-            tudat::simulation_setup::getOccultationFunction( bodies, "Sun", "Earth", "Vehicle" );
+            createOccultationScalingFunction( bodies, "Sun", "Earth", "Vehicle" );
 
     torqueMap[ "Vehicle" ][ "Earth" ].push_back(
             std::make_shared< CustomTorqueSettings >( customTorqueFunction, customTorqueScalingFunction ) );
@@ -337,18 +353,21 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-            propagatorSettingsList, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ), dependentVariables );
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+            propagatorSettingsList,
+            integratorSettings,
+            simulationStartEpoch,
+            std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+            dependentVariables );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
     std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 

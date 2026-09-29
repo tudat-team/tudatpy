@@ -86,12 +86,14 @@ Classes
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 

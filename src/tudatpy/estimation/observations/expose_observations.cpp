@@ -20,6 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/basics/deprecationWarnings.h"
 #include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
@@ -30,36 +31,6 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace te = tudat::ephemerides;
-
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSetWithoutDependentVariables(
-        const tom::ObservableType observableType,
-        const tom::LinkDefinition& linkEnds,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-        const std::vector< TimeType > observationTimes,
-        const tom::LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
-{
-    std::cerr << "Function single_observation_set is deprecated. Use create_single_observation_set instead" << std::endl;
-    return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
-                                                                                             linkEnds,
-                                                                                             observations,
-                                                                                             observationTimes,
-                                                                                             referenceLinkEnd,
-                                                                                             std::vector< Eigen::VectorXd >( ),
-                                                                                             nullptr,
-                                                                                             ancillarySettings );
-}
-
-}  // namespace simulation_setup
-
-}  // namespace tudat
 
 namespace tudatpy
 {
@@ -551,20 +522,6 @@ numpy.ndarray
 )doc" ) TUDATPY_DEF_PICKLE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
                     TUDATPY_DEF_EQ_NE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_BINARY_IO( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > );
-
-    m.def( "single_observation_set",
-           &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "observable_type" ),
-           py::arg( "link_definition" ),
-           py::arg( "observations" ),
-           py::arg( "observation_times" ),
-           py::arg( "reference_link_end" ),
-           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
-           R"doc(
-
-        Deprecated. Use :func:`~tudatpy.estimation.observations.create_single_observation_set` instead.
-
-        )doc" );
 
     m.def( "create_single_observation_set",
            py::overload_cast< const tom::ObservableType,
@@ -1832,20 +1789,6 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             The system of bodies required for the observation simulation.
         )doc" );
 
-    m.def( "filter_observations",
-           py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::shared_ptr< tom::ObservationFilterBase >,
-                              const bool >( &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_set" ),
-           py::arg( "observation_filter" ),
-           py::arg( "save_filtered_observations" ) = false,
-           R"doc(
-
-Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observation_set` instead.
-
-
-        )doc" );
-
     m.def( "create_filtered_observation_set",
            py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
                               const std::shared_ptr< tom::ObservationFilterBase >,
@@ -1874,6 +1817,22 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         tudatpy.estimation.observations.SingleObservationSet
             A new observation set containing only the observations that passed the filter.
         )doc" );
+
+    m.def(
+            "filter_observations",
+            []( const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationSet,
+                const std::shared_ptr< tom::ObservationFilterBase > observationFilter,
+                const bool saveFilteredObservations ) {
+                tudat::utilities::printDeprecationWarning( "tudatpy.estimation.observations.filter_observations",
+                                                           "tudatpy.estimation.observations.create_filtered_observation_set",
+                                                           "Deprecated as of v1.1." );
+                return tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        originalObservationSet, observationFilter, saveFilteredObservations );
+            },
+            py::arg( "original_observation_set" ),
+            py::arg( "observation_filter" ),
+            py::arg( "save_filtered_observations" ) = false,
+            R"doc(Deprecated as of v1.1. Use :func:`~create_filtered_observation_set` instead.)doc" );
 
     m.def( "split_observation_set",
            py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
