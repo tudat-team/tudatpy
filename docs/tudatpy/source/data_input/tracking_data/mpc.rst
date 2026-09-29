@@ -7,15 +7,18 @@
 
 This submodule contains functionality to retrieve optical tracking data from
 the Minor Planet Center (MPC) database for asteroids and comets. The
-:class:`BatchMPC` class wraps the MPC interface provided by ``astroquery`` and
+:class:`BatchMPC` class wraps the MPC interface provided by `astroquery <https://github.com/astropy/astroquery>`_ :cite:`ginsburg2019astroquery` and
 adds Tudat-specific processing, including optional observation weights based on
 :cite:t:`veres2017` and star-catalog bias corrections based on
-:cite:t:`eggl2020`. The :func:`read_mpc_data` function is the main interface
+:cite:t:`eggl2020`.
+
+The :func:`read_mpc_data` function is the main interface
 for loading the data and converting it to objects that Tudat can process
 further; see also
 :ref:`tracking_data`. All other functionality in this module is
 reserved for better understanding what data is being loaded, and in some cases
 manipulating it, before it is processed into Tudat-compatible objects.
+For example applications of the MPC interface, see the `estimation examples using real observations <https://docs.tudat.space/en/latest/examples/estimation.html#estimation-using-real-observations>`_.
 
 .. currentmodule:: tudatpy.data_input.tracking_data.mpc
 

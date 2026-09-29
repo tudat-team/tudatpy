@@ -16,6 +16,8 @@ Supplementary data that updates bodies, ground stations, or related environment
 objects is applied with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
 
+For more information on the tracking data architecture, see the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-handling/observation-collection-creation/loading-real-data.html>`_ on real tracking data.
+
 .. toctree::
    :maxdepth: 2
    :caption: Modules

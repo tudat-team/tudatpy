@@ -100,12 +100,17 @@ class BatchMPC:
 
     Initialise and retrieve data:
 
-    >>> MPCcodes = [1, 4] # Ceres and Vesta
-    >>> batch = BatchMPC()
-    >>> batch.get_observations(MPCcodes)
+    .. code-block:: python
+
+        MPCcodes = [1, 4] # Ceres and Vesta
+        batch = BatchMPC()
+        batch.get_observations(MPCcodes)
 
     Transform to Tudat tracking data:
-    >>> tracking_data, supplementary_data = batch.to_tracking_dataset()
+
+    .. code-block:: python
+
+        tracking_data, supplementary_data = batch.to_tracking_dataset()
 
     For simple loading, users can call read_mpc_data(...) without explicitly
     constructing a BatchMPC instance.
