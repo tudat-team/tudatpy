@@ -11,6 +11,10 @@
  *       "EXTERIOR GRAVITATION OF A POLYHEDRON DERIVED AND COMPARED WITH HARMONIC AND MASCON GRAVITATION REPRESENTATIONS
  *          OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy
  *       Avillez (2022), MSc thesis (TU Delft) - TODO: add proper reference
+ *       "P2M: A Fast Solver for Querying Distance from Point to Mesh Surface", Zong et al. (2023), ACM Transactions
+ *          on Graphics 42(4), doi:10.1145/3592439 - localisation of point-to-mesh distance queries via the nearest
+ *          mesh vertex, and the cases in which that localisation misses the truly closest primitive
+ *       "Real-Time Collision Detection", Ericson (2005), Morgan Kaufmann, Sec. 5.1.5 - closest point on a triangle
  */
 
 #ifndef TUDAT_POLYHEDRONBODYSHAPEMODEL_H
@@ -69,6 +73,13 @@ public:
      *  Function to calculate the altitude above the polyhedron from a body fixed position.
      *  Function computes the minimum distance to each of the polyhedron features (vertices, edges and facets); the
      *  distance is only computed wrt to the edges and facets around the closest vertex. See Avillez (2022).
+     *
+     *  Note that restricting the search to the neighbourhood of the closest vertex is an approximation: the closest
+     *  primitive of the mesh is not necessarily incident to the closest vertex, a case termed an "interception" by
+     *  Zong et al. (2023). The returned altitude is then too large. The error is negligible for meshes whose facets
+     *  are of comparable size and shape, but grows with the spread in facet size and aspect ratio; it is not bounded
+     *  by convexity, and relative errors of a few percent are reachable on strongly anisotropic convex meshes.
+     *
      *  \param bodyFixedPosition Cartesian, body-fixed position of the point at which the altitude
      *  is to be determined.
      *  \return Altitude above the polyhedron.

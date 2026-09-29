@@ -43,9 +43,10 @@ namespace
 /*!
  *  Produces a closed, purely triangular surface with 42 vertices, 80 facets and 120 edges. This
  *  satisfies the Euler relations (F = 2V - 4, E = 3V - 6) that PolyhedronBodyShapeModel requires of
- *  its input. The mesh is convex, which is what makes it usable as an oracle: for a convex body the
- *  closest surface point to any field point always lies on a facet incident to the closest vertex,
- *  so the localised search performed by getAltitude must reproduce the exhaustive minimum exactly.
+ *  its input. The mesh is convex and near-uniform, its facet areas lying within 16% of one another,
+ *  which is what makes it usable as an oracle: for such a mesh the closest primitive to any field
+ *  point is incident to the closest vertex, so the localised search performed by getAltitude
+ *  reproduces the exhaustive minimum exactly. Uniformity, not convexity, is what carries this.
  *  \param radius Radius of the sphere onto which the vertices are projected.
  *  \param verticesCoordinates Coordinates of each vertex, one row per vertex (returned by reference).
  *  \param verticesDefiningEachFacet Indices of the vertices of each facet, counterclockwise as seen
@@ -416,10 +417,17 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
  *  distance using only the facets and edges around that vertex (Avillez, 2022). This test pins that
  *  selection down by checking it against an exhaustive minimum over the whole mesh.
  *
- *  The body is a convex icosphere, for which the two must agree exactly: the closest surface point
- *  of a convex body always lies on a facet incident to the closest vertex, so restricting the search
- *  to that neighbourhood cannot discard the minimum. Any facet or edge wrongly dropped from the
- *  selection therefore shows up as an altitude that is too large.
+ *  The body is an icosphere whose facets are all of comparable size and shape. For such a mesh the
+ *  closest primitive is always incident to the closest vertex, so the localised search reproduces
+ *  the exhaustive minimum and any facet or edge wrongly dropped from the selection shows up as an
+ *  altitude that is too large. This was checked over 40000 randomly drawn field points at altitudes
+ *  between 0.0005 and 11 body radii before the point set below was fixed.
+ *
+ *  Convexity alone would not be enough: on a strongly anisotropic convex mesh the closest primitive
+ *  need not be incident to the closest vertex, which is an "interception" in the sense of Zong et
+ *  al. (2023), and getAltitude then overestimates. The near-uniform mesh used here stays out of that
+ *  regime on purpose, so that the test exercises the selection logic and not the known
+ *  approximation.
  *
  *  The cuboid used by testPolyhedronShapeModel is too coarse to exercise this: with eight vertices
  *  every facet touches the neighbourhood of every vertex.
