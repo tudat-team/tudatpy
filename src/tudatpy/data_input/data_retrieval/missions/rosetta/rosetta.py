@@ -7,7 +7,7 @@ import re
 import time
 from .._download import _REQUEST_TIMEOUT
 
-_ROSETTA_RSI_MAPPING_TIMEOUT = 120
+_ROSETTA_RSI_MAPPING_TIMEOUT = 120  # seconds
 
 
 class RosettaMixin:
