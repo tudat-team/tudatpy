@@ -1,4 +1,4 @@
-import tudatpy.interface.spice as spice_interface
+import tudatpy.data_input.environment_data.spice as spice_interface
 
 # from tudatpy import load_standard_spice_kernels
 # import pytest

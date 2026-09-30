@@ -23,10 +23,8 @@
 #include <vector>
 
 #include "tudat/io/fieldType.h"
-#include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/interface/spice/spiceInterface.h"
 
 /*!
  * Tool to read out files that are structured with tracking measurements in rows and data types in columns

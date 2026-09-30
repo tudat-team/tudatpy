@@ -42,7 +42,7 @@ void expose_observables_simulation( py::module& m )
          Template class for observation viability calculators.
 
          Template class for classes which conducts viability calculations on simulated observations.
-         Instances of the applicable ObservationViabilityCalculators are automatically created from the given :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects during the simulation of observations (:func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations`).
+         Instances of the applicable ObservationViabilityCalculators are automatically created from the given :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects during the simulation of observations (:func:`~tudatpy.estimation.observations.simulate_observations`).
          The user typically does not interact directly with this class.
 
 
