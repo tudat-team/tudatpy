@@ -1092,6 +1092,13 @@ class StubGenerator:
                 # __all__ statement
                 if "__all__ =" in ast.unparse(statement):
 
+                    # An __all__ that is computed at runtime cannot be
+                    # expanded here (e.g. deprecated wrappers that forward
+                    # every name with __getattr__), so it is left out of the
+                    # stub
+                    if not isinstance(statement.value, (ast.List, ast.Call)):
+                        continue
+
                     # Get items in __all__ statement
                     all_items = self.__retrieve_items_in_all(statement)
 
@@ -1108,6 +1115,17 @@ class StubGenerator:
                 if any(
                     func_name in ast.unparse(statement)
                     for func_name in self.deprecation_function_names
+                ):
+                    continue
+
+                # Private module-level assignments are internal helpers,
+                # so they are left out of the stub
+                if isinstance(statement, ast.Assign):
+                    targets = statement.targets
+                else:
+                    targets = [statement.target]
+                if all(
+                    isinstance(target, ast.Name) and target.id.startswith("_") for target in targets
                 ):
                     continue
 

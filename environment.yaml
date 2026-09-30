@@ -24,9 +24,11 @@ dependencies:
   - pybind11-stubgen
   # Python dependencies
   - numpy
+  - scipy
   - pytest
   - mypy
   - pandas     # for tudatpy.io
+  - pyarrow    # for parquet-backed data archives
   - matplotlib # for tudatpy.plotting
   - tqdm       # for tudatpy.trajectory_design.porkchop
   - astropy    # for tudatpy.data.mpc

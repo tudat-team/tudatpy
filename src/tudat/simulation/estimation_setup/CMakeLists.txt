@@ -29,6 +29,8 @@ set(estimation_HEADERS
         orbitDeterminationManagerUtilitiesImplementation.h
         orbitDeterminationManagerCovarianceImplementation.h
         orbitDeterminationManagerEstimationImplementation.h
+        outlierRejectionSettings.h
+        outlierRejection.h
         createLightTimeCorrectionPartials.h
         createEstimatableParameters.h
         createEstimatableParametersInterface.h

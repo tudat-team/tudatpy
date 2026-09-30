@@ -83,6 +83,17 @@ def test_http_service_outage_requires_remote_data_marker(
         assert "Remote service unavailable:" in report.longrepr[2]
 
 
+@pytest.mark.parametrize("message", ("Error 503: service unavailable", "Service Unavailable"))
+def test_wrapped_http_service_outage_is_skipped(message):
+    exception = RuntimeError("Error while querying Gaia archives")
+    exception.__cause__ = requests.HTTPError(message)
+
+    report = _run_report_hook(exception)
+
+    assert report.outcome == "skipped"
+    assert "Remote service unavailable:" in report.longrepr[2]
+
+
 @pytest.mark.parametrize("client", ("requests", "urllib"))
 @pytest.mark.parametrize("status_code", (400, 401, 403, 404, 429, 500, 501))
 def test_other_http_errors_still_fail(client, status_code):

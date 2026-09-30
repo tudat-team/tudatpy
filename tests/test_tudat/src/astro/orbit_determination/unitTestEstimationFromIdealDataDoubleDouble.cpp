@@ -10,6 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <limits>
 
 #include <boost/test/included/unit_test.hpp>
@@ -17,6 +18,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 #include "tudat/simulation/estimation_setup/executeEarthOrbiterParameterEstimationTestCase.h"
+#include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
 
 namespace tudat
 {
@@ -112,6 +114,53 @@ BOOST_AUTO_TEST_CASE( testIntegratedStateInterpolatorAfterPropagationAndEstimati
     // Verify that the initial propagation and the estimation reintegration both use the requested order.
     BOOST_CHECK_EQUAL( interpolatorOrders.first, 8 );
     BOOST_CHECK_EQUAL( interpolatorOrders.second, 8 );
+}
+
+//! Check that rejecting one corrupted measurement changes the active set used by the next estimation iteration.
+BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
+{
+    std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
+               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
+            podData;
+
+    const auto configureEstimation = []( const std::shared_ptr< observation_models::ObservationDataset< double, double > >& dataset,
+                                         const std::shared_ptr< simulation_setup::EstimationInput< double, double > >& input ) {
+        const std::vector< double > times = dataset->createOrderedObservationVectorData( ).getTimes( );
+        const double firstTime = *std::min_element( times.begin( ), times.end( ) );
+        dataset->removeObservations(
+                observation_models::ObservationSelectionCondition< double, double >::timeGreaterThan( firstTime + 1000.0 ) );
+
+        Eigen::VectorXd rangeObservations = dataset->getObservationVectorForObservableType( observation_models::one_way_range );
+        rangeObservations( 0 ) += 1.0E6;
+        dataset->setObservationVectorForObservableType( observation_models::one_way_range, rangeObservations );
+        const auto rangeIds = dataset->getObservationIdsMatchingCondition(
+                observation_models::ObservationSelectionCondition< double, double >::observableType( observation_models::one_way_range ) );
+        const double crossWeight =
+                0.1 * std::sqrt( dataset->getWeightValue( rangeIds.at( 0 ) )( 0 ) * dataset->getWeightValue( rangeIds.at( 1 ) )( 0 ) );
+        dataset->setWeightBlock( { rangeIds.at( 0 ) }, { rangeIds.at( 1 ) }, Eigen::MatrixXd::Constant( 1, 1, crossWeight ) );
+        input->setOutlierRejectionSettings( simulation_setup::simpleOutlierRejectionSettings( 1.0E5, 0, false ) );
+    };
+
+    executeEarthOrbiterParameterEstimation< double, double >( podData, 1.0E7, 1, 2, false, false, nullptr, configureEstimation );
+
+    const auto dataset = podData.second->getObservationDataset( );
+    const auto activeFlags = podData.first->getActiveFlagsPerIterationMatrix( );
+    BOOST_REQUIRE_GE( activeFlags.cols( ), 2 );
+    BOOST_CHECK_EQUAL( activeFlags.col( 0 ).cast< int >( ).sum( ), activeFlags.rows( ) );
+    BOOST_CHECK_EQUAL( activeFlags.col( 1 ).cast< int >( ).sum( ), activeFlags.rows( ) - 1 );
+    BOOST_CHECK_EQUAL( dataset->createOrderedObservationVectorData( false ).getObservationVector( ).size( ),
+                       dataset->createOrderedObservationVectorData( true ).getObservationVector( ).size( ) - 1 );
+    BOOST_CHECK( podData.first->parameterEstimate_.allFinite( ) );
+    const auto allData = dataset->createOrderedObservationVectorData( true );
+    auto bestDataset = *dataset;
+    bestDataset.restoreObservations( observation_models::ObservationSelectionCondition< double, double >::all( ) );
+    bestDataset.rejectObservations( observation_models::ObservationSelectionCondition< double, double >(
+            [ & ]( const auto&, const int id ) { return !activeFlags( allData.getVectorRow( id, 0 ), podData.first->bestIteration_ ); } ) );
+    const Eigen::MatrixXd savedWeights = podData.first->getWeightsMatrix( );
+    const Eigen::MatrixXd expectedWeights = bestDataset.createOrderedObservationVectorData( false ).getSparseWeightMatrix( );
+    BOOST_REQUIRE_EQUAL( savedWeights.rows( ), expectedWeights.rows( ) );
+    BOOST_CHECK_MESSAGE( savedWeights.isApprox( expectedWeights ),
+                         "Saved weights differ from the best iteration by " << ( savedWeights - expectedWeights ).cwiseAbs( ).maxCoeff( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

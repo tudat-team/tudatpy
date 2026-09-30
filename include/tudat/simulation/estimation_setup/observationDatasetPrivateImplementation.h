@@ -138,6 +138,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObserva
     observedValues_ = std::move( observations );
     residualValues_ = std::move( residuals );
     observationWeights_ = std::move( weights );
+    refreshWeightStructures( );
     ++structuralVersion_;
 }
 
@@ -338,6 +339,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightValu
     {
         throw std::runtime_error( "Observation weight component size is inconsistent." );
     }
+    completeWeightData_.reset( );
     observationWeights_.setObservationDiagonal( row.firstScalarComponent_, weight );
 }
 

@@ -243,6 +243,8 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
     observationWeights_.copyBlock(
             sourceDataset.observationWeights_.restricted( sourceDataset.getScalarComponentIdsForObservationSelection( sourceIds, {} ) ),
             getScalarComponentIdsForObservationSelection( targetIds, {} ) );
+    // Copying one set does not copy its correlations with other sets.
+    setMetadata_.at( newSetId ).weightStructure_ = std::min( sourceMetadata.weightStructure_, ObservationWeightStructure::per_set );
     return newSetId;
 }
 
@@ -259,9 +261,29 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         const std::vector< Eigen::VectorXd >& dependentVariables,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping,
         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+        const bool sortObservations )
 {
-    const auto weights = ObservationWeights::forSet( observations.size( ), getObservableSize( observableType ), weightSettings );
+    const unsigned int singleObservationSize = getObservableSize( observableType );
+    ObservationWeights weights = createObservationWeightsForSet( observations.size( ), singleObservationSize, weightSettings );
+
+    // Apply the same time ordering to the weight rows and columns that
+    // addObservationSet applies to the observations themselves.
+    if( sortObservations && times.size( ) > 1 )
+    {
+        const std::vector< std::size_t > observationPermutation = getTimeSortingPermutation( times );
+        std::vector< unsigned int > scalarPermutation;
+        scalarPermutation.reserve( observations.size( ) * singleObservationSize );
+        for( const std::size_t observationIndex : observationPermutation )
+        {
+            for( unsigned int componentIndex = 0; componentIndex < singleObservationSize; ++componentIndex )
+            {
+                scalarPermutation.push_back( observationIndex * singleObservationSize + componentIndex );
+            }
+        }
+        weights = weights.restricted( scalarPermutation );
+    }
+
     const unsigned int setId = addObservationSet( observableType,
                                                   linkDefinition,
                                                   observations,
@@ -271,8 +293,23 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
                                                   dependentVariableBookkeeping,
                                                   ancillarySettings,
                                                   {},
-                                                  residuals );
+                                                  residuals,
+                                                  sortObservations );
     observationWeights_.copyBlock( weights, getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) );
+    // Creation from settings (including TrackingData) never enters the later cross-set update path.
+    using WeightsBlockType = ObservationWeightSettings::WeightsBlockType;
+    switch( weightSettings.type_ )
+    {
+        case WeightsBlockType::constant_block:
+        case WeightsBlockType::block_per_observation:
+            setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_observation;
+            break;
+        case WeightsBlockType::set_block:
+            setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_set;
+            break;
+        default:
+            break;  // All other settings supply diagonal weights; the metadata already have this default.
+    }
     return setId;
 }
 

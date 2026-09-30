@@ -2078,6 +2078,7 @@ private:
                         result->getScalarComponentIdsForObservationSelection( source.second.second, {} ) );
             }
         }
+        result->refreshWeightStructures( );
         return result;
     }
 

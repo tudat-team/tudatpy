@@ -17,10 +17,12 @@
 #include <unordered_map>
 
 #include <Eigen/Core>
+#include <Eigen/Cholesky>
 #include <Eigen/SparseCore>
 
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
+#include "tudat/simulation/estimation_setup/observationWeights.h"
 
 namespace tudat
 {
@@ -58,6 +60,86 @@ public:
     const Eigen::VectorXd& getWeightVector( ) const
     {
         return weights_;
+    }
+
+    //! Return one observation's measurement covariance, using the complete weights captured from the dataset.
+    /*!
+     * observationId identifies any observation stored in the dataset when this snapshot was created,
+     * including rejected observations and observations outside this object's vector selection.
+     * The returned matrix has one row and column per observable component (e.g. 2 by 2 for angular position).
+     * For correlated observations, invert the complete set, including rejected observations, and return
+     * the requested observation's diagonal block of that inverse. Do not invert only its own weight block.
+     * Weights connecting different sets, and singular or non-positive-definite weights, are unsupported.
+     * Results are shared by snapshots with unchanged weights; concurrent queries sharing these weights are not supported.
+     */
+    const Eigen::MatrixXd& getInverseWeightMatrixForObservation( const unsigned int observationId ) const
+    {
+        if( !completeWeightData_ )
+        {
+            throw std::runtime_error( "No complete weights were captured for this observation vector." );
+        }
+        const auto& data = *completeWeightData_;
+        const auto observation = data.observationMapping_.find( observationId );
+        if( observation == data.observationMapping_.end( ) )
+        {
+            throw std::runtime_error( "Observation is not present in the complete weight snapshot." );
+        }
+        const unsigned int setId = observation->second.second;
+        const auto& metadata = data.setMetadata_.at( setId );
+        if( metadata.weightStructure_ == ObservationWeightStructure::inter_set_weights )
+        {
+            throw std::runtime_error( "Per-observation covariance is unsupported for weights connecting different observation sets." );
+        }
+        const auto cached = data.inverseWeightsByObservation_.find( observationId );
+        if( cached != data.inverseWeightsByObservation_.end( ) )
+        {
+            return cached->second;
+        }
+        const unsigned int dimension = metadata.observableSize_;
+        const std::vector< unsigned int > ids = metadata.weightStructure_ == ObservationWeightStructure::per_set
+                ? data.observationIdsBySet_.at( setId )
+                : std::vector< unsigned int >{ observationId };
+        std::vector< unsigned int > indices;
+        indices.reserve( ids.size( ) * dimension );
+        for( const unsigned int id : ids )
+        {
+            const unsigned int first = data.observationMapping_.at( id ).first;
+            for( unsigned int component = 0; component < dimension; ++component )
+            {
+                indices.push_back( first + component );
+            }
+        }
+        const Eigen::VectorXd diagonal = data.weights_.getDiagonal( indices );
+        if( ( diagonal.array( ) <= 0.0 ).any( ) )
+        {
+            throw std::runtime_error( "Measurement covariance requires strictly positive observation weights." );
+        }
+        Eigen::MatrixXd covariance;
+        if( metadata.weightStructure_ == ObservationWeightStructure::diagonal )
+        {
+            covariance = diagonal.cwiseInverse( ).asDiagonal( );
+        }
+        else
+        {
+            const Eigen::MatrixXd block = data.weights_.restricted( indices ).sparseMatrix( );
+            const Eigen::LLT< Eigen::MatrixXd > factorization( block );
+            if( factorization.info( ) != Eigen::Success )
+            {
+                throw std::runtime_error( "Measurement covariance requires a nonsingular, positive-definite weight matrix." );
+            }
+            covariance = factorization.solve( Eigen::MatrixXd::Identity( block.rows( ), block.cols( ) ) );
+        }
+        if( !covariance.allFinite( ) )
+        {
+            throw std::runtime_error( "Observation weight inversion produced a non-finite measurement covariance." );
+        }
+        // Invert each complete set only once, retaining only the small per-observation covariance blocks.
+        for( std::size_t i = 0; i < ids.size( ); ++i )
+        {
+            data.inverseWeightsByObservation_.emplace( ids.at( i ),
+                                                       covariance.block( i * dimension, i * dimension, dimension, dimension ) );
+        }
+        return data.inverseWeightsByObservation_.at( observationId );
     }
 
     //! Return the full sparse weight matrix, materializing diagonal storage on demand.
@@ -140,6 +222,20 @@ public:
         return row->second.first + componentIndex;
     }
 
+    //! Return the first scalar row of an observation, or -1 when absent from this snapshot.
+    int getFirstVectorRowForObservation( const unsigned int observationId ) const
+    {
+        const auto row = rowMapping_.find( observationId );
+        return row == rowMapping_.end( ) ? -1 : static_cast< int >( row->second.first );
+    }
+
+    //! Return the number of scalar rows for an observation, or zero when absent.
+    unsigned int getScalarSizeForObservation( const unsigned int observationId ) const
+    {
+        const auto row = rowMapping_.find( observationId );
+        return row == rowMapping_.end( ) ? 0 : row->second.second;
+    }
+
     //! Return set identities in their first-appearance order in this snapshot.
     const std::vector< unsigned int >& getSetIdsInRowOrder( ) const
     {
@@ -198,6 +294,18 @@ private:
 
     //! True when the full weight matrix has no off-diagonal entries.
     bool isDiagonalWeightOnly_ = true;
+
+    //! One fixed copy shared by selections, including rejected observations and previously computed covariances.
+    struct CompleteWeightData {
+        ObservationWeights weights_;
+        std::vector< ObservationSetMetadata< ObservationScalarType, TimeType > > setMetadata_;
+        std::vector< std::vector< unsigned int > > observationIdsBySet_;
+        //! Observation id to its first scalar storage index and set id.
+        std::unordered_map< unsigned int, std::pair< unsigned int, unsigned int > > observationMapping_;
+        mutable std::unordered_map< unsigned int, Eigen::MatrixXd > inverseWeightsByObservation_;
+        std::size_t structuralVersion_ = 0;
+    };
+    std::shared_ptr< const CompleteWeightData > completeWeightData_;
 
     //! Reference-link-end time for each scalar entry.
     std::vector< TimeType > times_;

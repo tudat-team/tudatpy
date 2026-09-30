@@ -32,6 +32,14 @@ class ObservationDataset;
 //! Output sequence for detached dataset inspection; membership is specified separately.
 enum class ObservationOrdering { internal, estimation };
 
+//! Weight block sizes, ordered from independent scalar components to correlations between sets.
+enum class ObservationWeightStructure {
+    diagonal,          //!< Independent scalar components.
+    per_observation,   //!< Components of one observation may be correlated.
+    per_set,           //!< Different observations in one set may be correlated.
+    inter_set_weights  //!< Nonzero weight entries connect observations belonging to different sets.
+};
+
 namespace detail
 {
 template< typename ObservationScalarType, typename TimeType >
@@ -54,7 +62,8 @@ class ObservationVectorData;
  * formerly owned by a SingleObservationSet. Individual observation rows only
  * store a set id; this struct stores the observable type, link definition,
  * reference link end, observable size, ancillary-settings id and dependent-
- * variable bookkeeping id that apply to all observations in the set.
+ * variable bookkeeping id that apply to all observations in the set, together
+ * with its weight structure.
  */
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -78,11 +87,21 @@ struct ObservationSetMetadata {
     //! Registry id of dependent-variable layout/bookkeeping; may point to nullptr.
     unsigned int dependentVariableLayoutId_;
 
-    //! Serialize the metadata identifiers and observable description for this set.
+    //! Weight structure of this set, initialized directly from ObservationWeightSettings when supplied.
+    //! Within-set block sizes are conservative: removing correlations need not reduce the recorded block size.
+    ObservationWeightStructure weightStructure_ = ObservationWeightStructure::diagonal;
+
+    //! Serialize the metadata identifiers, observable description, and weight structure for this set.
     template< class Archive >
     void serialize( Archive& ar )
     {
-        ar( observableType_, linkDefinitionId_, referenceLinkEnd_, observableSize_, ancillarySettingsId_, dependentVariableLayoutId_ );
+        ar( observableType_,
+            linkDefinitionId_,
+            referenceLinkEnd_,
+            observableSize_,
+            ancillarySettingsId_,
+            dependentVariableLayoutId_,
+            weightStructure_ );
     }
 
     //! Compare every metadata field for exact equality.
@@ -90,7 +109,8 @@ struct ObservationSetMetadata {
     {
         return observableType_ == rhs.observableType_ && linkDefinitionId_ == rhs.linkDefinitionId_ &&
                 referenceLinkEnd_ == rhs.referenceLinkEnd_ && observableSize_ == rhs.observableSize_ &&
-                ancillarySettingsId_ == rhs.ancillarySettingsId_ && dependentVariableLayoutId_ == rhs.dependentVariableLayoutId_;
+                ancillarySettingsId_ == rhs.ancillarySettingsId_ && dependentVariableLayoutId_ == rhs.dependentVariableLayoutId_ &&
+                weightStructure_ == rhs.weightStructure_;
     }
 };
 

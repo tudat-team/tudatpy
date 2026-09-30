@@ -187,3 +187,7 @@ Tudat/interface/spice/Kernels/
 /cmake-build*
 *.vscode
 .cache/
+
+# Coding agents
+AGENTS.md
+CLAUDE.md

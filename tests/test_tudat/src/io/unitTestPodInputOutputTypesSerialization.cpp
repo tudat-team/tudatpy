@@ -189,6 +189,9 @@ void checkBaseOutputArchives( )
                  expectedEstimation->interArcContinuityDiscrepancyHistory_ );
     }
     simulation_setup::EstimationOutput< double, TimeType > restoredEstimation;
+    // Old files contain no flags, so loading one must clear any flags already in memory.
+    restoredEstimation.activeFlagsPerIteration_.push_back(
+            simulation_setup::EstimationOutput< double, TimeType >::ActiveFlagsVector::Constant( 3, true ) );
     {
         cereal::BinaryInputArchive archive( estimationStream );
         archive( restoredEstimation );
@@ -201,6 +204,19 @@ void checkBaseOutputArchives( )
     expectedCovariance->weightsMatrix_.coeffRef( 2, 0 ) = 0.25;
     expectedCovariance->weightsMatrixDiagonal_.setOnes( );
     BOOST_CHECK( *roundTripSerialize( expectedCovariance ) == *expectedCovariance );
+}
+
+template< typename TimeType >
+void checkEstimationOutputActiveFlags( )
+{
+    const auto original = createEstimationOutput< TimeType >( );
+    using Flags = Eigen::Matrix< bool, Eigen::Dynamic, 1 >;
+    original->activeFlagsPerIteration_ = { Flags::Constant( 3, true ), ( Flags( 3 ) << true, false, true ).finished( ) };
+    const auto restored = roundTripSerialize( original );
+    BOOST_CHECK( *restored == *original );
+    BOOST_CHECK( restored->getActiveFlagsPerIterationMatrix( ) == original->getActiveFlagsPerIterationMatrix( ) );
+    restored->activeFlagsPerIteration_.at( 1 )( 1 ) = true;
+    BOOST_CHECK( !( *restored == *original ) );
 }
 
 }  // namespace
@@ -233,6 +249,12 @@ BOOST_AUTO_TEST_CASE( test_base_output_archives_preserve_diagonal_weights )
 {
     checkBaseOutputArchives< double >( );
     checkBaseOutputArchives< Time >( );
+}
+
+BOOST_AUTO_TEST_CASE( test_estimation_output_preserves_active_flags )
+{
+    checkEstimationOutputActiveFlags< double >( );
+    checkEstimationOutputActiveFlags< Time >( );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

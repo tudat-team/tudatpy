@@ -239,28 +239,19 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingData );
 
-    // Check and add weights if stored in the TrackingData object.
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights = trackingData->getObservationWeights( );
-    if( !weights.empty( ) )
+    if( trackingData->hasObservationWeightSettings( ) )
     {
-        // Check size consistency for weights
-        if( weights.size( ) != observations.size( ) )
-        {
-            throw std::runtime_error( "Error when adding tracking data to an observation dataset, the number of weights (" +
-                                      std::to_string( weights.size( ) ) + ") is inconsistent with the number of observations (" +
-                                      std::to_string( observations.size( ) ) + ")." );
-        }
-
-        for( unsigned int i = 0; i < weights.size( ); i++ )
-        {
-            // Check size consistency of each single weight entry
-            if( weights[ i ].size( ) != observations[ i ].size( ) )
-            {
-                throw std::runtime_error( "Error when adding tracking data to an observation dataset, size of single weight (" +
-                                          std::to_string( weights[ i ].size( ) ) + ") does not match the single observation size (" +
-                                          std::to_string( observations[ i ].size( ) ) + ")." );
-            }
-        }
+        return observationDataset.addObservationSetWithWeights( observableType,
+                                                                linkEnds,
+                                                                observations,
+                                                                epochsTdb,
+                                                                referenceLinkEnd,
+                                                                trackingData->getObservationWeightSettings( ),
+                                                                std::vector< Eigen::VectorXd >( ),
+                                                                nullptr,
+                                                                ancillarySettings,
+                                                                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                                                true );
     }
 
     return observationDataset.addObservationSet( observableType,
@@ -271,7 +262,7 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
                                                  std::vector< Eigen::VectorXd >( ),
                                                  nullptr,
                                                  ancillarySettings,
-                                                 weights,
+                                                 std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
                                                  std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
                                                  true );
 }
