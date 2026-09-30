@@ -21,6 +21,8 @@
 #include <Eigen/Geometry>
 #include <Eigen/LU>
 
+#include "tudat/math/basic/rotationRepresentations.h"
+
 namespace tudat
 {
 
@@ -143,7 +145,9 @@ public:
         focalLength_( focalLength ), principalPoint_( principalPoint ), kMatrix_( kMatrix ),
         distortionCoefficients_( distortionCoefficients ), mountingOffsetsDegrees_( mountingOffsetsDegrees ),
         fieldOfViewBounds_( fieldOfViewBounds )
-    {}
+    {
+        validateCalibration( );
+    }
 
     Eigen::Vector2d projectUnitVectorToPixelLine( const Eigen::Vector3d& cameraFrameUnitVector ) const override
     {
@@ -213,11 +217,36 @@ public:
     }
 
 private:
+    void validateCalibration( ) const
+    {
+        if( !std::isfinite( focalLength_ ) || focalLength_ <= std::numeric_limits< double >::epsilon( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: focal length must be finite and positive." );
+        }
+        if( !principalPoint_.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: principal point must be finite." );
+        }
+        if( !kMatrix_.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: K-MATRIX entries must be finite." );
+        }
+        if( !kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).isInvertible( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: leading 2x2 K-MATRIX block must be nonsingular." );
+        }
+        if( !distortionCoefficients_.array( ).isFinite( ).all( ) || !mountingOffsetsDegrees_.array( ).isFinite( ).all( ) ||
+            !fieldOfViewBounds_.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when creating PSF camera model: auxiliary calibration values must be finite." );
+        }
+    }
+
     void validateProjectionDirection( const Eigen::Vector3d& cameraFrameVector ) const
     {
-        if( std::fabs( focalLength_ ) <= std::numeric_limits< double >::epsilon( ) )
+        if( !cameraFrameVector.array( ).isFinite( ).all( ) )
         {
-            throw std::runtime_error( "Error when projecting with PSF camera model: focal length is zero." );
+            throw std::runtime_error( "Error when projecting with PSF camera model: camera-frame vector must be finite." );
         }
         if( cameraFrameVector.z( ) <= std::numeric_limits< double >::epsilon( ) )
         {
@@ -233,6 +262,10 @@ private:
 
     Eigen::Vector2d pixelLineToFocalPlaneCoordinates( const Eigen::Vector2d& pixelLine ) const
     {
+        if( !pixelLine.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when converting PSF pixel/line coordinates: pixel/line values must be finite." );
+        }
         const Eigen::Vector2d target = pixelLine - principalPoint_;
         Eigen::Vector2d focalPlaneCoordinates = kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).solve( target );
 
@@ -252,7 +285,20 @@ private:
             jacobian( 1, 0 ) = kMatrix_( 1, 0 ) + kMatrix_( 1, 2 ) * y;
             jacobian( 1, 1 ) = kMatrix_( 1, 1 ) + kMatrix_( 1, 2 ) * x;
 
-            focalPlaneCoordinates -= jacobian.fullPivLu( ).solve( residual );
+            const Eigen::FullPivLU< Eigen::Matrix2d > jacobianLu = jacobian.fullPivLu( );
+            if( !jacobianLu.isInvertible( ) )
+            {
+                throw std::runtime_error(
+                        "Error when converting PSF pixel/line coordinates to camera-frame unit vector: local K-MATRIX Jacobian is "
+                        "singular." );
+            }
+            focalPlaneCoordinates -= jacobianLu.solve( residual );
+            if( !focalPlaneCoordinates.array( ).isFinite( ).all( ) )
+            {
+                throw std::runtime_error(
+                        "Error when converting PSF pixel/line coordinates to camera-frame unit vector: Newton solve produced non-finite "
+                        "values." );
+            }
         }
 
         throw std::runtime_error( "Error when converting PSF pixel/line coordinates to camera-frame unit vector: Newton solve failed." );
@@ -281,18 +327,24 @@ public:
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             std::pair< double, double > focal_lengths = std::make_pair( 1.0, 1.0 ),
             std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ),
-            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
+            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr,
+            std::shared_ptr< Eigen::Vector3d > pointingCorrection = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
         projectionModel_( std::make_shared< PinholeCameraProjectionModel >( focal_lengths, optical_center ) ),
-        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
+        pointingCorrection_( pointingCorrection == nullptr ? std::make_shared< Eigen::Vector3d >( Eigen::Vector3d::Zero( ) )
+                                                           : pointingCorrection )
     {}
 
     Camera( const std::string& cameraId,
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             const std::shared_ptr< CameraProjectionModel > projectionModel,
-            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
+            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr,
+            std::shared_ptr< Eigen::Vector3d > pointingCorrection = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
-        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
+        pointingCorrection_( pointingCorrection == nullptr ? std::make_shared< Eigen::Vector3d >( Eigen::Vector3d::Zero( ) )
+                                                           : pointingCorrection )
     {
         if( projectionModel_ == nullptr )
         {
@@ -328,20 +380,40 @@ public:
         return static_cast< bool >( rotationFromInertialToCameraFrameFunction_ );
     }
 
-    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame.
-     *  \return The rotation from body-fixed to camera frame.
+    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame, including the
+     *  current pointing correction.
+     *  \return The effective rotation from body-fixed to camera frame.
      */
     Eigen::Quaterniond getRotationFromBodyFixedToCameraFrame( ) const
+    {
+        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ );
+    }
+
+    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame, excluding the
+     *  current pointing correction.
+     *  \return The nominal rotation from body-fixed to camera frame.
+     */
+    Eigen::Quaterniond getNominalRotationFromBodyFixedToCameraFrame( ) const
     {
         return rotationFromBodyFixedToCameraFrame_;
     }
 
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
     {
-        return rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame;
+        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame );
     }
 
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
+    {
+        return applyPointingCorrection_( getNominalRotationFromInertialToCameraFrame( secondsSinceEpoch ) );
+    }
+
+    /*! \brief Get the rotation from inertial to camera frame from the picture-specific pointing data, excluding
+     *  the current pointing correction.
+     *  \param secondsSinceEpoch Epoch at which the rotation is to be evaluated.
+     *  \return The nominal rotation from inertial to camera frame.
+     */
+    Eigen::Quaterniond getNominalRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
     {
         if( !rotationFromInertialToCameraFrameFunction_ )
         {
@@ -396,6 +468,21 @@ public:
                                                                positionOfObservedBodyInInertialFrame );
     }
 
+    Eigen::Vector3d getPointingCorrection( ) const
+    {
+        return *pointingCorrection_;
+    }
+
+    std::shared_ptr< Eigen::Vector3d > getPointingCorrectionPointer( ) const
+    {
+        return pointingCorrection_;
+    }
+
+    void setPointingCorrection( const Eigen::Vector3d& pointingCorrection )
+    {
+        *pointingCorrection_ = pointingCorrection;
+    }
+
 private:
     /*! \brief Calculate the position of a body in the camera frame from its position in the body-fixed frame.
      *  \param positionOfObservedBodyInBodyFrame Position of the observed body in the body-fixed frame.
@@ -403,7 +490,25 @@ private:
      */
     Eigen::Vector3d bodyFixedToCameraFrame_( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
     {
-        return rotationFromBodyFixedToCameraFrame_ * positionOfObservedBodyInBodyFrame;
+        return getRotationFromBodyFixedToCameraFrame( ) * positionOfObservedBodyInBodyFrame;
+    }
+
+    /*! \brief Apply the current pointing correction to a nominal rotation to the camera frame.
+     *  The correction is a small rotation expressed in the camera frame, and is therefore applied on the left:
+     *  a direction that nominally maps to r_cam maps to Exp(theta) * r_cam once the correction is applied. This
+     *  convention is the one differentiated by PixelCoordinatesPointingPartial, and must be kept consistent with it.
+     *  \param nominalRotationToCameraFrame Rotation to the camera frame without pointing correction.
+     *  \return The rotation to the camera frame including the pointing correction.
+     */
+    Eigen::Quaterniond applyPointingCorrection_( const Eigen::Quaterniond& nominalRotationToCameraFrame ) const
+    {
+        if( pointingCorrection_->isZero( 0.0 ) )
+        {
+            return nominalRotationToCameraFrame;
+        }
+        return Eigen::Quaterniond( basic_mathematics::getQuaternionFromRotationVector( *pointingCorrection_ ) *
+                                   nominalRotationToCameraFrame )
+                .normalized( );
     }
 
     //! Name of the camera
@@ -417,6 +522,9 @@ private:
 
     //! Optional direct rotation from inertial to camera frame, used for picture-specific camera pointing data.
     std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction_;
+
+    //! Small rotation-vector correction applied by camera-specific pointing estimation.
+    std::shared_ptr< Eigen::Vector3d > pointingCorrection_;
 };
 }  // namespace system_models
 }  // namespace tudat
