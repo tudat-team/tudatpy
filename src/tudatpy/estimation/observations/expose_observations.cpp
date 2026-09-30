@@ -106,7 +106,13 @@ void expose_observations( py::module& m )
                   py::arg( "reference_link_end" ),
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
                   py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" ),
-                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ) )
+                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ) ,
+                  R"doc(
+
+         Create an observation set from its observable type, link, measurement vectors, epochs and reference link end,
+         with optional dependent variables and ancillary data.
+
+      )doc" )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
@@ -1363,7 +1369,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "append",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::appendObservationCollection,
-                  py::arg( "observation_collection_to_append" ) )
+                  py::arg( "observation_collection_to_append" ) ,
+                  R"doc(
+
+         Append all observation sets from ``observation_collection_to_append`` to this collection and refresh its
+         observation bookkeeping.
+
+      )doc" )
             .def( "filter_observations",
                   py::overload_cast< const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
                                                      std::shared_ptr< tom::ObservationFilterBase > >&,
@@ -1586,7 +1598,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              System of bodies containing the environment.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets to which the variable should be added.
-         
+
          Returns
          -------
          tudatpy.estimation.observations.observations_processing.ObservationCollectionParser
@@ -1864,7 +1876,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
     m.def( "merge_observation_collections",
            &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "observation_collection_list" ) );
+           py::arg( "observation_collection_list" ) ,
+                  R"doc(
+
+         Return an ObservationCollection containing the observation sets from every collection in
+         ``observation_collection_list``.
+
+      )doc" );
 
     // The following functions create a new ObservationCollection object from an existing one
 

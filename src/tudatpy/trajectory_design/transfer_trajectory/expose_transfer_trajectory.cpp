@@ -91,7 +91,13 @@ void expose_transfer_trajectory( py::module& m )
             .def( "state_along_trajectory",
                   py::overload_cast< const double >( &tms::TransferLeg::getStateAlongTrajectory ),
                   py::arg( "time_since_leg_beginning" ),
-                  R"doc(No documentation found.)doc" );
+                  R"doc(
+
+         Return the six-component Cartesian state at ``time_since_leg_beginning`` seconds after departure on this leg.
+
+         The state is expressed in the transfer frame, with position in metres and velocity in metres per second.
+
+      )doc" );
 
     py::class_< tsbm::SphericalShapingLeg, std::shared_ptr< tsbm::SphericalShapingLeg >, tms::TransferLeg >( m,
                                                                                                              "SphericalShapingLeg",
@@ -808,7 +814,13 @@ void expose_transfer_trajectory( py::module& m )
 
          :type: float
       )doc" )
-            .def_property_readonly( "legs", &tms::TransferTrajectory::getLegs, R"doc(No documentation found.)doc" );
+            .def_property_readonly( "legs", &tms::TransferTrajectory::getLegs, R"doc(
+
+         **read-only**
+
+         Transfer leg models, ordered from departure to arrival.
+
+      )doc" );
 
     m.def( "unpowered_leg",
            &tms::unpoweredLeg,
@@ -1176,7 +1188,12 @@ void expose_transfer_trajectory( py::module& m )
            py::arg( "bodies" ),
            py::arg( "body_name" ),
            py::arg( "engine_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Install the acceleration of a low-thrust ``transfer_leg`` as the engine model named ``engine_name`` on
+         ``body_name`` in ``bodies``.
+
+      )doc" );
 };
 
 }  // namespace transfer_trajectory

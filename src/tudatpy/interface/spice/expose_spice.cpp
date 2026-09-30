@@ -101,7 +101,7 @@ void expose_spice( py::module& m )
 
  Get an approximate UTC time from ephemeris time (TDB).
 
- This function computes an approximate UTC time from the given ephemeris time (TDB). 
+ This function computes an approximate UTC time from the given ephemeris time (TDB).
  It uses the `deltet_c` Spice function to calculate the offset between TDB and UTC.
 
  Parameters
@@ -686,7 +686,15 @@ void expose_spice( py::module& m )
 
     m.def( "load_standard_deprecated_kernels",
            &tudat::spice_interface::loadStandardDepracatedSpiceKernels,
-           py::arg( "alternative_kernels" ) = std::vector< std::string >( ) );
+           py::arg( "alternative_kernels" ) = std::vector< std::string >( ) ,
+                  R"doc(
+
+         Load the standard legacy SPICE kernel set.
+
+         ``alternative_kernels`` supplies replacement ephemeris kernels when required. Kernels remain loaded in the
+         SPICE kernel pool until cleared.
+
+      )doc" );
 
     m.def( "get_total_count_of_kernels_loaded",
            &tudat::spice_interface::getTotalCountOfKernelsLoaded,
@@ -796,9 +804,9 @@ void expose_spice( py::module& m )
 
      )doc" );
 
-    m.def( "continue_after_errors", &tudat::spice_interface::toggleErrorReturn, R"doc(No documentation found.)doc" );
+    m.def( "continue_after_errors", &tudat::spice_interface::toggleErrorReturn, R"doc(Configure SPICE to return control to the caller after an error instead of aborting the process.)doc" );
 
-    m.def( "suppress_error_output", &tudat::spice_interface::suppressErrorOutput, R"doc(No documentation found.)doc" );
+    m.def( "suppress_error_output", &tudat::spice_interface::suppressErrorOutput, R"doc(Suppress SPICE error messages emitted to its output stream.)doc" );
 
     //      py::class_<tudat::ephemerides::SpiceEphemeris,
     //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m,

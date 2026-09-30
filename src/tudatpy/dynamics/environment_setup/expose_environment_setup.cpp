@@ -728,7 +728,26 @@ void expose_environment_setup( py::module& m )
            py::arg( "body_name" ),
            py::arg( "ephemeris_origin" ) = "",
            py::arg( "is_part_of_multi_arc" ) = false,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Function that adds an empty tabulated ephemeris to an existing body.
+
+         The ephemeris is created without an interpolator, so that its state history can subsequently be filled from a numerical
+         propagation. It cannot be queried until this state history has been assigned. The frame orientation is taken from the
+         system of bodies.
+
+         Parameters
+         ----------
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
+             Object containing the physical environment.
+         body_name : str
+             Name of the body to which the ephemeris is assigned.
+         ephemeris_origin : str, default=""
+             Origin of the ephemeris frame. If empty, the global frame origin of ``bodies`` is used.
+         is_part_of_multi_arc : bool, default=False
+             If True, place the empty tabulated ephemeris inside a multi-arc ephemeris.
+
+      )doc" );
 
     m.def( "create_tabulated_ephemeris_from_spice",
            &tss::createTabulatedEphemerisFromSpice< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -849,7 +868,28 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "coefficient_settings" ),
            py::arg( "body" ),
            py::arg( "bodies" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Function for creating an aerodynamic coefficient interface from settings.
+
+         The interface computes the aerodynamic force and moment coefficients using the model defined by the settings.
+         The system of bodies is supplied to resolve any dependencies of the coefficient model on the physical environment.
+
+         Parameters
+         ----------
+         coefficient_settings : tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings
+             Settings defining the aerodynamic coefficient model.
+         body : str
+             Name of the body for which the coefficient interface is created.
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
+             Object containing the physical environment.
+
+         Returns
+         -------
+         tudatpy.dynamics.environment.AerodynamicCoefficientInterface
+             Aerodynamic coefficient interface created from the specified settings.
+
+      )doc" );
 
     m.def( "add_radiation_pressure_target_model",
            &tss::addRadiationPressureTargetModel,
@@ -919,13 +959,43 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "body_name" ),
            py::arg( "gravity_field_settings" ),
            py::arg( "gravity_field_variation_settings" ) = std::vector< std::shared_ptr< tss::GravityFieldVariationSettings > >( ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Function that creates a gravity field model from settings, and adds it to an existing body.
+
+         Parameters
+         ----------
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
+             Object containing the physical environment.
+         body_name : str
+             Name of the body to which the gravity field is assigned.
+         gravity_field_settings : tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings
+             Settings defining the gravity field model.
+         gravity_field_variation_settings : list[tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings], default=[]
+             Settings defining variations of the gravity field coefficients, such as those due to tides.
+
+      )doc" );
 
     m.def( "add_mass_properties_model",
            &tss::addRigidBodyProperties,
            py::arg( "bodies" ),
            py::arg( "body_name" ),
-           py::arg( "mass_property_settings" ) );
+           py::arg( "mass_property_settings" ) , R"doc(
+
+         Function that creates a rigid body property model, and adds it to an existing body.
+
+         This function provides the same functionality as :func:`~add_rigid_body_properties`.
+
+         Parameters
+         ----------
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
+             Object containing the physical environment.
+         body_name : str
+             Name of the body to which the rigid body properties are assigned.
+         mass_property_settings : tudatpy.dynamics.environment_setup.rigid_body.RigidBodyPropertiesSettings
+             Settings defining the mass, centre of mass and inertia tensor of the body.
+
+      )doc" );
 
     m.def( "add_rigid_body_properties",
            &tss::addRigidBodyProperties,
@@ -1066,7 +1136,30 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "epoch" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Convert a ground station Cartesian state between two ITRF realizations.
+
+         The transformation accounts for the frame translation, rotation and scale, including their rates. The station
+         velocity is assumed constant when transferring its state to and from the transformation reference epoch.
+
+         Parameters
+         ----------
+         ground_station_state : numpy.ndarray[numpy.float64[6, 1]]
+             Station position in m and velocity in m/s, expressed in the input ITRF realization at ``epoch``.
+         epoch : float
+             Epoch at which the input station state is defined, in seconds since J2000.
+         base_frame : str
+             Input ITRF realization, for instance ``"ITRF2008"``.
+         target_frame : str
+             Output ITRF realization, for instance ``"ITRF2014"``.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[6, 1]]
+             Station position and velocity at the same epoch, expressed in the output ITRF realization.
+
+      )doc" );
 
     m.def( "add_ground_station",
            py::overload_cast< const std::shared_ptr< tss::Body >,
@@ -1078,14 +1171,44 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "ground_station_name" ),
            py::arg( "ground_station_position" ),
            py::arg( "position_type" ) = tcc::cartesian_position,
-           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) , R"doc(
+
+         Function that creates a ground station at a specified body-fixed position.
+
+         Parameters
+         ----------
+         body : tudatpy.dynamics.environment.Body
+             Body to which the ground station is added.
+         ground_station_name : str
+             Name by which the station is identified on the body.
+         ground_station_position : numpy.ndarray[numpy.float64[3, 1]]
+             Station position in the coordinate representation specified by ``position_type``. Cartesian coordinates are in m;
+             spherical coordinates contain radius in m, latitude in rad and longitude in rad; geodetic coordinates contain
+             altitude in m, geodetic latitude in rad and longitude in rad.
+         position_type : tudatpy.astro.element_conversion.PositionElementTypes, default=cartesian_position_type
+             Coordinate representation of the station position.
+         station_motion_settings : list[tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings], default=[]
+             Settings for station displacements relative to the nominal body-fixed position.
+
+      )doc" );
 
     m.def( "add_ground_station",
            py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::GroundStationSettings > >(
                    &tss::createGroundStation ),
            py::arg( "body" ),
            py::arg( "ground_station_settings" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Function that creates a ground station from settings, and adds it to a body.
+
+         Parameters
+         ----------
+         body : tudatpy.dynamics.environment.Body
+             Body to which the ground station is added.
+         ground_station_settings : tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings
+             Settings defining the station name, position, motion and weather data.
+
+      )doc" );
     //
     //
     //    .. code-block:: python
@@ -1118,7 +1241,7 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                 Body to which the camera is added. The camera is added to the vehicle systems of this body.
             camera_settings : CameraSettings
                 Settings defining the camera that is to be created and added to the body.
-            
+
             Examples
             --------
             In this example, we create a basic camera settings aligned with y axis:
@@ -1146,7 +1269,7 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
            R"doc(
            Function to add a camera to an existing body.
-           
+
            This function creates a camera with the provided properties, and adds it to the provided body.
            The camera is defined by its name, its boresight direction (defined by Euler angles), and its focal lengths
            optical center (defining the mapping from boresight to pixel coordinates), and body-fixed position.
@@ -1177,7 +1300,21 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                     add_camera(body, "Camera", [np.pi/2.0, 0.0, 0.0])
            )doc" );
 
-    m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ) );
+    m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ) , R"doc(
+
+         Retrieve the link-end identifiers of the ground stations on a body.
+
+         Parameters
+         ----------
+         body : tudatpy.dynamics.environment.Body
+             Body on which the ground stations are defined.
+
+         Returns
+         -------
+         list[tuple[str, str]]
+             List of body-name and station-name pairs, with one entry for each ground station.
+
+      )doc" );
 
     // Relativistic time converter helpers
     py::class_< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,

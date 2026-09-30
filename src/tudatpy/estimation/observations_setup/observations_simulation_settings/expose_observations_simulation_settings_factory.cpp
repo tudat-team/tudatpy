@@ -41,7 +41,15 @@ void expose_observation_simulation_settings_factory_bindings( py::module& m )
            &tss::getObservationSimulationSettingsFromObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection" ),
            py::arg( "bodies" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create observation simulation settings matching the observable types, links and epochs in
+         ``observation_collection``.
+
+         The supplied ``bodies`` are used to resolve links and supporting observation data. Returns a list of
+         ObservationSimulationSettings.
+
+      )doc" );
 
     m.def( "change_simulation_settings_observable_types",
            &tom::changeObservableTypesOfObservationSimulationSettings< STATE_SCALAR_TYPE, TIME_TYPE >,

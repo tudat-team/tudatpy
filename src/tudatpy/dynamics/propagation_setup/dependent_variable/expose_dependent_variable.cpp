@@ -162,7 +162,7 @@ void expose_dependent_variable_setup( py::module& m )
       )doc" )
             .value( "stagnation_point_heat_flux_type",
                     tp::PropagationDependentVariables::stagnation_point_heat_flux_dependent_variable,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(Heat flux at the vehicle stagnation point.)doc" )
             .value( "local_temperature_type",
                     tp::PropagationDependentVariables::local_temperature_dependent_variable,
                     R"doc(
@@ -292,7 +292,7 @@ void expose_dependent_variable_setup( py::module& m )
                     tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable,
                     R"doc(
       )doc" )
-            .value( "custom_type", tp::PropagationDependentVariables::custom_dependent_variable, R"doc(No documentation found.)doc" )
+            .value( "custom_type", tp::PropagationDependentVariables::custom_dependent_variable, R"doc(Dependent variable evaluated by a user-supplied function.)doc" )
             .value( "gravity_field_potential_type",
                     tp::PropagationDependentVariables::gravity_field_potential_dependent_variable,
                     R"doc(
@@ -339,7 +339,14 @@ void expose_dependent_variable_setup( py::module& m )
 
     auto single_dependent_variable_save_settings = py::class_< tp::SingleDependentVariableSaveSettings,
                                                                std::shared_ptr< tp::SingleDependentVariableSaveSettings >,
-                                                               tp::VariableSettings >( m, "SingleDependentVariableSaveSettings" );
+                                                               tp::VariableSettings >( m, "SingleDependentVariableSaveSettings" ,
+                  R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.dependent_variable`.
+
+         See those functions for the available settings and model definitions.
+
+      )doc" );
 
     m.def( "local_wind_velocity",
            &tp::localWindVelocityVariable,
@@ -396,7 +403,7 @@ Variable Size
             .def_property_readonly( "dependent_variable_type",
                                     &tp::SingleDependentVariableSaveSettings::getDependentVariableType,
                                     R"doc(
-                                    
+
 Type of the dependent variable that is being saved.
 
 :type: PropagationDependentVariables
@@ -413,26 +420,26 @@ Body associated with variable.
             .def_property_readonly( "secondary_body",
                                     &tp::SingleDependentVariableSaveSettings::getSecondaryBody,
                                     R"doc(
-                                    
+
 Secondary body w.r.t. which parameter is defined, e.g. relative position is defined for the associated body w.r.t. secondary body.
 
 .. note::
 
-    This parameter is not necessarily defined. In this case an empty string is returned.                    
-                                    
+    This parameter is not necessarily defined. In this case an empty string is returned.
+
 :type: str
 
                                     )doc" )
             .def_property_readonly( "component_index",
                                     &tp::SingleDependentVariableSaveSettings::getComponentIndex,
                                     R"doc(
-                                    
+
 Index of the component to be saved.
 
 .. note::
 
-    This parameter is only applicable for vectorial dependent variables. If negative, all components of the vector are saved.                    
-                                    
+    This parameter is only applicable for vectorial dependent variables. If negative, all components of the vector are saved.
+
 :type: int
 
                                     )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleDependentVariableSaveSettings )
@@ -464,7 +471,7 @@ Index of the component to be saved.
             .def_property_readonly( "acceleration_model_type",
                                     &tp::SingleAccelerationDependentVariableSaveSettings::getAccelerationModelType,
                                     R"doc(
-                                    
+
 The type of the acceleration that is to be saved.
 
 :type: AvailableAcceleration
@@ -1547,13 +1554,27 @@ The type of the acceleration that is to be saved.
            &tp::aerodynamicForceCoefficientControlSurfaceFreeDependentVariable,
            py::arg( "body" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three aerodynamic force coefficients excluding control-surface increments for
+         ``body``.
+
+         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "aerodynamic_moment_coefficients_control_surface_free",
            &tp::aerodynamicMomentCoefficientControlSurfaceFreeDependentVariable,
            py::arg( "body" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three aerodynamic moment coefficients excluding control-surface increments for
+         ``body``.
+
+         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "aerodynamic_force_coefficients_control_surface_"
            "increment",
@@ -1561,7 +1582,13 @@ The type of the acceleration that is to be saved.
            py::arg( "body" ),
            py::arg( "control_surface_name" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three force-coefficient increments of ``control_surface_name`` on ``body``.
+
+         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "aerodynamic_moment_coefficients_control_surface_"
            "increment",
@@ -1569,7 +1596,13 @@ The type of the acceleration that is to be saved.
            py::arg( "body" ),
            py::arg( "control_surface_name" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three moment-coefficient increments of ``control_surface_name`` on ``body``.
+
+         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "latitude",
            &tp::latitudeDependentVariable,
@@ -1950,7 +1983,14 @@ The type of the acceleration that is to be saved.
            py::arg( "maximum_degree" ),
            py::arg( "minimum_order" ),
            py::arg( "maximum_order" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total time-dependent variations of the cosine gravity coefficients of ``body``.
+
+         The inclusive ``minimum_degree``, ``maximum_degree``, ``minimum_order`` and ``maximum_order`` bounds select
+         the coefficient block. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "total_spherical_harmonic_sine_coefficient_variations",
            &tp::totalSphericalHarmonicSineCoefficientVariation,
@@ -1959,21 +1999,38 @@ The type of the acceleration that is to be saved.
            py::arg( "maximum_degree" ),
            py::arg( "minimum_order" ),
            py::arg( "maximum_order" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total time-dependent variations of the sine gravity coefficients of ``body``.
+
+         The inclusive ``minimum_degree``, ``maximum_degree``, ``minimum_order`` and ``maximum_order`` bounds select
+         the coefficient block. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "total_spherical_harmonic_cosine_coefficient_variations_"
            "from_indices",
            &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
            py::arg( "body" ),
            py::arg( "component_indices" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total cosine gravity-coefficient variations of ``body`` for the (degree, order) pairs
+         in ``component_indices``. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "total_spherical_harmonic_sine_coefficient_variations_"
            "from_indices",
            &tp::totalSphericalHarmonicSineCoefficientVariationFromIndices,
            py::arg( "body" ),
            py::arg( "component_indices" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total sine gravity-coefficient variations of ``body`` for the (degree, order) pairs in
+         ``component_indices``. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "body_fixed_airspeed_velocity",
            &tp::bodyFixedAirspeedBasedVelocityVariable,
@@ -2042,14 +2099,14 @@ The type of the acceleration that is to be saved.
 
  Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save.
 
- Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector). 
- 
- .. note:: 
- 
+ Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector).
+
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -2089,13 +2146,13 @@ The type of the acceleration that is to be saved.
  Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save.
 
  Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the velocity vector, the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
- 
- .. note:: 
- 
+
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -2138,12 +2195,12 @@ The type of the acceleration that is to be saved.
 
  Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the position vector (away from the central body), the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
 
- .. note:: 
- 
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -2215,12 +2272,12 @@ The type of the acceleration that is to be saved.
 
  Function to add the rotation matrix between any two reference frames used in aerodynamic calculations. The list of available frames is defined by the :class:`AerodynamicsReferenceFrames` enum.
 
- .. note:: 
- 
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -2321,7 +2378,12 @@ The type of the acceleration that is to be saved.
            &tp::controlSurfaceDeflectionDependentVariable,
            py::arg( "body" ),
            py::arg( "control_surface" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the deflection angle of ``control_surface`` on ``body``, in radians. Returns
+         SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "central_body_fixed_spherical_position",
            &tp::centralBodyFixedSphericalPositionVariable,
@@ -2620,9 +2682,19 @@ The type of the acceleration that is to be saved.
 
      )doc" );
 
-    m.def( "center_of_mass", &tp::centerOfMassVariableSaveSettings, py::arg( "body" ), R"doc(No documentation found.)doc" );
+    m.def( "center_of_mass", &tp::centerOfMassVariableSaveSettings, py::arg( "body" ), R"doc(
 
-    m.def( "inertia_tensor", &tp::inertiaTensorVariableSaveSettings, py::arg( "body" ), R"doc(No documentation found.)doc" );
+         Create settings to save the three-component body-fixed centre of mass of ``body``, in metres. Returns
+         SingleDependentVariableSaveSettings.
+
+      )doc" );
+
+    m.def( "inertia_tensor", &tp::inertiaTensorVariableSaveSettings, py::arg( "body" ), R"doc(
+
+         Create settings to save the body-fixed inertia tensor of ``body``, in kilograms times square metres. Returns
+         SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "received_irradiance",
            &tp::receivedIrradianceDependentVariable,
@@ -2718,63 +2790,120 @@ The type of the acceleration that is to be saved.
            &tp::vehiclePanelInertialSurfaceNormals,
            py::arg( "body_name" ),
            py::arg( "part_name" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save inertial-frame unit surface normals for the panels of ``body_name``.
+
+         ``part_name`` optionally selects a vehicle part. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "vehicle_panel_surface_normals_body_fixed_frame",
            &tp::vehiclePanelInertialSurfaceNormals,
            py::arg( "body_name" ),
            py::arg( "part_name" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create panel surface-normal output settings for ``body_name`` and optional ``part_name``.
+
+         This binding currently calls the inertial-frame surface-normal factory and therefore produces inertial-frame
+         normals. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "per_target_panel_radiation_pressure_force",
            &tp::vehiclePanelInertialSurfaceNormals,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create panel surface-normal output settings through the current compatibility binding.
+
+         This binding currently calls the inertial-frame surface-normal factory: ``target_name`` is used as the body
+         name and ``source_name`` as the vehicle part name. It returns SingleDependentVariableSaveSettings for normals
+         rather than panel radiation forces.
+
+      )doc" );
 
     m.def( "radiation_pressure_source_panel_irradiance",
            &tp::paneledRadiationSourcePerPanelIrradiance,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save irradiance contributions from individual panels of ``source_name`` at ``target_name``.
+         Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "radiation_pressure_source_panel_geometry",
            &tp::paneledRadiationSourceGeometry,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the panel geometry of ``source_name`` as seen from ``target_name``. Returns
+         SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "illuminated_panel_fraction",
            &tp::illuminatedPanelFractionDependentVariable,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
            py::arg( "panel_type" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the illuminated fraction of panels on ``target_name`` due to ``source_name``.
+
+         ``panel_type`` optionally restricts the selected panels. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "cross_section_change",
            &tp::crossSectionChangeDependentVariable,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the change in effective cross section of ``target_name`` for ``source_name`` and the
+         selected ``acceleration_type``. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "full_body_paneled_geometry",
            &tp::fullBodyPaneledGeometryDependentVariable,
            py::arg( "target_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the full panel geometry of ``target_name``. Returns
+         SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "aerodynamic_coefficients",
            &tp::aerodynamicCoefficientsDependentVariable,
            py::arg( "target_name" ),
            py::arg( "central_body_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the aerodynamic coefficients of ``target_name`` in the environment of
+         ``central_body_name``. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "actual_cross_section",
            &tp::actualCrossSectionDependentVariable,
            py::arg( "target_name" ),
            py::arg( "central_body_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the actual cross section of ``target_name`` with respect to ``central_body_name`` for
+         ``acceleration_type``. Returns SingleDependentVariableSaveSettings.
+
+      )doc" );
 
     m.def( "vehicle_part_rotation_matrix",
            &tp::vehiclePartRotationMatrixVariable,

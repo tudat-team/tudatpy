@@ -50,7 +50,15 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
            py::arg( "time_step" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create relative-position model settings and pseudo-observations from the ephemerides in ``bodies``.
+
+         ``observed_bodies`` are paired with ``central_bodies``. Epochs start one hour after ``initial_time`` and stop
+         before one hour before ``final_time``, with spacing ``time_step``; times are in seconds since J2000. Returns a
+         tuple of the model settings list and an ObservationCollection.
+
+      )doc" );
 
     m.def( "create_pseudo_observations_and_models_from_observation_times",
            py::overload_cast< const tss::SystemOfBodies&,
@@ -61,14 +69,30 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "observed_bodies" ),
            py::arg( "central_bodies" ),
            py::arg( "observation_times" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create relative-position model settings and pseudo-observations from ephemerides at ``observation_times``.
+
+         ``observed_bodies`` are paired with ``central_bodies`` in the supplied system of ``bodies``. Epochs are in
+         seconds since J2000. Returns a tuple of the model settings list and an ObservationCollection.
+
+      )doc" );
 
     m.def( "set_existing_observations",
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observations" ),
            py::arg( "reference_link_end" ),
            py::arg( "ancillary_settings_per_observatble" ) =
-                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) );
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) ,
+                  R"doc(
+
+         Create an ObservationCollection from existing measurements grouped by observable type.
+
+         ``observations`` maps each observable type to its link ends and a pair of measurement-vector and epoch lists.
+         ``reference_link_end`` identifies the time reference. ``ancillary_settings_per_observatble`` optionally
+         supplies ancillary data for each observable type.
+
+      )doc" );
 
     m.def( "simulate_observations",
            &tss::simulateObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -120,7 +144,15 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "times_list" ),
            py::arg( "reference_link_end" ),
            py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create an ObservationCollection for one ``observable_type`` and ``link_ends`` definition.
+
+         ``observations_list`` contains measurement vectors and ``times_list`` the corresponding epochs in seconds
+         since J2000, referenced to ``reference_link_end``. ``ancillary_settings`` optionally supplies observable-
+         specific supporting data.
+
+      )doc" );
 }
 
 }  // namespace observations_wrapper

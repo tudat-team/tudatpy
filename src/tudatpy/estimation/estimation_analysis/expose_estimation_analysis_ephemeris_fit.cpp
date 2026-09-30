@@ -52,7 +52,17 @@ void expose_estimation_analysis_ephemeris_fit( py::module& m )
            py::arg( "number_of_iterations" ) = 3,
            py::arg( "reintegrate_variational_equations" ) = true,
            py::arg( "results_print_frequency" ) = 0.0,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Fit a numerically propagated orbit to the existing ephemerides of ``observed_bodies``.
+
+         ``bodies``, ``acceleration_models``, ``central_bodies`` and ``integrator_settings`` define the dynamics.
+         ``initial_time``, ``final_time`` and ``data_point_interval`` define the fit interval and sampling in seconds
+         since J2000. Initial states and any ``additional_parameter_names`` are estimated over ``number_of_iterations``
+         iterations. ``reintegrate_variational_equations`` controls derivative updates and ``results_print_frequency``
+         controls propagation reporting. Returns EstimationOutput.
+
+      )doc" );
 }
 
 }  // namespace estimation_analysis

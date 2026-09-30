@@ -192,15 +192,33 @@ void expose_shape_setup( py::module& m )
             .def_property( "low_resolution_body_shape_settings",
                            &tss::HybridBodyShapeSettings::getLowResolutionBodyShapeSettings,
                            &tss::HybridBodyShapeSettings::resetLowResolutionBodyShapeSettings,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         Settings for the lower-resolution shape model, used when the altitude computed with this model exceeds the switchover altitude.
+
+         :type: BodyShapeSettings
+
+      )doc" )
             .def_property( "high_resolution_body_shape_settings",
                            &tss::HybridBodyShapeSettings::getHighResolutionBodyShapeSettings,
                            &tss::HybridBodyShapeSettings::resetHighResolutionBodyShapeSettings,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         Settings for the higher-resolution shape model, used close to the body when the lower-resolution altitude does not exceed the switchover altitude.
+
+         :type: BodyShapeSettings
+
+      )doc" )
             .def_property( "switchover_altitude",
                            &tss::HybridBodyShapeSettings::getSwitchoverAltitude,
                            &tss::HybridBodyShapeSettings::resetSwitchoverAltitude,
-                           R"doc(No documentation found.)doc" );
+                           R"doc(
+
+         Altitude threshold, in m, for switching between the lower-resolution and higher-resolution shape models.
+
+         :type: float
+
+      )doc" );
 
     m.def( "spherical",
            &tss::sphericalBodyShapeSettings,

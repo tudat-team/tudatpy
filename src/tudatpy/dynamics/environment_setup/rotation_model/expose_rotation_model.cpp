@@ -56,7 +56,7 @@ void expose_rotation_model_setup( py::module& m )
 
 
       )doc" )
-            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(No documentation found.)doc" )
+            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(Rotation model with a fixed pole and constant rotation rate.)doc" )
             .value( "spice_rotation_model",
                     tss::RotationModelType::spice_rotation_model,
                     R"doc(
@@ -153,17 +153,52 @@ void expose_rotation_model_setup( py::module& m )
       )doc" );
 
     py::class_< tss::SimpleRotationModelSettings, std::shared_ptr< tss::SimpleRotationModelSettings >, tss::RotationModelSettings >(
-            m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "SimpleRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" );
 
     py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
-            m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "PlanetaryRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_custom_angles`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_full_custom`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" );
 
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
-            m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "IAURotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" );
 
     py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
-            m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
-            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile );
+            m, "GcrsToItrsRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" )
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile , R"doc(
+
+         **read-only**
+
+         Path to the Earth orientation parameter file used by the GCRS to ITRS rotation model.
+
+         :type: str
+
+      )doc" );
 
     m.def( "simple",
            py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d&, const double, const double >(

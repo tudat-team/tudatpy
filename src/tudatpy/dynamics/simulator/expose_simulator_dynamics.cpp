@@ -38,7 +38,8 @@ namespace simulator
 void expose_simulator_dynamics_bindings( py::module& m )
 {
     py::class_< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "EnvironmentUpdater" );
+                std::shared_ptr< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "EnvironmentUpdater" ,
+                  R"doc(Updater that synchronizes physical environment models with the current integrated state and epoch.)doc" );
 
     py::class_< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > > >(

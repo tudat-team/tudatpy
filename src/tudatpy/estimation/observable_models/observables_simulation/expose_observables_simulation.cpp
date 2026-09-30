@@ -32,7 +32,12 @@ namespace observables_simulation
 void expose_observables_simulation( py::module& m )
 {
     py::class_< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "ObservationManager" );
+                std::shared_ptr< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "ObservationManager" ,
+                  R"doc(
+
+         Base manager connecting observation models with their associated partial derivatives during estimation.
+
+      )doc" );
 
     py::class_< tom::ObservationViabilityCalculator, std::shared_ptr< tom::ObservationViabilityCalculator > >(
             m,
@@ -75,7 +80,7 @@ void expose_observables_simulation( py::module& m )
          Returns
          -------
          bool
-             True if observation is viable, false if not.   
+             True if observation is viable, false if not.
 
      )doc" );
 
@@ -98,22 +103,22 @@ void expose_observables_simulation( py::module& m )
     py::class_< tom::ObservationSimulator< 1, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulator< 1, STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "ObservationSimulator_1", R"doc(No documentation found.)doc" );
+            m, "ObservationSimulator_1", R"doc(Observation simulator grouping models with 1 observable component.)doc" );
 
     py::class_< tom::ObservationSimulator< 2, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulator< 2, STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "ObservationSimulator_2", R"doc(No documentation found.)doc" );
+            m, "ObservationSimulator_2", R"doc(Observation simulator grouping models with 2 observable components.)doc" );
 
     py::class_< tom::ObservationSimulator< 3, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulator< 3, STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "ObservationSimulator_3", R"doc(No documentation found.)doc" );
+            m, "ObservationSimulator_3", R"doc(Observation simulator grouping models with 3 observable components.)doc" );
 
     py::class_< tom::ObservationSimulator< 6, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulator< 6, STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "ObservationSimulator_6", R"doc(No documentation found.)doc" );
+            m, "ObservationSimulator_6", R"doc(Observation simulator grouping models with 6 observable components.)doc" );
 }
 
 }  // namespace observables_simulation

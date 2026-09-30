@@ -60,26 +60,30 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
             .def_property( "ancillary_settings",
                            &tss::ObservationSimulationSettings< TIME_TYPE >::getAncillarySettings,
                            &tss::ObservationSimulationSettings< TIME_TYPE >::setAncillarySettings,
-                           R"doc( No documentation found
-      )doc" )
+                           R"doc(Observable-specific ancillary data used when simulating the observations.)doc" )
             .def_property_readonly( "dependent_variable_bookkeeping",
                                     &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationDependentVariableBookkeeping,
-                                    R"doc( No documentation found
+                                    R"doc(
+
+         **read-only**
+
+         Bookkeeping that maps observation dependent variables to their saved vector entries.
+
       )doc" )
             .def_property( "dependent_variable_settings_list",
                            &tss::ObservationSimulationSettings< TIME_TYPE >::getDependentVariableSettings,
                            &tss::ObservationSimulationSettings< TIME_TYPE >::setDependentVariableSettings,
-                           R"doc( No documentation found
-
-      )doc" )
+                           R"doc(Settings for dependent variables to save during observation simulation.)doc" )
             .def( "add_dependent_variables",
                   &tss::ObservationSimulationSettings< TIME_TYPE >::addDependentVariableSettings,
-                  R"doc( No documentation found
+                  R"doc(
+
+         Append the supplied observation dependent variable settings to the variables saved during simulation.
+
       )doc" )
             .def( "clear_dependent_variables",
                   &tss::ObservationSimulationSettings< TIME_TYPE >::clearDependentVariableSettings,
-                  R"doc( No documentation found
-      )doc" );
+                  R"doc(Remove all observation dependent variables currently configured for this simulation.)doc" );
     //            .def_property("observable_type",
     //                         &tss::ObservationSimulationSettings<double>::getObservableType,
     //                         &tss::ObservationSimulationSettings<double>::setObservableType,
@@ -147,7 +151,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
       )doc" )
             .def_property( "simulation_times",
                            &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::getSimulationTimes,
-                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes );
+                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes ,
+                  R"doc(Requested simulation epochs, in seconds since J2000, associated with the reference link end.)doc" );
 
     m.def( "tabulated_simulation_settings",
            &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,

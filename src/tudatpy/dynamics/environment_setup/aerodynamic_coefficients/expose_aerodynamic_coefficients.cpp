@@ -204,20 +204,35 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
 )doc" )
             .export_values( );
 
-    py::enum_< ta::AtmosphericCompositionSpecies >( m, "AtmosphericCompositionSpecies", R"doc(No documentation found.)doc" )
-            .value( "o_species", ta::AtmosphericCompositionSpecies::o_species, R"doc(No documentation found.)doc" )
-            .value( "o2_species", ta::AtmosphericCompositionSpecies::o2_species, R"doc(No documentation found.)doc" )
-            .value( "n2_species", ta::AtmosphericCompositionSpecies::n2_species, R"doc(No documentation found.)doc" )
-            .value( "he_species", ta::AtmosphericCompositionSpecies::he_species, R"doc(No documentation found.)doc" )
-            .value( "h_species", ta::AtmosphericCompositionSpecies::h_species, R"doc(No documentation found.)doc" )
-            .value( "ar_species", ta::AtmosphericCompositionSpecies::ar_species, R"doc(No documentation found.)doc" )
-            .value( "n_species", ta::AtmosphericCompositionSpecies::n_species, R"doc(No documentation found.)doc" )
-            .value( "anomalous_o_species", ta::AtmosphericCompositionSpecies::anomalous_o_species, R"doc(No documentation found.)doc" )
+    py::enum_< ta::AtmosphericCompositionSpecies >( m, "AtmosphericCompositionSpecies", R"doc(
+
+         Enumeration of atmospheric species used in gas-surface interaction models.
+
+         The entries identify the species for which number densities are supplied to the aerodynamic coefficient model.
+         The anomalous oxygen contribution is represented separately from atomic oxygen.
+
+      )doc" )
+            .value( "o_species", ta::AtmosphericCompositionSpecies::o_species, R"doc(Atomic oxygen.)doc" )
+            .value( "o2_species", ta::AtmosphericCompositionSpecies::o2_species, R"doc(Molecular oxygen.)doc" )
+            .value( "n2_species", ta::AtmosphericCompositionSpecies::n2_species, R"doc(Molecular nitrogen.)doc" )
+            .value( "he_species", ta::AtmosphericCompositionSpecies::he_species, R"doc(Helium.)doc" )
+            .value( "h_species", ta::AtmosphericCompositionSpecies::h_species, R"doc(Atomic hydrogen.)doc" )
+            .value( "ar_species", ta::AtmosphericCompositionSpecies::ar_species, R"doc(Argon.)doc" )
+            .value( "n_species", ta::AtmosphericCompositionSpecies::n_species, R"doc(Atomic nitrogen.)doc" )
+            .value( "anomalous_o_species", ta::AtmosphericCompositionSpecies::anomalous_o_species, R"doc(Anomalous oxygen component of the atmospheric composition.)doc" )
             .export_values( );
 
     py::class_< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings > >(
-            m, "ControlSurfaceIncrementAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
+            m, "ControlSurfaceIncrementAerodynamicCoefficientSettings", R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_control_surface`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.tabulated_from_files_control_surface`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" );
 
     py::enum_< trf::AerodynamicsReferenceFrameAngles >( m, "AerodynamicsReferenceFrameAngles", R"doc(
 
@@ -427,19 +442,42 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
 
     py::class_< tss::CustomAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::CustomAerodynamicCoefficientSettings >,
-                tss::AerodynamicCoefficientSettings >( m, "CustomAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
+                tss::AerodynamicCoefficientSettings >( m, "CustomAerodynamicCoefficientSettings", R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_coefficients`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" );
 
     py::class_< tss::ScaledAerodynamicCoefficientInterfaceSettings,
                 std::shared_ptr< tss::ScaledAerodynamicCoefficientInterfaceSettings >,
                 tss::AerodynamicCoefficientSettings >(
-            m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(No documentation found.)doc" );
+            m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_constant`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_vector`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_vector_function`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" );
 
     py::class_< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings >,
                 tss::ControlSurfaceIncrementAerodynamicCoefficientSettings >( m,
                                                                               "CustomControlSurfaceIncrementAerodynamicCoefficientSet"
                                                                               "tings",
-                                                                              R"doc(No documentation found.)doc" );
+                                                                              R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_control_surface`.
+
+         See the factory documentation for model details and available parameters.
+
+      )doc" );
 
     py::enum_< ta::GasSurfaceInteractionModelType >( m,
                                                      "GasSurfaceInteractionModelType",
@@ -467,8 +505,10 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
              C_{\tau} &= 2 \sigma_{T} \sin \delta \cos \delta
 )doc" )
 
-            .value( "sentman", ta::sentman )
-            .value( "cook", ta::cook );
+            .value( "sentman", ta::sentman ,
+                  R"doc(Sentman gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" )
+            .value( "cook", ta::cook ,
+                  R"doc(Cook gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" );
 
     m.def( "panelled",
            py::overload_cast< const ta::GasSurfaceInteractionModelType, const double, const int, const bool >(
