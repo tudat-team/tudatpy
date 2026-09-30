@@ -140,7 +140,8 @@ void computeResidualsAndDependentVariables(
         if( sets.at( i )->getObservationDataset( ) != dataset )
         {
             sets.at( i )->setResiduals( dataset->getResidualsForSet( setIds.at( i ) ) );
-            sets.at( i )->setObservationsDependentVariables( dataset->getDependentVariablesForSet( setIds.at( i ) ) );
+            auto dependentVariables = dataset->getDependentVariablesForSet( setIds.at( i ) );
+            sets.at( i )->setObservationsDependentVariables( dependentVariables );
         }
     }
 }

@@ -44,7 +44,6 @@ void setRelativisticTimeConverter(
     barycentricSettings->getOutputSettings( )->setIntegratedResult( true );
 
     auto barycentricIntegratorSettings = baseIntegratorSettings->clone( );
-    barycentricIntegratorSettings->initialTimeDeprecated_ = initialTime;
     barycentricSettings->setIntegratorSettings( barycentricIntegratorSettings );
 
     propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > barycentricSimulator( bodyMap, barycentricSettings, true );
@@ -65,7 +64,6 @@ void setRelativisticTimeConverter(
         topocentricSettings->getOutputSettings( )->setIntegratedResult( true );
 
         auto topocentricIntegratorSettings = baseIntegratorSettings->clone( );
-        topocentricIntegratorSettings->initialTimeDeprecated_ = topocentricInitialTime;
         topocentricSettings->setIntegratorSettings( topocentricIntegratorSettings );
 
         propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > topocentricSimulator( bodyMap, topocentricSettings, true );

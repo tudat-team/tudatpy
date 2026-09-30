@@ -328,68 +328,6 @@ void expose_thrust_setup( py::module& m )
 
 
      )doc" );
-
-    /*!
-     *  To be removed, no longer used, kept only to support
-     * printing of useful error output when 'legacy' code is
-     * used
-     */
-
-    py::enum_< tss::ThrustDirectionTypes >( m, "ThrustDirectionGuidanceTypes", R"doc(No documentation found.)doc" )
-            .value( "colinear_with_state_segment_thrust_direction_type",
-                    tss::ThrustDirectionTypes::colinear_with_state_segment_thrust_direction )
-            .value( "thrust_direction_from_existing_body_orientation_"
-                    "type",
-                    tss::ThrustDirectionTypes::thrust_direction_from_existing_body_orientation )
-            .value( "custom_thrust_direction_type", tss::ThrustDirectionTypes::custom_thrust_direction )
-            .value( "custom_thrust_orientation_type", tss::ThrustDirectionTypes::custom_thrust_orientation )
-            .value( "mee_costate_based_thrust_direction_type", tss::ThrustDirectionTypes::mee_costate_based_thrust_direction );
-
-    py::enum_< tss::ThrustFrames >( m, "ThrustFrames" )
-            //                                 get_docstring("ThrustFrames").c_str())
-            .value( "unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame )
-            .value( "inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame )
-            .value( "tnw_thrust_frame_type", tss::ThrustFrames::tnw_thrust_frame )
-            .export_values( );
-
-    py::class_< tss::ThrustDirectionSettings, std::shared_ptr< tss::ThrustDirectionSettings > >(
-            m, "ThrustDirectionSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "thrust_direction_type", &tss::ThrustDirectionSettings::thrustDirectionType_ )
-            .def_readonly( "relative_body", &tss::ThrustDirectionSettings::relativeBody_ );
-
-    py::class_< tss::ThrustDirectionFromStateGuidanceSettings,
-                std::shared_ptr< tss::ThrustDirectionFromStateGuidanceSettings >,
-                tss::ThrustDirectionSettings >( m, "ThrustDirectionFromStateGuidanceSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "is_colinear_with_velocity", &tss::ThrustDirectionFromStateGuidanceSettings::isColinearWithVelocity_ )
-            .def_readonly( "direction_is_opposite_to_vector",
-                           &tss::ThrustDirectionFromStateGuidanceSettings::directionIsOppositeToVector_ );
-
-    py::class_< tss::CustomThrustDirectionSettings, std::shared_ptr< tss::CustomThrustDirectionSettings >, tss::ThrustDirectionSettings >(
-            m, "CustomThrustDirectionSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "thrust_direction_function", &tss::CustomThrustDirectionSettings::thrustDirectionFunction_ );
-
-    py::class_< tss::CustomThrustOrientationSettings,
-                std::shared_ptr< tss::CustomThrustOrientationSettings >,
-                tss::ThrustDirectionSettings >( m, "CustomThrustOrientationSettings", R"doc(No documentation found.)doc" )
-            .def_property_readonly( "thrust_orientation_function", []( const tss::CustomThrustOrientationSettings& settings ) {
-                const auto quaternion_function = settings.thrustOrientationFunction_;
-                return std::function< Eigen::Matrix3d( const double ) >(
-                        [ quaternion_function ]( const double time ) { return quaternion_function( time ).toRotationMatrix( ); } );
-            } );
-
-    m.def( "thrust_direction_from_state_guidance",
-           &tss::thrustDirectionFromStateGuidanceSettings,
-           py::arg( "central_body" ),
-           py::arg( "is_colinear_with_velocity" ),
-           py::arg( "direction_is_opposite_to_vector" ) );
-
-    m.def( "thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation );
-
-    m.def( "custom_thrust_orientation",
-           py::overload_cast< std::function< Eigen::Matrix3d( const double ) > >( &tss::customThrustOrientationSettings ),
-           py::arg( "thrust_orientation_function" ) );
-
-    m.def( "custom_thrust_direction", &tss::customThrustDirectionSettings, py::arg( "thrust_direction_function" ) );
 }
 
 }  // namespace thrust

@@ -1,6 +1,6 @@
 from functools import wraps
 
-from tudatpy._deprecation import deprecation_warning, property_deprecation
+from tudatpy._deprecation import deprecation_warning
 from tudatpy.estimation.observable_models_setup.links import (
     LinkDefinition,
     LinkEndId,
@@ -28,10 +28,6 @@ from ._query import observation_query
 for _name, _object in list(globals().items()):
     if getattr(_object, "__module__", None) == "tudatpy.kernel.estimation.observations":
         _object.__module__ = "tudatpy.estimation.observations"
-
-SingleObservationSet.ancilliary_settings = property_deprecation(
-    "SingleObservationSet.ancilliary_settings", "SingleObservationSet.ancillary_settings"
-)(SingleObservationSet.ancillary_settings)
 
 _native_add_observation_set = ObservationDataset.add_observation_set
 

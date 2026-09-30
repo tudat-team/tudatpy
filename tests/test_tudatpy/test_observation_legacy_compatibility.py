@@ -129,6 +129,45 @@ def _legacy_collection(dataset):
         return observations.create_observation_collection_from_dataset(dataset)
 
 
+@pytest.mark.parametrize(
+    "input_class",
+    [estimation_analysis.CovarianceAnalysisInput, estimation_analysis.EstimationInput],
+)
+@pytest.mark.parametrize("source_type", ["dataset", "collection"])
+def test_retained_input_weight_alias_updates_source_and_diagonal_is_readonly(
+    sample_dataset, input_class, source_type
+):
+    source = sample_dataset if source_type == "dataset" else _legacy_collection(sample_dataset)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        input_settings = input_class(source)
+    with pytest.warns(DeprecationWarning, match="set_constant_weight"):
+        input_settings.set_constant_weight(7.0)
+    np.testing.assert_allclose(sample_dataset.get_weight_diagonal(), 7.0)
+    with pytest.raises(AttributeError):
+        input_settings.weight_matrix_diagonal = np.ones(sample_dataset.total_scalar_size)
+
+
+def test_older_deprecated_observation_and_input_apis_remain_removed():
+    assert not hasattr(observations, "single_observation_set")
+    assert not hasattr(observations.SingleObservationSet, "ancilliary_settings")
+    for input_class in (
+        estimation_analysis.CovarianceAnalysisInput,
+        estimation_analysis.EstimationInput,
+    ):
+        for name in (
+            "set_weights_from_observation_collection",
+            "set_constant_single_observable_weight",
+            "set_constant_single_observable_vector_weight",
+            "set_constant_single_observable_and_link_end_weight",
+            "set_constant_single_observable_and_link_end_vector_weight",
+            "set_total_single_observable_and_link_end_vector_weight",
+            "set_constant_weight_per_observable",
+            "set_constant_vector_weight_per_observable",
+        ):
+            assert not hasattr(input_class, name)
+
+
 def _link_definition_signature(link_definition):
     signature = []
     for link_end_type, link_end_id in link_definition.link_ends.items():

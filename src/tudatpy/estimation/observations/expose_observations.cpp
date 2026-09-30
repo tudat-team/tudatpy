@@ -26,6 +26,7 @@
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
+#include "tudat/basics/deprecationWarnings.h"
 #include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
@@ -516,36 +517,6 @@ std::vector< TimeType > castObservationTimeList( const py::object& value, const 
 }
 
 }  // namespace
-
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSetWithoutDependentVariables(
-        const tom::ObservableType observableType,
-        const tom::LinkDefinition& linkEnds,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-        const std::vector< TimeType > observationTimes,
-        const tom::LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
-{
-    warnLegacyObservationInterface( "single_observation_set", "ObservationDataset.add_observation_set" );
-    return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
-                                                                                             linkEnds,
-                                                                                             observations,
-                                                                                             observationTimes,
-                                                                                             referenceLinkEnd,
-                                                                                             std::vector< Eigen::VectorXd >( ),
-                                                                                             nullptr,
-                                                                                             ancillarySettings );
-}
-
-}  // namespace simulation_setup
-
-}  // namespace tudat
 
 namespace tudatpy
 {
@@ -2175,20 +2146,6 @@ numpy.ndarray
     }
 
     {
-        m.def( "single_observation_set",
-               &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
-               py::arg( "observable_type" ),
-               py::arg( "link_definition" ),
-               py::arg( "observations" ),
-               py::arg( "observation_times" ),
-               py::arg( "reference_link_end" ),
-               py::arg( "ancillary_settings" ) = nullptr,
-               R"doc(
-
-        Deprecated. Use :func:`~tudatpy.estimation.observations.create_single_observation_set` instead.
-
-        )doc" );
-
         m.def(
                 "create_single_observation_set",
                 []( const tom::ObservableType observableType,

@@ -100,13 +100,14 @@ Classes
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput
    :members:
-   :exclude-members: set_constant_weight, set_weights_from_observation_collection, set_constant_single_observable_weight, set_constant_single_observable_vector_weight, set_constant_single_observable_and_link_end_weight, set_constant_single_observable_and_link_end_vector_weight, set_total_single_observable_and_link_end_vector_weight, set_constant_weight_per_observable, set_constant_vector_weight_per_observable, weight_matrix_diagonal
+   :exclude-members: set_constant_weight, weight_matrix_diagonal
    :special-members: __init__
 
 
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationInput
    :members:
+   :exclude-members: set_constant_weight, weight_matrix_diagonal
    :special-members: __init__
 
 

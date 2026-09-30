@@ -19,6 +19,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h>
 #include <tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h>
 #include <tudat/astro/aerodynamics/atmosphereModel.h>
@@ -27,7 +28,6 @@
 #include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
 #include <tudat/astro/basic_astro/ionosphereModel.h>
 #include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
-#include <tudat/astro/electromagnetism/radiationPressureInterface.h>
 #include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
 #include <tudat/astro/electromagnetism/radiationSourceModel.h>
 #include <tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h>
@@ -49,7 +49,6 @@
 #include <tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h>
 #include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/math/basic/linearAlgebra.h>
 
 #include "scalarTypes.h"
@@ -956,7 +955,7 @@ maps are loaded (automatically from IONEX files), they can be queried via
 
 Instances are created internally by
 :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.set_ionosphere_model_from_ionex`
-and stored on the Earth body. Access via ``bodies.get_body("Earth").get_ionosphere_model()``.
+and stored on the Earth body. Access via ``bodies.get("Earth").get_ionosphere_model()``.
 
 )doc" )
             .def( "get_vertical_tec_rms",
@@ -1935,22 +1934,7 @@ bool
 
 
 
-     )doc" )
-            // Function removed; error is shown
-            .def( "set_body_orientation_angles",
-                  &trf::AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved2,
-                  py::arg( "angle_of_attack" ) = TUDAT_NAN,
-                  py::arg( "angle_of_sideslip" ) = TUDAT_NAN,
-                  py::arg( "bank_angle" ) = TUDAT_NAN,
-                  py::arg( "silence_warnings" ) = false )
-            // Function removed; error is shown
-            .def( "set_body_orientation_angle_functions",
-                  &trf::AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved1,
-                  py::arg( "angle_of_attack_function" ) = std::function< double( ) >( ),    // <pybind11/functional.h>
-                  py::arg( "angle_of_sideslip_function" ) = std::function< double( ) >( ),  // <pybind11/functional.h>
-                  py::arg( "bank_angle_function" ) = std::function< double( ) >( ),         // <pybind11/functional.h>
-                  py::arg( "angle_update_function" ) = std::function< void( const double ) >( ),
-                  py::arg( "silence_warnings" ) = false );
+     )doc" );
 
     py::class_< ta::FlightConditions, std::shared_ptr< ta::FlightConditions > >( m, "FlightConditions", R"doc(
 
@@ -2772,7 +2756,6 @@ bool
                            &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
 
     py::class_< tem::RadiationSourceModel, std::shared_ptr< tem::RadiationSourceModel > >( m, "RadiationSourceModel" );
-    py::class_< tem::RadiationPressureInterface, std::shared_ptr< tem::RadiationPressureInterface > >( m, "RadiationPressureInterface" );
     /*!
      **************   SHAPE MODELS  ******************
      */
@@ -3803,18 +3786,16 @@ bool
 
 
      )doc" )
-            .def( "get_body",
-                  &tss::SystemOfBodies::getBody,
-                  py::arg( "body_name" ),
-                  R"doc(
-
-         Deprecated version of :py:func:`~get`
-
-
-
-
-
-     )doc" )
+            .def(
+                    "get_body",
+                    []( const tss::SystemOfBodies& bodies, const std::string& bodyName ) {
+                        tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment.SystemOfBodies.get_body",
+                                                                   "tudatpy.dynamics.environment.SystemOfBodies.get",
+                                                                   "Deprecated as of v1.1." );
+                        return bodies.getBody( bodyName );
+                    },
+                    py::arg( "body_name" ),
+                    R"doc(Deprecated as of v1.1. Use :meth:`~SystemOfBodies.get` instead.)doc" )
             .def( "create_empty_body",
                   &tss::SystemOfBodies::createEmptyBody< STATE_SCALAR_TYPE, TIME_TYPE >,
                   py::arg( "body_name" ),

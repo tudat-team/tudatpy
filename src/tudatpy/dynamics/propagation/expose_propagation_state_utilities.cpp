@@ -19,7 +19,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro/accelerationModel.h>
 #include <tudat/astro/basic_astro/accelerationModelTypes.h>
 #include <tudat/astro/basic_astro/massRateModel.h>
@@ -33,35 +32,9 @@
 
 namespace py = pybind11;
 
-namespace ta = tudat::aerodynamics;
 namespace tp = tudat::propagators;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
-
-namespace tudat
-{
-
-namespace aerodynamics
-{
-
-class PyAerodynamicGuidance : public ta::AerodynamicGuidance
-{
-public:
-    using AerodynamicGuidance::AerodynamicGuidance;
-
-    using AerodynamicGuidance::currentAngleOfAttack_;
-    using AerodynamicGuidance::currentAngleOfSideslip_;
-    using AerodynamicGuidance::currentBankAngle_;
-
-    void updateGuidance( const double currentTime ) override
-    {
-        PYBIND11_OVERLOAD_PURE( void, AerodynamicGuidance, updateGuidance, currentTime );
-    }
-};
-
-}  // namespace aerodynamics
-
-}  // namespace tudat
 
 namespace tudatpy
 {
@@ -94,15 +67,6 @@ void expose_propagation_state_utility_types( py::module& m )
 
 void expose_propagation_state_utility_bindings( py::module& m )
 {
-    py::class_< ta::AerodynamicGuidance, ta::PyAerodynamicGuidance, std::shared_ptr< ta::AerodynamicGuidance > >( m, "AerodynamicGuidance" )
-            .def( py::init<>( ) )
-            .def( "updateGuidance",
-                  &ta::AerodynamicGuidance::updateGuidance,
-                  py::arg( "current_time" ) )  // The current_time parameter is now expected to be a Time object
-            .def_readwrite( "angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_ )
-            .def_readwrite( "bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_ )
-            .def_readwrite( "sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_ );
-
     m.def( "get_single_integration_differential_equation_order",
            &tp::getSingleIntegrationDifferentialEquationOrder,
            py::arg( "state_type" ) );

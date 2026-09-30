@@ -87,7 +87,6 @@ void expose_estimation( py::module& m )
     estimation_analysis::expose_estimation_analysis_outlier_rejection( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_estimator( estimation_analysis_submodule );
-    estimation_analysis::expose_estimation_analysis_orbit_determination_helpers( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_ephemeris_fit( estimation_analysis_submodule );
     estimation_analysis::expose_inter_arc_constraints( estimation_analysis_submodule );
 };

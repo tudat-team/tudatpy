@@ -954,7 +954,6 @@ BOOST_AUTO_TEST_CASE( test_legacy_null_inputs_allow_configuration_and_validate_d
         input->setConsiderCovariance( Eigen::MatrixXd::Identity( 1, 1 ) );
         BOOST_CHECK_EQUAL( input->getConsiderCovariance( )( 0, 0 ), 1.0 );
         BOOST_CHECK_THROW( input->getObservationDataset( ), std::runtime_error );
-        BOOST_CHECK_THROW( input->setConstantWeightsMatrix( 2.0 ), std::runtime_error );
         BOOST_CHECK_THROW( input->synchronizeLegacyResiduals( ObservationDataset<>( ) ), std::runtime_error );
     }
 }
@@ -2782,7 +2781,7 @@ BOOST_AUTO_TEST_CASE( test_overlapping_legacy_collections_do_not_migrate_shared_
     simulation_setup::CovarianceAnalysisInput< double, double > input( first );
     BOOST_CHECK( input.getObservationCollection( ) == first );
     shared->addObservations( { Eigen::Vector1d::Constant( 8.0 ) }, { 3.0 } );
-    input.setConstantWeightsMatrix( 5.0 );
+    input.getObservationCollection( )->setConstantWeight( 5.0 );
     const auto prepared = input.getObservationDataset( )->createObservationVectorData( );
     Eigen::Vector3d expected;
     expected << 7.0, 8.0, 2.0;

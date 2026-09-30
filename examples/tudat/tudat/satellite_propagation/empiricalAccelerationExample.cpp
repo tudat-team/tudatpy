@@ -170,24 +170,26 @@ int main( )
             std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
                     std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
 
-            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                        accelerationModelMap,
-                                                                                        bodiesToPropagate,
-                                                                                        systemInitialState,
-                                                                                        simulationEndEpoch,
-                                                                                        cowell,
-                                                                                        dependentVariablesToSave );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 10.0 );
 
-            std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 10.0 );
+            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                            centralBodies,
+                            accelerationModelMap,
+                            bodiesToPropagate,
+                            systemInitialState,
+                            simulationStartEpoch,
+                            integratorSettings,
+                            std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                            cowell,
+                            dependentVariablesToSave );
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // Create simulation object and propagate dynamics.
-            SingleArcDynamicsSimulator<> dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodyMap, propagatorSettings, true );
             std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 

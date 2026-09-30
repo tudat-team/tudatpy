@@ -20,8 +20,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup/thrustSettings.h>
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
@@ -56,66 +54,6 @@ namespace tudat
 {
 namespace simulation_setup
 {
-
-inline std::shared_ptr< AccelerationSettings > customAccelerationSettingsDeprecated(
-        const std::function< Eigen::Vector3d( const double ) > accelerationFunction )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.propagation_setup."
-                "acceleration.custom",
-                "tudatpy.dynamics.propagation_setup."
-                "acceleration.custom_acceleration" );
-        isWarningPrinted = true;
-    }
-
-    return customAccelerationSettings( accelerationFunction );
-}
-
-inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved1(
-        const std::shared_ptr< tss::ThrustDirectionSettings > thrustDirectionSettings,
-        const std::shared_ptr< tss::ThrustMagnitudeSettings > thrustMagnitudeSettings )
-{
-    tudat::utilities::printDeprecationError(
-            "tudatpy.dynamics.propagation_setup.acceleration."
-            "thrust_from_direction_and_magnitude",
-            "https://docs.tudat.space/en/stable/_src_user_guide/"
-            "state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
-
-inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved2(
-        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-        const std::function< double( const double ) > specificImpulseFunction,
-        const ThrustFrames thrustFrame = unspecified_thrust_frame,
-        const std::string centralBody = "" )
-{
-    tudat::utilities::printDeprecationError(
-            "tudatpy.dynamics.propagation_setup.acceleration."
-            "thrust_and_isp_from_custom_function",
-            "https://docs.tudat.space/en/stable/_src_user_guide/"
-            "state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
-
-inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved3(
-        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-        const double constantSpecificImpulse,
-        const ThrustFrames thrustFrame = unspecified_thrust_frame,
-        const std::string centralBody = "" )
-{
-    tudat::utilities::printDeprecationError(
-            "tudatpy.dynamics.propagation_setup.acceleration."
-            "thrust_from_custom_function",
-            "https://docs.tudat.space/en/stable/_src_user_guide/"
-            "state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
 
 //! @get_docstring(customAccelerationSettings)
 inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
@@ -166,10 +104,6 @@ void expose_acceleration_setup( py::module& m )
                     R"doc(
       )doc" )
             .value( "aerodynamic_type", tba::AvailableAcceleration::aerodynamic, R"doc(
-      )doc" )
-            .value( "cannonball_radiation_pressure_type",
-                    tba::AvailableAcceleration::cannon_ball_radiation_pressure,
-                    R"doc(
       )doc" )
             .value( "spherical_harmonic_gravity_type",
                     tba::AvailableAcceleration::spherical_harmonic_gravity,
@@ -484,15 +418,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" )
-            .def_property_readonly(
-                    "direction_settings",
-                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustDirectionSettings > > )
-            .def_property_readonly(
-                    "magnitude_settings",
-                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > )
-                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::ThrustAccelerationSettings )
-                            TUDATPY_DEF_EQ_NE( tss::ThrustAccelerationSettings );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::ThrustAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::ThrustAccelerationSettings );
 
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,
@@ -709,8 +636,6 @@ ThreeCoefficientRadiationPressureAccelerationSettings
     Settings for the three-coefficient radiation-pressure acceleration.
 
 )doc" );
-
-    m.def( "cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration );
 
     m.def( "spherical_harmonic_gravity",
            &tss::sphericalHarmonicAcceleration,
@@ -1402,8 +1327,6 @@ AccelerationSettings
 
      )doc" );
 
-    m.def( "custom", &tss::customAccelerationSettingsDeprecated, py::arg( "acceleration_function" ) );
-
     m.def( "custom_acceleration",
            py::overload_cast< std::function< Eigen::Vector3d( const double ) > >( &tss::customAccelerationSettings ),
            py::arg( "acceleration_function" ),
@@ -1739,26 +1662,6 @@ maneuver_rise_time : float
 
 
      )doc" );
-
-    m.def( "thrust_from_direction_and_magnitude",
-           &tss::thrustAccelerationRemoved1,
-           py::arg( "thrust_direction_settings" ),
-           py::arg( "thrust_magnitude_settings" ) );
-
-    m.def( "thrust_from_custom_function",
-           &tss::thrustAccelerationRemoved2,
-           py::arg( "thrust_force_function" ),
-           py::arg( "specific_impulse_function" ),
-           py::arg( "thrust_frame" ) = tss::ThrustFrames::inertial_thrust_frame,
-           py::arg( "central_body" ) = "" );
-
-    m.def( "thrust_and_isp_from_custom_function",
-           &tss::thrustAccelerationRemoved3,
-           py::arg( "thrust_force_function" ),
-           py::arg( "constant_specific_impulse" ),
-           py::arg( "thrust_frame" ) = tss::ThrustFrames::inertial_thrust_frame,
-           py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
 }
 
 }  // namespace acceleration

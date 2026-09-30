@@ -34,6 +34,12 @@ def earth_bodies():
 @pytest.fixture
 def legacy_mpc_table(monkeypatch):
     """Provide one fixed asteroid observation and one station without using the internet."""
+    # Legacy data imports must work after the deprecated observation factory is removed.
+    monkeypatch.delattr(
+        importlib.import_module("tudatpy.estimation.observations"),
+        "single_observation_set",
+        raising=False,
+    )
     stations = Table({"Code": ["500"], "Longitude": [0.0], "cos": [1.0], "sin": [0.0]})
     monkeypatch.setattr(MPC, "get_observatory_codes", lambda: stations)
     return pd.DataFrame(

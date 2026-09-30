@@ -18,7 +18,6 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/rotationRepresentations.h"
-#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -411,31 +410,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
 double AerodynamicAngleCalculator::getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId )
 {
     return currentAerodynamicAngles_.at( angleId );
-}
-
-//! Function to set the trajectory<->body-fixed orientation angles.
-void AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved1( const std::function< double( ) > angleOfAttackFunction,
-                                                                       const std::function< double( ) > angleOfSideslipFunction,
-                                                                       const std::function< double( ) > bankAngleFunction,
-                                                                       const std::function< void( const double ) > updateFunction,
-                                                                       const bool silenceWarnings )
-{
-    utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.environment.AerodynamicAngleCalculator.set_body_orientation_angle_functions",
-            "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#aerodynamic-guidance" );
-}
-
-////! Function to set constant trajectory<->body-fixed orientation angles.
-void AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved2( const double angleOfAttack,
-                                                                       const double angleOfSideslip,
-                                                                       const double bankAngle,
-                                                                       const bool silenceWarnings )
-{
-    utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.environment.AerodynamicAngleCalculator.set_body_orientation_angle_functions",
-            "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#aerodynamic-guidance" );
 }
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

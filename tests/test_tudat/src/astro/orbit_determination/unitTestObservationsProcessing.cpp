@@ -108,12 +108,21 @@ std::shared_ptr< ObservationDataset< double, double > > setUpObservationDatasetT
     const Eigen::Matrix< double, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+            40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
+    // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime, cowell );
-
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            initialEphemerisTime, 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    double( initialEphemerisTime ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( double( finalEphemerisTime ) ),
+                    cowell );
 
     stationReceiverLinkEnds.clear( );
     stationTransmitterLinkEnds.clear( );
@@ -153,8 +162,9 @@ std::shared_ptr< ObservationDataset< double, double > > setUpObservationDatasetT
         }
     }
 
-    OrbitDeterminationManager< double, double > orbitDeterminationManager(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    // Create orbit determination object.
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     baseTimeList.clear( );
     std::vector< double > rangeObsTimes, dopplerObsTimes, angularPositionObsTimes;
