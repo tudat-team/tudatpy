@@ -429,7 +429,7 @@ def _optical_output_frame(df_obs: pd.DataFrame) -> pd.DataFrame:
             "discovery": df_obs["discovery"].eq("*"),
             "epoch": [
                 time_representation.seconds_since_epoch_to_julian_day(epoch) for epoch in epochs_utc
-            ],
+            ],  # date in JD since January 1st 4713 BC, as computed from the input parameters
             "epoch_seconds_UTC": epochs_utc,
             "RA": ra_rad,
             "DEC": dec_rad,

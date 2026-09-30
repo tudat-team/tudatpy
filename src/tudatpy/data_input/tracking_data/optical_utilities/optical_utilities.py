@@ -66,6 +66,7 @@ SPACECRAFT_POSITION_COLUMNS = [
     "spacecraft_position_y",
     "spacecraft_position_z",
 ]
+ROVING_POSITION_COLUMNS = ["roving_position_1", "roving_position_2", "roving_position_3"]
 ANCILLARY_STRING_COLUMNS = [
     "band",
     "phottype",
@@ -75,6 +76,181 @@ ANCILLARY_STRING_COLUMNS = [
     "mag",
     "discovery",
 ]
+
+naif_ids = {
+    0: "Ssb",
+    1: "Mercury Barycenter",
+    2: "Venus Barycenter",
+    3: "Earth Barycenter",
+    4: "Mars Barycenter",
+    5: "Jupiter Barycenter",
+    6: "Saturn Barycenter",
+    7: "Uranus Barycenter",
+    8: "Neptune Barycenter",
+    9: "Pluto Barycenter",
+    10: "Sun",
+    199: "Mercury",
+    299: "Venus",
+    399: "Earth",
+    301: "Moon",
+    499: "Mars",
+    401: "Phobos",
+    402: "Deimos",
+    599: "Jupiter",
+    501: "Io",
+    502: "Europa",
+    503: "Ganymede",
+    504: "Callisto",
+    505: "Amalthea",
+    506: "Himalia",
+    507: "Elara",
+    508: "Pasiphae",
+    509: "Sinope",
+    510: "Lysithea",
+    511: "Carme",
+    512: "Ananke",
+    513: "Leda",
+    514: "Thebe",
+    515: "Adrastea",
+    516: "Metis",
+    517: "Callirrhoe",
+    518: "Themisto",
+    519: "Megaclite",
+    520: "Taygete",
+    521: "Chaldene",
+    522: "Harpalyke",
+    523: "Kalyke",
+    524: "Iocaste",
+    525: "Erinome",
+    526: "Isonoe",
+    527: "Praxidike",
+    528: "Autonoe",
+    529: "Thyone",
+    530: "Hermippe",
+    531: "Aitne",
+    532: "Eurydome",
+    533: "Euanthe",
+    534: "Euporie",
+    535: "Orthosie",
+    536: "Sponde",
+    537: "Kale",
+    538: "P asithee",
+    539: "Hegemone",
+    540: "Mneme",
+    541: "Aoede",
+    542: "Thelxinoe",
+    543: "Arche",
+    544: "Kallichore",
+    545: "Helike",
+    546: "Carpo",
+    547: "Eukelade",
+    548: "Cyllene",
+    549: "Kore",
+    550: "Herse",
+    553: "Dia",
+    699: "Saturn",
+    601: "Mimas",
+    602: "Enceladus",
+    603: "Tethys",
+    604: "Dione",
+    605: "Rhea",
+    606: "Titan",
+    607: "Hyperion",
+    608: "Iapetus",
+    609: "Phoebe",
+    610: "Janus",
+    611: "Epimetheus",
+    612: "Helene",
+    613: "Telesto",
+    614: "Calypso",
+    615: "Atlas",
+    616: "Prometheus",
+    617: "Pandora",
+    618: "Pan",
+    619: "Ymir",
+    620: "Paaliaq",
+    621: "Tarvos",
+    622: "Ijiraq",
+    623: "Suttungr",
+    624: "Kiviuq",
+    625: "Mundilfari",
+    626: "Albiorix",
+    627: "Skathi",
+    628: "Erriapus",
+    629: "Siarnaq",
+    630: "Thrymr",
+    631: "Narvi",
+    632: "Methone",
+    633: "Pallene",
+    634: "Polydeuces",
+    635: "Daphnis",
+    636: "Aegir",
+    637: "Bebhionn",
+    638: "Bergelmir",
+    639: "Bestla",
+    640: "Farbauti",
+    641: "Fenrir",
+    642: "Fornjot",
+    643: "Hati",
+    644: "Hyrrokkin",
+    645: "Kari",
+    646: "Loge",
+    647: "Skoll",
+    648: "Surtur",
+    649: "Anthe",
+    650: "Jarnsaxa",
+    651: "Greip",
+    652: "Tarqeq",
+    653: "Aegaeon",
+    799: "Uranus",
+    701: "Ariel",
+    702: "Umbriel",
+    703: "Titania",
+    704: "Oberon",
+    705: "Miranda",
+    706: "Cordelia",
+    707: "Ophelia",
+    708: "Bianca",
+    709: "Cressida",
+    710: "Desdemona",
+    711: "Juliet",
+    712: "Portia",
+    713: "Rosalind",
+    714: "Belinda",
+    715: "Puck",
+    716: "Caliban",
+    717: "Sycorax",
+    718: "Prospero",
+    719: "Setebos",
+    720: "Stephano",
+    721: "Trinculo",
+    722: "Francisco",
+    723: "Margaret",
+    724: "Ferdinand",
+    725: "Perdita",
+    726: "Mab",
+    727: "Cupid",
+    899: "Neptune",
+    801: "Triton",
+    802: "Nereid",
+    803: "Naiad",
+    804: "Thalassa",
+    805: "Despina",
+    806: "Galatea",
+    807: "Larissa",
+    808: "Proteus",
+    809: "Halimede",
+    810: "Psamathe",
+    811: "Sao",
+    812: "Laomedeia",
+    813: "Neso",
+    999: "Pluto",
+    901: "Charon",
+    902: "Nix",
+    903: "Hydra",
+    904: "Kerberos",
+    905: "Styx",
+}
 
 
 def standardize_optical_dataframe(df: pd.DataFrame) -> pd.DataFrame:
@@ -199,10 +375,12 @@ def create_augmented_optical_table(
         if column not in augmented_table.columns:
             augmented_table[column] = None
 
-    augmented_table["epoch_seconds_UTC"] = [
-        time_representation.julian_day_to_seconds_since_epoch(jd)
-        for jd in list(augmented_table["epoch"])
-    ]
+    if "epoch_seconds_UTC" not in augmented_table.columns():
+        # the entry is already computed in both the ADES and 80 columns parser
+        augmented_table["epoch_seconds_UTC"] = [
+            time_representation.julian_day_to_seconds_since_epoch(jd)
+            for jd in list(augmented_table["epoch"])
+        ]
 
     return augmented_table
 
@@ -212,6 +390,13 @@ def _spacecraft_observation_mask(table: pd.DataFrame) -> pd.Series:
     if not set(SPACECRAFT_POSITION_COLUMNS).issubset(table.columns):
         return pd.Series(False, index=table.index)
     return table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=1)
+
+
+def _roving_observation_mask(table: pd.DataFrame) -> pd.Series:
+    """Identify optical rows that include a complete roving observatory position."""
+    if not set(ROVING_POSITION_COLUMNS).issubset(table.columns):
+        return pd.Series(False, index=table.index)
+    return table[ROVING_POSITION_COLUMNS].notna().all(axis=1)
 
 
 def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
@@ -224,14 +409,28 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
     for observatory, group in table.loc[_spacecraft_observation_mask(table)].groupby(
         "observatory", sort=False
     ):
+        # if in ADES format check if the ctr value is presernt; if multiple ctr are
+        # defined for each observatory raise and error
+        # (this could be improved - allowing all spacecraft obs to be processed singularly without raising the error)
+        ctr_values = group["ctr"].dropna().unique() if "ctr" in group.columns else []
+        if len(ctr_values) > 1:
+            raise ValueError(f"Multiple ctr values for observatory {observatory}: {ctr_values}")
+
+        # this is useful is multiple observations at the same time - then the spacecraft position gets averaged
         positions = group.groupby("epoch_seconds_UTC")[SPACECRAFT_POSITION_COLUMNS].mean()
         receiver_data = TrackingSupplementaryData(str(observatory), "")
+
+        if len(ctr_values) == 1:
+            frame_origin = naif_ids[int(ctr_values[0])]
+        else:
+            frame_origin = "Earth"
+
         receiver_data.translational_state_supplementary_data = TranslationalStateSupplementaryData(
             state_history={
                 float(epoch): np.concatenate((position, np.zeros(3)))
                 for epoch, position in zip(positions.index, positions.to_numpy())
             },
-            frame_origin="Earth",
+            frame_origin=frame_origin,
             is_velocity_defined=False,
             time_scale="UTC",
             frame_orientation="J2000",
@@ -239,6 +438,27 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
         supplementary_data.append(receiver_data)
 
     return supplementary_data
+
+    # def _build_roving_obs_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
+    """Receiver-state supplementary data for Earth-based roving observatories observations.
+
+    The position can be given in WGS84, ITRF, IAU frames and the type of given position
+    will also depend on the reference frame.
+    """
+
+    # WGS84: pos1 = east longitude (deg), pos2 = latitude (deg(, pos3 = altitude (m) - already geodetic (as Tudat
+    # accepts them) using Earth shape model WGS84
+
+    # ITRF: pos1 = east longitude (degrees), pos2 = Rxy (km), pos3 = Rz (km) - convert to cartesian coordinates
+    # to define the ground station on Earth, already body-fixed (ITRF is a body fixed reference frame)
+    # x = Rxy cos L
+    # y = Rxy sin L
+    # z = Rz
+
+    # IAU: pos1 = longitude (deg), pos2 = latitude (m), pos3 = altitude (m) - used to define a roving observatory
+    # on a body different than Earth - currently not supported
+
+    # tudat in the definition of a basic station allows for cartesian, spherical or geodetic body-fixed definitions
 
 
 def datetime_to_utc_seconds(epoch) -> float:
@@ -380,9 +600,19 @@ def optical_table_to_tracking_data(
     table = table.assign(_is_spacecraft_observation=spacecraft_mask.to_numpy(dtype=bool))
     supplementary_data = _build_spacecraft_supplementary_data(table)
 
+    """
+    To develop - currently no tracking data structure to store ground station information
+    Needed to be able to work with Earth-based roving observatories 
+    """
+
+    roving_mask = _roving_observation_mask(table)
+    table = table.assign(_is_roving_observation=roving_mask.to_numpy(dtype=bool))
+    # add supplementary data for the roving observatory location
+    # TO DO! WHERE TO STORE THEM????
+
     tracking_data_objects = []
-    for (target, observatory, is_spacecraft), group in table.groupby(
-        ["number", "observatory", "_is_spacecraft_observation"]
+    for (target, observatory, is_spacecraft, is_roving), group in table.groupby(
+        ["number", "observatory", "_is_spacecraft_observation", "_is_roving_observations"]
     ):
         observable_type, reference_link_end_type = "AngularPosition", "receiver"
 
