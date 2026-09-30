@@ -120,7 +120,8 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
 
 void expose_propagator_setup( py::module& m )
 {
-    py::class_< tp::PropagatorType >( m, "PropagatorType" );
+    py::class_< tp::PropagatorType >( m, "PropagatorType" ,
+                  R"doc(Base identifier for the type of state formulation used by a propagator.)doc" );
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -724,13 +725,16 @@ Enumeration of available integrated state types.
       )doc" )
             .def_property( "set_integrated_result",
                            &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedResult,
-                           &tp::HybridArcPropagatorProcessingSettings::setIntegratedResult )
+                           &tp::HybridArcPropagatorProcessingSettings::setIntegratedResult ,
+                  R"doc(Whether to install integrated trajectories in the environment after propagation.)doc" )
             .def_property( "set_integrated_variational_result",
                            &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedVariationalResult,
-                           &tp::HybridArcPropagatorProcessingSettings::setIntegratedVariationalResult )
+                           &tp::HybridArcPropagatorProcessingSettings::setIntegratedVariationalResult ,
+                  R"doc(Whether to install integrated variational results in the associated interfaces.)doc" )
             .def_property( "clear_numerical_solution",
                            &tp::HybridArcPropagatorProcessingSettings::getClearNumericalSolutions,
-                           &tp::HybridArcPropagatorProcessingSettings::setClearNumericalSolutions )
+                           &tp::HybridArcPropagatorProcessingSettings::setClearNumericalSolutions ,
+                  R"doc(Whether to clear stored numerical solutions after processing propagation results.)doc" )
             .def( "set_print_settings_for_all_arcs",
                   &tp::HybridArcPropagatorProcessingSettings::resetAndApplyConsistentPrintSettings,
                   py::arg( "print_settings" ),
@@ -795,11 +799,25 @@ Enumeration of available integrated state types.
 
     auto propagation_termination_settings =
             py::class_< tp::PropagationTerminationSettings, std::shared_ptr< tp::PropagationTerminationSettings > >(
-                    m, "PropagationTerminationSettings" );
+                    m, "PropagationTerminationSettings" ,
+                  R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.propagator`.
+
+         See those functions for the available settings and model definitions.
+
+      )doc" );
 
     auto single_arc_propagator_settings = py::class_< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                                                       std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                                                      tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m, "SingleArcPropagatorSettings" );
+                                                      tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m, "SingleArcPropagatorSettings" ,
+                  R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.propagator`.
+
+         See those functions for the available settings and model definitions.
+
+      )doc" );
 
     py::class_< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -933,11 +951,18 @@ Enumeration of available integrated state types.
       )doc" )
 
             .def( "get_propagated_state_size",
-                  &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatedStateSize )
+                  &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatedStateSize ,
+                  R"doc(Return the number of scalar entries in the internal propagated state representation.)doc" )
             .def( "reset_and_recreate_acceleration_models",
                   &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetAccelerationModelsMap,
                   py::arg( "new_acceleration_settings" ),
-                  py::arg( "bodies" ) );
+                  py::arg( "bodies" ) ,
+                  R"doc(
+
+         Replace the acceleration settings with ``new_acceleration_settings`` and create the corresponding models using
+         the supplied ``bodies``.
+
+      )doc" );
 
     //            .def_property_readonly("acceleration_settings",
     //                                   &tp::TranslationalStatePropagatorSettings<STATE_SCALAR_TYPE>::getAccelerationSettingsMap);
@@ -957,13 +982,21 @@ Enumeration of available integrated state types.
       )doc" )
             .def( "reset_initial_states",
                   &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetInitialStates,
-                  py::arg( "initial_states" ) )
+                  py::arg( "initial_states" ) ,
+                  R"doc(
+
+         Replace the combined initial state with ``initial_states`` and distribute its components to the individual
+         state-type settings.
+
+      )doc" )
             .def( "recreate_state_derivative_models",
                   &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetIntegratedStateModels,
-                  py::arg( "bodies" ) )
+                  py::arg( "bodies" ) ,
+                  R"doc(Recreate the integrated state derivative models using the supplied system of ``bodies``.)doc" )
             .def( "single_type_settings",
                   &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleTypePropagatorSettings,
-                  py::arg( "state_type" ) )
+                  py::arg( "state_type" ) ,
+                  R"doc(Return the list of constituent propagator settings for the specified integrated ``state_type``.)doc" )
             .def_property_readonly( "propagator_settings_per_type",
                                     &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatorSettingsMap,
                                     R"doc(
@@ -1202,10 +1235,10 @@ initial_time : astro.time_representation.Time
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
 
-    .. note:: 
-    
+    .. note::
+
         The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
-    
+
 termination_settings : PropagationTerminationSettings
     Generic termination settings object to check whether the propagation should be ended.
 propagator : RotationalPropagatorType, default=quaternions
@@ -1386,7 +1419,8 @@ MultiTypePropagatorSettings
 
      )doc" );
 
-    m.def( "multi_arc_processing_settings", &multiArcProcessingSettings );
+    m.def( "multi_arc_processing_settings", &multiArcProcessingSettings ,
+                  R"doc(Create a MultiArcPropagatorProcessingSettings object with default result-processing options.)doc" );
 
     m.def( "multi_arc",
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -2144,9 +2178,16 @@ HybridArcPropagatorSettings
 
     m.def( "get_integrated_type_and_body_list",
            &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "propagator_settings" ) );
+           py::arg( "propagator_settings" ) ,
+                  R"doc(
 
-    m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) );
+         Return the integrated state types and associated body/reference identifiers specified by
+         ``propagator_settings``.
+
+      )doc" );
+
+    m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) ,
+                  R"doc(Return the number of scalar state entries for one body or object of the integrated ``state_type``.)doc" );
 }
 
 }  // namespace propagator

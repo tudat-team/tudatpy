@@ -45,33 +45,67 @@ namespace propagation
 
 void expose_propagation_state_utility_types( py::module& m )
 {
-    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
+    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" ,
+                  R"doc(Base interface for a torque model used in rotational dynamics propagation.)doc" );
 
     using AccelerationModel = tba::AccelerationModel< Eigen::Vector3d >;
-    py::class_< AccelerationModel, std::shared_ptr< AccelerationModel > >( m, "AccelerationModel" )
-            .def( "update_members", &AccelerationModel::updateMembers, py::arg( "current_time" ) )
-            .def_property_readonly( "acceleration", &AccelerationModel::getAcceleration )
+    py::class_< AccelerationModel, std::shared_ptr< AccelerationModel > >( m, "AccelerationModel" ,
+                  R"doc(
+
+         Base interface for a translational acceleration model, including its current acceleration and update method.
+
+      )doc" )
+            .def( "update_members", &AccelerationModel::updateMembers, py::arg( "current_time" ) ,
+                  R"doc(
+
+         Update the acceleration model and its cached acceleration at ``current_time``, in seconds since J2000.
+
+      )doc" )
+            .def_property_readonly( "acceleration", &AccelerationModel::getAcceleration ,
+                  R"doc(
+
+         **read-only**
+
+         Current three-component acceleration, in metres per second squared; update the model before reading it.
+
+      )doc" )
             .def(
                     "update_and_get_acceleration",
                     []( AccelerationModel& accelerationModel, const double currentTime ) {
                         accelerationModel.updateMembers( currentTime );
                         return accelerationModel.getAcceleration( );
                     },
-                    py::arg( "current_time" ) )
+                    py::arg( "current_time" ) ,
+                  R"doc(
+
+         Update the acceleration model at ``current_time`` in seconds since J2000 and return its three-component
+         acceleration in metres per second squared.
+
+      )doc" )
             .def_property_readonly( "acceleration_type", []( const std::shared_ptr< AccelerationModel >& accelerationModel ) {
                 return tba::getAccelerationModelType( accelerationModel );
-            } );
+            } ,
+                  R"doc(
 
-    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
+         **read-only**
+
+         Acceleration type identifier for the concrete physical model.
+
+      )doc" );
+
+    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" ,
+                  R"doc(Base interface for a model of the time derivative of a body's mass.)doc" );
 }
 
 void expose_propagation_state_utility_bindings( py::module& m )
 {
     m.def( "get_single_integration_differential_equation_order",
            &tp::getSingleIntegrationDifferentialEquationOrder,
-           py::arg( "state_type" ) );
+           py::arg( "state_type" ) ,
+                  R"doc(Return the differential equation order associated with the integrated ``state_type``.)doc" );
 
-    m.def( "get_generalized_acceleration_size", &tp::getGeneralizedAccelerationSize, py::arg( "state_type" ) );
+    m.def( "get_generalized_acceleration_size", &tp::getGeneralizedAccelerationSize, py::arg( "state_type" ) ,
+                  R"doc(Return the number of generalized acceleration components associated with ``state_type``.)doc" );
 
     m.def( "get_state_of_bodies",
            py::overload_cast< const std::vector< std::string >&,
@@ -123,7 +157,16 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "bodies_to_propagate" ),
            py::arg( "central_bodies" ),
            py::arg( "body_system" ),
-           py::arg( "initial_time" ) );
+           py::arg( "initial_time" ) ,
+                  R"doc(
+
+         Return concatenated Cartesian states of ``bodies_to_propagate`` relative to their matching ``central_bodies``
+         at ``initial_time``.
+
+         States are obtained from ephemerides in ``body_system`` and contain positions in metres and velocities in
+         metres per second; the epoch is in seconds since J2000.
+
+      )doc" );
 
     m.def( "get_initial_state_of_body",  // overload [2/2]
            py::overload_cast< const std::string&, const std::string&, const tss::SystemOfBodies&, const TIME_TYPE >(
@@ -131,7 +174,16 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "body_to_propagate" ),
            py::arg( "central_body" ),
            py::arg( "bodies" ),
-           py::arg( "initial_time" ) );
+           py::arg( "initial_time" ) ,
+                  R"doc(
+
+         Return the Cartesian state of ``body_to_propagate`` relative to ``central_body`` at ``initial_time`` from the
+         ephemerides in ``bodies``.
+
+         The six-component result contains position in metres and velocity in metres per second; the epoch is in
+         seconds since J2000.
+
+      )doc" );
 
     m.def( "get_initial_rotational_state_of_body",
            py::overload_cast< const std::string&, const std::string&, const tss::SystemOfBodies&, const TIME_TYPE >(
@@ -139,7 +191,16 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "body_to_propagate" ),
            py::arg( "base_orientation" ),
            py::arg( "bodies" ),
-           py::arg( "initial_time" ) );
+           py::arg( "initial_time" ) ,
+                  R"doc(
+
+         Return the seven-component rotational state of ``body_to_propagate`` at ``initial_time`` from its rotation
+         model in ``bodies``.
+
+         The state contains the quaternion relating ``base_orientation`` to the body-fixed frame and angular velocity
+         in radians per second; the epoch is in seconds since J2000.
+
+      )doc" );
 
     py::class_< tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >,
                 std::shared_ptr< tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE > > >( m,

@@ -78,11 +78,19 @@ The program will not accept the root at the final iteration, and will throw a :c
 )doc" )
             .export_values( );
 
-    py::class_< trf::RootFinder< double >, std::shared_ptr< trf::RootFinder< double > > >( m, "RootFinderCore" );
+    py::class_< trf::RootFinder< double >, std::shared_ptr< trf::RootFinder< double > > >( m, "RootFinderCore" ,
+                  R"doc(Base numerical root-finder interface for scalar double-precision functions.)doc" );
 
     py::class_< trf::NewtonRaphson< double >, std::shared_ptr< trf::NewtonRaphson< double > >, trf::RootFinder< double > >(
-            m, "NewtonRaphsonCore" )
-            .def( py::init< const double, const unsigned int >( ), py::arg( "x_tol" ), py::arg( "max_iter" ) );
+            m, "NewtonRaphsonCore" ,
+                  R"doc(Newton-Raphson root finder configured by root tolerance and maximum iteration count.)doc" )
+            .def( py::init< const double, const unsigned int >( ), py::arg( "x_tol" ), py::arg( "max_iter" ) ,
+                  R"doc(
+
+         Create a Newton-Raphson solver with root absolute tolerance ``x_tol`` and maximum iteration count
+         ``max_iter``.
+
+      )doc" );
 
     py::class_< trf::RootFinderSettings, std::shared_ptr< trf::RootFinderSettings > >( m,
                                                                                        "RootFinderSettings",

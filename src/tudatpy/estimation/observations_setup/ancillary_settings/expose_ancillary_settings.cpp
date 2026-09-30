@@ -75,9 +75,11 @@ void expose_ancillary_settings_types( py::module& m )
         This enum lists variables that are computed during the observation simulation process and can be stored for later analysis.
         )doc" )
             .value( "transmitter_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate )
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate ,
+                  R"doc(Intermediate transmitter frequency used in the observation calculation.)doc" )
             .value( "received_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate ,
+                  R"doc(Intermediate received frequency used in the observation calculation.)doc" )
             .export_values( );
 
     py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
@@ -85,10 +87,14 @@ void expose_ancillary_settings_types( py::module& m )
 
         This enum lists common frequency bands used in deep space navigation.
         )doc" )
-            .value( "s_band", tom::FrequencyBands::s_band )
-            .value( "x_band", tom::FrequencyBands::x_band )
-            .value( "ka_band", tom::FrequencyBands::ka_band )
-            .value( "ku_band", tom::FrequencyBands::ku_band );
+            .value( "s_band", tom::FrequencyBands::s_band ,
+                  R"doc(S-band radio frequency identifier.)doc" )
+            .value( "x_band", tom::FrequencyBands::x_band ,
+                  R"doc(X-band radio frequency identifier.)doc" )
+            .value( "ka_band", tom::FrequencyBands::ka_band ,
+                  R"doc(Ka-band radio frequency identifier.)doc" )
+            .value( "ku_band", tom::FrequencyBands::ku_band ,
+                  R"doc(Ku-band radio frequency identifier.)doc" );
 
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
                                                               "ObservationAncillarySimulationVariable",
@@ -224,7 +230,12 @@ void expose_ancillary_settings_types( py::module& m )
             .def( "set_intermediate_double_data",
                   &tudat::observation_models::ObservationAncillarySimulationSettings::setIntermediateDoubleData,
                   py::arg( "variable" ),
-                  py::arg( "value" ) )
+                  py::arg( "value" ) ,
+                  R"doc(
+
+         Assign the numeric ``value`` to the intermediate ancillary ``variable`` used by the observation model.
+
+      )doc" )
             .def( "get_float_settings",
                   &tom::ObservationAncillarySimulationSettings::getAncillaryDoubleData,
                   py::arg( "setting_type" ),

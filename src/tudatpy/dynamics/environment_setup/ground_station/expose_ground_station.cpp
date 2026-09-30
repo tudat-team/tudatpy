@@ -39,13 +39,25 @@ namespace ground_station
 void expose_ground_station_setup( py::module& m )
 {
     // Ground station motion settings
-    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes" )
-            .value( "linear", tss::StationMotionModelTypes::linear_station_motion )
-            .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion )
-            .value( "custom", tss::StationMotionModelTypes::custom_station_motion )
-            .value( "body_deformation", tss::StationMotionModelTypes::body_deformation_station_motion )
+    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes" , R"doc(
+
+         Enumeration of ground station motion models.
+
+         These entries identify the models used to compute station displacements relative to the nominal body-fixed position,
+         such as constant linear motion and motion caused by body deformation.
+
+      )doc" )
+            .value( "linear", tss::StationMotionModelTypes::linear_station_motion ,
+                  R"doc(Station displacement from a constant body-fixed velocity.)doc" )
+            .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion ,
+                  R"doc(Station displacement specified by piecewise-constant offsets.)doc" )
+            .value( "custom", tss::StationMotionModelTypes::custom_station_motion ,
+                  R"doc(Station displacement evaluated by a custom function.)doc" )
+            .value( "body_deformation", tss::StationMotionModelTypes::body_deformation_station_motion ,
+                  R"doc(Station displacement due to deformation of the host body.)doc" )
             .value( "bodycentric_to_barycentric_station_position_motion",
-                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion );
+                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion ,
+                  R"doc(Relativistic station displacement between bodycentric and barycentric coordinates.)doc" );
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -61,7 +73,15 @@ void expose_ground_station_setup( py::module& m )
 
 
       )doc" )
-            .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType );
+            .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType , R"doc(
+
+         **read-only**
+
+         Type of ground station motion model defined by these settings.
+
+         :type: StationMotionModelTypes
+
+      )doc" );
 
     py::class_< tss::LinearGroundStationMotionSettings,
                 std::shared_ptr< tss::LinearGroundStationMotionSettings >,
@@ -85,7 +105,7 @@ void expose_ground_station_setup( py::module& m )
 Parameters
 ----------
 
-linear_velocity: 
+linear_velocity:
     Constant velocity of the station in body-fixed reference frame
 reference_epoch:
     Epoch at which the position of the station is known
@@ -123,7 +143,13 @@ reference_epoch:
                                                     R"doc(
                     Define station motion settings based on body deformation
                     )doc" )
-            .def( py::init< const bool >( ), py::arg( "fail_if_not_available" ) = true );
+            .def( py::init< const bool >( ), py::arg( "fail_if_not_available" ) = true ,
+                  R"doc(
+
+         Create a station displacement model due to body deformation, optionally requiring that deformation models
+         exist.
+
+      )doc" );
 
     py::class_< tss::CustomGroundStationMotionSettings,
                 std::shared_ptr< tss::CustomGroundStationMotionSettings >,
@@ -153,9 +179,9 @@ reference_epoch:
                            &tss::GroundStationSettings::resetGroundStationPosition,
                            R"doc(
                            Position of the ground station in body-fixed frame. The position is interpreted based on the value of the ``position_element_type`` property.
-                           
+
                            :type: numpy.ndarray([3,1])
-                           
+
                            )doc" )
 
             .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName, R"doc(
@@ -165,11 +191,11 @@ reference_epoch:
 
                 )doc" )
             .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType, R"doc(
-                
+
             Element type of the ground station position, defining the interpretation of the ``station_position`` property.
 
             :type: ~tudatpy.astro.element_conversion.PositionElementTypes
-                
+
                 )doc" )
             .def_property( "station_motion_settings",
                            &tss::GroundStationSettings::getStationMotionSettings,
@@ -179,7 +205,7 @@ reference_epoch:
                 List of motion settings for the ground station, defining time-variations of the station position.
 
                 :type: list[ GroundStationMotionSettings ]
-                    
+
                     )doc" )
             .def( "add_station_motion_settings",
                   &tss::GroundStationSettings::addStationMotionSettings,
@@ -197,7 +223,21 @@ reference_epoch:
     m.def( "add_motion_model_to_each_ground_station",
            &tss::addStationMotionModelToEachGroundStation,
            py::arg( "ground_station_settings_list" ),
-           py::arg( "station_motion_setting" ) );
+           py::arg( "station_motion_setting" ) , R"doc(
+
+         Add a station motion model to each ground station in a settings list.
+
+         The motion model is appended to the models already present in each settings object. The supplied ground station
+         settings are modified in place.
+
+         Parameters
+         ----------
+         ground_station_settings_list : list[GroundStationSettings]
+             Settings of the ground stations to which the motion model is added.
+         station_motion_setting : GroundStationMotionSettings
+             Settings defining the motion model to add to each station.
+
+      )doc" );
 
     m.def( "basic_station",
            &tss::groundStationSettings,
@@ -531,7 +571,19 @@ reference_epoch:
 
         )doc" );
 
-    m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
+    m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(
+
+         Retrieve approximate body-fixed positions of DSN and VLBI stations.
+
+         This function returns the same station catalogue as :func:`~get_radio_telescope_positions`, combining the positions
+         returned by :func:`~get_approximate_dsn_ground_station_positions` and :func:`~get_vlbi_station_positions`.
+
+         Returns
+         -------
+         dict[str, numpy.ndarray[numpy.float64[3, 1]]]
+             Dictionary mapping each station name to its Earth-fixed Cartesian position, in m.
+
+      )doc" );
 
     m.def( "get_vlbi_station_positions", &tss::getVlbiStationPositions, R"doc(
 

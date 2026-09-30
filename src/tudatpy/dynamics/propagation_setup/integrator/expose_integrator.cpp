@@ -199,10 +199,14 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
             //       tni::AvailableIntegrators::euler)
             //       .value("runge_kutta_4_type",
             //       tni::AvailableIntegrators::rungeKutta4)
-            .value( "runge_kutta_fixed_step_size_type", tni::AvailableIntegrators::rungeKuttaFixedStepSize )
-            .value( "runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize )
-            .value( "bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer )
-            .value( "adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton )
+            .value( "runge_kutta_fixed_step_size_type", tni::AvailableIntegrators::rungeKuttaFixedStepSize ,
+                  R"doc(Runge-Kutta integrator with a fixed step size.)doc" )
+            .value( "runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize ,
+                  R"doc(Runge-Kutta integrator with adaptive step-size control.)doc" )
+            .value( "bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer ,
+                  R"doc(Bulirsch-Stoer extrapolation integrator.)doc" )
+            .value( "adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton ,
+                  R"doc(Adams-Bashforth-Moulton multistep integrator.)doc" )
             .export_values( );
 
     py::enum_< tni::CoefficientSets >( m,
@@ -436,21 +440,48 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" );
-    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m, "IntegratorSettingsFloat" );
+    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m, "IntegratorSettingsFloat" ,
+                  R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.integrator`.
+
+         See those functions for the available settings and model definitions.
+
+      )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >,
-                tni::IntegratorSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeBaseSettings", R"doc(No documentation found.)doc" );
+                tni::IntegratorSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeBaseSettings", R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.integrator`.
+
+         See those functions for the available settings and model definitions.
+
+      )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE > >,
                 tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m, "RungeKuttaVariableStepSizeSettingsVectorTolerances", R"doc(No documentation found.)doc" );
+            m, "RungeKuttaVariableStepSizeSettingsVectorTolerances", R"doc(
+
+         Model created from settings returned by
+         :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size_vector_tolerances`.
+
+         See the factory documentation for the model definition and configuration.
+
+      )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE > >,
                 tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m, "RungeKuttaVariableStepSizeSettingsScalarTolerances", R"doc(No documentation found.)doc" );
+            m, "RungeKuttaVariableStepSizeSettingsScalarTolerances", R"doc(
+
+         Model created from settings returned by
+         :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size`.
+
+         See the factory documentation for the model definition and configuration.
+
+      )doc" );
 
     py::class_< tni::BulirschStoerIntegratorSettings< TIME_TYPE >,
                 std::shared_ptr< tni::BulirschStoerIntegratorSettings< TIME_TYPE > >,
@@ -494,9 +525,12 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "safety_factor", &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_ )
-            .def_readwrite( "minimum_step_decrease", &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_ )
-            .def_readwrite( "maximum_step_decrease", &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_ );
+            .def_readwrite( "safety_factor", &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_ ,
+                  R"doc(Safety multiplier applied when computing the next integration step size.)doc" )
+            .def_readwrite( "minimum_step_decrease", &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_ ,
+                  R"doc(Minimum permitted multiplicative factor in the next-step size calculation.)doc" )
+            .def_readwrite( "maximum_step_decrease", &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_ ,
+                  R"doc(Maximum permitted multiplicative factor in the next-step size calculation.)doc" );
 
     py::class_< tni::IntegratorStepSizeValidationSettings, std::shared_ptr< tni::IntegratorStepSizeValidationSettings > >(
             m,
@@ -512,9 +546,12 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "minimum_step", &tni::IntegratorStepSizeValidationSettings::minimumStep_ )
-            .def_readwrite( "maximum_step", &tni::IntegratorStepSizeValidationSettings::maximumStep_ )
-            .def_readwrite( "minimum_step_handling", &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_ );
+            .def_readwrite( "minimum_step", &tni::IntegratorStepSizeValidationSettings::minimumStep_ ,
+                  R"doc(Minimum allowed integration step magnitude, in seconds.)doc" )
+            .def_readwrite( "maximum_step", &tni::IntegratorStepSizeValidationSettings::maximumStep_ ,
+                  R"doc(Maximum allowed integration step magnitude, in seconds.)doc" )
+            .def_readwrite( "minimum_step_handling", &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_ ,
+                  R"doc(Policy used when the required step size falls below the minimum allowed step.)doc" );
 
     // FACTORY FUNCTIONS
     m.def( "print_butcher_tableau",
@@ -738,11 +775,11 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
  Here we will create them manually for demonstration purposes.
  We would like to create integrator settings with the following settings:
- 
+
  - Relative error tolerance of 1e-12
  - Absolute error tolerance of 1e-12
  - Relative and absolute error tolerances are applied to the position and velocity blocks of a single Cartesian state vector
- 
+
  .. code-block:: python
 
      from tudatpy.dynamics import propagation_setup
@@ -861,7 +898,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  - Relative error tolerance of 1e-12 for position and velocity blocks
  - Absolute error tolerance of 1e-9 for position and 1e-12 for velocity blocks
- 
+
  .. code-block:: python
 
      import numpy as np
@@ -973,7 +1010,13 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
     m.def( "standard_rotational_state_element_blocks",
            &tni::getStandardRotationalStatesElementsToCheck,
            py::arg( "number_of_rows" ),
-           py::arg( "number_of_columns" ) );
+           py::arg( "number_of_columns" ) ,
+                  R"doc(
+
+         Return the standard rotational-state element blocks used for integration error control of a state array with
+         ``number_of_rows`` rows and ``number_of_columns`` columns.
+
+      )doc" );
 
     m.def( "step_size_control_custom_blockwise_scalar_tolerance",
            &tni::perBlockFromFunctionIntegratorStepSizeControlSettings< double >,
@@ -1575,7 +1618,15 @@ IntegratorSettings
     m.def( "euler",
            &tni::eulerSettings< TIME_TYPE >,
            py::arg( "initial_time_step" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false );
+           py::arg( "assess_termination_on_minor_steps" ) = false ,
+                  R"doc(
+
+         Create fixed-step forward Euler integrator settings with ``initial_time_step`` in seconds.
+
+         ``assess_termination_on_minor_steps`` enables termination checks during intermediate evaluations. Returns
+         IntegratorSettings.
+
+      )doc" );
 
     m.def( "bulirsch_stoer",
            &tni::bulirschStoerIntegratorSettings< TIME_TYPE >,
@@ -1589,7 +1640,18 @@ IntegratorSettings
            py::arg( "assess_termination_on_minor_steps" ) = false,
            py::arg( "safety_factor" ) = 0.7,
            py::arg( "maximum_factor_increase" ) = 10.0,
-           py::arg( "minimum_factor_increase" ) = 0.1 );
+           py::arg( "minimum_factor_increase" ) = 0.1 ,
+                  R"doc(
+
+         Create adaptive Bulirsch-Stoer integrator settings.
+
+         ``initial_time_step``, ``minimum_step_size`` and ``maximum_step_size`` are in seconds.
+         ``extrapolation_sequence`` selects the substep sequence and ``maximum_number_of_steps`` limits extrapolation
+         depth. Relative and absolute tolerances control accuracy; ``safety_factor`` and the factor bounds limit step-
+         size adjustments. ``assess_termination_on_minor_steps`` enables intermediate termination checks. Returns
+         IntegratorSettings.
+
+      )doc" );
 }
 
 }  // namespace integrator

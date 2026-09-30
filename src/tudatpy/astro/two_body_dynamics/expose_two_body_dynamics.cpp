@@ -112,22 +112,59 @@ void expose_two_body_dynamics( py::module& m )
 
      )doc" );
 
-    py::class_< tms::PericenterFindingFunctions, std::shared_ptr< tms::PericenterFindingFunctions > >( m, "PericenterFindingFunctions" )
+    py::class_< tms::PericenterFindingFunctions, std::shared_ptr< tms::PericenterFindingFunctions > >( m, "PericenterFindingFunctions" ,
+                  R"doc(
+
+         Objective function and derivative for finding a gravity-assist pericentre from the incoming and outgoing
+         hyperbolae and bending angle.
+
+      )doc" )
             .def( py::init< const double, const double, const double >( ),
                   py::arg( "absolute_incoming_semi_major_axis" ),
                   py::arg( "absolute_outgoing_semi_major_axis" ),
-                  py::arg( "bending_angle" ) )
-            .def( "compute_pericenter_radius_fn", &tms::PericenterFindingFunctions::computePericenterRadiusFunction )
+                  py::arg( "bending_angle" ) , R"doc(
+
+         Create the objective function for solving a gravity-assist pericentre radius.
+
+         For incoming and outgoing hyperbolic semi-major axis magnitudes :math:`a_i` and :math:`a_o`,
+         and bending angle :math:`\delta`, the objective is
+         :math:`f(r_p)=\arcsin(a_i/(a_i+r_p))+\arcsin(a_o/(a_o+r_p))-\delta`.
+         Its zero gives the pericentre radius at which the incoming and outgoing hyperbolae share the
+         requested total bending angle.
+
+         Parameters
+         ----------
+         absolute_incoming_semi_major_axis : float
+             Positive magnitude of the incoming hyperbolic semi-major axis, in m.
+         absolute_outgoing_semi_major_axis : float
+             Positive magnitude of the outgoing hyperbolic semi-major axis, in m.
+         bending_angle : float
+             Total angle between incoming and outgoing asymptotic velocities, in rad.
+
+      )doc" )
+            .def( "compute_pericenter_radius_fn", &tms::PericenterFindingFunctions::computePericenterRadiusFunction ,
+                  R"doc(
+
+         Evaluate the gravity-assist pericentre objective at the supplied pericentre radius, in metres. Its zero
+         satisfies the specified bending angle.
+
+      )doc" )
             .def( "compute_derivative_pericenter_radius_fn",
-                  &tms::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction );
+                  &tms::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction ,
+                  R"doc(
+
+         Evaluate the first derivative of the gravity-assist objective with respect to the supplied pericentre radius,
+         in metres.
+
+      )doc" );
 
     py::class_< tms::EccentricityFindingFunctions, std::shared_ptr< tms::EccentricityFindingFunctions > >( m,
                                                                                                            "EccentricityFindingFunctions",
                                                                                                            R"doc(
 Class containing functions for finding the eccentricity during a gravity assist.
 
-This class provides the objective function and its derivative for solving the incoming 
-eccentricity in a gravity assist maneuver, given the incoming and outgoing hyperbolic 
+This class provides the objective function and its derivative for solving the incoming
+eccentricity in a gravity assist maneuver, given the incoming and outgoing hyperbolic
 semi-major axes and the bending angle. Used as input for root-finding algorithms.
 
 )doc" )
@@ -188,8 +225,8 @@ float
                                                                                                                 R"doc(
 Base class for Lambert targeting algorithms.
 
-This abstract base class defines the interface for Lambert problem solvers. The Lambert 
-problem consists of finding the orbit that connects two position vectors in a specified 
+This abstract base class defines the interface for Lambert problem solvers. The Lambert
+problem consists of finding the orbit that connects two position vectors in a specified
 time of flight. Derived classes implement specific solution algorithms (e.g., Gooding, Izzo).
 
 )doc" )
@@ -253,7 +290,12 @@ tuple[numpy.ndarray, numpy.ndarray]
     //  lambertTargeterGooding.cpp (complete)
     //////////////////////////////////////////////////////////////////////
     py::class_< tms::LambertTargeterGooding, std::shared_ptr< tms::LambertTargeterGooding >, tms::LambertTargeter >(
-            m, "LambertTargeterGooding" )
+            m, "LambertTargeterGooding" ,
+                  R"doc(
+
+         Lambert solver using Gooding's method to determine departure and arrival velocities for a two-body transfer.
+
+      )doc" )
             .def( py::init< const Eigen::Vector3d&, const Eigen::Vector3d&, const double, const double, trf::RootFinderPointer >( ),
                   py::arg( "departure_position" ),
                   py::arg( "arrival_position" ),
@@ -274,7 +316,7 @@ time_of_flight : float
 gravitational_parameter : float
     Gravitational parameter of the central body [m^3/s^2].
 root_finder : RootFinderCore, default=None
-    Root finder to use for solving the Lambert equation. If None, a default Newton-Raphson 
+    Root finder to use for solving the Lambert equation. If None, a default Newton-Raphson
     solver with 1000 iterations and 1e-12 relative tolerance is used.
 
 )doc" )
@@ -342,13 +384,13 @@ float
                                                                                                                R"doc(
 Lambert targeter using Izzo's algorithm.
 
-Implementation of Izzo's Lambert targeting algorithm. This method is particularly robust 
-for near-pi transfers and does not suffer from singularities that affect other methods. 
+Implementation of Izzo's Lambert targeting algorithm. This method is particularly robust
+for near-pi transfers and does not suffer from singularities that affect other methods.
 It supports both prograde and retrograde orbits.
 
 References
 ----------
-Izzo, D., "Revisiting Lambert's problem", Celestial Mechanics and Dynamical Astronomy, 
+Izzo, D., "Revisiting Lambert's problem", Celestial Mechanics and Dynamical Astronomy,
 Vol. 121, 2015.
 
 )doc" )
@@ -452,8 +494,8 @@ float
             R"doc(
 Zero-revolution Lambert targeter using Izzo's algorithm.
 
-Specialized implementation of Izzo's algorithm for zero-revolution transfers (direct transfers 
-without completing full orbits). This is a more focused version that handles the most common 
+Specialized implementation of Izzo's algorithm for zero-revolution transfers (direct transfers
+without completing full orbits). This is a more focused version that handles the most common
 case efficiently.
 
 )doc" )
@@ -558,8 +600,8 @@ float
                                                           R"doc(
 Multi-revolution Lambert targeter using Izzo's algorithm.
 
-Extension of Izzo's algorithm to handle multi-revolution transfers. Supports computing 
-solutions for transfers that complete one or more full orbits before arrival, with both 
+Extension of Izzo's algorithm to handle multi-revolution transfers. Supports computing
+solutions for transfers that complete one or more full orbits before arrival, with both
 left-branch and right-branch solutions available.
 
 )doc" )

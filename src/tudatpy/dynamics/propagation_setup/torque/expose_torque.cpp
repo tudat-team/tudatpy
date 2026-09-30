@@ -76,23 +76,23 @@ void expose_torque_setup( py::module& m )
                     tba::AvailableTorque::torque_free,
                     R"doc(
       )doc" )
-            .value( "underfined_type", tba::AvailableTorque::underfined_torque, R"doc(No documentation found.)doc" )
+            .value( "underfined_type", tba::AvailableTorque::underfined_torque, R"doc(Undefined torque model type.)doc" )
             .value( "second_order_gravitational_type",
                     tba::AvailableTorque::second_order_gravitational_torque,
-                    R"doc(No documentation found.)doc" )
-            .value( "aerodynamic_type", tba::AvailableTorque::aerodynamic_torque, R"doc(No documentation found.)doc" )
-            .value( "radiation_pressure_torque_type", tba::AvailableTorque::radiation_pressure_torque, R"doc(No documentation found.)doc" )
+                    R"doc(Second-degree gravitational torque on the body.)doc" )
+            .value( "aerodynamic_type", tba::AvailableTorque::aerodynamic_torque, R"doc(Aerodynamic torque on the body.)doc" )
+            .value( "radiation_pressure_torque_type", tba::AvailableTorque::radiation_pressure_torque, R"doc(Torque due to radiation pressure on the body.)doc" )
             .value( "spherical_harmonic_gravitational_type",
                     tba::AvailableTorque::spherical_harmonic_gravitational_torque,
-                    R"doc(No documentation found.)doc" )
-            .value( "inertial_type", tba::AvailableTorque::inertial_torque, R"doc(No documentation found.)doc" )
-            .value( "dissipative_type", tba::AvailableTorque::dissipative_torque, R"doc(No documentation found.)doc" )
+                    R"doc(Gravitational torque from a spherical harmonic gravity field.)doc" )
+            .value( "inertial_type", tba::AvailableTorque::inertial_torque, R"doc(Inertial torque in the body-fixed rotational equations.)doc" )
+            .value( "dissipative_type", tba::AvailableTorque::dissipative_torque, R"doc(Dissipative torque on the body.)doc" )
             .value( "full_two_body_spherical_harmonic_gravitational_type",
                     tba::AvailableTorque::full_two_body_spherical_harmonic_gravitational_torque,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(Mutual gravitational torque accounting for both bodies' spherical harmonic fields.)doc" )
             .value( "fourth_degree_full_two_body_gravitational_type",
                     tba::AvailableTorque::fourth_degree_full_two_body_gravitational_torque,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(Mutual two-body gravitational torque including terms through fourth degree.)doc" )
             .export_values( );
 
     py::class_< tss::TorqueSettings, std::shared_ptr< tss::TorqueSettings > >( m,
@@ -203,7 +203,11 @@ void expose_torque_setup( py::module& m )
 
      )doc" );
 
-    m.def( "radiation_pressure_torque", &tss::radiationPressureTorque, R"doc(No documentation found.)doc" );
+    m.def( "radiation_pressure_torque", &tss::radiationPressureTorque, R"doc(
+
+         Create torque settings for radiation pressure acting on the configured radiation pressure target panels.
+
+      )doc" );
 
     m.def( "second_degree_gravitational",
            &tss::secondDegreeGravitationalTorque,
@@ -481,7 +485,15 @@ void expose_torque_setup( py::module& m )
            &tss::customTorqueSettings,
            py::arg( "torque_function" ),
            py::arg_v( "scaling_function", std::function< double( const double ) >( ), "None" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create torque settings from ``torque_function``, which maps seconds since J2000 to a three-component body-
+         fixed torque in newton metres.
+
+         ``scaling_function`` optionally provides an epoch-dependent scalar multiplier; None leaves the returned torque
+         unchanged.
+
+      )doc" );
 
     // NOTE: the only unexposed torque model is
     // dissipativeTorque, but it is probably obsolete

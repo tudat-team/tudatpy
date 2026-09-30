@@ -247,8 +247,10 @@ The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in squa
 source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 )doc" )
-            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ )
-            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ );
+            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ ,
+                  R"doc(Three coefficients controlling the three-coefficient radiation pressure acceleration model.)doc" )
+            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ ,
+                  R"doc(Name of the reference body used by the three-coefficient radiation pressure model.)doc" );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,
@@ -1079,7 +1081,7 @@ It implements the model of 2010 Conventions (chapter 10, section 3).
 For the Schwarzschild correction, we have:
 
 .. math::
-   
+
    \mathbf{a}=\frac{\mu_{B}}{c^{2}r^{3}}\left(\left(2(\beta+\gamma)\frac{\mu_{B}}{r}-\gamma(\mathbf{v}\cdot\mathbf{v}) \right)\mathbf{r} +2(1+\gamma)(\mathbf{r}\cdot\mathbf{v})\mathbf{v}\right)
 
 For the Lense-Thirring correction, we have:
