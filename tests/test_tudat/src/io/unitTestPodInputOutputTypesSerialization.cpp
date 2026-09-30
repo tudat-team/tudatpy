@@ -206,6 +206,19 @@ void checkBaseOutputArchives( )
     BOOST_CHECK( *roundTripSerialize( expectedCovariance ) == *expectedCovariance );
 }
 
+template< typename TimeType >
+void checkEstimationOutputActiveFlags( )
+{
+    const auto original = createEstimationOutput< TimeType >( );
+    using Flags = Eigen::Matrix< bool, Eigen::Dynamic, 1 >;
+    original->activeFlagsPerIteration_ = { Flags::Constant( 3, true ), ( Flags( 3 ) << true, false, true ).finished( ) };
+    const auto restored = roundTripSerialize( original );
+    BOOST_CHECK( *restored == *original );
+    BOOST_CHECK( restored->getActiveFlagsPerIterationMatrix( ) == original->getActiveFlagsPerIterationMatrix( ) );
+    restored->activeFlagsPerIteration_.at( 1 )( 1 ) = true;
+    BOOST_CHECK( !( *restored == *original ) );
+}
+
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_PodInputOutputTypes_serialization )
@@ -240,17 +253,8 @@ BOOST_AUTO_TEST_CASE( test_base_output_archives_preserve_diagonal_weights )
 
 BOOST_AUTO_TEST_CASE( test_estimation_output_preserves_active_flags )
 {
-    const auto checkFlags = []( const auto& original ) {
-        using Flags = Eigen::Matrix< bool, Eigen::Dynamic, 1 >;
-        original->activeFlagsPerIteration_ = { Flags::Constant( 3, true ), ( Flags( 3 ) << true, false, true ).finished( ) };
-        const auto restored = roundTripSerialize( original );
-        BOOST_CHECK( *restored == *original );
-        BOOST_CHECK( restored->getActiveFlagsPerIterationMatrix( ) == original->getActiveFlagsPerIterationMatrix( ) );
-        restored->activeFlagsPerIteration_.at( 1 )( 1 ) = true;
-        BOOST_CHECK( !( *restored == *original ) );
-    };
-    checkFlags( createEstimationOutput< double >( ) );
-    checkFlags( createEstimationOutput< Time >( ) );
+    checkEstimationOutputActiveFlags< double >( );
+    checkEstimationOutputActiveFlags< Time >( );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
