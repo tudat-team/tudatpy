@@ -51,21 +51,6 @@ void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName, bodies ) );
 }
 
-// RP-OLD
-void addRadiationPressureInterface( const SystemOfBodies& bodies,
-                                    const std::string bodyName,
-                                    const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
-{
-    if( bodies.count( bodyName ) == 0 )
-    {
-        throw std::runtime_error( "Error when setting radiation pressure interface for body " + bodyName +
-                                  ", body is not found in system of bodies" );
-    }
-    bodies.at( bodyName )
-            ->setRadiationPressureInterface( radiationPressureSettings->getSourceBody( ),
-                                             createRadiationPressureInterface( radiationPressureSettings, bodyName, bodies ) );
-}
-
 void addRadiationPressureTargetModel( const SystemOfBodies& bodies,
                                       const std::string bodyName,
                                       const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings )
