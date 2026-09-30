@@ -49,8 +49,7 @@ int main( )
     double initialTime = 0.0;
     const double fixedStepSize = 100000.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings<> >(
-                    numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, fixedStepSize );
 
     // Create system of bodies.
     std::vector< std::string > bodiesCR3BP;

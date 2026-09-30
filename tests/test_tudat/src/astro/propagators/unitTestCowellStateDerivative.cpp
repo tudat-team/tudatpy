@@ -118,8 +118,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
 
     // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 200.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 200.0 );
 
     // Define central bodies to use in propagation (all w.r.t SSB).
     std::vector< std::string > centralBodies;
@@ -193,8 +192,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create integration and propagation settings for reverse in time propagation
     std::map< double, Eigen::VectorXd >::iterator solutionSetIterator = ( --solutionSet2.end( ) );
     Eigen::VectorXd systemFinalState = solutionSetIterator->second;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings2 =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, solutionSetIterator->first, -200.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings2 = std::make_shared< IntegratorSettings<> >( rungeKutta4, -200.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings3 =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodies,
@@ -386,7 +384,7 @@ void testCowellPropagationOfKeplerOrbit( )
 
     // Define settings for numerical integrator.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialEphemerisTime, 120.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 120.0 );
 
     // Run test where Moon gravity is/is not taken into account.
     for( unsigned testCase = 0; testCase < 2; testCase++ )
@@ -433,12 +431,18 @@ void testCowellPropagationOfKeplerOrbit( )
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                        centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
         // cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 1.0E6 );
 
         // Create dynamics simulation object.
-        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
 
         Eigen::Matrix< StateScalarType, 6, 1 > initialKeplerElements =
                 orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(

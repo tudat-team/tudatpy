@@ -225,14 +225,21 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     Eigen::Matrix< double, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+            40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, double( finalEphemerisTime ), cowell );
-
-    // Create integrator settings
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            double( initialEphemerisTime ), 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    double( initialEphemerisTime ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( double( finalEphemerisTime ) ),
+                    cowell );
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -287,8 +294,8 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     }
 
     // Create orbit determination object.
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     std::vector< double > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
@@ -508,14 +515,16 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
 
     std::vector< std::string > centralBodies = { "SSB" };
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialEphemerisTime, 1800.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 1800.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                     centralBodies,
                     accelerationModelMap,
                     bodiesToIntegrate,
                     getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
-                    finalEphemerisTime,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
                     cowell );
 
     LinkEnds linkEnds;
@@ -526,7 +535,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( angular_position, linkEnds ) );
 
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+            bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     std::vector< TimeType > observationTimes;
     observationTimes.reserve( numberOfDaysOfData );

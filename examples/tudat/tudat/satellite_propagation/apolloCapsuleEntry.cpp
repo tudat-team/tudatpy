@@ -149,24 +149,26 @@ int main( )
     std::shared_ptr< PropagationTerminationSettings > terminationSettings =
             std::make_shared< PropagationDependentVariableTerminationSettings >( terminationDependentVariable, 25.0E3, true );
 
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+
     // Create propagation settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                 accelerationModelMap,
                                                                                 bodiesToPropagate,
                                                                                 systemInitialState,
+                                                                                simulationStartEpoch,
+                                                                                integratorSettings,
                                                                                 terminationSettings,
                                                                                 cowell,
                                                                                 dependentVariablesToSave );
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////        PROVIDE OUTPUT TO FILE                        //////////////////////////////////////////

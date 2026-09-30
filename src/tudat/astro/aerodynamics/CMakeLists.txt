@@ -50,7 +50,6 @@ set(aerodynamics_HEADERS
         "customAerodynamicCoefficientInterface.h"
         "controlSurfaceAerodynamicCoefficientInterface.h"
         "flightConditions.h"
-        "aerodynamicGuidance.h"
         "equilibriumWallTemperature.h"
         "windModel.h"
         "comaWindModel.h"

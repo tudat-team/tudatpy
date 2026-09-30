@@ -180,7 +180,7 @@ int main( )
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > >( numerical_integrators::rungeKutta4, 0.0, stepSize );
+            std::make_shared< numerical_integrators::IntegratorSettings< double > >( numerical_integrators::rungeKutta4, stepSize );
 
     std::vector< double > epochsToSaveResults;
     for( int i = 0; i <= numberOfSteps; i++ )

@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
 
     // Set integrator settings
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::euler, initialTime, timeStep );
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::euler, timeStep );
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 2 > > control = std::make_shared< ControlWrapper< double, double, 2 > >(
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
 
     // Set integrator settings
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::euler, initialTime, timeStep );
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::euler, timeStep );
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 3 > > control = std::make_shared< ControlWrapper< double, double, 3 > >(

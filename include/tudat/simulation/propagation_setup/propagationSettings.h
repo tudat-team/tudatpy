@@ -1414,6 +1414,31 @@ public:
         }
     }
 
+    MassPropagatorSettings( const std::vector< std::string > bodiesWithMassToPropagate,
+                            const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
+                            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+                            const TimeType& initialTime,
+                            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+                            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state,
+                                                                  initialBodyMasses,
+                                                                  initialTime,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave,
+                                                                  outputSettings ),
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate )
+    {
+        for( const auto& massRateModel : massRateModels )
+        {
+            massRateModels_[ massRateModel.first ].push_back( massRateModel.second );
+        }
+    }
+
     //! Constructor of mass state propagator settings, with already-created mass rate models.
     /*!
      * Constructor  of mass state propagator settings, with already-created mass rate models.
@@ -2119,6 +2144,30 @@ public:
                                                                   terminationSettings,
                                                                   dependentVariablesToSave,
                                                                   statePrintInterval ),
+        stateDerivativeFunction_( std::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
+                                             stateDerivativeFunction,
+                                             std::placeholders::_1,
+                                             std::placeholders::_2 ) ),
+        stateSize_( 1 ), bodyName_( bodyName )
+    {}
+
+    CustomStatePropagatorSettings( const std::function< StateScalarType( const TimeType, const StateScalarType ) > stateDerivativeFunction,
+                                   const StateScalarType initialState,
+                                   const TimeType& initialTime,
+                                   const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+                                   const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                   const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                                           std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                                   const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                                           std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+                                   const std::string& bodyName = "" ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
+                                                                  ( StateVectorType( 1 ) << initialState ).finished( ),
+                                                                  initialTime,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave,
+                                                                  outputSettings ),
         stateDerivativeFunction_( std::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
                                              stateDerivativeFunction,
                                              std::placeholders::_1,
