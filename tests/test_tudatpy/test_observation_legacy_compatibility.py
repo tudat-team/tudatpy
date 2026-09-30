@@ -6,6 +6,72 @@ import pytest
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import estimation_analysis, observations
 from tudatpy.estimation.observations import observations_processing
+from tudatpy.estimation.observable_models_setup import model_settings
+from tudatpy.estimation.observations_setup import observations_dependent_variables as dependent
+from tudatpy.estimation.observations_setup import observations_simulation_settings as simulation
+
+
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+@pytest.mark.parametrize("construction", ["manual", "merged", "dataset"])
+def test_legacy_residual_computation_updates_original_sets(construction):
+    body_settings = environment_setup.BodyListSettings("SSB", "J2000")
+    for name, x in [("Probe", 1000.0), ("Earth", 0.0)]:
+        body_settings.add_empty_settings(name)
+        body_settings.get(name).ephemeris_settings = environment_setup.ephemeris.constant(
+            np.array([x, 0, 0, 0, 0, 0]), "SSB", "J2000"
+        )
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    definition = observations.LinkDefinition(_link_ends("Earth"))
+    settings = simulation.tabulated_simulation_settings(
+        observations.one_way_range, definition, [1.0, 2.0]
+    )
+    settings.add_dependent_variables(
+        [
+            dependent.target_range_between_link_ends_dependent_variable(
+                observations.transmitter, observations.receiver
+            )
+        ]
+    )
+    sets = [
+        observations.SingleObservationSet(
+            observations.one_way_range,
+            definition,
+            [[1005.0 + i]],
+            [1.0 + i],
+            observations.receiver,
+            dependent_variable_bookkeeping=settings.dependent_variable_bookkeeping,
+        )
+        for i in range(2)
+    ]
+    if construction == "manual":
+        collection = observations.ObservationCollection(sets)
+    elif construction == "merged":
+        collection = observations.merge_observation_collections(
+            [observations.ObservationCollection([single_set]) for single_set in sets]
+        )
+    else:
+        dataset = observations.ObservationDataset()
+        for single_set in sets:
+            dataset.add_observation_set(single_set)
+        collection = observations.create_observation_collection_from_dataset(dataset)
+    original_sets = collection.get_single_observation_sets()
+    simulators = simulation.create_observation_simulators(
+        [model_settings.one_way_range(definition)], bodies
+    )
+    for expected_residuals in ([5.0, 6.0], [10.0, 20.0]):
+        collection.set_observations(1000.0 + np.array(expected_residuals))
+        observations.compute_residuals_and_dependent_variables(collection, simulators, bodies)
+        np.testing.assert_allclose(
+            collection.get_concatenated_residuals(), expected_residuals, atol=1e-9
+        )
+        for original, current, residual in zip(
+            original_sets, collection.get_single_observation_sets(), expected_residuals
+        ):
+            assert current is original
+            np.testing.assert_allclose(
+                np.asarray(original.residuals).ravel(), [residual], atol=1e-9
+            )
+            np.testing.assert_allclose(np.asarray(original.dependent_variables).ravel(), [1000.0])
 
 
 def _link_ends(receiver_body):

@@ -19,6 +19,42 @@ namespace tudat
 namespace observation_models
 {
 
+namespace observation_legacy_detail
+{
+
+//! Preserve legacy broadcasting of either one vector per equal-sized set or one concatenated vector.
+template< typename Sets, typename SizeFunction, typename WeightSetter >
+void setTabulatedWeights( const Sets& sets, const Eigen::VectorXd& weights, SizeFunction size, WeightSetter assign )
+{
+    if( sets.empty( ) )
+    {
+        return;
+    }
+    const int firstSize = size( sets.front( ) );
+    int totalSize = 0;
+    bool equalSizes = true;
+    for( const auto& set : sets )
+    {
+        const int currentSize = size( set );
+        totalSize += currentSize;
+        equalSizes = equalSizes && currentSize == firstSize;
+    }
+    const bool concatenated = weights.size( ) == totalSize;
+    if( !concatenated && !( equalSizes && weights.size( ) == firstSize ) )
+    {
+        throw std::runtime_error( "Tabulated weights must match each equal-sized observation set or all selected sets combined." );
+    }
+    int offset = 0;
+    for( const auto& set : sets )
+    {
+        const int currentSize = size( set );
+        assign( set, weights.segment( concatenated ? offset : 0, currentSize ) );
+        offset += currentSize;
+    }
+}
+
+}  // namespace observation_legacy_detail
+
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
@@ -149,38 +185,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setTabulatedW
         return;
     }
 
-    bool areSetsSameSize = true;
-    int totalSizeAllSets = static_cast< int >( getTotalScalarSizeForSet( setIds.at( 0 ) ) );
-    for( unsigned int i = 1; i < setIds.size( ); ++i )
-    {
-        const int currentSetSize = static_cast< int >( getTotalScalarSizeForSet( setIds.at( i ) ) );
-        totalSizeAllSets += currentSetSize;
-        if( currentSetSize != static_cast< int >( getTotalScalarSizeForSet( setIds.at( 0 ) ) ) )
-        {
-            areSetsSameSize = false;
-        }
-    }
-
-    int startSet = 0;
-    for( const unsigned int setId : setIds )
-    {
-        const int currentSetSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        if( tabulatedWeights.size( ) == totalSizeAllSets )
-        {
-            setWeightVectorForSet( setId, tabulatedWeights.segment( startSet, currentSetSize ) );
-            startSet += currentSetSize;
-        }
-        else if( areSetsSameSize && tabulatedWeights.size( ) == static_cast< int >( getTotalScalarSizeForSet( setIds.at( 0 ) ) ) )
-        {
-            setWeightVectorForSet( setId, tabulatedWeights );
-        }
-        else
-        {
-            throw std::runtime_error(
-                    "Error when setting tabulated weights, the size of the input weight vector should be consistent with either the "
-                    "size of each individual observation set, or the combined size of all selected observation sets." );
-        }
-    }
+    observation_legacy_detail::setTabulatedWeights(
+            setIds,
+            tabulatedWeights,
+            [ this ]( unsigned int setId ) { return getTotalScalarSizeForSet( setId ); },
+            [ this ]( unsigned int setId, const Eigen::VectorXd& weights ) { setWeightVectorForSet( setId, weights ); } );
 }
 
 template< typename ObservationScalarType,

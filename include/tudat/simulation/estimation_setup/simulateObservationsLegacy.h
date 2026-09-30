@@ -128,8 +128,21 @@ void computeResidualsAndDependentVariables(
                 observationSimulators,
         const SystemOfBodies& bodies )
 {
-    computeResidualsAndDependentVariables< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), observationSimulators, bodies );
+    const auto dataset = observationCollection->getObservationDataset( );
+    computeResidualsAndDependentVariables< ObservationScalarType, TimeType >( dataset, observationSimulators, bodies );
+
+    // Grouped legacy collections prepare an independent dataset. Copy the results
+    // back into their original sets; dataset-backed facades already see the writes.
+    const auto sets = observationCollection->getSingleObservationSets( );
+    const auto setIds = dataset->getSetIdsInObservationVectorOrder( );
+    for( std::size_t i = 0; i < sets.size( ); ++i )
+    {
+        if( sets.at( i )->getObservationDataset( ) != dataset )
+        {
+            sets.at( i )->setResiduals( dataset->getResidualsForSet( setIds.at( i ) ) );
+            sets.at( i )->setObservationsDependentVariables( dataset->getDependentVariablesForSet( setIds.at( i ) ) );
+        }
+    }
 }
 
 //! Estimate one time bias per legacy observation set.

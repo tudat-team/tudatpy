@@ -11,9 +11,12 @@
 #ifndef TUDAT_PODPROCESSING_H
 #define TUDAT_PODPROCESSING_H
 
+#include <algorithm>
+#include <type_traits>
+#include <Eigen/SparseCore>
+
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
-#include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/basics/utilities.h"
 
 namespace tudat
@@ -275,34 +278,24 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix
  *  \param normalizationFactors Values by which the parameters (and partials) have been normalized, in order to stabilize
  *  the solution of the normal equations
  *  \param outputTimes Times at which the covariance is to be computed for the output map
- *  \param diagonalOfWeightMatrix Vector containing the diagonal of the weights matrix used in the estimation
+ *  \param weights Diagonal weight vector or full sparse weight matrix in design-matrix row order
  *  \param unnormalizedInverseAPrioriCovariance Inverse a priori covariance matrix, with parameters not normalized by
  *  normalizationFactors
  *  \return Covariance (map values) as a function of time (map keys) for the given estimation input settings and output times.
  */
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double, typename TimeType = double, typename WeightType = Eigen::VectorXd >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedNormalizedDesignMatrix,
         const Eigen::VectorXd& normalizationFactors,
         const std::vector< double >& outputTimes,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const WeightType& weights,
         const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
     int totalNumberOfParameters = unnormalizedInverseAPrioriCovariance.cols( );
 
-    Eigen::MatrixXd normalizedInverseAPrioriCovariance = Eigen::MatrixXd( totalNumberOfParameters, totalNumberOfParameters );
-    for( int j = 0; j < totalNumberOfParameters; j++ )
-    {
-        for( int k = 0; k < totalNumberOfParameters; k++ )
-        {
-            normalizedInverseAPrioriCovariance( j, k ) =
-                    unnormalizedInverseAPrioriCovariance( j, k ) / ( normalizationFactors( j ) * normalizationFactors( k ) );
-        }
-    }
-
     // Check consistency of input data
-    if( normalizedInverseAPrioriCovariance.cols( ) != normalizedInverseAPrioriCovariance.rows( ) )
+    if( unnormalizedInverseAPrioriCovariance.cols( ) != unnormalizedInverseAPrioriCovariance.rows( ) )
     {
         throw std::runtime_error( "Error when calculating covariance as function of time, a priori covariance is not square" );
     }
@@ -318,9 +311,18 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         throw std::runtime_error(
                 "Error when calculating covariance as function of time, number of parameters is inconsistent with normalization factors" );
     }
-    if( typeAndLinkSortedNormalizedDesignMatrix.rows( ) != diagonalOfWeightMatrix.rows( ) )
+    if( typeAndLinkSortedNormalizedDesignMatrix.rows( ) != weights.rows( ) )
     {
         throw std::runtime_error( "Error when calculating covariance as function of time, weights are inconsistent with partials" );
+    }
+
+    Eigen::MatrixXd normalizedInverseAPrioriCovariance = unnormalizedInverseAPrioriCovariance;
+    for( int j = 0; j < totalNumberOfParameters; j++ )
+    {
+        for( int k = 0; k < totalNumberOfParameters; k++ )
+        {
+            normalizedInverseAPrioriCovariance( j, k ) /= normalizationFactors( j ) * normalizationFactors( k );
+        }
     }
 
     // Order information matrix by time of observations
@@ -334,68 +336,69 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         throw std::runtime_error( "Cannot calculate covariance history without active observations." );
     }
 
-    Eigen::VectorXd timeOrderedDiagonalOfWeightMatrix = Eigen::VectorXd::Zero( diagonalOfWeightMatrix.rows( ) );
-    for( unsigned int i = 0; i < timeOrder.size( ); i++ )
-    {
-        timeOrderedDiagonalOfWeightMatrix( i ) = diagonalOfWeightMatrix( timeOrder.at( i ) );
-    }
-
-    // Create lookupn scheme for time value
-    interpolators::BinarySearchLookupScheme< TimeType > timeLookup =
-            interpolators::BinarySearchLookupScheme< TimeType >( orderedTimeVector );
-
-    // Declare return map.
-    std::map< TimeType, Eigen::MatrixXd > covarianceMatrixHistory;
-
-    // Initialize loop variables.
-    TimeType currentTime = orderedTimeVector[ 0 ];
-    unsigned int currentIndex;
-    Eigen::MatrixXd currentInverseNormalizedCovarianceMatrix;
-
-    // Loop over matrix at given time interval.
-    for( unsigned int i = 0; i < outputTimes.size( ); i++ )
-    {
-        // Increment time (no covariance computed for t=t0)
-        currentTime = outputTimes.at( i );
-
-        // Find index in list of times.
-        currentIndex = timeLookup.findNearestLowerNeighbour( currentTime );
-
-        if( currentIndex != orderedTimeVector.size( ) - 1 )
+    // Permute both axes for full weights; keep the diagonal path compact.
+    const auto timeOrderedWeights = [ & ]( ) {
+        if constexpr( std::is_same_v< WeightType, Eigen::SparseMatrix< double > > )
         {
-            while( orderedTimeVector.at( currentIndex ) == orderedTimeVector.at( currentIndex + 1 ) )
+            if( weights.cols( ) != weights.rows( ) )
             {
-                currentIndex++;
-                if( currentIndex == orderedTimeVector.size( ) - 1 )
+                throw std::runtime_error( "Covariance-history weight matrix must be square." );
+            }
+            std::vector< int > sortedIndex( timeOrder.size( ) );
+            for( std::size_t i = 0; i < timeOrder.size( ); ++i )
+            {
+                sortedIndex.at( timeOrder.at( i ) ) = i;
+            }
+            std::vector< Eigen::Triplet< double > > entries;
+            entries.reserve( weights.nonZeros( ) );
+            for( int outer = 0; outer < weights.outerSize( ); ++outer )
+            {
+                for( Eigen::SparseMatrix< double >::InnerIterator entry( weights, outer ); entry; ++entry )
                 {
-                    break;
+                    entries.emplace_back( sortedIndex.at( entry.row( ) ), sortedIndex.at( entry.col( ) ), entry.value( ) );
                 }
             }
+            Eigen::SparseMatrix< double > sortedWeights( weights.rows( ), weights.cols( ) );
+            sortedWeights.setFromTriplets( entries.begin( ), entries.end( ) );
+            return sortedWeights;
         }
-
-        if( orderedTimeVector.size( ) <= currentIndex )
+        else
         {
-            throw std::runtime_error( "Error when getting covariance as a function of time, output time not found" );
-        }
-
-        // Create information matrix up to current time.
-        Eigen::MatrixXd currentDesignMatrix =
-                timeOrderedMatrixOutput.first.block( 0, 0, currentIndex + 1, timeOrderedMatrixOutput.first.cols( ) );
-
-        // Create inverse of covariance matrix
-        currentInverseNormalizedCovarianceMatrix = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
-                currentDesignMatrix, timeOrderedDiagonalOfWeightMatrix.segment( 0, currentIndex + 1 ), normalizedInverseAPrioriCovariance );
-        Eigen::MatrixXd covarianceMatrix = currentInverseNormalizedCovarianceMatrix.inverse( );
-
-        for( int i = 0; i < covarianceMatrix.rows( ); i++ )
-        {
-            for( int j = 0; j < covarianceMatrix.rows( ); j++ )
+            Eigen::VectorXd sortedWeights( weights.rows( ) );
+            for( std::size_t i = 0; i < timeOrder.size( ); ++i )
             {
-                covarianceMatrix( i, j ) /= normalizationFactors( i ) * normalizationFactors( j );
+                sortedWeights( i ) = weights( timeOrder.at( i ) );
             }
+            return sortedWeights;
         }
+    }( );
 
-        covarianceMatrixHistory[ currentTime ] = covarianceMatrix;
+    std::map< TimeType, Eigen::MatrixXd > covarianceMatrixHistory;
+    for( const double outputTime : outputTimes )
+    {
+        const TimeType currentTime = outputTime;
+        // Include every observation at the requested epoch, including the final epoch.
+        const auto numberOfRows =
+                std::upper_bound( orderedTimeVector.begin( ), orderedTimeVector.end( ), currentTime ) - orderedTimeVector.begin( );
+        if( numberOfRows == 0 )
+        {
+            throw std::runtime_error( "No observations at or before the covariance output epoch." );
+        }
+        const Eigen::MatrixXd currentDesignMatrix = timeOrderedMatrixOutput.first.topRows( numberOfRows );
+        const auto currentWeights = [ & ]( ) {
+            if constexpr( std::is_same_v< WeightType, Eigen::SparseMatrix< double > > )
+            {
+                return Eigen::SparseMatrix< double >( timeOrderedWeights.topLeftCorner( numberOfRows, numberOfRows ) );
+            }
+            else
+            {
+                return Eigen::VectorXd( timeOrderedWeights.head( numberOfRows ) );
+            }
+        }( );
+        const Eigen::MatrixXd inverseCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
+                currentDesignMatrix, currentWeights, normalizedInverseAPrioriCovariance );
+        covarianceMatrixHistory[ currentTime ] =
+                normaliseUnnormaliseCovarianceMatrix( inverseCovariance.inverse( ), normalizationFactors, false );
     }
 
     return covarianceMatrixHistory;
@@ -420,13 +423,13 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
 }
 
 //! Calculate covariance history at a fixed cadence for an observation dataset.
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double, typename TimeType = double, typename WeightType = Eigen::VectorXd >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedNormalizedDesignMatrix,
         const Eigen::VectorXd& normalizationFactors,
         const double outputTimeStep,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const WeightType& weights,
         const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
     Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector( measurementData->createObservationVectorData( ).getTimes( ) );
@@ -455,7 +458,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
                                                   typeAndLinkSortedNormalizedDesignMatrix,
                                                   normalizationFactors,
                                                   outputTimes,
-                                                  diagonalOfWeightMatrix,
+                                                  weights,
                                                   unnormalizedInverseAPrioriCovariance );
 }
 
@@ -488,37 +491,24 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename StateScalarType = ObservationScalarType,
-          typename ParameterScalarType = double >
+          typename ParameterScalarType = double,
+          typename OutputTimes >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > >& podInputData,
-        const std::shared_ptr< EstimationOutput< ParameterScalarType > >& podOutputData,
-        const std::vector< double >& outputTimes )
+        const std::shared_ptr< EstimationOutput< ParameterScalarType, TimeType > >& podOutputData,
+        const OutputTimes& outputTimes )
 {
-    return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
-            podInputData->getObservationDataset( ),
-            podOutputData->normalizedDesignMatrix_,
-            podOutputData->designMatrixTransformationDiagonal_,
-            outputTimes,
-            podOutputData->weightsMatrixDiagonal_,
-            podInputData->getInverseOfAprioriCovariance( podOutputData->numberOfParameters_ ) );
-}
-
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename StateScalarType = ObservationScalarType,
-          typename ParameterScalarType = double >
-std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
-        const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > >& podInputData,
-        const std::shared_ptr< EstimationOutput< ParameterScalarType > >& podOutputData,
-        const double outputTimeStep )
-{
-    return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
-            podInputData->getObservationDataset( ),
-            podOutputData->normalizedDesignMatrix_,
-            podOutputData->designMatrixTransformationDiagonal_,
-            outputTimeStep,
-            podOutputData->weightsMatrixDiagonal_,
-            podInputData->getInverseOfAprioriCovariance( podOutputData->numberOfParameters_ ) );
+    const auto calculate = [ & ]( const auto& weights ) {
+        return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
+                podInputData->getObservationDataset( ),
+                podOutputData->normalizedDesignMatrix_,
+                podOutputData->designMatrixTransformationDiagonal_,
+                outputTimes,
+                weights,
+                podInputData->getInverseOfAprioriCovariance( podOutputData->numberOfParameters_ ) );
+    };
+    return podOutputData->hasFullWeightMatrix( ) ? calculate( podOutputData->weightsMatrix_ )
+                                                 : calculate( podOutputData->weightsMatrixDiagonal_ );
 }
 
 }  // namespace simulation_setup

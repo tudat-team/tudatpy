@@ -1101,40 +1101,11 @@ public:
                          "for specified observation parser. Weights not set";
         }
 
-        bool areObsSetsSameSize = true;
-        int totalSizeAllObsSets = singleObsSets.at( 0 )->getTotalObservationSetSize( );
-        for( unsigned int k = 1; k < singleObsSets.size( ); k++ )
-        {
-            unsigned int currentObsSetSize = singleObsSets.at( k )->getTotalObservationSetSize( );
-            totalSizeAllObsSets += currentObsSetSize;
-            if( currentObsSetSize != singleObsSets.at( 0 )->getTotalObservationSetSize( ) )
-            {
-                areObsSetsSameSize = false;
-            }
-        }
-
-        unsigned int startObsSet = 0;
-        for( auto obsSet : singleObsSets )
-        {
-            if( tabulatedWeights.size( ) == totalSizeAllObsSets )
-            {
-                Eigen::VectorXd singleSetWeights = tabulatedWeights.segment( startObsSet, obsSet->getTotalObservationSetSize( ) );
-                startObsSet += obsSet->getTotalObservationSetSize( );
-                obsSet->setTabulatedWeights( singleSetWeights );
-            }
-            else if( areObsSetsSameSize && ( tabulatedWeights.size( ) == singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) )
-            {
-                obsSet->setTabulatedWeights( tabulatedWeights );
-            }
-            else
-            {
-                throw std::runtime_error(
-                        "Error when setting tabulated weights, the size of the input weight vector "
-                        "should be consistent with "
-                        "either the size of each individual observation set, or the combined size "
-                        "of all required observation sets." );
-            }
-        }
+        observation_legacy_detail::setTabulatedWeights(
+                singleObsSets,
+                tabulatedWeights,
+                []( const auto& set ) { return set->getTotalObservationSetSize( ); },
+                []( const auto& set, const Eigen::VectorXd& weights ) { set->setTabulatedWeights( weights ); } );
     }
 
     void setTabulatedWeights(

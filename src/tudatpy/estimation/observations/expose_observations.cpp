@@ -20,6 +20,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <iostream>
 #include <map>
 
 #include "scalarTypes.h"
@@ -38,6 +39,7 @@ namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace te = tudat::ephemerides;
 namespace tdat = tudat::data;
+using tudatpy::estimation::observations::warnLegacyObservationInterface;
 
 namespace
 {
@@ -244,6 +246,12 @@ void setDatasetReferencePoints( InspectionDataset& dataset,
             updatedDataset.addObservationSetFromDataset( *intervalDataset, setId );
         }
     }
+    // Regrouping only removes weight entries; nonzero counts do not depend on row order.
+    const auto originalNonzeroWeights = dataset.getWeightMatrix( ).nonZeros( );
+    if( updatedDataset.getWeightMatrix( ).nonZeros( ) < originalNonzeroWeights )
+    {
+        std::cerr << "Warning: antenna switching discarded nonzero observation weights between resulting sets." << std::endl;
+    }
     dataset = std::move( updatedDataset );
 }
 
@@ -257,15 +265,6 @@ void computeDatasetResiduals(
         throw std::runtime_error( "Error when computing residuals and dependent variables for dataset, input dataset is None." );
     }
     tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >( observationDataset, observationSimulators, bodies );
-}
-
-const char* legacyObservationDeprecationGuide =
-        "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
-
-std::string getObservationApiReferenceLink( const std::string& replacementApi )
-{
-    const std::string apiAnchor = replacementApi.substr( 0, replacementApi.find( ' ' ) );
-    return "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations." + apiAnchor;
 }
 
 std::string getSingleObservationSetReplacement( const std::string& memberName )
@@ -337,17 +336,6 @@ std::string getObservationCollectionReplacement( const std::string& memberName )
 
     const auto replacementIterator = replacements.find( memberName );
     return replacementIterator == replacements.end( ) ? "ObservationDataset" : replacementIterator->second;
-}
-
-void warnLegacyObservationInterface( const std::string& interfaceName, const std::string& replacementApi = "ObservationDataset" )
-{
-    const std::string message = interfaceName + " is deprecated and kept only for backwards compatibility. Use " + replacementApi +
-            " instead. API reference: " + getObservationApiReferenceLink( replacementApi ) +
-            ". Migration guide: " + legacyObservationDeprecationGuide;
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw py::error_already_set( );
-    }
 }
 
 py::object getLegacyAttributeWithWarning( const py::object& self,

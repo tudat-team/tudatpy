@@ -328,18 +328,45 @@ def test_ellipsoidal_offset_difference_line_of_sight_direction():
     assert offset_broadside > offset_end_on
 
 
-def test_ellipsoidal_offset_singularity_at_zero_phase_angle():
-    """Test that a zero solar phase angle is a singularity, as for the spherical approximation"""
+@pytest.mark.parametrize("semi_axes", [[300.0, 200.0, 150.0], [200.0] * 3])
+def test_offset_at_zero_phase_angle_has_no_angular_shift(semi_axes):
+    """The opposition limit is finite and entirely along the line of sight."""
     common_sun_observer_direction = _unit(np.array([1.0, 0.5, -0.3]))
 
-    with np.errstate(divide="ignore", invalid="ignore"):
+    with np.errstate(divide="raise", invalid="raise"):
         photocenter_offset = _photocenter_correction_ellipsoidal(
-            [300.0, 200.0, 150.0],
+            semi_axes,
             common_sun_observer_direction,
             common_sun_observer_direction,
         )
 
-    assert np.all(np.isnan(photocenter_offset))
+    expected_distance = (2 / 3) / norm(common_sun_observer_direction / semi_axes)
+    np.testing.assert_allclose(
+        photocenter_offset, expected_distance * common_sun_observer_direction, rtol=1e-14
+    )
+    plane_of_sky_offset = photocenter_offset - (
+        np.dot(photocenter_offset, common_sun_observer_direction) * common_sun_observer_direction
+    )
+    np.testing.assert_allclose(plane_of_sky_offset, 0.0, atol=1e-12)
+
+
+@pytest.mark.parametrize("phase", [1e-6, 1e-9, 1e-12])
+def test_offset_approaches_opposition_without_nan(phase):
+    radius = 200.0
+    with np.errstate(divide="raise", invalid="raise"):
+        offset = _photocenter_correction_ellipsoidal(
+            [radius] * 3, np.array([np.cos(phase), np.sin(phase), 0.0]), np.array([1.0, 0.0, 0.0])
+        )
+    assert np.isfinite(offset).all()
+    np.testing.assert_allclose(offset[0], 2 * radius / 3, rtol=1e-10)
+    assert norm(offset[1:]) <= radius * phase
+
+
+def test_unilluminated_body_has_no_defined_photocenter():
+    with pytest.raises(ValueError, match="unilluminated"):
+        _photocenter_correction_ellipsoidal(
+            [200.0] * 3, np.array([1.0, 0.0, 0.0]), np.array([-1.0, 0.0, 0.0])
+        )
 
 
 def test_spherical_corrections_integration():

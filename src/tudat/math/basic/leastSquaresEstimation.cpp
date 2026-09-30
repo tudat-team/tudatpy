@@ -12,6 +12,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <type_traits>
 
 #include <Eigen/LU>
 #include <Eigen/SparseCore>
@@ -207,31 +208,38 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& observationResiduals,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const double limitConditionNumberForWarning,
-        const Eigen::MatrixXd& constraintMultiplier,
-        const Eigen::VectorXd& constraintRightHandside,
-        const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::VectorXd& considerParametersDeviations,
-        const Eigen::MatrixXd& additionalNormalMatrix,
-        const Eigen::VectorXd& additionalRightHandSide,
-        const Eigen::VectorXd& aprioriParameterDeviation )
+namespace
 {
-    Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
+
+template< typename WeightType >
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentImpl( const Eigen::MatrixXd& designMatrix,
+                                                                                 const Eigen::VectorXd& observationResiduals,
+                                                                                 const WeightType& weights,
+                                                                                 const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+                                                                                 const double limitConditionNumberForWarning,
+                                                                                 const Eigen::MatrixXd& constraintMultiplier,
+                                                                                 const Eigen::VectorXd& constraintRightHandside,
+                                                                                 const Eigen::MatrixXd& designMatrixConsiderParameters,
+                                                                                 const Eigen::VectorXd& considerParametersDeviations,
+                                                                                 const Eigen::MatrixXd& additionalNormalMatrix,
+                                                                                 const Eigen::VectorXd& additionalRightHandSide,
+                                                                                 const Eigen::VectorXd& aprioriParameterDeviation )
+{
+    Eigen::VectorXd residualArgument = observationResiduals;
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
     {
-        rightHandSide = designMatrix.transpose( ) *
-                ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals +
-                                                       designMatrixConsiderParameters * considerParametersDeviations ) );
+        residualArgument += designMatrixConsiderParameters * considerParametersDeviations;
+    }
+    Eigen::VectorXd weightedResiduals;
+    if constexpr( std::is_same_v< WeightType, Eigen::VectorXd > )
+    {
+        weightedResiduals = weights.cwiseProduct( residualArgument );
     }
     else
     {
-        rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+        weightedResiduals = multiplyObservationVectorByWeightMatrix( residualArgument, weights );
     }
+    Eigen::VectorXd rightHandSide = designMatrix.transpose( ) * weightedResiduals;
 
     const int nParams = static_cast< int >( designMatrix.cols( ) );
     if( inverseOfAPrioriCovarianceMatrix.rows( ) != nParams || inverseOfAPrioriCovarianceMatrix.cols( ) != nParams )
@@ -255,7 +263,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     }
 
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
-            designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
+            designMatrix, weights, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
 
     // Add constraints to inverse covariance matrix if required
     if( constraintMultiplier.rows( ) != 0 )
@@ -294,6 +302,36 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                            inverseOfCovarianceMatrix );
 }
 
+}  // namespace
+
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const double limitConditionNumberForWarning,
+        const Eigen::MatrixXd& constraintMultiplier,
+        const Eigen::VectorXd& constraintRightHandside,
+        const Eigen::MatrixXd& designMatrixConsiderParameters,
+        const Eigen::VectorXd& considerParametersDeviations,
+        const Eigen::MatrixXd& additionalNormalMatrix,
+        const Eigen::VectorXd& additionalRightHandSide,
+        const Eigen::VectorXd& aprioriParameterDeviation )
+{
+    return performLeastSquaresAdjustmentImpl( designMatrix,
+                                              observationResiduals,
+                                              diagonalOfWeightMatrix,
+                                              inverseOfAPrioriCovarianceMatrix,
+                                              limitConditionNumberForWarning,
+                                              constraintMultiplier,
+                                              constraintRightHandside,
+                                              designMatrixConsiderParameters,
+                                              considerParametersDeviations,
+                                              additionalNormalMatrix,
+                                              additionalRightHandSide,
+                                              aprioriParameterDeviation );
+}
+
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
@@ -308,71 +346,18 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::VectorXd& additionalRightHandSide,
         const Eigen::VectorXd& aprioriParameterDeviation )
 {
-    Eigen::VectorXd weightedRightHandSideArgument = observationResiduals;
-    if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
-    {
-        weightedRightHandSideArgument += designMatrixConsiderParameters * considerParametersDeviations;
-    }
-
-    // Use the same sparse full weight matrix in H^T*W*r as in the normal matrix.
-    Eigen::VectorXd rightHandSide =
-            designMatrix.transpose( ) * multiplyObservationVectorByWeightMatrix( weightedRightHandSideArgument, weightMatrix );
-
-    const int numberOfParameters = static_cast< int >( designMatrix.cols( ) );
-    if( inverseOfAPrioriCovarianceMatrix.rows( ) != numberOfParameters || inverseOfAPrioriCovarianceMatrix.cols( ) != numberOfParameters )
-    {
-        throw std::runtime_error(
-                "Error in performLeastSquaresAdjustmentFromDesignMatrix: inverseOfAPrioriCovarianceMatrix has dimensions " +
-                std::to_string( inverseOfAPrioriCovarianceMatrix.rows( ) ) + "x" +
-                std::to_string( inverseOfAPrioriCovarianceMatrix.cols( ) ) + ", expected " + std::to_string( numberOfParameters ) + "x" +
-                std::to_string( numberOfParameters ) + "." );
-    }
-    if( aprioriParameterDeviation.size( ) > 0 )
-    {
-        if( aprioriParameterDeviation.size( ) != numberOfParameters )
-        {
-            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: aprioriParameterDeviation has size " +
-                                      std::to_string( aprioriParameterDeviation.size( ) ) + ", expected " +
-                                      std::to_string( numberOfParameters ) + "." );
-        }
-        // The prior residual is the a priori parameter vector minus the current estimate, i.e. the negative deviation.
-        rightHandSide -= inverseOfAPrioriCovarianceMatrix * aprioriParameterDeviation;
-    }
-
-    Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
-            designMatrix, weightMatrix, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
-
-    if( constraintMultiplier.rows( ) != 0 )
-    {
-        int numberOfConstraints = constraintMultiplier.rows( );
-        int numberOfParameters = constraintMultiplier.cols( );
-
-        rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
-        rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
-    }
-
-    // Add soft priors only to the parameter block, preserving hard-constraint rows.
-    if( additionalNormalMatrix.size( ) > 0 )
-    {
-        if( additionalNormalMatrix.rows( ) != numberOfParameters || additionalNormalMatrix.cols( ) != numberOfParameters )
-        {
-            throw std::runtime_error(
-                    "Error in performLeastSquaresAdjustmentFromDesignMatrix: additional normal matrix has incompatible dimensions." );
-        }
-        inverseOfCovarianceMatrix.topLeftCorner( numberOfParameters, numberOfParameters ) += additionalNormalMatrix;
-    }
-    if( additionalRightHandSide.size( ) > 0 )
-    {
-        if( additionalRightHandSide.size( ) != numberOfParameters )
-        {
-            throw std::runtime_error(
-                    "Error in performLeastSquaresAdjustmentFromDesignMatrix: additional right-hand side has incompatible dimensions." );
-        }
-        rightHandSide.head( numberOfParameters ) += additionalRightHandSide;
-    }
-
-    return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
-                           inverseOfCovarianceMatrix );
+    return performLeastSquaresAdjustmentImpl( designMatrix,
+                                              observationResiduals,
+                                              weightMatrix,
+                                              inverseOfAPrioriCovarianceMatrix,
+                                              limitConditionNumberForWarning,
+                                              constraintMultiplier,
+                                              constraintRightHandside,
+                                              designMatrixConsiderParameters,
+                                              considerParametersDeviations,
+                                              additionalNormalMatrix,
+                                              additionalRightHandSide,
+                                              aprioriParameterDeviation );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals

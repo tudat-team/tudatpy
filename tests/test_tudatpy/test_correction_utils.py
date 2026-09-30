@@ -6,6 +6,13 @@ from tudatpy.estimation.observations.observation_corrections._correction_utils i
     _offset_vector_to_corrections,
 )
 import numpy as np
+import pytest
+
+
+@pytest.mark.parametrize("offset", [[np.nan, 0, 0], [np.inf, 0, 0], [1.0, 0, 0]])
+def test_invalid_offset_does_not_produce_nan_corrections(offset):
+    with pytest.raises(ValueError, match="finite, nonzero direction"):
+        _offset_vector_to_corrections(np.array(offset), 0.0, 0.0)
 
 
 def test_corrections_zero_offset_gives_zero():

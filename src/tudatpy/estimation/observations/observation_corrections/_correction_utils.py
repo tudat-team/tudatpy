@@ -37,7 +37,11 @@ def _offset_vector_to_corrections(
         ]
     )
     # True direction + plane-of-sky offset = observed direction.
-    true_direction = _unit(observed_direction - plane_of_sky_offset)  # Small-angle approximation
+    true_direction = observed_direction - plane_of_sky_offset  # Small-angle approximation
+    direction_norm = norm(true_direction)
+    if not np.isfinite(direction_norm) or direction_norm == 0:
+        raise ValueError("Observation correction must produce a finite, nonzero direction")
+    true_direction /= direction_norm
 
     true_right_ascension = np.arctan2(true_direction[1], true_direction[0])
     true_declination = np.arctan2(

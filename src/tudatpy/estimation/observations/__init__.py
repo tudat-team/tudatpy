@@ -75,149 +75,69 @@ def _dataset_object_deprecation(old_name, new_name, method):
     return wrapped
 
 
-ObservationDataset.concatenated_times = _dataset_property_deprecation(
-    "concatenated_times",
-    "ObservationDataset.get_times",
-    lambda dataset: _legacy_collection(dataset).concatenated_times,
-)
-ObservationDataset.concatenated_times_objects = _dataset_property_deprecation(
-    "concatenated_times_objects",
-    "ObservationDataset.get_times",
-    lambda dataset: _legacy_collection(dataset).concatenated_times_objects,
-)
-ObservationDataset.concatenated_weights = _dataset_property_deprecation(
-    "concatenated_weights",
-    "ObservationDataset.get_weight_diagonal",
-    lambda dataset: _legacy_collection(dataset).concatenated_weights,
-)
-ObservationDataset.concatenated_observations = _dataset_property_deprecation(
-    "concatenated_observations",
-    "ObservationDataset.get_observations",
-    lambda dataset: _legacy_collection(dataset).concatenated_observations,
-)
-ObservationDataset.concatenated_link_definition_ids = _dataset_property_deprecation(
-    "concatenated_link_definition_ids",
-    "ObservationDataset.get_set_ids",
-    lambda dataset: _legacy_collection(dataset).concatenated_link_definition_ids,
-)
-ObservationDataset.link_definition_ids = _dataset_property_deprecation(
-    "link_definition_ids",
-    "ObservationDataset.link_definition",
-    lambda dataset: _legacy_collection(dataset).link_definition_ids,
-)
-ObservationDataset.observable_type_start_index_and_size = _dataset_property_deprecation(
-    "observable_type_start_index_and_size",
-    "ObservationDataset.get_data",
-    lambda dataset: _legacy_collection(dataset).observable_type_start_index_and_size,
-)
-ObservationDataset.observation_set_start_index_and_size = _dataset_property_deprecation(
-    "observation_set_start_index_and_size",
-    "ObservationDataset.get_data",
-    lambda dataset: _legacy_collection(dataset).observation_set_start_index_and_size,
-)
+# Keep the legacy aliases explicit: membership changes must not act on a temporary collection.
+for _legacy_name, _replacement in {
+    "concatenated_times": "ObservationDataset.get_times",
+    "concatenated_times_objects": "ObservationDataset.get_times",
+    "concatenated_weights": "ObservationDataset.get_weight_diagonal",
+    "concatenated_observations": "ObservationDataset.get_observations",
+    "concatenated_link_definition_ids": "ObservationDataset.get_set_ids",
+    "link_definition_ids": "ObservationDataset.link_definition",
+    "observable_type_start_index_and_size": "ObservationDataset.get_data",
+    "observation_set_start_index_and_size": "ObservationDataset.get_data",
+    "sorted_observation_sets": "ObservationDataset.observation_set_metadata",
+    "link_ends_per_observable_type": "ObservationDataset.observation_set_metadata",
+    "link_definitions_per_observable": "ObservationDataset.observation_set_metadata",
+    "time_bounds": "ObservationDataset.get_times",
+    "time_bounds_time_object": "ObservationDataset.get_times",
+    "sorted_per_set_time_bounds": "ObservationDataset.observation_set_metadata",
+}.items():
+    setattr(
+        ObservationDataset,
+        _legacy_name,
+        _dataset_property_deprecation(
+            _legacy_name,
+            _replacement,
+            lambda dataset, _member=_legacy_name: getattr(_legacy_collection(dataset), _member),
+        ),
+    )
+
 ObservationDataset.observation_vector_size = _dataset_property_deprecation(
     "observation_vector_size",
     "ObservationDataset.total_scalar_size",
     lambda dataset: dataset.total_scalar_size,
 )
-ObservationDataset.sorted_observation_sets = _dataset_property_deprecation(
-    "sorted_observation_sets",
-    "ObservationDataset.observation_set_metadata",
-    lambda dataset: _legacy_collection(dataset).sorted_observation_sets,
-)
-ObservationDataset.link_ends_per_observable_type = _dataset_property_deprecation(
-    "link_ends_per_observable_type",
-    "ObservationDataset.observation_set_metadata",
-    lambda dataset: _legacy_collection(dataset).link_ends_per_observable_type,
-)
-ObservationDataset.link_definitions_per_observable = _dataset_property_deprecation(
-    "link_definitions_per_observable",
-    "ObservationDataset.observation_set_metadata",
-    lambda dataset: _legacy_collection(dataset).link_definitions_per_observable,
-)
-ObservationDataset.time_bounds = _dataset_property_deprecation(
-    "time_bounds",
-    "ObservationDataset.get_times",
-    lambda dataset: _legacy_collection(dataset).time_bounds,
-)
-ObservationDataset.time_bounds_time_object = _dataset_property_deprecation(
-    "time_bounds_time_object",
-    "ObservationDataset.get_times",
-    lambda dataset: _legacy_collection(dataset).time_bounds_time_object,
-)
-ObservationDataset.sorted_per_set_time_bounds = _dataset_property_deprecation(
-    "sorted_per_set_time_bounds",
-    "ObservationDataset.observation_set_metadata",
-    lambda dataset: _legacy_collection(dataset).sorted_per_set_time_bounds,
-)
 
-ObservationDataset.set_observations = _dataset_object_deprecation(
-    "set_observations",
-    "ObservationDataset.set_observations_for_set",
-    lambda dataset, *args, **kwargs: _legacy_collection(dataset).set_observations(*args, **kwargs),
-)
-ObservationDataset.set_residuals = _dataset_object_deprecation(
-    "set_residuals",
-    "ObservationDataset.set_residuals_for_set",
-    lambda dataset, *args, **kwargs: _legacy_collection(dataset).set_residuals(*args, **kwargs),
-)
-ObservationDataset.get_link_definitions_for_observables = _dataset_object_deprecation(
-    "get_link_definitions_for_observables",
-    "ObservationDataset.observation_set_metadata",
-    lambda dataset, *args, **kwargs: _legacy_collection(
-        dataset
-    ).get_link_definitions_for_observables(*args, **kwargs),
-)
-ObservationDataset.get_single_link_and_type_observations = _dataset_object_deprecation(
-    "get_single_link_and_type_observations",
-    "ObservationDataset.get_data",
-    lambda dataset, *args, **kwargs: _legacy_collection(
-        dataset
-    ).get_single_link_and_type_observations(*args, **kwargs),
-)
-ObservationDataset.get_observable_types = _dataset_object_deprecation(
-    "get_observable_types",
-    "ObservationDataset.observation_set_metadata",
-    lambda dataset, *args, **kwargs: _legacy_collection(dataset).get_observable_types(
-        *args, **kwargs
-    ),
-)
-ObservationDataset.get_bodies_in_link_ends = _dataset_object_deprecation(
-    "get_bodies_in_link_ends",
-    "ObservationDataset.observation_set_metadata",
-    lambda dataset, *args, **kwargs: _legacy_collection(dataset).get_bodies_in_link_ends(
-        *args, **kwargs
-    ),
-)
-
-
-# Explicit compatibility aliases. Collection membership operations belong on the
-# legacy facade; automatically attaching them to Dataset could silently modify
-# a temporary grouping instead of the dataset.
-for _legacy_method_name in (
-    "get_concatenated_observations",
-    "get_concatenated_weights",
-    "get_concatenated_residuals",
-    "get_concatenated_computed_observations",
-    "get_concatenated_observation_times",
-    "get_concatenated_observation_times_objects",
-    "get_concatenated_observations_and_times",
-    "get_concatenated_observations_and_times_objects",
-    "get_concatenated_link_definition_ids",
-    "get_time_bounds_list",
-    "set_constant_weight",
-    "set_tabulated_weights",
-):
+for _legacy_name, _replacement in {
+    "set_observations": "ObservationDataset.set_observations_for_set",
+    "set_residuals": "ObservationDataset.set_residuals_for_set",
+    "get_link_definitions_for_observables": "ObservationDataset.observation_set_metadata",
+    "get_single_link_and_type_observations": "ObservationDataset.get_data",
+    "get_observable_types": "ObservationDataset.observation_set_metadata",
+    "get_bodies_in_link_ends": "ObservationDataset.observation_set_metadata",
+    "get_concatenated_observations": "ObservationDataset",
+    "get_concatenated_weights": "ObservationDataset",
+    "get_concatenated_residuals": "ObservationDataset",
+    "get_concatenated_computed_observations": "ObservationDataset",
+    "get_concatenated_observation_times": "ObservationDataset",
+    "get_concatenated_observation_times_objects": "ObservationDataset",
+    "get_concatenated_observations_and_times": "ObservationDataset",
+    "get_concatenated_observations_and_times_objects": "ObservationDataset",
+    "get_concatenated_link_definition_ids": "ObservationDataset",
+    "get_time_bounds_list": "ObservationDataset",
+    "set_constant_weight": "ObservationDataset",
+    "set_tabulated_weights": "ObservationDataset",
+}.items():
     setattr(
         ObservationDataset,
-        _legacy_method_name,
+        _legacy_name,
         _dataset_object_deprecation(
-            _legacy_method_name,
-            "ObservationDataset",
-            lambda dataset, *args, _method=_legacy_method_name, **kwargs: getattr(
-                _legacy_collection(dataset), _method
+            _legacy_name,
+            _replacement,
+            lambda dataset, *args, _member=_legacy_name, **kwargs: getattr(
+                _legacy_collection(dataset), _member
             )(*args, **kwargs),
         ),
     )
 
-del _name, _object, _legacy_method_name
+del _name, _object, _legacy_name, _replacement

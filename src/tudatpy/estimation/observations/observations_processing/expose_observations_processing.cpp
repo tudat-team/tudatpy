@@ -11,6 +11,7 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "expose_observations_processing.h"
+#include "../expose_observations_bindings.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -30,51 +31,30 @@ namespace tss = tudat::simulation_setup;
 namespace
 {
 
-const char* legacyObservationProcessingDeprecationGuide =
-        "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
-
 std::string getObservationProcessingReplacement( const std::string& interfaceName )
 {
     if( interfaceName == "observation_filter" )
     {
-        return "tudatpy.estimation.observations.ObservationSelectionCondition with ObservationDataset.reject_observations or "
+        return "ObservationSelectionCondition with ObservationDataset.reject_observations or "
                "ObservationDataset.create_new_and_drop";
     }
     if( interfaceName == "observation_parser" )
     {
-        return "tudatpy.estimation.observations.ObservationSelectionCondition with ObservationDataset.get_data, "
+        return "ObservationSelectionCondition with ObservationDataset.get_data, "
                "ObservationDataset.create_new_and_keep or ObservationDataset.create_new_and_drop";
     }
     if( interfaceName == "observation_set_splitter" )
     {
-        return "tudatpy.estimation.observations.ObservationDataset.create_new_and_keep plus "
+        return "ObservationDataset.create_new_and_keep plus "
                "ObservationDataset.add_observation_set_from_dataset";
     }
-    return "tudatpy.estimation.observations.ObservationDataset";
-}
-
-std::string getObservationProcessingApiReferenceLink( const std::string& interfaceName )
-{
-    if( interfaceName == "observation_filter" || interfaceName == "observation_parser" )
-    {
-        return "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations."
-               "ObservationSelectionCondition";
-    }
-    return "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations."
-           "ObservationDataset";
+    return "ObservationDataset";
 }
 
 void warnLegacyObservationProcessingInterface( const std::string& interfaceName )
 {
-    const std::string message = interfaceName +
-            " is deprecated and kept only for backwards compatibility with legacy observation processing. Use " +
-            getObservationProcessingReplacement( interfaceName ) +
-            " instead. API reference: " + getObservationProcessingApiReferenceLink( interfaceName ) +
-            ". Migration guide: " + legacyObservationProcessingDeprecationGuide;
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw py::error_already_set( );
-    }
+    tudatpy::estimation::observations::warnLegacyObservationInterface( interfaceName,
+                                                                       getObservationProcessingReplacement( interfaceName ) );
 }
 
 }  // namespace

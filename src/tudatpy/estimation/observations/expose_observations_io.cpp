@@ -31,26 +31,6 @@
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
 
-namespace
-{
-
-const char* legacyObservationIoDeprecationGuide =
-        "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
-
-void warnLegacyObservationIoInterface( const std::string& interfaceName, const std::string& replacementApi )
-{
-    const std::string message = interfaceName + " is deprecated and kept only for backwards compatibility. Use " + replacementApi +
-            " instead. API reference: https://py.api.tudat.space/en/latest/estimation/observations.html#"
-            "tudatpy.estimation.observations." +
-            replacementApi + ". Migration guide: " + legacyObservationIoDeprecationGuide;
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw pybind11::error_already_set( );
-    }
-}
-
-}  // namespace
-
 namespace tudatpy
 {
 namespace estimation
@@ -180,8 +160,7 @@ void expose_observations_io_bindings( py::module& m )
     m.def(
             "create_psf_file_observation_collection",
             []( const std::string& psfFile, const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                warnLegacyObservationIoInterface( "create_psf_file_observation_collection",
-                                                  "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "create_psf_file_observation_collection", "create_observation_dataset_from_tracking_data" );
                 return tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( psfFile, conversionSettings );
             },
             py::arg( "psf_file" ),
@@ -197,7 +176,7 @@ void expose_observations_io_bindings( py::module& m )
             []( const std::string& psfFile,
                 tss::SystemOfBodies& bodies,
                 const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                warnLegacyObservationIoInterface( "observations_from_psf_file", "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "observations_from_psf_file", "create_observation_dataset_from_tracking_data" );
                 const auto trackingData = tudat::input_output::psf::readPsfFile< STATE_SCALAR_TYPE, TIME_TYPE >(
                         psfFile,
                         conversionSettings.receiverBodyName_,
@@ -314,8 +293,8 @@ void expose_observations_io_bindings( py::module& m )
                 const std::vector< tom::ObservableType >& observableTypesToProcess,
                 const std::pair< TIME_TYPE, TIME_TYPE >& startAndEndTimesToProcess,
                 const bool allowDuplicateObservationsWithinSingleSet ) {
-                warnLegacyObservationIoInterface( "create_odf_observed_observation_collection",
-                                                  "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "create_odf_observed_observation_collection",
+                                                "create_observation_dataset_from_tracking_data" );
                 return tom::createOdfObservedObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
                         processedOdfFile, observableTypesToProcess, startAndEndTimesToProcess, allowDuplicateObservationsWithinSingleSet );
             },
@@ -353,7 +332,7 @@ void expose_observations_io_bindings( py::module& m )
                 const bool verboseOutput,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions,
                 const bool allowDuplicateObservationsWithinSingleSet ) {
-                warnLegacyObservationIoInterface( "observations_from_odf_files", "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "observations_from_odf_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createOdfObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >(
                         bodies,
                         odfFileNames,
@@ -407,7 +386,7 @@ void expose_observations_io_bindings( py::module& m )
                 const bool applyTroposphereCorrection,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions,
                 const bool removeInvalidLines ) {
-                warnLegacyObservationIoInterface( "observations_from_ifms_files", "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "observations_from_ifms_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >( ifmsFileNames,
                                                                                                               bodies,
                                                                                                               targetName,
@@ -472,8 +451,8 @@ void expose_observations_io_bindings( py::module& m )
                 const bool applyTroposphereCorrection,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions,
                 const bool removeInvalidLines ) {
-                warnLegacyObservationIoInterface( "observations_from_multi_station_ifms_files",
-                                                  "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "observations_from_multi_station_ifms_files",
+                                                "create_observation_dataset_from_tracking_data" );
                 return tom::createMultiStationIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >(
                         ifmsFileNames,
                         bodies,
@@ -539,7 +518,7 @@ void expose_observations_io_bindings( py::module& m )
                 const tom::FrequencyBands& receptionBand,
                 const tom::FrequencyBands& transmissionBand,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions ) {
-                warnLegacyObservationIoInterface( "observations_from_fdets_files", "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "observations_from_fdets_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >( fdetsFileName,
                                                                                                               baseFrequency,
                                                                                                               dateFormat,
@@ -600,7 +579,7 @@ void expose_observations_io_bindings( py::module& m )
                 const tom::FrequencyBands& receptionBand,
                 const tom::FrequencyBands& transmissionBand,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions ) {
-                warnLegacyObservationIoInterface( "observations_from_fdets_files", "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "observations_from_fdets_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >( fdetsFileName,
                                                                                                               baseFrequency,
                                                                                                               columnTypes,
@@ -637,7 +616,7 @@ void expose_observations_io_bindings( py::module& m )
                 const unsigned int minimumNumberOfObservations,
                 const double maxArcGap,
                 const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions ) {
-                warnLegacyObservationIoInterface( "create_compressed_doppler_collection", "create_compressed_doppler_dataset" );
+                warnLegacyObservationInterface( "create_compressed_doppler_collection", "create_compressed_doppler_dataset" );
                 return tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >( originalObservationCollection,
                                                                                                compressionRatio,
                                                                                                minimumNumberOfObservations,
@@ -704,8 +683,8 @@ tudatpy.estimation.observations.ObservationDataset
                 const std::vector< tom::ObservableType > observableTypesToProcess,
                 const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions,
                 const std::shared_ptr< tom::ObservationAncillarySimulationSettings >& ancillarySettings ) {
-                warnLegacyObservationIoInterface( "create_tracking_txtfile_observation_collection",
-                                                  "create_observation_dataset_from_tracking_data" );
+                warnLegacyObservationInterface( "create_tracking_txtfile_observation_collection",
+                                                "create_observation_dataset_from_tracking_data" );
                 const tom::ObservationAncillarySimulationSettings settings =
                         ancillarySettings == nullptr ? tom::ObservationAncillarySimulationSettings( ) : *ancillarySettings;
                 return tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(

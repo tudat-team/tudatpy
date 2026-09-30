@@ -109,15 +109,31 @@ def _photocenter_correction_ellipsoidal(
         @ unit_vector_to_observer_body_fixed
     )
 
-    cosine_scaled_phase_angle = (
-        unit_vector_to_sun_body_fixed.T
-        @ inverse_squared_semi_axes_matrix
+    normalized_scaled_sun_direction = (
+        np.sqrt(inverse_squared_semi_axes_matrix)
+        @ unit_vector_to_sun_body_fixed
+        / scaled_sun_direction_norm
+    )  # Represents n_sun in Muinonen & Lumme (2015).
+    normalized_scaled_observer_direction = (
+        np.sqrt(inverse_squared_semi_axes_matrix)
         @ unit_vector_to_observer_body_fixed
-        / (scaled_sun_direction_norm * scaled_observer_direction_norm)
-    )  # Represents cos(alpha') in Muinonen & Lumme (2015).
-    sine_scaled_phase_angle = np.sqrt(
-        1 - cosine_scaled_phase_angle**2
-    )  # Represents sin(alpha') in Muinonen & Lumme (2015).
+        / scaled_observer_direction_norm
+    )  # Represents n_observer in Muinonen & Lumme (2015).
+    computation_frame_z_axis = np.cross(
+        normalized_scaled_sun_direction, normalized_scaled_observer_direction
+    )
+    # The cross product remains accurate near alignment, where 1 - cos(alpha')**2
+    # loses precision. Clipping the dot product also removes roundoff beyond [-1, 1].
+    sine_scaled_phase_angle = np.linalg.norm(computation_frame_z_axis)
+    cosine_scaled_phase_angle = np.clip(
+        np.dot(normalized_scaled_sun_direction, normalized_scaled_observer_direction), -1, 1
+    )
+    if sine_scaled_phase_angle <= 8 * np.finfo(float).eps:
+        if cosine_scaled_phase_angle < 0:
+            raise ValueError("Photocenter correction is undefined for an unilluminated body")
+        # At zero phase, I_1 -> pi/2, I_2 -> 0 and the brightness factor -> 2.
+        # The offset is along the line of sight, so its angular correction is zero.
+        return (2 / 3) * unit_vector_to_observer_body_fixed / scaled_observer_direction_norm
 
     combined_scaled_direction_norm = np.sqrt(
         scaled_sun_direction_norm**2
@@ -176,26 +192,12 @@ def _photocenter_correction_ellipsoidal(
 
     # Compute rotation matrix K-frame (principal axis) -> K''-frame (computation frame)
     # (note we skip the explicit Euler matrix derivation steps as the angles are not needed)
-    normalized_scaled_sun_direction = (
-        np.sqrt(inverse_squared_semi_axes_matrix)
-        @ unit_vector_to_sun_body_fixed
-        / scaled_sun_direction_norm
-    )  # Represents n_sun in Muinonen & Lumme (2015).
-    normalized_scaled_observer_direction = (
-        np.sqrt(inverse_squared_semi_axes_matrix)
-        @ unit_vector_to_observer_body_fixed
-        / scaled_observer_direction_norm
-    )  # Represents n_observer in Muinonen & Lumme (2015).
-
     computation_frame_x_axis = (
         normalized_scaled_sun_direction  # Represents e_x'' in Muinonen & Lumme (2015).
     )
-    computation_frame_z_axis = np.cross(
-        normalized_scaled_sun_direction, normalized_scaled_observer_direction
+    computation_frame_z_axis /= (
+        sine_scaled_phase_angle  # Represents e_z'' in Muinonen & Lumme (2015).
     )
-    computation_frame_z_axis /= np.linalg.norm(
-        computation_frame_z_axis
-    )  # Represents e_z'' in Muinonen & Lumme (2015).
     computation_frame_y_axis = np.cross(
         computation_frame_z_axis, computation_frame_x_axis
     )  # Represents e_y'' in Muinonen & Lumme (2015).

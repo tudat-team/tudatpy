@@ -2910,6 +2910,49 @@ BOOST_AUTO_TEST_CASE( test_covariance_history_rejects_empty_active_selection_exp
                        std::runtime_error );
 }
 
+//! Full weights must follow both axes of the time permutation, including the final epoch.
+BOOST_AUTO_TEST_CASE( test_covariance_history_preserves_correlated_weights )
+{
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    dataset->addObservationSet( one_way_range,
+                                createOneWayLinkDefinition( "Station1" ),
+                                { Eigen::Vector1d::Zero( ), Eigen::Vector1d::Zero( ), Eigen::Vector1d::Zero( ) },
+                                { 3.0, 1.0, 2.0 },
+                                receiver );
+    Eigen::Matrix3d weights;
+    weights << 4.0, 1.0, 0.5, 1.0, 3.0, 0.25, 0.5, 0.25, 2.0;
+    const Eigen::SparseMatrix< double > sparseWeights = weights.sparseView( );
+    const Eigen::MatrixXd design = Eigen::Vector3d( 1.0, 2.0, 3.0 );
+    const Eigen::VectorXd normalization = Eigen::Vector1d::Constant( 2.0 );
+    const Eigen::MatrixXd prior = Eigen::MatrixXd::Identity( 1, 1 );
+    const auto history = simulation_setup::calculateCovarianceUsingDataUpToEpoch(
+            dataset, design, normalization, std::vector< double >{ 1.0, 2.0, 3.0 }, sparseWeights, prior );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 1.0 )( 0, 0 ), 1.0 / 49.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 2.0 )( 0, 0 ), 1.0 / 133.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 3.0 )( 0, 0 ), 1.0 / 177.0, 1.0E-14 );
+
+    const Eigen::VectorXd diagonal = weights.diagonal( );
+    const auto diagonalHistory =
+            simulation_setup::calculateCovarianceUsingDataUpToEpoch( dataset, design, normalization, 1.0, diagonal, prior );
+    BOOST_CHECK_CLOSE_FRACTION( diagonalHistory.at( 2.0 )( 0, 0 ), 1.0 / 121.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( diagonalHistory.at( 3.0 )( 0, 0 ), 1.0 / 137.0, 1.0E-14 );
+
+    auto input = std::make_shared< simulation_setup::EstimationInput<> >( dataset, prior );
+    auto output = std::make_shared< simulation_setup::EstimationOutput<> >( Eigen::Vector1d::Zero( ),
+                                                                            Eigen::Vector3d::Zero( ),
+                                                                            design,
+                                                                            diagonal,
+                                                                            sparseWeights,
+                                                                            normalization,
+                                                                            Eigen::MatrixXd::Constant( 1, 1, 44.25 ),
+                                                                            0.0,
+                                                                            0 );
+    const auto outputHistory = simulation_setup::calculateCovarianceUsingDataUpToEpoch( input, output, std::vector< double >{ 3.0 } );
+    const auto cadenceHistory = simulation_setup::calculateCovarianceUsingDataUpToEpoch( input, output, 1.0 );
+    BOOST_CHECK_CLOSE_FRACTION( outputHistory.at( 3.0 )( 0, 0 ), 1.0 / 177.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( cadenceHistory.at( 2.0 )( 0, 0 ), 1.0 / 133.0, 1.0E-14 );
+}
+
 //! Verify dependent-variable layout replacement validates metadata and stored dimensions.
 BOOST_AUTO_TEST_CASE( test_dependent_layout_replacement_validates_metadata_and_stored_dimensions )
 {
