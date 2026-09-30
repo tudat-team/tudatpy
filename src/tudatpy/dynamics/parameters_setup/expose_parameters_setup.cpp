@@ -568,8 +568,9 @@ void expose_parameters_setup( py::module& m )
 Creates settings for estimating the three constants of a three-coefficient radiation-pressure acceleration.
 
 The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square metres. It is
-linked to every matching three-coefficient acceleration from ``radiation_source`` acting on ``body`` in the supplied
-propagator settings.
+linked to every matching acceleration created with
+:func:`~tudatpy.dynamics.propagation_setup.acceleration.three_coefficient_radiation_pressure` from
+``radiation_source`` acting on ``body`` in the supplied propagator settings.
 
 Parameters
 ----------

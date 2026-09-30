@@ -9,12 +9,15 @@ tracking data into :class:`~tudatpy.data_input.tracking_data.TrackingData`
 objects, optionally with
 :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects
 containing auxiliary information such as station frequency ramps or camera
-settings. The tracking data can then be converted to an
+settings, as well as identifiers for passive radar reflectors. The tracking
+data can then be converted to an
 :class:`~tudatpy.estimation.observations.ObservationDataset` with
 :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
 Supplementary data that updates bodies, ground stations, or related environment
 objects is applied with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
+
+For more information on the tracking data architecture, see the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-handling/observation-collection-creation/loading-real-data.html>`_ on real tracking data.
 
 .. toctree::
    :maxdepth: 2
@@ -26,10 +29,12 @@ objects is applied with
    tracking_data/generic_text_file
    tracking_data/gaia
    tracking_data/ifms
+   tracking_data/jpl_radar
    tracking_data/mpc
    tracking_data/odf
    tracking_data/optical_utilities
    tracking_data/psf
+   tracking_data/radar_utilities
    tracking_data/tnf
 
 .. automodule:: tudatpy.data_input.tracking_data

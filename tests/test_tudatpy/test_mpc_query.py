@@ -349,9 +349,38 @@ def test_read_80_column_data_reads_file(tmp_path):
         "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
     )
 
-    _check_tracking_data_pair(
-        read_80_column_data([str(observation_file)], custom_name="Eros"), expected_sets=1
+    tracking_data, supplementary_data = read_80_column_data(
+        [str(observation_file)], custom_name="Eros"
     )
+
+    # The S record must produce one UTC angular-position data set.
+    assert len(tracking_data) == 1
+    assert tracking_data[0].time_scale == "UTC"
+    assert tracking_data[0].observable_type == "AngularPosition"
+
+    # The paired s record must provide receiver-state data for observatory 500.
+    assert len(supplementary_data) == 1
+    assert supplementary_data[0].body_name == "500"
+    assert supplementary_data[0].reference_point_name == ""
+
+
+def test_mpc80_historical_coordinates_load_before_epoch_filter(monkeypatch):
+    records = [
+        "00001         A1801 01 11.79783 03 36 43.82 +16 55                      MC004535",
+        "00001         A1801 01 18.77899 03 37 11    +17 25                      MC004535",
+        "00001         C2025 10 13.24277 00 20 45.76 +25 53 06.1          18.3 RrET147718",
+    ]
+    monkeypatch.setattr(
+        BatchMPC, "_fetch_mpc80_records", staticmethod(lambda code, id_type: records)
+    )
+    batch = BatchMPC()
+    batch.get_observations(["1"], use_mpc80_format=True)
+    assert len(batch.table) == 3
+    np.testing.assert_allclose(batch.table.DEC.iloc[:2], np.deg2rad([16 + 55 / 60, 17 + 25 / 60]))
+
+    batch.filter(epoch_start=0.0)
+    assert len(batch.table) == 1
+    assert batch.table.note2.tolist() == ["C"]
 
 
 # ---------------------------------------------------------------------------

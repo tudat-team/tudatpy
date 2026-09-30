@@ -50,11 +50,16 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
                  "of use cases"
               << std::endl;
 
+    const auto stateTransitionInterface = orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface( );
+    if( stateTransitionInterface->getStateTransitionMatrixSize( ) == 0 )
+    {
+        throw std::runtime_error(
+                "Error when propagating covariance to the RSW frame: a propagated state is required; "
+                "observation-only estimation is not supported." );
+    }
+
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
-    tp::propagateCovariance( propagatedCovariance,
-                             initialCovariance,
-                             orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface( ),
-                             evaluationTimes );
+    tp::propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
 
     tss::SystemOfBodies bodies = orbitDeterminationManager->getBodies( );
 
@@ -688,7 +693,8 @@ void expose_estimation_analysis( py::module& m )
                               const Eigen::MatrixXd considerCovariance,
                               const Eigen::VectorXd considerParametersDeviations,
                               const bool applyFinalParameterCorrection,
-                              const std::shared_ptr< tss::OutlierRejectionSettings > outlierRejectionSettings ) {
+                              const std::shared_ptr< tss::OutlierRejectionSettings > outlierRejectionSettings,
+                              const bool applyAprioriParameterDeviation ) {
                     warnLegacyEstimationObservationInterface( "EstimationInput(ObservationCollection)", "EstimationInput" );
                     return std::make_shared< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >( observationsAndTimes,
                                                                                                      inverseAprioriCovariance,
@@ -696,7 +702,8 @@ void expose_estimation_analysis( py::module& m )
                                                                                                      considerCovariance,
                                                                                                      considerParametersDeviations,
                                                                                                      applyFinalParameterCorrection,
-                                                                                                     outlierRejectionSettings );
+                                                                                                     outlierRejectionSettings,
+                                                                                                     applyAprioriParameterDeviation );
                 } ),
                 py::arg( "observations_and_times" ),
                 py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -704,7 +711,8 @@ void expose_estimation_analysis( py::module& m )
                 py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                 py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                 py::arg( "apply_final_parameter_correction" ) = true,
-                py::arg( "outlier_rejection_settings" ) = nullptr );
+                py::arg( "outlier_rejection_settings" ) = nullptr,
+                py::arg( "apply_apriori_parameter_deviation" ) = false );
     }
 
     estimationInputClass
@@ -714,7 +722,8 @@ void expose_estimation_analysis( py::module& m )
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
                             const bool,
-                            const std::shared_ptr< tss::OutlierRejectionSettings > >( ),
+                            const std::shared_ptr< tss::OutlierRejectionSettings >,
+                            const bool >( ),
                   py::arg( "observation_dataset" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg_v( "convergence_checker",
@@ -724,6 +733,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
                   py::arg( "outlier_rejection_settings" ) = nullptr,
+                  py::arg( "apply_apriori_parameter_deviation" ) = false,
                   R"doc(
 
          Class constructor using the dataset-backed observation representation.
@@ -748,6 +758,10 @@ void expose_estimation_analysis( py::module& m )
          outlier_rejection_settings : tudatpy.estimation.estimation_analysis.OutlierRejectionSettings, default = None
              Settings for the algorithm that rejects (and recovers) outlying observations during the estimation. No
              outlier rejection is performed when this input is left empty.
+         apply_apriori_parameter_deviation : bool, default = False
+             Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
+             of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
+             each differential correction independently.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`

@@ -181,6 +181,8 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::
  * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
  * \param constraintMultiplier Multiplier for estimated parameter that defines linear constraint
  * \param constraintRightHandside Right-hand side estimation linear constraint
+ * \param aprioriParameterDeviation Deviation of the current parameter estimate from the a priori parameter vector, expressed in
+ * the same normalized coordinates as the parameter correction
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
@@ -194,7 +196,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
         const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ) );
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ),
+        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) );
 
 //! Function to perform a least-squares iteration using a sparse full observation weight matrix.
 /*!
@@ -217,6 +220,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
  * parameters
  * \param considerParametersDeviations Deviations of consider parameters from
  * their nominal values
+ * \param aprioriParameterDeviation Deviation of the current parameter estimate from the a priori parameter vector, expressed in
+ * the same normalized coordinates as the parameter correction
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
@@ -230,7 +235,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
         const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ) );
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ),
+        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!

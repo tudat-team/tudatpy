@@ -9,6 +9,8 @@ object and exposes its properties.
 :class:`~tudatpy.data_input.environment_data.sbdb.SBDBbatch` downloads or loads
 the catalogue as a table; its ``get`` method filters that table by primary MPC
 designation without making another request.
+The interface is based on the `astroquery <https://github.com/astropy/astroquery>`_ :cite:`ginsburg2019astroquery` Python package.
+
 
 For example, a catalogue query can select an object and save the table for
 later reuse:

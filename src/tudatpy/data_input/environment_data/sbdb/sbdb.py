@@ -2,9 +2,12 @@ from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
 from os import PathLike
 from typing import Any, Iterable, Optional, Union
+from datetime import datetime
 import math
+import numpy as np
 import pandas as pd
 import requests
+from tudatpy.astro.time_representation import DateTime
 from tudatpy.constants import GRAVITATIONAL_CONSTANT
 
 
@@ -254,7 +257,91 @@ class SBDBquery:
             res = self.query["phys_par"]["diameter"].to(u.meter)
             return res.value
         except Exception as _:
-            raise ValueError(f"Gravitational parameter is not available for object {self.name}")
+            raise ValueError(f"Diameter is not available for object {self.name}")
+
+    @property
+    def nongrav_params(self):
+        """**read-only**
+
+        Cometary non-gravitational model parameters ``A1``, ``A2`` and ``A3``
+        in m/s². Missing parameters are returned as zero.
+        """
+        parameters = []
+        for name in ("A1", "A2", "A3"):
+            try:
+                value = self.query["orbit"]["model_pars"][name].to(u.m / u.s**2).value
+            except Exception:
+                value = 0.0
+            parameters.append(value)
+        return np.array(parameters)
+
+    @property
+    def Dt(self):
+        """**read-only**
+
+        Asymmetric cometary non-gravitational model parameter ``DT`` in seconds.
+        """
+        try:
+            return self.query["orbit"]["model_pars"]["DT"].to(u.s).value
+        except Exception as exception:
+            raise ValueError(
+                f"Asymmetry parameter DT is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def first_obs(self):
+        """**read-only**
+
+        Epoch of the first observation used in the orbit solution, in seconds since J2000.
+        """
+        try:
+            observation_start = datetime.strptime(self.query["orbit"]["first_obs"], "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_start).to_epoch()
+        except Exception as exception:
+            raise ValueError(
+                f"Date of first observation is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def last_obs(self):
+        """**read-only**
+
+        Epoch of the last observation used in the orbit solution, in seconds since J2000.
+        """
+        try:
+            observation_end = datetime.strptime(self.query["orbit"]["last_obs"], "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_end).to_epoch()
+        except Exception as exception:
+            raise ValueError(
+                f"Date of last observation is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def perihelion(self):
+        """**read-only**
+
+        Perihelion distance in metres.
+        """
+        try:
+            return self.query["orbit"]["elements"]["q"].to(u.m).value
+        except Exception as exception:
+            raise ValueError(
+                f"Perihelion distance is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def time_perihelion(self):
+        """**read-only**
+
+        Perihelion epoch in seconds since J2000.
+        """
+        try:
+            epoch_julian_day = self.query["orbit"]["elements"]["tp"].value
+            return DateTime.from_julian_day(epoch_julian_day).to_epoch()
+        except Exception as exception:
+            raise ValueError(
+                f"Perihelion time is not available for object {self.name}"
+            ) from exception
 
     def estimated_spherical_mass(self, density: float) -> float:
         """Calculate a very simple mass by estimating the object's mass using a given density.

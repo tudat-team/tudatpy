@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from tudatpy.dynamics import environment_setup
-from tudatpy.estimation import observations
+from tudatpy.estimation import estimation_analysis, observations
 from tudatpy.estimation.observations import observations_processing
 
 
@@ -649,3 +649,32 @@ def test_scalar_setters_accept_one_dimensional_arrays(sample_dataset):
         sample_dataset.observation_vector_for_set(0), [101.0, 102.0, 103.0]
     )
     np.testing.assert_array_equal(sample_dataset.residual_vector_for_set(0), [0.5, 1.5, 2.5])
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+@pytest.mark.parametrize("positional", [False, True])
+def test_estimation_input_combines_outlier_and_apriori_settings(sample_dataset, legacy, positional):
+    """Both observation interfaces retain the seventh outlier argument when enabling a priori deviations."""
+    observation_input = _legacy_collection(sample_dataset) if legacy else sample_dataset
+    outliers = estimation_analysis.simple_outlier_rejection_settings(10.0)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        if positional:
+            estimation_input = estimation_analysis.EstimationInput(
+                observation_input,
+                np.empty((0, 0)),
+                estimation_analysis.estimation_convergence_checker(),
+                np.empty((0, 0)),
+                np.empty(0),
+                True,
+                outliers,
+                True,
+            )
+        else:
+            estimation_input = estimation_analysis.EstimationInput(
+                observation_input,
+                outlier_rejection_settings=outliers,
+                apply_apriori_parameter_deviation=True,
+            )
+    assert estimation_input.outlier_rejection_settings is outliers
+    assert estimation_input.observation_dataset is sample_dataset
