@@ -20,7 +20,7 @@ from tudatpy.estimation.observations.observation_corrections import (
     photocenter_correction_angular_observations,
 )
 from warnings import warn
-from tudatpy.interface import spice
+from tudatpy.data_input.environment_data import spice
 import copy
 from pathlib import Path
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000
