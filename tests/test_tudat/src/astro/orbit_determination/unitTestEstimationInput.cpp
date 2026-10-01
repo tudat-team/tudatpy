@@ -671,11 +671,18 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const Eigen::Vector6d truthState = orbital_element_conversions::convertKeplerianToCartesianElements( initialStateInKeplerianElements,
                                                                                                          earthGravitationalParameter );
 
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, 20.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, truthState, finalEphemerisTime, cowell );
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, 20.0 );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    truthState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell );
 
     LinkEnds rangeLinkEndsStation1, rangeLinkEndsStation2, angularLinkEndsStation1, angularLinkEndsStation2, angularLinkEndsStation3;
     rangeLinkEndsStation1[ transmitter ] = LinkEndId( "Vehicle", "" );
@@ -701,7 +708,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
             createParametersToEstimate< double, double >( parameterNames, bodies );
 
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+            bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     std::vector< double > observationTimes;
     for( int i = 0; i < numberOfObservationsPerSet; ++i )
@@ -910,8 +917,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const unsigned int rejectedObservationId = simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 0 ) ).at( 1 );
     const unsigned int rejectedObservationSize = simulatedObservations->getObservationRow( rejectedObservationId ).scalarSize_;
     const ObservationSelectionCondition< double, double > rejectedObservationSelectionCondition(
-            [ rejectedObservationId ]( const ObservationDataset< double, double >&, const unsigned int observationId ) {
-                return observationId == rejectedObservationId;
+            [ rejectedObservationId ]( const ObservationDataset< double, double >&, const int observationId ) {
+                return static_cast< unsigned int >( observationId ) == rejectedObservationId;
             } );
     simulatedObservations->rejectObservations( rejectedObservationSelectionCondition, "excluded from estimation system" );
     simulatedObservations->setResidualVector(

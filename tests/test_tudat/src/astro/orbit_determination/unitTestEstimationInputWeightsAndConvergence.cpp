@@ -497,8 +497,8 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
                 rejectedObservationId = angularObservationIds.at( 1 );
 
                 const ObservationSelectionCondition< double, double > initiallyInactive(
-                        [ &disabledObservationId ]( const Dataset&, const unsigned int observationId ) {
-                            return observationId == disabledObservationId;
+                        [ &disabledObservationId ]( const Dataset&, const int observationId ) {
+                            return static_cast< unsigned int >( observationId ) == disabledObservationId;
                         } );
                 dataset->rejectObservations( initiallyInactive, "disabled before estimation" );
 
