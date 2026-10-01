@@ -21,6 +21,9 @@ def _is_connectivity_failure(exception):
     # Gateways can respond even when the upstream service is unavailable.
     if isinstance(exception, requests.exceptions.HTTPError):
         exception_message = str(exception)
+        # Gaia's TAP backend also returns "Error 500:\nnull" during outages.
+        # Astroquery omits the response object, so match that exact error body
+        # while leaving other HTTP 500 errors (including query errors) as failures.
         return (
             (
                 exception.response is not None
@@ -30,6 +33,7 @@ def _is_connectivity_failure(exception):
                 f" {status}" in exception_message for status in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
             )
             or any(reason in exception_message for reason in _REMOTE_SERVICE_UNAVAILABLE_REASONS)
+            or exception_message.split() == ["Error", "500:", "null"]
         )
     if isinstance(exception, HTTPError):
         return exception.code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES

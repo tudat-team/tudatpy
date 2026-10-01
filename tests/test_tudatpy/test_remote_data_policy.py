@@ -94,6 +94,39 @@ def test_wrapped_http_service_outage_is_skipped(message):
     assert "Remote service unavailable:" in report.longrepr[2]
 
 
+@pytest.mark.parametrize(
+    "wrapper_message",
+    (
+        "Error while querying Gaia archives",
+        "Error while retrieving astrometric observations: \nError 500:\nnull",
+    ),
+)
+@pytest.mark.parametrize("remote_data, expected_outcome", ((True, "skipped"), (False, "failed")))
+def test_gaia_null_backend_error_requires_remote_data_marker(
+    wrapper_message, remote_data, expected_outcome
+):
+    # Astroquery's TAP client omits the response object from this HTTPError.
+    exception = RuntimeError(wrapper_message)
+    exception.__cause__ = requests.HTTPError("Error 500:\nnull")
+
+    report = _run_report_hook(exception, remote_data=remote_data)
+
+    assert report.outcome == expected_outcome
+
+
+@pytest.mark.parametrize(
+    "message",
+    ("Error 500:", "Error 500:\nInvalid ADQL query", "Error 500:\nnull column in query"),
+)
+def test_http_500_query_errors_still_fail(message):
+    exception = RuntimeError("Error while querying Gaia archives")
+    exception.__cause__ = requests.HTTPError(message)
+
+    report = _run_report_hook(exception)
+
+    assert report.outcome == "failed"
+
+
 @pytest.mark.parametrize("client", ("requests", "urllib"))
 @pytest.mark.parametrize("status_code", (400, 401, 403, 404, 429, 500, 501))
 def test_other_http_errors_still_fail(client, status_code):
