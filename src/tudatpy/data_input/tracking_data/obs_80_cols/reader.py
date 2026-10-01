@@ -17,7 +17,7 @@ def read_80_column_data(
     file_names: list[str],
     frame: str = "J2000",
     custom_name: str | None = None,
-    add_weights: bool | None = False,
+    weighing_scheme: str | None = "",
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
 ):
@@ -73,7 +73,7 @@ def read_80_column_data(
             in_degrees=False,
             frame=frame,
             custom_name=custom_name,
-            add_weights=add_weights,
+            weighing_scheme=weighing_scheme,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
         )

@@ -9,17 +9,16 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
     radar_data_to_tracking_data,
 )
 
-"""
+
 def read_ades_data(
-    file_path: str, 
-    format: str,
+    file_path: str,
     frame: str = "J2000",
     custom_name: str | None = None,
-    add_weights: bool | None = False,
+    weighing_scheme: str | None = "",
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
 ):
-    parsed_table = parse_ades_file(file_path, format)
+    parsed_table = parse_ades_file(file_path)
     optical_tracking_data, supplementary_data = [], []
     if len(parsed_table) > 0:
         optical_tracking_data, supplementary_data = read_astropy_optical_data(
@@ -27,8 +26,8 @@ def read_ades_data(
             in_degrees=False,
             frame=frame,
             custom_name=custom_name,
-            add_weights=add_weights,
+            weighing_scheme=weighing_scheme,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
-        )    
-"""
+        )
+    return (optical_tracking_data, supplementary_data)

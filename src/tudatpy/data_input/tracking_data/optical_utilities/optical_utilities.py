@@ -66,6 +66,11 @@ SPACECRAFT_POSITION_COLUMNS = [
     "spacecraft_position_y",
     "spacecraft_position_z",
 ]
+SPACECRAFT_VELOCITY_COLUMNS = [
+    "spacecraft_velocity_vx",
+    "spacecraft_velocity_vy",
+    "spacecraft_velocity_vz",
+]
 ROVING_POSITION_COLUMNS = ["roving_position_1", "roving_position_2", "roving_position_3"]
 ANCILLARY_STRING_COLUMNS = [
     "band",
@@ -375,7 +380,7 @@ def create_augmented_optical_table(
         if column not in augmented_table.columns:
             augmented_table[column] = None
 
-    if "epoch_seconds_UTC" not in augmented_table.columns():
+    if "epoch_seconds_UTC" not in augmented_table.columns:
         # the entry is already computed in both the ADES and 80 columns parser
         augmented_table["epoch_seconds_UTC"] = [
             time_representation.julian_day_to_seconds_since_epoch(jd)
@@ -402,40 +407,68 @@ def _roving_observation_mask(table: pd.DataFrame) -> pd.Series:
 def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
     """Receiver-state supplementary data for space-based observations.
 
-    MPC parallax records give geocentric J2000 positions at the UTC observation
+    In 80-columns, MPC parallax records give geocentric J2000 positions at the UTC observation
     epochs; Tudat derives velocities by finite differences.
+    In ADES often the velocity is also defined.
     """
     supplementary_data = []
+    # sort the observations per observatory
     for observatory, group in table.loc[_spacecraft_observation_mask(table)].groupby(
         "observatory", sort=False
     ):
-        # if in ADES format check if the ctr value is presernt; if multiple ctr are
-        # defined for each observatory raise and error
+        # if in ADES format check if the ctr value is present; if multiple ctr are
+        # defined for the same observatory raise and error. Standard practice is to have 399 as ctr,
+        # exceptions are only allowed with the approval of the MPC
         # (this could be improved - allowing all spacecraft obs to be processed singularly without raising the error)
         ctr_values = group["ctr"].dropna().unique() if "ctr" in group.columns else []
         if len(ctr_values) > 1:
             raise ValueError(f"Multiple ctr values for observatory {observatory}: {ctr_values}")
 
-        # this is useful is multiple observations at the same time - then the spacecraft position gets averaged
-        positions = group.groupby("epoch_seconds_UTC")[SPACECRAFT_POSITION_COLUMNS].mean()
-        receiver_data = TrackingSupplementaryData(str(observatory), "")
-
+        # define the frame origin of the spacecraft's state
         if len(ctr_values) == 1:
             frame_origin = naif_ids[int(ctr_values[0])]
         else:
             frame_origin = "Earth"
 
-        receiver_data.translational_state_supplementary_data = TranslationalStateSupplementaryData(
-            state_history={
-                float(epoch): np.concatenate((position, np.zeros(3)))
-                for epoch, position in zip(positions.index, positions.to_numpy())
-            },
-            frame_origin=frame_origin,
-            is_velocity_defined=False,
-            time_scale="UTC",
-            frame_orientation="J2000",
+        receiver_data = TrackingSupplementaryData(str(observatory), "")
+
+        # check if info about velocity is availble; if so use it to build the state history
+        has_velocity_columns = all(
+            column in group.columns for column in SPACECRAFT_VELOCITY_COLUMNS
         )
-        supplementary_data.append(receiver_data)
+        columns_spacecraft = SPACECRAFT_POSITION_COLUMNS.copy()
+        if has_velocity_columns:
+            columns_spacecraft += SPACECRAFT_VELOCITY_COLUMNS
+            state_data = group.groupby("epoch_seconds_UTC")[columns_spacecraft].mean()
+            receiver_data.translational_state_supplementary_data = (
+                TranslationalStateSupplementaryData(
+                    state_history={
+                        float(epoch): state
+                        for epoch, state in zip(state_data.index, state_data.to_numpy())
+                    },
+                    frame_origin=frame_origin,
+                    is_velocity_defined=True,
+                    time_scale="UTC",
+                    frame_orientation="J2000",
+                )
+            )
+            supplementary_data.append(receiver_data)
+
+        else:
+            positions = group.groupby("epoch_seconds_UTC")[columns_spacecraft].mean()
+            receiver_data.translational_state_supplementary_data = (
+                TranslationalStateSupplementaryData(
+                    state_history={
+                        float(epoch): np.concatenate((position, np.zeros(3)))
+                        for epoch, position in zip(positions.index, positions.to_numpy())
+                    },
+                    frame_origin=frame_origin,
+                    is_velocity_defined=False,
+                    time_scale="UTC",
+                    frame_orientation="J2000",
+                )
+            )
+            supplementary_data.append(receiver_data)
 
     return supplementary_data
 
@@ -556,7 +589,7 @@ def _resolve_optical_target_names(table):
 
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
-    add_weights: bool | None = False,
+    weighing_scheme: str | None = "",  # add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
 ):
@@ -583,14 +616,15 @@ def optical_table_to_tracking_data(
         Tracking data objects and supplementary data objects.
     """
     table = create_augmented_optical_table(table, in_degrees=False)
-    weighing_scheme = "VFCC17" if add_weights else ""
+    # weighing_scheme = "VFCC17" if add_weights else ""
 
     if add_star_catalog_corrections:
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
         table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
 
     metadata_columns = set(ANCILLARY_STRING_COLUMNS) if add_ancillary_data else set()
-    if add_weights:
+    # add data required to adopt the VFCC17 weighing scheme
+    if weighing_scheme == "VFCC17":
         metadata_columns.update(["note2", "catalog"])
     metadata_columns.add("number")
 
@@ -604,15 +638,14 @@ def optical_table_to_tracking_data(
     To develop - currently no tracking data structure to store ground station information
     Needed to be able to work with Earth-based roving observatories 
     """
-
     roving_mask = _roving_observation_mask(table)
     table = table.assign(_is_roving_observation=roving_mask.to_numpy(dtype=bool))
     # add supplementary data for the roving observatory location
     # TO DO! WHERE TO STORE THEM????
 
     tracking_data_objects = []
-    for (target, observatory, is_spacecraft, is_roving), group in table.groupby(
-        ["number", "observatory", "_is_spacecraft_observation", "_is_roving_observations"]
+    for (target, observatory, is_spacecraft), group in table.groupby(
+        ["number", "observatory", "_is_spacecraft_observation"]
     ):
         observable_type, reference_link_end_type = "AngularPosition", "receiver"
 
@@ -637,6 +670,27 @@ def optical_table_to_tracking_data(
             time_scale="UTC",
             weighing_scheme=weighing_scheme,
         )
+
+        # currently only applicabile if all observations in the dataset have available rmaRA and rmsDec uncertainties
+        if weighing_scheme == "ADES":
+            required_columns = ["rmsRA", "rmsDec"]
+            if group[required_columns].isna().any().any():
+                raise ValueError("ADES weighing requires non-missing rmsRA and rmsDec values")
+            weightsRA = (
+                (
+                    (pd.to_numeric(group["rmsRA"]).to_numpy(dtype=float) * u.arcsec)
+                    / np.cos(np.deg2rad(pd.to_numeric(group["DEC"]).to_numpy(dtype=float)))
+                ).to_value(u.rad)
+            ) ** -2  # scale the uncertainty by cos(Dec) and transform in radians
+            weightsDec = (pd.to_numeric(group["rmsDec"]).to_numpy(dtype=float) * u.arcsec).to_value(
+                u.rad
+            ) ** -2
+            tracking_data_object.set_observation_weights(
+                [
+                    np.array([ra_weight, dec_weight], dtype=np.float64)
+                    for ra_weight, dec_weight in zip(weightsRA, weightsDec)
+                ]
+            )
 
         if add_star_catalog_corrections:
             corrections_list = [
@@ -773,7 +827,7 @@ def read_astropy_optical_data(
     in_degrees: bool = True,
     frame: str = "J2000",
     custom_name: str | None = None,
-    add_weights: bool | None = False,
+    weighing_scheme: str | None = "",
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
 ):
@@ -807,7 +861,7 @@ def read_astropy_optical_data(
     augmented_table = create_augmented_optical_table(table, in_degrees, frame, custom_name)
     return optical_table_to_tracking_data(
         augmented_table,
-        add_weights,
+        weighing_scheme,
         add_star_catalog_corrections,
         add_ancillary_data,
     )

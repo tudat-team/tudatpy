@@ -3,6 +3,7 @@ from astropy.table import Table
 import astropy.units as u
 from astroquery.mpc import MPC
 import numpy as np
+import re
 
 # check these imports - maybe useful for radar??
 from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
@@ -12,6 +13,8 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
     radar_data_from_raw,
 )
 import xml.etree.ElementTree as ET
+
+from ades.psvtoxml import psvtoxml
 
 
 def _tag_name(element):
@@ -33,9 +36,9 @@ def _roving_obs_columns(df, result_data):
         "spacecraft_position_x": "pos1",
         "spacecraft_position_y": "pos2",
         "spacecraft_position_z": "pos3",
-        "spaecraft_velocity_vx": "vel1",
-        "spaecraft_velocity_vy": "vel2",
-        "spaecraft_velocity_vz": "vel3",
+        "spacecraft_velocity_vx": "vel1",
+        "spacecraft_velocity_vy": "vel2",
+        "spacecraft_velocity_vz": "vel3",
         "ctr": "ctr",
         "sys": "sys",
         "posCov11": "posCov11",
@@ -60,7 +63,7 @@ def _roving_obs_columns(df, result_data):
     if len(df) != len(result_data):
         raise ValueError("df and result_data must have the same number of rows")
 
-    output_columns = ["observatoryTipe", *roving_columns]
+    output_columns = ["observatoryTipe", *spacecraft_columns, *roving_columns]
 
     # if columns not already presenty in the result_data dataframe add them
     for column in output_columns:
@@ -92,9 +95,9 @@ def _roving_obs_columns(df, result_data):
 
                 if sys == "ICRF_AU":
                     if input_column in ("pos1", "pos2", "pos3"):
-                        value = (float(value) * u.au).to(u.m)
-                    elif input_column in ("vel1", "vel2", "vel3"):
-                        value = (float(value) * u.au / u.day).to(u.m / u.s)
+                        value = (float(value) * u.au).to_value(u.m)
+                    elif input_column in ("vel1", "vel2", "vel3") and pd.notna(value):
+                        value = (float(value) * u.au / u.day).to_value(u.m / u.s)
                     elif input_column in (
                         "posCov11",
                         "posCov12",
@@ -102,14 +105,14 @@ def _roving_obs_columns(df, result_data):
                         "posCov22",
                         "posCov23",
                         "posCov33",
-                    ):
-                        value = (float(value) * u.au**2).to(u.m**2)
+                    ) and pd.notna(value):
+                        value = (float(value) * u.au**2).to_value(u.m**2)
 
                 elif sys == "ICRF_KM":
                     if input_column in ("pos1", "pos2", "pos3"):
-                        value = (float(value) * u.km).to(u.m)
-                    elif input_column in ("vel1", "vel2", "vel3"):
-                        value = (float(value) * u.km / u.s).to(u.m / u.s)
+                        value = (float(value) * u.km).to_value(u.m)
+                    elif input_column in ("vel1", "vel2", "vel3") and pd.notna(value):
+                        value = (float(value) * u.km / u.s).to_value(u.m / u.s)
                     elif input_column in (
                         "posCov11",
                         "posCov12",
@@ -117,8 +120,8 @@ def _roving_obs_columns(df, result_data):
                         "posCov22",
                         "posCov23",
                         "posCov33",
-                    ):
-                        value = (float(value) * u.km**2).to(u.m**2)
+                    ) and pd.notna(value):
+                        value = (float(value) * u.km**2).to_value(u.m**2)
 
                 else:
                     raise ValueError("Unsupported reference frame definition")
@@ -168,7 +171,7 @@ def _check_possible_failures(df, obs_kind):
         - pos3
         """
         # check that all required columns are present
-        for column in ("mode", "station", "obsTime", "astCat", "ra", "dec"):
+        for column in ("mode", "stn", "obsTime", "astCat", "ra", "dec"):
             if column not in df.columns:
                 raise ValueError(f"Missing required column: {column}")
             if df[column].isna().any():
@@ -187,24 +190,43 @@ def _check_possible_failures(df, obs_kind):
                 "If any of sys, ctr, pos1, pos2, pos3 is provided, all must be provided"
             )
 
-        # check that ra, dec, pos1, pos2, pos3 are convertible to floats
-        for column in ("ra", "dec", "pos1", "pos2", "pos3"):
+        # check that if present pos1, pos2 and pos3 are convertible to floats
+        position_columns = ["pos1", "pos2", "pos3"]
+        if (
+            all(col in df.columns for col in position_columns)
+            and not df.loc[present.all(axis=1), position_columns]
+            .apply(pd.to_numeric, errors="coerce")
+            .notna()
+            .all()
+            .all()
+        ):
+            raise ValueError("pos1, pos2, and pos3 must be convertible to floats")
+
+        # check that ra and dec are convertible to floats
+        for column in ("ra", "dec"):
             try:
                 df[column] = pd.to_numeric(df[column], errors="raise").astype(float)
             except:
                 raise ValueError(f"Column '{column}' must contain values convertible to floats")
 
-        # check format of obsTime (yyyy-mm-ddThh:mm:ss.ssZ)
-        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2}Z"
-        # eliminate trailing or leading balnk spaces
-        df["obsTime"] = df["obsTime"].astype("string").str.strip()
-        if not df["obsTime"].astype("string").str.fullmatch(pattern).fillna(False).all():
-            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss.ssZ")
+        # check that if presnt, rmsRA, rmsDec, rmsCorr and rmsTime are also convertible to floats
+        rms_columns = ["rmsRA", "rmsDec", "rmsCorr", "rmsTime"]
+        for col in rms_columns:
+            if col in df.columns:
+                values = df[col].dropna()
+                if not pd.to_numeric(values, errors="coerce").notna().all():
+                    raise ValueError(f"{col} must be convertible to floats")
 
-        # check that the station is part of the MPC list
-        # load the observatories table from the MPC
+        # check that obsTime is in the right format
+        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,4})?Z"
+
+        df["obsTime"] = df["obsTime"].astype("string").str.strip()
+        if not df["obsTime"].str.fullmatch(pattern).fillna(False).all():
+            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssss]Z")
+
+        # check that the station is part of the MPC list (a recognized station code)
         observatories_table = MPC.get_observatory_codes().to_pandas()
-        stn_codes = observatories_table["code"].astype("string").tolist()
+        stn_codes = observatories_table["Code"].astype("string").tolist()
         # extract the stations from the input file to check them
         stn = df["stn"].astype("string").str.strip()
         invalid = stn.notna() & ~stn.isin(stn_codes)
@@ -229,7 +251,7 @@ def _epochs_UTC_to_seconds_UTC(df):
     # provide this to the tracking data object
     epochs = pd.to_datetime(
         df["obsTime"],
-        format="%Y-%m-%dT%H:%M:%S.%fZ",
+        format="ISO8601",
         utc=True,
     )
 
@@ -240,7 +262,7 @@ def _epochs_UTC_to_seconds_UTC(df):
     return df
 
 
-def parse_ades_file(file_path: str, format: str):  # -> Table:
+def parse_ades_file(file_path: str):  # -> Table:
     """
     Parses MPC observation data in the ADES format.
 
@@ -274,89 +296,89 @@ def parse_ades_file(file_path: str, format: str):  # -> Table:
     if not file_path:
         raise ValueError("There is no input file")
 
-    if format == "XML":
-        # read the xml elements and define an astropy table
-        tree = ET.parse(f"{file_path}")
-        root = tree.getroot()
+    if file_path.split(".")[1] == "psv":
+        # transform the PSV file on XML format and proceed with the XML parser
+        file_path_xml = file_path.split(".")[0] + ".xml"
+        # transfrom the psv file to an xml file using the MPC ades functionalities
+        psvtoxml(file_path, file_path_xml)
+        file_path = file_path_xml
 
-        # separate the observations according to their type: optical, radar, offset, occultation
-        # this creates a dictionary with the key = obs_kind and the item = list of rows corresponding to that observation kind
-        rows_by_kind = {}
-        for obs_type in root.iter():
+    # read the xml elements and define an astropy table
+    tree = ET.parse(f"{file_path}")
+    root = tree.getroot()
+
+    # separate the observations according to their type: optical, radar, offset, occultation
+    # this creates a dictionary with the key = obs_kind and the item = list of rows corresponding to that observation kind
+    rows_by_kind = {}
+    for obs_data in root.findall(".//obsData"):
+        for obs_type in obs_data:
             obs_kind = _tag_name(obs_type)
 
-            if obs_kind not in ["optical", "radar", "offset", "occultation"]:
-                raise ValueError("The observation type in not supported")
+            if obs_kind not in {"optical", "radar", "offset", "occultation"}:
+                raise ValueError(f"Unsupported observation type: {obs_kind}")
 
+            # Include direct child fields, e.g. permID, obsTime, ra, dec.
             row = {_tag_name(child): (child.text or "").strip() for child in obs_type}
 
-            if obs_kind not in rows_by_kind:
-                rows_by_kind[obs_kind] = []
+            rows_by_kind.setdefault(obs_kind, []).append(row)
 
-            rows_by_kind[obs_kind].append(row)
+    for obs_kind, rows in rows_by_kind.items():
 
-        for obs_kind, rows in rows_by_kind.items():
+        df = pd.DataFrame(rows)
 
-            df = pd.DataFrame(rows)
+        # in creating the previsous dataframe, if one key is missing from the optical element, its value is assigned
+        #  to Nan, None or pd.NA - change all of these and all empty strings to None for consistency
+        df = df.replace(r"^\s*$", None, regex=True)
+        df = df.astype(object).where(pd.notna(df), None)
 
-            # in creating the previsous dataframe, if one key is missing from the optical element, its value is assigned
-            #  to Nan, None or pd.NA - change all of these and all empty strings to None for consistency
-            df = df.replace(r"^\s*$", None, regex=True)
-            df = df.astype(object).where(pd.notna(df), None)
+        # validate  the dataframe, making sure that all required elements are present (according to the observation kind)
+        df = _check_possible_failures(df, obs_kind)
 
-            # validate  the dataframe, making sure that all required elements are present (according to the observation kind)
-            df = _check_possible_failures(df, obs_kind)
+        # create the columns containing seconds since J2000 UTC
+        df = _epochs_UTC_to_seconds_UTC(df)
 
-            # create the columns containing seconds since J2000 UTC
-            df = _epochs_UTC_to_seconds_UTC(df)
+        # optical observations
+        if obs_kind == "optical":
+            result_data_optical = pd.DataFrame(
+                {
+                    "number": _first_present_column(df, "permID", "provID", "artSat", "trkSub"),
+                    "provisional_designation": df.get(
+                        "provID"
+                    ),  # this is not a required field so it could be None
+                    "epoch": df["obsTime"],
+                    "epoch_seconds_UTC": df["epoch_seconds_UTC"],
+                    "RA": ((pd.to_numeric(df["ra"]).to_numpy() * u.deg).to(u.rad).value + np.pi)
+                    % (2 * np.pi)
+                    - np.pi,
+                    "DEC": (pd.to_numeric(df["dec"]).to_numpy() * u.deg).to(u.rad).value,
+                    "observatory": df["stn"],
+                    "magnitude": df.get("mag"),  # this is not a required field so it could be None
+                    "band": df.get("band"),  # this is not a required field so it could be None
+                    "catalog": df["astCat"],
+                    "mode": df["mode"],
+                }
+            )
 
-            # optical observations
-            if obs_kind == "optical":
-                result_data_optical = pd.DataFrame(
-                    {
-                        "number": _first_present_column(df, "permID", "provID", "artSat", "trkSub"),
-                        "provisional_designation": df.get(
-                            "provID"
-                        ),  # this is not a required field so it could be None
-                        "epoch": df["obsTime"],
-                        "epoch_seconds_UTC": df["epoch_seconds_UTC"],
-                        "RA": (((pd.to_numeric(df["ra"])) * u.deg).to(u.rad).value + np.pi)
-                        % (2 * np.pi)
-                        - np.pi,
-                        "DEC": ((pd.to_numeric(df["dec"])) * u.deg).to(u.rad).value,
-                        "observatory": df["stn"],
-                        "magnitude": df.get(
-                            "mag"
-                        ),  # this is not a required field so it could be None
-                        "band": df.get("band"),  # this is not a required field so it could be None
-                        "catalog": df["astCat"],
-                        "mode": df["mode"],
-                    }
-                )
+            # add the rmsRA, rmsDec, rmsTime if available
+            # for the rows where the info is not available it puts Nan
+            for column in ("rmsRA", "rmsDec", "rmsCorr", "rmsTime"):
+                if column in df.columns:
+                    result_data_optical[column] = pd.to_numeric(df[column])
 
-                # add the rmsRA, rmsDec, rmsTime if available
-                # for the rows where the info is not available it puts Nan
-                for column in ("rmsRA", "rmsDec", "rmsTime"):
-                    if column in df.columns:
-                        result_data_optical[column] = pd.to_numeric(df[column])
+            # add the info about roving observatories if needed - new corresponding columns
+            # are created, if the value is missing for some rows then insert None
+            result_data_optical = _roving_obs_columns(df, result_data_optical)
 
-                # add the info about roving observatories if needed - new corresponding columns
-                # are created, if the value is missing for some rows then insert None
-                result_data_optical = _roving_obs_columns(df, result_data_optical)
+            # transform all missing values or empty values to None in the final table
+            result_data_optical = result_data_optical.replace(r"^\s*$", None, regex=True)
+            result_data_optical = result_data_optical.astype(object).where(
+                pd.notna(result_data_optical), None
+            )
 
-                # transform all missing values or empty values to None in the final table
-                result_data_optical = result_data_optical.replace(r"^\s*$", None, regex=True)
-                result_data_optical = result_data_optical.astype(object).where(pd.notna(df), None)
+            # transform into an astropy Table
+            optical_table = Table.from_pandas(result_data_optical)
 
-                # transform into an astropy Table
-                optical_table = Table.from_pandas(result_data_optical)
+            # this astropy table should be readable by the optical_utilites/read_astropy_optical_data()
+            # to be able to create a tracking data object
 
-                # this astropy table should be readable by the optical_utilites/read_astropy_optical_data()
-                # to be able to create a tracking data object
-
-                return optical_table
-
-    # elif format == 'PSV':
-
-    else:
-        raise ValueError("The given format in invalid; specify either PSV or XML")
+            return optical_table
