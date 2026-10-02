@@ -6,13 +6,15 @@ import pandas as pd
 import pytest
 from astropy.table import Table
 import numpy as np
+from numpy.testing import assert_equal
+from pathlib import Path
 
 current_dir = os.getcwd()
 
 
 # define the path of the file to be saved
 @pytest.fixture
-def file_path():
+def file_path_xml():
     return f"{current_dir}/obs_2.xml"
 
 
@@ -252,8 +254,8 @@ def test_rejects_different_number_of_rows(observations):
 
 # Final test on parse_ades_file
 # as all used functions have been previously tested, use them in the file
-def test_parses_optical_xml(file_path):
-    result = parser.parse_ades_file(file_path)
+def test_parses_optical_xml(file_path_xml):
+    result = parser.parse_ades_file(file_path_xml)
 
     # check that it is an astropy table
     assert isinstance(result, Table)
@@ -287,7 +289,7 @@ def test_parses_optical_xml(file_path):
 
 
 # repeat the test giving a .psv file as input
-def test_parses_optical_xml(file_path_psv):
+def test_parses_optical_psv(file_path_psv):
     result = parser.parse_ades_file(file_path_psv)
 
     # check that it is an astropy table
