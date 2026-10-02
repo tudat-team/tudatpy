@@ -16,6 +16,7 @@
 #include "slr/expose_slr.h"
 #include "scalarTypes.h"
 #include "tudat/io/trackingData.h"
+#include "tudat/io/trackingDataTime.h"
 #include "tudat/io/trackingSupplementaryData.h"
 
 namespace py = pybind11;
@@ -33,6 +34,18 @@ namespace tracking_data
 
 void expose_tracking_data( py::module& m )
 {
+    m.def( "get_tracking_data_epoch_bounds",
+           &tdat::getTrackingDataEpochBounds< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "tracking_data" ),
+           py::arg( "output_time_scale" ) = tudat::basic_astrodynamics::tdb_scale,
+           R"doc(Return the earliest and latest epochs across a list of TrackingData objects.
+
+Each object's declared time scale is respected. output_time_scale is a TimeScales
+value and defaults to TDB. TAI, TT, TDB, UTC and UT1 are supported. Conversions use
+the geocentre, without bodies, dynamics or estimation objects. The returned pair
+contains native Time objects, preserving their precision. Empty objects are
+skipped; an empty list or a list containing no epochs raises ValueError.)doc" );
+
     py::class_< tdat::AngularObservationCorrectionSettings >(
             m,
             "AngularObservationCorrectionSettings",

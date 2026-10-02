@@ -21,6 +21,7 @@ when ``apply_corrections=True``; source observations remain unchanged.
 .. autosummary::
 
    GaiaAstrometry
+   load_gaia_astrometry
    generate_astrometry_parquet
    generate_asteroid_parquet
    gaia_object_catalog
@@ -31,6 +32,7 @@ when ``apply_corrections=True``; source observations remain unchanged.
 .. autoclass:: GaiaAstrometry
    :members:
 
+.. autofunction:: load_gaia_astrometry
 .. autofunction:: generate_astrometry_parquet
 .. autofunction:: generate_asteroid_parquet
 .. autofunction:: gaia_object_catalog

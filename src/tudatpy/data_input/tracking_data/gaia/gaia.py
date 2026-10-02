@@ -4,10 +4,14 @@ Retrieve Gaia FPR astrometry from the archives
 
 import numpy as np
 import pandas as pd
+from datetime import datetime
 from tudatpy.astro.time_representation import (
     julian_day_to_seconds_since_epoch,
     TCB_to_TDB,
     DateTime,
+    TimeScales,
+    default_time_scale_converter,
+    tdb_scale,
 )
 from tudatpy.data_input.tracking_data import (
     AngularObservationCorrectionSettings,
@@ -33,6 +37,7 @@ _TIME_SCALE_CORRECTION = 1 - 1.550519768e-8  # See e.g. Klioner (2003)
 _STATE_SCALING_FACTOR = 1.0000000051686297  # account for Gaia FPR state vector inconsistency (see Gaia Collaboration 2023)
 _ASTROMETRY_CATALOG = "gaiafpr.sso_observation"  # Latest Gaia data release as of sep. 2026
 _ASTEROID_CATALOG = "gaiafpr.sso_source"
+_TIME_SCALE_CONVERTER = default_time_scale_converter()
 
 
 def _check_for_missing_entries(
@@ -591,6 +596,87 @@ class GaiaAstrometry:
                 f"{mpc_number}   {object_name}   {number_of_obs}   {first_epoch}   {last_epoch}\n"
             )
             print(asteroid_data)
+
+
+def load_gaia_astrometry(
+    target: int,
+    archive_path: str | Path | None = None,
+    epoch_start: float | DateTime | datetime | None = None,
+    epoch_end: float | DateTime | datetime | None = None,
+    time_scale: TimeScales = tdb_scale,
+) -> GaiaAstrometry | None:
+    """Load one asteroid's Gaia CCD observations and apply the existing quality filters.
+
+    Parameters
+    ----------
+    target : int
+        Permanent MPC asteroid number.
+    archive_path : str | Path, optional
+        Local FPR parquet archive. If omitted, query the ESA archive.
+    epoch_start, epoch_end : float | DateTime | datetime, optional
+        Inclusive interval bounds, in seconds since J2000 or calendar dates.
+    time_scale : TimeScales, default tdb_scale
+        Time scale of the interval bounds. They are converted to Gaia's TDB scale.
+
+    Returns
+    -------
+    GaiaAstrometry | None
+        Filtered observations, or None if retrieval or filtering finds no data.
+        Query failures, unreadable archives and other errors propagate. Progress
+        is printed to the terminal. No dynamics or estimation objects are used.
+    """
+    target = int(target)
+    if isinstance(epoch_start, datetime):
+        epoch_start = DateTime.from_python_datetime(epoch_start).epoch()
+    elif isinstance(epoch_start, DateTime):
+        epoch_start = epoch_start.epoch()
+    if isinstance(epoch_end, datetime):
+        epoch_end = DateTime.from_python_datetime(epoch_end).epoch()
+    elif isinstance(epoch_end, DateTime):
+        epoch_end = epoch_end.epoch()
+    if time_scale != tdb_scale:
+        if epoch_start is not None:
+            epoch_start = _TIME_SCALE_CONVERTER.convert_time(
+                time_scale, tdb_scale, float(epoch_start)
+            )
+        if epoch_end is not None:
+            epoch_end = _TIME_SCALE_CONVERTER.convert_time(time_scale, tdb_scale, float(epoch_end))
+    if epoch_start is not None and epoch_end is not None and epoch_start > epoch_end:
+        raise ValueError("Gaia interval start must not be later than its end.")
+    try:
+        if archive_path is None:
+            print(
+                f"Querying the ESA Gaia archive for {target}; waiting for the response...",
+                flush=True,
+            )
+            gaia = GaiaAstrometry.load_from_astroquery(target)
+        else:
+            print(f"Loading Gaia astrometry from {archive_path}", flush=True)
+            gaia = GaiaAstrometry.load_from_local_archive(archive_path, target)
+    except RuntimeError as error:
+        if str(error).startswith("No observations found"):
+            print(f"No Gaia observations for {target}.", flush=True)
+            return None
+        raise
+    try:
+        gaia.apply_filters(epoch_start=epoch_start, epoch_end=epoch_end)
+    except RuntimeError as error:
+        if str(error) == "No observations left after applying filters":
+            print(f"No Gaia observations for {target} in the selected interval.", flush=True)
+            return None
+        raise
+    table = gaia.table
+    if table.empty:
+        print(f"No Gaia observations for {target} in the selected interval.", flush=True)
+        return None
+    if set(gaia.mpc_numbers_in_table) != {target}:
+        raise RuntimeError(f"Gaia astrometry must contain only target {target}.")
+    print(
+        f"Loaded {len(table)} Gaia CCD observations in "
+        f"{table.transit_id.nunique()} transits for {target}.",
+        flush=True,
+    )
+    return gaia
 
 
 def _prepare_gaia_asteroid_table(table: pd.DataFrame) -> pd.DataFrame:

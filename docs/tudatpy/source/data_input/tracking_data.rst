@@ -40,6 +40,11 @@ For more information on the tracking data architecture, see the `user guide <htt
 .. automodule:: tudatpy.data_input.tracking_data
    :members:
 
+Tracking epoch bounds
+--------------------
+
+.. autofunction:: tudatpy.data_input.tracking_data.get_tracking_data_epoch_bounds
+
 Tracking data containers
 ------------------------
 .. currentmodule:: tudatpy.data_input.tracking_data
