@@ -6,10 +6,15 @@
 This module loads Gaia solar-system astrometry, asteroid states, and covariance
 data from the online archive or local parquet archives. :class:`GaiaAstrometry`
 prepares TDB epochs, angular observations, and transit-correlated weights.
-Convert it to generic tracking data with :meth:`GaiaAstrometry.to_tracking_data`,
-or directly to an :class:`~tudatpy.estimation.observations.ObservationDataset`
-with :meth:`GaiaAstrometry.to_observation_dataset`. Each Gaia transit becomes
-one tracking-data object and one observation set.
+Convert it to generic tracking data with :meth:`GaiaAstrometry.to_tracking_data`.
+Each Gaia transit becomes one tracking-data object and one observation set.
+The returned supplementary data contains Gaia's geocentric state history and
+is installed with
+:func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
+Requested photocenter and light-deflection corrections are stored as plain
+settings and evaluated by
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`
+when ``apply_corrections=True``; source observations remain unchanged.
 
 .. currentmodule:: tudatpy.data_input.tracking_data.gaia
 

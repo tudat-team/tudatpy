@@ -12,6 +12,8 @@
 #define TUDAT_CREATE_OBSERVATION_DATASET_H
 
 #include <Eigen/Core>
+#include <cmath>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -151,6 +153,13 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     return ancillarySettings;
 }
 
+//! Estimation-side evaluator; tracking data stores only plain correction settings.
+template< typename ObservationScalarType, typename TimeType >
+using TrackingDataCorrectionFunction = std::function< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
+        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > >&,
+        const simulation_setup::SystemOfBodies&,
+        const std::vector< TimeType >& ) >;
+
 //! Add the observations in one tracking-data object as one dataset set.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -158,7 +167,8 @@ template< typename ObservationScalarType = double,
 int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
                                          const simulation_setup::SystemOfBodies& bodies,
                                          ObservationDataset< ObservationScalarType, TimeType >& observationDataset,
-                                         const bool applyCorrections = false )
+                                         const bool applyCorrections = false,
+                                         const TrackingDataCorrectionFunction< ObservationScalarType, TimeType >& correctionFunction = {} )
 {
     // Identify observable type from tracking data object
     observation_models::ObservableType observableType = getObservableTypeFromTrackingDataString( trackingData->getObservableType( ) );
@@ -235,6 +245,35 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
         epochsTdb = epochsInput;
     }
 
+    // Evaluate environment-dependent corrections at TDB reception times using the original observations.
+    if( applyCorrections && trackingData->hasObservationCorrectionSettings( ) )
+    {
+        if( !correctionFunction )
+        {
+            throw std::runtime_error( "Tracking data requests environment-dependent angular corrections, but no evaluator was supplied." );
+        }
+        const auto corrections = correctionFunction( trackingData, bodies, epochsTdb );
+        if( corrections.size( ) != observations.size( ) )
+        {
+            throw std::runtime_error( "Computed angular corrections have an inconsistent number of observations." );
+        }
+        for( unsigned int i = 0; i < observations.size( ); ++i )
+        {
+            if( corrections[ i ].size( ) != observations[ i ].size( ) )
+            {
+                throw std::runtime_error( "Computed angular corrections have an inconsistent observable size." );
+            }
+            observations[ i ] += corrections[ i ];
+            const ObservationScalarType pi = std::acos( static_cast< ObservationScalarType >( -1 ) );
+            observations[ i ]( 0 ) = std::fmod( observations[ i ]( 0 ) + pi, 2 * pi );
+            if( observations[ i ]( 0 ) < 0 )
+            {
+                observations[ i ]( 0 ) += 2 * pi;
+            }
+            observations[ i ]( 0 ) -= pi;
+        }
+    }
+
     // Convert ancillary settings information from tracking data object to ObservationAncillarySimulationSettings
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingData );
@@ -274,12 +313,13 @@ template< typename ObservationScalarType = double,
 std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createObservationDatasetFromTrackingData(
         const std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataList,
         simulation_setup::SystemOfBodies& bodies,
-        const bool applyCorrections = false )
+        const bool applyCorrections = false,
+        const TrackingDataCorrectionFunction< ObservationScalarType, TimeType >& correctionFunction = {} )
 {
     auto observationDataset = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
     for( const auto& trackingData : trackingDataList )
     {
-        addTrackingDataToObservationDataset( trackingData, bodies, *observationDataset, applyCorrections );
+        addTrackingDataToObservationDataset( trackingData, bodies, *observationDataset, applyCorrections, correctionFunction );
     }
     return observationDataset;
 }

@@ -4,6 +4,7 @@ Tests for the Gaia interfaces in tudatpy.data_input.tracking_data.gaia.gaia.
 
 from pathlib import Path
 from unittest import mock
+import ast
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
@@ -22,6 +23,7 @@ from tudatpy.astro.time_representation import (
     julian_day_to_seconds_since_epoch,
 )
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000
+from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import get_default_body_settings, create_system_of_bodies
 from tudatpy.estimation import observations
 from tudatpy.interface import spice
@@ -77,16 +79,21 @@ def astrometry_table(gaia_astrometry):
 
 
 @pytest.fixture
-def observation_dataset(gaia_astrometry, spice_kernels):
-    """ObservationDataset of gaia_astrometry with observations for 673 and 779"""
-    # Gaia must be loaded in bodies with its ephemeris to use to_observation_dataset()
-    body_settings = get_default_body_settings(["Sun"], "SSB", "J2000")
-    body_settings.add_empty_settings("Gaia")
-    body_settings.get("Gaia").ephemeris_settings = gaia_astrometry.get_gaia_ephemeris_settings(
-        geocentric=False
-    )
-    bodies = create_system_of_bodies(body_settings)
-    return gaia_astrometry.to_observation_dataset(bodies)
+def bodies(gaia_astrometry, spice_kernels):
+    settings = get_default_body_settings(["Sun", "Earth", "Jupiter"], "SSB", "J2000")
+    for number in TEST_ASTEROID_MPC:
+        settings.add_empty_settings(str(number))
+        settings.get(str(number)).ephemeris_settings = environment_setup.ephemeris.constant(
+            [3.0e11, 1.0e11, 2.0e10, 0.0, 0.0, 0.0], "SSB", "J2000"
+        )
+    return create_system_of_bodies(settings)
+
+
+@pytest.fixture
+def observation_dataset(gaia_astrometry, bodies):
+    tracking, supplementary = gaia_astrometry.to_tracking_data()
+    observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
+    return observations.create_observation_dataset_from_tracking_data(tracking, bodies)
 
 
 @pytest.mark.remote_data
@@ -241,150 +248,217 @@ def test_observation_table_epoch_filter(gaia_astrometry):
     assert gaia_astrometry.table["epoch"].max() <= filter_end
 
 
-def test_apply_corrections_photocenter(gaia_astrometry):
-    """Tests that apply_corrections correctly modifies observation by calculated photocenter offset"""
-    get_obs = lambda table, mpc: table.loc[table["number_mp"] == mpc, ["ra", "dec"]].to_numpy()
+def test_corrections_are_deferred_and_preserve_source_data(gaia_astrometry, bodies):
+    table_before = gaia_astrometry.table.copy()
+    tracking, supplementary = gaia_astrometry.to_tracking_data(
+        light_deflection_bodies=("Sun", "Jupiter"),
+        photocenter_body_dimensions={TEST_ASTEROID_MPC[0]: 1000.0},
+    )
+    observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
+    calls = []
 
-    astrometry_table = gaia_astrometry.table
-    observations_uncorr = {mpc: get_obs(astrometry_table, mpc) for mpc in TEST_ASTEROID_MPC}
+    def photocenter(observations, body_dimensions, body_name, **kwargs):
+        assert body_name == str(TEST_ASTEROID_MPC[0])
+        assert body_dimensions == 1000.0
+        calls.append(("photocenter", body_name, observations.copy()))
+        return np.full((len(observations), 2), 1.0e-9)
 
-    # Make photocenter offset function return a fixed offset
-    offset = 1e-9  # 1e-9 radians in RA and DEC
-    fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), offset)
+    def deflection(observations, body_name, perturbing_bodies_list, **kwargs):
+        assert perturbing_bodies_list == ["Sun", "Jupiter"]
+        calls.append(("deflection", body_name, observations.copy()))
+        return np.full((len(observations), 2), 2.0e-9)
 
-    # Corrections are only applied to asteroids included in the dimensions mapping
-    body_dimensions = {TEST_ASTEROID_MPC[0]: 1e3}
+    module = "tudatpy.estimation.observations.observation_corrections."
     with mock.patch(
-        "tudatpy.data_input.tracking_data.gaia.gaia.photocenter_correction_angular_observations",
-        side_effect=fake_correction,
+        module + "photocenter_correction_angular_observations", side_effect=photocenter
+    ), mock.patch(
+        module + "light_deflection_correction_angular_observations", side_effect=deflection
     ):
-        gaia_astrometry.apply_corrections(
-            bodies=None, photocenter_body_dimensions=body_dimensions, light_deflection_bodies=None
+        raw = observations.create_observation_dataset_from_tracking_data(
+            tracking, bodies, apply_corrections=False
         )
-    astrometry_table = gaia_astrometry.table
-
-    for mpc in TEST_ASTEROID_MPC:
-        observations_corr = get_obs(astrometry_table, mpc)
-        expected_offset = offset if mpc in body_dimensions else 0.0
-        np.testing.assert_allclose(
-            observations_corr - observations_uncorr[mpc],
-            np.full_like(observations_corr, expected_offset),
-            rtol=1e-7,
-            atol=0,
+        assert not calls
+        corrected = observations.create_observation_dataset_from_tracking_data(
+            tracking, bodies, apply_corrections=True
+        )
+        repeated = observations.create_observation_dataset_from_tracking_data(
+            tracking, bodies, apply_corrections=True
         )
 
-
-def test_apply_corrections_light_deflection(gaia_astrometry):
-    """Test that apply_corrections correctly applies a light deflection offset to the observations"""
-    get_obs = lambda table, mpc: table.loc[table["number_mp"] == mpc, ["ra", "dec"]].to_numpy()
-
-    astrometry_table = gaia_astrometry.table
-    observations_uncorr = {mpc: get_obs(astrometry_table, mpc) for mpc in TEST_ASTEROID_MPC}
-
-    # Make light deflection function return a fixed offset
-    offset = 1e-9  # 1e-9 radians in RA and DEC
-    fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), offset)
-
-    # Corrections are applied to all loaded asteroids
-    with mock.patch(
-        "tudatpy.data_input.tracking_data.gaia.gaia.light_deflection_correction_angular_observations",
-        side_effect=fake_correction,
-    ):
-        gaia_astrometry.apply_corrections(bodies=None, light_deflection_bodies=["Sun"])
-    astrometry_table = gaia_astrometry.table
-
-    for mpc in TEST_ASTEROID_MPC:
-        observations_corr = get_obs(astrometry_table, mpc)
-        np.testing.assert_allclose(
-            observations_corr - observations_uncorr[mpc],
-            np.full_like(observations_corr, offset),
-            rtol=1e-7,
-            atol=0,
+    for number in TEST_ASTEROID_MPC:
+        condition = observations.observation_query.transmitter == observations.LinkEndId(
+            str(number), ""
         )
+        raw_angles = np.asarray(raw.get_data(condition, fields=("observations",))["observations"])
+        corrected_angles = np.asarray(
+            corrected.get_data(condition, fields=("observations",))["observations"]
+        )
+        expected = raw_angles + (3.0e-9 if number == TEST_ASTEROID_MPC[0] else 2.0e-9)
+        expected[:, 0] = (expected[:, 0] + np.pi) % (2 * np.pi) - np.pi
+        np.testing.assert_array_equal(corrected_angles, expected)
+    np.testing.assert_array_equal(corrected.get_observations(), repeated.get_observations())
+    np.testing.assert_array_equal(
+        raw.get_weight_matrix().toarray(), corrected.get_weight_matrix().toarray()
+    )
+    for data in tracking:
+        target = dict((role, link) for link, role in data.link_ends)["transmitter"][0]
+        source = np.asarray(data.observations)
+        matching_calls = [
+            inputs
+            for _, body_name, inputs in calls
+            if body_name == target
+            and np.array_equal(inputs[:, 0], [float(epoch) for epoch in data.epochs])
+        ]
+        assert matching_calls
+        for inputs in matching_calls:
+            np.testing.assert_array_equal(inputs[:, 1:], source)
+    pdt.assert_frame_equal(gaia_astrometry.table, table_before)
 
 
-def test_apply_corrections_is_atomic(gaia_astrometry):
-    """A failed correction must leave the astrometry table unchanged."""
-    table_before_correction = gaia_astrometry.table
+def test_failed_correction_does_not_change_source(gaia_astrometry, bodies):
+    tracking, supplementary = gaia_astrometry.to_tracking_data(light_deflection_bodies=("Sun",))
+    observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
+    original = [np.asarray(data.observations).copy() for data in tracking]
+    table_before = gaia_astrometry.table.copy()
 
     def fail_for_second_asteroid(observations, body_name, **kwargs):
         if body_name == str(TEST_ASTEROID_MPC[1]):
             raise ValueError("Missing ephemeris")
-        return np.full((len(observations), 2), 1e-9)
+        return np.full((len(observations), 2), 1.0e-9)
 
     with mock.patch(
-        "tudatpy.data_input.tracking_data.gaia.gaia.light_deflection_correction_angular_observations",
+        "tudatpy.estimation.observations.observation_corrections.light_deflection_correction_angular_observations",
         side_effect=fail_for_second_asteroid,
     ):
         with pytest.raises(ValueError, match="Missing ephemeris"):
-            gaia_astrometry.apply_corrections(bodies=None, light_deflection_bodies=["Sun"])
+            observations.create_observation_dataset_from_tracking_data(
+                tracking, bodies, apply_corrections=True
+            )
+    for data, source in zip(tracking, original, strict=True):
+        np.testing.assert_array_equal(data.observations, source)
+    pdt.assert_frame_equal(gaia_astrometry.table, table_before)
 
-    pdt.assert_frame_equal(gaia_astrometry.table, table_before_correction)
+
+def test_converter_matches_existing_correction_formulas(gaia_astrometry, bodies):
+    from tudatpy.estimation.observations.observation_corrections import (
+        light_deflection_correction_angular_observations,
+        photocenter_correction_angular_observations,
+    )
+
+    radii = {number: 1000.0 for number in TEST_ASTEROID_MPC}
+    tracking, supplementary = gaia_astrometry.to_tracking_data(
+        light_deflection_bodies=("Sun", "Jupiter"), photocenter_body_dimensions=radii
+    )
+    observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
+    raw = observations.create_observation_dataset_from_tracking_data(tracking, bodies)
+    corrected = observations.create_observation_dataset_from_tracking_data(
+        tracking, bodies, apply_corrections=True
+    )
+    for number in TEST_ASTEROID_MPC:
+        condition = observations.observation_query.transmitter == observations.LinkEndId(
+            str(number), ""
+        )
+        source = raw.get_data(condition, fields=("times", "observations"))
+        angles = np.asarray(source["observations"])
+        inputs = np.column_stack(([float(epoch) for epoch in source["times"]], angles))
+        expected = (
+            angles
+            + photocenter_correction_angular_observations(
+                inputs, radii[number], bodies, str(number), "Gaia"
+            )
+            + light_deflection_correction_angular_observations(
+                inputs, bodies, str(number), "Gaia", perturbing_bodies_list=("Sun", "Jupiter")
+            )
+        )
+        expected[:, 0] = (expected[:, 0] + np.pi) % (2 * np.pi) - np.pi
+        actual = corrected.get_data(condition, fields=("observations",))["observations"]
+        np.testing.assert_allclose(actual, expected, rtol=0.0, atol=1.0e-15)
+    np.testing.assert_array_equal(
+        raw.get_weight_matrix().toarray(), corrected.get_weight_matrix().toarray()
+    )
 
 
-def test_apply_corrections_twice_raises_error(gaia_astrometry):
-    """Applying corrections twice on the same instance must raise an error"""
-    fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), 1e-9)
+def test_gaia_supplementary_data_creates_geocentric_ephemeris(gaia_astrometry, bodies):
+    tracking, supplementary = gaia_astrometry.to_tracking_data()
+    assert len(supplementary) == 1
+    state_data = supplementary[0].translational_state_supplementary_data
+    assert supplementary[0].body_name == "Gaia"
+    assert state_data.frame_origin == "Earth"
+    assert state_data.frame_orientation == "J2000"
+    assert state_data.time_scale == "TDB"
+    assert state_data.is_velocity_defined
+    assert not bodies.does_body_exist("Gaia")
+    observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
+    assert bodies.global_frame_origin() == "SSB"
+    gaia = bodies.get("Gaia")
+    columns = [component + "_gaia_geocentric" for component in ("x", "y", "z", "vx", "vy", "vz")]
+    for _, row in gaia_astrometry.table.iloc[::100].iterrows():
+        epoch = float(row.epoch)
+        geocentric = row[columns].to_numpy(dtype=float)
+        np.testing.assert_array_equal(gaia.ephemeris.cartesian_state(epoch), geocentric)
+        np.testing.assert_allclose(
+            gaia.state_in_base_frame_from_ephemeris(epoch),
+            geocentric + bodies.get("Earth").state_in_base_frame_from_ephemeris(epoch),
+            rtol=0.0,
+            atol=1.0e-4,
+        )
+
+
+def test_deferred_corrections_use_tdb_raw_angles_and_keep_numeric_offsets(bodies):
+    from tudatpy.astro import time_representation
+    from tudatpy.data_input.tracking_data import AngularObservationCorrectionSettings, TrackingData
+
+    data = TrackingData(
+        observable_type="AngularPosition",
+        link_ends=[(("673", ""), "transmitter"), (("Gaia", ""), "receiver")],
+        observations=[[4.0, 0.1]],
+        epochs=[1000.0],
+        reference_link_end="receiver",
+        time_scale="UTC",
+    )
+    data.set_observation_corrections([[0.01, 0.02]])
+    data.set_observation_correction_settings(
+        AngularObservationCorrectionSettings(light_deflection_bodies=["Sun"])
+    )
+    converter = time_representation.default_time_scale_converter()
+    tdb = converter.convert_time(
+        time_representation.utc_scale, time_representation.tdb_scale, 1000.0
+    )
+
+    def deflection(observations, **kwargs):
+        np.testing.assert_allclose(observations, [[float(tdb), 4.0, 0.1]], rtol=0.0, atol=1.0e-10)
+        return np.array([[0.03, 0.04]])
 
     with mock.patch(
-        "tudatpy.data_input.tracking_data.gaia.gaia.light_deflection_correction_angular_observations",
-        side_effect=fake_correction,
+        "tudatpy.estimation.observations.observation_corrections.light_deflection_correction_angular_observations",
+        side_effect=deflection,
     ):
-        gaia_astrometry.apply_corrections(bodies=None, light_deflection_bodies=["Sun"])
-
-        with pytest.raises(RuntimeError):
-            gaia_astrometry.apply_corrections(bodies=None, light_deflection_bodies=["Sun"])
-
-
-def test_get_gaia_ephemeris_settings_geocentric(gaia_astrometry, spice_kernels):
-    """Test if states in catalog and those retrieved from ephemeris match (geocentric case)"""
-    # Construct Tudat ephemeris
-    ephemeris_settings = gaia_astrometry.get_gaia_ephemeris_settings(geocentric=True)
-    body_settings = get_default_body_settings(["Sun", "Earth"], "SSB", "J2000")
-    body_settings.add_empty_settings("Gaia")
-    body_settings.get("Gaia").ephemeris_settings = ephemeris_settings
-    bodies = create_system_of_bodies(body_settings)
-    gaia_ephemeris = bodies.get("Gaia").ephemeris
-
-    # Compare state vectors from Tudat and table
-    astrometry_table = gaia_astrometry.table
-    states_from_tudat = np.array(
-        [gaia_ephemeris.cartesian_state(epoch) for epoch in astrometry_table.epoch]
+        result = observations.create_observation_dataset_from_tracking_data(
+            [data], bodies, apply_corrections=True
+        )
+    np.testing.assert_allclose(
+        result.get_observations(),
+        [[(4.04 + np.pi) % (2 * np.pi) - np.pi, 0.16]],
+        rtol=0.0,
+        atol=1.0e-15,
     )
-    states_from_table = astrometry_table[
-        [
-            "x_gaia_geocentric",
-            "y_gaia_geocentric",
-            "z_gaia_geocentric",
-            "vx_gaia_geocentric",
-            "vy_gaia_geocentric",
-            "vz_gaia_geocentric",
-        ]
-    ].to_numpy()
-
-    np.testing.assert_array_equal(states_from_table, states_from_tudat)
+    np.testing.assert_array_equal(data.observations, [[4.0, 0.1]])
+    np.testing.assert_array_equal(data.get_observation_corrections(), [[0.01, 0.02]])
 
 
-def test_get_gaia_ephemeris_settings_barycentric(gaia_astrometry, spice_kernels):
-    """Test if states in catalog and those retrieved from ephemeris match (barycentric case)"""
-    # Construct Tudat ephemeris
-    ephemeris_settings = gaia_astrometry.get_gaia_ephemeris_settings(geocentric=False)
-    body_settings = get_default_body_settings(["Sun", "Earth"], "SSB", "J2000")
-    body_settings.add_empty_settings("Gaia")
-    body_settings.get("Gaia").ephemeris_settings = ephemeris_settings
-    bodies = create_system_of_bodies(body_settings)
-    gaia_ephemeris = bodies.get("Gaia").ephemeris
-
-    # Compare state vectors from Tudat and table
-    astrometry_table = gaia_astrometry.table
-    states_from_tudat = np.array(
-        [gaia_ephemeris.cartesian_state(epoch) for epoch in astrometry_table.epoch]
-    )
-    states_from_table = astrometry_table[
-        ["x_gaia", "y_gaia", "z_gaia", "vx_gaia", "vy_gaia", "vz_gaia"]
-    ].to_numpy()
-
-    np.testing.assert_array_equal(states_from_table, states_from_tudat)
+def test_data_input_has_no_dynamics_or_estimation_imports():
+    root = Path(__file__).parents[2] / "src" / "tudatpy" / "data_input"
+    for path in root.rglob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if isinstance(node, ast.Import):
+                names = [item.name for item in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                names = [node.module or ""]
+            else:
+                continue
+            assert not any(
+                "tudatpy.dynamics" in name or "tudatpy.estimation" in name for name in names
+            ), path
 
 
 def test_summary_does_not_raise(gaia_astrometry, capsys):
@@ -392,15 +466,6 @@ def test_summary_does_not_raise(gaia_astrometry, capsys):
     gaia_astrometry.print_summary()
 
     assert "SUMMARY" in capsys.readouterr().out
-
-
-def test_to_observation_dataset_without_gaia_raises_error(gaia_astrometry, spice_kernels):
-    """to_observation_dataset must raise an error if Gaia is not loaded in bodies"""
-    body_settings = get_default_body_settings(["Sun"], "SSB", "J2000")
-    bodies = create_system_of_bodies(body_settings)
-
-    with pytest.raises(ValueError):
-        gaia_astrometry.to_observation_dataset(bodies)
 
 
 def test_weight_matrix_symmetry(observation_dataset):

@@ -28,6 +28,7 @@
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/observationWeightSettings.h"
+#include "tudat/io/angularObservationCorrectionSettings.h"
 
 namespace tudat
 {
@@ -418,6 +419,26 @@ public:
         return weightsVector;
     }
 
+    //! Store corrections to be evaluated when constructing an observation dataset.
+    void setObservationCorrectionSettings( const AngularObservationCorrectionSettings& settings )
+    {
+        if( observableType_ != "AngularPosition" || singleObservationSize_ != 2 || referenceLinkEnd_ != "receiver" )
+        {
+            throw std::runtime_error( "Angular correction settings require two-component reception-time angular observations." );
+        }
+        observationCorrectionSettings_ = settings;
+    }
+
+    const std::optional< AngularObservationCorrectionSettings >& getObservationCorrectionSettings( ) const
+    {
+        return observationCorrectionSettings_;
+    }
+
+    bool hasObservationCorrectionSettings( ) const
+    {
+        return observationCorrectionSettings_.has_value( ) && observationCorrectionSettings_->hasCorrections( );
+    }
+
     //! Set corrections to the observations (optional)
     void setObservationCorrections( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationCorrections )
     {
@@ -598,6 +619,8 @@ private:
     std::optional< observation_models::ObservationWeightSettings > observationWeightSettings_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
+
+    std::optional< AngularObservationCorrectionSettings > observationCorrectionSettings_;
 
     std::map< std::string, std::string > ancillarySettingsString_;
 

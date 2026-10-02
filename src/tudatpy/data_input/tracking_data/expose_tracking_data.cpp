@@ -33,6 +33,23 @@ namespace tracking_data
 
 void expose_tracking_data( py::module& m )
 {
+    py::class_< tdat::AngularObservationCorrectionSettings >(
+            m,
+            "AngularObservationCorrectionSettings",
+            R"doc(Plain settings for angular corrections evaluated during observation-dataset conversion.
+
+The target and observer are obtained from the tracking-data link ends. These settings
+contain no environment objects and do not change source observations.)doc" )
+            .def( py::init< const std::vector< std::string >&, const Eigen::VectorXd& >( ),
+                  py::arg( "light_deflection_bodies" ) = std::vector< std::string >( ),
+                  py::arg( "photocenter_body_dimensions" ) = Eigen::VectorXd( ),
+                  R"doc(Request light deflection by the named bodies and/or a photocenter correction.
+
+Photocenter dimensions are an empty vector, a one-element radius vector, or three
+ellipsoid semi-axes, in metres.)doc" )
+            .def_readonly( "light_deflection_bodies", &tdat::AngularObservationCorrectionSettings::lightDeflectionBodies_ )
+            .def_readonly( "photocenter_body_dimensions", &tdat::AngularObservationCorrectionSettings::photocenterBodyDimensions_ );
+
     py::class_< tom::ObservationWeightSettings >( m,
                                                   "ObservationWeightSettings",
                                                   R"doc(
@@ -383,6 +400,13 @@ diagonal weights, per-observation matrix blocks or one full matrix for the objec
             .def( "clear_observation_weight_settings",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::clearObservationWeightSettings,
                   R"doc(Remove the stored observation weight settings.)doc" )
+            .def( "set_observation_correction_settings",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationCorrectionSettings,
+                  py::arg( "settings" ),
+                  R"doc(Store body-dependent angular corrections to evaluate during dataset conversion.)doc" )
+            .def_property_readonly( "observation_correction_settings",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationCorrectionSettings,
+                                    R"doc(Requested angular correction settings, or None.)doc" )
             .def( "set_observation_corrections",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationCorrections,
                   py::arg( "observation_corrections" ),

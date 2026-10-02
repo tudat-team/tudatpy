@@ -9,16 +9,16 @@ from tudatpy.astro.time_representation import (
     TCB_to_TDB,
     DateTime,
 )
-from tudatpy.dynamics.environment import SystemOfBodies
-from tudatpy.data_input.tracking_data import ObservationWeightSettings, TrackingData
+from tudatpy.data_input.tracking_data import (
+    AngularObservationCorrectionSettings,
+    ObservationWeightSettings,
+    TrackingData,
+    TrackingSupplementaryData,
+    TranslationalStateSupplementaryData,
+)
 from tudatpy.constants import ASTRONOMICAL_UNIT, JULIAN_DAY
-from tudatpy.dynamics.environment_setup import ephemeris
 from scipy.linalg import block_diag
 from scipy.constants import arcsec
-from tudatpy.estimation.observations.observation_corrections import (
-    light_deflection_correction_angular_observations,
-    photocenter_correction_angular_observations,
-)
 from warnings import warn
 from tudatpy.data_input.environment_data import spice
 import copy
@@ -160,6 +160,7 @@ class GaiaAstrometry:
 
         from tudatpy.data_input.tracking_data.gaia import GaiaAstrometry
         from tudatpy.dynamics import environment_setup
+        from tudatpy.estimation import observations
 
         asteroid_mpc_number = 779
 
@@ -177,20 +178,16 @@ class GaiaAstrometry:
         body_settings = environment_setup.get_default_body_settings(
             ['Sun', 'Earth', 'Jupiter'], 'SSB', 'J2000')
 
-        # Add the Gaia spacecraft ephemeris into the environment
-        body_settings.add_empty_settings('Gaia')
-        body_settings.get('Gaia').ephemeris_settings = ga.get_gaia_ephemeris_settings()
-
         bodies = environment_setup.create_system_of_bodies(body_settings)
 
         # Apply filters
         ga.apply_filters(exclude_poor_observations = True)
 
-        # At this point, you can apply observation corrections, provided ``asteroid_mpc_number`` has an ephemeris loaded, e.g.:
-        # ga.apply_corrections(bodies, light_deflection_bodies = ('Sun', 'Jupiter'))
-
-        # Create the observation dataset, to be passed to the ``EstimationInput``
-        observation_dataset = ga.to_observation_dataset(bodies)
+        # Corrections can be requested here once a reference asteroid ephemeris is available.
+        tracking_data, supplementary_data = ga.to_tracking_data()
+        observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+        observation_dataset = observations.create_observation_dataset_from_tracking_data(
+            tracking_data, bodies)
     """
 
     def __init__(self, observations_and_metadata: pd.DataFrame) -> None:
@@ -207,7 +204,6 @@ class GaiaAstrometry:
             )
 
         self._table = observations_and_metadata
-        self._corrected = False  # Flag to prevent apply_corrections from being called twice
 
     @property
     def table(self) -> pd.DataFrame:
@@ -283,25 +279,51 @@ class GaiaAstrometry:
 
         return observation_covariance_matrix
 
-    def to_tracking_data(self) -> tuple[list[TrackingData], list]:
+    def to_tracking_data(
+        self,
+        light_deflection_bodies: Iterable[str] | None = None,
+        photocenter_body_dimensions: dict | None = None,
+    ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
         """Collect Gaia observations into one :class:`~tudatpy.data_input.tracking_data.TrackingData` object per
-        transit and apply the observation weights according to the Gaia weighting scheme. Any filtering or corrections
-        must be done before constructing the tracking data. Observations are in the ``J2000`` frame.
+        transit and attach the observation weights according to the Gaia weighting scheme.
+        Observations remain uncorrected, in the ``J2000`` frame. Requested corrections
+        are evaluated when creating the observation dataset with ``apply_corrections=True``.
+
+        Parameters
+        ----------
+        light_deflection_bodies : Iterable[str] | None, optional
+            Names of bodies whose relativistic light-deflection correction is requested.
+        photocenter_body_dimensions : dict | None, optional
+            Radius [m] or three ellipsoid semi-axes [m], keyed by MPC number.
+            Objects without an entry receive no photocenter correction.
 
         Returns
         -------
-        tuple[list[TrackingData], list]
-            Tudat TrackingData objects containing one Gaia transit each, and an empty list of supplementary data.
-            Asteroids are named by their MPC number.
+        tuple[list[TrackingData], list[TrackingSupplementaryData]]
+            One tracking-data object per transit and one shared Gaia geocentric state
+            history, including velocities, with Earth origin, J2000 orientation and
+            TDB epochs. Asteroids are named by their MPC number.
         """
         # Force the weight matrix to be completely symmetric (due to possible numerical error introduced in inversion)
         force_symmetric = lambda mat: (mat + mat.T) / 2
 
+        light_deflection_bodies = (
+            [] if light_deflection_bodies is None else list(light_deflection_bodies)
+        )
         tracking_data_objects = []
         for mpc_number in self.mpc_numbers_in_table:
             # Get the data for current asteroid
             table_for_object = self._table_for_single_object(mpc_number)
             observation_covariance_matrices = self._get_observation_covariance(mpc_number)
+            dimensions = (
+                []
+                if photocenter_body_dimensions is None
+                else np.atleast_1d(photocenter_body_dimensions.get(mpc_number, [])).astype(float)
+            )
+            correction_settings = AngularObservationCorrectionSettings(
+                light_deflection_bodies=light_deflection_bodies,
+                photocenter_body_dimensions=dimensions,
+            )
 
             for (_, transit_rows), covariance_matrix in zip(
                 table_for_object.groupby("transit_id", sort=False),
@@ -328,150 +350,27 @@ class GaiaAstrometry:
                 tracking_data.set_observation_weight_settings(
                     ObservationWeightSettings.set_block(weight_matrix)
                 )
+                tracking_data.set_observation_correction_settings(correction_settings)
                 tracking_data_objects.append(tracking_data)
 
-        return tracking_data_objects, []
-
-    def to_observation_dataset(self, bodies: SystemOfBodies):
-        """Collect all Gaia observations into an :class:`~tudatpy.estimation.observations.ObservationDataset` and apply the
-        observation weights according to the Gaia weighting scheme. Any filtering or corrections must be done before
-        constructing the observation dataset. Observations are in the ``J2000`` frame, and the ``global_frame_orientation``
-        must match this accordingly.
-
-        Parameters
-        ----------
-        bodies : SystemOfBodies
-            The SystemOfBodies object. Must have the object 'Gaia' loaded along with its
-            ephemeris, retrieved from
-            :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.get_gaia_ephemeris_settings`.
-
-        Returns
-        -------
-        ObservationDataset
-            Tudat ObservationDataset containing one observation set per Gaia transit. Asteroids are named by their MPC
-            number.
-        """
-        if bodies.global_frame_orientation() != "J2000":
-            raise ValueError(
-                "Global frame orientation must be J2000 to utilise Gaia astrometry at this time"
+        if self._table.empty:
+            return tracking_data_objects, []
+        state_columns = [
+            component + "_gaia_geocentric" for component in ("x", "y", "z", "vx", "vy", "vz")
+        ]
+        supplementary_data = TrackingSupplementaryData("Gaia", "")
+        supplementary_data.translational_state_supplementary_data = (
+            TranslationalStateSupplementaryData(
+                state_history=dict(
+                    zip(self._table["epoch"], self._table[state_columns].to_numpy())
+                ),
+                frame_origin="Earth",
+                is_velocity_defined=True,
+                time_scale="TDB",
+                frame_orientation="J2000",
             )
-
-        # Check if Gaia is in bodies
-        if not bodies.does_body_exist("Gaia") or bodies.get("Gaia").ephemeris is None:
-            raise ValueError(
-                "Gaia satellite and associated ephemeris must be loaded in SystemOfBodies"
-            )
-
-        for mpc_number in self.mpc_numbers_in_table:
-
-            # Add asteroids to bodies
-            if not bodies.does_body_exist(str(mpc_number)):
-                bodies.create_empty_body(str(mpc_number))
-
-        from tudatpy.estimation.observations import create_observation_dataset_from_tracking_data
-
-        tracking_data, _ = self.to_tracking_data()
-        return create_observation_dataset_from_tracking_data(tracking_data, bodies)
-
-    def apply_corrections(
-        self,
-        bodies: SystemOfBodies,
-        light_deflection_bodies: Iterable | None = ("Sun",),
-        photocenter_body_dimensions: dict | None = None,
-    ) -> None:
-        """
-        Apply photocenter and/or light-deflection corrections to the observations.
-
-        Apply photocenter and/or light-deflection corrections to the observations. Calls the functions
-        :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`
-        and :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations`.
-
-        The computation of the corrections requires the position (and rotational state) of the asteroid/object itself.
-        Because the corrections are computed **before** an estimation occurs, these must be pulled from the environment
-        itself. Therefore, the object's ``Body`` must have an ``Ephemeris`` loaded in the environment. This 'reference
-        ephemeris' can be retrieved various ways. For instance, by propagating an approximate initial state, or retrieving
-        a high-accuracy ephemeris from the JPL Horizons database (see :class:`~tudatpy.data.horizons.HorizonsQuery`).
-        For reference, the following must be present in the ``SystemOfBodies`` to apply the corrections:
-
-        * Reference ephemeris of each of the objects for which astrometry exists on this instance, covering at least
-          the entire span of observations (typically july 2014 - january 2020, for Gaia FPR and DR4);
-        * Ephemeris of Gaia, retrieved from :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.get_gaia_ephemeris_settings`;
-        * Ephemeris of the Sun (for the photocenter correction);
-        * Ephemeris of each body in ``light_deflection_bodies``;
-        * Rotational model of each object for which the ellipsoid photocenter correction is used. The body-fixed frame
-          must be aligned with the principal axis frame as specified in
-          :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`;
-
-        After corrections are applied, they are stored on the table property for inspection and post-processing. Photocenter
-        corrections are stored on ``photocenter_corr_ra`` and ``photocenter_corr_dec``, light-deflection corrections
-        are stored on ``light_deflection_corr_ra`` and ``light_deflection_corr_dec``.
-
-        Parameters
-        ----------
-        bodies : SystemOfBodies
-            The SystemOfBodies object
-        light_deflection_bodies : list, optional
-            Names of perturber bodies involved in light bending. If None, no correction is applied. By default, 'Sun'.
-        photocenter_body_dimensions : dict, optional
-            Dimensions of bodies (in m) for which photocenter correction must be applied, keyed by MPC number. If the
-            dimension is scalar, the body is assumed spherical with a radius equal to the input. If the dimension is an
-            array of 3 floats as ``[a, b, c]``, it is assumed to be an ellipsoid with semi-axes a, b, and c. Objects
-            without an entry are left uncorrected. If None, no photocenter correction is applied.
-        """
-        if self._corrected:
-            raise RuntimeError(
-                "correct_observations cannot be called more than once on the same instance"
-            )
-
-        photocenter_corrections = np.zeros((len(self._table), 2))
-        light_bending_corrections = np.zeros((len(self._table), 2))
-
-        for mpc_number in self.mpc_numbers_in_table:
-            observation_mask = self._table["number_mp"] == mpc_number
-            observations_array = self._table.loc[
-                observation_mask, ["epoch", "ra", "dec"]
-            ].to_numpy()
-
-            # Photocenter corrections
-            if (
-                photocenter_body_dimensions is not None
-                and mpc_number in photocenter_body_dimensions
-            ):
-                object_photocenter_corrections = photocenter_correction_angular_observations(
-                    observations=observations_array,
-                    body_dimensions=photocenter_body_dimensions[mpc_number],
-                    bodies=bodies,
-                    body_name=str(mpc_number),
-                    observer_body_name="Gaia",
-                )
-                photocenter_corrections[observation_mask] = object_photocenter_corrections
-
-            # Light-bending
-            if light_deflection_bodies is not None:
-                object_light_bending_corrections = light_deflection_correction_angular_observations(
-                    observations=observations_array,
-                    bodies=bodies,
-                    body_name=str(mpc_number),
-                    observer_body_name="Gaia",
-                    perturbing_bodies_list=light_deflection_bodies,
-                )
-                light_bending_corrections[observation_mask] = object_light_bending_corrections
-
-        # Only replace the table after all corrections have been computed and applied successfully.
-        corrected_table = self._table.copy()
-        corrected_table.loc[:, ["ra", "dec"]] += photocenter_corrections + light_bending_corrections
-        corrected_table.loc[:, ["photocenter_corr_ra", "photocenter_corr_dec"]] = (
-            photocenter_corrections
         )
-        corrected_table.loc[:, ["light_deflection_corr_ra", "light_deflection_corr_dec"]] = (
-            light_bending_corrections
-        )
-
-        # Wrap RA
-        corrected_table["ra"] = (corrected_table["ra"] + np.pi) % (2 * np.pi) - np.pi
-
-        self._table = corrected_table
-        self._corrected = True
+        return tracking_data_objects, [supplementary_data]
 
     @classmethod
     def load_from_astroquery(
@@ -692,41 +591,6 @@ class GaiaAstrometry:
                 f"{mpc_number}   {object_name}   {number_of_obs}   {first_epoch}   {last_epoch}\n"
             )
             print(asteroid_data)
-
-    def get_gaia_ephemeris_settings(self, geocentric: bool = True) -> ephemeris.EphemerisSettings:
-        """
-        Get tabulated ephemeris settings generated from the archived Gaia state vectors.
-
-        Uses all reported state vectors in the loaded astrometry table.
-
-        Parameters
-        ----------
-        geocentric : bool, optional
-            If True, use the geocentric variant of the Gaia state vectors, if false, use the barycentric variant.
-            It is recommended to use the geocentric variant, because it reduces the dependency on the adopted planetary
-            ephemeris model, by default True.
-
-        Returns
-        -------
-        EphemerisSettings
-            Tabulated ephemeris settings of Gaia.
-        """
-        # Variable names for the state vector
-        state_vector_labels = ["x_gaia", "y_gaia", "z_gaia", "vx_gaia", "vy_gaia", "vz_gaia"]
-        if geocentric:
-            state_vector_labels = [label + "_geocentric" for label in state_vector_labels]
-
-        # Create dict of state vectors
-        epochs = self._table["epoch"].to_numpy()
-        states = self._table[state_vector_labels].to_numpy()
-        gaia_state_history = dict(zip(epochs, states))
-
-        settings = ephemeris.tabulated(
-            gaia_state_history,
-            frame_origin="Earth" if geocentric else "SSB",
-            frame_orientation="J2000",
-        )
-        return settings
 
 
 def _prepare_gaia_asteroid_table(table: pd.DataFrame) -> pd.DataFrame:

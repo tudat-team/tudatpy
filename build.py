@@ -1129,6 +1129,11 @@ class StubGenerator:
                 ):
                     continue
 
+                # Replacing a class method does not introduce a module-level export.
+                # Its class signature is already represented in the generated stubs.
+                if all(isinstance(target, ast.Attribute) for target in targets):
+                    continue
+
                 # Any other assign statement is unexpected
                 raise NotImplementedError(
                     f"Failed to generate {stub_path}: "

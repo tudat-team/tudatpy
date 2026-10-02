@@ -53,12 +53,16 @@ the same source that must be applied to the simulation environment.
 
    TrackingData
    ObservationWeightSettings
+   AngularObservationCorrectionSettings
    TrackingSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingData
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.ObservationWeightSettings
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingSupplementaryData
