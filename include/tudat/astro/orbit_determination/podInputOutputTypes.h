@@ -15,9 +15,13 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 #include <Eigen/Core>
+#include <Eigen/Cholesky>
 #include <Eigen/LU>
+#include <Eigen/SparseCholesky>
+#include <Eigen/SparseCore>
 
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
@@ -30,6 +34,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 
 namespace tudat
@@ -41,15 +46,51 @@ namespace simulation_setup
 template< typename ObservationScalarType = double, typename TimeType = double >
 class CovarianceAnalysisInput
 {
+private:
+    //! Return the legacy observation source, reporting a missing source when data are required.
+    observation_models::ObservationCollection< ObservationScalarType, TimeType >& legacyObservationSource( ) const
+    {
+        if( !observationCollection_ )
+        {
+            throw std::runtime_error( "Cannot access observations: no observation source was supplied." );
+        }
+        return *observationCollection_;
+    }
+
 public:
     CovarianceAnalysisInput(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
-        observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
-        considerCovariance_( considerCovariance ), limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
-        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true )
+        observationCollection_( observationCollection ), observationDataset_( nullptr ),
+        inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
+        limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
+        saveDesignMatrix_( true ), printOutput_( true )
     {
+        // The base API permits a null collection for configuring input settings.
+        // Operations that need observations validate the source when it is used.
+        considerParametersIncluded_ = false;
+        if( considerCovariance.size( ) > 0 )
+        {
+            considerParametersIncluded_ = true;
+        }
+    }
+
+    //! Create covariance input backed directly by an observation dataset.
+    CovarianceAnalysisInput(
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
+            const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
+        observationCollection_( nullptr ), observationDataset_( observationDataset ),
+        inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
+        limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
+        saveDesignMatrix_( true ), printOutput_( true )
+    {
+        if( observationDataset_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating covariance/estimation input, observation dataset is null." );
+        }
+
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
 
         considerParametersIncluded_ = false;
@@ -68,7 +109,56 @@ public:
      */
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > getObservationCollection( )
     {
+        if( observationCollection_ == nullptr && observationDataset_ != nullptr )
+        {
+            observationCollection_ =
+                    observation_models::createObservationCollection< ObservationScalarType, TimeType >( observationDataset_ );
+        }
         return observationCollection_;
+    }
+
+    //! Return the dataset source, converting a legacy collection when required.
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( )
+    {
+        return observationDataset_ ? observationDataset_ : legacyObservationSource( ).getObservationDataset( );
+    }
+
+    //! Return fitted residuals to a legacy source after computing against its independent snapshot.
+    void synchronizeLegacyResiduals( const observation_models::ObservationDataset< ObservationScalarType, TimeType >& prepared )
+    {
+        if( observationDataset_ )
+        {
+            return;
+        }
+        auto& source = legacyObservationSource( );
+        const auto projection = prepared.createOrderedObservationVectorData( true );
+        const auto currentObservations = source.getObservationVector( );
+        if( currentObservations.size( ) != projection.getObservationVector( ).size( ) ||
+            currentObservations != projection.getObservationVector( ) || source.getConcatenatedTimeVector( ) != projection.getTimes( ) )
+        {
+            throw std::runtime_error( "Legacy observation data changed during estimation; residuals were not written back." );
+        }
+        const auto sets = source.getSingleObservationSets( );
+        const auto setIds = prepared.getSetIdsInObservationVectorOrder( );
+        if( sets.size( ) != setIds.size( ) )
+        {
+            throw std::runtime_error( "Legacy observation grouping changed during estimation." );
+        }
+        for( std::size_t i = 0; i < sets.size( ); ++i )
+        {
+            const auto& metadata = prepared.getObservationSetMetadata( setIds.at( i ) );
+            const auto oldAncillary = prepared.getAncillarySettings( metadata.ancillarySettingsId_ );
+            const auto currentAncillary = sets.at( i )->getAncillarySettings( );
+            if( sets.at( i )->getObservableType( ) != metadata.observableType_ ||
+                sets.at( i )->getReferenceLinkEnd( ) != metadata.referenceLinkEnd_ ||
+                !( sets.at( i )->getLinkEnds( ) == prepared.getLinkDefinition( metadata.linkDefinitionId_ ) ) ||
+                static_cast< bool >( oldAncillary ) != static_cast< bool >( currentAncillary ) ||
+                ( oldAncillary && !( *oldAncillary == *currentAncillary ) ) )
+            {
+                throw std::runtime_error( "Legacy observation metadata changed during estimation; residuals were not written back." );
+            }
+        }
+        source.setResiduals( projection.getResidualVector( ) );
     }
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
@@ -131,7 +221,8 @@ public:
      */
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
-        return observationCollection_->getConcatenatedWeights( );
+        return observationDataset_ ? observationDataset_->createOrderedObservationVectorData( ).getWeightVector( )
+                                   : observationCollection_->getConcatenatedWeights( );
     }
 
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
@@ -214,8 +305,11 @@ public:
     }
 
 protected:
-    //! Total data structure of observations and associated times/link ends/type
+    //! Legacy collection facade retained only to preserve ObservationCollection constructor/getter identity.
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
+
+    //! Dataset backend used by covariance/estimation internals.
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
     Eigen::MatrixXd inverseOfAprioriCovariance_;
@@ -339,12 +433,54 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
             const bool applyFinalParameterCorrection = true,
+            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr,
             const bool applyAprioriParameterDeviation = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
         conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
-        applyAprioriParameterDeviation_( applyAprioriParameterDeviation )
+        outlierRejectionSettings_( outlierRejectionSettings ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation )
+
+    {
+        if( this->areConsiderParametersIncluded( ) )
+        {
+            if( considerParametersDeviations_.size( ) > 0 )
+            {
+                if( considerCovariance.rows( ) != considerParametersDeviations_.size( ) )
+                {
+                    throw std::runtime_error(
+                            "Error when defining consider covariance and consider parameters deviations, sizes are inconsistent." );
+                }
+                std::cerr << "Warning, considerParametersDeviations are provided as input. These should contain (statistical) deviations "
+                             "with respect to the *nominal*"
+                             "consider parameters values, and not their absolute values."
+                          << "\n\n";
+            }
+        }
+        else
+        {
+            if( considerParametersDeviations_.size( ) > 0 )
+            {
+                throw std::runtime_error( "Error, non-zero consider parameters deviations, but no consider covariance provided." );
+            }
+        }
+    }
+
+    //! Create estimation input backed directly by an observation dataset.
+    EstimationInput(
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
+            const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
+            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
+            const bool applyFinalParameterCorrection = true,
+            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr,
+            const bool applyAprioriParameterDeviation = false ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationDataset, inverseOfAprioriCovariance, considerCovariance ),
+        saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
+        convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
+        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
+        outlierRejectionSettings_( outlierRejectionSettings ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -436,6 +572,18 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
+    //! Function to return the settings for the outlier rejection during the estimation (null if no outlier rejection is used)
+    std::shared_ptr< OutlierRejectionSettings > getOutlierRejectionSettings( )
+    {
+        return outlierRejectionSettings_;
+    }
+
+    //! Function to set the settings for the outlier rejection during the estimation (null to use no outlier rejection)
+    void setOutlierRejectionSettings( const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings )
+    {
+        outlierRejectionSettings_ = outlierRejectionSettings;
+    }
+
     //! Return whether the a priori constraint is applied to the total deviation from the initial parameter vector.
     bool getApplyAprioriParameterDeviation( ) const
     {
@@ -456,6 +604,9 @@ public:
     bool conditionNumberWarningEachIteration_;
 
     bool applyFinalParameterCorrection_;
+
+    //! Settings defining the outlier rejection algorithm used during the estimation; null if no outlier rejection is used
+    std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings_;
 
     //! Whether to use the total parameter deviation for the iterative a priori constraint.
     bool applyAprioriParameterDeviation_;
@@ -484,6 +635,7 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
     virtual ~CovarianceAnalysisOutput( ) = default;
 
+    //! Construct covariance output with an optional full sparse observation weight matrix.
     CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
                               const Eigen::VectorXd& weightsMatrixDiagonal,
                               const Eigen::VectorXd& designMatrixTransformationDiagonal,
@@ -493,9 +645,10 @@ struct CovarianceAnalysisOutput {
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                               const bool exceptionDuringPropagation = false,
+                              const Eigen::SparseMatrix< double >& weightsMatrix = Eigen::SparseMatrix< double >( ),
                               const double interArcContinuityCost = 0.0,
                               const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
-        normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
+        normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ), weightsMatrix_( weightsMatrix ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         normalizedDesignMatrixConsiderParameters_( normalizedDesignMatrixConsiderParameters ),
@@ -548,6 +701,56 @@ struct CovarianceAnalysisOutput {
             considerCovarianceContribution_ =
                     normaliseUnnormaliseCovarianceMatrix( considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
         }
+    }
+
+    //! Construct compatibility output without a full sparse weight matrix.
+    CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
+                              const Eigen::VectorXd& weightsMatrixDiagonal,
+                              const Eigen::VectorXd& designMatrixTransformationDiagonal,
+                              const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
+                              const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters,
+                              const Eigen::VectorXd& considerNormalizationFactors,
+                              const Eigen::MatrixXd& considerCovarianceContribution,
+                              const Eigen::MatrixXd& considerCovariance,
+                              const bool exceptionDuringPropagation,
+                              const double interArcContinuityCost,
+                              const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
+        CovarianceAnalysisOutput( normalizedDesignMatrix,
+                                  weightsMatrixDiagonal,
+                                  designMatrixTransformationDiagonal,
+                                  inverseNormalizedCovarianceMatrix,
+                                  normalizedDesignMatrixConsiderParameters,
+                                  considerNormalizationFactors,
+                                  considerCovarianceContribution,
+                                  considerCovariance,
+                                  exceptionDuringPropagation,
+                                  Eigen::SparseMatrix< double >( ),
+                                  interArcContinuityCost,
+                                  interArcContinuityDiscrepancies )
+    {}
+
+    //! Return whether this output stores a full sparse observation weight matrix.
+    bool hasFullWeightMatrix( ) const
+    {
+        return weightsMatrix_.rows( ) > 0;
+    }
+
+    //! Return the full weight matrix, materializing diagonal-only weights when needed.
+    Eigen::SparseMatrix< double > getWeightsMatrix( ) const
+    {
+        if( hasFullWeightMatrix( ) )
+        {
+            return weightsMatrix_;
+        }
+
+        Eigen::SparseMatrix< double > diagonalWeights( weightsMatrixDiagonal_.rows( ), weightsMatrixDiagonal_.rows( ) );
+        diagonalWeights.reserve( weightsMatrixDiagonal_.rows( ) );
+        for( int i = 0; i < weightsMatrixDiagonal_.rows( ); ++i )
+        {
+            diagonalWeights.insert( i, i ) = weightsMatrixDiagonal_( i );
+        }
+        diagonalWeights.makeCompressed( );
+        return diagonalWeights;
     }
 
     Eigen::VectorXd getNormalizationTerms( )
@@ -628,7 +831,14 @@ struct CovarianceAnalysisOutput {
         if( designMatrixSaved_ )
         {
             Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
-            scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            if( hasFullWeightMatrix( ) )
+            {
+                weightedNormalizedDesignMatrix = getSquareRootWeightedDesignMatrix( weightedNormalizedDesignMatrix );
+            }
+            else
+            {
+                scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            }
             return weightedNormalizedDesignMatrix;
         }
         else
@@ -674,7 +884,14 @@ struct CovarianceAnalysisOutput {
         if( designMatrixSaved_ )
         {
             Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrix( );
-            scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            if( hasFullWeightMatrix( ) )
+            {
+                weightedUnnormalizedDesignMatrix = getSquareRootWeightedDesignMatrix( weightedUnnormalizedDesignMatrix );
+            }
+            else
+            {
+                scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            }
             return weightedUnnormalizedDesignMatrix;
         }
         else
@@ -746,11 +963,72 @@ struct CovarianceAnalysisOutput {
                   << std::endl;
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
+
+    //! Premultiply a design matrix by the square-root factor of the full weight matrix.
+    Eigen::MatrixXd getSquareRootWeightedDesignMatrix( const Eigen::MatrixXd& designMatrix ) const
+    {
+        if( weightsMatrix_.rows( ) != designMatrix.rows( ) || weightsMatrix_.cols( ) != designMatrix.rows( ) )
+        {
+            throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix size is inconsistent." );
+        }
+
+        updateSparseWeightCholeskyFactorIfNeeded( );
+        return sparseWeightCholeskyFactor_->matrixL( ).transpose( ) * designMatrix;
+    }
+
+    //! Refresh the cached sparse Cholesky factor when its source matrix has changed.
+    void updateSparseWeightCholeskyFactorIfNeeded( ) const
+    {
+        if( isSparseWeightCholeskyFactorStale( ) )
+        {
+            auto factor = std::make_shared<
+                    Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > >( );
+            factor->compute( weightsMatrix_ );
+            if( factor->info( ) != Eigen::Success )
+            {
+                throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix is not positive definite." );
+            }
+            sparseWeightCholeskyFactor_ = factor;
+            factorizedWeightsMatrix_ = weightsMatrix_;
+            isSparseWeightCholeskyFactorCurrent_ = true;
+        }
+    }
+
+    //! Return whether the cached sparse Cholesky factor matches the current weights.
+    bool isSparseWeightCholeskyFactorCurrent( ) const
+    {
+        return !isSparseWeightCholeskyFactorStale( );
+    }
+
+private:
+    //! Return whether the cached sparse Cholesky factor must be recomputed.
+    bool isSparseWeightCholeskyFactorStale( ) const
+    {
+        return !isSparseWeightCholeskyFactorCurrent_ || !sparseWeightCholeskyFactor_ ||
+                weightsMatrix_.rows( ) != factorizedWeightsMatrix_.rows( ) || weightsMatrix_.cols( ) != factorizedWeightsMatrix_.cols( ) ||
+                weightsMatrix_.nonZeros( ) != factorizedWeightsMatrix_.nonZeros( ) ||
+                !weightsMatrix_.isApprox( factorizedWeightsMatrix_, 0.0 );
+    }
+
+public:
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
     Eigen::MatrixXd normalizedDesignMatrix_;
 
     //! Diagonal of weights matrix used in the estimation
     Eigen::VectorXd weightsMatrixDiagonal_;
+
+    //! Full sparse weights matrix used in the estimation when off-diagonal weights are present.
+    Eigen::SparseMatrix< double > weightsMatrix_;
+
+    //! Immutable cached factor so output objects remain copyable for serialization.
+    mutable std::shared_ptr< const Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > >
+            sparseWeightCholeskyFactor_;
+
+    //! Sparse snapshot of the matrix represented by sparseWeightCholeskyFactor_.
+    mutable Eigen::SparseMatrix< double > factorizedWeightsMatrix_;
+
+    //! Boolean denoting whether sparseWeightCholeskyFactor_ contains a valid factorization.
+    mutable bool isSparseWeightCholeskyFactorCurrent_ = false;
 
     //! Vector of values by which the columns of the unnormalized information matrix were divided to normalize its entries.
     Eigen::VectorXd designMatrixTransformationDiagonal_;
@@ -826,6 +1104,8 @@ protected:
         return ( designMatrixSaved_ == rhs.designMatrixSaved_ ) && ( exceptionDuringPropagation_ == rhs.exceptionDuringPropagation_ ) &&
                 ( considerParametersIncluded_ == rhs.considerParametersIncluded_ ) &&
                 ( normalizedDesignMatrix_ == rhs.normalizedDesignMatrix_ ) && ( weightsMatrixDiagonal_ == rhs.weightsMatrixDiagonal_ ) &&
+                ( weightsMatrix_.rows( ) == rhs.weightsMatrix_.rows( ) ) && ( weightsMatrix_.cols( ) == rhs.weightsMatrix_.cols( ) ) &&
+                weightsMatrix_.isApprox( rhs.weightsMatrix_, 0.0 ) &&
                 ( designMatrixTransformationDiagonal_ == rhs.designMatrixTransformationDiagonal_ ) &&
                 ( inverseNormalizedCovarianceMatrix_ == rhs.inverseNormalizedCovarianceMatrix_ ) &&
                 ( inverseUnnormalizedCovarianceMatrix_ == rhs.inverseUnnormalizedCovarianceMatrix_ ) &&
@@ -843,12 +1123,14 @@ protected:
 private:
     friend class cereal::access;
 
+    //! Serialize covariance output, including its optional full weight matrix.
     template< class Archive >
     void save( Archive& ar, const std::uint32_t version ) const
     {
         static_cast< void >( version );
         ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
         ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        ar( CEREAL_NVP( weightsMatrix_ ) );
         ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
         ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
         ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
@@ -867,12 +1149,25 @@ private:
         ar( CEREAL_NVP( considerParametersIncluded_ ) );
     }
 
+    //! Deserialize covariance output while retaining compatibility with version-zero archives.
     template< class Archive >
     void load( Archive& ar, const std::uint32_t version )
     {
-        static_cast< void >( version );
+        if( version > 1 )
+        {
+            throw std::runtime_error( "Unsupported covariance output archive version." );
+        }
         ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
         ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        if( version >= 1 )
+        {
+            ar( CEREAL_NVP( weightsMatrix_ ) );
+        }
+        else
+        {
+            // The base-branch format stored only diagonal weights.
+            weightsMatrix_.resize( 0, 0 );
+        }
         ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
         ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
         ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
@@ -895,6 +1190,8 @@ private:
 //! Data structure through which the output of the orbit determination is communicated
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType, TimeType > {
+    using ActiveFlagsVector = Eigen::Matrix< bool, Eigen::Dynamic, 1 >;
+
     //! Constructor
     /*!
      * Constructor
@@ -907,14 +1204,56 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
      * matrix were divided to normalize its entries.
      * \param inverseNormalizedCovarianceMatrix Inverse of postfit normalized covariance matrix
      * \param residualStandardDeviation Standard deviation of postfit residuals vector
-     * \param residualHistory Vector of residuals per iteration
+     * \param residualHistory Vector of residuals per iteration, including inactive observations
      * \param parameterHistory Vector of parameter vectors per iteration (entry 1 is pre-estimation values)
      * \param exceptionDuringInversion Boolean denoting whether an exception was caught during inversion of normal equations
      * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
      * motion (and variational equations).
+     * \param activeFlagsPerIteration Vector of active-observation flags per iteration, in the same scalar-row order as
+     * residualHistory. A true entry denotes a residual that was included in the corresponding estimation iteration.
      * \param interArcContinuityCost Soft inter-arc continuity-prior cost at the selected best iteration.
      * \param interArcContinuityDiscrepancies Inter-arc continuity-prior state discrepancies at the selected best iteration.
      */
+    EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
+                      const Eigen::VectorXd& residuals,
+                      const Eigen::MatrixXd& normalizedDesignMatrix,
+                      const Eigen::VectorXd& weightsMatrixDiagonal,
+                      const Eigen::SparseMatrix< double >& weightsMatrix,
+                      const Eigen::VectorXd& designMatrixTransformationDiagonal,
+                      const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
+                      const double residualStandardDeviation,
+                      const int bestIteration,
+                      const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
+                      const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& parameterHistory =
+                              std::vector< Eigen::VectorXd >( ),
+                      const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
+                      const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const bool exceptionDuringInversion = false,
+                      const bool exceptionDuringPropagation = false,
+                      const double interArcContinuityCost = 0.0,
+                      const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ),
+                      const std::vector< ActiveFlagsVector >& activeFlagsPerIteration = std::vector< ActiveFlagsVector >( ) ):
+        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix,
+                                                                     weightsMatrixDiagonal,
+                                                                     designMatrixTransformationDiagonal,
+                                                                     inverseNormalizedCovarianceMatrix,
+                                                                     normalizedDesignMatrixConsiderParameters,
+                                                                     considerNormalizationFactors,
+                                                                     covarianceConsiderContribution,
+                                                                     considerCovariance,
+                                                                     exceptionDuringPropagation,
+                                                                     weightsMatrix,
+                                                                     interArcContinuityCost,
+                                                                     interArcContinuityDiscrepancies ),
+        parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
+        residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
+        activeFlagsPerIteration_( activeFlagsPerIteration ), exceptionDuringInversion_( exceptionDuringInversion ),
+        numberOfParameters_( normalizedDesignMatrix.cols( ) )
+    {}
+
+    //! Construct compatibility estimation output without a full sparse weight matrix.
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
                       const Eigen::MatrixXd& normalizedDesignMatrix,
@@ -933,21 +1272,28 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const bool exceptionDuringInversion = false,
                       const bool exceptionDuringPropagation = false,
                       const double interArcContinuityCost = 0.0,
-                      const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
-        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix,
-                                                                     weightsMatrixDiagonal,
-                                                                     designMatrixTransformationDiagonal,
-                                                                     inverseNormalizedCovarianceMatrix,
-                                                                     normalizedDesignMatrixConsiderParameters,
-                                                                     considerNormalizationFactors,
-                                                                     covarianceConsiderContribution,
-                                                                     considerCovariance,
-                                                                     exceptionDuringPropagation,
-                                                                     interArcContinuityCost,
-                                                                     interArcContinuityDiscrepancies ),
-        parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
-        residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
-        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
+                      const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ),
+                      const std::vector< ActiveFlagsVector >& activeFlagsPerIteration = std::vector< ActiveFlagsVector >( ) ):
+        EstimationOutput( parameterEstimate,
+                          residuals,
+                          normalizedDesignMatrix,
+                          weightsMatrixDiagonal,
+                          Eigen::SparseMatrix< double >( ),
+                          designMatrixTransformationDiagonal,
+                          inverseNormalizedCovarianceMatrix,
+                          residualStandardDeviation,
+                          bestIteration,
+                          residualHistory,
+                          parameterHistory,
+                          normalizedDesignMatrixConsiderParameters,
+                          considerNormalizationFactors,
+                          covarianceConsiderContribution,
+                          considerCovariance,
+                          exceptionDuringInversion,
+                          exceptionDuringPropagation,
+                          interArcContinuityCost,
+                          interArcContinuityDiscrepancies,
+                          activeFlagsPerIteration )
     {}
 
     //! Function to get residual vectors per iteration concatenated into a matrix
@@ -970,6 +1316,31 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         {
             std::cerr << "Warning, requesting residual history, but history not saved." << std::endl;
             return Eigen::MatrixXd::Zero( 0, 0 );
+        }
+    }
+
+    //! Function to get active-observation flags per iteration concatenated into a matrix
+    /*!
+     * Function to get active-observation flags per iteration concatenated into a matrix (one column per iteration).
+     * The matrix has the same dimensions and scalar-row order as the residual history matrix.
+     * \return Active-observation flags per iteration concatenated into a matrix
+     */
+    Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > getActiveFlagsPerIterationMatrix( )
+    {
+        if( activeFlagsPerIteration_.size( ) > 0 )
+        {
+            Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlagsMatrix( activeFlagsPerIteration_.at( 0 ).rows( ),
+                                                                                     activeFlagsPerIteration_.size( ) );
+            for( unsigned int i = 0; i < activeFlagsPerIteration_.size( ); i++ )
+            {
+                activeFlagsMatrix.block( 0, i, activeFlagsPerIteration_.at( 0 ).rows( ), 1 ) = activeFlagsPerIteration_.at( i );
+            }
+            return activeFlagsMatrix;
+        }
+        else
+        {
+            std::cerr << "Warning, requesting active flags per iteration, but history not saved." << std::endl;
+            return Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic >::Zero( 0, 0 );
         }
     }
 
@@ -1085,11 +1456,14 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
 
-    //! Vector of residuals per iteration
+    //! Vector of residuals per iteration, including inactive observations
     std::vector< Eigen::VectorXd > residualHistory_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;
+
+    //! Active-observation flags per iteration, in the same scalar-row order as residualHistory_
+    std::vector< ActiveFlagsVector > activeFlagsPerIteration_;
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;
@@ -1126,6 +1500,16 @@ public:
     //! Save estimation output to a binary file
     TUDAT_DEFINE_BINARY_IO( EstimationOutput< ObservationScalarType, TimeType > )
 
+    bool operator==( const EstimationOutput& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const EstimationOutput& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
     bool equals( const EstimationOutput& rhs ) const
     {
@@ -1136,6 +1520,7 @@ protected:
                 ( parameterEstimate_ == rhs.parameterEstimate_ ) && ( residuals_ == rhs.residuals_ ) &&
                 ( bestIteration_ == rhs.bestIteration_ ) && ( residualStandardDeviation_ == rhs.residualStandardDeviation_ ) &&
                 ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
+                ( activeFlagsPerIteration_ == rhs.activeFlagsPerIteration_ ) &&
                 ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
                 ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
                 ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
@@ -1144,6 +1529,7 @@ protected:
 private:
     friend class cereal::access;
 
+    //! Serialize estimation output fields added by the observation-dataset redesign.
     template< class Archive >
     void save( Archive& ar, const std::uint32_t version ) const
     {
@@ -1160,12 +1546,17 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
     }
 
+    //! Deserialize estimation output fields for the requested archive version.
     template< class Archive >
     void load( Archive& ar, const std::uint32_t version )
     {
-        static_cast< void >( version );
+        if( version > 1 )
+        {
+            throw std::runtime_error( "Unsupported estimation output archive version." );
+        }
         ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
         ar( CEREAL_NVP( parameterEstimate_ ) );
         ar( CEREAL_NVP( residuals_ ) );
@@ -1178,6 +1569,11 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        activeFlagsPerIteration_.clear( );
+        if( version >= 1 )
+        {
+            ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
+        }
     }
 };
 
@@ -1198,5 +1594,26 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
+// The existing version-zero layout predates sparse observation weights. Apply
+// the new version to every scalar/time specialization, including base subobjects
+// serialized as part of EstimationOutput.
+namespace cereal
+{
+namespace detail
+{
+//! Cereal version marker for covariance outputs containing sparse weights.
+template< typename ObservationScalarType, typename TimeType >
+struct Version< tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType > > {
+    static constexpr std::uint32_t version = 1;
+};
+
+//! Version one also saves which observations were used in each estimation iteration.
+template< typename ObservationScalarType, typename TimeType >
+struct Version< tudat::simulation_setup::EstimationOutput< ObservationScalarType, TimeType > > {
+    static constexpr std::uint32_t version = 1;
+};
+}  // namespace detail
+}  // namespace cereal
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H

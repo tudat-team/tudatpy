@@ -83,21 +83,21 @@ std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitTo
     printEstimatableParameterEntries( parametersToEstimate );
 
     std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
-               std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >
-            observationCollectionAndModelSettings = simulatePseudoObservations< TimeType, StateScalarType >(
+               std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > > >
+            observationDatasetAndModelSettings = simulatePseudoObservationDataset< TimeType, StateScalarType >(
                     bodies, bodiesToPropagate, centralBodies, initialTime, finalTime, dataPointInterval );
-    std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > observationCollection =
-            observationCollectionAndModelSettings.second;
+    std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > > observationDataset =
+            observationDatasetAndModelSettings.second;
 
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
-            observationCollectionAndModelSettings.first;
+            observationDatasetAndModelSettings.first;
 
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
                     bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
-            std::make_shared< EstimationInput< StateScalarType, TimeType > >( observationCollection );
+            std::make_shared< EstimationInput< StateScalarType, TimeType > >( observationDataset );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
     estimationInput->defineEstimationSettings( 0, 1, 0, 1, 1, 1 );
     return orbitDeterminationManager.estimateParameters( estimationInput );
