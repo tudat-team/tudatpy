@@ -82,7 +82,7 @@ ANCILLARY_STRING_COLUMNS = [
     "discovery",
 ]
 
-naif_ids = {
+NAIF_IDS = {
     0: "Ssb",
     1: "Mercury Barycenter",
     2: "Venus Barycenter",
@@ -426,7 +426,7 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
 
         # define the frame origin of the spacecraft's state
         if len(ctr_values) == 1:
-            frame_origin = naif_ids[int(ctr_values[0])]
+            frame_origin = NAIF_IDS[int(ctr_values[0])]
         else:
             frame_origin = "Earth"
 

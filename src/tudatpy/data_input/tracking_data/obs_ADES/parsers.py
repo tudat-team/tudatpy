@@ -16,6 +16,93 @@ import xml.etree.ElementTree as ET
 
 from ades.psvtoxml import psvtoxml
 
+# conversion between note2 and mode according to https://github.com/IAU-ADES/ADES-Master/blob/master/Python/ades/packUtil.py
+MODE_DICT = {
+    "PHo": "P",
+    "PHO": " ",
+    "ENC": "e",
+    "CCD": "C",
+    "CMO": "B",
+    "MER": "T",
+    "MIC": "M",
+    "ccd": "c",
+    "OCC": "E",
+    "OFF": "O",
+    "PMT": "H",
+    "NOR": "N",
+    "VID": "n",
+}
+
+CATALOG_DICT = {
+    "UNK": " ",
+    "USNOA1": "a",
+    "USNOSA1": "b",
+    "USNOA2": "c",
+    "USNOSA2": "d",
+    "UCAC1": "e",
+    "Tyc1": "f",
+    "Tyc2": "g",
+    "GSC1.0": "h",
+    "GSC1.1": "i",
+    "GSC1.2": "j",
+    "GSC2.2": "k",
+    "ACT": "l",
+    "GSCACT": "m",
+    "SDSS8": "n",
+    "USNOB1": "o",
+    "PPM": "p",
+    "UCAC4": "q",
+    "UCAC2": "r",
+    "USNOB2": "s",
+    "PPMXL": "t",
+    "UCAC3": "u",
+    "NOMAD": "v",
+    "CMC14": "w",
+    "Hip2": "x",
+    "Hip1": "y",
+    "GSC": "z",
+    "AC": "A",
+    "SAO1984": "B",
+    "SAO": "C",
+    "AGK3": "D",
+    "FK4": "E",
+    "ACRS": "F",
+    "LickGas": "G",
+    "Ida93": "H",
+    "Perth70": "I",
+    "COSMOS": "J",
+    "Yale": "K",
+    "2MASS": "L",
+    "GSC2.3": "M",
+    "SDSS7": "N",
+    "SSTRC1": "O",
+    "MPOSC3": "P",
+    "CMC15": "Q",
+    "SSTRC4": "R",
+    "URAT1": "S",
+    "URAT2": "T",
+    "Gaia1": "U",
+    "Gaia2": "V",
+    "Gaia3": "W",
+    "Gaia3E": "X",
+    "UCAC5": "Y",
+    "ATLAS2": "Z",
+    "IHW": "0",
+    "PS1_DR1": "1",
+    "PS1_DR2": "2",
+    "Gaia_Int": "3",
+    "GZ": "4",
+    "UBSC": "9",
+    "Gaia_2016": "6",
+    "ZZCAT": "7",
+    "APASS": "8",
+    "AKARI": "!",
+    "AG": "@",
+    "WISE": "#",
+    "LSST2502": "$",
+    "IRASPSC": "^",
+}
+
 
 def _tag_name(element):
     """Return a tag name without an optional XML namespace."""
@@ -23,6 +110,9 @@ def _tag_name(element):
 
 
 def _first_present_column(df, *names):
+    if not names:
+        raise ValueError("At least one column name must be provided")
+
     for name in names:
         if name in df.columns:
             return df[name]
@@ -205,17 +295,17 @@ def _check_possible_failures(df, obs_kind):
         # check that ra and dec are convertible to floats
         for column in ("ra", "dec"):
             try:
-                df[column] = pd.to_numeric(df[column], errors="raise").astype(float)
+                df[column] = pd.to_numeric(df[column]).astype(float)
             except:
                 raise ValueError(f"Column '{column}' must contain values convertible to floats")
 
         # check that if presnt, rmsRA, rmsDec, rmsCorr and rmsTime are also convertible to floats
         rms_columns = ["rmsRA", "rmsDec", "rmsCorr", "rmsTime"]
-        for col in rms_columns:
-            if col in df.columns:
-                values = df[col].dropna()
+        for column in rms_columns:
+            if column in df.columns:
+                values = df[column].dropna()
                 if not pd.to_numeric(values, errors="coerce").notna().all():
-                    raise ValueError(f"{col} must be convertible to floats")
+                    raise ValueError(f"Column '{column}' must be convertible to floats")
 
         # check that obsTime is in the right format
         pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,4})?Z"
@@ -259,6 +349,22 @@ def _epochs_UTC_to_seconds_UTC(df):
 
     df["epoch_seconds_UTC"] = (epochs - j2000).dt.total_seconds()
 
+    return df
+
+
+def _mode_to_note2(df):
+    # converts the mode entry of ADES to the note2 format of the 80m columns format
+    # this allows compatibility with the algorithm that assigns weights according to VFCC17
+    # which uses the value of note2 as reference
+    df["note2"] = df["mode"].map({key: value for key, value in MODE_DICT.items()})
+    return df
+
+
+def _astCat_to_catalog(df):
+    # converts the astCat entry of ADES to the catalog format of the 80m columns format
+    # this allows compatibility with the algorithm that assigns weights according to VFCC17
+    # which uses the value of catalog as reference
+    df["catalog"] = df["astCat"].map({key: value for key, value in CATALOG_DICT.items()})
     return df
 
 
@@ -337,6 +443,10 @@ def parse_ades_file(file_path: str):  # -> Table:
         # create the columns containing seconds since J2000 UTC
         df = _epochs_UTC_to_seconds_UTC(df)
 
+        # create the 'note2' and 'catalog' columns to allow application of the VCFF17 weighing scheme
+        df = _mode_to_note2(df)
+        df = _astCat_to_catalog(df)
+
         # optical observations
         if obs_kind == "optical":
             result_data_optical = pd.DataFrame(
@@ -352,10 +462,14 @@ def parse_ades_file(file_path: str):  # -> Table:
                     - np.pi,
                     "DEC": (pd.to_numeric(df["dec"]).to_numpy() * u.deg).to(u.rad).value,
                     "observatory": df["stn"],
-                    "magnitude": df.get("mag"),  # this is not a required field so it could be None
+                    "magnitude": pd.to_numeric(
+                        df["mag"], errors="coerce"
+                    ),  # this is not a required field so it could be None
                     "band": df.get("band"),  # this is not a required field so it could be None
-                    "catalog": df["astCat"],
+                    "astCat": df["astCat"],
                     "mode": df["mode"],
+                    "note2": df["note2"],
+                    "catalog": df["catalog"],
                 }
             )
 
