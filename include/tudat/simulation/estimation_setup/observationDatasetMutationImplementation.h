@@ -50,6 +50,29 @@ Eigen::VectorXd accumulateResidualStatistic( const unsigned int observableSize,
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addNumericalObservationMetadata(
+        const std::string& key,
+        const std::vector< unsigned int >& observationIds,
+        const std::vector< double >& values )
+{
+    if( observationIds.size( ) != values.size( ) )
+    {
+        throw std::runtime_error( "Numerical observation metadata '" + key + "' must have one value per supplied observation ID." );
+    }
+    for( const auto id : observationIds )
+    {
+        getObservationRow( id );
+    }
+    auto& metadata = numericalObservationMetadata_[ key ];
+    for( std::size_t i = 0; i < observationIds.size( ); ++i )
+    {
+        metadata[ observationIds.at( i ) ] = values.at( i );
+    }
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservationSet(
         const ObservableType observableType,
         const LinkDefinition& linkDefinition,
@@ -239,6 +262,14 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         auto& target = mutableObservationRow( targetIds.at( i ) );
         target.isActive_ = source.isActive_;
         target.rejectionReason_ = source.rejectionReason_;
+        for( const auto& metadata : sourceDataset.numericalObservationMetadata_ )
+        {
+            const auto value = metadata.second.find( sourceIds.at( i ) );
+            if( value != metadata.second.end( ) )
+            {
+                numericalObservationMetadata_[ metadata.first ][ targetIds.at( i ) ] = value->second;
+            }
+        }
     }
     observationWeights_.copyBlock(
             sourceDataset.observationWeights_.restricted( sourceDataset.getScalarComponentIdsForObservationSelection( sourceIds, {} ) ),

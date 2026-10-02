@@ -259,6 +259,26 @@ public:
         observationMetadataKeys_.insert( key );
     }
 
+    //! Attach one numerical value per observation under a user-defined key.
+    void addNumericalObservationMetadata( const std::string& key, const std::vector< double >& values )
+    {
+        if( values.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error( "Numerical observation metadata '" + key + "' must have one entry per observation." );
+        }
+        numericalObservationMetadata_[ key ] = values;
+    }
+
+    const std::map< std::string, std::vector< double > >& getNumericalObservationMetadata( ) const
+    {
+        return numericalObservationMetadata_;
+    }
+
+    const std::vector< double >& getNumericalObservationMetadata( const std::string& key ) const
+    {
+        return numericalObservationMetadata_.at( key );
+    }
+
     bool isObservationMetadata( const std::string& key ) const
     {
         return observationMetadataKeys_.count( key ) != 0;
@@ -531,6 +551,10 @@ public:
             auto& values = ancillarySettingsStringVector_.at( key );
             values.erase( values.begin( ) + index );
         }
+        for( auto& metadata : numericalObservationMetadata_ )
+        {
+            metadata.second.erase( metadata.second.begin( ) + index );
+        }
 
         // Keep any per-observation weight values aligned with the remaining observations.
         if( observationWeightSettings_.has_value( ) )
@@ -627,6 +651,8 @@ private:
     std::map< std::string, std::vector< std::string > > ancillarySettingsStringVector_;
 
     std::set< std::string > observationMetadataKeys_;
+
+    std::map< std::string, std::vector< double > > numericalObservationMetadata_;
 
     std::map< std::string, double > ancillarySettingsDouble_;
 

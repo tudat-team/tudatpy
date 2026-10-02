@@ -8,6 +8,9 @@ data from the online archive or local parquet archives. :class:`GaiaAstrometry`
 prepares TDB epochs, angular observations, and transit-correlated weights.
 Convert it to generic tracking data with :meth:`GaiaAstrometry.to_tracking_data`.
 Each Gaia transit becomes one tracking-data object and one observation set.
+``load_gaia_astrometry`` reads an existing local parquet file or queries the
+AIP FPR mirror using a source-ID lookup, then saves the raw response if an
+archive path is supplied.
 The returned supplementary data contains Gaia's geocentric state history and
 is installed with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.

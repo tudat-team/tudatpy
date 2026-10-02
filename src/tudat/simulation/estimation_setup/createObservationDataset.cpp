@@ -372,7 +372,10 @@ void setTranslationalStateSupplementaryDataInBodies(
             utilities::castMatrixMap< double, double, Time, double, 6, 1 >( stateHistory, timeStateHistory );
             bodies.at( bodyName )
                     ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< double, Time > >(
-                            interpolators::createOneDimensionalInterpolator( timeStateHistory, interpolators::linearInterpolation( ) ),
+                            interpolators::createOneDimensionalInterpolator(
+                                    timeStateHistory,
+                                    interpolators::linearInterpolation( interpolators::huntingAlgorithm,
+                                                                        interpolators::extrapolate_at_boundary ) ),
                             frameOrigin,
                             frameOrientation ) );
         }

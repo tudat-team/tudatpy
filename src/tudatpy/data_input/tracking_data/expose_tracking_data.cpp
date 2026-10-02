@@ -469,6 +469,28 @@ diagonal weights, per-observation matrix blocks or one full matrix for the objec
                   py::arg( "values" ),
                   "Attach one string per observation. Values remain aligned when observations are removed; "
                   "they are not interpreted as simulation ancillary settings." )
+            .def( "add_numerical_observation_metadata",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addNumericalObservationMetadata,
+                  py::arg( "key" ),
+                  py::arg( "values" ),
+                  R"doc(Attach one numerical value per observation under a user-defined string key.
+
+Values follow the observation order and remain aligned when observations are
+removed. Conversion to ObservationDataset preserves them by stable observation ID.
+These values are data only and are not interpreted as simulation ancillary settings.
+Adding an existing key replaces its vector. The vector length must equal the
+number of observation events, regardless of the number of scalar components.)doc" )
+            .def( "get_numerical_observation_metadata",
+                  py::overload_cast< const std::string& >(
+                          &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalObservationMetadata, py::const_ ),
+                  py::arg( "key" ),
+                  py::return_value_policy::copy,
+                  "Return a copy of one named numerical metadata vector. A missing key raises IndexError." )
+            .def_property_readonly(
+                    "numerical_observation_metadata",
+                    py::overload_cast<>( &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalObservationMetadata, py::const_ ),
+                    py::return_value_policy::copy,
+                    "A detached dictionary of named numerical metadata vectors, aligned with observation events." )
             .def( "remove_single_observation_entry",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry,
                   py::arg( "index" ),

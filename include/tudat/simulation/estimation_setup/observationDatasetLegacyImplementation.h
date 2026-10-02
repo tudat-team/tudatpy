@@ -476,6 +476,14 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
         auto& row = targetDataset.mutableObservationRow( targetIds.at( i ) );
         row.isActive_ = statuses.at( i ).first;
         row.rejectionReason_ = statuses.at( i ).second;
+        for( const auto& metadata : numericalObservationMetadata_ )
+        {
+            const auto value = metadata.second.find( sourceIds.at( i ) );
+            if( value != metadata.second.end( ) )
+            {
+                targetDataset.numericalObservationMetadata_[ metadata.first ][ targetIds.at( i ) ] = value->second;
+            }
+        }
     }
     targetDataset.sortObservationIdsForSet( targetSetId );
     if( removeFromSource )

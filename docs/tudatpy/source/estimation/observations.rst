@@ -17,6 +17,29 @@ inspect data, assign weights, reject or restore observations, and create reduced
 datasets. A detailed description of the observation-data workflow will be
 provided on the `ObservationDataset user guide page <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-dataset.html>`_.
 
+User-defined numerical metadata is stored separately as
+``dataset.numerical_observation_metadata[key][observation_id]``. Use
+``add_numerical_observation_metadata(key, observation_ids, values)`` to attach
+values and ``get_numerical_observation_metadata(key, observation_ids)`` to
+retrieve a vector in an explicit observation-ID order. Sorting and rejection
+retain these values; copying and transfers preserve them, remapping IDs when
+needed. Physical removal deletes the corresponding metadata entries. Metadata
+does not change weights or observation models.
+
+``dataset.reject_observations(condition, sigma_limit=5.0, reason="...")`` rejects
+an active selected observation when any residual component exceeds five times
+its measurement uncertainty. Residuals and weights remain unchanged. For
+correlated observations, the uncertainty includes the full inverse set weight
+matrix. Omitting ``sigma_limit`` retains selection-only rejection.
+
+``ObservationVectorData.inverse_weight_matrix_for_observation(observation_id)``
+returns a measurement covariance block using the complete correlated set weights,
+including rejected observations. This uses the existing covariance cache.
+
+Translational ephemerides created or reset from tracking supplementary data use
+linear interpolation with silent extrapolation outside the supplied history.
+Their original frame origin is preserved, including Earth's origin for Gaia.
+
 Functions
 ---------
 

@@ -22,6 +22,40 @@ namespace observation_models
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObservations(
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+        const double sigmaLimit,
+        const std::string& reason )
+{
+    if( !std::isfinite( sigmaLimit ) || sigmaLimit <= 0.0 )
+    {
+        throw std::invalid_argument( "sigma_limit must be finite and positive." );
+    }
+    using Condition = ObservationSelectionCondition< ObservationScalarType, TimeType >;
+    const auto ids = getObservationIds( condition && Condition::active( ) );
+    if( ids.empty( ) )
+    {
+        return;
+    }
+    const auto vectorData = createObservationVectorData( false );
+    std::unordered_set< unsigned int > rejectedIds;
+    for( const auto id : ids )
+    {
+        const Eigen::VectorXd residuals = getResidualValue( id ).template cast< double >( );
+        const auto& covariance = vectorData.getInverseWeightMatrixForObservation( id );
+        if( ( residuals.array( ).abs( ) > sigmaLimit * covariance.diagonal( ).array( ).sqrt( ) ).any( ) )
+        {
+            rejectedIds.insert( id );
+        }
+    }
+    rejectObservations(
+            Condition( [ &rejectedIds ]( const ObservationDataset&, const unsigned int id ) { return rejectedIds.count( id ) != 0; } ),
+            reason );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndDrop(
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const

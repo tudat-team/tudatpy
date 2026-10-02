@@ -8,6 +8,23 @@ namespace tudat
 {
 namespace observation_models
 {
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< double > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getNumericalObservationMetadata(
+        const std::string& key,
+        const std::vector< unsigned int >& observationIds ) const
+{
+    const auto& metadata = numericalObservationMetadata_.at( key );
+    std::vector< double > values;
+    values.reserve( observationIds.size( ) );
+    for( const auto id : observationIds )
+    {
+        values.push_back( metadata.at( id ) );
+    }
+    return values;
+}
+
 namespace detail
 {
 //! Transient event indices for a single extraction. No source ownership, payload or revision state.

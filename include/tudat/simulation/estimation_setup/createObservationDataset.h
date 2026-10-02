@@ -12,6 +12,7 @@
 #define TUDAT_CREATE_OBSERVATION_DATASET_H
 
 #include <Eigen/Core>
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -278,32 +279,62 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingData );
 
+    int setId;
     if( trackingData->hasObservationWeightSettings( ) )
     {
-        return observationDataset.addObservationSetWithWeights( observableType,
-                                                                linkEnds,
-                                                                observations,
-                                                                epochsTdb,
-                                                                referenceLinkEnd,
-                                                                trackingData->getObservationWeightSettings( ),
-                                                                std::vector< Eigen::VectorXd >( ),
-                                                                nullptr,
-                                                                ancillarySettings,
-                                                                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-                                                                true );
+        setId = observationDataset.addObservationSetWithWeights(
+                observableType,
+                linkEnds,
+                observations,
+                epochsTdb,
+                referenceLinkEnd,
+                trackingData->getObservationWeightSettings( ),
+                std::vector< Eigen::VectorXd >( ),
+                nullptr,
+                ancillarySettings,
+                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                true );
     }
 
-    return observationDataset.addObservationSet( observableType,
-                                                 linkEnds,
-                                                 observations,
-                                                 epochsTdb,
-                                                 referenceLinkEnd,
-                                                 std::vector< Eigen::VectorXd >( ),
-                                                 nullptr,
-                                                 ancillarySettings,
-                                                 std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
-                                                 std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-                                                 true );
+    else
+    {
+        setId = observationDataset.addObservationSet( observableType,
+                                                      linkEnds,
+                                                      observations,
+                                                      epochsTdb,
+                                                      referenceLinkEnd,
+                                                      std::vector< Eigen::VectorXd >( ),
+                                                      nullptr,
+                                                      ancillarySettings,
+                                                      std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
+                                                      std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                                      true );
+    }
+
+    // Match the stable time ordering used when the observation set was created.
+    if( !trackingData->getNumericalObservationMetadata( ).empty( ) )
+    {
+        std::vector< std::size_t > permutation( epochsTdb.size( ) );
+        for( std::size_t i = 0; i < permutation.size( ); ++i )
+        {
+            permutation[ i ] = i;
+        }
+        std::stable_sort( permutation.begin( ), permutation.end( ), [ &epochsTdb ]( std::size_t i, std::size_t j ) {
+            return epochsTdb[ i ] < epochsTdb[ j ];
+        } );
+        const auto& observationIds = observationDataset.getObservationIdsForSet( setId );
+        for( const auto& metadata : trackingData->getNumericalObservationMetadata( ) )
+        {
+            std::vector< double > values;
+            values.reserve( permutation.size( ) );
+            for( const auto index : permutation )
+            {
+                values.push_back( metadata.second.at( index ) );
+            }
+            observationDataset.addNumericalObservationMetadata( metadata.first, observationIds, values );
+        }
+    }
+    return setId;
 }
 
 //! Create a dataset from one or more generic tracking-data objects.
@@ -333,8 +364,9 @@ inline void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
     std::map< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > castStateHistory;
     utilities::castMatrixMap< double, double, EphemerisTimeType, EphemerisScalarType, 6, 1 >( stateHistory, castStateHistory );
 
-    tabulatedEphemeris->resetInterpolator(
-            interpolators::createOneDimensionalInterpolator( castStateHistory, interpolators::linearInterpolation( ) ) );
+    tabulatedEphemeris->resetInterpolator( interpolators::createOneDimensionalInterpolator(
+            castStateHistory,
+            interpolators::linearInterpolation( interpolators::huntingAlgorithm, interpolators::extrapolate_at_boundary ) ) );
 }
 //! Reset a runtime-typed ephemeris from supplementary translational states.
 void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::map< double, Eigen::Vector6d >& stateHistory,

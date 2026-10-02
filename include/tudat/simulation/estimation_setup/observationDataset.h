@@ -103,7 +103,7 @@ public:
         return observationRows_ == rhs.observationRows_ && setMetadata_ == rhs.setMetadata_ &&
                 observationIdsBySet_ == rhs.observationIdsBySet_ && linkDefinitionRegistry_ == rhs.linkDefinitionRegistry_ &&
                 observedValues_ == rhs.observedValues_ && residualValues_ == rhs.residualValues_ &&
-                observationWeights_ == rhs.observationWeights_ &&
+                observationWeights_ == rhs.observationWeights_ && numericalObservationMetadata_ == rhs.numericalObservationMetadata_ &&
                 std::equal( ancillarySettingsRegistry_.begin( ),
                             ancillarySettingsRegistry_.end( ),
                             rhs.ancillarySettingsRegistry_.begin( ),
@@ -391,6 +391,21 @@ public:
     //! Return stable observation identities belonging to one set.
     const std::vector< unsigned int >& getObservationIdsForSet( const unsigned int setId ) const;
 
+    //! Attach numerical values to existing stable observation IDs under a user-defined key.
+    void addNumericalObservationMetadata( const std::string& key,
+                                          const std::vector< unsigned int >& observationIds,
+                                          const std::vector< double >& values );
+
+    //! Return metadata values in the supplied observation-ID order; missing values throw.
+    std::vector< double > getNumericalObservationMetadata( const std::string& key,
+                                                           const std::vector< unsigned int >& observationIds ) const;
+
+    //! Return all named numerical metadata, including values belonging to rejected observations.
+    const std::map< std::string, std::map< unsigned int, double > >& getNumericalObservationMetadata( ) const
+    {
+        return numericalObservationMetadata_;
+    }
+
     //! Return one vector-valued measurement per observation event in a set.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsForSet( const unsigned int setId ) const;
 
@@ -504,6 +519,12 @@ public:
 
     //! Mark matching observation rows as rejected without physically deleting data.
     void rejectObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                             const std::string& reason = "" );
+
+    //! Reject active selected rows if any residual exceeds sigmaLimit times its measurement uncertainty.
+    //! Covariance includes the complete correlated set; residuals and weights remain unchanged.
+    void rejectObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                             const double sigmaLimit,
                              const std::string& reason = "" );
 
     //! Restore matching observation rows to active status.
@@ -652,7 +673,8 @@ private:
             dependentVariableLayoutRegistry_,
             observedValues_,
             residualValues_,
-            observationWeights_ );
+            observationWeights_,
+            numericalObservationMetadata_ );
     }
 
     //! Deserialize dataset storage and rebuild derived row indexing.
@@ -668,7 +690,8 @@ private:
             dependentVariableLayoutRegistry_,
             observedValues_,
             residualValues_,
-            observationWeights_ );
+            observationWeights_,
+            numericalObservationMetadata_ );
         rebuildRowIndex( );
         ++structuralVersion_;
     }
@@ -938,6 +961,9 @@ private:
 
     //! Compact observation weight storage; materialized into vectors/matrices only on request.
     ObservationWeights observationWeights_;
+
+    //! User-defined numerical metadata keyed by name and stable observation ID.
+    std::map< std::string, std::map< unsigned int, double > > numericalObservationMetadata_;
 
     //! Reused until weights or observation structure change; existing selections keep their original copy.
     mutable std::shared_ptr< const typename ObservationVectorData< ObservationScalarType, TimeType >::CompleteWeightData >

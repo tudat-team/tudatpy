@@ -293,6 +293,8 @@ class GaiaAstrometry:
         transit and attach the observation weights according to the Gaia weighting scheme.
         Observations remain uncorrected, in the ``J2000`` frame. Requested corrections
         are evaluated when creating the observation dataset with ``apply_corrections=True``.
+        Each CCD observation carries its scan angle [rad] as numerical metadata
+        under the key ``"along_scan_angle"``.
 
         Parameters
         ----------
@@ -356,6 +358,9 @@ class GaiaAstrometry:
                     ObservationWeightSettings.set_block(weight_matrix)
                 )
                 tracking_data.set_observation_correction_settings(correction_settings)
+                tracking_data.add_numerical_observation_metadata(
+                    "along_scan_angle", transit_rows["position_angle_scan"].tolist()
+                )
                 tracking_data_objects.append(tracking_data)
 
         if self._table.empty:
@@ -383,6 +388,7 @@ class GaiaAstrometry:
         mpc_numbers: int | Iterable[int],
         username: str | None = None,
         password: str | None = None,
+        save_to_archive: str | Path | None = None,
     ) -> "GaiaAstrometry":
         """
         Retrieve the astrometric observations through astroquery.
@@ -402,6 +408,10 @@ class GaiaAstrometry:
             Username for the Gaia archives, by default None.
         password : str, optional
             Password for the Gaia archives, by default None.
+        save_to_archive : str | Path, optional
+            Save the full query response in its original archive units to this
+            parquet file, before conversion or filtering. Empty responses are
+            saved too. The file can be read with ``load_from_local_archive``.
 
         Returns
         -------
@@ -433,12 +443,66 @@ class GaiaAstrometry:
             raise RuntimeError(f"Error while retrieving astrometric observations: \n{err}") from err
 
         table = table.to_pandas()  # Convert astropy table to dataframe
+        if save_to_archive is not None:
+            table.to_parquet(save_to_archive, index=False)
+            print(f"Saved Gaia astrometry to {save_to_archive}", flush=True)
         _check_for_missing_entries(table, mpc_numbers)
 
         # Convert to tudat-format
         prepared_table = cls._prepare_table(table)
 
         return cls(prepared_table)
+
+    @classmethod
+    def load_from_aip(
+        cls,
+        mpc_numbers: int | Iterable[int],
+        save_to_archive: str | Path | None = None,
+    ) -> "GaiaAstrometry":
+        """Load FPR astrometry from AIP, looking up source IDs before CCD observations.
+
+        ``mpc_numbers`` accepts the same asteroid numbers as ``load_from_astroquery``.
+        If ``save_to_archive`` is given, save the complete response in original
+        archive units before conversion and filtering, including empty responses.
+        Failed or truncated queries raise an error without saving a file.
+        """
+        from io import BytesIO
+        from astropy.io.votable import parse
+        import requests
+
+        def query_table(query):
+            response = requests.get(
+                "https://gaia.aip.de/tap/sync",
+                params={
+                    "REQUEST": "doQuery",
+                    "LANG": "ADQL",
+                    "FORMAT": "votable",
+                    "MAXREC": 200000,
+                    "QUERY": query,
+                },
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            result = parse(BytesIO(response.content))
+            for resource in result.resources:
+                for info in resource.infos:
+                    if info.name == "QUERY_STATUS" and info.value != "OK":
+                        raise RuntimeError(f"Gaia AIP query {info.value}: {info.content}")
+            return result.get_first_table().to_table(use_names_over_ids=True)
+
+        mpc_numbers = list(_as_iterable(mpc_numbers))
+        numbers = ", ".join(str(int(number)) for number in mpc_numbers)
+        sources = query_table(
+            f"SELECT source_id FROM {_ASTEROID_CATALOG} WHERE number_mp IN ({numbers})"
+        )
+        source_ids = ", ".join(str(int(source_id)) for source_id in sources["source_id"])
+        condition = f"source_id IN ({source_ids})" if len(sources) else "1 = 0"
+        table = query_table(f"SELECT * FROM {_ASTROMETRY_CATALOG} WHERE {condition}").to_pandas()
+        if save_to_archive is not None:
+            table.to_parquet(save_to_archive, index=False)
+            print(f"Saved Gaia astrometry to {save_to_archive}", flush=True)
+        _check_for_missing_entries(table, mpc_numbers)
+        return cls(cls._prepare_table(table))
 
     @classmethod
     def load_from_local_archive(
@@ -612,7 +676,10 @@ def load_gaia_astrometry(
     target : int
         Permanent MPC asteroid number.
     archive_path : str | Path, optional
-        Local FPR parquet archive. If omitted, query the ESA archive.
+        Local FPR parquet archive. Read it if it exists; otherwise query AIP
+        and save the full response there before conversion and filtering.
+        If omitted, query AIP without saving a file. Source IDs are looked up
+        before retrieving the CCD observations from the same FPR catalogue.
     epoch_start, epoch_end : float | DateTime | datetime, optional
         Inclusive interval bounds, in seconds since J2000 or calendar dates.
     time_scale : TimeScales, default tdb_scale
@@ -643,13 +710,15 @@ def load_gaia_astrometry(
             epoch_end = _TIME_SCALE_CONVERTER.convert_time(time_scale, tdb_scale, float(epoch_end))
     if epoch_start is not None and epoch_end is not None and epoch_start > epoch_end:
         raise ValueError("Gaia interval start must not be later than its end.")
+    if archive_path is not None:
+        archive_path = Path(archive_path)
     try:
-        if archive_path is None:
+        if archive_path is None or not archive_path.is_file():
             print(
-                f"Querying the ESA Gaia archive for {target}; waiting for the response...",
+                f"Querying the Gaia AIP mirror for {target}; waiting for the response...",
                 flush=True,
             )
-            gaia = GaiaAstrometry.load_from_astroquery(target)
+            gaia = GaiaAstrometry.load_from_aip(target, save_to_archive=archive_path)
         else:
             print(f"Loading Gaia astrometry from {archive_path}", flush=True)
             gaia = GaiaAstrometry.load_from_local_archive(archive_path, target)

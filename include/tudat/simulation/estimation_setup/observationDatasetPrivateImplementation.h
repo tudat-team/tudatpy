@@ -26,7 +26,8 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::ObservationDataset
     std::enable_shared_from_this< ObservationDataset >( ), observationRows_( other.observationRows_ ),
     rowPositionById_( other.rowPositionById_ ), nextObservationId_( other.nextObservationId_ ), setMetadata_( other.setMetadata_ ),
     observationIdsBySet_( other.observationIdsBySet_ ), linkDefinitionRegistry_( other.linkDefinitionRegistry_ ),
-    observedValues_( other.observedValues_ ), residualValues_( other.residualValues_ ), observationWeights_( other.observationWeights_ )
+    observedValues_( other.observedValues_ ), residualValues_( other.residualValues_ ), observationWeights_( other.observationWeights_ ),
+    numericalObservationMetadata_( other.numericalObservationMetadata_ )
 {
     for( const auto& settings : other.ancillarySettingsRegistry_ )
     {
@@ -138,6 +139,21 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObserva
     observedValues_ = std::move( observations );
     residualValues_ = std::move( residuals );
     observationWeights_ = std::move( weights );
+    for( auto& metadata : numericalObservationMetadata_ )
+    {
+        auto& values = metadata.second;
+        for( auto it = values.begin( ); it != values.end( ); )
+        {
+            if( selected.count( it->first ) == 0 )
+            {
+                it = values.erase( it );
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
     refreshWeightStructures( );
     ++structuralVersion_;
 }

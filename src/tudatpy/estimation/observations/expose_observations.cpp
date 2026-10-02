@@ -20,6 +20,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <cmath>
 #include <iostream>
 #include <map>
 
@@ -725,6 +726,16 @@ property materializes the sparse diagonal matrix.
                 .def_property_readonly( "is_diagonal_weight_only",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
                                         R"doc(bool: True when the weight matrix contains no off-diagonal entries.)doc" )
+                .def( "inverse_weight_matrix_for_observation",
+                      &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getInverseWeightMatrixForObservation,
+                      py::arg( "observation_id" ),
+                      py::return_value_policy::copy,
+                      R"doc(Return the measurement covariance for one stable observation ID.
+
+For correlated observations, this returns the observation's diagonal block of
+the inverse complete set weight matrix, including rejected observations. The
+existing covariance calculation and cache are reused. Weights between different
+sets and non-positive-definite weights are unsupported.)doc" )
                 .def_property_readonly( "has_off_diagonal_weights",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::hasOffDiagonalWeights,
                                         R"doc(bool: True when the weight matrix contains off-diagonal entries.)doc" )
@@ -1435,6 +1446,31 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIdsForSet,
                       py::arg( "set_id" ),
                       R"doc(Return observation row identifiers belonging to one set.)doc" )
+                .def( "add_numerical_observation_metadata",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addNumericalObservationMetadata,
+                      py::arg( "key" ),
+                      py::arg( "observation_ids" ),
+                      py::arg( "values" ),
+                      R"doc(Attach one numerical value per supplied stable observation ID under a user-defined key.
+
+All IDs must exist and the two vectors must have the same length. Values for the
+supplied IDs are added or replaced; other values under the same key are retained.
+Metadata does not affect observation models or weights.)doc" )
+                .def( "get_numerical_observation_metadata",
+                      py::overload_cast< const std::string&, const std::vector< unsigned int >& >(
+                              &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalObservationMetadata, py::const_ ),
+                      py::arg( "key" ),
+                      py::arg( "observation_ids" ),
+                      R"doc(Return a numerical metadata vector in the supplied observation-ID order.
+
+A missing key or a missing value for any requested ID raises IndexError; missing
+values are never replaced by zero. Rejected observations retain their metadata.)doc" )
+                .def_property_readonly(
+                        "numerical_observation_metadata",
+                        py::overload_cast<>( &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalObservationMetadata,
+                                             py::const_ ),
+                        py::return_value_policy::copy,
+                        "A detached dictionary mapping each metadata key to {stable observation ID: numerical value}." )
                 .def( "observations_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsForSet,
                       py::arg( "set_id" ),
@@ -1630,10 +1666,23 @@ the corresponding reference point in the system of bodies separately.
                       py::arg( "condition" ),
                       R"doc(Create an independent dataset without the selected rows, preserving surviving identities.)doc" )
                 .def( "reject_observations",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::rejectObservations,
+                      py::overload_cast< const InspectionCondition&, const std::string& >(
+                              &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::rejectObservations ),
                       py::arg( "condition" ),
                       py::arg( "reason" ) = "",
                       R"doc(Mark selected observations as rejected.)doc" )
+                .def( "reject_observations",
+                      py::overload_cast< const InspectionCondition&, const double, const std::string& >(
+                              &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::rejectObservations ),
+                      py::arg( "condition" ),
+                      py::arg( "sigma_limit" ),
+                      py::arg( "reason" ) = "",
+                      R"doc(Reject active selected observations if any residual component exceeds sigma_limit times its measurement uncertainty.
+
+Uncertainties come from the complete inverse weight matrix, including correlated
+and rejected observations in the same set. Stored residuals and weights are not
+modified. sigma_limit must be finite and positive. Previously rejected rows
+remain rejected. Weights between different sets are unsupported.)doc" )
                 .def( "restore_observations",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::restoreObservations,
                       py::arg( "condition" ),
