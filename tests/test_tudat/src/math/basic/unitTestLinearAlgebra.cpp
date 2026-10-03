@@ -18,6 +18,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -270,6 +271,82 @@ BOOST_AUTO_TEST_CASE( testRotationMatrixDerivatives )
             for( unsigned int k = 0; k < 3; k++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( rotationMatrixChangeError( j, k ) ), 1.0E-6 * quaternionPerturbation );
+            }
+        }
+    }
+}
+
+// Mixed observation units must not cause SVD to drop parameters with smaller
+// weighted column norms. Exercise both weight representations and augmented systems.
+BOOST_AUTO_TEST_CASE( test_LeastSquaresMixedObservationScales )
+{
+    using namespace tudat::linear_algebra;
+    Eigen::MatrixXd design( 6, 3 );
+    design << 1, 0, 0, 2, 0, 0, 0, 1, 1, 0, 2, -1, 0, -1, 2, 0, 1, 3;
+    const Eigen::Vector3d expected( 3.0, -2.0, 4.0 );
+    const Eigen::VectorXd residuals = design * expected;
+    Eigen::VectorXd weights( 6 );
+    weights << 1.0E-12, 2.0E-12, 1.0E12, 2.0E12, 3.0E12, 4.0E12;
+
+    for( bool correlated : { false, true } )
+    {
+        Eigen::SparseMatrix< double > weightMatrix( 6, 6 );
+        for( int i = 0; i < 6; ++i )
+        {
+            weightMatrix.insert( i, i ) = weights( i );
+        }
+        if( correlated )
+        {
+            weightMatrix.insert( 0, 1 ) = weightMatrix.insert( 1, 0 ) = 0.2E-12;
+            weightMatrix.insert( 2, 3 ) = weightMatrix.insert( 3, 2 ) = 0.2E12;
+        }
+        for( bool withPrior : { false, true } )
+        {
+            Eigen::MatrixXd prior = Eigen::MatrixXd::Zero( 3, 3 );
+            Eigen::MatrixXd softNormal = Eigen::MatrixXd::Zero( 3, 3 );
+            if( withPrior )
+            {
+                prior.diagonal( ) << 5.0E-12, 6.0E12, 7.0E12;
+                softNormal.diagonal( ) << 2.0E-12, 3.0E12, 4.0E12;
+            }
+            for( bool constrained : { false, true } )
+            {
+                Eigen::MatrixXd constraint( constrained ? 1 : 0, 3 );
+                if( constrained )
+                {
+                    constraint << 1.0, 1.0E-12, 0.0;
+                }
+                const Eigen::VectorXd constraintRhs = constraint * expected;
+                const Eigen::MatrixXd noConsider( 0, 0 );
+                const Eigen::VectorXd noDeviation( 0 );
+                const auto result = correlated ? performLeastSquaresAdjustmentFromDesignMatrix( design,
+                                                                                                residuals,
+                                                                                                weightMatrix,
+                                                                                                prior,
+                                                                                                1.0E8,
+                                                                                                constraint,
+                                                                                                constraintRhs,
+                                                                                                noConsider,
+                                                                                                noDeviation,
+                                                                                                softNormal,
+                                                                                                softNormal * expected,
+                                                                                                -expected )
+                                               : performLeastSquaresAdjustmentFromDesignMatrix( design,
+                                                                                                residuals,
+                                                                                                weights,
+                                                                                                prior,
+                                                                                                1.0E8,
+                                                                                                constraint,
+                                                                                                constraintRhs,
+                                                                                                noConsider,
+                                                                                                noDeviation,
+                                                                                                softNormal,
+                                                                                                softNormal * expected,
+                                                                                                -expected );
+                BOOST_CHECK_SMALL( ( result.first.head( 3 ) - expected ).norm( ), 1.0E-11 );
+                // The returned information matrix retains the caller's coordinates.
+                const Eigen::MatrixXd information = design.transpose( ) * weightMatrix * design + prior + softNormal;
+                BOOST_CHECK_SMALL( ( result.second.topLeftCorner( 3, 3 ) - information ).norm( ), 1.0E-20 );
             }
         }
     }

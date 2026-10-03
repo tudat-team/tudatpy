@@ -298,8 +298,38 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentImpl(
         rightHandSide.head( nParams ) += additionalRightHandSide;
     }
 
-    return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
-                           inverseOfCovarianceMatrix );
+    // Normalizing the unweighted design columns does not balance the weighted normal
+    // equations when observables have different units (e.g. radians and metres).
+    // Equilibrate the complete system before SVD so that its rank threshold does not
+    // discard observable parameters solely because their information scales differ.
+    Eigen::VectorXd scales = Eigen::VectorXd::Ones( inverseOfCovarianceMatrix.rows( ) );
+    for( int i = 0; i < nParams; ++i )
+    {
+        const double information = inverseOfCovarianceMatrix( i, i );
+        if( information > 0.0 )
+        {
+            scales( i ) = 1.0 / std::sqrt( information );
+        }
+    }
+    // Lagrange-multiplier diagonals are zero; balance their scaled constraint rows.
+    for( int i = nParams; i < scales.size( ); ++i )
+    {
+        const double constraintScale = inverseOfCovarianceMatrix.row( i )
+                                               .head( nParams )
+                                               .transpose( )
+                                               .cwiseProduct( scales.head( nParams ) )
+                                               .cwiseAbs( )
+                                               .maxCoeff( );
+        if( constraintScale > 0.0 )
+        {
+            scales( i ) = 1.0 / constraintScale;
+        }
+    }
+    const Eigen::MatrixXd balancedNormalMatrix = scales.asDiagonal( ) * inverseOfCovarianceMatrix * scales.asDiagonal( );
+    const Eigen::VectorXd correction = scales.cwiseProduct(
+            solveSystemOfEquationsWithSvd( balancedNormalMatrix, scales.cwiseProduct( rightHandSide ), limitConditionNumberForWarning ) );
+
+    return std::make_pair( correction, inverseOfCovarianceMatrix );
 }
 
 }  // namespace
