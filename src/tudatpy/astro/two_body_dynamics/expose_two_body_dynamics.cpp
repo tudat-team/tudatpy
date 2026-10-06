@@ -112,8 +112,9 @@ void expose_two_body_dynamics( py::module& m )
 
      )doc" );
 
-    py::class_< tms::PericenterFindingFunctions, std::shared_ptr< tms::PericenterFindingFunctions > >( m, "PericenterFindingFunctions" ,
-                  R"doc(
+    py::class_< tms::PericenterFindingFunctions, std::shared_ptr< tms::PericenterFindingFunctions > >( m,
+                                                                                                       "PericenterFindingFunctions",
+                                                                                                       R"doc(
 
          Objective function and derivative for finding a gravity-assist pericentre from the incoming and outgoing
          hyperbolae and bending angle.
@@ -122,7 +123,8 @@ void expose_two_body_dynamics( py::module& m )
             .def( py::init< const double, const double, const double >( ),
                   py::arg( "absolute_incoming_semi_major_axis" ),
                   py::arg( "absolute_outgoing_semi_major_axis" ),
-                  py::arg( "bending_angle" ) , R"doc(
+                  py::arg( "bending_angle" ),
+                  R"doc(
 
          Create the objective function for solving a gravity-assist pericentre radius.
 
@@ -142,7 +144,8 @@ void expose_two_body_dynamics( py::module& m )
              Total angle between incoming and outgoing asymptotic velocities, in rad.
 
       )doc" )
-            .def( "compute_pericenter_radius_fn", &tms::PericenterFindingFunctions::computePericenterRadiusFunction ,
+            .def( "compute_pericenter_radius_fn",
+                  &tms::PericenterFindingFunctions::computePericenterRadiusFunction,
                   R"doc(
 
          Evaluate the gravity-assist pericentre objective at the supplied pericentre radius, in metres. Its zero
@@ -150,7 +153,7 @@ void expose_two_body_dynamics( py::module& m )
 
       )doc" )
             .def( "compute_derivative_pericenter_radius_fn",
-                  &tms::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction ,
+                  &tms::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction,
                   R"doc(
 
          Evaluate the first derivative of the gravity-assist objective with respect to the supplied pericentre radius,
@@ -290,8 +293,9 @@ tuple[numpy.ndarray, numpy.ndarray]
     //  lambertTargeterGooding.cpp (complete)
     //////////////////////////////////////////////////////////////////////
     py::class_< tms::LambertTargeterGooding, std::shared_ptr< tms::LambertTargeterGooding >, tms::LambertTargeter >(
-            m, "LambertTargeterGooding" ,
-                  R"doc(
+            m,
+            "LambertTargeterGooding",
+            R"doc(
 
          Lambert solver using Gooding's method to determine departure and arrival velocities for a two-body transfer.
 

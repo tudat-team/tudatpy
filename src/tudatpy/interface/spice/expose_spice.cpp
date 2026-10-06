@@ -686,8 +686,8 @@ void expose_spice( py::module& m )
 
     m.def( "load_standard_deprecated_kernels",
            &tudat::spice_interface::loadStandardDepracatedSpiceKernels,
-           py::arg( "alternative_kernels" ) = std::vector< std::string >( ) ,
-                  R"doc(
+           py::arg( "alternative_kernels" ) = std::vector< std::string >( ),
+           R"doc(
 
          Load the standard legacy SPICE kernel set.
 
@@ -804,9 +804,13 @@ void expose_spice( py::module& m )
 
      )doc" );
 
-    m.def( "continue_after_errors", &tudat::spice_interface::toggleErrorReturn, R"doc(Configure SPICE to return control to the caller after an error instead of aborting the process.)doc" );
+    m.def( "continue_after_errors",
+           &tudat::spice_interface::toggleErrorReturn,
+           R"doc(Configure SPICE to return control to the caller after an error instead of aborting the process.)doc" );
 
-    m.def( "suppress_error_output", &tudat::spice_interface::suppressErrorOutput, R"doc(Suppress SPICE error messages emitted to its output stream.)doc" );
+    m.def( "suppress_error_output",
+           &tudat::spice_interface::suppressErrorOutput,
+           R"doc(Suppress SPICE error messages emitted to its output stream.)doc" );
 
     //      py::class_<tudat::ephemerides::SpiceEphemeris,
     //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m,

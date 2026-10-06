@@ -59,28 +59,37 @@ void expose_ephemeris_setup( py::module& m )
 
         An ephemeris model not defined by this enumeration cannot be used for automatic model setup
     )doc" )
-            .value( "approximate_planet_positions", tss::EphemerisType::approximate_planet_positions ,
-                  R"doc(Approximate analytical planetary ephemeris.)doc" )
-            .value( "direct_spice_ephemeris", tss::EphemerisType::direct_spice_ephemeris ,
-                  R"doc(Ephemeris evaluating SPICE states directly at requested epochs.)doc" )
-            .value( "tabulated_ephemeris", tss::EphemerisType::tabulated_ephemeris ,
-                  R"doc(Ephemeris interpolating a supplied table of Cartesian states.)doc" )
-            .value( "auto_generated_tabulated_ephemeris", tss::EphemerisType::auto_generated_tabulated_ephemeris ,
-                  R"doc(Ephemeris interpolating states sampled automatically from another ephemeris.)doc" )
-            .value( "interpolated_spice", tss::EphemerisType::interpolated_spice ,
-                  R"doc(Ephemeris interpolating a table of sampled SPICE states.)doc" )
-            .value( "constant_ephemeris", tss::EphemerisType::constant_ephemeris ,
-                  R"doc(Ephemeris returning a constant Cartesian state.)doc" )
-            .value( "kepler_ephemeris", tss::EphemerisType::kepler_ephemeris ,
-                  R"doc(Ephemeris evaluating a Keplerian two-body orbit.)doc" )
-            .value( "custom_ephemeris", tss::EphemerisType::custom_ephemeris ,
-                  R"doc(Ephemeris evaluating a user-supplied state function.)doc" )
-            .value( "direct_tle_ephemeris", tss::EphemerisType::direct_tle_ephemeris ,
-                  R"doc(Ephemeris evaluating a two-line element orbit using SGP4.)doc" )
-            .value( "interpolated_tle_ephemeris", tss::EphemerisType::interpolated_tle_ephemeris ,
-                  R"doc(Ephemeris interpolating states sampled from a two-line element orbit.)doc" )
-            .value( "scaled_ephemeris", tss::EphemerisType::scaled_ephemeris ,
-                  R"doc(Ephemeris applying a scaling or offset to another ephemeris.)doc" );
+            .value( "approximate_planet_positions",
+                    tss::EphemerisType::approximate_planet_positions,
+                    R"doc(Approximate analytical planetary ephemeris.)doc" )
+            .value( "direct_spice_ephemeris",
+                    tss::EphemerisType::direct_spice_ephemeris,
+                    R"doc(Ephemeris evaluating SPICE states directly at requested epochs.)doc" )
+            .value( "tabulated_ephemeris",
+                    tss::EphemerisType::tabulated_ephemeris,
+                    R"doc(Ephemeris interpolating a supplied table of Cartesian states.)doc" )
+            .value( "auto_generated_tabulated_ephemeris",
+                    tss::EphemerisType::auto_generated_tabulated_ephemeris,
+                    R"doc(Ephemeris interpolating states sampled automatically from another ephemeris.)doc" )
+            .value( "interpolated_spice",
+                    tss::EphemerisType::interpolated_spice,
+                    R"doc(Ephemeris interpolating a table of sampled SPICE states.)doc" )
+            .value( "constant_ephemeris",
+                    tss::EphemerisType::constant_ephemeris,
+                    R"doc(Ephemeris returning a constant Cartesian state.)doc" )
+            .value( "kepler_ephemeris", tss::EphemerisType::kepler_ephemeris, R"doc(Ephemeris evaluating a Keplerian two-body orbit.)doc" )
+            .value( "custom_ephemeris",
+                    tss::EphemerisType::custom_ephemeris,
+                    R"doc(Ephemeris evaluating a user-supplied state function.)doc" )
+            .value( "direct_tle_ephemeris",
+                    tss::EphemerisType::direct_tle_ephemeris,
+                    R"doc(Ephemeris evaluating a two-line element orbit using SGP4.)doc" )
+            .value( "interpolated_tle_ephemeris",
+                    tss::EphemerisType::interpolated_tle_ephemeris,
+                    R"doc(Ephemeris interpolating states sampled from a two-line element orbit.)doc" )
+            .value( "scaled_ephemeris",
+                    tss::EphemerisType::scaled_ephemeris,
+                    R"doc(Ephemeris applying a scaling or offset to another ephemeris.)doc" );
 
     /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
@@ -413,8 +422,7 @@ void expose_ephemeris_setup( py::module& m )
          :type: numpy.ndarray[numpy.float64[6, 1]]
 
       )doc" )
-            .def_property_readonly(
-                    "epoch_of_initial_state", &tss::KeplerEphemerisSettings::getEpochOfInitialState, R"doc(
+            .def_property_readonly( "epoch_of_initial_state", &tss::KeplerEphemerisSettings::getEpochOfInitialState, R"doc(
 
          **read-only**
 
@@ -487,7 +495,8 @@ void expose_ephemeris_setup( py::module& m )
     m.def( "create_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "ephemeris_settings" ),
-           py::arg( "body_name" ) , R"doc(
+           py::arg( "body_name" ),
+           R"doc(
 
          Function for creating an ephemeris model from ephemeris settings.
 

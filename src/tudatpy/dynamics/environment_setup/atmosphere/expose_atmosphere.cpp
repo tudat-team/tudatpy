@@ -74,7 +74,7 @@ The values in this class may be recomputed every time step to reflect changing a
                   py::arg( "f107a" ) = 0.0,
                   py::arg( "ap_daily" ) = 0.0,
                   py::arg( "ap_vector" ) = std::vector< double >( 7, 0.0 ),
-                  py::arg( "switches" ) = std::vector< int >( ) ,
+                  py::arg( "switches" ) = std::vector< int >( ),
                   R"doc(
 
          Create NRLMSISE-00 inputs from calendar time, local solar time, F10.7 flux, geomagnetic activity and model
@@ -102,14 +102,14 @@ The values in this class may be recomputed every time step to reflect changing a
                   py::arg( "solar_activity_data" ),
                   py::arg( "use_ideal_gas_law" ) = true,
                   py::arg( "use_storm_conditions" ) = false,
-                  py::arg( "use_anomalous_oxygen" ) = true ,
+                  py::arg( "use_anomalous_oxygen" ) = true,
                   R"doc(
 
          Create an NRLMSISE-00 atmosphere from the supplied solar activity records and ideal-gas-law, storm-condition
          and anomalous-oxygen options.
 
       )doc" )
-            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude , R"doc(
+            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude, R"doc(
 
          Set whether the atmosphere model uses geodetic latitude.
 
@@ -117,7 +117,7 @@ The values in this class may be recomputed every time step to reflect changing a
          This flag is used when obtaining the coordinates for atmosphere model evaluation.
 
       )doc" )
-            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude , R"doc(
+            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude, R"doc(
 
          Retrieve the latitude convention used by the atmosphere model.
 
@@ -127,7 +127,7 @@ The values in this class may be recomputed every time step to reflect changing a
              True if geodetic latitude is used, or False if geocentric latitude is used.
 
       )doc" )
-            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc , R"doc(
+            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc, R"doc(
 
          Set whether UTC epochs are used for atmosphere model evaluation.
 
@@ -135,7 +135,7 @@ The values in this class may be recomputed every time step to reflect changing a
          input for the atmosphere model.
 
       )doc" )
-            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc , R"doc(
+            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc, R"doc(
 
          Retrieve whether the atmosphere model uses UTC epochs.
 
@@ -174,7 +174,7 @@ The values in this class may be recomputed every time step to reflect changing a
                              )doc" );
 
     // END OF NRLMSISE00
-    py::enum_< tss::AtmosphereDependentVariables >( m, "AtmosphereDependentVariables" , R"doc(
+    py::enum_< tss::AtmosphereDependentVariables >( m, "AtmosphereDependentVariables", R"doc(
 
          Enumeration of quantities supplied by a tabulated atmosphere model.
 
@@ -182,18 +182,24 @@ The values in this class may be recomputed every time step to reflect changing a
          in the atmosphere tables.
 
       )doc" )
-            .value( "tabulated_density", tss::AtmosphereDependentVariables::density_dependent_atmosphere ,
-                  R"doc(Atmospheric mass density stored in the atmosphere table.)doc" )
-            .value( "tabulated_pressure", tss::AtmosphereDependentVariables::pressure_dependent_atmosphere ,
-                  R"doc(Atmospheric pressure stored in the atmosphere table.)doc" )
-            .value( "tabulated_temperature", tss::AtmosphereDependentVariables::temperature_dependent_atmosphere ,
-                  R"doc(Atmospheric temperature stored in the atmosphere table.)doc" )
-            .value( "tabulated_gas_constant", tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere ,
-                  R"doc(Specific gas constant stored in the atmosphere table.)doc" )
-            .value( "tabulated_specific_heat_ratio", tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere ,
-                  R"doc(Ratio of specific heats stored in the atmosphere table.)doc" )
-            .value( "tabulated_molar_mass", tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere ,
-                  R"doc(Atmospheric molar mass stored in the atmosphere table.)doc" )
+            .value( "tabulated_density",
+                    tss::AtmosphereDependentVariables::density_dependent_atmosphere,
+                    R"doc(Atmospheric mass density stored in the atmosphere table.)doc" )
+            .value( "tabulated_pressure",
+                    tss::AtmosphereDependentVariables::pressure_dependent_atmosphere,
+                    R"doc(Atmospheric pressure stored in the atmosphere table.)doc" )
+            .value( "tabulated_temperature",
+                    tss::AtmosphereDependentVariables::temperature_dependent_atmosphere,
+                    R"doc(Atmospheric temperature stored in the atmosphere table.)doc" )
+            .value( "tabulated_gas_constant",
+                    tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere,
+                    R"doc(Specific gas constant stored in the atmosphere table.)doc" )
+            .value( "tabulated_specific_heat_ratio",
+                    tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere,
+                    R"doc(Ratio of specific heats stored in the atmosphere table.)doc" )
+            .value( "tabulated_molar_mass",
+                    tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere,
+                    R"doc(Atmospheric molar mass stored in the atmosphere table.)doc" )
             .export_values( );
 
     /////////////////////////////////////////////////////////////////////////////

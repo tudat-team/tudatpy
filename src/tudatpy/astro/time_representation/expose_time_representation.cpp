@@ -141,7 +141,8 @@ void expose_time_representation( py::module& m )
      >>> t = Time(3600.0)  # 1 hour after J2000
      )doc" )
 
-            .def( py::init< const int >( ), py::arg( "seconds_since_j2000" ) ,
+            .def( py::init< const int >( ),
+                  py::arg( "seconds_since_j2000" ),
                   R"doc(Create a Time object from an integer number of seconds since J2000.)doc" )
 
             // Add docstring for the second constructor
@@ -174,7 +175,7 @@ void expose_time_representation( py::module& m )
                               []( py::tuple t ) {
                                   if( t.size( ) != 2 ) throw std::runtime_error( "Invalid state!" );
                                   return Time( t[ 0 ].cast< int >( ), t[ 1 ].cast< long double >( ) );
-                              } ) ,
+                              } ),
                   R"doc(Serialize or restore a Time object using its full periods and seconds into the current period.)doc" )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
@@ -201,78 +202,48 @@ void expose_time_representation( py::module& m )
         seconds = t.to_float()
         print(seconds)  # prints 3600.0
     )doc" )
-            .def( "__float__", &tudat::Time::getSeconds< double > ,
-                  R"doc(Return the epoch as double-precision seconds since J2000.)doc" )
-            .def( "__eq__", []( const tudat::Time& self, const tudat::Time& other ) { return self == other; } ,
-                  R"doc(Return whether this Time object represents the same epoch as the other Time object.)doc" )
-            .def( "__hash__", []( const Time& self ) { return self.hash( ); } ,
-                  R"doc(Return the hash of the normalized Time representation for use in sets and dictionaries.)doc" )
-            .def( py::self + py::self ,
-                  R"doc(Return the sum of the time values, interpreting scalar operands as seconds.)doc" )
-            .def( py::self + double( ) ,
-                  R"doc(Return the sum of the time values, interpreting scalar operands as seconds.)doc" )
-            .def( double( ) + py::self ,
-                  R"doc(Return the sum of the time values, interpreting scalar operands as seconds.)doc" )
-            .def( py::self += py::self ,
-                  R"doc(Add the other time or seconds value to this Time object in place.)doc" )
-            .def( py::self += double( ) ,
-                  R"doc(Add the other time or seconds value to this Time object in place.)doc" )
-            .def( py::self - py::self ,
-                  R"doc(Return the difference of the time values, interpreting scalar operands as seconds.)doc" )
-            .def( py::self - double( ) ,
-                  R"doc(Return the difference of the time values, interpreting scalar operands as seconds.)doc" )
-            .def( py::self -= py::self ,
-                  R"doc(Subtract the other time or seconds value from this Time object in place.)doc" )
-            .def( py::self -= double( ) ,
-                  R"doc(Subtract the other time or seconds value from this Time object in place.)doc" )
-            .def( double( ) - py::self ,
-                  R"doc(Return the difference of the time values, interpreting scalar operands as seconds.)doc" )
-            .def( py::self * double( ) ,
-                  R"doc(Return a Time object scaled by the scalar operand.)doc" )
-            .def( double( ) * py::self ,
-                  R"doc(Return a Time object scaled by the scalar operand.)doc" )
-            .def( py::self *= double( ) ,
-                  R"doc(Multiply this Time object by a scalar in place.)doc" )
-            .def( py::self / double( ) ,
-                  R"doc(Return a Time object divided by the scalar operand.)doc" )
-            .def( py::self /= double( ) ,
-                  R"doc(Divide this Time object by a scalar in place.)doc" )
-            .def( py::self == py::self ,
-                  R"doc(Test whether the two time values represent the same epoch.)doc" )
-            .def( double( ) == py::self ,
-                  R"doc(Test whether the two time values represent the same epoch.)doc" )
-            .def( py::self == double( ) ,
-                  R"doc(Test whether the two time values represent the same epoch.)doc" )
-            .def( py::self != py::self ,
-                  R"doc(Test whether the two time values represent different epochs.)doc" )
-            .def( py::self != double( ) ,
-                  R"doc(Test whether the two time values represent different epochs.)doc" )
-            .def( double( ) != py::self ,
-                  R"doc(Test whether the two time values represent different epochs.)doc" )
-            .def( py::self < py::self ,
-                  R"doc(Test whether the left time value is earlier than the right time value.)doc" )
-            .def( py::self < double( ) ,
-                  R"doc(Test whether the left time value is earlier than the right time value.)doc" )
-            .def( double( ) < py::self ,
-                  R"doc(Test whether the left time value is earlier than the right time value.)doc" )
-            .def( py::self > py::self ,
-                  R"doc(Test whether the left time value is later than the right time value.)doc" )
-            .def( py::self > double( ) ,
-                  R"doc(Test whether the left time value is later than the right time value.)doc" )
-            .def( double( ) > py::self ,
-                  R"doc(Test whether the left time value is later than the right time value.)doc" )
-            .def( py::self <= py::self ,
-                  R"doc(Test whether the left time value is earlier than or equal to the right time value.)doc" )
-            .def( py::self <= double( ) ,
-                  R"doc(Test whether the left time value is earlier than or equal to the right time value.)doc" )
-            .def( double( ) <= py::self ,
-                  R"doc(Test whether the left time value is earlier than or equal to the right time value.)doc" )
-            .def( py::self >= py::self ,
-                  R"doc(Test whether the left time value is later than or equal to the right time value.)doc" )
-            .def( double( ) >= py::self ,
-                  R"doc(Test whether the left time value is later than or equal to the right time value.)doc" )
-            .def( py::self >= double( ) ,
-                  R"doc(Test whether the left time value is later than or equal to the right time value.)doc" );
+            .def( "__float__", &tudat::Time::getSeconds< double >, R"doc(Return the epoch as double-precision seconds since J2000.)doc" )
+            .def(
+                    "__eq__",
+                    []( const tudat::Time& self, const tudat::Time& other ) { return self == other; },
+                    R"doc(Return whether this Time object represents the same epoch as the other Time object.)doc" )
+            .def(
+                    "__hash__",
+                    []( const Time& self ) { return self.hash( ); },
+                    R"doc(Return the hash of the normalized Time representation for use in sets and dictionaries.)doc" )
+            .def( py::self + py::self, R"doc(Return the sum of the time values, interpreting scalar operands as seconds.)doc" )
+            .def( py::self + double( ), R"doc(Return the sum of the time values, interpreting scalar operands as seconds.)doc" )
+            .def( double( ) + py::self, R"doc(Return the sum of the time values, interpreting scalar operands as seconds.)doc" )
+            .def( py::self += py::self, R"doc(Add the other time or seconds value to this Time object in place.)doc" )
+            .def( py::self += double( ), R"doc(Add the other time or seconds value to this Time object in place.)doc" )
+            .def( py::self - py::self, R"doc(Return the difference of the time values, interpreting scalar operands as seconds.)doc" )
+            .def( py::self - double( ), R"doc(Return the difference of the time values, interpreting scalar operands as seconds.)doc" )
+            .def( py::self -= py::self, R"doc(Subtract the other time or seconds value from this Time object in place.)doc" )
+            .def( py::self -= double( ), R"doc(Subtract the other time or seconds value from this Time object in place.)doc" )
+            .def( double( ) - py::self, R"doc(Return the difference of the time values, interpreting scalar operands as seconds.)doc" )
+            .def( py::self * double( ), R"doc(Return a Time object scaled by the scalar operand.)doc" )
+            .def( double( ) * py::self, R"doc(Return a Time object scaled by the scalar operand.)doc" )
+            .def( py::self *= double( ), R"doc(Multiply this Time object by a scalar in place.)doc" )
+            .def( py::self / double( ), R"doc(Return a Time object divided by the scalar operand.)doc" )
+            .def( py::self /= double( ), R"doc(Divide this Time object by a scalar in place.)doc" )
+            .def( py::self == py::self, R"doc(Test whether the two time values represent the same epoch.)doc" )
+            .def( double( ) == py::self, R"doc(Test whether the two time values represent the same epoch.)doc" )
+            .def( py::self == double( ), R"doc(Test whether the two time values represent the same epoch.)doc" )
+            .def( py::self != py::self, R"doc(Test whether the two time values represent different epochs.)doc" )
+            .def( py::self != double( ), R"doc(Test whether the two time values represent different epochs.)doc" )
+            .def( double( ) != py::self, R"doc(Test whether the two time values represent different epochs.)doc" )
+            .def( py::self < py::self, R"doc(Test whether the left time value is earlier than the right time value.)doc" )
+            .def( py::self < double( ), R"doc(Test whether the left time value is earlier than the right time value.)doc" )
+            .def( double( ) < py::self, R"doc(Test whether the left time value is earlier than the right time value.)doc" )
+            .def( py::self > py::self, R"doc(Test whether the left time value is later than the right time value.)doc" )
+            .def( py::self > double( ), R"doc(Test whether the left time value is later than the right time value.)doc" )
+            .def( double( ) > py::self, R"doc(Test whether the left time value is later than the right time value.)doc" )
+            .def( py::self <= py::self, R"doc(Test whether the left time value is earlier than or equal to the right time value.)doc" )
+            .def( py::self <= double( ), R"doc(Test whether the left time value is earlier than or equal to the right time value.)doc" )
+            .def( double( ) <= py::self, R"doc(Test whether the left time value is earlier than or equal to the right time value.)doc" )
+            .def( py::self >= py::self, R"doc(Test whether the left time value is later than or equal to the right time value.)doc" )
+            .def( double( ) >= py::self, R"doc(Test whether the left time value is later than or equal to the right time value.)doc" )
+            .def( py::self >= double( ), R"doc(Test whether the left time value is later than or equal to the right time value.)doc" );
 
     // Register implicit conversion from float/double -> Time
     py::implicitly_convertible< double, tudat::Time >( );
@@ -322,7 +293,7 @@ void expose_time_representation( py::module& m )
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) ,
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
                   R"doc(
 
          Convert ``input_value`` from ``input_scale`` to ``output_scale`` and return seconds since J2000.
@@ -336,7 +307,7 @@ void expose_time_representation( py::module& m )
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) ,
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
                   R"doc(
 
          Convert a Time object from ``input_scale`` to ``output_scale`` and return a Time object.
@@ -350,7 +321,7 @@ void expose_time_representation( py::module& m )
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) ,
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
                   R"doc(
 
          Return converted time minus input time, in seconds, for the requested time scales.
@@ -364,7 +335,7 @@ void expose_time_representation( py::module& m )
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) ,
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
                   R"doc(
 
          Return converted time minus input time as a Time object for the requested time scales.
@@ -395,22 +366,25 @@ void expose_time_representation( py::module& m )
                   py::arg( "day" ),
                   py::arg( "hour" ) = 12,
                   py::arg( "minute" ) = 0,
-                  py::arg( "seconds" ) = 0.0L ,
+                  py::arg( "seconds" ) = 0.0L,
                   R"doc(
 
          Create a calendar date and time from year, month, day, hour, minute and fractional seconds. The default time
          is noon.
 
       )doc" )
-            .def( "__str__", []( const tba::DateTime& datetime ) { return datetime.isoString( ); } ,
-                  R"doc(Return the calendar date and time as an ISO-format string.)doc" )
-            .def( "__repr__",
-                  []( const tba::DateTime& datetime ) {
-                      return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
-                              std::to_string( datetime.getDay( ) ) + ", " + std::to_string( datetime.getHour( ) ) + ", " +
-                              std::to_string( datetime.getMinute( ) ) + ", " + std::to_string( datetime.getSeconds( ) ) + ")";
-                  } ,
-                  R"doc(Return a DateTime constructor representation containing the calendar components.)doc" )
+            .def(
+                    "__str__",
+                    []( const tba::DateTime& datetime ) { return datetime.isoString( ); },
+                    R"doc(Return the calendar date and time as an ISO-format string.)doc" )
+            .def(
+                    "__repr__",
+                    []( const tba::DateTime& datetime ) {
+                        return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
+                                std::to_string( datetime.getDay( ) ) + ", " + std::to_string( datetime.getHour( ) ) + ", " +
+                                std::to_string( datetime.getMinute( ) ) + ", " + std::to_string( datetime.getSeconds( ) ) + ")";
+                    },
+                    R"doc(Return a DateTime constructor representation containing the calendar components.)doc" )
             .def_property( "year", &tba::DateTime::getYear, &tba::DateTime::setYear, R"doc(
 
  Calendar year
@@ -1815,29 +1789,42 @@ datetime.datetime
 
     /////////////// DEPRECATED
 
-    m.def( "date_time_from_epoch", &tba::DateTime::fromTime< TIME_TYPE >, py::arg( "epoch" ) ,
-                  R"doc(
+    m.def( "date_time_from_epoch",
+           &tba::DateTime::fromTime< TIME_TYPE >,
+           py::arg( "epoch" ),
+           R"doc(
 
          Return a DateTime representing ``epoch``, in seconds since J2000. The epoch may be supplied as a Time object.
 
       )doc" );
 
-    m.def( "date_time_from_iso_string", &tba::DateTime::fromIsoString, py::arg( "iso_string" ) ,
-                  R"doc(Parse ``iso_string`` into a DateTime using its ISO calendar date and time components.)doc" );
+    m.def( "date_time_from_iso_string",
+           &tba::DateTime::fromIsoString,
+           py::arg( "iso_string" ),
+           R"doc(Parse ``iso_string`` into a DateTime using its ISO calendar date and time components.)doc" );
 
-    m.def( "year_and_days_in_year_to_calendar_date", &tba::DateTime::fromYearAndDaysInYear, py::arg( "year" ), py::arg( "days_in_year" ) ,
-                  R"doc(Return a DateTime at midnight for the calendar ``year`` and one-based day number ``days_in_year``.)doc" );
+    m.def( "year_and_days_in_year_to_calendar_date",
+           &tba::DateTime::fromYearAndDaysInYear,
+           py::arg( "year" ),
+           py::arg( "days_in_year" ),
+           R"doc(Return a DateTime at midnight for the calendar ``year`` and one-based day number ``days_in_year``.)doc" );
 
-    m.def( "add_seconds_to_datetime", &tba::addSecondsToDateTime< TIME_TYPE >, py::arg( "datetime" ), py::arg( "seconds_to_add" ) ,
-                  R"doc(
+    m.def( "add_seconds_to_datetime",
+           &tba::addSecondsToDateTime< TIME_TYPE >,
+           py::arg( "datetime" ),
+           py::arg( "seconds_to_add" ),
+           R"doc(
 
          Return a new DateTime offset from ``datetime`` by ``seconds_to_add`` seconds, accounting for calendar
          boundaries.
 
       )doc" );
 
-    m.def( "add_days_to_datetime", &tba::addDaysToDateTime< TIME_TYPE >, py::arg( "datetime" ), py::arg( "days_to_add" ) ,
-                  R"doc(
+    m.def( "add_days_to_datetime",
+           &tba::addDaysToDateTime< TIME_TYPE >,
+           py::arg( "datetime" ),
+           py::arg( "days_to_add" ),
+           R"doc(
 
          Return a new DateTime offset from ``datetime`` by ``days_to_add`` days, accounting for calendar boundaries.
 
@@ -1850,16 +1837,18 @@ datetime.datetime
            py::arg( "day" ),
            py::arg( "hour" ),
            py::arg( "minute" ),
-           py::arg( "seconds" ) ,
-                  R"doc(
+           py::arg( "seconds" ),
+           R"doc(
 
          Return a Time object in seconds since J2000 from the calendar ``year``, ``month``, ``day``, ``hour``,
          ``minute`` and fractional ``seconds``.
 
       )doc" );
 
-    m.def( "epoch_from_date_time_iso_string", &tba::timeFromIsoString< TIME_TYPE >, py::arg( "iso_datetime" ) ,
-                  R"doc(
+    m.def( "epoch_from_date_time_iso_string",
+           &tba::timeFromIsoString< TIME_TYPE >,
+           py::arg( "iso_datetime" ),
+           R"doc(
 
          Return a Time object in seconds since J2000 from the ISO calendar date and time string ``iso_datetime``.
 

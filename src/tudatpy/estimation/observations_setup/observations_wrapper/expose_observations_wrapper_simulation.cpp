@@ -83,8 +83,8 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "observations" ),
            py::arg( "reference_link_end" ),
            py::arg( "ancillary_settings_per_observatble" ) =
-                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) ,
-                  R"doc(
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+           R"doc(
 
          Create an ObservationCollection from existing measurements grouped by observable type.
 

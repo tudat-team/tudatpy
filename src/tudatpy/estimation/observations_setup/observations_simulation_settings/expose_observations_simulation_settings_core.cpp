@@ -151,8 +151,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
       )doc" )
             .def_property( "simulation_times",
                            &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::getSimulationTimes,
-                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes ,
-                  R"doc(Requested simulation epochs, in seconds since J2000, associated with the reference link end.)doc" );
+                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes,
+                           R"doc(Requested simulation epochs, in seconds since J2000, associated with the reference link end.)doc" );
 
     m.def( "tabulated_simulation_settings",
            &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,

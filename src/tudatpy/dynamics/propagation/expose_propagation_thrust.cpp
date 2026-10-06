@@ -33,7 +33,7 @@ namespace propagation
 
 void expose_propagation_thrust_types( py::module& m )
 {
-    py::class_< tpr::ThrustMagnitudeWrapper, std::shared_ptr< tpr::ThrustMagnitudeWrapper > >( m, "ThrustMagnitudeWrapper" , R"doc(
+    py::class_< tpr::ThrustMagnitudeWrapper, std::shared_ptr< tpr::ThrustMagnitudeWrapper > >( m, "ThrustMagnitudeWrapper", R"doc(
 
          Base class for computing the thrust magnitude and mass flow rate of an engine.
 
@@ -46,7 +46,7 @@ void expose_propagation_thrust_types( py::module& m )
 void expose_propagation_thrust_bindings( py::module& m )
 {
     py::class_< tpr::ConstantThrustMagnitudeWrapper, std::shared_ptr< tpr::ConstantThrustMagnitudeWrapper >, tpr::ThrustMagnitudeWrapper >(
-            m, "ConstantThrustMagnitudeWrapper" , R"doc(
+            m, "ConstantThrustMagnitudeWrapper", R"doc(
 
          Object defining a constant engine thrust magnitude and specific impulse.
 
@@ -56,7 +56,8 @@ void expose_propagation_thrust_bindings( py::module& m )
       )doc" )
             .def_property( "constant_thrust_magnitude",
                            &tpr::ConstantThrustMagnitudeWrapper::getConstantThrustForceMagnitude,
-                           &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude , R"doc(
+                           &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude,
+                           R"doc(
 
          Constant thrust force magnitude produced by the engine, in N.
 
@@ -65,7 +66,7 @@ void expose_propagation_thrust_bindings( py::module& m )
       )doc" );
 
     py::class_< tpr::CustomThrustMagnitudeWrapper, std::shared_ptr< tpr::CustomThrustMagnitudeWrapper >, tpr::ThrustMagnitudeWrapper >(
-            m, "CustomThrustMagnitudeWrapper" , R"doc(
+            m, "CustomThrustMagnitudeWrapper", R"doc(
 
          Object defining an engine thrust magnitude from a user-provided function.
 
@@ -73,7 +74,7 @@ void expose_propagation_thrust_bindings( py::module& m )
          The thrust magnitude function can be replaced using :attr:`~CustomThrustMagnitudeWrapper.custom_thrust_magnitude`.
 
       )doc" )
-            .def_property( "custom_thrust_magnitude", nullptr, &tpr::CustomThrustMagnitudeWrapper::resetThrustMagnitudeFunction , R"doc(
+            .def_property( "custom_thrust_magnitude", nullptr, &tpr::CustomThrustMagnitudeWrapper::resetThrustMagnitudeFunction, R"doc(
 
          **write-only**
 

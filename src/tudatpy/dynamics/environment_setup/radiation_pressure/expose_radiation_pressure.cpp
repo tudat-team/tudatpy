@@ -44,14 +44,18 @@ void expose_radiation_pressure_types( py::module& m )
                 Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
                 in other parts of the code to identify a specific type of target
 )doc" )
-            .value( "cannonball_target", tss::RadiationPressureTargetModelType::cannonball_target ,
-                  R"doc(Radiation pressure target represented by a cannonball model.)doc" )
-            .value( "paneled_target", tss::RadiationPressureTargetModelType::paneled_target ,
-                  R"doc(Radiation pressure target represented by individual surface panels.)doc" )
-            .value( "multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target ,
-                  R"doc(Radiation pressure target combining multiple target model types.)doc" )
-            .value( "undefined_target", tss::RadiationPressureTargetModelType::undefined_target ,
-                  R"doc(Unspecified radiation pressure target model.)doc" )
+            .value( "cannonball_target",
+                    tss::RadiationPressureTargetModelType::cannonball_target,
+                    R"doc(Radiation pressure target represented by a cannonball model.)doc" )
+            .value( "paneled_target",
+                    tss::RadiationPressureTargetModelType::paneled_target,
+                    R"doc(Radiation pressure target represented by individual surface panels.)doc" )
+            .value( "multi_type_target",
+                    tss::RadiationPressureTargetModelType::multi_type_target,
+                    R"doc(Radiation pressure target combining multiple target model types.)doc" )
+            .value( "undefined_target",
+                    tss::RadiationPressureTargetModelType::undefined_target,
+                    R"doc(Unspecified radiation pressure target model.)doc" )
             .export_values( );
 }
 
@@ -61,7 +65,7 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   ENUMS
     ///////////////////////////////////////////////////////////
 
-    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel" , R"doc(
+    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel", R"doc(
 
          Enumeration of predefined Knocke-type surface property distributions.
 
@@ -69,23 +73,27 @@ void expose_radiation_pressure_setup( py::module& m )
          for a second-degree zonal periodic surface property model.
 
       )doc" )
-            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom ,
-                  R"doc(Knocke-type surface property distribution specified by custom coefficients.)doc" )
-            .value( "albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke ,
-                  R"doc(Knocke surface distribution of albedo.)doc" )
-            .value( "emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke ,
-                  R"doc(Knocke surface distribution of emissivity.)doc" )
+            .value( "custom",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::custom,
+                    R"doc(Knocke-type surface property distribution specified by custom coefficients.)doc" )
+            .value( "albedo_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke,
+                    R"doc(Knocke surface distribution of albedo.)doc" )
+            .value( "emissivity_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke,
+                    R"doc(Knocke surface distribution of emissivity.)doc" )
             .export_values( );
 
-    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel" , R"doc(
+    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel", R"doc(
 
          Enumeration of predefined spherical harmonic surface property distributions.
 
          The ``albedo_dlam1`` entry identifies the DLAM-1 lunar albedo model used for an extended radiation source.
 
       )doc" )
-            .value( "albedo_dlam1", tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1 ,
-                  R"doc(Albedo surface distribution using the DLAM-1 model.)doc" )
+            .value( "albedo_dlam1",
+                    tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1,
+                    R"doc(Albedo surface distribution using the DLAM-1 model.)doc" )
             .export_values( );
 
     enum class SphericalHarmonicsSurfacePropertyDistributionModel {
@@ -274,7 +282,7 @@ void expose_radiation_pressure_setup( py::module& m )
       )doc" );
     py::class_< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings,
                 std::shared_ptr< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >,
-                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings" , R"doc(
+                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings", R"doc(
 
          Settings returned by
          :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.knocke_type_surface_property_distribution`,

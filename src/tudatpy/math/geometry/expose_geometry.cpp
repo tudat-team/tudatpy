@@ -28,15 +28,15 @@ namespace tudatpy
 
 void expose_geometry( py::module& m )
 {
-    py::class_< tudat::SurfaceGeometry, std::shared_ptr< tudat::SurfaceGeometry > >( m, "SurfaceGeometry" ,
-                  R"doc(Base representation of a parameterized surface used for vehicle geometry calculations.)doc" );
+    py::class_< tudat::SurfaceGeometry, std::shared_ptr< tudat::SurfaceGeometry > >(
+            m, "SurfaceGeometry", R"doc(Base representation of a parameterized surface used for vehicle geometry calculations.)doc" );
 
     py::class_< tgs::CompositeSurfaceGeometry, std::shared_ptr< tgs::CompositeSurfaceGeometry >, tudat::SurfaceGeometry >(
-            m, "CompositeSurfaceGeometry" ,
-                  R"doc(Surface geometry assembled from multiple component surfaces.)doc" );
+            m, "CompositeSurfaceGeometry", R"doc(Surface geometry assembled from multiple component surfaces.)doc" );
 
-    py::class_< tgs::Capsule, std::shared_ptr< tgs::Capsule >, tgs::CompositeSurfaceGeometry >( m, "Capsule" ,
-                  R"doc(
+    py::class_< tgs::Capsule, std::shared_ptr< tgs::Capsule >, tgs::CompositeSurfaceGeometry >( m,
+                                                                                                "Capsule",
+                                                                                                R"doc(
 
          Composite capsule geometry defined by a rounded nose, middle radius, rear section and shoulder radius.
 
@@ -46,30 +46,33 @@ void expose_geometry( py::module& m )
                   py::arg( "middle_radius" ),
                   py::arg( "rear_length" ),
                   py::arg( "rear_angle" ),
-                  py::arg( "side_radius" ) ,
+                  py::arg( "side_radius" ),
                   R"doc(
 
          Create a capsule from nose, middle and side radii and rear length in metres, and the rear angle in radians.
 
       )doc" )
-            .def_property_readonly( "middle_radius", &tgs::Capsule::getMiddleRadius ,
-                  R"doc(
+            .def_property_readonly( "middle_radius",
+                                    &tgs::Capsule::getMiddleRadius,
+                                    R"doc(
 
          **read-only**
 
          Radius of the capsule middle section, in metres.
 
       )doc" )
-            .def_property_readonly( "volume", &tgs::Capsule::getVolume ,
-                  R"doc(
+            .def_property_readonly( "volume",
+                                    &tgs::Capsule::getVolume,
+                                    R"doc(
 
          **read-only**
 
          Volume enclosed by the capsule geometry, in cubic metres.
 
       )doc" )
-            .def_property_readonly( "length", &tgs::Capsule::getLength ,
-                  R"doc(
+            .def_property_readonly( "length",
+                                    &tgs::Capsule::getLength,
+                                    R"doc(
 
          **read-only**
 

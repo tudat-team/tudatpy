@@ -43,16 +43,17 @@ void expose_observations_processing( py::module& m )
 
         This enum defines the available types of observation filters that can be used to reject observations from a collection.
         )doc" )
-            .value( "residual_filtering", tom::ObservationFilterType::residual_filtering ,
-                  R"doc(Filter observations using residual.)doc" )
-            .value( "absolute_value_filtering", tom::ObservationFilterType::absolute_value_filtering ,
-                  R"doc(Filter observations using absolute value.)doc" )
-            .value( "epochs_filtering", tom::ObservationFilterType::epochs_filtering ,
-                  R"doc(Filter observations using epochs.)doc" )
-            .value( "time_bounds_filtering", tom::ObservationFilterType::time_bounds_filtering ,
-                  R"doc(Filter observations using time bounds.)doc" )
-            .value( "dependent_variable_filtering", tom::ObservationFilterType::dependent_variable_filtering ,
-                  R"doc(Filter observations using dependent variable.)doc" )
+            .value( "residual_filtering", tom::ObservationFilterType::residual_filtering, R"doc(Filter observations using residual.)doc" )
+            .value( "absolute_value_filtering",
+                    tom::ObservationFilterType::absolute_value_filtering,
+                    R"doc(Filter observations using absolute value.)doc" )
+            .value( "epochs_filtering", tom::ObservationFilterType::epochs_filtering, R"doc(Filter observations using epochs.)doc" )
+            .value( "time_bounds_filtering",
+                    tom::ObservationFilterType::time_bounds_filtering,
+                    R"doc(Filter observations using time bounds.)doc" )
+            .value( "dependent_variable_filtering",
+                    tom::ObservationFilterType::dependent_variable_filtering,
+                    R"doc(Filter observations using dependent variable.)doc" )
             .export_values( );
 
     py::enum_< tom::ObservationSetSplitterType >( m, "ObservationSetSplitterType", R"doc(
@@ -60,14 +61,18 @@ void expose_observations_processing( py::module& m )
 
         This enum defines the available types of observation set splitters that can be used to divide a collection of observations into multiple sets.
         )doc" )
-            .value( "time_tags_splitter", tom::ObservationSetSplitterType::time_tags_splitter ,
-                  R"doc(Split observation sets using time tags.)doc" )
-            .value( "time_interval_splitter", tom::ObservationSetSplitterType::time_interval_splitter ,
-                  R"doc(Split observation sets using time interval.)doc" )
-            .value( "time_span_splitter", tom::ObservationSetSplitterType::time_span_splitter ,
-                  R"doc(Split observation sets using time span.)doc" )
-            .value( "nb_observations_splitter", tom::ObservationSetSplitterType::nb_observations_splitter ,
-                  R"doc(Split observation sets using the number of observations.)doc" )
+            .value( "time_tags_splitter",
+                    tom::ObservationSetSplitterType::time_tags_splitter,
+                    R"doc(Split observation sets using time tags.)doc" )
+            .value( "time_interval_splitter",
+                    tom::ObservationSetSplitterType::time_interval_splitter,
+                    R"doc(Split observation sets using time interval.)doc" )
+            .value( "time_span_splitter",
+                    tom::ObservationSetSplitterType::time_span_splitter,
+                    R"doc(Split observation sets using time span.)doc" )
+            .value( "nb_observations_splitter",
+                    tom::ObservationSetSplitterType::nb_observations_splitter,
+                    R"doc(Split observation sets using the number of observations.)doc" )
             .export_values( );
 
     py::enum_< tom::ObservationParserType >( m, "ObservationParserType", R"doc(
@@ -75,26 +80,32 @@ void expose_observations_processing( py::module& m )
 
         This enum defines the available types of observation parsers that can be used to select observations from a collection based on various criteria.
         )doc" )
-            .value( "empty_parser", tom::ObservationParserType::empty_parser ,
-                  R"doc(Select all observation sets without imposing a selection criterion.)doc" )
-            .value( "observable_type_parser", tom::ObservationParserType::observable_type_parser ,
-                  R"doc(Select observation sets by observable.)doc" )
-            .value( "link_ends_parser", tom::ObservationParserType::link_ends_parser ,
-                  R"doc(Select observation sets by link ends.)doc" )
-            .value( "link_end_str_parser", tom::ObservationParserType::link_end_string_parser ,
-                  R"doc(Select observation sets by link end string.)doc" )
-            .value( "link_end_id_parser", tom::ObservationParserType::link_end_id_parser ,
-                  R"doc(Select observation sets by link end identifier.)doc" )
-            .value( "link_end_type_parser", tom::ObservationParserType::link_end_type_parser ,
-                  R"doc(Select observation sets by link end.)doc" )
-            .value( "single_link_end_parser", tom::ObservationParserType::single_link_end_parser ,
-                  R"doc(Select observation sets by single link end.)doc" )
-            .value( "time_bounds_parser", tom::ObservationParserType::time_bounds_parser ,
-                  R"doc(Select observation sets by time bounds.)doc" )
-            .value( "ancillary_settings_parser", tom::ObservationParserType::ancillary_settings_parser ,
-                  R"doc(Select observation sets by ancillary settings.)doc" )
-            .value( "multi_type_parser", tom::ObservationParserType::multi_type_parser ,
-                  R"doc(Select observation sets by multi.)doc" )
+            .value( "empty_parser",
+                    tom::ObservationParserType::empty_parser,
+                    R"doc(Select all observation sets without imposing a selection criterion.)doc" )
+            .value( "observable_type_parser",
+                    tom::ObservationParserType::observable_type_parser,
+                    R"doc(Select observation sets by observable.)doc" )
+            .value( "link_ends_parser", tom::ObservationParserType::link_ends_parser, R"doc(Select observation sets by link ends.)doc" )
+            .value( "link_end_str_parser",
+                    tom::ObservationParserType::link_end_string_parser,
+                    R"doc(Select observation sets by link end string.)doc" )
+            .value( "link_end_id_parser",
+                    tom::ObservationParserType::link_end_id_parser,
+                    R"doc(Select observation sets by link end identifier.)doc" )
+            .value( "link_end_type_parser",
+                    tom::ObservationParserType::link_end_type_parser,
+                    R"doc(Select observation sets by link end.)doc" )
+            .value( "single_link_end_parser",
+                    tom::ObservationParserType::single_link_end_parser,
+                    R"doc(Select observation sets by single link end.)doc" )
+            .value( "time_bounds_parser",
+                    tom::ObservationParserType::time_bounds_parser,
+                    R"doc(Select observation sets by time bounds.)doc" )
+            .value( "ancillary_settings_parser",
+                    tom::ObservationParserType::ancillary_settings_parser,
+                    R"doc(Select observation sets by ancillary settings.)doc" )
+            .value( "multi_type_parser", tom::ObservationParserType::multi_type_parser, R"doc(Select observation sets by multi.)doc" )
             .export_values( );
 
     py::class_< tom::ObservationFilterBase, std::shared_ptr< tom::ObservationFilterBase > >( m, "ObservationFilterBase", R"doc(

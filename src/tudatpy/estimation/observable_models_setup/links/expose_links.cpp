@@ -85,34 +85,33 @@ Examples
 
 
       )doc" )
-            .value( "unidentified_link_end", tom::LinkEndType::unidentified_link_end ,
-                  R"doc(Link end with an unspecified role in the observation.)doc" )
-            .value( "transmitter", tom::LinkEndType::transmitter ,
-                  R"doc(Link end transmitting the first signal on the observation link.)doc" )
-            .value( "reflector1", tom::LinkEndType::reflector1 ,
-                  R"doc(First intermediate reflector on the observation link.)doc" )
-            .value( "retransmitter", tom::LinkEndType::retransmitter ,
-                  R"doc(Intermediate link end receiving and retransmitting the signal.)doc" )
-            .value( "reflector2", tom::LinkEndType::reflector2 ,
-                  R"doc(Second intermediate reflector on the observation link.)doc" )
-            .value( "reflector3", tom::LinkEndType::reflector3 ,
-                  R"doc(Third intermediate reflector on the observation link.)doc" )
-            .value( "reflector4", tom::LinkEndType::reflector4 ,
-                  R"doc(Fourth intermediate reflector on the observation link.)doc" )
-            .value( "receiver", tom::LinkEndType::receiver ,
-                  R"doc(Link end receiving the signal at the end of the observation link.)doc" )
-            .value( "receiver2", tom::LinkEndType::receiver2 ,
-                  R"doc(Second receiving link end in a multi-receiver observation.)doc" )
-            .value( "transmitter2", tom::LinkEndType::transmitter2 ,
-                  R"doc(Second transmitting link end in a multi-transmitter observation.)doc" )
-            .value( "observer", tom::LinkEndType::observer ,
-                  R"doc(Body or reference point from which a direct observable is measured.)doc" )
-            .value( "observed_body", tom::LinkEndType::observed_body ,
-                  R"doc(Body or reference point whose state or direction is observed.)doc" )
+            .value( "unidentified_link_end",
+                    tom::LinkEndType::unidentified_link_end,
+                    R"doc(Link end with an unspecified role in the observation.)doc" )
+            .value( "transmitter",
+                    tom::LinkEndType::transmitter,
+                    R"doc(Link end transmitting the first signal on the observation link.)doc" )
+            .value( "reflector1", tom::LinkEndType::reflector1, R"doc(First intermediate reflector on the observation link.)doc" )
+            .value( "retransmitter",
+                    tom::LinkEndType::retransmitter,
+                    R"doc(Intermediate link end receiving and retransmitting the signal.)doc" )
+            .value( "reflector2", tom::LinkEndType::reflector2, R"doc(Second intermediate reflector on the observation link.)doc" )
+            .value( "reflector3", tom::LinkEndType::reflector3, R"doc(Third intermediate reflector on the observation link.)doc" )
+            .value( "reflector4", tom::LinkEndType::reflector4, R"doc(Fourth intermediate reflector on the observation link.)doc" )
+            .value( "receiver", tom::LinkEndType::receiver, R"doc(Link end receiving the signal at the end of the observation link.)doc" )
+            .value( "receiver2", tom::LinkEndType::receiver2, R"doc(Second receiving link end in a multi-receiver observation.)doc" )
+            .value( "transmitter2",
+                    tom::LinkEndType::transmitter2,
+                    R"doc(Second transmitting link end in a multi-transmitter observation.)doc" )
+            .value( "observer", tom::LinkEndType::observer, R"doc(Body or reference point from which a direct observable is measured.)doc" )
+            .value( "observed_body",
+                    tom::LinkEndType::observed_body,
+                    R"doc(Body or reference point whose state or direction is observed.)doc" )
             .export_values( );
 
-    auto link_end_id = py::class_< tom::LinkEndId, std::shared_ptr< tom::LinkEndId > >( m, "LinkEndId" ,
-                  R"doc(
+    auto link_end_id = py::class_< tom::LinkEndId, std::shared_ptr< tom::LinkEndId > >( m,
+                                                                                        "LinkEndId",
+                                                                                        R"doc(
 
          Identifier of an observation link end, consisting of a body name and optional station or reference point name.
 
@@ -360,13 +359,17 @@ Examples
                                     R"doc(
          Name of the ground station reference point on the body, str. Empty if there is no reference point.
       )doc" )
-            .def( py::init< const std::string& >( ), py::arg( "body_name" ) ,
+            .def( py::init< const std::string& >( ),
+                  py::arg( "body_name" ),
                   R"doc(Identify the centre of the named body as an observation link end.)doc" )
-            .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "station_name" ) ,
+            .def( py::init< const std::string&, const std::string& >( ),
+                  py::arg( "body_name" ),
+                  py::arg( "station_name" ),
                   R"doc(Identify a station or reference point on the named body.)doc" )
-            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) ,
-                  R"doc(Create a link-end identifier from a (body name, station or reference point name) tuple.)doc" ) TUDATPY_DEF_EQ_NE( tom::LinkEndId )
-                    TUDATPY_DEF_FILE_IO( tom::LinkEndId );
+            .def( py::init< const std::pair< std::string, std::string >& >( ),
+                  py::arg( "link_end" ),
+                  R"doc(Create a link-end identifier from a (body name, station or reference point name) tuple.)doc" )
+                    TUDATPY_DEF_EQ_NE( tom::LinkEndId ) TUDATPY_DEF_FILE_IO( tom::LinkEndId );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -487,7 +490,8 @@ Examples
 
 
       )doc" )
-            .def( py::init< const std::map< tom::LinkEndType, tom::LinkEndId >& >( ), py::arg( "link_ends" ) ,
+            .def( py::init< const std::map< tom::LinkEndType, tom::LinkEndId >& >( ),
+                  py::arg( "link_ends" ),
                   R"doc(Create an observation link from a mapping of link-end roles to LinkEndId identifiers.)doc" )
             .def( "link_end_id",
                   &tom::LinkDefinition::at,

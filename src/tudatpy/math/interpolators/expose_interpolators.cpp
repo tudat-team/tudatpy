@@ -208,7 +208,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
                   py::arg( "interpolator_settings" ),
                   py::arg( "initial_time" ),
                   py::arg( "final_time" ),
-                  py::arg( "time_step" ) ,
+                  py::arg( "time_step" ),
                   R"doc(
 
          Configure interpolation from model settings and a sampling interval with initial epoch, final epoch and time
@@ -237,7 +237,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
                   py::arg( "use_long_double_time_step" ) = 0,
                   py::arg( "selected_lookup_scheme" ) = ti::huntingAlgorithm,
                   py::arg( "lagrange_boundary_handling" ) = ti::lagrange_cubic_spline_boundary_interpolation,
-                  py::arg( "boundary_handling" ) = ti::extrapolate_at_boundary ,
+                  py::arg( "boundary_handling" ) = ti::extrapolate_at_boundary,
                   R"doc(
 
          Configure Lagrange interpolation order, lookup algorithm and boundary handling, optionally using long-double
@@ -250,8 +250,8 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ) ,
-                  R"doc(
+           py::arg( "time_step" ),
+           R"doc(
 
          Create settings to sample a function on Time-object epochs and construct an interpolator.
 
@@ -265,8 +265,8 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ) ,
-                  R"doc(
+           py::arg( "time_step" ),
+           R"doc(
 
          Create settings to sample a function on double-precision epochs and construct an interpolator.
 
@@ -465,8 +465,8 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
     m.def( "hermite_interpolation",
            &ti::hermiteInterpolation,
            py::arg( "lookup_scheme" ) = ti::huntingAlgorithm,
-           py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning ,
-                  R"doc(
+           py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning,
+           R"doc(
 
          Create Hermite interpolation settings for data supplied with first derivatives.
 

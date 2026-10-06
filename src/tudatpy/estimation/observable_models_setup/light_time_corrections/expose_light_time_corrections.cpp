@@ -42,8 +42,10 @@ namespace light_time_corrections
 
 void expose_light_time_corrections( py::module& m )
 {
-    py::class_< tom::LightTimeCorrection, std::shared_ptr< tom::LightTimeCorrection > >( m, "LightTimeCorrection" ,
-                  R"doc(Base model for a correction to the propagation time of an electromagnetic signal between link ends.)doc" );
+    py::class_< tom::LightTimeCorrection, std::shared_ptr< tom::LightTimeCorrection > >(
+            m,
+            "LightTimeCorrection",
+            R"doc(Base model for a correction to the propagation time of an electromagnetic signal between link ends.)doc" );
 
     py::enum_< tom::LightTimeCorrectionType >( m,
                                                "LightTimeCorrectionType",
@@ -51,28 +53,37 @@ void expose_light_time_corrections( py::module& m )
 
 Used as a filter by :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.light_time_correction_components_dependent_variable`
 to select which correction contributions are saved individually.)doc" )
-            .value( "first_order_relativistic", tom::first_order_relativistic ,
-                  R"doc(First-order relativistic light-time correction.)doc" )
-            .value( "function_wrapper_light_time_correction", tom::function_wrapper_light_time_correction ,
-                  R"doc(Light-time correction evaluated by a user-supplied function.)doc" )
-            .value( "tabulated_tropospheric", tom::tabulated_tropospheric ,
-                  R"doc(Tropospheric light-time correction from tabulated delays.)doc" )
-            .value( "saastamoinen_tropospheric", tom::saastamoinen_tropospheric ,
-                  R"doc(Tropospheric light-time correction using the Saastamoinen model.)doc" )
-            .value( "vmf3_tropospheric", tom::vmf3_tropospheric ,
-                  R"doc(Tropospheric light-time correction using Vienna Mapping Function 3 products.)doc" )
-            .value( "vmf3o_tropospheric", tom::vmf3o_tropospheric ,
-                  R"doc(Optical tropospheric light-time correction using VMF3o products.)doc" )
-            .value( "tabulated_ionospheric", tom::tabulated_ionospheric ,
-                  R"doc(Ionospheric light-time correction from tabulated delays.)doc" )
-            .value( "jakowski_vtec_ionospheric", tom::jakowski_vtec_ionospheric ,
-                  R"doc(Ionospheric light-time correction using the Jakowski VTEC model.)doc" )
-            .value( "inverse_power_series_solar_corona", tom::inverse_power_series_solar_corona ,
-                  R"doc(Solar-corona light-time correction using an inverse-power electron density model.)doc" )
-            .value( "ionex_vtec_ionospheric", tom::ionex_vtec_ionospheric ,
-                  R"doc(Ionospheric light-time correction using IONEX vertical total electron content maps.)doc" )
-            .value( "nequick2_ionospheric", tom::nequick2_ionospheric ,
-                  R"doc(Ionospheric light-time correction using the NeQuick2 electron density model.)doc" )
+            .value( "first_order_relativistic", tom::first_order_relativistic, R"doc(First-order relativistic light-time correction.)doc" )
+            .value( "function_wrapper_light_time_correction",
+                    tom::function_wrapper_light_time_correction,
+                    R"doc(Light-time correction evaluated by a user-supplied function.)doc" )
+            .value( "tabulated_tropospheric",
+                    tom::tabulated_tropospheric,
+                    R"doc(Tropospheric light-time correction from tabulated delays.)doc" )
+            .value( "saastamoinen_tropospheric",
+                    tom::saastamoinen_tropospheric,
+                    R"doc(Tropospheric light-time correction using the Saastamoinen model.)doc" )
+            .value( "vmf3_tropospheric",
+                    tom::vmf3_tropospheric,
+                    R"doc(Tropospheric light-time correction using Vienna Mapping Function 3 products.)doc" )
+            .value( "vmf3o_tropospheric",
+                    tom::vmf3o_tropospheric,
+                    R"doc(Optical tropospheric light-time correction using VMF3o products.)doc" )
+            .value( "tabulated_ionospheric",
+                    tom::tabulated_ionospheric,
+                    R"doc(Ionospheric light-time correction from tabulated delays.)doc" )
+            .value( "jakowski_vtec_ionospheric",
+                    tom::jakowski_vtec_ionospheric,
+                    R"doc(Ionospheric light-time correction using the Jakowski VTEC model.)doc" )
+            .value( "inverse_power_series_solar_corona",
+                    tom::inverse_power_series_solar_corona,
+                    R"doc(Solar-corona light-time correction using an inverse-power electron density model.)doc" )
+            .value( "ionex_vtec_ionospheric",
+                    tom::ionex_vtec_ionospheric,
+                    R"doc(Ionospheric light-time correction using IONEX vertical total electron content maps.)doc" )
+            .value( "nequick2_ionospheric",
+                    tom::nequick2_ionospheric,
+                    R"doc(Ionospheric light-time correction using the NeQuick2 electron density model.)doc" )
             .export_values( );
 
     py::class_< tom::LightTimeCalculatorBase, std::shared_ptr< tom::LightTimeCalculatorBase > >(
@@ -192,12 +203,15 @@ Examples
 
 
       )doc" )
-            .value( "accept_without_warning", tom::LightTimeFailureHandling::accept_without_warning ,
-                  R"doc(Accept the last light-time iterate without warning if convergence fails.)doc" )
-            .value( "print_warning_and_accept", tom::LightTimeFailureHandling::print_warning_and_accept ,
-                  R"doc(Warn and accept the last light-time iterate if convergence fails.)doc" )
-            .value( "throw_exception", tom::LightTimeFailureHandling::throw_exception ,
-                  R"doc(Raise an exception if light-time convergence fails.)doc" )
+            .value( "accept_without_warning",
+                    tom::LightTimeFailureHandling::accept_without_warning,
+                    R"doc(Accept the last light-time iterate without warning if convergence fails.)doc" )
+            .value( "print_warning_and_accept",
+                    tom::LightTimeFailureHandling::print_warning_and_accept,
+                    R"doc(Warn and accept the last light-time iterate if convergence fails.)doc" )
+            .value( "throw_exception",
+                    tom::LightTimeFailureHandling::throw_exception,
+                    R"doc(Raise an exception if light-time convergence fails.)doc" )
             .export_values( );
 
     m.def( "light_time_convergence_settings",
@@ -384,13 +398,15 @@ Examples
 
      )doc" );
 
-    py::enum_< tom::TroposphericMappingModel >( m, "TroposphericMappingModel", R"doc(Mapping functions for converting zenith tropospheric delays into line-of-sight delays.)doc" )
-            .value( "simplified_chao", tom::TroposphericMappingModel::simplified_chao ,
-                  R"doc(Simplified Chao tropospheric mapping function.)doc" )
-            .value( "niell", tom::TroposphericMappingModel::niell ,
-                  R"doc(Niell tropospheric mapping function.)doc" )
-            .value( "vmf3", tom::TroposphericMappingModel::vmf3 ,
-                  R"doc(Vienna Mapping Function 3.)doc" );
+    py::enum_< tom::TroposphericMappingModel >(
+            m,
+            "TroposphericMappingModel",
+            R"doc(Mapping functions for converting zenith tropospheric delays into line-of-sight delays.)doc" )
+            .value( "simplified_chao",
+                    tom::TroposphericMappingModel::simplified_chao,
+                    R"doc(Simplified Chao tropospheric mapping function.)doc" )
+            .value( "niell", tom::TroposphericMappingModel::niell, R"doc(Niell tropospheric mapping function.)doc" )
+            .value( "vmf3", tom::TroposphericMappingModel::vmf3, R"doc(Vienna Mapping Function 3.)doc" );
 
     py::enum_< tom::WaterVaporPartialPressureModel >(
             m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(Enumeration for water vapor partial pressure models.)doc" )
@@ -731,16 +747,18 @@ Returns
 
       )doc" );
 
-    py::class_< tom::VtecCalculator, std::shared_ptr< tom::VtecCalculator > >( m, "VtecCalculator" ,
-                  R"doc(
+    py::class_< tom::VtecCalculator, std::shared_ptr< tom::VtecCalculator > >( m,
+                                                                               "VtecCalculator",
+                                                                               R"doc(
 
          Base interface for computing vertical total electron content for ionospheric light-time corrections.
 
       )doc" );
 
     py::class_< tom::JakowskiVtecCalculator, std::shared_ptr< tom::JakowskiVtecCalculator >, tom::VtecCalculator >(
-            m, "JakowskiVtecCalculator" ,
-                  R"doc(
+            m,
+            "JakowskiVtecCalculator",
+            R"doc(
 
          Jakowski vertical total electron content model using solar declination and F10.7 radio flux functions.
 
@@ -748,7 +766,7 @@ Returns
             .def( py::init< std::function< double( double ) >, std::function< double( double ) >, bool >( ),
                   py::arg( "sun_declination_function" ),
                   py::arg( "f10p7_function" ),
-                  py::arg( "use_utc_time_for_local_time" ) = false ,
+                  py::arg( "use_utc_time_for_local_time" ) = false,
                   R"doc(
 
          Create a Jakowski VTEC model from epoch-dependent solar declination and F10.7 functions, optionally using UTC
@@ -758,7 +776,7 @@ Returns
             .def( "calculate_vtec",
                   &tudat::observation_models::JakowskiVtecCalculator::calculateVtec,
                   py::arg( "time" ),
-                  py::arg( "sub_ionospheric_point" ) ,
+                  py::arg( "sub_ionospheric_point" ),
                   R"doc(
 
          Evaluate vertical total electron content at ``time`` and ``sub_ionospheric_point``.

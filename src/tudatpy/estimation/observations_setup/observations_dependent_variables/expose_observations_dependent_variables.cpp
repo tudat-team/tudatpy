@@ -118,16 +118,18 @@ void expose_observations_dependent_variable_types( py::module& m )
          Instances of this class are created as part of observation simulation
          settings and can be reused when constructing a SingleObservationSet.
       )doc" )
-            .def_property_readonly( "observable_type", &tss::ObservationDependentVariableBookkeeping::getObservableType ,
-                  R"doc(
+            .def_property_readonly( "observable_type",
+                                    &tss::ObservationDependentVariableBookkeeping::getObservableType,
+                                    R"doc(
 
          **read-only**
 
          Observable type associated with these observation dependent variables.
 
       )doc" )
-            .def_property_readonly( "link_ends", &tss::ObservationDependentVariableBookkeeping::getLinkEnds ,
-                  R"doc(
+            .def_property_readonly( "link_ends",
+                                    &tss::ObservationDependentVariableBookkeeping::getLinkEnds,
+                                    R"doc(
 
          **read-only**
 
@@ -135,8 +137,8 @@ void expose_observations_dependent_variable_types( py::module& m )
 
       )doc" )
             .def_property_readonly( "dependent_variable_settings",
-                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings ,
-                  R"doc(
+                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings,
+                                    R"doc(
 
          **read-only**
 
@@ -144,8 +146,8 @@ void expose_observations_dependent_variable_types( py::module& m )
 
       )doc" )
             .def_property_readonly( "total_dependent_variable_size",
-                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize ,
-                  R"doc(
+                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize,
+                                    R"doc(
 
          **read-only**
 
@@ -277,12 +279,15 @@ void expose_observations_dependent_variables( py::module& m )
 
         For observables that are integrated over a time interval (like Doppler), this enum specifies at which end of the integration interval the dependent variable should be evaluated.
         )doc" )
-            .value( "interval_start", tss::IntegratedObservationPropertyHandling::interval_start ,
-                  R"doc(Evaluate the dependent variable at the start of the observation integration interval.)doc" )
-            .value( "interval_end", tss::IntegratedObservationPropertyHandling::interval_end ,
-                  R"doc(Evaluate the dependent variable at the end of the observation integration interval.)doc" )
-            .value( "interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined ,
-                  R"doc(No observation integration interval endpoint is specified.)doc" )
+            .value( "interval_start",
+                    tss::IntegratedObservationPropertyHandling::interval_start,
+                    R"doc(Evaluate the dependent variable at the start of the observation integration interval.)doc" )
+            .value( "interval_end",
+                    tss::IntegratedObservationPropertyHandling::interval_end,
+                    R"doc(Evaluate the dependent variable at the end of the observation integration interval.)doc" )
+            .value( "interval_undefined",
+                    tss::IntegratedObservationPropertyHandling::interval_undefined,
+                    R"doc(No observation integration interval endpoint is specified.)doc" )
             .export_values( );
 
     m.def( "elevation_angle_dependent_variable",

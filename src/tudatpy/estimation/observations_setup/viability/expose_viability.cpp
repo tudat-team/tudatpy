@@ -143,18 +143,24 @@ Examples
 
 
       )doc" )
-            .value( "minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle ,
-                  R"doc(Require the target to be above a minimum station elevation angle.)doc" )
-            .value( "body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle ,
-                  R"doc(Require the line of sight to remain outside the avoidance angle of a body.)doc" )
-            .value( "body_occultation", tom::ObservationViabilityType::body_occultation ,
-                  R"doc(Reject observations whose line of sight is occulted by a body.)doc" )
-            .value( "observation_boundaries", tom::ObservationViabilityType::observation_boundaries ,
-                  R"doc(Apply configured observation visibility or geometry boundaries.)doc" )
-            .value( "ground_station_darkness", tom::ObservationViabilityType::ground_station_darkness ,
-                  R"doc(Require the observing ground station to be in darkness.)doc" )
-            .value( "body_in_sunlight", tom::ObservationViabilityType::body_in_sunlight ,
-                  R"doc(Require the observed body to be illuminated by sunlight.)doc" )
+            .value( "minimum_elevation_angle",
+                    tom::ObservationViabilityType::minimum_elevation_angle,
+                    R"doc(Require the target to be above a minimum station elevation angle.)doc" )
+            .value( "body_avoidance_angle",
+                    tom::ObservationViabilityType::body_avoidance_angle,
+                    R"doc(Require the line of sight to remain outside the avoidance angle of a body.)doc" )
+            .value( "body_occultation",
+                    tom::ObservationViabilityType::body_occultation,
+                    R"doc(Reject observations whose line of sight is occulted by a body.)doc" )
+            .value( "observation_boundaries",
+                    tom::ObservationViabilityType::observation_boundaries,
+                    R"doc(Apply configured observation visibility or geometry boundaries.)doc" )
+            .value( "ground_station_darkness",
+                    tom::ObservationViabilityType::ground_station_darkness,
+                    R"doc(Require the observing ground station to be in darkness.)doc" )
+            .value( "body_in_sunlight",
+                    tom::ObservationViabilityType::body_in_sunlight,
+                    R"doc(Require the observed body to be illuminated by sunlight.)doc" )
             .export_values( );
 
     m.def( "observation_boundaries_viability",

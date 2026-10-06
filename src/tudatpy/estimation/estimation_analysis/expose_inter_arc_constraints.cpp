@@ -105,32 +105,36 @@ void expose_inter_arc_constraints( py::module& m )
          arc_pairs : dict[str, list[tuple[int, int]]]
              Optional body-specific zero-based ``(left_arc, right_arc)`` pairs.
       )doc" )
-            .def_property_readonly( "bodies", &tss::InterArcStateContinuityConstraintSettings::bodies ,
-                  R"doc(
+            .def_property_readonly( "bodies",
+                                    &tss::InterArcStateContinuityConstraintSettings::bodies,
+                                    R"doc(
 
          **read-only**
 
          Bodies whose translational states are constrained to be continuous between arcs.
 
       )doc" )
-            .def_property_readonly( "connection_epochs", &tss::InterArcStateContinuityConstraintSettings::connectionEpochsByBody ,
-                  R"doc(
+            .def_property_readonly( "connection_epochs",
+                                    &tss::InterArcStateContinuityConstraintSettings::connectionEpochsByBody,
+                                    R"doc(
 
          **read-only**
 
          Connection epochs for each constrained body, in seconds since J2000.
 
       )doc" )
-            .def_property_readonly( "constraint_scaling_factor", &tss::InterArcStateContinuityConstraintSettings::constraintScalingFactor ,
-                  R"doc(
+            .def_property_readonly( "constraint_scaling_factor",
+                                    &tss::InterArcStateContinuityConstraintSettings::constraintScalingFactor,
+                                    R"doc(
 
          **read-only**
 
          Scaling factor applied to the state continuity constraint equations.
 
       )doc" )
-            .def_property_readonly( "arc_pairs", &tss::InterArcStateContinuityConstraintSettings::arcPairsByBody ,
-                  R"doc(
+            .def_property_readonly( "arc_pairs",
+                                    &tss::InterArcStateContinuityConstraintSettings::arcPairsByBody,
+                                    R"doc(
 
          **read-only**
 

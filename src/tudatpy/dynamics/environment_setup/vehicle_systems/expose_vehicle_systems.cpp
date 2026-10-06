@@ -566,22 +566,24 @@ list[BodyPanelSettings]
 
 
       )doc" )
-            .def_property(
-                    "boresight_euler_angles", &tss::CameraSettings::getBoresightEulerAngles, &tss::CameraSettings::setBoresightEulerAngles , R"doc(
+            .def_property( "boresight_euler_angles",
+                           &tss::CameraSettings::getBoresightEulerAngles,
+                           &tss::CameraSettings::setBoresightEulerAngles,
+                           R"doc(
 
          Right ascension, declination and twist angles defining the camera boresight relative to the body-fixed frame, in rad. The orientation follows the 3-2-3 rotation convention used by :func:`~pinhole_camera`.
 
          :type: numpy.ndarray[numpy.float64[3, 1]]
 
       )doc" )
-            .def_property( "focal_lengths", &tss::CameraSettings::getFocalLengths, &tss::CameraSettings::setFocalLengths , R"doc(
+            .def_property( "focal_lengths", &tss::CameraSettings::getFocalLengths, &tss::CameraSettings::setFocalLengths, R"doc(
 
          Focal lengths in the two image coordinate directions used by the pinhole camera model.
 
          :type: tuple[float, float]
 
       )doc" )
-            .def_property( "optical_center", &tss::CameraSettings::getOpticalCenter, &tss::CameraSettings::setOpticalCenter , R"doc(
+            .def_property( "optical_center", &tss::CameraSettings::getOpticalCenter, &tss::CameraSettings::setOpticalCenter, R"doc(
 
          Coordinates of the optical centre in the two image coordinate directions.
 
@@ -590,7 +592,8 @@ list[BodyPanelSettings]
       )doc" )
             .def_property( "body_fixed_position",
                            &tss::CameraSettings::getBodyFixedCameraPosition,
-                           &tss::CameraSettings::setBodyFixedCameraPosition , R"doc(
+                           &tss::CameraSettings::setBodyFixedCameraPosition,
+                           R"doc(
 
          Cartesian position of the camera in the body-fixed frame, in m.
 
@@ -598,7 +601,7 @@ list[BodyPanelSettings]
 
       )doc" )
 
-            .def_property_readonly( "camera_name", &tss::CameraSettings::getCameraName , R"doc(
+            .def_property_readonly( "camera_name", &tss::CameraSettings::getCameraName, R"doc(
 
          **read-only**
 

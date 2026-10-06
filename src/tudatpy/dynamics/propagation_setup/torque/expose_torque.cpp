@@ -81,11 +81,15 @@ void expose_torque_setup( py::module& m )
                     tba::AvailableTorque::second_order_gravitational_torque,
                     R"doc(Second-degree gravitational torque on the body.)doc" )
             .value( "aerodynamic_type", tba::AvailableTorque::aerodynamic_torque, R"doc(Aerodynamic torque on the body.)doc" )
-            .value( "radiation_pressure_torque_type", tba::AvailableTorque::radiation_pressure_torque, R"doc(Torque due to radiation pressure on the body.)doc" )
+            .value( "radiation_pressure_torque_type",
+                    tba::AvailableTorque::radiation_pressure_torque,
+                    R"doc(Torque due to radiation pressure on the body.)doc" )
             .value( "spherical_harmonic_gravitational_type",
                     tba::AvailableTorque::spherical_harmonic_gravitational_torque,
                     R"doc(Gravitational torque from a spherical harmonic gravity field.)doc" )
-            .value( "inertial_type", tba::AvailableTorque::inertial_torque, R"doc(Inertial torque in the body-fixed rotational equations.)doc" )
+            .value( "inertial_type",
+                    tba::AvailableTorque::inertial_torque,
+                    R"doc(Inertial torque in the body-fixed rotational equations.)doc" )
             .value( "dissipative_type", tba::AvailableTorque::dissipative_torque, R"doc(Dissipative torque on the body.)doc" )
             .value( "full_two_body_spherical_harmonic_gravitational_type",
                     tba::AvailableTorque::full_two_body_spherical_harmonic_gravitational_torque,

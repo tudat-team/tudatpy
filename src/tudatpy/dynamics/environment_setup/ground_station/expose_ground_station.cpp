@@ -39,7 +39,7 @@ namespace ground_station
 void expose_ground_station_setup( py::module& m )
 {
     // Ground station motion settings
-    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes" , R"doc(
+    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes", R"doc(
 
          Enumeration of ground station motion models.
 
@@ -47,17 +47,21 @@ void expose_ground_station_setup( py::module& m )
          such as constant linear motion and motion caused by body deformation.
 
       )doc" )
-            .value( "linear", tss::StationMotionModelTypes::linear_station_motion ,
-                  R"doc(Station displacement from a constant body-fixed velocity.)doc" )
-            .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion ,
-                  R"doc(Station displacement specified by piecewise-constant offsets.)doc" )
-            .value( "custom", tss::StationMotionModelTypes::custom_station_motion ,
-                  R"doc(Station displacement evaluated by a custom function.)doc" )
-            .value( "body_deformation", tss::StationMotionModelTypes::body_deformation_station_motion ,
-                  R"doc(Station displacement due to deformation of the host body.)doc" )
+            .value( "linear",
+                    tss::StationMotionModelTypes::linear_station_motion,
+                    R"doc(Station displacement from a constant body-fixed velocity.)doc" )
+            .value( "piecewise_constant",
+                    tss::StationMotionModelTypes::piecewise_constant_station_motion,
+                    R"doc(Station displacement specified by piecewise-constant offsets.)doc" )
+            .value( "custom",
+                    tss::StationMotionModelTypes::custom_station_motion,
+                    R"doc(Station displacement evaluated by a custom function.)doc" )
+            .value( "body_deformation",
+                    tss::StationMotionModelTypes::body_deformation_station_motion,
+                    R"doc(Station displacement due to deformation of the host body.)doc" )
             .value( "bodycentric_to_barycentric_station_position_motion",
-                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion ,
-                  R"doc(Relativistic station displacement between bodycentric and barycentric coordinates.)doc" );
+                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion,
+                    R"doc(Relativistic station displacement between bodycentric and barycentric coordinates.)doc" );
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -73,7 +77,7 @@ void expose_ground_station_setup( py::module& m )
 
 
       )doc" )
-            .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType , R"doc(
+            .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType, R"doc(
 
          **read-only**
 
@@ -143,7 +147,8 @@ reference_epoch:
                                                     R"doc(
                     Define station motion settings based on body deformation
                     )doc" )
-            .def( py::init< const bool >( ), py::arg( "fail_if_not_available" ) = true ,
+            .def( py::init< const bool >( ),
+                  py::arg( "fail_if_not_available" ) = true,
                   R"doc(
 
          Create a station displacement model due to body deformation, optionally requiring that deformation models
@@ -223,7 +228,8 @@ reference_epoch:
     m.def( "add_motion_model_to_each_ground_station",
            &tss::addStationMotionModelToEachGroundStation,
            py::arg( "ground_station_settings_list" ),
-           py::arg( "station_motion_setting" ) , R"doc(
+           py::arg( "station_motion_setting" ),
+           R"doc(
 
          Add a station motion model to each ground station in a settings list.
 

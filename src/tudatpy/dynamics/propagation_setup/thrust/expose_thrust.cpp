@@ -60,17 +60,19 @@ namespace thrust
 
 void expose_thrust_setup( py::module& m )
 {
-    py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes" ,
-                  R"doc(Types of models used to determine thrust magnitude.)doc" )
+    py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes", R"doc(Types of models used to determine thrust magnitude.)doc" )
             //                                         get_docstring("ThrustMagnitudeTypes").c_str())
-            .value( "constant_thrust_magnitude", tss::ThrustMagnitudeTypes::constant_thrust_magnitude ,
-                  R"doc(Thrust magnitude specified by a constant value.)doc" )
+            .value( "constant_thrust_magnitude",
+                    tss::ThrustMagnitudeTypes::constant_thrust_magnitude,
+                    R"doc(Thrust magnitude specified by a constant value.)doc" )
             //            .value("from_engine_properties_thrust_magnitude",
             //            tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
-            .value( "thrust_magnitude_from_time_function", tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function ,
-                  R"doc(Thrust magnitude evaluated by a function of time.)doc" )
-            .value( "thrust_magnitude_from_dependent_variables", tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables ,
-                  R"doc(Thrust magnitude evaluated from the configured dependent variables.)doc" );
+            .value( "thrust_magnitude_from_time_function",
+                    tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function,
+                    R"doc(Thrust magnitude evaluated by a function of time.)doc" )
+            .value( "thrust_magnitude_from_dependent_variables",
+                    tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables,
+                    R"doc(Thrust magnitude evaluated from the configured dependent variables.)doc" );
     //            .value("bang_bang_thrust_magnitude_from_mee_costates",
     //            tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates);
 
@@ -92,16 +94,18 @@ void expose_thrust_setup( py::module& m )
 
 
       )doc" )
-            .def_readonly( "thrust_magnitude_type", &tss::ThrustMagnitudeSettings::thrustMagnitudeType_ ,
-                  R"doc(
+            .def_readonly( "thrust_magnitude_type",
+                           &tss::ThrustMagnitudeSettings::thrustMagnitudeType_,
+                           R"doc(
 
          **read-only**
 
          Type of thrust magnitude model defined by these settings.
 
       )doc" )
-            .def_readonly( "thrust_origin_id", &tss::ThrustMagnitudeSettings::thrustOriginId_ ,
-                  R"doc(
+            .def_readonly( "thrust_origin_id",
+                           &tss::ThrustMagnitudeSettings::thrustOriginId_,
+                           R"doc(
 
          **read-only**
 
@@ -132,16 +136,18 @@ void expose_thrust_setup( py::module& m )
 
 
       )doc" )
-            .def_readonly( "thrust_magnitude", &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_ ,
-                  R"doc(
+            .def_readonly( "thrust_magnitude",
+                           &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_,
+                           R"doc(
 
          **read-only**
 
          Constant thrust magnitude, in newtons.
 
       )doc" )
-            .def_readonly( "specific_impulse", &tss::ConstantThrustMagnitudeSettings::specificImpulse_ ,
-                  R"doc(
+            .def_readonly( "specific_impulse",
+                           &tss::ConstantThrustMagnitudeSettings::specificImpulse_,
+                           R"doc(
 
          **read-only**
 

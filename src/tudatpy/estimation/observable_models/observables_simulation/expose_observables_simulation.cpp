@@ -32,8 +32,9 @@ namespace observables_simulation
 void expose_observables_simulation( py::module& m )
 {
     py::class_< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "ObservationManager" ,
-                  R"doc(
+                std::shared_ptr< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                  "ObservationManager",
+                                                                                                  R"doc(
 
          Base manager connecting observation models with their associated partial derivatives during estimation.
 

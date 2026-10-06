@@ -56,7 +56,9 @@ void expose_rotation_model_setup( py::module& m )
 
 
       )doc" )
-            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(Rotation model with a fixed pole and constant rotation rate.)doc" )
+            .value( "simple_rotational_model",
+                    tss::RotationModelType::simple_rotation_model,
+                    R"doc(Rotation model with a fixed pole and constant rotation rate.)doc" )
             .value( "spice_rotation_model",
                     tss::RotationModelType::spice_rotation_model,
                     R"doc(
@@ -190,7 +192,7 @@ void expose_rotation_model_setup( py::module& m )
          See the factory documentation for model details and available parameters.
 
       )doc" )
-            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile , R"doc(
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile, R"doc(
 
          **read-only**
 

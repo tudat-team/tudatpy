@@ -298,8 +298,10 @@ void expose_shape_based_thrust( py::module& m )
 
      )doc" );
 
-    m.def( "hodograph_exponential", &tsbm::hodographExponential, py::arg( "exponent" ) ,
-                  R"doc(
+    m.def( "hodograph_exponential",
+           &tsbm::hodographExponential,
+           py::arg( "exponent" ),
+           R"doc(
 
          Create a hodographic velocity-shaping base function of the form ``exp(exponent * t)``.
 
@@ -326,8 +328,11 @@ void expose_shape_based_thrust( py::module& m )
     //          py::arg("exponent"),
     //          py::arg("scale_factor"));
 
-    m.def( "hodograph_exponential_sine", &tsbm::hodographExponentialSine, py::arg( "exponent" ), py::arg( "frequency" ) ,
-                  R"doc(
+    m.def( "hodograph_exponential_sine",
+           &tsbm::hodographExponentialSine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           R"doc(
 
          Create a hodographic velocity-shaping base function of the form ``exp(exponent * t) * sin(frequency * t)``.
 
@@ -358,8 +363,11 @@ void expose_shape_based_thrust( py::module& m )
     //          py::arg("frequency"),
     //          py::arg("scale_factor") );
 
-    m.def( "hodograph_exponential_cosine", &tsbm::hodographExponentialCosine, py::arg( "exponent" ), py::arg( "frequency" ) ,
-                  R"doc(
+    m.def( "hodograph_exponential_cosine",
+           &tsbm::hodographExponentialCosine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           R"doc(
 
          Create a hodographic velocity-shaping base function of the form ``exp(exponent * t) * cos(frequency * t)``.
 
@@ -390,8 +398,10 @@ void expose_shape_based_thrust( py::module& m )
     //          py::arg("frequency"),
     //          py::arg("scale_factor") );
 
-    m.def( "hodograph_power", &tsbm::hodographPower, py::arg( "exponent" ) ,
-                  R"doc(
+    m.def( "hodograph_power",
+           &tsbm::hodographPower,
+           py::arg( "exponent" ),
+           R"doc(
 
          Create a hodographic velocity-shaping base function of the form ``t**exponent``.
 

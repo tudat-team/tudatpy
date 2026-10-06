@@ -106,7 +106,7 @@ void expose_observations( py::module& m )
                   py::arg( "reference_link_end" ),
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
                   py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" ),
-                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ) ,
+                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
                   R"doc(
 
          Create an observation set from its observable type, link, measurement vectors, epochs and reference link end,
@@ -1369,7 +1369,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "append",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::appendObservationCollection,
-                  py::arg( "observation_collection_to_append" ) ,
+                  py::arg( "observation_collection_to_append" ),
                   R"doc(
 
          Append all observation sets from ``observation_collection_to_append`` to this collection and refresh its
@@ -1876,8 +1876,8 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
     m.def( "merge_observation_collections",
            &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "observation_collection_list" ) ,
-                  R"doc(
+           py::arg( "observation_collection_list" ),
+           R"doc(
 
          Return an ObservationCollection containing the observation sets from every collection in
          ``observation_collection_list``.

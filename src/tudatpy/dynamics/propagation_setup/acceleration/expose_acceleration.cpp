@@ -247,10 +247,12 @@ The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in squa
 source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 )doc" )
-            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ ,
-                  R"doc(Three coefficients controlling the three-coefficient radiation pressure acceleration model.)doc" )
-            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ ,
-                  R"doc(Name of the reference body used by the three-coefficient radiation pressure model.)doc" );
+            .def_readwrite( "coefficients",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_,
+                            R"doc(Three coefficients controlling the three-coefficient radiation pressure acceleration model.)doc" )
+            .def_readwrite( "reference_body",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_,
+                            R"doc(Name of the reference body used by the three-coefficient radiation pressure model.)doc" );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,

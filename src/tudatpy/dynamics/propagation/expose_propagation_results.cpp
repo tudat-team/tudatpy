@@ -47,16 +47,21 @@ void expose_propagation_results_bindings( py::module& m )
          Enumeration of types of termination of propagation.
 
       )doc" )
-            .value( "propagation_never_run", tp::PropagationTerminationReason::propagation_never_run ,
-                  R"doc(No numerical propagation has been performed.)doc" )
-            .value( "unknown_reason", tp::PropagationTerminationReason::unknown_propagation_termination_reason ,
-                  R"doc(Propagation ended for an unspecified reason.)doc" )
-            .value( "termination_condition_reached", tp::PropagationTerminationReason::termination_condition_reached ,
-                  R"doc(Propagation reached a configured termination condition.)doc" )
-            .value( "runtime_error_caught_in_propagation", tp::PropagationTerminationReason::runtime_error_caught_in_propagation ,
-                  R"doc(Propagation stopped after a runtime exception.)doc" )
-            .value( "nan_or_inf_detected_in_state", tp::PropagationTerminationReason::nan_or_inf_detected_in_state ,
-                  R"doc(Propagation stopped after a non-finite state value was detected.)doc" )
+            .value( "propagation_never_run",
+                    tp::PropagationTerminationReason::propagation_never_run,
+                    R"doc(No numerical propagation has been performed.)doc" )
+            .value( "unknown_reason",
+                    tp::PropagationTerminationReason::unknown_propagation_termination_reason,
+                    R"doc(Propagation ended for an unspecified reason.)doc" )
+            .value( "termination_condition_reached",
+                    tp::PropagationTerminationReason::termination_condition_reached,
+                    R"doc(Propagation reached a configured termination condition.)doc" )
+            .value( "runtime_error_caught_in_propagation",
+                    tp::PropagationTerminationReason::runtime_error_caught_in_propagation,
+                    R"doc(Propagation stopped after a runtime exception.)doc" )
+            .value( "nan_or_inf_detected_in_state",
+                    tp::PropagationTerminationReason::nan_or_inf_detected_in_state,
+                    R"doc(Propagation stopped after a non-finite state value was detected.)doc" )
             .export_values( );
 
     py::class_< tp::PropagationTerminationDetails, std::shared_ptr< tp::PropagationTerminationDetails > >( m,
@@ -176,7 +181,9 @@ void expose_propagation_results_bindings( py::module& m )
                                                                     tp::PropagationTerminationDetailsFromHybridCondition );
 
     py::class_< tp::DependentVariablesInterface< TIME_TYPE >, std::shared_ptr< tp::DependentVariablesInterface< TIME_TYPE > > >(
-            m, "DependentVariablesInterface", R"doc(Interface for retrieving and interpolating dependent variables saved during numerical propagation.)doc" );
+            m,
+            "DependentVariablesInterface",
+            R"doc(Interface for retrieving and interpolating dependent variables saved during numerical propagation.)doc" );
 
     py::class_< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
@@ -256,8 +263,8 @@ void expose_propagation_results_bindings( py::module& m )
       )doc" )
             .def_property_readonly( "state_history_float",
                                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
-                                                                     TIME_TYPE >::getEquationsOfMotionNumericalSolutionTemplated< double > ,
-                  R"doc(
+                                                                     TIME_TYPE >::getEquationsOfMotionNumericalSolutionTemplated< double >,
+                                    R"doc(
 
          **read-only**
 
@@ -423,8 +430,8 @@ void expose_propagation_results_bindings( py::module& m )
          :type: dict[[int,int], str]
       )doc" )
             .def_property_readonly( "ordered_dependent_variable_settings",
-                                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getOrderedDependentVariableSettings ,
-                  R"doc(
+                                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getOrderedDependentVariableSettings,
+                                    R"doc(
 
          **read-only**
 
@@ -432,8 +439,8 @@ void expose_propagation_results_bindings( py::module& m )
 
       )doc" )
             .def_property_readonly( "unordered_dependent_variable_settings",
-                                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getOriginalDependentVariableSettings ,
-                  R"doc(
+                                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getOriginalDependentVariableSettings,
+                                    R"doc(
 
          **read-only**
 

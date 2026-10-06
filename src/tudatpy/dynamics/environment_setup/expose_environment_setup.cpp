@@ -980,7 +980,8 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            &tss::addRigidBodyProperties,
            py::arg( "bodies" ),
            py::arg( "body_name" ),
-           py::arg( "mass_property_settings" ) , R"doc(
+           py::arg( "mass_property_settings" ),
+           R"doc(
 
          Function that creates a rigid body property model, and adds it to an existing body.
 
@@ -1171,7 +1172,8 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "ground_station_name" ),
            py::arg( "ground_station_position" ),
            py::arg( "position_type" ) = tcc::cartesian_position,
-           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) , R"doc(
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+           R"doc(
 
          Function that creates a ground station at a specified body-fixed position.
 
@@ -1300,7 +1302,7 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                     add_camera(body, "Camera", [np.pi/2.0, 0.0, 0.0])
            )doc" );
 
-    m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ) , R"doc(
+    m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ), R"doc(
 
          Retrieve the link-end identifiers of the ground stations on a body.
 

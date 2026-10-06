@@ -292,7 +292,9 @@ void expose_dependent_variable_setup( py::module& m )
                     tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable,
                     R"doc(
       )doc" )
-            .value( "custom_type", tp::PropagationDependentVariables::custom_dependent_variable, R"doc(Dependent variable evaluated by a user-supplied function.)doc" )
+            .value( "custom_type",
+                    tp::PropagationDependentVariables::custom_dependent_variable,
+                    R"doc(Dependent variable evaluated by a user-supplied function.)doc" )
             .value( "gravity_field_potential_type",
                     tp::PropagationDependentVariables::gravity_field_potential_dependent_variable,
                     R"doc(
@@ -339,8 +341,9 @@ void expose_dependent_variable_setup( py::module& m )
 
     auto single_dependent_variable_save_settings = py::class_< tp::SingleDependentVariableSaveSettings,
                                                                std::shared_ptr< tp::SingleDependentVariableSaveSettings >,
-                                                               tp::VariableSettings >( m, "SingleDependentVariableSaveSettings" ,
-                  R"doc(
+                                                               tp::VariableSettings >( m,
+                                                                                       "SingleDependentVariableSaveSettings",
+                                                                                       R"doc(
 
          Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.dependent_variable`.
 

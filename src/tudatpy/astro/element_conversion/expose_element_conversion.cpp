@@ -158,12 +158,15 @@ Element 5 in vector of spherical orbital state elements
                                             R"doc(
 Enumeration describing different types of position element types (typically used for body-centered, body-fixed position)
       )doc" )
-            .value( "cartesian_position_type", tcc::PositionElementTypes::cartesian_position ,
-                  R"doc(Cartesian position coordinates (x, y, z), in metres.)doc" )
-            .value( "spherical_position_type", tcc::PositionElementTypes::spherical_position ,
-                  R"doc(Spherical position coordinates (radius, latitude, longitude), in metres and radians.)doc" )
-            .value( "geodetic_position_type", tcc::PositionElementTypes::geodetic_position ,
-                  R"doc(Geodetic position coordinates (altitude, latitude, longitude), in metres and radians.)doc" )
+            .value( "cartesian_position_type",
+                    tcc::PositionElementTypes::cartesian_position,
+                    R"doc(Cartesian position coordinates (x, y, z), in metres.)doc" )
+            .value( "spherical_position_type",
+                    tcc::PositionElementTypes::spherical_position,
+                    R"doc(Spherical position coordinates (radius, latitude, longitude), in metres and radians.)doc" )
+            .value( "geodetic_position_type",
+                    tcc::PositionElementTypes::geodetic_position,
+                    R"doc(Geodetic position coordinates (altitude, latitude, longitude), in metres and radians.)doc" )
             .export_values( );
 
     m.def( "convert_cartesian_to_geodetic_coordinates",

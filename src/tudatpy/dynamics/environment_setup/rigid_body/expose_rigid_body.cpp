@@ -39,7 +39,7 @@ namespace rigid_body
 
 void expose_rigid_body_setup( py::module& m )
 {
-    py::enum_< tss::RigidBodyPropertiesType >( m, "RigidBodyPropertiesType" , R"doc(
+    py::enum_< tss::RigidBodyPropertiesType >( m, "RigidBodyPropertiesType", R"doc(
 
          Enumeration of rigid body property models.
 
@@ -47,14 +47,18 @@ void expose_rigid_body_setup( py::module& m )
          that depend on the body mass.
 
       )doc" )
-            .value( "from_function_rigid_body_properties", tss::RigidBodyPropertiesType::from_function_rigid_body_properties ,
-                  R"doc(Rigid body properties evaluated by user-supplied functions.)doc" )
-            .value( "constant_rigid_body_properties", tss::RigidBodyPropertiesType::constant_rigid_body_properties ,
-                  R"doc(Constant mass, centre of mass and inertia tensor.)doc" )
-            .value( "from_gravity_field_rigid_body_properties", tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties ,
-                  R"doc(Rigid body properties derived from the gravity field.)doc" )
-            .value( "mass_dependent_rigid_body_properties", tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties ,
-                  R"doc(Rigid body properties evaluated as functions of the current mass.)doc" );
+            .value( "from_function_rigid_body_properties",
+                    tss::RigidBodyPropertiesType::from_function_rigid_body_properties,
+                    R"doc(Rigid body properties evaluated by user-supplied functions.)doc" )
+            .value( "constant_rigid_body_properties",
+                    tss::RigidBodyPropertiesType::constant_rigid_body_properties,
+                    R"doc(Constant mass, centre of mass and inertia tensor.)doc" )
+            .value( "from_gravity_field_rigid_body_properties",
+                    tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties,
+                    R"doc(Rigid body properties derived from the gravity field.)doc" )
+            .value( "mass_dependent_rigid_body_properties",
+                    tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties,
+                    R"doc(Rigid body properties evaluated as functions of the current mass.)doc" );
 
     py::class_< tss::RigidBodyPropertiesSettings, std::shared_ptr< tss::RigidBodyPropertiesSettings > >( m,
                                                                                                          "RigidBodyPropertiesSettings",

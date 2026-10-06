@@ -219,7 +219,9 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
             .value( "h_species", ta::AtmosphericCompositionSpecies::h_species, R"doc(Atomic hydrogen.)doc" )
             .value( "ar_species", ta::AtmosphericCompositionSpecies::ar_species, R"doc(Argon.)doc" )
             .value( "n_species", ta::AtmosphericCompositionSpecies::n_species, R"doc(Atomic nitrogen.)doc" )
-            .value( "anomalous_o_species", ta::AtmosphericCompositionSpecies::anomalous_o_species, R"doc(Anomalous oxygen component of the atmospheric composition.)doc" )
+            .value( "anomalous_o_species",
+                    ta::AtmosphericCompositionSpecies::anomalous_o_species,
+                    R"doc(Anomalous oxygen component of the atmospheric composition.)doc" )
             .export_values( );
 
     py::class_< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
@@ -454,8 +456,7 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
 
     py::class_< tss::ScaledAerodynamicCoefficientInterfaceSettings,
                 std::shared_ptr< tss::ScaledAerodynamicCoefficientInterfaceSettings >,
-                tss::AerodynamicCoefficientSettings >(
-            m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(
+                tss::AerodynamicCoefficientSettings >( m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(
 
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_constant`,
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_vector`,
@@ -505,10 +506,8 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
              C_{\tau} &= 2 \sigma_{T} \sin \delta \cos \delta
 )doc" )
 
-            .value( "sentman", ta::sentman ,
-                  R"doc(Sentman gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" )
-            .value( "cook", ta::cook ,
-                  R"doc(Cook gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" );
+            .value( "sentman", ta::sentman, R"doc(Sentman gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" )
+            .value( "cook", ta::cook, R"doc(Cook gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" );
 
     m.def( "panelled",
            py::overload_cast< const ta::GasSurfaceInteractionModelType, const double, const int, const bool >(

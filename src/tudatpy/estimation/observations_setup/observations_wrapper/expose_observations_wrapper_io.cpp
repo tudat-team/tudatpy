@@ -116,36 +116,46 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         )doc" )
             .def( py::init< const std::string&, const std::map< std::string, std::string >& >( ),
                   py::arg( "receiver_body_name" ),
-                  py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ) ,
+                  py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ),
                   R"doc(
 
          Configure PSF conversion with the receiving body name and optional mapping from image target names to body
          names.
 
       )doc" )
-            .def_readwrite( "receiver_body_name", &tom::PsfFileObservationConversionSettings::receiverBodyName_ ,
-                  R"doc(Name of the receiving body carrying the camera.)doc" )
-            .def_readwrite( "image_name_to_body_name", &tom::PsfFileObservationConversionSettings::imageNameToBodyName_ ,
-                  R"doc(Mapping from PSF image target names to names in the system of bodies.)doc" )
+            .def_readwrite( "receiver_body_name",
+                            &tom::PsfFileObservationConversionSettings::receiverBodyName_,
+                            R"doc(Name of the receiving body carrying the camera.)doc" )
+            .def_readwrite( "image_name_to_body_name",
+                            &tom::PsfFileObservationConversionSettings::imageNameToBodyName_,
+                            R"doc(Mapping from PSF image target names to names in the system of bodies.)doc" )
             .def_readwrite( "use_raw_image_name_as_body_name_if_unmapped",
-                            &tom::PsfFileObservationConversionSettings::useRawImageNameAsBodyNameIfUnmapped_ ,
-                  R"doc(Whether an unmapped image target name is used directly as a body name.)doc" )
-            .def_readwrite( "use_corrected_pixel_line", &tom::PsfFileObservationConversionSettings::useCorrectedPixelLine_ ,
-                  R"doc(Whether to use corrected pixel and line coordinates when they are available.)doc" )
-            .def_readwrite( "use_mid_exposure_time", &tom::PsfFileObservationConversionSettings::useMidExposureTime_ ,
-                  R"doc(Whether to associate observations with the middle of the image exposure.)doc" )
-            .def_readwrite( "include_deleted_pictures", &tom::PsfFileObservationConversionSettings::includeDeletedPictures_ ,
-                  R"doc(Whether pictures marked as deleted are included in the converted observations.)doc" )
-            .def_readwrite( "include_end_marker_records", &tom::PsfFileObservationConversionSettings::includeEndMarkerRecords_ ,
-                  R"doc(Whether end-marker records are included in the converted observations.)doc" )
-            .def_readwrite( "filter_by_use_flag", &tom::PsfFileObservationConversionSettings::filterByUseFlag_ ,
-                  R"doc(Whether to retain only PSF records matching the required use flag.)doc" )
-            .def_readwrite( "required_use_flag", &tom::PsfFileObservationConversionSettings::requiredUseFlag_ ,
-                  R"doc(PSF use flag required when use-flag filtering is enabled.)doc" )
-            .def_readwrite( "body_fixed_camera_position", &tom::PsfFileObservationConversionSettings::bodyFixedCameraPosition_ ,
-                  R"doc(Camera position relative to the receiving body origin, in body-fixed metres.)doc" )
-            .def_readwrite( "use_picture_pointing", &tom::PsfFileObservationConversionSettings::usePicturePointing_ ,
-                  R"doc(Whether the picture pointing information is used during PSF conversion.)doc" );
+                            &tom::PsfFileObservationConversionSettings::useRawImageNameAsBodyNameIfUnmapped_,
+                            R"doc(Whether an unmapped image target name is used directly as a body name.)doc" )
+            .def_readwrite( "use_corrected_pixel_line",
+                            &tom::PsfFileObservationConversionSettings::useCorrectedPixelLine_,
+                            R"doc(Whether to use corrected pixel and line coordinates when they are available.)doc" )
+            .def_readwrite( "use_mid_exposure_time",
+                            &tom::PsfFileObservationConversionSettings::useMidExposureTime_,
+                            R"doc(Whether to associate observations with the middle of the image exposure.)doc" )
+            .def_readwrite( "include_deleted_pictures",
+                            &tom::PsfFileObservationConversionSettings::includeDeletedPictures_,
+                            R"doc(Whether pictures marked as deleted are included in the converted observations.)doc" )
+            .def_readwrite( "include_end_marker_records",
+                            &tom::PsfFileObservationConversionSettings::includeEndMarkerRecords_,
+                            R"doc(Whether end-marker records are included in the converted observations.)doc" )
+            .def_readwrite( "filter_by_use_flag",
+                            &tom::PsfFileObservationConversionSettings::filterByUseFlag_,
+                            R"doc(Whether to retain only PSF records matching the required use flag.)doc" )
+            .def_readwrite( "required_use_flag",
+                            &tom::PsfFileObservationConversionSettings::requiredUseFlag_,
+                            R"doc(PSF use flag required when use-flag filtering is enabled.)doc" )
+            .def_readwrite( "body_fixed_camera_position",
+                            &tom::PsfFileObservationConversionSettings::bodyFixedCameraPosition_,
+                            R"doc(Camera position relative to the receiving body origin, in body-fixed metres.)doc" )
+            .def_readwrite( "use_picture_pointing",
+                            &tom::PsfFileObservationConversionSettings::usePicturePointing_,
+                            R"doc(Whether the picture pointing information is used during PSF conversion.)doc" );
 
     m.def( "add_psf_cameras_to_bodies",
            py::overload_cast< const std::string&, const tss::SystemOfBodies&, const tom::PsfFileObservationConversionSettings& >(

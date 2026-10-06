@@ -199,14 +199,16 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
             //       tni::AvailableIntegrators::euler)
             //       .value("runge_kutta_4_type",
             //       tni::AvailableIntegrators::rungeKutta4)
-            .value( "runge_kutta_fixed_step_size_type", tni::AvailableIntegrators::rungeKuttaFixedStepSize ,
-                  R"doc(Runge-Kutta integrator with a fixed step size.)doc" )
-            .value( "runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize ,
-                  R"doc(Runge-Kutta integrator with adaptive step-size control.)doc" )
-            .value( "bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer ,
-                  R"doc(Bulirsch-Stoer extrapolation integrator.)doc" )
-            .value( "adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton ,
-                  R"doc(Adams-Bashforth-Moulton multistep integrator.)doc" )
+            .value( "runge_kutta_fixed_step_size_type",
+                    tni::AvailableIntegrators::rungeKuttaFixedStepSize,
+                    R"doc(Runge-Kutta integrator with a fixed step size.)doc" )
+            .value( "runge_kutta_variable_step_size_type",
+                    tni::AvailableIntegrators::rungeKuttaVariableStepSize,
+                    R"doc(Runge-Kutta integrator with adaptive step-size control.)doc" )
+            .value( "bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer, R"doc(Bulirsch-Stoer extrapolation integrator.)doc" )
+            .value( "adams_bashforth_moulton_type",
+                    tni::AvailableIntegrators::adamsBashforthMoulton,
+                    R"doc(Adams-Bashforth-Moulton multistep integrator.)doc" )
             .export_values( );
 
     py::enum_< tni::CoefficientSets >( m,
@@ -440,8 +442,9 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" );
-    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m, "IntegratorSettingsFloat" ,
-                  R"doc(
+    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m,
+                                                                                                           "IntegratorSettingsFloat",
+                                                                                                           R"doc(
 
          Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.integrator`.
 
@@ -461,8 +464,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
     py::class_< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE > >,
-                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m, "RungeKuttaVariableStepSizeSettingsVectorTolerances", R"doc(
+                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeSettingsVectorTolerances", R"doc(
 
          Model created from settings returned by
          :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size_vector_tolerances`.
@@ -473,8 +475,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
     py::class_< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE > >,
-                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m, "RungeKuttaVariableStepSizeSettingsScalarTolerances", R"doc(
+                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeSettingsScalarTolerances", R"doc(
 
          Model created from settings returned by
          :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size`.
@@ -525,12 +526,15 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "safety_factor", &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_ ,
-                  R"doc(Safety multiplier applied when computing the next integration step size.)doc" )
-            .def_readwrite( "minimum_step_decrease", &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_ ,
-                  R"doc(Minimum permitted multiplicative factor in the next-step size calculation.)doc" )
-            .def_readwrite( "maximum_step_decrease", &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_ ,
-                  R"doc(Maximum permitted multiplicative factor in the next-step size calculation.)doc" );
+            .def_readwrite( "safety_factor",
+                            &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_,
+                            R"doc(Safety multiplier applied when computing the next integration step size.)doc" )
+            .def_readwrite( "minimum_step_decrease",
+                            &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_,
+                            R"doc(Minimum permitted multiplicative factor in the next-step size calculation.)doc" )
+            .def_readwrite( "maximum_step_decrease",
+                            &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_,
+                            R"doc(Maximum permitted multiplicative factor in the next-step size calculation.)doc" );
 
     py::class_< tni::IntegratorStepSizeValidationSettings, std::shared_ptr< tni::IntegratorStepSizeValidationSettings > >(
             m,
@@ -546,12 +550,15 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "minimum_step", &tni::IntegratorStepSizeValidationSettings::minimumStep_ ,
-                  R"doc(Minimum allowed integration step magnitude, in seconds.)doc" )
-            .def_readwrite( "maximum_step", &tni::IntegratorStepSizeValidationSettings::maximumStep_ ,
-                  R"doc(Maximum allowed integration step magnitude, in seconds.)doc" )
-            .def_readwrite( "minimum_step_handling", &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_ ,
-                  R"doc(Policy used when the required step size falls below the minimum allowed step.)doc" );
+            .def_readwrite( "minimum_step",
+                            &tni::IntegratorStepSizeValidationSettings::minimumStep_,
+                            R"doc(Minimum allowed integration step magnitude, in seconds.)doc" )
+            .def_readwrite( "maximum_step",
+                            &tni::IntegratorStepSizeValidationSettings::maximumStep_,
+                            R"doc(Maximum allowed integration step magnitude, in seconds.)doc" )
+            .def_readwrite( "minimum_step_handling",
+                            &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_,
+                            R"doc(Policy used when the required step size falls below the minimum allowed step.)doc" );
 
     // FACTORY FUNCTIONS
     m.def( "print_butcher_tableau",
@@ -1010,8 +1017,8 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
     m.def( "standard_rotational_state_element_blocks",
            &tni::getStandardRotationalStatesElementsToCheck,
            py::arg( "number_of_rows" ),
-           py::arg( "number_of_columns" ) ,
-                  R"doc(
+           py::arg( "number_of_columns" ),
+           R"doc(
 
          Return the standard rotational-state element blocks used for integration error control of a state array with
          ``number_of_rows`` rows and ``number_of_columns`` columns.
@@ -1618,8 +1625,8 @@ IntegratorSettings
     m.def( "euler",
            &tni::eulerSettings< TIME_TYPE >,
            py::arg( "initial_time_step" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false ,
-                  R"doc(
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           R"doc(
 
          Create fixed-step forward Euler integrator settings with ``initial_time_step`` in seconds.
 
@@ -1640,8 +1647,8 @@ IntegratorSettings
            py::arg( "assess_termination_on_minor_steps" ) = false,
            py::arg( "safety_factor" ) = 0.7,
            py::arg( "maximum_factor_increase" ) = 10.0,
-           py::arg( "minimum_factor_increase" ) = 0.1 ,
-                  R"doc(
+           py::arg( "minimum_factor_increase" ) = 0.1,
+           R"doc(
 
          Create adaptive Bulirsch-Stoer integrator settings.
 
