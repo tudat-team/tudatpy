@@ -74,69 +74,59 @@ The values in this class may be recomputed every time step to reflect changing a
                   py::arg( "f107a" ) = 0.0,
                   py::arg( "ap_daily" ) = 0.0,
                   py::arg( "ap_vector" ) = std::vector< double >( 7, 0.0 ),
-                  py::arg( "switches" ) = std::vector< int >( ) );
+                  py::arg( "switches" ) = std::vector< int >( ),
+                  R"doc(
 
-    py::class_< ta::NRLMSISE00Atmosphere, std::shared_ptr< ta::NRLMSISE00Atmosphere > >( m,
-                                                                                         "NRLMSISE00Atmosphere",
-                                                                                         R"doc(NRLMSISE00 atmosphere model.
+         Create NRLMSISE-00 inputs from calendar time, local solar time, F10.7 flux, geomagnetic activity and model
+         switches.
 
-                         This class uses the NRLMSISE00 model to compute the atmospheric density and temperature. The GTD7 function is used: Neutral Atmosphere Empirical Model from the surface to the lower exosphere.
+         Parameters
+         ----------
+         year : int, optional
+             Calendar year.
+         day_of_year : int, optional
+             Day of the year, starting at 1.
+         seconds_of_day : float, optional
+             UTC seconds elapsed since midnight.
+         local_solar_time : float, optional
+             Local solar time, in hours.
+         f107 : float, optional
+             Daily 10.7 cm solar radio flux, in solar flux units.
+         f107a : float, optional
+             81-day average of the 10.7 cm solar radio flux, in solar flux units.
+         ap_daily : float, optional
+             Daily geomagnetic Ap index.
+         ap_vector : list[float], optional
+             Seven geomagnetic Ap values used for the storm-time model.
+         switches : list[int], optional
+             NRLMSISE-00 model switches controlling the included effects.
 
-                         Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
-
-                         Parameters
-                         ----------
-                         solar_activity_data : Dict[float, SolarActivityData]
-                             Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
-                         )doc" )
-            .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
-                            const bool,
-                            const bool,
-                            const bool >( ),
-                  py::arg( "solar_activity_data" ),
-                  py::arg( "use_ideal_gas_law" ) = true,
-                  py::arg( "use_storm_conditions" ) = false,
-                  py::arg( "use_anomalous_oxygen" ) = true )
-            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude )
-            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude )
-            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc )
-            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc )
-            .def( "get_density",
-                  &ta::NRLMSISE00Atmosphere::getDensity,
-                  py::arg( "altitude" ),
-                  py::arg( "longitude" ),
-                  py::arg( "latitude" ),
-                  py::arg( "time" ),
-                  R"doc(Get local density
-
-                             Returns the local density at the given altitude,
-                             longitude, latitude and time.
-
-                             Parameters
-                             ----------
-                             altitude : float
-                                 Altitude at which to get the density. [m]
-                             longitude : float
-                                 Longitude at which to get the density [rad].
-                             latitude : float
-                                 Latitude at which to get the density [rad].
-                             time : float
-                                 Time at which density is to be computed [seconds since J2000].
-
-                             Returns
-                             -------
-                             float
-                                 Local density. [kg/m^3]
-                             )doc" );
+      )doc" );
 
     // END OF NRLMSISE00
-    py::enum_< tss::AtmosphereDependentVariables >( m, "AtmosphereDependentVariables" )
-            .value( "tabulated_density", tss::AtmosphereDependentVariables::density_dependent_atmosphere )
-            .value( "tabulated_pressure", tss::AtmosphereDependentVariables::pressure_dependent_atmosphere )
-            .value( "tabulated_temperature", tss::AtmosphereDependentVariables::temperature_dependent_atmosphere )
-            .value( "tabulated_gas_constant", tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere )
-            .value( "tabulated_specific_heat_ratio", tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere )
-            .value( "tabulated_molar_mass", tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere )
+    py::enum_< tss::AtmosphereDependentVariables >( m, "AtmosphereDependentVariables", R"doc(
+
+         Enumeration of atmospheric quantities: density, pressure, temperature, specific gas constant, ratio of specific heats and molar mass.
+
+      )doc" )
+            .value( "tabulated_density",
+                    tss::AtmosphereDependentVariables::density_dependent_atmosphere,
+                    R"doc(Atmospheric mass density stored in the atmosphere table.)doc" )
+            .value( "tabulated_pressure",
+                    tss::AtmosphereDependentVariables::pressure_dependent_atmosphere,
+                    R"doc(Atmospheric pressure stored in the atmosphere table.)doc" )
+            .value( "tabulated_temperature",
+                    tss::AtmosphereDependentVariables::temperature_dependent_atmosphere,
+                    R"doc(Atmospheric temperature stored in the atmosphere table.)doc" )
+            .value( "tabulated_gas_constant",
+                    tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere,
+                    R"doc(Specific gas constant stored in the atmosphere table.)doc" )
+            .value( "tabulated_specific_heat_ratio",
+                    tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere,
+                    R"doc(Ratio of specific heats stored in the atmosphere table.)doc" )
+            .value( "tabulated_molar_mass",
+                    tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere,
+                    R"doc(Atmospheric molar mass stored in the atmosphere table.)doc" )
             .export_values( );
 
     /////////////////////////////////////////////////////////////////////////////
@@ -168,10 +158,18 @@ The values in this class may be recomputed every time step to reflect changing a
             m, "EmptyWindModelSettings", R"doc(Settings for empty wind model (no physical wind, only co-rotation control).)doc" );
 
     py::class_< tss::ConstantWindModelSettings, std::shared_ptr< tss::ConstantWindModelSettings >, tss::WindModelSettings >(
-            m, "ConstantWindModelSettings", R"doc(No documentation found.)doc" );
+            m, "ConstantWindModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.constant_wind_model`.
+
+      )doc" );
 
     py::class_< tss::CustomWindModelSettings, std::shared_ptr< tss::CustomWindModelSettings >, tss::WindModelSettings >(
-            m, "CustomWindModelSettings", R"doc(No documentation found.)doc" );
+            m, "CustomWindModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_wind_model`.
+
+      )doc" );
 
     py::class_< tss::AtmosphereSettings, std::shared_ptr< tss::AtmosphereSettings > >( m,
                                                                                        "AtmosphereSettings",
@@ -215,14 +213,28 @@ The values in this class may be recomputed every time step to reflect changing a
 
     py::class_< tss::CustomConstantTemperatureAtmosphereSettings,
                 std::shared_ptr< tss::CustomConstantTemperatureAtmosphereSettings >,
-                tss::AtmosphereSettings >( m, "CustomConstantTemperatureAtmosphereSettings", R"doc(No documentation found.)doc" );
+                tss::AtmosphereSettings >( m, "CustomConstantTemperatureAtmosphereSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_constant_temperature`,
+         :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_four_dimensional_constant_temperature`.
+
+      )doc" );
 
     py::class_< tss::CustomNumberDensityAtmosphereSettings,
                 std::shared_ptr< tss::CustomNumberDensityAtmosphereSettings >,
-                tss::AtmosphereSettings >( m, "CustomNumberDensityAtmosphereSettings", R"doc(No documentation found.)doc" );
+                tss::AtmosphereSettings >( m, "CustomNumberDensityAtmosphereSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_number_density`.
+
+      )doc" );
 
     py::class_< tss::ScaledAtmosphereSettings, std::shared_ptr< tss::ScaledAtmosphereSettings >, tss::AtmosphereSettings >(
-            m, "ScaledAtmosphereSettings", R"doc(No documentation found.)doc" );
+            m, "ScaledAtmosphereSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.scaled_by_constant`,
+         :func:`~tudatpy.dynamics.environment_setup.atmosphere.scaled_by_function`.
+
+      )doc" );
 
     // unexposed this class, because there is no factory
     // function interface yet

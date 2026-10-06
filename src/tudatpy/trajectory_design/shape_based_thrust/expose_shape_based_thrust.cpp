@@ -298,27 +298,110 @@ void expose_shape_based_thrust( py::module& m )
 
      )doc" );
 
-    m.def( "hodograph_exponential", &tsbm::hodographExponential, py::arg( "exponent" ) );
+    m.def( "hodograph_exponential",
+           &tsbm::hodographExponential,
+           py::arg( "exponent" ),
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``exp(exponent * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponential rate multiplying elapsed time.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     m.def( "hodograph_scaled_exponential",
            &tsbm::hodographScaledExponential,
            py::arg( "exponent" ),
            py::arg( "scale_factor" ) = 1.0,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``exp(exponent * scale_factor * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power and
+         ``scale_factor`` rescales the time argument.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponential rate multiplying elapsed time.
+         scale_factor : float, optional
+             Scaling factor in the basis function expression given above.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     //    m.def("hodograph_scaled_exponential",
     //          &tsbm::hodographScaledExponential,
     //          py::arg("exponent"),
     //          py::arg("scale_factor"));
 
-    m.def( "hodograph_exponential_sine", &tsbm::hodographExponentialSine, py::arg( "exponent" ), py::arg( "frequency" ) );
+    m.def( "hodograph_exponential_sine",
+           &tsbm::hodographExponentialSine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``exp(exponent * t) * sin(frequency * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power, ``frequency``
+         the trigonometric angular frequency.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponential rate multiplying elapsed time.
+         frequency : float
+             Angular frequency in the trigonometric factor, in radians per second.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     m.def( "hodograph_scaled_exponential_sine",
            &tsbm::hodographScaledExponentialSine,
            py::arg( "exponent" ),
            py::arg( "frequency" ),
            py::arg( "scale_factor" ) = 1.0,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``exp(exponent * scale_factor * t) *
+         sin(frequency * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power, ``frequency``
+         the trigonometric angular frequency and ``scale_factor`` rescales the time argument.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponential rate multiplying elapsed time.
+         frequency : float
+             Angular frequency in the trigonometric factor, in radians per second.
+         scale_factor : float, optional
+             Scaling factor in the basis function expression given above.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     //    m.def("hodograph_scaled_exponential_sine",
     //          &tsbm::hodographScaledExponentialSine,
@@ -326,14 +409,59 @@ void expose_shape_based_thrust( py::module& m )
     //          py::arg("frequency"),
     //          py::arg("scale_factor") );
 
-    m.def( "hodograph_exponential_cosine", &tsbm::hodographExponentialCosine, py::arg( "exponent" ), py::arg( "frequency" ) );
+    m.def( "hodograph_exponential_cosine",
+           &tsbm::hodographExponentialCosine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``exp(exponent * t) * cos(frequency * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power, ``frequency``
+         the trigonometric angular frequency.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponential rate multiplying elapsed time.
+         frequency : float
+             Angular frequency in the trigonometric factor, in radians per second.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     m.def( "hodograph_scaled_exponential_cosine",
            &tsbm::hodographScaledExponentialCosine,
            py::arg( "exponent" ),
            py::arg( "frequency" ),
            py::arg( "scale_factor" ) = 1.0,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``exp(exponent * scale_factor * t) *
+         cos(frequency * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power, ``frequency``
+         the trigonometric angular frequency and ``scale_factor`` rescales the time argument.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponential rate multiplying elapsed time.
+         frequency : float
+             Angular frequency in the trigonometric factor, in radians per second.
+         scale_factor : float, optional
+             Scaling factor in the basis function expression given above.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     //    m.def("hodograph_scaled_exponential_cosine",
     //          &tsbm::hodographScaledExponentialCosine,
@@ -341,13 +469,51 @@ void expose_shape_based_thrust( py::module& m )
     //          py::arg("frequency"),
     //          py::arg("scale_factor") );
 
-    m.def( "hodograph_power", &tsbm::hodographPower, py::arg( "exponent" ) );
+    m.def( "hodograph_power",
+           &tsbm::hodographPower,
+           py::arg( "exponent" ),
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``t**exponent``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponent of the time power.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     m.def( "hodograph_scaled_power",
            &tsbm::hodographScaledPower,
            py::arg( "exponent" ),
            py::arg( "scale_factor" ) = 1.0,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``scale_factor * t**exponent``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power and
+         ``scale_factor`` scales the power-function amplitude.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponent of the time power.
+         scale_factor : float, optional
+             Scaling factor in the basis function expression given above.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     //    m.def("hodograph_scaled_power",
     //          &tsbm::hodographScaledPower,
@@ -393,7 +559,29 @@ void expose_shape_based_thrust( py::module& m )
            py::arg( "exponent" ),
            py::arg( "frequency" ),
            py::arg( "scale_factor" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``scale_factor * t**exponent * sin(frequency
+         * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power, ``frequency``
+         the trigonometric angular frequency and ``scale_factor`` scales the power-function amplitude.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponent of the time power.
+         frequency : float
+             Angular frequency in the trigonometric factor, in radians per second.
+         scale_factor : float
+             Scaling factor in the basis function expression given above.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 
     m.def( "hodograph_power_cosine",
            &tsbm::hodographScaledPowerCosine,
@@ -434,7 +622,29 @@ void expose_shape_based_thrust( py::module& m )
            py::arg( "exponent" ),
            py::arg( "frequency" ),
            py::arg( "scale_factor" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create a hodographic velocity-shaping base function of the form ``scale_factor * t**exponent * cos(frequency
+         * t)``.
+
+         ``t`` is elapsed time along the transfer; ``exponent`` controls the exponential rate or power, ``frequency``
+         the trigonometric angular frequency and ``scale_factor`` scales the power-function amplitude.
+
+         Parameters
+         ----------
+         exponent : float
+             Exponent of the time power.
+         frequency : float
+             Angular frequency in the trigonometric factor, in radians per second.
+         scale_factor : float
+             Scaling factor in the basis function expression given above.
+
+         Returns
+         -------
+         BaseFunctionHodographicShaping
+             Hodographic shaping base function with the specified coefficients.
+
+      )doc" );
 }
 
 }  // namespace shape_based_thrust

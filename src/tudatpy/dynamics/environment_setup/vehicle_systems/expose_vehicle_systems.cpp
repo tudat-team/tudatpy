@@ -236,7 +236,7 @@ surface_normal_function : callable[[], np.ndarray]
 
       )doc" )
             .def_readwrite( "panel_geometry", &tss::BodyPanelSettings::panelGeometry_, R"doc(
-        
+
         Geometric properties of the panel, including surface normal vector and area.
 
         :type: BodyPanelGeometrySettings
@@ -246,7 +246,7 @@ surface_normal_function : callable[[], np.ndarray]
                             &tss::BodyPanelSettings::reflectionLawSettings_,
                             R"doc(
         Reflection law settings of the panel.
-            
+
         :type: BodyPanelReflectionLawSettings
 
         )doc" )
@@ -311,7 +311,7 @@ surface_normal_function : callable[[], np.ndarray]
                                                                                                    R"doc(
 
          Class for providing the complete settings for a panelled body exterior.
-        
+
          This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` or :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.box_wing_panelled_body_settings` functions.
          The class contains a list of panel settings, and (optionally) a list of rotation model settings for vehicle parts.
 
@@ -319,7 +319,7 @@ surface_normal_function : callable[[], np.ndarray]
      )doc" )
             .def_readwrite( "panel_settings_list", &tss::FullPanelledBodySettings::panelSettingsList_, R"doc(
         List of individual body panel settings on the body.
-        
+
         :type: list[BodyPanelSettings]
         )doc" )
             .def_readwrite( "part_rotation_model_settings",
@@ -327,7 +327,7 @@ surface_normal_function : callable[[], np.ndarray]
                             R"doc(
         Dictionary of rotation model settings per vehicle parts.
         The rotation model settings are defined per `panel_type_id`, as defined in the :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.BodyPanelSettings`.
-    
+
         :type: dict[str,RotationModelSettings]
 
         )doc"
@@ -442,7 +442,7 @@ surface_normal_function : callable[[], np.ndarray]
            py::arg( "frame_orientation" ) = "",
            R"doc(
 Function for loading a DAE file containing the macromodel of a spacecraft
-        
+
 This function creates a list of :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.BodyPanelSettings` generated from a custom macromodel exported in the DAE (COLLADA) file format.
 
 Parameters
@@ -459,7 +459,7 @@ input_unit : str, default = "m"
     Identifier of unit of length used in input model (available units "mm", "m", "in").
 frame_orientation : str, default = ""
     Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty).
-    
+
 Returns
 -------
 list[BodyPanelSettings]
@@ -566,15 +566,50 @@ list[BodyPanelSettings]
 
 
       )doc" )
-            .def_property(
-                    "boresight_euler_angles", &tss::CameraSettings::getBoresightEulerAngles, &tss::CameraSettings::setBoresightEulerAngles )
-            .def_property( "focal_lengths", &tss::CameraSettings::getFocalLengths, &tss::CameraSettings::setFocalLengths )
-            .def_property( "optical_center", &tss::CameraSettings::getOpticalCenter, &tss::CameraSettings::setOpticalCenter )
+            .def_property( "boresight_euler_angles",
+                           &tss::CameraSettings::getBoresightEulerAngles,
+                           &tss::CameraSettings::setBoresightEulerAngles,
+                           R"doc(
+
+         Right ascension, declination and twist angles defining the camera boresight relative to the body-fixed frame, in rad. The orientation follows the 3-2-3 rotation convention used by :func:`~pinhole_camera`.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
+            .def_property( "focal_lengths", &tss::CameraSettings::getFocalLengths, &tss::CameraSettings::setFocalLengths, R"doc(
+
+         Focal lengths in the two image coordinate directions used by the pinhole camera model.
+
+         :type: tuple[float, float]
+
+      )doc" )
+            .def_property( "optical_center", &tss::CameraSettings::getOpticalCenter, &tss::CameraSettings::setOpticalCenter, R"doc(
+
+         Coordinates of the optical centre in the two image coordinate directions.
+
+         :type: tuple[float, float]
+
+      )doc" )
             .def_property( "body_fixed_position",
                            &tss::CameraSettings::getBodyFixedCameraPosition,
-                           &tss::CameraSettings::setBodyFixedCameraPosition )
+                           &tss::CameraSettings::setBodyFixedCameraPosition,
+                           R"doc(
 
-            .def_property_readonly( "camera_name", &tss::CameraSettings::getCameraName );
+         Cartesian position of the camera in the body-fixed frame, in m.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
+
+            .def_property_readonly( "camera_name", &tss::CameraSettings::getCameraName, R"doc(
+
+         **read-only**
+
+         Name by which the camera is identified in the body vehicle systems.
+
+         :type: str
+
+      )doc" );
 
     m.def(
             "pinhole_camera",

@@ -103,19 +103,19 @@ namespace time_representation
 void expose_time_representation( py::module& m )
 {
     py::class_< tudat::Time >( m, "Time", R"doc(
-        
+
     Class for defining time with a resolution that is sub-femtosecond for very long periods of time.
-    
+
     Using double or long double precision as a representation of time, the issue of reduced precision will
-    occur over long time periods. For instance, over a period of 10^8 seconds (about 3 years), double and 
-    long double representations have resolution of about 10^-8 and 10^-11 s respectively, which is 
-    insufficient for various applications. 
-    
-    This class uses an integer to represent the number of hours since an epoch, and a long double to 
-    represent the number of seconds into the present hour. This provides a resolution of < 1 femtosecond, 
-    over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for practical 
+    occur over long time periods. For instance, over a period of 10^8 seconds (about 3 years), double and
+    long double representations have resolution of about 10^-8 and 10^-11 s respectively, which is
+    insufficient for various applications.
+
+    This class uses an integer to represent the number of hours since an epoch, and a long double to
+    represent the number of seconds into the present hour. This provides a resolution of < 1 femtosecond,
+    over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for practical
     applications.
-    
+
     The Time class supports standard arithmetic operations (addition, multiplication, etc.) with Time objects and floats, comparison operations, and
     automatic conversion to/from floating-point types.
         )doc" )
@@ -124,24 +124,35 @@ void expose_time_representation( py::module& m )
                   R"doc(
 
      Create a Time object from seconds since J2000.
-     
+
      Parameters
      ----------
      seconds_since_j2000 : float
          Number of seconds since J2000 epoch
-     
+
      Returns
      -------
      astro.time_representation.Time
          Time object initialized to specified seconds since J2000
-     
+
      Examples
      --------
      >>> from tudatpy.kernel import Time
      >>> t = Time(3600.0)  # 1 hour after J2000
      )doc" )
 
-            .def( py::init< const int >( ), py::arg( "seconds_since_j2000" ) )
+            .def( py::init< const int >( ),
+                  py::arg( "seconds_since_j2000" ),
+                  R"doc(
+
+         Create a Time object from an integer number of seconds since J2000.
+
+         Parameters
+         ----------
+         seconds_since_j2000 : int
+             Number of seconds since J2000.
+
+      )doc" )
 
             // Add docstring for the second constructor
             .def( py::init< const int, const long double >( ),
@@ -150,7 +161,7 @@ void expose_time_representation( py::module& m )
                   R"doc(
 
      Create a Time object from full periods (hours) and seconds into the current period.
-     
+
      Parameters
      ----------
      full_periods : int
@@ -158,12 +169,12 @@ void expose_time_representation( py::module& m )
      seconds_into_full_period : float
          Number of seconds into current hour. Need not be in range [0, 3600];
          the time representation is normalized automatically.
-     
+
      Returns
      -------
      astro.time_representation.Time
          Time object initialized to specified time
-     
+
      Examples
      --------
      >>> from tudatpy.kernel import Time
@@ -173,28 +184,29 @@ void expose_time_representation( py::module& m )
                               []( py::tuple t ) {
                                   if( t.size( ) != 2 ) throw std::runtime_error( "Invalid state!" );
                                   return Time( t[ 0 ].cast< int >( ), t[ 1 ].cast< long double >( ) );
-                              } ) )
+                              } ),
+                  R"doc(Serialize or restore a Time object using its full periods and seconds into the current period.)doc" )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
                   R"doc(
     Converts the time to a float (double) representing seconds since J2000.
-        
+
     Returns
     -------
     float
         Number of seconds since J2000
-    
+
     Examples
     --------
     In this example, a Time object is converted back to seconds since J2000.
-    
+
     .. code-block:: python
-    
+
         from tudatpy.kernel import Time
-        
+
         # Create a Time object from seconds since J2000
         t = Time(3600.0)  # 1 hour after J2000
-        
+
         # Convert back to seconds
         seconds = t.to_float()
         print(seconds)  # prints 3600.0
@@ -284,25 +296,119 @@ void expose_time_representation( py::module& m )
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
+                  R"doc(
+
+         Convert ``input_value`` from ``input_scale`` to ``output_scale`` and return seconds since J2000.
+
+         The optional ``earth_fixed_position`` is a Cartesian position in metres used for position-dependent time-scale
+         conversions; the default is the Earth centre.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Time scale in which the input epoch is expressed.
+         output_scale : TimeScales
+             Time scale to which the epoch is converted.
+         input_value : float
+             Input epoch in the input time scale, in seconds since J2000.
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+             Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
+
+         Returns
+         -------
+         float
+             Converted epoch in the output time scale, in seconds since J2000.
+
+      )doc" )
             .def( "convert_time_object",
                   &teo::TerrestrialTimeScaleConverter::getCurrentTime< Time >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
+                  R"doc(
+
+         Higher-resolution equivalent of :meth:`~TimeScaleConverter.convert_time`, using :class:`~Time` objects for input and output.
+
+         The optional ``earth_fixed_position`` is a Cartesian position in metres used for position-dependent time-scale
+         conversions; the default is the Earth centre.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Time scale in which the input epoch is expressed.
+         output_scale : TimeScales
+             Time scale to which the epoch is converted.
+         input_value : Time
+             Input epoch in the input time scale, in seconds since J2000.
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+             Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
+
+         Returns
+         -------
+         Time
+             Converted epoch in the output time scale.
+
+      )doc" )
             .def( "get_time_difference",
                   &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< double >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
+                  R"doc(
+
+         Return the conversion offset corresponding to :meth:`~TimeScaleConverter.convert_time`, in seconds.
+
+         Returning only the difference avoids loss of resolution when applying a small offset to a large epoch.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Time scale in which the input epoch is expressed.
+         output_scale : TimeScales
+             Time scale to which the epoch is converted.
+         input_value : float
+             Input epoch in the input time scale, in seconds since J2000.
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+             Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
+
+         Returns
+         -------
+         float
+             Converted epoch minus the input epoch, in seconds.
+
+      )doc" )
             .def( "get_time_object_difference",
                   &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< Time >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) );
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
+                  R"doc(
+
+         Return the conversion offset corresponding to :meth:`~TimeScaleConverter.convert_time_object`, as a :class:`~Time` object.
+
+         Returning only the difference avoids loss of resolution when applying a small offset to a large epoch.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Time scale in which the input epoch is expressed.
+         output_scale : TimeScales
+             Time scale to which the epoch is converted.
+         input_value : Time
+             Input epoch in the input time scale, in seconds since J2000.
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+             Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
+
+         Returns
+         -------
+         Time
+             Converted epoch minus the input epoch, represented as a Time object.
+
+      )doc" );
 
     py::class_< tba::DateTime >( m, "DateTime", R"doc(
 
@@ -325,14 +431,58 @@ void expose_time_representation( py::module& m )
                   py::arg( "day" ),
                   py::arg( "hour" ) = 12,
                   py::arg( "minute" ) = 0,
-                  py::arg( "seconds" ) = 0.0L )
-            .def( "__str__", []( const tba::DateTime& datetime ) { return datetime.isoString( ); } )
-            .def( "__repr__",
-                  []( const tba::DateTime& datetime ) {
-                      return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
-                              std::to_string( datetime.getDay( ) ) + ", " + std::to_string( datetime.getHour( ) ) + ", " +
-                              std::to_string( datetime.getMinute( ) ) + ", " + std::to_string( datetime.getSeconds( ) ) + ")";
-                  } )
+                  py::arg( "seconds" ) = 0.0L,
+                  R"doc(
+
+         Create a calendar date and time from year, month, day, hour, minute and fractional seconds. The default time
+         is noon.
+
+         Parameters
+         ----------
+         year : int
+             Calendar year.
+         month : int
+             Calendar month, from 1 to 12.
+         day : int
+             Day of the month, starting at 1.
+         hour : int, optional
+             Hour of the day.
+         minute : int, optional
+             Minute within the hour.
+         seconds : float, optional
+             Seconds within the minute, including any fractional part.
+
+      )doc" )
+            .def(
+                    "__str__",
+                    []( const tba::DateTime& datetime ) { return datetime.isoString( ); },
+                    R"doc(
+
+         Return the calendar date and time as an ISO-format string.
+
+         Returns
+         -------
+         str
+             ISO-format calendar date and time string.
+
+      )doc" )
+            .def(
+                    "__repr__",
+                    []( const tba::DateTime& datetime ) {
+                        return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
+                                std::to_string( datetime.getDay( ) ) + ", " + std::to_string( datetime.getHour( ) ) + ", " +
+                                std::to_string( datetime.getMinute( ) ) + ", " + std::to_string( datetime.getSeconds( ) ) + ")";
+                    },
+                    R"doc(
+
+         Return a DateTime constructor representation containing the calendar components.
+
+         Returns
+         -------
+         str
+             String containing the DateTime constructor and calendar components.
+
+      )doc" )
             .def_property( "year", &tba::DateTime::getYear, &tba::DateTime::setYear, R"doc(
 
  Calendar year
@@ -563,7 +713,7 @@ void expose_time_representation( py::module& m )
             .def( "modified_julian_day",
                   &tba::DateTime::modifiedJulianDay< double >,
                   R"doc(
- 
+
  .. warning::
 
     This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_modified_julian_day` instead.
@@ -654,7 +804,7 @@ In this example, the Tudat DateTime object is constructed from python native dat
                          py::arg( "year" ),
                          py::arg( "day_of_year" ),
                          R"doc(
-                         
+
 Create the Tudat :class:`DateTime` from the year and the number of days in the year.
 
 Parameters
@@ -678,15 +828,15 @@ In this example, the calendar date corresponding to when 122 days have passed in
     currentDate = time_representation.DateTime.from_year_and_day_of_year(2020, 122)
     # Print the converted output
     print(currentDate)  # prints (2020, 5, 2, 0, 0)
-                         
+
                          )doc" )
             .def_static( "from_iso_string", &tba::DateTime::fromIsoString, py::arg( "iso_time" ), R"doc(
-            
+
  Creates a Tudat-native :class:`DateTime` object from an ISO datetime string.
 
  Parameters
  ----------
- iso_datetime : str
+ iso_time : str
      Date and time as ISO compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..", where the T may be replaced with a space)
 
  Returns
@@ -697,15 +847,15 @@ In this example, the calendar date corresponding to when 122 days have passed in
  Examples
  --------
  In this example, the datetime is constructed from the iso string.
- 
+
  .. code-block:: python
- 
+
      from tudatpy.astro.time_representation import DateTime
 
      dt = DateTime.from_iso_string("2025-01-01T00:00:00.000")
      print(dt) # prints 2025-01-01 00:00:00.000000000000000
-                         
-                         )doc" )
+
+)doc" )
             .def_static( "from_epoch",
                          &tba::DateTime::fromTime< double >,
                          py::arg( "epoch" ),
@@ -726,16 +876,16 @@ In this example, the calendar date corresponding to when 122 days have passed in
  Examples
  --------
  In this example, the datetime is constructed from an epoch in seconds since J2000.
- 
+
  .. code-block:: python
- 
+
      from tudatpy.astro.time_representation import DateTime
 
      epoch_et = 788961600.0
 
      dt = DateTime.from_epoch(epoch_et)
      print(dt) # prints 2025-01-01 00:00:00.000000000000000
-                         
+
                          )doc" )
             .def_static( "from_epoch_time_object",
                          &tba::DateTime::fromTime< tudat::Time >,
@@ -764,16 +914,16 @@ In this example, the calendar date corresponding to when 122 days have passed in
  Examples
  --------
  In this example, the DateTime is constructed from a Julian day since January 1st 4713 BC.
- 
+
  .. code-block:: python
- 
+
      from tudatpy.astro.time_representation import DateTime
 
-     julian_day = 2451545.0 
+     julian_day = 2451545.0
 
      dt = DateTime.from_julian_day(julian_day)
      print(dt) # prints 2000-01-01 12:00:00.000000000000000
-                         
+
                          )doc" )
             .def_static( "from_modified_julian_day",
                          &tba::DateTime::fromModifiedJulianDay,
@@ -795,16 +945,16 @@ In this example, the calendar date corresponding to when 122 days have passed in
  Examples
  --------
  In this example, the DateTime is constructed from a modified Julian day since November 17th 1858.
- 
+
  .. code-block:: python
- 
+
      from tudatpy.astro.time_representation import DateTime
 
      modified_julian_day = 51544.5
 
      dt = DateTime.from_modified_julian_day(modified_julian_day)
      print(dt) # prints 2000-01-01 12:00:00.000000000000000
-                         
+
                          )doc" )
             .def(
                     "to_python_datetime",
@@ -888,11 +1038,11 @@ datetime.datetime
 
      )doc" )
             .def( "add_seconds", &tba::DateTime::addSecondsToDateTime< TIME_TYPE >, py::arg( "seconds_to_add" ), R"doc(
-            
+
  Function to create a new Tudat :class:`DateTime` object by adding a number of seconds to an existing Tudat :class:`DateTime` object.
 
  .. note::
-    
+
     This method does not modify the original :class:`DateTime` object, but returns a new one with the added seconds.
 
  Parameters
@@ -903,13 +1053,13 @@ datetime.datetime
  -------
  DateTime
      Tudat-native Datetime object created by adding the given number of seconds to the original DateTime
- 
+
  Examples
  --------
  In this example, 86400 seconds are added to a DateTime object to construct a new DateTime.
- 
+
  .. code-block:: python
- 
+
      from tudatpy.astro.time_representation import DateTime
 
      dt = DateTime(2025, 1, 1, 0, 0, 0.0)
@@ -918,15 +1068,15 @@ datetime.datetime
      print(f"dt with seconds added: {dt_seconds_added}")
      # prints:
      # Original dt: 2025-01-01 00:00:00.000000000000000
-     # dt with seconds added: 2025-01-02 00:00:00.000000000000000   
+     # dt with seconds added: 2025-01-02 00:00:00.000000000000000
 
             )doc" )
             .def( "add_days", &tba::DateTime::addDaysToDateTime< double >, py::arg( "days_to_add" ), R"doc(
-            
+
  Function to create a new Tudat :class:`DateTime` object by adding a number of days (86400 seconds) to an existing Tudat :class:`DateTime` object
 
  .. note::
-    
+
     This method does not modify the original :class:`DateTime` object, but returns a new one with the added days.
 
  Parameters
@@ -940,9 +1090,9 @@ datetime.datetime
  Examples
  --------
  In this example, 1 day is added to a DateTime object to construct a new DateTime.
- 
+
  .. code-block:: python
- 
+
      from tudatpy.astro.time_representation import DateTime
 
      dt = DateTime(2025, 1, 1, 0, 0, 0.0)
@@ -951,7 +1101,7 @@ datetime.datetime
      print(f"dt with days added: {dt_days_added}")
      # prints:
      # Original dt: 2025-01-01 00:00:00.000000000000000
-     # dt with days added: 2025-01-02 00:00:00.000000000000000   
+     # dt with days added: 2025-01-02 00:00:00.000000000000000
 
             )doc" );
 
@@ -1026,7 +1176,7 @@ datetime.datetime
  In this example, an amount of seconds since J2000 (January 1st 2000) is converted to the Julian date (in days since January 1st 4713 BC).
 
  .. code-block:: python
- 
+
    # Define the amount of seconds since January 1st 2000
    seconds_since_J2000 = 706413165.1200145
    # Convert the amount of seconds since J2000 to the Julian date

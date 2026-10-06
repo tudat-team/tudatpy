@@ -765,7 +765,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters, 
+         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters,
          equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
 
 
@@ -906,16 +906,48 @@ void expose_estimation_analysis( py::module& m )
       )doc" )
             .def_readonly( "final_parameters",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::parameterEstimate_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Parameter estimate from the selected best iteration of the estimation.
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+
+      )doc" )
             .def_readonly( "exception_during_inversion",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringInversion_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while solving the estimation normal equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "exception_during_propagation",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringPropagation_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while propagating the dynamics or variational equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Zero-based index of the estimation iteration selected as the best result.
+
+         :type: int
+
+      )doc" )
             .def_property_readonly( "inter_arc_continuity_cost_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCostHistory,
                                     R"doc(

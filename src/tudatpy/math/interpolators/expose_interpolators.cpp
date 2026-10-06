@@ -187,15 +187,41 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
       )doc" );
 
     py::class_< ti::InterpolatorGenerationSettings< tudat::Time >, std::shared_ptr< ti::InterpolatorGenerationSettings< tudat::Time > > >(
-            m, "InterpolatorGenerationSettingsTimeObject", R"doc(No documentation found.)doc" );
+            m, "InterpolatorGenerationSettingsTimeObject", R"doc(
+
+         Model created from settings returned by
+         :func:`~tudatpy.math.interpolators.interpolator_generation_settings_time_object`.
+
+      )doc" );
 
     py::class_< ti::InterpolatorGenerationSettings< double >, std::shared_ptr< ti::InterpolatorGenerationSettings< double > > >(
-            m, "InterpolatorGenerationSettings", R"doc(No documentation found.)doc" )
+            m, "InterpolatorGenerationSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.math.interpolators.interpolator_generation_settings`.
+
+      )doc" )
             .def( py::init< const std::shared_ptr< ti::InterpolatorSettings >, const double, const double, const double >( ),
                   py::arg( "interpolator_settings" ),
                   py::arg( "initial_time" ),
                   py::arg( "final_time" ),
-                  py::arg( "time_step" ) );
+                  py::arg( "time_step" ),
+                  R"doc(
+
+         Configure interpolation from model settings and a sampling interval with initial epoch, final epoch and time
+         step in seconds.
+
+         Parameters
+         ----------
+         interpolator_settings : InterpolatorSettings
+             Settings defining the interpolation method.
+         initial_time : float
+             Initial epoch, in seconds since J2000.
+         final_time : float
+             Final epoch, in seconds since J2000.
+         time_step : float
+             Sampling interval, in seconds.
+
+      )doc" );
 
     py::class_< ti::LagrangeInterpolatorSettings, std::shared_ptr< ti::LagrangeInterpolatorSettings >, ti::InterpolatorSettings >(
             m,
@@ -218,21 +244,88 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
                   py::arg( "use_long_double_time_step" ) = 0,
                   py::arg( "selected_lookup_scheme" ) = ti::huntingAlgorithm,
                   py::arg( "lagrange_boundary_handling" ) = ti::lagrange_cubic_spline_boundary_interpolation,
-                  py::arg( "boundary_handling" ) = ti::extrapolate_at_boundary );
+                  py::arg( "boundary_handling" ) = ti::extrapolate_at_boundary,
+                  R"doc(
+
+         Configure Lagrange interpolation order, lookup algorithm and boundary handling, optionally using long-double
+         time steps.
+
+         Parameters
+         ----------
+         interpolate_order : int
+             Order of the Lagrange interpolator.
+         use_long_double_time_step : bool, optional
+             Whether to use long double precision in time-step calculations.
+         selected_lookup_scheme : AvailableLookupScheme, optional
+             Algorithm used to locate the bracketing data points.
+         lagrange_boundary_handling : LagrangeInterpolatorBoundaryHandling, optional
+             Method used near the edges of the Lagrange interpolation interval.
+         boundary_handling : BoundaryInterpolationType, optional
+             Method used when a request falls outside the interpolation interval.
+
+      )doc" );
 
     m.def( "interpolator_generation_settings_time_object",
            &ti::interpolatorGenerationSettings< tudat::Time >,
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ) );
+           py::arg( "time_step" ),
+           R"doc(
+
+         Create settings to sample a function on Time-object epochs and construct an interpolator.
+
+         ``interpolator_settings`` defines the interpolation method. ``initial_time``, ``final_time`` and ``time_step``
+         define the sampling interval in seconds.
+
+         Parameters
+         ----------
+         interpolator_settings : InterpolatorSettings
+             Settings defining the interpolation method.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+         final_time : Time
+             Final epoch, in seconds since J2000.
+         time_step : Time
+             Sampling interval, in seconds.
+
+         Returns
+         -------
+         InterpolatorGenerationSettingsTimeObject
+             Interpolator-generation settings using Time objects for the sampling epochs.
+
+      )doc" );
 
     m.def( "interpolator_generation_settings",
            &ti::interpolatorGenerationSettings< double >,
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ) );
+           py::arg( "time_step" ),
+           R"doc(
+
+         Create settings to sample a function on double-precision epochs and construct an interpolator.
+
+         ``interpolator_settings`` defines the interpolation method. ``initial_time``, ``final_time`` and ``time_step``
+         define the sampling interval in seconds.
+
+         Parameters
+         ----------
+         interpolator_settings : InterpolatorSettings
+             Settings defining the interpolation method.
+         initial_time : float
+             Initial epoch, in seconds since J2000.
+         final_time : float
+             Final epoch, in seconds since J2000.
+         time_step : float
+             Sampling interval, in seconds.
+
+         Returns
+         -------
+         InterpolatorGenerationSettings
+             Interpolator-generation settings using float epochs for sampling.
+
+      )doc" );
 
     m.def( "linear_interpolation",
            &ti::linearInterpolation,
@@ -424,7 +517,27 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
     m.def( "hermite_interpolation",
            &ti::hermiteInterpolation,
            py::arg( "lookup_scheme" ) = ti::huntingAlgorithm,
-           py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning );
+           py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning,
+           R"doc(
+
+         Create Hermite interpolation settings for data supplied with first derivatives.
+
+         ``lookup_scheme`` selects how bracketing points are located and ``boundary_interpolation`` selects the
+         treatment of requests outside the data interval.
+
+         Parameters
+         ----------
+         lookup_scheme : AvailableLookupScheme, optional
+             Algorithm used to locate the bracketing data points.
+         boundary_interpolation : BoundaryInterpolationType, optional
+             Method used when a request falls outside the interpolation interval.
+
+         Returns
+         -------
+         InterpolatorSettings
+             Settings defining the Hermite interpolation method.
+
+      )doc" );
 
     py::class_< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >,
                 std::shared_ptr< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE > > >( m,

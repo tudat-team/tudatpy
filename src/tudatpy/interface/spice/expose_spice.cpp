@@ -101,7 +101,7 @@ void expose_spice( py::module& m )
 
  Get an approximate UTC time from ephemeris time (TDB).
 
- This function computes an approximate UTC time from the given ephemeris time (TDB). 
+ This function computes an approximate UTC time from the given ephemeris time (TDB).
  It uses the `deltet_c` Spice function to calculate the offset between TDB and UTC.
 
  Parameters
@@ -796,9 +796,31 @@ void expose_spice( py::module& m )
 
      )doc" );
 
-    m.def( "continue_after_errors", &tudat::spice_interface::toggleErrorReturn, R"doc(No documentation found.)doc" );
+    m.def( "continue_after_errors",
+           &tudat::spice_interface::toggleErrorReturn,
+           R"doc(
 
-    m.def( "suppress_error_output", &tudat::spice_interface::suppressErrorOutput, R"doc(No documentation found.)doc" );
+         Configure SPICE to return control to the caller after an error instead of aborting the process.
+
+         Returns
+         -------
+         None
+             No return value.
+
+      )doc" );
+
+    m.def( "suppress_error_output",
+           &tudat::spice_interface::suppressErrorOutput,
+           R"doc(
+
+         Suppress SPICE error messages emitted to its output stream.
+
+         Returns
+         -------
+         None
+             No return value.
+
+      )doc" );
 
     //      py::class_<tudat::ephemerides::SpiceEphemeris,
     //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m,

@@ -49,7 +49,21 @@ void expose_space_time_types( py::module& m )
                   } ),
                   py::arg( "parameter_gamma" ),
                   py::arg( "parameter_beta" ),
-                  py::arg( "parameter_epsilon" ) = 0.0 )
+                  py::arg( "parameter_epsilon" ) = 0.0,
+                  R"doc(
+
+         Set the dimensionless PPN gamma, beta and epsilon parameters; the binding initializes PPN delta to zero.
+
+         Parameters
+         ----------
+         parameter_gamma : float
+             Dimensionless PPN gamma parameter.
+         parameter_beta : float
+             Dimensionless PPN beta parameter.
+         parameter_epsilon : float, optional
+             Dimensionless PPN epsilon parameter.
+
+      )doc" )
             .def_property( "parameter_gamma",
                            &tr::PPNParameterSet::getParameterGamma,
                            &tr::PPNParameterSet::setParameterGamma,
@@ -66,7 +80,11 @@ void expose_space_time_types( py::module& m )
 
 void expose_space_time_setup( py::module& m )
 {
-    py::enum_< tss::SpaceTimeMetricTypes >( m, "SpaceTimeMetricType" )
+    py::enum_< tss::SpaceTimeMetricTypes >( m, "SpaceTimeMetricType", R"doc(
+
+         Enumeration of space-time metric models.
+
+      )doc" )
             .value( "schwarzschild_metric", tss::schwarzschild_metric )
             .value( "solar_system_metric", tss::solar_system_metric );
 
@@ -106,16 +124,52 @@ void expose_space_time_setup( py::module& m )
                             const double >( ),
                   py::arg_v( "metric_settings", std::shared_ptr< tss::SpaceTimeMetricSettings >( ), "None" ),
                   py::arg_v( "ppn_parameter_set", std::shared_ptr< tr::PPNParameterSet >( ), "None" ),
-                  py::arg( "equivalence_principle_lpi_violation_parameter" ) = 0.0 )
+                  py::arg( "equivalence_principle_lpi_violation_parameter" ) = 0.0,
+                  R"doc(
+
+         Define space-time properties with optional metric settings and PPN parameters, and a dimensionless local-
+         position-invariance violation parameter.
+
+         Parameters
+         ----------
+         metric_settings : SpaceTimeMetricSettings, optional
+             Optional settings defining the space-time metric.
+         ppn_parameter_set : PPNParameterSet, optional
+             Optional set of PPN parameters used by the metric.
+         equivalence_principle_lpi_violation_parameter : float, optional
+             Dimensionless local position invariance violation parameter.
+
+      )doc" )
             .def_property( "metric_settings",
                            &tss::SpaceTimePropertiesSettings::getMetricSettings,
-                           &tss::SpaceTimePropertiesSettings::setMetricSettings )
+                           &tss::SpaceTimePropertiesSettings::setMetricSettings,
+                           R"doc(
+
+         Settings defining the metric model used by the system of bodies. None leaves the metric settings unspecified.
+
+         :type: SpaceTimeMetricSettings or None
+
+      )doc" )
             .def_property( "ppn_parameter_set",
                            &tss::SpaceTimePropertiesSettings::getPpnParameterSet,
-                           &tss::SpaceTimePropertiesSettings::setPpnParameterSet )
+                           &tss::SpaceTimePropertiesSettings::setPpnParameterSet,
+                           R"doc(
+
+         Set of parametrized post-Newtonian parameters to use when creating the space-time properties. None leaves the parameter set unspecified.
+
+         :type: PPNParameterSet or None
+
+      )doc" )
             .def_property( "equivalence_principle_lpi_violation_parameter",
                            &tss::SpaceTimePropertiesSettings::getEquivalencePrincipleLpiViolationParameter,
-                           &tss::SpaceTimePropertiesSettings::setEquivalencePrincipleLpiViolationParameter );
+                           &tss::SpaceTimePropertiesSettings::setEquivalencePrincipleLpiViolationParameter,
+                           R"doc(
+
+         Dimensionless parameter describing a violation of local position invariance in the relativistic time model. A value of zero corresponds to no violation.
+
+         :type: float
+
+      )doc" );
 
     m.def( "ppn_parameter_set",
            &tss::ppnParameterSet,

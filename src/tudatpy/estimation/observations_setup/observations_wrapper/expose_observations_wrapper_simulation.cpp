@@ -50,7 +50,34 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
            py::arg( "time_step" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create relative-position model settings and pseudo-observations from the ephemerides in ``bodies``.
+
+         ``observed_bodies`` are paired with ``central_bodies``. Epochs start one hour after ``initial_time`` and stop
+         before one hour before ``final_time``, with spacing ``time_step``; times are in seconds since J2000.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         observed_bodies : list[str]
+             Names of the bodies whose ephemerides provide the observations.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the propagated or observed bodies.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+         final_time : Time
+             Final epoch, in seconds since J2000.
+         time_step : Time
+             Sampling interval, in seconds.
+
+         Returns
+         -------
+         tuple[list[ObservationModelSettings], ObservationCollection]
+             Pair containing the relative-position model settings and the simulated observation collection.
+
+      )doc" );
 
     m.def( "create_pseudo_observations_and_models_from_observation_times",
            py::overload_cast< const tss::SystemOfBodies&,
@@ -61,14 +88,60 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "observed_bodies" ),
            py::arg( "central_bodies" ),
            py::arg( "observation_times" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create relative-position model settings and pseudo-observations from ephemerides at ``observation_times``.
+
+         ``observed_bodies`` are paired with ``central_bodies`` in the supplied system of ``bodies``. Epochs are in
+         seconds since J2000.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         observed_bodies : list[str]
+             Names of the bodies whose ephemerides provide the observations.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the propagated or observed bodies.
+         observation_times : list[Time]
+             Observation epochs, in seconds since J2000.
+
+         Returns
+         -------
+         tuple[list[ObservationModelSettings], ObservationCollection]
+             Pair containing the relative-position model settings and the simulated observation collection.
+
+      )doc" );
 
     m.def( "set_existing_observations",
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observations" ),
            py::arg( "reference_link_end" ),
            py::arg( "ancillary_settings_per_observatble" ) =
-                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) );
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+           R"doc(
+
+         Create an ObservationCollection from existing measurements grouped by observable type.
+
+         ``observations`` maps each observable type to its link ends and a pair of measurement-vector and epoch lists.
+         ``reference_link_end`` identifies the time reference. ``ancillary_settings_per_observatble`` optionally
+         supplies ancillary data for each observable type.
+
+         Parameters
+         ----------
+         observations : dict[ObservableType, tuple[dict[LinkEndType, LinkEndId], tuple[list[numpy.ndarray[numpy.float64[m, 1]]], list[Time]]]]
+             Measurements grouped by observable type; each entry contains the link ends and paired lists of measurement vectors and epochs.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings_per_observatble : dict[ObservableType, ObservationAncillarySimulationSettings], optional
+             Ancillary data for each observable type.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the supplied measurements and epochs.
+
+      )doc" );
 
     m.def( "simulate_observations",
            &tss::simulateObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -120,7 +193,35 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "times_list" ),
            py::arg( "reference_link_end" ),
            py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create an ObservationCollection for one ``observable_type`` and ``link_ends`` definition.
+
+         ``observations_list`` contains measurement vectors and ``times_list`` the corresponding epochs in seconds
+         since J2000, referenced to ``reference_link_end``. ``ancillary_settings`` optionally supplies observable-
+         specific supporting data.
+
+         Parameters
+         ----------
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         observations_list : list[numpy.ndarray[numpy.float64[m, 1]]]
+             Measurement vectors, with one vector for each epoch.
+         times_list : list[Time]
+             Observation epochs in seconds since J2000, paired with the measurement vectors.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings : ObservationAncillarySimulationSettings, optional
+             Optional observable-specific ancillary data.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the supplied measurements for the single observable and link definition.
+
+      )doc" );
 }
 
 }  // namespace observations_wrapper

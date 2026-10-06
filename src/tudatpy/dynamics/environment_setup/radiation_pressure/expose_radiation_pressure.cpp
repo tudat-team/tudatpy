@@ -57,14 +57,28 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   ENUMS
     ///////////////////////////////////////////////////////////
 
-    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel" )
-            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom )
-            .value( "albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke )
-            .value( "emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke )
+    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel", R"doc(
+
+         Enumeration of predefined and custom Earth albedo and emissivity distributions.
+
+      )doc" )
+            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom, R"doc(Custom surface property distribution.)doc" )
+            .value( "albedo_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke,
+                    R"doc(Earth albedo distribution from :cite:p:`knocke1988`.)doc" )
+            .value( "emissivity_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke,
+                    R"doc(Earth emissivity distribution from :cite:p:`knocke1988`.)doc" )
             .export_values( );
 
-    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel" )
-            .value( "albedo_dlam1", tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1 )
+    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel", R"doc(
+
+         Enumeration of predefined spherical harmonic surface property distributions.
+
+      )doc" )
+            .value( "albedo_dlam1",
+                    tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1,
+                    R"doc(DLAM-1 lunar albedo distribution from :cite:p:`floberghagen1999`.)doc" )
             .export_values( );
 
     enum class SphericalHarmonicsSurfacePropertyDistributionModel {
@@ -253,7 +267,13 @@ void expose_radiation_pressure_setup( py::module& m )
       )doc" );
     py::class_< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings,
                 std::shared_ptr< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >,
-                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings" );
+                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings", R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.knocke_type_surface_property_distribution`,
+         :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.predefined_knocke_type_surface_property_distribution`.
+
+      )doc" );
 
     m.def( "constant_surface_property_distribution",
            &tss::constantSurfacePropertyDistributionSettings,
