@@ -26,6 +26,7 @@
 #include <tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
 #include <tudat/astro/aerodynamics/flightConditions.h>
 #include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
+#include <tudat/astro/aerodynamics/nrlmsise00Atmosphere.h>
 #include <tudat/astro/basic_astro/ionosphereModel.h>
 #include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
 #include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
@@ -1411,6 +1412,74 @@ bool
 
 
      )doc" );
+
+    py::class_< ta::NRLMSISE00Atmosphere, std::shared_ptr< ta::NRLMSISE00Atmosphere >, ta::AtmosphereModel >(
+            m, "NRLMSISE00Atmosphere", R"doc(
+
+         AtmosphereModel derived class created from settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00`.
+
+         The model is created during environment setup and can be accessed through
+         :attr:`~Body.atmosphere_model`. Atmospheric properties can be queried using the inherited
+         :class:`~AtmosphereModel` methods.
+
+      )doc" )
+            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude, R"doc(
+
+         Set whether the atmosphere model uses geodetic latitude.
+
+         The boolean positional argument selects geodetic latitude when True and geocentric latitude when False.
+         This flag is used when obtaining the coordinates for atmosphere model evaluation.
+
+         Parameters
+         ----------
+         use_geodetic_latitude : bool
+             Whether to use geodetic latitude (True) or geocentric latitude (False). This is a positional argument.
+
+         Returns
+         -------
+         None
+             No return value.
+
+      )doc" )
+            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude, R"doc(
+
+         Retrieve the latitude convention used by the atmosphere model.
+
+         Returns
+         -------
+         bool
+             True if geodetic latitude is used, or False if geocentric latitude is used.
+
+      )doc" )
+            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc, R"doc(
+
+         Set whether UTC epochs are used for atmosphere model evaluation.
+
+         The boolean positional argument enables the use of UTC when True. This flag is used when preparing the time
+         input for the atmosphere model.
+
+         Parameters
+         ----------
+         use_utc : bool
+             Whether to use UTC (True) or TDB (False) when evaluating the atmosphere inputs. This is a positional argument.
+
+         Returns
+         -------
+         None
+             No return value.
+
+      )doc" )
+            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc, R"doc(
+
+         Retrieve whether the atmosphere model uses UTC epochs.
+
+         Returns
+         -------
+         bool
+             True if UTC is used for the time input to the atmosphere model.
+
+      )doc" );
 
     py::class_< ta::AerodynamicCoefficientInterface, std::shared_ptr< ta::AerodynamicCoefficientInterface > >(
             m,
