@@ -686,25 +686,7 @@ void expose_spice( py::module& m )
 
     m.def( "load_standard_deprecated_kernels",
            &tudat::spice_interface::loadStandardDepracatedSpiceKernels,
-           py::arg( "alternative_kernels" ) = std::vector< std::string >( ),
-           R"doc(
-
-         Load the standard legacy SPICE kernel set.
-
-         ``alternative_kernels`` supplies replacement ephemeris kernels when required. Kernels remain loaded in the
-         SPICE kernel pool until cleared.
-
-         Parameters
-         ----------
-         alternative_kernels : list[str], optional
-             Paths of alternative ephemeris kernels to load in place of the default planetary kernels.
-
-         Returns
-         -------
-         None
-             No return value.
-
-      )doc" );
+           py::arg( "alternative_kernels" ) = std::vector< std::string >( ) );
 
     m.def( "get_total_count_of_kernels_loaded",
            &tudat::spice_interface::getTotalCountOfKernelsLoaded,

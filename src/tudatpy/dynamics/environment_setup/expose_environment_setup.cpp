@@ -18,6 +18,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup/createRelativisticTimeConverter.h>
 #include <tudat/simulation/environment_setup/body.h>
 #include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
@@ -732,10 +733,6 @@ void expose_environment_setup( py::module& m )
 
          Function that adds an empty tabulated ephemeris to an existing body.
 
-         The ephemeris is created without an interpolator, so that its state history can subsequently be filled from a numerical
-         propagation. It cannot be queried until this state history has been assigned. The frame orientation is taken from the
-         system of bodies.
-
          Parameters
          ----------
          bodies : tudatpy.dynamics.environment.SystemOfBodies
@@ -877,9 +874,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
          Function for creating an aerodynamic coefficient interface from settings.
 
-         The interface computes the aerodynamic force and moment coefficients using the model defined by the settings.
-         The system of bodies is supplied to resolve any dependencies of the coefficient model on the physical environment.
-
          Parameters
          ----------
          coefficient_settings : tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings
@@ -986,32 +980,18 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
       )doc" );
 
-    m.def( "add_mass_properties_model",
-           &tss::addRigidBodyProperties,
-           py::arg( "bodies" ),
-           py::arg( "body_name" ),
-           py::arg( "mass_property_settings" ),
-           R"doc(
-
-         Function that creates a rigid body property model, and adds it to an existing body.
-
-         This function provides the same functionality as :func:`~add_rigid_body_properties`.
-
-         Parameters
-         ----------
-         bodies : tudatpy.dynamics.environment.SystemOfBodies
-             Object containing the physical environment.
-         body_name : str
-             Name of the body to which the rigid body properties are assigned.
-         mass_property_settings : tudatpy.dynamics.environment_setup.rigid_body.RigidBodyPropertiesSettings
-             Settings defining the mass, centre of mass and inertia tensor of the body.
-
-         Returns
-         -------
-         None
-             No return value.
-
-      )doc" );
+    m.def(
+            "add_mass_properties_model",
+            []( const tss::SystemOfBodies& bodies,
+                const std::string& bodyName,
+                const std::shared_ptr< tss::RigidBodyPropertiesSettings >& massPropertySettings ) {
+                tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment_setup.add_mass_properties_model",
+                                                           "tudatpy.dynamics.environment_setup.add_rigid_body_properties" );
+                tss::addRigidBodyProperties( bodies, bodyName, massPropertySettings );
+            },
+            py::arg( "bodies" ),
+            py::arg( "body_name" ),
+            py::arg( "mass_property_settings" ) );
 
     m.def( "add_rigid_body_properties",
            &tss::addRigidBodyProperties,
@@ -1260,9 +1240,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
            Function to add a camera to an existing body.
 
-           This function creates a camera from settings, and adds it to an existing body. It requires settings for the camera, created using one of the functions from the :ref:`camera` module. This function creates the actual camera from these settings, and assigns it to the
-           selected body.
-
            Parameters
            ----------
            body : Body
@@ -1304,11 +1281,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            R"doc(
 
            Function to add a camera to an existing body.
-
-           This function creates a camera with the provided properties, and adds it to the provided body.
-           The camera is defined by its name, its boresight direction (defined by Euler angles), and its focal lengths
-           optical center (defining the mapping from boresight to pixel coordinates), and body-fixed position.
-           The camera is added to body's vehicle systems.
 
            Parameters
            ----------

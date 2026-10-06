@@ -134,20 +134,7 @@ reference_epoch:
                                                     "BodyDeformationStationMotionSettings",
                                                     R"doc(
                     Define station motion settings based on body deformation
-                    )doc" )
-            .def( py::init< const bool >( ),
-                  py::arg( "fail_if_not_available" ) = true,
-                  R"doc(
-
-         Create a station displacement model due to body deformation, optionally requiring that deformation models
-         exist.
-
-         Parameters
-         ----------
-         fail_if_not_available : bool, optional
-             Whether to raise an error when the required body deformation model is unavailable.
-
-      )doc" );
+                    )doc" );
 
     py::class_< tss::CustomGroundStationMotionSettings,
                 std::shared_ptr< tss::CustomGroundStationMotionSettings >,

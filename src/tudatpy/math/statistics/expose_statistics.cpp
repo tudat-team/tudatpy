@@ -127,7 +127,7 @@ void expose_statistics( py::module& m )
 
     m.def( "generate_colored_clock_noise",
            &tsm::generateColoredClockNoise,
-           py::arg( "allan_variance_amplitudes" ),
+           py::arg( "deviation_nodes" ),
            py::arg( "variance_type" ),
            py::arg( "start_time" ),
            py::arg( "end_time" ),
@@ -137,13 +137,13 @@ void expose_statistics( py::module& m )
 
          Generate colored clock timing noise from a set of Allan or Hadamard deviation nodes.
 
-         Despite its name, ``allan_variance_amplitudes`` maps averaging times to deviation values. ``variance_type``
+         ``deviation_nodes`` maps averaging times to Allan or Hadamard deviation values. ``variance_type``
          selects Allan or Hadamard variance. ``start_time``, ``end_time`` and ``number_of_time_steps`` define the
          sample grid; ``seed`` controls random generation. Available when FFTW support is enabled.
 
          Parameters
          ----------
-         allan_variance_amplitudes : dict[int, float]
+         deviation_nodes : dict[int, float]
              Clock deviation values keyed by averaging time in seconds.
          variance_type : str
              Clock-stability variance to use: "Allan" or "Hadamard".
@@ -203,7 +203,7 @@ void expose_statistics( py::module& m )
 
     m.def( "get_colored_clock_noise_interpolator",
            &tsm::getColoredClockNoiseInterpolator,
-           py::arg( "allan_variance_nodes" ),
+           py::arg( "deviation_nodes" ),
            py::arg( "variance_type" ),
            py::arg( "start_time" ),
            py::arg( "end_time" ),
@@ -211,7 +211,7 @@ void expose_statistics( py::module& m )
            py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
            R"doc(
 
-         Generate and interpolate colored clock timing noise from ``allan_variance_nodes``, mapping averaging times to
+         Generate and interpolate colored clock timing noise from ``deviation_nodes``, mapping averaging times to
          deviation values.
 
          ``variance_type`` selects Allan or Hadamard variance. ``start_time``, ``end_time`` and ``time_step`` define
@@ -220,7 +220,7 @@ void expose_statistics( py::module& m )
 
          Parameters
          ----------
-         allan_variance_nodes : dict[int, float]
+         deviation_nodes : dict[int, float]
              Clock deviation values keyed by averaging time in seconds.
          variance_type : str
              Clock-stability variance to use: "Allan" or "Hadamard".

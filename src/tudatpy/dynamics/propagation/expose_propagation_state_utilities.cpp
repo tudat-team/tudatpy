@@ -53,7 +53,7 @@ void expose_propagation_state_utility_types( py::module& m )
                                                                            "AccelerationModel",
                                                                            R"doc(
 
-         Base interface for a translational acceleration model, including its current acceleration and update method.
+         Base class for the calculation of a translational acceleration model.
 
       )doc" )
             .def( "update_members",
@@ -80,7 +80,7 @@ void expose_propagation_state_utility_types( py::module& m )
 
          **read-only**
 
-         Current three-component acceleration, in metres per second squared; update the model before reading it.
+         Three-component acceleration, in metres per second squared, as computed by the last call to :meth:`~AccelerationModel.update_members`.
 
          :type: numpy.ndarray[numpy.float64[3, 1]]
 
@@ -94,8 +94,7 @@ void expose_propagation_state_utility_types( py::module& m )
                     py::arg( "current_time" ),
                     R"doc(
 
-         Update the acceleration model at ``current_time`` in seconds since J2000 and return its three-component
-         acceleration in metres per second squared.
+         Call :meth:`~AccelerationModel.update_members` at ``current_time`` and return :attr:`~AccelerationModel.acceleration`.
 
          Parameters
          ----------

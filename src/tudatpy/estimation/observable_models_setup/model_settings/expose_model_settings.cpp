@@ -1765,26 +1765,7 @@ Returns
     m.def( "euler_angles_313",
            &tom::eulerAngle313ObservableSettings,
            py::arg( "link_ends" ),
-           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           R"doc(
-
-         Create observation model settings for the 3-1-3 Euler angles of the observed body identified by ``link_ends``.
-
-         The three angles are in radians; ``bias_settings`` optionally defines an observation bias.
-
-         Parameters
-         ----------
-         link_ends : LinkDefinition
-             Definition of the bodies and reference points participating in the observation link.
-         bias_settings : ObservationBiasSettings, optional
-             Optional settings for observation biases.
-
-         Returns
-         -------
-         ObservationModelSettings
-             Settings for the model defined above.
-
-      )doc" );
+           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ) );
 
     m.def( "one_way_open_loop_doppler",
            &tom::oneWayOpenLoopDoppler,
@@ -1822,29 +1803,7 @@ normalized_with_speed_of_light : bool, default = False
                               const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
            py::arg( "uplink_doppler_settings" ),
            py::arg( "downlink_doppler_settings" ),
-           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           R"doc(
-
-         Create a two-way open-loop Doppler model from the supplied ``uplink_doppler_settings`` and
-         ``downlink_doppler_settings``.
-
-         ``bias_settings`` optionally defines a bias on the combined observable.
-
-         Parameters
-         ----------
-         uplink_doppler_settings : OneWayDopplerObservationModelSettings
-             One-way open-loop Doppler settings for the uplink.
-         downlink_doppler_settings : OneWayDopplerObservationModelSettings
-             One-way open-loop Doppler settings for the downlink.
-         bias_settings : ObservationBiasSettings, optional
-             Optional settings for observation biases.
-
-         Returns
-         -------
-         ObservationModelSettings
-             Settings for the model defined above.
-
-      )doc" );
+           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ) );
 
     m.def( "two_way_open_loop_doppler",
            py::overload_cast< const tom::LinkDefinition&,

@@ -329,7 +329,7 @@ void expose_time_representation( py::module& m )
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
                   R"doc(
 
-         Convert a Time object from ``input_scale`` to ``output_scale`` and return a Time object.
+         Higher-resolution equivalent of :meth:`~TimeScaleConverter.convert_time`, using :class:`~Time` objects for input and output.
 
          The optional ``earth_fixed_position`` is a Cartesian position in metres used for position-dependent time-scale
          conversions; the default is the Earth centre.
@@ -359,10 +359,9 @@ void expose_time_representation( py::module& m )
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
                   R"doc(
 
-         Return converted time minus input time, in seconds, for the requested time scales.
+         Return the conversion offset corresponding to :meth:`~TimeScaleConverter.convert_time`, in seconds.
 
-         ``input_value`` is in seconds since J2000 in ``input_scale``. The optional ``earth_fixed_position`` is a
-         Cartesian position in metres used for position-dependent conversions.
+         Returning only the difference avoids loss of resolution when applying a small offset to a large epoch.
 
          Parameters
          ----------
@@ -389,10 +388,9 @@ void expose_time_representation( py::module& m )
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ),
                   R"doc(
 
-         Return converted time minus input time as a Time object for the requested time scales.
+         Return the conversion offset corresponding to :meth:`~TimeScaleConverter.convert_time_object`, as a :class:`~Time` object.
 
-         ``input_value`` is a Time object in ``input_scale``. The optional ``earth_fixed_position`` is a Cartesian
-         position in metres used for position-dependent conversions.
+         Returning only the difference avoids loss of resolution when applying a small offset to a large epoch.
 
          Parameters
          ----------
@@ -1889,110 +1887,15 @@ datetime.datetime
 
     /////////////// DEPRECATED
 
-    m.def( "date_time_from_epoch",
-           &tba::DateTime::fromTime< TIME_TYPE >,
-           py::arg( "epoch" ),
-           R"doc(
+    m.def( "date_time_from_epoch", &tba::DateTime::fromTime< TIME_TYPE >, py::arg( "epoch" ) );
 
-         Return a DateTime representing ``epoch``, in seconds since J2000. The epoch may be supplied as a Time object.
+    m.def( "date_time_from_iso_string", &tba::DateTime::fromIsoString, py::arg( "iso_string" ) );
 
-         Parameters
-         ----------
-         epoch : Time
-             Epoch in seconds since J2000.
+    m.def( "year_and_days_in_year_to_calendar_date", &tba::DateTime::fromYearAndDaysInYear, py::arg( "year" ), py::arg( "days_in_year" ) );
 
-         Returns
-         -------
-         DateTime
-             Calendar date and time corresponding to the supplied epoch.
+    m.def( "add_seconds_to_datetime", &tba::addSecondsToDateTime< TIME_TYPE >, py::arg( "datetime" ), py::arg( "seconds_to_add" ) );
 
-      )doc" );
-
-    m.def( "date_time_from_iso_string",
-           &tba::DateTime::fromIsoString,
-           py::arg( "iso_string" ),
-           R"doc(
-
-         Parse ``iso_string`` into a DateTime using its ISO calendar date and time components.
-
-         Parameters
-         ----------
-         iso_string : str
-             ISO-format calendar date and time string.
-
-         Returns
-         -------
-         DateTime
-             Calendar date and time parsed from the supplied ISO string.
-
-      )doc" );
-
-    m.def( "year_and_days_in_year_to_calendar_date",
-           &tba::DateTime::fromYearAndDaysInYear,
-           py::arg( "year" ),
-           py::arg( "days_in_year" ),
-           R"doc(
-
-         Return a DateTime at midnight for the calendar ``year`` and one-based day number ``days_in_year``.
-
-         Parameters
-         ----------
-         year : int
-             Calendar year.
-         days_in_year : int
-             Day of the year, starting at 1.
-
-         Returns
-         -------
-         DateTime
-             Calendar date at midnight on the specified day of the year.
-
-      )doc" );
-
-    m.def( "add_seconds_to_datetime",
-           &tba::addSecondsToDateTime< TIME_TYPE >,
-           py::arg( "datetime" ),
-           py::arg( "seconds_to_add" ),
-           R"doc(
-
-         Return a new DateTime offset from ``datetime`` by ``seconds_to_add`` seconds, accounting for calendar
-         boundaries.
-
-         Parameters
-         ----------
-         datetime : DateTime
-             Calendar date and time to which the offset is applied.
-         seconds_to_add : Time
-             Time offset to add, in seconds.
-
-         Returns
-         -------
-         DateTime
-             New calendar date and time after applying the offset in seconds.
-
-      )doc" );
-
-    m.def( "add_days_to_datetime",
-           &tba::addDaysToDateTime< TIME_TYPE >,
-           py::arg( "datetime" ),
-           py::arg( "days_to_add" ),
-           R"doc(
-
-         Return a new DateTime offset from ``datetime`` by ``days_to_add`` days, accounting for calendar boundaries.
-
-         Parameters
-         ----------
-         datetime : DateTime
-             Calendar date and time to which the offset is applied.
-         days_to_add : Time
-             Time offset to add, in days.
-
-         Returns
-         -------
-         DateTime
-             New calendar date and time after applying the offset in days.
-
-      )doc" );
+    m.def( "add_days_to_datetime", &tba::addDaysToDateTime< TIME_TYPE >, py::arg( "datetime" ), py::arg( "days_to_add" ) );
 
     m.def( "epoch_from_date_time_components",
            &tba::timeFromDecomposedDateTime< TIME_TYPE >,
@@ -2001,52 +1904,9 @@ datetime.datetime
            py::arg( "day" ),
            py::arg( "hour" ),
            py::arg( "minute" ),
-           py::arg( "seconds" ),
-           R"doc(
+           py::arg( "seconds" ) );
 
-         Return a Time object in seconds since J2000 from the calendar ``year``, ``month``, ``day``, ``hour``,
-         ``minute`` and fractional ``seconds``.
-
-         Parameters
-         ----------
-         year : int
-             Calendar year.
-         month : int
-             Calendar month, from 1 to 12.
-         day : int
-             Day of the month, starting at 1.
-         hour : int
-             Hour of the day.
-         minute : int
-             Minute within the hour.
-         seconds : float
-             Seconds within the minute, including any fractional part.
-
-         Returns
-         -------
-         Time
-             Epoch corresponding to the calendar components, in seconds since J2000.
-
-      )doc" );
-
-    m.def( "epoch_from_date_time_iso_string",
-           &tba::timeFromIsoString< TIME_TYPE >,
-           py::arg( "iso_datetime" ),
-           R"doc(
-
-         Return a Time object in seconds since J2000 from the ISO calendar date and time string ``iso_datetime``.
-
-         Parameters
-         ----------
-         iso_datetime : str
-             ISO-format calendar date and time string.
-
-         Returns
-         -------
-         Time
-             Epoch corresponding to the ISO calendar string, in seconds since J2000.
-
-      )doc" );
+    m.def( "epoch_from_date_time_iso_string", &tba::timeFromIsoString< TIME_TYPE >, py::arg( "iso_datetime" ) );
 }
 }  // namespace time_representation
 }  // namespace astro

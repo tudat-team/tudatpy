@@ -116,7 +116,7 @@ void expose_two_body_dynamics( py::module& m )
                                                                                                        "PericenterFindingFunctions",
                                                                                                        R"doc(
 
-         Objective function and derivative for finding a gravity-assist pericentre from the incoming and outgoing
+         Class providing the objective function and its derivative for finding a gravity-assist pericentre from the incoming and outgoing
          hyperbolae and bending angle.
 
       )doc" )

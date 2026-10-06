@@ -59,20 +59,26 @@ void expose_radiation_pressure_setup( py::module& m )
 
     py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel", R"doc(
 
-         Enumeration of the Earth albedo and emissivity distributions of :cite:p:`knocke1988`, and custom distributions.
+         Enumeration of predefined and custom Earth albedo and emissivity distributions.
 
       )doc" )
-            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom )
-            .value( "albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke )
-            .value( "emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke )
+            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom, R"doc(Custom surface property distribution.)doc" )
+            .value( "albedo_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke,
+                    R"doc(Earth albedo distribution from :cite:p:`knocke1988`.)doc" )
+            .value( "emissivity_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke,
+                    R"doc(Earth emissivity distribution from :cite:p:`knocke1988`.)doc" )
             .export_values( );
 
     py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel", R"doc(
 
-         Enumeration of predefined spherical harmonic surface property distributions, including the DLAM-1 lunar albedo model :cite:p:`floberghagen1999`.
+         Enumeration of predefined spherical harmonic surface property distributions.
 
       )doc" )
-            .value( "albedo_dlam1", tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1 )
+            .value( "albedo_dlam1",
+                    tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1,
+                    R"doc(DLAM-1 lunar albedo distribution from :cite:p:`floberghagen1999`.)doc" )
             .export_values( );
 
     enum class SphericalHarmonicsSurfacePropertyDistributionModel {

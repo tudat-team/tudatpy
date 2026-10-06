@@ -78,7 +78,7 @@ void expose_propagation_thrust_bindings( py::module& m )
 
          **write-only**
 
-         Function returning the thrust magnitude, in N, at a time in seconds since J2000. Assigning this property replaces the current thrust magnitude function.
+         Function returning the thrust magnitude, in N, at a time in seconds since J2000. Assigning this property replaces the current thrust magnitude function; the stored function cannot be retrieved through this property.
 
          :type: Callable[[float], float]
 
