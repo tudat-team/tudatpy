@@ -55,8 +55,27 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
          Create relative-position model settings and pseudo-observations from the ephemerides in ``bodies``.
 
          ``observed_bodies`` are paired with ``central_bodies``. Epochs start one hour after ``initial_time`` and stop
-         before one hour before ``final_time``, with spacing ``time_step``; times are in seconds since J2000. Returns a
-         tuple of the model settings list and an ObservationCollection.
+         before one hour before ``final_time``, with spacing ``time_step``; times are in seconds since J2000.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         observed_bodies : list[str]
+             Names of the bodies whose ephemerides provide the observations.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the propagated or observed bodies.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+         final_time : Time
+             Final epoch, in seconds since J2000.
+         time_step : Time
+             Sampling interval, in seconds.
+
+         Returns
+         -------
+         tuple[list[ObservationModelSettings], ObservationCollection]
+             Pair containing the relative-position model settings and the simulated observation collection.
 
       )doc" );
 
@@ -74,7 +93,23 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
          Create relative-position model settings and pseudo-observations from ephemerides at ``observation_times``.
 
          ``observed_bodies`` are paired with ``central_bodies`` in the supplied system of ``bodies``. Epochs are in
-         seconds since J2000. Returns a tuple of the model settings list and an ObservationCollection.
+         seconds since J2000.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         observed_bodies : list[str]
+             Names of the bodies whose ephemerides provide the observations.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the propagated or observed bodies.
+         observation_times : list[Time]
+             Observation epochs, in seconds since J2000.
+
+         Returns
+         -------
+         tuple[list[ObservationModelSettings], ObservationCollection]
+             Pair containing the relative-position model settings and the simulated observation collection.
 
       )doc" );
 
@@ -91,6 +126,20 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
          ``observations`` maps each observable type to its link ends and a pair of measurement-vector and epoch lists.
          ``reference_link_end`` identifies the time reference. ``ancillary_settings_per_observatble`` optionally
          supplies ancillary data for each observable type.
+
+         Parameters
+         ----------
+         observations : dict[ObservableType, tuple[dict[LinkEndType, LinkEndId], tuple[list[numpy.ndarray[numpy.float64[m, 1]]], list[Time]]]]
+             Measurements grouped by observable type; each entry contains the link ends and paired lists of measurement vectors and epochs.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings_per_observatble : dict[ObservableType, ObservationAncillarySimulationSettings], optional
+             Ancillary data for each observable type.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the supplied measurements and epochs.
 
       )doc" );
 
@@ -151,6 +200,26 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
          ``observations_list`` contains measurement vectors and ``times_list`` the corresponding epochs in seconds
          since J2000, referenced to ``reference_link_end``. ``ancillary_settings`` optionally supplies observable-
          specific supporting data.
+
+         Parameters
+         ----------
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         observations_list : list[numpy.ndarray[numpy.float64[m, 1]]]
+             Measurement vectors, with one vector for each epoch.
+         times_list : list[Time]
+             Observation epochs in seconds since J2000, paired with the measurement vectors.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings : ObservationAncillarySimulationSettings, optional
+             Optional observable-specific ancillary data.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the supplied measurements for the single observable and link definition.
 
       )doc" );
 }

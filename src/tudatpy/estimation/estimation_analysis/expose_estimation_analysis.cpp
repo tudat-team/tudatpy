@@ -912,6 +912,8 @@ void expose_estimation_analysis( py::module& m )
 
          Parameter estimate from the selected best iteration of the estimation.
 
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+
       )doc" )
             .def_readonly( "exception_during_inversion",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringInversion_,
@@ -920,6 +922,8 @@ void expose_estimation_analysis( py::module& m )
          **read-only**
 
          Whether an exception occurred while solving the estimation normal equations.
+
+         :type: bool
 
       )doc" )
             .def_readonly( "exception_during_propagation",
@@ -930,6 +934,8 @@ void expose_estimation_analysis( py::module& m )
 
          Whether an exception occurred while propagating the dynamics or variational equations.
 
+         :type: bool
+
       )doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
@@ -938,6 +944,8 @@ void expose_estimation_analysis( py::module& m )
          **read-only**
 
          Zero-based index of the estimation iteration selected as the best result.
+
+         :type: int
 
       )doc" )
             .def_property_readonly( "inter_arc_continuity_cost_history",

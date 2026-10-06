@@ -412,8 +412,6 @@ void expose_environment( py::module& m )
 
          Model created from settings returned by :func:`~tudatpy.dynamics.environment_setup.ephemeris.constant`.
 
-         See the factory documentation for the model definition and configuration.
-
       )doc" )
             .def( py::init< const std::function< Eigen::Vector6d( ) >,  //<pybind11/functional.h>,<pybind11/eigen.h>
                             const std::string&,
@@ -439,6 +437,11 @@ void expose_environment( py::module& m )
          new_state : numpy.ndarray[numpy.float64[6, 1]]
              New Cartesian state, containing position in m and velocity in m/s, expressed in the ephemeris reference frame.
 
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" );
 
     py::class_< te::KeplerEphemeris, std::shared_ptr< te::KeplerEphemeris >, te::Ephemeris >( m, "KeplerEphemeris", R"doc(
@@ -446,16 +449,12 @@ void expose_environment( py::module& m )
          Model created from settings returned by :func:`~tudatpy.dynamics.environment_setup.ephemeris.keplerian`,
          :func:`~tudatpy.dynamics.environment_setup.ephemeris.keplerian_from_spice`.
 
-         See the factory documentation for the model definition and configuration.
-
       )doc" );
 
     py::class_< te::MultiArcEphemeris, std::shared_ptr< te::MultiArcEphemeris >, te::Ephemeris >( m, "MultiArcEphemeris", R"doc(
 
          Model created from settings returned by
          :func:`~tudatpy.dynamics.environment_setup.ephemeris.multi_arc_ephemeris`.
-
-         See the factory documentation for the model definition and configuration.
 
       )doc" )
             .def( py::init< const std::map< double, std::shared_ptr< te::Ephemeris > >&, const std::string&, const std::string& >( ),
@@ -470,8 +469,6 @@ void expose_environment( py::module& m )
          Model created from settings returned by :func:`~tudatpy.dynamics.environment_setup.ephemeris.tabulated`,
          :func:`~tudatpy.dynamics.environment_setup.ephemeris.tabulated_from_existing`,
          :func:`~tudatpy.dynamics.environment_setup.ephemeris.interpolated_spice`.
-
-         See the factory documentation for the model definition and configuration.
 
       )doc" )
             .def_property( "interpolator",
@@ -829,8 +826,6 @@ void expose_environment( py::module& m )
     py::class_< te::TleEphemeris, std::shared_ptr< te::TleEphemeris >, te::Ephemeris >( m, "TleEphemeris", R"doc(
 
          Model created from settings returned by :func:`~tudatpy.dynamics.environment_setup.ephemeris.sgp4`.
-
-         See the factory documentation for the model definition and configuration.
 
       )doc" )
             .def( py::init< const std::string&, const std::string&, const std::shared_ptr< te::Tle >, const bool >( ),
@@ -1611,6 +1606,11 @@ bool
          control_surface_list : dict[str, ControlSurfaceIncrementAerodynamicInterface]
              Dictionary mapping each control surface name to its aerodynamic coefficient increment model.
 
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
             .def( "update_coefficients",
                   &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
@@ -1798,6 +1798,11 @@ bool
          Clears the coefficient-generation data, cached panel inclinations and pressure coefficients. This function is used
          to release analysis data that are no longer required.
 
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" );
 
     py::class_< ta::CustomControlSurfaceIncrementAerodynamicInterface,
@@ -1812,6 +1817,13 @@ bool
 
          Create a control-surface interface from ``coefficient_function`` returning six force and moment coefficient
          increments for the specified independent variable values.
+
+         Parameters
+         ----------
+         coefficient_function : Callable[[list[float]], numpy.ndarray[numpy.float64[6, 1]]]
+             Function of the independent-variable values returning the six force and moment coefficient increments.
+         independent_variable_names : list[AerodynamicCoefficientsIndependentVariables]
+             Types of aerodynamic independent variables, in the order expected by the coefficient function.
 
       )doc" );
 
@@ -1965,6 +1977,11 @@ bool
          transponder_ratio_per_uplink_and_downlink_frequency_band : dict[tuple[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands, tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands], float]
              Dictionary mapping an uplink and downlink frequency band pair to its turnaround ratio.
 
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
@@ -2053,6 +2070,11 @@ bool
          frame_orientation : str, default=""
              Frame orientation label stored in the constant ephemeris.
 
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
             .def( "set_reference_point",
                   py::overload_cast< const std::string, std::shared_ptr< te::Ephemeris > >(
@@ -2072,6 +2094,11 @@ bool
              Identifier of the antenna or instrument location.
          ephemeris : Ephemeris
              Ephemeris returning the body-fixed position in m and velocity in m/s of the specified location.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" )
 
@@ -2107,6 +2134,11 @@ bool
          ----------
          timing_system : TimingSystem
              Timing system defining the vehicle clock errors.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" )
             .def( "get_camera",
@@ -2208,6 +2240,17 @@ bool
          Create a timing system with common polynomial drift coefficients on the specified time arcs, optional clock
          noise generation and noise sampling interval in seconds.
 
+         Parameters
+         ----------
+         arc_times : list[Time]
+             Clock arc boundaries in seconds since J2000, with one more boundary than the number of arcs.
+         all_arcs_polynomial_drift_coefficients : list[float], optional
+             Polynomial clock-drift coefficients, ordered by increasing power of elapsed time and shared by all arcs.
+         clock_noise_generation_function : Callable[[float, float, float], Callable[[float], float]], optional
+             Optional function of arc start time, arc end time and sampling step, returning a function of time that evaluates clock noise in seconds.
+         clock_noise_time_step : float, optional
+             Sampling interval for clock-noise generation, in seconds.
+
       )doc" )
             .def(  // ctor 2
                     py::init< const std::vector< tudat::Time >,
@@ -2225,6 +2268,17 @@ bool
          Create a timing system with separate polynomial drift coefficients on each specified time arc, optional clock
          noise generation and noise sampling interval in seconds.
 
+         Parameters
+         ----------
+         arc_times : list[Time]
+             Clock arc boundaries in seconds since J2000, with one more boundary than the number of arcs.
+         polynomial_drift_coefficients : list[list[float]]
+             Polynomial clock-drift coefficients for each arc, ordered by increasing power of elapsed time within the arc.
+         clock_noise_generation_function : Callable[[float, float, float], Callable[[float], float]], optional
+             Optional function of arc start time, arc end time and sampling step, returning a function of time that evaluates clock noise in seconds.
+         clock_noise_time_step : float, optional
+             Sampling interval for clock-noise generation, in seconds.
+
       )doc" )
             .def(  // ctor 3
                     py::init< const std::vector< std::vector< double > >,
@@ -2237,6 +2291,15 @@ bool
 
          Create a timing system from separate polynomial drift coefficients and stochastic noise functions for the
          specified time arcs.
+
+         Parameters
+         ----------
+         polynomial_drift_coefficients : list[list[float]]
+             Polynomial clock-drift coefficients for each arc, ordered by increasing power of elapsed time within the arc.
+         stochastic_clock_noise_functions : list[Callable[[float], float]]
+             One function per arc returning the stochastic clock error, in seconds, from the epoch.
+         arc_times : list[Time]
+             Clock arc boundaries in seconds since J2000, with one more boundary than the number of arcs.
 
       )doc" );
 
@@ -2373,6 +2436,11 @@ bool
          ----------
          current_time : float
              Epoch at which the flight conditions are evaluated, in seconds since J2000.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" )
             .def_property_readonly( "aerodynamic_angle_calculator",
@@ -2891,31 +2959,31 @@ bool
                 std::shared_ptr< te::DirectLongitudeLibrationCalculator >,
                 te::LongitudeLibrationCalculator >( m, "DirectLongitudeLibrationCalculator", R"doc(
 
-         Direct longitudinal libration model for a synchronous rotation.
+         Calculator for adding direct longitudinal libration to synchronous rotation.
 
-         The angle relative to fully synchronous rotation is
-         :math:`\theta=A(\mathbf{r}\cdot\mathbf{v})/\lVert\mathbf{r}\times\mathbf{v}\rVert`,
-         where :math:`A` is ``scaled_libration_amplitude`` and :math:`\mathbf{r}` and :math:`\mathbf{v}` are the
-         body's position and velocity relative to its central body. The angle is in radians.
-         Assign this calculator to :attr:`~SynchronousRotationalEphemeris.libration_calculator` on a rotation model
-         created using :func:`~tudatpy.dynamics.environment_setup.rotation_model.synchronous`.
-
-         Notes
-         -----
-         A dedicated API documentation page deriving this mathematical libration model remains to be written.
+         See :func:`~tudatpy.dynamics.environment_setup.rotation_model.synchronous` for the mathematical model
+         and the definition of ``scaled_libration_amplitude``. Assign this calculator to
+         :attr:`~SynchronousRotationalEphemeris.libration_calculator` on the resulting rotation model.
 
       )doc" )
             .def( py::init< const double >( ),
                   py::arg( "scaled_libration_amplitude" ),
-                  R"doc(Create a direct longitude libration model with the specified scaled libration amplitude.)doc" );
+                  R"doc(
+
+         Create a direct longitude libration model with the specified scaled libration amplitude.
+
+         Parameters
+         ----------
+         scaled_libration_amplitude : float
+             Dimensionless amplitude :math:`A` in the angle model documented in :func:`~tudatpy.dynamics.environment_setup.rotation_model.synchronous`.
+
+      )doc" );
 
     py::class_< te::SynchronousRotationalEphemeris, std::shared_ptr< te::SynchronousRotationalEphemeris >, te::RotationalEphemeris >(
             m, "SynchronousRotationalEphemeris", R"doc(
 
          Model created from settings returned by
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.synchronous`.
-
-         See the factory documentation for the model definition and configuration.
 
       )doc" )
             .def_property( "libration_calculator",
@@ -2937,8 +3005,6 @@ bool
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.aerodynamic_angle_based`,
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.zero_pitch_moment_aerodynamic_angle_based`.
 
-         See the factory documentation for the model definition and configuration.
-
       )doc" )
             .def( "reset_aerodynamic_angle_function", &te::AerodynamicAngleRotationalEphemeris::setAerodynamicAngleFunction, R"doc(
 
@@ -2949,6 +3015,11 @@ bool
          aerodynamic_angle_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
              Function returning angle of attack, sideslip angle and bank angle, in rad, from time in seconds since J2000.
              The function is supplied as a positional argument.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" );
 
@@ -3045,8 +3116,6 @@ bool
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.custom_inertial_direction_based`,
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.orbital_state_direction_based`.
 
-         See the factory documentation for the model definition and configuration.
-
       )doc" )
             .def_property_readonly(
                     "inertial_body_axis_calculator", &te::DirectionBasedRotationalEphemeris::getInertialBodyAxisDirectionCalculator, R"doc(
@@ -3107,6 +3176,13 @@ bool
 
          Create a central gravity field with gravitational parameter in cubic metres per second squared and an optional
          inertia update callback.
+
+         Parameters
+         ----------
+         gravitational_parameter : float
+             Gravitational parameter of the body, in cubic metres per second squared.
+         update_inertia_tensor : Callable[[], None], optional
+             Optional callback without arguments that updates the body's inertia tensor when its gravitational parameter changes.
 
       )doc" )
             .def( "get_gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter, R"doc(
@@ -3245,8 +3321,6 @@ bool
          :func:`~tudatpy.dynamics.environment_setup.gravity_field.polyhedron_from_mu`,
          :func:`~tudatpy.dynamics.environment_setup.gravity_field.polyhedron_from_density`.
 
-         See the factory documentation for the model definition and configuration.
-
       )doc" )
             .def_property_readonly( "volume", &tg::PolyhedronGravityField::getVolume, R"doc(
 
@@ -3293,8 +3367,6 @@ bool
          :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target`,
          :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.panelled_radiation_target`.
 
-         See the factory documentation for the model definition and configuration.
-
       )doc" );
 
     py::class_< tem::CannonballRadiationPressureTargetModel,
@@ -3303,8 +3375,6 @@ bool
 
          Model created from settings returned by
          :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target`.
-
-         See the factory documentation for the model definition and configuration.
 
       )doc" )
             .def_property( "radiation_pressure_coefficient",
@@ -3327,8 +3397,6 @@ bool
          Model created from settings returned by
          :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.isotropic_radiation_source`,
          :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.panelled_extended_radiation_source`.
-
-         See the factory documentation for the model definition and configuration.
 
       )doc" );
     /*!
@@ -3549,10 +3617,7 @@ bool
 
     py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling", R"doc(
 
-         Enumeration of methods for handling gaps in a transmitted frequency history.
-
-         The selected method determines whether a gap in the frequency ramp data produces an exception or is filled
-         using neighbouring frequency data.
+         Enumeration of methods for handling gaps in transmitted frequency data.
 
       )doc" )
             .value( "extrapolate_at_gaps",
@@ -3583,7 +3648,16 @@ bool
              Transmitted frequency, in Hz.
 
       )doc" )
-            .def( py::init< double >( ), py::arg( "frequency" ), R"doc(Create a transmitter with constant frequency in hertz.)doc" );
+            .def( py::init< double >( ), py::arg( "frequency" ), R"doc(
+
+         Create a transmitter with constant frequency in hertz.
+
+         Parameters
+         ----------
+         frequency : float
+             Transmitted frequency, in hertz.
+
+      )doc" );
 
     py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
                 std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
@@ -3696,7 +3770,12 @@ bool
                      frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
                          The frequency interpolator to add to the current interpolator.
 
-                       )doc" );
+                     Returns
+                     -------
+                     None
+                         No return value.
+
+                  )doc" );
 
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator", R"doc(
 
@@ -3818,10 +3897,7 @@ bool
 
     py::enum_< tudat::ground_stations::MeteoDataEntries >( m, "MeteoDataEntries", R"doc(
 
-         Enumeration of meteorological quantities provided by a station weather model.
-
-         The entries identify temperature, pressure, water vapour pressure, relative humidity and dew point in the
-         vectors supplied to :class:`~ContinuousInterpolatedMeteoData`.
+         Enumeration of meteorological quantities: temperature, pressure, water vapour pressure, relative humidity and dew point.
 
       )doc" )
             .value( "temperature_meteo_data", tudat::ground_stations::temperature_meteo_data, R"doc(Station air temperature.)doc" )
@@ -3870,6 +3946,13 @@ bool
 
          Create interpolated station meteorological data, mapping each weather quantity to an entry in the interpolated
          vector.
+
+         Parameters
+         ----------
+         interpolator : OneDimensionalInterpolatorVector
+             Interpolator supplying a vector of meteorological quantities as a function of epoch in seconds since J2000.
+         vector_entries : dict[MeteoDataEntries, int]
+             Mapping from each meteorological quantity to its entry in the interpolated vector.
 
       )doc" );
 
@@ -3979,6 +4062,11 @@ bool
          timing_system : TimingSystem
              Timing system defining the station clock errors.
 
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
 
             .def( "set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg( "meteo_data" ), R"doc(
@@ -3989,6 +4077,11 @@ bool
          ----------
          meteo_data : StationMeteoData
              Model supplying the meteorological quantities used for atmospheric tracking observation corrections.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" );
 

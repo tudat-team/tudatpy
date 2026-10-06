@@ -448,8 +448,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
          Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.integrator`.
 
-         See those functions for the available settings and model definitions.
-
       )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
@@ -457,8 +455,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
                 tni::IntegratorSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeBaseSettings", R"doc(
 
          Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.integrator`.
-
-         See those functions for the available settings and model definitions.
 
       )doc" );
 
@@ -469,8 +465,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
          Model created from settings returned by
          :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size_vector_tolerances`.
 
-         See the factory documentation for the model definition and configuration.
-
       )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE >,
@@ -479,8 +473,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
          Model created from settings returned by
          :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size`.
-
-         See the factory documentation for the model definition and configuration.
 
       )doc" );
 
@@ -528,13 +520,31 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
       )doc" )
             .def_readwrite( "safety_factor",
                             &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_,
-                            R"doc(Safety multiplier applied when computing the next integration step size.)doc" )
+                            R"doc(
+
+         Safety multiplier applied when computing the next integration step size.
+
+         :type: float
+
+      )doc" )
             .def_readwrite( "minimum_step_decrease",
                             &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_,
-                            R"doc(Minimum permitted multiplicative factor in the next-step size calculation.)doc" )
+                            R"doc(
+
+         Minimum permitted multiplicative factor in the next-step size calculation.
+
+         :type: float
+
+      )doc" )
             .def_readwrite( "maximum_step_decrease",
                             &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_,
-                            R"doc(Maximum permitted multiplicative factor in the next-step size calculation.)doc" );
+                            R"doc(
+
+         Maximum permitted multiplicative factor in the next-step size calculation.
+
+         :type: float
+
+      )doc" );
 
     py::class_< tni::IntegratorStepSizeValidationSettings, std::shared_ptr< tni::IntegratorStepSizeValidationSettings > >(
             m,
@@ -552,13 +562,31 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
       )doc" )
             .def_readwrite( "minimum_step",
                             &tni::IntegratorStepSizeValidationSettings::minimumStep_,
-                            R"doc(Minimum allowed integration step magnitude, in seconds.)doc" )
+                            R"doc(
+
+         Minimum allowed integration step magnitude, in seconds.
+
+         :type: float
+
+      )doc" )
             .def_readwrite( "maximum_step",
                             &tni::IntegratorStepSizeValidationSettings::maximumStep_,
-                            R"doc(Maximum allowed integration step magnitude, in seconds.)doc" )
+                            R"doc(
+
+         Maximum allowed integration step magnitude, in seconds.
+
+         :type: float
+
+      )doc" )
             .def_readwrite( "minimum_step_handling",
                             &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_,
-                            R"doc(Policy used when the required step size falls below the minimum allowed step.)doc" );
+                            R"doc(
+
+         Policy used when the required step size falls below the minimum allowed step.
+
+         :type: MinimumIntegrationTimeStepHandling
+
+      )doc" );
 
     // FACTORY FUNCTIONS
     m.def( "print_butcher_tableau",
@@ -1022,6 +1050,18 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
          Return the standard rotational-state element blocks used for integration error control of a state array with
          ``number_of_rows`` rows and ``number_of_columns`` columns.
+
+         Parameters
+         ----------
+         number_of_rows : int
+             Number of rows in the state matrix for which blocks are generated.
+         number_of_columns : int
+             Number of columns in the state matrix for which blocks are generated.
+
+         Returns
+         -------
+         list[tuple[int, int, int, int]]
+             State matrix blocks, each specified by start row, start column, number of rows and number of columns.
 
       )doc" );
 
@@ -1630,8 +1670,19 @@ IntegratorSettings
 
          Create fixed-step forward Euler integrator settings with ``initial_time_step`` in seconds.
 
-         ``assess_termination_on_minor_steps`` enables termination checks during intermediate evaluations. Returns
-         IntegratorSettings.
+         ``assess_termination_on_minor_steps`` enables termination checks during intermediate evaluations.
+
+         Parameters
+         ----------
+         initial_time_step : Time
+             Initial integration step size, in seconds.
+         assess_termination_on_minor_steps : bool, optional
+             Whether to assess propagation termination at the intermediate integrator stages.
+
+         Returns
+         -------
+         IntegratorSettings
+             Settings for the specified numerical integration method.
 
       )doc" );
 
@@ -1655,8 +1706,37 @@ IntegratorSettings
          ``initial_time_step``, ``minimum_step_size`` and ``maximum_step_size`` are in seconds.
          ``extrapolation_sequence`` selects the substep sequence and ``maximum_number_of_steps`` limits extrapolation
          depth. Relative and absolute tolerances control accuracy; ``safety_factor`` and the factor bounds limit step-
-         size adjustments. ``assess_termination_on_minor_steps`` enables intermediate termination checks. Returns
-         IntegratorSettings.
+         size adjustments. ``assess_termination_on_minor_steps`` enables intermediate termination checks.
+
+         Parameters
+         ----------
+         initial_time_step : Time
+             Initial integration step size, in seconds.
+         extrapolation_sequence : ExtrapolationMethodStepSequences
+             Sequence of substep counts used for Bulirsch-Stoer extrapolation.
+         maximum_number_of_steps : int
+             Maximum number of extrapolation steps.
+         minimum_step_size : Time
+             Minimum permitted integration step size, in seconds.
+         maximum_step_size : Time
+             Maximum permitted integration step size, in seconds.
+         relative_error_tolerance : float, optional
+             Relative local integration error tolerance.
+         absolute_error_tolerance : float, optional
+             Absolute local integration error tolerance, in the units of the integrated state.
+         assess_termination_on_minor_steps : bool, optional
+             Whether to assess propagation termination at the intermediate integrator stages.
+         safety_factor : Time, optional
+             Safety factor applied when adapting the integration step size.
+         maximum_factor_increase : Time, optional
+             Maximum permitted factor by which an integration step may increase.
+         minimum_factor_increase : Time, optional
+             Minimum permitted factor by which an integration step may change.
+
+         Returns
+         -------
+         IntegratorSettings
+             Settings for the specified numerical integration method.
 
       )doc" );
 }

@@ -60,7 +60,11 @@ namespace thrust
 
 void expose_thrust_setup( py::module& m )
 {
-    py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes", R"doc(Types of models used to determine thrust magnitude.)doc" )
+    py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes", R"doc(
+
+         Enumeration of thrust-magnitude models.
+
+      )doc" )
             //                                         get_docstring("ThrustMagnitudeTypes").c_str())
             .value( "constant_thrust_magnitude",
                     tss::ThrustMagnitudeTypes::constant_thrust_magnitude,
@@ -102,6 +106,8 @@ void expose_thrust_setup( py::module& m )
 
          Type of thrust magnitude model defined by these settings.
 
+         :type: ThrustMagnitudeTypes
+
       )doc" )
             .def_readonly( "thrust_origin_id",
                            &tss::ThrustMagnitudeSettings::thrustOriginId_,
@@ -110,6 +116,8 @@ void expose_thrust_setup( py::module& m )
          **read-only**
 
          Identifier of the engine or thrust source associated with the model.
+
+         :type: str
 
       )doc" );
 
@@ -144,6 +152,8 @@ void expose_thrust_setup( py::module& m )
 
          Constant thrust magnitude, in newtons.
 
+         :type: float
+
       )doc" )
             .def_readonly( "specific_impulse",
                            &tss::ConstantThrustMagnitudeSettings::specificImpulse_,
@@ -152,6 +162,8 @@ void expose_thrust_setup( py::module& m )
          **read-only**
 
          Constant specific impulse, in seconds.
+
+         :type: float
 
       )doc" );
 

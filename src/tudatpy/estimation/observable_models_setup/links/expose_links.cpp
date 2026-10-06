@@ -361,15 +361,43 @@ Examples
       )doc" )
             .def( py::init< const std::string& >( ),
                   py::arg( "body_name" ),
-                  R"doc(Identify the centre of the named body as an observation link end.)doc" )
+                  R"doc(
+
+         Identify the centre of the named body as an observation link end.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+
+      )doc" )
             .def( py::init< const std::string&, const std::string& >( ),
                   py::arg( "body_name" ),
                   py::arg( "station_name" ),
-                  R"doc(Identify a station or reference point on the named body.)doc" )
+                  R"doc(
+
+         Identify a station or reference point on the named body.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+         station_name : str
+             Identifier of the ground station or reference point on the body.
+
+      )doc" )
             .def( py::init< const std::pair< std::string, std::string >& >( ),
                   py::arg( "link_end" ),
-                  R"doc(Create a link-end identifier from a (body name, station or reference point name) tuple.)doc" )
-                    TUDATPY_DEF_EQ_NE( tom::LinkEndId ) TUDATPY_DEF_FILE_IO( tom::LinkEndId );
+                  R"doc(
+
+         Create a link-end identifier from a (body name, station or reference point name) tuple.
+
+         Parameters
+         ----------
+         link_end : tuple[str, str]
+             Pair containing the body name and reference point identifier.
+
+      )doc" ) TUDATPY_DEF_EQ_NE( tom::LinkEndId ) TUDATPY_DEF_FILE_IO( tom::LinkEndId );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -492,7 +520,16 @@ Examples
       )doc" )
             .def( py::init< const std::map< tom::LinkEndType, tom::LinkEndId >& >( ),
                   py::arg( "link_ends" ),
-                  R"doc(Create an observation link from a mapping of link-end roles to LinkEndId identifiers.)doc" )
+                  R"doc(
+
+         Create an observation link from a mapping of link-end roles to LinkEndId identifiers.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+
+      )doc" )
             .def( "link_end_id",
                   &tom::LinkDefinition::at,
                   py::arg( "link_end_type" ),

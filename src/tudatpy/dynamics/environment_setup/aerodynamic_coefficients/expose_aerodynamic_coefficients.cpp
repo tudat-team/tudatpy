@@ -206,10 +206,7 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
 
     py::enum_< ta::AtmosphericCompositionSpecies >( m, "AtmosphericCompositionSpecies", R"doc(
 
-         Enumeration of atmospheric species used in gas-surface interaction models.
-
-         The entries identify the species for which number densities are supplied to the aerodynamic coefficient model.
-         The anomalous oxygen contribution is represented separately from atomic oxygen.
+         Enumeration of atmospheric chemical species, with anomalous oxygen distinct from atomic oxygen.
 
       )doc" )
             .value( "o_species", ta::AtmosphericCompositionSpecies::o_species, R"doc(Atomic oxygen.)doc" )
@@ -231,8 +228,6 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
          Settings returned by
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_control_surface`,
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.tabulated_from_files_control_surface`.
-
-         See the factory documentation for model details and available parameters.
 
       )doc" );
 
@@ -450,8 +445,6 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_coefficients`,
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients`.
 
-         See the factory documentation for model details and available parameters.
-
       )doc" );
 
     py::class_< tss::ScaledAerodynamicCoefficientInterfaceSettings,
@@ -461,8 +454,6 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_constant`,
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_vector`,
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_vector_function`.
-
-         See the factory documentation for model details and available parameters.
 
       )doc" );
 
@@ -475,8 +466,6 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
 
          Settings returned by
          :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_control_surface`.
-
-         See the factory documentation for model details and available parameters.
 
       )doc" );
 
@@ -506,8 +495,8 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
              C_{\tau} &= 2 \sigma_{T} \sin \delta \cos \delta
 )doc" )
 
-            .value( "sentman", ta::sentman, R"doc(Sentman gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" )
-            .value( "cook", ta::cook, R"doc(Cook gas-surface interaction model for free-molecular aerodynamic coefficients.)doc" );
+            .value( "sentman", ta::sentman )
+            .value( "cook", ta::cook );
 
     m.def( "panelled",
            py::overload_cast< const ta::GasSurfaceInteractionModelType, const double, const int, const bool >(

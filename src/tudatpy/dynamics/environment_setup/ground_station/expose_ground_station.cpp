@@ -41,27 +41,15 @@ void expose_ground_station_setup( py::module& m )
     // Ground station motion settings
     py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes", R"doc(
 
-         Enumeration of ground station motion models.
-
-         These entries identify the models used to compute station displacements relative to the nominal body-fixed position,
-         such as constant linear motion and motion caused by body deformation.
+         Enumeration of ground station displacement models.
 
       )doc" )
-            .value( "linear",
-                    tss::StationMotionModelTypes::linear_station_motion,
-                    R"doc(Station displacement from a constant body-fixed velocity.)doc" )
-            .value( "piecewise_constant",
-                    tss::StationMotionModelTypes::piecewise_constant_station_motion,
-                    R"doc(Station displacement specified by piecewise-constant offsets.)doc" )
-            .value( "custom",
-                    tss::StationMotionModelTypes::custom_station_motion,
-                    R"doc(Station displacement evaluated by a custom function.)doc" )
-            .value( "body_deformation",
-                    tss::StationMotionModelTypes::body_deformation_station_motion,
-                    R"doc(Station displacement due to deformation of the host body.)doc" )
+            .value( "linear", tss::StationMotionModelTypes::linear_station_motion )
+            .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion )
+            .value( "custom", tss::StationMotionModelTypes::custom_station_motion )
+            .value( "body_deformation", tss::StationMotionModelTypes::body_deformation_station_motion )
             .value( "bodycentric_to_barycentric_station_position_motion",
-                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion,
-                    R"doc(Relativistic station displacement between bodycentric and barycentric coordinates.)doc" );
+                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion );
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -154,6 +142,11 @@ reference_epoch:
          Create a station displacement model due to body deformation, optionally requiring that deformation models
          exist.
 
+         Parameters
+         ----------
+         fail_if_not_available : bool, optional
+             Whether to raise an error when the required body deformation model is unavailable.
+
       )doc" );
 
     py::class_< tss::CustomGroundStationMotionSettings,
@@ -242,6 +235,11 @@ reference_epoch:
              Settings of the ground stations to which the motion model is added.
          station_motion_setting : GroundStationMotionSettings
              Settings defining the motion model to add to each station.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" );
 

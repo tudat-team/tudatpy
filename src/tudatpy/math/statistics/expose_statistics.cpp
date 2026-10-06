@@ -38,8 +38,19 @@ void expose_statistics( py::module& m )
 
          Calculate Allan variance from uniformly spaced clock ``timing_errors`` in seconds.
 
-         ``time_step_size`` is the sample spacing in seconds. Returns a dictionary mapping averaging intervals to Allan
-         variance.
+         ``time_step_size`` is the sample spacing in seconds.
+
+         Parameters
+         ----------
+         timing_errors : list[float]
+             Uniformly sampled clock timing errors, in seconds.
+         time_step_size : float
+             Interval between successive timing-error samples, in seconds.
+
+         Returns
+         -------
+         dict[float, float]
+             Allan variance values keyed by averaging interval in seconds.
 
       )doc" );
 
@@ -55,7 +66,21 @@ void expose_statistics( py::module& m )
          ``allan_variance_amplitudes`` maps integer powers of averaging time to their amplitudes.
          ``frequency_domain_cutoff_frequency`` is the high-frequency cutoff in hertz.
          ``is_inverse_square_term_flicker_phase_noise`` selects flicker phase noise for the inverse-square term;
-         otherwise white phase noise is used. Returns a dictionary of frequency powers and amplitudes.
+         otherwise white phase noise is used.
+
+         Parameters
+         ----------
+         allan_variance_amplitudes : dict[int, float]
+             Amplitudes of the Allan variance power-law terms, keyed by integer powers of averaging time.
+         frequency_domain_cutoff_frequency : float
+             High-frequency cutoff of the phase-noise model, in hertz.
+         is_inverse_square_term_flicker_phase_noise : bool, optional
+             Whether the inverse-square Allan variance term represents flicker phase noise instead of white phase noise.
+
+         Returns
+         -------
+         dict[int, float]
+             Phase-noise amplitudes keyed by integer powers of frequency.
 
       )doc" );
 
@@ -75,8 +100,28 @@ void expose_statistics( py::module& m )
          ``allan_variance_amplitudes`` maps averaging-time powers to amplitudes. ``start_time`` and ``end_time``
          delimit the interval in seconds and ``number_of_time_steps`` selects the number of samples.
          ``is_inverse_square_term_flicker_phase_noise`` selects the inverse-square noise interpretation; ``seed``
-         controls random generation. Returns a tuple of timing-error samples and sample spacing in seconds. Available
+         controls random generation. Available
          when FFTW support is enabled.
+
+         Parameters
+         ----------
+         allan_variance_amplitudes : dict[int, float]
+             Amplitudes of the Allan variance power-law terms, keyed by integer powers of averaging time.
+         start_time : float
+             Start of the noise-generation interval, in seconds.
+         end_time : float
+             End of the noise-generation interval, in seconds.
+         number_of_time_steps : int
+             Number of samples in the generated noise series.
+         is_inverse_square_term_flicker_phase_noise : bool, optional
+             Whether the inverse-square Allan variance term represents flicker phase noise instead of white phase noise.
+         seed : float, optional
+             Seed used by the random number generator.
+
+         Returns
+         -------
+         tuple[list[float], float]
+             Pair containing clock timing-error samples in seconds and their sampling interval in seconds.
 
       )doc" );
 
@@ -94,8 +139,27 @@ void expose_statistics( py::module& m )
 
          Despite its name, ``allan_variance_amplitudes`` maps averaging times to deviation values. ``variance_type``
          selects Allan or Hadamard variance. ``start_time``, ``end_time`` and ``number_of_time_steps`` define the
-         sample grid; ``seed`` controls random generation. Returns a tuple of timing-error samples and sample spacing
-         in seconds. Available when FFTW support is enabled.
+         sample grid; ``seed`` controls random generation. Available when FFTW support is enabled.
+
+         Parameters
+         ----------
+         allan_variance_amplitudes : dict[int, float]
+             Clock deviation values keyed by averaging time in seconds.
+         variance_type : str
+             Clock-stability variance to use: "Allan" or "Hadamard".
+         start_time : float
+             Start of the noise-generation interval, in seconds.
+         end_time : float
+             End of the noise-generation interval, in seconds.
+         number_of_time_steps : int
+             Number of samples in the generated noise series.
+         seed : float, optional
+             Seed used by the random number generator.
+
+         Returns
+         -------
+         tuple[list[float], float]
+             Pair containing clock timing-error samples in seconds and their sampling interval in seconds.
 
       )doc" );
 
@@ -113,7 +177,27 @@ void expose_statistics( py::module& m )
 
          ``start_time``, ``end_time`` and ``time_step`` define the sampling interval in seconds.
          ``is_inverse_square_term_flicker_phase_noise`` selects the inverse-square noise interpretation and ``seed``
-         controls random generation. Returns an epoch-to-timing-error callable. Available when FFTW support is enabled.
+         controls random generation. Available when FFTW support is enabled.
+
+         Parameters
+         ----------
+         allan_variance_amplitudes : dict[int, float]
+             Amplitudes of the Allan variance power-law terms, keyed by integer powers of averaging time.
+         start_time : float
+             Start of the noise-generation interval, in seconds.
+         end_time : float
+             End of the noise-generation interval, in seconds.
+         time_step : float
+             Sampling interval, in seconds.
+         is_inverse_square_term_flicker_phase_noise : bool, optional
+             Whether the inverse-square Allan variance term represents flicker phase noise instead of white phase noise.
+         seed : float, optional
+             Seed used by the random number generator.
+
+         Returns
+         -------
+         Callable[[float], float]
+             Function returning the clock timing error in seconds at the supplied epoch in seconds.
 
       )doc" );
 
@@ -131,8 +215,28 @@ void expose_statistics( py::module& m )
          deviation values.
 
          ``variance_type`` selects Allan or Hadamard variance. ``start_time``, ``end_time`` and ``time_step`` define
-         the sample grid in seconds and ``seed`` controls random generation. Returns an epoch-to-timing-error callable.
+         the sample grid in seconds and ``seed`` controls random generation.
          Available when FFTW support is enabled.
+
+         Parameters
+         ----------
+         allan_variance_nodes : dict[int, float]
+             Clock deviation values keyed by averaging time in seconds.
+         variance_type : str
+             Clock-stability variance to use: "Allan" or "Hadamard".
+         start_time : float
+             Start of the noise-generation interval, in seconds.
+         end_time : float
+             End of the noise-generation interval, in seconds.
+         time_step : float
+             Sampling interval, in seconds.
+         seed : float, optional
+             Seed used by the random number generator.
+
+         Returns
+         -------
+         Callable[[float], float]
+             Function returning the clock timing error in seconds at the supplied epoch in seconds.
 
       )doc" );
 #endif

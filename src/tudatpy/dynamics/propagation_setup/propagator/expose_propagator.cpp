@@ -726,15 +726,33 @@ Enumeration of available integrated state types.
             .def_property( "set_integrated_result",
                            &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedResult,
                            &tp::HybridArcPropagatorProcessingSettings::setIntegratedResult,
-                           R"doc(Whether to install integrated trajectories in the environment after propagation.)doc" )
+                           R"doc(
+
+         Whether to set integrated trajectories in the environment after propagation.
+
+         :type: bool
+
+      )doc" )
             .def_property( "set_integrated_variational_result",
                            &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedVariationalResult,
                            &tp::HybridArcPropagatorProcessingSettings::setIntegratedVariationalResult,
-                           R"doc(Whether to install integrated variational results in the associated interfaces.)doc" )
+                           R"doc(
+
+         Whether to set integrated variational results in the associated interfaces.
+
+         :type: bool
+
+      )doc" )
             .def_property( "clear_numerical_solution",
                            &tp::HybridArcPropagatorProcessingSettings::getClearNumericalSolutions,
                            &tp::HybridArcPropagatorProcessingSettings::setClearNumericalSolutions,
-                           R"doc(Whether to clear stored numerical solutions after processing propagation results.)doc" )
+                           R"doc(
+
+         Whether to clear stored numerical solutions after processing propagation results.
+
+         :type: bool
+
+      )doc" )
             .def( "set_print_settings_for_all_arcs",
                   &tp::HybridArcPropagatorProcessingSettings::resetAndApplyConsistentPrintSettings,
                   py::arg( "print_settings" ),
@@ -805,8 +823,6 @@ Enumeration of available integrated state types.
 
          Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.propagator`.
 
-         See those functions for the available settings and model definitions.
-
       )doc" );
 
     auto single_arc_propagator_settings = py::class_< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -816,8 +832,6 @@ Enumeration of available integrated state types.
                                                                                                      R"doc(
 
          Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.propagator`.
-
-         See those functions for the available settings and model definitions.
 
       )doc" );
 
@@ -954,7 +968,16 @@ Enumeration of available integrated state types.
 
             .def( "get_propagated_state_size",
                   &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatedStateSize,
-                  R"doc(Return the number of scalar entries in the internal propagated state representation.)doc" )
+                  R"doc(
+
+         Return the number of scalar entries in the internal propagated state representation.
+
+         Returns
+         -------
+         int
+             Number of scalar entries in the propagated state vector.
+
+      )doc" )
             .def( "reset_and_recreate_acceleration_models",
                   &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetAccelerationModelsMap,
                   py::arg( "new_acceleration_settings" ),
@@ -963,6 +986,18 @@ Enumeration of available integrated state types.
 
          Replace the acceleration settings with ``new_acceleration_settings`` and create the corresponding models using
          the supplied ``bodies``.
+
+         Parameters
+         ----------
+         new_acceleration_settings : dict[str, dict[str, list[AccelerationSettings]]]
+             Acceleration settings, grouped by accelerated body and body exerting each acceleration.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" );
 
@@ -990,15 +1025,53 @@ Enumeration of available integrated state types.
          Replace the combined initial state with ``initial_states`` and distribute its components to the individual
          state-type settings.
 
+         Parameters
+         ----------
+         initial_states : numpy.ndarray[numpy.float64[m, 1]]
+             Initial state vector, in the order defined by the propagator settings.
+
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
             .def( "recreate_state_derivative_models",
                   &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetIntegratedStateModels,
                   py::arg( "bodies" ),
-                  R"doc(Recreate the integrated state derivative models using the supplied system of ``bodies``.)doc" )
+                  R"doc(
+
+         Recreate the integrated state derivative models using the supplied system of ``bodies``.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+
+         Returns
+         -------
+         None
+             No return value.
+
+      )doc" )
             .def( "single_type_settings",
                   &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleTypePropagatorSettings,
                   py::arg( "state_type" ),
-                  R"doc(Return the list of constituent propagator settings for the specified integrated ``state_type``.)doc" )
+                  R"doc(
+
+         Return the list of constituent propagator settings for the specified integrated ``state_type``.
+
+         Parameters
+         ----------
+         state_type : StateType
+             Type of integrated state.
+
+         Returns
+         -------
+         SingleArcPropagatorSettings
+             Propagator settings for the requested state type.
+
+      )doc" )
             .def_property_readonly( "propagator_settings_per_type",
                                     &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatorSettingsMap,
                                     R"doc(
@@ -1211,60 +1284,52 @@ TranslationalStatePropagatorSettings
            py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
-Function to create rotational state propagator settings.
+         Function to create rotational state propagator settings.
 
-Function to create rotational state propagator settings for N bodies.
-The propagated state vector is defined by the integrated bodies, which defines the bodies for which the
-differential equation defining the evolution of the rotational state between an
-inertial and body-fixed frame are to be solved. The propagator input defines the
-formulation in which the differential equations are set up. The dynamical models are
-defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.dynamics.propagation_setup.create_torque_models` function.
-Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`__
-
-
-Parameters
-----------
-torque_models : TorqueModelMap
-    Set of torques acting on the bodies to propagate, provided as torque models.
-bodies_to_integrate : list[str]
-    List of bodies to be numerically propagated, whose order reflects the order of the central bodies.
-initial_states : numpy.ndarray
-    Initial rotational states of the bodies to integrate (one initial state for each body), provided in the same order as the bodies to integrate.
-    Regardless of the propagator that is selected, the initial rotational state is always defined as four quaternion entries, and the angular velocity of the body,
-    as defined in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__.
-initial_time : astro.time_representation.Time
-    Initial epoch of the numerical propagation
-integrator_settings : IntegratorSettings
-    Settings defining the numerical integrator that is to be used for the propagation
-
-    .. note::
-
-        The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
-
-termination_settings : PropagationTerminationSettings
-    Generic termination settings object to check whether the propagation should be ended.
-propagator : RotationalPropagatorType, default=quaternions
-    Type of rotational propagator to be used (see `RotationalPropagatorType` enum).
-output_variables : list[SingleDependentVariableSaveSettings], default=[]
-    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
-	processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-	    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
-	    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
-	body : str, default=""
-	    Name of the body for which this custom state is propagated. If left empty, the custom state is
-	    not set in any :class:`~tudatpy.dynamics.environment.Body` during propagation.
-
-	Returns
--------
-RotationalStatePropagatorSettings
-    Rotational state propagator settings object.
+         Function to create rotational state propagator settings for N bodies.
+         The propagated state vector is defined by the integrated bodies, which defines the bodies for which the
+         differential equation defining the evolution of the rotational state between an
+         inertial and body-fixed frame are to be solved. The propagator input defines the
+         formulation in which the differential equations are set up. The dynamical models are
+         defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.dynamics.propagation_setup.create_torque_models` function.
+         Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`__
 
 
+         Parameters
+         ----------
+         torque_models : TorqueModelMap
+             Set of torques acting on the bodies to propagate, provided as torque models.
+         bodies_to_integrate : list[str]
+             List of bodies to be numerically propagated, whose order reflects the order of the central bodies.
+         initial_states : numpy.ndarray
+             Initial rotational states of the bodies to integrate (one initial state for each body), provided in the same order as the bodies to integrate.
+             Regardless of the propagator that is selected, the initial rotational state is always defined as four quaternion entries, and the angular velocity of the body,
+             as defined in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__.
+         initial_time : astro.time_representation.Time
+             Initial epoch of the numerical propagation
+         integrator_settings : IntegratorSettings
+             Settings defining the numerical integrator that is to be used for the propagation
 
+             .. note::
 
+                 The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
 
+         termination_settings : PropagationTerminationSettings
+             Generic termination settings object to check whether the propagation should be ended.
+         propagator : RotationalPropagatorType, default=quaternions
+             Type of rotational propagator to be used (see `RotationalPropagatorType` enum).
+         output_variables : list[SingleDependentVariableSaveSettings], default=[]
+             List of dependent variables to save during the propagation.
+         processing_settings : SingleArcPropagatorProcessingSettings, default=None
+             Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
+             If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
-     )doc" );
+         Returns
+         -------
+         RotationalStatePropagatorSettings
+             Rotational state propagator settings object.
+
+      )doc" );
 
     m.def( "mass",
            &tp::massPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1423,7 +1488,16 @@ MultiTypePropagatorSettings
 
     m.def( "multi_arc_processing_settings",
            &multiArcProcessingSettings,
-           R"doc(Create a MultiArcPropagatorProcessingSettings object with default result-processing options.)doc" );
+           R"doc(
+
+         Create a MultiArcPropagatorProcessingSettings object with default result-processing options.
+
+         Returns
+         -------
+         MultiArcPropagatorProcessingSettings
+             Default settings for processing the numerical results of a multi-arc propagation.
+
+      )doc" );
 
     m.def( "multi_arc",
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -2187,12 +2261,36 @@ HybridArcPropagatorSettings
          Return the integrated state types and associated body/reference identifiers specified by
          ``propagator_settings``.
 
+         Parameters
+         ----------
+         propagator_settings : SingleArcPropagatorSettings
+             Settings defining the integrated state types and bodies.
+
+         Returns
+         -------
+         dict[StateType, list[tuple[str, str, PropagatorType]]]
+             Integrated bodies and reference points grouped by state type, with their propagator types.
+
       )doc" );
 
     m.def( "get_single_integration_size",
            &tp::getSingleIntegrationSize,
            py::arg( "state_type" ),
-           R"doc(Return the number of scalar state entries for one body or object of the integrated ``state_type``.)doc" );
+           R"doc(
+
+         Return the number of scalar state entries for one body or object of the integrated ``state_type``.
+
+         Parameters
+         ----------
+         state_type : StateType
+             Type of integrated state.
+
+         Returns
+         -------
+         int
+             Number of scalar state entries for one body or reference point of the requested state type.
+
+      )doc" );
 }
 
 }  // namespace propagator

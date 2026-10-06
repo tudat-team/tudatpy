@@ -56,9 +56,7 @@ void expose_rotation_model_setup( py::module& m )
 
 
       )doc" )
-            .value( "simple_rotational_model",
-                    tss::RotationModelType::simple_rotation_model,
-                    R"doc(Rotation model with a fixed pole and constant rotation rate.)doc" )
+            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model )
             .value( "spice_rotation_model",
                     tss::RotationModelType::spice_rotation_model,
                     R"doc(
@@ -160,8 +158,6 @@ void expose_rotation_model_setup( py::module& m )
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple`,
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice`.
 
-         See the factory documentation for model details and available parameters.
-
       )doc" );
 
     py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
@@ -171,8 +167,6 @@ void expose_rotation_model_setup( py::module& m )
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_custom_angles`,
          :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_full_custom`.
 
-         See the factory documentation for model details and available parameters.
-
       )doc" );
 
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
@@ -180,16 +174,12 @@ void expose_rotation_model_setup( py::module& m )
 
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model`.
 
-         See the factory documentation for model details and available parameters.
-
       )doc" );
 
     py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
             m, "GcrsToItrsRotationModelSettings", R"doc(
 
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs`.
-
-         See the factory documentation for model details and available parameters.
 
       )doc" )
             .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile, R"doc(
@@ -350,6 +340,19 @@ void expose_rotation_model_setup( py::module& m )
  - the body-fixed y-axis completes the right-handed reference frame
 
  Such a model can be useful for, for instance, approximate rotation of tidally locked natural satellites or nadir-pointing spacecraft.
+
+ Direct longitudinal libration can be added to the resulting
+ :class:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris` by assigning a
+ :class:`~tudatpy.dynamics.environment.DirectLongitudeLibrationCalculator` to its
+ :attr:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris.libration_calculator` property.
+ In this case, the angle relative to fully synchronous rotation is
+ :math:`\theta=A(\mathbf{r}\cdot\mathbf{v})/\lVert\mathbf{r}\times\mathbf{v}\rVert`,
+ where :math:`A` is the calculator's ``scaled_libration_amplitude``, and :math:`\mathbf{r}` and
+ :math:`\mathbf{v}` are the body's position and velocity relative to its central body. The angle is in radians.
+
+ .. note::
+
+     A dedicated API documentation page deriving this mathematical libration model remains to be written.
 
 
  Parameters

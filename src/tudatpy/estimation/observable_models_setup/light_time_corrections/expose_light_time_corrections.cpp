@@ -398,10 +398,13 @@ Examples
 
      )doc" );
 
-    py::enum_< tom::TroposphericMappingModel >(
-            m,
-            "TroposphericMappingModel",
-            R"doc(Mapping functions for converting zenith tropospheric delays into line-of-sight delays.)doc" )
+    py::enum_< tom::TroposphericMappingModel >( m,
+                                                "TroposphericMappingModel",
+                                                R"doc(
+
+         Enumeration of zenith-to-line-of-sight tropospheric mapping functions.
+
+      )doc" )
             .value( "simplified_chao",
                     tom::TroposphericMappingModel::simplified_chao,
                     R"doc(Simplified Chao tropospheric mapping function.)doc" )
@@ -743,7 +746,23 @@ Returns
 
          ``coefficients`` gives density amplitudes in inverse cubic metres and ``positive_exponents`` gives the
          corresponding positive powers of distance normalized by the solar radius. ``delay_coefficient`` is the plasma
-         delay constant; ``sun_body_name`` identifies the central star. Returns LightTimeCorrectionSettings.
+         delay constant; ``sun_body_name`` identifies the central star.
+
+         Parameters
+         ----------
+         coefficients : list[float], optional
+             Coefficients of the inverse-power series defining solar-corona electron density.
+         positive_exponents : list[float], optional
+             Positive radial powers for the inverse-power density series, paired with the coefficients.
+         delay_coefficient : float, optional
+             Coefficient converting the electron-density integral into the light-time correction.
+         sun_body_name : str, optional
+             Name of the Sun body in the system of bodies.
+
+         Returns
+         -------
+         LightTimeCorrectionSettings
+             Settings for the model defined above.
 
       )doc" );
 
@@ -772,6 +791,15 @@ Returns
          Create a Jakowski VTEC model from epoch-dependent solar declination and F10.7 functions, optionally using UTC
          for local time.
 
+         Parameters
+         ----------
+         sun_declination_function : Callable[[float], float]
+             Function returning the Sun's declination, in radians, from epoch in seconds since J2000.
+         f10p7_function : Callable[[float], float]
+             Function returning the 10.7 cm solar flux, in solar flux units, from epoch in seconds since J2000.
+         use_utc_time_for_local_time : bool, optional
+             Whether to interpret the epoch as UTC when computing local time.
+
       )doc" )
             .def( "calculate_vtec",
                   &tudat::observation_models::JakowskiVtecCalculator::calculateVtec,
@@ -783,6 +811,18 @@ Returns
 
          The epoch is in TDB seconds since J2000 and the point contains geodetic altitude in metres, latitude in radians and longitude in radians.
          Returns vertical total electron content in electrons per square metre.
+
+         Parameters
+         ----------
+         time : float
+             Epoch at which to evaluate the model, in seconds since J2000.
+         sub_ionospheric_point : numpy.ndarray[numpy.float64[3, 1]]
+             Geodetic position of the sub-ionospheric point: altitude in metres, latitude and longitude in radians.
+
+         Returns
+         -------
+         float
+             Vertical total electron content at the sub-ionospheric point, in electrons per square metre.
 
       )doc" );
 

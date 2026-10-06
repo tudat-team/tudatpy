@@ -1770,8 +1770,19 @@ Returns
 
          Create observation model settings for the 3-1-3 Euler angles of the observed body identified by ``link_ends``.
 
-         The three angles are in radians; ``bias_settings`` optionally defines an observation bias. Returns
-         ObservationModelSettings.
+         The three angles are in radians; ``bias_settings`` optionally defines an observation bias.
+
+         Parameters
+         ----------
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         bias_settings : ObservationBiasSettings, optional
+             Optional settings for observation biases.
+
+         Returns
+         -------
+         ObservationModelSettings
+             Settings for the model defined above.
 
       )doc" );
 
@@ -1817,7 +1828,21 @@ normalized_with_speed_of_light : bool, default = False
          Create a two-way open-loop Doppler model from the supplied ``uplink_doppler_settings`` and
          ``downlink_doppler_settings``.
 
-         ``bias_settings`` optionally defines a bias on the combined observable. Returns ObservationModelSettings.
+         ``bias_settings`` optionally defines a bias on the combined observable.
+
+         Parameters
+         ----------
+         uplink_doppler_settings : OneWayDopplerObservationModelSettings
+             One-way open-loop Doppler settings for the uplink.
+         downlink_doppler_settings : OneWayDopplerObservationModelSettings
+             One-way open-loop Doppler settings for the downlink.
+         bias_settings : ObservationBiasSettings, optional
+             Optional settings for observation biases.
+
+         Returns
+         -------
+         ObservationModelSettings
+             Settings for the model defined above.
 
       )doc" );
 

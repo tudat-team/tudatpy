@@ -54,6 +54,15 @@ void expose_space_time_types( py::module& m )
 
          Set the dimensionless PPN gamma, beta and epsilon parameters; the binding initializes PPN delta to zero.
 
+         Parameters
+         ----------
+         parameter_gamma : float
+             Dimensionless PPN gamma parameter.
+         parameter_beta : float
+             Dimensionless PPN beta parameter.
+         parameter_epsilon : float, optional
+             Dimensionless PPN epsilon parameter.
+
       )doc" )
             .def_property( "parameter_gamma",
                            &tr::PPNParameterSet::getParameterGamma,
@@ -75,16 +84,9 @@ void expose_space_time_setup( py::module& m )
 
          Enumeration of space-time metric models.
 
-         The entries identify the Schwarzschild metric and the solar-system post-Newtonian metric that can be selected
-         when creating the space-time properties of a system of bodies.
-
       )doc" )
-            .value( "schwarzschild_metric",
-                    tss::schwarzschild_metric,
-                    R"doc(Schwarzschild space-time metric associated with a central gravitating body.)doc" )
-            .value( "solar_system_metric",
-                    tss::solar_system_metric,
-                    R"doc(Space-time metric accounting for the configured Solar System bodies.)doc" );
+            .value( "schwarzschild_metric", tss::schwarzschild_metric )
+            .value( "solar_system_metric", tss::solar_system_metric );
 
     py::class_< tss::SpaceTimeMetricSettings, std::shared_ptr< tss::SpaceTimeMetricSettings > >( m, "SpaceTimeMetricSettings", R"doc(
 
@@ -127,6 +129,15 @@ void expose_space_time_setup( py::module& m )
 
          Define space-time properties with optional metric settings and PPN parameters, and a dimensionless local-
          position-invariance violation parameter.
+
+         Parameters
+         ----------
+         metric_settings : SpaceTimeMetricSettings, optional
+             Optional settings defining the space-time metric.
+         ppn_parameter_set : PPNParameterSet, optional
+             Optional set of PPN parameters used by the metric.
+         equivalence_principle_lpi_violation_parameter : float, optional
+             Dimensionless local position invariance violation parameter.
 
       )doc" )
             .def_property( "metric_settings",

@@ -177,7 +177,16 @@ void expose_gravitation( py::module& m )
       )doc" )
             .def( py::init< const int >( ),
                   py::arg( "maximum_degree" ),
-                  R"doc(Allocate the WignerDMatricesCache up to the specified maximum spherical harmonic degree.)doc" )
+                  R"doc(
+
+         Create the object, and specify that it should calculate matrices up to and including given maximum degree.
+
+         Parameters
+         ----------
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+
+      )doc" )
             .def( "update_matrices",
                   &tbm::WignerDMatricesCache::updateMatrices,
                   py::arg( "cayley_klein_a" ),
@@ -363,8 +372,14 @@ void expose_gravitation( py::module& m )
                   py::arg( "maximum_order" ),
                   R"doc(
 
-         Allocate the SphericalHarmonicTransformationCache up to the specified maximum spherical harmonic degree and
-         order.
+         Create the object, and specify that it should calculate spherical harmonic transformations up to and including given maximum degree and order.
+
+         Parameters
+         ----------
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+         maximum_order : int
+             Maximum spherical harmonic order to include in the calculation.
 
       )doc" )
             .def( "update_from_cayley_klein_parameters",

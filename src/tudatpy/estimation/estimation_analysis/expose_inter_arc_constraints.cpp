@@ -113,6 +113,8 @@ void expose_inter_arc_constraints( py::module& m )
 
          Bodies whose translational states are constrained to be continuous between arcs.
 
+         :type: list[str]
+
       )doc" )
             .def_property_readonly( "connection_epochs",
                                     &tss::InterArcStateContinuityConstraintSettings::connectionEpochsByBody,
@@ -121,6 +123,8 @@ void expose_inter_arc_constraints( py::module& m )
          **read-only**
 
          Connection epochs for each constrained body, in seconds since J2000.
+
+         :type: dict[str, list[float]]
 
       )doc" )
             .def_property_readonly( "constraint_scaling_factor",
@@ -131,6 +135,8 @@ void expose_inter_arc_constraints( py::module& m )
 
          Scaling factor applied to the state continuity constraint equations.
 
+         :type: float
+
       )doc" )
             .def_property_readonly( "arc_pairs",
                                     &tss::InterArcStateContinuityConstraintSettings::arcPairsByBody,
@@ -139,6 +145,8 @@ void expose_inter_arc_constraints( py::module& m )
          **read-only**
 
          Pairs of arc indices connected by continuity constraints for each body.
+
+         :type: dict[str, list[tuple[int, int]]]
 
       )doc" );
 

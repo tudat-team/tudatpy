@@ -51,6 +51,19 @@ void expose_geometry( py::module& m )
 
          Create a capsule from nose, middle and side radii and rear length in metres, and the rear angle in radians.
 
+         Parameters
+         ----------
+         nose_radius : float
+             Radius of the capsule nose, in metres.
+         middle_radius : float
+             Radius of the capsule's middle section, in metres.
+         rear_length : float
+             Length of the rear section, in metres.
+         rear_angle : float
+             Angle of the rear conical section, in radians.
+         side_radius : float
+             Radius of curvature of the capsule side, in metres.
+
       )doc" )
             .def_property_readonly( "middle_radius",
                                     &tgs::Capsule::getMiddleRadius,
@@ -59,6 +72,8 @@ void expose_geometry( py::module& m )
          **read-only**
 
          Radius of the capsule middle section, in metres.
+
+         :type: float
 
       )doc" )
             .def_property_readonly( "volume",
@@ -69,6 +84,8 @@ void expose_geometry( py::module& m )
 
          Volume enclosed by the capsule geometry, in cubic metres.
 
+         :type: float
+
       )doc" )
             .def_property_readonly( "length",
                                     &tgs::Capsule::getLength,
@@ -77,6 +94,8 @@ void expose_geometry( py::module& m )
          **read-only**
 
          Total axial length of the capsule geometry, in metres.
+
+         :type: float
 
       )doc" );
 };

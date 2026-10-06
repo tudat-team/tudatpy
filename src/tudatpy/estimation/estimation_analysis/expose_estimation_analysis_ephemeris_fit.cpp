@@ -60,7 +60,39 @@ void expose_estimation_analysis_ephemeris_fit( py::module& m )
          ``initial_time``, ``final_time`` and ``data_point_interval`` define the fit interval and sampling in seconds
          since J2000. Initial states and any ``additional_parameter_names`` are estimated over ``number_of_iterations``
          iterations. ``reintegrate_variational_equations`` controls derivative updates and ``results_print_frequency``
-         controls propagation reporting. Returns EstimationOutput.
+         controls propagation reporting.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         acceleration_models : dict[str, dict[str, list[AccelerationModel]]]
+             Acceleration models used for the propagated ephemeris fit.
+         observed_bodies : list[str]
+             Names of the bodies whose ephemerides provide the observations.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the propagated or observed bodies.
+         integrator_settings : IntegratorSettings
+             Numerical integration settings for the fit or sampling procedure.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+         final_time : Time
+             Final epoch, in seconds since J2000.
+         data_point_interval : Time
+             Interval between ephemeris observations used for the fit, in seconds.
+         additional_parameter_names : list[EstimatableParameterSettings], optional
+             Settings for additional parameters to estimate alongside the initial states.
+         number_of_iterations : int, optional
+             Number of estimation iterations.
+         reintegrate_variational_equations : bool, optional
+             Whether to reintegrate the variational equations at each iteration.
+         results_print_frequency : float, optional
+             Interval in seconds between printed propagation results.
+
+         Returns
+         -------
+         EstimationOutput
+             Estimation results of the dynamical fit to the ephemeris observations.
 
       )doc" );
 }

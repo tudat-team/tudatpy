@@ -93,9 +93,22 @@ void expose_transfer_trajectory( py::module& m )
                   py::arg( "time_since_leg_beginning" ),
                   R"doc(
 
-         Return the six-component Cartesian state at ``time_since_leg_beginning`` seconds after departure on this leg.
+         Return the six-component Cartesian state at the requested epoch in seconds since J2000.
 
-         The state is expressed in the transfer frame, with position in metres and velocity in metres per second.
+         The state uses the same frame origin and inertial orientation as the departure and arrival body ephemerides
+         used to create the leg. For a trajectory created with :func:`~create_transfer_trajectory`, these ephemerides
+         must be centred on the specified ``central_body`` and use a common inertial orientation, such as J2000 or
+         ECLIPJ2000. Position is in metres and velocity is in metres per second.
+
+         Parameters
+         ----------
+         time_since_leg_beginning : float
+             Absolute epoch at which to evaluate the state, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[6, 1]]
+             Cartesian position and velocity in the frame defined above, in metres and metres per second.
 
       )doc" );
 
@@ -820,6 +833,8 @@ void expose_transfer_trajectory( py::module& m )
 
          Transfer leg models, ordered from departure to arrival.
 
+         :type: list[TransferLeg]
+
       )doc" );
 
     m.def( "unpowered_leg",
@@ -1190,8 +1205,28 @@ void expose_transfer_trajectory( py::module& m )
            py::arg( "engine_name" ),
            R"doc(
 
-         Install the acceleration of a low-thrust ``transfer_leg`` as the engine model named ``engine_name`` on
+         Apply the acceleration from a low-thrust ``transfer_leg`` to the engine named ``engine_name`` on
          ``body_name`` in ``bodies``.
+
+         The engine must already exist and use a custom thrust-magnitude model. The body must have a direction-based
+         rotation model with a custom inertial direction function. This function sets the thrust magnitude and direction
+         functions from the transfer-leg acceleration.
+
+         Parameters
+         ----------
+         transfer_leg : TransferLeg
+             Low-thrust transfer leg supplying the thrust acceleration as a function of epoch.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         body_name : str
+             Name of the body in the system of bodies.
+         engine_name : str
+             Identifier of the existing engine whose thrust-magnitude function is updated.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" );
 };

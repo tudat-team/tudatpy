@@ -80,21 +80,41 @@ The values in this class may be recomputed every time step to reflect changing a
          Create NRLMSISE-00 inputs from calendar time, local solar time, F10.7 flux, geomagnetic activity and model
          switches.
 
+         Parameters
+         ----------
+         year : int, optional
+             Calendar year.
+         day_of_year : int, optional
+             Day of the year, starting at 1.
+         seconds_of_day : float, optional
+             UTC seconds elapsed since midnight.
+         local_solar_time : float, optional
+             Local solar time, in hours.
+         f107 : float, optional
+             Daily 10.7 cm solar radio flux, in solar flux units.
+         f107a : float, optional
+             81-day average of the 10.7 cm solar radio flux, in solar flux units.
+         ap_daily : float, optional
+             Daily geomagnetic Ap index.
+         ap_vector : list[float], optional
+             Seven geomagnetic Ap values used for the storm-time model.
+         switches : list[int], optional
+             NRLMSISE-00 model switches controlling the included effects.
+
       )doc" );
 
     py::class_< ta::NRLMSISE00Atmosphere, std::shared_ptr< ta::NRLMSISE00Atmosphere > >( m,
                                                                                          "NRLMSISE00Atmosphere",
-                                                                                         R"doc(NRLMSISE00 atmosphere model.
+                                                                                         R"doc(
 
-                         This class uses the NRLMSISE00 model to compute the atmospheric density and temperature. The GTD7 function is used: Neutral Atmosphere Empirical Model from the surface to the lower exosphere.
+         Direct interface between Tudat and the NRLMSISE-00 atmosphere library.
 
-                         Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
+         This class exposes the NRLMSISE-00 library wrapper for direct atmosphere queries. Its Python binding is
+         independent of :class:`~tudatpy.dynamics.environment.AtmosphereModel`, although the underlying C++ class
+         inherits from AtmosphereModel. To configure a body's atmosphere through the environment setup, use
+         :func:`~nrlmsise00` to create the atmosphere settings.
 
-                         Parameters
-                         ----------
-                         solar_activity_data : Dict[float, SolarActivityData]
-                             Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
-                         )doc" )
+      )doc" )
             .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
                             const bool,
                             const bool,
@@ -105,8 +125,18 @@ The values in this class may be recomputed every time step to reflect changing a
                   py::arg( "use_anomalous_oxygen" ) = true,
                   R"doc(
 
-         Create an NRLMSISE-00 atmosphere from the supplied solar activity records and ideal-gas-law, storm-condition
-         and anomalous-oxygen options.
+         Create the direct NRLMSISE-00 library wrapper from the supplied solar activity records and model options.
+
+         Parameters
+         ----------
+         solar_activity_data : dict[float, SolarActivityData]
+             Container with the solar activity records used by the atmosphere model.
+         use_ideal_gas_law : bool, optional
+             Whether to calculate pressure using the ideal gas law.
+         use_storm_conditions : bool, optional
+             Whether to use the storm-time geomagnetic inputs.
+         use_anomalous_oxygen : bool, optional
+             Whether to include anomalous oxygen in the mass density.
 
       )doc" )
             .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude, R"doc(
@@ -115,6 +145,16 @@ The values in this class may be recomputed every time step to reflect changing a
 
          The boolean positional argument selects geodetic latitude when True and geocentric latitude when False.
          This flag is used when obtaining the coordinates for atmosphere model evaluation.
+
+         Parameters
+         ----------
+         use_geodetic_latitude : bool
+             Whether to use geodetic latitude (True) or geocentric latitude (False). This is a positional argument.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" )
             .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude, R"doc(
@@ -133,6 +173,16 @@ The values in this class may be recomputed every time step to reflect changing a
 
          The boolean positional argument enables the use of UTC when True. This flag is used when preparing the time
          input for the atmosphere model.
+
+         Parameters
+         ----------
+         use_utc : bool
+             Whether to use UTC (True) or TDB (False) when evaluating the atmosphere inputs. This is a positional argument.
+
+         Returns
+         -------
+         None
+             No return value.
 
       )doc" )
             .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc, R"doc(
@@ -176,10 +226,7 @@ The values in this class may be recomputed every time step to reflect changing a
     // END OF NRLMSISE00
     py::enum_< tss::AtmosphereDependentVariables >( m, "AtmosphereDependentVariables", R"doc(
 
-         Enumeration of quantities supplied by a tabulated atmosphere model.
-
-         These entries identify density, pressure, temperature, specific gas constant, ratio of specific heats and molar mass
-         in the atmosphere tables.
+         Enumeration of atmospheric quantities: density, pressure, temperature, specific gas constant, ratio of specific heats and molar mass.
 
       )doc" )
             .value( "tabulated_density",
@@ -235,16 +282,12 @@ The values in this class may be recomputed every time step to reflect changing a
 
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.constant_wind_model`.
 
-         See the factory documentation for model details and available parameters.
-
       )doc" );
 
     py::class_< tss::CustomWindModelSettings, std::shared_ptr< tss::CustomWindModelSettings >, tss::WindModelSettings >(
             m, "CustomWindModelSettings", R"doc(
 
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_wind_model`.
-
-         See the factory documentation for model details and available parameters.
 
       )doc" );
 
@@ -295,8 +338,6 @@ The values in this class may be recomputed every time step to reflect changing a
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_constant_temperature`,
          :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_four_dimensional_constant_temperature`.
 
-         See the factory documentation for model details and available parameters.
-
       )doc" );
 
     py::class_< tss::CustomNumberDensityAtmosphereSettings,
@@ -305,8 +346,6 @@ The values in this class may be recomputed every time step to reflect changing a
 
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.custom_number_density`.
 
-         See the factory documentation for model details and available parameters.
-
       )doc" );
 
     py::class_< tss::ScaledAtmosphereSettings, std::shared_ptr< tss::ScaledAtmosphereSettings >, tss::AtmosphereSettings >(
@@ -314,8 +353,6 @@ The values in this class may be recomputed every time step to reflect changing a
 
          Settings returned by :func:`~tudatpy.dynamics.environment_setup.atmosphere.scaled_by_constant`,
          :func:`~tudatpy.dynamics.environment_setup.atmosphere.scaled_by_function`.
-
-         See the factory documentation for model details and available parameters.
 
       )doc" );
 

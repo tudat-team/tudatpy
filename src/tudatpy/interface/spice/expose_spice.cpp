@@ -694,6 +694,16 @@ void expose_spice( py::module& m )
          ``alternative_kernels`` supplies replacement ephemeris kernels when required. Kernels remain loaded in the
          SPICE kernel pool until cleared.
 
+         Parameters
+         ----------
+         alternative_kernels : list[str], optional
+             Paths of alternative ephemeris kernels to load in place of the default planetary kernels.
+
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" );
 
     m.def( "get_total_count_of_kernels_loaded",
@@ -806,11 +816,29 @@ void expose_spice( py::module& m )
 
     m.def( "continue_after_errors",
            &tudat::spice_interface::toggleErrorReturn,
-           R"doc(Configure SPICE to return control to the caller after an error instead of aborting the process.)doc" );
+           R"doc(
+
+         Configure SPICE to return control to the caller after an error instead of aborting the process.
+
+         Returns
+         -------
+         None
+             No return value.
+
+      )doc" );
 
     m.def( "suppress_error_output",
            &tudat::spice_interface::suppressErrorOutput,
-           R"doc(Suppress SPICE error messages emitted to its output stream.)doc" );
+           R"doc(
+
+         Suppress SPICE error messages emitted to its output stream.
+
+         Returns
+         -------
+         None
+             No return value.
+
+      )doc" );
 
     //      py::class_<tudat::ephemerides::SpiceEphemeris,
     //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m,

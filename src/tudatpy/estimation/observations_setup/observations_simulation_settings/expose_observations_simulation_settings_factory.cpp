@@ -49,6 +49,18 @@ void expose_observation_simulation_settings_factory_bindings( py::module& m )
          The supplied ``bodies`` are used to resolve links and supporting observation data. Returns a list of
          ObservationSimulationSettings.
 
+         Parameters
+         ----------
+         observation_collection : ObservationCollection
+             Collection defining the observation types, link ends and epochs.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+
+         Returns
+         -------
+         list[ObservationSimulationSettings]
+             Observation simulation settings with the types, link ends and epochs from the collection.
+
       )doc" );
 
     m.def( "change_simulation_settings_observable_types",

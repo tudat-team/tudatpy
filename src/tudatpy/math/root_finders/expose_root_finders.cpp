@@ -91,6 +91,13 @@ The program will not accept the root at the final iteration, and will throw a :c
          Create a Newton-Raphson solver with root absolute tolerance ``x_tol`` and maximum iteration count
          ``max_iter``.
 
+         Parameters
+         ----------
+         x_tol : float
+             Absolute tolerance on the root value.
+         max_iter : int
+             Maximum number of root-finding iterations.
+
       )doc" );
 
     py::class_< trf::RootFinderSettings, std::shared_ptr< trf::RootFinderSettings > >( m,

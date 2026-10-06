@@ -126,6 +126,8 @@ void expose_observations_dependent_variable_types( py::module& m )
 
          Observable type associated with these observation dependent variables.
 
+         :type: ObservableType
+
       )doc" )
             .def_property_readonly( "link_ends",
                                     &tss::ObservationDependentVariableBookkeeping::getLinkEnds,
@@ -134,6 +136,8 @@ void expose_observations_dependent_variable_types( py::module& m )
          **read-only**
 
          Observation link definition associated with the dependent variables.
+
+         :type: LinkDefinition
 
       )doc" )
             .def_property_readonly( "dependent_variable_settings",
@@ -144,6 +148,8 @@ void expose_observations_dependent_variable_types( py::module& m )
 
          Settings for the dependent variables stored alongside observations.
 
+         :type: list[ObservationDependentVariableSettings]
+
       )doc" )
             .def_property_readonly( "total_dependent_variable_size",
                                     &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize,
@@ -152,6 +158,8 @@ void expose_observations_dependent_variable_types( py::module& m )
          **read-only**
 
          Total number of scalar entries in the observation dependent variable vector.
+
+         :type: int
 
       )doc" );
 }

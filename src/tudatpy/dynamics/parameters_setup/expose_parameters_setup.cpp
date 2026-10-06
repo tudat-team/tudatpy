@@ -36,8 +36,11 @@ namespace parameters_setup
 
 void expose_parameters_setup_types( py::module& m )
 {
-    py::enum_< tp::EnvironmentModelsToUpdate >(
-            m, "EnvironmentModelsToUpdate", R"doc(Environment models that must be refreshed after perturbing a state or parameter.)doc" )
+    py::enum_< tp::EnvironmentModelsToUpdate >( m, "EnvironmentModelsToUpdate", R"doc(
+
+         Enumeration of physical environment models that can be updated.
+
+      )doc" )
             .value( "body_translational_state_update",
                     tp::EnvironmentModelsToUpdate::body_translational_state_update,
                     R"doc(Update the body translational state model after a state or parameter perturbation.)doc" )
@@ -260,13 +263,13 @@ void expose_parameters_setup_types( py::module& m )
 
             .export_values( );
 
-    py::enum_< tba::EmpiricalAccelerationComponents >(
-            m,
-            "EmpiricalAccelerationComponents",
-            R"doc(Enumeration of the available empirical acceleration components that are available to estimate.
+    py::enum_< tba::EmpiricalAccelerationComponents >( m,
+                                                       "EmpiricalAccelerationComponents",
+                                                       R"doc(
 
-            These are used in the :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations` function to specify which components of the empirical acceleration are to be estimated.
-            )doc" )
+         Enumeration of radial, along-track and cross-track empirical acceleration components.
+
+      )doc" )
             .value( "radial_empirical_acceleration_component",
                     tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component,
                     R"doc(Radial empirical acceleration component in the local orbital frame.)doc" )
@@ -278,13 +281,13 @@ void expose_parameters_setup_types( py::module& m )
                     R"doc(Across track empirical acceleration component in the local orbital frame.)doc" )
             .export_values( );
 
-    py::enum_< tba::EmpiricalAccelerationFunctionalShapes >(
-            m,
-            "EmpiricalAccelerationFunctionalShapes",
-            R"doc(Enumeration of the available empirical acceleration shapes that are available per component
+    py::enum_< tba::EmpiricalAccelerationFunctionalShapes >( m,
+                                                             "EmpiricalAccelerationFunctionalShapes",
+                                                             R"doc(
 
-            These are used in the :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations` function to specify the signature of the estimated empirical acceleration component.
-            .)doc" )
+         Enumeration of constant, sine and cosine time dependence of an empirical acceleration component.
+
+      )doc" )
             .value( "constant_empirical",
                     tba::EmpiricalAccelerationFunctionalShapes::constant_empirical,
                     R"doc(Constant empirical time dependence of an empirical acceleration.)doc" )
@@ -301,8 +304,6 @@ void expose_parameters_setup_types( py::module& m )
 
          Settings returned by :func:`~tudatpy.dynamics.parameters_setup.custom_analytical_partial`,
          :func:`~tudatpy.dynamics.parameters_setup.custom_numerical_partial`.
-
-         See the factory documentation for model details and available parameters.
 
       )doc" );
 
@@ -323,7 +324,13 @@ void expose_parameters_setup_types( py::module& m )
       )doc" )
             .def_readwrite( "custom_partial_settings",
                             &tep::EstimatableParameterSettings::customPartialSettings_,
-                            R"doc(Custom acceleration partial settings associated with this estimatable parameter.)doc" )
+                            R"doc(
+
+         Custom acceleration partial settings associated with this estimatable parameter.
+
+         :type: list[CustomAccelerationPartialSettings]
+
+      )doc" )
             .def_readwrite( "parameter_identifier",
                             &tep::EstimatableParameterSettings::parameterType_,
                             R"doc(
@@ -1798,7 +1805,21 @@ EstimatableParameterSettings
          Configure estimation of polynomial clock correction coefficients shared across clock arcs.
 
          ``associated_body`` and ``associated_station`` identify the clock; ``correction_powers`` lists the polynomial
-         powers whose coefficients are estimated. Returns EstimatableParameterSettings.
+         powers whose coefficients are estimated.
+
+         Parameters
+         ----------
+         associated_body : str
+             Name of the body whose clock parameters are estimated.
+         associated_station : str
+             Identifier of the ground station whose clock is estimated; an empty string selects the body's clock.
+         correction_powers : list[int]
+             Polynomial powers whose clock-correction coefficients are estimated.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -1813,7 +1834,23 @@ EstimatableParameterSettings
          Configure estimation of separate polynomial clock corrections on selected arcs.
 
          ``associated_body`` and ``associated_station`` identify the clock, ``correction_powers`` selects polynomial
-         terms and ``arc_indices`` selects clock arcs. Returns EstimatableParameterSettings.
+         terms and ``arc_indices`` selects clock arcs.
+
+         Parameters
+         ----------
+         associated_body : str
+             Name of the body whose clock parameters are estimated.
+         associated_station : str
+             Identifier of the ground station whose clock is estimated; an empty string selects the body's clock.
+         correction_powers : list[int]
+             Polynomial powers whose clock-correction coefficients are estimated.
+         arc_indices : list[int]
+             Indices of the clock arcs whose correction coefficients are estimated.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -1899,7 +1936,23 @@ EstimatableParameterSettings
          Configure estimation of an observation bias growing linearly with elapsed time from ``ref_epoch``.
 
          ``link_ends`` and ``observable_type`` identify the observations. ``time_link_end`` specifies the link end at
-         which times are evaluated; ``ref_epoch`` is in seconds since J2000. Returns EstimatableParameterSettings.
+         which times are evaluated; ``ref_epoch`` is in seconds since J2000.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         ref_epoch : float
+             Reference epoch for the linear bias drift, in seconds since J2000.
+         time_link_end : LinkEndType
+             Link end whose time is used when evaluating the bias drift.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -1916,7 +1969,25 @@ EstimatableParameterSettings
 
          ``link_ends`` and ``observable_type`` identify the observations. ``arc_start_times`` and ``ref_epochs`` give
          arc boundaries and drift reference epochs in seconds since J2000; ``time_link_end`` defines their time
-         reference. Returns EstimatableParameterSettings.
+         reference.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         arc_start_times : list[float]
+             Start epochs of the bias arcs, in seconds since J2000.
+         ref_epochs : list[float]
+             Reference epoch for the linear bias drift in each arc, in seconds since J2000.
+         time_link_end : LinkEndType
+             Link end whose time is used when evaluating the bias drift.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -1929,8 +2000,21 @@ EstimatableParameterSettings
 
          Configure estimation of a constant time-tag bias for ``link_ends`` and ``observable_type``.
 
-         ``reference_link_end`` identifies the link end whose observation time tags are shifted. Returns
-         EstimatableParameterSettings.
+         ``reference_link_end`` identifies the link end whose observation time tags are shifted.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -1944,8 +2028,23 @@ EstimatableParameterSettings
 
          Configure estimation of a separate time-tag bias on each arc for ``link_ends`` and ``observable_type``.
 
-         ``arc_start_times`` gives arc boundaries in seconds since J2000, referenced to ``reference_link_end``. Returns
-         EstimatableParameterSettings.
+         ``arc_start_times`` gives arc boundaries in seconds since J2000, referenced to ``reference_link_end``.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         arc_start_times : list[float]
+             Start epochs of the bias arcs, in seconds since J2000.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -1984,7 +2083,18 @@ EstimatableParameterSettings
            R"doc(
 
          Configure estimation of the body-fixed Cartesian position of ``reference_point_name`` on ``body``, in metres.
-         Returns EstimatableParameterSettings.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         reference_point_name : str
+             Identifier of the body-fixed reference point whose position is estimated.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -2000,7 +2110,19 @@ EstimatableParameterSettings
          Configure estimation of the direct tidal dissipation time lag of ``body``, in seconds.
 
          ``deforming_body`` is the name, or list of names, of bodies raising the tides associated with the estimated
-         lag. Returns EstimatableParameterSettings.
+         lag.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -2013,7 +2135,19 @@ EstimatableParameterSettings
          Configure estimation of the direct tidal dissipation time lag of ``body``, in seconds.
 
          ``deforming_body`` is the name, or list of names, of bodies raising the tides associated with the estimated
-         lag. Returns EstimatableParameterSettings.
+         lag.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -2025,8 +2159,19 @@ EstimatableParameterSettings
 
          Configure estimation of the dimensionless inverse tidal quality factor of ``body``.
 
-         ``deforming_body`` is the name, or list of names, of bodies raising the associated tides. Returns
-         EstimatableParameterSettings.
+         ``deforming_body`` is the name, or list of names, of bodies raising the associated tides.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -2038,8 +2183,19 @@ EstimatableParameterSettings
 
          Configure estimation of the dimensionless inverse tidal quality factor of ``body``.
 
-         ``deforming_body`` is the name, or list of names, of bodies raising the associated tides. Returns
-         EstimatableParameterSettings.
+         ``deforming_body`` is the name, or list of names, of bodies raising the associated tides.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -2309,8 +2465,17 @@ Returns
            py::arg( "body_name" ),
            R"doc(
 
-         Configure estimation of the scaled longitude libration amplitude of ``body_name``. Returns
-         EstimatableParameterSettings.
+         Configure estimation of the scaled longitude libration amplitude of ``body_name``.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -2444,7 +2609,23 @@ Returns
          Configure a custom estimatable parameter vector identified by ``custom_id``.
 
          ``parameter_size`` is the vector length. ``get_parameter_function`` returns its current values and
-         ``set_parameter_function`` assigns a supplied vector. Returns EstimatableParameterSettings.
+         ``set_parameter_function`` assigns a supplied vector.
+
+         Parameters
+         ----------
+         custom_id : str
+             Identifier of the user-defined estimatable parameter.
+         parameter_size : int
+             Number of scalar entries in the parameter vector.
+         get_parameter_function : Callable[[], numpy.ndarray[numpy.float64[m, 1]]]
+             Function without arguments returning the current parameter vector.
+         set_parameter_function : Callable[[numpy.ndarray[numpy.float64[m, 1]]], None]
+             Function that applies the supplied parameter vector to the environment.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
 
       )doc" );
 
@@ -2515,7 +2696,23 @@ Returns
          acceleration type.
 
          ``analytical_partial_function`` receives the epoch in seconds since J2000 and the current three-component
-         acceleration, and returns the acceleration derivative matrix. Returns CustomAccelerationPartialSettings.
+         acceleration, and returns the acceleration derivative matrix.
+
+         Parameters
+         ----------
+         analytical_partial_function : Callable[[float, numpy.ndarray[numpy.float64[3, 1]]], numpy.ndarray[numpy.float64[m, n]]]
+             Function of time returning the analytical acceleration partial with respect to the parameter.
+         body_undergoing_acceleration : str
+             Name of the body undergoing the acceleration.
+         body_exerting_acceleration : str
+             Name of the body exerting the acceleration.
+         acceleration_type : AvailableAcceleration
+             Type of acceleration to which the settings apply.
+
+         Returns
+         -------
+         CustomAccelerationPartialSettings
+             Settings defining how to compute the acceleration partial with respect to the parameter.
 
       )doc" );
 
@@ -2531,8 +2728,25 @@ Returns
          Configure numerical acceleration partials using the component-wise ``parameter_perturbation`` vector.
 
          ``body_undergoing_acceleration``, ``body_exerting_acceleration`` and ``acceleration_type`` identify the model.
-         ``environment_updates`` maps environment model types to bodies to refresh after a perturbation. Returns
-         CustomAccelerationPartialSettings.
+         ``environment_updates`` maps environment model types to bodies to refresh after a perturbation.
+
+         Parameters
+         ----------
+         parameter_perturbation : numpy.ndarray[numpy.float64[m, 1]]
+             Perturbation magnitude used to compute the numerical partial derivative.
+         body_undergoing_acceleration : str
+             Name of the body undergoing the acceleration.
+         body_exerting_acceleration : str
+             Name of the body exerting the acceleration.
+         acceleration_type : AvailableAcceleration
+             Type of acceleration to which the settings apply.
+         environment_updates : dict[EnvironmentModelsToUpdate, list[str]], optional
+             Environment models to refresh for each perturbed parameter value, with the corresponding body names.
+
+         Returns
+         -------
+         CustomAccelerationPartialSettings
+             Settings defining how to compute the acceleration partial with respect to the parameter.
 
       )doc" );
 }

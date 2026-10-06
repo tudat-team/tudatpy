@@ -249,10 +249,22 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 )doc" )
             .def_readwrite( "coefficients",
                             &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_,
-                            R"doc(Three coefficients controlling the three-coefficient radiation pressure acceleration model.)doc" )
+                            R"doc(
+
+         Three coefficients controlling the three-coefficient radiation pressure acceleration model.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
             .def_readwrite( "reference_body",
                             &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_,
-                            R"doc(Name of the reference body used by the three-coefficient radiation pressure model.)doc" );
+                            R"doc(
+
+         Name of the reference body used by the three-coefficient radiation pressure model.
+
+         :type: str
+
+      )doc" );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,

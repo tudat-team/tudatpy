@@ -231,6 +231,18 @@ void expose_ancillary_settings_types( py::module& m )
 
          Assign the numeric ``value`` to the intermediate ancillary ``variable`` used by the observation model.
 
+         Parameters
+         ----------
+         variable : ObservationIntermediateSimulationVariable
+             Ancillary variable whose data is set.
+         value : float
+             Value to store for the specified data field.
+
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
             .def( "get_float_settings",
                   &tom::ObservationAncillarySimulationSettings::getAncillaryDoubleData,

@@ -151,6 +151,16 @@ void expose_two_body_dynamics( py::module& m )
          Evaluate the gravity-assist pericentre objective at the supplied pericentre radius, in metres. Its zero
          satisfies the specified bending angle.
 
+         Parameters
+         ----------
+         pericenter_radius : float
+             Pericentre radius at which to evaluate the objective, in metres. This is a positional argument.
+
+         Returns
+         -------
+         float
+             Bending-angle residual, in radians. A zero satisfies the specified gravity-assist geometry.
+
       )doc" )
             .def( "compute_derivative_pericenter_radius_fn",
                   &tms::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction,
@@ -158,6 +168,16 @@ void expose_two_body_dynamics( py::module& m )
 
          Evaluate the first derivative of the gravity-assist objective with respect to the supplied pericentre radius,
          in metres.
+
+         Parameters
+         ----------
+         pericenter_radius : float
+             Pericentre radius at which to evaluate the objective, in metres. This is a positional argument.
+
+         Returns
+         -------
+         float
+             Derivative of the bending-angle residual with respect to pericentre radius, in radians per metre.
 
       )doc" );
 
@@ -176,18 +196,25 @@ semi-major axes and the bending angle. Used as input for root-finding algorithms
                   py::arg( "absolute_outgoing_semi_major_axis" ),
                   py::arg( "bending_angle" ),
                   R"doc(
-Constructor for EccentricityFindingFunctions.
 
-Parameters
-----------
-absolute_incoming_semi_major_axis : float
-    Absolute value of the semi-major axis of the incoming hyperbolic trajectory [m].
-absolute_outgoing_semi_major_axis : float
-    Absolute value of the semi-major axis of the outgoing hyperbolic trajectory [m].
-absolute_bending_angle : float
-    Bending angle of the gravity assist [rad].
+         Create the objective function for solving the incoming eccentricity of a gravity assist.
 
-)doc" )
+         For incoming and outgoing hyperbolic semi-major axis magnitudes :math:`a_i` and :math:`a_o`, the outgoing
+         eccentricity is :math:`e_o=1+(a_i/a_o)(e_i-1)`. The objective is
+         :math:`f(e_i)=\arcsin(1/e_i)+\arcsin(1/e_o)-\delta`, where :math:`\delta` is the total bending angle.
+         Its zero gives the incoming eccentricity for which the two hyperbolae share the requested bending angle
+         and the same pericentre radius. The derivative is available for use by a root-finding algorithm.
+
+         Parameters
+         ----------
+         absolute_incoming_semi_major_axis : float
+             Positive magnitude of the incoming hyperbolic semi-major axis, in metres.
+         absolute_outgoing_semi_major_axis : float
+             Positive magnitude of the outgoing hyperbolic semi-major axis, in metres.
+         bending_angle : float
+             Angle between the incoming and outgoing asymptotic velocities, in radians.
+
+      )doc" )
             .def( "compute_incoming_eccentricity_fn",
                   &tms::EccentricityFindingFunctions::computeIncomingEccentricityFunction,
                   py::arg( "incoming_eccentricity" ),
@@ -386,18 +413,14 @@ float
     py::class_< tms::LambertTargeterIzzo, std::shared_ptr< tms::LambertTargeterIzzo >, tms::LambertTargeter >( m,
                                                                                                                "LambertTargeterIzzo",
                                                                                                                R"doc(
-Lambert targeter using Izzo's algorithm.
 
-Implementation of Izzo's Lambert targeting algorithm. This method is particularly robust
-for near-pi transfers and does not suffer from singularities that affect other methods.
-It supports both prograde and retrograde orbits.
+         Lambert targeter using Izzo's algorithm.
 
-References
-----------
-Izzo, D., "Revisiting Lambert's problem", Celestial Mechanics and Dynamical Astronomy,
-Vol. 121, 2015.
+         Implementation of Izzo's Lambert targeting algorithm :cite:p:`izzo2015`. This method is particularly robust
+         for near-pi transfers and does not suffer from singularities that affect other methods.
+         It supports both prograde and retrograde orbits.
 
-)doc" )
+      )doc" )
             .def( py::init< const Eigen::Vector3d&,
                             const Eigen::Vector3d&,
                             const double,

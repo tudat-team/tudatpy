@@ -175,6 +175,19 @@ Examples
     Function for defining observation boundaries viability settings for single link ends.
     When simulating observations, this setting ensures that any applicable observations, for which the observed value is outside of given boundaries, will be omitted.
 
+    Parameters
+    ----------
+    link_end_id : tuple[str,str]
+        Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` ), for which the viability settings are to be created.
+
+    boundaries : list[tuple[float, float]]
+        List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
+
+    Returns
+    -------
+    ObservationBoundariesViabilitySettings
+        Observation-boundary viability settings for the link end.
+
     Examples
     --------
     .. code-block:: python
@@ -191,20 +204,7 @@ Examples
         # Show that this is indeed an ObservationBoundariesViabilitySettings object
         print(viability_settings)
 
-    Parameters
-    ----------
-    link_end_id : tuple[str,str]
-    Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` ), for which the viability settings are to be created.
-
-    boundaries : list[tuple[float, float]]
-    List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
-
-    Returns
-    -------
-    ObservationBoundariesViabilitySettings
-        Observation-boundary viability settings for the link end.
-
-     )doc" );
+ )doc" );
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >( &tom::elevationAngleViabilitySettings ),

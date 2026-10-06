@@ -347,8 +347,6 @@ void expose_dependent_variable_setup( py::module& m )
 
          Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.dependent_variable`.
 
-         See those functions for the available settings and model definitions.
-
       )doc" );
 
     m.def( "local_wind_velocity",
@@ -1562,7 +1560,23 @@ The type of the acceleration that is to be saved.
          Create settings to save the three aerodynamic force coefficients excluding control-surface increments for
          ``body``.
 
-         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         central_body : str, optional
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
 
       )doc" );
 
@@ -1575,7 +1589,23 @@ The type of the acceleration that is to be saved.
          Create settings to save the three aerodynamic moment coefficients excluding control-surface increments for
          ``body``.
 
-         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         central_body : str, optional
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
 
       )doc" );
 
@@ -1589,7 +1619,25 @@ The type of the acceleration that is to be saved.
 
          Create settings to save the three force-coefficient increments of ``control_surface_name`` on ``body``.
 
-         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         control_surface_name : str
+             Identifier of the control surface whose coefficient increment is saved.
+         central_body : str, optional
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
 
       )doc" );
 
@@ -1603,7 +1651,25 @@ The type of the acceleration that is to be saved.
 
          Create settings to save the three moment-coefficient increments of ``control_surface_name`` on ``body``.
 
-         ``central_body`` identifies the atmospheric body when required. Returns SingleDependentVariableSaveSettings.
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         control_surface_name : str
+             Identifier of the control surface whose coefficient increment is saved.
+         central_body : str, optional
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
 
       )doc" );
 
@@ -1991,7 +2057,29 @@ The type of the acceleration that is to be saved.
          Create settings to save total time-dependent variations of the cosine gravity coefficients of ``body``.
 
          The inclusive ``minimum_degree``, ``maximum_degree``, ``minimum_order`` and ``maximum_order`` bounds select
-         the coefficient block. Returns SingleDependentVariableSaveSettings.
+         the coefficient block.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         minimum_degree : int
+             Minimum spherical harmonic degree to include.
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+         minimum_order : int
+             Minimum spherical harmonic order to include.
+         maximum_order : int
+             Maximum spherical harmonic order to include in the calculation.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of selected coefficients with order no greater than degree
 
       )doc" );
 
@@ -2007,7 +2095,29 @@ The type of the acceleration that is to be saved.
          Create settings to save total time-dependent variations of the sine gravity coefficients of ``body``.
 
          The inclusive ``minimum_degree``, ``maximum_degree``, ``minimum_order`` and ``maximum_order`` bounds select
-         the coefficient block. Returns SingleDependentVariableSaveSettings.
+         the coefficient block.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         minimum_degree : int
+             Minimum spherical harmonic degree to include.
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+         minimum_order : int
+             Minimum spherical harmonic order to include.
+         maximum_order : int
+             Maximum spherical harmonic order to include in the calculation.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of selected coefficients with order no greater than degree
 
       )doc" );
 
@@ -2019,7 +2129,23 @@ The type of the acceleration that is to be saved.
            R"doc(
 
          Create settings to save total cosine gravity-coefficient variations of ``body`` for the (degree, order) pairs
-         in ``component_indices``. Returns SingleDependentVariableSaveSettings.
+         in ``component_indices``.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         component_indices : list[tuple[int, int]]
+             Spherical harmonic degree and order pairs identifying the coefficients to save, in output order.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         len(component_indices)
 
       )doc" );
 
@@ -2031,7 +2157,23 @@ The type of the acceleration that is to be saved.
            R"doc(
 
          Create settings to save total sine gravity-coefficient variations of ``body`` for the (degree, order) pairs in
-         ``component_indices``. Returns SingleDependentVariableSaveSettings.
+         ``component_indices``.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         component_indices : list[tuple[int, int]]
+             Spherical harmonic degree and order pairs identifying the coefficients to save, in output order.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         len(component_indices)
 
       )doc" );
 
@@ -2383,8 +2525,23 @@ The type of the acceleration that is to be saved.
            py::arg( "control_surface" ),
            R"doc(
 
-         Create settings to save the deflection angle of ``control_surface`` on ``body``, in radians. Returns
-         SingleDependentVariableSaveSettings.
+         Create settings to save the deflection angle of ``control_surface`` on ``body``, in radians.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         control_surface : str
+             Identifier of the control surface whose deflection is saved.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         1
 
       )doc" );
 
@@ -2687,15 +2844,41 @@ The type of the acceleration that is to be saved.
 
     m.def( "center_of_mass", &tp::centerOfMassVariableSaveSettings, py::arg( "body" ), R"doc(
 
-         Create settings to save the three-component body-fixed centre of mass of ``body``, in metres. Returns
-         SingleDependentVariableSaveSettings.
+         Create settings to save the three-component body-fixed centre of mass of ``body``, in metres.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
 
       )doc" );
 
     m.def( "inertia_tensor", &tp::inertiaTensorVariableSaveSettings, py::arg( "body" ), R"doc(
 
-         Create settings to save the body-fixed inertia tensor of ``body``, in kilograms times square metres. Returns
-         SingleDependentVariableSaveSettings.
+         Create settings to save the body-fixed inertia tensor of ``body``, in kilograms times square metres.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         9
 
       )doc" );
 
@@ -2797,7 +2980,23 @@ The type of the acceleration that is to be saved.
 
          Create settings to save inertial-frame unit surface normals for the panels of ``body_name``.
 
-         ``part_name`` optionally selects a vehicle part. Returns SingleDependentVariableSaveSettings.
+         ``part_name`` optionally selects a vehicle part.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+         part_name : str, optional
+             Identifier of the vehicle part whose panels are used; an empty string selects all panels.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3 * number of selected vehicle panels
 
       )doc" );
 
@@ -2810,7 +3009,23 @@ The type of the acceleration that is to be saved.
          Create panel surface-normal output settings for ``body_name`` and optional ``part_name``.
 
          This binding currently calls the inertial-frame surface-normal factory and therefore produces inertial-frame
-         normals. Returns SingleDependentVariableSaveSettings.
+         normals.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+         part_name : str, optional
+             Identifier of the vehicle part whose panels are used; an empty string selects all panels.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3 * number of selected vehicle panels
 
       )doc" );
 
@@ -2826,6 +3041,22 @@ The type of the acceleration that is to be saved.
          name and ``source_name`` as the vehicle part name. It returns SingleDependentVariableSaveSettings for normals
          rather than panel radiation forces.
 
+         Parameters
+         ----------
+         target_name : str
+             Name of the body whose panel surface normals are saved.
+         source_name : str
+             Vehicle part identifier passed to the surface-normal factory by this compatibility binding.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3 * number of selected vehicle panels
+
       )doc" );
 
     m.def( "radiation_pressure_source_panel_irradiance",
@@ -2835,7 +3066,22 @@ The type of the acceleration that is to be saved.
            R"doc(
 
          Create settings to save irradiance contributions from individual panels of ``source_name`` at ``target_name``.
-         Returns SingleDependentVariableSaveSettings.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of panels on the radiation source
 
       )doc" );
 
@@ -2845,8 +3091,23 @@ The type of the acceleration that is to be saved.
            py::arg( "source_name" ),
            R"doc(
 
-         Create settings to save the panel geometry of ``source_name`` as seen from ``target_name``. Returns
-         SingleDependentVariableSaveSettings.
+         Create settings to save the panel geometry of ``source_name`` as seen from ``target_name``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         7 * number of panels on the radiation source
 
       )doc" );
 
@@ -2859,7 +3120,25 @@ The type of the acceleration that is to be saved.
 
          Create settings to save the illuminated fraction of panels on ``target_name`` due to ``source_name``.
 
-         ``panel_type`` optionally restricts the selected panels. Returns SingleDependentVariableSaveSettings.
+         ``panel_type`` optionally restricts the selected panels.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+         panel_type : str, optional
+             Panel type for which the illuminated fractions are saved; an empty string includes all panel types.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of selected target panels
 
       )doc" );
 
@@ -2871,7 +3150,25 @@ The type of the acceleration that is to be saved.
            R"doc(
 
          Create settings to save the change in effective cross section of ``target_name`` for ``source_name`` and the
-         selected ``acceleration_type``. Returns SingleDependentVariableSaveSettings.
+         selected ``acceleration_type``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+         acceleration_type : str, optional
+             Type of acceleration to which the settings apply.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         1
 
       )doc" );
 
@@ -2880,8 +3177,21 @@ The type of the acceleration that is to be saved.
            py::arg( "target_name" ),
            R"doc(
 
-         Create settings to save the full panel geometry of ``target_name``. Returns
-         SingleDependentVariableSaveSettings.
+         Create settings to save the full panel geometry of ``target_name``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         9 * number of vehicle panels
 
       )doc" );
 
@@ -2892,7 +3202,23 @@ The type of the acceleration that is to be saved.
            R"doc(
 
          Create settings to save the aerodynamic coefficients of ``target_name`` in the environment of
-         ``central_body_name``. Returns SingleDependentVariableSaveSettings.
+         ``central_body_name``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         central_body_name : str
+             Name of the body defining the atmosphere or the source of the selected acceleration.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
 
       )doc" );
 
@@ -2904,7 +3230,25 @@ The type of the acceleration that is to be saved.
            R"doc(
 
          Create settings to save the actual cross section of ``target_name`` with respect to ``central_body_name`` for
-         ``acceleration_type``. Returns SingleDependentVariableSaveSettings.
+         ``acceleration_type``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         central_body_name : str
+             Name of the body defining the atmosphere or the source of the selected acceleration.
+         acceleration_type : str, optional
+             Type of acceleration to which the settings apply.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         1
 
       )doc" );
 

@@ -63,6 +63,16 @@ void expose_propagation_state_utility_types( py::module& m )
 
          Update the acceleration model and its cached acceleration at ``current_time``, in seconds since J2000.
 
+         Parameters
+         ----------
+         current_time : float
+             Epoch at which to update the model, in seconds since J2000.
+
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
             .def_property_readonly( "acceleration",
                                     &AccelerationModel::getAcceleration,
@@ -71,6 +81,8 @@ void expose_propagation_state_utility_types( py::module& m )
          **read-only**
 
          Current three-component acceleration, in metres per second squared; update the model before reading it.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
 
       )doc" )
             .def(
@@ -85,6 +97,16 @@ void expose_propagation_state_utility_types( py::module& m )
          Update the acceleration model at ``current_time`` in seconds since J2000 and return its three-component
          acceleration in metres per second squared.
 
+         Parameters
+         ----------
+         current_time : float
+             Epoch at which to update the model, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[3, 1]]
+             Updated Cartesian acceleration vector, in metres per second squared.
+
       )doc" )
             .def_property_readonly(
                     "acceleration_type",
@@ -97,6 +119,8 @@ void expose_propagation_state_utility_types( py::module& m )
 
          Acceleration type identifier for the concrete physical model.
 
+         :type: tudatpy.dynamics.propagation_setup.acceleration.AvailableAcceleration
+
       )doc" );
 
     py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >(
@@ -108,12 +132,40 @@ void expose_propagation_state_utility_bindings( py::module& m )
     m.def( "get_single_integration_differential_equation_order",
            &tp::getSingleIntegrationDifferentialEquationOrder,
            py::arg( "state_type" ),
-           R"doc(Return the differential equation order associated with the integrated ``state_type``.)doc" );
+           R"doc(
+
+         Return the differential equation order associated with the integrated ``state_type``.
+
+         Parameters
+         ----------
+         state_type : StateType
+             Type of integrated state.
+
+         Returns
+         -------
+         int
+             Order of the differential equation associated with the state type.
+
+      )doc" );
 
     m.def( "get_generalized_acceleration_size",
            &tp::getGeneralizedAccelerationSize,
            py::arg( "state_type" ),
-           R"doc(Return the number of generalized acceleration components associated with ``state_type``.)doc" );
+           R"doc(
+
+         Return the number of generalized acceleration components associated with ``state_type``.
+
+         Parameters
+         ----------
+         state_type : StateType
+             Type of integrated state.
+
+         Returns
+         -------
+         int
+             Number of entries in the generalized acceleration for the state type.
+
+      )doc" );
 
     m.def( "get_state_of_bodies",
            py::overload_cast< const std::vector< std::string >&,
@@ -174,6 +226,22 @@ void expose_propagation_state_utility_bindings( py::module& m )
          States are obtained from ephemerides in ``body_system`` and contain positions in metres and velocities in
          metres per second; the epoch is in seconds since J2000.
 
+         Parameters
+         ----------
+         bodies_to_propagate : list[str]
+             Names of the bodies whose translational states are retrieved, in output order.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the propagated or observed bodies.
+         body_system : SystemOfBodies
+             System of bodies containing the ephemerides.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[m, 1]]
+             Concatenated Cartesian position and velocity states relative to the central bodies, in metres and metres per second.
+
       )doc" );
 
     m.def( "get_initial_state_of_body",  // overload [2/2]
@@ -191,6 +259,22 @@ void expose_propagation_state_utility_bindings( py::module& m )
          The six-component result contains position in metres and velocity in metres per second; the epoch is in
          seconds since J2000.
 
+         Parameters
+         ----------
+         body_to_propagate : str
+             Name of the body whose initial state is retrieved.
+         central_body : str
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[m, 1]]
+             Cartesian position and velocity relative to the central body, in metres and metres per second.
+
       )doc" );
 
     m.def( "get_initial_rotational_state_of_body",
@@ -207,6 +291,22 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
          The state contains the quaternion relating ``base_orientation`` to the body-fixed frame and angular velocity
          in radians per second; the epoch is in seconds since J2000.
+
+         Parameters
+         ----------
+         body_to_propagate : str
+             Name of the body whose initial state is retrieved.
+         base_orientation : str
+             Inertial orientation in which the initial rotational state is expressed.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[m, 1]]
+             Rotational state comprising the quaternion and body-fixed angular velocity in radians per second.
 
       )doc" );
 

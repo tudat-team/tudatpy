@@ -251,133 +251,67 @@ void expose_data( py::module& m )
     py::class_< tio::CrdPassConfigurationData >( m, "CrdPassConfigurationData", R"doc(
 Container for CRD pass-level metadata.
     )doc" )
-            .def( py::init<>( ), R"doc(Create a CrdPassConfigurationData object with its default field values.)doc" )
-            .def_readwrite( "station_name", &tio::CrdPassConfigurationData::stationName_, R"doc(Station name recorded in the file.)doc" )
-            .def_readwrite( "cdp_pad_id",
-                            &tio::CrdPassConfigurationData::cdpPadId_,
-                            R"doc(Crustal Dynamics Project station monument identifier.)doc" )
-            .def_readwrite( "target_name",
-                            &tio::CrdPassConfigurationData::targetName_,
-                            R"doc(Laser-ranging target name recorded in the pass configuration.)doc" )
-            .def_readwrite( "start_year",
-                            &tio::CrdPassConfigurationData::startYear_,
-                            R"doc(Calendar year at the start of the laser-ranging pass.)doc" )
-            .def_readwrite( "start_month",
-                            &tio::CrdPassConfigurationData::startMonth_,
-                            R"doc(Calendar month at the start of the laser-ranging pass.)doc" )
-            .def_readwrite( "start_day",
-                            &tio::CrdPassConfigurationData::startDay_,
-                            R"doc(Day of the month at the start of the laser-ranging pass.)doc" )
-            .def_readwrite(
-                    "end_year", &tio::CrdPassConfigurationData::endYear_, R"doc(Calendar year at the end of the laser-ranging pass.)doc" )
-            .def_readwrite( "end_month",
-                            &tio::CrdPassConfigurationData::endMonth_,
-                            R"doc(Calendar month at the end of the laser-ranging pass.)doc" )
-            .def_readwrite(
-                    "end_day", &tio::CrdPassConfigurationData::endDay_, R"doc(Day of the month at the end of the laser-ranging pass.)doc" )
-            .def_readwrite( "transmit_wavelength_nm",
-                            &tio::CrdPassConfigurationData::transmitWavelengthNm_,
-                            R"doc(Transmitted laser wavelength, in nanometres.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "station_name", &tio::CrdPassConfigurationData::stationName_ )
+            .def_readwrite( "cdp_pad_id", &tio::CrdPassConfigurationData::cdpPadId_ )
+            .def_readwrite( "target_name", &tio::CrdPassConfigurationData::targetName_ )
+            .def_readwrite( "start_year", &tio::CrdPassConfigurationData::startYear_ )
+            .def_readwrite( "start_month", &tio::CrdPassConfigurationData::startMonth_ )
+            .def_readwrite( "start_day", &tio::CrdPassConfigurationData::startDay_ )
+            .def_readwrite( "end_year", &tio::CrdPassConfigurationData::endYear_ )
+            .def_readwrite( "end_month", &tio::CrdPassConfigurationData::endMonth_ )
+            .def_readwrite( "end_day", &tio::CrdPassConfigurationData::endDay_ )
+            .def_readwrite( "transmit_wavelength_nm", &tio::CrdPassConfigurationData::transmitWavelengthNm_ );
 
     py::class_< tio::CrdNormalPointRecord >( m, "CrdNormalPointRecord", R"doc(
 Container for a CRD normal-point (record ``11``).
     )doc" )
-            .def( py::init<>( ), R"doc(Create a CrdNormalPointRecord object with its default field values.)doc" )
-            .def_readwrite( "second_of_day",
-                            &tio::CrdNormalPointRecord::secondOfDay_,
-                            R"doc(Record epoch as seconds elapsed since the start of the UTC day.)doc" )
-            .def_readwrite( "two_way_time_of_flight",
-                            &tio::CrdNormalPointRecord::twoWayTimeOfFlight_,
-                            R"doc(Measured round-trip light travel time, in seconds.)doc" )
-            .def_readwrite( "one_way_range",
-                            &tio::CrdNormalPointRecord::oneWayRange_,
-                            R"doc(One-way range obtained from half the round-trip light travel distance, in metres.)doc" )
-            .def_readwrite( "system_configuration_id",
-                            &tio::CrdNormalPointRecord::systemConfigurationId_,
-                            R"doc(Identifier of the laser-ranging system configuration associated with the record.)doc" )
-            .def_readwrite( "epoch_event",
-                            &tio::CrdNormalPointRecord::epochEvent_,
-                            R"doc(CRD event identifier specifying the event to which the time tag refers.)doc" )
-            .def_readwrite( "normal_point_window_length",
-                            &tio::CrdNormalPointRecord::normalPointWindowLength_,
-                            R"doc(Duration of the normal-point accumulation window, in seconds.)doc" )
-            .def_readwrite( "number_of_returns",
-                            &tio::CrdNormalPointRecord::numberOfReturns_,
-                            R"doc(Number of laser returns used to form the normal point.)doc" )
-            .def_readwrite( "bin_rms",
-                            &tio::CrdNormalPointRecord::binRms_,
-                            R"doc(Normal-point bin root-mean-square value, retained in the input CRD units.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "second_of_day", &tio::CrdNormalPointRecord::secondOfDay_ )
+            .def_readwrite( "two_way_time_of_flight", &tio::CrdNormalPointRecord::twoWayTimeOfFlight_ )
+            .def_readwrite( "one_way_range", &tio::CrdNormalPointRecord::oneWayRange_ )
+            .def_readwrite( "system_configuration_id", &tio::CrdNormalPointRecord::systemConfigurationId_ )
+            .def_readwrite( "epoch_event", &tio::CrdNormalPointRecord::epochEvent_ )
+            .def_readwrite( "normal_point_window_length", &tio::CrdNormalPointRecord::normalPointWindowLength_ )
+            .def_readwrite( "number_of_returns", &tio::CrdNormalPointRecord::numberOfReturns_ )
+            .def_readwrite( "bin_rms", &tio::CrdNormalPointRecord::binRms_ );
 
     py::class_< tio::CrdFullRateRecord >( m, "CrdFullRateRecord", R"doc(
 Container for a CRD full-rate observation (record ``10``).
     )doc" )
-            .def( py::init<>( ), R"doc(Create a CrdFullRateRecord object with its default field values.)doc" )
-            .def_readwrite( "second_of_day",
-                            &tio::CrdFullRateRecord::secondOfDay_,
-                            R"doc(Record epoch as seconds elapsed since the start of the UTC day.)doc" )
-            .def_readwrite( "two_way_time_of_flight",
-                            &tio::CrdFullRateRecord::twoWayTimeOfFlight_,
-                            R"doc(Measured round-trip light travel time, in seconds.)doc" )
-            .def_readwrite( "one_way_range",
-                            &tio::CrdFullRateRecord::oneWayRange_,
-                            R"doc(One-way range obtained from half the round-trip light travel distance, in metres.)doc" )
-            .def_readwrite( "system_configuration_id",
-                            &tio::CrdFullRateRecord::systemConfigurationId_,
-                            R"doc(Identifier of the laser-ranging system configuration associated with the record.)doc" )
-            .def_readwrite( "epoch_event",
-                            &tio::CrdFullRateRecord::epochEvent_,
-                            R"doc(CRD event identifier specifying the event to which the time tag refers.)doc" )
-            .def_readwrite( "filter_flag",
-                            &tio::CrdFullRateRecord::filterFlag_,
-                            R"doc(CRD filtering flag attached to the full-rate measurement.)doc" )
-            .def_readwrite( "detector_channel",
-                            &tio::CrdFullRateRecord::detectorChannel_,
-                            R"doc(Detector channel identifier for the laser return.)doc" )
-            .def_readwrite( "stop_number",
-                            &tio::CrdFullRateRecord::stopNumber_,
-                            R"doc(CRD stop number associated with the full-rate laser return.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "second_of_day", &tio::CrdFullRateRecord::secondOfDay_ )
+            .def_readwrite( "two_way_time_of_flight", &tio::CrdFullRateRecord::twoWayTimeOfFlight_ )
+            .def_readwrite( "one_way_range", &tio::CrdFullRateRecord::oneWayRange_ )
+            .def_readwrite( "system_configuration_id", &tio::CrdFullRateRecord::systemConfigurationId_ )
+            .def_readwrite( "epoch_event", &tio::CrdFullRateRecord::epochEvent_ )
+            .def_readwrite( "filter_flag", &tio::CrdFullRateRecord::filterFlag_ )
+            .def_readwrite( "detector_channel", &tio::CrdFullRateRecord::detectorChannel_ )
+            .def_readwrite( "stop_number", &tio::CrdFullRateRecord::stopNumber_ );
 
     py::class_< tio::CrdMeteoRecord >( m, "CrdMeteoRecord", R"doc(
 Container for a CRD meteorological record (record ``20``).
     )doc" )
-            .def( py::init<>( ), R"doc(Create a CrdMeteoRecord object with its default field values.)doc" )
-            .def_readwrite( "second_of_day",
-                            &tio::CrdMeteoRecord::secondOfDay_,
-                            R"doc(Record epoch as seconds elapsed since the start of the UTC day.)doc" )
-            .def_readwrite( "pressure",
-                            &tio::CrdMeteoRecord::pressure_,
-                            R"doc(Pressure value retained from the CRD meteorological record, in millibars.)doc" )
-            .def_readwrite( "temperature",
-                            &tio::CrdMeteoRecord::temperature_,
-                            R"doc(Temperature value retained from the CRD meteorological record, in kelvin.)doc" )
-            .def_readwrite( "humidity",
-                            &tio::CrdMeteoRecord::humidity_,
-                            R"doc(Relative humidity retained from the CRD meteorological record, in percent.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "second_of_day", &tio::CrdMeteoRecord::secondOfDay_ )
+            .def_readwrite( "pressure", &tio::CrdMeteoRecord::pressure_ )
+            .def_readwrite( "temperature", &tio::CrdMeteoRecord::temperature_ )
+            .def_readwrite( "humidity", &tio::CrdMeteoRecord::humidity_ );
 
     py::class_< tio::CrdPassData >( m, "CrdPassData", R"doc(
 Container for the measurement and meteorological data of a CRD pass.
     )doc" )
-            .def( py::init<>( ), R"doc(Create a CrdPassData object with its default field values.)doc" )
-            .def_readwrite( "full_rate_data",
-                            &tio::CrdPassData::fullRateData_,
-                            R"doc(List of individual full-rate laser-ranging records in the pass.)doc" )
-            .def_readwrite( "normal_point_data",
-                            &tio::CrdPassData::normalPointData_,
-                            R"doc(List of normal-point laser-ranging records in the pass.)doc" )
-            .def_readwrite( "meteorological_data",
-                            &tio::CrdPassData::meteorologicalData_,
-                            R"doc(List of meteorological records associated with the pass.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "full_rate_data", &tio::CrdPassData::fullRateData_ )
+            .def_readwrite( "normal_point_data", &tio::CrdPassData::normalPointData_ )
+            .def_readwrite( "meteorological_data", &tio::CrdPassData::meteorologicalData_ );
 
     py::class_< tio::CrdPass >( m, "CrdPass", R"doc(
 Container for a CRD pass, including configuration and data records.
     )doc" )
-            .def( py::init<>( ), R"doc(Create a CrdPass object with its default field values.)doc" )
-            .def_readwrite( "configuration",
-                            &tio::CrdPass::configuration_,
-                            R"doc(Station, target and instrument configuration for the laser-ranging pass.)doc" )
-            .def_readwrite( "data",
-                            &tio::CrdPass::data_,
-                            R"doc(Full-rate, normal-point and meteorological records for the laser-ranging pass.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "configuration", &tio::CrdPass::configuration_ )
+            .def_readwrite( "data", &tio::CrdPass::data_ );
 
     m.def( "convert_crd_two_way_time_of_flight_to_slr_range",
            &tio::convertCrdTwoWayTimeOfFlightToSlrRange,
@@ -453,52 +387,34 @@ Extract station transmit wavelengths from grouped CRD pass data.
     py::class_< tio::SinexStationState >( m, "SinexStationState", R"doc(
 Container for station state data parsed from a SINEX file.
     )doc" )
-            .def( py::init<>( ), R"doc(Create a SinexStationState object with its default field values.)doc" )
-            .def_readwrite(
-                    "site_code", &tio::SinexStationState::siteCode_, R"doc(Four-character station site code from the SINEX file.)doc" )
-            .def_readwrite( "domes_id", &tio::SinexStationState::domesId_, R"doc(DOMES monument identifier for the station.)doc" )
-            .def_readwrite( "position", &tio::SinexStationState::position_, R"doc(Station Cartesian position from SINEX, in metres.)doc" )
-            .def_readwrite(
-                    "velocity", &tio::SinexStationState::velocity_, R"doc(Station Cartesian velocity converted to metres per second.)doc" )
-            .def_readwrite( "reference_epoch",
-                            &tio::SinexStationState::referenceEpoch_,
-                            R"doc(Epoch of the station state, in seconds since J2000.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "site_code", &tio::SinexStationState::siteCode_ )
+            .def_readwrite( "domes_id", &tio::SinexStationState::domesId_ )
+            .def_readwrite( "position", &tio::SinexStationState::position_ )
+            .def_readwrite( "velocity", &tio::SinexStationState::velocity_ )
+            .def_readwrite( "reference_epoch", &tio::SinexStationState::referenceEpoch_ );
 
     py::class_< tio::SinexStationEccentricity >( m, "SinexStationEccentricity", R"doc(
 Container for SINEX station eccentricity data.
     )doc" )
-            .def( py::init<>( ), R"doc(Create a SinexStationEccentricity object with its default field values.)doc" )
-            .def_readwrite( "domes_id", &tio::SinexStationEccentricity::domesId_, R"doc(DOMES monument identifier for the station.)doc" )
-            .def_readwrite( "station_code", &tio::SinexStationEccentricity::stationCode_, R"doc(Numeric ILRS station identifier.)doc" )
-            .def_readwrite( "eccentricity",
-                            &tio::SinexStationEccentricity::eccentricity_,
-                            R"doc(Station eccentricity vector in metres, expressed in Cartesian coordinates.)doc" )
-            .def_readwrite( "start_epoch",
-                            &tio::SinexStationEccentricity::startEpoch_,
-                            R"doc(Start of the eccentricity validity interval, in seconds since J2000.)doc" )
-            .def_readwrite( "end_epoch",
-                            &tio::SinexStationEccentricity::endEpoch_,
-                            R"doc(End of the eccentricity validity interval, in seconds since J2000.)doc" )
-            .def_readwrite( "has_open_end",
-                            &tio::SinexStationEccentricity::hasOpenEnd_,
-                            R"doc(Whether the eccentricity record has no specified end of validity.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "domes_id", &tio::SinexStationEccentricity::domesId_ )
+            .def_readwrite( "station_code", &tio::SinexStationEccentricity::stationCode_ )
+            .def_readwrite( "eccentricity", &tio::SinexStationEccentricity::eccentricity_ )
+            .def_readwrite( "start_epoch", &tio::SinexStationEccentricity::startEpoch_ )
+            .def_readwrite( "end_epoch", &tio::SinexStationEccentricity::endEpoch_ )
+            .def_readwrite( "has_open_end", &tio::SinexStationEccentricity::hasOpenEnd_ );
 
     py::class_< tio::IlrsStationRegistryEntry >( m, "IlrsStationRegistryEntry", R"doc(
 Container for one ILRS station registry entry parsed from SINEX ``SITE/ID``.
     )doc" )
-            .def( py::init<>( ), R"doc(Create a IlrsStationRegistryEntry object with its default field values.)doc" )
-            .def_readwrite( "station_code", &tio::IlrsStationRegistryEntry::stationCode_, R"doc(Numeric ILRS station identifier.)doc" )
-            .def_readwrite( "station_name", &tio::IlrsStationRegistryEntry::stationName_, R"doc(Station name recorded in the file.)doc" )
-            .def_readwrite( "domes_id", &tio::IlrsStationRegistryEntry::domesId_, R"doc(DOMES monument identifier for the station.)doc" )
-            .def_readwrite( "approximate_longitude",
-                            &tio::IlrsStationRegistryEntry::approximateLongitude_,
-                            R"doc(Approximate station longitude as recorded in the ILRS registry, in degrees.)doc" )
-            .def_readwrite( "approximate_latitude",
-                            &tio::IlrsStationRegistryEntry::approximateLatitude_,
-                            R"doc(Approximate station latitude as recorded in the ILRS registry, in degrees.)doc" )
-            .def_readwrite( "approximate_height",
-                            &tio::IlrsStationRegistryEntry::approximateHeight_,
-                            R"doc(Approximate station height as recorded in the ILRS registry, in metres.)doc" );
+            .def( py::init<>( ) )
+            .def_readwrite( "station_code", &tio::IlrsStationRegistryEntry::stationCode_ )
+            .def_readwrite( "station_name", &tio::IlrsStationRegistryEntry::stationName_ )
+            .def_readwrite( "domes_id", &tio::IlrsStationRegistryEntry::domesId_ )
+            .def_readwrite( "approximate_longitude", &tio::IlrsStationRegistryEntry::approximateLongitude_ )
+            .def_readwrite( "approximate_latitude", &tio::IlrsStationRegistryEntry::approximateLatitude_ )
+            .def_readwrite( "approximate_height", &tio::IlrsStationRegistryEntry::approximateHeight_ );
 
     m.def( "convert_sinex_datetime_to_seconds_since_epoch",
            &tio::convertSinexDateTimeToSecondsSinceEpoch,
@@ -552,143 +468,102 @@ Read a mapping from monument/station code to station name.
 Read a mapping from DOMES id to station name.
            )doc" );
 
-    py::enum_< tudat::input_output::TrackingDataType >(
-            m, "TrackingDataType", R"doc(Identifiers for measurement columns and metadata in generic tracking text files.)doc" )
-            .value( "year", tudat::input_output::TrackingDataType::year, R"doc(Calendar year of the observation epoch.)doc" )
-            .value( "month", tudat::input_output::TrackingDataType::month, R"doc(Calendar month of the observation epoch.)doc" )
-            .value( "day", tudat::input_output::TrackingDataType::day, R"doc(Day of the month of the observation epoch.)doc" )
-            .value( "hour", tudat::input_output::TrackingDataType::hour, R"doc(Hour of the observation epoch.)doc" )
-            .value( "minute", tudat::input_output::TrackingDataType::minute, R"doc(Minute of the observation epoch.)doc" )
-            .value( "second", tudat::input_output::TrackingDataType::second, R"doc(Seconds component of the observation epoch.)doc" )
+    py::enum_< tudat::input_output::TrackingDataType >( m, "TrackingDataType", R"doc(No documentation available.)doc" )
+            .value( "year", tudat::input_output::TrackingDataType::year, R"doc(No documentation available.)doc" )
+            .value( "month", tudat::input_output::TrackingDataType::month, R"doc(No documentation available.)doc" )
+            .value( "day", tudat::input_output::TrackingDataType::day, R"doc(No documentation available.)doc" )
+            .value( "hour", tudat::input_output::TrackingDataType::hour, R"doc(No documentation available.)doc" )
+            .value( "minute", tudat::input_output::TrackingDataType::minute, R"doc(No documentation available.)doc" )
+            .value( "second", tudat::input_output::TrackingDataType::second, R"doc(No documentation available.)doc" )
             .value( "observation_time_scale",
                     tudat::input_output::TrackingDataType::observation_time_scale,
-                    R"doc(Time scale associated with the observation time tags.)doc" )
-            .value( "file_name", tudat::input_output::TrackingDataType::file_name, R"doc(Name of the source tracking data file.)doc" )
-            .value( "n_way_light_time",
-                    tudat::input_output::TrackingDataType::n_way_light_time,
-                    R"doc(Measured light travel time along the complete observation link.)doc" )
+                    R"doc(No documentation available.)doc" )
+            .value( "file_name", tudat::input_output::TrackingDataType::file_name, R"doc(No documentation available.)doc" )
+            .value( "n_way_light_time", tudat::input_output::TrackingDataType::n_way_light_time, R"doc(No documentation available.)doc" )
             .value( "light_time_measurement_delay",
                     tudat::input_output::TrackingDataType::light_time_measurement_delay,
-                    R"doc(Delay to apply to a light-time measurement.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "light_time_measurement_accuracy",
                     tudat::input_output::TrackingDataType::light_time_measurement_accuracy,
-                    R"doc(Accuracy associated with a light-time measurement.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "dsn_transmitting_station_nr",
                     tudat::input_output::TrackingDataType::dsn_transmitting_station_nr,
-                    R"doc(DSN transmitting station number.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "dsn_receiving_station_nr",
                     tudat::input_output::TrackingDataType::dsn_receiving_station_nr,
-                    R"doc(DSN receiving station number.)doc" )
-            .value( "observation_body",
-                    tudat::input_output::TrackingDataType::observation_body,
-                    R"doc(Body associated with the observing link end.)doc" )
-            .value( "observed_body",
-                    tudat::input_output::TrackingDataType::observed_body,
-                    R"doc(Body associated with the target link end.)doc" )
-            .value( "spacecraft_id", tudat::input_output::TrackingDataType::spacecraft_id, R"doc(Spacecraft numeric identifier.)doc" )
-            .value( "spacecraft_name", tudat::input_output::TrackingDataType::spacecraft_name, R"doc(Spacecraft body name.)doc" )
-            .value( "planet_nr", tudat::input_output::TrackingDataType::planet_nr, R"doc(Planet numeric identifier.)doc" )
+                    R"doc(No documentation available.)doc" )
+            .value( "observation_body", tudat::input_output::TrackingDataType::observation_body, R"doc(No documentation available.)doc" )
+            .value( "observed_body", tudat::input_output::TrackingDataType::observed_body, R"doc(No documentation available.)doc" )
+            .value( "spacecraft_id", tudat::input_output::TrackingDataType::spacecraft_id, R"doc(No documentation available.)doc" )
+            .value( "spacecraft_name", tudat::input_output::TrackingDataType::spacecraft_name, R"doc(No documentation available.)doc" )
+            .value( "planet_nr", tudat::input_output::TrackingDataType::planet_nr, R"doc(No documentation available.)doc" )
             .value( "tdb_reception_time_j2000",
                     tudat::input_output::TrackingDataType::tdb_reception_time_j2000,
-                    R"doc(Reception epoch in TDB seconds since J2000.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "utc_reception_time_j2000",
                     tudat::input_output::TrackingDataType::utc_reception_time_j2000,
-                    R"doc(Reception epoch in UTC seconds since J2000.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "utc_ramp_referencee_j2000",
                     tudat::input_output::TrackingDataType::utc_ramp_referencee_j2000,
-                    R"doc(Frequency ramp reference epoch in UTC seconds since J2000.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "tdb_spacecraft_j2000",
                     tudat::input_output::TrackingDataType::tdb_spacecraft_j2000,
-                    R"doc(Spacecraft epoch in TDB seconds since J2000.)doc" )
-            .value( "x_planet_frame",
-                    tudat::input_output::TrackingDataType::x_planet_frame,
-                    R"doc(X position component in the planet frame.)doc" )
-            .value( "y_planet_frame",
-                    tudat::input_output::TrackingDataType::y_planet_frame,
-                    R"doc(Y position component in the planet frame.)doc" )
-            .value( "z_planet_frame",
-                    tudat::input_output::TrackingDataType::z_planet_frame,
-                    R"doc(Z position component in the planet frame.)doc" )
-            .value( "vx_planet_frame",
-                    tudat::input_output::TrackingDataType::vx_planet_frame,
-                    R"doc(X velocity component in the planet frame.)doc" )
-            .value( "vy_planet_frame",
-                    tudat::input_output::TrackingDataType::vy_planet_frame,
-                    R"doc(Y velocity component in the planet frame.)doc" )
-            .value( "vz_planet_frame",
-                    tudat::input_output::TrackingDataType::vz_planet_frame,
-                    R"doc(Z velocity component in the planet frame.)doc" )
-            .value( "residual_de405",
-                    tudat::input_output::TrackingDataType::residual_de405,
-                    R"doc(Observation residual relative to the DE405 ephemeris.)doc" )
+                    R"doc(No documentation available.)doc" )
+            .value( "x_planet_frame", tudat::input_output::TrackingDataType::x_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "y_planet_frame", tudat::input_output::TrackingDataType::y_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "z_planet_frame", tudat::input_output::TrackingDataType::z_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "vx_planet_frame", tudat::input_output::TrackingDataType::vx_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "vy_planet_frame", tudat::input_output::TrackingDataType::vy_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "vz_planet_frame", tudat::input_output::TrackingDataType::vz_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "residual_de405", tudat::input_output::TrackingDataType::residual_de405, R"doc(No documentation available.)doc" )
             .value( "spacecraft_transponder_delay",
                     tudat::input_output::TrackingDataType::spacecraft_transponder_delay,
-                    R"doc(Signal retransmission delay at the spacecraft.)doc" )
-            .value( "uplink_frequency", tudat::input_output::TrackingDataType::uplink_frequency, R"doc(Radio uplink frequency.)doc" )
-            .value( "downlink_frequency", tudat::input_output::TrackingDataType::downlink_frequency, R"doc(Radio downlink frequency.)doc" )
-            .value( "signal_to_noise",
-                    tudat::input_output::TrackingDataType::signal_to_noise,
-                    R"doc(Signal-to-noise ratio of the measurement.)doc" )
-            .value( "spectral_max",
-                    tudat::input_output::TrackingDataType::spectral_max,
-                    R"doc(Maximum of the measured signal spectrum.)doc" )
+                    R"doc(No documentation available.)doc" )
+            .value( "uplink_frequency", tudat::input_output::TrackingDataType::uplink_frequency, R"doc(No documentation available.)doc" )
+            .value( "downlink_frequency",
+                    tudat::input_output::TrackingDataType::downlink_frequency,
+                    R"doc(No documentation available.)doc" )
+            .value( "signal_to_noise", tudat::input_output::TrackingDataType::signal_to_noise, R"doc(No documentation available.)doc" )
+            .value( "spectral_max", tudat::input_output::TrackingDataType::spectral_max, R"doc(No documentation available.)doc" )
             .value( "doppler_measured_frequency",
                     tudat::input_output::TrackingDataType::doppler_measured_frequency,
-                    R"doc(Measured Doppler frequency.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "doppler_averaged_frequency",
                     tudat::input_output::TrackingDataType::doppler_averaged_frequency,
-                    R"doc(Doppler frequency averaged over the integration interval.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "doppler_integration_time",
                     tudat::input_output::TrackingDataType::doppler_integration_time,
-                    R"doc(Duration of the Doppler integration interval.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "doppler_base_frequency",
                     tudat::input_output::TrackingDataType::doppler_base_frequency,
-                    R"doc(Base frequency used in the Doppler measurement.)doc" )
-            .value( "doppler_noise",
-                    tudat::input_output::TrackingDataType::doppler_noise,
-                    R"doc(Noise estimate associated with the Doppler measurement.)doc" )
-            .value( "doppler_bandwidth",
-                    tudat::input_output::TrackingDataType::doppler_bandwidth,
-                    R"doc(Bandwidth associated with the Doppler measurement.)doc" )
+                    R"doc(No documentation available.)doc" )
+            .value( "doppler_noise", tudat::input_output::TrackingDataType::doppler_noise, R"doc(No documentation available.)doc" )
+            .value( "doppler_bandwidth", tudat::input_output::TrackingDataType::doppler_bandwidth, R"doc(No documentation available.)doc" )
             .value( "receiving_station_name",
                     tudat::input_output::TrackingDataType::receiving_station_name,
-                    R"doc(Name of the receiving station.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "transmitting_station_name",
                     tudat::input_output::TrackingDataType::transmitting_station_name,
-                    R"doc(Name of the transmitting station.)doc" )
-            .value( "time_tag_delay",
-                    tudat::input_output::TrackingDataType::time_tag_delay,
-                    R"doc(Delay associated with the recorded time tag.)doc" )
-            .value( "sample_number", tudat::input_output::TrackingDataType::sample_number, R"doc(Measurement sample number.)doc" )
-            .value( "utc_day_of_year",
-                    tudat::input_output::TrackingDataType::utc_day_of_year,
-                    R"doc(UTC day-of-year component of the observation epoch.)doc" )
-            .value( "reference_body_distance",
-                    tudat::input_output::TrackingDataType::reference_body_distance,
-                    R"doc(Distance to the reference body.)doc" )
-            .value( "transmission_frequency_constant_term",
-                    tudat::input_output::TrackingDataType::transmission_frequency_constant_term,
-                    R"doc(Constant term in the transmitted frequency model.)doc" )
-            .value( "transmission_frequency_linear_term",
-                    tudat::input_output::TrackingDataType::transmission_frequency_linear_term,
-                    R"doc(Linear term in the transmitted frequency model.)doc" )
-            .value( "doppler_predicted_frequency_hz",
-                    tudat::input_output::TrackingDataType::doppler_predicted_frequency_hz,
-                    R"doc(Predicted Doppler frequency in hertz.)doc" )
-            .value( "doppler_troposphere_correction",
-                    tudat::input_output::TrackingDataType::doppler_troposphere_correction,
-                    R"doc(Tropospheric correction supplied with the Doppler measurement.)doc" )
-            .value( "scan_nr", tudat::input_output::TrackingDataType::scan_nr, R"doc(Tracking scan number.)doc" )
+                    R"doc(No documentation available.)doc" )
+            .value( "time_tag_delay", tudat::input_output::TrackingDataType::time_tag_delay )
+            .value( "sample_number", tudat::input_output::TrackingDataType::sample_number )
+            .value( "utc_day_of_year", tudat::input_output::TrackingDataType::utc_day_of_year )
+            .value( "reference_body_distance", tudat::input_output::TrackingDataType::reference_body_distance )
+            .value( "transmission_frequency_constant_term", tudat::input_output::TrackingDataType::transmission_frequency_constant_term )
+            .value( "transmission_frequency_linear_term", tudat::input_output::TrackingDataType::transmission_frequency_linear_term )
+            .value( "doppler_predicted_frequency_hz", tudat::input_output::TrackingDataType::doppler_predicted_frequency_hz )
+            .value( "doppler_troposphere_correction", tudat::input_output::TrackingDataType::doppler_troposphere_correction )
+            .value( "scan_nr", tudat::input_output::TrackingDataType::scan_nr )
             .export_values( );
 
     py::enum_< tudat::input_output::TrackingTxtFileReadFilterType >(
-            m, "TrackingTxtFileReadFilterType", R"doc(Filters applied to tracking text file records while reading a file.)doc" )
+            m, "TrackingTxtFileReadFilterType", R"doc(No documentation available.)doc" )
             .value( "no_tracking_txt_file_filter",
                     tudat::input_output::TrackingTxtFileReadFilterType::no_tracking_txt_file_filter,
-                    R"doc(Read tracking text records without applying a measurement filter.)doc" )
+                    R"doc(No documentation available.)doc" )
             .value( "ifms_tracking_txt_file_filter",
                     tudat::input_output::TrackingTxtFileReadFilterType::ifms_tracking_txt_file_filter,
-                    R"doc(Apply the IFMS validity filter when reading tracking text records.)doc" )
+                    R"doc(No documentation available.)doc" )
             .export_values( );
 
     py::enum_< tudat::input_output::FdetDateFormat >( m, "FdetDateFormat", R"doc(Date format used in an Fdets file.)doc" )
@@ -701,16 +576,8 @@ Read a mapping from DOMES id to station name.
             .export_values( );
 
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
-            m, "SolarActivityData", R"doc(Daily solar radio flux and geomagnetic activity values read from a solar activity file.)doc" )
-            .def_readonly( "solar_radio_flux_107_observed",
-                           &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed,
-                           R"doc(
-
-         **read-only**
-
-         Observed solar radio flux at 10.7 cm, in solar flux units.
-
-      )doc" );
+            m, "SolarActivityData", R"doc(No documentation available.)doc" )
+            .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
 
     // py::class_<std::map<
     //     double,
@@ -730,13 +597,10 @@ Read a mapping from DOMES id to station name.
  )doc" );
 
     py::class_< tio::solar_activity::SolarActivityContainer, std::shared_ptr< tio::solar_activity::SolarActivityContainer > >(
-            m,
-            "SolarActivityContainer",
-            R"doc(Solar activity records indexed by epoch, for evaluating atmospheric solar and geomagnetic inputs.)doc" )
+            m, "SolarActivityContainer" )
 
             .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >& >( ),
-                  py::arg( "solar_activity_data_map" ),
-                  R"doc(Store the supplied solar activity records, indexed by their epochs.)doc" )
+                  py::arg( "solar_activity_data_map" ) )
 
             .def( "get_solar_activity_data",
                   &tio::solar_activity::SolarActivityContainer::getSolarActivityData,
@@ -750,51 +614,31 @@ Read a mapping from DOMES id to station name.
                   R"doc(Returns the full map of SolarActivityData.)doc" );
 
     py::enum_< tio::OdfDataType >( m, "OdfDataType", R"doc(Possible data types in orbit section of ODF file)doc" )
-            .value( "narrowband_spacecraft_vlbi_doppler_mode",
-                    tio::OdfDataType::narrowband_spacecraft_vlbi_doppler_mode,
-                    R"doc(Narrowband spacecraft vlbi doppler mode ODF observation data type.)doc" )
-            .value( "narrowband_spacecraft_vlbi_phase_mode",
-                    tio::OdfDataType::narrowband_spacecraft_vlbi_phase_mode,
-                    R"doc(Narrowband spacecraft vlbi phase mode ODF observation data type.)doc" )
-            .value( "narrowband_quasar_vlbi_doppler_mode",
-                    tio::OdfDataType::narrowband_quasar_vlbi_doppler_mode,
-                    R"doc(Narrowband quasar vlbi doppler mode ODF observation data type.)doc" )
-            .value( "narrowband_quasar_vlbi_phase_mode",
-                    tio::OdfDataType::narrowband_quasar_vlbi_phase_mode,
-                    R"doc(Narrowband quasar vlbi phase mode ODF observation data type.)doc" )
-            .value( "wideband_spacecraft_vlbi",
-                    tio::OdfDataType::wideband_spacecraft_vlbi,
-                    R"doc(Wideband spacecraft vlbi ODF observation data type.)doc" )
-            .value( "wideband_quasar_vlbi",
-                    tio::OdfDataType::wideband_quasar_vlbi,
-                    R"doc(Wideband quasar vlbi ODF observation data type.)doc" )
-            .value( "one_way_doppler", tio::OdfDataType::one_way_doppler, R"doc(One way doppler ODF observation data type.)doc" )
-            .value( "two_way_doppler", tio::OdfDataType::two_way_doppler, R"doc(Two way doppler ODF observation data type.)doc" )
-            .value( "three_way_doppler", tio::OdfDataType::three_way_doppler, R"doc(Three way doppler ODF observation data type.)doc" )
-            .value( "one_way_total_count_phase",
-                    tio::OdfDataType::one_way_total_count_phase,
-                    R"doc(One way total count phase ODF observation data type.)doc" )
-            .value( "two_way_total_count_phase",
-                    tio::OdfDataType::two_way_total_count_phase,
-                    R"doc(Two way total count phase ODF observation data type.)doc" )
-            .value( "three_way_total_count_phase",
-                    tio::OdfDataType::three_way_total_count_phase,
-                    R"doc(Three way total count phase ODF observation data type.)doc" )
+            .value( "narrowband_spacecraft_vlbi_doppler_mode", tio::OdfDataType::narrowband_spacecraft_vlbi_doppler_mode )
+            .value( "narrowband_spacecraft_vlbi_phase_mode", tio::OdfDataType::narrowband_spacecraft_vlbi_phase_mode )
+            .value( "narrowband_quasar_vlbi_doppler_mode", tio::OdfDataType::narrowband_quasar_vlbi_doppler_mode )
+            .value( "narrowband_quasar_vlbi_phase_mode", tio::OdfDataType::narrowband_quasar_vlbi_phase_mode )
+            .value( "wideband_spacecraft_vlbi", tio::OdfDataType::wideband_spacecraft_vlbi )
+            .value( "wideband_quasar_vlbi", tio::OdfDataType::wideband_quasar_vlbi )
+            .value( "one_way_doppler", tio::OdfDataType::one_way_doppler )
+            .value( "two_way_doppler", tio::OdfDataType::two_way_doppler )
+            .value( "three_way_doppler", tio::OdfDataType::three_way_doppler )
+            .value( "one_way_total_count_phase", tio::OdfDataType::one_way_total_count_phase )
+            .value( "two_way_total_count_phase", tio::OdfDataType::two_way_total_count_phase )
+            .value( "three_way_total_count_phase", tio::OdfDataType::three_way_total_count_phase )
             .value( "pra_planetary_operational_discrete_spectrum_range",
-                    tio::OdfDataType::pra_planetary_operational_discrete_spectrum_range,
-                    R"doc(Pra planetary operational discrete spectrum range ODF observation data type.)doc" )
+                    tio::OdfDataType::pra_planetary_operational_discrete_spectrum_range )
             .value( "sra_planetary_operational_discrete_spectrum_range",
-                    tio::OdfDataType::sra_planetary_operational_discrete_spectrum_range,
-                    R"doc(Sra planetary operational discrete spectrum range ODF observation data type.)doc" )
-            .value( "re_range", tio::OdfDataType::re_range, R"doc(Re range ODF observation data type.)doc" )
-            .value( "azimuth_angle", tio::OdfDataType::azimuth_angle, R"doc(Azimuth angle ODF observation data type.)doc" )
-            .value( "elevation_angle", tio::OdfDataType::elevation_angle, R"doc(Elevation angle ODF observation data type.)doc" )
-            .value( "hour_angle", tio::OdfDataType::hour_angle, R"doc(Hour angle ODF observation data type.)doc" )
-            .value( "declination_angle", tio::OdfDataType::declination_angle, R"doc(Declination angle ODF observation data type.)doc" )
-            .value( "x_angle_east", tio::OdfDataType::x_angle_east, R"doc(X angle east ODF observation data type.)doc" )
-            .value( "y_angle_east", tio::OdfDataType::y_angle_east, R"doc(Y angle east ODF observation data type.)doc" )
-            .value( "x_angle_south", tio::OdfDataType::x_angle_south, R"doc(X angle south ODF observation data type.)doc" )
-            .value( "y_angle_south", tio::OdfDataType::y_angle_south, R"doc(Y angle south ODF observation data type.)doc" );
+                    tio::OdfDataType::sra_planetary_operational_discrete_spectrum_range )
+            .value( "re_range", tio::OdfDataType::re_range )
+            .value( "azimuth_angle", tio::OdfDataType::azimuth_angle )
+            .value( "elevation_angle", tio::OdfDataType::elevation_angle )
+            .value( "hour_angle", tio::OdfDataType::hour_angle )
+            .value( "declination_angle", tio::OdfDataType::declination_angle )
+            .value( "x_angle_east", tio::OdfDataType::x_angle_east )
+            .value( "y_angle_east", tio::OdfDataType::y_angle_east )
+            .value( "x_angle_south", tio::OdfDataType::x_angle_south )
+            .value( "y_angle_south", tio::OdfDataType::y_angle_south );
 
     py::class_< tio::OdfCommonDataBlock, std::shared_ptr< tio::OdfCommonDataBlock > >(
             m, "OdfCommonDataBlock", R"doc(Base class observable-independent ODF data containers
@@ -807,114 +651,18 @@ Read a mapping from DOMES id to station name.
         part of an ODF data block. The different classes inheriting from OdfDataSpecificBlock
         provide interfaces to the observable-specific part of the blocks.
         )doc" )
-            .def_property_readonly( "observable_time",
-                                    &tio::OdfCommonDataBlock::getObservableTime,
-                                    R"doc(
-
-         **read-only**
-
-         Observable epoch as a Time object in UTC seconds since the ODF header reference time.
-
-      )doc" )
-            .def_property_readonly( "observable_value",
-                                    &tio::OdfCommonDataBlock::getObservableValue,
-                                    R"doc(
-
-         **read-only**
-
-         Decoded observable value in the units associated with its ODF data type.
-
-      )doc" )
-            .def_property_readonly( "receiving_station_downlink_delay",
-                                    &tio::OdfCommonDataBlock::getReceivingStationDownlinkDelay,
-                                    R"doc(
-
-         **read-only**
-
-         Receiving station downlink delay, in seconds.
-
-      )doc" )
-            .def_readonly( "format_id",
-                           &tio::OdfCommonDataBlock::formatId_,
-                           R"doc(
-
-         **read-only**
-
-         Format identifier stored in the common ODF data block.
-
-      )doc" )
-            .def_readonly( "receiving_station_id",
-                           &tio::OdfCommonDataBlock::receivingStationId_,
-                           R"doc(
-
-         **read-only**
-
-         Numeric receiving station identifier from the ODF.
-
-      )doc" )
-            .def_readonly( "transmitting_station_id",
-                           &tio::OdfCommonDataBlock::transmittingStationId_,
-                           R"doc(
-
-         **read-only**
-
-         Numeric transmitting station identifier from the ODF.
-
-      )doc" )
-            .def_readonly( "transmitting_station_network_id",
-                           &tio::OdfCommonDataBlock::transmittingStationNetworkId_,
-                           R"doc(
-
-         **read-only**
-
-         Network identifier of the transmitting station.
-
-      )doc" )
-            .def_readonly( "data_type",
-                           &tio::OdfCommonDataBlock::dataType_,
-                           R"doc(
-
-         **read-only**
-
-         ODF data type identifier for the observable represented by this block.
-
-      )doc" )
-            .def_readonly( "downlink_band_id",
-                           &tio::OdfCommonDataBlock::downlinkBandId_,
-                           R"doc(
-
-         **read-only**
-
-         Downlink frequency band identifier stored in the ODF.
-
-      )doc" )
-            .def_readonly( "uplink_band_id",
-                           &tio::OdfCommonDataBlock::uplinkBandId_,
-                           R"doc(
-
-         **read-only**
-
-         Uplink frequency band identifier stored in the ODF.
-
-      )doc" )
-            .def_readonly( "reference_band_id",
-                           &tio::OdfCommonDataBlock::referenceBandId_,
-                           R"doc(
-
-         **read-only**
-
-         Reference frequency band identifier stored in the ODF.
-
-      )doc" )
-            .def_readonly( "is_invalid",
-                           &tio::OdfCommonDataBlock::validity_,
-                           R"doc(
-
-         **read-only**
-
-         Integer ODF validity flag indicating an invalid observation.
-
-      )doc" )
+            .def_property_readonly( "observable_time", &tio::OdfCommonDataBlock::getObservableTime )
+            .def_property_readonly( "observable_value", &tio::OdfCommonDataBlock::getObservableValue )
+            .def_property_readonly( "receiving_station_downlink_delay", &tio::OdfCommonDataBlock::getReceivingStationDownlinkDelay )
+            .def_readonly( "format_id", &tio::OdfCommonDataBlock::formatId_ )
+            .def_readonly( "receiving_station_id", &tio::OdfCommonDataBlock::receivingStationId_ )
+            .def_readonly( "transmitting_station_id", &tio::OdfCommonDataBlock::transmittingStationId_ )
+            .def_readonly( "transmitting_station_network_id", &tio::OdfCommonDataBlock::transmittingStationNetworkId_ )
+            .def_readonly( "data_type", &tio::OdfCommonDataBlock::dataType_ )
+            .def_readonly( "downlink_band_id", &tio::OdfCommonDataBlock::downlinkBandId_ )
+            .def_readonly( "uplink_band_id", &tio::OdfCommonDataBlock::uplinkBandId_ )
+            .def_readonly( "reference_band_id", &tio::OdfCommonDataBlock::referenceBandId_ )
+            .def_readonly( "is_invalid", &tio::OdfCommonDataBlock::validity_ )
             .def(
                     "print_data_block",
                     []( tio::OdfCommonDataBlock& block, const std::string& output_file ) {
@@ -946,81 +694,17 @@ Read a mapping from DOMES id to station name.
 
     py::class_< tio::OdfDopplerDataBlock, std::shared_ptr< tio::OdfDopplerDataBlock >, tio::OdfDataSpecificBlock >(
             m, "OdfDopplerDataBlock", R"doc(Container for ODF Doppler-specific data)doc" )
-            .def_property_readonly( "receiver_channel",
-                                    &tio::OdfDopplerDataBlock::getReceiverChannel,
-                                    R"doc(
-
-         **read-only**
-
-         Receiver channel identifier associated with the Doppler observation.
-
-      )doc" )
-            .def_property_readonly( "spacecraft_id",
-                                    &tio::OdfDopplerDataBlock::getSpacecraftId,
-                                    R"doc(
-
-         **read-only**
-
-         Spacecraft identifier stored in the Doppler block.
-
-      )doc" )
-            .def_property_readonly( "receiver_exciter_flag",
-                                    &tio::OdfDopplerDataBlock::getReceiverExciterFlag,
-                                    R"doc(
-
-         **read-only**
-
-         Receiver/exciter flag stored in the Doppler block.
-
-      )doc" )
-            .def_property_readonly( "reference_frequency",
-                                    &tio::OdfDopplerDataBlock::getReferenceFrequency,
-                                    R"doc(
-
-         **read-only**
-
-         Reference frequency for the Doppler observable, in hertz.
-
-      )doc" )
-            .def_property_readonly( "compression_time",
-                                    &tio::OdfDopplerDataBlock::getCompressionTime,
-                                    R"doc(
-
-         **read-only**
-
-         Doppler integration or compression interval, in seconds.
-
-      )doc" )
-            .def_property_readonly( "transmitting_station_uplink_delay",
-                                    &tio::OdfDopplerDataBlock::getTransmittingStationUplinkDelay,
-                                    R"doc(
-
-         **read-only**
-
-         Transmitting station uplink delay, in seconds.
-
-      )doc" );
+            .def_property_readonly( "receiver_channel", &tio::OdfDopplerDataBlock::getReceiverChannel )
+            .def_property_readonly( "spacecraft_id", &tio::OdfDopplerDataBlock::getSpacecraftId )
+            .def_property_readonly( "receiver_exciter_flag", &tio::OdfDopplerDataBlock::getReceiverExciterFlag )
+            .def_property_readonly( "reference_frequency", &tio::OdfDopplerDataBlock::getReferenceFrequency )
+            .def_property_readonly( "compression_time", &tio::OdfDopplerDataBlock::getCompressionTime )
+            .def_property_readonly( "transmitting_station_uplink_delay", &tio::OdfDopplerDataBlock::getTransmittingStationUplinkDelay );
 
     py::class_< tio::OdfDataBlock, std::shared_ptr< tio::OdfDataBlock > >(
             m, "OdfDataBlock", R"doc(Contents of a line of the data section of an ODF)doc" )
-            .def_property_readonly( "observable_specific_data_block",
-                                    &tio::OdfDataBlock::getObservableSpecificDataBlock,
-                                    R"doc(
-
-         **read-only**
-
-         Observable-specific portion of the ODF data record.
-
-      )doc" )
-            .def_property_readonly( "common_data_block",
-                                    &tio::OdfDataBlock::getCommonDataBlock,
-                                    R"doc(
-
-         **read-only**
-
-         Common time tag, observable and link metadata for the ODF data record.
-
-      )doc" )
+            .def_property_readonly( "observable_specific_data_block", &tio::OdfDataBlock::getObservableSpecificDataBlock )
+            .def_property_readonly( "common_data_block", &tio::OdfDataBlock::getCommonDataBlock )
             .def(
                     "print_data_block",
                     []( tio::OdfDataBlock& block, const std::string& output_file ) {
@@ -1040,142 +724,30 @@ Read a mapping from DOMES id to station name.
 
     py::class_< tio::OdfRampBlock, std::shared_ptr< tio::OdfRampBlock > >(
             m, "OdfRampBlock", R"doc(Contents of a line of the ramp section of an ODF)doc" )
-            .def_property_readonly( "ramp_start_frequency",
-                                    &tio::OdfRampBlock::getRampStartFrequency,
-                                    R"doc(
+            .def_property_readonly( "ramp_start_frequency", &tio::OdfRampBlock::getRampStartFrequency )
+            .def_property_readonly( "ramp_rate", &tio::OdfRampBlock::getRampRate )
+            .def_property_readonly( "ramp_start_epoch", &tio::OdfRampBlock::getRampStartTime )
+            .def_property_readonly( "ramp_end_epoch", &tio::OdfRampBlock::getRampEndTime )
+            .def_property_readonly( "transmitting_station_id", &tio::OdfRampBlock::getTransmittingStationId );
 
-         **read-only**
-
-         Transmitter frequency at the start of the ramp, in hertz.
-
-      )doc" )
-            .def_property_readonly( "ramp_rate",
-                                    &tio::OdfRampBlock::getRampRate,
-                                    R"doc(
-
-         **read-only**
-
-         Rate of change of transmitter frequency, in hertz per second.
-
-      )doc" )
-            .def_property_readonly( "ramp_start_epoch",
-                                    &tio::OdfRampBlock::getRampStartTime,
-                                    R"doc(
-
-         **read-only**
-
-         Ramp start in UTC seconds since the ODF header reference time.
-
-      )doc" )
-            .def_property_readonly( "ramp_end_epoch",
-                                    &tio::OdfRampBlock::getRampEndTime,
-                                    R"doc(
-
-         **read-only**
-
-         Ramp end in UTC seconds since the ODF header reference time.
-
-      )doc" )
-            .def_property_readonly( "transmitting_station_id",
-                                    &tio::OdfRampBlock::getTransmittingStationId,
-                                    R"doc(
-
-         **read-only**
-
-         Numeric transmitting station identifier from the ODF.
-
-      )doc" );
-
-    py::class_< tio::OdfClockOffsetBlock, std::shared_ptr< tio::OdfClockOffsetBlock > >(
-            m, "OdfClockOffsetBlock", R"doc(Clock offset and validity interval decoded from a DSN Orbit Data File.)doc" )
-            .def_property_readonly( "start_time",
-                                    &tio::OdfClockOffsetBlock::getStartTime,
-                                    R"doc(
-
-         **read-only**
-
-         Clock offset validity start in UTC seconds since the ODF header reference time.
-
-      )doc" )
-            .def_property_readonly( "end_time",
-                                    &tio::OdfClockOffsetBlock::getEndTime,
-                                    R"doc(
-
-         **read-only**
-
-         Clock offset validity end in UTC seconds since the ODF header reference time.
-
-      )doc" )
-            .def_property_readonly( "clock_offset",
-                                    &tio::OdfClockOffsetBlock::getClockOffset,
-                                    R"doc(
-
-         **read-only**
-
-         Offset between the clocks specified by this ODF block, in seconds.
-
-      )doc" );
+    py::class_< tio::OdfClockOffsetBlock, std::shared_ptr< tio::OdfClockOffsetBlock > >( m, "OdfClockOffsetBlock" )
+            .def_property_readonly( "start_time", &tio::OdfClockOffsetBlock::getStartTime )
+            .def_property_readonly( "end_time", &tio::OdfClockOffsetBlock::getEndTime )
+            .def_property_readonly( "clock_offset", &tio::OdfClockOffsetBlock::getClockOffset );
 
     py::class_< tio::OdfRawFileContents, std::shared_ptr< tio::OdfRawFileContents > >(
-            m,
-            "OdfRawFileContents",
-            R"doc(Parsed DSN Orbit Data File contents, including observation, frequency ramp and clock offset blocks.)doc" )
-            .def_property_readonly( "data_blocks",
-                                    &tio::OdfRawFileContents::getDataBlocks,
-                                    R"doc(
-
-         **read-only**
-
-         Observation data blocks read from the ODF.
-
-      )doc" )
-            .def_property_readonly( "ramp_blocks",
-                                    &tio::OdfRawFileContents::getRampBlocks,
-                                    R"doc(
-
-         **read-only**
-
-         Transmitter frequency ramp blocks read from the ODF, grouped by station.
-
-      )doc" )
-            .def_property_readonly( "clock_offset_blocks",
-                                    &tio::OdfRawFileContents::getClockOffsetBlocks,
-                                    R"doc(
-
-         **read-only**
-
-         Clock offset blocks read from the ODF.
-
-      )doc" )
-            .def_readonly( "file_reference_date",
-                           &tio::OdfRawFileContents::fileReferenceDate_,
-                           R"doc(
-
-         **read-only**
-
-         Reference date encoded as YYYYMMDD in the ODF header.
-
-      )doc" )
-            .def_readonly( "file_reference_time",
-                           &tio::OdfRawFileContents::fileReferenceTime_,
-                           R"doc(
-
-         **read-only**
-
-         Reference time encoded as HHMMSS in the ODF header.
-
-      )doc" )
+            m, "OdfRawFileContents", R"doc(No documentation available.)doc" )
+            .def_property_readonly( "data_blocks", &tio::OdfRawFileContents::getDataBlocks )
+            .def_property_readonly( "ramp_blocks", &tio::OdfRawFileContents::getRampBlocks )
+            .def_property_readonly( "clock_offset_blocks", &tio::OdfRawFileContents::getClockOffsetBlocks )
+            .def_readonly( "file_reference_date", &tio::OdfRawFileContents::fileReferenceDate_ )
+            .def_readonly( "file_reference_time", &tio::OdfRawFileContents::fileReferenceTime_ )
             .def( "write_to_text_file",
                   &tio::OdfRawFileContents::writeOdfToTextFile,
                   py::arg( "output_file" ),
-                  R"doc(Write decoded ODF contents to the text file ``output_file`` for inspection.)doc" );
+                  R"doc(No documentation available.)doc" );
 
-    m.def( "read_odf_file", &tio::readOdfFile, py::arg( "file_name" ), R"doc(
-
-         Read the DSN Orbit Data File at ``file_name`` and return an OdfRawFileContents object containing decoded
-         observations and supporting blocks.
-
-      )doc" );
+    m.def( "read_odf_file", &tio::readOdfFile, py::arg( "file_name" ), R"doc(No documentation available.)doc" );
 
     m.def( "set_dsn_weather_data_in_ground_stations",
            py::overload_cast< tudat::simulation_setup::SystemOfBodies&,
@@ -1208,65 +780,32 @@ body_with_ground_stations_name : str, default = "Earth"
 )doc" );
 
     py::class_< tudat::input_output::TrackingTxtFileContents, std::shared_ptr< tudat::input_output::TrackingTxtFileContents > >(
-            m,
-            "TrackingTxtFileContents",
-            R"doc(Tracking measurements and metadata read from a text file with explicitly identified columns.)doc" )
+            m, "TrackingTxtFileContents", R"doc(No documentation available.)doc" )
             .def( py::init< const std::string, const std::vector< std::string >, const char, const std::string >( ),
                   py::arg( "file_name" ),
                   py::arg( "column_types" ),
                   py::arg( "comment_symbol" ) = '#',
                   py::arg( "value_separators" ) = ",:\t ",
-                  R"doc(
-
-         Read a tracking text file using the supplied column identifiers, comment marker and value-separator
-         characters.
-
-      )doc" )
+                  R"doc(No documentation available.)doc" )
             .def( "add_metadata_val",
                   py::overload_cast< tio::TrackingDataType, double >( &tio::TrackingTxtFileContents::addMetaData ),
                   py::arg( "tracking_data_type" ),
                   py::arg( "value" ),
-                  R"doc(Attach the numeric metadata ``value`` to the file contents under ``tracking_data_type``.)doc" )
+                  R"doc(No documentation available.)doc" )
             .def( "get_available_datatypes",
                   &tio::TrackingTxtFileContents::getAllAvailableDataTypes,
-                  R"doc(
-
-         Return the TrackingDataType identifiers available from the measurement columns and attached metadata.
-
-      )doc" )
+                  R"doc(No documentation available.)doc" )
             .def( "add_metadata_str",
                   py::overload_cast< tio::TrackingDataType, const std::string& >( &tio::TrackingTxtFileContents::addMetaData ),
                   py::arg( "tracking_data_type" ),
                   py::arg( "str_value" ),
-                  R"doc(Attach the string metadata ``str_value`` to the file contents under ``tracking_data_type``.)doc" )
-            .def_property_readonly( "column_field_types", &tio::TrackingTxtFileContents::getRawColumnTypes, R"doc(
-
-         **read-only**
-
-         Column identifiers in the order used by the input tracking text file.
-
-      )doc" )
-            .def_property_readonly( "double_datamap", &tio::TrackingTxtFileContents::getDoubleDataMap, R"doc(
-
-         **read-only**
-
-         Mapping from tracking data type to numeric column values.
-
-      )doc" )
-            .def_property_readonly( "raw_datamap", &tio::TrackingTxtFileContents::getRawDataMap, R"doc(
-
-         **read-only**
-
-         Mapping from column identifier to the original string values read from the file.
-
-      )doc" )
-            .def_property_readonly( "num_rows", &tio::TrackingTxtFileContents::getNumRows, R"doc(
-
-         **read-only**
-
-         Number of measurement rows read from the tracking text file.
-
-      )doc" );
+                  R"doc(No documentation available.)doc" )
+            .def_property_readonly(
+                    "column_field_types", &tio::TrackingTxtFileContents::getRawColumnTypes, R"doc(No documentation available.)doc" )
+            .def_property_readonly(
+                    "double_datamap", &tio::TrackingTxtFileContents::getDoubleDataMap, R"doc(No documentation available.)doc" )
+            .def_property_readonly( "raw_datamap", &tio::TrackingTxtFileContents::getRawDataMap, R"doc(No documentation available.)doc" )
+            .def_property_readonly( "num_rows", &tio::TrackingTxtFileContents::getNumRows, R"doc(No documentation available.)doc" );
 
     m.def( "read_tracking_txt_file",
            &tio::createTrackingTxtFileContents,
@@ -1277,24 +816,16 @@ body_with_ground_stations_name : str, default = "Earth"
            py::arg( "ignore_omitted_columns" ) = false,
            py::arg( "data_filter_method" ) = tio::no_tracking_txt_file_filter );
 
-    m.def( "grail_antenna_file_reader",
-           &tio::grailAntennaFileReader,
-           py::arg( "file_name" ),
-           R"doc(Read GRAIL antenna data from ``file_name`` and return a tuple of switch epochs and flattened three-component antenna positions.)doc" );
+    m.def( "grail_antenna_file_reader", &tio::grailAntennaFileReader, py::arg( "file_name" ), R"doc(No documentation available.)doc" );
     m.def( "grail_mass_level_0_file_reader",
            &tio::grailMassLevel0FileReader,
            py::arg( "file_name" ),
-           R"doc(Read a GRAIL level-0 mass history from ``file_name`` and return a dictionary mapping epochs to spacecraft mass values.)doc" );
+           R"doc(No documentation available.)doc" );
     m.def( "grail_mass_level_1_file_reader",
            &tio::grailMassLevel1FileReader,
            py::arg( "file_name" ),
            py::arg( "data_level" ) = "1b",
-           R"doc(
-
-         Read a GRAIL level-1 mass history from ``file_name`` using the format identified by ``data_level`` (default
-         "1b").
-
-      )doc" );
+           R"doc(No documentation available.)doc" );
 
     m.def( "read_ifms_file",
            &tio::readIfmsFile,

@@ -270,6 +270,8 @@ void expose_propagation_results_bindings( py::module& m )
 
          Numerical state history indexed by epoch, with state values converted to double precision.
 
+         :type: dict[float, numpy.ndarray[numpy.float64[m, 1]]]
+
       )doc" )
             .def_property_readonly(
                     "state_history_float_split",
@@ -437,6 +439,8 @@ void expose_propagation_results_bindings( py::module& m )
 
          Dependent variable settings indexed by their location in the saved output vector.
 
+         :type: dict[tuple[int, int], SingleDependentVariableSaveSettings]
+
       )doc" )
             .def_property_readonly( "unordered_dependent_variable_settings",
                                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getOriginalDependentVariableSettings,
@@ -445,6 +449,8 @@ void expose_propagation_results_bindings( py::module& m )
          **read-only**
 
          Original list of dependent variable settings supplied to the propagation.
+
+         :type: list[SingleDependentVariableSaveSettings]
 
       )doc" )
             .def_property_readonly( "processed_state_ids",

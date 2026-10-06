@@ -211,6 +211,11 @@ void expose_torque_setup( py::module& m )
 
          Create torque settings for radiation pressure acting on the configured radiation pressure target panels.
 
+         Returns
+         -------
+         TorqueSettings
+             Settings for computing the radiation pressure torque.
+
       )doc" );
 
     m.def( "second_degree_gravitational",
@@ -496,6 +501,18 @@ void expose_torque_setup( py::module& m )
 
          ``scaling_function`` optionally provides an epoch-dependent scalar multiplier; None leaves the returned torque
          unchanged.
+
+         Parameters
+         ----------
+         torque_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
+             Function of epoch in seconds since J2000 returning the body-fixed torque vector, in newton metres.
+         scaling_function : Callable[[float], float], optional
+             Optional function of epoch multiplying the torque by a dimensionless scaling factor.
+
+         Returns
+         -------
+         TorqueSettings
+             Settings for computing the torque from the supplied functions.
 
       )doc" );
 

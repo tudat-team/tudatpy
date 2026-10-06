@@ -112,6 +112,25 @@ void expose_observations( py::module& m )
          Create an observation set from its observable type, link, measurement vectors, epochs and reference link end,
          with optional dependent variables and ancillary data.
 
+         Parameters
+         ----------
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         observations : list[numpy.ndarray[numpy.float64[m, 1]]]
+             Measurement vectors for the observation set.
+         observation_epochs : list[Time]
+             Epochs of the measurements, in seconds since J2000.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         observation_dependent_variables : list[numpy.ndarray[numpy.float64[m, 1]]], optional
+             Dependent-variable values associated with each measurement.
+         dependent_variable_bookkeeping : ObservationDependentVariableBookkeeping, optional
+             Optional object defining the dependent-variable layout.
+         ancillary_settings : ObservationAncillarySimulationSettings, optional
+             Optional observable-specific ancillary data.
+
       )doc" )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
@@ -1375,6 +1394,16 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          Append all observation sets from ``observation_collection_to_append`` to this collection and refresh its
          observation bookkeeping.
 
+         Parameters
+         ----------
+         observation_collection_to_append : ObservationCollection
+             Collection whose observation sets are appended to this collection.
+
+         Returns
+         -------
+         None
+             No return value.
+
       )doc" )
             .def( "filter_observations",
                   py::overload_cast< const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
@@ -1588,14 +1617,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::arg( "dependent_variable_settings" ),
                   py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
+
          Add an observation dependent variable to a subset of the single observation sets.
 
          Parameters
          ----------
          dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to add.
-         bodies : tudatpy.dynamics.environment.SystemOfBodies
-             System of bodies containing the environment.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets to which the variable should be added.
 
@@ -1603,7 +1631,8 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          -------
          tudatpy.estimation.observations.observations_processing.ObservationCollectionParser
              A parser that can be used to retrieve the added dependent variable.
-     )doc" )
+
+      )doc" )
             .def( "dependent_variable",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariables,
                   py::arg( "dependent_variable_settings" ),
@@ -1881,6 +1910,16 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Return an ObservationCollection containing the observation sets from every collection in
          ``observation_collection_list``.
+
+         Parameters
+         ----------
+         observation_collection_list : list[ObservationCollection]
+             Observation collections to merge, in the supplied order.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the merged observation sets.
 
       )doc" );
 
