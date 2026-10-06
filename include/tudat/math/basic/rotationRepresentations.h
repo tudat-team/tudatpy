@@ -12,6 +12,8 @@
 #ifndef TUDAT_ROTATIONREPRESENTATIONS_H
 #define TUDAT_ROTATIONREPRESENTATIONS_H
 
+#include <limits>
+
 #include <Eigen/Geometry>
 
 namespace tudat
@@ -84,6 +86,40 @@ Eigen::Vector3d get313EulerAnglesFromQuaternion( const Eigen::Quaterniond& quate
  * \return Euler angles x,y,z (about 3, 1 and 3 axes, respectively).
  */
 Eigen::Vector3d get313EulerAnglesFromRotationMatrix( const Eigen::Matrix3d& rotationMatrix );
+
+//! Get quaternion from associated rotation vector (exponential map of SO(3))
+/*!
+ * Get quaternion q from a rotation vector, i.e. a vector whose direction defines the rotation axis and
+ * whose norm defines the rotation angle (in radians). This is the exponential map Exp: so(3) -> SO(3),
+ * and is the representation used for small attitude corrections that are to be estimated, since it is
+ * free of the constraints and singularities of quaternion/Euler-angle parameterizations near zero.
+ * For a vanishing rotation angle, the identity quaternion is returned.
+ * \param rotationVector Rotation vector for which the equivalent quaternion is to be computed.
+ * \return Quaternion defining same rotation as rotation vector
+ */
+inline Eigen::Quaterniond getQuaternionFromRotationVector( const Eigen::Vector3d& rotationVector )
+{
+    const double rotationAngle = rotationVector.norm( );
+    if( rotationAngle <= std::numeric_limits< double >::epsilon( ) )
+    {
+        return Eigen::Quaterniond::Identity( );
+    }
+    return Eigen::Quaterniond( Eigen::AngleAxisd( rotationAngle, rotationVector / rotationAngle ) );
+}
+
+//! Get rotation vector from associated quaternion (logarithmic map of SO(3))
+/*!
+ * Get the rotation vector associated with quaternion q, i.e. the inverse of getQuaternionFromRotationVector.
+ * The returned vector has the rotation axis as its direction and the rotation angle (in radians, in [0, pi])
+ * as its norm.
+ * \param quaternion Quaternion for which the equivalent rotation vector is to be computed.
+ * \return Rotation vector defining same rotation as quaternion
+ */
+inline Eigen::Vector3d getRotationVectorFromQuaternion( const Eigen::Quaterniond& quaternion )
+{
+    const Eigen::AngleAxisd angleAxis( quaternion.normalized( ) );
+    return angleAxis.angle( ) * angleAxis.axis( );
+}
 }  // namespace basic_mathematics
 
 }  // namespace tudat

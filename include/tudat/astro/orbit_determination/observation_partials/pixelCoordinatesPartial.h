@@ -132,16 +132,42 @@ public:
         return currentLinkEndType_;
     }
 
+    //! Camera-frame quantities cached by the last update( ) call, for partials that need the observation
+    //! geometry in the camera frame rather than a scaling of a state partial (see PixelCoordinatesPointingPartial).
+    //! This follows the scaling-object-as-shared-cache pattern also used by e.g. OneWayDopplerScaling, and
+    //! guarantees that every partial of a given observation sees the same camera-frame geometry.
+    Eigen::Vector3d getCurrentRelativeRangeVectorCameraFrame( ) const
+    {
+        if( !hasCurrentCameraFrameQuantities_ )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving pixel-coordinate camera-frame range vector: scaling object has not been updated." );
+        }
+        return currentRelativeRangeVectorCameraFrame_;
+    }
+
+    Eigen::Matrix< double, 2, 3 > getCurrentPixelLinePartialWrtCameraFramePosition( ) const
+    {
+        if( !hasCurrentCameraFrameQuantities_ )
+        {
+            throw std::runtime_error( "Error when retrieving pixel-coordinate projection partial: scaling object has not been updated." );
+        }
+        return currentPixelLinePartialWrtCameraFramePosition_;
+    }
+
 private:
     Eigen::Matrix< double, 2, 3 > positionScalingFactor_;
     Eigen::Matrix< double, 2, 3 > realPositionScalingFactor_;
     Eigen::Vector2d lightTimeCorrectionScalingFactor_;
+    Eigen::Vector3d currentRelativeRangeVectorCameraFrame_;
+    Eigen::Matrix< double, 2, 3 > currentPixelLinePartialWrtCameraFramePosition_;
     std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction_;
     std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
             pixelLinePartialWrtCameraFramePositionFunction_;
     observation_models::LinkEndType currentLinkEndType_;
     int observerIndex_;
     int observedBodyIndex_;
+    bool hasCurrentCameraFrameQuantities_ = false;
 };
 }  // namespace observation_partials
 }  // namespace tudat

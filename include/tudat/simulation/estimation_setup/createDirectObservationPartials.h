@@ -27,6 +27,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPointingPartial.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/simulation/estimation_setup/createClockPartials.h"
@@ -327,7 +328,33 @@ createSingleLinkObservationPartials(
         // Create observation partial for current parameter
         std::shared_ptr< ObservationPartial< ObservationSize > > currentObservationPartial;
 
-        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
+        if( parameterIterator->second->getParameterName( ).first == estimatable_parameters::camera_pointing_correction )
+        {
+            if( observableType == observation_models::pixel_coordinates )
+            {
+                if constexpr( ObservationSize == 2 )
+                {
+                    const observation_models::LinkEndId receiverLinkEnd = oneWayLinkEnds.at( observation_models::receiver );
+                    const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier =
+                            parameterIterator->second->getParameterName( );
+                    if( parameterIdentifier.second.first == receiverLinkEnd.bodyName_ &&
+                        parameterIdentifier.second.second == receiverLinkEnd.getReferencePointName( ) )
+                    {
+                        std::shared_ptr< PixelCoordinatesScaling > pixelCoordinatesScaling =
+                                std::dynamic_pointer_cast< PixelCoordinatesScaling >( positionScaling );
+                        if( pixelCoordinatesScaling == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating pixel-coordinate pointing partial: position scaling is not "
+                                    "PixelCoordinatesScaling." );
+                        }
+                        currentObservationPartial =
+                                std::make_shared< PixelCoordinatesPointingPartial >( pixelCoordinatesScaling, parameterIterator->second );
+                    }
+                }
+            }
+        }
+        else if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             currentObservationPartial = createObservationPartialWrtParameter< Eigen::VectorXd, ObservationSize >(
                     oneWayLinkEnds, bodies, parameterIterator->second, positionScaling, lightTimeCorrectionPartialObjects );
