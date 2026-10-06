@@ -39,6 +39,8 @@ BOOST_AUTO_TEST_CASE( testIsResidualWrappingRequired )
     BOOST_CHECK( isResidualWrappingRequired( relative_angular_position ) );
     BOOST_CHECK( isResidualWrappingRequired( azimuth_elevation_angle ) );
     BOOST_CHECK( isResidualWrappingRequired( euler_angle_313_observable ) );
+    BOOST_CHECK( isResidualWrappingRequired( position_angle ) );
+    BOOST_CHECK( isResidualWrappingRequired( position_angle_and_separation ) );
 
     // Types that should NOT require wrapping
     BOOST_CHECK( !isResidualWrappingRequired( one_way_range ) );
@@ -58,6 +60,7 @@ BOOST_AUTO_TEST_CASE( testIsResidualWrappingRequired )
     BOOST_CHECK( !isResidualWrappingRequired( one_way_doppler_measured_frequency ) );
     BOOST_CHECK( !isResidualWrappingRequired( differenced_frequency_of_arrival ) );
     BOOST_CHECK( !isResidualWrappingRequired( pixel_coordinates ) );
+    BOOST_CHECK( !isResidualWrappingRequired( separation_distance ) );
 }
 
 //! Test the production wrapping function for two-component angular observables.

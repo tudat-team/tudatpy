@@ -43,6 +43,7 @@ set(observation_partials_HEADERS
   "observationPartial.h"
   "eulerAngleObservablePartials.h"
   "relativeAngularPositionPartial.h"
+  "positionAngleAndSeparationPartial.h"
   "lightTimeCorrectionPartial.h"
   "firstOrderRelativisticPartial.h"
   "clockParameterPartials.h"
