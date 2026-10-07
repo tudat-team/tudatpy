@@ -49,14 +49,16 @@ On this page, we provide a comprehensive overview of the functionality available
    About <https://docs.tudat.space/en/latest/index-about.html>
 
 
-.. toctree::
-   :maxdepth: 1
-
-   RELEASE NOTES <release_notes>
-
-
 Bibliography
 ------------
 
 .. bibliography::
-   
+
+
+Release Notes
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   Published releases <release_notes>

@@ -553,8 +553,12 @@ todo_include_todos = True
 html_theme = "furo"
 # Both documentation versions announce the released version.
 _announcement = (
-    f"TudatPy {release.split('.dev')[0]} has been released. "
-    "<a href='https://py.api.tudat.space/en/stable/release_notes.html'>Release notes</a>."
+    f"TudatPy {release.split('.dev')[0]} has been released! See the "
+    "<a href='https://py.api.tudat.space/en/stable/release_notes.html'>Release notes</a> "
+    "for all the new features.<br>"
+    "Contact us in our "
+    "<a href='https://github.com/orgs/tudat-team/discussions'>Github Discussion forum</a> "
+    "for any questions!"
 )
 
 html_theme_options = {
