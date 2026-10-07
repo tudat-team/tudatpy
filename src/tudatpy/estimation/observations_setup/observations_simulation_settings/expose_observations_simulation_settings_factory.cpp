@@ -20,7 +20,8 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;

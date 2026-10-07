@@ -20,6 +20,7 @@ Classes
 
 .. autoclass:: tudatpy.data.mpc.BatchMPC
    :members:
+   :exclude-members: create_observations_from_astropy_table, to_tudat_observation_collection
    :special-members: __init__
 
 

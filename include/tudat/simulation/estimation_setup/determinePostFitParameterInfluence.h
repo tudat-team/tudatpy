@@ -122,8 +122,9 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     }
 
     // Simulate ideal observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
-            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > > observationsAndTimes =
+            simulateObservationDataset< StateScalarType, TimeType >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 

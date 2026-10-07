@@ -11,11 +11,30 @@ objects, optionally with
 containing auxiliary information such as station frequency ramps or camera
 settings, as well as identifiers for passive radar reflectors. The tracking
 data can then be converted to an
-:class:`~tudatpy.estimation.observations.ObservationCollection` with
-:func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.
+:class:`~tudatpy.estimation.observations.ObservationDataset` with
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
 Supplementary data that updates bodies, ground stations, or related environment
 objects is applied with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
+
+User-defined numerical metadata
+------------------------------
+
+:meth:`TrackingData.add_numerical_observation_metadata` attaches one numerical
+value per observation event under any string key. The vector follows the order
+of ``observations`` and stays aligned when entries are removed. These values are
+plain data, independent of observation-model ancillary settings.
+
+Conversion to ``ObservationDataset`` preserves the metadata by stable observation
+ID. Gaia attaches its scan angle in radians under ``"along_scan_angle"``. For
+example, to retrieve the angles in the same order as a dataset selection::
+
+    observation_ids = dataset.get_observation_ids(condition, ordering="estimation")
+    scan_angles = dataset.get_numerical_observation_metadata("along_scan_angle", observation_ids)
+
+Select Gaia observations for this example: other observations need not have scan
+angles. Requesting a missing key or value raises an exception rather than
+substituting a numerical value.
 
 For more information on the tracking data architecture, see the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-handling/observation-collection-creation/loading-real-data.html>`_ on real tracking data.
 
@@ -27,6 +46,7 @@ For more information on the tracking data architecture, see the `user guide <htt
    tracking_data/obs_80_cols
    tracking_data/fdets
    tracking_data/generic_text_file
+   tracking_data/gaia
    tracking_data/ifms
    tracking_data/jpl_radar
    tracking_data/mpc
@@ -38,6 +58,11 @@ For more information on the tracking data architecture, see the `user guide <htt
 
 .. automodule:: tudatpy.data_input.tracking_data
    :members:
+
+Tracking epoch bounds
+--------------------
+
+.. autofunction:: tudatpy.data_input.tracking_data.get_tracking_data_epoch_bounds
 
 Tracking data containers
 ------------------------
@@ -51,9 +76,17 @@ the same source that must be applied to the simulation environment.
 .. autosummary::
 
    TrackingData
+   ObservationWeightSettings
+   AngularObservationCorrectionSettings
    TrackingSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingData
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ObservationWeightSettings
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingSupplementaryData

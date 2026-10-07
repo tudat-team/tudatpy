@@ -314,24 +314,23 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
             getObservationSimulationSettings< double >( linkEndsPerObservable, baseTimeList, receiver );
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+    std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double > > estimationInput =
             std::make_shared< EstimationInput< double, double > >( simulatedObservations );
 
-    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-            simulatedObservations->getObservationTypeStartAndSize( );
+    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize = simulatedObservations->getObservableTypeStartAndSize( );
 
     {
-        simulatedObservations->setConstantWeight( 0.1 );
+        simulatedObservations->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::all( ), 0.1 );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >( simulatedObservations );
         std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                simulatedObservations->getObservationTypeStartAndSize( );
+                simulatedObservations->getObservableTypeStartAndSize( );
 
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
 
@@ -342,24 +341,30 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     }
 
     {
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
-        weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 3.0 * 3.0 );
-        weightPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-        weightPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
-        simulatedObservations->setConstantWeightPerObservable( weightPerObservationParser );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< double, double >::observableType( one_way_range ), 1.0 / ( 3.0 * 3.0 ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< double, double >::observableType( angular_position ), 1.0 / ( 1.0E-5 * 1.0E-5 ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< double, double >::observableType( one_way_doppler ),
+                1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) );
+        const std::map< ObservableType, double > expectedWeightPerObservable = {
+            { one_way_range, 1.0 / ( 3.0 * 3.0 ) },
+            { angular_position, 1.0 / ( 1.0E-5 * 1.0E-5 ) },
+            { one_way_doppler, 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) }
+        };
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >( simulatedObservations );
         std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                simulatedObservations->getObservationTypeStartAndSize( );
+                simulatedObservations->getObservableTypeStartAndSize( );
 
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
 
-        for( auto it : weightPerObservationParser )
+        for( const auto& it : expectedWeightPerObservable )
         {
-            ObservableType observableType =
-                    std::dynamic_pointer_cast< ObservationCollectionObservableTypeParser >( it.first )->getObservableTypes( ).at( 0 );
+            ObservableType observableType = it.first;
             for( int i = 0; i < observationTypeStartAndSize.at( observableType ).second; i++ )
             {
                 BOOST_CHECK_CLOSE_FRACTION( totalWeights( observationTypeStartAndSize.at( observableType ).first + i ),
@@ -372,14 +377,15 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     {
         Eigen::Vector2d angularPositionWeight;
         angularPositionWeight << 0.1, 0.2;
-        simulatedObservations->setConstantWeight( 2.0 );
-        simulatedObservations->setConstantWeight( angularPositionWeight, observationParser( angular_position ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::all( ), 2.0 );
+        simulatedObservations->setConstantSingleObservationDiagonalWeight(
+                ObservationSelectionCondition< double, double >::observableType( angular_position ), angularPositionWeight );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >( simulatedObservations );
         std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                simulatedObservations->getObservationTypeStartAndSize( );
+                simulatedObservations->getObservableTypeStartAndSize( );
 
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
 
@@ -418,7 +424,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
                 Eigen::VectorXd::LinSpaced( sizeRangeObsPerObsSet, 1.0 / ( 3.0 * 3.0 ), 1.0 / ( 4.0 * 4.0 ) );
 
         // Compute full range weight vector
-        unsigned int nbRangeObsSets = simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) ).size( );
+        unsigned int nbRangeObsSets = simulatedObservations->getObservationSetIdsForObservableType( one_way_range ).size( );
         Eigen::VectorXd rangeWeights = Eigen::VectorXd::Zero( nbRangeObsSets * sizeRangeObsPerObsSet );
         for( unsigned int k = 0; k < nbRangeObsSets; k++ )
         {
@@ -426,30 +432,26 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         }
 
         // Set total tabulated weights for all Doppler observation sets
-        int totalSizeDopplerObs = simulatedObservations->getSingleObservationSets( observationParser( one_way_doppler ) ).size( ) *
-                nbObsPerDay * numberOfDaysOfData;
+        int totalSizeDopplerObs = static_cast< int >( simulatedObservations->getTotalScalarSizeForObservableType( one_way_doppler ) );
         Eigen::VectorXd dopplerWeights = Eigen::VectorXd::LinSpaced( totalSizeDopplerObs,
                                                                      1.0 / ( 1.0e-11 * SPEED_OF_LIGHT * 1.0e-11 * SPEED_OF_LIGHT ),
                                                                      1.0 / ( 1.5e-11 * SPEED_OF_LIGHT * 1.5e-11 * SPEED_OF_LIGHT ) );
 
         // Default angular position weights set to 1
-        int totalSizeAngularPositionObs = 2.0 *
-                simulatedObservations->getSingleObservationSets( observationParser( angular_position ) ).size( ) * nbObsPerDay *
-                numberOfDaysOfData;
+        int totalSizeAngularPositionObs =
+                static_cast< int >( simulatedObservations->getTotalScalarSizeForObservableType( angular_position ) );
         Eigen::VectorXd angularPositionWeights = Eigen::VectorXd::Ones( totalSizeAngularPositionObs );
 
         // Concatenate tabulated weights per observable type (default weights for angular_position observables)
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
-        weightPerObservationParser[ observationParser( one_way_range ) ] = singleSetRangeWeights;
-        weightPerObservationParser[ observationParser( one_way_doppler ) ] = dopplerWeights;
-        weightPerObservationParser[ observationParser( angular_position ) ] = angularPositionWeights;
-        simulatedObservations->setTabulatedWeights( weightPerObservationParser );
+        simulatedObservations->setWeightVectorForObservableType( one_way_range, singleSetRangeWeights );
+        simulatedObservations->setWeightVectorForObservableType( one_way_doppler, dopplerWeights );
+        simulatedObservations->setWeightVectorForObservableType( angular_position, angularPositionWeights );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >( simulatedObservations );
         std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                simulatedObservations->getObservationTypeStartAndSize( );
+                simulatedObservations->getObservableTypeStartAndSize( );
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
 
         // Define expected weights per observable
@@ -468,6 +470,70 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
             }
         }
     }
+}
+
+//! Test that residual and active-flag histories retain all observation rows.
+BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
+{
+    using Dataset = ObservationDataset< double, double >;
+    using Input = EstimationInput< double, double >;
+
+    unsigned int disabledObservationId = 0;
+    unsigned int rejectedObservationId = 0;
+    std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< Input > > rejectedPodData;
+    executeEarthOrbiterParameterEstimation< double, double >(
+            rejectedPodData,
+            1.0E7,
+            1,
+            2,
+            false,
+            true,
+            nullptr,
+            [ &disabledObservationId, &rejectedObservationId ]( const std::shared_ptr< Dataset >& dataset,
+                                                                const std::shared_ptr< Input >& input ) {
+                const unsigned int angularSetId = dataset->getObservationSetIdsForObservableType( angular_position ).at( 0 );
+                const std::vector< unsigned int >& angularObservationIds = dataset->getObservationIdsForSet( angularSetId );
+                disabledObservationId = angularObservationIds.at( 0 );
+                rejectedObservationId = angularObservationIds.at( 1 );
+
+                const ObservationSelectionCondition< double, double > initiallyInactive(
+                        [ &disabledObservationId ]( const Dataset&, const int observationId ) {
+                            return static_cast< unsigned int >( observationId ) == disabledObservationId;
+                        } );
+                dataset->rejectObservations( initiallyInactive, "disabled before estimation" );
+
+                Eigen::VectorXd angularObservations = dataset->getObservationVectorForSet( angularSetId );
+                const unsigned int angularSize = dataset->getObservationRow( rejectedObservationId ).scalarSize_;
+                angularObservations.segment( angularSize, angularSize ).array( ) += 1.0;
+                dataset->setObservationVectorForSet( angularSetId, angularObservations );
+
+                const std::map< ObservableType, double > thresholds = { { one_way_range, 1.0E12 },
+                                                                        { one_way_doppler, 1.0E12 },
+                                                                        { angular_position, 0.5 } };
+                input->setOutlierRejectionSettings( simpleOutlierRejectionSettings( thresholds, 0, false ) );
+            } );
+
+    const ObservationVectorData< double, double > rejectedFullData =
+            rejectedPodData.second->getObservationDataset( )->createOrderedObservationVectorData( true );
+    const Eigen::MatrixXd rejectedResidualHistory = rejectedPodData.first->getResidualHistoryMatrix( );
+    const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = rejectedPodData.first->getActiveFlagsPerIterationMatrix( );
+
+    BOOST_REQUIRE_GE( activeFlags.cols( ), 2 );
+    BOOST_REQUIRE_EQUAL( activeFlags.rows( ), rejectedResidualHistory.rows( ) );
+    BOOST_REQUIRE_EQUAL( activeFlags.cols( ), rejectedResidualHistory.cols( ) );
+    for( int row = 0; row < activeFlags.rows( ); row++ )
+    {
+        const unsigned int observationId = rejectedFullData.getObservationIds( ).at( row );
+        BOOST_CHECK_EQUAL( activeFlags( row, 0 ), observationId != disabledObservationId );
+        BOOST_CHECK_EQUAL( activeFlags( row, 1 ), observationId != disabledObservationId && observationId != rejectedObservationId );
+    }
+
+    int numberOfActiveRowsInBestIteration = 0;
+    for( int row = 0; row < activeFlags.rows( ); row++ )
+    {
+        numberOfActiveRowsInBestIteration += activeFlags( row, rejectedPodData.first->bestIteration_ );
+    }
+    BOOST_CHECK_EQUAL( rejectedPodData.first->residuals_.rows( ), numberOfActiveRowsInBestIteration );
 }
 
 //! Test that best-iteration selection during estimation uses the least-squares cost function
@@ -556,15 +622,13 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
     addGaussianNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, 0.1, one_way_range );
     addGaussianNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, 3.0E-7, angular_position );
 
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Inject deterministic structured biases so range and angular residual improvements compete across iterations.
-    const std::shared_ptr< ObservationCollectionParser > rangeParser = observationParser( one_way_range );
-    const std::shared_ptr< ObservationCollectionParser > angularParser = observationParser( angular_position );
-    Eigen::VectorXd baseRangeObservations = simulatedObservations->getConcatenatedObservations( rangeParser );
-    Eigen::VectorXd baseAngularObservations = simulatedObservations->getConcatenatedObservations( angularParser );
+    Eigen::VectorXd baseRangeObservations = simulatedObservations->getObservationVectorForObservableType( one_way_range );
+    Eigen::VectorXd baseAngularObservations = simulatedObservations->getObservationVectorForObservableType( angular_position );
     for( int i = 0; i < baseRangeObservations.size( ); i++ )
     {
         const double cycleArgument = static_cast< double >( i ) / 31.0;
@@ -595,12 +659,10 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
         angularWeights( 2 * i ) = angularBaseWeight * raScaleFactor;
         angularWeights( 2 * i + 1 ) = angularBaseWeight * decScaleFactor;
     }
-    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser;
-    weightsPerObservationParser[ rangeParser ] = rangeWeights;
-    weightsPerObservationParser[ angularParser ] = angularWeights;
-    simulatedObservations->setTabulatedWeights( weightsPerObservationParser );
-    simulatedObservations->setObservations( baseRangeObservations, rangeParser );
-    simulatedObservations->setObservations( baseAngularObservations, angularParser );
+    simulatedObservations->setWeightVectorForObservableType( one_way_range, rangeWeights );
+    simulatedObservations->setWeightVectorForObservableType( angular_position, angularWeights );
+    simulatedObservations->setObservationVectorForObservableType( one_way_range, baseRangeObservations );
+    simulatedObservations->setObservationVectorForObservableType( angular_position, baseAngularObservations );
 
     int numberOfDistinctBestIterationCases = 0;
 
@@ -626,6 +688,12 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
 
         std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
                 orbitDeterminationManager.estimateParameters( estimationInput );
+
+        const Eigen::MatrixXd residualHistoryMatrix = estimationOutput->getResidualHistoryMatrix( );
+        const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = estimationOutput->getActiveFlagsPerIterationMatrix( );
+        BOOST_CHECK_EQUAL( activeFlags.rows( ), residualHistoryMatrix.rows( ) );
+        BOOST_CHECK_EQUAL( activeFlags.cols( ), residualHistoryMatrix.cols( ) );
+        BOOST_CHECK( activeFlags.array( ).all( ) );
 
         BOOST_CHECK( estimationOutput->residualHistory_.size( ) >= 2 );
         BOOST_CHECK( estimationOutput->bestIteration_ >= 0 );

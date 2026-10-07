@@ -289,7 +289,8 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
                 trackingData->getSingleObservationSize( ), preliminaryWeights.at( i ) / multipleObservationDeweightingFactor ) );
     }
 
-    trackingData->setObservationWeights( observationWeights );
+    trackingData->setObservationWeightSettings(
+            observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
 }
 
 }  // namespace data
