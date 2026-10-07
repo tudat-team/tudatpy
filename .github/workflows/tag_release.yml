@@ -18,11 +18,18 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 2
       - name: Tag the merged version
         env:
           RELEASE_BRANCH: ${{ github.event.pull_request.head.ref }}
           BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+          PREPARED_COMMIT: ${{ github.event.pull_request.head.sha }}
         run: |
+          # Keep the commits used by the examples links and the next release.
+          if [[ "$(git rev-parse HEAD^2 2>/dev/null)" != "$PREPARED_COMMIT" ]]; then
+            echo "::error::Refusing to tag: merge release PRs with Create a merge commit."
+            exit 1
+          fi
           VERSION=$( (cat version 2>/dev/null || sed -n 's/^current_version = //p' .bumpversion.cfg) | tr -d '\r\n')
           [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(\.dev0)?$ ]]
           if [[ "$BASE_BRANCH" == master ]]; then
