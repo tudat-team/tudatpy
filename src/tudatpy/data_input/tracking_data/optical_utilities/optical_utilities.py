@@ -638,8 +638,8 @@ def optical_table_to_tracking_data(
     To develop - currently no tracking data structure to store ground station information
     Needed to be able to work with Earth-based roving observatories 
     """
-    roving_mask = _roving_observation_mask(table)
-    table = table.assign(_is_roving_observation=roving_mask.to_numpy(dtype=bool))
+    # roving_mask = _roving_observation_mask(table)
+    # table = table.assign(_is_roving_observation=roving_mask.to_numpy(dtype=bool))
     # add supplementary data for the roving observatory location
     # TO DO! WHERE TO STORE THEM????
 
@@ -997,7 +997,7 @@ def get_biases_EFCC18(
         bias_file = BIAS_LOWRES_FILE
 
     RA = mpc_table["RA"].to_numpy()
-    DEC = mpc_table["DEC"].to_numpy()
+    DEC = np.asarray(mpc_table["DEC"].to_numpy(), dtype=float)  # mpc_table["DEC"].to_numpy()
     if "epoch_seconds_UTC" in mpc_table.columns:
         epochs = mpc_table["epoch_seconds_UTC"].to_numpy()
     else:

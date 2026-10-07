@@ -406,7 +406,10 @@ def parse_ades_file(file_path: str):  # -> Table:
         # transform the PSV file on XML format and proceed with the XML parser
         file_path_xml = file_path.split(".")[0] + ".xml"
         # transfrom the psv file to an xml file using the MPC ades functionalities
+        # try:
         psvtoxml(file_path, file_path_xml)
+        # except:
+        #    raise ValueError('File cannot be converted to xml due to incorrect format')
         file_path = file_path_xml
 
     # read the xml elements and define an astropy table
@@ -463,7 +466,7 @@ def parse_ades_file(file_path: str):  # -> Table:
                     "DEC": (pd.to_numeric(df["dec"]).to_numpy() * u.deg).to(u.rad).value,
                     "observatory": df["stn"],
                     "magnitude": pd.to_numeric(
-                        df["mag"], errors="coerce"
+                        df.get("mag"), errors="coerce"
                     ),  # this is not a required field so it could be None
                     "band": df.get("band"),  # this is not a required field so it could be None
                     "astCat": df["astCat"],
@@ -496,3 +499,6 @@ def parse_ades_file(file_path: str):  # -> Table:
             # to be able to create a tracking data object
 
             return optical_table
+
+        else:
+            print("Different data types otgher than optical")
