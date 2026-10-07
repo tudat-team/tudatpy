@@ -48,6 +48,10 @@ typedef std::function< void( Eigen::VectorXd&,
                              const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
         ObservationDependentVariableAddFunction;
 
+typedef std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                  std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >
+        LegLightTimeCalculatorMap;
+
 void checkObservationDependentVariableEnvironment( const SystemOfBodies& bodies,
                                                    const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
@@ -75,7 +79,8 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds );
+        const observation_models::LinkDefinition linkEnds,
+        const LegLightTimeCalculatorMap& legLightTimeCalculators = LegLightTimeCalculatorMap( ) );
 
 class ObservationDependentVariableBookkeeping
 {
@@ -260,11 +265,9 @@ private:
 class ObservationDependentVariableCalculator
 {
 public:
-    ObservationDependentVariableCalculator(
-            const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
-            const SystemOfBodies& bodies,
-            const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
-                            std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& legLightTimeCalculators ):
+    ObservationDependentVariableCalculator( const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+                                            const SystemOfBodies& bodies,
+                                            const LegLightTimeCalculatorMap& legLightTimeCalculators ):
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), legLightTimeCalculators_( legLightTimeCalculators )
     {
         // First, build add-functions for whatever settings already live on the bookkeeping. This
@@ -286,7 +289,7 @@ public:
         // observable rather than silently dropping the user's request.
         for( const auto& settings : dependentVariableBookkeeping_->takeDeferredSettings( ) )
         {
-            registerLightTimeCorrectionComponents( settings );
+            registerLightTimeCorrectionComponents( settings, bodies );
         }
     }
 
@@ -307,9 +310,7 @@ public:
         return dependentVariableBookkeeping_;
     }
 
-    const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
-                    std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >&
-    getLegLightTimeCalculators( ) const
+    const LegLightTimeCalculatorMap& getLegLightTimeCalculators( ) const
     {
         return legLightTimeCalculators_;
     }
@@ -342,15 +343,16 @@ private:
                                       const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) > >
             dependentVariableAddFunctions_;
 
-    //! Per-leg light-time calculators used only for `light_time_correction_components`. Populated
-    //! at simulate-time by the simulator (or left empty if no leg-specific variables are requested).
-    std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
-              std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >
-            legLightTimeCalculators_;
+    //! Per-leg light-time calculators used by leg-specific dependent variables such as
+    //! `light_time_dependent_variable` and `light_time_correction_components`. Populated at simulate-time by the
+    //! simulator (or left empty if no leg-specific variables are requested).
+    LegLightTimeCalculatorMap legLightTimeCalculators_;
 
     //! Worker function that registers a single `light_time_correction_components` setting. Assumes
-    //! `legLightTimeCalculators_` is already populated.
-    void registerLightTimeCorrectionComponents( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+    //! `legLightTimeCalculators_` is already populated. Size is resolved here, then the add-function
+    //! is built through `getObservationVectorDependentVariableFunction`.
+    void registerLightTimeCorrectionComponents( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+                                                const SystemOfBodies& bodies );
 };
 
 }  // namespace simulation_setup
