@@ -1,8 +1,8 @@
 from tudatpy.kernel.dynamics.environment_setup.ground_station import *
-
+from tudatpy.kernel.dynamics.environment_setup.ground_station import (
+    optical_telescope_stations as _mpc_station_settings,
+)
 from ._station_positions import JPL_RADAR_STATION_POSITIONS
-
-_mpc_station_settings = optical_telescope_stations
 
 
 def jpl_radar_stations():
