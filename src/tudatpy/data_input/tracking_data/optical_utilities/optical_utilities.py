@@ -679,9 +679,13 @@ def optical_table_to_tracking_data(
             weightsRA = (
                 (
                     (pd.to_numeric(group["rmsRA"]).to_numpy(dtype=float) * u.arcsec)
-                    / np.cos(np.deg2rad(pd.to_numeric(group["DEC"]).to_numpy(dtype=float)))
+                    / np.cos(
+                        pd.to_numeric(group["DEC"]).to_numpy(dtype=float)
+                    )  # the value of DEC is already in radians
                 ).to_value(u.rad)
-            ) ** -2  # scale the uncertainty by cos(Dec) and transform in radians
+            ) ** (
+                -2
+            )  # scale the uncertainty by cos(Dec) and transform in radians
             weightsDec = (pd.to_numeric(group["rmsDec"]).to_numpy(dtype=float) * u.arcsec).to_value(
                 u.rad
             ) ** -2
