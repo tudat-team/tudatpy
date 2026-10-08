@@ -34,6 +34,7 @@ namespace observable_models_setup
 namespace biases
 {
 
+//! Register the shared-bias enum before the parameter factory bindings are created.
 void expose_bias_types( py::module& m )
 {
     py::enum_< tom::ObservationBiasTypes >( m, "ObservationBiasTypes" )

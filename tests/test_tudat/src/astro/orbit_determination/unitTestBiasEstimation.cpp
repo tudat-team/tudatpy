@@ -109,7 +109,71 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     BOOST_CHECK_EQUAL( executeEarthOrbiterBiasEstimation( true, false, true, true, true, false ).second, true );
 }
 
+//! Add matching model and simulation settings, and record angular links for the selection checks.
+void addSharedBiasTestObservationModel( const std::vector< double >& observationTimes,
+                                        std::vector< std::shared_ptr< ObservationModelSettings > >& models,
+                                        std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& simulations,
+                                        std::vector< LinkEnds >& angularLinks,
+                                        const ObservableType type,
+                                        const LinkEnds& links,
+                                        const std::shared_ptr< ObservationBiasSettings >& bias )
+{
+    models.push_back( std::make_shared< ObservationModelSettings >( type, links, nullptr, bias ) );
+    simulations.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
+            type, links, observationTimes, type == position_observable ? observed_body : receiver ) );
+    if( type == angular_position )
+    {
+        angularLinks.push_back( links );
+    }
+}
+
+//! Create a separate angular-bias setting for each selected model, initialized to the common truth values.
+std::shared_ptr< ObservationBiasSettings > createSharedAngularBiasTestSettings( const ObservationBiasTypes biasType,
+                                                                                const Eigen::VectorXd& trueAngularBias,
+                                                                                const std::vector< double >& arcTimes,
+                                                                                const LinkEndType timeLinkEnd )
+{
+    if( biasType == arc_wise_constant_absolute_bias )
+    {
+        return arcWiseAbsoluteBias( arcTimes, { trueAngularBias.head( 2 ), trueAngularBias.tail( 2 ) }, timeLinkEnd );
+    }
+    return biasType == constant_absolute_bias ? constantAbsoluteBias( trueAngularBias ) : constantRelativeBias( trueAngularBias );
+}
+
+//! Build one angular model per target after the observer in the body-name list, using the supplied biases.
+std::vector< std::shared_ptr< ObservationModelSettings > > createSharedBiasTestObservationModels(
+        const std::vector< std::string >& names,
+        const LinkEndId& observerId,
+        const std::vector< std::shared_ptr< ObservationBiasSettings > >& biases )
+{
+    std::vector< std::shared_ptr< ObservationModelSettings > > models;
+    for( unsigned int i = 0; i < biases.size( ); ++i )
+    {
+        const LinkEnds links = { { transmitter, LinkEndId( names.at( i + 1 ), "" ) }, { receiver, observerId } };
+        models.push_back( std::make_shared< ObservationModelSettings >( angular_position, links, nullptr, biases.at( i ) ) );
+    }
+    return models;
+}
+
+//! Exercise shared-bias validation through the normal parameter and estimator creation interfaces.
+std::shared_ptr< OrbitDeterminationManager< double, double > > createSharedBiasTestEstimator(
+        const SystemOfBodies& bodies,
+        const std::vector< std::string >& names,
+        const LinkEndId& observerId,
+        const std::shared_ptr< EstimatableParameterSettings >& settings,
+        const std::vector< std::shared_ptr< ObservationBiasSettings > >& biases )
+{
+    auto parameters = createParametersToEstimate< double, double >( { settings }, bodies );
+    const std::shared_ptr< propagators::PropagatorSettings< double > > noPropagator;
+    return std::make_shared< OrbitDeterminationManager< double, double > >(
+            bodies, parameters, createSharedBiasTestObservationModels( names, observerId, biases ), noPropagator );
+}
+
 //! Exercise the public setup, propagation, simulation, and estimation interfaces together.
+//! Estimate three target states and shared angular/range biases, selecting exactly three of eight angular links.
+//! The other links differ in receiver body, reference point, or role, so incorrect selection changes the fitted data.
+//! Cover constant absolute, constant relative, and arc-wise absolute biases, including both arc reference-time roles.
+//! Finite differences check the shared design-matrix columns independently of whether the least-squares fit succeeds.
 BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
 {
     using namespace observation_models;
@@ -139,6 +203,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 trueAngularBias *= 100.0;
             }
 
+            // Fixed observers and targets with constant velocities give a deterministic multi-body estimation problem.
             BodyListSettings bodySettings( "SSB", "J2000" );
             for( const auto& name : { "Euclid", "OtherObserver" } )
             {
@@ -188,23 +253,6 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             std::vector< std::shared_ptr< ObservationModelSettings > > models;
             std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > simulations;
             std::vector< LinkEnds > angularLinks;
-            auto addModel = [ & ]( ObservableType type, const LinkEnds& links, std::shared_ptr< ObservationBiasSettings > bias ) {
-                models.push_back( std::make_shared< ObservationModelSettings >( type, links, nullptr, bias ) );
-                simulations.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                        type, links, observationTimes, type == position_observable ? observed_body : receiver ) );
-                if( type == angular_position )
-                {
-                    angularLinks.push_back( links );
-                }
-            };
-            auto makeAngularBias = [ & ]( ) -> std::shared_ptr< ObservationBiasSettings > {
-                if( arcWise )
-                {
-                    return arcWiseAbsoluteBias( arcTimes, { trueAngularBias.head( 2 ), trueAngularBias.tail( 2 ) }, timeLinkEnd );
-                }
-                return biasType == constant_absolute_bias ? constantAbsoluteBias( trueAngularBias )
-                                                          : constantRelativeBias( trueAngularBias );
-            };
             const Eigen::Vector2d excludedBias( 7.0E-6, 9.0E-6 );
             for( const auto& target : targets )
             {
@@ -212,26 +260,60 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 // Also exercise finding a bias within a combined model.
                 const auto secondaryBias = biasType == constant_relative_bias ? constantAbsoluteBias( Eigen::Vector2d( 4.0E-6, -2.0E-6 ) )
                                                                               : constantRelativeBias( Eigen::Vector2d::Zero( ) );
-                std::vector< std::shared_ptr< ObservationBiasSettings > > combinedBiases = { makeAngularBias( ), secondaryBias };
+                std::vector< std::shared_ptr< ObservationBiasSettings > > combinedBiases = {
+                    createSharedAngularBiasTestSettings( biasType, trueAngularBias, arcTimes, timeLinkEnd ), secondaryBias
+                };
                 if( biasType == constant_relative_bias )
                 {
                     // Shared relative partials must recompute at the biased event time, not the nominal observation time.
                     combinedBiases.push_back( constantTimeBias( 15.0, receiver ) );
                 }
-                addModel( angular_position, selected, multipleObservationBiasSettings( combinedBiases ) );
-                addModel( one_way_range, selected, constantAbsoluteBias( Eigen::VectorXd::Constant( 1, 12.0 ) ) );
-                addModel( angular_position,
-                          { { transmitter, LinkEndId( target, "" ) }, { receiver, LinkEndId( "OtherObserver", "" ) } },
-                          constantAbsoluteBias( excludedBias ) );
+                addSharedBiasTestObservationModel( observationTimes,
+                                                   models,
+                                                   simulations,
+                                                   angularLinks,
+                                                   angular_position,
+                                                   selected,
+                                                   multipleObservationBiasSettings( combinedBiases ) );
+                addSharedBiasTestObservationModel( observationTimes,
+                                                   models,
+                                                   simulations,
+                                                   angularLinks,
+                                                   one_way_range,
+                                                   selected,
+                                                   constantAbsoluteBias( Eigen::VectorXd::Constant( 1, 12.0 ) ) );
+                addSharedBiasTestObservationModel(
+                        observationTimes,
+                        models,
+                        simulations,
+                        angularLinks,
+                        angular_position,
+                        { { transmitter, LinkEndId( target, "" ) }, { receiver, LinkEndId( "OtherObserver", "" ) } },
+                        constantAbsoluteBias( excludedBias ) );
                 // Independent position observations make all three target states identifiable.
-                addModel( position_observable, { { observed_body, LinkEndId( target, "" ) } }, nullptr );
+                addSharedBiasTestObservationModel( observationTimes,
+                                                   models,
+                                                   simulations,
+                                                   angularLinks,
+                                                   position_observable,
+                                                   { { observed_body, LinkEndId( target, "" ) } },
+                                                   nullptr );
             }
-            addModel( angular_position,
-                      { { transmitter, LinkEndId( "A", "" ) }, { receiver, LinkEndId( "Euclid", "camera" ) } },
-                      constantAbsoluteBias( excludedBias ) );
-            addModel( angular_position,
-                      { { transmitter, LinkEndId( "Euclid", "" ) }, { receiver, LinkEndId( "A", "" ) } },
-                      constantAbsoluteBias( excludedBias ) );
+            addSharedBiasTestObservationModel( observationTimes,
+                                               models,
+                                               simulations,
+                                               angularLinks,
+                                               angular_position,
+                                               { { transmitter, LinkEndId( "A", "" ) }, { receiver, LinkEndId( "Euclid", "camera" ) } },
+                                               constantAbsoluteBias( excludedBias ) );
+            addSharedBiasTestObservationModel( observationTimes,
+                                               models,
+                                               simulations,
+                                               angularLinks,
+                                               angular_position,
+                                               { { transmitter, LinkEndId( "Euclid", "" ) }, { receiver, LinkEndId( "A", "" ) } },
+                                               constantAbsoluteBias( excludedBias ) );
+            // Ensure the fixture contains five angular links that must be excluded as well as the three selected links.
             BOOST_REQUIRE_EQUAL( angularLinks.size( ), 8 );
 
             std::vector< std::shared_ptr< EstimatableParameterSettings > > settings;
@@ -252,9 +334,12 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                     std::dynamic_pointer_cast< SharedObservationBiasParameter >( parameters->getVectorParameters( ).at( 18 ) );
             auto rangeParameter = std::dynamic_pointer_cast< SharedObservationBiasParameter >(
                     parameters->getVectorParameters( ).at( 18 + trueAngularBias.size( ) ) );
+            // Both factory settings must produce shared parameters, with separate vectors for angular and range biases.
             BOOST_REQUIRE( angularParameter != nullptr );
             BOOST_REQUIRE( rangeParameter != nullptr );
+
             OrbitDeterminationManager< double, double > manager( bodies, parameters, models, propagator );
+            // Binding must find exactly three models for each observable and allocate one vector per shared parameter.
             BOOST_CHECK_EQUAL( angularParameter->getMembers( ).size( ), 3 );
             BOOST_CHECK_EQUAL( rangeParameter->getMembers( ).size( ), 3 );
             BOOST_CHECK_EQUAL( parameters->getParameterSetSize( ), 18 + trueAngularBias.size( ) + 1 );
@@ -269,11 +354,15 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 Eigen::VectorXd values;
                 Eigen::MatrixXd partials;
                 angularManager->computeObservationsWithPartials( checkTimes, links, receiver, nullptr, values, partials );
-                const bool selected = angularParameter->matches( links, angular_position );
+                const bool selected = angularParameter->doesObservationMatch( links, angular_position );
                 if( !selected )
                 {
+                    // Excluded angular links must have no dependence on the shared angular-bias columns.
                     BOOST_CHECK_SMALL( partials.middleCols( 18, trueAngularBias.size( ) ).norm( ), 1.0E-30 );
                 }
+
+                // Perturb each common component and compare every link's numerical derivative with its assembled partial.
+                // Nonzero relative, absolute, and time biases in the relative case expose use of the wrong observable or epoch.
                 for( int column = 0; column < trueAngularBias.size( ); ++column )
                 {
                     const double step = 1.0E-6;
@@ -291,6 +380,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 }
                 if( arcWise && selected )
                 {
+                    // At reception time 3600, reception-based arcs use the second block; emission was still in the first arc.
                     const int activeColumn = timeLinkEnd == receiver ? 20 : 18;
                     BOOST_CHECK_SMALL( ( partials.block< 2, 2 >( 4, activeColumn ) - Eigen::Matrix2d::Identity( ) ).norm( ), 1.0E-15 );
                 }
@@ -300,9 +390,11 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             manager.getObservationManagers( )
                     .at( one_way_range )
                     ->computeObservationsWithPartials( checkTimes, angularLinks.front( ), receiver, nullptr, rangeValues, rangePartials );
+            // The same link geometry must depend on the range bias only: zero angular columns and unit absolute-range partial.
             BOOST_CHECK_SMALL( rangePartials.middleCols( 18, trueAngularBias.size( ) ).norm( ), 1.0E-30 );
             BOOST_CHECK_SMALL( ( rangePartials.col( 18 + trueAngularBias.size( ) ).array( ) - 1.0 ).matrix( ).norm( ), 1.0E-15 );
 
+            // Perturb both the target states and shared biases before estimating them jointly.
             Eigen::VectorXd initialGuess = truth;
             for( int i = 0; i < 3; ++i )
             {
@@ -315,19 +407,25 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             auto input = std::make_shared< EstimationInput< double, double > >( observations );
             input->defineEstimationSettings( true, true, true, false, true, false );
             auto output = manager.estimateParameters( input );
+            // Estimation must complete its inversion successfully.
             BOOST_REQUIRE( !output->exceptionDuringInversion_ );
+
+            // Recover all three target states and both shared biases from perturbed guesses, leaving small residuals.
             BOOST_CHECK_SMALL( ( output->parameterEstimate_.head( 18 ) - truth.head( 18 ) ).norm( ), 1.0E-5 );
             BOOST_CHECK_SMALL( ( output->parameterEstimate_.segment( 18, trueAngularBias.size( ) ) - trueAngularBias ).norm( ), 1.0E-11 );
             BOOST_CHECK_SMALL( std::abs( output->parameterEstimate_.tail( 1 )( 0 ) - 12.0 ), 1.0E-6 );
             BOOST_CHECK_SMALL( output->residuals_.cwiseAbs( ).maxCoeff( ), 1.0E-5 );
+
+            // Each underlying selected model must receive the final common angular-bias value.
             for( const auto& member : angularParameter->getMembers( ) )
             {
                 BOOST_CHECK_SMALL( ( member.second->getParameterValue( ) - trueAngularBias ).norm( ), 1.0E-11 );
             }
             auto simulator = std::dynamic_pointer_cast< ObservationSimulator< 2 > >( angularManager->getObservationSimulator( ) );
+            // Models excluded by body, reference point, or link-end role must retain their original bias values.
             for( const auto& links : angularLinks )
             {
-                if( !angularParameter->matches( links, angular_position ) )
+                if( !angularParameter->doesObservationMatch( links, angular_position ) )
                 {
                     const auto bias = std::dynamic_pointer_cast< ConstantObservationBias< 2 > >(
                             simulator->getObservationModel( links )->getObservationBiasCalculator( ) );
@@ -339,6 +437,10 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
     }
 }
 
+//! Check invalid shared-bias settings, model compatibility, and values assigned before binding.
+//! Reject unsupported types, invalid arc definitions, inconsistent parameter objects, and ambiguous or missing model matches.
+//! These checks prevent silently fitting the wrong links or choosing an arbitrary model's initial value.
+//! Also verify that an explicit pre-binding value is applied to every member and survives rebuilding the member list.
 BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
 {
     using namespace observation_models;
@@ -347,13 +449,19 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
 
     const LinkEndId observerId( "Euclid", "" );
     const auto constantSettings = sharedObservationBias( constant_absolute_bias, angular_position, receiver, observerId );
+
+    // The shared factory supports neither time biases nor arc-wise relative biases.
     BOOST_CHECK_THROW( sharedObservationBias( constant_time_bias, angular_position, receiver, observerId ), std::runtime_error );
     BOOST_CHECK_THROW( sharedObservationBias( arc_wise_constant_relative_bias, angular_position, receiver, observerId ),
                        std::runtime_error );
+
+    // Arc-wise biases require arc boundaries; constant biases must not accept them.
     BOOST_CHECK_THROW( sharedObservationBias( arc_wise_constant_absolute_bias, angular_position, receiver, observerId ),
                        std::runtime_error );
     BOOST_CHECK_THROW( sharedObservationBias( constant_absolute_bias, angular_position, receiver, observerId, { 0.0 } ),
                        std::runtime_error );
+
+    // Arc boundaries must be ordered, distinct, and finite so their parameter blocks are unambiguous.
     BOOST_CHECK_THROW( sharedObservationBias( arc_wise_constant_absolute_bias, angular_position, receiver, observerId, { 2.0, 1.0 } ),
                        std::runtime_error );
     BOOST_CHECK_THROW( sharedObservationBias( arc_wise_constant_absolute_bias, angular_position, receiver, observerId, { 0.0, 0.0 } ),
@@ -371,63 +479,105 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
         bodySettings.at( names.at( i ) )->ephemerisSettings = constantEphemerisSettings( state, "SSB", "J2000" );
     }
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    auto makeModels = [ & ]( const std::vector< std::shared_ptr< ObservationBiasSettings > >& biases ) {
-        std::vector< std::shared_ptr< ObservationModelSettings > > models;
-        for( unsigned int i = 0; i < biases.size( ); ++i )
-        {
-            LinkEnds links = { { transmitter, LinkEndId( names.at( i + 1 ), "" ) }, { receiver, observerId } };
-            models.push_back( std::make_shared< ObservationModelSettings >( angular_position, links, nullptr, biases.at( i ) ) );
-        }
-        return models;
-    };
     const std::shared_ptr< propagators::PropagatorSettings< double > > noPropagator;
-    auto makeManager = [ & ]( const std::shared_ptr< EstimatableParameterSettings >& settings,
-                              const std::vector< std::shared_ptr< ObservationBiasSettings > >& biases ) {
-        auto parameters = createParametersToEstimate< double, double >( { settings }, bodies );
-        return std::make_shared< OrbitDeterminationManager< double, double > >( bodies, parameters, makeModels( biases ), noPropagator );
-    };
     const auto zeroBias = constantAbsoluteBias( Eigen::Vector2d::Zero( ) );
     const auto otherBias = constantAbsoluteBias( Eigen::Vector2d::Ones( ) );
-    BOOST_CHECK_THROW( makeManager( constantSettings, { zeroBias, nullptr, zeroBias } ), std::runtime_error );
-    BOOST_CHECK_THROW( makeManager( constantSettings, { zeroBias, otherBias, zeroBias } ), std::runtime_error );
-    BOOST_CHECK_THROW( makeManager( constantSettings, { multipleObservationBiasSettings( { zeroBias, otherBias } ) } ),
+    // An inconsistent parameter identifier must produce an exception rather than a null-pointer dereference.
+    const LinkEnds testLinks = { { transmitter, LinkEndId( "A", "" ) }, { receiver, observerId } };
+    const auto inconsistentParameter =
+            std::make_shared< SingleArcObservationBiasParameter >( shared_observation_bias, nullptr, nullptr, testLinks, angular_position );
+    BOOST_CHECK_THROW( doesObservationParameterMatchObservable( inconsistentParameter, angular_position ), std::runtime_error );
+    BOOST_CHECK_THROW( observation_partials::createObservationPartialWrtLinkProperty< 2 >(
+                               testLinks, angular_position, inconsistentParameter, bodies ),
                        std::runtime_error );
-    BOOST_CHECK_THROW( makeManager( sharedObservationBias( constant_absolute_bias, angular_position, transmitter, observerId ),
-                                    { zeroBias, zeroBias, zeroBias } ),
+
+    // Every selected model must contain the requested bias component.
+    BOOST_CHECK_THROW( createSharedBiasTestEstimator( bodies, names, observerId, constantSettings, { zeroBias, nullptr, zeroBias } ),
                        std::runtime_error );
-    BOOST_CHECK_THROW( makeManager( sharedObservationBias( constant_absolute_bias, one_way_range, receiver, observerId ),
-                                    { zeroBias, zeroBias, zeroBias } ),
+
+    // Different initial model values must be rejected unless a common value was explicitly assigned.
+    BOOST_CHECK_THROW( createSharedBiasTestEstimator( bodies, names, observerId, constantSettings, { zeroBias, otherBias, zeroBias } ),
+                       std::runtime_error );
+
+    // Two components of the requested type in one model would make the shared selection ambiguous.
+    BOOST_CHECK_THROW(
+            createSharedBiasTestEstimator(
+                    bodies, names, observerId, constantSettings, { multipleObservationBiasSettings( { zeroBias, otherBias } ) } ),
+            std::runtime_error );
+    // Nested combined biases must still contain exactly one component of the selected type.
+    const auto nestedBias = multipleObservationBiasSettings(
+            { constantRelativeBias( Eigen::Vector2d::Zero( ) ), multipleObservationBiasSettings( { zeroBias } ) } );
+    BOOST_CHECK_NO_THROW(
+            createSharedBiasTestEstimator( bodies, names, observerId, constantSettings, { nestedBias, zeroBias, zeroBias } ) );
+    BOOST_CHECK_THROW(
+            createSharedBiasTestEstimator(
+                    bodies, names, observerId, constantSettings, { multipleObservationBiasSettings( { zeroBias, nestedBias } ) } ),
+            std::runtime_error );
+
+    // Selecting Euclid as transmitter must not accidentally match links on which it is the receiver.
+    BOOST_CHECK_THROW(
+            createSharedBiasTestEstimator( bodies,
+                                           names,
+                                           observerId,
+                                           sharedObservationBias( constant_absolute_bias, angular_position, transmitter, observerId ),
+                                           { zeroBias, zeroBias, zeroBias } ),
+            std::runtime_error );
+
+    // A shared range parameter must fail when the available models are all angular observations.
+    BOOST_CHECK_THROW( createSharedBiasTestEstimator( bodies,
+                                                      names,
+                                                      observerId,
+                                                      sharedObservationBias( constant_absolute_bias, one_way_range, receiver, observerId ),
+                                                      { zeroBias, zeroBias, zeroBias } ),
                        std::runtime_error );
     const auto arcSettings =
             sharedObservationBias( arc_wise_constant_absolute_bias, angular_position, receiver, observerId, { 0.0, 10.0 } );
     const std::vector< Eigen::VectorXd > arcValues = { Eigen::Vector2d::Zero( ), Eigen::Vector2d::Ones( ) };
     const auto goodArc = arcWiseAbsoluteBias( { 0.0, 10.0 }, arcValues, receiver );
-    BOOST_CHECK_THROW( makeManager( arcSettings, { goodArc, arcWiseAbsoluteBias( { 0.0, 11.0 }, arcValues, receiver ) } ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW( makeManager( arcSettings, { goodArc, arcWiseAbsoluteBias( { 0.0, 10.0 }, arcValues, transmitter ) } ),
-                       std::runtime_error );
+
+    // Equal vector sizes are insufficient: all members must use the same boundaries and arc reference-time role.
+    BOOST_CHECK_THROW(
+            createSharedBiasTestEstimator(
+                    bodies, names, observerId, arcSettings, { goodArc, arcWiseAbsoluteBias( { 0.0, 11.0 }, arcValues, receiver ) } ),
+            std::runtime_error );
+    BOOST_CHECK_THROW(
+            createSharedBiasTestEstimator(
+                    bodies, names, observerId, arcSettings, { goodArc, arcWiseAbsoluteBias( { 0.0, 10.0 }, arcValues, transmitter ) } ),
+            std::runtime_error );
 
     // A deliberate pre-closure assignment initializes every member, even if their settings differ.
     auto parameters = createParametersToEstimate< double, double >( { constantSettings }, bodies );
     const auto shared = std::dynamic_pointer_cast< SharedObservationBiasParameter >( parameters->getVectorParameters( ).at( 0 ) );
+    // Verify the factory type before testing assignments made while the member list is still empty.
     BOOST_REQUIRE( shared != nullptr );
     const Eigen::Vector2d desired( 1.0E-4, -2.0E-4 );
     parameters->resetParameterValues( Eigen::VectorXd( desired ) );
     OrbitDeterminationManager< double, double > manager(
-            bodies, parameters, makeModels( { zeroBias, otherBias, zeroBias } ), noPropagator );
+            bodies,
+            parameters,
+            createSharedBiasTestObservationModels( names, observerId, { zeroBias, otherBias, zeroBias } ),
+            noPropagator );
+
+    // The explicit value must override differing model initial values and be readable from every member.
     BOOST_CHECK_EQUAL( shared->getMembers( ).size( ), 3 );
     BOOST_CHECK_SMALL( ( shared->getParameterValue( ) - desired ).norm( ), 1.0E-30 );
     for( const auto& member : shared->getMembers( ) )
     {
         BOOST_CHECK_SMALL( ( member.second->getParameterValue( ) - desired ).norm( ), 1.0E-30 );
     }
+
+    // Parameter updates must preserve the angular observable's two-component vector size.
     BOOST_CHECK_THROW( shared->setParameterValue( Eigen::Vector3d::Zero( ) ), std::runtime_error );
+
+    // Detect an out-of-band change to one member instead of returning an arbitrary shared value.
     shared->getMembers( ).begin( )->second->setParameterValue( Eigen::Vector2d::Zero( ) );
     BOOST_CHECK_THROW( shared->getParameterValue( ), std::runtime_error );
     shared->setParameterValue( desired );
     auto simulator = std::dynamic_pointer_cast< ObservationSimulator< 2 > >(
             manager.getObservationManagers( ).at( angular_position )->getObservationSimulator( ) );
     performObservationParameterEstimationClosure( simulator, parameters );
+
+    // Rebinding must rebuild three unique members and preserve the explicitly assigned common value.
     BOOST_CHECK_EQUAL( shared->getMembers( ).size( ), 3 );
     BOOST_CHECK_SMALL( ( shared->getParameterValue( ) - desired ).norm( ), 1.0E-30 );
 }

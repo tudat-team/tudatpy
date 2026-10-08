@@ -396,6 +396,7 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
+        // Each relative-bias component affects only the corresponding observable component.
         const Eigen::Matrix< double, ObservationSize, ObservationSize > partial = currentObservation.asDiagonal( );
         return { std::make_pair( partial, times.at( 0 ) ) };
     }
@@ -413,6 +414,7 @@ template< int ObservationSize, typename ObservationScalarType = double, typename
 class ObservationPartialWrtSharedRelativeBias : public ObservationPartial< ObservationSize >
 {
 public:
+    //! Retain the ordinary relative-bias partial and its observation model for local recomputation.
     ObservationPartialWrtSharedRelativeBias(
             const std::shared_ptr< ObservationPartial< ObservationSize > >& relativeBiasPartial,
             const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > >&
@@ -421,6 +423,7 @@ public:
         relativeBiasPartial_( relativeBiasPartial ), observationModel_( observationModel )
     {}
 
+    //! Recompute the ideal observation at the supplied event time and delegate the derivative calculation.
     std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
@@ -441,8 +444,10 @@ public:
     }
 
 private:
+    //! Existing implementation of the component-wise relative-bias derivative.
     std::shared_ptr< ObservationPartial< ObservationSize > > relativeBiasPartial_;
 
+    //! Model used to evaluate the unbiased observable at the same event time.
     std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel_;
 };
 

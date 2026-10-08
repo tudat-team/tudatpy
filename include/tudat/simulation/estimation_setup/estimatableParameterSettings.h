@@ -225,6 +225,7 @@ public:
 class SharedObservationBiasEstimatableParameterSettings : public EstimatableParameterSettings
 {
 public:
+    //! Store the selection and arc settings, rejecting unsupported or inconsistent combinations.
     SharedObservationBiasEstimatableParameterSettings(
             observation_models::ObservationBiasTypes biasType,
             observation_models::ObservableType observableType,
@@ -240,11 +241,22 @@ public:
         SharedObservationBiasParameter( biasType, observableType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
     }
 
+    //! Bias model type that each selected observation model must contain.
     observation_models::ObservationBiasTypes biasType_;
+
+    //! Observable type for which the bias parameter is shared.
     observation_models::ObservableType observableType_;
+
+    //! Link-end role used to select matching observation links.
     observation_models::LinkEndType linkEndType_;
+
+    //! Body and reference point required at the selected link-end role.
     observation_models::LinkEndId linkEndId_;
+
+    //! Shared arc boundaries; empty for constant biases.
     std::vector< double > arcStartTimes_;
+
+    //! Event time used for arc selection; unidentified_link_end defaults to linkEndType_.
     observation_models::LinkEndType timeLinkEnd_;
 };
 

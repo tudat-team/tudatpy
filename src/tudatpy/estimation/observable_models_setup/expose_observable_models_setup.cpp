@@ -41,6 +41,7 @@ void expose_observable_models_setup_types( py::module& m )
 
     model_settings::expose_observable_type( model_settings );
     links::expose_links( links );
+    // Register the bias enum before the parameter factory that accepts it is exposed.
     auto biases = m.def_submodule( "biases" );
     biases::expose_bias_types( biases );
 }
@@ -49,7 +50,7 @@ void expose_observable_models_setup( py::module& m )
 {
     auto light_time_corrections = m.def_submodule( "light_time_corrections" );
     auto model_settings = py::module_::import( "tudatpy.kernel.estimation.observable_models_setup.model_settings" );
-    auto biases = py::module_::import( "tudatpy.kernel.estimation.observable_models_setup.biases" );
+    auto biases = m.def_submodule( "biases" );
 
     biases::expose_biases( biases );
     light_time_corrections::expose_light_time_corrections( light_time_corrections );

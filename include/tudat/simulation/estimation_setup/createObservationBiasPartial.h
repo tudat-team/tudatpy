@@ -111,11 +111,16 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
             case estimatable_parameters::shared_observation_bias: {
                 const auto sharedBias =
                         std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameterToEstimate );
-                if( useObservationBiasPartials && sharedBias->matches( linkEnds, observableType ) )
+                if( sharedBias == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating shared observation bias partial: inconsistent parameter type." );
+                }
+                if( useObservationBiasPartials && sharedBias->doesObservationMatch( linkEnds, observableType ) )
                 {
                     const auto member = sharedBias->getMember( linkEnds );
                     if( member != nullptr )
                     {
+                        // Reuse this link's ordinary partial; the caller retains the shared parameter's column indices.
                         observationPartial = createObservationPartialWrtLinkProperty< ObservationSize >( linkEnds,
                                                                                                          observableType,
                                                                                                          member,

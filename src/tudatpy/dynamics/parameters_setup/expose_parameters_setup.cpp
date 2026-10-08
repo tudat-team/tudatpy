@@ -1574,6 +1574,7 @@ EstimatableParameterSettings
 
     m.def(
             "shared_observation_bias",
+            // Convert optional Python arguments to the defaults used by the C++ shared-bias factory.
             []( tom::ObservationBiasTypes biasType,
                 tom::ObservableType observableType,
                 tom::LinkEndType linkEndType,

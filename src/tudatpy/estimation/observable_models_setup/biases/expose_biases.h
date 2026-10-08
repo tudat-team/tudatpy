@@ -27,6 +27,7 @@ namespace biases
 
 void expose_biases( py::module& m );
 
+//! Expose the bias types supported by the shared observation-bias parameter factory.
 void expose_bias_types( py::module& m );
 
 }  // namespace biases

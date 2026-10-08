@@ -235,6 +235,7 @@ void MultiArcObservationBiasParameter::setLookupScheme( const std::shared_ptr< i
     lookupScheme_ = lookupScheme;
 }
 
+//! Define the shared selector and validate the supported bias type and common arc boundaries.
 SharedObservationBiasParameter::SharedObservationBiasParameter( const observation_models::ObservationBiasTypes biasType,
                                                                 const observation_models::ObservableType observableType,
                                                                 const observation_models::LinkEndType linkEndType,
@@ -259,6 +260,7 @@ SharedObservationBiasParameter::SharedObservationBiasParameter( const observatio
     }
     if( biasType == arc_wise_constant_absolute_bias )
     {
+        // The parameter dimension is fixed before observation models are available for binding.
         if( arcStartTimes.empty( ) )
         {
             throw std::runtime_error( "Shared arc-wise observation bias requires arc start times." );
@@ -277,12 +279,14 @@ SharedObservationBiasParameter::SharedObservationBiasParameter( const observatio
     }
 }
 
+//! Return one observable-sized bias vector per arc, independent of the number of linked models.
 int SharedObservationBiasParameter::getParameterSize( )
 {
     return observation_models::getObservableSize( observableType_ ) *
             ( biasType_ == observation_models::arc_wise_constant_absolute_bias ? arcStartTimes_.size( ) : 1 );
 }
 
+//! Describe the shared selector and bias type for parameter listings and error messages.
 std::string SharedObservationBiasParameter::getParameterDescription( )
 {
     return "shared observation bias for " + observation_models::getObservableName( observableType_ ) + ", link-end role " +
@@ -290,19 +294,23 @@ std::string SharedObservationBiasParameter::getParameterDescription( )
             std::to_string( biasType_ );
 }
 
-bool SharedObservationBiasParameter::matches( const observation_models::LinkEnds& linkEnds,
-                                              const observation_models::ObservableType observableType ) const
+//! Select observations by type and by the complete link-end identifier at the requested role.
+bool SharedObservationBiasParameter::doesObservationMatch( const observation_models::LinkEnds& linkEnds,
+                                                           const observation_models::ObservableType observableType ) const
 {
     const auto it = linkEnds.find( linkEndType_ );
     return observableType == observableType_ && it != linkEnds.end( ) && it->second == linkEndId_;
 }
 
+//! Return the shared value while checking that all linked models remain consistent.
 Eigen::VectorXd SharedObservationBiasParameter::getParameterValue( )
 {
+    // Match ordinary bias parameters: values may be assigned before the observation models exist.
     if( members_.empty( ) )
     {
         return hasDeferredValue_ ? deferredValue_ : Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
     }
+    // A shared parameter represents one value; never silently choose between inconsistent models.
     const Eigen::VectorXd value = members_.begin( )->second->getParameterValue( );
     for( const auto& member : members_ )
     {
@@ -314,12 +322,14 @@ Eigen::VectorXd SharedObservationBiasParameter::getParameterValue( )
     return value;
 }
 
+//! Assign the same bias to all current members and remember it for subsequent bindings.
 void SharedObservationBiasParameter::setParameterValue( Eigen::VectorXd value )
 {
     if( value.size( ) != getParameterSize( ) )
     {
         throw std::runtime_error( "Incorrect shared observation bias parameter size." );
     }
+    // Keep the explicit assignment so later bindings receive the same value as existing members.
     deferredValue_ = value;
     hasDeferredValue_ = true;
     for( const auto& member : members_ )
@@ -328,17 +338,20 @@ void SharedObservationBiasParameter::setParameterValue( Eigen::VectorXd value )
     }
 }
 
+//! Discard old model bindings while retaining any explicitly assigned parameter value.
 void SharedObservationBiasParameter::clearMembers( )
 {
     members_.clear( );
 }
 
+//! Create an unbound ordinary bias parameter for the selected link geometry.
 std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > SharedObservationBiasParameter::createMember(
         const observation_models::LinkEnds& linkEnds ) const
 {
     using namespace observation_models;
     if( biasType_ == arc_wise_constant_absolute_bias )
     {
+        // Convert the common time-link role to the event index for this particular link geometry.
         return std::make_shared< MultiArcObservationBiasParameter >(
                 arcwise_constant_additive_observation_bias,
                 arcStartTimes_,
@@ -356,6 +369,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > SharedObservationBias
             observableType_ );
 }
 
+//! Register a bound member after checking its size, uniqueness, and initial bias value.
 void SharedObservationBiasParameter::addMember( const observation_models::LinkEnds& linkEnds,
                                                 const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& member )
 {
@@ -365,6 +379,7 @@ void SharedObservationBiasParameter::addMember( const observation_models::LinkEn
     }
     if( hasDeferredValue_ )
     {
+        // An explicit parameter assignment overrides the initial values in the model settings.
         member->setParameterValue( deferredValue_ );
     }
     else if( !members_.empty( ) && !getParameterValue( ).isApprox( member->getParameterValue( ), 1.0E-14 ) )
@@ -374,6 +389,7 @@ void SharedObservationBiasParameter::addMember( const observation_models::LinkEn
     members_.emplace( linkEnds, member );
 }
 
+//! Look up the ordinary parameter used to create partials for a particular link geometry.
 std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > SharedObservationBiasParameter::getMember(
         const observation_models::LinkEnds& linkEnds ) const
 {
