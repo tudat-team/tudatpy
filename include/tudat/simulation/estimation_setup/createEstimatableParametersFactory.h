@@ -1973,6 +1973,20 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         // Identify parameter type.
         switch( vectorParameterName->parameterType_.first )
         {
+            case shared_observation_bias: {
+                const auto settings = std::dynamic_pointer_cast< SharedObservationBiasEstimatableParameterSettings >( vectorParameterName );
+                if( settings == nullptr )
+                {
+                    throw std::runtime_error( "Inconsistent shared observation bias settings." );
+                }
+                vectorParameterToEstimate = std::make_shared< SharedObservationBiasParameter >( settings->biasType_,
+                                                                                                settings->observableType_,
+                                                                                                settings->linkEndType_,
+                                                                                                settings->linkEndId_,
+                                                                                                settings->arcStartTimes_,
+                                                                                                settings->timeLinkEnd_ );
+                break;
+            }
             case constant_additive_observation_bias: {
                 std::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
                         std::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );

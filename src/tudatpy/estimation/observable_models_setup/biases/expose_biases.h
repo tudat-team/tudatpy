@@ -26,6 +26,7 @@ namespace biases
 {
 
 void expose_biases( py::module& m );
+void expose_bias_types( py::module& m );
 
 }  // namespace biases
 }  // namespace observable_models_setup

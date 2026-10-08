@@ -108,6 +108,27 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         // Check parameter type
         switch( parameterToEstimate->getParameterName( ).first )
         {
+            case estimatable_parameters::shared_observation_bias: {
+                const auto sharedBias =
+                        std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameterToEstimate );
+                if( useObservationBiasPartials && sharedBias->matches( linkEnds, observableType ) )
+                {
+                    const auto member = sharedBias->getMember( linkEnds );
+                    if( member != nullptr )
+                    {
+                        observationPartial = createObservationPartialWrtLinkProperty< ObservationSize >( linkEnds,
+                                                                                                         observableType,
+                                                                                                         member,
+                                                                                                         bodies,
+                                                                                                         isPartialForDifferencedObservable,
+                                                                                                         isPartialForConcatenatedObservable,
+                                                                                                         observationPartials,
+                                                                                                         partialWrtStateCreationFunction,
+                                                                                                         observationBiases );
+                    }
+                }
+                break;
+            }
             case estimatable_parameters::constant_additive_observation_bias: {
                 if( useObservationBiasPartials )
                 {

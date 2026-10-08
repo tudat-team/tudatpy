@@ -235,6 +235,152 @@ void MultiArcObservationBiasParameter::setLookupScheme( const std::shared_ptr< i
     lookupScheme_ = lookupScheme;
 }
 
+SharedObservationBiasParameter::SharedObservationBiasParameter( const observation_models::ObservationBiasTypes biasType,
+                                                                const observation_models::ObservableType observableType,
+                                                                const observation_models::LinkEndType linkEndType,
+                                                                const observation_models::LinkEndId& linkEndId,
+                                                                const std::vector< double >& arcStartTimes,
+                                                                const observation_models::LinkEndType timeLinkEnd ):
+    EstimatableParameter< Eigen::VectorXd >( shared_observation_bias,
+                                             linkEndId.bodyName_,
+                                             linkEndId.getReferencePointName( ) + ":" + std::to_string( linkEndType ) + ":" +
+                                                     std::to_string( observableType ) + ":" + std::to_string( biasType ) ),
+    biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
+    arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd == observation_models::unidentified_link_end ? linkEndType : timeLinkEnd )
+{
+    using namespace observation_models;
+    if( biasType != constant_absolute_bias && biasType != constant_relative_bias && biasType != arc_wise_constant_absolute_bias )
+    {
+        throw std::runtime_error( "Unsupported shared observation bias type." );
+    }
+    if( linkEndType == unidentified_link_end || linkEndId.bodyName_.empty( ) )
+    {
+        throw std::runtime_error( "Shared observation bias requires a link-end role and body." );
+    }
+    if( biasType == arc_wise_constant_absolute_bias )
+    {
+        if( arcStartTimes.empty( ) )
+        {
+            throw std::runtime_error( "Shared arc-wise observation bias requires arc start times." );
+        }
+        for( unsigned int i = 0; i < arcStartTimes.size( ); ++i )
+        {
+            if( !std::isfinite( arcStartTimes.at( i ) ) || ( i > 0 && arcStartTimes.at( i ) <= arcStartTimes.at( i - 1 ) ) )
+            {
+                throw std::runtime_error( "Shared bias arc start times must be finite and strictly increasing." );
+            }
+        }
+    }
+    else if( !arcStartTimes.empty( ) || timeLinkEnd != unidentified_link_end )
+    {
+        throw std::runtime_error( "Arc settings can only be supplied for an arc-wise shared bias." );
+    }
+}
+
+int SharedObservationBiasParameter::getParameterSize( )
+{
+    return observation_models::getObservableSize( observableType_ ) *
+            ( biasType_ == observation_models::arc_wise_constant_absolute_bias ? arcStartTimes_.size( ) : 1 );
+}
+
+std::string SharedObservationBiasParameter::getParameterDescription( )
+{
+    return "shared observation bias for " + observation_models::getObservableName( observableType_ ) + ", link-end role " +
+            std::to_string( linkEndType_ ) + ", (" + linkEndId_.bodyName_ + ", " + linkEndId_.getReferencePointName( ) + "), bias type " +
+            std::to_string( biasType_ );
+}
+
+bool SharedObservationBiasParameter::matches( const observation_models::LinkEnds& linkEnds,
+                                              const observation_models::ObservableType observableType ) const
+{
+    const auto it = linkEnds.find( linkEndType_ );
+    return observableType == observableType_ && it != linkEnds.end( ) && it->second == linkEndId_;
+}
+
+Eigen::VectorXd SharedObservationBiasParameter::getParameterValue( )
+{
+    if( members_.empty( ) )
+    {
+        return hasDeferredValue_ ? deferredValue_ : Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
+    }
+    const Eigen::VectorXd value = members_.begin( )->second->getParameterValue( );
+    for( const auto& member : members_ )
+    {
+        if( !value.isApprox( member.second->getParameterValue( ), 1.0E-14 ) )
+        {
+            throw std::runtime_error( "Inconsistent values in " + getParameterDescription( ) );
+        }
+    }
+    return value;
+}
+
+void SharedObservationBiasParameter::setParameterValue( Eigen::VectorXd value )
+{
+    if( value.size( ) != getParameterSize( ) )
+    {
+        throw std::runtime_error( "Incorrect shared observation bias parameter size." );
+    }
+    deferredValue_ = value;
+    hasDeferredValue_ = true;
+    for( const auto& member : members_ )
+    {
+        member.second->setParameterValue( value );
+    }
+}
+
+void SharedObservationBiasParameter::clearMembers( )
+{
+    members_.clear( );
+}
+
+std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > SharedObservationBiasParameter::createMember(
+        const observation_models::LinkEnds& linkEnds ) const
+{
+    using namespace observation_models;
+    if( biasType_ == arc_wise_constant_absolute_bias )
+    {
+        return std::make_shared< MultiArcObservationBiasParameter >(
+                arcwise_constant_additive_observation_bias,
+                arcStartTimes_,
+                nullptr,
+                nullptr,
+                getLinkEndIndicesForLinkEndTypeAtObservable( observableType_, timeLinkEnd_, linkEnds.size( ) ).at( 0 ),
+                linkEnds,
+                observableType_ );
+    }
+    return std::make_shared< SingleArcObservationBiasParameter >(
+            biasType_ == constant_absolute_bias ? constant_additive_observation_bias : constant_relative_observation_bias,
+            nullptr,
+            nullptr,
+            linkEnds,
+            observableType_ );
+}
+
+void SharedObservationBiasParameter::addMember( const observation_models::LinkEnds& linkEnds,
+                                                const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& member )
+{
+    if( members_.count( linkEnds ) != 0 || member->getParameterSize( ) != getParameterSize( ) )
+    {
+        throw std::runtime_error( "Duplicate or incompatible member of " + getParameterDescription( ) );
+    }
+    if( hasDeferredValue_ )
+    {
+        member->setParameterValue( deferredValue_ );
+    }
+    else if( !members_.empty( ) && !getParameterValue( ).isApprox( member->getParameterValue( ), 1.0E-14 ) )
+    {
+        throw std::runtime_error( "Shared observation bias models must have equal initial values." );
+    }
+    members_.emplace( linkEnds, member );
+}
+
+std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > SharedObservationBiasParameter::getMember(
+        const observation_models::LinkEnds& linkEnds ) const
+{
+    const auto it = members_.find( linkEnds );
+    return it == members_.end( ) ? nullptr : it->second;
+}
+
 void TimeBiasParameterBase::setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction )
 {
     bodyAccelerationFunction_ = bodyAccelerationFunction;

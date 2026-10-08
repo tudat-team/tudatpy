@@ -34,6 +34,15 @@ namespace observable_models_setup
 namespace biases
 {
 
+void expose_bias_types( py::module& m )
+{
+    py::enum_< tom::ObservationBiasTypes >( m, "ObservationBiasTypes" )
+            .value( "constant_absolute_bias", tom::constant_absolute_bias )
+            .value( "constant_relative_bias", tom::constant_relative_bias )
+            .value( "arc_wise_constant_absolute_bias", tom::arc_wise_constant_absolute_bias )
+            .export_values( );
+}
+
 void expose_biases( py::module& m )
 {
     py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >( m, "ObservationBiasSettings", R"doc(

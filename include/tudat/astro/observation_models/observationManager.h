@@ -246,6 +246,7 @@ public:
         std::vector< double > vectorOfTimes;
 
         Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation;
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation;
 
         // Iterate over all observation times
         int currentObservationSize;
@@ -258,7 +259,7 @@ public:
             {
                 // Compute observation
                 currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancillarySettings );
+                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancillarySettings, &idealObservation );
             }
             catch( std::runtime_error& caughtException )
             {
@@ -292,6 +293,7 @@ public:
                                                                                       vectorOfTimes,
                                                                                       linkEnds,
                                                                                       currentObservation,
+                                                                                      idealObservation,
                                                                                       linkEndAssociatedWithTime,
                                                                                       ancillarySettings );
                 }
@@ -386,6 +388,7 @@ protected:
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
+            const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation,
             const LinkEndType linkEndAssociatedWithTime,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
     {
@@ -439,8 +442,15 @@ protected:
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
-                    partialIterator->second->calculatePartial(
-                            states, times, linkEndAssociatedWithTime, ancillarySettings, currentObservation.template cast< double >( ) );
+                    partialIterator->second->calculatePartial( states,
+                                                               times,
+                                                               linkEndAssociatedWithTime,
+                                                               ancillarySettings,
+                                                               ( partialIterator->second->getParameterIdentifier( ).first ==
+                                                                                 estimatable_parameters::constant_relative_observation_bias
+                                                                         ? idealObservation
+                                                                         : currentObservation )
+                                                                       .template cast< double >( ) );
 
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.

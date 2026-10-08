@@ -90,3 +90,6 @@ Classes
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings
    :members:
+
+.. autoclass:: tudatpy.estimation.observable_models_setup.biases.ObservationBiasTypes
+   :members:

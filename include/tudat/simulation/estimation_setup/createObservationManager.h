@@ -403,6 +403,9 @@ inline bool doesObservationParameterMatchObservable(
 {
     switch( parameter->getParameterName( ).first )
     {
+        case estimatable_parameters::shared_observation_bias:
+            return std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter )->getObservableType( ) ==
+                    observableType;
         case estimatable_parameters::constant_additive_observation_bias:
         case estimatable_parameters::constant_relative_observation_bias:
         case estimatable_parameters::constant_time_drift_observation_bias: {
@@ -532,6 +535,59 @@ void performObservationParameterEstimationClosure(
             if( requiresBiasModelLinkage &&
                 !doesObservationParameterMatchObservable( vectorBiasParameters.at( i ), observationSimulator->getObservableType( ) ) )
             {
+                continue;
+            }
+
+            if( parameterType == estimatable_parameters::shared_observation_bias )
+            {
+                const auto sharedBias =
+                        std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( vectorBiasParameters.at( i ) );
+                sharedBias->clearMembers( );
+                for( const auto& model : observationModels )
+                {
+                    if( !sharedBias->matches( model.first, observationSimulator->getObservableType( ) ) )
+                    {
+                        continue;
+                    }
+                    // Require exactly one component of the requested type, also within combined biases.
+                    std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > matches;
+                    std::function< void( std::shared_ptr< ObservationBias< ObservationSize > > ) > collectBiases;
+                    collectBiases = [ & ]( const std::shared_ptr< ObservationBias< ObservationSize > > bias ) {
+                        if( bias == nullptr )
+                        {
+                            return;
+                        }
+                        if( getObservationBiasType( bias ) == multiple_observation_biases )
+                        {
+                            for( const auto& component :
+                                 std::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( bias )->getBiasList( ) )
+                            {
+                                collectBiases( component );
+                            }
+                        }
+                        else if( getObservationBiasType( bias ) == sharedBias->getBiasType( ) )
+                        {
+                            matches.push_back( bias );
+                        }
+                    };
+                    collectBiases( model.second->getObservationBiasCalculator( ) );
+                    if( matches.size( ) != 1 )
+                    {
+                        throw std::runtime_error( "Expected exactly one matching bias component for " +
+                                                  sharedBias->getParameterDescription( ) + " at " + getLinkEndsString( model.first ) );
+                    }
+                    const auto member = sharedBias->createMember( model.first );
+                    if( !performObservationParameterEstimationClosureForSingleModelSet(
+                                member, matches.front( ), model.first, observationSimulator->getObservableType( ) ) )
+                    {
+                        throw std::runtime_error( "Incompatible arc definitions for " + sharedBias->getParameterDescription( ) );
+                    }
+                    sharedBias->addMember( model.first, member );
+                }
+                if( sharedBias->getMembers( ).empty( ) )
+                {
+                    throw std::runtime_error( "No observation models match " + sharedBias->getParameterDescription( ) );
+                }
                 continue;
             }
 
@@ -706,6 +762,15 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > > observationManagers;
     std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
             sortObservationModelSettingsByType( observationSettingsList );
+
+    for( const auto& parameter : fullParameters->getEstimatedVectorParameters( ) )
+    {
+        const auto sharedBias = std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter );
+        if( sharedBias != nullptr && sortedObservationSettingsList.count( sharedBias->getObservableType( ) ) == 0 )
+        {
+            throw std::runtime_error( "No observation models match " + sharedBias->getParameterDescription( ) );
+        }
+    }
 
     for( auto it : sortedObservationSettingsList )
     {

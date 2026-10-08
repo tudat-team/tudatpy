@@ -63,6 +63,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_pole_position:
             parameterDescription = "pole position ";
             break;
+        case shared_observation_bias:
+            parameterDescription = "shared observation bias ";
+            break;
         case constant_additive_observation_bias:
             parameterDescription = "absolute observation bias ";
             break;
@@ -312,6 +315,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_pole_position:
             isDoubleParameter = false;
             break;
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             isDoubleParameter = false;
             break;
@@ -549,6 +553,7 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     bool flag;
     switch( parameterType )
     {
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             flag = true;
             break;

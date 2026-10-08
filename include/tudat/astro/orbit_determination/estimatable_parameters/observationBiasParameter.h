@@ -234,6 +234,56 @@ public:
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
+//! One parameter vector shared by the existing bias parameters of multiple observation links.
+class SharedObservationBiasParameter : public EstimatableParameter< Eigen::VectorXd >
+{
+public:
+    SharedObservationBiasParameter( observation_models::ObservationBiasTypes biasType,
+                                    observation_models::ObservableType observableType,
+                                    observation_models::LinkEndType linkEndType,
+                                    const observation_models::LinkEndId& linkEndId,
+                                    const std::vector< double >& arcStartTimes = {},
+                                    observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end );
+
+    Eigen::VectorXd getParameterValue( ) override;
+    void setParameterValue( Eigen::VectorXd value ) override;
+    int getParameterSize( ) override;
+    std::string getParameterDescription( ) override;
+
+    bool matches( const observation_models::LinkEnds& linkEnds, observation_models::ObservableType observableType ) const;
+    observation_models::ObservableType getObservableType( ) const
+    {
+        return observableType_;
+    }
+    observation_models::ObservationBiasTypes getBiasType( ) const
+    {
+        return biasType_;
+    }
+
+    //! Create an ordinary bias parameter to be bound using the existing closure.
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createMember( const observation_models::LinkEnds& linkEnds ) const;
+    void addMember( const observation_models::LinkEnds& linkEnds,
+                    const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& member );
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > getMember( const observation_models::LinkEnds& linkEnds ) const;
+    const std::map< observation_models::LinkEnds, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& getMembers( ) const
+    {
+        return members_;
+    }
+    //! Start a new closure, discarding bindings to any previous observation simulator.
+    void clearMembers( );
+
+private:
+    observation_models::ObservationBiasTypes biasType_;
+    observation_models::ObservableType observableType_;
+    observation_models::LinkEndType linkEndType_;
+    observation_models::LinkEndId linkEndId_;
+    std::vector< double > arcStartTimes_;
+    observation_models::LinkEndType timeLinkEnd_;
+    std::map< observation_models::LinkEnds, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > members_;
+    Eigen::VectorXd deferredValue_;
+    bool hasDeferredValue_ = false;
+};
+
 //! Non-parameter mixin with acceleration callback used by time-bias partials.
 class TimeBiasParameterBase
 {

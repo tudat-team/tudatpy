@@ -370,7 +370,7 @@ public:
      */
     ObservationPartialWrtConstantRelativeBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
-        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_additive_observation_bias,
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_relative_observation_bias,
                                                                linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {}
@@ -396,7 +396,8 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
-        return { std::make_pair( currentObservation, times.at( 0 ) ) };
+        const Eigen::Matrix< double, ObservationSize, ObservationSize > partial = currentObservation.asDiagonal( );
+        return { std::make_pair( partial, times.at( 0 ) ) };
     }
 
 private:
