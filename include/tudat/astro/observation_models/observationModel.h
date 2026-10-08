@@ -166,28 +166,21 @@ public:
      * at which current time is measured, i.e. reference link end for
      * observable. \param linkEndTimes List of times at each link end during
      * observation (returned by reference). \param linkEndStates List of states
-     * at each link end during observation (returned by reference).
-     * \param idealObservation Optional output for the observable before adding biases, at the same link-end times.
-     * \return Calculated observable value.
+     * at each link end during observation (returned by reference). \return
+     * Calculated observable value.
      */
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr,
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >* idealObservation = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
-            const auto value = computeIdealObservationsWithLinkEndData(
+            return computeIdealObservationsWithLinkEndData(
                     time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
-            if( idealObservation != nullptr )
-            {
-                *idealObservation = value;
-            }
-            return value;
         }
         else
         {
@@ -202,10 +195,6 @@ public:
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
                     observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
-            if( idealObservation != nullptr )
-            {
-                *idealObservation = currentObservation;
-            }
 
             // Add correction
             return currentObservation +

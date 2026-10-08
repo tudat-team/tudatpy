@@ -659,6 +659,24 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     {
         observationPartialsAndScaler = createObservablePartialsList(
                 observationSimulator->getObservationModels( ), bodies, parametersToEstimate, false, false, dependentVariablesInterface );
+
+        // Supply the ideal observable locally to shared relative-bias partials.
+        for( const auto& parameter : parametersToEstimate->getVectorParameters( ) )
+        {
+            const auto sharedBias = std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter.second );
+            if( sharedBias != nullptr && sharedBias->getObservableType( ) == observableType &&
+                sharedBias->getBiasType( ) == constant_relative_bias )
+            {
+                const auto parameterIndices = std::make_pair( parameter.first, sharedBias->getParameterSize( ) );
+                for( const auto& member : sharedBias->getMembers( ) )
+                {
+                    auto& partial = observationPartialsAndScaler.at( member.first ).first.at( parameterIndices );
+                    partial =
+                            std::make_shared< ObservationPartialWrtSharedRelativeBias< ObservationSize, ObservationScalarType, TimeType > >(
+                                    partial, observationSimulator->getObservationModel( member.first ) );
+                }
+            }
+        }
     }
 
     // Split position partial scaling and observation partial objects.

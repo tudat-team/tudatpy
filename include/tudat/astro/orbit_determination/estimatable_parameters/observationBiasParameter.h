@@ -246,15 +246,20 @@ public:
                                     observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end );
 
     Eigen::VectorXd getParameterValue( ) override;
+
     void setParameterValue( Eigen::VectorXd value ) override;
+
     int getParameterSize( ) override;
+
     std::string getParameterDescription( ) override;
 
     bool matches( const observation_models::LinkEnds& linkEnds, observation_models::ObservableType observableType ) const;
+
     observation_models::ObservableType getObservableType( ) const
     {
         return observableType_;
     }
+
     observation_models::ObservationBiasTypes getBiasType( ) const
     {
         return biasType_;
@@ -262,13 +267,17 @@ public:
 
     //! Create an ordinary bias parameter to be bound using the existing closure.
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createMember( const observation_models::LinkEnds& linkEnds ) const;
+
     void addMember( const observation_models::LinkEnds& linkEnds,
                     const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& member );
+
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > getMember( const observation_models::LinkEnds& linkEnds ) const;
+
     const std::map< observation_models::LinkEnds, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& getMembers( ) const
     {
         return members_;
     }
+
     //! Start a new closure, discarding bindings to any previous observation simulator.
     void clearMembers( );
 

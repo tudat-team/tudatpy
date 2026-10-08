@@ -212,7 +212,13 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 // Also exercise finding a bias within a combined model.
                 const auto secondaryBias = biasType == constant_relative_bias ? constantAbsoluteBias( Eigen::Vector2d( 4.0E-6, -2.0E-6 ) )
                                                                               : constantRelativeBias( Eigen::Vector2d::Zero( ) );
-                addModel( angular_position, selected, multipleObservationBiasSettings( { makeAngularBias( ), secondaryBias } ) );
+                std::vector< std::shared_ptr< ObservationBiasSettings > > combinedBiases = { makeAngularBias( ), secondaryBias };
+                if( biasType == constant_relative_bias )
+                {
+                    // Shared relative partials must recompute at the biased event time, not the nominal observation time.
+                    combinedBiases.push_back( constantTimeBias( 15.0, receiver ) );
+                }
+                addModel( angular_position, selected, multipleObservationBiasSettings( combinedBiases ) );
                 addModel( one_way_range, selected, constantAbsoluteBias( Eigen::VectorXd::Constant( 1, 12.0 ) ) );
                 addModel( angular_position,
                           { { transmitter, LinkEndId( target, "" ) }, { receiver, LinkEndId( "OtherObserver", "" ) } },
