@@ -169,8 +169,44 @@ std::shared_ptr< OrbitDeterminationManager< double, double > > createSharedBiasT
             bodies, parameters, createSharedBiasTestObservationModels( names, observerId, biases ), noPropagator );
 }
 
+//! Create Earth stations, a nearly circular observer orbit, and three higher target orbits under Earth gravity.
+SystemOfBodies createSharedBiasTestBodies( )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    const double earthGravitationalParameter = spice_interface::getBodyGravitationalParameter( "Earth" );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" }, "Earth", "J2000" );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravitySettings( earthGravitationalParameter );
+    bodySettings.at( "Earth" )->groundStationSettings = {
+        groundStationSettings( "Station1", Eigen::Vector3d( 0.0, 0.35, 0.0 ), coordinate_conversions::geodetic_position ),
+        groundStationSettings( "Station2", Eigen::Vector3d( 0.0, -0.55, 2.0 ), coordinate_conversions::geodetic_position )
+    };
+
+    // The observer follows a prescribed two-body orbit with a 10,000 km semi-major axis and eccentricity 0.01.
+    Eigen::Vector6d observerElements;
+    observerElements << 1.0E7, 0.01, unit_conversions::convertDegreesToRadians( 25.0 ), unit_conversions::convertDegreesToRadians( 35.0 ),
+            unit_conversions::convertDegreesToRadians( 15.0 ), unit_conversions::convertDegreesToRadians( 80.0 );
+    bodySettings.addSettings( "ObserverSatellite" );
+    bodySettings.at( "ObserverSatellite" )->ephemerisSettings =
+            keplerEphemerisSettings( observerElements, 0.0, earthGravitationalParameter, "Earth", "J2000" );
+
+    // The targets have distinct 20,000, 24,000, and 28,000 km orbits, all above the observer's orbit.
+    const std::vector< std::string > targets = { "A", "B", "C" };
+    for( unsigned int i = 0; i < targets.size( ); ++i )
+    {
+        Eigen::Vector6d targetElements;
+        targetElements << 2.0E7 + i * 4.0E6, 0.03 + i * 0.01, unit_conversions::convertDegreesToRadians( 30.0 + i * 15.0 ),
+                unit_conversions::convertDegreesToRadians( 40.0 + i * 20.0 ), unit_conversions::convertDegreesToRadians( 20.0 + i * 70.0 ),
+                unit_conversions::convertDegreesToRadians( 10.0 + i * 90.0 );
+        bodySettings.addSettings( targets.at( i ) );
+        bodySettings.at( targets.at( i ) )->ephemerisSettings =
+                keplerEphemerisSettings( targetElements, 0.0, earthGravitationalParameter, "Earth", "J2000" );
+    }
+    return createSystemOfBodies( bodySettings );
+}
+
 //! Exercise the public setup, propagation, simulation, and estimation interfaces together.
-//! Estimate three target states and shared angular/range biases, selecting exactly three of eight angular links.
+//! Estimate three Earth-orbiting target states and shared angular/range biases, selecting three of eight angular links.
+//! Repeat for a spacecraft receiver and an Earth station to test both body and station-specific selection.
 //! The other links differ in receiver body, reference point, or role, so incorrect selection changes the fitted data.
 //! Cover constant absolute, constant relative, and arc-wise absolute biases, including both arc reference-time roles.
 //! Finite differences check the shared design-matrix columns independently of whether the least-squares fit succeeds.
@@ -180,17 +216,22 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
     using namespace estimatable_parameters;
     using namespace simulation_setup;
 
-    // The last two cases use identical arcs but different event times for choosing an arc.
+    // For each receiver, the last two bias cases use different link-end event times to choose the active arc.
     const std::vector< ObservationBiasTypes > biasTypes = {
         constant_absolute_bias, constant_relative_bias, arc_wise_constant_absolute_bias, arc_wise_constant_absolute_bias
     };
-    for( unsigned int testCase = 0; testCase < biasTypes.size( ); ++testCase )
+    const std::vector< LinkEndId > receiverIds = { LinkEndId( "ObserverSatellite", "" ), LinkEndId( "Earth", "Station1" ) };
+    for( unsigned int testCase = 0; testCase < receiverIds.size( ) * biasTypes.size( ); ++testCase )
     {
         BOOST_TEST_CONTEXT( "shared bias case " << testCase )
         {
-            const auto biasType = biasTypes.at( testCase );
+            const unsigned int biasCase = testCase % biasTypes.size( );
+            const unsigned int receiverCase = testCase / biasTypes.size( );
+            const auto biasType = biasTypes.at( biasCase );
+            const LinkEndId selectedReceiver = receiverIds.at( receiverCase );
+            const LinkEndId otherReceiver = receiverIds.at( 1 - receiverCase );
             const bool arcWise = biasType == arc_wise_constant_absolute_bias;
-            const LinkEndType timeLinkEnd = testCase == 3 ? transmitter : receiver;
+            const LinkEndType timeLinkEnd = biasCase == 3 ? transmitter : receiver;
             const std::vector< double > arcTimes = arcWise ? std::vector< double >{ 0.0, 3600.0 } : std::vector< double >{};
             Eigen::VectorXd trueAngularBias( arcWise ? 4 : 2 );
             trueAngularBias.head< 2 >( ) = Eigen::Vector2d( 2.0E-5, -3.0E-5 );
@@ -203,46 +244,31 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 trueAngularBias *= 100.0;
             }
 
-            // Fixed observers and targets with constant velocities give a deterministic multi-body estimation problem.
-            BodyListSettings bodySettings( "SSB", "J2000" );
-            for( const auto& name : { "Euclid", "OtherObserver" } )
-            {
-                bodySettings.addSettings( name );
-                Eigen::Vector6d state = Eigen::Vector6d::Zero( );
-                if( std::string( name ) == "OtherObserver" )
-                {
-                    state.head< 3 >( ) = Eigen::Vector3d( 2.0E7, -4.0E7, 1.0E7 );
-                }
-                bodySettings.at( name )->ephemerisSettings = constantEphemerisSettings( state, "SSB", "J2000" );
-            }
-            bodySettings.at( "Euclid" )->shapeModelSettings = sphericalBodyShapeSettings( 1.0 );
-            bodySettings.at( "Euclid" )->rotationModelSettings =
-                    constantRotationModelSettings( "J2000", "Euclid_fixed", Eigen::Quaterniond::Identity( ) );
-            bodySettings.at( "Euclid" )
-                    ->groundStationSettings.push_back( groundStationSettings( "camera", Eigen::Vector3d( 1.0, 0.0, 0.0 ) ) );
-            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-            std::vector< std::string > targets = { "A", "B", "C" };
+            SystemOfBodies bodies = createSharedBiasTestBodies( );
+            const std::vector< std::string > targets = { "A", "B", "C" };
+            const std::vector< std::string > centralBodies( targets.size( ), "Earth" );
             Eigen::VectorXd initialState( 18 );
-            basic_astrodynamics::AccelerationMap accelerations;
-            for( int i = 0; i < 3; ++i )
+            SelectedAccelerationMap accelerationSettings;
+            for( unsigned int i = 0; i < targets.size( ); ++i )
             {
-                bodies.createEmptyBody( targets.at( i ) );
+                // Start from the Keplerian orbit, then let numerical propagation supply the target's ephemeris.
+                initialState.segment< 6 >( 6 * i ) = bodies.at( targets.at( i ) )->getStateInBaseFrameFromEphemeris( 0.0 );
                 bodies.at( targets.at( i ) )
                         ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris<> >(
                                 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ),
-                                "SSB",
+                                "Earth",
                                 "J2000" ) );
-                initialState.segment< 6 >( 6 * i ) << 8.0E7 + i * 2.0E7, 5.0E7 - i * 1.0E7, 3.0E7 + i * 1.0E7, 100.0 + i * 20.0, -50.0,
-                        30.0;
-                accelerations[ targets.at( i ) ] = {};
+                // Earth point-mass gravity is the only acceleration acting on each propagated target.
+                accelerationSettings[ targets.at( i ) ][ "Earth" ] = { pointMassGravityAcceleration( ) };
             }
+            const auto accelerations = createAccelerationModelsMap( bodies, accelerationSettings, targets, centralBodies );
             auto propagator = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
-                    std::vector< std::string >( 3, "SSB" ),
+                    centralBodies,
                     accelerations,
                     targets,
                     initialState,
                     0.0,
-                    numerical_integrators::rungeKutta4Settings( 60.0 ),
+                    numerical_integrators::rungeKuttaFixedStepSettings( 60.0, numerical_integrators::rungeKuttaFehlberg78 ),
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( 7200.0 ) );
 
             std::vector< double > observationTimes;
@@ -253,10 +279,12 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             std::vector< std::shared_ptr< ObservationModelSettings > > models;
             std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > simulations;
             std::vector< LinkEnds > angularLinks;
-            const Eigen::Vector2d excludedBias( 7.0E-6, 9.0E-6 );
+            // Fixed RA/Dec offsets (radians) on angular links outside the shared receiver selection.
+            // These biases are not estimated: shared-parameter updates must leave their values unchanged.
+            const Eigen::Vector2d unsharedAngularBias( 7.0E-6, 9.0E-6 );
             for( const auto& target : targets )
             {
-                const LinkEnds selected = { { transmitter, LinkEndId( target, "" ) }, { receiver, LinkEndId( "Euclid", "" ) } };
+                const LinkEnds selected = { { transmitter, LinkEndId( target, "" ) }, { receiver, selectedReceiver } };
                 // Also exercise finding a bias within a combined model.
                 const auto secondaryBias = biasType == constant_relative_bias ? constantAbsoluteBias( Eigen::Vector2d( 4.0E-6, -2.0E-6 ) )
                                                                               : constantRelativeBias( Eigen::Vector2d::Zero( ) );
@@ -282,14 +310,13 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                                                    one_way_range,
                                                    selected,
                                                    constantAbsoluteBias( Eigen::VectorXd::Constant( 1, 12.0 ) ) );
-                addSharedBiasTestObservationModel(
-                        observationTimes,
-                        models,
-                        simulations,
-                        angularLinks,
-                        angular_position,
-                        { { transmitter, LinkEndId( target, "" ) }, { receiver, LinkEndId( "OtherObserver", "" ) } },
-                        constantAbsoluteBias( excludedBias ) );
+                addSharedBiasTestObservationModel( observationTimes,
+                                                   models,
+                                                   simulations,
+                                                   angularLinks,
+                                                   angular_position,
+                                                   { { transmitter, LinkEndId( target, "" ) }, { receiver, otherReceiver } },
+                                                   constantAbsoluteBias( unsharedAngularBias ) );
                 // Independent position observations make all three target states identifiable.
                 addSharedBiasTestObservationModel( observationTimes,
                                                    models,
@@ -304,15 +331,15 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                                                simulations,
                                                angularLinks,
                                                angular_position,
-                                               { { transmitter, LinkEndId( "A", "" ) }, { receiver, LinkEndId( "Euclid", "camera" ) } },
-                                               constantAbsoluteBias( excludedBias ) );
+                                               { { transmitter, LinkEndId( "A", "" ) }, { receiver, LinkEndId( "Earth", "Station2" ) } },
+                                               constantAbsoluteBias( unsharedAngularBias ) );
             addSharedBiasTestObservationModel( observationTimes,
                                                models,
                                                simulations,
                                                angularLinks,
                                                angular_position,
-                                               { { transmitter, LinkEndId( "Euclid", "" ) }, { receiver, LinkEndId( "A", "" ) } },
-                                               constantAbsoluteBias( excludedBias ) );
+                                               { { transmitter, selectedReceiver }, { receiver, LinkEndId( "A", "" ) } },
+                                               constantAbsoluteBias( unsharedAngularBias ) );
             // Ensure the fixture contains five angular links that must be excluded as well as the three selected links.
             BOOST_REQUIRE_EQUAL( angularLinks.size( ), 8 );
 
@@ -320,15 +347,15 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             for( int i = 0; i < 3; ++i )
             {
                 settings.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                        targets.at( i ), initialState.segment< 6 >( 6 * i ), "SSB" ) );
+                        targets.at( i ), initialState.segment< 6 >( 6 * i ), "Earth" ) );
             }
             settings.push_back( sharedObservationBias( biasType,
                                                        angular_position,
                                                        receiver,
-                                                       LinkEndId( "Euclid", "" ),
+                                                       selectedReceiver,
                                                        arcTimes,
-                                                       testCase == 3 ? transmitter : unidentified_link_end ) );
-            settings.push_back( sharedObservationBias( constant_absolute_bias, one_way_range, receiver, LinkEndId( "Euclid", "" ) ) );
+                                                       biasCase == 3 ? transmitter : unidentified_link_end ) );
+            settings.push_back( sharedObservationBias( constant_absolute_bias, one_way_range, receiver, selectedReceiver ) );
             auto parameters = createParametersToEstimate< double, double >( settings, bodies, propagator );
             auto angularParameter =
                     std::dynamic_pointer_cast< SharedObservationBiasParameter >( parameters->getVectorParameters( ).at( 18 ) );
@@ -430,7 +457,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                     const auto bias = std::dynamic_pointer_cast< ConstantObservationBias< 2 > >(
                             simulator->getObservationModel( links )->getObservationBiasCalculator( ) );
                     BOOST_REQUIRE( bias != nullptr );
-                    BOOST_CHECK_SMALL( ( bias->getConstantObservationBias( ) - excludedBias ).norm( ), 1.0E-30 );
+                    BOOST_CHECK_SMALL( ( bias->getConstantObservationBias( ) - unsharedAngularBias ).norm( ), 1.0E-30 );
                 }
             }
         }
@@ -447,7 +474,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
     using namespace estimatable_parameters;
     using namespace simulation_setup;
 
-    const LinkEndId observerId( "Euclid", "" );
+    const LinkEndId observerId( "ObserverSatellite", "" );
     const auto constantSettings = sharedObservationBias( constant_absolute_bias, angular_position, receiver, observerId );
 
     // The shared factory supports neither time biases nor arc-wise relative biases.
@@ -469,16 +496,9 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
     BOOST_CHECK_THROW( sharedObservationBias( arc_wise_constant_absolute_bias, angular_position, receiver, observerId, { TUDAT_NAN } ),
                        std::runtime_error );
 
-    BodyListSettings bodySettings( "SSB", "J2000" );
-    const std::vector< std::string > names = { "Euclid", "A", "B", "C" };
-    for( unsigned int i = 0; i < names.size( ); ++i )
-    {
-        bodySettings.addSettings( names.at( i ) );
-        Eigen::Vector6d state = Eigen::Vector6d::Zero( );
-        state.head< 3 >( ) = Eigen::Vector3d( i * 1.0E8, i * 2.0E8, i * 3.0E8 );
-        bodySettings.at( names.at( i ) )->ephemerisSettings = constantEphemerisSettings( state, "SSB", "J2000" );
-    }
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    // Prescribed Earth orbits suffice here: these checks validate model binding without fitting target states.
+    const std::vector< std::string > names = { "ObserverSatellite", "A", "B", "C" };
+    SystemOfBodies bodies = createSharedBiasTestBodies( );
     const std::shared_ptr< propagators::PropagatorSettings< double > > noPropagator;
     const auto zeroBias = constantAbsoluteBias( Eigen::Vector2d::Zero( ) );
     const auto otherBias = constantAbsoluteBias( Eigen::Vector2d::Ones( ) );
@@ -514,7 +534,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
                     bodies, names, observerId, constantSettings, { multipleObservationBiasSettings( { zeroBias, nestedBias } ) } ),
             std::runtime_error );
 
-    // Selecting Euclid as transmitter must not accidentally match links on which it is the receiver.
+    // Selecting ObserverSatellite as transmitter must not accidentally match links on which it is the receiver.
     BOOST_CHECK_THROW(
             createSharedBiasTestEstimator( bodies,
                                            names,
