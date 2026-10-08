@@ -252,6 +252,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             SelectedAccelerationMap accelerationSettings;
             for( unsigned int i = 0; i < targets.size( ); ++i )
             {
+
                 // Start from the Keplerian orbit, then let numerical propagation supply the target's ephemeris.
                 initialState.segment< 6 >( 6 * i ) = bodies.at( targets.at( i ) )->getStateInBaseFrameFromEphemeris( 0.0 );
                 bodies.at( targets.at( i ) )
@@ -259,6 +260,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                                 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ),
                                 "Earth",
                                 "J2000" ) );
+
                 // Earth point-mass gravity is the only acceleration acting on each propagated target.
                 accelerationSettings[ targets.at( i ) ][ "Earth" ] = { pointMassGravityAcceleration( ) };
             }
@@ -280,12 +282,14 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             std::vector< std::shared_ptr< ObservationModelSettings > > models;
             std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > simulations;
             std::vector< LinkEnds > angularLinks;
+
             // Fixed RA/Dec offsets (radians) on angular links outside the shared receiver selection.
             // These biases are not estimated: shared-parameter updates must leave their values unchanged.
             const Eigen::Vector2d unsharedAngularBias( 7.0E-6, 9.0E-6 );
             for( const auto& target : targets )
             {
                 const LinkEnds selected = { { transmitter, LinkEndId( target, "" ) }, { receiver, selectedReceiver } };
+
                 // Also exercise finding a bias within a combined model.
                 const auto secondaryBias = biasType == constant_relative_bias ? constantAbsoluteBias( Eigen::Vector2d( 4.0E-6, -2.0E-6 ) )
                                                                               : constantRelativeBias( Eigen::Vector2d::Zero( ) );
@@ -294,6 +298,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 };
                 if( biasType == constant_relative_bias )
                 {
+
                     // Shared relative partials must recompute at the biased event time, not the nominal observation time.
                     combinedBiases.push_back( constantTimeBias( relativeCaseTimeBias, receiver ) );
                 }
@@ -318,6 +323,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                                                    angular_position,
                                                    { { transmitter, LinkEndId( target, "" ) }, { receiver, otherReceiver } },
                                                    constantAbsoluteBias( unsharedAngularBias ) );
+
                 // Independent position observations make all three target states identifiable.
                 addSharedBiasTestObservationModel( observationTimes,
                                                    models,
@@ -341,6 +347,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                                                angular_position,
                                                { { transmitter, selectedReceiver }, { receiver, LinkEndId( "A", "" ) } },
                                                constantAbsoluteBias( unsharedAngularBias ) );
+
             // Ensure the fixture contains five angular links that must be excluded as well as the three selected links.
             BOOST_REQUIRE_EQUAL( angularLinks.size( ), 8 );
 
@@ -362,11 +369,13 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                     std::dynamic_pointer_cast< SharedObservationBiasParameter >( parameters->getVectorParameters( ).at( 18 ) );
             auto rangeParameter = std::dynamic_pointer_cast< SharedObservationBiasParameter >(
                     parameters->getVectorParameters( ).at( 18 + trueAngularBias.size( ) ) );
+
             // Both factory settings must produce shared parameters, with separate vectors for angular and range biases.
             BOOST_REQUIRE( angularParameter != nullptr );
             BOOST_REQUIRE( rangeParameter != nullptr );
 
             OrbitDeterminationManager< double, double > manager( bodies, parameters, models, propagator );
+
             // Binding must find exactly three models for each observable and allocate one vector per shared parameter.
             BOOST_CHECK_EQUAL( angularParameter->getMembers( ).size( ), 3 );
             BOOST_CHECK_EQUAL( rangeParameter->getMembers( ).size( ), 3 );
@@ -387,6 +396,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             auto input = std::make_shared< EstimationInput< double, double > >( observations );
             input->defineEstimationSettings( true, true, true, false, true, false );
             auto output = manager.estimateParameters( input );
+
             // Estimation must complete its inversion successfully.
             BOOST_REQUIRE( !output->exceptionDuringInversion_ );
 
@@ -401,6 +411,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             {
                 BOOST_CHECK_SMALL( ( member.second->getParameterValue( ) - trueAngularBias ).norm( ), 1.0E-11 );
             }
+
             // Check the fitted angular models against theoretical partials before, at, and after the arc boundary.
             const auto angularManager = manager.getObservationManagers( ).at( angular_position );
             const auto simulator = std::dynamic_pointer_cast< ObservationSimulator< 2 > >( angularManager->getObservationSimulator( ) );
@@ -416,6 +427,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 {
                     for( unsigned int i = 0; i < checkTimes.size( ); ++i )
                     {
+
                         // Absolute partials form an identity block in the active arc; other arc blocks stay zero.
                         // At reception time 3600, transmission is still in the first arc.
                         const int column =
@@ -423,6 +435,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                         expectedPartials.block< 2, 2 >( 2 * i, column ).setIdentity( );
                         if( biasType == constant_relative_bias )
                         {
+
                             // Relative partials equal the ideal RA/Dec at the time shifted by the fixed receiver time bias.
                             expectedPartials.block< 2, 2 >( 2 * i, 0 ) =
                                     simulator->getObservationModel( links )
@@ -433,12 +446,14 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 }
                 else
                 {
+
                     // Unselected links keep their fixed biases and have zero shared-bias partials.
                     const auto bias = std::dynamic_pointer_cast< ConstantObservationBias< 2 > >(
                             simulator->getObservationModel( links )->getObservationBiasCalculator( ) );
                     BOOST_REQUIRE( bias != nullptr );
                     BOOST_CHECK_SMALL( ( bias->getConstantObservationBias( ) - unsharedAngularBias ).norm( ), 1.0E-30 );
                 }
+
                 // Compare all shared columns, including off-diagonal zeros and the zero range-bias column.
                 BOOST_CHECK_SMALL( ( partials.rightCols( expectedPartials.cols( ) ) - expectedPartials ).norm( ), 1.0E-14 );
             }
@@ -494,6 +509,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
     const std::shared_ptr< propagators::PropagatorSettings< double > > noPropagator;
     const auto zeroBias = constantAbsoluteBias( Eigen::Vector2d::Zero( ) );
     const auto otherBias = constantAbsoluteBias( Eigen::Vector2d::Ones( ) );
+
     // An inconsistent parameter identifier must produce an exception rather than a null-pointer dereference.
     const LinkEnds testLinks = { { transmitter, LinkEndId( "A", "" ) }, { receiver, observerId } };
     const auto inconsistentParameter =
@@ -516,6 +532,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
             createSharedBiasTestEstimator(
                     bodies, names, observerId, constantSettings, { multipleObservationBiasSettings( { zeroBias, otherBias } ) } ),
             std::runtime_error );
+
     // Nested combined biases must still contain exactly one component of the selected type.
     const auto nestedBias = multipleObservationBiasSettings(
             { constantRelativeBias( Eigen::Vector2d::Zero( ) ), multipleObservationBiasSettings( { zeroBias } ) } );
@@ -560,6 +577,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
     // A deliberate pre-closure assignment initializes every member, even if their settings differ.
     auto parameters = createParametersToEstimate< double, double >( { constantSettings }, bodies );
     const auto shared = std::dynamic_pointer_cast< SharedObservationBiasParameter >( parameters->getVectorParameters( ).at( 0 ) );
+
     // Verify the factory type before testing assignments made while the member list is still empty.
     BOOST_REQUIRE( shared != nullptr );
     const Eigen::Vector2d desired( 1.0E-4, -2.0E-4 );
