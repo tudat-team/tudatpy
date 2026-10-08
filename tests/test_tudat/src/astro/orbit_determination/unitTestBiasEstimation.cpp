@@ -209,7 +209,7 @@ SystemOfBodies createSharedBiasTestBodies( )
 //! Repeat for a spacecraft receiver and an Earth station to test both body and station-specific selection.
 //! The other links differ in receiver body, reference point, or role, so incorrect selection changes the fitted data.
 //! Cover constant absolute, constant relative, and arc-wise absolute biases, including both arc reference-time roles.
-//! Finite differences check the shared design-matrix columns independently of whether the least-squares fit succeeds.
+//! After estimation, check the shared partials against the theoretical values and active arc blocks.
 BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
 {
     using namespace observation_models;
@@ -221,6 +221,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
         constant_absolute_bias, constant_relative_bias, arc_wise_constant_absolute_bias, arc_wise_constant_absolute_bias
     };
     const std::vector< LinkEndId > receiverIds = { LinkEndId( "ObserverSatellite", "" ), LinkEndId( "Earth", "Station1" ) };
+    const double relativeCaseTimeBias = 15.0;
     for( unsigned int testCase = 0; testCase < receiverIds.size( ) * biasTypes.size( ); ++testCase )
     {
         BOOST_TEST_CONTEXT( "shared bias case " << testCase )
@@ -294,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 if( biasType == constant_relative_bias )
                 {
                     // Shared relative partials must recompute at the biased event time, not the nominal observation time.
-                    combinedBiases.push_back( constantTimeBias( 15.0, receiver ) );
+                    combinedBiases.push_back( constantTimeBias( relativeCaseTimeBias, receiver ) );
                 }
                 addSharedBiasTestObservationModel( observationTimes,
                                                    models,
@@ -373,54 +374,6 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             const Eigen::VectorXd truth = parameters->getFullParameterValues< double >( );
             auto observations = simulateObservations< double, double >( simulations, manager.getObservationSimulators( ), bodies );
 
-            // Check full manager partials against finite differences on every angular link.
-            const auto angularManager = manager.getObservationManagers( ).at( angular_position );
-            const std::vector< double > checkTimes = { 1800.0, 3599.0, 3600.0, 3601.0, 5400.0 };
-            for( const auto& links : angularLinks )
-            {
-                Eigen::VectorXd values;
-                Eigen::MatrixXd partials;
-                angularManager->computeObservationsWithPartials( checkTimes, links, receiver, nullptr, values, partials );
-                const bool selected = angularParameter->doesObservationMatch( links, angular_position );
-                if( !selected )
-                {
-                    // Excluded angular links must have no dependence on the shared angular-bias columns.
-                    BOOST_CHECK_SMALL( partials.middleCols( 18, trueAngularBias.size( ) ).norm( ), 1.0E-30 );
-                }
-
-                // Perturb each common component and compare every link's numerical derivative with its assembled partial.
-                // Nonzero relative, absolute, and time biases in the relative case expose use of the wrong observable or epoch.
-                for( int column = 0; column < trueAngularBias.size( ); ++column )
-                {
-                    const double step = 1.0E-6;
-                    Eigen::VectorXd perturbed = trueAngularBias;
-                    perturbed( column ) += step;
-                    angularParameter->setParameterValue( perturbed );
-                    Eigen::VectorXd plus, minus;
-                    Eigen::MatrixXd unused;
-                    angularManager->computeObservationsWithPartials( checkTimes, links, receiver, nullptr, plus, unused, true, false );
-                    perturbed( column ) -= 2.0 * step;
-                    angularParameter->setParameterValue( perturbed );
-                    angularManager->computeObservationsWithPartials( checkTimes, links, receiver, nullptr, minus, unused, true, false );
-                    angularParameter->setParameterValue( trueAngularBias );
-                    BOOST_CHECK_SMALL( ( ( plus - minus ) / ( 2.0 * step ) - partials.col( 18 + column ) ).norm( ), 1.0E-8 );
-                }
-                if( arcWise && selected )
-                {
-                    // At reception time 3600, reception-based arcs use the second block; emission was still in the first arc.
-                    const int activeColumn = timeLinkEnd == receiver ? 20 : 18;
-                    BOOST_CHECK_SMALL( ( partials.block< 2, 2 >( 4, activeColumn ) - Eigen::Matrix2d::Identity( ) ).norm( ), 1.0E-15 );
-                }
-            }
-            Eigen::VectorXd rangeValues;
-            Eigen::MatrixXd rangePartials;
-            manager.getObservationManagers( )
-                    .at( one_way_range )
-                    ->computeObservationsWithPartials( checkTimes, angularLinks.front( ), receiver, nullptr, rangeValues, rangePartials );
-            // The same link geometry must depend on the range bias only: zero angular columns and unit absolute-range partial.
-            BOOST_CHECK_SMALL( rangePartials.middleCols( 18, trueAngularBias.size( ) ).norm( ), 1.0E-30 );
-            BOOST_CHECK_SMALL( ( rangePartials.col( 18 + trueAngularBias.size( ) ).array( ) - 1.0 ).matrix( ).norm( ), 1.0E-15 );
-
             // Perturb both the target states and shared biases before estimating them jointly.
             Eigen::VectorXd initialGuess = truth;
             for( int i = 0; i < 3; ++i )
@@ -448,18 +401,57 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             {
                 BOOST_CHECK_SMALL( ( member.second->getParameterValue( ) - trueAngularBias ).norm( ), 1.0E-11 );
             }
-            auto simulator = std::dynamic_pointer_cast< ObservationSimulator< 2 > >( angularManager->getObservationSimulator( ) );
-            // Models excluded by body, reference point, or link-end role must retain their original bias values.
+            // Check the fitted angular models against theoretical partials before, at, and after the arc boundary.
+            const auto angularManager = manager.getObservationManagers( ).at( angular_position );
+            const auto simulator = std::dynamic_pointer_cast< ObservationSimulator< 2 > >( angularManager->getObservationSimulator( ) );
+            BOOST_REQUIRE( simulator != nullptr );
+            const std::vector< double > checkTimes = { 1800.0, 3600.0, 5400.0 };
             for( const auto& links : angularLinks )
             {
-                if( !angularParameter->doesObservationMatch( links, angular_position ) )
+                Eigen::VectorXd values;
+                Eigen::MatrixXd partials;
+                angularManager->computeObservationsWithPartials( checkTimes, links, receiver, nullptr, values, partials );
+                Eigen::MatrixXd expectedPartials = Eigen::MatrixXd::Zero( 2 * checkTimes.size( ), trueAngularBias.size( ) + 1 );
+                if( links.at( receiver ) == selectedReceiver )
                 {
+                    for( unsigned int i = 0; i < checkTimes.size( ); ++i )
+                    {
+                        // Absolute partials form an identity block in the active arc; other arc blocks stay zero.
+                        // At reception time 3600, transmission is still in the first arc.
+                        const int column =
+                                arcWise && ( timeLinkEnd == receiver ? checkTimes.at( i ) >= 3600.0 : checkTimes.at( i ) > 3600.0 ) ? 2 : 0;
+                        expectedPartials.block< 2, 2 >( 2 * i, column ).setIdentity( );
+                        if( biasType == constant_relative_bias )
+                        {
+                            // Relative partials equal the ideal RA/Dec at the time shifted by the fixed receiver time bias.
+                            expectedPartials.block< 2, 2 >( 2 * i, 0 ) =
+                                    simulator->getObservationModel( links )
+                                            ->computeIdealObservations( checkTimes.at( i ) - relativeCaseTimeBias, receiver )
+                                            .asDiagonal( );
+                        }
+                    }
+                }
+                else
+                {
+                    // Unselected links keep their fixed biases and have zero shared-bias partials.
                     const auto bias = std::dynamic_pointer_cast< ConstantObservationBias< 2 > >(
                             simulator->getObservationModel( links )->getObservationBiasCalculator( ) );
                     BOOST_REQUIRE( bias != nullptr );
                     BOOST_CHECK_SMALL( ( bias->getConstantObservationBias( ) - unsharedAngularBias ).norm( ), 1.0E-30 );
                 }
+                // Compare all shared columns, including off-diagonal zeros and the zero range-bias column.
+                BOOST_CHECK_SMALL( ( partials.rightCols( expectedPartials.cols( ) ) - expectedPartials ).norm( ), 1.0E-14 );
             }
+
+            // Range observations have unit partials for their shared absolute bias and zero angular-bias partials.
+            Eigen::VectorXd rangeValues;
+            Eigen::MatrixXd rangePartials;
+            manager.getObservationManagers( )
+                    .at( one_way_range )
+                    ->computeObservationsWithPartials( checkTimes, angularLinks.front( ), receiver, nullptr, rangeValues, rangePartials );
+            Eigen::MatrixXd expectedRangePartials = Eigen::MatrixXd::Zero( checkTimes.size( ), trueAngularBias.size( ) + 1 );
+            expectedRangePartials.rightCols( 1 ).setOnes( );
+            BOOST_CHECK_SMALL( ( rangePartials.rightCols( expectedRangePartials.cols( ) ) - expectedRangePartials ).norm( ), 1.0E-15 );
         }
     }
 }
