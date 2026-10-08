@@ -250,10 +250,10 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
             const std::vector< std::string > centralBodies( targets.size( ), "Earth" );
             Eigen::VectorXd initialState( 18 );
             SelectedAccelerationMap accelerationSettings;
+
+            // Start from the Keplerian orbit, then let numerical propagation supply each target's ephemeris.
             for( unsigned int i = 0; i < targets.size( ); ++i )
             {
-
-                // Start from the Keplerian orbit, then let numerical propagation supply the target's ephemeris.
                 initialState.segment< 6 >( 6 * i ) = bodies.at( targets.at( i ) )->getStateInBaseFrameFromEphemeris( 0.0 );
                 bodies.at( targets.at( i ) )
                         ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris<> >(
@@ -296,10 +296,10 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 std::vector< std::shared_ptr< ObservationBiasSettings > > combinedBiases = {
                     createSharedAngularBiasTestSettings( biasType, trueAngularBias, arcTimes, timeLinkEnd ), secondaryBias
                 };
+
+                // Shared relative partials must recompute at the biased event time, not the nominal observation time.
                 if( biasType == constant_relative_bias )
                 {
-
-                    // Shared relative partials must recompute at the biased event time, not the nominal observation time.
                     combinedBiases.push_back( constantTimeBias( relativeCaseTimeBias, receiver ) );
                 }
                 addSharedBiasTestObservationModel( observationTimes,
@@ -423,20 +423,20 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 Eigen::MatrixXd partials;
                 angularManager->computeObservationsWithPartials( checkTimes, links, receiver, nullptr, values, partials );
                 Eigen::MatrixXd expectedPartials = Eigen::MatrixXd::Zero( 2 * checkTimes.size( ), trueAngularBias.size( ) + 1 );
+
+                // Absolute partials form an identity block in the active arc; other arc blocks stay zero.
+                // At reception time 3600, transmission is still in the first arc.
                 if( links.at( receiver ) == selectedReceiver )
                 {
                     for( unsigned int i = 0; i < checkTimes.size( ); ++i )
                     {
-
-                        // Absolute partials form an identity block in the active arc; other arc blocks stay zero.
-                        // At reception time 3600, transmission is still in the first arc.
                         const int column =
                                 arcWise && ( timeLinkEnd == receiver ? checkTimes.at( i ) >= 3600.0 : checkTimes.at( i ) > 3600.0 ) ? 2 : 0;
                         expectedPartials.block< 2, 2 >( 2 * i, column ).setIdentity( );
+
+                        // Relative partials equal the ideal RA/Dec at the time shifted by the fixed receiver time bias.
                         if( biasType == constant_relative_bias )
                         {
-
-                            // Relative partials equal the ideal RA/Dec at the time shifted by the fixed receiver time bias.
                             expectedPartials.block< 2, 2 >( 2 * i, 0 ) =
                                     simulator->getObservationModel( links )
                                             ->computeIdealObservations( checkTimes.at( i ) - relativeCaseTimeBias, receiver )
@@ -446,10 +446,10 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasEstimation )
                 }
                 else
                 {
-
-                    // Unselected links keep their fixed biases and have zero shared-bias partials.
                     const auto bias = std::dynamic_pointer_cast< ConstantObservationBias< 2 > >(
                             simulator->getObservationModel( links )->getObservationBiasCalculator( ) );
+
+                    // Unselected links keep their fixed biases and have zero shared-bias partials.
                     BOOST_REQUIRE( bias != nullptr );
                     BOOST_CHECK_SMALL( ( bias->getConstantObservationBias( ) - unsharedAngularBias ).norm( ), 1.0E-30 );
                 }
