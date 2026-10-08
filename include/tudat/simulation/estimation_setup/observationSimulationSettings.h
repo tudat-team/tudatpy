@@ -132,7 +132,7 @@ public:
                               ? observation_models::getDefaultReferenceLinkEndType( observableType )
                               : linkEndType ),
         viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction ),
-        ancillarySettings_( ancillarySettings ),
+        scaleAngularPositionNoise_( false ), ancillarySettings_( ancillarySettings ),
         observationDependentVariableBookkeeping_(
                 std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, linkEnds_ ) )
     {
@@ -184,11 +184,28 @@ public:
     void setObservationNoiseFunction( const std::function< Eigen::VectorXd( const double ) >& observationNoiseFunction )
     {
         observationNoiseFunction_ = observationNoiseFunction;
+        scaleAngularPositionNoise_ = false;
     }
 
     void setObservationNoiseFunction( const std::function< double( const double ) >& observationNoiseFunction )
     {
         observationNoiseFunction_ = getNoiseFunctionForObservable( observationNoiseFunction, observableType_ );
+        scaleAngularPositionNoise_ = false;
+    }
+
+    bool getScaleAngularPositionNoise( ) const
+    {
+        return scaleAngularPositionNoise_;
+    }
+
+    //! Enable conversion of RA*cos(DEC) noise to RA noise using the simulated declination.
+    void setScaleAngularPositionNoise( const bool scaleAngularPositionNoise )
+    {
+        if( scaleAngularPositionNoise && observableType_ != observation_models::angular_position )
+        {
+            throw std::runtime_error( "Error, declination scaling of noise is only supported for angular position observations." );
+        }
+        scaleAngularPositionNoise_ = scaleAngularPositionNoise;
     }
 
     void setAncillarySettings( std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings )
@@ -243,6 +260,9 @@ protected:
 
     // Function to generate noise to add to observations that are to be simulated
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
+
+    // Divide the RA noise by cos(DEC) before adding it to an angular position observation.
+    bool scaleAngularPositionNoise_;
 
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
@@ -374,6 +394,7 @@ std::shared_ptr< ObservationSimulationSettings< TimeType > > perturbObservationT
                 originalTabulatedSettings->getViabilitySettingsList( ),
                 originalTabulatedSettings->getObservationNoiseFunction( ),
                 originalTabulatedSettings->getAncillarySettings( ) );
+        newSettings->setScaleAngularPositionNoise( originalTabulatedSettings->getScaleAngularPositionNoise( ) );
     }
     else
     {
@@ -649,6 +670,20 @@ void addGaussianNoiseFunctionToObservationSimulationSettings(
     std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction = std::bind(
             &addGaussianNoiseToSingleObservationSimulationSettings< TimeType >, std::placeholders::_1, observationNoiseAmplitude );
     modifyObservationSimulationSettings( observationSimulationSettings, modificationFunction, args... );
+}
+
+//! Add independent Gaussian noise in RA*cos(DEC) and DEC to angular position simulation settings.
+template< typename TimeType = double >
+void addGaussianNoiseToAngularPositionObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const double observationNoiseAmplitude )
+{
+    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
+            [ observationNoiseAmplitude ]( const std::shared_ptr< ObservationSimulationSettings< TimeType > > settings ) {
+                addGaussianNoiseToSingleObservationSimulationSettings( settings, observationNoiseAmplitude );
+                settings->setScaleAngularPositionNoise( true );
+            };
+    modifyObservationSimulationSettings( observationSimulationSettings, modificationFunction, observation_models::angular_position );
 }
 
 template< typename TimeType = double, typename... ArgTypes >

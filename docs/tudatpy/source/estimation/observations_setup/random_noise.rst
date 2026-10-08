@@ -27,6 +27,22 @@ As an example, adding Gaussian noise to all observations of type ``one_way_range
 
 which will add 0.1 m standard deviation Gaussian random noise to each one-way range setting in the ``observation_simulation_settings_list`` list. In this case (the :func:`~tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_observable` function).
 
+For angular position observations containing unscaled right ascension (RA) and declination (DEC), use
+:func:`~tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_angular_position_observable`
+to specify the standard deviation in RA*cos(DEC) and DEC, in radians:
+
+.. code-block:: python
+
+    random_noise.add_gaussian_noise_to_angular_position_observable(
+        observation_simulation_settings_list,
+        noise_amplitude=1.0e-6
+    )
+
+At each observation time, the RA noise sample is divided by cos(DEC), using the simulated
+declination before adding noise. The DEC noise is added without scaling. Only angular position
+settings in the list are modified. Observation simulation raises an error if the model already
+normalizes RA by cos(DEC).
+
 An example of doing the exact same procedure, but using the custom noise function interface:
 
 .. code-block:: python
@@ -62,6 +78,8 @@ Functions
 
    add_gaussian_noise_to_observable
 
+   add_gaussian_noise_to_angular_position_observable
+
    add_gaussian_noise_to_observable_for_link_ends
 
 
@@ -74,5 +92,7 @@ Functions
 .. autofunction:: tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_all
 
 .. autofunction:: tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_observable
+
+.. autofunction:: tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_angular_position_observable
 
 .. autofunction:: tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_observable_for_link_ends

@@ -297,6 +297,35 @@ void expose_random_noise( py::module& m )
 
      )doc" );
 
+    m.def( "add_gaussian_noise_to_angular_position_observable",
+           &tss::addGaussianNoiseToAngularPositionObservationSimulationSettings< TIME_TYPE >,
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           R"doc(
+
+ Add Gaussian noise to angular position observations with declination scaling of the right ascension noise.
+
+ Only angular position entries in the settings list are modified, in-place. Independent, zero-mean
+ Gaussian samples with the supplied standard deviation are generated for RA*cos(DEC) and DEC.
+ At each observation time, the RA sample is divided by cos(DEC), using the simulated declination
+ before adding noise. The DEC sample is added without scaling. This function expects angular
+ position observations containing unscaled RA and DEC; RA is singular at the celestial poles.
+ Observation simulation raises an error if the model already normalizes RA by cos(DEC).
+
+ Parameters
+ ----------
+ observation_simulation_settings_list : list[ObservationSimulationSettings]
+     Existing observation simulation settings to modify.
+ noise_amplitude : float
+     Standard deviation in radians for RA*cos(DEC) and DEC.
+
+ Returns
+ -------
+ None
+     The angular position simulation settings are changed in-place.
+
+     )doc" );
+
     m.def( "add_gaussian_noise_to_observable_for_link_ends",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const double,
