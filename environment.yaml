@@ -7,7 +7,6 @@ dependencies:
   - make
   - eigen
   - libboost-headers >=1.84
-  - tudat-resources
   - sofa-cmake
   - nrlmsise-00
   - cspice
@@ -16,6 +15,7 @@ dependencies:
   - c-compiler
   - cxx-compiler
   - fortran-compiler
+  - binutils
   - libnetcdf
   - netcdf-fortran
   - python
