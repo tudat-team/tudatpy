@@ -14,9 +14,10 @@ def read_ades_data(
     file_path: str,
     frame: str = "J2000",
     custom_name: str | None = None,
-    weighing_scheme: str | None = "",
+    add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     parsed_table = parse_ades_file(file_path)
     optical_tracking_data, supplementary_data = [], []
@@ -26,8 +27,9 @@ def read_ades_data(
             in_degrees=False,
             frame=frame,
             custom_name=custom_name,
-            weighing_scheme=weighing_scheme,
+            add_weights=add_weights,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
+            weighing_scheme=weighing_scheme,
         )
     return (optical_tracking_data, supplementary_data)
