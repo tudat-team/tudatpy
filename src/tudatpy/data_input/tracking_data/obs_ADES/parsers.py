@@ -326,7 +326,69 @@ def _check_possible_failures(df, obs_kind):
         # if all tests are passed then return df
         return df
 
-    # elif obs_kind == "radar":
+    elif obs_kind == "radar":
+        """
+        Required fields include:
+        - one between permID, provID or ArtSat
+        - trx
+        - rcv
+        - obsTime
+        - doppler OR delay
+        - rmsDoppler or rmsDelay
+        - frq
+        """
+        # check that all required columns are present
+        for column in ("trx", "rcv", "obsTime", "frq"):
+            if column not in df.columns:
+                raise ValueError(f"Missing required column: {column}")
+            if df[column].isna().any():
+                raise ValueError(f"Column '{column}' contains missing values")
+
+        # check that at least one identifier is present
+        id_columns = ["permID", "provID", "artSat"]
+        if not df.reindex(columns=id_columns).notna().any(axis=1).all():
+            raise ValueError("Each row must have at least one non-missing identifier")
+
+        # check that at least one between delay and doppler is present in each row
+        id_columns = ["doppler", "delay"]
+        if not df.reindex(columns=id_columns).notna().any(axis=1).all():
+            raise ValueError("Each row must have at least one between doppler and delay")
+
+        # if delay is present, rmsDelay must be present too (same for doppler / rmsDoppler)
+        pairs = {"delay": "rmsDelay", "doppler": "rmsDoppler"}
+        for value_col, rms_col in pairs.items():
+            has_value = df.reindex(columns=[value_col])[value_col].notna()
+            has_rms = df.reindex(columns=[rms_col])[rms_col].notna()
+            if (has_value & ~has_rms).any():
+                raise ValueError(f"Each row with {value_col} must also have {rms_col}")
+
+        # check that if presnt, delay, rmsDelay, doppler, rmsDoppler, frq are convertible to floats
+        rms_columns = ["delay", "rmsDelay", "doppler", "rmsDoppler", "frq"]
+        for column in rms_columns:
+            if column in df.columns:
+                values = df[column].dropna()
+                if not pd.to_numeric(values, errors="coerce").notna().all():
+                    raise ValueError(f"Column '{column}' must be convertible to floats")
+
+        # check that obsTime is in the right format
+        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,4})?Z"
+
+        df["obsTime"] = df["obsTime"].astype("string").str.strip()
+        if not df["obsTime"].str.fullmatch(pattern).fillna(False).all():
+            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssss]Z")
+
+        # check that both tranbsmitter and receiver stations are part of the MPC list (a recognized station code)
+        observatories_table = MPC.get_observatory_codes().to_pandas()
+        stn_codes = observatories_table["Code"].astype("string").tolist()
+        # extract the stations from the input file to check them
+        trx = df["trx"].astype("string").str.strip()
+        invalid_trx = stn.notna() & ~trx.isin(stn_codes)
+        rcv = df["trx"].astype("string").str.strip()
+        invalid_rcv = stn.notna() & ~rcv.isin(stn_codes)
+        if invalid_trx.any():
+            raise ValueError(f"Unknown MPC transmitter codes: {stn[invalid].unique().tolist()}")
+        if invalid_rcv.any():
+            raise ValueError(f"Unknown MPC receiver codes: {stn[invalid].unique().tolist()}")
 
     # elif obs_kind == "offset":
 
@@ -492,13 +554,38 @@ def parse_ades_file(file_path: str):  # -> Table:
                 pd.notna(result_data_optical), None
             )
 
-            # transform into an astropy Table
-            optical_table = Table.from_pandas(result_data_optical)
-
-            # this astropy table should be readable by the optical_utilites/read_astropy_optical_data()
-            # to be able to create a tracking data object
-
-            return optical_table
+        elif obs_kind == "radar":
+            df["target_point"] = "C"
+            result_data_radar = pd.DataFrame(
+                {
+                    "target_body": _first_present_column(df, "permID", "provID", "artSat"),
+                    "epoch": df["obsTime"],
+                    "epoch_seconds_UTC": df["epoch_seconds_UTC"],
+                    "transmitter": df["trx"],
+                    "receiver": df["rcv"],
+                    "target_point": df["C"],
+                    "transmitter_frequency_Hz": pd.to_numeric(df["frq"]).to_numpy() * (10**6),
+                    # in the obs either the delay or the doppler is reported so depending on the case some of these columns might be = None
+                    "delay_us": df.get("delay")
+                    * 1e6,  # this needs to be in microseconds to be consistent with the 80 cols format
+                    "rmsDelay": df.egt("rmsDelay")
+                    * 1e6,  # this needs to be in microseconds to be consistent with the 80 cols format
+                    "doppler_hz": df.get("doppler"),
+                    "doppler_sigma_hz": df.get("rmsDoppler"),
+                }
+            )
 
         else:
-            print("Different data types otgher than optical")
+            print("Unrecognized data type")
+
+        if result_data_optical.empty and result_data_radar.empty:
+            raise ValueError("No valid observation lines found.")
+
+        # transform the optical data into an astropy Table
+        optical_table = Table.from_pandas(result_data_optical)
+
+        # if available add radar data as metadata of the optical astropy table
+        if not result_data_radar.empty:
+            optical_table.meta[RADAR_TABLE_META_KEY] = result_data_radar
+
+        return optical_table
