@@ -1,6 +1,5 @@
 from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
-from astropy.time import Time
 from typing import Any, Union
 import math
 import numpy as np
@@ -17,7 +16,7 @@ class SBDBquery:
     def __init__(self, MPCcode: Union[str, int], *args, **kwargs) -> None:
         """Create a Small-Body Database Query
 
-        Additional parameters are available through args and kwards, see:
+        Additional parameters are available through args and kwargs, see:
         https://astroquery.readthedocs.io/en/latest/jplsbdb/jplsbdb.html
 
         Parameters
@@ -212,3 +211,71 @@ class SBDBquery:
             Simplified estimation for the object's gravitational parameter
         """
         return GRAVITATIONAL_CONSTANT * self.estimated_spherical_mass(density)
+
+    def get_sbdb_close_approaches_with_bodies(
+        self,
+        body: list[str],
+        start_time: DateTime | None = None,
+        end_time: DateTime | None = None,
+        maximum_distance: float | None = None,
+    ) -> dict:
+        """Retrieve the close approaches of the small body to the requested bodies, as listed by the SBDB.
+        Requires the SBDB query to be created with `close_approach=True`.
+
+        Parameters
+        ----------
+        body : list[str]
+            Names of the bodies to consider (e.g. ``["Earth", "Moon"]``)
+        start_time : DateTime, optional
+            Only keep close approaches at or after this epoch (TDB)
+        end_time : DateTime, optional
+            Only keep close approaches at or before this epoch (TDB)
+        maximum_distance : float, optional
+            Only keep close approaches whose nominal closest approach distance (``dist``) is at most this value, in [m]
+
+        Returns
+        -------
+        dict
+            Close approach data from the SBDB, with one array per quantity (e.g. ``jd``, ``cd``, ``dist`` in [au],
+            ``v_inf`` in [km/s]) and one entry per close approach that satisfies all the filters
+        """
+
+        if "ca_data" not in self.query.keys():
+            raise ValueError(
+                "Query does not contain close approach data. \n To request close approaches in the query, you must type:\n"
+                "'sbdb_query = SBDBquery(str(asteroid_number), full_precision=True, close_approach = True)'\n"
+            )
+
+        all_close_approach_data = self.query["ca_data"]
+
+        # Select encounters involving any requested body
+        bodies = np.asarray(all_close_approach_data["body"])
+        mask = np.isin(bodies, body)
+
+        # Filter all columns by body
+        wanted_approaches = {
+            key: np.asarray(values)[mask] for key, values in all_close_approach_data.items()
+        }
+
+        # Filter by start time
+        if start_time is not None:
+            start_time_jd = start_time.to_julian_day()
+            mask = wanted_approaches["jd"].astype(float) >= start_time_jd
+
+            wanted_approaches = {key: values[mask] for key, values in wanted_approaches.items()}
+
+        # Filter by end time
+        if end_time is not None:
+            end_time_jd = end_time.to_julian_day()
+            mask = wanted_approaches["jd"].astype(float) <= end_time_jd
+
+            wanted_approaches = {key: values[mask] for key, values in wanted_approaches.items()}
+
+        # Filter by closest approach distance (given by the SBDB in au)
+        if maximum_distance is not None:
+            distances = (wanted_approaches["dist"].astype(float) * u.au).to(u.m).value
+            mask = distances <= maximum_distance
+
+            wanted_approaches = {key: values[mask] for key, values in wanted_approaches.items()}
+
+        return wanted_approaches
