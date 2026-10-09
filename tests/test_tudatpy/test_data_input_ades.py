@@ -1,5 +1,9 @@
 import tudatpy.data_input.tracking_data.obs_ADES.parsers as parser
 from tudatpy.data_input.tracking_data.obs_ADES.parsers import MODE_DICT, CATALOG_DICT
+from tudatpy.data_input.tracking_data.optical_utilities import (
+    _apply_ades_weights,
+    _apply_ades_weights_per_night,
+)
 
 import os
 import pandas as pd
@@ -8,6 +12,7 @@ from astropy.table import Table
 import numpy as np
 from numpy.testing import assert_equal
 from pathlib import Path
+from astropy import units as u
 
 current_dir = os.getcwd()
 
@@ -346,3 +351,57 @@ def test_rejects_unsupported_observation_type(tmp_path):
         match="Unsupported observation type: unknownObservation",
     ):
         parser.parse_ades_file(str(path))
+
+
+# test the ADES weighting scheme application (in optical_utilities.py but implemented as part of the ades parser)
+def test_apply_ades_weights(observations):
+    group = observations.rename(columns={"dec": "DEC"}).copy()
+    group["DEC"] = np.deg2rad(group["DEC"])
+
+    weights_ra, weights_dec = _apply_ades_weights(group, tracking_data_object=None)
+
+    expected_ra = ((0.15 * u.arcsec / np.cos(group["DEC"].to_numpy())).to_value(u.rad)) ** -2
+    expected_dec = (0.13 * u.arcsec).to_value(u.rad) ** -2
+
+    np.testing.assert_allclose(weights_ra, expected_ra)
+    np.testing.assert_allclose(weights_dec, expected_dec)
+
+
+def test_apply_ades_weights_per_night(observations):
+    group = observations.rename(columns={"dec": "DEC"}).copy()
+    group["DEC"] = np.deg2rad(group["DEC"])
+    group["epoch"] = group["obsTime"]
+
+    weights_ra, weights_dec = _apply_ades_weights_per_night(group, tracking_data_object=None)
+
+    counts = group["epoch"].str[:10].map(group["epoch"].str[:10].value_counts()).to_numpy()
+
+    expected_ra = np.array(
+        [
+            1 / ((((0.15 * u.arcsec) / np.cos(dec)).to_value(u.rad)) ** 2 * np.sqrt(n))
+            for dec, n in zip(group["DEC"], counts)
+        ]
+    )
+    expected_dec = np.array(
+        [1 / (((0.13 * u.arcsec).to_value(u.rad)) ** 2 * np.sqrt(n)) for n in counts]
+    )
+
+    np.testing.assert_allclose(weights_ra, expected_ra)
+    np.testing.assert_allclose(weights_dec, expected_dec)
+
+
+@pytest.mark.parametrize(
+    "function",
+    [_apply_ades_weights, _apply_ades_weights_per_night],
+)
+def test_ades_weights_reject_missing_rms(observations, function):
+    group = observations.rename(columns={"dec": "DEC"}).copy()
+    group["DEC"] = np.deg2rad(group["DEC"])
+    group["epoch"] = group["obsTime"]
+    group.loc[0, "rmsRA"] = np.nan
+
+    with pytest.raises(
+        ValueError,
+        match="ADES weighing requires non-missing rmsRA and rmsDec values",
+    ):
+        function(group, tracking_data_object=None)

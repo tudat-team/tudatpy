@@ -587,6 +587,55 @@ def _resolve_optical_target_names(table):
     return target_names
 
 
+def _apply_ades_weights(group, tracking_data_object):
+    required_columns = ["rmsRA", "rmsDec"]
+    if group[required_columns].isna().any().any():
+        raise ValueError("ADES weighing requires non-missing rmsRA and rmsDec values")
+    weightsRA = (
+        (
+            (pd.to_numeric(group["rmsRA"]).to_numpy(dtype=float) * u.arcsec)
+            / np.cos(
+                pd.to_numeric(group["DEC"]).to_numpy(dtype=float)
+            )  # the value of DEC is already in radians
+        ).to_value(u.rad)
+    ) ** (
+        -2
+    )  # scale the uncertainty by cos(Dec) and transform in radians
+    weightsDec = (pd.to_numeric(group["rmsDec"]).to_numpy(dtype=float) * u.arcsec).to_value(
+        u.rad
+    ) ** (-2)
+
+    return weightsRA, weightsDec
+
+
+def _apply_ades_weights_per_night(group, tracking_data_object):
+    # apply ADES weights and de-weight by factor sqrt(N) if N observations have been taken during the same night
+    required_columns = ["rmsRA", "rmsDec"]
+    if group[required_columns].isna().any().any():
+        raise ValueError("ADES weighing requires non-missing rmsRA and rmsDec values")
+
+    # Count observations for each calendar date, once for every row.
+    dates = group["epoch"].str[:10]
+    observations_per_night = dates.map(dates.value_counts()).tolist()
+
+    weightsRA = []
+    weightsDec = []
+    for count, rms_ra, rms_dec, dec in zip(
+        observations_per_night, group["rmsRA"], group["rmsDec"], group["DEC"]
+    ):
+        rms_weights_ra = (
+            (float(rms_ra) * u.arcsec)
+            / np.cos(float(dec))  # the value of DEC is already in radians
+        ).to_value(u.rad)
+
+        rms_weights_dec = (float(rms_dec) * u.arcsec).to_value(u.rad)
+
+        weightsRA.append(1 / (rms_weights_ra**2 * np.sqrt(count)))
+        weightsDec.append(1 / (rms_weights_dec**2 * np.sqrt(count)))
+
+    return weightsRA, weightsDec
+
+
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
     weighing_scheme: str | None = "",  # add_weights: bool | None = False,
@@ -673,22 +722,16 @@ def optical_table_to_tracking_data(
 
         # currently only applicabile if all observations in the dataset have available rmaRA and rmsDec uncertainties
         if weighing_scheme == "ADES":
-            required_columns = ["rmsRA", "rmsDec"]
-            if group[required_columns].isna().any().any():
-                raise ValueError("ADES weighing requires non-missing rmsRA and rmsDec values")
-            weightsRA = (
-                (
-                    (pd.to_numeric(group["rmsRA"]).to_numpy(dtype=float) * u.arcsec)
-                    / np.cos(
-                        pd.to_numeric(group["DEC"]).to_numpy(dtype=float)
-                    )  # the value of DEC is already in radians
-                ).to_value(u.rad)
-            ) ** (
-                -2
-            )  # scale the uncertainty by cos(Dec) and transform in radians
-            weightsDec = (pd.to_numeric(group["rmsDec"]).to_numpy(dtype=float) * u.arcsec).to_value(
-                u.rad
-            ) ** -2
+            weightsRA, weightsDec = _apply_ades_weights(group, tracking_data_object)
+            tracking_data_object.set_observation_weights(
+                [
+                    np.array([ra_weight, dec_weight], dtype=np.float64)
+                    for ra_weight, dec_weight in zip(weightsRA, weightsDec)
+                ]
+            )
+
+        if weighing_scheme == "ADES_NIGHT":
+            weightsRA, weightsDec = _apply_ades_weights_per_night(group, tracking_data_object)
             tracking_data_object.set_observation_weights(
                 [
                     np.array([ra_weight, dec_weight], dtype=np.float64)
