@@ -234,6 +234,96 @@ public:
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
+//! One parameter vector shared by the existing bias parameters of multiple observation links.
+class SharedObservationBiasParameter : public EstimatableParameter< Eigen::VectorXd >
+{
+public:
+    //! Define the shared link selector and validate the bias type and optional arc settings.
+    SharedObservationBiasParameter( observation_models::ObservationBiasTypes biasType,
+                                    observation_models::ObservableType observableType,
+                                    observation_models::LinkEndType linkEndType,
+                                    const observation_models::LinkEndId& linkEndId,
+                                    const std::vector< double >& arcStartTimes = {},
+                                    observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end );
+
+    //! Return the common member value, or the deferred value before models are linked.
+    Eigen::VectorXd getParameterValue( ) override;
+
+    //! Apply a value to linked biases, or defer it until models are first linked.
+    void setParameterValue( Eigen::VectorXd value ) override;
+
+    //! Return the observable dimension multiplied by the number of bias arcs.
+    int getParameterSize( ) override;
+
+    //! Describe the observable, selected link end, and bias type for diagnostics.
+    std::string getParameterDescription( ) override;
+
+    //! Match the observable type and the complete identifier at the selected link-end role.
+    bool doesObservationMatch( const observation_models::LinkEnds& linkEnds, observation_models::ObservableType observableType ) const;
+
+    //! Return the observable type whose biases are shared.
+    observation_models::ObservableType getObservableType( ) const
+    {
+        return observableType_;
+    }
+
+    //! Return the bias model type required in each matching observation model.
+    observation_models::ObservationBiasTypes getBiasType( ) const
+    {
+        return biasType_;
+    }
+
+    //! Create an ordinary bias parameter to be bound using the existing closure.
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createMember( const observation_models::LinkEnds& linkEnds ) const;
+
+    //! Register a bound per-link parameter, applying a deferred value or checking initial consistency.
+    void addMember( const observation_models::LinkEnds& linkEnds,
+                    const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& member );
+
+    //! Return the parameter for a linked geometry, or nullptr if that geometry is not a member.
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > getMember( const observation_models::LinkEnds& linkEnds ) const;
+
+    //! Return all per-link parameters controlled by this shared parameter.
+    const std::map< observation_models::LinkEnds, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& getMembers( ) const
+    {
+        return members_;
+    }
+
+    //! Consume any pre-binding assignment after all selected models have been linked.
+    void completeBinding( );
+
+    //! Start a new closure, discarding bindings to any previous observation simulator.
+    void clearMembers( );
+
+private:
+    //! Bias model type to bind in every selected observation model.
+    observation_models::ObservationBiasTypes biasType_;
+
+    //! Observable type used to select matching models and determine parameter size.
+    observation_models::ObservableType observableType_;
+
+    //! Role of the shared body or reference point in each observation link.
+    observation_models::LinkEndType linkEndType_;
+
+    //! Exact body and reference-point identifier required at the selected role.
+    observation_models::LinkEndId linkEndId_;
+
+    //! Common arc boundaries; empty for constant biases.
+    std::vector< double > arcStartTimes_;
+
+    //! Link-end event whose time determines the active bias arc.
+    observation_models::LinkEndType timeLinkEnd_;
+
+    //! Bound bias parameters indexed by their complete link geometry.
+    std::map< observation_models::LinkEnds, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > members_;
+
+    //! Value assigned before binding, applied once to the first set of linked models.
+    Eigen::VectorXd deferredValue_;
+
+    //! Whether a pre-binding assignment is waiting to initialize the first set of models.
+    bool hasDeferredValue_ = false;
+};
+
 //! Non-parameter mixin with acceleration callback used by time-bias partials.
 class TimeBiasParameterBase
 {

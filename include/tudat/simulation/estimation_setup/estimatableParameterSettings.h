@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/observation_models/observationBias.h"
 
 namespace tudat
 {
@@ -218,6 +219,55 @@ public:
 
     //! Maximum order of field that is to be estimated.
     int maximumOrder_;
+};
+
+//! Settings for a bias shared by all models matching an observable and one link end.
+class SharedObservationBiasEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Store the selection and arc settings, rejecting unsupported or inconsistent combinations.
+    SharedObservationBiasEstimatableParameterSettings(
+            observation_models::ObservationBiasTypes biasType,
+            observation_models::ObservableType observableType,
+            observation_models::LinkEndType linkEndType,
+            const observation_models::LinkEndId& linkEndId,
+            const std::vector< double >& arcStartTimes = {},
+            observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end ):
+        EstimatableParameterSettings( linkEndId.bodyName_, shared_observation_bias, linkEndId.getReferencePointName( ) ),
+        biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
+        arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd )
+    {
+        // Validate at the public factory boundary, using the same rules as the parameter.
+        validate( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Validate settings without constructing an estimatable parameter or binding any models.
+    static void validate( observation_models::ObservationBiasTypes biasType,
+                          observation_models::LinkEndType linkEndType,
+                          const observation_models::LinkEndId& linkEndId,
+                          const std::vector< double >& arcStartTimes,
+                          observation_models::LinkEndType timeLinkEnd )
+    {
+        observation_models::validateSharedObservationBiasSettings( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Bias model type that each selected observation model must contain.
+    observation_models::ObservationBiasTypes biasType_;
+
+    //! Observable type for which the bias parameter is shared.
+    observation_models::ObservableType observableType_;
+
+    //! Link-end role used to select matching observation links.
+    observation_models::LinkEndType linkEndType_;
+
+    //! Body and reference point required at the selected link-end role.
+    observation_models::LinkEndId linkEndId_;
+
+    //! Shared arc boundaries; empty for constant biases.
+    std::vector< double > arcStartTimes_;
+
+    //! Event time used for arc selection; unidentified_link_end defaults to linkEndType_.
+    observation_models::LinkEndType timeLinkEnd_;
 };
 
 //! Class to define settings for estimation of constant observation biases (absolute or relative)
@@ -1348,6 +1398,19 @@ inline std::shared_ptr< EstimatableParameterSettings > constantRotationRate( std
 inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition( std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position );
+}
+
+//! Create settings for one bias vector shared by all observation links matching the selector.
+inline std::shared_ptr< EstimatableParameterSettings > sharedObservationBias(
+        observation_models::ObservationBiasTypes biasType,
+        observation_models::ObservableType observableType,
+        observation_models::LinkEndType linkEndType,
+        const observation_models::LinkEndId& linkEndId,
+        const std::vector< double >& arcStartTimes = {},
+        observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end )
+{
+    return std::make_shared< SharedObservationBiasEstimatableParameterSettings >(
+            biasType, observableType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > observationBias( const observation_models::LinkDefinition& linkEnds,

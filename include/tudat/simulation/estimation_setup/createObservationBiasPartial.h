@@ -108,6 +108,32 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         // Check parameter type
         switch( parameterToEstimate->getParameterName( ).first )
         {
+            case estimatable_parameters::shared_observation_bias: {
+                const auto sharedBias =
+                        std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameterToEstimate );
+                if( sharedBias == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating shared observation bias partial: inconsistent parameter type." );
+                }
+                if( useObservationBiasPartials && sharedBias->doesObservationMatch( linkEnds, observableType ) )
+                {
+                    const auto member = sharedBias->getMember( linkEnds );
+                    if( member != nullptr )
+                    {
+                        // Reuse this link's ordinary partial; the caller retains the shared parameter's column indices.
+                        observationPartial = createObservationPartialWrtLinkProperty< ObservationSize >( linkEnds,
+                                                                                                         observableType,
+                                                                                                         member,
+                                                                                                         bodies,
+                                                                                                         isPartialForDifferencedObservable,
+                                                                                                         isPartialForConcatenatedObservable,
+                                                                                                         observationPartials,
+                                                                                                         partialWrtStateCreationFunction,
+                                                                                                         observationBiases );
+                    }
+                }
+                break;
+            }
             case estimatable_parameters::constant_additive_observation_bias: {
                 if( useObservationBiasPartials )
                 {

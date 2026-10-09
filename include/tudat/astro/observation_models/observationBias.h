@@ -11,6 +11,9 @@
 #ifndef TUDAT_OBSERVATIONBIAS_H
 #define TUDAT_OBSERVATIONBIAS_H
 
+#include <cmath>
+#include <stdexcept>
+#include <string>
 #include <vector>
 #include <iostream>
 
@@ -50,6 +53,75 @@ enum ObservationBiasTypes {
     clock_induced_bias,
     two_way_range_time_scale_bias
 };
+
+//! Return the symbolic name of an observation-bias type for diagnostics and parameter identifiers.
+inline std::string getObservationBiasTypeString( const ObservationBiasTypes biasType )
+{
+    switch( biasType )
+    {
+        case multiple_observation_biases:
+            return "multiple_observation_biases";
+        case constant_absolute_bias:
+            return "constant_absolute_bias";
+        case constant_relative_bias:
+            return "constant_relative_bias";
+        case arc_wise_constant_absolute_bias:
+            return "arc_wise_constant_absolute_bias";
+        case arc_wise_constant_relative_bias:
+            return "arc_wise_constant_relative_bias";
+        case constant_time_drift_bias:
+            return "constant_time_drift_bias";
+        case arc_wise_time_drift_bias:
+            return "arc_wise_time_drift_bias";
+        case constant_time_bias:
+            return "constant_time_bias";
+        case arc_wise_time_bias:
+            return "arc_wise_time_bias";
+        case clock_induced_bias:
+            return "clock_induced_bias";
+        case two_way_range_time_scale_bias:
+            return "two_way_range_time_scale_bias";
+        default:
+            throw std::runtime_error( "Unknown observation bias type: " + std::to_string( biasType ) );
+    }
+}
+
+//! Validate the bias type, link selector, and arc settings supported by a shared bias parameter.
+inline void validateSharedObservationBiasSettings( const ObservationBiasTypes biasType,
+                                                   const LinkEndType linkEndType,
+                                                   const LinkEndId& linkEndId,
+                                                   const std::vector< double >& arcStartTimes,
+                                                   const LinkEndType timeLinkEnd )
+{
+    if( biasType != constant_absolute_bias && biasType != constant_relative_bias && biasType != arc_wise_constant_absolute_bias )
+    {
+        throw std::runtime_error(
+                "Unsupported shared observation bias type: " + getObservationBiasTypeString( biasType ) +
+                ". Supported types are constant_absolute_bias, constant_relative_bias, and arc_wise_constant_absolute_bias." );
+    }
+    if( linkEndType == unidentified_link_end || linkEndId.bodyName_.empty( ) )
+    {
+        throw std::runtime_error( "Shared observation bias requires a link-end role and body." );
+    }
+    if( biasType == arc_wise_constant_absolute_bias )
+    {
+        if( arcStartTimes.empty( ) )
+        {
+            throw std::runtime_error( "Shared arc-wise observation bias requires arc start times." );
+        }
+        for( unsigned int i = 0; i < arcStartTimes.size( ); ++i )
+        {
+            if( !std::isfinite( arcStartTimes.at( i ) ) || ( i > 0 && arcStartTimes.at( i ) <= arcStartTimes.at( i - 1 ) ) )
+            {
+                throw std::runtime_error( "Shared bias arc start times must be finite and strictly increasing." );
+            }
+        }
+    }
+    else if( !arcStartTimes.empty( ) || timeLinkEnd != unidentified_link_end )
+    {
+        throw std::runtime_error( "Arc settings can only be supplied for an arc-wise shared bias." );
+    }
+}
 
 //! Base class (non-functional) for describing observation biases
 /*!

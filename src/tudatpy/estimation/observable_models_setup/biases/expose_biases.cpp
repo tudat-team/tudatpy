@@ -34,6 +34,27 @@ namespace observable_models_setup
 namespace biases
 {
 
+//! Register all bias types before the parameter factory bindings are created.
+void expose_bias_types( py::module& m )
+{
+    py::enum_< tom::ObservationBiasTypes >(
+            m,
+            "ObservationBiasTypes",
+            "All observation-bias model types. shared_observation_bias supports only constant_absolute_bias, "
+            "constant_relative_bias, and arc_wise_constant_absolute_bias." )
+            .value( "multiple_observation_biases", tom::multiple_observation_biases )
+            .value( "constant_absolute_bias", tom::constant_absolute_bias )
+            .value( "constant_relative_bias", tom::constant_relative_bias )
+            .value( "arc_wise_constant_absolute_bias", tom::arc_wise_constant_absolute_bias )
+            .value( "arc_wise_constant_relative_bias", tom::arc_wise_constant_relative_bias )
+            .value( "constant_time_drift_bias", tom::constant_time_drift_bias )
+            .value( "arc_wise_time_drift_bias", tom::arc_wise_time_drift_bias )
+            .value( "constant_time_bias", tom::constant_time_bias )
+            .value( "arc_wise_time_bias", tom::arc_wise_time_bias )
+            .value( "clock_induced_bias", tom::clock_induced_bias )
+            .value( "two_way_range_time_scale_bias", tom::two_way_range_time_scale_bias );
+}
+
 void expose_biases( py::module& m )
 {
     py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >( m, "ObservationBiasSettings", R"doc(

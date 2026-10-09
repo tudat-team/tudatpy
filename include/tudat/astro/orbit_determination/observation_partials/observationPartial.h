@@ -370,7 +370,7 @@ public:
      */
     ObservationPartialWrtConstantRelativeBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
-        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_additive_observation_bias,
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_relative_observation_bias,
                                                                linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {}
@@ -396,7 +396,9 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
-        return { std::make_pair( currentObservation, times.at( 0 ) ) };
+        // Each relative-bias component affects only the corresponding observable component.
+        const Eigen::Matrix< double, ObservationSize, ObservationSize > partial = currentObservation.asDiagonal( );
+        return { std::make_pair( partial, times.at( 0 ) ) };
     }
 
 private:
@@ -405,6 +407,48 @@ private:
 
     //!  Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
+};
+
+//! Recompute the ideal observable only for a shared relative bias, then reuse its ordinary bias partial.
+template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
+class ObservationPartialWrtSharedRelativeBias : public ObservationPartial< ObservationSize >
+{
+public:
+    //! Retain the ordinary relative-bias partial and its observation model for local recomputation.
+    ObservationPartialWrtSharedRelativeBias(
+            const std::shared_ptr< ObservationPartial< ObservationSize > >& relativeBiasPartial,
+            const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > >&
+                    observationModel ):
+        ObservationPartial< ObservationSize >( relativeBiasPartial->getParameterIdentifier( ) ),
+        relativeBiasPartial_( relativeBiasPartial ), observationModel_( observationModel )
+    {}
+
+    //! Recompute the ideal observation at the supplied event time and delegate the derivative calculation.
+    std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) override
+    {
+        const int timeIndex =
+                observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observationModel_->getObservableType( ), linkEndOfFixedTime, observationModel_->getLinkEnds( ).size( ) )
+                        .at( 0 );
+        // These link-end times already include any time bias. Do not apply that bias a second time.
+        const Eigen::Matrix< double, ObservationSize, 1 > idealObservation =
+                observationModel_->computeIdealObservations( TimeType( times.at( timeIndex ) ), linkEndOfFixedTime, ancillarySettings )
+                        .template cast< double >( );
+        return relativeBiasPartial_->calculatePartial( states, times, linkEndOfFixedTime, ancillarySettings, idealObservation );
+    }
+
+private:
+    //! Existing implementation of the component-wise relative-bias derivative.
+    std::shared_ptr< ObservationPartial< ObservationSize > > relativeBiasPartial_;
+
+    //! Model used to evaluate the unbiased observable at the same event time.
+    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel_;
 };
 
 //! Class for computing the derivative of any observable w.r.t. an arc-wise constant relative observation bias
@@ -437,7 +481,7 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ), linkEndIndex_( linkEndIndex ),
         numberOfArcs_( numberOfArcs )
     {
-        totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
+        totalPartial_.setZero( ObservationSize, ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
@@ -465,7 +509,8 @@ public:
         if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
         {
             int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
-            totalPartial_.segment( currentIndex * ObservationSize, ObservationSize ) = currentObservation;
+            // Each component affects its own column in the active arc; all other columns remain zero.
+            totalPartial_.block( 0, currentIndex * ObservationSize, ObservationSize, ObservationSize ) = currentObservation.asDiagonal( );
         }
         return { std::make_pair( totalPartial_, times.at( linkEndIndex_ ) ) };
     }
@@ -486,8 +531,8 @@ private:
     //! Number of arcs for which biases are defined
     int numberOfArcs_;
 
-    //! Pre-allocated partial vector
-    Eigen::VectorXd totalPartial_;
+    //! One row per observable component and one observable-sized column block per arc.
+    Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > totalPartial_;
 };
 
 // extern template class ObservationPartial< 1 >;
