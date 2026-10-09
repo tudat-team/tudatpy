@@ -6,6 +6,7 @@ import numpy as np
 from datetime import datetime
 from tudatpy.constants import GRAVITATIONAL_CONSTANT
 from tudatpy.astro.time_representation import DateTime
+from tudatpy.astro import time_representation
 
 
 class SBDBquery:
@@ -222,6 +223,9 @@ class SBDBquery:
         """Retrieve the close approaches of the small body to the requested bodies, as listed by the SBDB.
         Requires the SBDB query to be created with `close_approach=True`.
 
+        The quantities are converted from the SBDB units to the tudat conventions (SI units, epochs in seconds
+        since J2000 TDB).
+
         Parameters
         ----------
         body : list[str]
@@ -236,8 +240,22 @@ class SBDBquery:
         Returns
         -------
         dict
-            Close approach data from the SBDB, with one array per quantity (e.g. ``jd``, ``cd``, ``dist`` in [au],
-            ``v_inf`` in [km/s]) and one entry per close approach that satisfies all the filters
+            Close approach data, with one array per quantity and one entry per close approach that satisfies all
+            the filters:
+
+            - ``epoch``: epoch of the closest approach, in [s] since J2000 TDB
+            - ``jd``: epoch of the closest approach, as Julian day in TDB (as given by the SBDB)
+            - ``cd``: epoch of the closest approach, as calendar date string in TDB (as given by the SBDB)
+            - ``dist``, ``dist_min``, ``dist_max``: nominal, minimum and maximum (3-sigma) closest approach
+              distance, in [m]
+            - ``v_inf``, ``v_rel``: velocity relative to the body at infinity and at the closest approach, in [m/s]
+            - ``sigma_t``: 3-sigma uncertainty of the closest approach epoch, in [s]
+            - ``sigma_tf``: same as ``sigma_t``, as formatted string (as given by the SBDB)
+            - ``unc_major``, ``unc_minor``: semi-major and semi-minor axes of the 3-sigma uncertainty ellipse in the
+              target plane, in [m]
+            - ``unc_angle``: orientation angle of the uncertainty ellipse in the target plane, in [rad]
+            - ``orbit_ref``: reference of the orbit solution used by the SBDB
+            - ``body``: name of the body
         """
 
         if "ca_data" not in self.query.keys():
@@ -248,34 +266,58 @@ class SBDBquery:
 
         all_close_approach_data = self.query["ca_data"]
 
-        # Select encounters involving any requested body
-        bodies = np.asarray(all_close_approach_data["body"])
-        mask = np.isin(bodies, body)
-
-        # Filter all columns by body
-        wanted_approaches = {
-            key: np.asarray(values)[mask] for key, values in all_close_approach_data.items()
+        # Convert SBDB units (au, km, km/s degrees) to Tudat units
+        unit_conversions = {
+            "dist": (u.au, u.m),
+            "dist_min": (u.au, u.m),
+            "dist_max": (u.au, u.m),
+            "v_inf": (u.km / u.s, u.m / u.s),
+            "v_rel": (u.km / u.s, u.m / u.s),
+            "sigma_t": (u.min, u.s),
+            "unc_major": (u.km, u.m),
+            "unc_minor": (u.km, u.m),
+            "unc_angle": (u.deg, u.rad),
         }
+
+        close_approach_data = dict()
+        for key, values in all_close_approach_data.items():
+            if key in unit_conversions:
+                sbdb_unit, tudat_unit = unit_conversions[key]
+                if not isinstance(values, u.Quantity):
+                    values = np.asarray(values, dtype=float) * sbdb_unit
+                close_approach_data[key] = values.to(tudat_unit).value
+            elif key == "jd":
+                close_approach_data[key] = (
+                    values.to(u.d).value
+                    if isinstance(values, u.Quantity)
+                    else np.asarray(values, dtype=float)
+                )
+            else:
+                close_approach_data[key] = np.asarray(values)
+
+        # Epochs of the closest approaches in seconds since J2000 TDB (the SBDB epochs are in TDB)
+        close_approach_data["epoch"] = np.array(
+            [
+                time_representation.julian_day_to_seconds_since_epoch(jd)
+                for jd in close_approach_data["jd"]
+            ]
+        )
+
+        # Select encounters involving any requested body
+        mask = np.isin(close_approach_data["body"], body)
 
         # Filter by start time
         if start_time is not None:
-            start_time_jd = start_time.to_julian_day()
-            mask = wanted_approaches["jd"].astype(float) >= start_time_jd
-
-            wanted_approaches = {key: values[mask] for key, values in wanted_approaches.items()}
+            mask &= close_approach_data["epoch"] >= start_time.to_epoch()
 
         # Filter by end time
         if end_time is not None:
-            end_time_jd = end_time.to_julian_day()
-            mask = wanted_approaches["jd"].astype(float) <= end_time_jd
+            mask &= close_approach_data["epoch"] <= end_time.to_epoch()
 
-            wanted_approaches = {key: values[mask] for key, values in wanted_approaches.items()}
-
-        # Filter by closest approach distance (given by the SBDB in au)
+        # Filter by closest approach distance
         if maximum_distance is not None:
-            distances = (wanted_approaches["dist"].astype(float) * u.au).to(u.m).value
-            mask = distances <= maximum_distance
+            mask &= close_approach_data["dist"] <= maximum_distance
 
-            wanted_approaches = {key: values[mask] for key, values in wanted_approaches.items()}
+        wanted_approaches = {key: values[mask] for key, values in close_approach_data.items()}
 
         return wanted_approaches
