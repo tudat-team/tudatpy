@@ -17,9 +17,10 @@ def read_80_column_data(
     file_names: list[str],
     frame: str = "J2000",
     custom_name: str | None = None,
-    weighing_scheme: str | None = "",
+    add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read MPC 80-column files into TrackingData objects.
 
@@ -73,9 +74,10 @@ def read_80_column_data(
             in_degrees=False,
             frame=frame,
             custom_name=custom_name,
-            weighing_scheme=weighing_scheme,
+            add_weights=add_weights,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
+            weighing_scheme=weighing_scheme,
         )
     radar_data = radar_data_from_table(parsed_table)
     if custom_name is not None:

@@ -11,6 +11,7 @@ import astropy
 from astropy_healpix import HEALPix
 from astropy.units import Quantity
 import astropy.units as u
+import warnings
 import os
 import re
 from tudatpy.astro import time_representation
@@ -638,9 +639,10 @@ def _apply_ades_weights_per_night(group, tracking_data_object):
 
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
-    weighing_scheme: str | None = "",  # add_weights: bool | None = False,
+    add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Convert an augmented optical table to TrackingData and supplementary data lists.
 
@@ -665,7 +667,17 @@ def optical_table_to_tracking_data(
         Tracking data objects and supplementary data objects.
     """
     table = create_augmented_optical_table(table, in_degrees=False)
-    # weighing_scheme = "VFCC17" if add_weights else ""
+
+    if add_weights:
+        warnings.warn(
+            "'add_weights' is deprecated, use 'weighing_scheme' instead. "
+            "If 'add_weights' is True then weighting scheme 'VFCC17' will be applied."
+            "For different weighing schemes do not specify 'add_weights' and "
+            "indicate the appropriate string in 'weighing_scheme' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        weighing_scheme = "VFCC17"
 
     if add_star_catalog_corrections:
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
@@ -730,7 +742,7 @@ def optical_table_to_tracking_data(
                 ]
             )
 
-        if weighing_scheme == "ADES_NIGHT":
+        elif weighing_scheme == "ADES_NIGHT":
             weightsRA, weightsDec = _apply_ades_weights_per_night(group, tracking_data_object)
             tracking_data_object.set_observation_weights(
                 [
@@ -764,6 +776,7 @@ def read_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read optical astrometry from a table into TrackingData objects.
 
@@ -808,6 +821,7 @@ def read_optical_data(
             add_weights,
             add_star_catalog_corrections,
             add_ancillary_data,
+            weighing_scheme,
         )
 
     if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
@@ -819,6 +833,7 @@ def read_optical_data(
             add_weights,
             add_star_catalog_corrections,
             add_ancillary_data,
+            weighing_scheme,
         )
 
     raise TypeError("read_optical_data expects a pandas DataFrame or astropy Table/QTable.")
@@ -874,9 +889,10 @@ def read_astropy_optical_data(
     in_degrees: bool = True,
     frame: str = "J2000",
     custom_name: str | None = None,
-    weighing_scheme: str | None = "",
+    add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read optical astrometry from an astropy table into TrackingData objects.
 
@@ -908,9 +924,10 @@ def read_astropy_optical_data(
     augmented_table = create_augmented_optical_table(table, in_degrees, frame, custom_name)
     return optical_table_to_tracking_data(
         augmented_table,
-        weighing_scheme,
+        add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
+        weighing_scheme,
     )
 
 
