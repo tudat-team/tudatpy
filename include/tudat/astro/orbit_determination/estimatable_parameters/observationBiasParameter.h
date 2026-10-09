@@ -249,7 +249,7 @@ public:
     //! Return the common member value, or the deferred value before models are linked.
     Eigen::VectorXd getParameterValue( ) override;
 
-    //! Apply one value to every linked bias and retain it for members linked later.
+    //! Apply a value to linked biases, or defer it until models are first linked.
     void setParameterValue( Eigen::VectorXd value ) override;
 
     //! Return the observable dimension multiplied by the number of bias arcs.
@@ -289,6 +289,9 @@ public:
         return members_;
     }
 
+    //! Consume any pre-binding assignment after all selected models have been linked.
+    void completeBinding( );
+
     //! Start a new closure, discarding bindings to any previous observation simulator.
     void clearMembers( );
 
@@ -314,10 +317,10 @@ private:
     //! Bound bias parameters indexed by their complete link geometry.
     std::map< observation_models::LinkEnds, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > members_;
 
-    //! Explicitly assigned value to apply when models are first linked or rebound.
+    //! Value assigned before binding, applied once to the first set of linked models.
     Eigen::VectorXd deferredValue_;
 
-    //! Whether an explicit parameter assignment takes precedence over model initial values.
+    //! Whether a pre-binding assignment is waiting to initialize the first set of models.
     bool hasDeferredValue_ = false;
 };
 

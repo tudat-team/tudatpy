@@ -15,7 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
+#include "tudat/astro/observation_models/observationBias.h"
 
 namespace tudat
 {
@@ -238,7 +238,17 @@ public:
         arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd )
     {
         // Validate at the public factory boundary, using the same rules as the parameter.
-        SharedObservationBiasParameter( biasType, observableType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+        validate( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Validate settings without constructing an estimatable parameter or binding any models.
+    static void validate( observation_models::ObservationBiasTypes biasType,
+                          observation_models::LinkEndType linkEndType,
+                          const observation_models::LinkEndId& linkEndId,
+                          const std::vector< double >& arcStartTimes,
+                          observation_models::LinkEndType timeLinkEnd )
+    {
+        observation_models::validateSharedObservationBiasSettings( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
     }
 
     //! Bias model type that each selected observation model must contain.

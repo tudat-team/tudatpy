@@ -481,7 +481,7 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ), linkEndIndex_( linkEndIndex ),
         numberOfArcs_( numberOfArcs )
     {
-        totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
+        totalPartial_.setZero( ObservationSize, ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
@@ -509,7 +509,8 @@ public:
         if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
         {
             int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
-            totalPartial_.segment( currentIndex * ObservationSize, ObservationSize ) = currentObservation;
+            // Each component affects its own column in the active arc; all other columns remain zero.
+            totalPartial_.block( 0, currentIndex * ObservationSize, ObservationSize, ObservationSize ) = currentObservation.asDiagonal( );
         }
         return { std::make_pair( totalPartial_, times.at( linkEndIndex_ ) ) };
     }
@@ -530,8 +531,8 @@ private:
     //! Number of arcs for which biases are defined
     int numberOfArcs_;
 
-    //! Pre-allocated partial vector
-    Eigen::VectorXd totalPartial_;
+    //! One row per observable component and one observable-sized column block per arc.
+    Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > totalPartial_;
 };
 
 // extern template class ObservationPartial< 1 >;

@@ -244,39 +244,14 @@ SharedObservationBiasParameter::SharedObservationBiasParameter( const observatio
                                                                 const observation_models::LinkEndType timeLinkEnd ):
     EstimatableParameter< Eigen::VectorXd >( shared_observation_bias,
                                              linkEndId.bodyName_,
-                                             linkEndId.getReferencePointName( ) + ":" + std::to_string( linkEndType ) + ":" +
-                                                     std::to_string( observableType ) + ":" + std::to_string( biasType ) ),
+                                             linkEndId.getReferencePointName( ) + ":" +
+                                                     observation_models::getLinkEndTypeString( linkEndType ) + ":" +
+                                                     observation_models::getObservableName( observableType ) + ":" +
+                                                     observation_models::getObservationBiasTypeString( biasType ) ),
     biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
     arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd == observation_models::unidentified_link_end ? linkEndType : timeLinkEnd )
 {
-    using namespace observation_models;
-    if( biasType != constant_absolute_bias && biasType != constant_relative_bias && biasType != arc_wise_constant_absolute_bias )
-    {
-        throw std::runtime_error( "Unsupported shared observation bias type." );
-    }
-    if( linkEndType == unidentified_link_end || linkEndId.bodyName_.empty( ) )
-    {
-        throw std::runtime_error( "Shared observation bias requires a link-end role and body." );
-    }
-    if( biasType == arc_wise_constant_absolute_bias )
-    {
-        // The parameter dimension is fixed before observation models are available for binding.
-        if( arcStartTimes.empty( ) )
-        {
-            throw std::runtime_error( "Shared arc-wise observation bias requires arc start times." );
-        }
-        for( unsigned int i = 0; i < arcStartTimes.size( ); ++i )
-        {
-            if( !std::isfinite( arcStartTimes.at( i ) ) || ( i > 0 && arcStartTimes.at( i ) <= arcStartTimes.at( i - 1 ) ) )
-            {
-                throw std::runtime_error( "Shared bias arc start times must be finite and strictly increasing." );
-            }
-        }
-    }
-    else if( !arcStartTimes.empty( ) || timeLinkEnd != unidentified_link_end )
-    {
-        throw std::runtime_error( "Arc settings can only be supplied for an arc-wise shared bias." );
-    }
+    observation_models::validateSharedObservationBiasSettings( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
 }
 
 //! Return one observable-sized bias vector per arc, independent of the number of linked models.
@@ -290,8 +265,8 @@ int SharedObservationBiasParameter::getParameterSize( )
 std::string SharedObservationBiasParameter::getParameterDescription( )
 {
     return "shared observation bias for " + observation_models::getObservableName( observableType_ ) + ", link-end role " +
-            std::to_string( linkEndType_ ) + ", (" + linkEndId_.bodyName_ + ", " + linkEndId_.getReferencePointName( ) + "), bias type " +
-            std::to_string( biasType_ );
+            observation_models::getLinkEndTypeString( linkEndType_ ) + ", (" + linkEndId_.bodyName_ + ", " +
+            linkEndId_.getReferencePointName( ) + "), bias type " + observation_models::getObservationBiasTypeString( biasType_ );
 }
 
 //! Select observations by type and by the complete link-end identifier at the requested role.
@@ -322,23 +297,33 @@ Eigen::VectorXd SharedObservationBiasParameter::getParameterValue( )
     return value;
 }
 
-//! Assign the same bias to all current members and remember it for subsequent bindings.
+//! Update bound models, or defer an assignment until the first set of models is linked.
 void SharedObservationBiasParameter::setParameterValue( Eigen::VectorXd value )
 {
     if( value.size( ) != getParameterSize( ) )
     {
         throw std::runtime_error( "Incorrect shared observation bias parameter size." );
     }
-    // Keep the explicit assignment so later bindings receive the same value as existing members.
-    deferredValue_ = value;
-    hasDeferredValue_ = true;
+    // Only assignments made before binding initialize new models; estimator updates affect current models only.
+    if( members_.empty( ) )
+    {
+        deferredValue_ = value;
+        hasDeferredValue_ = true;
+    }
     for( const auto& member : members_ )
     {
         member.second->setParameterValue( value );
     }
 }
 
-//! Discard old model bindings while retaining any explicitly assigned parameter value.
+//! Consume the pre-binding assignment after it has initialized every selected model.
+void SharedObservationBiasParameter::completeBinding( )
+{
+    hasDeferredValue_ = false;
+    deferredValue_.resize( 0 );
+}
+
+//! Discard old model bindings; subsequent binding reads initial values from the new models.
 void SharedObservationBiasParameter::clearMembers( )
 {
     members_.clear( );

@@ -1600,7 +1600,12 @@ Create one estimatable bias shared by all observation links matching a selector.
 
 Each selected observation model must already contain exactly one bias of the
 requested type, optionally within a combined bias. Initial values must agree
-unless the shared parameter value is explicitly set before creating the estimator.
+unless the shared parameter value is explicitly set before its first binding.
+This assignment initializes the first set of models only. Reusing the parameter
+set for another estimator takes initial values from the new model settings;
+updates made while bound, including estimation updates, do not override them.
+A bias component can be owned by only one estimated parameter: overlapping
+ordinary or shared bias parameters are rejected.
 The matching body and reference-point name are both compared exactly.
 
 Parameters

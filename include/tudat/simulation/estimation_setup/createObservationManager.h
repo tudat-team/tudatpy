@@ -29,6 +29,26 @@ namespace tudat
 namespace observation_models
 {
 
+//! Bias-component owners for one observation simulator's parameter-binding pass.
+template< int ObservationSize >
+using ObservationBiasParameterOwners = std::map< std::shared_ptr< ObservationBias< ObservationSize > >,
+                                                 std::string,
+                                                 std::owner_less< std::shared_ptr< ObservationBias< ObservationSize > > > >;
+
+//! Reject a second parameter for a bias component before installing its get/set callbacks.
+template< int ObservationSize >
+void registerObservationBiasParameterOwner( const std::shared_ptr< ObservationBias< ObservationSize > >& bias,
+                                            const std::string& parameterDescription,
+                                            ObservationBiasParameterOwners< ObservationSize >& owners )
+{
+    const auto result = owners.emplace( bias, parameterDescription );
+    if( !result.second )
+    {
+        throw std::runtime_error( "Observation bias component already owned by " + result.first->second + "; cannot also bind " +
+                                  parameterDescription + ". Only one parameter may own a bias component." );
+    }
+}
+
 //! Function to perform the closure a single observation bias and a single estimated bias parameter.
 /*!
  *  Function to perform the closure a single observation bias and a single estimated bias parameter. Estimated parameter objects
@@ -40,8 +60,11 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
         const std::shared_ptr< ObservationBias< ObservationSize > > observationBias,
         const LinkEnds linkEnds,
-        const ObservableType observableType )
+        const ObservableType observableType,
+        ObservationBiasParameterOwners< ObservationSize >& biasOwners,
+        const std::string& ownerDescription = "" )
 {
+    const std::string parameterDescription = ownerDescription.empty( ) ? parameter->getParameterDescription( ) : ownerDescription;
     ObservationBiasTypes biasType = getObservationBiasType( observationBias );
     bool isParameterLinked = false;
 
@@ -59,8 +82,12 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
         // Perform closure for each constituent bias object
         for( unsigned int i = 0; i < multiTypeBias->getBiasList( ).size( ); i++ )
         {
-            isParameterLinked = performObservationParameterEstimationClosureForSingleModelSet(
-                                        parameter, multiTypeBias->getBiasList( ).at( i ), linkEnds, observableType ) ||
+            isParameterLinked = performObservationParameterEstimationClosureForSingleModelSet( parameter,
+                                                                                               multiTypeBias->getBiasList( ).at( i ),
+                                                                                               linkEnds,
+                                                                                               observableType,
+                                                                                               biasOwners,
+                                                                                               parameterDescription ) ||
                     isParameterLinked;
         }
     }
@@ -86,6 +113,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            constantBiasObject ),
@@ -129,6 +157,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             biasParameter->setObservationBiasFunctions(
                                     std::bind( &ConstantArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                constantBiasObject ),
@@ -159,6 +188,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            constantBiasObject ),
@@ -202,6 +232,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             biasParameter->setObservationBiasFunctions(
                                     std::bind( &ConstantRelativeArcWiseObservationBias<
                                                        ObservationSize >::getTemplateFreeConstantObservationBias,
@@ -234,6 +265,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            timeBiasObject ),
@@ -280,6 +312,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             timeBiasParameter->setObservationBiasFunctions(
                                     std::bind( &ArcWiseTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                timeBiasObject ),
@@ -310,6 +343,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantTimeBias< ObservationSize >::getTemplateFreeConstantObservationBias, timeBiasObject ),
                                 std::bind( &ConstantTimeBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
@@ -355,6 +389,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             timeBiasParameter->setObservationBiasFunctions(
                                     std::bind( &ArcWiseTimeBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                timeBiasObject ),
@@ -530,6 +565,9 @@ void performObservationParameterEstimationClosure(
         std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > observationBiases =
                 extractObservationBiasList( observationModels );
 
+        // Ownership is local to this binding pass, so reusing parameters with new models remains valid.
+        ObservationBiasParameterOwners< ObservationSize > biasOwners;
+
         // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
         for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
         {
@@ -593,8 +631,12 @@ void performObservationParameterEstimationClosure(
                     }
                     // Bind the ordinary per-link parameter using the existing model and arc-consistency checks.
                     const auto member = sharedBias->createMember( model.first );
-                    if( !performObservationParameterEstimationClosureForSingleModelSet(
-                                member, matches.front( ), model.first, observationSimulator->getObservableType( ) ) )
+                    if( !performObservationParameterEstimationClosureForSingleModelSet( member,
+                                                                                        matches.front( ),
+                                                                                        model.first,
+                                                                                        observationSimulator->getObservableType( ),
+                                                                                        biasOwners,
+                                                                                        sharedBias->getParameterDescription( ) ) )
                     {
                         throw std::runtime_error( "Incompatible arc definitions for " + sharedBias->getParameterDescription( ) );
                     }
@@ -604,6 +646,7 @@ void performObservationParameterEstimationClosure(
                 {
                     throw std::runtime_error( "No observation models match " + sharedBias->getParameterDescription( ) );
                 }
+                sharedBias->completeBinding( );
                 continue;
             }
 
@@ -617,7 +660,8 @@ void performObservationParameterEstimationClosure(
                         performObservationParameterEstimationClosureForSingleModelSet( vectorBiasParameters.at( i ),
                                                                                        biasIterator->second,
                                                                                        biasIterator->first,
-                                                                                       observationSimulator->getObservableType( ) ) ||
+                                                                                       observationSimulator->getObservableType( ),
+                                                                                       biasOwners ) ||
                         isCurrentBiasParameterLinked;
             }
 
@@ -686,7 +730,15 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                 const auto parameterIndices = std::make_pair( parameter.first, sharedBias->getParameterSize( ) );
                 for( const auto& member : sharedBias->getMembers( ) )
                 {
-                    auto& partial = observationPartialsAndScaler.at( member.first ).first.at( parameterIndices );
+                    const auto linkPartials = observationPartialsAndScaler.find( member.first );
+                    if( linkPartials == observationPartialsAndScaler.end( ) || linkPartials->second.first.count( parameterIndices ) == 0 ||
+                        linkPartials->second.first.at( parameterIndices ) == nullptr )
+                    {
+                        throw std::runtime_error( "No observation partial was created for " + sharedBias->getParameterDescription( ) +
+                                                  " at " + getLinkEndsString( member.first ) +
+                                                  ". This observable's partial builder must support link-property partials." );
+                    }
+                    auto& partial = linkPartials->second.first.at( parameterIndices );
                     partial =
                             std::make_shared< ObservationPartialWrtSharedRelativeBias< ObservationSize, ObservationScalarType, TimeType > >(
                                     partial, observationSimulator->getObservationModel( member.first ) );
