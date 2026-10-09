@@ -497,7 +497,7 @@ def parse_ades_file(file_path: str):  # -> Table:
 
         df = pd.DataFrame(rows)
 
-        # in creating the previsous dataframe, if one key is missing from the optical element, its value is assigned
+        # in creating the previsous dataframe, if one key is missing from the observation element, its value is assigned
         #  to Nan, None or pd.NA - change all of these and all empty strings to None for consistency
         df = df.replace(r"^\s*$", None, regex=True)
         df = df.astype(object).where(pd.notna(df), None)
@@ -508,12 +508,13 @@ def parse_ades_file(file_path: str):  # -> Table:
         # create the columns containing seconds since J2000 UTC
         df = _epochs_UTC_to_seconds_UTC(df)
 
-        # create the 'note2' and 'catalog' columns to allow application of the VCFF17 weighing scheme
-        df = _mode_to_note2(df)
-        df = _astCat_to_catalog(df)
-
         # optical observations
         if obs_kind == "optical":
+
+            # create the 'note2' and 'catalog' columns to allow application of the VCFF17 weighing scheme
+            df = _mode_to_note2(df)
+            df = _astCat_to_catalog(df)
+
             result_data_optical = pd.DataFrame(
                 {
                     "number": _first_present_column(df, "permID", "provID", "artSat", "trkSub"),
@@ -555,7 +556,9 @@ def parse_ades_file(file_path: str):  # -> Table:
             )
 
         elif obs_kind == "radar":
+            # this is an outdated entry only present in 80 cols file, added here for consistency
             df["target_point"] = "C"
+
             result_data_radar = pd.DataFrame(
                 {
                     "target_body": _first_present_column(df, "permID", "provID", "artSat"),
