@@ -58,6 +58,20 @@ public:
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const = 0;
 
+    //! Function to create a copy of these results that retains the propagated dynamics only.
+    /*!
+     *  Function to create a copy of these results that retains the propagated dynamics (state history, dependent
+     *  variables, etc.) only, discarding any variational results (state transition and sensitivity matrices). For
+     *  results that hold no variational data, this is equivalent to clone( ). This is used to retain a lightweight
+     *  record of each estimation iteration: the variational matrices dominate the memory footprint of a stored
+     *  iteration (a sensitivity matrix for N parameters is 6N doubles per time step, against 6 for the state itself),
+     *  while only the dynamics are typically inspected afterwards.
+     */
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const
+    {
+        return clone( );
+    }
+
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
 
     // Used for serialization testing
@@ -691,6 +705,12 @@ public:
         return cloneDerived( );
     }
 
+    //! Copy that retains the propagated dynamics only, discarding the state transition and sensitivity matrices.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return singleArcDynamicsResults_->cloneDerived( );
+    }
+
     void reset( )
     {
         clearSolutionMaps( );
@@ -881,6 +901,17 @@ public:
         return simulationResults->getDynamicsResults( );
     }
 };
+template< template< class, class > class SingleArcResults, class StateScalarType, class TimeType >
+class HybridArcSimulationResults;
+
+//! Convenience aliases for the dynamics-only (non-variational) multi- and hybrid-arc results, as returned by
+//! cloneDynamicsOnly( ).
+template< typename StateScalarType = double, typename TimeType = double >
+using DynamicsOnlyMultiArcResults = MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType >;
+
+template< typename StateScalarType = double, typename TimeType = double >
+using DynamicsOnlyHybridArcResults = HybridArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType >;
+
 //! Class that holds numerical results for multi-arc simulations. This class may
 //! hold results for dynamics-only or variational+dynamics results. For the former,
 //! the SingleArcResults template argument is SingleArcSimulationResults, for the latter it is
@@ -923,6 +954,22 @@ public:
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
+    }
+
+    //! Copy that retains the propagated dynamics of each arc only, discarding any variational results. The returned
+    //! object is always a dynamics-only MultiArcSimulationResults, regardless of the type of the constituent arcs.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > clonedDynamicsResults;
+        for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+        {
+            clonedDynamicsResults.push_back(
+                    SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                            getSingleArcSimulationResults( singleArcResults_.at( i ) )
+                                    ->cloneDerived( ) );
+        }
+        return std::make_shared< DynamicsOnlyMultiArcResults< StateScalarType, TimeType > >( clonedDynamicsResults,
+                                                                                             dependentVariableInterface_ );
     }
 
     bool getPropagationIsPerformed( )
@@ -1258,6 +1305,18 @@ public:
     {
         return std::make_shared< HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
                 singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
+    }
+
+    //! Copy that retains the propagated dynamics of the single- and multi-arc parts only, discarding any variational
+    //! results. The returned object is always a dynamics-only HybridArcSimulationResults.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return std::make_shared< DynamicsOnlyHybridArcResults< StateScalarType, TimeType > >(
+                SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                        getSingleArcSimulationResults( singleArcResults_ )
+                                ->cloneDerived( ),
+                std::dynamic_pointer_cast< DynamicsOnlyMultiArcResults< StateScalarType, TimeType > >(
+                        multiArcResults_->cloneDynamicsOnly( ) ) );
     }
 
     std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > getSingleArcResults( )

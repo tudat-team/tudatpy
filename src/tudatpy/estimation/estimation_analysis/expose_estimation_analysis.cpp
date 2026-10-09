@@ -521,6 +521,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "save_state_history_per_iteration" ) = false,
                   py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
                   py::arg( "condition_number_warning_each_iteration" ) = true,
+                  py::arg( "save_variational_results_per_iteration" ) = false,
                   R"doc(
 
          Function to define specific settings for the estimation process
@@ -550,6 +551,14 @@ void expose_estimation_analysis( py::module& m )
 
          save_state_history_per_iteration : bool, default = False
              Boolean denoting whether the state history and dependent variables are to be saved on each iteration.
+
+         save_variational_results_per_iteration : bool, default = False
+             Boolean denoting whether the variational results (state transition and sensitivity matrices) are to be saved
+             on each iteration, in addition to the state history and dependent variables. Only relevant if
+             ``save_state_history_per_iteration`` is True. Retaining these matrices is typically orders of magnitude more
+             expensive in memory than the state history itself (the sensitivity matrix holds 6N entries per time step for
+             N estimated parameters), so they are discarded by default. When False, the entries of
+             ``simulation_results_per_iteration`` hold the propagated dynamics only.
 
          Returns
          -------
