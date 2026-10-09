@@ -10,6 +10,7 @@
  */
 
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <map>
 #include <stdexcept>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -42,6 +43,21 @@ bool isTimeScaleRelativistic( const TimeScales originalTimeScale )
                                       std::to_string( static_cast< int >( originalTimeScale ) ) );
     }
     return isRelativistic;
+}
+
+//! Function to get a TimeScales enum entry from its string representation.
+TimeScales timeScaleFromString( const std::string& timeScaleString )
+{
+    static const std::map< std::string, TimeScales > timeScalesByName = {
+        { "TAI", tai_scale }, { "TT", tt_scale }, { "TDB", tdb_scale }, { "UTC", utc_scale }, { "UT1", ut1_scale }
+    };
+
+    if( timeScalesByName.count( timeScaleString ) == 0 )
+    {
+        throw std::runtime_error( "Error, could not recognize time scale \"" + timeScaleString +
+                                  "\", no corresponding TimeScales enum entry found. Recognized scales are TAI, TT, TDB, UTC and UT1." );
+    }
+    return timeScalesByName.at( timeScaleString );
 }
 
 //! Function to get the Julian day on J2000, in double precision.
