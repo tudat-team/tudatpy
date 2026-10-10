@@ -53,4 +53,12 @@ Bibliography
 ------------
 
 .. bibliography::
-   
+
+
+Release Notes
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   Published releases <release_notes>

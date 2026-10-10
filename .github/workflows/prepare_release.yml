@@ -1,0 +1,66 @@
+name: Prepare release
+run-name: Prepare TudatPy ${{ inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (X.Y.Z, for example 1.1.0)
+        required: true
+        type: string
+      release_notes:
+        description: RST notes; use gh workflow run -F release_notes=@file for multiline text
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# Keep this from running at the same time as the weekly version update.
+concurrency:
+  group: tudatpy-versioning
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'tudat-team/tudatpy' && github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install version and rendering tools
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          environment-name: release-tools
+          create-args: >-
+            python=3.12 conda-smithy bump-my-version>=1,<2
+      # Use the existing version-update account to open PRs in all four repositories.
+      - name: Get permission to create release PRs
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.VERSION_BUMPER_APP_ID }}
+          private-key: ${{ secrets.VERSION_BUMPER_PRIVATE_KEY }}
+          owner: tudat-team
+          repositories: |
+            tudatpy
+            tudatpy-feedstock
+            tudat-space
+            tudatpy-examples
+          permission-contents: write
+          permission-pull-requests: write
+          permission-workflows: write
+      # The script checks every repository before uploading branches or opening PRs.
+      - name: Prepare all changes, then create eight PRs
+        shell: bash -el {0}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+        run: |
+          gh auth setup-git
+          printf '%s\n' "$RELEASE_NOTES" > "$RUNNER_TEMP/release-notes.rst"
+          python .github/scripts/prepare_release.py "$RELEASE_VERSION" \
+            --notes "$RUNNER_TEMP/release-notes.rst" --publish
