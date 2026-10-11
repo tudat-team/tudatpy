@@ -273,6 +273,12 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     // Update proper time scaling objects.
     currentLinkEndType_ = fixedLinkEnd;
 
+    if( !relativisticLightTimeCorrectionPartials_.empty( ) )
+    {
+        currentLinkEndStates_ = linkEndStates;
+        currentLinkEndTimes_ = times;
+    }
+
     if( transmitterProperTimePartials_ != nullptr )
     {
         transmitterProperTimePartials_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
@@ -371,13 +377,28 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize( const estimatabl
     return totalDependencySize;
 }
 
-//! Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials
+//! Direct parameter partials of proper time and explicit light-time time derivatives.
 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > totalPartial;
 
-    if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
+    if( parameterType.first == estimatable_parameters::ppn_parameter_gamma )
+    {
+        for( const auto& correctionPartial : relativisticLightTimeCorrectionPartials_ )
+        {
+            auto transmitterPartial = correctionPartial->timeDerivativeWrtPpnParameterGamma(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::transmitter );
+            auto receiverPartial = correctionPartial->timeDerivativeWrtPpnParameterGamma(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::receiver );
+            transmitterPartial.first *= -transmitterPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            receiverPartial.first *= receiverPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            totalPartial.push_back( transmitterPartial );
+            totalPartial.push_back( receiverPartial );
+        }
+    }
+    else if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter &&
+             ( transmitterProperTimePartials_ != nullptr || receiverProperTimePartials_ != nullptr ) )
     {
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
                 transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );

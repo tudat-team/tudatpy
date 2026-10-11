@@ -111,6 +111,19 @@ public:
                                gradientLinkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
     }
 
+    //! Gamma partial of the explicit link-end time derivative, at fixed link-end states.
+    SingleOneWayRangePartialReturnType timeDerivativeWrtPpnParameterGamma( const std::vector< Eigen::Vector6d >& states,
+                                                                           const std::vector< double >& times,
+                                                                           const observation_models::LinkEndType linkEnd )
+    {
+        // Use the same first-order gamma dependence as the delay and position-gradient partials.
+        const double partial = correctionCalculator_->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                       states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), linkEnd ) /
+                ( correctionCalculator_->getPpnParameterGammaFunction_( )( ) + 1.0 );
+        return std::make_pair( ( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 1 ) << partial ).finished( ),
+                               linkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
+    }
+
     //! Function to get the names of bodies causing light-time correction.
     /*!
      * Function to get the names of bodies causing light-time correction.
