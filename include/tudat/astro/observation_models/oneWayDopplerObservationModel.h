@@ -19,6 +19,7 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
 #include "tudat/astro/relativity/relativisticTimeConversion.h"
 #include "tudat/astro/relativity/metric.h"
 namespace tudat
@@ -559,8 +560,25 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) override
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr ) override
     {
+        auto ancillarySetings = ancillarySettingsInput;
+        // Standalone models initialize their frequency here. Constituent legs use
+        // the frequency settings supplied by their parent observation model.
+        if( this->frequencyInterpolator_ != nullptr )
+        {
+            if( ancillarySetings == nullptr )
+            {
+                ancillarySetings = std::make_shared< ObservationAncillarySimulationSettings >( );
+            }
+            setTransmissionFrequency( getLightTimeCalculator( ),
+                                      this->timeScaleConverter_,
+                                      this->frequencyInterpolator_,
+                                      time,
+                                      linkEndAssociatedWithTime,
+                                      ancillarySetings );
+        }
+
         this->getFullLinkLightTimeCalculatorFromBase( )->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 

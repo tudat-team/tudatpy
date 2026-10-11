@@ -14,6 +14,8 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
+#include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
+#include "tudat/astro/ephemerides/constantEphemeris.h"
 
 namespace tudat
 {
@@ -104,6 +106,53 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
             BOOST_CHECK_SMALL( calculatedCorrectionAnalytical - expectedRangeCorrection.at( id ), tolerance );
             BOOST_CHECK_SMALL( calculatedCorrectionNumerical - expectedRangeCorrection.at( id ), tolerance );
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testDopplerDownlinkFrequency )
+{
+    // Fix the geometry to isolate the 1/f^2 scaling of the downlink correction.
+    const auto station =
+            std::make_shared< ephemerides::ConstantEphemeris >( ( Eigen::Vector6d( ) << 1.5e11, 0.0, 0.0, 0.0, 3.0e4, 0.0 ).finished( ) );
+    const auto spacecraft =
+            std::make_shared< ephemerides::ConstantEphemeris >( ( Eigen::Vector6d( ) << -1.5e11, 1.0e10, 0.0, 0.0, 0.0, 0.0 ).finished( ) );
+    const LinkEnds linkEnds = { { transmitter, LinkEndId( "Earth" ) },
+                                { reflector1, LinkEndId( "Probe" ) },
+                                { receiver, LinkEndId( "Earth" ) } };
+    const auto corona = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
+            two_way_doppler, []( double ) { return Eigen::Vector6d::Zero( ).eval( ); } );
+    const auto uplink = std::make_shared< LightTimeCalculator<> >( station, spacecraft );
+    const auto ancillary = std::make_shared< ObservationAncillarySimulationSettings >( );
+    const double frequency = 7.153e9;
+    ancillary->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
+    std::vector< std::shared_ptr< TwoWayDopplerObservationModel<> > > models;
+    for( const bool corrected : { false, true } )
+    {
+        const auto downlink =
+                std::make_shared< LightTimeCalculator<> >( spacecraft,
+                                                           station,
+                                                           corrected ? std::vector< std::shared_ptr< LightTimeCorrection > >{ corona }
+                                                                     : std::vector< std::shared_ptr< LightTimeCorrection > >{} );
+        models.push_back( std::make_shared< TwoWayDopplerObservationModel<> >(
+                linkEnds,
+                std::make_shared< FullLinkLightTimeCalculator<> >(
+                        std::vector< std::shared_ptr< LightTimeCalculator<> > >{ uplink, downlink } ),
+                std::make_shared< OneWayDopplerObservationModel<> >( getUplinkFromTwoWayLinkEnds( linkEnds ), uplink ),
+                std::make_shared< OneWayDopplerObservationModel<> >( getDownlinkFromTwoWayLinkEnds( linkEnds ), downlink ) ) );
+    }
+    double referenceShift = 0.0;
+    for( const double ratio : { 1.0, 880.0 / 749.0, 3344.0 / 749.0 } )
+    {
+        ancillary->setIntermediateDoubleData( received_frequency_intermediate, frequency * ratio );
+        const double shift = models[ 1 ]->computeObservations( 0.0, receiver, ancillary )( 0 ) -
+                models[ 0 ]->computeObservations( 0.0, receiver, ancillary )( 0 );
+        if( ratio == 1.0 )
+        {
+            referenceShift = shift;
+            BOOST_REQUIRE_GT( std::fabs( referenceShift ), 1.0e-5 );
+        }
+        BOOST_CHECK_CLOSE_FRACTION( shift, referenceShift / ( ratio * ratio ), 1.0e-5 );
+        BOOST_CHECK_EQUAL( ancillary->getIntermediateDoubleData( transmitter_frequency_intermediate ), frequency );
     }
 }
 

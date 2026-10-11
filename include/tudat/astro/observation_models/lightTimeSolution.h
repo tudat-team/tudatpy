@@ -739,6 +739,11 @@ public:
         return correctionsNeedFrequency;
     }
 
+    std::shared_ptr< LightTimeConvergenceCriteria > getLightTimeConvergenceCriteria( ) const
+    {
+        return lightTimeConvergenceCriteria_;
+    }
+
 protected:
     //! Transmitter state function.
     /*!

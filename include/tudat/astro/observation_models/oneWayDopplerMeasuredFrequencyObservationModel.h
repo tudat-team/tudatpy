@@ -158,7 +158,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr ) override
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -169,8 +169,13 @@ public:
                     getLinkEndTypeString( linkEndAssociatedWithTime ) + ") is not valid. Must be the receiver." );
         }
 
+        auto ancillarySettings = ancillarySettingsInput;
         if( lightTimeCalculator_->doCorrectionsNeedFrequency( ) )
         {
+            if( ancillarySettings == nullptr )
+            {
+                ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+            }
             setTransmissionFrequency(
                     lightTimeCalculator_, timeScaleConverter_, frequencyInterpolator_, time, linkEndAssociatedWithTime, ancillarySettings );
         }

@@ -128,8 +128,20 @@ public:
 
         uplinkDoppler = uplinkDopplerCalculator_->computeIdealDopplerWithLinkEndData(
                 uplinkReferenceLinkEnd, uplinkLinkEndTimes, uplinkLinkEndStates, ancillarySetings );
+
+        auto downlinkAncillarySettings = ancillarySetings;
+        if( downlinkDopplerCalculator_->getLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        {
+            // The one-way derivative interface numbers this leg from zero. Its
+            // transmitter is the spacecraft, so index-based corrections (e.g.
+            // solar corona) must see the downlink frequency in both fields.
+            // Copy the settings to preserve the full link's uplink frequency.
+            downlinkAncillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( *ancillarySetings );
+            downlinkAncillarySettings->setIntermediateDoubleData(
+                    transmitter_frequency_intermediate, ancillarySetings->getIntermediateDoubleData( received_frequency_intermediate ) );
+        }
         downlinkDoppler = downlinkDopplerCalculator_->computeIdealDopplerWithLinkEndData(
-                downlinkReferenceLinkEnd, downlinkLinkEndTimes, downlinkLinkEndStates, ancillarySetings );
+                downlinkReferenceLinkEnd, downlinkLinkEndTimes, downlinkLinkEndStates, downlinkAncillarySettings );
 
         return multiplicationTerm_ *
                 ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )

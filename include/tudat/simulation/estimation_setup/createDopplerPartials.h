@@ -111,20 +111,8 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
     // Iterate over all links in the two-way Doppler observable
     std::vector< std::function< double( const double, const observation_models::LinkEndType ) > > oneWayDopplerModels;
-    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > currentLightTimeCorrections;
     for( int i = 0; i < numberOfLinkEnds - 1; i++ )
     {
-        if( i == 0 )
-        {
-            currentLightTimeCorrections =
-                    twoWayObservationModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( );
-        }
-        else
-        {
-            currentLightTimeCorrections =
-                    twoWayObservationModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( );
-        }
-
         // Define links for current one-way Doppler link
         currentLinkEnds.clear( );
         currentLinkEnds[ observation_models::transmitter ] =
@@ -132,21 +120,40 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         currentLinkEnds[ observation_models::receiver ] =
                 twoWayDopplerLinkEnds.at( observation_models::getNWayLinkEnumFromIndex( i + 1, 3 ) );
 
-        std::shared_ptr< observation_models::OneWayDopplerObservationModel< ParameterType, TimeType > > currentDopplerModel;
-        if( i == 0 )
+        auto currentDopplerModel = ( i == 0 ) ? twoWayObservationModel->getUplinkDopplerCalculator( )
+                                              : twoWayObservationModel->getDownlinkDopplerCalculator( );
+        auto scalingDopplerModel = currentDopplerModel;
+        const auto lightTimeCalculator = currentDopplerModel->getLightTimeCalculator( );
+        if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
         {
-            oneWayDopplerModels.push_back(
-                    observation_models::getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel< ParameterType, TimeType >(
-                            twoWayObservationModel->getUplinkDopplerCalculator( ) ) );
-            currentDopplerModel = twoWayObservationModel->getUplinkDopplerCalculator( );
+            // The scaler re-evaluates individual legs without ancillary frequency
+            // settings. Keep its existing approximate partials by omitting the
+            // frequency-dependent corrections only from these callbacks. The
+            // observation model and its light-time calculators remain untouched.
+            std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > scalingCorrections;
+            for( const auto& correction : lightTimeCalculator->getLightTimeCorrection( ) )
+            {
+                if( !observation_models::requiresMultiLegIterations( correction->getLightTimeCorrectionType( ) ) )
+                {
+                    scalingCorrections.push_back( correction );
+                }
+            }
+            const auto scalingLightTimeCalculator = std::make_shared< observation_models::LightTimeCalculator< ParameterType, TimeType > >(
+                    lightTimeCalculator->getEphemerisOfTransmittingBody( ),
+                    lightTimeCalculator->getEphemerisOfReceivingBody( ),
+                    scalingCorrections,
+                    lightTimeCalculator->getLightTimeConvergenceCriteria( ) );
+            scalingDopplerModel = std::make_shared< observation_models::OneWayDopplerObservationModel< ParameterType, TimeType > >(
+                    currentLinkEnds,
+                    scalingLightTimeCalculator,
+                    currentDopplerModel->getTransmitterProperTimeRateCalculator( ),
+                    currentDopplerModel->getReceiverProperTimeRateCalculator( ),
+                    currentDopplerModel->getObservationBiasCalculator( ),
+                    currentDopplerModel->getNormalizeWithSpeedOfLight( ) );
         }
-        else if( i == 1 )
-        {
-            oneWayDopplerModels.push_back(
-                    observation_models::getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel< ParameterType, TimeType >(
-                            twoWayObservationModel->getDownlinkDopplerCalculator( ) ) );
-            currentDopplerModel = twoWayObservationModel->getDownlinkDopplerCalculator( );
-        }
+        oneWayDopplerModels.push_back(
+                observation_models::getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel< ParameterType, TimeType >(
+                        scalingDopplerModel ) );
 
         // Create one-way Doppler partials for current link
         constituentOneWayDopplerPartials.push_back( createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
