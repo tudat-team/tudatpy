@@ -1,7 +1,9 @@
 """Offline tests for tudatpy.data.earth_orientation (no downloads)."""
 
 import pytest
+import requests
 
+import tudatpy.data
 from tudatpy.data import earth_orientation as eo
 
 C04_20 = """# EOP (IERS) 20 C04 TIME SERIES  consistent with ITRF 2020 - sampled at 0h UTC
@@ -64,3 +66,52 @@ def test_prediction_row_without_lod():
 def test_gap_is_rejected():
     with pytest.raises(ValueError):
         eo.build_eop_file_text(C04_20, FINALS[2])  # 61294 missing
+
+
+class _Reply:
+    def __init__(self, text):
+        self.text = text
+
+    def raise_for_status(self):
+        pass
+
+
+def _fake_get(fail=False):
+    def get(url, timeout):
+        if fail:
+            raise requests.ConnectionError(url)
+        return _Reply(C04_20 if url == eo.C04_20_URL else "\n".join(FINALS))
+
+    return get
+
+
+def test_update_writes_default_file_with_backup(monkeypatch, tmp_path):
+    monkeypatch.setattr(requests, "get", _fake_get())
+    monkeypatch.setattr(tudatpy.data, "get_earth_orientation_path", lambda: str(tmp_path))
+    target = tmp_path / eo.EOP_FILE_NAME
+    target.write_text("old file\n")
+    summary = eo.update_earth_orientation_file()
+    assert summary["output_path"] == str(target)
+    assert summary["last_day"] == "2026-09-12"
+    rows = [l.split() for l in target.read_text().splitlines() if len(l.split()) == 16]
+    assert [int(t[3]) for t in rows] == [61292, 61293, 61294, 61295]
+    backups = list(tmp_path.glob(eo.EOP_FILE_NAME + ".bak-*"))
+    assert len(backups) == 1 and backups[0].read_text() == "old file\n"
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+def test_update_without_rapid_and_predicted(monkeypatch, tmp_path):
+    monkeypatch.setattr(requests, "get", _fake_get())
+    out = tmp_path / "eop.txt"
+    summary = eo.update_earth_orientation_file(str(out), include_rapid_and_predicted=False)
+    assert summary["last_day"] == "2026-09-10" and summary["last_observed_ut1_day"] is None
+    assert not list(tmp_path.glob("*.bak-*"))  # nothing to back up
+
+
+def test_failed_download_keeps_existing_file(monkeypatch, tmp_path):
+    monkeypatch.setattr(requests, "get", _fake_get(fail=True))
+    out = tmp_path / "eop.txt"
+    out.write_text("old file\n")
+    with pytest.raises(requests.ConnectionError):
+        eo.update_earth_orientation_file(str(out))
+    assert out.read_text() == "old file\n"
