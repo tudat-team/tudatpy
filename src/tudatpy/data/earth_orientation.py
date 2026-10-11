@@ -83,11 +83,15 @@ def parse_finals2000a(text: str, after_mjd: int) -> Tuple[Dict[int, str], Option
         if mjd <= after_mjd:
             continue
         num = lambda a, b, scale: float(line[a:b]) * scale if line[a:b].strip() else 0.0
-        rows[mjd] = _format_row(mjd, x, y, ut1, num(79, 86, 1e-3), num(97, 106, 1e-3), num(116, 125, 1e-3))
+        rows[mjd] = _format_row(
+            mjd, x, y, ut1, num(79, 86, 1e-3), num(97, 106, 1e-3), num(116, 125, 1e-3)
+        )
     return rows, last_observed
 
 
-def build_eop_file_text(c04_20_text: str, finals2000a_text: Optional[str] = None) -> Tuple[str, Dict[str, object]]:
+def build_eop_file_text(
+    c04_20_text: str, finals2000a_text: Optional[str] = None
+) -> Tuple[str, Dict[str, object]]:
     """Merged file content and a summary (first/last day, last 20 C04 day, last observed UT1-UTC day)."""
     rows = parse_c04_20(c04_20_text)
     if not rows:
@@ -108,7 +112,9 @@ def build_eop_file_text(c04_20_text: str, finals2000a_text: Optional[str] = None
         "last_observed_ut1_day": to_date(last_observed) if last_observed else None,
         "rows": len(mjds),
     }
-    header = _HEADER.format(c04=C04_20_URL, finals=FINALS2000A_URL if finals2000a_text is not None else "-")
+    header = _HEADER.format(
+        c04=C04_20_URL, finals=FINALS2000A_URL if finals2000a_text is not None else "-"
+    )
     return header + "\n".join(rows[m] for m in mjds) + "\n", summary
 
 
@@ -150,7 +156,9 @@ def update_earth_orientation_file(
         reply.raise_for_status()
         return reply.text
 
-    text, summary = build_eop_file_text(get(C04_20_URL), get(FINALS2000A_URL) if include_rapid_and_predicted else None)
+    text, summary = build_eop_file_text(
+        get(C04_20_URL), get(FINALS2000A_URL) if include_rapid_and_predicted else None
+    )
     if backup and out.is_file():
         shutil.copy2(out, out.with_name(f"{out.name}.bak-{date.today().isoformat()}"))
     out.parent.mkdir(parents=True, exist_ok=True)
