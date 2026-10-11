@@ -720,7 +720,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
         observationPartialsAndScaler = createObservablePartialsList(
                 observationSimulator->getObservationModels( ), bodies, parametersToEstimate, false, false, dependentVariablesInterface );
 
-        // Supply the ideal observable locally to shared relative-bias partials.
+        // Verify that partials exist for every shared relative-bias member.
         for( const auto& parameter : parametersToEstimate->getVectorParameters( ) )
         {
             const auto sharedBias = std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter.second );
@@ -738,10 +738,6 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                                                   " at " + getLinkEndsString( member.first ) +
                                                   ". This observable's partial builder must support link-property partials." );
                     }
-                    auto& partial = linkPartials->second.first.at( parameterIndices );
-                    partial =
-                            std::make_shared< ObservationPartialWrtSharedRelativeBias< ObservationSize, ObservationScalarType, TimeType > >(
-                                    partial, observationSimulator->getObservationModel( member.first ) );
                 }
             }
         }

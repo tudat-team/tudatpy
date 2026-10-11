@@ -54,7 +54,7 @@ public:
      *  \param times List of times at each link end during observation.
      *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
      *  is kept constant when computing observable.
-     *  \param currentObservation Value of observation for which partial scaling is to be computed
+     *  \param currentObservation Ideal value of observation for which partial scaling is to be computed
      */
     virtual void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                          const std::vector< double >& times,
@@ -175,7 +175,7 @@ public:
      *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
      *  \param times Link end times.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+     *  \param currentObservation Ideal value of the observation for which the partial is to be computed (default NaN for
      *  compatibility purposes).
      *  \return Vector of pairs containing partial values and associated times.
      */
@@ -407,48 +407,6 @@ private:
 
     //!  Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
-};
-
-//! Recompute the ideal observable only for a shared relative bias, then reuse its ordinary bias partial.
-template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
-class ObservationPartialWrtSharedRelativeBias : public ObservationPartial< ObservationSize >
-{
-public:
-    //! Retain the ordinary relative-bias partial and its observation model for local recomputation.
-    ObservationPartialWrtSharedRelativeBias(
-            const std::shared_ptr< ObservationPartial< ObservationSize > >& relativeBiasPartial,
-            const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > >&
-                    observationModel ):
-        ObservationPartial< ObservationSize >( relativeBiasPartial->getParameterIdentifier( ) ),
-        relativeBiasPartial_( relativeBiasPartial ), observationModel_( observationModel )
-    {}
-
-    //! Recompute the ideal observation at the supplied event time and delegate the derivative calculation.
-    std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) override
-    {
-        const int timeIndex =
-                observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                        observationModel_->getObservableType( ), linkEndOfFixedTime, observationModel_->getLinkEnds( ).size( ) )
-                        .at( 0 );
-        // These link-end times already include any time bias. Do not apply that bias a second time.
-        const Eigen::Matrix< double, ObservationSize, 1 > idealObservation =
-                observationModel_->computeIdealObservations( TimeType( times.at( timeIndex ) ), linkEndOfFixedTime, ancillarySettings )
-                        .template cast< double >( );
-        return relativeBiasPartial_->calculatePartial( states, times, linkEndOfFixedTime, ancillarySettings, idealObservation );
-    }
-
-private:
-    //! Existing implementation of the component-wise relative-bias derivative.
-    std::shared_ptr< ObservationPartial< ObservationSize > > relativeBiasPartial_;
-
-    //! Model used to evaluate the unbiased observable at the same event time.
-    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel_;
 };
 
 //! Class for computing the derivative of any observable w.r.t. an arc-wise constant relative observation bias
