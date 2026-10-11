@@ -303,21 +303,27 @@ void expose_random_noise( py::module& m )
            py::arg( "noise_amplitude" ),
            R"doc(
 
- Add Gaussian noise to angular position observations with declination scaling of the right ascension noise.
+ Add Gaussian noise that is isotropic in the local sky plane to angular position observations.
 
- Only angular position entries in the settings list are modified, in-place. Independent, zero-mean
- Gaussian samples with the supplied standard deviation are generated for RA*cos(DEC) and DEC.
- At each observation time, the RA sample is divided by cos(DEC), using the simulated declination
- before adding noise. The DEC sample is added without scaling. This function expects angular
- position observations containing unscaled RA and DEC; RA is singular at the celestial poles.
- Observation simulation raises an error if the model already normalizes RA by cos(DEC).
+ This function adds noise to right ascension :math:`\alpha` and declination :math:`\delta`,
+ Only angular position entries in the settings list are modified by this function
+
+ At each observation time, two independent, zero-mean Gaussian on-sky error samples
+ :math:`\epsilon_\alpha` and :math:`\epsilon_\delta` are generated, each with standard deviation
+ ``noise_amplitude`` in radians. They are converted to errors in the observed angles as follows:
+
+ .. math::
+
+     \Delta\alpha = \frac{\epsilon_\alpha}{\cos\delta}, \qquad
+     \Delta\delta = \epsilon_\delta.
 
  Parameters
  ----------
  observation_simulation_settings_list : list[ObservationSimulationSettings]
      Existing observation simulation settings to modify.
  noise_amplitude : float
-     Standard deviation in radians for RA*cos(DEC) and DEC.
+     Standard deviation in radians of each independent on-sky error component,
+     :math:`\Delta\alpha\cos\delta` and :math:`\Delta\delta`.
 
  Returns
  -------
