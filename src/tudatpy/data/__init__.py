@@ -2,6 +2,7 @@ from tudatpy.kernel.data import *
 from ._support import save2txt, save_time_history_to_file
 from .mission_data_downloader import LoadPDS, DownloadAtmosphericData
 from .processTrk234 import Trk234Processor
+from .earth_orientation import update_earth_orientation_file
 from .ancillary import (
     IonexProduct,
     IonexResolution,

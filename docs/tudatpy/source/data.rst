@@ -36,6 +36,7 @@ Functions
    get_resource_path
    get_ephemeris_path
    get_earth_orientation_path
+   update_earth_orientation_file
    get_quadrature_path
    get_spice_kernel_path
    get_atmosphere_tables_path
@@ -73,6 +74,8 @@ Functions
 .. autofunction:: tudatpy.data.get_ephemeris_path
 
 .. autofunction:: tudatpy.data.get_earth_orientation_path
+
+.. autofunction:: tudatpy.data.update_earth_orientation_file
 
 .. autofunction:: tudatpy.data.get_quadrature_path
 
