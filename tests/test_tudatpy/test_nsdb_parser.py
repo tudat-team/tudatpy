@@ -11,6 +11,7 @@ Tests cover:
 - Empty input
 - Mixed single and multi-line fields
 """
+
 import importlib.util
 import os
 
@@ -20,7 +21,13 @@ import pytest
 # tudatpy.data package init (which requires a compiled C extension).
 _nsdb_path = os.path.join(
     os.path.dirname(__file__),
-    "..", "..", "src", "tudatpy", "data", "nsdb", "nsdb_data.py",
+    "..",
+    "..",
+    "src",
+    "tudatpy",
+    "data",
+    "nsdb",
+    "nsdb_data.py",
 )
 _spec = importlib.util.spec_from_file_location("nsdb_data", _nsdb_path)
 _nsdb = importlib.util.module_from_spec(_spec)
@@ -65,7 +72,7 @@ class TestMultiLineFields:
     def test_two_line_value(self, parser):
         text = (
             "observatory: 083 - Golosseevo-Kiev\n"
-            "             188 - Majdanak\n" \
+            "             188 - Majdanak\n"
             "             095 - Simeiz\n"
         )
         assert parser(text) == {
@@ -99,14 +106,8 @@ class TestMultiLineFields:
 
     def test_continuation_with_leading_whitespace(self, parser):
         """Continuation lines may have varying indentation."""
-        text = (
-            "satellites: Triton\n"
-            "  Nereid\n"
-            "    Proteus\n"
-        )
-        assert parser(text) == {
-            "satellites": ["Triton", "Nereid", "Proteus"]
-        }
+        text = "satellites: Triton\n" "  Nereid\n" "    Proteus\n"
+        assert parser(text) == {"satellites": ["Triton", "Nereid", "Proteus"]}
 
 
 # ---------------------------------------------------------------------------
@@ -118,10 +119,7 @@ class TestValuesWithColons:
         assert parser(text) == {"reference": "Smith et al. (2020): A study"}
 
     def test_colon_in_value_multiline(self, parser):
-        text = (
-            "reference: Smith et al. (2020): A study\n"
-            "          Jones (2019): Another work\n"
-        )
+        text = "reference: Smith et al. (2020): A study\n" "          Jones (2019): Another work\n"
         assert parser(text) == {
             "reference": [
                 "Smith et al. (2020): A study",
@@ -139,23 +137,13 @@ class TestValuesWithColons:
 # ---------------------------------------------------------------------------
 class TestBlankLines:
     def test_blank_lines_between_fields(self, parser):
-        text = (
-            "observatory: 083\n"
-            "\n"
-            "type: absolute\n"
-        )
+        text = "observatory: 083\n" "\n" "type: absolute\n"
         assert parser(text) == {"observatory": "083", "type": "absolute"}
 
     def test_blank_lines_within_multiline(self, parser):
         """Blank lines inside a multi-line block are skipped."""
-        text = (
-            "observatory: 083 - Golosseevo-Kiev\n"
-            "\n"
-            "             188 - Majdanak\n"
-        )
-        assert parser(text) == {
-            "observatory": ["083 - Golosseevo-Kiev", "188 - Majdanak"]
-        }
+        text = "observatory: 083 - Golosseevo-Kiev\n" "\n" "             188 - Majdanak\n"
+        assert parser(text) == {"observatory": ["083 - Golosseevo-Kiev", "188 - Majdanak"]}
 
     def test_leading_blank_lines(self, parser):
         text = "\n\nobservatory: 083\n"
@@ -172,23 +160,13 @@ class TestBlankLines:
 class TestSectionBoundaries:
     def test_stops_at_section_header(self, parser):
         """Continuation lines must not cross a section header."""
-        text = (
-            "observatory: 083 - Golosseevo-Kiev\n"
-            "Reference.\n"
-            "type: absolute\n"
-        )
+        text = "observatory: 083 - Golosseevo-Kiev\n" "Reference.\n" "type: absolute\n"
         # "Reference." is a section header, so "083 - Golosseevo-Kiev" is
         # the only value for "observatory".
         assert parser(text) == {"observatory": "083 - Golosseevo-Kiev"}
 
     def test_multiple_sections(self, parser):
-        text = (
-            "observatory: 083\n"
-            "Reference.\n"
-            "author: Smith\n"
-            "Format.\n"
-            "1. column one\n"
-        )
+        text = "observatory: 083\n" "Reference.\n" "author: Smith\n" "Format.\n" "1. column one\n"
         assert parser(text) == {"observatory": "083"}
 
 
@@ -197,10 +175,7 @@ class TestSectionBoundaries:
 # ---------------------------------------------------------------------------
 class TestDuplicateKeys:
     def test_duplicate_key_raises(self, parser):
-        text = (
-            "observatory: 083\n"
-            "observatory: 188\n"
-        )
+        text = "observatory: 083\n" "observatory: 188\n"
         with pytest.raises(ValueError, match="Duplicate key.*observatory"):
             parser(text)
 
@@ -228,11 +203,5 @@ class TestEdgeCases:
 
     def test_key_without_value_then_continuation(self, parser):
         """A key with empty first line followed by continuation lines."""
-        text = (
-            "observatory:\n"
-            "  083 - Golosseevo-Kiev\n"
-            "  188 - Majdanak\n"
-        )
-        assert parser(text) == {
-            "observatory": ["", "083 - Golosseevo-Kiev", "188 - Majdanak"]
-        }
+        text = "observatory:\n" "  083 - Golosseevo-Kiev\n" "  188 - Majdanak\n"
+        assert parser(text) == {"observatory": ["", "083 - Golosseevo-Kiev", "188 - Majdanak"]}

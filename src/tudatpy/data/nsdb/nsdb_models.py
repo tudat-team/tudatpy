@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 # IDENTITY KEYS
 # ============================================================
 
+
 @dataclass(frozen=True)
 class LinkKey:
     """Unique identity of a target-observatory link."""
@@ -30,6 +31,7 @@ class ObservationGroupKey:
 # ============================================================
 # DOMAIN ENTITIES
 # ============================================================
+
 
 @dataclass
 class Target:
@@ -65,10 +67,10 @@ class NSDBDataset:
         )
 
 
-
 # ============================================================
 # LINK REGISTRY
 # ============================================================
+
 
 @dataclass
 class LinkRecord:
@@ -86,6 +88,7 @@ class LinkRecord:
 # OBSERVATION GROUPS
 # ============================================================
 
+
 @dataclass
 class ObservationGroup:
     """
@@ -99,13 +102,9 @@ class ObservationGroup:
 
     observations: Any
 
-    source_dataset_ids: set[UUID] = field(
-        default_factory=set
-    )
+    source_dataset_ids: set[UUID] = field(default_factory=set)
 
-    metadata: dict[str, Any] = field(
-        default_factory=dict
-    )
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     single_observation_set: Any = None
 
@@ -113,6 +112,7 @@ class ObservationGroup:
 # ============================================================
 # QUERY
 # ============================================================
+
 
 @dataclass(frozen=True)
 class ObservationQuery:
@@ -122,4 +122,3 @@ class ObservationQuery:
     observatory_id: str | None = None
     observable_type: Any = None
     dataset_id: UUID | None = None
-

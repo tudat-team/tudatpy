@@ -48,7 +48,9 @@ class NSDBQuery:
         self._get_metadata(datasets, raise_on_missing=True)
         return self._get_observations(datasets, self.parsed_datasets, raise_on_missing=True)
 
-    def _get_observations(self, datasets: list[str], metadata: pd.DataFrame, raise_on_missing: bool = False) -> pd.DataFrame:
+    def _get_observations(
+        self, datasets: list[str], metadata: pd.DataFrame, raise_on_missing: bool = False
+    ) -> pd.DataFrame:
         missing_datasets = []
         for dataset in datasets:
             # Identify primary XYzzzz where X is primary
@@ -79,7 +81,7 @@ class NSDBQuery:
             self.data_files[dataset] = df
             # TODO: Preprocess the dataframe for units, time, frame, etc.
             self._process_data(dataset, metadata[dataset])
-            
+
         return self.data_files
 
     def _process_data(self, dataset: str, metadata: pd.DataFrame):
@@ -115,13 +117,11 @@ class NSDBQuery:
         try:
             bodies.get("Earth").get_ground_station(observatory_code)
         except RuntimeError:
-            return False # Fails if the observatory is not found
+            return False  # Fails if the observatory is not found
         else:
-            return True # Succeeds if the observatory is found
+            return True  # Succeeds if the observatory is found
 
-    def _get_metadata(
-        self, datasets: list[str], raise_on_missing: bool = False
-    ) -> pd.DataFrame:
+    def _get_metadata(self, datasets: list[str], raise_on_missing: bool = False) -> pd.DataFrame:
         """
         Get the observations for the given datasets from the NSDB database.
 
@@ -159,8 +159,6 @@ class NSDBQuery:
 
             # Pass the HTML page to the parser
             self._parse_html(html, dataset)
-
-            
 
         if missing_datasets and raise_on_missing:
             raise ValueError(
@@ -258,12 +256,7 @@ class NSDBQuery:
         key = pp.Regex(r"[\w .]+")
 
         # A field declaration: ``key: value``
-        field_decl = (
-            key("key")
-            + pp.Suppress(pp.Literal(":"))
-            + pp.Regex(r"[^\n]*")("value")
-            + NL
-        )
+        field_decl = key("key") + pp.Suppress(pp.Literal(":")) + pp.Regex(r"[^\n]*")("value") + NL
 
         section_headers = frozenset(
             [
@@ -328,10 +321,7 @@ class NSDBQuery:
         number = pp.Regex(r"\d+")
         description = pp.Regex(r"[^\n]*")
         numbered_item = pp.Group(
-            number("number")
-            + pp.Suppress(pp.Literal("."))
-            + description("description")
-            + NL
+            number("number") + pp.Suppress(pp.Literal(".")) + description("description") + NL
         )
 
         result = {}
@@ -396,9 +386,7 @@ class NSDBQuery:
         soup = bs4.BeautifulSoup(planet_page.content, "html.parser")
         table = soup.find("table")
         if table is None:
-            raise ValueError(
-                f"No table found for planet {planet}. Ensure it is available on NSDB."
-            )
+            raise ValueError(f"No table found for planet {planet}. Ensure it is available on NSDB.")
         else:
             # Dump the table rows
             rows = table.find_all("tr")
@@ -436,9 +424,7 @@ class NSDBQuery:
                     {
                         "Name": dataset,
                         "HTML size": descriptor_file["Size"].values[0],
-                        "HTML last modified": descriptor_file["Last modified"].values[
-                            0
-                        ],
+                        "HTML last modified": descriptor_file["Last modified"].values[0],
                         "Data file size": data_file["Size"].values[0],
                         "Data file last modified": data_file["Last modified"].values[0],
                     }
@@ -447,4 +433,3 @@ class NSDBQuery:
         dataset_df = pd.DataFrame(dataset_info)
         # print(dataset_df.head())
         return dataset_df
-

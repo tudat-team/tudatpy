@@ -54,9 +54,7 @@ class NSDBDatabase:
 
     def register_target(self, target: Target) -> None:
         if target.target_id in self.targets:
-            raise ValueError(
-                f"Target already registered: {target.target_id}"
-            )
+            raise ValueError(f"Target already registered: {target.target_id}")
 
         self.targets[target.target_id] = target
 
@@ -70,14 +68,9 @@ class NSDBDatabase:
     ) -> None:
 
         if observatory.observatory_id in self.observatories:
-            raise ValueError(
-                "Observatory already registered: "
-                f"{observatory.observatory_id}"
-            )
+            raise ValueError("Observatory already registered: " f"{observatory.observatory_id}")
 
-        self.observatories[
-            observatory.observatory_id
-        ] = observatory
+        self.observatories[observatory.observatory_id] = observatory
 
     # ========================================================
     # DATASETS
@@ -89,9 +82,7 @@ class NSDBDatabase:
     ) -> None:
 
         if dataset.dataset_id in self.datasets:
-            raise ValueError(
-                f"Dataset already registered: {dataset.dataset_id}"
-            )
+            raise ValueError(f"Dataset already registered: {dataset.dataset_id}")
 
         self.datasets[dataset.dataset_id] = dataset
 
@@ -109,9 +100,7 @@ class NSDBDatabase:
             raise KeyError(f"Unknown target: {target_id}")
 
         if observatory_id not in self.observatories:
-            raise KeyError(
-                f"Unknown observatory: {observatory_id}"
-            )
+            raise KeyError(f"Unknown observatory: {observatory_id}")
 
         key = LinkKey(
             target_id=target_id,
@@ -135,35 +124,23 @@ class NSDBDatabase:
         key = group.key
 
         if key in self.observation_groups:
-            raise ValueError(
-                f"Observation group already registered: {key}"
-            )
+            raise ValueError(f"Observation group already registered: {key}")
 
         if key.link_key not in self.links:
-            raise KeyError(
-                f"Unknown link: {key.link_key}"
-            )
+            raise KeyError(f"Unknown link: {key.link_key}")
 
         for dataset_id in group.source_dataset_ids:
             if dataset_id not in self.datasets:
-                raise KeyError(
-                    f"Unknown dataset: {dataset_id}"
-                )
+                raise KeyError(f"Unknown dataset: {dataset_id}")
 
         self.observation_groups[key] = group
 
         # Maintain secondary indexes.
-        self.groups_by_target[
-            key.link_key.target_id
-        ].add(key)
+        self.groups_by_target[key.link_key.target_id].add(key)
 
-        self.groups_by_observatory[
-            key.link_key.observatory_id
-        ].add(key)
+        self.groups_by_observatory[key.link_key.observatory_id].add(key)
 
-        self.groups_by_observable[
-            key.observable_type
-        ].add(key)
+        self.groups_by_observable[key.observable_type].add(key)
 
         for dataset_id in group.source_dataset_ids:
             self.groups_by_dataset[dataset_id].add(key)
@@ -215,11 +192,6 @@ class NSDBDatabase:
             keys = set(self.observation_groups)
 
         else:
-            keys = set.intersection(
-                *(set(candidate_set) for candidate_set in candidate_sets)
-            )
+            keys = set.intersection(*(set(candidate_set) for candidate_set in candidate_sets))
 
-        return [
-            self.observation_groups[key]
-            for key in keys
-        ]
+        return [self.observation_groups[key] for key in keys]
