@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     // Create observation settings
-    for( int useCorrections = 0; useCorrections < 3; useCorrections++ )
+    for( int useCorrections = 0; useCorrections < 4; useCorrections++ )
     {
         double toleranceScaling = 1.0;
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > correctionSettings;
@@ -127,6 +127,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         else if( useCorrections == 2 )
         {
             correctionSettings.push_back( saastamoinenTroposphericCorrectionSettings( ) );
+        }
+        else if( useCorrections == 3 )
+        {
+            // Perturbing body that moves fast w.r.t. the link ends' frame (Earth, ~30 km/s): its motion during the
+            // observation must enter the Shapiro time derivative
+            correctionSettings.push_back(
+                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Earth" } ) ) );
         }
         std::shared_ptr< ObservationModelSettings > observableSettings =
                 std::make_shared< ObservationModelSettings >( one_way_doppler, linkEnds, correctionSettings );
@@ -228,10 +235,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 // Compute light time
                 double lightTimeDown = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                         receiverStateDown, transmitterStateDown, observationTime - timePerturbation, true );
-                double lightTimeCorrectionDown = correction->calculateLightTimeCorrection( transmitterStateDown,
-                                                                                           receiverStateDown,
-                                                                                           observationTime - timePerturbation - lightTimeUp,
-                                                                                           observationTime - timePerturbation );
+                double lightTimeCorrectionDown =
+                        correction->calculateLightTimeCorrection( transmitterStateDown,
+                                                                  receiverStateDown,
+                                                                  observationTime - timePerturbation - lightTimeDown,
+                                                                  observationTime - timePerturbation );
 
                 Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtReceiver =
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
@@ -250,8 +258,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                         lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) +
                         lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) );
 
-                BOOST_CHECK_CLOSE_FRACTION(
-                        numericalCorrectionPartial, analyticalCorrectionPartial, ( useCorrections == 1 ? 1.0E2 : 1.0 ) * 1.0E-5 );
+                BOOST_CHECK_CLOSE_FRACTION( numericalCorrectionPartial, analyticalCorrectionPartial, 1.0E-5 );
             }
         }
     }

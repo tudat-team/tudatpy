@@ -107,28 +107,8 @@ public:
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
-    //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. observation time, equal to zero in this
-     * model.
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param fixedLinkEnd Reference link end for observation
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Light-time correction w.r.t. observation time
-     */
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override
-    {
-        return 0.0;
-    }
+    // Partial w.r.t. link-end time: base-class central difference, which moves the perturbing body's evaluation epoch
+    // (perturber motion enters the instantaneous Doppler); the former override returned 0.
 
     //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
     /*!
