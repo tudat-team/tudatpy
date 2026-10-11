@@ -237,7 +237,7 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
     // Check whether the bodies that are to e integrated exist in bodies
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
-        if( bodies.count( bodiesToIntegrate.at( i ) ) == 0 )
+        if( !bodies.hasTranslationalState( bodiesToIntegrate.at( i ) ) )
         {
             throw std::runtime_error( "Warning when creating CentralBodyData, body " + bodiesToIntegrate.at( i ) +
                                       " not present in provided system of bodies." );
@@ -260,16 +260,24 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
     }
 
     std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > bodyStateFunctions;
+    std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > originOffsets;
 
     // Retrieve frame origin state functions
     for( unsigned int i = 0; i < centralBodiesToUse.size( ); i++ )
     {
         if( centralBodiesToUse.at( i ) != "SSB" )
         {
-            bodyStateFunctions[ centralBodiesToUse.at( i ) ] =
-                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                               bodies.at( centralBodiesToUse.at( i ) ),
-                               std::placeholders::_1 );
+            const std::string origin = centralBodiesToUse.at( i );
+            bodyStateFunctions[ origin ] = [ bodies, origin ]( const TimeType time ) {
+                return bodies.template getTranslationalStateFromEphemeris< StateScalarType, TimeType >( origin, time );
+            };
+            if( bodies.isBarycenterMember( origin ) )
+            {
+                auto center = bodies.getBarycenter( bodies.getTranslationalStateRoot( origin ) );
+                originOffsets[ origin ] = [ center, origin ]( const TimeType time ) -> Eigen::Matrix< StateScalarType, 6, 1 > {
+                    return center->getMemberOffset( origin, Time( time ) ).template cast< StateScalarType >( );
+                };
+            }
         }
         else
         {
@@ -294,8 +302,13 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
                            std::placeholders::_1 );
     }
 
-    return std::make_shared< CentralBodyData< StateScalarType, TimeType > >(
-            centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions, globalFrameOriginBarycentricFunction, globalFrameOrigin );
+    return std::make_shared< CentralBodyData< StateScalarType, TimeType > >( centralBodiesToUse,
+                                                                             bodiesToIntegrate,
+                                                                             bodyStateFunctions,
+                                                                             globalFrameOriginBarycentricFunction,
+                                                                             globalFrameOrigin,
+                                                                             bodies.getTranslationalStateAliases( ),
+                                                                             originOffsets );
 }
 
 //! Function to create a translational state derivative model.
@@ -313,6 +326,13 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
         const simulation_setup::SystemOfBodies& bodies,
         const TimeType propagationStartTime )
 {
+    for( const auto& name : translationPropagatorSettings->bodiesToIntegrate_ )
+    {
+        if( bodies.doesBarycenterExist( name ) && translationPropagatorSettings->propagator_ != cowell )
+        {
+            throw std::runtime_error( "Barycenter propagation currently requires Cartesian Cowell states." );
+        }
+    }
     // Create object for frame origin transformations.
     std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData = createCentralBodyData< StateScalarType, TimeType >(
             translationPropagatorSettings->centralBodies_, translationPropagatorSettings->bodiesToIntegrate_, bodies );

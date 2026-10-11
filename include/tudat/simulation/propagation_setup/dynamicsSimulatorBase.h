@@ -62,7 +62,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodiesFrom
     // Iterate over all bodies.
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
-        ephemerisOfCurrentBody = bodies.at( bodiesToIntegrate.at( i ) )->getEphemeris( );
+        ephemerisOfCurrentBody = bodies.getTranslationalEphemeris( bodiesToIntegrate.at( i ) );
 
         if( !ephemerisOfCurrentBody )
         {
@@ -149,7 +149,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies( co
 {
     // Create ReferenceFrameManager and call overloaded function.
     return getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >(
-            bodiesToIntegrate, centralBodies, bodies, initialTime, simulation_setup::createFrameManager( bodies.getMap( ) ) );
+            bodiesToIntegrate, centralBodies, bodies, initialTime, simulation_setup::createFrameManager( bodies ) );
 }
 
 //! Function to get the states of single body, w.r.t. some central body, at the requested time.

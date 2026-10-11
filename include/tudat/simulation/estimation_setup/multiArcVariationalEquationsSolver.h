@@ -208,7 +208,8 @@ public:
                                                               arcWiseParametersToEstimate_[ i ],
                                                               dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ),
                                                               i,
-                                                              arcIndicesPerBody_[ i ] );
+                                                              arcIndicesPerBody_[ i ],
+                                                              bodies.getTranslationalStateAliases( ) );
 
             dynamicsStateDerivatives_.at( i )->addVariationalEquations( variationalEquationsObject_ );
         }

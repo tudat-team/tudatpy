@@ -23,6 +23,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
@@ -35,6 +36,7 @@
 #include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/simulation/environment_setup/baseStateInterface.h"
+#include "tudat/simulation/environment_setup/barycenter.h"
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
@@ -1267,6 +1269,119 @@ public:
         return ( this->count( bodyName ) != 0 );
     }
 
+    //! Register a non-physical center with fixed prescribed internal ephemerides.
+    std::shared_ptr< Barycenter > addBarycenter( const std::string& name,
+                                                 const std::vector< std::string >& members,
+                                                 const std::vector< double >& weights = std::vector< double >( ),
+                                                 const double offsetAccelerationStep = 10.0 );
+
+    bool doesBarycenterExist( const std::string& name ) const
+    {
+        return barycenters_.count( name ) != 0;
+    }
+    std::shared_ptr< Barycenter > getBarycenter( const std::string& name ) const
+    {
+        return barycenters_.at( name );
+    }
+    const std::map< std::string, std::shared_ptr< Barycenter > >& getBarycenters( ) const
+    {
+        return barycenters_;
+    }
+    void setBarycenterAccelerationModels( const std::string& name, const basic_astrodynamics::SingleBodyAccelerationMap& models ) const
+    {
+        barycenterAccelerationModels_[ name ] = models;
+    }
+    const basic_astrodynamics::SingleBodyAccelerationMap& getBarycenterAccelerationModels( const std::string& name ) const
+    {
+        if( !barycenterAccelerationModels_.count( name ) )
+        {
+            throw std::runtime_error( "Configure external accelerations of barycenter " + name + " before its member-relative dynamics." );
+        }
+        return barycenterAccelerationModels_.at( name );
+    }
+    std::vector< std::string > getListOfBarycenters( ) const
+    {
+        std::vector< std::string > names;
+        for( const auto& entry : barycenters_ )
+        {
+            names.push_back( entry.first );
+        }
+        return names;
+    }
+    bool hasTranslationalState( const std::string& name ) const
+    {
+        return count( name ) != 0 || doesBarycenterExist( name );
+    }
+    const std::map< std::string, std::string >& getTranslationalStateAliases( ) const
+    {
+        return memberBarycenters_;
+    }
+    std::string getTranslationalStateRoot( const std::string& name ) const
+    {
+        return memberBarycenters_.count( name ) ? memberBarycenters_.at( name ) : name;
+    }
+    bool isBarycenterMember( const std::string& name ) const
+    {
+        return memberBarycenters_.count( name ) != 0;
+    }
+
+    std::shared_ptr< ephemerides::Ephemeris > getTranslationalEphemeris( const std::string& name ) const
+    {
+        return doesBarycenterExist( name ) ? getBarycenter( name )->getEphemeris( ) : at( name )->getEphemeris( );
+    }
+    void setTranslationalEphemeris( const std::string& name, const std::shared_ptr< ephemerides::Ephemeris >& ephemeris ) const
+    {
+        if( doesBarycenterExist( name ) )
+        {
+            getBarycenter( name )->setEphemeris( ephemeris );
+        }
+        else
+        {
+            at( name )->setEphemeris( ephemeris );
+        }
+    }
+    template< typename Scalar, typename Epoch >
+    Eigen::Matrix< Scalar, 6, 1 > getTranslationalStateFromEphemeris( const std::string& name, const Epoch& time ) const
+    {
+        if( doesBarycenterExist( name ) )
+        {
+            return getBarycenter( name )->getEphemeris( )->template getTemplatedStateFromEphemeris< Scalar, Epoch >( time );
+        }
+        if( isBarycenterMember( name ) )
+        {
+            auto center = getBarycenter( getTranslationalStateRoot( name ) );
+            return center->getEphemeris( )->template getTemplatedStateFromEphemeris< Scalar, Epoch >( time ) +
+                    center->getMemberOffset( name, Time( time ) ).template cast< Scalar >( );
+        }
+        return at( name )->template getStateInBaseFrameFromEphemeris< Scalar, Epoch >( time );
+    }
+    template< typename Scalar >
+    void setCurrentTranslationalState( const std::string& name, const Eigen::Matrix< Scalar, 6, 1 >& state ) const
+    {
+        if( doesBarycenterExist( name ) )
+        {
+            getBarycenter( name )->template setCurrentState< Scalar >( state );
+        }
+        else
+        {
+            at( name )->template setTemplatedState< Scalar >( state );
+        }
+    }
+    template< typename Scalar, typename Epoch >
+    void updateTranslationalStateFromEphemeris( const std::string& name, const Epoch& time ) const
+    {
+        if( doesBarycenterExist( name ) )
+        {
+            auto center = getBarycenter( name );
+            center->beginStateUpdate( Time( time ) );
+            center->template setCurrentState< Scalar >( getTranslationalStateFromEphemeris< Scalar, Epoch >( name, time ) );
+        }
+        else
+        {
+            at( name )->template setStateFromEphemeris< Scalar, Epoch >( time );
+        }
+    }
+
     std::vector< std::string > getListOfBodies( ) const
     {
         return utilities::createVectorFromUnorderedMapKeys( bodyMap_ );
@@ -1280,6 +1395,10 @@ public:
     template< typename StateScalarType = double, typename TimeType = double >
     void createEmptyBody( const std::string bodyName, const bool processBody = true )
     {
+        if( doesBarycenterExist( bodyName ) || isBarycenterMember( bodyName ) )
+        {
+            throw std::runtime_error( "Cannot replace a barycenter or its prescribed member with a body: " + bodyName );
+        }
         bodyMap_[ bodyName ] = std::make_shared< Body >( );
         bodyMap_[ bodyName ]->setBodyName( bodyName );
         if( processBody )
@@ -1291,6 +1410,10 @@ public:
     template< typename StateScalarType = double, typename TimeType = double >
     void addBody( std::shared_ptr< Body > bodyToAdd, const std::string bodyName, const bool processBody = true )
     {
+        if( doesBarycenterExist( bodyName ) || isBarycenterMember( bodyName ) )
+        {
+            throw std::runtime_error( "Cannot replace a barycenter or its prescribed member with a body: " + bodyName );
+        }
         bodyMap_[ bodyName ] = bodyToAdd;
         bodyMap_[ bodyName ]->setBodyName( bodyName );
         if( processBody )
@@ -1352,6 +1475,10 @@ public:
 
     void deleteBody( const std::string bodyName )
     {
+        if( isBarycenterMember( bodyName ) )
+        {
+            throw std::runtime_error( "Cannot delete prescribed barycenter member " + bodyName );
+        }
         bodyMap_.at( bodyName ).reset( );
         bodyMap_.erase( bodyName );
     }
@@ -1364,7 +1491,14 @@ private:
     std::unordered_map< std::string, std::shared_ptr< Body > > bodyMap_;
 
     std::shared_ptr< SpaceTimeProperties > spaceTimeProperties_;
+    std::map< std::string, std::shared_ptr< Barycenter > > barycenters_;
+    // Kept outside Barycenter: model state functions may own the point, without an ownership cycle.
+    mutable basic_astrodynamics::AccelerationMap barycenterAccelerationModels_;
+    std::map< std::string, std::string > memberBarycenters_;
 };
+
+//! Frame graph including non-physical translational points.
+std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager( const SystemOfBodies& bodies );
 
 double getBodyGravitationalParameter( const SystemOfBodies& bodies, const std::string bodyName );
 

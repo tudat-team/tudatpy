@@ -18,6 +18,7 @@
 #include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/basic_astro/barycenterOriginAcceleration.h"
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 
 #include "tudat/astro/relativity/metric.h"
@@ -52,6 +53,11 @@ void checkValidityOfRequiredEnvironmentUpdates(
             // Ignore global required updates.
             if( updateIterator->second.at( i ) != "" )
             {
+                if( updateIterator->first == body_translational_state_update &&
+                    bodies.doesBarycenterExist( updateIterator->second.at( i ) ) )
+                {
+                    continue;
+                }
                 // Check if body exists.
                 if( bodies.count( updateIterator->second.at( i ) ) == 0 )
                 {
@@ -540,6 +546,16 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                 // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
                 {
+                    case barycenter_origin_acceleration: {
+                        auto originModel =
+                                std::dynamic_pointer_cast< BarycenterOriginAcceleration >( accelerationModelIterator->second.at( i ) );
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( originModel->getBarycenterName( ) );
+                        for( const auto& source : originModel->getExternalAccelerations( ) )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( source.first );
+                        }
+                        break;
+                    }
                     case point_mass_gravity:
                         break;
                     case third_body_point_mass_gravity: {

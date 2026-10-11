@@ -787,10 +787,86 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 //! Function to set whether the bodies are currently being propagated, or not
 void setAreBodiesInPropagation( const SystemOfBodies& bodies, const bool areBodiesInPropagation )
 {
+    for( const auto& entry : bodies.getBarycenters( ) )
+    {
+        entry.second->clearCurrentState( );
+    }
     for( auto bodyIterator : bodies.getMap( ) )
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }
+}
+
+std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager( const SystemOfBodies& bodies )
+{
+    std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > ephemerides;
+    for( const auto& entry : bodies.getMap( ) )
+    {
+        if( entry.second->getEphemeris( ) )
+        {
+            ephemerides[ entry.first ] = entry.second->getEphemeris( );
+        }
+    }
+    for( const auto& entry : bodies.getBarycenters( ) )
+    {
+        ephemerides[ entry.first ] = entry.second->getEphemeris( );
+    }
+    return std::make_shared< ephemerides::ReferenceFrameManager >( ephemerides );
+}
+
+std::shared_ptr< Barycenter > SystemOfBodies::addBarycenter( const std::string& name,
+                                                             const std::vector< std::string >& members,
+                                                             const std::vector< double >& weights,
+                                                             const double offsetAccelerationStep )
+{
+    if( frameOrigin_ != "SSB" )
+    {
+        throw std::runtime_error( "Barycenter registration currently requires global origin SSB." );
+    }
+    if( name.empty( ) || ephemerides::isFrameInertial( name ) || hasTranslationalState( name ) )
+    {
+        throw std::runtime_error( "Invalid or duplicate barycenter name: " + name );
+    }
+    std::vector< double > weightsToUse = weights;
+    std::vector< std::shared_ptr< ephemerides::Ephemeris > > nominalEphemerides;
+    auto frameManager = createFrameManager( *this );
+    for( unsigned int i = 0; i < members.size( ); ++i )
+    {
+        const auto& member = members[ i ];
+        if( !doesBodyExist( member ) || isBarycenterMember( member ) ||
+            std::find( members.begin( ), members.begin( ) + i, member ) != members.begin( ) + i )
+        {
+            throw std::runtime_error( "Missing, duplicate or already assigned barycenter member: " + member );
+        }
+        if( !at( member )->getEphemeris( ) || at( member )->getEphemeris( )->getReferenceFrameOrientation( ) != frameOrientation_ )
+        {
+            throw std::runtime_error( "Barycenter member requires an ephemeris in the common orientation: " + member );
+        }
+        if( weights.empty( ) )
+        {
+            weightsToUse.push_back( at( member )->getGravitationalParameter( ) );
+        }
+        nominalEphemerides.push_back( frameManager->getEphemeris< long double, Time >( "SSB", member ) );
+    }
+    auto center =
+            std::make_shared< Barycenter >( name, members, weightsToUse, nominalEphemerides, frameOrientation_, offsetAccelerationStep );
+    // All validation precedes modifications of the environment.
+    barycenters_[ name ] = center;
+    for( const auto& member : members )
+    {
+        memberBarycenters_[ member ] = name;
+        at( member )->setEphemeris( std::make_shared< ephemerides::CustomEphemeris< Time, long double > >(
+                [ center, member ]( const Time& time ) -> Barycenter::State {
+                    return center->getStateForMember( time ) + center->getMemberOffset( member, time );
+                },
+                "SSB",
+                frameOrientation_ ) );
+        // The member ephemeris now uses the global origin. Clear any old planet-relative correction.
+        at( member )->setEphemerisFrameToBaseFrame( std::make_shared< BaseStateInterfaceImplementation< Time, long double > >( "SSB" ) );
+        at( member )->recomputeStateOnNextCall( );
+    }
+    processBodyFrameDefinitions< long double, Time >( );
+    return center;
 }
 
 bool isReferencePointGroundStation( const std::shared_ptr< Body > body, const std::string& referencePointName )

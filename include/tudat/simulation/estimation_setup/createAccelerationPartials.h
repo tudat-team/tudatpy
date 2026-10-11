@@ -39,6 +39,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/barycenterOriginAccelerationPartial.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h"
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
@@ -317,6 +318,25 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     }
     switch( accelerationType )
     {
+        case barycenter_origin_acceleration: {
+            auto originModel = std::dynamic_pointer_cast< basic_astrodynamics::BarycenterOriginAcceleration >( accelerationModel );
+            std::vector< std::shared_ptr< acceleration_partials::AccelerationPartial > > externalPartials;
+            for( const auto& entry : originModel->getExternalAccelerations( ) )
+            {
+                for( const auto& externalModel : entry.second )
+                {
+                    externalPartials.push_back( createAnalyticalAccelerationPartial(
+                            externalModel,
+                            std::make_pair( originModel->getBarycenterName( ), std::shared_ptr< Body >( ) ),
+                            std::make_pair( entry.first, bodies.at( entry.first ) ),
+                            bodies,
+                            parametersToEstimate ) );
+                }
+            }
+            accelerationPartial = std::make_shared< acceleration_partials::BarycenterOriginAccelerationPartial >(
+                    acceleratedBody.first, originModel, externalPartials );
+            break;
+        }
         case point_mass_gravity:
 
             // Check if identifier is consistent with type.
@@ -1007,7 +1027,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                 {
                     // Get object for body undergoing acceleration
                     const std::string acceleratedBody = accelerationIterator->first;
-                    std::shared_ptr< simulation_setup::Body > acceleratedBodyObject = bodies.at( acceleratedBody );
+                    std::shared_ptr< simulation_setup::Body > acceleratedBodyObject =
+                            bodies.doesBarycenterExist( acceleratedBody ) ? nullptr : bodies.at( acceleratedBody );
 
                     // Retrieve list of accelerations acting on current body.
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationVector = accelerationMap.at( acceleratedBody );

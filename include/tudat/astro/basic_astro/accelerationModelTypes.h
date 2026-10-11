@@ -65,7 +65,8 @@ enum AvailableAcceleration {
     yarkovsky_acceleration,
     rtg_acceleration,
     relativistic_acceleration_from_metric,
-    three_coefficient_radiation_pressure
+    three_coefficient_radiation_pressure,
+    barycenter_origin_acceleration
 };
 
 // Function to get a string representing a 'named identification' of an acceleration type

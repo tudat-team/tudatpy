@@ -3747,6 +3747,21 @@ bool
          :type: bool
       )doc" );
 
+    py::class_< tss::Barycenter, std::shared_ptr< tss::Barycenter > >(
+            m, "Barycenter", "A propagated translational point with fixed, prescribed member ephemerides; it has no physical models." )
+            .def_property_readonly( "name", &tss::Barycenter::getName )
+            .def_property_readonly( "members", &tss::Barycenter::getMembers )
+            .def_property_readonly( "weights", &tss::Barycenter::getWeights, "Fixed normalized barycenter weights." )
+            .def_property_readonly( "ephemeris", &tss::Barycenter::getEphemeris )
+            .def(
+                    "get_member_offset",
+                    []( const tss::Barycenter& center, const std::string& member, const double time ) {
+                        return center.getMemberOffset( member, tudat::Time( time ) ).cast< double >( ).eval( );
+                    },
+                    py::arg( "member" ),
+                    py::arg( "time" ),
+                    "Prescribed Cartesian member state relative to the barycenter." );
+
     py::class_< tss::SystemOfBodies, std::shared_ptr< tss::SystemOfBodies > >( m, "SystemOfBodies", R"doc(
 
          Object that contains a set of Body objects and associated frame
@@ -3763,6 +3778,18 @@ bool
 
 
       )doc" )
+            .def( "add_barycenter",
+                  &tss::SystemOfBodies::addBarycenter,
+                  py::arg( "name" ),
+                  py::arg( "members" ),
+                  py::arg( "weights" ) = std::vector< double >( ),
+                  py::arg( "offset_acceleration_step" ) = 10.0,
+                  "Register a non-Body barycenter in an SSB environment. Empty weights use the members' current GMs. "
+                  "Member ephemerides are frozen as relative offsets; the weights remain fixed. "
+                  "The acceleration differentiation step is in seconds." )
+            .def( "get_barycenter", &tss::SystemOfBodies::getBarycenter, py::arg( "name" ) )
+            .def( "does_barycenter_exist", &tss::SystemOfBodies::doesBarycenterExist, py::arg( "name" ) )
+            .def_property_readonly( "list_of_barycenters", &tss::SystemOfBodies::getListOfBarycenters )
             .def( "get",
                   &tss::SystemOfBodies::getBody,
                   py::arg( "body_name" ),

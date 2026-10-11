@@ -47,6 +47,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/astro/basic_astro/barycenterOriginAcceleration.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createOccultationModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
@@ -2364,6 +2365,48 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const S
     // Put selectedAccelerationPerBody in correct order
     SelectedAccelerationList orderedAccelerationPerBody = orderSelectedAccelerationMap( selectedAccelerationPerBody );
 
+    // Non-physical points receive external forces, but can never be force sources.
+    // Configure all parents first, independently of the lexical order of spacecraft names.
+    for( const auto& selected : selectedAccelerationPerBody )
+    {
+        if( !bodies.doesBarycenterExist( selected.first ) )
+        {
+            continue;
+        }
+        if( centralBodies.at( selected.first ) != "SSB" )
+        {
+            throw std::runtime_error( "Barycenter propagation currently requires SSB as central origin." );
+        }
+        auto center = bodies.getBarycenter( selected.first );
+        basic_astrodynamics::SingleBodyAccelerationMap models;
+        for( const auto& source : selected.second )
+        {
+            if( bodies.doesBarycenterExist( source.first ) || !bodies.doesBodyExist( source.first ) ||
+                bodies.getTranslationalStateRoot( source.first ) == selected.first )
+            {
+                throw std::runtime_error( "Barycenter accelerations require external physical sources: " + source.first );
+            }
+            auto sourceBody = bodies.at( source.first );
+            if( !sourceBody->getGravityFieldModel( ) )
+            {
+                throw std::runtime_error( "Barycenter gravity source has no gravity field: " + source.first );
+            }
+            for( const auto& setting : source.second )
+            {
+                if( setting->accelerationType_ != basic_astrodynamics::point_mass_gravity )
+                {
+                    throw std::runtime_error( "Barycenter external dynamics currently support point-mass gravity only." );
+                }
+                models[ source.first ].push_back( std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
+                        [ center ]( Eigen::Vector3d& position ) { position = center->getState( ).head< 3 >( ); },
+                        std::bind( &Body::getGravitationalParameter, sourceBody ),
+                        std::bind( &Body::getPositionByReference, sourceBody, std::placeholders::_1 ) ) );
+            }
+        }
+        bodies.setBarycenterAccelerationModels( selected.first, models );
+        accelerationModelMap[ selected.first ] = models;
+    }
+
     // Iterate over all bodies which are undergoing acceleration
     for( SelectedAccelerationList::const_iterator bodyIterator = orderedAccelerationPerBody.begin( );
          bodyIterator != orderedAccelerationPerBody.end( );
@@ -2373,9 +2416,18 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const S
 
         // Retrieve name of body undergoing acceleration.
         std::string bodyUndergoingAcceleration = bodyIterator->first;
+        if( bodies.doesBarycenterExist( bodyUndergoingAcceleration ) )
+        {
+            continue;
+        }
+        if( bodies.isBarycenterMember( bodyUndergoingAcceleration ) )
+        {
+            throw std::runtime_error( "Cannot independently propagate prescribed barycenter member " + bodyUndergoingAcceleration );
+        }
 
         // Retrieve name of current central body.
         std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
+        const std::string prescribedOrigin = bodies.isBarycenterMember( currentCentralBodyName ) ? currentCentralBodyName : "";
 
         if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
         {
@@ -2403,6 +2455,17 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const S
         // Retrieve list of required acceleration model types and bodies exerting accelerationd on
         // current body.
         std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > accelerationsForBody = bodyIterator->second;
+
+        if( !prescribedOrigin.empty( ) )
+        {
+            auto center = bodies.getBarycenter( bodies.getTranslationalStateRoot( prescribedOrigin ) );
+            mapOfAccelerationsForBody[ prescribedOrigin ].push_back( std::make_shared< basic_astrodynamics::BarycenterOriginAcceleration >(
+                    center->getName( ),
+                    bodies.getBarycenterAccelerationModels( center->getName( ) ),
+                    [ center, prescribedOrigin ]( double time ) {
+                        return center->getMemberOffsetAcceleration( prescribedOrigin, time );
+                    } ) );
+        }
 
         std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
 
@@ -2464,13 +2527,16 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const S
             }
             else
             {
+                // The prescribed origin model already subtracts the full origin acceleration.
+                const bool directGravity =
+                        !prescribedOrigin.empty( ) && basic_astrodynamics::isAccelerationDirectGravitational( currentAccelerationType );
                 currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
                                                                bodyExertingAccelerationObject,
                                                                accelerationsForBody.at( i ).second,
                                                                bodyUndergoingAcceleration,
                                                                bodyExertingAcceleration,
-                                                               currentCentralBody,
-                                                               currentCentralBodyName,
+                                                               directGravity ? std::shared_ptr< Body >( ) : currentCentralBody,
+                                                               directGravity ? "SSB" : currentCentralBodyName,
                                                                bodies );
 
                 // Create acceleration model.

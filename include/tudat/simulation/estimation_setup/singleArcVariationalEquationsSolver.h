@@ -102,7 +102,10 @@ public:
         variationalEquationsObject_ =
                 std::make_shared< VariationalEquations >( stateDerivativePartials,
                                                           parametersToEstimate_,
-                                                          dynamicsSimulator_->getDynamicsStateDerivative( )->getStateTypeStartIndices( ) );
+                                                          dynamicsSimulator_->getDynamicsStateDerivative( )->getStateTypeStartIndices( ),
+                                                          -1,
+                                                          std::map< std::string, int >( ),
+                                                          bodies.getTranslationalStateAliases( ) );
         dynamicsSimulator_->getDynamicsStateDerivative( )->addVariationalEquations( variationalEquationsObject_ );
 
         // Create object that will contain and process the propagation results

@@ -427,7 +427,7 @@ public:
 
     void createAndSetIntegratedStateProcessors( )
     {
-        frameManager_ = simulation_setup::createFrameManager( bodies_.getMap( ) );
+        frameManager_ = simulation_setup::createFrameManager( bodies_ );
         integratedStateProcessors_ =
                 createIntegratedStateProcessors< TimeType, StateScalarType >( propagatorSettings_, bodies_, frameManager_ );
     }

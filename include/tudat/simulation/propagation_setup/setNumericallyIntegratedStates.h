@@ -46,7 +46,7 @@ void addEmptyTabulatedEphemeris( const simulation_setup::SystemOfBodies& bodies,
                                  const std::string& ephemerisOrigin = "",
                                  const bool isPartOfMultiArc = false )
 {
-    if( bodies.count( bodyName ) == 0 )
+    if( !bodies.hasTranslationalState( bodyName ) )
     {
         throw std::runtime_error( "Error when setting empty tabulated ephemeris for body " + bodyName + ", no such body found" );
     }
@@ -58,12 +58,13 @@ void addEmptyTabulatedEphemeris( const simulation_setup::SystemOfBodies& bodies,
                     bodies.getFrameOrientation( ) );
     if( !isPartOfMultiArc )
     {
-        bodies.at( bodyName )->setEphemeris( tabulatedEphemeris );
+        bodies.setTranslationalEphemeris( bodyName, tabulatedEphemeris );
     }
     else
     {
-        bodies.at( bodyName )
-                ->setEphemeris( std::make_shared< ephemerides::MultiArcEphemeris >(
+        bodies.setTranslationalEphemeris(
+                bodyName,
+                std::make_shared< ephemerides::MultiArcEphemeris >(
                         std::map< double, std::shared_ptr< ephemerides::Ephemeris > >( { { 0.0, tabulatedEphemeris } } ),
                         ephemerisOriginToUse,
                         bodies.getFrameOrientation( ) ) );
@@ -141,13 +142,13 @@ void resetIntegratedEphemerisOfBody( const simulation_setup::SystemOfBodies& bod
     using namespace tudat::ephemerides;
 
     // If body does not have ephemeris, give error message.
-    if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
+    if( bodies.getTranslationalEphemeris( bodyToIntegrate ) == nullptr )
     {
         throw std::runtime_error( "Error when resetting integrated ephemeris of body " + bodyToIntegrate + "no ephemeris found" );
     }
 
     // If current ephemeris is not already a tabulated ephemeris, give error message.
-    else if( !isTabulatedEphemeris( bodies.at( bodyToIntegrate )->getEphemeris( ) ) )
+    else if( !isTabulatedEphemeris( bodies.getTranslationalEphemeris( bodyToIntegrate ) ) )
     {
         throw std::runtime_error( "Error when resetting integrated ephemeris of body " + bodyToIntegrate +
                                   " no tabulated ephemeris found" );
@@ -156,47 +157,47 @@ void resetIntegratedEphemerisOfBody( const simulation_setup::SystemOfBodies& bod
     else
     {
         if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                    bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
+                    bodies.getTranslationalEphemeris( bodyToIntegrate ) ) != nullptr )
         {
             std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > ephemerisInterpolator =
                     createStateInterpolator( ephemerisInput, interpolatorSettings );
             std::shared_ptr< TabulatedCartesianEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
                     std::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                            bodies.at( bodyToIntegrate )->getEphemeris( ) );
+                            bodies.getTranslationalEphemeris( bodyToIntegrate ) );
             tabulatedEphemeris->resetInterpolator( ephemerisInterpolator );
         }
         else
         {
             if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
-                        bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
+                        bodies.getTranslationalEphemeris( bodyToIntegrate ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody( ephemerisInput,
                                                 std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
-                                                        bodies.at( bodyToIntegrate )->getEphemeris( ) ),
+                                                        bodies.getTranslationalEphemeris( bodyToIntegrate ) ),
                                                 interpolatorSettings );
             }
             else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
-                             bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
+                             bodies.getTranslationalEphemeris( bodyToIntegrate ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody( ephemerisInput,
                                                 std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
-                                                        bodies.at( bodyToIntegrate )->getEphemeris( ) ),
+                                                        bodies.getTranslationalEphemeris( bodyToIntegrate ) ),
                                                 interpolatorSettings );
             }
             else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
-                             bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
+                             bodies.getTranslationalEphemeris( bodyToIntegrate ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody( ephemerisInput,
                                                 std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
-                                                        bodies.at( bodyToIntegrate )->getEphemeris( ) ),
+                                                        bodies.getTranslationalEphemeris( bodyToIntegrate ) ),
                                                 interpolatorSettings );
             }
             else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
-                             bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
+                             bodies.getTranslationalEphemeris( bodyToIntegrate ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody( ephemerisInput,
                                                 std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
-                                                        bodies.at( bodyToIntegrate )->getEphemeris( ) ),
+                                                        bodies.getTranslationalEphemeris( bodyToIntegrate ) ),
                                                 interpolatorSettings );
             }
             else
@@ -498,7 +499,7 @@ void resetMultiArcIntegratedEphemerides(
 
             // Check environment consistency
             std::shared_ptr< MultiArcEphemeris > currentBodyEphemeris = std::dynamic_pointer_cast< MultiArcEphemeris >(
-                    bodies.at( bodiesToIntegrate.at( arc ).at( bodyIndex ) )->getEphemeris( ) );
+                    bodies.getTranslationalEphemeris( bodiesToIntegrate.at( arc ).at( bodyIndex ) ) );
             if( currentBodyEphemeris == nullptr )
             {
                 throw std::runtime_error( "Error when resetting ephemeris of body " + bodiesToIntegrate.at( arc ).at( bodyIndex ) +
@@ -1456,7 +1457,24 @@ void checkTranslationalStatesFeasibility( const std::vector< std::string >& bodi
         std::string bodyToIntegrate = bodiesToIntegrate.at( i );
         std::string centralBody = centralBodies.at( i );
 
-        if( bodies.count( bodyToIntegrate ) == 0 )
+        if( bodies.isBarycenterMember( bodyToIntegrate ) )
+        {
+            throw std::runtime_error( "Cannot independently propagate prescribed barycenter member " + bodyToIntegrate );
+        }
+        if( bodies.doesBarycenterExist( bodyToIntegrate ) )
+        {
+            if( centralBody != "SSB" )
+            {
+                throw std::runtime_error( "Barycenters must currently be propagated with respect to SSB." );
+            }
+            if( setIntegratedResult &&
+                bodies.getTranslationalEphemeris( bodyToIntegrate ) == bodies.getBarycenter( bodyToIntegrate )->getNominalEphemeris( ) )
+            {
+                addEmptyTabulatedEphemeris< StateScalarType, TimeType >( bodies, bodyToIntegrate, centralBody, isPartOfMultiArc );
+            }
+        }
+
+        if( !bodies.hasTranslationalState( bodyToIntegrate ) )
         {
             throw std::runtime_error( "Error when checking translational dynamics feasibility of body " + bodyToIntegrate +
                                       " no such body found" );
@@ -1467,17 +1485,17 @@ void checkTranslationalStatesFeasibility( const std::vector< std::string >& bodi
             // and when translational state processors are created (frame translations).
             if( setIntegratedResult )
             {
-                if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
+                if( bodies.getTranslationalEphemeris( bodyToIntegrate ) == nullptr )
                 {
                     addEmptyTabulatedEphemeris< StateScalarType, TimeType >( bodies, bodyToIntegrate, centralBody, isPartOfMultiArc );
                 }
-                else if( !ephemerides::isTabulatedEphemeris( bodies.at( bodyToIntegrate )->getEphemeris( ) ) && !isPartOfMultiArc )
+                else if( !ephemerides::isTabulatedEphemeris( bodies.getTranslationalEphemeris( bodyToIntegrate ) ) && !isPartOfMultiArc )
                 {
                     throw std::runtime_error( "Error when checking translational dynamics feasibility of body " + bodyToIntegrate +
                                               " ephemeris exists, but is not tabulated." );
                 }
-                else if( ( std::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( bodies.at( bodyToIntegrate )->getEphemeris( ) ) ==
-                           nullptr ) &&
+                else if( ( std::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >(
+                                   bodies.getTranslationalEphemeris( bodyToIntegrate ) ) == nullptr ) &&
                          isPartOfMultiArc )
                 {
                     throw std::runtime_error( "Error when checking translational dynamics feasibility of body " + bodyToIntegrate +

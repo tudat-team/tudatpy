@@ -99,6 +99,11 @@ public:
                     std::to_string( setIntegratedStatesFromEnvironment.size( ) ) + " " + std::to_string( integratedStates_.size( ) ) );
         }
 
+        for( const auto& center : bodyList_.getBarycenters( ) )
+        {
+            center.second->beginStateUpdate( Time( currentTime ) );
+        }
+
         for( unsigned int i = 0; i < resetFunctionVector_.size( ); i++ )
         {
             std::get< 2 >( resetFunctionVector_.at( i ) )( );
@@ -109,6 +114,16 @@ public:
 
         // Set current state from environment for override settings setIntegratedStatesFromEnvironment
         setStatesFromEnvironment( setIntegratedStatesFromEnvironment, currentTime );
+
+        // Prescribed parents (e.g. the original multi-arc component of a hybrid solver)
+        // are evaluated before any member ephemeris. Integrated parents retain this stage's state.
+        for( const auto& name : barycentersToUpdate_ )
+        {
+            if( !bodyList_.getBarycenter( name )->hasCurrentState( ) )
+            {
+                bodyList_.template updateTranslationalStateFromEphemeris< StateScalarType, TimeType >( name, currentTime );
+            }
+        }
 
         // Evaluate time-dependent update functions (dependent variables of state and time)
         // determined by setUpdateFunctions
@@ -140,8 +155,9 @@ private:
                     // Set translational states for bodies provided as input.
                     for( unsigned int i = 0; i < integratedStates_[ translational_state ].size( ); i++ )
                     {
-                        bodyList_.at( std::get< 0 >( integratedStates_[ translational_state ][ i ] ) )
-                                ->template setTemplatedState< StateScalarType >( integratedStateIterator_->second.segment( i * 6, 6 ) );
+                        bodyList_.template setCurrentTranslationalState< StateScalarType >(
+                                std::get< 0 >( integratedStates_[ translational_state ][ i ] ),
+                                integratedStateIterator_->second.segment( i * 6, 6 ) );
                     }
                     break;
                 }
@@ -241,8 +257,8 @@ private:
                             integratedStates_[ translational_state ];
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
-                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )
-                                ->template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
+                        bodyList_.template updateTranslationalStateFromEphemeris< StateScalarType, TimeType >(
+                                std::get< 0 >( bodiesWithIntegratedStates[ i ] ), currentTime );
                     }
                     break;
                 }
@@ -538,6 +554,11 @@ private:
             {
                 if( currentBodies.at( i ) != "" )
                 {
+                    if( bodyList_.doesBarycenterExist( currentBodies.at( i ) ) && updateIterator->first == body_translational_state_update )
+                    {
+                        barycentersToUpdate_.push_back( currentBodies.at( i ) );
+                        continue;
+                    }
                     // Check whether body exists
                     if( bodyList_.count( currentBodies.at( i ) ) == 0 )
                     {
@@ -844,6 +865,7 @@ private:
 
     //! List of body objects, this list encompasses all environment object in the simulation.
     simulation_setup::SystemOfBodies bodyList_;
+    std::vector< std::string > barycentersToUpdate_;
 
     //! list of identifiers for the numerically integrated states
     /*!

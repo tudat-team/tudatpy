@@ -37,7 +37,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     {
         // Check if current link end is on body that is requested.
         currentBodyName = linkEndIterator->second.bodyName_;
-        if( bodyToEstimate == currentBodyName )
+        if( bodyToEstimate == bodies.getTranslationalStateRoot( currentBodyName ) )
         {
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );

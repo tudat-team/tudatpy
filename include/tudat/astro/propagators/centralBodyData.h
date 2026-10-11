@@ -59,7 +59,10 @@ public:
             const std::vector< std::string >& bodiesToIntegrate,
             const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >& bodyStateFunctions,
             const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricStateFunction,
-            const std::string globalFrameOrigin ):
+            const std::string globalFrameOrigin,
+            const std::map< std::string, std::string >& originParents = std::map< std::string, std::string >( ),
+            const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >& originOffsets =
+                    std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) ):
         centralBodies_( centralBodies ), globalFrameOriginBarycentricStateFunction_( globalFrameOriginBarycentricStateFunction )
     {
         // Check consistency of input.
@@ -69,6 +72,15 @@ public:
         }
 
         bodyOriginType_.resize( bodiesToIntegrate.size( ) );
+        std::vector< std::string > resolvedCentralBodies = centralBodies;
+        for( unsigned int i = 0; i < resolvedCentralBodies.size( ); ++i )
+        {
+            if( originParents.count( centralBodies.at( i ) ) )
+            {
+                resolvedCentralBodies[ i ] = originParents.at( centralBodies[ i ] );
+                centralBodyOffsets_[ i ] = originOffsets.at( centralBodies[ i ] );
+            }
+        }
 
         // Iterate over all integrated bodies to set body origin, its type and associated data.
         for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
@@ -86,7 +98,7 @@ public:
                 {
                     // If there is a match between central body and an integrated body, store body
                     // index.
-                    if( centralBodies.at( i ) == bodiesToIntegrate[ j ] )
+                    if( resolvedCentralBodies.at( i ) == bodiesToIntegrate[ j ] )
                     {
                         centralBodyIndex = j;
                         if( i == j )
@@ -139,7 +151,7 @@ public:
         {
             for( unsigned int j = 0; j < i; j++ )
             {
-                if( centralBodies[ numericalBodies_[ j ] ] == bodiesToIntegrate[ numericalBodies_.at( i ) ] )
+                if( resolvedCentralBodies[ numericalBodies_[ j ] ] == bodiesToIntegrate[ numericalBodies_.at( i ) ] )
                 {
                     // Move central body to index before integrated body.
                     bodyToMove = numericalBodies_.at( i );
@@ -253,6 +265,7 @@ private:
     //! Map defining frame origin body index, for bodies having one of the other propagated bodies
     //! as propagation origin
     std::map< int, int > centralBodiesFromIntegration_;
+    std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > centralBodyOffsets_;
 
     //! State of propagated bodies, with the origins translated to the global origin
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > localInternalState_;
@@ -286,6 +299,10 @@ private:
                 break;
             case from_integration:
                 originState = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );
+                if( centralBodyOffsets_.count( bodyIndex ) )
+                {
+                    originState += centralBodyOffsets_.at( bodyIndex )( time );
+                }
                 break;
             default:
                 throw std::runtime_error( "Error, do not recognize boy origin type " + std::to_string( bodyOriginType_[ bodyIndex ] ) );

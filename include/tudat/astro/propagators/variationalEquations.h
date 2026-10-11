@@ -61,10 +61,12 @@ public:
                           const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
                           const std::map< IntegratedStateType, int >& stateTypeStartIndices,
                           const int currentArcIndex = -1,
-                          const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ) ):
+                          const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ),
+                          const std::map< std::string, std::string >& translationalStateAliases = std::map< std::string, std::string >( ) ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
         couplingEntriesToSuppress_( -1 )
     {
+        translationalStateAliases_ = translationalStateAliases;
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >( parametersToEstimate );
 
@@ -495,6 +497,13 @@ private:
             }
         }
 
+        for( auto& origin : centralBodies )
+        {
+            if( translationalStateAliases_.count( origin ) )
+            {
+                origin = translationalStateAliases_.at( origin );
+            }
+        }
         if( propagatedBodies.size( ) > 0 )
         {
             // Get order in which ephemerides were to be updated.
@@ -580,6 +589,7 @@ private:
      * \sa setTranslationalStatePartialFrameScalingFunctions
      */
     std::vector< std::pair< int, int > > statePartialAdditionIndices_;
+    std::map< std::string, std::string > translationalStateAliases_;
 
     //! Functions returning inertia tensors of bodies, to be used for rotational variational equations
     std::vector< std::pair< int, std::function< Eigen::Matrix3d( ) > > > inertiaTensorsForMultiplication_;

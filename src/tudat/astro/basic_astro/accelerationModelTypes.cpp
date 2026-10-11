@@ -10,6 +10,7 @@
  */
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/barycenterOriginAcceleration.h"
 
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/customAccelerationModel.h"
@@ -47,6 +48,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     std::string accelerationName;
     switch( accelerationType )
     {
+        case barycenter_origin_acceleration:
+            accelerationName = "prescribed barycenter member origin acceleration";
+            break;
         case point_mass_gravity:
             accelerationName = "central gravity ";
             break;
@@ -142,7 +146,11 @@ AvailableAcceleration getAccelerationModelType(
     AvailableAcceleration accelerationType = undefined_acceleration;
 
     // Check for each accelerarion mdoel type implemented as AvailableAcceleration.
-    if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( accelerationModel ) != nullptr )
+    if( std::dynamic_pointer_cast< BarycenterOriginAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = barycenter_origin_acceleration;
+    }
+    else if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( accelerationModel ) != nullptr )
     {
         accelerationType = point_mass_gravity;
     }

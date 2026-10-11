@@ -139,7 +139,7 @@ public:
                                                             singleArcPropagationSettings->centralBodies_,
                                                             bodies,
                                                             std::placeholders::_1,
-                                                            createFrameManager( bodies.getMap( ) ) );
+                                                            createFrameManager( bodies ) );
 
         // Propagate dynamical equations if requested
         if( integrateEquationsOnCreation )
