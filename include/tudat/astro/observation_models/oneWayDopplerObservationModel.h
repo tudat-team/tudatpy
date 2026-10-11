@@ -573,11 +573,6 @@ public:
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
-        if( ancillarySetings != nullptr )
-        {
-            throw std::runtime_error( "Error, calling one-way Doppler observable with ancillary settings, but none are supported." );
-        }
-
         // Compute transmitter and receiver proper time rate
         ObservationScalarType transmitterProperTimeDifference = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
         if( transmitterProperTimeRateCalculator_ != nullptr )
@@ -600,14 +595,14 @@ public:
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
                 getLightTimeCalculator( );
         lightTimePartialWrtReceiverPosition_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndPosition(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true, ancillarySetings );
         lightTimePartialWrtTransmitterPosition_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndPosition(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false, ancillarySetings );
 
         lightTimePartialWrtReceiverTime_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndTime(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true, ancillarySetings );
         lightTimePartialWrtTransmitterTime_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndTime(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false, ancillarySetings );
 
         ObservationScalarType firstOrderDopplerObservable = computeOneWayFirstOrderDopplerTaylorSeriesExpansion< ObservationScalarType >(
                 linkEndStates.at( 0 ).template cast< ObservationScalarType >( ),

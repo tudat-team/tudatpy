@@ -861,7 +861,8 @@ public:
                             oneWayDopplerSettings->normalizeWithSpeedOfLight_ );
                 }
 
-                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                // A leg of a two-way/measured-frequency model gets its frequencies through the parent's ancillary settings
+                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) && topLevelObservableType == one_way_doppler )
                 {
                     oneWayDopplerModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
                 }
