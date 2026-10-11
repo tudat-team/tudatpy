@@ -20,6 +20,7 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -177,6 +178,19 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
             double dopplerObservable = observationModel->computeObservationsWithLinkEndData(
                     observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
 
+            if( useCorrections == 1 || useCorrections == 3 )
+            {
+                const auto relativisticCorrection = std::dynamic_pointer_cast< FirstOrderLightTimeCorrectionCalculator >(
+                        dopplerObservationModel->getLightTimeCalculator( )->getLightTimeCorrection( ).at( 0 ) );
+                BOOST_REQUIRE( relativisticCorrection != nullptr );
+                const double cachedCorrection = relativisticCorrection->getCurrentTotalLightTimeCorrection( );
+                const double cachedComponent = relativisticCorrection->getCurrentLightTimeCorrectionComponent( 0 );
+                const double nominalCorrection = relativisticCorrection->calculateLightTimeCorrection(
+                        linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
+                BOOST_CHECK_EQUAL( cachedCorrection, nominalCorrection );
+                BOOST_CHECK_EQUAL( cachedComponent, nominalCorrection );
+            }
+
             // Creare independent light time calculator object
             std::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
                     createLightTimeCalculator( linkEnds, transmitter, receiver, bodies, one_way_doppler, correctionSettings );
@@ -254,9 +268,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                         transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
 
                 double numericalCorrectionPartial = ( lightTimeCorrectionUp - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation );
-                double analyticalCorrectionPartial = lightTimeCorrectionWrtTransmitterTime + lightTimeCorrectionWrtReceiverTime +
-                        lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) +
-                        lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) );
+                // The numerical derivative follows the solved link: transmission time changes by dt_T/dt_R.
+                // In this case Doppler is normalized and has no proper-time correction, so it equals dt_T/dt_R - 1.
+                const double transmissionTimeWrtReceptionTime = 1.0 + dopplerObservable;
+                double analyticalCorrectionPartial = ( lightTimeCorrectionWrtTransmitterTime +
+                                                       lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) ) ) *
+                                transmissionTimeWrtReceptionTime +
+                        lightTimeCorrectionWrtReceiverTime + lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) );
 
                 BOOST_CHECK_CLOSE_FRACTION( numericalCorrectionPartial, analyticalCorrectionPartial, 1.0E-5 );
             }
