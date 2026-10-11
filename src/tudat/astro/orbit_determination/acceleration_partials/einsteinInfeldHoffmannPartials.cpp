@@ -88,7 +88,15 @@ void EihEquationsPartials::update( const double currentTime )
                     currentTotalPotentialWrtPosition_[ i ][ j ] = currentLocalPotentialsWrtPosition_[ i ][ j ];
                     currentTotalPotentialWrtPosition_[ i ][ i ] -= currentLocalPotentialsWrtPosition_[ i ][ j ];
                 }
+            }
+        }
 
+        // EIH terms depend on the complete potentials and Newtonian accelerations of every source.
+        // Populate all of their derivatives before using them in any pair contribution.
+        for( int i = 0; i < numberOfExertingBodies_; i++ )
+        {
+            for( int j = 0; j < numberOfExertingBodies_; j++ )
+            {
                 currentTotalScalarTermWrtExertingPosition_[ i ][ j ].setZero( );
                 currentTotalScalarTermWrtUndergoingPosition_[ i ][ j ].setZero( );
 
@@ -166,8 +174,7 @@ void EihEquationsPartials::update( const double currentTime )
                               eihEquations_->getSingleSourceLocalPotential( i, m ) *
                                       currentTotalVectorTermWrtUndergoingPosition_.at( i ).at( m ) );
 
-                    currentTotalAccelerationsWrtPosition_[ i ][ m ] +=
-                            physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ];
+                    currentTotalAccelerationsWrtPosition_[ i ][ m ] += currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ];
 
                     currentTotalAccelerationsWrtVelocity_[ i ][ m ] = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                             ( eihEquations_->getSinglePointMassAccelerations( i, m ) *
@@ -273,7 +280,7 @@ Eigen::Matrix< double, 1, 3 > EihEquationsPartials::getSingleScalarCrossTermWrtP
                                                                                                 const int bodyPartial,
                                                                                                 const int termIndex )
 {
-    Eigen::Matrix< double, 1, 3 > scalarTermWrtPosition;
+    Eigen::Matrix< double, 1, 3 > scalarTermWrtPosition = Eigen::Matrix< double, 1, 3 >::Zero( );
     switch( termIndex )
     {
         case 0:
@@ -409,12 +416,12 @@ Eigen::Matrix< double, 3, 3 > EihEquationsPartials::getSingleVectorCrossTermWrtP
                                                                                                 const int bodyPartial,
                                                                                                 const int termIndex )
 {
-    Eigen::Matrix< double, 3, 3 > vectorTermWrtPosition;
+    Eigen::Matrix< double, 3, 3 > vectorTermWrtPosition = Eigen::Matrix3d::Zero( );
     switch( termIndex )
     {
         case 2:
             vectorTermWrtPosition += eihEquations_->getVectorTermMultiplier( termIndex ) *
-                    currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyPartial );
+                    currentTotalPointMassAccelerationsWrtPosition_.at( bodyExerting ).at( bodyPartial );
             break;
         default:
             throw std::runtime_error( "Error when getting EIH vector cross term partial w.r.t. positon, index " +
@@ -506,6 +513,9 @@ void EihEquationsPartials::getAccelerationWrtGravitationalParameter( Eigen::Matr
     if( bodyIndex != muIndex )
     {
         scalarTerm0Partial = eihEquations_->getSingleSourceLocalPotential( bodyIndex, muIndex );
+        // The j == muIndex pair also depends on muIndex through the potential at bodyIndex.
+        muPartial += scalarMultiplier0 * scalarTerm0Partial * eihEquations_->getSinglePointMassAccelerations( bodyIndex, muIndex ) *
+                physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     }
 
     for( int j = 0; j < numberOfExertingBodies_; j++ )
@@ -547,7 +557,7 @@ void EihEquationsPartials::getAccelerationWrtGamma( Eigen::MatrixXd& gammaPartia
             potentialMultiplier +=
                     2.0 * eihEquations_->getVectorEihCorrection( 0, bodyIndex, j ) / eihEquations_->getVectorTermMultiplier( 0 );
             potentialMultiplier +=
-                    2.0 * eihEquations_->getVectorEihCorrection( 1, bodyIndex, j ) / eihEquations_->getVectorTermMultiplier( 1 );
+                    -2.0 * eihEquations_->getVectorEihCorrection( 1, bodyIndex, j ) / eihEquations_->getVectorTermMultiplier( 1 );
             potentialMultiplier +=
                     2.0 * eihEquations_->getVectorEihCorrection( 2, bodyIndex, j ) / eihEquations_->getVectorTermMultiplier( 2 );
 

@@ -117,7 +117,8 @@ void EinsteinInfeldHoffmannEquations::recomputeExpansionMultipliers( )
     currentPpnBeta_ = ppnBetaFunction_( );
 
     scalarTermMultipliers_[ 0 ] = -2.0 * ( currentPpnGamma_ + currentPpnBeta_ );
-    scalarTermMultipliers_[ 1 ] = -2.0 * currentPpnBeta_ - 1.0;
+    // Source-potential coefficient in Moyer (2000), Eq. (4-26).
+    scalarTermMultipliers_[ 1 ] = 1.0 - 2.0 * currentPpnBeta_;
     scalarTermMultipliers_[ 2 ] = currentPpnGamma_;
     scalarTermMultipliers_[ 3 ] = 1.0 + currentPpnGamma_;
     scalarTermMultipliers_[ 4 ] = -2.0 * ( 1.0 + currentPpnGamma_ );
@@ -125,7 +126,7 @@ void EinsteinInfeldHoffmannEquations::recomputeExpansionMultipliers( )
     scalarTermMultipliers_[ 6 ] = 0.5;
 
     vectorTermMultipliers_[ 0 ] = 2.0 * ( 1.0 + currentPpnGamma_ );
-    vectorTermMultipliers_[ 1 ] = -1.0 + 2.0 * currentPpnGamma_;
+    vectorTermMultipliers_[ 1 ] = -1.0 - 2.0 * currentPpnGamma_;
     vectorTermMultipliers_[ 2 ] = ( 3.0 + 4.0 * currentPpnGamma_ ) / 2.0;
 }
 

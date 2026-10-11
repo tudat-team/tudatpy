@@ -738,8 +738,7 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
             std::cout << "Numerical " << std::endl << numericalPositionPartials[ i ][ j ] << std::endl << std::endl;
             std::cout << "Analytical " << std::endl << analyticalPositionPartials[ i ][ j ] << std::endl << std::endl << std::endl;
 
-            //            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            //                numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-4 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-4 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalVelocityPartials[ i ][ j ], analyticalVelocityPartials[ i ][ j ], 1.0E-4 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalMuPartials[ i ][ j ], analyticalMuPartials[ i ][ j ], 1.0E-4 );
         }
