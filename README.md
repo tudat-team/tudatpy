@@ -87,6 +87,13 @@ python build.py -j <number-of-cores>  # Compile Tudatpy
 This script compiles Tudatpy. It will take some time to execute, but you can speed up the process by increasing the number of cores used with the `-j` flag.
 Once the project is built, all the build output is dumped by default in a directory called `build`, which is not tracked by Git.
 
+> **Note**\
+> The standard build also generates stubs for some kernels, that needs some additional data resources which can only be downloaded (step 8) after you have installed `tudatpy` *once* before.  So if this is the first time you are installing `tudatpy`, instead of the standard build, please do build without stubs like this:
+> ```
+> python build.py --skip-stubs -j4
+> ```
+> You can generate the stubs later after you have downloaded the resources.
+
 7. Install
 
 ```
@@ -114,6 +121,12 @@ Note that the additional resources takeup about 2 GB of disk space.  So if you w
 ```shell
 python -m tudatpy.resource_installer --mode missing --dest /path/to/resources
 ```
+
+> **Note**\
+> If this was the first time you are installing `tudatpy`, then you should have done the build step with the `--skip-stubs` flag. You can now generate the stubs that were skipped by running:
+> ```
+> python build.py --stubs-only
+> ```
 
 9. Uninstall
 
