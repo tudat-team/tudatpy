@@ -33,6 +33,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "tudat/math/basic/legendrePolynomials.h"
 
@@ -242,6 +243,83 @@ void computeRadialFunctions( const EllipsoidalHarmonicMatrices& lameFunctionCoef
                              const Eigen::VectorXd& quadratureNodes,
                              const Eigen::VectorXd& quadratureWeights,
                              EllipsoidalHarmonicCoefficients& radialFunctions );
+
+/*! Legendre order that a term pairs with.
+ *
+ * The four groups walk through the Legendre orders differently: K takes the even orders from
+ * zero, L and M the odd orders, and N the even orders from two.
+ *
+ * @param group Group the term belongs to.
+ * @param indexInGroup Zero-based position of the term within its group.
+ */
+int getTermLegendreOrder( const EllipsoidalHarmonicTermGroup group, const int indexInGroup );
+
+//! Whether a term pairs with the sine of its angle rather than the cosine.
+bool termUsesSineOfAngle( const EllipsoidalHarmonicTermGroup group );
+
+/*! Derivative of the first-kind Lame function with respect to the ellipsoidal radius.
+ *
+ * Arguments are as for evaluateLameFunctionFirstKind.
+ */
+double evaluateLameFunctionFirstKindDerivative( const Eigen::VectorXd& polynomialCoefficients,
+                                                const int degree,
+                                                const EllipsoidalHarmonicTermGroup group,
+                                                const double rho,
+                                                const double h,
+                                                const double k );
+
+/*! Radial part of every term and its derivative, at one ellipsoidal radius.
+ *
+ * The derivative costs almost nothing on top of the value: the integral that the second-kind
+ * Lame function needs is the same one, and differentiating its upper limit gives a closed-form
+ * expression rather than another integral.
+ *
+ * Arguments are as for computeRadialFunctions, with the derivatives written to a second output.
+ *
+ * @param radialFunctions Output, allocated by createEllipsoidalHarmonicCoefficients.
+ * @param radialFunctionDerivatives Output for the derivatives, allocated the same way.
+ */
+void computeRadialFunctionsAndDerivatives( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+                                           const double rho,
+                                           const double h,
+                                           const double k,
+                                           const Eigen::VectorXd& quadratureNodes,
+                                           const Eigen::VectorXd& quadratureWeights,
+                                           EllipsoidalHarmonicCoefficients& radialFunctions,
+                                           EllipsoidalHarmonicCoefficients& radialFunctionDerivatives );
+
+/*! Derivatives of Cartesian position with respect to the ellipsoidal coordinates.
+ *
+ * Column j holds the derivative of position with respect to the j-th ellipsoidal coordinate.
+ * The matrix is singular where the long axis of the body meets the surface of constant
+ * ellipsoidal radius, which is the one place the gradient cannot be formed.
+ *
+ * @param ellipsoidalCoordinates Coordinates rho, phi and gamma of the point.
+ * @param h First focal parameter of the reference ellipsoid.
+ * @param k Second focal parameter of the reference ellipsoid.
+ */
+Eigen::Matrix3d computeEllipsoidalCoordinateJacobian( const Eigen::Vector3d& ellipsoidalCoordinates, const double h, const double k );
+
+/*! Gradient of the potential in the body-fixed frame, which is the gravitational acceleration.
+ *
+ * @param coefficients Coefficients after normaliseCoefficientsToReferenceSurface.
+ * @param radialFunctions Radial parts at this point.
+ * @param radialFunctionDerivatives Their derivatives with respect to the ellipsoidal radius.
+ * @param transformFactors Transform matrices that mix the terms within each group.
+ * @param legendreCache Legendre cache updated with sin( phi ), with derivatives switched on.
+ * @param ellipsoidalCoordinates Coordinates rho, phi and gamma of the point.
+ * @param h First focal parameter of the reference ellipsoid.
+ * @param k Second focal parameter of the reference ellipsoid.
+ * @return Gradient of the potential, in the body-fixed frame.
+ */
+Eigen::Vector3d computeEllipsoidalHarmonicPotentialGradient( const EllipsoidalHarmonicCoefficients& coefficients,
+                                                             const EllipsoidalHarmonicCoefficients& radialFunctions,
+                                                             const EllipsoidalHarmonicCoefficients& radialFunctionDerivatives,
+                                                             const EllipsoidalHarmonicMatrices& transformFactors,
+                                                             const LegendreCache& legendreCache,
+                                                             const Eigen::Vector3d& ellipsoidalCoordinates,
+                                                             const double h,
+                                                             const double k );
 
 /*! Divides each coefficient by the radial part of its own term at the reference ellipsoid.
  *

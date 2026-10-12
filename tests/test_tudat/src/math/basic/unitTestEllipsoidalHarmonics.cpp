@@ -123,6 +123,34 @@ double evaluatePotential( const TestField& field, const Eigen::Vector3d& positio
     return sumEllipsoidalHarmonicTerms( field.coefficients, radialFunctions, field.transformFactors, legendreCache, ellipsoidal( 2 ) );
 }
 
+Eigen::Vector3d evaluateGradient( const TestField& field, const Eigen::Vector3d& position )
+{
+    const double h = getFirstFocalParameter( );
+    const double k = getSecondFocalParameter( );
+
+    const Eigen::Vector3d ellipsoidal = convertCartesianToEllipsoidalCoordinates( position, h, k );
+
+    EllipsoidalHarmonicCoefficients radialFunctions = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    EllipsoidalHarmonicCoefficients radialFunctionDerivatives = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    computeRadialFunctionsAndDerivatives( field.lameCoefficients,
+                                          ellipsoidal( 0 ),
+                                          h,
+                                          k,
+                                          field.quadratureNodes,
+                                          field.quadratureWeights,
+                                          radialFunctions,
+                                          radialFunctionDerivatives );
+
+    // The gradient needs the Legendre derivatives, unlike the potential.
+    LegendreCache legendreCache( field.maximumDegree, field.maximumDegree, true );
+    legendreCache.setComputeFirstDerivatives( true );
+    legendreCache.setComputeSecondDerivatives( false );
+    legendreCache.update( std::sin( ellipsoidal( 1 ) ) );
+
+    return computeEllipsoidalHarmonicPotentialGradient(
+            field.coefficients, radialFunctions, radialFunctionDerivatives, field.transformFactors, legendreCache, ellipsoidal, h, k );
+}
+
 //! Going to ellipsoidal coordinates and back must return the original position.
 BOOST_AUTO_TEST_CASE( test_coordinate_conversion_round_trip )
 {
@@ -452,6 +480,172 @@ BOOST_AUTO_TEST_CASE( test_far_field_approaches_point_mass )
 
     // Close in, the higher degree terms still matter, so the field is not simply a point mass.
     BOOST_CHECK( getLargestDeviation( 1.2 * longestSemiAxis ) > 1.0E-3 );
+}
+
+//! The radial parts computed alongside their derivatives must match the value-only routine.
+BOOST_AUTO_TEST_CASE( test_radial_functions_agree_with_value_only_routine )
+{
+    const TestField field = loadTestField( );
+    const double h = getFirstFocalParameter( );
+    const double k = getSecondFocalParameter( );
+    const double rho = 1.4 * longestSemiAxis;
+
+    EllipsoidalHarmonicCoefficients valuesOnly = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    computeRadialFunctions( field.lameCoefficients, rho, h, k, field.quadratureNodes, field.quadratureWeights, valuesOnly );
+
+    EllipsoidalHarmonicCoefficients values = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    EllipsoidalHarmonicCoefficients derivatives = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    computeRadialFunctionsAndDerivatives(
+            field.lameCoefficients, rho, h, k, field.quadratureNodes, field.quadratureWeights, values, derivatives );
+
+    for( int degree = 0; degree <= field.maximumDegree; degree++ )
+    {
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            const Eigen::VectorXd& a = valuesOnly.getGroup( degree, group );
+            const Eigen::VectorXd& b = values.getGroup( degree, group );
+            for( int term = 0; term < a.size( ); term++ )
+            {
+                BOOST_CHECK_CLOSE_FRACTION( a( term ), b( term ), 1.0E-14 );
+            }
+        }
+    }
+}
+
+//! The derivative of each radial part must match a finite difference of the radial part.
+BOOST_AUTO_TEST_CASE( test_radial_function_derivatives_match_finite_differences )
+{
+    const TestField field = loadTestField( );
+    const double h = getFirstFocalParameter( );
+    const double k = getSecondFocalParameter( );
+
+    const double rho = 1.5 * longestSemiAxis;
+    const double step = rho * 1.0E-6;
+
+    EllipsoidalHarmonicCoefficients values = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    EllipsoidalHarmonicCoefficients derivatives = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    computeRadialFunctionsAndDerivatives(
+            field.lameCoefficients, rho, h, k, field.quadratureNodes, field.quadratureWeights, values, derivatives );
+
+    EllipsoidalHarmonicCoefficients forward = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    EllipsoidalHarmonicCoefficients backward = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    computeRadialFunctions( field.lameCoefficients, rho + step, h, k, field.quadratureNodes, field.quadratureWeights, forward );
+    computeRadialFunctions( field.lameCoefficients, rho - step, h, k, field.quadratureNodes, field.quadratureWeights, backward );
+
+    double largestRelativeError = 0.0;
+    for( int degree = 0; degree <= field.maximumDegree; degree++ )
+    {
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            const Eigen::VectorXd& analytic = derivatives.getGroup( degree, group );
+            const Eigen::VectorXd& plus = forward.getGroup( degree, group );
+            const Eigen::VectorXd& minus = backward.getGroup( degree, group );
+
+            for( int term = 0; term < analytic.size( ); term++ )
+            {
+                const double numerical = ( plus( term ) - minus( term ) ) / ( 2.0 * step );
+                if( std::fabs( numerical ) > 0.0 )
+                {
+                    largestRelativeError = std::max( largestRelativeError, std::fabs( analytic( term ) / numerical - 1.0 ) );
+                }
+            }
+        }
+    }
+
+    BOOST_TEST_MESSAGE( "Radial part derivatives against finite differences: largest relative error " << largestRelativeError );
+    BOOST_CHECK_SMALL( largestRelativeError, 1.0E-6 );
+}
+
+//! The coordinate Jacobian must match finite differences of the forward coordinate map.
+BOOST_AUTO_TEST_CASE( test_coordinate_jacobian_matches_finite_differences )
+{
+    const double h = getFirstFocalParameter( );
+    const double k = getSecondFocalParameter( );
+
+    const Eigen::Vector3d ellipsoidal = ( Eigen::Vector3d( ) << 1.6 * longestSemiAxis, 0.4, -1.1 ).finished( );
+    const Eigen::Matrix3d analytic = computeEllipsoidalCoordinateJacobian( ellipsoidal, h, k );
+
+    Eigen::Matrix3d numerical;
+    for( int i = 0; i < 3; i++ )
+    {
+        const double step = ( i == 0 ) ? ellipsoidal( 0 ) * 1.0E-7 : 1.0E-7;
+        Eigen::Vector3d plus = ellipsoidal;
+        Eigen::Vector3d minus = ellipsoidal;
+        plus( i ) += step;
+        minus( i ) -= step;
+        numerical.col( i ) =
+                ( convertEllipsoidalToCartesianCoordinates( plus, h, k ) - convertEllipsoidalToCartesianCoordinates( minus, h, k ) ) /
+                ( 2.0 * step );
+    }
+
+    for( int i = 0; i < 3; i++ )
+    {
+        for( int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( ( analytic( i, j ) - numerical( i, j ) ) / analytic.cwiseAbs( ).maxCoeff( ), 1.0E-6 );
+        }
+    }
+}
+
+//! The analytic gradient must match finite differences of the potential.
+BOOST_AUTO_TEST_CASE( test_gradient_matches_finite_differences )
+{
+    const TestField field = loadTestField( );
+
+    // Directions are kept away from the long axis, where the gradient is singular.
+    std::vector< Eigen::Vector3d > positions;
+    positions.push_back( ( Eigen::Vector3d( ) << 1.0E3, 2.5E3, 2.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << -3.0E3, 2.0E3, -1.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 0.0, 4.0E3, 0.0 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 0.0, 0.0, 3.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 6.0E3, 5.0E3, -4.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 1.5E4, -1.0E4, 8.0E3 ).finished( ) );
+
+    double largestRelativeError = 0.0;
+
+    for( unsigned int i = 0; i < positions.size( ); i++ )
+    {
+        const Eigen::Vector3d position = positions.at( i );
+        const Eigen::Vector3d analytic = evaluateGradient( field, position );
+
+        Eigen::Vector3d numerical;
+        for( int j = 0; j < 3; j++ )
+        {
+            const double step = position.norm( ) * 1.0E-6;
+            Eigen::Vector3d plus = position;
+            Eigen::Vector3d minus = position;
+            plus( j ) += step;
+            minus( j ) -= step;
+            numerical( j ) = ( evaluatePotential( field, plus ) - evaluatePotential( field, minus ) ) / ( 2.0 * step );
+        }
+
+        largestRelativeError = std::max( largestRelativeError, ( analytic - numerical ).norm( ) / numerical.norm( ) );
+    }
+
+    BOOST_TEST_MESSAGE( "Gradient against finite differences: largest relative error " << largestRelativeError );
+    BOOST_CHECK_SMALL( largestRelativeError, 1.0E-7 );
+}
+
+//! Far from the body the gradient must become that of a point mass.
+BOOST_AUTO_TEST_CASE( test_gradient_approaches_point_mass )
+{
+    const TestField field = loadTestField( );
+
+    const double expectedGravitationalParameter =
+            field.fileCoefficients.kTerms.at( 0 )( 0 ) / field.radialFunctionsAtSurface.kTerms.at( 0 )( 0 );
+
+    const double distance = 1.0E4 * longestSemiAxis;
+    const Eigen::Vector3d direction = Eigen::Vector3d( 0.3, 1.0, -0.7 ).normalized( );
+    const Eigen::Vector3d position = distance * direction;
+
+    const Eigen::Vector3d gradient = evaluateGradient( field, position );
+
+    // The potential is positive and falls off as one over distance, so its gradient points at
+    // the body and has size mu over distance squared.
+    BOOST_CHECK_CLOSE_FRACTION( gradient.norm( ), expectedGravitationalParameter / ( distance * distance ), 1.0E-4 );
+    BOOST_CHECK_CLOSE_FRACTION( gradient.normalized( ).dot( direction ), -1.0, 1.0E-5 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

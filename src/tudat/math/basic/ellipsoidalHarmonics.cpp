@@ -48,6 +48,96 @@ double evaluateDescending( const Eigen::VectorXd& coefficients, const double x )
     return value;
 }
 
+//! Derivative of a polynomial whose coefficients are given in ascending order of power.
+double evaluateAscendingDerivative( const Eigen::VectorXd& coefficients, const double x )
+{
+    double value = 0.0;
+    for( int i = coefficients.size( ) - 1; i >= 1; i-- )
+    {
+        value = value * x + i * coefficients( i );
+    }
+    return value;
+}
+
+/*! The square-root factor that multiplies a term's polynomial inside the second-kind integral.
+ *
+ * @param group Group the term belongs to.
+ * @param sSquared Square of the integration variable.
+ * @param scaledSquared The same, scaled by the ratio of the focal parameters.
+ */
+double getIntegrandLameFactor( const EllipsoidalHarmonicTermGroup group,
+                               const double sSquared,
+                               const double scaledSquared,
+                               const double polynomial )
+{
+    switch( group )
+    {
+        case ellipsoidal_harmonic_k_terms:
+            return polynomial;
+        case ellipsoidal_harmonic_l_terms:
+            return std::sqrt( 1.0 - sSquared ) * polynomial;
+        case ellipsoidal_harmonic_m_terms:
+            return std::sqrt( 1.0 - scaledSquared ) * polynomial;
+        default:
+            return std::sqrt( 1.0 - sSquared ) * std::sqrt( 1.0 - scaledSquared ) * polynomial;
+    }
+}
+
+//! The integrand of the second-kind Lame function at one value of the integration variable.
+double evaluateSecondKindIntegrand( const Eigen::VectorXd& polynomialCoefficients,
+                                    const int degree,
+                                    const EllipsoidalHarmonicTermGroup group,
+                                    const double s,
+                                    const double h,
+                                    const double focalRatioSquared )
+{
+    const double sSquared = s * s;
+    const double scaledSquared = sSquared * focalRatioSquared;
+    const double polynomial = evaluateDescending( polynomialCoefficients, sSquared );
+    const double lameFactor = getIntegrandLameFactor( group, sSquared, scaledSquared, polynomial );
+
+    return std::pow( sSquared, degree ) / ( h * lameFactor * lameFactor * std::sqrt( ( 1.0 - scaledSquared ) * ( 1.0 - sSquared ) ) );
+}
+
+/*! Evaluates the integral the second-kind Lame function needs, and the integrand at its end.
+ *
+ * The integrand at the upper limit is what the derivative with respect to the ellipsoidal
+ * radius needs, and it comes for free here.
+ */
+void computeSecondKindIntegral( const Eigen::VectorXd& polynomialCoefficients,
+                                const int degree,
+                                const EllipsoidalHarmonicTermGroup group,
+                                const double rho,
+                                const double h,
+                                const double k,
+                                const Eigen::VectorXd& quadratureNodes,
+                                const Eigen::VectorXd& quadratureWeights,
+                                double& integral,
+                                double& integrandAtUpperLimit )
+{
+    if( rho <= k )
+    {
+        throw std::runtime_error( "Error when evaluating ellipsoidal harmonics, the ellipsoidal radius " + std::to_string( rho ) +
+                                  " is not larger than the focal parameter " + std::to_string( k ) +
+                                  "; the point lies inside the reference ellipsoid." );
+    }
+
+    const double focalRatioSquared = ( k * k ) / ( h * h );
+    const double upperLimit = h / rho;
+
+    // The integrand is smooth here because rho > k keeps both square roots away from zero, so a
+    // fixed-order rule converges quickly.
+    integral = 0.0;
+    for( int i = 0; i < quadratureNodes.size( ); i++ )
+    {
+        const double s = 0.5 * upperLimit * ( quadratureNodes( i ) + 1.0 );
+        integral += 0.5 * upperLimit * quadratureWeights( i ) *
+                evaluateSecondKindIntegrand( polynomialCoefficients, degree, group, s, h, focalRatioSquared );
+    }
+
+    integrandAtUpperLimit = evaluateSecondKindIntegrand( polynomialCoefficients, degree, group, upperLimit, h, focalRatioSquared );
+}
+
 }  // namespace
 
 int getNumberOfTermsInGroup( const int degree, const EllipsoidalHarmonicTermGroup group )
@@ -276,50 +366,66 @@ double evaluateLameFunctionSecondKind( const Eigen::VectorXd& polynomialCoeffici
                                        const Eigen::VectorXd& quadratureNodes,
                                        const Eigen::VectorXd& quadratureWeights )
 {
-    if( rho <= k )
-    {
-        throw std::runtime_error( "Error when evaluating ellipsoidal harmonics, the ellipsoidal radius " + std::to_string( rho ) +
-                                  " is not larger than the focal parameter " + std::to_string( k ) +
-                                  "; the point lies inside the reference ellipsoid." );
-    }
-
-    const double focalRatioSquared = ( k * k ) / ( h * h );
-    const double upperLimit = h / rho;
-
-    // Integral over s from 0 to h/rho. The integrand is smooth here because rho > k keeps both
-    // square roots away from zero, so a fixed-order rule converges quickly.
-    double integral = 0.0;
-    for( int i = 0; i < quadratureNodes.size( ); i++ )
-    {
-        const double s = 0.5 * upperLimit * ( quadratureNodes( i ) + 1.0 );
-        const double sSquared = s * s;
-        const double scaledSquared = sSquared * focalRatioSquared;
-        const double polynomial = evaluateDescending( polynomialCoefficients, sSquared );
-
-        double lameFactor;
-        switch( group )
-        {
-            case ellipsoidal_harmonic_k_terms:
-                lameFactor = polynomial;
-                break;
-            case ellipsoidal_harmonic_l_terms:
-                lameFactor = std::sqrt( 1.0 - sSquared ) * polynomial;
-                break;
-            case ellipsoidal_harmonic_m_terms:
-                lameFactor = std::sqrt( 1.0 - scaledSquared ) * polynomial;
-                break;
-            default:
-                lameFactor = std::sqrt( 1.0 - sSquared ) * std::sqrt( 1.0 - scaledSquared ) * polynomial;
-                break;
-        }
-
-        const double integrand =
-                std::pow( sSquared, degree ) / ( h * lameFactor * lameFactor * std::sqrt( ( 1.0 - scaledSquared ) * ( 1.0 - sSquared ) ) );
-
-        integral += 0.5 * upperLimit * quadratureWeights( i ) * integrand;
-    }
+    double integral;
+    double integrandAtUpperLimit;
+    computeSecondKindIntegral(
+            polynomialCoefficients, degree, group, rho, h, k, quadratureNodes, quadratureWeights, integral, integrandAtUpperLimit );
 
     return ( 2 * degree + 1 ) * evaluateLameFunctionFirstKind( polynomialCoefficients, degree, group, rho, h, k ) * integral;
+}
+
+double evaluateLameFunctionFirstKindDerivative( const Eigen::VectorXd& polynomialCoefficients,
+                                                const int degree,
+                                                const EllipsoidalHarmonicTermGroup group,
+                                                const double rho,
+                                                const double h,
+                                                const double k )
+{
+    const double scaledRadiusSquared = ( rho / h ) * ( rho / h );
+    const double focalRatioSquared = ( k * k ) / ( h * h );
+
+    const double polynomial = evaluateAscending( polynomialCoefficients, scaledRadiusSquared );
+    // The polynomial is in (rho/h)^2, so differentiating it brings out a factor 2*rho/h^2.
+    const double polynomialDerivative = evaluateAscendingDerivative( polynomialCoefficients, scaledRadiusSquared ) * 2.0 * rho / ( h * h );
+
+    // Square-root factor that the group puts in front of the polynomial, and its derivative.
+    double rootFactor;
+    double rootFactorDerivative;
+    switch( group )
+    {
+        case ellipsoidal_harmonic_k_terms:
+            rootFactor = 1.0;
+            rootFactorDerivative = 0.0;
+            break;
+        case ellipsoidal_harmonic_l_terms:
+            rootFactor = std::sqrt( scaledRadiusSquared - 1.0 );
+            rootFactorDerivative = rho / ( h * h * rootFactor );
+            break;
+        case ellipsoidal_harmonic_m_terms:
+            rootFactor = std::sqrt( scaledRadiusSquared - focalRatioSquared );
+            rootFactorDerivative = rho / ( h * h * rootFactor );
+            break;
+        default: {
+            const double firstRoot = std::sqrt( scaledRadiusSquared - focalRatioSquared );
+            const double secondRoot = std::sqrt( scaledRadiusSquared - 1.0 );
+            rootFactor = firstRoot * secondRoot;
+            rootFactorDerivative = rho / ( h * h ) * ( secondRoot / firstRoot + firstRoot / secondRoot );
+            break;
+        }
+    }
+
+    double derivative = rootFactorDerivative * polynomial + rootFactor * polynomialDerivative;
+
+    // One parity class of each group carries an extra factor rho/h.
+    const bool degreeIsOdd = ( degree % 2 != 0 );
+    const bool hasExtraRadiusFactor =
+            ( group == ellipsoidal_harmonic_k_terms || group == ellipsoidal_harmonic_n_terms ) ? degreeIsOdd : !degreeIsOdd;
+    if( hasExtraRadiusFactor )
+    {
+        derivative = derivative * ( rho / h ) + rootFactor * polynomial / h;
+    }
+
+    return derivative;
 }
 
 void computeRadialFunctions( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
@@ -436,6 +542,172 @@ double sumEllipsoidalHarmonicTerms( const EllipsoidalHarmonicCoefficients& coeff
     }
 
     return potential;
+}
+
+int getTermLegendreOrder( const EllipsoidalHarmonicTermGroup group, const int indexInGroup )
+{
+    switch( group )
+    {
+        case ellipsoidal_harmonic_k_terms:
+            return 2 * indexInGroup;
+        case ellipsoidal_harmonic_l_terms:
+            return 2 * indexInGroup + 1;
+        case ellipsoidal_harmonic_m_terms:
+            return 2 * indexInGroup + 1;
+        default:
+            return 2 * indexInGroup + 2;
+    }
+}
+
+bool termUsesSineOfAngle( const EllipsoidalHarmonicTermGroup group )
+{
+    return group == ellipsoidal_harmonic_m_terms || group == ellipsoidal_harmonic_n_terms;
+}
+
+void computeRadialFunctionsAndDerivatives( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+                                           const double rho,
+                                           const double h,
+                                           const double k,
+                                           const Eigen::VectorXd& quadratureNodes,
+                                           const Eigen::VectorXd& quadratureWeights,
+                                           EllipsoidalHarmonicCoefficients& radialFunctions,
+                                           EllipsoidalHarmonicCoefficients& radialFunctionDerivatives )
+{
+    const int maximumDegree = lameFunctionCoefficients.getMaximumDegree( );
+
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            const Eigen::MatrixXd& polynomials = lameFunctionCoefficients.getGroup( degree, group );
+            Eigen::VectorXd& values = radialFunctions.getGroup( degree, group );
+            Eigen::VectorXd& derivatives = radialFunctionDerivatives.getGroup( degree, group );
+
+            for( int term = 0; term < getNumberOfTermsInGroup( degree, group ); term++ )
+            {
+                double integral;
+                double integrandAtUpperLimit;
+                computeSecondKindIntegral( polynomials.col( term ),
+                                           degree,
+                                           group,
+                                           rho,
+                                           h,
+                                           k,
+                                           quadratureNodes,
+                                           quadratureWeights,
+                                           integral,
+                                           integrandAtUpperLimit );
+
+                const double firstKind = evaluateLameFunctionFirstKind( polynomials.col( term ), degree, group, rho, h, k );
+                const double firstKindDerivative =
+                        evaluateLameFunctionFirstKindDerivative( polynomials.col( term ), degree, group, rho, h, k );
+
+                values( term ) = ( 2 * degree + 1 ) * firstKind * integral;
+
+                // The integral runs up to h/rho, so its derivative is the integrand there times
+                // the derivative of that limit. No second quadrature is needed.
+                derivatives( term ) =
+                        ( 2 * degree + 1 ) * ( firstKindDerivative * integral - firstKind * ( h / ( rho * rho ) ) * integrandAtUpperLimit );
+            }
+        }
+    }
+}
+
+Eigen::Matrix3d computeEllipsoidalCoordinateJacobian( const Eigen::Vector3d& ellipsoidalCoordinates, const double h, const double k )
+{
+    const double rho = ellipsoidalCoordinates( 0 );
+    const double sineOfPhi = std::sin( ellipsoidalCoordinates( 1 ) );
+    const double cosineOfPhi = std::cos( ellipsoidalCoordinates( 1 ) );
+    const double sineOfGamma = std::sin( ellipsoidalCoordinates( 2 ) );
+    const double cosineOfGamma = std::cos( ellipsoidalCoordinates( 2 ) );
+
+    const double firstRadius = std::sqrt( rho * rho - h * h );
+    const double secondRadius = std::sqrt( rho * rho - k * k );
+
+    Eigen::Matrix3d jacobian;
+    jacobian << sineOfPhi, rho * cosineOfPhi, 0.0, ( rho / firstRadius ) * cosineOfPhi * cosineOfGamma,
+            -firstRadius * sineOfPhi * cosineOfGamma, -firstRadius * cosineOfPhi * sineOfGamma,
+            ( rho / secondRadius ) * cosineOfPhi * sineOfGamma, -secondRadius * sineOfPhi * sineOfGamma,
+            secondRadius * cosineOfPhi * cosineOfGamma;
+
+    return jacobian;
+}
+
+Eigen::Vector3d computeEllipsoidalHarmonicPotentialGradient( const EllipsoidalHarmonicCoefficients& coefficients,
+                                                             const EllipsoidalHarmonicCoefficients& radialFunctions,
+                                                             const EllipsoidalHarmonicCoefficients& radialFunctionDerivatives,
+                                                             const EllipsoidalHarmonicMatrices& transformFactors,
+                                                             const LegendreCache& legendreCache,
+                                                             const Eigen::Vector3d& ellipsoidalCoordinates,
+                                                             const double h,
+                                                             const double k )
+{
+    const int maximumDegree = coefficients.getMaximumDegree( );
+    const double cosineOfPhi = std::cos( ellipsoidalCoordinates( 1 ) );
+    const double gamma = ellipsoidalCoordinates( 2 );
+
+    // Derivatives of the potential with respect to the three ellipsoidal coordinates.
+    Eigen::Vector3d gradientInEllipsoidalCoordinates = Eigen::Vector3d::Zero( );
+
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            const int numberOfTerms = getNumberOfTermsInGroup( degree, group );
+
+            if( numberOfTerms == 0 )
+            {
+                continue;
+            }
+
+            Eigen::VectorXd surfaceTerms = Eigen::VectorXd::Zero( numberOfTerms );
+            Eigen::VectorXd surfaceTermsWrtPhi = Eigen::VectorXd::Zero( numberOfTerms );
+            Eigen::VectorXd surfaceTermsWrtGamma = Eigen::VectorXd::Zero( numberOfTerms );
+
+            for( int term = 0; term < numberOfTerms; term++ )
+            {
+                const int legendreOrder = getTermLegendreOrder( group, term );
+                const double angle = legendreOrder * gamma;
+
+                const double legendreValue = legendreCache.getLegendrePolynomial( degree, legendreOrder );
+                // The cache differentiates with respect to sin( phi ), so the chain rule adds a
+                // factor cos( phi ) to get the derivative with respect to phi itself.
+                const double legendreDerivative = legendreCache.getLegendrePolynomialDerivative( degree, legendreOrder ) * cosineOfPhi;
+
+                if( termUsesSineOfAngle( group ) )
+                {
+                    surfaceTerms( term ) = legendreValue * std::sin( angle );
+                    surfaceTermsWrtPhi( term ) = legendreDerivative * std::sin( angle );
+                    surfaceTermsWrtGamma( term ) = legendreOrder * legendreValue * std::cos( angle );
+                }
+                else
+                {
+                    surfaceTerms( term ) = legendreValue * std::cos( angle );
+                    surfaceTermsWrtPhi( term ) = legendreDerivative * std::cos( angle );
+                    surfaceTermsWrtGamma( term ) = -legendreOrder * legendreValue * std::sin( angle );
+                }
+            }
+
+            const Eigen::VectorXd& groupCoefficients = coefficients.getGroup( degree, group );
+            const Eigen::MatrixXd& groupTransform = transformFactors.getGroup( degree, group );
+
+            const Eigen::VectorXd weightedByValue = groupCoefficients.cwiseProduct( radialFunctions.getGroup( degree, group ) );
+            const Eigen::VectorXd weightedByDerivative =
+                    groupCoefficients.cwiseProduct( radialFunctionDerivatives.getGroup( degree, group ) );
+
+            gradientInEllipsoidalCoordinates( 0 ) += weightedByDerivative.dot( groupTransform * surfaceTerms );
+            gradientInEllipsoidalCoordinates( 1 ) += weightedByValue.dot( groupTransform * surfaceTermsWrtPhi );
+            gradientInEllipsoidalCoordinates( 2 ) += weightedByValue.dot( groupTransform * surfaceTermsWrtGamma );
+        }
+    }
+
+    // Convert to Cartesian. With J the derivatives of position with respect to the ellipsoidal
+    // coordinates, the Cartesian gradient solves J^T g = gradientInEllipsoidalCoordinates.
+    const Eigen::Matrix3d jacobian = computeEllipsoidalCoordinateJacobian( ellipsoidalCoordinates, h, k );
+
+    return jacobian.transpose( ).colPivHouseholderQr( ).solve( gradientInEllipsoidalCoordinates );
 }
 
 double computeEllipsoidalHarmonicGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition,

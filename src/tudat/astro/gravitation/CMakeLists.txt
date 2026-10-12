@@ -79,6 +79,7 @@ set(gravitation_HEADERS
         "polyhedronGravityModel.h"
         "ringGravityField.h"
         "ellipsoidalHarmonicsGravityField.h"
+        "ellipsoidalHarmonicsGravityModel.h"
         "ringGravityModel.h"
         )
 

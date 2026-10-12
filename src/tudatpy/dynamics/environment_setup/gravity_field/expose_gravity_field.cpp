@@ -897,7 +897,6 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     m.def( "ellipsoidal_harmonics_from_files",
            &tss::ellipsoidalHarmonicsGravitySettingsFromFiles,
-           py::arg( "gravitational_parameter" ),
            py::arg( "reference_ellipsoid_semi_axes" ),
            py::arg( "coefficient_file" ),
            py::arg( "lame_function_coefficient_file" ),
@@ -918,10 +917,11 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Note that this model currently provides the potential only; it cannot yet be used to compute an
  acceleration.
 
+ The gravitational parameter is not given here: it is already contained in the degree zero
+ coefficient, and the field reads it off from there.
+
  Parameters
  ----------
- gravitational_parameter : float
-     Gravitational parameter of the body.
  reference_ellipsoid_semi_axes : numpy.ndarray[numpy.float64[3, 1]]
      The three semi-axes of the reference ellipsoid, longest first and shortest last. The field
      is valid outside this ellipsoid.

@@ -24,6 +24,7 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "tudat/astro/gravitation/polyhedronGravityModel.h"
+#include "tudat/astro/gravitation/ellipsoidalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/ringGravityModel.h"
 
 namespace tudat
@@ -195,6 +196,10 @@ typedef ThirdBodyAcceleration< PolyhedronGravitationalAccelerationModel > ThirdB
 
 //! Typedef for third body ring gravity acceleration.
 typedef ThirdBodyAcceleration< RingGravitationalAccelerationModel > ThirdBodyRingGravitationalAccelerationModel;
+
+//! Typedef for an ellipsoidal harmonics gravitational acceleration exerted by a third body.
+typedef ThirdBodyAcceleration< EllipsoidalHarmonicsGravitationalAccelerationModel >
+        ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel;
 
 }  // namespace gravitation
 

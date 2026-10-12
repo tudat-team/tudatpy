@@ -559,7 +559,9 @@ class EllipsoidalHarmonicsGravityFieldSettings : public GravityFieldSettings
 public:
     /*! Constructor.
      *
-     * @param gravitationalParameter Gravitational parameter of the body.
+     * The gravitational parameter is not given separately: it is already contained in the degree
+     * zero coefficient, and the field reads it off from there.
+     *
      * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
      *      first and shortest last. The field is valid outside this ellipsoid.
      * @param coefficients Field coefficients, normalised to the reference ellipsoid surface as
@@ -569,30 +571,18 @@ public:
      * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
      * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
      */
-    EllipsoidalHarmonicsGravityFieldSettings( const double gravitationalParameter,
-                                              const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+    EllipsoidalHarmonicsGravityFieldSettings( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
                                               const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients,
                                               const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                               const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
                                               const int quadratureOrder = 24,
                                               const std::string& associatedReferenceFrame = "" ):
-        GravityFieldSettings( ellipsoidal_harmonic ), gravitationalParameter_( gravitationalParameter ),
-        referenceEllipsoidSemiAxes_( referenceEllipsoidSemiAxes ), coefficients_( coefficients ),
-        lameFunctionCoefficients_( lameFunctionCoefficients ), transformFactors_( transformFactors ), quadratureOrder_( quadratureOrder ),
-        associatedReferenceFrame_( associatedReferenceFrame )
+        GravityFieldSettings( ellipsoidal_harmonic ), referenceEllipsoidSemiAxes_( referenceEllipsoidSemiAxes ),
+        coefficients_( coefficients ), lameFunctionCoefficients_( lameFunctionCoefficients ), transformFactors_( transformFactors ),
+        quadratureOrder_( quadratureOrder ), associatedReferenceFrame_( associatedReferenceFrame )
     {}
 
     virtual ~EllipsoidalHarmonicsGravityFieldSettings( ) {}
-
-    double getGravitationalParameter( )
-    {
-        return gravitationalParameter_;
-    }
-
-    void resetGravitationalParameter( const double gravitationalParameter )
-    {
-        gravitationalParameter_ = gravitationalParameter;
-    }
 
     Eigen::Vector3d getReferenceEllipsoidSemiAxes( )
     {
@@ -655,8 +645,6 @@ public:
     }
 
 private:
-    double gravitationalParameter_;
-
     Eigen::Vector3d referenceEllipsoidSemiAxes_;
 
     basic_mathematics::EllipsoidalHarmonicCoefficients coefficients_;
@@ -984,7 +972,8 @@ inline std::shared_ptr< GravityFieldSettings > ringGravitySettings( const double
 
 /*! Settings for an ellipsoidal harmonic gravity field, from coefficients already in memory.
  *
- * @param gravitationalParameter Gravitational parameter of the body.
+ * The gravitational parameter is taken from the degree zero coefficient.
+ *
  * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
  *      first. The field is valid outside this ellipsoid.
  * @param coefficients Field coefficients, normalised to the reference ellipsoid surface.
@@ -994,7 +983,6 @@ inline std::shared_ptr< GravityFieldSettings > ringGravitySettings( const double
  * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
  */
 inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettings(
-        const double gravitationalParameter,
         const Eigen::Vector3d& referenceEllipsoidSemiAxes,
         const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients,
         const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
@@ -1002,8 +990,7 @@ inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettin
         const int quadratureOrder = 24,
         const std::string& associatedReferenceFrame = "" )
 {
-    return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >( gravitationalParameter,
-                                                                         referenceEllipsoidSemiAxes,
+    return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >( referenceEllipsoidSemiAxes,
                                                                          coefficients,
                                                                          lameFunctionCoefficients,
                                                                          transformFactors,
@@ -1013,7 +1000,8 @@ inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettin
 
 /*! Settings for an ellipsoidal harmonic gravity field, reading the three coefficient files.
  *
- * @param gravitationalParameter Gravitational parameter of the body.
+ * The gravitational parameter is taken from the degree zero coefficient.
+ *
  * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
  *      first. The field is valid outside this ellipsoid.
  * @param coefficientFile File holding the field coefficients.
@@ -1023,8 +1011,7 @@ inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettin
  * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
  * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
  */
-std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromFiles( const double gravitationalParameter,
-                                                                                      const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromFiles( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
                                                                                       const std::string& coefficientFile,
                                                                                       const std::string& lameFunctionCoefficientFile,
                                                                                       const std::string& transformFactorFile,

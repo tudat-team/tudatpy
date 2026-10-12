@@ -119,3 +119,6 @@ TUDAT_ADD_TEST_CASE(EllipsoidalHarmonicsGravityField
         tudat_gravitation
         tudat_input_output
         tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(EllipsoidalHarmonicsGravityModel
+        PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} )

@@ -131,6 +131,13 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                                                                nameOfBodyExertingAcceleration,
                                                                sumGravitationalParameters );
             break;
+        case ellipsoidal_harmonic_gravity:
+            accelerationModel = createEllipsoidalHarmonicsGravityAcceleration( bodyUndergoingAcceleration,
+                                                                               bodyExertingAcceleration,
+                                                                               nameOfBodyUndergoingAcceleration,
+                                                                               nameOfBodyExertingAcceleration,
+                                                                               sumGravitationalParameters );
+            break;
         default:
 
             std::string errorMessage = "Error when making gravitional acceleration model, cannot parse type " +
@@ -254,6 +261,26 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                                                                    1 ) ),
                     nameOfCentralBody );
             break;
+        case ellipsoidal_harmonic_gravity:
+            accelerationModel = std::make_shared< ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel >(
+                    std::dynamic_pointer_cast< EllipsoidalHarmonicsGravitationalAccelerationModel >(
+                            createDirectGravitationalAcceleration( bodyUndergoingAcceleration,
+                                                                   bodyExertingAcceleration,
+                                                                   nameOfBodyUndergoingAcceleration,
+                                                                   nameOfBodyExertingAcceleration,
+                                                                   accelerationSettings,
+                                                                   "",
+                                                                   0 ) ),
+                    std::dynamic_pointer_cast< EllipsoidalHarmonicsGravitationalAccelerationModel >(
+                            createDirectGravitationalAcceleration( centralBody,
+                                                                   bodyExertingAcceleration,
+                                                                   nameOfCentralBody,
+                                                                   nameOfBodyExertingAcceleration,
+                                                                   accelerationSettings,
+                                                                   "",
+                                                                   1 ) ),
+                    nameOfCentralBody );
+            break;
         case ring_gravity:
             accelerationModel = std::make_shared< ThirdBodyRingGravitationalAccelerationModel >(
                     std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
@@ -298,7 +325,8 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAccel
         accelerationSettings->accelerationType_ != spherical_harmonic_gravity &&
         accelerationSettings->accelerationType_ != mutual_spherical_harmonic_gravity &&
         accelerationSettings->accelerationType_ != full_two_body_spherical_harmonic_gravity &&
-        accelerationSettings->accelerationType_ != polyhedron_gravity && accelerationSettings->accelerationType_ != ring_gravity )
+        accelerationSettings->accelerationType_ != polyhedron_gravity && accelerationSettings->accelerationType_ != ring_gravity &&
+        accelerationSettings->accelerationType_ != ellipsoidal_harmonic_gravity )
     {
         throw std::runtime_error( "Error when making gravitational acceleration, type is inconsistent" );
     }
@@ -763,6 +791,76 @@ std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGra
                 std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 useCentralBodyFixedFrame );
     }
+    return accelerationModel;
+}
+
+std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > createEllipsoidalHarmonicsGravityAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const bool useCentralBodyFixedFrame )
+{
+    using namespace gravitation;
+
+    std::shared_ptr< EllipsoidalHarmonicsGravitationalAccelerationModel > accelerationModel;
+
+    std::shared_ptr< EllipsoidalHarmonicsGravityField > ellipsoidalHarmonicsGravityField =
+            std::dynamic_pointer_cast< EllipsoidalHarmonicsGravityField >( bodyExertingAcceleration->getGravityFieldModel( ) );
+
+    std::shared_ptr< RotationalEphemeris > rotationalEphemeris = bodyExertingAcceleration->getRotationalEphemeris( );
+
+    if( ellipsoidalHarmonicsGravityField == nullptr )
+    {
+        throw std::runtime_error( std::string( "Error, ellipsoidal harmonics gravity field model not set when " ) +
+                                  " making ellipsoidal harmonics gravitational acceleration of " + nameOfBodyExertingAcceleration + " on " +
+                                  nameOfBodyUndergoingAcceleration );
+    }
+    else
+    {
+        if( rotationalEphemeris == nullptr )
+        {
+            throw std::runtime_error( "Warning when making ellipsoidal harmonics acceleration on body " + nameOfBodyUndergoingAcceleration +
+                                      ", no rotation model found for " + nameOfBodyExertingAcceleration );
+        }
+
+        if( rotationalEphemeris->getTargetFrameOrientation( ) != ellipsoidalHarmonicsGravityField->getFixedReferenceFrame( ) )
+        {
+            throw std::runtime_error( "Warning when making ellipsoidal harmonics acceleration on body " + nameOfBodyUndergoingAcceleration +
+                                      ", rotation model found for " + nameOfBodyExertingAcceleration +
+                                      " is incompatible, frames are: " + rotationalEphemeris->getTargetFrameOrientation( ) + " and " +
+                                      ellipsoidalHarmonicsGravityField->getFixedReferenceFrame( ) );
+        }
+
+        std::function< double( ) > gravitationalParameterFunction;
+
+        // Check if mutual acceleration is to be used.
+        if( useCentralBodyFixedFrame == false || bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+        {
+            gravitationalParameterFunction =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, ellipsoidalHarmonicsGravityField );
+        }
+        else
+        {
+            // Create function returning summed gravitational parameter of the two bodies.
+            std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, ellipsoidalHarmonicsGravityField );
+            std::function< double( ) > gravitationalParameterOfBodyUndergoingAcceleration = std::bind(
+                    &gravitation::GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
+            gravitationalParameterFunction = std::bind( &utilities::sumFunctionReturn< double >,
+                                                        gravitationalParameterOfBodyExertingAcceleration,
+                                                        gravitationalParameterOfBodyUndergoingAcceleration );
+        }
+
+        accelerationModel = std::make_shared< EllipsoidalHarmonicsGravitationalAccelerationModel >(
+                std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
+                ellipsoidalHarmonicsGravityField,
+                gravitationalParameterFunction,
+                std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
+                std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
+                useCentralBodyFixedFrame );
+    }
+
     return accelerationModel;
 }
 
@@ -2050,6 +2148,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         case full_two_body_spherical_harmonic_gravity:
         case polyhedron_gravity:
         case ring_gravity:
+        case ellipsoidal_harmonic_gravity:
             accelerationModelPointer = createGravitationalAccelerationModel( bodyUndergoingAcceleration,
                                                                              bodyExertingAcceleration,
                                                                              accelerationSettings,

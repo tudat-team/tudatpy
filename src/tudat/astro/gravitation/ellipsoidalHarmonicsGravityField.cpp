@@ -26,23 +26,28 @@ using namespace tudat::basic_mathematics;
 EllipsoidalHarmonicsGravityCache::EllipsoidalHarmonicsGravityCache( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                                                     const double firstFocalParameter,
                                                                     const double secondFocalParameter,
-                                                                    const int quadratureOrder,
-                                                                    const bool computeLegendreDerivatives ):
+                                                                    const int quadratureOrder ):
     lameFunctionCoefficients_( lameFunctionCoefficients ),
     legendreCache_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
+    legendreCacheWithDerivatives_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
     firstFocalParameter_( firstFocalParameter ), secondFocalParameter_( secondFocalParameter )
 {
-    radialFunctions_ = createEllipsoidalHarmonicCoefficients( lameFunctionCoefficients.getMaximumDegree( ) );
+    const int maximumDegree = lameFunctionCoefficients.getMaximumDegree( );
+    radialFunctions_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    radialFunctionDerivatives_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
 
-    // The derivatives are singular on the long axis of the body, so they are only computed when
-    // something actually needs them.
-    legendreCache_.setComputeFirstDerivatives( computeLegendreDerivatives );
+    // The Legendre derivatives are singular on the long axis of the body, so the cache used for
+    // the potential leaves them out and only the one used for the gradient computes them.
+    legendreCache_.setComputeFirstDerivatives( false );
     legendreCache_.setComputeSecondDerivatives( false );
+    legendreCacheWithDerivatives_.setComputeFirstDerivatives( true );
+    legendreCacheWithDerivatives_.setComputeSecondDerivatives( false );
 
     computeGaussLegendreNodesAndWeights( quadratureOrder, quadratureNodes_, quadratureWeights_ );
 
     // Starting from NaN makes the first update always run.
     currentBodyFixedPosition_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+    positionOfCachedDerivatives_ = currentBodyFixedPosition_;
     ellipsoidalCoordinates_ = Eigen::Vector3d::Zero( );
 }
 
@@ -67,15 +72,37 @@ void EllipsoidalHarmonicsGravityCache::update( const Eigen::Vector3d& currentBod
     }
 }
 
-EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const double gravitationalParameter,
-                                                                    const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+void EllipsoidalHarmonicsGravityCache::updateIncludingDerivatives( const Eigen::Vector3d& currentBodyFixedPosition )
+{
+    update( currentBodyFixedPosition );
+
+    if( currentBodyFixedPosition != positionOfCachedDerivatives_ )
+    {
+        positionOfCachedDerivatives_ = currentBodyFixedPosition;
+
+        // This recomputes the values as well, but it is the same work: the radial parts and
+        // their derivatives share the one integral that dominates the cost.
+        computeRadialFunctionsAndDerivatives( lameFunctionCoefficients_,
+                                              ellipsoidalCoordinates_( 0 ),
+                                              firstFocalParameter_,
+                                              secondFocalParameter_,
+                                              quadratureNodes_,
+                                              quadratureWeights_,
+                                              radialFunctions_,
+                                              radialFunctionDerivatives_ );
+
+        legendreCacheWithDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
+    }
+}
+
+EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
                                                                     const EllipsoidalHarmonicCoefficients& coefficients,
                                                                     const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                                                     const EllipsoidalHarmonicMatrices& transformFactors,
                                                                     const int quadratureOrder,
                                                                     const std::string& fixedReferenceFrame,
                                                                     const std::function< void( ) > updateInertiaTensor ):
-    GravityFieldModel( gravitationalParameter, updateInertiaTensor ), referenceEllipsoidSemiAxes_( referenceEllipsoidSemiAxes ),
+    GravityFieldModel( TUDAT_NAN, updateInertiaTensor ), referenceEllipsoidSemiAxes_( referenceEllipsoidSemiAxes ),
     firstFocalParameter_( std::sqrt( referenceEllipsoidSemiAxes( 0 ) * referenceEllipsoidSemiAxes( 0 ) -
                                      referenceEllipsoidSemiAxes( 1 ) * referenceEllipsoidSemiAxes( 1 ) ) ),
     secondFocalParameter_( std::sqrt( referenceEllipsoidSemiAxes( 0 ) * referenceEllipsoidSemiAxes( 0 ) -
@@ -107,7 +134,7 @@ EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const double
     }
 
     gravityCache_ = std::make_shared< EllipsoidalHarmonicsGravityCache >(
-            lameFunctionCoefficients_, firstFocalParameter_, secondFocalParameter_, quadratureOrder_, false );
+            lameFunctionCoefficients_, firstFocalParameter_, secondFocalParameter_, quadratureOrder_ );
 
     // The coefficients are supplied normalised to the surface of the reference ellipsoid, so the
     // radial parts are evaluated there once and divided out.
@@ -125,6 +152,11 @@ EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const double
                             radialFunctionsAtSurface );
 
     coefficients_ = normaliseCoefficientsToReferenceSurface( coefficients, radialFunctionsAtSurface );
+
+    // Far from the body only the degree zero term survives, and its radial part tends to one over
+    // the ellipsoidal radius. The normalised degree zero coefficient is therefore exactly the
+    // gravitational parameter.
+    resetGravitationalParameter( coefficients_.kTerms.at( 0 )( 0 ) );
 }
 
 void EllipsoidalHarmonicsGravityField::checkPositionIsOutsideReferenceEllipsoid( const Eigen::Vector3d& bodyFixedPosition,
@@ -154,11 +186,51 @@ double EllipsoidalHarmonicsGravityField::getGravitationalPotential( const Eigen:
                                         gravityCache_->getAngleAboutLongAxis( ) );
 }
 
+Eigen::Vector3d EllipsoidalHarmonicsGravityField::computeGradientByDifferencingPotential( const Eigen::Vector3d& bodyFixedPosition )
+{
+    // Central differences, with a step chosen to balance the truncation error against the
+    // rounding error of the potential.
+    const double step = bodyFixedPosition.norm( ) * 1.0E-5;
+
+    Eigen::Vector3d gradient;
+    for( int i = 0; i < 3; i++ )
+    {
+        Eigen::Vector3d forwardPosition = bodyFixedPosition;
+        Eigen::Vector3d backwardPosition = bodyFixedPosition;
+        forwardPosition( i ) += step;
+        backwardPosition( i ) -= step;
+
+        gradient( i ) = ( getGravitationalPotential( forwardPosition ) - getGravitationalPotential( backwardPosition ) ) / ( 2.0 * step );
+    }
+
+    return gradient;
+}
+
 Eigen::Vector3d EllipsoidalHarmonicsGravityField::getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
 {
-    throw std::runtime_error(
-            "Error, the gradient of an ellipsoidal harmonics gravity field is not implemented yet, so "
-            "this field cannot be used to compute an acceleration." );
+    // The potential cache works everywhere outside the reference ellipsoid, so it is safe to
+    // consult before deciding which route to take.
+    gravityCache_->update( bodyFixedPosition );
+    checkPositionIsOutsideReferenceEllipsoid( bodyFixedPosition, gravityCache_->getEllipsoidalRadius( ) );
+
+    // Close to the long axis the ellipsoidal coordinates are degenerate and the analytic
+    // gradient loses accuracy, so the potential is differenced instead.
+    if( std::fabs( std::cos( gravityCache_->getEllipsoidalCoordinates( )( 1 ) ) ) < longAxisToleranceForGradient_ )
+    {
+        return computeGradientByDifferencingPotential( bodyFixedPosition );
+    }
+
+    gravityCache_->updateIncludingDerivatives( bodyFixedPosition );
+    checkPositionIsOutsideReferenceEllipsoid( bodyFixedPosition, gravityCache_->getEllipsoidalRadius( ) );
+
+    return computeEllipsoidalHarmonicPotentialGradient( coefficients_,
+                                                        gravityCache_->getRadialFunctions( ),
+                                                        gravityCache_->getRadialFunctionDerivatives( ),
+                                                        transformFactors_,
+                                                        gravityCache_->getLegendreCacheWithDerivatives( ),
+                                                        gravityCache_->getEllipsoidalCoordinates( ),
+                                                        firstFocalParameter_,
+                                                        secondFocalParameter_ );
 }
 
 }  // namespace gravitation

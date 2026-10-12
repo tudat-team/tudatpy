@@ -543,6 +543,12 @@ inline std::shared_ptr< AccelerationSettings > ringAcceleration( )
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::ring_gravity );
 }
 
+//! Settings for an acceleration from a gravity field described by ellipsoidal harmonics.
+inline std::shared_ptr< AccelerationSettings > ellipsoidalHarmonicsAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::ellipsoidal_harmonic_gravity );
+}
+
 // Class to provide settings for typical relativistic corrections to the dynamics of an orbiter.
 /*
  *  Class to provide settings for typical relativistic corrections to the dynamics of an orbiter: the

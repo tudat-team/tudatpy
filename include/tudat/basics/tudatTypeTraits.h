@@ -235,6 +235,16 @@ struct is_direct_gravity_acceleration< gravitation::RingGravitationalAcceleratio
     static const bool value = true;
 };
 
+namespace gravitation
+{
+class EllipsoidalHarmonicsGravitationalAccelerationModel;
+}
+
+template<>
+struct is_direct_gravity_acceleration< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > {
+    static const bool value = true;
+};
+
 template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
 static int getEigenCompileTimeNumberORows( )
 {

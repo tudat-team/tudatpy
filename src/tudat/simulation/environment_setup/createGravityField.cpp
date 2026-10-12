@@ -544,7 +544,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 
                 // Create and initialize ellipsoidal harmonics gravity field model.
                 gravityFieldModel = std::make_shared< EllipsoidalHarmonicsGravityField >(
-                        ellipsoidalHarmonicsFieldSettings->getGravitationalParameter( ),
                         ellipsoidalHarmonicsFieldSettings->getReferenceEllipsoidSemiAxes( ),
                         ellipsoidalHarmonicsFieldSettings->getCoefficients( ),
                         ellipsoidalHarmonicsFieldSettings->getLameFunctionCoefficients( ),
@@ -675,8 +674,7 @@ std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
     }
     return rigidBodyProperties;
 }
-std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromFiles( const double gravitationalParameter,
-                                                                                      const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromFiles( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
                                                                                       const std::string& coefficientFile,
                                                                                       const std::string& lameFunctionCoefficientFile,
                                                                                       const std::string& transformFactorFile,
@@ -685,7 +683,6 @@ std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromF
                                                                                       const std::string& associatedReferenceFrame )
 {
     return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >(
-            gravitationalParameter,
             referenceEllipsoidSemiAxes,
             input_output::readEllipsoidalHarmonicCoefficients( coefficientFile, maximumDegree ),
             input_output::readLameFunctionCoefficients( lameFunctionCoefficientFile, maximumDegree ),

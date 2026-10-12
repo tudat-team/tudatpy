@@ -44,8 +44,8 @@ Eigen::Vector3d getReferenceSemiAxes( )
     return ( Eigen::Vector3d( ) << 2.802437330193671E+03, 2.090307360485069E+03, 1.867442428762624E+03 ).finished( );
 }
 
-//! Gravitational parameter of 67P, in m^3/s^2.
-const double gravitationalParameter = 666.2;
+//! Gravitational parameter the degree zero coefficient of this data set implies, in m^3/s^2.
+const double expectedGravitationalParameter = 668.78268559825256;
 
 std::string getDataDirectory( )
 {
@@ -55,7 +55,6 @@ std::string getDataDirectory( )
 std::shared_ptr< EllipsoidalHarmonicsGravityField > createTestField( const int maximumDegree = 15 )
 {
     return std::make_shared< EllipsoidalHarmonicsGravityField >(
-            gravitationalParameter,
             getReferenceSemiAxes( ),
             readEllipsoidalHarmonicCoefficients( getDataDirectory( ) + "67p_ellipsoidal_harmonic_coefficients.txt", maximumDegree ),
             readLameFunctionCoefficients( getDataDirectory( ) + "67p_lame_coefficients.txt", maximumDegree ),
@@ -80,7 +79,9 @@ BOOST_AUTO_TEST_CASE( test_field_is_set_up_from_the_semi_axes )
 
     BOOST_CHECK_EQUAL( field->getMaximumDegree( ), 15 );
     BOOST_CHECK_EQUAL( field->getFixedReferenceFrame( ), "67P_fixed" );
-    BOOST_CHECK_CLOSE_FRACTION( field->getGravitationalParameter( ), gravitationalParameter, 1.0E-14 );
+    // The field takes its gravitational parameter from the degree zero coefficient, so it is not
+    // an independent input and must come out at the value that coefficient implies.
+    BOOST_CHECK_CLOSE_FRACTION( field->getGravitationalParameter( ), expectedGravitationalParameter, 1.0E-10 );
 }
 
 //! Semi-axes that are not strictly decreasing have no valid focal parameters, so are rejected.
@@ -96,14 +97,11 @@ BOOST_AUTO_TEST_CASE( test_badly_ordered_semi_axes_are_rejected )
 
     // Shortest axis given first.
     const Eigen::Vector3d reversed = ( Eigen::Vector3d( ) << 1.0E3, 2.0E3, 3.0E3 ).finished( );
-    BOOST_CHECK_THROW(
-            EllipsoidalHarmonicsGravityField( gravitationalParameter, reversed, coefficients, lameCoefficients, transformFactors ),
-            std::runtime_error );
+    BOOST_CHECK_THROW( EllipsoidalHarmonicsGravityField( reversed, coefficients, lameCoefficients, transformFactors ), std::runtime_error );
 
     // A sphere, where the two focal parameters both collapse to zero.
     const Eigen::Vector3d sphere = ( Eigen::Vector3d( ) << 2.0E3, 2.0E3, 2.0E3 ).finished( );
-    BOOST_CHECK_THROW( EllipsoidalHarmonicsGravityField( gravitationalParameter, sphere, coefficients, lameCoefficients, transformFactors ),
-                       std::runtime_error );
+    BOOST_CHECK_THROW( EllipsoidalHarmonicsGravityField( sphere, coefficients, lameCoefficients, transformFactors ), std::runtime_error );
 }
 
 //! The potential must reproduce the independently computed reference values.
@@ -182,16 +180,126 @@ BOOST_AUTO_TEST_CASE( test_evaluation_inside_reference_ellipsoid_is_rejected )
     BOOST_CHECK_NO_THROW( field->getGravitationalPotential( ( Eigen::Vector3d( ) << 1.01 * semiAxes( 0 ), 0.0, 0.0 ).finished( ) ) );
 }
 
-/*! The gradient is not implemented yet and must say so.
- *
- * Without this override the base class would quietly return the gradient of a point mass,
- * which would be wrong but look reasonable.
- */
-BOOST_AUTO_TEST_CASE( test_gradient_is_not_silently_wrong )
+//! The gradient must match finite differences of the potential.
+BOOST_AUTO_TEST_CASE( test_gradient_matches_finite_differences )
 {
     const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
 
-    BOOST_CHECK_THROW( field->getGradientOfPotential( ( Eigen::Vector3d( ) << 4.0E3, 1.0E3, 1.0E3 ).finished( ) ), std::runtime_error );
+    // Positions are kept off the long axis, where the gradient cannot be formed.
+    std::vector< Eigen::Vector3d > positions;
+    positions.push_back( ( Eigen::Vector3d( ) << 1.0E3, 2.5E3, 2.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << -3.0E3, 2.0E3, -1.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 0.0, 0.0, 3.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 8.0E3, 5.0E3, -4.0E3 ).finished( ) );
+
+    double largestRelativeError = 0.0;
+
+    for( unsigned int i = 0; i < positions.size( ); i++ )
+    {
+        const Eigen::Vector3d position = positions.at( i );
+        const Eigen::Vector3d analytic = field->getGradientOfPotential( position );
+
+        Eigen::Vector3d numerical;
+        for( int j = 0; j < 3; j++ )
+        {
+            const double step = position.norm( ) * 1.0E-6;
+            Eigen::Vector3d plus = position;
+            Eigen::Vector3d minus = position;
+            plus( j ) += step;
+            minus( j ) -= step;
+            numerical( j ) = ( field->getGravitationalPotential( plus ) - field->getGravitationalPotential( minus ) ) / ( 2.0 * step );
+        }
+
+        largestRelativeError = std::max( largestRelativeError, ( analytic - numerical ).norm( ) / numerical.norm( ) );
+    }
+
+    BOOST_TEST_MESSAGE( "Gravity field gradient against finite differences: largest relative error " << largestRelativeError );
+    BOOST_CHECK_SMALL( largestRelativeError, 1.0E-7 );
+}
+
+//! Mixing potential and gradient calls at the same position must not disturb either.
+BOOST_AUTO_TEST_CASE( test_potential_and_gradient_can_be_interleaved )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+    const Eigen::Vector3d position = ( Eigen::Vector3d( ) << 2.0E3, 3.0E3, -1.0E3 ).finished( );
+
+    const double potential = field->getGravitationalPotential( position );
+    const Eigen::Vector3d gradient = field->getGradientOfPotential( position );
+
+    BOOST_CHECK_CLOSE_FRACTION( field->getGravitationalPotential( position ), potential, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( field->getGradientOfPotential( position )( 0 ), gradient( 0 ), 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( field->getGravitationalPotential( position ), potential, 1.0E-15 );
+}
+
+/*! The gradient must work on the long axis too, where the coordinates are degenerate.
+ *
+ * The field is perfectly smooth there, but these coordinates are not, so the analytic gradient
+ * cannot be formed. Orbits in a plane containing the long axis cross it twice per revolution,
+ * so rather than give up, the field differences the potential close to the axis.
+ */
+BOOST_AUTO_TEST_CASE( test_gradient_works_on_the_long_axis )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+    const double distance = 1.5 * getReferenceSemiAxes( )( 0 );
+    const Eigen::Vector3d onAxis = ( Eigen::Vector3d( ) << distance, 0.0, 0.0 ).finished( );
+
+    BOOST_CHECK_NO_THROW( field->getGravitationalPotential( onAxis ) );
+    BOOST_CHECK_NO_THROW( field->getGradientOfPotential( onAxis ) );
+
+    const Eigen::Vector3d gradient = field->getGradientOfPotential( onAxis );
+
+    // On the axis, by symmetry of neither the body nor the expansion, the gradient still has to
+    // point back towards the body and be of the size the gravitational parameter implies.
+    BOOST_CHECK( gradient( 0 ) < 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION( gradient.norm( ), field->getGravitationalParameter( ) / ( distance * distance ), 0.5 );
+
+    // Independent check with a different step size, so this tests the derivative rather than
+    // one particular way of taking it.
+    const double step = distance * 1.0E-4;
+    Eigen::Vector3d independent;
+    for( int i = 0; i < 3; i++ )
+    {
+        Eigen::Vector3d forward = onAxis;
+        Eigen::Vector3d backward = onAxis;
+        forward( i ) += step;
+        backward( i ) -= step;
+        independent( i ) = ( field->getGravitationalPotential( forward ) - field->getGravitationalPotential( backward ) ) / ( 2.0 * step );
+    }
+
+    BOOST_CHECK_SMALL( ( gradient - independent ).norm( ) / independent.norm( ), 1.0E-6 );
+}
+
+/*! At the switchover the two ways of getting the gradient must agree.
+ *
+ * This is what makes the switch invisible: the region is wide enough that the analytic gradient
+ * is still accurate at its edge, so nothing jumps as a trajectory crosses it.
+ */
+BOOST_AUTO_TEST_CASE( test_gradient_agrees_at_the_long_axis_switchover )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+    const double distance = 2.0 * getReferenceSemiAxes( )( 0 );
+
+    // The tolerance is the cosine of the angle from the long axis, so this puts the point right
+    // at the edge of the region where the potential is differenced.
+    const double angle = field->getLongAxisToleranceForGradient( );
+    const Eigen::Vector3d position = ( Eigen::Vector3d( ) << distance * std::cos( angle ), distance * std::sin( angle ), 0.0 ).finished( );
+
+    field->resetLongAxisToleranceForGradient( 0.0 );
+    const Eigen::Vector3d analytic = field->getGradientOfPotential( position );
+
+    field->resetLongAxisToleranceForGradient( 1.0 );
+    const Eigen::Vector3d differenced = field->getGradientOfPotential( position );
+
+    BOOST_CHECK_SMALL( ( analytic - differenced ).norm( ) / analytic.norm( ), 1.0E-8 );
+}
+
+//! The gradient must also refuse to answer inside the reference ellipsoid.
+BOOST_AUTO_TEST_CASE( test_gradient_inside_reference_ellipsoid_is_rejected )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+
+    BOOST_CHECK_THROW( field->getGradientOfPotential( ( Eigen::Vector3d( ) << 0.0, 0.0, 0.5 * getReferenceSemiAxes( )( 2 ) ).finished( ) ),
+                       std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

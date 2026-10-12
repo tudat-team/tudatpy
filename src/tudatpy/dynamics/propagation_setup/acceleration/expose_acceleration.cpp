@@ -123,6 +123,14 @@ void expose_acceleration_setup( py::module& m )
       )doc" )
             .value( "ring_gravity_type", tba::AvailableAcceleration::ring_gravity, R"doc(
       )doc" )
+            .value( "ellipsoidal_harmonic_gravity_type",
+                    tba::AvailableAcceleration::ellipsoidal_harmonic_gravity,
+                    R"doc(
+
+Acceleration from a gravity field described by ellipsoidal harmonics, valid outside the smallest
+ellipsoid enclosing the body rather than outside the smallest enclosing sphere.
+
+     )doc" )
             .value( "thrust_acceleration_type",
                     tba::AvailableAcceleration::thrust_acceleration,
                     R"doc(
@@ -1016,6 +1024,23 @@ Returns
 
 
 
+
+     )doc" );
+
+    m.def( "ellipsoidal_harmonics_gravity",
+           &tss::ellipsoidalHarmonicsAcceleration,
+           R"doc(
+
+ Function for creating settings for an acceleration from a gravity field described by ellipsoidal harmonics.
+
+ The body exerting the acceleration must carry an ellipsoidal harmonics gravity field, created with
+ :func:`~tudatpy.dynamics.environment_setup.gravity_field.ellipsoidal_harmonics_from_files`, and a rotation
+ model whose target frame matches the frame that field is given in.
+
+ Returns
+ -------
+ AccelerationSettings
+     Acceleration settings object.
 
      )doc" );
 

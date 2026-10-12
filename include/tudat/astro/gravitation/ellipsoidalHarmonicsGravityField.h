@@ -48,18 +48,22 @@ public:
      * @param firstFocalParameter Focal parameter sqrt( a^2 - b^2 ) of the reference ellipsoid.
      * @param secondFocalParameter Focal parameter sqrt( a^2 - c^2 ) of the reference ellipsoid.
      * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
-     * @param computeLegendreDerivatives Whether the Legendre derivatives are needed, which they
-     *      are for the acceleration but not for the potential. They are singular on the long
-     *      axis of the body, so asking for them restricts where the field can be evaluated.
      */
     EllipsoidalHarmonicsGravityCache( const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                       const double firstFocalParameter,
                                       const double secondFocalParameter,
-                                      const int quadratureOrder,
-                                      const bool computeLegendreDerivatives );
+                                      const int quadratureOrder );
 
-    //! Recomputes the cached values, unless the position is the one already cached.
+    //! Recomputes what the potential needs, unless the position is the one already cached.
     void update( const Eigen::Vector3d& currentBodyFixedPosition );
+
+    /*! Recomputes what the gradient needs as well.
+     *
+     * Kept separate from update because the Legendre derivatives are singular on the long axis
+     * of the body. Computing them only when the gradient is asked for keeps the potential
+     * available everywhere outside the reference ellipsoid.
+     */
+    void updateIncludingDerivatives( const Eigen::Vector3d& currentBodyFixedPosition );
 
     //! Ellipsoidal radius of the cached position.
     double getEllipsoidalRadius( ) const
@@ -67,10 +71,10 @@ public:
         return ellipsoidalCoordinates_( 0 );
     }
 
-    //! Angle of the cached position measured away from the plane normal to the long axis.
-    double getAngleFromLongAxis( ) const
+    //! Ellipsoidal coordinates rho, phi and gamma of the cached position.
+    const Eigen::Vector3d& getEllipsoidalCoordinates( ) const
     {
-        return ellipsoidalCoordinates_( 1 );
+        return ellipsoidalCoordinates_;
     }
 
     //! Angle of the cached position about the long axis.
@@ -85,15 +89,30 @@ public:
         return radialFunctions_;
     }
 
-    //! Legendre functions at the cached position.
+    //! Derivatives of the radial parts with respect to the ellipsoidal radius.
+    const basic_mathematics::EllipsoidalHarmonicCoefficients& getRadialFunctionDerivatives( ) const
+    {
+        return radialFunctionDerivatives_;
+    }
+
+    //! Legendre functions at the cached position, values only.
     const basic_mathematics::LegendreCache& getLegendreCache( ) const
     {
         return legendreCache_;
     }
 
+    //! Legendre functions at the cached position, with derivatives.
+    const basic_mathematics::LegendreCache& getLegendreCacheWithDerivatives( ) const
+    {
+        return legendreCacheWithDerivatives_;
+    }
+
 private:
     //! Position the cached values belong to; starts as NaN so the first update always runs.
     Eigen::Vector3d currentBodyFixedPosition_;
+
+    //! Position the cached derivatives belong to, tracked separately from the values.
+    Eigen::Vector3d positionOfCachedDerivatives_;
 
     Eigen::Vector3d ellipsoidalCoordinates_;
 
@@ -101,7 +120,11 @@ private:
 
     basic_mathematics::EllipsoidalHarmonicCoefficients radialFunctions_;
 
+    basic_mathematics::EllipsoidalHarmonicCoefficients radialFunctionDerivatives_;
+
     basic_mathematics::LegendreCache legendreCache_;
+
+    basic_mathematics::LegendreCache legendreCacheWithDerivatives_;
 
     const double firstFocalParameter_;
 
@@ -118,7 +141,9 @@ class EllipsoidalHarmonicsGravityField : public GravityFieldModel
 public:
     /*! Constructor.
      *
-     * @param gravitationalParameter Gravitational parameter of the body.
+     * The gravitational parameter is not given separately: it is already contained in the degree
+     * zero coefficient, and is read off from it so the two can never disagree.
+     *
      * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
      *      first and shortest last. The expansion is valid outside this ellipsoid.
      * @param coefficients Field coefficients as read from file, still normalised to the surface
@@ -131,8 +156,7 @@ public:
      * @param updateInertiaTensor Function called to update the inertia tensor, usually supplied
      *      by the Body class.
      */
-    EllipsoidalHarmonicsGravityField( const double gravitationalParameter,
-                                      const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+    EllipsoidalHarmonicsGravityField( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
                                       const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients,
                                       const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                       const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
@@ -147,12 +171,34 @@ public:
      */
     double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition ) override;
 
-    /*! Not implemented yet; throws.
+    /*! Gradient of the potential at a body-fixed position, which is the gravitational acceleration.
      *
-     * The base class would otherwise silently return the gradient of a point mass, which would
-     * look plausible and be wrong.
+     * Throws if the position is inside the reference ellipsoid, where the expansion does not
+     * converge.
+     *
+     * The coordinates this model uses are degenerate on the long axis of the body, so the
+     * analytic gradient cannot be formed exactly there, even though the field itself is
+     * perfectly smooth. Orbits in a plane containing the long axis cross it twice per
+     * revolution, so close to it the gradient is instead obtained by differencing the
+     * potential, which is well behaved everywhere. See getLongAxisToleranceForGradient.
      */
     Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition ) override;
+
+    /*! How close to the long axis the gradient switches to differencing the potential.
+     *
+     * Measured as the cosine of the angle away from the long axis, so a smaller value means a
+     * narrower region around the axis. At the default the two agree to about five parts in
+     * 10^10, and the analytic one starts losing accuracy an order of magnitude closer in.
+     */
+    double getLongAxisToleranceForGradient( )
+    {
+        return longAxisToleranceForGradient_;
+    }
+
+    void resetLongAxisToleranceForGradient( const double longAxisToleranceForGradient )
+    {
+        longAxisToleranceForGradient_ = longAxisToleranceForGradient;
+    }
 
     //! Identifier of the body-fixed reference frame the field is given in.
     std::string getFixedReferenceFrame( )
@@ -209,6 +255,9 @@ public:
     }
 
 private:
+    //! Gradient obtained by differencing the potential, used close to the long axis.
+    Eigen::Vector3d computeGradientByDifferencingPotential( const Eigen::Vector3d& bodyFixedPosition );
+
     //! Throws if the position lies inside the reference ellipsoid.
     void checkPositionIsOutsideReferenceEllipsoid( const Eigen::Vector3d& bodyFixedPosition, const double ellipsoidalRadius ) const;
 
@@ -230,6 +279,9 @@ private:
     basic_mathematics::EllipsoidalHarmonicMatrices transformFactors_;
 
     std::shared_ptr< EllipsoidalHarmonicsGravityCache > gravityCache_;
+
+    //! Cosine of the angle from the long axis within which the potential is differenced instead.
+    double longAxisToleranceForGradient_ = 1.0E-4;
 
     std::string fixedReferenceFrame_;
 };

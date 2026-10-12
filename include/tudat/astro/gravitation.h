@@ -32,6 +32,7 @@
 #include "gravitation/polyhedronGravityModel.h"
 #include "gravitation/ringGravityField.h"
 #include "gravitation/ellipsoidalHarmonicsGravityField.h"
+#include "gravitation/ellipsoidalHarmonicsGravityModel.h"
 #include "gravitation/ringGravityModel.h"
 #include "gravitation/tabulatedGravityFieldVariations.h"
 #include "gravitation/thirdBodyPerturbation.h"
