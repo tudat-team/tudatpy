@@ -119,7 +119,22 @@ python install.py                    # Frozen installation of the current build
 ```
 
 
-8. Uninstall
+8. Download resource files
+
+To run simulations, or the test suite, you also need to download the standard set of resource files.  This includes ephemerides, gravity field, atmosphere models, etc. You can achieve this using the `tudatpy.resource_installer` module.  By default they are downloaded into `~/.tudat/resource`. First refresh the resource catalog, then download everything that is missing:
+
+```shell
+python -m tudatpy.resource_installer --mode manifest
+python -m tudatpy.resource_installer --mode missing
+```
+
+Note that the additional resources takeup about 2 GB of disk space.  So if you want to download them to an alternate location for your convenience, you may do so with ``--dest`` (or by setting the ``TUDATPY_RESOURCE_DIR`` environment variable):
+
+```shell
+python -m tudatpy.resource_installer --mode missing --dest /path/to/resources
+```
+
+9. Uninstall
 
 This script will remove tudatpy from your conda environment, but it will not delete the build directory.
 
