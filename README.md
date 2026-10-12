@@ -100,7 +100,22 @@ python install.py                    # Frozen installation of the current build
 >
 > Run `python install.py` without `-e` when the environment must remain independent of later source edits or branch switches. This installs a snapshot of the current build through CMake. Unlike editable installations, regular installations are not tracked by `uninstall.py` and must currently be removed manually.
 
-8. Uninstall
+8. Download resource files
+
+To run simulations, or the test suite, you also need to download the standard set of resource files.  This includes ephemerides, gravity field, atmosphere models, etc. You can achieve this using the `tudatpy.resource_installer` module.  By default they are downloaded into `~/.tudat/resource`. First refresh the resource catalog, then download everything that is missing:
+
+```shell
+python -m tudatpy.resource_installer --mode manifest
+python -m tudatpy.resource_installer --mode missing
+```
+
+Note that the additional resources takeup about 2 GB of disk space.  So if you want to download them to an alternate location for your convenience, you may do so with ``--dest`` (or by setting the ``TUDATPY_RESOURCE_DIR`` environment variable):
+
+```shell
+python -m tudatpy.resource_installer --mode missing --dest /path/to/resources
+```
+
+9. Uninstall
 
 ```
 python uninstall.py -h                # Show help and available flags
