@@ -2762,6 +2762,23 @@ bool
      )doc" )
             .def_property_readonly( "reference_ellipsoid_semi_axes", &tg::EllipsoidalHarmonicsGravityField::getReferenceEllipsoidSemiAxes )
             .def_property_readonly( "maximum_degree", &tg::EllipsoidalHarmonicsGravityField::getMaximumDegree )
+            .def( "get_gradient_of_potential",
+                  &tg::EllipsoidalHarmonicsGravityField::getGradientOfPotential,
+                  py::arg( "body_fixed_position" ),
+                  R"doc(
+
+         Gradient of the potential at a position in the body-fixed frame, which is the gravitational
+         acceleration there.
+
+     )doc" )
+            .def( "get_hessian_of_potential",
+                  &tg::EllipsoidalHarmonicsGravityField::getHessianOfPotential,
+                  py::arg( "body_fixed_position" ),
+                  R"doc(
+
+         Second derivatives of the potential at a position in the body-fixed frame.
+
+     )doc" )
             .def_property_readonly( "quadrature_order", &tg::EllipsoidalHarmonicsGravityField::getQuadratureOrder );
 
     gravity_field_variations.doc( ) = R"doc(

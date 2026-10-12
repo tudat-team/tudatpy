@@ -302,6 +302,67 @@ BOOST_AUTO_TEST_CASE( test_gradient_inside_reference_ellipsoid_is_rejected )
                        std::runtime_error );
 }
 
+/*! The Hessian must match finite differences of the gradient, and obey Laplace's equation.
+ *
+ * Outside the body the potential is harmonic, so the Hessian has zero trace. Nothing in the
+ * implementation enforces that, which makes it a strong independent check.
+ */
+BOOST_AUTO_TEST_CASE( test_hessian_matches_finite_differences_and_is_traceless )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+
+    std::vector< Eigen::Vector3d > positions;
+    positions.push_back( ( Eigen::Vector3d( ) << 1.0E3, 2.5E3, 2.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << -3.0E3, 2.0E3, -1.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 8.0E3, 5.0E3, -4.0E3 ).finished( ) );
+
+    double largestRelativeError = 0.0;
+    double largestScaledTrace = 0.0;
+
+    for( unsigned int i = 0; i < positions.size( ); i++ )
+    {
+        const Eigen::Vector3d position = positions.at( i );
+        const Eigen::Matrix3d analytic = field->getHessianOfPotential( position );
+
+        largestScaledTrace = std::max( largestScaledTrace, std::fabs( analytic.trace( ) ) / analytic.cwiseAbs( ).maxCoeff( ) );
+
+        // The Laplacian is just the trace, so it must agree.
+        BOOST_CHECK_CLOSE_FRACTION( field->getLaplacianOfPotential( position ), analytic.trace( ), 1.0E-12 );
+
+        Eigen::Matrix3d numerical;
+        for( int j = 0; j < 3; j++ )
+        {
+            const double step = position.norm( ) * 1.0E-6;
+            Eigen::Vector3d plus = position;
+            Eigen::Vector3d minus = position;
+            plus( j ) += step;
+            minus( j ) -= step;
+            numerical.col( j ) = ( field->getGradientOfPotential( plus ) - field->getGradientOfPotential( minus ) ) / ( 2.0 * step );
+        }
+
+        largestRelativeError =
+                std::max( largestRelativeError, ( analytic - numerical ).cwiseAbs( ).maxCoeff( ) / numerical.cwiseAbs( ).maxCoeff( ) );
+    }
+
+    BOOST_TEST_MESSAGE( "Gravity field Hessian: largest relative error " << largestRelativeError << ", largest scaled trace "
+                                                                         << largestScaledTrace );
+    BOOST_CHECK_SMALL( largestRelativeError, 1.0E-5 );
+    BOOST_CHECK_SMALL( largestScaledTrace, 1.0E-6 );
+}
+
+//! The Hessian must work on the long axis too, by the same route the gradient takes there.
+BOOST_AUTO_TEST_CASE( test_hessian_works_on_the_long_axis )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+    const Eigen::Vector3d onAxis = ( Eigen::Vector3d( ) << 1.5 * getReferenceSemiAxes( )( 0 ), 0.0, 0.0 ).finished( );
+
+    BOOST_CHECK_NO_THROW( field->getHessianOfPotential( onAxis ) );
+
+    const Eigen::Matrix3d hessian = field->getHessianOfPotential( onAxis );
+    BOOST_CHECK_SMALL( ( hessian - hessian.transpose( ) ).cwiseAbs( ).maxCoeff( ) / hessian.cwiseAbs( ).maxCoeff( ), 1.0E-12 );
+    BOOST_CHECK_SMALL( std::fabs( hessian.trace( ) ) / hessian.cwiseAbs( ).maxCoeff( ), 1.0E-4 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

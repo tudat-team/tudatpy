@@ -29,12 +29,14 @@ EllipsoidalHarmonicsGravityCache::EllipsoidalHarmonicsGravityCache( const Ellips
                                                                     const int quadratureOrder ):
     lameFunctionCoefficients_( lameFunctionCoefficients ),
     legendreCache_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
+    legendreCacheWithSecondDerivatives_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
     legendreCacheWithDerivatives_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
     firstFocalParameter_( firstFocalParameter ), secondFocalParameter_( secondFocalParameter )
 {
     const int maximumDegree = lameFunctionCoefficients.getMaximumDegree( );
     radialFunctions_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
     radialFunctionDerivatives_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    radialFunctionSecondDerivatives_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
 
     // The Legendre derivatives are singular on the long axis of the body, so the cache used for
     // the potential leaves them out and only the one used for the gradient computes them.
@@ -42,12 +44,15 @@ EllipsoidalHarmonicsGravityCache::EllipsoidalHarmonicsGravityCache( const Ellips
     legendreCache_.setComputeSecondDerivatives( false );
     legendreCacheWithDerivatives_.setComputeFirstDerivatives( true );
     legendreCacheWithDerivatives_.setComputeSecondDerivatives( false );
+    legendreCacheWithSecondDerivatives_.setComputeFirstDerivatives( true );
+    legendreCacheWithSecondDerivatives_.setComputeSecondDerivatives( true );
 
     computeGaussLegendreNodesAndWeights( quadratureOrder, quadratureNodes_, quadratureWeights_ );
 
     // Starting from NaN makes the first update always run.
     currentBodyFixedPosition_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
     positionOfCachedDerivatives_ = currentBodyFixedPosition_;
+    positionOfCachedSecondDerivatives_ = currentBodyFixedPosition_;
     ellipsoidalCoordinates_ = Eigen::Vector3d::Zero( );
 }
 
@@ -92,6 +97,29 @@ void EllipsoidalHarmonicsGravityCache::updateIncludingDerivatives( const Eigen::
                                               radialFunctionDerivatives_ );
 
         legendreCacheWithDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
+    }
+}
+
+void EllipsoidalHarmonicsGravityCache::updateIncludingSecondDerivatives( const Eigen::Vector3d& currentBodyFixedPosition )
+{
+    update( currentBodyFixedPosition );
+
+    if( currentBodyFixedPosition != positionOfCachedSecondDerivatives_ )
+    {
+        positionOfCachedSecondDerivatives_ = currentBodyFixedPosition;
+        positionOfCachedDerivatives_ = currentBodyFixedPosition;
+
+        computeRadialFunctionsAndSecondDerivatives( lameFunctionCoefficients_,
+                                                    ellipsoidalCoordinates_( 0 ),
+                                                    firstFocalParameter_,
+                                                    secondFocalParameter_,
+                                                    quadratureNodes_,
+                                                    quadratureWeights_,
+                                                    radialFunctions_,
+                                                    radialFunctionDerivatives_,
+                                                    radialFunctionSecondDerivatives_ );
+
+        legendreCacheWithSecondDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
     }
 }
 
@@ -231,6 +259,56 @@ Eigen::Vector3d EllipsoidalHarmonicsGravityField::getGradientOfPotential( const 
                                                         gravityCache_->getEllipsoidalCoordinates( ),
                                                         firstFocalParameter_,
                                                         secondFocalParameter_ );
+}
+
+Eigen::Matrix3d EllipsoidalHarmonicsGravityField::computeHessianByDifferencingGradient( const Eigen::Vector3d& bodyFixedPosition )
+{
+    const double step = bodyFixedPosition.norm( ) * 1.0E-5;
+
+    Eigen::Matrix3d hessian;
+    for( int i = 0; i < 3; i++ )
+    {
+        Eigen::Vector3d forwardPosition = bodyFixedPosition;
+        Eigen::Vector3d backwardPosition = bodyFixedPosition;
+        forwardPosition( i ) += step;
+        backwardPosition( i ) -= step;
+
+        hessian.col( i ) = ( getGradientOfPotential( forwardPosition ) - getGradientOfPotential( backwardPosition ) ) / ( 2.0 * step );
+    }
+
+    // Differencing column by column leaves the result very slightly asymmetric, which the
+    // Hessian of a potential cannot be.
+    return 0.5 * ( hessian + hessian.transpose( ) );
+}
+
+Eigen::Matrix3d EllipsoidalHarmonicsGravityField::getHessianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
+{
+    gravityCache_->update( bodyFixedPosition );
+    checkPositionIsOutsideReferenceEllipsoid( bodyFixedPosition, gravityCache_->getEllipsoidalRadius( ) );
+
+    // Same degeneracy as for the gradient, and worse: the second derivatives of the Legendre
+    // functions grow faster still towards the long axis.
+    if( std::fabs( std::cos( gravityCache_->getEllipsoidalCoordinates( )( 1 ) ) ) < longAxisToleranceForGradient_ )
+    {
+        return computeHessianByDifferencingGradient( bodyFixedPosition );
+    }
+
+    gravityCache_->updateIncludingSecondDerivatives( bodyFixedPosition );
+
+    return computeEllipsoidalHarmonicPotentialHessian( coefficients_,
+                                                       gravityCache_->getRadialFunctions( ),
+                                                       gravityCache_->getRadialFunctionDerivatives( ),
+                                                       gravityCache_->getRadialFunctionSecondDerivatives( ),
+                                                       transformFactors_,
+                                                       gravityCache_->getLegendreCacheWithSecondDerivatives( ),
+                                                       gravityCache_->getEllipsoidalCoordinates( ),
+                                                       firstFocalParameter_,
+                                                       secondFocalParameter_ );
+}
+
+double EllipsoidalHarmonicsGravityField::getLaplacianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
+{
+    return getHessianOfPotential( bodyFixedPosition ).trace( );
 }
 
 }  // namespace gravitation

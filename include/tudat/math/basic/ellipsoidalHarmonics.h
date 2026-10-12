@@ -321,6 +321,65 @@ Eigen::Vector3d computeEllipsoidalHarmonicPotentialGradient( const EllipsoidalHa
                                                              const double h,
                                                              const double k );
 
+/*! Radial parts with their first and second derivatives with respect to the ellipsoidal radius.
+ *
+ * The second derivative is obtained by differencing the first, which is itself analytic. The
+ * radial parts depend on the ellipsoidal radius alone, so this is a one-dimensional difference
+ * and is accurate to roughly one part in 10^9, which is ample for acceleration partials.
+ *
+ * Arguments are as for computeRadialFunctionsAndDerivatives, with a third output added.
+ */
+void computeRadialFunctionsAndSecondDerivatives( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+                                                 const double rho,
+                                                 const double h,
+                                                 const double k,
+                                                 const Eigen::VectorXd& quadratureNodes,
+                                                 const Eigen::VectorXd& quadratureWeights,
+                                                 EllipsoidalHarmonicCoefficients& radialFunctions,
+                                                 EllipsoidalHarmonicCoefficients& radialFunctionDerivatives,
+                                                 EllipsoidalHarmonicCoefficients& radialFunctionSecondDerivatives );
+
+/*! Second derivatives of Cartesian position with respect to the ellipsoidal coordinates.
+ *
+ * Entry m of the output is the symmetric matrix of second derivatives of the m-th Cartesian
+ * component. Together with the Jacobian these give the Hessian of anything expressed in
+ * ellipsoidal coordinates, without needing the second derivatives of the inverse map.
+ *
+ * @param ellipsoidalCoordinates Coordinates rho, phi and gamma of the point.
+ * @param h First focal parameter of the reference ellipsoid.
+ * @param k Second focal parameter of the reference ellipsoid.
+ * @param secondDerivatives Output, resized to three matrices.
+ */
+void computeEllipsoidalCoordinateSecondDerivatives( const Eigen::Vector3d& ellipsoidalCoordinates,
+                                                    const double h,
+                                                    const double k,
+                                                    std::vector< Eigen::Matrix3d >& secondDerivatives );
+
+/*! Hessian of the potential in the body-fixed frame.
+ *
+ * This is what the partial of the acceleration with respect to position needs.
+ *
+ * @param coefficients Coefficients after normaliseCoefficientsToReferenceSurface.
+ * @param radialFunctions Radial parts at this point.
+ * @param radialFunctionDerivatives Their first derivatives with respect to the ellipsoidal radius.
+ * @param radialFunctionSecondDerivatives Their second derivatives.
+ * @param transformFactors Transform matrices that mix the terms within each group.
+ * @param legendreCache Legendre cache updated with sin( phi ), with both derivatives switched on.
+ * @param ellipsoidalCoordinates Coordinates rho, phi and gamma of the point.
+ * @param h First focal parameter of the reference ellipsoid.
+ * @param k Second focal parameter of the reference ellipsoid.
+ * @return Hessian of the potential, in the body-fixed frame.
+ */
+Eigen::Matrix3d computeEllipsoidalHarmonicPotentialHessian( const EllipsoidalHarmonicCoefficients& coefficients,
+                                                            const EllipsoidalHarmonicCoefficients& radialFunctions,
+                                                            const EllipsoidalHarmonicCoefficients& radialFunctionDerivatives,
+                                                            const EllipsoidalHarmonicCoefficients& radialFunctionSecondDerivatives,
+                                                            const EllipsoidalHarmonicMatrices& transformFactors,
+                                                            const LegendreCache& legendreCache,
+                                                            const Eigen::Vector3d& ellipsoidalCoordinates,
+                                                            const double h,
+                                                            const double k );
+
 /*! Divides each coefficient by the radial part of its own term at the reference ellipsoid.
  *
  * The coefficient files are normalised to the surface of the reference ellipsoid, so this has

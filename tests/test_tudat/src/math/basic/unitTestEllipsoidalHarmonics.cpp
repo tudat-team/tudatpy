@@ -151,6 +151,43 @@ Eigen::Vector3d evaluateGradient( const TestField& field, const Eigen::Vector3d&
             field.coefficients, radialFunctions, radialFunctionDerivatives, field.transformFactors, legendreCache, ellipsoidal, h, k );
 }
 
+Eigen::Matrix3d evaluateHessian( const TestField& field, const Eigen::Vector3d& position )
+{
+    const double h = getFirstFocalParameter( );
+    const double k = getSecondFocalParameter( );
+
+    const Eigen::Vector3d ellipsoidal = convertCartesianToEllipsoidalCoordinates( position, h, k );
+
+    EllipsoidalHarmonicCoefficients radialFunctions = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    EllipsoidalHarmonicCoefficients radialFunctionDerivatives = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    EllipsoidalHarmonicCoefficients radialFunctionSecondDerivatives = createEllipsoidalHarmonicCoefficients( field.maximumDegree );
+    computeRadialFunctionsAndSecondDerivatives( field.lameCoefficients,
+                                                ellipsoidal( 0 ),
+                                                h,
+                                                k,
+                                                field.quadratureNodes,
+                                                field.quadratureWeights,
+                                                radialFunctions,
+                                                radialFunctionDerivatives,
+                                                radialFunctionSecondDerivatives );
+
+    // The Hessian needs both Legendre derivatives.
+    LegendreCache legendreCache( field.maximumDegree, field.maximumDegree, true );
+    legendreCache.setComputeFirstDerivatives( true );
+    legendreCache.setComputeSecondDerivatives( true );
+    legendreCache.update( std::sin( ellipsoidal( 1 ) ) );
+
+    return computeEllipsoidalHarmonicPotentialHessian( field.coefficients,
+                                                       radialFunctions,
+                                                       radialFunctionDerivatives,
+                                                       radialFunctionSecondDerivatives,
+                                                       field.transformFactors,
+                                                       legendreCache,
+                                                       ellipsoidal,
+                                                       h,
+                                                       k );
+}
+
 //! Going to ellipsoidal coordinates and back must return the original position.
 BOOST_AUTO_TEST_CASE( test_coordinate_conversion_round_trip )
 {
@@ -646,6 +683,79 @@ BOOST_AUTO_TEST_CASE( test_gradient_approaches_point_mass )
     // the body and has size mu over distance squared.
     BOOST_CHECK_CLOSE_FRACTION( gradient.norm( ), expectedGravitationalParameter / ( distance * distance ), 1.0E-4 );
     BOOST_CHECK_CLOSE_FRACTION( gradient.normalized( ).dot( direction ), -1.0, 1.0E-5 );
+}
+
+//! The Hessian must match finite differences of the analytic gradient, and be symmetric.
+BOOST_AUTO_TEST_CASE( test_hessian_matches_finite_differences_of_gradient )
+{
+    const TestField field = loadTestField( );
+
+    std::vector< Eigen::Vector3d > positions;
+    positions.push_back( ( Eigen::Vector3d( ) << 1.0E3, 2.5E3, 2.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << -3.0E3, 2.0E3, -1.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 0.0, 4.0E3, 0.0 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 8.0E3, 5.0E3, -4.0E3 ).finished( ) );
+
+    double largestRelativeError = 0.0;
+    double largestAsymmetry = 0.0;
+
+    for( unsigned int i = 0; i < positions.size( ); i++ )
+    {
+        const Eigen::Vector3d position = positions.at( i );
+        const Eigen::Matrix3d analytic = evaluateHessian( field, position );
+
+        // The Hessian of a scalar field is symmetric. Nothing enforces that here, since the
+        // mixed entries are assembled from different pieces, so it is a free check.
+        largestAsymmetry = std::max( largestAsymmetry,
+                                     ( analytic - analytic.transpose( ) ).cwiseAbs( ).maxCoeff( ) / analytic.cwiseAbs( ).maxCoeff( ) );
+
+        Eigen::Matrix3d numerical;
+        for( int j = 0; j < 3; j++ )
+        {
+            const double step = position.norm( ) * 1.0E-6;
+            Eigen::Vector3d plus = position;
+            Eigen::Vector3d minus = position;
+            plus( j ) += step;
+            minus( j ) -= step;
+            numerical.col( j ) = ( evaluateGradient( field, plus ) - evaluateGradient( field, minus ) ) / ( 2.0 * step );
+        }
+
+        largestRelativeError =
+                std::max( largestRelativeError, ( analytic - numerical ).cwiseAbs( ).maxCoeff( ) / numerical.cwiseAbs( ).maxCoeff( ) );
+    }
+
+    BOOST_TEST_MESSAGE( "Hessian against finite differences: largest relative error " << largestRelativeError << ", largest asymmetry "
+                                                                                      << largestAsymmetry );
+    BOOST_CHECK_SMALL( largestRelativeError, 1.0E-5 );
+    BOOST_CHECK_SMALL( largestAsymmetry, 1.0E-9 );
+}
+
+/*! Outside the body the potential satisfies Laplace's equation, so the Hessian has zero trace.
+ *
+ * This is a strong independent check: nothing in the implementation enforces it, so it only
+ * comes out right if the radial, latitude and longitude second derivatives are each correct and
+ * are combined consistently.
+ */
+BOOST_AUTO_TEST_CASE( test_hessian_trace_vanishes )
+{
+    const TestField field = loadTestField( );
+
+    std::vector< Eigen::Vector3d > positions;
+    positions.push_back( ( Eigen::Vector3d( ) << 1.0E3, 2.5E3, 2.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << -3.0E3, 2.0E3, -1.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 0.0, 4.0E3, 0.0 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 8.0E3, 5.0E3, -4.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 2.0E4, 1.0E4, 1.5E4 ).finished( ) );
+
+    double largestScaledTrace = 0.0;
+    for( unsigned int i = 0; i < positions.size( ); i++ )
+    {
+        const Eigen::Matrix3d hessian = evaluateHessian( field, positions.at( i ) );
+        largestScaledTrace = std::max( largestScaledTrace, std::fabs( hessian.trace( ) ) / hessian.cwiseAbs( ).maxCoeff( ) );
+    }
+
+    BOOST_TEST_MESSAGE( "Largest Hessian trace, relative to its largest entry: " << largestScaledTrace );
+    BOOST_CHECK_SMALL( largestScaledTrace, 1.0E-6 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -65,6 +65,13 @@ public:
      */
     void updateIncludingDerivatives( const Eigen::Vector3d& currentBodyFixedPosition );
 
+    /*! Recomputes what the Hessian needs as well.
+     *
+     * Kept separate from updateIncludingDerivatives because the second derivatives of the
+     * radial parts cost several times as much, and the acceleration does not need them.
+     */
+    void updateIncludingSecondDerivatives( const Eigen::Vector3d& currentBodyFixedPosition );
+
     //! Ellipsoidal radius of the cached position.
     double getEllipsoidalRadius( ) const
     {
@@ -107,12 +114,27 @@ public:
         return legendreCacheWithDerivatives_;
     }
 
+    //! Second derivatives of the radial parts with respect to the ellipsoidal radius.
+    const basic_mathematics::EllipsoidalHarmonicCoefficients& getRadialFunctionSecondDerivatives( ) const
+    {
+        return radialFunctionSecondDerivatives_;
+    }
+
+    //! Legendre functions at the cached position, with first and second derivatives.
+    const basic_mathematics::LegendreCache& getLegendreCacheWithSecondDerivatives( ) const
+    {
+        return legendreCacheWithSecondDerivatives_;
+    }
+
 private:
     //! Position the cached values belong to; starts as NaN so the first update always runs.
     Eigen::Vector3d currentBodyFixedPosition_;
 
     //! Position the cached derivatives belong to, tracked separately from the values.
     Eigen::Vector3d positionOfCachedDerivatives_;
+
+    //! Position the cached second derivatives belong to.
+    Eigen::Vector3d positionOfCachedSecondDerivatives_;
 
     Eigen::Vector3d ellipsoidalCoordinates_;
 
@@ -124,7 +146,11 @@ private:
 
     basic_mathematics::LegendreCache legendreCache_;
 
+    basic_mathematics::EllipsoidalHarmonicCoefficients radialFunctionSecondDerivatives_;
+
     basic_mathematics::LegendreCache legendreCacheWithDerivatives_;
+
+    basic_mathematics::LegendreCache legendreCacheWithSecondDerivatives_;
 
     const double firstFocalParameter_;
 
@@ -200,6 +226,21 @@ public:
         longAxisToleranceForGradient_ = longAxisToleranceForGradient;
     }
 
+    /*! Second derivatives of the potential at a body-fixed position.
+     *
+     * This is what the partial of the acceleration with respect to position needs. Like the
+     * gradient, it cannot be formed analytically on the long axis of the body; there the
+     * gradient is differenced instead.
+     */
+    Eigen::Matrix3d getHessianOfPotential( const Eigen::Vector3d& bodyFixedPosition );
+
+    /*! Laplacian of the potential, which is zero outside the body.
+     *
+     * Computed as the trace of the Hessian, so it is a useful check on the field rather than a
+     * quantity worth having for its own sake.
+     */
+    double getLaplacianOfPotential( const Eigen::Vector3d& bodyFixedPosition ) override;
+
     //! Identifier of the body-fixed reference frame the field is given in.
     std::string getFixedReferenceFrame( )
     {
@@ -257,6 +298,9 @@ public:
 private:
     //! Gradient obtained by differencing the potential, used close to the long axis.
     Eigen::Vector3d computeGradientByDifferencingPotential( const Eigen::Vector3d& bodyFixedPosition );
+
+    //! Hessian obtained by differencing the gradient, used close to the long axis.
+    Eigen::Matrix3d computeHessianByDifferencingGradient( const Eigen::Vector3d& bodyFixedPosition );
 
     //! Throws if the position lies inside the reference ellipsoid.
     void checkPositionIsOutsideReferenceEllipsoid( const Eigen::Vector3d& bodyFixedPosition, const double ellipsoidalRadius ) const;

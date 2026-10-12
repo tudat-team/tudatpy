@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
+#include <vector>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -708,6 +709,214 @@ Eigen::Vector3d computeEllipsoidalHarmonicPotentialGradient( const EllipsoidalHa
     const Eigen::Matrix3d jacobian = computeEllipsoidalCoordinateJacobian( ellipsoidalCoordinates, h, k );
 
     return jacobian.transpose( ).colPivHouseholderQr( ).solve( gradientInEllipsoidalCoordinates );
+}
+
+void computeRadialFunctionsAndSecondDerivatives( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+                                                 const double rho,
+                                                 const double h,
+                                                 const double k,
+                                                 const Eigen::VectorXd& quadratureNodes,
+                                                 const Eigen::VectorXd& quadratureWeights,
+                                                 EllipsoidalHarmonicCoefficients& radialFunctions,
+                                                 EllipsoidalHarmonicCoefficients& radialFunctionDerivatives,
+                                                 EllipsoidalHarmonicCoefficients& radialFunctionSecondDerivatives )
+{
+    const int maximumDegree = lameFunctionCoefficients.getMaximumDegree( );
+
+    computeRadialFunctionsAndDerivatives(
+            lameFunctionCoefficients, rho, h, k, quadratureNodes, quadratureWeights, radialFunctions, radialFunctionDerivatives );
+
+    // The first derivatives are analytic and depend on the ellipsoidal radius alone, so the
+    // second ones are taken by differencing them in that one variable.
+    const double step = rho * 1.0E-6;
+
+    EllipsoidalHarmonicCoefficients valuesForward = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    EllipsoidalHarmonicCoefficients derivativesForward = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    EllipsoidalHarmonicCoefficients valuesBackward = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    EllipsoidalHarmonicCoefficients derivativesBackward = createEllipsoidalHarmonicCoefficients( maximumDegree );
+
+    computeRadialFunctionsAndDerivatives(
+            lameFunctionCoefficients, rho + step, h, k, quadratureNodes, quadratureWeights, valuesForward, derivativesForward );
+    computeRadialFunctionsAndDerivatives(
+            lameFunctionCoefficients, rho - step, h, k, quadratureNodes, quadratureWeights, valuesBackward, derivativesBackward );
+
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            radialFunctionSecondDerivatives.getGroup( degree, group ) =
+                    ( derivativesForward.getGroup( degree, group ) - derivativesBackward.getGroup( degree, group ) ) / ( 2.0 * step );
+        }
+    }
+}
+
+void computeEllipsoidalCoordinateSecondDerivatives( const Eigen::Vector3d& ellipsoidalCoordinates,
+                                                    const double h,
+                                                    const double k,
+                                                    std::vector< Eigen::Matrix3d >& secondDerivatives )
+{
+    const double rho = ellipsoidalCoordinates( 0 );
+    const double sineOfPhi = std::sin( ellipsoidalCoordinates( 1 ) );
+    const double cosineOfPhi = std::cos( ellipsoidalCoordinates( 1 ) );
+    const double sineOfGamma = std::sin( ellipsoidalCoordinates( 2 ) );
+    const double cosineOfGamma = std::cos( ellipsoidalCoordinates( 2 ) );
+
+    const double firstRadius = std::sqrt( rho * rho - h * h );
+    const double secondRadius = std::sqrt( rho * rho - k * k );
+
+    // First and second derivatives of the two radii with respect to the ellipsoidal radius.
+    const double firstRadiusDerivative = rho / firstRadius;
+    const double firstRadiusSecondDerivative = -( h * h ) / ( firstRadius * firstRadius * firstRadius );
+    const double secondRadiusDerivative = rho / secondRadius;
+    const double secondRadiusSecondDerivative = -( k * k ) / ( secondRadius * secondRadius * secondRadius );
+
+    secondDerivatives.resize( 3 );
+
+    // x = rho * sin( phi )
+    Eigen::Matrix3d& forX = secondDerivatives[ 0 ];
+    forX.setZero( );
+    forX( 0, 1 ) = cosineOfPhi;
+    forX( 1, 0 ) = cosineOfPhi;
+    forX( 1, 1 ) = -rho * sineOfPhi;
+
+    // y = sqrt( rho^2 - h^2 ) * cos( phi ) * cos( gamma )
+    Eigen::Matrix3d& forY = secondDerivatives[ 1 ];
+    forY( 0, 0 ) = firstRadiusSecondDerivative * cosineOfPhi * cosineOfGamma;
+    forY( 0, 1 ) = -firstRadiusDerivative * sineOfPhi * cosineOfGamma;
+    forY( 0, 2 ) = -firstRadiusDerivative * cosineOfPhi * sineOfGamma;
+    forY( 1, 1 ) = -firstRadius * cosineOfPhi * cosineOfGamma;
+    forY( 1, 2 ) = firstRadius * sineOfPhi * sineOfGamma;
+    forY( 2, 2 ) = -firstRadius * cosineOfPhi * cosineOfGamma;
+    forY( 1, 0 ) = forY( 0, 1 );
+    forY( 2, 0 ) = forY( 0, 2 );
+    forY( 2, 1 ) = forY( 1, 2 );
+
+    // z = sqrt( rho^2 - k^2 ) * cos( phi ) * sin( gamma )
+    Eigen::Matrix3d& forZ = secondDerivatives[ 2 ];
+    forZ( 0, 0 ) = secondRadiusSecondDerivative * cosineOfPhi * sineOfGamma;
+    forZ( 0, 1 ) = -secondRadiusDerivative * sineOfPhi * sineOfGamma;
+    forZ( 0, 2 ) = secondRadiusDerivative * cosineOfPhi * cosineOfGamma;
+    forZ( 1, 1 ) = -secondRadius * cosineOfPhi * sineOfGamma;
+    forZ( 1, 2 ) = -secondRadius * sineOfPhi * cosineOfGamma;
+    forZ( 2, 2 ) = -secondRadius * cosineOfPhi * sineOfGamma;
+    forZ( 1, 0 ) = forZ( 0, 1 );
+    forZ( 2, 0 ) = forZ( 0, 2 );
+    forZ( 2, 1 ) = forZ( 1, 2 );
+}
+
+Eigen::Matrix3d computeEllipsoidalHarmonicPotentialHessian( const EllipsoidalHarmonicCoefficients& coefficients,
+                                                            const EllipsoidalHarmonicCoefficients& radialFunctions,
+                                                            const EllipsoidalHarmonicCoefficients& radialFunctionDerivatives,
+                                                            const EllipsoidalHarmonicCoefficients& radialFunctionSecondDerivatives,
+                                                            const EllipsoidalHarmonicMatrices& transformFactors,
+                                                            const LegendreCache& legendreCache,
+                                                            const Eigen::Vector3d& ellipsoidalCoordinates,
+                                                            const double h,
+                                                            const double k )
+{
+    const int maximumDegree = coefficients.getMaximumDegree( );
+    const double sineOfPhi = std::sin( ellipsoidalCoordinates( 1 ) );
+    const double cosineOfPhi = std::cos( ellipsoidalCoordinates( 1 ) );
+    const double gamma = ellipsoidalCoordinates( 2 );
+
+    Eigen::Vector3d gradientInEllipsoidalCoordinates = Eigen::Vector3d::Zero( );
+    Eigen::Matrix3d hessianInEllipsoidalCoordinates = Eigen::Matrix3d::Zero( );
+
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            const int numberOfTerms = getNumberOfTermsInGroup( degree, group );
+
+            if( numberOfTerms == 0 )
+            {
+                continue;
+            }
+
+            // The angular part of each term and its derivatives up to second order.
+            Eigen::VectorXd surfaceTerms = Eigen::VectorXd::Zero( numberOfTerms );
+            Eigen::VectorXd wrtPhi = Eigen::VectorXd::Zero( numberOfTerms );
+            Eigen::VectorXd wrtGamma = Eigen::VectorXd::Zero( numberOfTerms );
+            Eigen::VectorXd wrtPhiPhi = Eigen::VectorXd::Zero( numberOfTerms );
+            Eigen::VectorXd wrtPhiGamma = Eigen::VectorXd::Zero( numberOfTerms );
+            Eigen::VectorXd wrtGammaGamma = Eigen::VectorXd::Zero( numberOfTerms );
+
+            for( int term = 0; term < numberOfTerms; term++ )
+            {
+                const int legendreOrder = getTermLegendreOrder( group, term );
+                const double angle = legendreOrder * gamma;
+
+                const double value = legendreCache.getLegendrePolynomial( degree, legendreOrder );
+                // The cache differentiates with respect to sin( phi ), so the chain rule turns
+                // those into derivatives with respect to phi.
+                const double wrtSine = legendreCache.getLegendrePolynomialDerivative( degree, legendreOrder );
+                const double wrtSineSine = legendreCache.getLegendrePolynomialSecondDerivative( degree, legendreOrder );
+
+                const double legendreWrtPhi = wrtSine * cosineOfPhi;
+                const double legendreWrtPhiPhi = wrtSineSine * cosineOfPhi * cosineOfPhi - wrtSine * sineOfPhi;
+
+                const double angleFactor = termUsesSineOfAngle( group ) ? std::sin( angle ) : std::cos( angle );
+                // Derivative of the sine or cosine of the angle with respect to gamma.
+                const double angleFactorWrtGamma =
+                        legendreOrder * ( termUsesSineOfAngle( group ) ? std::cos( angle ) : -std::sin( angle ) );
+                const double angleFactorWrtGammaGamma = -legendreOrder * legendreOrder * angleFactor;
+
+                surfaceTerms( term ) = value * angleFactor;
+                wrtPhi( term ) = legendreWrtPhi * angleFactor;
+                wrtGamma( term ) = value * angleFactorWrtGamma;
+                wrtPhiPhi( term ) = legendreWrtPhiPhi * angleFactor;
+                wrtPhiGamma( term ) = legendreWrtPhi * angleFactorWrtGamma;
+                wrtGammaGamma( term ) = value * angleFactorWrtGammaGamma;
+            }
+
+            const Eigen::VectorXd& groupCoefficients = coefficients.getGroup( degree, group );
+            const Eigen::MatrixXd& groupTransform = transformFactors.getGroup( degree, group );
+
+            const Eigen::VectorXd weightedByValue = groupCoefficients.cwiseProduct( radialFunctions.getGroup( degree, group ) );
+            const Eigen::VectorXd weightedByDerivative =
+                    groupCoefficients.cwiseProduct( radialFunctionDerivatives.getGroup( degree, group ) );
+            const Eigen::VectorXd weightedBySecondDerivative =
+                    groupCoefficients.cwiseProduct( radialFunctionSecondDerivatives.getGroup( degree, group ) );
+
+            gradientInEllipsoidalCoordinates( 0 ) += weightedByDerivative.dot( groupTransform * surfaceTerms );
+            gradientInEllipsoidalCoordinates( 1 ) += weightedByValue.dot( groupTransform * wrtPhi );
+            gradientInEllipsoidalCoordinates( 2 ) += weightedByValue.dot( groupTransform * wrtGamma );
+
+            hessianInEllipsoidalCoordinates( 0, 0 ) += weightedBySecondDerivative.dot( groupTransform * surfaceTerms );
+            hessianInEllipsoidalCoordinates( 0, 1 ) += weightedByDerivative.dot( groupTransform * wrtPhi );
+            hessianInEllipsoidalCoordinates( 0, 2 ) += weightedByDerivative.dot( groupTransform * wrtGamma );
+            hessianInEllipsoidalCoordinates( 1, 1 ) += weightedByValue.dot( groupTransform * wrtPhiPhi );
+            hessianInEllipsoidalCoordinates( 1, 2 ) += weightedByValue.dot( groupTransform * wrtPhiGamma );
+            hessianInEllipsoidalCoordinates( 2, 2 ) += weightedByValue.dot( groupTransform * wrtGammaGamma );
+        }
+    }
+
+    hessianInEllipsoidalCoordinates( 1, 0 ) = hessianInEllipsoidalCoordinates( 0, 1 );
+    hessianInEllipsoidalCoordinates( 2, 0 ) = hessianInEllipsoidalCoordinates( 0, 2 );
+    hessianInEllipsoidalCoordinates( 2, 1 ) = hessianInEllipsoidalCoordinates( 1, 2 );
+
+    // Change variables to Cartesian. With J the derivatives of position with respect to the
+    // ellipsoidal coordinates and K its inverse, the Cartesian gradient is K^T times the
+    // ellipsoidal one, and the Hessian picks up a term from the curvature of the coordinates.
+    const Eigen::Matrix3d jacobian = computeEllipsoidalCoordinateJacobian( ellipsoidalCoordinates, h, k );
+    const Eigen::Matrix3d inverseJacobian = jacobian.inverse( );
+
+    const Eigen::Vector3d cartesianGradient = inverseJacobian.transpose( ) * gradientInEllipsoidalCoordinates;
+
+    Eigen::Matrix3d hessian = inverseJacobian.transpose( ) * hessianInEllipsoidalCoordinates * inverseJacobian;
+
+    std::vector< Eigen::Matrix3d > coordinateSecondDerivatives;
+    computeEllipsoidalCoordinateSecondDerivatives( ellipsoidalCoordinates, h, k, coordinateSecondDerivatives );
+
+    for( int component = 0; component < 3; component++ )
+    {
+        hessian -= cartesianGradient( component ) *
+                ( inverseJacobian.transpose( ) * coordinateSecondDerivatives[ component ] * inverseJacobian );
+    }
+
+    return hessian;
 }
 
 double computeEllipsoidalHarmonicGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition,
