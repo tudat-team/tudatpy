@@ -22,6 +22,8 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/createDopplerPartials.h"
 
 namespace tudat
 {
@@ -482,13 +484,15 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
     // Create bodies
     spice_interface::loadStandardSpiceKernels( );
 
-    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Sun" };
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Sun", "Moon" };
     simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
     bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
 
     std::string spacecraftName = "MRO";
     bodySettings.addSettings( spacecraftName );
-    bodySettings.at( spacecraftName )->ephemerisSettings = std::make_shared< simulation_setup::DirectSpiceEphemerisSettings >( );
+    // Use the Mars ephemeris, matching the approximate link states below.
+    bodySettings.at( spacecraftName )->ephemerisSettings =
+            std::make_shared< simulation_setup::DirectSpiceEphemerisSettings >( "SSB", "ECLIPJ2000", std::string( "Mars" ) );
 
     simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
@@ -574,6 +578,60 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
                                    linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings ) -
                                    computedTabulatedCorrection,
                            2.1 );
+    }
+
+    // A linear CHPART range delay gives an independent ionospheric Doppler prediction.
+    const auto card =
+            std::make_shared< CspRawFile >( std::vector< std::string >{ "ADJUST(DOPRNG)BY NRMPOW(100.0, 1000.0) MODEL(CHPART)"
+                                                                        "FROM(17/04/07,00:00)TO(17/04/08,00:00)DSN(C10)SCID(74)." } );
+    const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > corrections = {
+        std::make_shared< TabulatedIonosphericCorrectionSettings >(
+                extractIonosphericCorrection( { card }, spacecraftNamePerSpacecraftId ) )
+    };
+    LinkEnds twoWayLinkEnds = { { transmitter, linkEnds.at( transmitter ) },
+                                { reflector1, linkEnds.at( receiver ) },
+                                { receiver, linkEnds.at( transmitter ) } };
+    bodies.at( spacecraftName )->getVehicleSystems( )->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+    const double observationTime = initialTime + 6.0 * 3600.0;
+    const double downlinkFrequency = frequency * getDsnDefaultTurnaroundRatios( s_band, ka_band );
+
+    const double expectedShift = downlinkFrequency / SPEED_OF_LIGHT * ( 2000.0 / 86400.0 ) *
+            ( std::pow( 2295.0e6 / frequency, 2 ) + std::pow( 2295.0e6 / downlinkFrequency, 2 ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { s_band, ka_band } );
+    const auto parameters = std::make_shared< estimatable_parameters::EstimatableParameterSet< double > >(
+            std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >{},
+            std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >{} );
+
+    for( const auto observable : { two_way_doppler, doppler_measured_frequency } )
+    {
+        const auto model = ObservationModelCreator< 1, double, Time >::createObservationModel(
+                std::make_shared< ObservationModelSettings >( observable, twoWayLinkEnds, corrections ), bodies );
+        const auto vacuum = ObservationModelCreator< 1, double, Time >::createObservationModel(
+                std::make_shared< ObservationModelSettings >( observable, twoWayLinkEnds ), bodies );
+        std::vector< double > times;
+        std::vector< Eigen::Vector6d > states;
+        const auto observation =
+                model->computeObservationsWithLinkEndData( Time( observationTime ), receiver, times, states, ancillarySettings );
+        const double toHertz = ( observable == two_way_doppler ) ? downlinkFrequency / SPEED_OF_LIGHT : 1.0;
+        BOOST_CHECK_SMALL(
+                toHertz * ( observation( 0 ) - vacuum->computeObservations( Time( observationTime ), receiver, ancillarySettings )( 0 ) ) -
+                        expectedShift,
+                0.5e-3 );
+        const auto partials = observation_partials::createTwoWayDopplerPartials< double, Time >( model, bodies, parameters );
+        BOOST_CHECK_NO_THROW( partials.second->update( states, times, receiver, observation ) );
+    }
+
+    const std::vector< std::shared_ptr< ObservationModelSettings > > oneWaySettings = {
+        std::make_shared< ObservationModelSettings >( one_way_doppler, linkEnds, corrections ),
+        oneWayDopplerMeasuredFrequencySettings( linkEnds, corrections )
+    };
+    for( const auto& settings : oneWaySettings )
+    {
+        const auto model = ObservationModelCreator< 1, double, Time >::createObservationModel( settings, bodies );
+        BOOST_CHECK_EQUAL(
+                model->computeObservations( Time( observationTime ), receiver )( 0 ),
+                model->computeObservations(
+                        Time( observationTime ), receiver, std::make_shared< ObservationAncillarySimulationSettings >( ) )( 0 ) );
     }
 }
 
