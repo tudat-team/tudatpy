@@ -13,6 +13,8 @@
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
+
+#include "tudat/io/ellipsoidalHarmonicsFileReader.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 
@@ -506,6 +508,54 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 
             break;
         }
+        case ellipsoidal_harmonic: {
+            // Check whether settings for ellipsoidal harmonics gravity field model are consistent with its type.
+            std::shared_ptr< EllipsoidalHarmonicsGravityFieldSettings > ellipsoidalHarmonicsFieldSettings =
+                    std::dynamic_pointer_cast< EllipsoidalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+
+            if( ellipsoidalHarmonicsFieldSettings == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error, expected ellipsoidal harmonics gravity settings when making gravity field model for body " + body );
+            }
+            else if( gravityFieldVariationSettings.size( ) != 0 )
+            {
+                throw std::runtime_error(
+                        "Error, requested ellipsoidal harmonics gravity field, but field variations settings are not empty." );
+            }
+            else
+            {
+                std::function< void( ) > inertiaTensorUpdateFunction = std::function< void( ) >( );
+
+                std::string associatedReferenceFrame = ellipsoidalHarmonicsFieldSettings->getAssociatedReferenceFrame( );
+                if( associatedReferenceFrame == "" )
+                {
+                    std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris = bodies.at( body )->getRotationalEphemeris( );
+                    if( rotationalEphemeris == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating ellipsoidal harmonics gravity field for body " + body +
+                                                  ", neither a frame ID nor a rotational model for the body have been defined" );
+                    }
+                    else
+                    {
+                        associatedReferenceFrame = rotationalEphemeris->getTargetFrameOrientation( );
+                    }
+                }
+
+                // Create and initialize ellipsoidal harmonics gravity field model.
+                gravityFieldModel = std::make_shared< EllipsoidalHarmonicsGravityField >(
+                        ellipsoidalHarmonicsFieldSettings->getGravitationalParameter( ),
+                        ellipsoidalHarmonicsFieldSettings->getReferenceEllipsoidSemiAxes( ),
+                        ellipsoidalHarmonicsFieldSettings->getCoefficients( ),
+                        ellipsoidalHarmonicsFieldSettings->getLameFunctionCoefficients( ),
+                        ellipsoidalHarmonicsFieldSettings->getTransformFactors( ),
+                        ellipsoidalHarmonicsFieldSettings->getQuadratureOrder( ),
+                        associatedReferenceFrame,
+                        inertiaTensorUpdateFunction );
+            }
+
+            break;
+        }
         default:
             throw std::runtime_error( "Error, did not recognize gravity field model settings type " +
                                       std::to_string( gravityFieldSettings->getGravityFieldType( ) ) );
@@ -625,6 +675,25 @@ std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
     }
     return rigidBodyProperties;
 }
+std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromFiles( const double gravitationalParameter,
+                                                                                      const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+                                                                                      const std::string& coefficientFile,
+                                                                                      const std::string& lameFunctionCoefficientFile,
+                                                                                      const std::string& transformFactorFile,
+                                                                                      const int maximumDegree,
+                                                                                      const int quadratureOrder,
+                                                                                      const std::string& associatedReferenceFrame )
+{
+    return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >(
+            gravitationalParameter,
+            referenceEllipsoidSemiAxes,
+            input_output::readEllipsoidalHarmonicCoefficients( coefficientFile, maximumDegree ),
+            input_output::readLameFunctionCoefficients( lameFunctionCoefficientFile, maximumDegree ),
+            input_output::readEllipsoidalHarmonicTransformFactors( transformFactorFile, maximumDegree ),
+            quadratureOrder,
+            associatedReferenceFrame );
+}
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

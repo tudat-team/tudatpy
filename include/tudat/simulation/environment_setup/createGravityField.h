@@ -22,6 +22,7 @@
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
 #include "tudat/astro/gravitation/ringGravityField.h"
+#include "tudat/astro/gravitation/ellipsoidalHarmonicsGravityField.h"
 
 namespace tudat
 {
@@ -39,7 +40,7 @@ class SystemOfBodies;
  *  given enum cannot be used for automatic model setup.
  */
 //! @get_docstring(GravityFieldType.__docstring__)
-enum GravityFieldType { central, central_spice, spherical_harmonic, polyhedron, one_dimensional_ring };
+enum GravityFieldType { central, central_spice, spherical_harmonic, polyhedron, one_dimensional_ring, ellipsoidal_harmonic };
 
 // Class for providing settings for gravity field model.
 /*
@@ -552,6 +553,123 @@ protected:
     bool ellipticIntegralSFromDAndB_;
 };
 
+//! @get_docstring(EllipsoidalHarmonicsGravityFieldSettings.__docstring__)
+class EllipsoidalHarmonicsGravityFieldSettings : public GravityFieldSettings
+{
+public:
+    /*! Constructor.
+     *
+     * @param gravitationalParameter Gravitational parameter of the body.
+     * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
+     *      first and shortest last. The field is valid outside this ellipsoid.
+     * @param coefficients Field coefficients, normalised to the reference ellipsoid surface as
+     *      the coefficient files give them.
+     * @param lameFunctionCoefficients Lame polynomial coefficients of every term.
+     * @param transformFactors Factors that mix the terms within each group.
+     * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
+     * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
+     */
+    EllipsoidalHarmonicsGravityFieldSettings( const double gravitationalParameter,
+                                              const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+                                              const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients,
+                                              const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+                                              const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
+                                              const int quadratureOrder = 24,
+                                              const std::string& associatedReferenceFrame = "" ):
+        GravityFieldSettings( ellipsoidal_harmonic ), gravitationalParameter_( gravitationalParameter ),
+        referenceEllipsoidSemiAxes_( referenceEllipsoidSemiAxes ), coefficients_( coefficients ),
+        lameFunctionCoefficients_( lameFunctionCoefficients ), transformFactors_( transformFactors ), quadratureOrder_( quadratureOrder ),
+        associatedReferenceFrame_( associatedReferenceFrame )
+    {}
+
+    virtual ~EllipsoidalHarmonicsGravityFieldSettings( ) {}
+
+    double getGravitationalParameter( )
+    {
+        return gravitationalParameter_;
+    }
+
+    void resetGravitationalParameter( const double gravitationalParameter )
+    {
+        gravitationalParameter_ = gravitationalParameter;
+    }
+
+    Eigen::Vector3d getReferenceEllipsoidSemiAxes( )
+    {
+        return referenceEllipsoidSemiAxes_;
+    }
+
+    void resetReferenceEllipsoidSemiAxes( const Eigen::Vector3d& referenceEllipsoidSemiAxes )
+    {
+        referenceEllipsoidSemiAxes_ = referenceEllipsoidSemiAxes;
+    }
+
+    basic_mathematics::EllipsoidalHarmonicCoefficients getCoefficients( )
+    {
+        return coefficients_;
+    }
+
+    void resetCoefficients( const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients )
+    {
+        coefficients_ = coefficients;
+    }
+
+    basic_mathematics::EllipsoidalHarmonicMatrices getLameFunctionCoefficients( )
+    {
+        return lameFunctionCoefficients_;
+    }
+
+    void resetLameFunctionCoefficients( const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients )
+    {
+        lameFunctionCoefficients_ = lameFunctionCoefficients;
+    }
+
+    basic_mathematics::EllipsoidalHarmonicMatrices getTransformFactors( )
+    {
+        return transformFactors_;
+    }
+
+    void resetTransformFactors( const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors )
+    {
+        transformFactors_ = transformFactors;
+    }
+
+    int getQuadratureOrder( )
+    {
+        return quadratureOrder_;
+    }
+
+    void resetQuadratureOrder( const int quadratureOrder )
+    {
+        quadratureOrder_ = quadratureOrder;
+    }
+
+    std::string getAssociatedReferenceFrame( )
+    {
+        return associatedReferenceFrame_;
+    }
+
+    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
+    {
+        associatedReferenceFrame_ = associatedReferenceFrame;
+    }
+
+private:
+    double gravitationalParameter_;
+
+    Eigen::Vector3d referenceEllipsoidSemiAxes_;
+
+    basic_mathematics::EllipsoidalHarmonicCoefficients coefficients_;
+
+    basic_mathematics::EllipsoidalHarmonicMatrices lameFunctionCoefficients_;
+
+    basic_mathematics::EllipsoidalHarmonicMatrices transformFactors_;
+
+    int quadratureOrder_;
+
+    std::string associatedReferenceFrame_;
+};
+
 // Spherical harmonics models supported by Tudat.
 //! @get_docstring(SphericalHarmonicsModel.__docstring__)
 enum SphericalHarmonicsModel { customModel, egm96, ggm02c, ggm02s, goco05c, glgm3150, lpe200, gggrx1200, jgmro120d, jgmess160a, shgj180u };
@@ -863,6 +981,56 @@ inline std::shared_ptr< GravityFieldSettings > ringGravitySettings( const double
     return std::make_shared< RingGravityFieldSettings >(
             gravitationalParameter, ringRadius, associatedReferenceFrame, ellipticIntegralSFromDAndB );
 }
+
+/*! Settings for an ellipsoidal harmonic gravity field, from coefficients already in memory.
+ *
+ * @param gravitationalParameter Gravitational parameter of the body.
+ * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
+ *      first. The field is valid outside this ellipsoid.
+ * @param coefficients Field coefficients, normalised to the reference ellipsoid surface.
+ * @param lameFunctionCoefficients Lame polynomial coefficients of every term.
+ * @param transformFactors Factors that mix the terms within each group.
+ * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
+ * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
+ */
+inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettings(
+        const double gravitationalParameter,
+        const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+        const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients,
+        const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+        const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
+        const int quadratureOrder = 24,
+        const std::string& associatedReferenceFrame = "" )
+{
+    return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >( gravitationalParameter,
+                                                                         referenceEllipsoidSemiAxes,
+                                                                         coefficients,
+                                                                         lameFunctionCoefficients,
+                                                                         transformFactors,
+                                                                         quadratureOrder,
+                                                                         associatedReferenceFrame );
+}
+
+/*! Settings for an ellipsoidal harmonic gravity field, reading the three coefficient files.
+ *
+ * @param gravitationalParameter Gravitational parameter of the body.
+ * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
+ *      first. The field is valid outside this ellipsoid.
+ * @param coefficientFile File holding the field coefficients.
+ * @param lameFunctionCoefficientFile File holding the Lame polynomials.
+ * @param transformFactorFile File holding the transform factors.
+ * @param maximumDegree Highest degree to read from the files.
+ * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
+ * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
+ */
+std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromFiles( const double gravitationalParameter,
+                                                                                      const Eigen::Vector3d& referenceEllipsoidSemiAxes,
+                                                                                      const std::string& coefficientFile,
+                                                                                      const std::string& lameFunctionCoefficientFile,
+                                                                                      const std::string& transformFactorFile,
+                                                                                      const int maximumDegree,
+                                                                                      const int quadratureOrder = 24,
+                                                                                      const std::string& associatedReferenceFrame = "" );
 
 enum RigidBodyPropertiesType {
     constant_rigid_body_properties,
