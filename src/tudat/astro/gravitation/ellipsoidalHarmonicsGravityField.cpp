@@ -107,6 +107,10 @@ void EllipsoidalHarmonicsGravityCache::updateIncludingSecondDerivatives( const E
     if( currentBodyFixedPosition != positionOfCachedSecondDerivatives_ )
     {
         positionOfCachedSecondDerivatives_ = currentBodyFixedPosition;
+
+        // The first derivatives are computed here too, so they count as cached. Both Legendre
+        // caches have to be refreshed for that to be true, otherwise a later request for the
+        // gradient would skip its own update and read values that were never filled in.
         positionOfCachedDerivatives_ = currentBodyFixedPosition;
 
         computeRadialFunctionsAndSecondDerivatives( lameFunctionCoefficients_,
@@ -120,6 +124,7 @@ void EllipsoidalHarmonicsGravityCache::updateIncludingSecondDerivatives( const E
                                                     radialFunctionSecondDerivatives_ );
 
         legendreCacheWithSecondDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
+        legendreCacheWithDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
     }
 }
 

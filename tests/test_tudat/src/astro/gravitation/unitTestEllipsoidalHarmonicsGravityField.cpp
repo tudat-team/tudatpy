@@ -363,6 +363,51 @@ BOOST_AUTO_TEST_CASE( test_hessian_works_on_the_long_axis )
     BOOST_CHECK_SMALL( std::fabs( hessian.trace( ) ) / hessian.cwiseAbs( ).maxCoeff( ), 1.0E-4 );
 }
 
+/*! Asking for the potential, gradient and Hessian in any order must give the same answers.
+ *
+ * They share cached intermediates that are keyed on position and on how much has been computed,
+ * so an order that lets one of them skip its own update would otherwise read values that were
+ * never filled in.
+ */
+BOOST_AUTO_TEST_CASE( test_results_do_not_depend_on_the_order_of_the_calls )
+{
+    const Eigen::Vector3d position = ( Eigen::Vector3d( ) << 5.0E3, 4.0E3, -3.0E3 ).finished( );
+
+    // Reference values, each from a field that has been asked nothing else.
+    const double potential = createTestField( )->getGravitationalPotential( position );
+    const Eigen::Vector3d gradient = createTestField( )->getGradientOfPotential( position );
+    const Eigen::Matrix3d hessian = createTestField( )->getHessianOfPotential( position );
+
+    BOOST_CHECK( gradient.norm( ) > 0.0 );
+    BOOST_CHECK( hessian.cwiseAbs( ).maxCoeff( ) > 0.0 );
+
+    // Hessian first, then the gradient: the gradient must not come back empty.
+    {
+        const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+        field->getHessianOfPotential( position );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getGradientOfPotential( position ), gradient, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( field->getGravitationalPotential( position ), potential, 1.0E-14 );
+    }
+
+    // Gradient first, then the Hessian.
+    {
+        const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+        field->getGradientOfPotential( position );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getHessianOfPotential( position ), hessian, 1.0E-14 );
+    }
+
+    // Everything, twice, in a different order each time.
+    {
+        const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+        field->getGravitationalPotential( position );
+        field->getHessianOfPotential( position );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getGradientOfPotential( position ), gradient, 1.0E-14 );
+        field->getGravitationalPotential( position );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getHessianOfPotential( position ), hessian, 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getGradientOfPotential( position ), gradient, 1.0E-14 );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
