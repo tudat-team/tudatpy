@@ -823,16 +823,16 @@ public:
                 {
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual =
                             ( observationFilter->filterOut( ) ? residuals_.at( j ) : filteredObservationSet_->getResidual( j ) );
-                    bool removeObservation = false;
+                    bool anyExceeds = false;
                     for( unsigned int k = 0; k < singleObservationSize_; k++ )
                     {
-                        if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
+                        if( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] )
                         {
-                            removeObservation = true;
+                            anyExceeds = true;
+                            break;
                         }
                     }
-                    if( removeObservation )
+                    if( useOppositeCondition ? !anyExceeds : anyExceeds )
                     {
                         indicesToRemove.push_back( j );
                     }
@@ -863,16 +863,16 @@ public:
                 {
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation =
                             ( observationFilter->filterOut( ) ? observations_.at( j ) : filteredObservationSet_->getObservation( j ) );
-                    bool removeObservation = false;
+                    bool anyExceeds = false;
                     for( unsigned int k = 0; k < singleObservationSize_; k++ )
                     {
-                        if( ( !useOppositeCondition && ( singleObservation[ k ] > absoluteValueCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( singleObservation[ k ] <= absoluteValueCutOff[ k ] ) ) )
+                        if( singleObservation[ k ] > absoluteValueCutOff[ k ] )
                         {
-                            removeObservation = true;
+                            anyExceeds = true;
+                            break;
                         }
                     }
-                    if( removeObservation )
+                    if( useOppositeCondition ? !anyExceeds : anyExceeds )
                     {
                         indicesToRemove.push_back( j );
                     }
@@ -955,16 +955,16 @@ public:
                 // Check dependent variable values against cut-off value
                 for( unsigned int j = 0; j < nbObservationsToTest; j++ )
                 {
-                    bool removeObservation = false;
+                    bool anyExceeds = false;
                     for( unsigned int k = 0; k < dependentVariableSize; k++ )
                     {
-                        if( ( !useOppositeCondition && ( singleDependentVariableValues( j, k ) ) > dependentVariableCutOff[ k ] ) ||
-                            ( useOppositeCondition && ( singleDependentVariableValues( j, k ) ) <= dependentVariableCutOff[ k ] ) )
+                        if( singleDependentVariableValues( j, k ) > dependentVariableCutOff[ k ] )
                         {
-                            removeObservation = true;
+                            anyExceeds = true;
+                            break;
                         }
                     }
-                    if( removeObservation )
+                    if( useOppositeCondition ? !anyExceeds : anyExceeds )
                     {
                         indicesToRemove.push_back( j );
                     }
@@ -1293,17 +1293,12 @@ public:
     //! Equality comparison via equals method
     bool equals( const SingleObservationSet& rhs ) const
     {
-        const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
-            return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
-        };
-
         return observableType_ == rhs.observableType_ && linkEnds_ == rhs.linkEnds_ && timeBounds_ == rhs.timeBounds_ &&
                 observations_ == rhs.observations_ && observationTimes_ == rhs.observationTimes_ &&
                 referenceLinkEnd_ == rhs.referenceLinkEnd_ && observationsDependentVariables_ == rhs.observationsDependentVariables_ &&
-                pointedObjectsEqual( dependentVariableBookkeeping_, rhs.dependentVariableBookkeeping_ ) &&
-                pointedObjectsEqual( ancillarySettings_, rhs.ancillarySettings_ ) && numberOfObservations_ == rhs.numberOfObservations_ &&
-                singleObservationSize_ == rhs.singleObservationSize_ && weights_ == rhs.weights_ && residuals_ == rhs.residuals_ &&
-                pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ );
+                dependentVariableBookkeeping_ == rhs.dependentVariableBookkeeping_ && ancillarySettings_ == rhs.ancillarySettings_ &&
+                numberOfObservations_ == rhs.numberOfObservations_ && singleObservationSize_ == rhs.singleObservationSize_ &&
+                weights_ == rhs.weights_ && residuals_ == rhs.residuals_ && filteredObservationSet_ == rhs.filteredObservationSet_;
     }
 
     TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
