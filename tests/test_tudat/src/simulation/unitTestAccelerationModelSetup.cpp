@@ -37,7 +37,6 @@
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 
 namespace tudat
 {

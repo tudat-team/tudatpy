@@ -18,7 +18,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
@@ -50,32 +49,6 @@ namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 namespace tse = tudat::serialization;
-
-namespace tudat
-{
-namespace propagators
-{
-
-std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVariableDeprecated(
-        const std::function< Eigen::VectorXd( ) > customDependentVariableFunction,
-        const int dependentVariableSize )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.propagation_setup.dependent_"
-                "variable.custom",
-                "tudatpy.dynamics.propagation_setup.dependent_"
-                "variable.custom_dependent_variable" );
-        isWarningPrinted = true;
-    }
-
-    return customDependentVariable( customDependentVariableFunction, dependentVariableSize );
-}
-
-}  // namespace propagators
-}  // namespace tudat
 
 namespace tudatpy
 {
@@ -2520,8 +2493,6 @@ The type of the acceleration that is to be saved.
 
 
      )doc" );
-
-    m.def( "custom", &tp::customDependentVariableDeprecated, py::arg( "custom_function" ), py::arg( "variable_size" ) );
 
     m.def( "gravity_field_potential",
            &tp::gravityFieldPotentialDependentVariable,
