@@ -14,6 +14,7 @@
 #include <memory>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -41,7 +42,8 @@ enum ObservationDependentVariables {
     integration_time_dependent_variable,
     retransmission_delays_dependent_variable,
     link_end_epochs_dependent_variable,
-    light_time_correction_components
+    light_time_correction_components,
+    light_time_dependent_variable
 };
 
 //! Function checking whether the interlinks between two link ends are compatible (i.e., for both the originating and receiving ends of the interlink,
@@ -617,6 +619,31 @@ inline std::shared_ptr< ObservationDependentVariableSettings > targetRangeBetwee
 {
     return std::make_shared< InterlinkObservationDependentVariableSettings >(
             target_range, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
+}
+
+//! Function to create a dependent variable computing the solved signal-propagation light time
+//! between two link ends.
+//!
+//! The returned scalar is the sum of the already solved per-leg times of flight along the
+//! contiguous n-way chain from `startLinkEndType` to `endLinkEndType`. It includes configured
+//! light-time corrections, but excludes all link-end delays, including transmitter, receiver,
+//! and intermediate retransmission / turnaround delays. For a two-way observation with
+//! ground transmission `t0`, spacecraft reception `t1`, spacecraft retransmission `t2` and
+//! ground reception `t3`, the uplink light time is `(t1 - t0)`, the downlink light time is
+//! `(t3 - t2)`, and the combined uplink+downlink light time is `(t1 - t0) + (t3 - t2)`, not
+//! `(t3 - t0)`.
+//!
+//! If both ends are left unspecified, the full transmitter-to-receiver propagation path is
+//! selected. If only one end is specified, the other defaults to the corresponding path endpoint.
+inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeBetweenLinkEndsDependentVariable(
+        const LinkEndType startLinkEndType = unidentified_link_end,
+        const LinkEndType endLinkEndType = unidentified_link_end,
+        const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId endLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
+{
+    return std::make_shared< InterlinkObservationDependentVariableSettings >(
+            light_time_dependent_variable, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
 }
 
 //! Function to create a dependent variable computing the link avoidance angle w.r.t. a given body
