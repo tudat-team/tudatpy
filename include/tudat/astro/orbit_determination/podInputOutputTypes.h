@@ -46,7 +46,8 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
         observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ), limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
-        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true )
+        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true ),
+        useSparseDesignMatrix_( false )
     {
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
         //        setConstantWeightsMatrix( 1.0 );
@@ -496,12 +497,12 @@ public:
 
     bool getSparseDesignMatrix( ) const
     {
-        return sparseDesignMatrix_;
+        return useSparseDesignMatrix_;
     }
 
     void setSparseDesignMatrix( bool s )
     {
-        sparseDesignMatrix_ = s;
+        useSparseDesignMatrix_ = s;
     }
 
 protected:
@@ -535,7 +536,7 @@ protected:
     bool considerParametersIncluded_;
 
     //! Boolean denoting whether to use a sparse design matrix
-    bool sparseDesignMatrix_;
+    bool useSparseDesignMatrix_;
 };
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.

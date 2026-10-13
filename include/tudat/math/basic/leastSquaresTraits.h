@@ -15,11 +15,16 @@
 #ifndef TUDAT_LEASTSQUARESTRAITS_H
 #define TUDAT_LEASTSQUARESTRAITS_H
 
-#include <Eigen/SparseCore>
+#include <iostream>
 #include <optional>
+#include <sstream>
+#include <stdexcept>
+#include <vector>
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/SparseQR>
+#include <Eigen/SVD>
 
 namespace tudat
 {
@@ -42,29 +47,31 @@ struct QR: public SolverClass {};
 template <typename Real, typename Storage>
 struct MatrixTraits {};
 
-/*! Convenience traits class to get `MatrixTraits` from an Eigen matrix type.
+/*! Traits class generalizing over different solvers implemented in Eigen.
+ */
+template <typename Matrix, typename Solver>
+struct SolverTraits {};
+
+/*! Convenience traits class to get `MatrixTraits` and `SolverTraits` defaults from an Eigen matrix type.
  */
 template <typename E>
 struct from_eigen {};
 
 template <typename T>
-struct from_eigen<Eigen::MatrixX<T>> {
-   using traits = MatrixTraits<T, Dense>;
-   using value_type = typename traits::value_type;
-   using dense_vector_type = Eigen::VectorX<T>;
+struct from_eigen<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>> {
+    using traits = MatrixTraits<T, Dense>;
+    using value_type = T;
+    using dense_vector_type = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+    using solver = SVD;
 };
 
 template <typename T>
 struct from_eigen<Eigen::SparseMatrix<T>> {
     using traits = MatrixTraits<T, Sparse>;
-    using value_type = typename traits::value_type;
-    using dense_vector_type = Eigen::VectorX<T>;
+    using value_type = T;
+    using dense_vector_type = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+    using solver = QR;
 };
-
-/*! Traits class generalizing over different solvers implemented in Eigen.
- */
-template <typename Matrix, typename Solver>
-struct SolverTraits {};
 
 template <typename Real>
 struct MatrixTraits<Real, Dense>
@@ -81,7 +88,7 @@ struct MatrixTraits<Real, Dense>
      * \param i row
      * \param j column
      */
-    inline static void set_element(matrix_type &A, unsigned i, unsigned j, double value) {
+    inline static void set_element(matrix_type &A, unsigned i, unsigned j, Real value) {
         A(i, j) = value;
     }
 
@@ -89,35 +96,39 @@ struct MatrixTraits<Real, Dense>
         A(i, j) = value_type(0);
     }
 
+    //! Function to create a matrix of zeros of the given size.
+    inline static matrix_type zeros(unsigned rows, unsigned cols) {
+        return matrix_type::Zero(rows, cols);
+    }
+
     /*! Extends a square matrix with a second one in a symmetric way. The matrix `A` is
      * grown to fit `B` in the extended rows, and `B^T` in the extended columns.
      */
-    matrix_type extend_symmetric( matrix_type &A, matrix_type const &B ) {
-        unsigned a_n     = A->cols( );
-        unsigned b_nrows = B->rows( );
-        unsigned b_ncols = B->cols( );
+    inline static void extend_symmetric( matrix_type &A, matrix_type const &B ) {
+        const Eigen::Index n = A.cols( );
+        const Eigen::Index c = B.rows( );
 
-        if ( A->cols( ) != A.rows( ) )
+        if ( A.rows( ) != n )
         {
             std::ostringstream msg;
-            msg << "Internal error: expected square matrix, got size " << A->rows() << " x " << A->cols();
+            msg << "Internal error: expected square matrix, got size " << A.rows() << " x " << A.cols();
             throw std::runtime_error( msg.str( ) );
         }
 
-        if ( b_ncols != a_n )
+        if ( B.cols( ) != n )
         {
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
         }
 
-        A.conservativeResize( a_n + b_nrows, a_n + b_nrows );
-        A.block( a_n,   0, b_nrows, b_ncols ) = B;
-        A.block(   0, a_n, b_ncols, b_nrows ) = B.transpose( );
-        A.block( a_n, a_n, b_nrows, b_nrows ).setZero( );
+        A.conservativeResize( n + c, n + c );
+        A.block( n, 0, c, n ) = B;
+        A.block( 0, n, n, c ) = B.transpose( );
+        A.block( n, n, c, c ).setZero( );
     }
 
     template <typename SparseRange>  // requires std::range<R>
     inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
-        for (auto &[i, j, v] : rng) {
+        for (auto const &[i, j, v] : rng) {
             A(i, j) = v;
         }
     }
@@ -136,11 +147,11 @@ struct MatrixTraits<Real, Dense>
      */
     template <typename Fn>
     static matrix_type generate(unsigned rows, unsigned cols, Fn f) {
-        matrix_type result{rows, cols};
-        for (unsigned j = 0; j < rows; ++j) {
-            for (unsigned i = 0; i < cols; ++i) {
-                if (std::optional<value_type> v = f(j, i)) {
-                    result(j, i) = *v;
+        matrix_type result = matrix_type::Zero(rows, cols);
+        for (unsigned i = 0; i < rows; ++i) {
+            for (unsigned j = 0; j < cols; ++j) {
+                if (std::optional<value_type> v = f(i, j)) {
+                    result(i, j) = *v;
                 }
             }
         }
@@ -160,8 +171,8 @@ struct MatrixTraits<Real, Dense>
      */
     template <typename SparseRange>
     static matrix_type from_sparse_range(unsigned rows, unsigned cols, SparseRange const &r) {
-        matrix_type result{rows, cols};  // default initializes elements to 0
-        for (auto &[i, j, v] : r) {
+        matrix_type result = matrix_type::Zero(rows, cols);
+        for (auto const &[i, j, v] : r) {
             result(i, j) = v;
         }
         return result;
@@ -187,7 +198,7 @@ struct MatrixTraits<Real, Sparse>
      * \param i row
      * \param j column
      */
-    inline static void set_element(matrix_type &A, unsigned i, unsigned j, double value) {
+    inline static void set_element(matrix_type &A, unsigned i, unsigned j, Real value) {
         A.insert(i, j) = value;
     }
 
@@ -196,6 +207,53 @@ struct MatrixTraits<Real, Sparse>
      * In sparse matrices this is a noop.
      */
     inline static void set_zero(matrix_type &A, unsigned i, unsigned j) {}
+
+    //! Function to create an empty (all-zero) sparse matrix of the given size.
+    inline static matrix_type zeros(unsigned rows, unsigned cols) {
+        return matrix_type(rows, cols);
+    }
+
+    /*! Extends a square sparse matrix with a second one in a symmetric way. Same semantics as the dense
+     * version: `A` is grown to fit `B` in the extended rows, and `B^T` in the extended columns. Rebuilt
+     * from triplets, since sparse matrices cannot be resized in place without losing their entries.
+     */
+    inline static void extend_symmetric( matrix_type &A, matrix_type const &B ) {
+        const Eigen::Index n = A.cols( );
+        const Eigen::Index c = B.rows( );
+
+        if ( A.rows( ) != n )
+        {
+            std::ostringstream msg;
+            msg << "Internal error: expected square matrix, got size " << A.rows() << " x " << A.cols();
+            throw std::runtime_error( msg.str( ) );
+        }
+
+        if ( B.cols( ) != n )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
+        }
+
+        std::vector< Eigen::Triplet< Real > > triplets;
+        triplets.reserve( A.nonZeros( ) + 2 * B.nonZeros( ) );
+        for ( int k = 0; k < A.outerSize( ); ++k )
+        {
+            for ( typename matrix_type::InnerIterator it( A, k ); it; ++it )
+            {
+                triplets.emplace_back( it.row( ), it.col( ), it.value( ) );
+            }
+        }
+        for ( int k = 0; k < B.outerSize( ); ++k )
+        {
+            for ( typename matrix_type::InnerIterator it( B, k ); it; ++it )
+            {
+                triplets.emplace_back( n + it.row( ), it.col( ), it.value( ) );
+                triplets.emplace_back( it.col( ), n + it.row( ), it.value( ) );
+            }
+        }
+
+        A.resize( n + c, n + c );
+        A.setFromTriplets( triplets.begin( ), triplets.end( ) );
+    }
 
     template <typename SparseRange>  // requires std::range<R>
     inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
@@ -220,9 +278,58 @@ struct MatrixTraits<Real, Sparse>
      */
     template <typename SparseRange>
     static matrix_type from_sparse_range(unsigned rows, unsigned cols, SparseRange const &r) {
-        matrix_type result{rows, cols};
+        matrix_type result( rows, cols );
         result.setFromTriplets(r.begin(), r.end());
         return result;
+    }
+};
+
+/*! Solver traits for dense matrices, using a singular value decomposition.
+ *
+ * Emits a warning on stdout when the condition number exceeds `limitConditionNumberForWarning`.
+ * A NaN limit disables the check.
+ */
+template <typename Real>
+struct SolverTraits<Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>, SVD>
+{
+    using matrix_type = Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>;
+    using vector_type = Eigen::Matrix<Real, Eigen::Dynamic, 1>;
+
+    static vector_type solve( const matrix_type& A, const vector_type& b, Real limitConditionNumberForWarning )
+    {
+        auto svd = A.template jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
+        if( limitConditionNumberForWarning == limitConditionNumberForWarning )
+        {
+            const vector_type& singularValues = svd.singularValues( );
+            Real conditionNumber = singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
+            if( conditionNumber > limitConditionNumberForWarning )
+            {
+                std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
+            }
+        }
+        return svd.solve( b );
+    }
+};
+
+/*! Solver traits for sparse matrices, using a sparse QR decomposition.
+ *
+ * Eigen's sparse QR does not provide a condition number estimate, so the limit is ignored.
+ */
+template <typename Real>
+struct SolverTraits<Eigen::SparseMatrix<Real>, QR>
+{
+    using matrix_type = Eigen::SparseMatrix<Real>;
+    using vector_type = Eigen::Matrix<Real, Eigen::Dynamic, 1>;
+
+    static vector_type solve( const matrix_type& A, const vector_type& b, Real /* limitConditionNumberForWarning */ )
+    {
+        Eigen::SparseQR< matrix_type, Eigen::COLAMDOrdering< int > > qr;
+        qr.compute( A );
+        if( qr.info( ) != Eigen::Success )
+        {
+            throw std::runtime_error( "Error when solving sparse least-squares system: sparse QR decomposition failed" );
+        }
+        return qr.solve( b );
     }
 };
 

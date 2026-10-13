@@ -16,6 +16,8 @@
 #define TUDAT_LEASTSQUARESESTIMATION_H
 
 #include <iostream>
+#include <optional>
+#include <utility>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
@@ -28,18 +30,6 @@ namespace tudat
 namespace linear_algebra
 {
 
-//! Function to get condition number of matrix (using SVD decomposition)
-/*!
- *  Function to get condition number of matrix (using SVD decomposition)
- * \param designMatrix Matrix for which condition number is to be computed
- * \return Condition number of matrix
- */
-template <typename M>
-typename from_eigen<M>::value_type getConditionNumberOfDesignMatrix( const M &designMatrix ) {
-    return getConditionNumberOfDesignMatrix(designMatrix.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeFullV));
-}
-
-// TODO: This function is only used internally, so it shouldn't be in the header file.
 //! Function to get condition number of matrix from SVD decomposition
 /*!
  *  Function to get condition number of matrix from SVD decomposition
@@ -55,33 +45,35 @@ typename from_eigen<M>::value_type getConditionNumberOfDecomposedMatrix(
     return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
 }
 
-//! Solve system of equations with SVD decomposition, checking condition number in the process
+//! Function to get condition number of matrix (using SVD decomposition)
 /*!
- * Solve system of equations with SVD decomposition, checking condition number in the process. This function solves
- * A*x = b for the vector x.
+ *  Function to get condition number of matrix (using SVD decomposition)
+ * \param designMatrix Matrix for which condition number is to be computed
+ * \return Condition number of matrix
+ */
+template <typename M>
+typename from_eigen<M>::value_type getConditionNumberOfDesignMatrix( const M &designMatrix ) {
+    return getConditionNumberOfDecomposedMatrix(designMatrix.template jacobiSvd<Eigen::ComputeThinU | Eigen::ComputeFullV>( ));
+}
+
+//! Solve system of equations, checking condition number in the process where the solver supports it
+/*!
+ * Solve system of equations A*x = b for the vector x. The solver is selected by the storage type of the matrix
+ * (SVD for dense matrices, sparse QR for sparse matrices), see `SolverTraits`.
  * \param matrixToInvert Matrix A that is to be inverted to solve the equation
  * \param rightHandSideVector Vector on the righthandside of the matrix equation that is to be solved
  * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
- * (warning printed when exceeded)
+ * (warning printed when exceeded, dense matrices only)
  * \return Solution x of matrix equation A*x=b
  */
 template <typename M>
-typename from_eigen<M>::dense_vector_type solveSystemOfEquationsWithSvd(
+typename from_eigen<M>::dense_vector_type solveSystemOfEquations(
     const M& matrixToInvert,
     const typename from_eigen<M>::dense_vector_type& rightHandSideVector,
     typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 )
 {
-    auto svdDecomposition = matrixToInvert.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeThinV );
-    if( limitConditionNumberForWarning == limitConditionNumberForWarning )
-    {
-        double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );
-
-        if( conditionNumber > limitConditionNumberForWarning )
-        {
-            std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
-        }
-    }
-    return svdDecomposition.solve( rightHandSideVector );
+    return SolverTraits< M, typename from_eigen<M>::solver >::solve(
+            matrixToInvert, rightHandSideVector, limitConditionNumberForWarning );
 }
 
 //! Function to multiply information matrix by diagonal weights matrix
@@ -114,14 +106,18 @@ template <typename M>
 M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
                                              const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
                                              const M& inverseOfAPrioriCovarianceMatrix,
-                                             const std::optional<Eigen::MatrixXd> &constraintMultiplier = std::nullopt,
-                                             const std::optional<typename from_eigen<M>::dense_vector_type> &constraintRightHandside = std::nullopt,
-                                             double limitConditionNumberForWarning = 1.0E8 )
+                                             const std::optional<M>& constraintMultiplier = std::nullopt,
+                                             const std::optional<typename from_eigen<M>::dense_vector_type>& constraintRightHandside =
+                                                 std::nullopt,
+                                             typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 )
 {
-    // Add constraints to inverse covariance matrix if required
-    Eigen::MatrixXd inverseOfCovarianceMatrix = inverseOfAPrioriCovarianceMatrix +
+    using traits = typename from_eigen<M>::traits;
+
+    // Information matrix, including a priori information
+    M inverseOfCovarianceMatrix = inverseOfAPrioriCovarianceMatrix +
             designMatrix.transpose( ) * diagonalOfWeightMatrix.asDiagonal( ) * designMatrix;
 
+    // Add constraints to inverse covariance matrix if required
     if ( constraintMultiplier )
     {
         if ( !constraintRightHandside ) {
@@ -138,33 +134,13 @@ M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
         }
 
-        int numberOfConstraints = constraintMultiplier->rows( );
-        int numberOfParameters = constraintMultiplier->cols( );
-
-        // TODO: Figure out what this does and replace with sparse compatible operations
-        inverseOfCovarianceMatrix.conservativeResize( numberOfParameters + numberOfConstraints, numberOfParameters + numberOfConstraints );
-        inverseOfCovarianceMatrix.block( numberOfParameters, 0, numberOfConstraints, numberOfParameters ) = *constraintMultiplier;
-        inverseOfCovarianceMatrix.block( 0, numberOfParameters, numberOfParameters, numberOfConstraints ) =
-                constraintMultiplier->transpose( );
-        inverseOfCovarianceMatrix.block( numberOfParameters, numberOfParameters, numberOfConstraints, numberOfConstraints ).setZero( );
+        traits::extend_symmetric( inverseOfCovarianceMatrix, *constraintMultiplier );
     }
 
     return inverseOfCovarianceMatrix;
 }
 
-//! Function to compute inverse of covariance matrix at current iteration
-/*!
- * Function to compute inverse of covariance matrix at current iteration
- * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
- * (columns)
- * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
- * \return Inverse of covariance matrix at current iteration
- */
-template <typename M>
-M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
-                                             const typename from_eigen<M>::dense_vector& diagonalOfWeightMatrix,
-                                             typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
-
+//! Function to compute the contribution of consider parameters to the covariance matrix
 template <typename M>
 M calculateConsiderParametersCovarianceContribution( const M& normalisedCovarianceMatrix,
                                                      const M& designMatrix,
@@ -209,8 +185,9 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
         const typename from_eigen<M>::dense_vector_type& considerParametersDeviations =
             typename from_eigen<M>::dense_vector_type(0))
 {
-    typename from_eigen<M>::dense_vector_type rightHandSide =
-            from_eigen<M>::dense_vector_type::Zero( observationResiduals.size( ) );
+    using dense_vector_type = typename from_eigen<M>::dense_vector_type;
+
+    dense_vector_type rightHandSide;
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
     {
         rightHandSide = designMatrix.transpose( ) *
@@ -246,7 +223,7 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
                 inverseOfAPrioriCovarianceMatrix );
     }
 
-    return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
+    return std::make_pair( solveSystemOfEquations< M >( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
                            inverseOfCovarianceMatrix );
 }
 
@@ -265,9 +242,16 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
 template <typename M>
 std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
         const M& designMatrix,
-        const M& observationResiduals,
+        const typename from_eigen<M>::dense_vector_type& observationResiduals,
         const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
-        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
+        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 )
+{
+    return performLeastSquaresAdjustmentFromDesignMatrix< M >( designMatrix,
+                                                               observationResiduals,
+                                                               diagonalOfWeightMatrix,
+                                                               from_eigen<M>::traits::zeros( designMatrix.cols( ), designMatrix.cols( ) ),
+                                                               limitConditionNumberForWarning );
+}
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
 /*!
@@ -284,7 +268,14 @@ template <typename M>
 std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
         const M& designMatrix,
         const typename from_eigen<M>::dense_vector_type& observationResiduals,
-        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
+        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 )
+{
+    return performLeastSquaresAdjustmentFromDesignMatrix< M >(
+            designMatrix,
+            observationResiduals,
+            from_eigen<M>::dense_vector_type::Constant( observationResiduals.size( ), typename from_eigen<M>::value_type( 1 ) ),
+            limitConditionNumberForWarning );
+}
 
 //! Function to perform a non-linear least squares estimation with the Levenberg-Marquardt method.
 /*!

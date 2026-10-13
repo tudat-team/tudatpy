@@ -153,7 +153,8 @@ int main( )
     std::shared_ptr< EstimationOutput< double, double > > output = orbitDeterminationManager.estimateParameters( estimationInput );
 
     // Test sparsity
-    const DesignMatrixTraits::matrix_type designMatrix = output->getUnnormalizedDesignMatrix( );
+    const DesignMatrixTraits::matrix_type designMatrix =
+        output->getUnnormalizedDesignMatrixGeneric<DesignMatrixStorageClass>( );
     const double tolerance = 1.0E-20;
     const int nonZeroCount = ( designMatrix.array( ).abs( ) > tolerance ).count( );
     std::cout << std::setprecision( 16 ) << std::scientific;
