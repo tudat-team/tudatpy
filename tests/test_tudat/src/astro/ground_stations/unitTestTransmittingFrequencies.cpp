@@ -24,6 +24,7 @@ namespace unit_tests
 {
 
 using namespace tudat::ground_stations;
+using namespace tudat::basic_astrodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_transmitting_frequencies )
 

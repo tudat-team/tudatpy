@@ -106,7 +106,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
         for( const std::string& band : it.second )
         {
             bandDoubles.push_back(
-                    observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( band ) ) );
+                    basic_astrodynamics::convertFrequencyBandToDouble( basic_astrodynamics::getFrequencyBandFromString( band ) ) );
         }
 
         // Set frequency bands as double vector
@@ -134,7 +134,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
         // Convert reference frequency band (string) to double and set it
         ancillarySettings->setAncillaryDoubleData(
                 ancillaryVariable,
-                observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( it.second ) ) );
+                basic_astrodynamics::convertFrequencyBandToDouble( basic_astrodynamics::getFrequencyBandFromString( it.second ) ) );
     }
 
     // Metadata and reader-only settings may fill the input maps without producing

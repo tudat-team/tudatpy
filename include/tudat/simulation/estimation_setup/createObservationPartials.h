@@ -686,7 +686,7 @@ public:
                 {
                     subtractDopplerSignature = dsnObservationModel->getSubtractDopplerSignature( );
                 }
-                const std::function< double( std::vector< FrequencyBands >, double ) > receivedFrequencyFunction =
+                const std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > receivedFrequencyFunction =
                         createLinkFrequencyFunction( bodies, linkEnds, observation_models::retransmitter, observation_models::receiver );
 
                 const std::function< double( const observation_models::LinkEndType,

@@ -46,6 +46,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
     using namespace tudat::ground_stations;
     using namespace tudat::ephemerides;
     using namespace tudat::observation_models;
+    using namespace tudat::basic_astrodynamics;
     using namespace tudat::simulation_setup;
     using namespace tudat::spice_interface;
     using namespace tudat::observation_partials;
@@ -74,10 +75,11 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                 bodies.at( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
                         std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 5.0E9 ) );
                 ancillarySettings = std::make_shared< observation_models::ObservationAncillarySimulationSettings >( );
-                ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
-                                                                 { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
+                ancillarySettings->setAncillaryDoubleVectorData(
+                        frequency_bands, convertFrequencyBandsToDoubleVector( { FrequencyBands::x_band, FrequencyBands::x_band } ) );
                 ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
-                ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( x_band ) );
+                ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band,
+                                                           convertFrequencyBandToDouble( FrequencyBands::x_band ) );
             }
 
             // Set link ends for observation model
@@ -169,10 +171,11 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                 bodies.at( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
                         std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 5.0E9 ) );
                 ancillarySettings = std::make_shared< observation_models::ObservationAncillarySimulationSettings >( );
-                ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
-                                                                 { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
+                ancillarySettings->setAncillaryDoubleVectorData(
+                        frequency_bands, convertFrequencyBandsToDoubleVector( { FrequencyBands::x_band, FrequencyBands::x_band } ) );
                 ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
-                ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( x_band ) );
+                ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band,
+                                                           convertFrequencyBandToDouble( FrequencyBands::x_band ) );
             }
 
             // Set link ends for observation model

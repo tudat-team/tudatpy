@@ -22,7 +22,7 @@
 
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 
 namespace tudat
@@ -52,7 +52,7 @@ namespace observation_partials
  * @return Scaling factor from n-way range partials (meters) to DSN n-way range partials (range units).
  */
 double getDsnNWayRangeScalingFactor(
-        const std::function< double( std::vector< observation_models::FrequencyBands >, double ) > transmittedFrequencyFunction,
+        const std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > transmittedFrequencyFunction,
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
         const std::vector< double >& linkEndTimes,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings );

@@ -6,14 +6,10 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
- *    References:
- *    T. Moyer (2000), Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation,
- *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES, JPL/NASA
  */
 
-#ifndef TUDAT_OBSERVATIONFREQUENCIES_H
-#define TUDAT_OBSERVATIONFREQUENCIES_H
+#ifndef TUDAT_FREQUENCYBANDS_H
+#define TUDAT_FREQUENCYBANDS_H
 
 #include <string>
 #include <vector>
@@ -21,10 +17,10 @@
 namespace tudat
 {
 
-namespace observation_models
+namespace basic_astrodynamics
 {
 
-enum FrequencyBands { s_band, x_band, ka_band, ku_band };
+enum class FrequencyBands { s_band, x_band, ka_band, ku_band };
 
 /*!
  * Function returning a string with the name of the frequency band.
@@ -41,31 +37,6 @@ std::string getFrequencyBandString( FrequencyBands frequencyBand );
  * @return Frequency band
  */
 FrequencyBands getFrequencyBandFromString( const std::string& frequencyBand );
-
-/*!
- * Returns the default turnaround ratios used for DSN spacecraft, according to Moyer (2000), table 13-1.
- *
- * @param uplinkBand Uplink band
- * @param downlinkBand Downlink band
- * @return Turnaround ratio
- */
-double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
-
-/*!
- * Returns the Cassini turnaround ratio for Ka uplink and downlink bands, according to Moyer (2000), section 13.2.2.
- */
-double getCassiniKaBandTurnaroundRatio( );
-
-/*!
- * Returns the Cassini turnaround ratio as a function of the uplink and downlink band. Returns the Cassini-specific
- * turnaround ratio for Ka band uplink and downlink, and the default DSN turnaround ratios for other bands, according
- * to Moyer (2000), section 13.2.2.
- *
- * @param uplinkBand Uplink band
- * @param downlinkBand Downlink band
- * @return Turnaround ratio
- */
-double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
 
 /*!
  * Converts a vector of frequency bands to the corresponding vector of doubles, using the correspondence between each
@@ -95,8 +66,8 @@ inline FrequencyBands convertDoubleToFrequencyBand( const double frequencyBand )
     return convertDoubleVectorToFrequencyBands( { frequencyBand } ).front( );
 }
 
-}  // namespace observation_models
+}  // namespace basic_astrodynamics
 
 }  // namespace tudat
 
-#endif  // TUDAT_OBSERVATIONFREQUENCIES_H
+#endif  // TUDAT_FREQUENCYBANDS_H
