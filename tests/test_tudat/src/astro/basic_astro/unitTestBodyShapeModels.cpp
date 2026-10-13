@@ -52,8 +52,7 @@ namespace
  *
  *  The result is a closed surface with 42 corners (vertices), 80 triangles (facets) and 120 sides
  *  (edges), which meets the input requirements of PolyhedronBodyShapeModel. All triangles have nearly
- *  the same size and shape: their areas differ by at most 16%. This regularity is what the test below
- *  relies on.
+ *  the same size and shape.
  *  \param radius Radius of the sphere onto which the vertices are projected.
  *  \param verticesCoordinates Coordinates of each vertex, one row per vertex (returned by reference).
  *  \param verticesDefiningEachFacet Indices of the vertices of each facet, counterclockwise as seen
@@ -433,14 +432,6 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
  *  above every vertex, every triangle centre and every edge midpoint, at heights from 0.1% of the
  *  radius up to nine radii. These are the places where a missing triangle or edge is most likely to
  *  change the result.
- *
- *  Why the triangles must be nearly identical: the shortcut in getAltitude is only exact if the part
- *  of the surface closest to the point touches the closest vertex. On a regular mesh like this one
- *  that is always the case. This was confirmed for 40000 random points at altitudes between 0.0005
- *  and 11 radii before the fixed set of points was chosen. On a mesh with long, thin or very unequal
- *  triangles it can fail, even for a convex body (Zong et al., 2023, call this an "interception"),
- *  and getAltitude then gives too large an altitude. Such meshes are avoided here on purpose, so that
- *  the test checks the selection of triangles and edges, not this known limitation of the method.
  */
 BOOST_AUTO_TEST_CASE( testPolyhedronShapeModelFacetAndEdgeSelection )
 {
