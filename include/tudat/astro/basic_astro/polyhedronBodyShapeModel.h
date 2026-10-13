@@ -9,7 +9,7 @@
  *
  *    References:
  *       "EXTERIOR GRAVITATION OF A POLYHEDRON DERIVED AND COMPARED WITH HARMONIC AND MASCON GRAVITATION REPRESENTATIONS
- *          OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy
+ *          OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy, doi:10.1007/BF00053511
  *       "Landing Trajectory Design Using Invariant Manifolds of Quasi Satellite Orbits: A Phobos Case Study",
  *          Avillez (2022), MSc thesis, Delft University of Technology. Sec. 2.3 gives the altitude algorithm
  *          implemented here: Eqs. 2.44-2.50 for the distances to vertices, facets and edges with their validity

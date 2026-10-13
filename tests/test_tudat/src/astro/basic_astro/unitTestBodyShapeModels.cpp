@@ -8,10 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000.
+ *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000, doi:10.1007/978-3-642-58351-3.
  *      Baumgardner J R, Frederickson P O. Icosahedral Discretization of the Two-Sphere, SIAM Journal on Numerical
  *          Analysis, 22(6):1107-1115, 1985, doi:10.1137/0722066.
- *      Ericson C. Real-Time Collision Detection, Morgan Kaufmann, 2005.
+ *      Ericson C. Real-Time Collision Detection, Morgan Kaufmann, 2005, doi:10.1201/b14581.
  *
  */
 
@@ -42,20 +42,18 @@ namespace unit_tests
 namespace
 {
 
-//! Create a once-subdivided icosahedron, projected onto a sphere of the given radius.
+//! Create a ball-shaped test body made of 80 triangles (an "icosphere").
 /*!
- *  Standard icosahedral discretization of the sphere (Baumgardner and Frederickson, 1985): start from the
- *  twelve vertices of a regular icosahedron, split every facet into four by joining its edge midpoints, and
- *  project the resulting vertices radially onto the sphere. One subdivision level is used here. The starting
- *  vertices are the regular icosahedron's, namely the cyclic permutations of (0, +/-1, +/-phi) with phi the
- *  golden ratio, which place them on three mutually orthogonal golden rectangles.
+ *  The starting shape is an icosahedron: the solid with 20 identical triangular faces, like a 20-sided
+ *  die. Its 12 corners are the points (0, +/-1, +/-phi) and their cyclic permutations, with phi the
+ *  golden ratio. To make the shape rounder, each triangle is cut into four smaller ones by connecting
+ *  the midpoints of its sides. All corners are then pushed outwards so that they lie exactly on a
+ *  sphere of the given radius. This is the construction of Baumgardner and Frederickson (1985).
  *
- *  Produces a closed, purely triangular surface with 42 vertices, 80 facets and 120 edges. This
- *  satisfies the Euler relations (F = 2V - 4, E = 3V - 6) that PolyhedronBodyShapeModel requires of
- *  its input. The mesh is convex and near-uniform, its facet areas lying within 16% of one another,
- *  which is what makes it usable as an oracle: for such a mesh the closest primitive to any field
- *  point is incident to the closest vertex, so the localised search performed by getAltitude
- *  reproduces the exhaustive minimum exactly. Uniformity, not convexity, is what carries this.
+ *  The result is a closed surface with 42 corners (vertices), 80 triangles (facets) and 120 sides
+ *  (edges), which meets the input requirements of PolyhedronBodyShapeModel. All triangles have nearly
+ *  the same size and shape: their areas differ by at most 16%. This regularity is what the test below
+ *  relies on.
  *  \param radius Radius of the sphere onto which the vertices are projected.
  *  \param verticesCoordinates Coordinates of each vertex, one row per vertex (returned by reference).
  *  \param verticesDefiningEachFacet Indices of the vertices of each facet, counterclockwise as seen
@@ -113,11 +111,11 @@ void createSubdividedIcosphere( const double radius, Eigen::MatrixXd& verticesCo
     }
 }
 
-//! Compute the point of a triangle closest to the given field point.
+//! Find the point on a triangle that is closest to a given point in space.
 /*!
- *  Voronoi-region algorithm of Ericson, Real-Time Collision Detection, Morgan Kaufmann, 2005, Sec. 5.1.5
- *  ("Closest Point on Triangle to Point"), transcribed from the ClosestPtPointTriangle routine given there.
- *  The returned point lies on a vertex, an edge or the interior of the triangle, whichever is closest.
+ *  The closest point is either one of the triangle's three corners, a point on one of its three sides,
+ *  or a point inside the triangle. The function works out which of these cases applies and returns
+ *  that point. Copied from the ClosestPtPointTriangle routine in Ericson (2005), Sec. 5.1.5.
  */
 Eigen::Vector3d computeClosestPointOnTriangle( const Eigen::Vector3d& fieldPoint,
                                                const Eigen::Vector3d& vertex0,
@@ -180,11 +178,11 @@ Eigen::Vector3d computeClosestPointOnTriangle( const Eigen::Vector3d& fieldPoint
     return vertex0 + firstEdge * ( vb * inverseDenominator ) + secondEdge * ( vc * inverseDenominator );
 }
 
-//! Compute the exact distance from a field point to the surface of a triangulated polyhedron.
+//! Compute the distance from a point in space to a surface made of triangles, by checking every triangle.
 /*!
- *  Exhaustive minimum over every facet of the distance to the closest point of that facet. Because
- *  no facet is skipped, this is independent of the neighbourhood selection performed inside
- *  PolyhedronBodyShapeModel::getAltitude and can therefore be used to verify it.
+ *  For each triangle, the closest point is found and the smallest of these distances is kept. This
+ *  is slow, but it cannot miss a triangle, so it gives the correct answer against which
+ *  PolyhedronBodyShapeModel::getAltitude is checked.
  */
 double computeExactDistanceToPolyhedronSurface( const Eigen::Vector3d& fieldPoint,
                                                 const Eigen::MatrixXd& verticesCoordinates,
@@ -421,26 +419,28 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
     }
 }
 
-//! Test the selection of facets and edges used to refine the altitude of a polyhedron shape model.
+//! Test that the altitude of a polyhedron shape model is computed from the right triangles and edges.
 /*!
- *  getAltitude does not evaluate every facet: it locates the closest vertex and then refines the
- *  distance using only the facets and edges around that vertex (Avillez, 2022). This test pins that
- *  selection down by checking it against an exhaustive minimum over the whole mesh.
+ *  A polyhedron shape model describes the surface of a body as a mesh of flat triangles. To save time,
+ *  getAltitude does not check every triangle. It first finds the mesh corner (vertex) closest to the
+ *  point, and then only checks the triangles and edges that touch this vertex or one of its direct
+ *  neighbours (Avillez, 2022). If this step leaves out a triangle or edge that it should include, the
+ *  computed altitude comes out too large.
  *
- *  The body is an icosphere whose facets are all of comparable size and shape. For such a mesh the
- *  closest primitive is always incident to the closest vertex, so the localised search reproduces
- *  the exhaustive minimum and any facet or edge wrongly dropped from the selection shows up as an
- *  altitude that is too large. This was checked over 40000 randomly drawn field points at altitudes
- *  between 0.0005 and 11 body radii before the point set below was fixed.
+ *  How the test works: the body is the ball-shaped mesh from createSubdividedIcosphere. For many points
+ *  around it, the altitude from getAltitude is compared with the distance found by checking every
+ *  triangle (computeExactDistanceToPolyhedronSurface). The two must agree. The points lie straight
+ *  above every vertex, every triangle centre and every edge midpoint, at heights from 0.1% of the
+ *  radius up to nine radii. These are the places where a missing triangle or edge is most likely to
+ *  change the result.
  *
- *  Convexity alone would not be enough: on a strongly anisotropic convex mesh the closest primitive
- *  need not be incident to the closest vertex, which is an "interception" in the sense of Zong et
- *  al. (2023), and getAltitude then overestimates. The near-uniform mesh used here stays out of that
- *  regime on purpose, so that the test exercises the selection logic and not the known
- *  approximation.
- *
- *  The cuboid used by testPolyhedronShapeModel is too coarse to exercise this: with eight vertices
- *  every facet touches the neighbourhood of every vertex.
+ *  Why the triangles must be nearly identical: the shortcut in getAltitude is only exact if the part
+ *  of the surface closest to the point touches the closest vertex. On a regular mesh like this one
+ *  that is always the case. This was confirmed for 40000 random points at altitudes between 0.0005
+ *  and 11 radii before the fixed set of points was chosen. On a mesh with long, thin or very unequal
+ *  triangles it can fail, even for a convex body (Zong et al., 2023, call this an "interception"),
+ *  and getAltitude then gives too large an altitude. Such meshes are avoided here on purpose, so that
+ *  the test checks the selection of triangles and edges, not this known limitation of the method.
  */
 BOOST_AUTO_TEST_CASE( testPolyhedronShapeModelFacetAndEdgeSelection )
 {
@@ -452,19 +452,18 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModelFacetAndEdgeSelection )
     Eigen::MatrixXi verticesDefiningEachFacet;
     createSubdividedIcosphere( radius, verticesCoordinates, verticesDefiningEachFacet );
 
-    // Verify the mesh satisfies the relations required by the shape model, so that a later change to
-    // the mesh cannot silently weaken the test.
+    // Check the number of vertices and triangles, so that a later change to the mesh cannot silently
+    // weaken the test.
     const int numberOfVertices = verticesCoordinates.rows( );
     BOOST_CHECK_EQUAL( numberOfVertices, 42 );
     BOOST_CHECK_EQUAL( verticesDefiningEachFacet.rows( ), 2 * numberOfVertices - 4 );
 
-    // Distance is computed with respect to all polyhedron features, which is the path that selects
-    // the facets and edges to be evaluated.
+    // Compute the distance to vertices, edges and triangles (not just vertices), since only then does
+    // getAltitude select which triangles and edges to check.
     PolyhedronBodyShapeModel shapeModel( verticesCoordinates, verticesDefiningEachFacet, false, false );
 
-    // Build field points along the directions of every vertex, every facet centroid and every edge
-    // midpoint of the mesh, at several altitudes. These are the directions along which a dropped
-    // facet or edge is most likely to carry the minimum distance.
+    // Place test points straight above every vertex, every triangle centre and every edge midpoint,
+    // at several heights.
     std::vector< Eigen::Vector3d > directions;
     for( int vertex = 0; vertex < numberOfVertices; ++vertex )
     {
