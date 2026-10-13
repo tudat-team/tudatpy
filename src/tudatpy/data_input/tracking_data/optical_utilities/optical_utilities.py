@@ -434,9 +434,14 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
         receiver_data = TrackingSupplementaryData(str(observatory), "")
 
         # check if info about velocity is availble; if so use it to build the state history
-        has_velocity_columns = all(
-            column in group.columns for column in SPACECRAFT_VELOCITY_COLUMNS
-        )
+        velocities = group.reindex(columns=SPACECRAFT_VELOCITY_COLUMNS)
+        has_velocity_columns = velocities.notna().any(axis=None)
+        if has_velocity_columns:
+            if velocities.isna().any(axis=None):
+                raise ValueError(
+                    f"Spacecraft velocities for observatory {observatory} must be either "
+                    "entirely absent or complete for every observation"
+                )
         columns_spacecraft = SPACECRAFT_POSITION_COLUMNS.copy()
         if has_velocity_columns:
             columns_spacecraft += SPACECRAFT_VELOCITY_COLUMNS
@@ -678,6 +683,24 @@ def optical_table_to_tracking_data(
             stacklevel=2,
         )
         weighing_scheme = "VFCC17"
+
+    if _roving_observation_mask(table).any():
+        raise ValueError(
+            "ADES roving-observatory positions in WGS84, ITRF or IAU are not supported "
+            "by the tracking-data conversion"
+        )
+
+    if weighing_scheme in ("ADES", "ADES_NIGHT"):
+        uncertainties = (
+            table.reindex(columns=["rmsRA", "rmsDec"])
+            .apply(pd.to_numeric, errors="coerce")
+            .to_numpy(dtype=float, na_value=np.nan)
+        )
+        if not (np.isfinite(uncertainties) & (uncertainties > 0)).all():
+            raise ValueError(
+                f"{weighing_scheme} weighing requires rmsRA and rmsDec to be "
+                "valid (positive, finite) for every observation"
+            )
 
     if add_star_catalog_corrections:
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
