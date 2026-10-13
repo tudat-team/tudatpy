@@ -62,7 +62,7 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings( const 
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings;
     if( integratorCase == 0 )
     {
-        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialTime, initialTimeMultiplier * 300.0 );
+        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialTimeMultiplier * 300.0 );
     }
     else if( integratorCase < 5 )
     {
@@ -84,7 +84,7 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings( const 
             coefficientSet = rungeKutta87DormandPrince;
         }
         integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                initialTime, initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
+                initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
     }
     return integratorSettings;
 }
@@ -145,11 +145,17 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                        centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime + buffer );
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime + buffer ) );
 
         // Create dynamics simulation object.
-        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, true, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
     }
 
     double testTime = initialEphemerisTime + ( finalEphemerisTime - initialEphemerisTime ) / 2.0;
@@ -168,11 +174,17 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                        centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime - buffer );
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialState,
+                        finalEphemerisTime,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime - buffer ) );
 
         // Create dynamics simulation object.
-        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, true, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
     }
 
     Eigen::Vector6d backwardState = bodies.at( "Moon" )->getEphemeris( )->getCartesianState( testTime );

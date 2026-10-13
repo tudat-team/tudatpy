@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
 
         // Define integrator settings
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                0.0, fixedStepSize, rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
+                fixedStepSize, rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
         // Define propagator settings
         TranslationalPropagatorType propagatorType = encke;

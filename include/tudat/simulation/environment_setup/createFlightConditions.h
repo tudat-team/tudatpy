@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-#include "tudat/astro/aerodynamics/aerodynamicGuidance.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
@@ -74,27 +73,6 @@ std::shared_ptr< aerodynamics::FlightConditions > createFlightConditions( const 
 void addFlightConditions( const SystemOfBodies& bodies, const std::string bodyName, const std::string centralBodyName );
 
 void addAtmosphericFlightConditions( const SystemOfBodies& bodies, const std::string bodyName, const std::string centralBodyName );
-
-void setGuidanceAnglesFunctions( const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-                                 const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
-                                 const bool silenceWarnings = false );
-
-void setGuidanceAnglesFunctions( const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-                                 const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
-                                 const bool silenceWarnings = false );
-
-void setAerodynamicOrientationFunctions(
-        const std::shared_ptr< simulation_setup::Body > body,
-        const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-        const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-        const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
-        const std::function< void( const double ) > updateFunction = std::function< void( const double ) >( ) );
-
-void setConstantAerodynamicOrientation( const std::shared_ptr< simulation_setup::Body > body,
-                                        const double angleOfAttack,
-                                        const double sideslipAngle,
-                                        const double bankAngle,
-                                        const bool silenceWarnings = false );
 
 }  // namespace simulation_setup
 

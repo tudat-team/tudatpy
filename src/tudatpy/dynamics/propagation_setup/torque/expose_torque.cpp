@@ -18,7 +18,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
@@ -49,29 +48,6 @@ namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 namespace tse = tudat::serialization;
 
-namespace tudat
-{
-namespace simulation_setup
-{
-inline std::shared_ptr< TorqueSettings > customTorqueSettingsDeprecated(
-        const std::function< Eigen::Vector3d( const double ) > torqueFunction,
-        const std::function< double( const double ) > scalingFunction = nullptr )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.propagation_setup."
-                "acceleration.custom",
-                "tudatpy.dynamics.propagation_setup."
-                "acceleration.custom_torque" );
-        isWarningPrinted = true;
-    }
-
-    return customTorqueSettings( torqueFunction, scalingFunction );
-}
-}  // namespace simulation_setup
-}  // namespace tudat
 namespace tudatpy
 {
 namespace dynamics
@@ -506,11 +482,6 @@ void expose_torque_setup( py::module& m )
            py::arg( "torque_function" ),
            py::arg_v( "scaling_function", std::function< double( const double ) >( ), "None" ),
            R"doc(No documentation found.)doc" );
-
-    m.def( "custom",
-           &tss::customTorqueSettingsDeprecated,
-           py::arg( "torque_function" ),
-           py::arg_v( "scaling_function", std::function< double( const double ) >( ), "None" ) );
 
     // NOTE: the only unexposed torque model is
     // dissipativeTorque, but it is probably obsolete

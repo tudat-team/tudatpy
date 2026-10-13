@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testMarsDtmAtmosphereInPropagation )
     // Set propagation/integration settings
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 10.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 10.0 );
     std::shared_ptr< tudat::propagators::TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                 accelerationModelMap,

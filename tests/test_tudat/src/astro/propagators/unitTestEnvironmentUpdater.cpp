@@ -441,8 +441,8 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     double area = 2.34;
     double coefficient = 1.2;
     bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+    bodySettings.at( "Vehicle" )->radiationPressureTargetModelSettings =
+            cannonballRadiationPressureTargetModelSettings( area, coefficient );
     bodySettings.at( "Vehicle" )->ephemerisSettings =
             std::make_shared< KeplerEphemerisSettings >( ( Eigen::Vector6d( ) << 7000.0E3, 0.05, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                                                          0.0,
@@ -465,8 +465,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     {
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
-        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
 
         // Define origin of integration
         std::map< std::string, std::string > centralBodies;
@@ -520,8 +519,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     {
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
-        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
         accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
 
         // Define origin of integration

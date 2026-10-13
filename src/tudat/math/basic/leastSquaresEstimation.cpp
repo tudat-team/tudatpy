@@ -347,7 +347,7 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         // Compute update in estimate
         Eigen::VectorXd diagonalOfWeightMatrix = Eigen::VectorXd::Ones( offsetInObservations.rows( ) );
         Eigen::MatrixXd inverseOfAPrioriCovarianceMatrix = levenbergMarquardtDampingParameter *
-                //                Eigen::MatrixXd( ( designMatrix.transpose( ) * designMatrix ).diagonal( ).asDiagonal( ) ); // Marquardt’s
+                //                Eigen::MatrixXd( ( designMatrix.transpose( ) * designMatrix ).diagonal( ).asDiagonal( ) ); // Marquardt's
                 //                update
                 Eigen::MatrixXd::Identity( currentEstimate.rows( ), currentEstimate.rows( ) );
         // The nonlinear solver handles poor conditioning through Levenberg-Marquardt damping. Disable the lower-level

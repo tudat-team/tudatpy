@@ -14,7 +14,6 @@
 #include "tudat/simulation/environment_setup/createGravityField.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup/rigidBodyProperties.h>
 #include <tudat/simulation/environment_setup/createGravityField.h>
 
@@ -52,31 +51,6 @@ inline std::shared_ptr< GravityFieldSettings > predefinedSphericalHarmonic( cons
                                                                             const int maximumDegree = -1 )
 {
     return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( sphericalHarmonicsModel, maximumDegree );
-}
-
-inline std::shared_ptr< GravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
-        const double axisA,
-        const double axisB,
-        const double axisC,
-        const double ellipsoidDensity,
-        const int maximumDegree,
-        const int maximumOrder,
-        const std::string& associatedReferenceFrame,
-        const double gravitationalConstant = tpc::GRAVITATIONAL_CONSTANT )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.environment_setup.gravity_"
-                "field.spherical_harmonic_triaxial_body",
-                "tudatpy.dynamics.environment_setup.gravity_"
-                "field.sh_triaxial_ellipsoid_from_density" );
-        isWarningPrinted = true;
-    }
-
-    return createHomogeneousTriAxialEllipsoidGravitySettings(
-            axisA, axisB, axisC, ellipsoidDensity, maximumDegree, maximumOrder, associatedReferenceFrame, gravitationalConstant );
 }
 
 }  // namespace simulation_setup
@@ -487,7 +461,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a spherical harmonics gravity field settings object.
 
  Function for settings object, defining a gravity field model through spherical harmonic expansion.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the spherical harmonic field is defined.
 
  The gravitational potential is the defined as:
@@ -698,7 +672,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the gravitational parameter.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
@@ -754,7 +728,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the density.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
@@ -919,24 +893,6 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
 
      )doc" );
-
-    m.def( "spherical_harmonic_triaxial_body",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::string&,
-                              const double >( &tss::createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated ),
-           py::arg( "axis_a" ),
-           py::arg( "axis_b" ),
-           py::arg( "axis_c" ),
-           py::arg( "density" ),
-           py::arg( "maximum_degree" ),
-           py::arg( "maximum_order" ),
-           py::arg( "associated_reference_frame" ),
-           py::arg( "gravitational_constant" ) = tudat::physical_constants::GRAVITATIONAL_CONSTANT );
 
     m.def( "ring_model",
            &tss::ringGravitySettings,
