@@ -60,61 +60,58 @@ double evaluateAscendingDerivative( const Eigen::VectorXd& coefficients, const d
     return value;
 }
 
-/*! The square-root factor that multiplies a term's polynomial inside the second-kind integral.
+/*! Everything about the second-kind integral that does not depend on which term is evaluated.
  *
- * @param group Group the term belongs to.
- * @param sSquared Square of the integration variable.
- * @param scaledSquared The same, scaled by the ratio of the focal parameters.
- */
-double getIntegrandLameFactor( const EllipsoidalHarmonicTermGroup group,
-                               const double sSquared,
-                               const double scaledSquared,
-                               const double polynomial )
-{
-    switch( group )
-    {
-        case ellipsoidal_harmonic_k_terms:
-            return polynomial;
-        case ellipsoidal_harmonic_l_terms:
-            return std::sqrt( 1.0 - sSquared ) * polynomial;
-        case ellipsoidal_harmonic_m_terms:
-            return std::sqrt( 1.0 - scaledSquared ) * polynomial;
-        default:
-            return std::sqrt( 1.0 - sSquared ) * std::sqrt( 1.0 - scaledSquared ) * polynomial;
-    }
-}
-
-//! The integrand of the second-kind Lame function at one value of the integration variable.
-double evaluateSecondKindIntegrand( const Eigen::VectorXd& polynomialCoefficients,
-                                    const int degree,
-                                    const EllipsoidalHarmonicTermGroup group,
-                                    const double s,
-                                    const double h,
-                                    const double focalRatioSquared )
-{
-    const double sSquared = s * s;
-    const double scaledSquared = sSquared * focalRatioSquared;
-    const double polynomial = evaluateDescending( polynomialCoefficients, sSquared );
-    const double lameFactor = getIntegrandLameFactor( group, sSquared, scaledSquared, polynomial );
-
-    return std::pow( sSquared, degree ) / ( h * lameFactor * lameFactor * std::sqrt( ( 1.0 - scaledSquared ) * ( 1.0 - sSquared ) ) );
-}
-
-/*! Evaluates the integral the second-kind Lame function needs, and the integrand at its end.
+ * The integral runs over s from 0 to h/rho, and all of its terms share the same nodes. Most of
+ * the integrand is the same for every term too: only the Lame polynomial and the degree differ.
+ * Those shared parts are gathered here once per ellipsoidal radius, which takes the square
+ * roots and the powers of s out of the per-term loop. For a degree 15 field that is 256 terms
+ * reading one table instead of rebuilding it 256 times.
  *
- * The integrand at the upper limit is what the derivative with respect to the ellipsoidal
- * radius needs, and it comes for free here.
+ * The last entry is the upper limit of the integral rather than a quadrature node. Its weight is
+ * zero so it does not contribute to the sum, and the integrand there is what the derivative with
+ * respect to the ellipsoidal radius needs.
  */
-void computeSecondKindIntegral( const Eigen::VectorXd& polynomialCoefficients,
-                                const int degree,
-                                const EllipsoidalHarmonicTermGroup group,
-                                const double rho,
-                                const double h,
-                                const double k,
-                                const Eigen::VectorXd& quadratureNodes,
-                                const Eigen::VectorXd& quadratureWeights,
-                                double& integral,
-                                double& integrandAtUpperLimit )
+struct SecondKindIntegralNodes {
+    //! Square of the integration variable at each node.
+    Eigen::VectorXd sSquared;
+
+    //! One minus that, which is the squared Lame factor of the L group.
+    Eigen::VectorXd oneMinusSSquared;
+
+    //! One minus the focal-ratio-scaled square, the squared Lame factor of the M group.
+    Eigen::VectorXd oneMinusScaledSquared;
+
+    //! Reciprocal of the square root in the denominator of the integrand.
+    Eigen::VectorXd inverseRootOfProduct;
+
+    //! Quadrature weight already scaled by the width of the interval.
+    Eigen::VectorXd scaledWeight;
+
+    //! Entry ( i, n ) is sSquared( i ) to the power n, built by repeated multiplication.
+    Eigen::MatrixXd powersOfSSquared;
+
+    //! Index of the entry that holds the upper limit rather than a quadrature node.
+    int upperLimitIndex;
+};
+
+/*! Gathers the shared part of the second-kind integral at one ellipsoidal radius.
+ *
+ * @param rho Ellipsoidal radius, which must be larger than k.
+ * @param h First focal parameter of the reference ellipsoid.
+ * @param k Second focal parameter of the reference ellipsoid.
+ * @param quadratureNodes Gauss-Legendre nodes on [-1, 1].
+ * @param quadratureWeights Matching Gauss-Legendre weights.
+ * @param maximumDegree Highest degree that will be asked for.
+ * @param nodes Output.
+ */
+void buildSecondKindIntegralNodes( const double rho,
+                                   const double h,
+                                   const double k,
+                                   const Eigen::VectorXd& quadratureNodes,
+                                   const Eigen::VectorXd& quadratureWeights,
+                                   const int maximumDegree,
+                                   SecondKindIntegralNodes& nodes )
 {
     if( rho <= k )
     {
@@ -125,18 +122,95 @@ void computeSecondKindIntegral( const Eigen::VectorXd& polynomialCoefficients,
 
     const double focalRatioSquared = ( k * k ) / ( h * h );
     const double upperLimit = h / rho;
+    const int numberOfQuadratureNodes = static_cast< int >( quadratureNodes.size( ) );
+    const int numberOfEntries = numberOfQuadratureNodes + 1;
 
-    // The integrand is smooth here because rho > k keeps both square roots away from zero, so a
-    // fixed-order rule converges quickly.
-    integral = 0.0;
-    for( int i = 0; i < quadratureNodes.size( ); i++ )
+    nodes.upperLimitIndex = numberOfQuadratureNodes;
+    nodes.sSquared.resize( numberOfEntries );
+    nodes.oneMinusSSquared.resize( numberOfEntries );
+    nodes.oneMinusScaledSquared.resize( numberOfEntries );
+    nodes.inverseRootOfProduct.resize( numberOfEntries );
+    nodes.scaledWeight.resize( numberOfEntries );
+    nodes.powersOfSSquared.resize( numberOfEntries, maximumDegree + 1 );
+
+    for( int i = 0; i < numberOfEntries; i++ )
     {
-        const double s = 0.5 * upperLimit * ( quadratureNodes( i ) + 1.0 );
-        integral += 0.5 * upperLimit * quadratureWeights( i ) *
-                evaluateSecondKindIntegrand( polynomialCoefficients, degree, group, s, h, focalRatioSquared );
-    }
+        // The last entry is the upper limit, and carries no weight.
+        const bool isUpperLimit = ( i == nodes.upperLimitIndex );
+        const double s = isUpperLimit ? upperLimit : 0.5 * upperLimit * ( quadratureNodes( i ) + 1.0 );
 
-    integrandAtUpperLimit = evaluateSecondKindIntegrand( polynomialCoefficients, degree, group, upperLimit, h, focalRatioSquared );
+        const double sSquared = s * s;
+        nodes.sSquared( i ) = sSquared;
+        nodes.oneMinusSSquared( i ) = 1.0 - sSquared;
+        nodes.oneMinusScaledSquared( i ) = 1.0 - sSquared * focalRatioSquared;
+        nodes.inverseRootOfProduct( i ) = 1.0 / std::sqrt( nodes.oneMinusScaledSquared( i ) * nodes.oneMinusSSquared( i ) );
+        nodes.scaledWeight( i ) = isUpperLimit ? 0.0 : 0.5 * upperLimit * quadratureWeights( i );
+
+        // Powers of s^2 by repeated multiplication, in place of a library power call per term.
+        nodes.powersOfSSquared( i, 0 ) = 1.0;
+        for( int degree = 1; degree <= maximumDegree; degree++ )
+        {
+            nodes.powersOfSSquared( i, degree ) = nodes.powersOfSSquared( i, degree - 1 ) * sSquared;
+        }
+    }
+}
+
+/*! The part of the squared Lame factor that the group contributes, from the shared table.
+ *
+ * The integrand divides by the square of the Lame factor, so the square roots that the groups
+ * put in front of their polynomials can be taken squared and never evaluated as roots at all.
+ */
+double getSquaredGroupFactor( const EllipsoidalHarmonicTermGroup group, const SecondKindIntegralNodes& nodes, const int entry )
+{
+    switch( group )
+    {
+        case ellipsoidal_harmonic_k_terms:
+            return 1.0;
+        case ellipsoidal_harmonic_l_terms:
+            return nodes.oneMinusSSquared( entry );
+        case ellipsoidal_harmonic_m_terms:
+            return nodes.oneMinusScaledSquared( entry );
+        default:
+            return nodes.oneMinusSSquared( entry ) * nodes.oneMinusScaledSquared( entry );
+    }
+}
+
+/*! The second-kind integral of one term, and the integrand at the upper limit.
+ *
+ * @param polynomialCoefficients Lame polynomial of the term, in ascending powers.
+ * @param degree Degree of the term.
+ * @param group Group the term belongs to.
+ * @param h First focal parameter of the reference ellipsoid.
+ * @param nodes Shared table from buildSecondKindIntegralNodes.
+ * @param integral Output.
+ * @param integrandAtUpperLimit Output, needed only for the derivative.
+ */
+void integrateSecondKindTerm( const Eigen::VectorXd& polynomialCoefficients,
+                              const int degree,
+                              const EllipsoidalHarmonicTermGroup group,
+                              const double h,
+                              const SecondKindIntegralNodes& nodes,
+                              double& integral,
+                              double& integrandAtUpperLimit )
+{
+    integral = 0.0;
+
+    for( int i = 0; i <= nodes.upperLimitIndex; i++ )
+    {
+        const double polynomial = evaluateDescending( polynomialCoefficients, nodes.sSquared( i ) );
+        const double squaredLameFactor = getSquaredGroupFactor( group, nodes, i ) * polynomial * polynomial;
+
+        const double integrand = nodes.powersOfSSquared( i, degree ) * nodes.inverseRootOfProduct( i ) / ( h * squaredLameFactor );
+
+        if( i == nodes.upperLimitIndex )
+        {
+            integrandAtUpperLimit = integrand;
+        }
+        else
+        {
+            integral += nodes.scaledWeight( i ) * integrand;
+        }
+    }
 }
 
 }  // namespace
@@ -367,10 +441,14 @@ double evaluateLameFunctionSecondKind( const Eigen::VectorXd& polynomialCoeffici
                                        const Eigen::VectorXd& quadratureNodes,
                                        const Eigen::VectorXd& quadratureWeights )
 {
+    // Builds the shared table for a single term, so this is the convenient route rather than the
+    // fast one. Anything evaluating many terms at one radius should use computeRadialFunctions.
+    SecondKindIntegralNodes nodes;
+    buildSecondKindIntegralNodes( rho, h, k, quadratureNodes, quadratureWeights, degree, nodes );
+
     double integral;
     double integrandAtUpperLimit;
-    computeSecondKindIntegral(
-            polynomialCoefficients, degree, group, rho, h, k, quadratureNodes, quadratureWeights, integral, integrandAtUpperLimit );
+    integrateSecondKindTerm( polynomialCoefficients, degree, group, h, nodes, integral, integrandAtUpperLimit );
 
     return ( 2 * degree + 1 ) * evaluateLameFunctionFirstKind( polynomialCoefficients, degree, group, rho, h, k ) * integral;
 }
@@ -439,6 +517,10 @@ void computeRadialFunctions( const EllipsoidalHarmonicMatrices& lameFunctionCoef
 {
     const int maximumDegree = lameFunctionCoefficients.getMaximumDegree( );
 
+    // The nodes and everything derived from them are shared by every term at this radius.
+    SecondKindIntegralNodes nodes;
+    buildSecondKindIntegralNodes( rho, h, k, quadratureNodes, quadratureWeights, maximumDegree, nodes );
+
     for( int degree = 0; degree <= maximumDegree; degree++ )
     {
         for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
@@ -449,8 +531,12 @@ void computeRadialFunctions( const EllipsoidalHarmonicMatrices& lameFunctionCoef
 
             for( int term = 0; term < getNumberOfTermsInGroup( degree, group ); term++ )
             {
-                values( term ) = evaluateLameFunctionSecondKind(
-                        polynomials.col( term ), degree, group, rho, h, k, quadratureNodes, quadratureWeights );
+                double integral;
+                double integrandAtUpperLimit;
+                integrateSecondKindTerm( polynomials.col( term ), degree, group, h, nodes, integral, integrandAtUpperLimit );
+
+                values( term ) =
+                        ( 2 * degree + 1 ) * evaluateLameFunctionFirstKind( polynomials.col( term ), degree, group, rho, h, k ) * integral;
             }
         }
     }
@@ -576,6 +662,10 @@ void computeRadialFunctionsAndDerivatives( const EllipsoidalHarmonicMatrices& la
 {
     const int maximumDegree = lameFunctionCoefficients.getMaximumDegree( );
 
+    // The nodes and everything derived from them are shared by every term at this radius.
+    SecondKindIntegralNodes nodes;
+    buildSecondKindIntegralNodes( rho, h, k, quadratureNodes, quadratureWeights, maximumDegree, nodes );
+
     for( int degree = 0; degree <= maximumDegree; degree++ )
     {
         for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
@@ -589,16 +679,7 @@ void computeRadialFunctionsAndDerivatives( const EllipsoidalHarmonicMatrices& la
             {
                 double integral;
                 double integrandAtUpperLimit;
-                computeSecondKindIntegral( polynomials.col( term ),
-                                           degree,
-                                           group,
-                                           rho,
-                                           h,
-                                           k,
-                                           quadratureNodes,
-                                           quadratureWeights,
-                                           integral,
-                                           integrandAtUpperLimit );
+                integrateSecondKindTerm( polynomials.col( term ), degree, group, h, nodes, integral, integrandAtUpperLimit );
 
                 const double firstKind = evaluateLameFunctionFirstKind( polynomials.col( term ), degree, group, rho, h, k );
                 const double firstKindDerivative =
