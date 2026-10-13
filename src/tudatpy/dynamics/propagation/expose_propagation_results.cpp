@@ -472,9 +472,10 @@ void expose_propagation_results_bindings( py::module& m )
                     R"doc(
          **read-only**
 
-         The dynamics results of this object, which is the object itself. This attribute mirrors
-         :attr:`~SingleArcVariationalSimulationResults.dynamics_results`, so that the propagated dynamics can be accessed
-         in the same way whether or not variational results are attached to them.
+         This object itself. :class:`~SingleArcVariationalSimulationResults` has an attribute of the same name, so
+         ``dynamics_results.state_history`` works on both types. This is useful when the type of the results object
+         depends on a setting, as for the entries of
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.simulation_results_per_iteration`.
 
          :type: SingleArcSimulationResults
 )doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
