@@ -52,7 +52,7 @@ std::string getDataDirectory( )
     return paths::getTudatTestDataPath( ) + "/ellipsoidal_harmonics/";
 }
 
-std::shared_ptr< EllipsoidalHarmonicsGravityField > createTestField( const int maximumDegree = 15 )
+std::shared_ptr< EllipsoidalHarmonicsGravityField > createTestField( const int maximumDegree = 15, const int radialTableGridPoints = 3200 )
 {
     return std::make_shared< EllipsoidalHarmonicsGravityField >(
             getReferenceSemiAxes( ),
@@ -60,6 +60,8 @@ std::shared_ptr< EllipsoidalHarmonicsGravityField > createTestField( const int m
             readLameFunctionCoefficients( getDataDirectory( ) + "67p_lame_coefficients.txt", maximumDegree ),
             readEllipsoidalHarmonicTransformFactors( getDataDirectory( ) + "67p_transform_factors.txt", maximumDegree ),
             24,
+            radialTableGridPoints,
+            0.0,
             "67P_fixed" );
 }
 
@@ -406,6 +408,74 @@ BOOST_AUTO_TEST_CASE( test_results_do_not_depend_on_the_order_of_the_calls )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getHessianOfPotential( position ), hessian, 1.0E-14 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getGradientOfPotential( position ), gradient, 1.0E-14 );
     }
+}
+
+/*! Tabulating the radial parts must not change the answers.
+ *
+ * The radial parts depend on the ellipsoidal radius alone, so they are tabulated against it and
+ * interpolated, which is what makes repeated evaluation cheap. That is an approximation, so it
+ * is checked here against integrating them exactly, for the potential, the gradient and the
+ * Hessian alike.
+ */
+BOOST_AUTO_TEST_CASE( test_tabulated_radial_parts_agree_with_exact_integration )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > tabulated = createTestField( 15, 3200 );
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > exact = createTestField( 15, 0 );
+
+    BOOST_CHECK( tabulated->getRadialTable( ) != nullptr );
+    BOOST_CHECK( exact->getRadialTable( ) == nullptr );
+
+    std::vector< Eigen::Vector3d > positions;
+    positions.push_back( ( Eigen::Vector3d( ) << 1.0E3, 2.5E3, 2.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << -3.0E3, 2.0E3, -1.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 0.0, 0.0, 3.5E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 8.0E3, 5.0E3, -4.0E3 ).finished( ) );
+    positions.push_back( ( Eigen::Vector3d( ) << 4.0E4, -2.0E4, 3.0E4 ).finished( ) );
+
+    double worstPotential = 0.0;
+    double worstGradient = 0.0;
+    double worstHessian = 0.0;
+
+    for( unsigned int i = 0; i < positions.size( ); i++ )
+    {
+        const Eigen::Vector3d position = positions.at( i );
+
+        const double exactPotential = exact->getGravitationalPotential( position );
+        worstPotential = std::max( worstPotential, std::fabs( tabulated->getGravitationalPotential( position ) / exactPotential - 1.0 ) );
+
+        const Eigen::Vector3d exactGradient = exact->getGradientOfPotential( position );
+        worstGradient = std::max( worstGradient,
+                                  ( tabulated->getGradientOfPotential( position ) - exactGradient ).norm( ) / exactGradient.norm( ) );
+
+        const Eigen::Matrix3d exactHessian = exact->getHessianOfPotential( position );
+        worstHessian = std::max( worstHessian,
+                                 ( tabulated->getHessianOfPotential( position ) - exactHessian ).cwiseAbs( ).maxCoeff( ) /
+                                         exactHessian.cwiseAbs( ).maxCoeff( ) );
+    }
+
+    BOOST_TEST_MESSAGE( "Tabulated against exact: potential " << worstPotential << ", gradient " << worstGradient << ", Hessian "
+                                                              << worstHessian );
+
+    // The table is built to be no worse than the precision of the input coefficients, which is
+    // about two parts in a billion.
+    BOOST_CHECK_SMALL( worstPotential, 1.0E-10 );
+    BOOST_CHECK_SMALL( worstGradient, 1.0E-8 );
+    BOOST_CHECK_SMALL( worstHessian, 1.0E-5 );
+}
+
+//! Beyond the tabulated range the radial parts must fall back on exact integration.
+BOOST_AUTO_TEST_CASE( test_radius_beyond_the_table_falls_back_on_exact_integration )
+{
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > tabulated = createTestField( 15, 3200 );
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > exact = createTestField( 15, 0 );
+
+    const double beyond = 2.0 * tabulated->getRadialTable( )->getLargestRadius( );
+    const Eigen::Vector3d position = beyond * Eigen::Vector3d( 0.3, 1.0, -0.7 ).normalized( );
+
+    BOOST_CHECK( !tabulated->getRadialTable( )->isRadiusInRange( beyond ) );
+
+    // Falling back means the two must agree to the last bit, not merely to the table's accuracy.
+    BOOST_CHECK_CLOSE_FRACTION( tabulated->getGravitationalPotential( position ), exact->getGravitationalPotential( position ), 1.0E-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

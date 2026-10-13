@@ -542,6 +542,211 @@ void computeRadialFunctions( const EllipsoidalHarmonicMatrices& lameFunctionCoef
     }
 }
 
+int getTotalNumberOfTerms( const int maximumDegree )
+{
+    return ( maximumDegree + 1 ) * ( maximumDegree + 1 );
+}
+
+EllipsoidalHarmonicRadialTable::EllipsoidalHarmonicRadialTable( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+                                                                const double smallestRadius,
+                                                                const double largestRadius,
+                                                                const double h,
+                                                                const double k,
+                                                                const int quadratureOrder,
+                                                                const int numberOfGridPoints ):
+    maximumDegree_( lameFunctionCoefficients.getMaximumDegree( ) ), smallestRadius_( smallestRadius ), largestRadius_( largestRadius ),
+    numberOfGridPoints_( numberOfGridPoints )
+{
+    if( !( smallestRadius > k ) )
+    {
+        throw std::runtime_error( "Error when tabulating ellipsoidal harmonic radial parts, the smallest radius " +
+                                  std::to_string( smallestRadius ) + " is not larger than the focal parameter " + std::to_string( k ) +
+                                  "." );
+    }
+    if( !( largestRadius > smallestRadius ) )
+    {
+        throw std::runtime_error( "Error when tabulating ellipsoidal harmonic radial parts, the largest radius " +
+                                  std::to_string( largestRadius ) + " does not exceed the smallest radius " +
+                                  std::to_string( smallestRadius ) + "." );
+    }
+    if( numberOfGridPoints < 4 )
+    {
+        throw std::runtime_error(
+                "Error when tabulating ellipsoidal harmonic radial parts, at least four grid points "
+                "are needed but " +
+                std::to_string( numberOfGridPoints ) + " were requested." );
+    }
+
+    const int numberOfTerms = getTotalNumberOfTerms( maximumDegree_ );
+
+    // Interpolate in the reciprocal radius, scaled so that the largest radius maps to the first
+    // grid point. A uniform grid in this variable puts the points where the radial parts change
+    // fastest, which is close to the body.
+    firstVariable_ = smallestRadius_ / largestRadius_;
+    const double lastVariable = 1.0;
+    variableSpacing_ = ( lastVariable - firstVariable_ ) / ( numberOfGridPoints_ - 1 );
+
+    degreeOfTerm_.resize( numberOfTerms );
+    scaledValues_.resize( numberOfGridPoints_, numberOfTerms );
+    scaledSlopes_.resize( numberOfGridPoints_, numberOfTerms );
+
+    Eigen::VectorXd quadratureNodes;
+    Eigen::VectorXd quadratureWeights;
+    computeGaussLegendreNodesAndWeights( quadratureOrder, quadratureNodes, quadratureWeights );
+
+    EllipsoidalHarmonicCoefficients values = createEllipsoidalHarmonicCoefficients( maximumDegree_ );
+    EllipsoidalHarmonicCoefficients derivatives = createEllipsoidalHarmonicCoefficients( maximumDegree_ );
+
+    for( int gridPoint = 0; gridPoint < numberOfGridPoints_; gridPoint++ )
+    {
+        const double variable = firstVariable_ + gridPoint * variableSpacing_;
+        const double rho = smallestRadius_ / variable;
+
+        computeRadialFunctionsAndDerivatives(
+                lameFunctionCoefficients, rho, h, k, quadratureNodes, quadratureWeights, values, derivatives );
+
+        int termIndex = 0;
+        for( int degree = 0; degree <= maximumDegree_; degree++ )
+        {
+            // The radial parts fall off as one over the radius to this power, so scaling them by
+            // it leaves a function that tends to a constant far from the body.
+            const double scaling = std::pow( rho, degree + 1 );
+            const double derivativeOfScaling = ( degree + 1 ) * std::pow( rho, degree );
+
+            for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+            {
+                const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+                const Eigen::VectorXd& groupValues = values.getGroup( degree, group );
+                const Eigen::VectorXd& groupDerivatives = derivatives.getGroup( degree, group );
+
+                for( int term = 0; term < groupValues.size( ); term++ )
+                {
+                    degreeOfTerm_( termIndex ) = degree;
+                    scaledValues_( gridPoint, termIndex ) = scaling * groupValues( term );
+
+                    // Chain rule from the radius to the interpolation variable, whose derivative
+                    // with respect to the radius is minus the variable squared over the smallest
+                    // radius.
+                    const double scaledDerivativeWrtRadius = derivativeOfScaling * groupValues( term ) + scaling * groupDerivatives( term );
+                    scaledSlopes_( gridPoint, termIndex ) = scaledDerivativeWrtRadius * ( -rho * rho / smallestRadius_ );
+
+                    termIndex++;
+                }
+            }
+        }
+
+        if( termIndex != numberOfTerms )
+        {
+            throw std::runtime_error( "Error when tabulating ellipsoidal harmonic radial parts, counted " + std::to_string( termIndex ) +
+                                      " terms but expected " + std::to_string( numberOfTerms ) + "." );
+        }
+    }
+}
+
+void EllipsoidalHarmonicRadialTable::interpolate( const double rho, Eigen::VectorXd& scaledValues, Eigen::VectorXd& scaledSlopes ) const
+{
+    if( !isRadiusInRange( rho ) )
+    {
+        throw std::runtime_error( "Error when interpolating ellipsoidal harmonic radial parts, the ellipsoidal radius " +
+                                  std::to_string( rho ) + " lies outside the tabulated range " + std::to_string( smallestRadius_ ) +
+                                  " to " + std::to_string( largestRadius_ ) + "." );
+    }
+
+    const double variable = smallestRadius_ / rho;
+
+    int cell = static_cast< int >( ( variable - firstVariable_ ) / variableSpacing_ );
+    cell = std::max( 0, std::min( numberOfGridPoints_ - 2, cell ) );
+
+    const double t = ( variable - ( firstVariable_ + cell * variableSpacing_ ) ) / variableSpacing_;
+    const double tSquared = t * t;
+    const double tCubed = tSquared * t;
+
+    // Cubic Hermite basis, and its derivative with respect to the local coordinate.
+    const double valueAtStart = 2.0 * tCubed - 3.0 * tSquared + 1.0;
+    const double slopeAtStart = tCubed - 2.0 * tSquared + t;
+    const double valueAtEnd = -2.0 * tCubed + 3.0 * tSquared;
+    const double slopeAtEnd = tCubed - tSquared;
+
+    const double derivativeOfValueAtStart = 6.0 * tSquared - 6.0 * t;
+    const double derivativeOfSlopeAtStart = 3.0 * tSquared - 4.0 * t + 1.0;
+    const double derivativeOfValueAtEnd = -6.0 * tSquared + 6.0 * t;
+    const double derivativeOfSlopeAtEnd = 3.0 * tSquared - 2.0 * t;
+
+    const Eigen::VectorXd startValues = scaledValues_.row( cell );
+    const Eigen::VectorXd endValues = scaledValues_.row( cell + 1 );
+    const Eigen::VectorXd startSlopes = scaledSlopes_.row( cell );
+    const Eigen::VectorXd endSlopes = scaledSlopes_.row( cell + 1 );
+
+    scaledValues = valueAtStart * startValues + valueAtEnd * endValues +
+            variableSpacing_ * ( slopeAtStart * startSlopes + slopeAtEnd * endSlopes );
+
+    scaledSlopes = ( derivativeOfValueAtStart * startValues + derivativeOfValueAtEnd * endValues ) / variableSpacing_ +
+            derivativeOfSlopeAtStart * startSlopes + derivativeOfSlopeAtEnd * endSlopes;
+}
+
+void EllipsoidalHarmonicRadialTable::evaluate( const double rho, EllipsoidalHarmonicCoefficients& radialFunctions ) const
+{
+    Eigen::VectorXd scaledValues;
+    Eigen::VectorXd scaledSlopes;
+    interpolate( rho, scaledValues, scaledSlopes );
+
+    int termIndex = 0;
+    for( int degree = 0; degree <= maximumDegree_; degree++ )
+    {
+        const double inverseScaling = 1.0 / std::pow( rho, degree + 1 );
+
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            Eigen::VectorXd& groupValues = radialFunctions.getGroup( degree, group );
+
+            for( int term = 0; term < groupValues.size( ); term++ )
+            {
+                groupValues( term ) = scaledValues( termIndex ) * inverseScaling;
+                termIndex++;
+            }
+        }
+    }
+}
+
+void EllipsoidalHarmonicRadialTable::evaluateWithDerivatives( const double rho,
+                                                              EllipsoidalHarmonicCoefficients& radialFunctions,
+                                                              EllipsoidalHarmonicCoefficients& radialFunctionDerivatives ) const
+{
+    Eigen::VectorXd scaledValues;
+    Eigen::VectorXd scaledSlopes;
+    interpolate( rho, scaledValues, scaledSlopes );
+
+    // Derivative of the interpolation variable with respect to the radius.
+    const double variableDerivative = -smallestRadius_ / ( rho * rho );
+
+    int termIndex = 0;
+    for( int degree = 0; degree <= maximumDegree_; degree++ )
+    {
+        const double inverseScaling = 1.0 / std::pow( rho, degree + 1 );
+
+        for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+        {
+            const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+            Eigen::VectorXd& groupValues = radialFunctions.getGroup( degree, group );
+            Eigen::VectorXd& groupDerivatives = radialFunctionDerivatives.getGroup( degree, group );
+
+            for( int term = 0; term < groupValues.size( ); term++ )
+            {
+                const double value = scaledValues( termIndex ) * inverseScaling;
+                groupValues( term ) = value;
+
+                // Undo the scaling on the derivative as well: the scaled part was multiplied by
+                // the radius to a power, which itself depends on the radius.
+                const double scaledDerivativeWrtRadius = scaledSlopes( termIndex ) * variableDerivative;
+                groupDerivatives( term ) = inverseScaling * scaledDerivativeWrtRadius - ( degree + 1 ) * value / rho;
+
+                termIndex++;
+            }
+        }
+    }
+}
+
 EllipsoidalHarmonicCoefficients normaliseCoefficientsToReferenceSurface(
         const EllipsoidalHarmonicCoefficients& fileCoefficients,
         const EllipsoidalHarmonicCoefficients& radialFunctionsAtReferenceSurface )

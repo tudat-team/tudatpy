@@ -76,6 +76,8 @@ BOOST_AUTO_TEST_CASE( testEllipsoidalHarmonicsAccelerationPartial )
                                                           getDataDirectory( ) + "67p_transform_factors.txt",
                                                           15,
                                                           24,
+                                                          3200,
+                                                          0.0,
                                                           "Comet_fixed" );
     comet->setGravityFieldModel( createGravityFieldModel( gravityFieldSettings, "Comet", bodies ) );
 

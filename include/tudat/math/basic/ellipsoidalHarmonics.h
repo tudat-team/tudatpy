@@ -380,6 +380,116 @@ Eigen::Matrix3d computeEllipsoidalHarmonicPotentialHessian( const EllipsoidalHar
                                                             const double h,
                                                             const double k );
 
+//! Total number of terms up to and including the given degree, which is ( degree + 1 )^2.
+int getTotalNumberOfTerms( const int maximumDegree );
+
+/*! The radial parts tabulated against the ellipsoidal radius, for fast repeated evaluation.
+ *
+ * Computing the radial parts means one numerical integration per term, which dominates the cost
+ * of an evaluation. They depend on the ellipsoidal radius and on nothing else, so they can be
+ * built once on a grid of radii and interpolated afterwards. That is what makes the model cheap
+ * enough to propagate with, where every step is at a new radius and so a cache keyed on
+ * position never helps.
+ *
+ * Interpolation is done in the reciprocal radius, which keeps the far field compact, and on the
+ * radial parts scaled by the power of the radius they fall off with, which keeps them flat and
+ * well conditioned. Node derivatives come from the analytic derivative of the radial parts, so
+ * one cubic Hermite table serves both the value and the derivative.
+ *
+ * Outside the tabulated range the caller should fall back on the exact routines; the table
+ * reports its own limits for that purpose.
+ */
+class EllipsoidalHarmonicRadialTable
+{
+public:
+    /*! Constructor, which builds the table.
+     *
+     * @param lameFunctionCoefficients Lame polynomial coefficients of every term.
+     * @param smallestRadius Smallest ellipsoidal radius to cover, normally the longest semi-axis
+     *      of the reference ellipsoid, since the expansion is not valid inside it.
+     * @param largestRadius Largest ellipsoidal radius to cover.
+     * @param h First focal parameter of the reference ellipsoid.
+     * @param k Second focal parameter of the reference ellipsoid.
+     * @param quadratureOrder Number of Gauss-Legendre nodes used when building the table.
+     * @param numberOfGridPoints Number of radii in the table. Accuracy improves as the fourth
+     *      power of the spacing, so a few hundred points is already far below the precision of
+     *      typical input coefficients.
+     */
+    EllipsoidalHarmonicRadialTable( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
+                                    const double smallestRadius,
+                                    const double largestRadius,
+                                    const double h,
+                                    const double k,
+                                    const int quadratureOrder,
+                                    const int numberOfGridPoints );
+
+    //! Whether the given ellipsoidal radius lies within the tabulated range.
+    bool isRadiusInRange( const double rho ) const
+    {
+        return rho >= smallestRadius_ && rho <= largestRadius_;
+    }
+
+    /*! Radial part of every term at the given radius, by interpolation.
+     *
+     * @param rho Ellipsoidal radius, which must lie within the tabulated range.
+     * @param radialFunctions Output, allocated by createEllipsoidalHarmonicCoefficients.
+     */
+    void evaluate( const double rho, EllipsoidalHarmonicCoefficients& radialFunctions ) const;
+
+    /*! Radial part of every term and its derivative, by interpolation.
+     *
+     * @param rho Ellipsoidal radius, which must lie within the tabulated range.
+     * @param radialFunctions Output for the values.
+     * @param radialFunctionDerivatives Output for the derivatives with respect to the radius.
+     */
+    void evaluateWithDerivatives( const double rho,
+                                  EllipsoidalHarmonicCoefficients& radialFunctions,
+                                  EllipsoidalHarmonicCoefficients& radialFunctionDerivatives ) const;
+
+    double getSmallestRadius( ) const
+    {
+        return smallestRadius_;
+    }
+
+    double getLargestRadius( ) const
+    {
+        return largestRadius_;
+    }
+
+    int getNumberOfGridPoints( ) const
+    {
+        return numberOfGridPoints_;
+    }
+
+private:
+    /*! Interpolates the scaled radial parts and their derivatives with respect to the
+     *  interpolation variable, at the given radius.
+     */
+    void interpolate( const double rho, Eigen::VectorXd& scaledValues, Eigen::VectorXd& scaledSlopes ) const;
+
+    const int maximumDegree_;
+
+    const double smallestRadius_;
+
+    const double largestRadius_;
+
+    const int numberOfGridPoints_;
+
+    //! Value of the interpolation variable at the first grid point, and the spacing between them.
+    double firstVariable_;
+
+    double variableSpacing_;
+
+    //! Degree of each term, in the flat order the table stores them in.
+    Eigen::VectorXi degreeOfTerm_;
+
+    //! Entry ( i, j ) is the scaled radial part of term j at grid point i.
+    Eigen::MatrixXd scaledValues_;
+
+    //! Entry ( i, j ) is its derivative with respect to the interpolation variable.
+    Eigen::MatrixXd scaledSlopes_;
+};
+
 /*! Divides each coefficient by the radial part of its own term at the reference ellipsoid.
  *
  * The coefficient files are normalised to the surface of the reference ellipsoid, so this has

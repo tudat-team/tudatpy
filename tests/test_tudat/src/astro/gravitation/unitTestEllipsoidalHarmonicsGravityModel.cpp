@@ -58,6 +58,8 @@ std::shared_ptr< GravityFieldSettings > getTestFieldSettings( const std::string&
                                                          getDataDirectory( ) + "67p_transform_factors.txt",
                                                          15,
                                                          24,
+                                                         3200,
+                                                         0.0,
                                                          frameName );
 }
 

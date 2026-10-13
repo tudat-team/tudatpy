@@ -549,6 +549,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                         ellipsoidalHarmonicsFieldSettings->getLameFunctionCoefficients( ),
                         ellipsoidalHarmonicsFieldSettings->getTransformFactors( ),
                         ellipsoidalHarmonicsFieldSettings->getQuadratureOrder( ),
+                        ellipsoidalHarmonicsFieldSettings->getRadialTableGridPoints( ),
+                        ellipsoidalHarmonicsFieldSettings->getRadialTableLargestRadius( ),
                         associatedReferenceFrame,
                         inertiaTensorUpdateFunction );
             }
@@ -680,6 +682,8 @@ std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromF
                                                                                       const std::string& transformFactorFile,
                                                                                       const int maximumDegree,
                                                                                       const int quadratureOrder,
+                                                                                      const int radialTableGridPoints,
+                                                                                      const double radialTableLargestRadius,
                                                                                       const std::string& associatedReferenceFrame )
 {
     return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >(
@@ -688,6 +692,8 @@ std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromF
             input_output::readLameFunctionCoefficients( lameFunctionCoefficientFile, maximumDegree ),
             input_output::readEllipsoidalHarmonicTransformFactors( transformFactorFile, maximumDegree ),
             quadratureOrder,
+            radialTableGridPoints,
+            radialTableLargestRadius,
             associatedReferenceFrame );
 }
 

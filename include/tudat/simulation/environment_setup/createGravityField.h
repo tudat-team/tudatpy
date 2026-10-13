@@ -569,6 +569,10 @@ public:
      * @param lameFunctionCoefficients Lame polynomial coefficients of every term.
      * @param transformFactors Factors that mix the terms within each group.
      * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
+     * @param radialTableGridPoints Number of radii at which to tabulate the radial parts, which
+     *      is what makes repeated evaluation cheap. Zero integrates them exactly every time.
+     * @param radialTableLargestRadius Largest ellipsoidal radius the table covers; beyond it the
+     *      radial parts are integrated exactly. Zero uses fifty times the longest semi-axis.
      * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
      */
     EllipsoidalHarmonicsGravityFieldSettings( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
@@ -576,10 +580,13 @@ public:
                                               const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                               const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
                                               const int quadratureOrder = 24,
+                                              const int radialTableGridPoints = 3200,
+                                              const double radialTableLargestRadius = 0.0,
                                               const std::string& associatedReferenceFrame = "" ):
         GravityFieldSettings( ellipsoidal_harmonic ), referenceEllipsoidSemiAxes_( referenceEllipsoidSemiAxes ),
         coefficients_( coefficients ), lameFunctionCoefficients_( lameFunctionCoefficients ), transformFactors_( transformFactors ),
-        quadratureOrder_( quadratureOrder ), associatedReferenceFrame_( associatedReferenceFrame )
+        quadratureOrder_( quadratureOrder ), radialTableGridPoints_( radialTableGridPoints ),
+        radialTableLargestRadius_( radialTableLargestRadius ), associatedReferenceFrame_( associatedReferenceFrame )
     {}
 
     virtual ~EllipsoidalHarmonicsGravityFieldSettings( ) {}
@@ -634,6 +641,26 @@ public:
         quadratureOrder_ = quadratureOrder;
     }
 
+    int getRadialTableGridPoints( )
+    {
+        return radialTableGridPoints_;
+    }
+
+    void resetRadialTableGridPoints( const int radialTableGridPoints )
+    {
+        radialTableGridPoints_ = radialTableGridPoints;
+    }
+
+    double getRadialTableLargestRadius( )
+    {
+        return radialTableLargestRadius_;
+    }
+
+    void resetRadialTableLargestRadius( const double radialTableLargestRadius )
+    {
+        radialTableLargestRadius_ = radialTableLargestRadius;
+    }
+
     std::string getAssociatedReferenceFrame( )
     {
         return associatedReferenceFrame_;
@@ -654,6 +681,10 @@ private:
     basic_mathematics::EllipsoidalHarmonicMatrices transformFactors_;
 
     int quadratureOrder_;
+
+    int radialTableGridPoints_;
+
+    double radialTableLargestRadius_;
 
     std::string associatedReferenceFrame_;
 };
@@ -988,6 +1019,8 @@ inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettin
         const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
         const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
         const int quadratureOrder = 24,
+        const int radialTableGridPoints = 3200,
+        const double radialTableLargestRadius = 0.0,
         const std::string& associatedReferenceFrame = "" )
 {
     return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >( referenceEllipsoidSemiAxes,
@@ -995,6 +1028,8 @@ inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettin
                                                                          lameFunctionCoefficients,
                                                                          transformFactors,
                                                                          quadratureOrder,
+                                                                         radialTableGridPoints,
+                                                                         radialTableLargestRadius,
                                                                          associatedReferenceFrame );
 }
 
@@ -1017,6 +1052,8 @@ std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromF
                                                                                       const std::string& transformFactorFile,
                                                                                       const int maximumDegree,
                                                                                       const int quadratureOrder = 24,
+                                                                                      const int radialTableGridPoints = 3200,
+                                                                                      const double radialTableLargestRadius = 0.0,
                                                                                       const std::string& associatedReferenceFrame = "" );
 
 enum RigidBodyPropertiesType {

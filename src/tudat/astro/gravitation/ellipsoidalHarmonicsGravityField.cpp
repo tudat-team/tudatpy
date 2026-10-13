@@ -26,17 +26,22 @@ using namespace tudat::basic_mathematics;
 EllipsoidalHarmonicsGravityCache::EllipsoidalHarmonicsGravityCache( const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                                                     const double firstFocalParameter,
                                                                     const double secondFocalParameter,
-                                                                    const int quadratureOrder ):
+                                                                    const int quadratureOrder,
+                                                                    const std::shared_ptr< EllipsoidalHarmonicRadialTable > radialTable ):
     lameFunctionCoefficients_( lameFunctionCoefficients ),
     legendreCache_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
     legendreCacheWithSecondDerivatives_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
     legendreCacheWithDerivatives_( lameFunctionCoefficients.getMaximumDegree( ), lameFunctionCoefficients.getMaximumDegree( ), true ),
-    firstFocalParameter_( firstFocalParameter ), secondFocalParameter_( secondFocalParameter )
+    firstFocalParameter_( firstFocalParameter ), secondFocalParameter_( secondFocalParameter ), radialTable_( radialTable )
 {
     const int maximumDegree = lameFunctionCoefficients.getMaximumDegree( );
     radialFunctions_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
     radialFunctionDerivatives_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
     radialFunctionSecondDerivatives_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    forwardRadialFunctions_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    forwardRadialFunctionDerivatives_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    backwardRadialFunctions_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
+    backwardRadialFunctionDerivatives_ = createEllipsoidalHarmonicCoefficients( maximumDegree );
 
     // The Legendre derivatives are singular on the long axis of the body, so the cache used for
     // the potential leaves them out and only the one used for the gradient computes them.
@@ -56,6 +61,37 @@ EllipsoidalHarmonicsGravityCache::EllipsoidalHarmonicsGravityCache( const Ellips
     ellipsoidalCoordinates_ = Eigen::Vector3d::Zero( );
 }
 
+void EllipsoidalHarmonicsGravityCache::setRadialTable( const std::shared_ptr< EllipsoidalHarmonicRadialTable > radialTable )
+{
+    radialTable_ = radialTable;
+
+    // Anything cached was computed the other way, so force a recomputation.
+    currentBodyFixedPosition_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+    positionOfCachedDerivatives_ = currentBodyFixedPosition_;
+    positionOfCachedSecondDerivatives_ = currentBodyFixedPosition_;
+}
+
+void EllipsoidalHarmonicsGravityCache::evaluateRadialFunctions( const double rho,
+                                                                EllipsoidalHarmonicCoefficients& values,
+                                                                EllipsoidalHarmonicCoefficients& derivatives ) const
+{
+    if( radialTable_ != nullptr && radialTable_->isRadiusInRange( rho ) )
+    {
+        radialTable_->evaluateWithDerivatives( rho, values, derivatives );
+    }
+    else
+    {
+        computeRadialFunctionsAndDerivatives( lameFunctionCoefficients_,
+                                              rho,
+                                              firstFocalParameter_,
+                                              secondFocalParameter_,
+                                              quadratureNodes_,
+                                              quadratureWeights_,
+                                              values,
+                                              derivatives );
+    }
+}
+
 void EllipsoidalHarmonicsGravityCache::update( const Eigen::Vector3d& currentBodyFixedPosition )
 {
     if( currentBodyFixedPosition != currentBodyFixedPosition_ )
@@ -65,13 +101,20 @@ void EllipsoidalHarmonicsGravityCache::update( const Eigen::Vector3d& currentBod
         ellipsoidalCoordinates_ =
                 convertCartesianToEllipsoidalCoordinates( currentBodyFixedPosition, firstFocalParameter_, secondFocalParameter_ );
 
-        computeRadialFunctions( lameFunctionCoefficients_,
-                                ellipsoidalCoordinates_( 0 ),
-                                firstFocalParameter_,
-                                secondFocalParameter_,
-                                quadratureNodes_,
-                                quadratureWeights_,
-                                radialFunctions_ );
+        if( radialTable_ != nullptr && radialTable_->isRadiusInRange( ellipsoidalCoordinates_( 0 ) ) )
+        {
+            radialTable_->evaluate( ellipsoidalCoordinates_( 0 ), radialFunctions_ );
+        }
+        else
+        {
+            computeRadialFunctions( lameFunctionCoefficients_,
+                                    ellipsoidalCoordinates_( 0 ),
+                                    firstFocalParameter_,
+                                    secondFocalParameter_,
+                                    quadratureNodes_,
+                                    quadratureWeights_,
+                                    radialFunctions_ );
+        }
 
         legendreCache_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
     }
@@ -87,14 +130,7 @@ void EllipsoidalHarmonicsGravityCache::updateIncludingDerivatives( const Eigen::
 
         // This recomputes the values as well, but it is the same work: the radial parts and
         // their derivatives share the one integral that dominates the cost.
-        computeRadialFunctionsAndDerivatives( lameFunctionCoefficients_,
-                                              ellipsoidalCoordinates_( 0 ),
-                                              firstFocalParameter_,
-                                              secondFocalParameter_,
-                                              quadratureNodes_,
-                                              quadratureWeights_,
-                                              radialFunctions_,
-                                              radialFunctionDerivatives_ );
+        evaluateRadialFunctions( ellipsoidalCoordinates_( 0 ), radialFunctions_, radialFunctionDerivatives_ );
 
         legendreCacheWithDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
     }
@@ -113,15 +149,27 @@ void EllipsoidalHarmonicsGravityCache::updateIncludingSecondDerivatives( const E
         // gradient would skip its own update and read values that were never filled in.
         positionOfCachedDerivatives_ = currentBodyFixedPosition;
 
-        computeRadialFunctionsAndSecondDerivatives( lameFunctionCoefficients_,
-                                                    ellipsoidalCoordinates_( 0 ),
-                                                    firstFocalParameter_,
-                                                    secondFocalParameter_,
-                                                    quadratureNodes_,
-                                                    quadratureWeights_,
-                                                    radialFunctions_,
-                                                    radialFunctionDerivatives_,
-                                                    radialFunctionSecondDerivatives_ );
+        // The first derivatives come from the same route as the gradient uses, and the second
+        // ones by differencing them, so a Hessian never leaves behind values that disagree with
+        // what the gradient would have produced at the same position.
+        const double rho = ellipsoidalCoordinates_( 0 );
+        evaluateRadialFunctions( rho, radialFunctions_, radialFunctionDerivatives_ );
+
+        const double step = rho * 1.0E-6;
+        evaluateRadialFunctions( rho + step, forwardRadialFunctions_, forwardRadialFunctionDerivatives_ );
+        evaluateRadialFunctions( rho - step, backwardRadialFunctions_, backwardRadialFunctionDerivatives_ );
+
+        for( int degree = 0; degree <= lameFunctionCoefficients_.getMaximumDegree( ); degree++ )
+        {
+            for( int groupIndex = 0; groupIndex < 4; groupIndex++ )
+            {
+                const EllipsoidalHarmonicTermGroup group = static_cast< EllipsoidalHarmonicTermGroup >( groupIndex );
+                radialFunctionSecondDerivatives_.getGroup( degree, group ) =
+                        ( forwardRadialFunctionDerivatives_.getGroup( degree, group ) -
+                          backwardRadialFunctionDerivatives_.getGroup( degree, group ) ) /
+                        ( 2.0 * step );
+            }
+        }
 
         legendreCacheWithSecondDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
         legendreCacheWithDerivatives_.update( std::sin( ellipsoidalCoordinates_( 1 ) ) );
@@ -133,6 +181,8 @@ EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const Eigen:
                                                                     const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                                                     const EllipsoidalHarmonicMatrices& transformFactors,
                                                                     const int quadratureOrder,
+                                                                    const int radialTableGridPoints,
+                                                                    const double radialTableLargestRadius,
                                                                     const std::string& fixedReferenceFrame,
                                                                     const std::function< void( ) > updateInertiaTensor ):
     GravityFieldModel( TUDAT_NAN, updateInertiaTensor ), referenceEllipsoidSemiAxes_( referenceEllipsoidSemiAxes ),
@@ -190,6 +240,23 @@ EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const Eigen:
     // the ellipsoidal radius. The normalised degree zero coefficient is therefore exactly the
     // gravitational parameter.
     resetGravitationalParameter( coefficients_.kTerms.at( 0 )( 0 ) );
+
+    // Tabulating the radial parts against the ellipsoidal radius is what makes repeated
+    // evaluation cheap; outside the tabulated range they are integrated exactly instead.
+    if( radialTableGridPoints > 0 )
+    {
+        const double largestRadius =
+                ( radialTableLargestRadius > 0.0 ) ? radialTableLargestRadius : 50.0 * referenceEllipsoidSemiAxes_( 0 );
+
+        radialTable_ = std::make_shared< EllipsoidalHarmonicRadialTable >( lameFunctionCoefficients_,
+                                                                           referenceEllipsoidSemiAxes_( 0 ),
+                                                                           largestRadius,
+                                                                           firstFocalParameter_,
+                                                                           secondFocalParameter_,
+                                                                           quadratureOrder_,
+                                                                           radialTableGridPoints );
+        gravityCache_->setRadialTable( radialTable_ );
+    }
 }
 
 void EllipsoidalHarmonicsGravityField::checkPositionIsOutsideReferenceEllipsoid( const Eigen::Vector3d& bodyFixedPosition,

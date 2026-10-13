@@ -52,7 +52,8 @@ public:
     EllipsoidalHarmonicsGravityCache( const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                       const double firstFocalParameter,
                                       const double secondFocalParameter,
-                                      const int quadratureOrder );
+                                      const int quadratureOrder,
+                                      const std::shared_ptr< basic_mathematics::EllipsoidalHarmonicRadialTable > radialTable = nullptr );
 
     //! Recomputes what the potential needs, unless the position is the one already cached.
     void update( const Eigen::Vector3d& currentBodyFixedPosition );
@@ -71,6 +72,12 @@ public:
      * radial parts cost several times as much, and the acceleration does not need them.
      */
     void updateIncludingSecondDerivatives( const Eigen::Vector3d& currentBodyFixedPosition );
+
+    /*! Supplies the tabulated radial parts, replacing the exact integration where it applies.
+     *
+     * Anything already cached is discarded, so the next update recomputes.
+     */
+    void setRadialTable( const std::shared_ptr< basic_mathematics::EllipsoidalHarmonicRadialTable > radialTable );
 
     //! Ellipsoidal radius of the cached position.
     double getEllipsoidalRadius( ) const
@@ -127,6 +134,16 @@ public:
     }
 
 private:
+    /*! Radial parts and their first derivatives at one radius, from the table where it applies
+     *  and by exact integration otherwise.
+     *
+     * Everything that needs them goes through here, so the potential, the gradient and the
+     * Hessian can never disagree about which route was taken.
+     */
+    void evaluateRadialFunctions( const double rho,
+                                  basic_mathematics::EllipsoidalHarmonicCoefficients& values,
+                                  basic_mathematics::EllipsoidalHarmonicCoefficients& derivatives ) const;
+
     //! Position the cached values belong to; starts as NaN so the first update always runs.
     Eigen::Vector3d currentBodyFixedPosition_;
 
@@ -148,9 +165,21 @@ private:
 
     basic_mathematics::EllipsoidalHarmonicCoefficients radialFunctionSecondDerivatives_;
 
+    //! Scratch space for differencing the first derivatives to get the second ones.
+    basic_mathematics::EllipsoidalHarmonicCoefficients forwardRadialFunctions_;
+
+    basic_mathematics::EllipsoidalHarmonicCoefficients forwardRadialFunctionDerivatives_;
+
+    basic_mathematics::EllipsoidalHarmonicCoefficients backwardRadialFunctions_;
+
+    basic_mathematics::EllipsoidalHarmonicCoefficients backwardRadialFunctionDerivatives_;
+
     basic_mathematics::LegendreCache legendreCacheWithDerivatives_;
 
     basic_mathematics::LegendreCache legendreCacheWithSecondDerivatives_;
+
+    //! Tabulated radial parts, used in place of the integration where it covers the radius.
+    std::shared_ptr< basic_mathematics::EllipsoidalHarmonicRadialTable > radialTable_;
 
     const double firstFocalParameter_;
 
@@ -178,6 +207,12 @@ public:
      * @param transformFactors Factors that mix the terms within each group.
      * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts. The
      *      default is accurate to well below the precision of typical input coefficients.
+     * @param radialTableGridPoints Number of radii at which to tabulate the radial parts, which
+     *      is what makes repeated evaluation cheap. Zero integrates them exactly every time
+     *      instead. The default matches the accuracy of exact integration, for both the
+     *      potential and its gradient, and costs a few tens of megabytes at degree 15.
+     * @param radialTableLargestRadius Largest ellipsoidal radius the table covers; beyond it the
+     *      radial parts are integrated exactly. Zero uses fifty times the longest semi-axis.
      * @param fixedReferenceFrame Identifier of the body-fixed frame the field is given in.
      * @param updateInertiaTensor Function called to update the inertia tensor, usually supplied
      *      by the Body class.
@@ -187,6 +222,8 @@ public:
                                       const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
                                       const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
                                       const int quadratureOrder = 24,
+                                      const int radialTableGridPoints = 3200,
+                                      const double radialTableLargestRadius = 0.0,
                                       const std::string& fixedReferenceFrame = "",
                                       const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) );
 
@@ -277,6 +314,12 @@ public:
         return quadratureOrder_;
     }
 
+    //! Tabulated radial parts, or a null pointer when they are always integrated exactly.
+    std::shared_ptr< basic_mathematics::EllipsoidalHarmonicRadialTable > getRadialTable( )
+    {
+        return radialTable_;
+    }
+
     //! Field coefficients, with the normalisation to the reference surface already undone.
     basic_mathematics::EllipsoidalHarmonicCoefficients getCoefficients( )
     {
@@ -314,6 +357,9 @@ private:
     const int maximumDegree_;
 
     const int quadratureOrder_;
+
+    //! Tabulated radial parts, shared with the cache. Null when integrating exactly every time.
+    std::shared_ptr< basic_mathematics::EllipsoidalHarmonicRadialTable > radialTable_;
 
     //! Coefficients with the normalisation to the reference surface undone.
     basic_mathematics::EllipsoidalHarmonicCoefficients coefficients_;

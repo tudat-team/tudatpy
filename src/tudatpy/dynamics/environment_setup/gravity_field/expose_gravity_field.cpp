@@ -903,6 +903,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
            py::arg( "transform_factor_file" ),
            py::arg( "maximum_degree" ),
            py::arg( "quadrature_order" ) = 24,
+           py::arg( "radial_table_grid_points" ) = 3200,
+           py::arg( "radial_table_largest_radius" ) = 0.0,
            py::arg( "associated_reference_frame" ) = "",
            R"doc(
 
@@ -936,6 +938,15 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  quadrature_order : int, default = 24
      Number of Gauss-Legendre nodes used for the radial part of each term. The default is
      accurate to well below the precision of typical input coefficients.
+ radial_table_grid_points : int, default = 3200
+     Number of radii at which the radial part of each term is tabulated. This is what makes
+     repeated evaluation cheap, and is worth about a factor four over integrating them every
+     time. Set to zero to integrate them exactly instead, which is slower but avoids the
+     interpolation error. The default is chosen so that the error is no larger than that of
+     exact integration, and costs a few tens of megabytes at degree 15.
+ radial_table_largest_radius : float, default = 0.0
+     Largest ellipsoidal radius the table covers; beyond it the radial parts are integrated
+     exactly. Zero uses fifty times the longest semi-axis.
  associated_reference_frame : str, default = ""
      Identifier of the body-fixed frame the field is given in. If left empty, it is taken from
      the body's rotation model.
