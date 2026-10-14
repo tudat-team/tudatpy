@@ -498,6 +498,7 @@ def test_parses_optical_psv(file_path_psv):
     )
 
 
+@pytest.mark.remote_data
 def test_parses_radar_xml(file_path_xml_radar):
     result = parser.parse_ades_file(file_path_xml_radar)
 
