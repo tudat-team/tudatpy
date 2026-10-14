@@ -127,6 +127,7 @@ public:
     }
 
 private:
+    //! Sum selected models, omitting only unavailable position coverage when permitted.
     template< bool State, typename Epoch >
     Eigen::Matrix< double, State ? 6 : 3, 1 > evaluateMotion( const Epoch& input, const std::shared_ptr< GroundStationState > station )
     {
@@ -149,17 +150,17 @@ private:
                     tdb = input;
                 if( !State || !throwExceptionWhenNotAvailable_ ) displacement = model->evaluateDisplacement( tdb, station );
             }
-            catch( const std::invalid_argument& )
+            catch( const std::out_of_range& )
             {
-                throw;
-            }
-            catch( const std::exception& )
-            {
-                if( throwExceptionWhenNotAvailable_ ) throw;
+                if( throwExceptionWhenNotAvailable_ )
+                {
+                    throw;
+                }
                 continue;
             }
             if( ( !State || !throwExceptionWhenNotAvailable_ ) && !displacement.allFinite( ) )
                 throw std::runtime_error( "Non-finite body deformation displacement." );
+            // A selected position does not guarantee a rate; derivative failures must propagate.
             if constexpr( State )
                 result += model->calculateDisplacementState( tdb, station );
             else

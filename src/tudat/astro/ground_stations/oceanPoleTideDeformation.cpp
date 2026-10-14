@@ -37,6 +37,7 @@ Eigen::Vector3d calculateOceanPoleTideLoading( const Eigen::Matrix< double, 3, 2
               ( wobbleRadians.y( ) * 0.6870 - wobbleRadians.x( ) * 0.0036 ) * coefficients.col( 1 ) );
 }
 
+//! Interpolate a checked grid, reporting absent latitude/longitude coverage separately from invalid coordinates.
 static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficients( const input_output::OceanPoleTideGrid& grid,
                                                                                     const double latitudeDegrees,
                                                                                     const double longitudeDegrees,
@@ -61,7 +62,7 @@ static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficien
     {
         if( latitudePolicy == OceanPoleTideLatitudePolicy::requireGridCoverage )
         {
-            throw std::runtime_error( "Ocean pole-tide latitude lies outside the supplied grid coverage" );
+            throw std::out_of_range( "Ocean pole-tide latitude lies outside the supplied grid coverage" );
         }
         latitude = std::clamp( latitude, grid.firstLatitudeDegrees, lastLatitude );
     }
@@ -80,7 +81,7 @@ static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficien
     const double lastLongitudeOffset = ( grid.longitudeCount - 1 ) * grid.longitudeStepDegrees;
     if( !periodic && longitude > lastLongitudeOffset + 1e-9 )
     {
-        throw std::runtime_error( "Ocean pole-tide longitude lies outside the supplied grid coverage" );
+        throw std::out_of_range( "Ocean pole-tide longitude lies outside the supplied grid coverage" );
     }
     if( !periodic )
     {

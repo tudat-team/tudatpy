@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRate )
            basis( p ) *
                    independentLocal( row.coefficientsMetres,
                                      static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) );
-    BOOST_CHECK_THROW( model.calculateDisplacement( epoch, station( p, nullptr, "783" ) ), std::runtime_error );
+    BOOST_CHECK_THROW( model.calculateDisplacement( epoch, station( p, nullptr, "783" ) ), std::out_of_range );
     const std::shared_ptr< BodyDeformationModel > base = std::make_shared< AtmosphericTideDeformation >( data, c, explicitGeometry( ) );
     const double ut1 = static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) );
     const Eigen::Vector3d expected =
@@ -282,9 +282,9 @@ BOOST_AUTO_TEST_CASE( modelEndpointPoliciesAndRegionalCoverage )
     BOOST_CHECK_EQUAL( approximate.getGridInterpolator( )->getProviderGrid( ).coefficientsMetres.back( )( 0, 0 ),
                        g.coefficientsMetres.back( )( 0, 0 ) );
     const Time epoch( tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. ) ) );
-    BOOST_CHECK_THROW( approximate.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, 0, 6378137 ) ) ), std::runtime_error );
+    BOOST_CHECK_THROW( approximate.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, 0, 6378137 ) ) ), std::out_of_range );
     AtmosphericTideDeformation regional( grid( ), c, explicitGeometry( ) );
-    BOOST_CHECK_THROW( regional.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, -6378137, 0 ) ) ), std::runtime_error );
+    BOOST_CHECK_THROW( regional.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, -6378137, 0 ) ) ), std::out_of_range );
 }
 BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
 {

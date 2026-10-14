@@ -192,15 +192,19 @@ void validateAtmosphericTideGrid( const AtmosphericTideGrid& grid )
         require( node.allFinite( ), "nonfinite coefficients" );
     }
 }
+
+//! Select a provider station, reporting explicit absence separately from malformed data.
 const AtmosphericTideStation& AtmosphericTideStationData::getStation( const std::string& identifier ) const
 {
     const auto station = stations.find( identifier );
+
     if( station == stations.end( ) )
     {
-        throw std::runtime_error( "Atmospheric tide station not found: " + identifier );
+        throw std::out_of_range( "Atmospheric tide station not found: " + identifier );
     }
     return station->second;
 }
+
 void validateAtmosphericTideStationData( const AtmosphericTideStationData& data )
 {
     validateMetadata( data.metadata );

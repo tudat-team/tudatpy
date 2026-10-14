@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndExplicitClamp )
                        1e-14 );
     for( double lat : { -90.0, 90.0 } )
     {
-        BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, lat, 45 ), std::runtime_error );
+        BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, lat, 45 ), std::out_of_range );
         const double edge = lat < 0 ? -89.75 : 89.75;
         BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients(
                                      grid, lat, 45, OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation ) -
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndExplicitClamp )
             std::runtime_error );
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 0, NAN ), std::runtime_error );
     const auto extract = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
-    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::runtime_error );
+    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::out_of_range );
     BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( extract, -43.5, 232.5 ) -
                          Eigen::Matrix< double, 3, 2 >( ( extract.coefficients[ 0 ] + extract.coefficients[ 1 ] +
                                                           extract.coefficients[ 2 ] + extract.coefficients[ 3 ] ) /

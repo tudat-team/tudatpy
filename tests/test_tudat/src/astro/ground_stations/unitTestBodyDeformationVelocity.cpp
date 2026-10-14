@@ -49,8 +49,8 @@ struct AnalyticStateDeformation : FunctionDeformation {
     }
 };
 
-struct CoverageError : std::runtime_error {
-    CoverageError( ): std::runtime_error( "Unavailable derivative sample" ) {}
+struct CoverageError : std::out_of_range {
+    CoverageError( ): std::out_of_range( "Unavailable derivative sample" ) {}
 };
 
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > makeIersModel(
@@ -220,6 +220,12 @@ BOOST_AUTO_TEST_CASE( optional_missing_model_does_not_hide_rate_failure )
     std::vector< std::shared_ptr< BodyDeformationModel > > models = { unavailable };
     auto station = stationWithModels( models, false );
     BOOST_CHECK_SMALL( station->getCartesianStateInTime( 0.0, "" ).tail< 3 >( ).norm( ), 1.0e-15 );
+    // An optional model may omit absent data, but must report a failing calculation at the requested epoch.
+    models[ 0 ] = std::make_shared< FunctionDeformation >( []( double ) -> Eigen::Vector3d {
+        throw std::runtime_error( "Invalid displacement callback result" );
+    } );
+    BOOST_CHECK_THROW( station->getCartesianPositionInTime( 0.0, "" ), std::runtime_error );
+    BOOST_CHECK_THROW( station->getCartesianStateInTime( 0.0, "" ), std::runtime_error );
     models[ 0 ] = std::make_shared< FunctionDeformation >( []( double t ) {
         if( t != 0.0 )
         {

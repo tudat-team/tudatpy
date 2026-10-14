@@ -32,7 +32,9 @@ public:
     AtmosphericTideGridInterpolator(
             const input_output::AtmosphericTideGrid& grid,
             const AtmosphericTideEndpointPolicy endpointPolicy = AtmosphericTideEndpointPolicy::requireConsistency );
+    //! Interpolate metre coefficients at degree coordinates; missing spatial coverage raises std::out_of_range.
     Eigen::Matrix< double, 3, 4 > interpolate( const double providerLatitudeDegrees, const double providerLongitudeDegrees ) const;
+
     //! The original neutral grid, including both conflicting endpoints, is never modified.
     const input_output::AtmosphericTideGrid& getProviderGrid( ) const
     {

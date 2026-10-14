@@ -231,12 +231,14 @@ const std::array< std::string, 11 >& getOceanLoadingConstituentNames( )
     return names;
 }
 
+//! Select a provider station, reporting explicit absence separately from malformed data.
 const OceanLoadingStation& OceanLoadingData::getStation( const std::string& stationIdentifier ) const
 {
     const auto station = stations.find( stationIdentifier );
+
     if( station == stations.end( ) )
     {
-        throw std::runtime_error( "Ocean loading station '" + stationIdentifier + "' is absent from " + source );
+        throw std::out_of_range( "Ocean loading station '" + stationIdentifier + "' is absent from " + source );
     }
     return station->second;
 }

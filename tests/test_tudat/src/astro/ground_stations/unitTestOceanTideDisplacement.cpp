@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).sourceHeaders.size( ), headerCount );
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).stations.count( "ADDED_FIRST" ), 0 );
     BOOST_CHECK_SMALL( ( enuDisplacement( preloaded, 1.0E8, "ONSALA" ) - before ).norm( ), 1.0E-14 );
-    BOOST_CHECK_THROW( enuDisplacement( preloaded, 0.0, "MISSING" ), std::runtime_error );
+    BOOST_CHECK_THROW( enuDisplacement( preloaded, 0.0, "MISSING" ), std::out_of_range );
 }
 
 namespace
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
             data, []( const double time ) { return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
     checkOceanLoadingVector(
             enuDisplacement( explicitLegacy, tdbFromTt( 1.0E8 ), "ONSALA" ), enuDisplacement( callbackLegacy, 1.0E8, "ONSALA" ), 1.0E-14 );
-    BOOST_CHECK_THROW( enuDisplacement( zero, 0.0, "MISSING" ), std::runtime_error );
+    BOOST_CHECK_THROW( enuDisplacement( zero, 0.0, "MISSING" ), std::out_of_range );
     BOOST_CHECK_THROW( enuDisplacement( zero, std::numeric_limits< double >::quiet_NaN( ), "ONSALA" ), std::invalid_argument );
 }
 

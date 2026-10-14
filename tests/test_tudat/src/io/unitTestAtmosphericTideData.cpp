@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( stationIdentityCoordinatesAndSignedSiCoefficients )
     BOOST_CHECK_SMALL( a.coefficientsMetres( 0, 0 ) + .0003414, 1e-18 );
     BOOST_CHECK_SMALL( a.coefficientsMetres( 1, 2 ) - .0000310, 1e-18 );
     BOOST_CHECK_SMALL( data.getStation( "ADE1" ).coefficientsMetres( 2, 3 ) - .0001892, 1e-18 );
-    BOOST_CHECK_THROW( data.getStation( "MISSING" ), std::runtime_error );
+    BOOST_CHECK_THROW( data.getStation( "MISSING" ), std::out_of_range );
 }
 BOOST_AUTO_TEST_CASE( invalidGridAndStationStructures )
 {

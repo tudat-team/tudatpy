@@ -553,7 +553,7 @@ Eigen::Vector3d OceanTideEarthDeformation::calculateGeocentricEnuDisplacement( c
     // Check to see if requested site is available.
     if( siteOceanTideAmplitudes_.count( siteIdentifier ) == 0 )
     {
-        throw std::runtime_error( "Error, requested site: " + siteIdentifier +
+        throw std::out_of_range( "Error, requested site: " + siteIdentifier +
                                   ", which is not available for ocean tide displacement calculation (blq file missing)" );
     }
 

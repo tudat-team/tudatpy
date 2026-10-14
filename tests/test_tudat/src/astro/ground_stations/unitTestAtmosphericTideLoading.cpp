@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( interpolationIndependentLinearCasesAndRawEndpointRetention
     {
         BOOST_CHECK_SMALL( ( model.interpolate( 0, lon ) - Eigen::Matrix< double, 3, 4 >::Constant( 10 ) ).norm( ), 1e-14 );
     }
-    BOOST_CHECK_THROW( model.interpolate( 90, 0 ), std::runtime_error );
+    BOOST_CHECK_THROW( model.interpolate( 90, 0 ), std::out_of_range );
     auto inconsistent = raw;
     inconsistent.coefficientsMetres.back( )( 0, 0 ) += 8e-7;
     BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideGridInterpolator( inconsistent ) ), std::runtime_error );
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( realGridNodesAndIndependentDecimalInterpolation )
     BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideGridInterpolator( polarRaw ) ), std::runtime_error );
     AtmosphericTideGridInterpolator polarApproximation( polarRaw,
                                                         AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation );
-    BOOST_CHECK_THROW( polarApproximation.interpolate( 90, 10 ), std::runtime_error );
+    BOOST_CHECK_THROW( polarApproximation.interpolate( 90, 10 ), std::out_of_range );
     // Independent Decimal interpolation of four original provider rows; this is not reference-software conformance.
     Eigen::Matrix< double, 3, 4 > expected;
     expected << -.229413396401398, -.140409687704627, 1.040762193571904, .276668845291711, .059365717547470, .059123892373735,

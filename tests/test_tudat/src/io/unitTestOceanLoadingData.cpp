@@ -76,8 +76,8 @@ BOOST_AUTO_TEST_CASE( testProviderHeadersAndCoefficientConventions )
     BOOST_CHECK_EQUAL( station.phaseLagsDegrees( 1, 10 ), -177.7 );
     BOOST_CHECK_EQUAL( station.phaseLagsDegrees( 2, 10 ), 5.2 );
     BOOST_CHECK_EQUAL( input_output::getOceanLoadingConstituentNames( )[ 8 ], "Mf" );
-    BOOST_CHECK_THROW( data.getStation( "MISSING" ), std::runtime_error );
-    BOOST_CHECK_THROW( data.getStation( "onsala" ), std::runtime_error );
+    BOOST_CHECK_THROW( data.getStation( "MISSING" ), std::out_of_range );
+    BOOST_CHECK_THROW( data.getStation( "onsala" ), std::out_of_range );
 
     const auto cm = parseText( replaceText( providerBlock, "CMC: NO", "CMC: YES" ) );
     BOOST_CHECK( cm.getStation( "ONSALA" ).referenceOrigin == input_output::OceanLoadingReferenceOrigin::wholeEarthCentreOfMass );

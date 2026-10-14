@@ -19,6 +19,7 @@ Eigen::Vector3d calculateOceanPoleTideLoading( const Eigen::Matrix< double, 3, 2
                                                const double scaleMetresPerRadian = 5340.428562229677 );
 
 //! Bilinear interpolation in the model layer; longitude wraps only for grids spanning a complete period.
+//! A valid coordinate outside the supplied coverage raises std::out_of_range under the strict policy.
 Eigen::Matrix< double, 3, 2 > interpolateOceanPoleTideCoefficients(
         const input_output::OceanPoleTideGrid& grid,
         const double latitudeDegrees,

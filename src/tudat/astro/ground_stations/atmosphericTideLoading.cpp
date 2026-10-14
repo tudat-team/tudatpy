@@ -141,6 +141,7 @@ AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_ou
     }
 }
 
+//! Interpolate provider metre coefficients, distinguishing invalid coordinates from absent grid coverage.
 Eigen::Matrix< double, 3, 4 > AtmosphericTideGridInterpolator::interpolate( const double latitude, const double longitude ) const
 {
     if( !std::isfinite( latitude ) || !std::isfinite( longitude ) || std::abs( latitude ) > 90 )
@@ -153,7 +154,7 @@ Eigen::Matrix< double, 3, 4 > AtmosphericTideGridInterpolator::interpolate( cons
     double y = ( latitude - lat.front( ) ) / latStep;
     if( y < -1e-10 || y > lat.size( ) - 1 + 1e-10 )
     {
-        throw std::runtime_error( "Latitude outside atmospheric grid coverage" );
+        throw std::out_of_range( "Latitude outside atmospheric grid coverage" );
     }
     y = std::clamp( y, 0.0, static_cast< double >( lat.size( ) - 1 ) );
     double degrees = std::fmod( ( longitude - lon.front( ) ) * ( lonStep > 0 ? 1 : -1 ), 360.0 );
@@ -169,7 +170,7 @@ Eigen::Matrix< double, 3, 4 > AtmosphericTideGridInterpolator::interpolate( cons
     const std::size_t uniqueLongitudes = lon.size( ) - ( duplicatedSeam_ ? 1 : 0 );
     if( !periodic_ && x > lon.size( ) - 1 + 1e-10 )
     {
-        throw std::runtime_error( "Longitude outside atmospheric grid coverage" );
+        throw std::out_of_range( "Longitude outside atmospheric grid coverage" );
     }
     if( !periodic_ )
     {

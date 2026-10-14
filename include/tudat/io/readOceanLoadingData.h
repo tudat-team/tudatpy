@@ -40,7 +40,7 @@ struct OceanLoadingData {
     std::vector< std::string > sourceHeaders;
     std::map< std::string, OceanLoadingStation > stations;
 
-    //! Exact identifier lookup; throws if the requested station is absent.
+    //! Exact identifier lookup; throws std::out_of_range if the requested station is absent.
     const OceanLoadingStation& getStation( const std::string& stationIdentifier ) const;
 };
 
