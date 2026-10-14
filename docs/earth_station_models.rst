@@ -70,7 +70,7 @@ validation ledger below records completed changes and remaining limitations.
    [ ] 07 Resolve inertial frames, time scales and displacement conventions.
    [ ] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
    [ ] 09 Implement EOP validity and leap-safe interpolation policies.
-   [ ] 10 Verify existing short-period EOP corrections independently.
+   [x] 10 Verify existing short-period EOP corrections independently.
    [ ] 11 Complete Earth-rotation derivatives.
    [ ] 12 Complete deformation velocities and full station-state closure.
    [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.
@@ -168,3 +168,22 @@ open for the other models' reference packages.
 After these corrections, all 12 targeted C++ integration executables pass,
 along with both source-dependency checks.  Python binding compilation follows
 integration of the new EOP and ocean-loading input modules.
+
+Task 10: executed pinned, unmodified PMSDNUT2, UTLIBR, ORTHO_EOP/CNMTX
+and the Paris Observatory 71-wave ocean routine at 35 epochs spanning
+1962--2025 and an 18.6-year nodal cycle. C++ tests distinguish exact reference
+arguments from the production time/argument path, check default summed
+corrections and single application of daily polar motion and observed CPO,
+and cover positive amplitude cutoffs and empty results. Corrected a reversed
+amplitude/multiplier argument order in coefficient filtering and updated the
+legacy PMSDNUT2 check to the corrected 2011 reference values.
+
+The published Table 5.1b T2 UT1 sine coefficient is 0.05 microseconds, whereas
+UTLIBR uses 0.04. Tudat retains the published coefficient; the regression
+explicitly accounts for that independently documented difference. The original
+UTLIBR LOD convention is tested separately and is not represented as a new
+production LOD API. Source hashes, licensing, generation instructions and
+tolerance budgets are recorded in ``short_period_reference/README.md`` beside
+the C++ suite. All nine short-period test cases pass; the complete set of
+12 selected integration executables also passes after this change (1.63 s).
+Broader interpolation, time-scale and rotation-rate work remains open.

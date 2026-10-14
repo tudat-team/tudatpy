@@ -1,0 +1,45 @@
+{
+  "retrieved_on": "2026-10-14",
+  "files": {
+    "CAL2JD.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter7/software/dehanttideinel/CAL2JD.F",
+      "sha256": "686af399ea3a493e6c0ca659d2d64f367280f5bb331584ded0800ae8d45964d3"
+    },
+    "CNMTX.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter8/software/CNMTX.F",
+      "sha256": "8a29c599275110990e6ce93254995d498edbccc523edb2de508455736f45fc93"
+    },
+    "DAT.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter7/software/dehanttideinel/DAT.F",
+      "sha256": "64a5a69c38d41f6d9b64204f353f5ce46750d59a1067ca507cb9b6e71e934462"
+    },
+    "FUNDARG.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter5/software/FUNDARG.F",
+      "sha256": "18263cbb1289e222e6ee6e59d52beb343eb77a63ed3212e4f05a4c85d475ae78"
+    },
+    "ORTHO_EOP.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter8/software/ORTHO_EOP.F",
+      "sha256": "dfd1524b583f2a0f11baf2f03282d0f5ba5731026ac1fdaff4aa6e9460995022"
+    },
+    "PMSDNUT2.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter5/software/PMSDNUT2.F",
+      "sha256": "0818b58bc2a420e1eb3f951d8a74646e5fe7b5371c9beb5e89fa37c12dd0d965"
+    },
+    "UTLIBR.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter5/software/UTLIBR.F",
+      "sha256": "f523335d552ac14b661121a081ad799382312d819853c674bc0102484b5e2406"
+    },
+    "icc5.pdf": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter5/icc5.pdf",
+      "sha256": "9ec6fac43f7037ff43896539d759333fc7e6007176cd72043b38d71cfd3e69c0"
+    },
+    "interp.f": {
+      "url": "https://hpiers.obspm.fr/eoppc/models/interp.f",
+      "sha256": "9ff5f893ac06c8d4123ec45cecde4df99f18cb2f3b19518bcd7494b6aa35b4e6"
+    },
+    "interp.readme": {
+      "url": "https://hpiers.obspm.fr/eoppc/models/interp.readme",
+      "sha256": "becb272b0d153c54d9e31ef8b8ec4d24faa7289e7c163af47f35e9f273c838f2"
+    }
+  }
+}

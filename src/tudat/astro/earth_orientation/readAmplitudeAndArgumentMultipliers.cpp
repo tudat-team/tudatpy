@@ -48,7 +48,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > readAmplitudesAndFundamentalArgume
     {
         // Filter raw data and remove entries with RSS amplitude that is too low
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > filteredData =
-                filterRawDataForAmplitudes( fundamentalArgumentMultipliersRaw, amplitudesRaw, minimumAmplitude );
+                filterRawDataForAmplitudes( amplitudesRaw, fundamentalArgumentMultipliersRaw, minimumAmplitude );
         amplitudes = filteredData.first;
         fundamentalArgumentMultipliers = filteredData.second;
     }
