@@ -54,3 +54,6 @@ TUDAT_ADD_TEST_CASE(EarthDeformationTimeRouting
 TUDAT_ADD_TEST_CASE(AtmosphericTideLoading PRIVATE_LINKS tudat_ground_stations tudat_atmospheric_loading_data)
 
 TUDAT_ADD_TEST_CASE(AtmosphericTideDeformation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} tudat_atmospheric_loading_data)
+
+TUDAT_ADD_TEST_CASE(CompleteEarthStationVelocity
+    PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} tudat_ocean_loading_data tudat_terrestrial_frame_data)

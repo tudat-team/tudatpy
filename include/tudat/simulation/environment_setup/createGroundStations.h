@@ -13,6 +13,7 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ephemerides/customEphemeris.h"
+#include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/math/interpolators/createInterpolator.h"
@@ -396,11 +397,12 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
 //! Function to create an ephemeris for a reference point on a body
 /*!
  *  Function to create an ephemeris for a reference point on a body, taking into account the time-variable rotation
- *  of the body and its global ephemeris
+ *  of the body and its global ephemeris. Epochs and body-fixed velocities use TDB.
+ *  Native GCRS/ITRS rotation models are evaluated in TDB through their existing
+ *  angle calculator, regardless of their standalone input time scale.
  *  \param bodyWithReferencePoint Body on which reference point is located
- *  \param bodyRotationModel Rotation model that is to be used for going from body-fixed to inertial frame
  *  \param referencePointStateFunction Function returning the state of the reference point on the body (in a body-fixed
- *  frame).
+ *  frame, with velocity equal to the TDB derivative of position).
  *  \return Reference point ephemeris in global coordinates.
  */
 template< typename TimeType = double, typename StateScalarType = double >
@@ -425,6 +427,16 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
     if( referencePointStateFunction == nullptr )
     {
         throw std::runtime_error( "Error when creating reference point ephemeris, no reference point state function is provided" );
+    }
+
+    // Environment ephemerides and the complete local station state use TDB.
+    // Evaluate a native Earth rotation through that same clock, including its
+    // derivative, even if its standalone API declares TT, TAI, UTC or UT1.
+    // Sharing the angle calculator retains all EOP and interpolation policies.
+    if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyRotationModel ) )
+    {
+        bodyRotationModel = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
+                earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
     }
 
     // Create list of state/rotation functions that are to be used
