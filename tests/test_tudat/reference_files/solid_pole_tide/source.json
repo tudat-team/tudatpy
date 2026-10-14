@@ -1,0 +1,16 @@
+{
+  "url": "https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf",
+  "document": "IERS Conventions chapter 7, Displacement of reference points",
+  "document_date": "2018-02-01",
+  "sha256": "ffe8ffb13c8bbc3b07ac298f458fcbb564974377b165fb93921a05bb0d55043d",
+  "bytes": 961950,
+  "equations": [
+    "21 (secular pole, Julian-year coordinate)",
+    "25 (wobble signs)",
+    "26 (colatitude/south/east/radial millimetres)",
+    "27\u201328 (transpose to Cartesian)"
+  ],
+  "cache_note": "Existing primary-source PDF cache reused; original retrieval timestamp was not recorded. The PDF itself prints 01 February 2018.",
+  "fixture_scope": "Eight unchanged cases in unitTestPoleTideDisplacement.cpp; no complete software comparison claimed",
+  "tolerance_metres": 1e-14
+}

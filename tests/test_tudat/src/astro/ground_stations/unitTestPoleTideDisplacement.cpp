@@ -64,6 +64,7 @@ BOOST_AUTO_TEST_SUITE( test_pole_tide_site_displacement )
 BOOST_AUTO_TEST_CASE( testPoleTideIndependentIersReferenceCases )
 {
     // Frozen fixtures evaluated independently from the accepted IERS chapter 7
+    // Exact PDF hash and offline scalar reproduction: reference_files/solid_pole_tide/README.md.
     // (1 February 2018), https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf.
     // Eq. (26) was evaluated in its original colatitude/south/east/radial form;
     // Eq. (28) was transposed to produce Cartesian values. Millimetres were
