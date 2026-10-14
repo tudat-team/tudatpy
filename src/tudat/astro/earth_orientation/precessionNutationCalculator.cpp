@@ -68,10 +68,11 @@ std::pair< Eigen::Vector3d, Eigen::Vector3d > PrecessionNutationCalculator::getN
 {
     const double centre = static_cast< double >( tt );
     if( !std::isfinite( centre ) ) throw std::invalid_argument( "Non-finite nominal CIP derivative epoch" );
+    std::vector< double > x;
     if( nominalCipInterpolator_ )
     {
-        const auto nodes = nominalCipInterpolator_->getIndependentValues( );
-        if( nodes.size( ) < 2 || centre < nodes.front( ) || centre > nodes.back( ) )
+        x = nominalCipInterpolator_->getIndependentValues( );
+        if( x.size( ) < 2 || centre < x.front( ) || centre > x.back( ) )
             throw std::runtime_error( "Nominal CIP interpolation rate outside its coverage; position policy remains unchanged" );
     }
     Eigen::Vector3d central = nominalCipPositionFunction_( centre );
@@ -99,9 +100,6 @@ std::pair< Eigen::Vector3d, Eigen::Vector3d > PrecessionNutationCalculator::getN
         }
         else
         {
-            const auto x = nominalCipInterpolator_->getIndependentValues( );
-            if( x.size( ) < 2 || centre < x.front( ) || centre > x.back( ) )
-                throw std::runtime_error( "Nominal CIP interpolation rate outside its coverage; position policy remains unchanged" );
             // The derivative at a knot is the branch on its right, except at the final endpoint.
             const std::size_t left =
                     std::min< std::size_t >( std::upper_bound( x.begin( ), x.end( ), centre ) - x.begin( ) - 1, x.size( ) - 2 );

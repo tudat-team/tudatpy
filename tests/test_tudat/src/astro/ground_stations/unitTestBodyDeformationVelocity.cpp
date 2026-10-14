@@ -150,6 +150,11 @@ BOOST_AUTO_TEST_CASE( precise_time_stencil_retains_offsets_below_double_resoluti
     model.setDisplacementDerivativeTimeStep( std::ldexp( 1.0, -27 ) );
     auto station = std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) );
     BOOST_CHECK_SMALL( ( model.calculateDisplacementState( centre, station ).tail< 3 >( ) - slope ).norm( ), 1e-17 );
+    FunctionDeformation scalar( [ = ]( double time ) { return ( ( time - static_cast< double >( centre ) ) * slope ).eval( ); } );
+    scalar.setDisplacementDerivativeTimeStep( std::ldexp( 1.0, -27 ) );
+    BOOST_CHECK_NO_THROW( scalar.calculateDisplacement( centre, station ) );
+    BOOST_CHECK_THROW( scalar.calculateDisplacementState( centre, station ), std::invalid_argument );
+    BOOST_CHECK_EQUAL( scalar.lastTime, static_cast< double >( centre ) );
 }
 
 BOOST_AUTO_TEST_CASE( errors_restore_central_cache_and_preserve_exception_type )

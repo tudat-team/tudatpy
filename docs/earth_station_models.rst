@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: all 25 retained tasks done; the required full-PR review is active.
+Status: all 25 retained tasks and the required full-PR review are complete.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -124,32 +124,33 @@ independent effects outside its scope remain explicitly selected.
 Active work
 -----------
 
-All 25 retained tasks are complete. The additional full-PR review is active.
+All 25 retained tasks and the additional full-PR review are complete.
 Implementation workers use **GPT-6.1 Sol, high reasoning** in isolated worktrees.
 The coordinator owns design, literature analysis, review and integration.
-Current compiler allocations: rotation/core review four, model/build review two,
-gravity input two; total maximum eight. Numerical runtimes use one thread.
+Current compiler allocations: gravity solid/pole four, gravity ocean two,
+gravity input/setup two; total maximum eight. Numerical runtimes use one thread.
 
-The station-history/parser/frame/reference-point review is complete. Its fixes
-are integrated. Rotation/core and atmosphere/ocean/build review continue. The
+The station-history/parser/frame/reference-point, atmosphere/ocean/build,
+rotation/core and cross-component reviews are complete. Their fixes are
+integrated through source checkpoint ``e2335bee7``. The
 independent tests listed below remain valid when their tested implementation and
 dependencies survive integration unchanged; integration alone is not a reason
 for another test run. The actual Python runtime validation is complete.
 
-The current completed-task milestone was pushed to
-``origin/fix/earth_deformation_rotation`` at ``474ef5bf3``. Further reviewed
-milestones will be pushed under Dominic's existing authorization.
+The completed-task milestone was pushed at ``474ef5bf3``. This reviewed checkpoint
+and its final ledger are published to ``origin/fix/earth_deformation_rotation``
+under Dominic's existing authorization.
 
 Required full-PR review
 -----------------------
 
 .. code-block:: text
 
-   [ ] Review the complete station/rotation PR after all 25 tasks.  [ACTIVE]
+   [x] Review the complete station/rotation PR after all 25 tasks.  [DONE]
    [x] Review history/parser/frame/reference-point implementation and Python ownership.  [DONE]
-   [ ] Review rotation, time conversion, deformation core and relativistic composition.  [ACTIVE]
-   [ ] Review atmospheric/ocean models, high-frequency EOP and build/data repetition.  [ACTIVE]
-   [ ] Complete cross-component review, final evidence and publication.  [ACTIVE]
+   [x] Review rotation, time conversion, deformation core and relativistic composition.  [DONE]
+   [x] Review atmospheric/ocean models, high-frequency EOP and build/data repetition.  [DONE]
+   [x] Complete cross-component review and final evidence.  [DONE]
 
 This review covers the entire diff from ``3070b20e83e18a749767fe0332a5280464f59b16``.
 Beyond numerical correctness and ordinary regression review, it checks reuse of
@@ -181,8 +182,28 @@ Integrated review changes:
   pass in the affected 1-case/11-assertion transition regression.
 * Six neutral-reader CMake blocks now use a local helper, removing 91 lines.
   Static/shared and imported/fallback Eigen contracts match, generated exports
-  are byte-identical, and the dependency checks pass. Compact source-provenance
-  cleanup is still active; no global build framework changed.
+  are byte-identical, and the dependency checks pass. No global build framework
+  changed.
+* Loading fixture provenance now uses exact source ranges, explicit count edits
+  and whole-source/extract hashes, removing 874 net lines. Offline regeneration
+  reproduces both fixture bytes and hashes. The provenance and dependency checks
+  pass. Atmospheric latitude lookup directly uses the existing configured-shape
+  coordinate converter. The unused new EOP-helper interpolation argument was
+  removed; affected atmospheric and EOP tests pass 10/351 and 4/244.
+* Rotation derivatives reuse the existing cross-product matrix, and nominal CIP
+  interpolation nodes are copied once. Two duplicated routing fixture cases
+  were removed; independent IERS/ocean reference coverage remains. The affected
+  rotation and routing checks pass 4/169 and 9/65, removing 69 net lines.
+* The common displacement derivative now checks sub-scalar-resolution Time
+  stencils against a representable four-ULP stencil. The scalar callback
+  counterexample fails before the fix; the precise-Time control and all 12/72
+  affected checks pass afterward. Both intervals are validated and central
+  caches restored. Normal-step evaluation cost is unchanged.
+
+The integrated review removes more than 1,500 net lines relative to the completed
+task checkpoint. The coordinator also checked the generic-code changes,
+construction/registration dependencies, scientific conventions and Python API
+consistency. No unresolved station/rotation correctness finding remains.
 
 Completed behavior
 ------------------
@@ -225,8 +246,8 @@ Non-tidal loading has strict station/coverage selection and component-overlap ch
 Position-only access remains usable when a derivative is unavailable. Generic
 finite differences validate representable uniform stencils, preserve failures
 and restore central caches. Relativistic fallback also checks coarse/fine
-convergence. A tiny-step scalar-resolution check for the common displacement
-fallback is being added during review. Optional missing central data may be
+convergence. The common displacement fallback checks scalar resolution when a
+native Time step is tiny. Optional missing central data may be
 skipped; invalid configuration and nonfinite numerical results are not suppressed.
 Complete station states compose intrinsic motion, deformations, rotation and body
 translation. Terminal relativistic composition consumes that complete state once.
@@ -299,8 +320,8 @@ states the final behavior instead of retaining superseded open-task claims.
   limiting case, complete factory/origin conversion and analytic-rate controls.
   The current affected suite passes 7/103, including reproduced precision failures.
 * Instrument geometry: 5/52 plus relevant history and frame-adapter cases.
-* Core deformation/state: 12 velocity cases, station aggregation 3/331 and clock
-  routing 11/228 at the simplified-API checkpoint. Every changed native core
+* Core deformation/state: velocity 12/72, station aggregation 3/331 and clock
+  routing 9/65 after duplicate reference cases were removed. Every changed native core
   translation unit compiled, including the actual loading-composition validator.
 * Python-specific validation: a fresh coherent CMake kernel was built and its
   actual loaded path asserted. Seven cases passed initially; two exposed a mixed
@@ -339,12 +360,13 @@ Parallel gravity-field programme
 --------------------------------
 
 Dominic explicitly authorized gravity work in parallel on a separate branch.
-The full station review remains required. ``fix/gravity_field_variations`` and
+The full station review is complete. ``fix/gravity_field_variations`` and
 ``tudatpy-earth-gravity-variations`` contain the integration branch/worktree;
 ``docs/earth_gravity_field_variations.rst`` is its separate checklist, also open
 in gedit. Primary-literature review and the existing-model inventory are complete.
-Compatibility design continues, and a separate Sol-high worker has started the
-static ICGEM/tide-system foundation in its own gravity worktree. Implementations
+Compatibility design continues; the static ICGEM/tide-system foundation is
+integrated and validated. Three Sol-high workers now cover gravity solid/pole,
+ocean and input/setup work in separate worktrees. Implementations
 must share compatible rotation/EOP, clocks, frame axes, static tide conventions
 and physical component inventories. Desai--Sibois ocean EOP corrections do not
 replace ocean gravity tides or either pole tide. Gravity estimation is excluded.

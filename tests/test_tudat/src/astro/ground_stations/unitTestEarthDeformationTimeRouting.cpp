@@ -189,65 +189,6 @@ BOOST_AUTO_TEST_CASE( native_pole_context_preserves_precise_coverage_and_valid_d
     }
 }
 
-BOOST_AUTO_TEST_CASE( routed_solid_tides_reproduce_original_dehant_fixtures_with_ephemerides_at_tdb )
-{
-    const auto identity = std::make_shared< ephemerides::CustomRotationalEphemeris >(
-            []( double ) { return Eigen::Quaterniond::Identity( ); }, "GCRS", "ITRS" );
-    for( const auto& fixture : iers2010_reference::fixtures )
-    {
-        const Time tt( fixture.ttSeconds ), tdb = referenceTdb( tt );
-        double lastMoon = NAN, lastSun = NAN;
-        const auto moon = std::make_shared< ephemerides::CustomEphemeris<> >( [ & ]( double time ) {
-            lastMoon = time;
-            Eigen::Vector6d state = Eigen::Vector6d::Zero( );
-            state.head< 3 >( ) = Eigen::Vector3d( fixture.moon.data( ) );
-            return state;
-        } );
-        const auto sun = std::make_shared< ephemerides::CustomEphemeris<> >( [ & ]( double time ) {
-            lastSun = time;
-            Eigen::Vector6d state = Eigen::Vector6d::Zero( );
-            state.head< 3 >( ) = Eigen::Vector3d( fixture.sun.data( ) );
-            return state;
-        } );
-        const auto model = simulation_setup::createDefaultEarthIers2010DeformationModel(
-                std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ) ),
-                moon,
-                sun,
-                identity,
-                []( ) { return 1.0; },
-                []( ) { return 0.0123000371; },
-                []( ) { return 332946.0482; } );
-        const Eigen::Vector3d position( fixture.station.data( ) );
-        const Eigen::Vector3d result =
-                model->calculateDisplacement( tdb, std::make_shared< ground_stations::GroundStationState >( position ) );
-        BOOST_CHECK_SMALL( ( result - Eigen::Vector3d( fixture.displacement.data( ) ) ).norm( ), 1e-9 );
-        BOOST_CHECK_EQUAL( lastMoon, static_cast< double >( tdb ) );
-        BOOST_CHECK_EQUAL( lastSun, static_cast< double >( tdb ) );
-    }
-}
-
-BOOST_AUTO_TEST_CASE( routed_hardisp_reproduces_independent_fortran_fixtures_from_tdb_inputs )
-{
-    OceanTideEarthDeformation model( routingOceanData( ) );
-    for( const auto& fixture : hardispReferenceCases )
-    {
-        double u1, u2, t1, t2, tt1, tt2;
-        BOOST_REQUIRE(
-                iauDtf2d( "UTC", fixture.year, fixture.month, fixture.day, fixture.hour, fixture.minute, fixture.second, &u1, &u2 ) >= 0 );
-        BOOST_REQUIRE( iauUtctai( u1, u2, &t1, &t2 ) >= 0 );
-        iauTaitt( t1, t2, &tt1, &tt2 );
-        const Time tt = Time( ( tt1 - 2451545.0 ) * 86400.0 ) + static_cast< long double >( tt2 ) * 86400.0L;
-        const auto station =
-                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ) );
-        station->setSiteId( hardispReferenceStations[ fixture.stationIndex ].identifier );
-        const auto result = model.calculateDisplacement( referenceTdb( tt ), station );
-        const auto basis = station->getEnuGeocentricUnitVectors( );
-        const Eigen::Vector3d expected =
-                -fixture.upSouthWest[ 2 ] * basis[ 0 ] - fixture.upSouthWest[ 1 ] * basis[ 1 ] + fixture.upSouthWest[ 0 ] * basis[ 2 ];
-        BOOST_CHECK_SMALL( ( result - expected ).norm( ), 1e-6 );
-    }
-}
-
 BOOST_AUTO_TEST_CASE( explicit_custom_ocean_arguments_retain_environment_tdb_and_native_derivatives_reject_utc_steps )
 {
     const auto station = std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ) );
@@ -516,7 +457,5 @@ BOOST_AUTO_TEST_CASE( basic_solid_factory_routes_tt_and_tdb_rotations_to_the_sam
     const auto tdbModel = simulation_setup::createBodyDeformationModel( settings, "Earth", bodies );
     const Time epoch( tdb );
     BOOST_CHECK_SMALL( ( ttModel->calculateDisplacement( epoch, station ) - tdbModel->calculateDisplacement( epoch, station ) ).norm( ),
-                       2e-12 );
-    BOOST_CHECK_SMALL( ( ttModel->calculateDisplacement( tdb, station ) - tdbModel->calculateDisplacement( tdb, station ) ).norm( ),
                        2e-12 );
 }

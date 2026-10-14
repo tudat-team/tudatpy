@@ -8,7 +8,9 @@ The extract retains provider labels `00NA`, `weuc`, `yela`, their unchanged
 Cartesian S rows and radial/east/north D rows, the unchanged A/T records,
 signatures and the first 170 source lines of descriptive comments. Only the
 P site's/displacement counts change from 4341 to 3. The manifest records that
-exact change and a SHA256/source line for every unchanged extract line.
+exact edit, inclusive one-based source ranges for all unchanged records, and
+full-source/extract SHA256 hashes. Offline regeneration verifies the full
+pinned source hash before selecting those ranges.
 
 The full original provider file violates the specification's uniqueness rule:
 it defines eight site labels twice (AGGO, AIRA, APEX, Arel, HOFN, IITK, NOTO,
@@ -16,8 +18,8 @@ Sisl). The strict reader rejects it at the first duplicated AGGO definition,
 source line 563. `imls_duplicate_identifier.eph` retains the unchanged AGGO
 site/sample rows as a reproducible negative fixture; only declared site/sample
 counts change to two. The manifest records all duplicate-label source lines
-and every unchanged negative-fixture row. The positive extract selects three
-unambiguous labels; no original label or source value is relabeled or repaired.
+and unchanged negative-fixture source ranges, exact count edits and its SHA256.
+The positive extract selects three unambiguous labels; no original label or source value is relabeled or repaired.
 
 Regenerate offline:
 

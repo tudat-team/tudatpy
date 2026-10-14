@@ -34,6 +34,13 @@ apply the station's body-fixed-to-topocentric rotation. TT-only models apply the
 geocentric dTT/dTDB factor, and mixed solid tides differentiate the complete
 routed displacement. Existing explicit scalar argument callbacks receive TDB
 seconds and retain their own argument convention.
+The common displacement-state fallback uses a guarded fourth-order five-point
+stencil. For native Time steps below four scalar epoch ULPs, a second stencil at
+that resolution must agree within 1e-12 m/s plus 1e-6 relative. Both intervals
+must be available; callback failures restore the central epoch. This tiny-step
+resolution check is separate from ordinary step convergence, which callers can
+study with the derivative step setting. Ordinary steps use one stencil.
+
 A configured TT/TDB interpolator without a supported clock derivative permits
 positions but rejects native states/rates. Current scalar UTC tide phases reject
 ambiguous inserted-second positions and derivative intervals crossing an offset
