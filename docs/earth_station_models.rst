@@ -48,6 +48,9 @@ workspace policy.
 * SINEX readers and ILRS interfaces do not need backward compatibility, as
   instructed during session recovery. Prioritize strict, complete history
   semantics and update affected consumers consistently.
+* Do not add estimation of new parameters. Earth-orientation and station-motion/
+  loading estimation extensions and synthetic parameter recovery are excluded.
+  This does not exclude physical velocities or time derivatives of models.
 
 Data architecture
 -----------------
@@ -73,7 +76,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 12 of 30 tasks done; 3 active, 3 partial, 10 queued and 2 deferred.
+Status: 12 of 28 tasks done; 3 active, 3 partial, 8 queued and 2 deferred.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -103,13 +106,16 @@ validated and integrated.
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
    [ ] 23 Validate relativistic station position and velocity transformations.  [QUEUED]
    [ ] 24 Improve instrument reference-point and calibrated geometry support.  [QUEUED]
-   [ ] 25 Add Earth-orientation estimation parameters and verified partials.  [QUEUED]
-   [ ] 26 Add station-motion/loading parameters and verified partials.  [QUEUED]
    [ ] 27 Compare complete trajectories with independent geodetic software.  [QUEUED]
-   [ ] 28 Validate observations, controlled omissions and synthetic recovery.  [QUEUED]
+   [ ] 28 Validate observations and controlled model omissions.  [QUEUED]
    [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [QUEUED]
    [ ] 30 Evaluate research extensions after the accepted-standard baseline.  [DEFERRED — follows accepted-standard baseline]
 Task numbers are stable identifiers rather than a rigid execution sequence.
+Tasks 25 and 26 were removed at Dominic's request: adding new estimation
+parameters or their estimation partials is outside this programme. Synthetic
+parameter recovery is also removed from task 28. The retained scope comprises
+28 tasks; existing model state/time derivatives and observation validation
+remain in scope.
 Tasks 05 and 06 can proceed with the initial build and data architecture audit.
 Tasks 13 and 30 follow verification and implementation of the accepted-standard
 baseline; experimental alternatives do not become defaults implicitly.
@@ -152,7 +158,7 @@ Subsequent gravity-field programme
 ---------------------------------
 
 Dominic requested this follow-on programme on 14 October 2026. It starts only
-after **every item in the current 30-task checklist is complete**, including
+after **every retained item in the current 28-task checklist is complete**, including
 the currently deferred items. Do not create its branch or begin its
 implementation while any current item remains open.
 
