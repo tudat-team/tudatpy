@@ -326,7 +326,8 @@ public:
 
     virtual void setFrequencyInterpolatorAndTurnaroundRatio(
             std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
-            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+            std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
+                    turnaroundRatio )
     {
         frequencyInterpolator_ = frequencyInterpolator;
         turnaroundRatio_ = turnaroundRatio;
@@ -466,11 +467,12 @@ protected:
 
     ObservationScalarType getTurnaroundRatio( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
     {
-        std::vector< FrequencyBands > frequencyBands;
-        FrequencyBands referenceUplinkBand;
+        std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
+        basic_astrodynamics::FrequencyBands referenceUplinkBand;
         try
         {
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                    ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -486,8 +488,8 @@ protected:
                     std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
                     std::to_string( linkEnds_.size( ) - 1 ) + ")." );
         }
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+        basic_astrodynamics::FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        basic_astrodynamics::FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Set approximate up- and down-link frequencies.
         return static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
@@ -520,7 +522,8 @@ protected:
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_ = nullptr;
 
-    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_ = nullptr;
+    std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
+            turnaroundRatio_ = nullptr;
 };
 //
 // extern template class ObservationModel< 1, double, double >;

@@ -26,6 +26,7 @@
 #include <tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
 #include <tudat/astro/aerodynamics/flightConditions.h>
 #include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
+#include <tudat/astro/basic_astro/frequencyBands.h>
 #include <tudat/astro/basic_astro/ionosphereModel.h>
 #include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
 #include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
@@ -55,6 +56,7 @@
 
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/system_models/camera.h"
+#include "tudat/astro/system_models/transponderTurnaroundRatios.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
@@ -159,6 +161,16 @@ void expose_environment( py::module& m )
     auto station_frequency_interpolator =
             py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
                     m, "TransmittingFrequencyCalculator" );
+
+    py::enum_< tba::FrequencyBands >( m, "FrequencyBands", R"doc(
+        Enumeration of frequency bands.
+
+        This enum lists common frequency bands used in deep space navigation.
+        )doc" )
+            .value( "s_band", tba::FrequencyBands::s_band )
+            .value( "x_band", tba::FrequencyBands::x_band )
+            .value( "ka_band", tba::FrequencyBands::ka_band )
+            .value( "ku_band", tba::FrequencyBands::ku_band );
 
     /*!
      **************   EPHEMERIDES  ******************
@@ -1638,11 +1650,33 @@ bool
 
      )doc" )
             .def( "set_transponder_turnaround_ratio",
-                  py::overload_cast< std::map< std::pair< tom::FrequencyBands, tom::FrequencyBands >, double >& >(
+                  py::overload_cast< const std::map< std::pair< tba::FrequencyBands, tba::FrequencyBands >, double >& >(
                           &tsm::VehicleSystems::setTransponderTurnaroundRatio ),
                   py::arg( "transponder_ratio_per_uplink_and_downlink_"
                            "frequency_band" ),
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+         Set the transponder turnaround ratio of the vehicle from a dictionary of uplink/downlink frequency band combinations.
+
+         Parameters
+         ----------
+         transponder_ratio_per_uplink_and_downlink_frequency_band : dict[tuple[FrequencyBands, FrequencyBands], float]
+             Turnaround ratio for each (uplink band, downlink band) combination. Requesting the turnaround ratio for a
+             combination that is not in the table raises an error.
+     )doc" )
+            .def( "set_transponder_turnaround_ratio",
+                  py::overload_cast< std::function< double( tba::FrequencyBands, tba::FrequencyBands ) > >(
+                          &tsm::VehicleSystems::setTransponderTurnaroundRatio ),
+                  py::arg( "transponder_ratio_function" ),
+                  R"doc(
+         Set the transponder turnaround ratio of the vehicle as a function of the uplink and downlink frequency band.
+
+         Parameters
+         ----------
+         transponder_ratio_function : Callable[[FrequencyBands, FrequencyBands], float]
+             Function returning the turnaround ratio for a given uplink and downlink band, for instance
+             :func:`~tudatpy.dynamics.environment.dsn_default_turnaround_ratios` or
+             :func:`~tudatpy.dynamics.environment.cassini_turnaround_ratios`.
+     )doc" )
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
                   R"doc(Retrieve standard, DSN turnaround ratios based on the frequency bands of the link)doc" )
@@ -1772,6 +1806,51 @@ bool
          and the camera object the value of the dictionary.
 
          :type: dict[str, Camera]
+        )doc" );
+
+    m.def( "dsn_default_turnaround_ratios",
+           &tsm::getDsnDefaultTurnaroundRatios,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(
+
+        Get the default DSN turnaround ratio for given uplink and downlink bands, according to Moyer (2003), table 13-1.
+
+        Parameters
+        ----------
+        uplink_band : FrequencyBands
+            Uplink frequency band.
+        downlink_band : FrequencyBands
+            Downlink frequency band.
+
+        Returns
+        -------
+        float
+            The turnaround ratio.
+        )doc" );
+
+    m.def( "cassini_turnaround_ratios",
+           &tsm::getCassiniTurnaroundRatio,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(
+
+        Get the Cassini turnaround ratio for given uplink and downlink bands.
+
+        This function returns the specific Ka-band turnaround ratio for Cassini if both bands are Ka-band,
+        otherwise it falls back to the DSN default turnaround ratios (Moyer (2003), section 13.2.2).
+
+        Parameters
+        ----------
+        uplink_band : FrequencyBands
+            Uplink frequency band.
+        downlink_band : FrequencyBands
+            Downlink frequency band.
+
+        Returns
+        -------
+        float
+            The turnaround ratio.
         )doc" );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(

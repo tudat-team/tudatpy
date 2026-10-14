@@ -90,7 +90,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
     if( observationModel->getObservableType( ) == observation_models::doppler_measured_frequency )
     {
-        const std::function< double( std::vector< observation_models::FrequencyBands >, double ) > receivedFrequencyFunction =
+        const std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > receivedFrequencyFunction =
                 createLinkFrequencyFunction(
                         bodies, twoWayDopplerLinkEnds, observation_models::retransmitter, observation_models::receiver );
         scalingFactorFunction = std::bind( observation_models::getMeasuredFrequencyDopplerScalingFactor,

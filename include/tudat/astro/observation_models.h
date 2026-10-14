@@ -21,7 +21,6 @@
 #include "observation_models/nWayRangeObservationModel.h"
 #include "observation_models/observableTypes.h"
 #include "observation_models/observationBias.h"
-#include "observation_models/observationFrequencies.h"
 #include "observation_models/observationManager.h"
 #include "observation_models/observationModel.h"
 #include "observation_models/observationSimulator.h"

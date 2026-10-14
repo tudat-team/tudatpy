@@ -641,7 +641,7 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     return observationBias;
 }
 
-std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > getTurnaroundFunction(
+std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) > getTurnaroundFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds );
 
@@ -1258,8 +1258,8 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
-                std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
-                        getTurnaroundFunction( bodies, linkEnds );
+                std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) >
+                        turnaroundRatioFunction = getTurnaroundFunction( bodies, linkEnds );
 
                 std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
                         getTransmittingFrequencyInterpolator( bodies, linkEnds );
@@ -1357,7 +1357,7 @@ public:
                     }
 
                     // Determine the turnaround ratio function
-                    std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) >
+                    std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) >
                             turnaroundRatioFunction = getTurnaroundFunction( bodies, linkEnds );
 
                     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
@@ -1514,8 +1514,8 @@ public:
                 }
 
                 // Determine the turnaround ratio function
-                std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
-                        getTurnaroundFunction( bodies, linkEnds );
+                std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) >
+                        turnaroundRatioFunction = getTurnaroundFunction( bodies, linkEnds );
 
                 // Check if transmitter has frequency calculator
                 std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =

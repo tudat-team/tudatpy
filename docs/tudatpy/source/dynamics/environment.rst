@@ -33,6 +33,10 @@ Functions
 
    fit_tle_to_cartesian_state_history
 
+   dsn_default_turnaround_ratios
+
+   cassini_turnaround_ratios
+
 
 
 .. autofunction:: tudatpy.dynamics.environment.save_vehicle_mesh_to_file
@@ -40,6 +44,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment.transform_to_inertial_orientation
 
 .. autofunction:: tudatpy.dynamics.environment.fit_tle_to_cartesian_state_history
+
+.. autofunction:: tudatpy.dynamics.environment.dsn_default_turnaround_ratios
+
+.. autofunction:: tudatpy.dynamics.environment.cassini_turnaround_ratios
 
 
 Enums
@@ -51,8 +59,13 @@ Enums
 
    FrequencyGapHandling
 
+   FrequencyBands
+
 
 .. autoclass:: tudatpy.dynamics.environment.FrequencyGapHandling
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.FrequencyBands
    :members:
 
 
