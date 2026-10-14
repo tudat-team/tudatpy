@@ -28,9 +28,9 @@ EihEquationsPartials::EihEquationsPartials( const std::shared_ptr< relativity::E
     numberOfUndergoingBodies_( eihEquations_->getBodiesUndergoingAcceleration( ).size( ) ), currentTime_( TUDAT_NAN )
 {
     currentTotalAccelerationsWrtPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
     currentTotalAccelerationsWrtVelocity_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
 
     currentSinglePointMassAccelerationsWrtExertingPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
             numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
@@ -42,25 +42,25 @@ EihEquationsPartials::EihEquationsPartials( const std::shared_ptr< relativity::E
             numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
 
     currentTotalScalarTermWrtExertingPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
     currentTotalScalarTermWrtUndergoingPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
     currentTotalVectorTermWrtExertingPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
     currentTotalVectorTermWrtUndergoingPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
 
     currentTotalScalarTermWrtExertingVelocity_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
     currentTotalScalarTermWrtUndergoingVelocity_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 1, 3 >::Zero( ) );
     currentTotalVectorTermWrtExertingVelocity_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
     currentTotalVectorTermWrtUndergoingVelocity_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
 
     currentTotalAccelerationsWrtPositionCrossTerms_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
 }
 
 void EihEquationsPartials::update( const double currentTime )
@@ -91,12 +91,16 @@ void EihEquationsPartials::update( const double currentTime )
             }
         }
 
-        // EIH terms depend on the complete potentials and Newtonian accelerations of every source.
-        // Populate all of their derivatives before using them in any pair contribution.
-        for( int i = 0; i < numberOfExertingBodies_; i++ )
+        // With all source derivatives available, assemble EIH partials only for undergoing bodies.
+        for( int i = 0; i < numberOfUndergoingBodies_; i++ )
         {
             for( int j = 0; j < numberOfExertingBodies_; j++ )
             {
+                if( i == j )
+                {
+                    continue;
+                }
+
                 currentTotalScalarTermWrtExertingPosition_[ i ][ j ].setZero( );
                 currentTotalScalarTermWrtUndergoingPosition_[ i ][ j ].setZero( );
 
@@ -129,7 +133,7 @@ void EihEquationsPartials::update( const double currentTime )
             }
         }
 
-        for( int i = 0; i < numberOfExertingBodies_; i++ )
+        for( int i = 0; i < numberOfUndergoingBodies_; i++ )
         {
             currentTotalAccelerationsWrtPosition_[ i ][ i ].setZero( );
             currentTotalAccelerationsWrtVelocity_[ i ][ i ].setZero( );

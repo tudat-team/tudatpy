@@ -53,19 +53,19 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
     velocityInnerProducts_.resize( acceleratingBodies_.size( ) );
     currentSingleSourceLocalPotential_.resize( acceleratingBodies_.size( ) );
     singlePointMassAccelerations_.resize( acceleratingBodies_.size( ) );
-    currentSingleAccelerations_.resize( acceleratingBodies_.size( ) );
+    currentSingleAccelerations_.resize( acceleratedBodies_.size( ) );
 
-    totalScalarTermCorrection.resize( acceleratingBodies_.size( ) );
-    totalVectorTermCorrection_.resize( acceleratingBodies_.size( ) );
+    totalScalarTermCorrection.resize( acceleratedBodies_.size( ) );
+    totalVectorTermCorrection_.resize( acceleratedBodies_.size( ) );
 
     for( int k = 0; k < 7; k++ )
     {
-        scalarEihCorrections_[ k ].resize( acceleratingBodies_.size( ) );
+        scalarEihCorrections_[ k ].resize( acceleratedBodies_.size( ) );
     }
 
     for( int k = 0; k < 3; k++ )
     {
-        vectorEihCorrections_[ k ].resize( acceleratingBodies_.size( ) );
+        vectorEihCorrections_[ k ].resize( acceleratedBodies_.size( ) );
     }
 
     for( unsigned int i = 0; i < acceleratingBodies_.size( ); i++ )
@@ -79,6 +79,12 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
         velocityInnerProducts_[ i ].resize( acceleratingBodies_.size( ) );
         currentSingleSourceLocalPotential_[ i ].resize( acceleratingBodies_.size( ) );
         singlePointMassAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
+    }
+
+    // Only undergoing bodies need EIH corrections; all sources still need Newtonian quantities.
+    // The acceleration factory places undergoing bodies first in the source list, in the same order.
+    for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
+    {
         currentSingleAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
         totalScalarTermCorrection[ i ].resize( acceleratingBodies_.size( ) );
         totalVectorTermCorrection_[ i ].resize( acceleratingBodies_.size( ) );
