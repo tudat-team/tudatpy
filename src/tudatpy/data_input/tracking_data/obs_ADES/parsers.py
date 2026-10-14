@@ -495,7 +495,6 @@ def parse_ades_file(file_path: str):  # -> Table:
     # Collect observations, including those outside obsData blocks.
     rows_by_kind = {}
     for obs_type in root.iter():
-        print(obs_type)
         obs_kind = _tag_name(obs_type)
 
         if obs_kind not in {"optical", "radar", "offset", "occultation"}:
