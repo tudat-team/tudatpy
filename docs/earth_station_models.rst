@@ -40,6 +40,8 @@ workspace policy.
   Reference-data generation scripts may use Python to drive external programs.
   Compile only the native tests highly relevant to each change. Record unrelated
   unexpected failures for final integration instead of broadening every build.
+  Reuse passing isolated-worktree results after integration unless a concrete
+  merge, dependency or behaviour change creates a real risk that needs a rerun.
   Compile the Python kernel only to test Python-only functionality, such as
   binding registration, Python imports or Python-specific API behaviour. A full
   kernel build is not a general C++ integration requirement.
@@ -76,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 13 of 25 tasks done; 4 active, 2 partial and 6 queued.
+Status: 15 of 25 tasks done; 3 active, 2 partial and 5 queued.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -92,15 +94,15 @@ validated and integrated.
    [x] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.  [DONE]
    [x] 09 Implement EOP validity and leap-safe interpolation policies.  [DONE]
    [x] 10 Verify existing short-period EOP corrections independently.  [DONE]
-   [ ] 11 Complete Earth-rotation derivatives.  [ACTIVE — full derivative implementation and C++ tests]
+   [x] 11 Complete Earth-rotation derivatives.  [DONE]
    [ ] 12 Complete deformation velocities and full station-state closure.  [ACTIVE — complete multi-model station-state closure]
    [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.  [ACTIVE — opt-in only; replaces corresponding default ocean effects]
    [x] 14 Validate BLQ loading inputs and preserve their conventions.  [DONE]
    [x] 15 Implement HARDISP-equivalent ocean tidal loading.  [DONE]
    [x] 16 Add conventional ocean pole-tide loading.  [DONE]
    [x] 17 Add conventional atmospheric S1/S2 tidal loading.  [DONE]
-   [ ] 18 Preserve full SINEX solution/validity/eccentricity histories.  [ACTIVE — strict history API, equipment records, bindings and tests]
-   [ ] 19 Implement post-seismic and seasonal station motion with rates.  [QUEUED]
+   [x] 18 Preserve full SINEX solution/validity/eccentricity histories.  [DONE]
+   [ ] 19 Implement post-seismic and seasonal station motion with rates.  [ACTIVE — explicit source clocks, PSD and seasonal evaluation]
    [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [PARTIAL — transformations validated and committed; catalogue integration pending]
    [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [QUEUED]
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
@@ -124,9 +126,10 @@ Active work
 
 * Task 04: independent reference packages are in use for solid Earth tides,
   short-period EOP and HARDISP; reference coverage grows with each added model.
-* Task 11: the selected-interpolant UT1 rate prerequisite is integrated.
-  Complete rotation derivatives and independent SOFA/clock tests are implemented
-  in isolation and undergoing compilation and validation.
+* Task 11: complete rotation derivatives are integrated with all ten checkpoint
+  files unchanged from the tested worktree. Thirteen focused native cases and
+  334 assertions pass, including independent full SOFA matrix/state comparisons.
+  The additive CMake overlap was resolved to the tested eleven-library list.
 * Task 12: the displacement-rate API, UTC-phase boundary safeguards and
   position-only station path pass integrated C++ tests. Complete multi-model
   station-state closure is now being implemented against the task 11 checkpoint.
@@ -136,10 +139,16 @@ Active work
 * Task 17: complete atmospheric S1/S2 positions and velocities are integrated.
   All 19 relevant native atmospheric cases and the three UT1 prerequisite cases
   pass, together with input dependency checks. No Python kernel was compiled.
-* Task 18: the neutral SINEX history parser is implemented in isolation and
-  handles complete published station/discontinuity products. Full-history
-  bindings, equipment records and strict native regression tests are underway.
-  SINEX/ILRS backward compatibility is not required, per Dominic's latest instruction.
+* Task 18: the neutral SINEX history parser, equipment records, full-history
+  bindings and documentation are integrated. Sixteen native cases and 260
+  assertions pass; all eight pinned complete IGN products parse. A malformed
+  official IGS row is deliberately rejected and retained as a regression fixture.
+  The merged CMake graph passes its raw-input dependency audit. Unchanged parser
+  tests were not rerun. Compiled Python binding behaviour remains task 29.
+* Task 19: station-motion evaluation is active in the history worktree. Physical
+  validity uses TAI; the named IGN nominal-UTC profile preserves the published
+  linear, post-seismic and seasonal source-time conventions and supplies rates
+  only where their clock and validity semantics are defined.
 * Task 20: neutral ITRF parameter ingestion and affine position/state transforms
   pass integrated comparisons against 75 independent high-precision fixtures.
   The transformation checkpoint includes bindings and API documentation.
@@ -189,6 +198,19 @@ study.  Actual discontinuities are tested as discontinuities.
 Validation ledger
 -----------------
 
+2026-10-14, rotation and station-history integration: task 11 commit
+``e06188e6e`` preserves every file from the independently tested checkpoint
+``431ed6160``. Its 13 cases and 334 assertions include a 7.42e-10 m/s full SOFA
+station-velocity comparison at the selected 32-second stencil. Task 18 commit
+``9719e2655`` preserves the strict parser, adapters, binding implementations and
+fixtures from ``8bba93620``; its 16 cases/260 assertions, complete-provider-file
+checks and fixture-regeneration evidence remain applicable. Conflicts only
+combined additive library/module registrations. CMake regeneration checked the
+combined target graph and neutral-input dependency closure. In accordance with
+Dominic's latest instruction, identical numerical tests were not rerun after
+integration; no Python kernel was compiled. Runtime Python binding checks are
+reserved for task 29's Python-specific validation.
+
 2026-10-14, session recovery: the original readable conversation, user requests,
 last checklist and worker handoffs were recovered to
 ``/home/dominic/Tudat/earth-station-model-work/recovery-20261014``. Original session
@@ -200,9 +222,9 @@ all 28 selected CTest checks plus both source-boundary checks. The ITRF
 transformation checkpoint was subsequently reviewed and committed; its detailed
 validation appears below. The independently tested UT1 value/rate prerequisite
 was integrated separately. Tasks 11 and 17 remain open until their complete
-models and integrated tests pass. Compilation allocations are centrally limited
-to eight jobs across all workers; the Python kernel remains deferred to final
-integration.
+models and their relevant tests pass. Compilation allocations are centrally
+limited to eight jobs across all workers; Python kernel compilation is permitted
+only for Python-specific validation.
 
 2026-10-14: starting revision verified against GitHub PR #900.  Task 01 baseline
 build completed with six build jobs: all 12 selected C++ test executables passed
