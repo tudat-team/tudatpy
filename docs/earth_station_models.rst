@@ -130,9 +130,11 @@ are native API/time migration 4, instrument geometry 2, and non-tidal loading 2;
 limit remains eight. Earlier workers are stopped and their work is preserved.
 
 * Task 04: the coverage audit confirms pinned independent sources and fixtures
-  across the integrated models. Remaining work is executable reproduction for
-  the solid-pole and relativistic equation fixtures, plus final loading and
-  instrument-geometry evidence. Existing scientific tolerances remain unchanged.
+  across the integrated models. The solid-pole reference now pins the original
+  2018 chapter and includes an offline scalar colatitude-equation checker; all
+  eight unchanged vectors reproduce within 8.67e-19 m against the retained
+  1e-14 m tolerance. Remaining work is relativistic-fixture reproduction plus
+  final loading and instrument-geometry evidence.
 * Task 11: complete rotation derivatives are integrated with all ten checkpoint
   files unchanged from the tested worktree. Thirteen focused native cases and
   334 assertions pass, including independent full SOFA matrix/state comparisons.
