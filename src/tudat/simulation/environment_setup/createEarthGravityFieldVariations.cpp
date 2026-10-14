@@ -17,7 +17,7 @@ namespace
 Eigen::Vector6d earthGravityDoodsonArguments( double time,
                                               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter )
 {
-    const Time tai = converter->getTaiTime( basic_astrodynamics::tdb_scale, Time( time ) );
+    const Time tai = converter->getTaiTime( basic_astrodynamics::tdb_scale, time );
     const Time tt = basic_astrodynamics::convertTAItoTT( tai );
     return sofa_interface::calculateDoodsonFundamentalArguments(
             static_cast< double >( tt ), static_cast< double >( tt ), static_cast< double >( converter->getUt1FromTai( tai ) ) );
@@ -28,7 +28,7 @@ Eigen::Vector2d earthGravityWobble( double time,
                                     const std::shared_ptr< earth_orientation::PolarMotionCalculator >& polar,
                                     double radiansToOutputUnits )
 {
-    const Time tt = basic_astrodynamics::convertTAItoTT( converter->getTaiTime( basic_astrodynamics::tdb_scale, Time( time ) ) );
+    const Time tt = basic_astrodynamics::convertTAItoTT( converter->getTaiTime( basic_astrodynamics::tdb_scale, time ) );
     const double radiansPerMas = mathematical_constants::PI / ( 180.0 * 3600000.0 );
     Eigen::Vector2d wobble = polar->getPositionOfCipInItrsAtTt( tt ) -
             earth_orientation::getSecularPolePositionInMas( static_cast< double >( tt ) ) * radiansPerMas;
@@ -64,6 +64,10 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
         throw std::runtime_error( "Earth gravity tides require ITRS coefficients and identical global/rotation base axes labels" );
     }
     const auto angles = rotation->getAnglesCalculator( );
+    if( !angles )
+    {
+        throw std::runtime_error( "Earth gravity tides require the selected Earth orientation calculator" );
+    }
     const auto converter = angles->getTerrestrialTimeScaleConverter( );
     const auto polar = angles->getPolarMotionCalculator( );
     if( !converter || !polar )
