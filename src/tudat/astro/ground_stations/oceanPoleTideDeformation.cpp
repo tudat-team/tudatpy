@@ -133,6 +133,7 @@ OceanPoleTideDeformation::OceanPoleTideDeformation( const std::string& gridFile,
     OceanPoleTideDeformation( input_output::readOceanPoleTideGrid( gridFile ), polarMotionCalculator, latitudePolicy, converter )
 {}
 
+//! Evaluate ocean pole-tide displacement at TT using valid nominal geocentric station geometry.
 Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementAtTt(
         const Time& tt,
         const std::shared_ptr< ground_stations::GroundStationState > stationState )
@@ -142,11 +143,20 @@ Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementAtTt(
     {
         throw std::runtime_error( "Invalid ocean pole-tide epoch or station" );
     }
+    // A station at the geocentre has no local radial/north/east basis, regardless of grid coverage.
+    const Eigen::Vector3d sphericalPosition = stationState->getNominalSphericalPosition( );
+
+    if( !sphericalPosition.allFinite( ) || sphericalPosition.x( ) <= 0.0 )
+    {
+        throw std::runtime_error( "Invalid ocean pole-tide station geometry" );
+    }
     const double radiansPerDegree = mathematical_constants::PI / 180.0;
+
     const auto coefficients = interpolateValidatedOceanPoleTideCoefficients( grid_,
-                                                                             stationState->getNominalLatitude( ) / radiansPerDegree,
-                                                                             stationState->getNominalLongitude( ) / radiansPerDegree,
+                                                                             sphericalPosition.y( ) / radiansPerDegree,
+                                                                             sphericalPosition.z( ) / radiansPerDegree,
                                                                              latitudePolicy_ );
+
     const Eigen::Vector2d pole = polarMotionCalculator_->getPositionOfCipInItrsAtTt( tt );
     const Eigen::Vector2d secularPole = earth_orientation::getSecularPolePositionInMas( time ) * ( radiansPerDegree / 3600000.0 );
     const Eigen::Vector2d wobble( pole.x( ) - secularPole.x( ), -( pole.y( ) - secularPole.y( ) ) );
