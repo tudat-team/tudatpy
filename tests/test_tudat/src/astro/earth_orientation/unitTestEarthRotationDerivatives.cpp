@@ -73,6 +73,23 @@ BOOST_AUTO_TEST_CASE( ut1_rate_unavailability_retains_covered_and_historical_pos
     const Time tt( ( 1893.0 - 2000.0 ) * physical_constants::JULIAN_YEAR );
     BOOST_CHECK_NO_THROW( historical.getCurrentTime< Time >( tt_scale, ut1_scale, tt ) );
     BOOST_CHECK_THROW( historical.getUt1FromTaiWithRate( convertTTtoTAI( tt ) ), std::runtime_error );
+    const Time transition( ( JULIAN_DAY_OF_EOP_INTRODUCTION - JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
+    const Time before = transition - 1e-10;
+    BOOST_CHECK_EQUAL( static_cast< double >( before ), static_cast< double >( transition ) );
+    BOOST_CHECK_NO_THROW( historical.getUt1FromTai( before ) );
+    BOOST_CHECK_NO_THROW( historical.getCurrentTime< Time >( ut1_scale, tai_scale, before ) );
+    BOOST_CHECK_EXCEPTION( historical.getUt1FromTaiWithRate( before ), std::runtime_error, []( const std::runtime_error& error ) {
+        return std::string( error.what( ) ).find( "Historical Delta-T" ) != std::string::npos;
+    } );
+    BOOST_CHECK_THROW( historical.getUt1FromTai( transition ), std::runtime_error );
+    TerrestrialTimeScaleConverter legacy( nullptr, nullptr );
+    const Time nearby = transition - 1e-6;
+    for( const auto scales : { std::make_pair( utc_scale, tt_scale ), std::make_pair( tai_scale, utc_scale ) } )
+    {
+        const Time reference = legacy.getCurrentTime< Time >( scales.first, scales.second, nearby );
+        const Time current = legacy.getCurrentTime< Time >( scales.first, scales.second, before );
+        BOOST_CHECK_SMALL( static_cast< double >( ( current - reference ) - ( before - nearby ) ), 1e-8 );
+    }
 }
 
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"

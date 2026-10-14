@@ -124,596 +124,227 @@ independent effects outside its scope remain explicitly selected.
 Active work
 -----------
 
-Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
-The coordinator handles architecture, literature analysis and integration.
-Compiler allocations are rotation/core four, model/build cleanup two and SINEX
-cleanup two, for a global maximum of eight. The actual Python kernel build passed.
-Seven runtime checks passed initially; two exposed defects were fixed and both
-affected checks now pass. The full-PR review is active. The gravity-code inventory
-and primary-literature review are complete; compatibility/API design continues.
-Earlier workers are stopped and their work is preserved.
+All 25 retained tasks are complete. The additional full-PR review is active.
+Implementation workers use **GPT-6.1 Sol, high reasoning** in isolated worktrees.
+The coordinator owns design, literature analysis, review and integration.
+Current compiler allocations: rotation/core review four, model/build review two,
+gravity input two; total maximum eight. Numerical runtimes use one thread.
 
-* Task 04: the coverage audit confirms pinned independent sources and fixtures
-  across the integrated models. The solid-pole reference now pins the original
-  2018 chapter and includes an offline scalar colatitude-equation checker; all
-  eight unchanged vectors reproduce within 8.67e-19 m against the retained
-  1e-14 m tolerance; the exact offline command and PDF hash are recorded in
-  ``solid-pole-fixture-reproduction.log``. The independent 70-digit Decimal
-  generator also reproduces all nine unchanged relativistic literals. Both
-  generators and final loading/instrument-geometry evidence are integrated;
-  the reference coverage audit is complete.
-* Task 11: complete rotation derivatives are integrated with all ten checkpoint
-  files unchanged from the tested worktree. Thirteen focused native cases and
-  334 assertions pass, including independent full SOFA matrix/state comparisons.
-  The additive CMake overlap was resolved to the tested eleven-library list.
-* Task 12: complete IERS solid-tide, HARDISP ocean, pole-tide and secular station
-  state closure is integrated. Five focused cases/151 assertions pass, including
-  the complete public station factory, nonzero body translation, four base axes,
-  five declared rotation clocks, double/extended epochs, leap and coverage cases.
-  The maximum native velocity closure error is 4.53e-9 m/s, below 1e-7 m/s.
-* Task 13: Desai--Sibois is integrated as explicit opt-in. It replaces only ocean
-  EOP terms and retains conventional libration once. The default is unchanged;
-  ambiguous custom-file combinations reject. Seven native cases/276 assertions
-  pass, with independent value/rate fixtures, full factory SOFA comparisons,
-  provenance/dependency checks and syntax checks of both changed binding units.
-* Task 17: complete atmospheric S1/S2 positions and velocities are integrated.
-  All 19 relevant native atmospheric cases and the three UT1 prerequisite cases
-  pass, together with input dependency checks. No Python kernel was compiled.
-* Task 18: the neutral SINEX history parser, equipment records, full-history
-  bindings and documentation are integrated. Sixteen native cases and 260
-  assertions pass; all eight pinned complete IGN products parse. A malformed
-  official IGS row is deliberately rejected and retained as a regression fixture.
-  The merged CMake graph passes its raw-input dependency audit. Unchanged parser
-  tests were not rerun. Compiled Python binding behaviour remains task 29.
-* Task 19: station-motion evaluation is integrated. Nine cases/343 assertions
-  pass, including 126 independent IGN Fortran rows, cumulative earthquakes,
-  calendar seasonal motion, P/V history identity, validity and public factories.
-  Physical validity uses TAI; the named IGN nominal-UTC profile preserves the
-  published source-time conventions and rejects unsupported leap/rate ambiguity.
-* Task 20: catalogue/trajectory integration is complete. Four adapter cases/217
-  assertions pass against published high-precision transformations, including
-  inverse states, leap-year calendar rates, position-only queries, release/origin/
-  tide guards and the public motion factory. The affected station-history suite
-  passes 9/343 and affine suite 5/995; binding syntax and dependency checks pass.
-* Task 21: strict EPHEDISP parsing and neutral preloaded records are integrated.
-  Four native cases/141 assertions and four architecture/provenance checks pass.
-  The real provider file has eight duplicated site labels and is correctly
-  rejected. Unchanged positive extracts and a negative duplicate fixture preserve
-  its evidence; no provider records were silently repaired.
-* Task 22: interpolation, station selection, origin translation and signal-overlap
-  checks pass seven focused native cases/80 assertions against the shared core
-  checkpoint, including the real composition validator. The changed reader also
-  passes its four existing cases/141 assertions; binding syntax passes.
-  Completion commit ``1f7e73d59`` is integrated as ``e04829e94`` with the common API.
-* Task 23: the explicit IERS spatial approximation is integrated. Seven focused
-  cases/91 assertions pass alongside affected station-state and clock suites.
-  Terminal composition consumes the full displaced/moving state once; selected
-  external potentials, coordinate scaling and actual axes/origin are explicit.
-  The BodySettings factory now supplies the bodies environment and establishes
-  ephemeris origin conversions before constructing stations. A focused native
-  regression covers both direct and Earth-relative Sun ephemerides.
-* Task 24: dated marker/ARP/calibrated geometry is implemented in the isolated
-  worktree, reusing station metadata and retained equipment/eccentricity histories.
-  Completion commit ``883653bc4`` passes five geometry cases/52 assertions,
-  nine history cases/343 assertions and four frame-adapter cases/217 assertions.
-  Three binding syntax checks, architecture checks and CMake closure pass.
-  It is integrated as ``bc1807246``. Python ownership and precise-Time dispatch
-  checks are prepared for the binding runtime validation under task 29.
-* Task 29: Dominic explicitly requested removing EarthDeformationEpoch and
-  simplifying evaluation across deformation models. The isolated implementation
-  now removes that wrapper and exposes displacement and full displacement/state
-  for TDB Time plus a station, with protected derived hooks and model-owned shared
-  converters. Atmospheric/ocean-pole migration compiles and removes 156 net lines.
-  Native station aggregation retains Time; scalar endpoint handling stays at
-  scalar boundaries. All 14 changed native core translation units compile,
-  including the real loading validator. Numerical/public-contract regression
-  passes for the affected tide models, station state, clock routing, loading and
-  geometry. Core completion ``3f7c272a6`` is integrated as ``f7ae6f147``; existing
-  deformation/station plumbing removes 366 net lines, excluding the new loading
-  model. The isolated EOP factory crash was resolved by rebuilding its stale
-  pre-Desai-Sibois factory objects; the failing case passes. Python record getters
-  explicitly copy validated records. The ownership regression and other
-  Python-only binding/import checks found two defects: mixed Time/double
-  piecewise-motion endpoint guards and an unregistered ocean-pole settings type.
-  The two explicit Time comparisons and derived settings registration are fixed.
-  Both affected cases pass against the rebuilt isolated kernel; the unchanged
-  seven passing cases were retained. Completion commit ``e847b10ce`` and the
-  precise piecewise-motion fix ``b4996e899`` are integrated. Task 29 is complete.
+The station-history/parser/frame/reference-point review is complete. Its fixes
+are integrated. Rotation/core and atmosphere/ocean/build review continue. The
+independent tests listed below remain valid when their tested implementation and
+dependencies survive integration unchanged; integration alone is not a reason
+for another test run. The actual Python runtime validation is complete.
 
-The additional full-PR review remains open. Kernel compilation remains restricted
-to an actual need for Python-specific validation.
+The current completed-task milestone was pushed to
+``origin/fix/earth_deformation_rotation`` at ``474ef5bf3``. Further reviewed
+milestones will be pushed under Dominic's existing authorization.
 
-The pinned :doc:`GROOPS source comparison <earth_station_models_groops_review>`
-records useful implementation and regression-test scenarios. Its former
-estimation and complete-trajectory comparison proposals are outside the revised
-scope; targeted reference checks remain useful.
+Required full-PR review
+-----------------------
+
+.. code-block:: text
+
+   [ ] Review the complete station/rotation PR after all 25 tasks.  [ACTIVE]
+   [x] Review history/parser/frame/reference-point implementation and Python ownership.  [DONE]
+   [ ] Review rotation, time conversion, deformation core and relativistic composition.  [ACTIVE]
+   [ ] Review atmospheric/ocean models, high-frequency EOP and build/data repetition.  [ACTIVE]
+   [ ] Complete cross-component review, final evidence and publication.  [ACTIVE]
+
+This review covers the entire diff from ``3070b20e83e18a749767fe0332a5280464f59b16``.
+Beyond numerical correctness and ordinary regression review, it checks reuse of
+existing functionality, proportional changes to generic code, unnecessary
+abstractions and boilerplate, consistency with neighboring Python APIs, and
+excessive tests. It seeks fewer added lines without compromising numerical quality
+or significantly increasing runtime. Independent scientific fixtures are retained;
+a compact loop with many numerical assertions is not itself excessive testing.
+
+Integrated review changes:
+
+* The SINEX state reader now delegates to the strict history parser. The duplicate
+  headerless parser and its compatibility-only test were removed, as backwards
+  compatibility was waived. Real SINEX fixtures and ILRS consumers remain covered.
+  This removes 291 net lines; both affected native suites pass (13 cases/130
+  assertions combined).
+* Terrestrial frame transformations reuse the existing cross-product matrix.
+  Atmospheric loading reuses the existing ENU quaternion after an explicit R/N/E
+  to E/N/U component permutation. The respective existing suites pass 5/995 and
+  10/351, with unchanged fixtures and tolerances. These remove eight net lines.
+* Relativistic station rate fallback now rejects falsely agreeing tiny stencils
+  when a callback internally narrows Time. It compares against a representable
+  scalar-resolution stencil without narrowing the actual Time samples. The
+  factory retains the selected converter and extended-time rotation derivative.
+  Regressions fail before the fix and pass afterward; the affected suite is 7/103.
+  The additional stencil also rejects nonfinite derivatives.
+* A precise historical time-conversion cutoff defect is fixed with typed bounds.
+  Five reproduced failures (including a roughly 29.858 ms wrong-branch jump) now
+  pass in the affected 1-case/11-assertion transition regression.
+* Six neutral-reader CMake blocks now use a local helper, removing 91 lines.
+  Static/shared and imported/fallback Eigen contracts match, generated exports
+  are byte-identical, and the dependency checks pass. Compact source-provenance
+  cleanup is still active; no global build framework changed.
+
+Completed behavior
+------------------
+
+Earth orientation and clocks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Neutral readers preserve legacy/current C04 and finals2000A source conventions,
+missing values, per-component status and provenance. Production evaluation uses
+continuous TAI and UT1-TAI, strict raw coverage and a default 36-hour gap limit.
+Linear interpolation is the default; explicit four-point Lagrange interpolation
+validates its selected stencil and UT1 monotonicity. There is no hidden endpoint
+padding, extrapolation, order reduction or missing-CPO fallback.
+
+Rotation, polar motion and time conversion share the selected EOP model. TT/UT1
+arguments and their rates are routed explicitly. J2000/ICRF share the GCRS axis
+orientation; EME2000 applies its explicit bias and ECLIPJ2000 its fixed rotation.
+This does not equate origins or relativistic coordinate scaling. The optional
+Desai--Sibois 159-term model replaces the corresponding ocean EOP corrections;
+conventional libration is retained once. The conventional default is unchanged.
+
+Deformation and complete station states
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``EarthDeformationEpoch`` is removed. The common base exposes only displacement
+and complete displacement state, taking TDB ``Time`` plus a station. Derived
+models implement protected hooks; converters are owned/shared by the models.
+Output is Cartesian SI, with state velocity differentiated with respect to TDB.
+Station, motion and reference-point paths preserve native Time. Scalar endpoint
+normalization is confined to real scalar API boundaries; precise Time is unsnapped.
+
+Solid Earth tides retain their corrected production phase conventions. Ocean
+loading defaults to the 342-constituent HARDISP synthesis from the eleven BLQ
+constituents. The older eleven-constituent synthesis remains an explicit option.
+Solid and ocean pole models share the 2018 secular pole. Atmospheric S1/S2 loading
+uses continuous UT1, separate lookup-latitude and displacement-basis conventions,
+and analytic rates. Loading origins and provider-specific translations are explicit.
+Non-tidal loading has strict station/coverage selection and component-overlap checks.
+
+Position-only access remains usable when a derivative is unavailable. Generic
+finite differences validate representable uniform stencils, preserve failures
+and restore central caches. Relativistic fallback also checks coarse/fine
+convergence. A tiny-step scalar-resolution check for the common displacement
+fallback is being added during review. Optional missing central data may be
+skipped; invalid configuration and nonfinite numerical results are not suppressed.
+Complete station states compose intrinsic motion, deformations, rotation and body
+translation. Terminal relativistic composition consumes that complete state once.
+
+Station histories, frames and instrument geometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The strict SINEX reader retains solution validity, discontinuities, equipment,
+eccentricities and station/point/solution identity. Motion supports cumulative
+post-seismic and seasonal terms with physical TAI validity and an explicit IGN
+nominal-UTC source clock. Julian-year velocity units and calendar seasonal phases
+remain distinct. ITRF catalogue selection retains release/origin/tide conventions;
+complete affine inverses and state derivatives reuse one transformation model.
+
+Dated marker/ARP/calibrated reference points reuse retained equipment histories and
+fixed local-axis conventions. The Python record getters return copies so callers
+cannot mutate validated model records through a property. Public factories accept
+preloaded neutral data and follow the existing settings/module conventions.
+
+Validation evidence
+-------------------
+
+Normal tests are offline. Pinned fixture directories record sources, revisions,
+hashes, licences, exact extraction/generation steps and the numerical budget.
+Reference programs executed for fixtures are distinguished from independent
+implementations of published equations. Logs and source manifests are retained in
+``/home/dominic/Tudat/earth-station-model-work/logs`` and the isolated build trees.
+The previous chronological ledger remains in Git history; the evidence below
+states the final behavior instead of retaining superseded open-task claims.
+
+* Solid Earth displacement: the unmodified corrected IERS DEHANTTIDEINEL package,
+  its two published examples and 18 frozen cases; 1 nm component tolerance through
+  the production factory. Final affected suite: 2 cases/153 assertions.
+* Solid pole displacement: eight independent colatitude-equation vectors. The
+  audited largest reference difference is 8.67e-19 m within a 1e-14 m budget.
+  Final suite: 3/135.
+* Short-period EOP: pinned PMSDNUT2, UTLIBR, ORTHO_EOP/CNMTX and the Paris 71-wave
+  routine at 35 epochs. The published T2 sine coefficient (0.05 microseconds)
+  differs from UTLIBR (0.04); that documented distinction is retained explicitly.
+* EOP interpolation: 27 frozen LAGINT/SOFA cases, including the 2016 leap second
+  and 1962 drift era, plus analytic interpolation/rate and inverse checks.
+  The original LAGINT undefined final-node branch is not used as an oracle.
+* Rotation/station closure: 13 original rotation cases/334 assertions; full
+  SOFA station-velocity comparison error 7.42e-10 m/s. Complete station suite
+  5/151 covers four base axes, five clocks, Time/scalar inputs and body translation;
+  maximum closure error 4.53e-9 m/s against a 1e-7 m/s budget.
+* Desai--Sibois: reader 3/32 and model 4/244, fourteen independent value/rate
+  fixtures over 1962--2025, full factory/SOFA sequence, retained libration and
+  ambiguous-overlap rejection. The embedded source matches its pinned NASA mirror.
+* Ocean loading: 36 original IERS HARDISP cases, maximum difference 0.106
+  micrometres within its documented 1 micrometre budget; existing 24-hour series
+  also pass at 1 micrometre. Final suite: 6/164.
+* Ocean pole loading: 731 unchanged published rows within 1 nm (maximum 0.7894 nm).
+  Their historical constants/pole are used only for that comparison. Production
+  uses IERS 2010 constants and the shared 2018 secular pole. Model suite 7/2287;
+  reader suite four cases; full provider grid parsed independently.
+* Atmospheric loading: independent Fourier/origin/rate fixtures and complete RP03
+  input inspection; current model suite 10/351. Source imperfections and explicit
+  approximation policies are tested without fitting tolerances to provider errors.
+* SINEX/history: eight complete pinned IGN products and an intentionally rejected
+  malformed official IGS record; motion 9/343 includes 126 independent original
+  IGN Fortran rows. The strict-reader/ILRS cleanup passes 6/68 and 7/62.
+* Terrestrial frames: 75 independent 80-digit Decimal forward/inverse state
+  fixtures from all 25 published rows; agreement within 2 nm and 2e-17 m per input
+  second. Affine suite 5/995; catalogue adapter 4/217 against 13 published rows.
+* Non-tidal loading: reader 4/141 plus four dependency/provenance checks; model
+  7/80. A provider file with eight duplicate station labels is deliberately
+  rejected; positive and negative extracts retain the original evidence.
+* Relativistic stations: independent 70-digit equation fixtures, an exact Lorentz
+  limiting case, complete factory/origin conversion and analytic-rate controls.
+  The current affected suite passes 7/103, including reproduced precision failures.
+* Instrument geometry: 5/52 plus relevant history and frame-adapter cases.
+* Core deformation/state: 12 velocity cases, station aggregation 3/331 and clock
+  routing 11/228 at the simplified-API checkpoint. Every changed native core
+  translation unit compiled, including the actual loading-composition validator.
+* Python-specific validation: a fresh coherent CMake kernel was built and its
+  actual loaded path asserted. Seven cases passed initially; two exposed a mixed
+  Time/scalar endpoint comparison and missing ocean-pole settings registration.
+  Both affected cases passed after the fixes. The unchanged seven are retained;
+  there is no claim of an unnecessary repeated full run.
+* Architecture: transitive Python imports, C++ includes and actual CMake link
+  closure enforce the neutral input boundary, including private static links.
+  Binding registration orders neutral data before dynamics/estimation. The
+  isolated stale EOP-factory ABI objects were rebuilt and the failing case passed.
+
+Material limits and explicit policies
+------------------------------------
+
+* Model-equation agreement is not a claim of equivalent real-world physical
+  accuracy. Declared reference constants, phases, clocks and origins must match.
+* Scalar UTC cannot represent an inserted second. TAI/TT/UT1 remain continuous.
+  UTC-phase derivative models reject intervals crossing an offset step or its
+  ambiguous inserted second; smooth historical UTC drift is supported.
+* EOP knots/coverage can provide positions without usable rates. Selected clock
+  interpolators lacking a rate contract reject rate evaluation. Historical
+  Delta T is an explicit clock-only policy, not invented historical EOP or UTC.
+* The ocean-pole grid ends at +/-89.75 degrees. Latitude clamping is an explicit
+  approximation. The CM grid already includes its geocentre contribution.
+* RP03 longitude-seam/polar rounding defects reject by default. Explicit averaging
+  reports the discrepancy. CE-to-CM translation is allowed only for the identified
+  RP03/no-IB/Farrell profile; it is not applied to already-CM coefficients.
+* Relativistic station conversion implements the documented IERS spatial
+  approximation. It does not claim full event/simultaneity/worldline dynamics.
+  Numerical differentiation requires smooth callbacks and sufficient coverage;
+  convergence cannot prove arbitrary black-box smoothness.
+* No new estimation parameters, complete cross-software trajectory campaign,
+  observation omission study or deferred research-extension task is retained.
 
 Parallel gravity-field programme
 --------------------------------
 
-Dominic subsequently authorized starting the gravity programme in parallel on
-14 October 2026. This supersedes the earlier instruction to wait for every station
-task and the full-PR review. The station review remains a completion requirement.
-
-Branch ``fix/gravity_field_variations`` was created from ``a3be1612a`` in the
-separate ``tudatpy-earth-gravity-variations`` worktree. Literature and existing-model
-analysis are active; implementation follows that analysis. Review, implement and
-independently validate detailed Earth gravity-field variation models used in space
-geodesy, including solid Earth tides, ocean tides and pole tides. Establish explicit
-compatibility between rotation, gravity, static-field and correction conventions;
-do not combine incompatible models or count an effect twice. Apply the same
-standards-first review, neutral input layer, pinned reference data, primarily C++
-validation and global eight-compiler limit. Sol agents at high reasoning implement,
-compile and handle minor debugging. Gravity-coefficient estimation is excluded.
-The detailed gravity checklist is ``docs/earth_gravity_field_variations.rst`` in
-that branch and is also open in gedit.
-
-Required review after the checklist
------------------------------------
-
-.. code-block:: text
-
-   [ ] Review the complete station/rotation PR after all 25 tasks.  [ACTIVE — correctness fixes, reuse, API/test/build simplification]
-
-In addition to the normal correctness and numerical review, Dominic requires:
-
-* Find and remove functionality reimplemented when suitable code already exists.
-* Avoid invasive changes to generic code merely to support minor features.
-* Remove unnecessary abstractions, boilerplate, repeated validation and other
-  generated-code patterns that obscure the actual model.
-* Make Python interfaces follow existing Tudat conventions where practical.
-* Keep tests proportionate: preserve scientific reference cases and meaningful
-  regression coverage; every minor edge case or exception does not need a test.
-* Seek a reduction in net added lines without compromising numerical quality or
-  significantly increasing runtime. Record the changes and relevant validation.
-
-This review covers the full diff from the starting revision and is an additional
-completion requirement. It must not substitute a smaller scope for an unfinished
-task or bypass a remaining correctness issue.
-
-Completion criteria
--------------------
-
-For an implementation task, completion requires review of the final diff,
-appropriate reference/regression tests, public-interface coverage where
-affected, and a local commit.  Record pre-existing baseline failures separately.
-Do not silently mark a model conformant when only equation-level or internal
-consistency tests have run.  A numerical match to a specified model is not a
-claim of equal physical accuracy for a real station.
-
-Initial numerical targets, subject to the documented reference precision, are
-1--10 micrometres for identical displacement algorithms, 1 microarcsecond for
-equivalent rotations, and 0.05 microseconds for equivalent UT1 calculations.
-Velocity closure initially targets 1e-7 m/s with a finite-difference convergence
-study.  Actual discontinuities are tested as discontinuities.
-
-Validation ledger
------------------
-
-2026-10-14, relativistic factory completion: commit ``a02d01a16`` integrates
-``002d57eb6`` without changes. The seven-case/91-assertion suite exercises the
-complete BodySettings creation path, nonzero station rates and explicit external
-ephemeris origin conversion. The bodies frame definitions are established before
-the station factories consume them. Task 23 is complete for the documented IERS
-spatial approximation; the declared simultaneity/worldline limitations remain.
-
-2026-10-14, catalogue adapter integration: task 20 commit ``875239f1c`` cleanly
-integrates ``f5a31d36b``. Four native cases/217 assertions cover 13 independent
-published ITRF2020 rows in both directions, complete affine velocity, shared
-calendar time, metadata guards and public factory dispatch. Rebuilt affected
-station-history and affine suites pass 9/343 and 5/995. Both binding units pass
-syntax checks; source and configured target-closure checks preserve neutral
-input dependencies. Integration preserves the tested numerical implementation.
-
-2026-10-14, loading input integration: task 21 commit ``0cb57a602`` integrates
-``bde585377``. Four native cases/141 assertions pass; the reader builds as a
-standard-library-only target. Four source-boundary/provenance checks and binding
-syntax checks pass. The 9728-byte positive extract preserves authoritative rows;
-the complete 4341-site provider file is rejected at duplicate AGGO line 563,
-as the format requires. A pinned negative fixture preserves that provider defect.
-Merge conflicts only combined additive library and module registrations.
-
-2026-10-14, relativistic spatial checkpoint: commit ``084d7aa2f`` cleanly
-integrates ``de42063e8`` while retaining task 19's motion factory. Six model
-cases/79 assertions, station aggregation 3/331, complete station velocity 5/151
-and clock routing 14/253 pass. Independent 70-digit equation fixtures, an exact
-Lorentz limiting case and declared-model velocity differences cover the spatial
-approximation. Station simultaneity/full-event acceleration terms remain
-explicitly outside that approximation. Review keeps task 23 open for a missing
-environment argument in the public BodySettings construction path; a focused
-regression is required for that newly identified gap. No unchanged numerical
-suites were rerun merely because of integration.
-
-The combined tasks 20/21/23 CMake target graph configures successfully, including
-the actual neutral-input dependency audit, without compiling the Python kernel.
-All task 20 numerical files and task 21 reader/fixtures match their tested
-checkpoints byte for byte. The task 23 differences retain only task 19's separate
-factory/settings and corrected linear reference epoch. Integration evidence is
-``logs/tasks20-21-23-integration.json`` and
-``logs/tasks20-21-23-merged-configure.log`` in the local work directory.
-
-2026-10-14, station-history motion integration: task 19 commit ``d30e0b309``
-cleanly integrates ``cc14e9728``. Nine native cases/343 assertions pass, with
-126 pinned IGN Fortran reference rows covering selectors 0--5. Published repeated
-PSD and seasonal coefficients, reordered records, independent P/V history IDs,
-physical validity and the public settings/factory path are covered. Attached SSC
-velocities retain their P-solution coefficients while preserving independent V
-interval IDs; consistency has an explicit 1e-8 m/Julian-year budget. Source clocks
-use named IGN nominal UTC with continuous TAI validity; unavailable rates and
-inserted-second ambiguity reject. Both binding translation units and source
-architecture checks pass. Tested C++ tokens/Python ASTs survived formatting;
-integration changed no numerical implementation. No redundant test rerun or
-Python kernel build was performed.
-
-2026-10-14, optional high-frequency EOP integration: task 13 commit ``8155c1145``
-cleanly integrates ``1216f6bb1``. Three reader cases/32 assertions and four model
-cases/244 assertions pass. Fourteen independent Decimal-polynomial phase/value
-and analytic-rate fixtures cover 1962--2025; model tests include retained
-libration, selected UT1/rotation rates and the full factory SOFA matrix sequence.
-The embedded 159-term NASA mirror is byte-identical to its pinned 12586-byte
-source. Three architecture/provenance checks and both binding translation-unit
-syntax checks pass. The default conventional path remains unchanged; the explicit
-Desai--Sibois selector replaces ocean contributions and rejects ambiguous custom
-correction composition. Identical numerical tests were not rerun after integration.
-
-2026-10-14, complete station-state integration: task 12 commit ``0eeccfcb2``
-cleanly integrates ``5c1029c9a``. The station suite passes 5 cases/151 assertions;
-the affected clock-routing suite passes 14/253 and the orientation suite 3/66.
-The public reference-point factory now evaluates native Earth rotations using
-TDB through the same angle calculator, preserving their EOP policies and axes
-while differentiating with respect to the environment clock. Full intrinsic
-motion, multiple deformations, rotation and nonzero body translation close
-against independent position differences. The isolated build's stale borrowed
-factory objects were rebuilt before validation. No post-merge numerical rerun
-was needed because the implementation and dependencies were not altered by
-integration. Evidence: ``rotation-derivative-build/task12-final.log``.
-
-2026-10-14, rotation and station-history integration: task 11 commit
-``e06188e6e`` preserves every file from the independently tested checkpoint
-``431ed6160``. Its 13 cases and 334 assertions include a 7.42e-10 m/s full SOFA
-station-velocity comparison at the selected 32-second stencil. Task 18 commit
-``9719e2655`` preserves the strict parser, adapters, binding implementations and
-fixtures from ``8bba93620``; its 16 cases/260 assertions, complete-provider-file
-checks and fixture-regeneration evidence remain applicable. Conflicts only
-combined additive library/module registrations. CMake regeneration checked the
-combined target graph and neutral-input dependency closure. In accordance with
-Dominic's latest instruction, identical numerical tests were not rerun after
-integration; no Python kernel was compiled. Runtime Python binding checks are
-reserved for task 29's Python-specific validation.
-
-2026-10-14, session recovery: the original readable conversation, user requests,
-last checklist and worker handoffs were recovered to
-``/home/dominic/Tudat/earth-station-model-work/recovery-20261014``. Original session
-records remain unchanged. Three workers survived interruption of their parent;
-their turns were stopped through the local application server before new agents
-took exclusive ownership of the existing worktrees. Their late edits were
-preserved. The integration source matched all 38 frozen ITRF paths and passed
-all 28 selected CTest checks plus both source-boundary checks. The ITRF
-transformation checkpoint was subsequently reviewed and committed; its detailed
-validation appears below. The independently tested UT1 value/rate prerequisite
-was integrated separately. Tasks 11 and 17 remain open until their complete
-models and their relevant tests pass. Compilation allocations are centrally
-limited to eight jobs across all workers; Python kernel compilation is permitted
-only for Python-specific validation.
-
-2026-10-14: starting revision verified against GitHub PR #900.  Task 01 baseline
-build completed with six build jobs: all 12 selected C++ test executables passed
-(EarthOrientationCalculator, EopReader, PolarMotionCalculator,
-TimeScaleConverter, ShortPeriodEopCorrections, ItrsToGcrsRotationModel,
-Iers2010DeformationModel, OceanTideDisplacement, PoleTideDisplacement,
-SofaEarthOrientationInterface, SofaFundamentalArguments, SofaTimeConversions).
-Configuration used the local ``tudatpy-dev`` compiler/dependencies, Release with
-``-O1``, serialization/PCH/explicit instantiations/extended precision disabled,
-and no unity build or LTO.  These are targeted baseline results, not a complete
-suite or a numerical-conformance claim.  Exact commands, compiler provenance,
-resource hashes and logs are saved locally in
-``/home/dominic/Tudat/earth-station-model-work/logs``.
-
-Task 02 source-boundary checks pass for transitive local Python imports and C++
-includes/associated implementations. The committed checks use only Python's
-standard library and can run without a Tudat build. Independent input-library
-linkage and compiled binding initialization also pass, as detailed below.
-
-Task 05: corrected the pole-tide wobble units and east/north formulas, and use
-the geocentric basis for the IERS displacement before projecting to a station's
-topocentric frame.  The C++ PoleTideDisplacement executable passes eight frozen
-reference cases evaluated independently from the original colatitude equations,
-zero-wobble checks, and Cartesian/geodetic/spherical representation checks on
-an oblate Earth.  The conventional secular pole remains the explicitly pinned
-1 February 2018 IERS update.  Compilation also exposed and fixed a missing
-direct constants include in the geodetic-coordinate header.
-
-Task 07, inertial-frame portion: ``J2000`` and ``ICRF`` now share the GCRS axis
-orientation, ``ECLIPJ2000`` uses the SPICE fixed ecliptic rotation, and the
-previous dynamical-J2000 bias is available explicitly as ``EME2000``.  The C++
-ItrsToGcrsRotationModel executable passes independent SOFA cookbook and fixed
-frame-bias/ecliptic matrix cases, including forward/inverse transformations and
-the double/extended-time interfaces.  Full time-scale and displacement-system
-conventions remain open under task 07; derivative completeness is task 11.
-
-Tasks 04/06: pinned and executed the unmodified corrected IERS DEHANTTIDEINEL
-Fortran package, reproduced its two published examples, and generated 18
-offline reference cases spanning station geometry, epochs and non-midnight
-times.  Production solid-tide arguments now reproduce the reference's
-precession-adjusted lunar longitude and UTC-hour phase; explicit custom
-argument callbacks remain supported.  The C++ full-displacement comparisons
-pass at 1 nm component tolerance through both the default production factory
-and the independently implemented reference-argument callback.  The legacy
-test's fractional-hour conversion was corrected; its rounded-century midnight
-epoch was replaced by the exact published midnight without changing expected
-values or tolerances.  The existing API's TDB-as-TT approximation remains
-documented pending the broader time-scale work in task 07.  Task 04 remains
-open for the other models' reference packages.
-
-After these corrections, all 12 targeted C++ integration executables pass,
-along with both source-dependency checks.  Python binding compilation follows
-integration of the new EOP and ocean-loading input modules.
-
-Task 10: executed pinned, unmodified PMSDNUT2, UTLIBR, ORTHO_EOP/CNMTX
-and the Paris Observatory 71-wave ocean routine at 35 epochs spanning
-1962--2025 and an 18.6-year nodal cycle. C++ tests distinguish exact reference
-arguments from the production time/argument path, check default summed
-corrections and single application of daily polar motion and observed CPO,
-and cover positive amplitude cutoffs and empty results. Corrected a reversed
-amplitude/multiplier argument order in coefficient filtering and updated the
-legacy PMSDNUT2 check to the corrected 2011 reference values.
-
-The published Table 5.1b T2 UT1 sine coefficient is 0.05 microseconds, whereas
-UTLIBR uses 0.04. Tudat retains the published coefficient; the regression
-explicitly accounts for that independently documented difference. The original
-UTLIBR LOD convention is tested separately and is not represented as a new
-production LOD API. Source hashes, licensing, generation instructions and
-tolerance budgets are recorded in ``short_period_reference/README.md`` beside
-the C++ suite. All nine short-period test cases pass; the complete set of
-12 selected integration executables also passes after this change (1.63 s).
-Broader interpolation, time-scale and rotation-rate work remains open.
-
-Tasks 02/03/08/14: neutral EOP and BLQ records and readers now live in the input
-layer, with separately linkable C++ targets and Python modules beneath
-``data_input.environment_data``. EOP records retain SI values, optional missing
-quantities, per-component Bulletin A status flags, source headers and supplied
-frame metadata. Tests cover legacy 16-column and modern 21-column C04 plus
-fixed-width finals2000A Bulletin A, using pinned real input extracts. BLQ records
-retain the eleven standard constituents, up/west/south metre amplitudes,
-degree phase lags, provider metadata and declared CE/CM origin. Malformed input
-and duplicate station identifiers are rejected. Existing EOPReader/readBlqFile
-interfaces delegate parsing to these readers; models can consume preloaded
-records. Interpolation and full HARDISP synthesis remain separate tasks.
-
-The raw I/O archive excludes the three adapters that depend on environment
-models. GRAIL raw UTC-to-TDB conversions use the shared SOFA time utilities,
-with C++ regression tests against the previous conversion results. A CMake
-check traverses actual transitive links, including private static-library
-dependencies, from all three input targets and rejects model dependencies.
-All five reader/adapter test executables and all 12 selected scientific
-integration executables pass, as do the two source-dependency tests and the
-target-link audit. The EOP, ocean-loading and GRAIL suites contain seven, five
-and three C++ cases, respectively.
-
-The Python extension compiled successfully with input registration ordered
-before dynamics and estimation types. Import/registration smoke checks and
-both EOP binding-only Python tests pass against the newly built extension.
-Four unused serialization-namespace aliases needed conditional guards for the
-serialization-disabled build; that narrow build fix is a separate commit.
-Subsequent full kernel builds are deferred to final integration at Dominic's
-request. Logs are in ``earth-station-model-work/logs``; raw EOP validity and
-the legacy adapter's artificial endpoint buffer remain task 09.
-
-Task 15: the default ocean tidal-loading model now expands the eleven BLQ
-constituents to the 342-constituent IERS HARDISP synthesis with complex admittance
-interpolation. The eleven-constituent implementation remains an explicit legacy
-option, and explicit custom argument callbacks retain that legacy behavior.
-Filename and preloaded-data factories select the same model. Cartesian loading
-uses the geocentric radial/north/east basis; public station ENU results are
-projected into the station's actual topocentric frame.
-
-The original corrected IERS Fortran package generates 36 frozen comparisons
-covering six stations and non-midnight epochs over 25 years. Its regeneration
-check passes, with source checksums and complete original notices preserved.
-The largest C++ difference is 0.106 micrometres, within the independently
-documented one-micrometre budget for the reference's single-precision synthesis.
-The existing 24-hour Onsala and Reykjavik reference series now pass at one
-micrometre in every component, replacing former 0.25--4 mm tolerances.
-
-All six C++ ocean-loading cases pass, including factory selection, zero
-amplitudes, legacy callbacks and ellipsoidal-coordinate geometry. The complete
-15-executable scientific/input regression selection and raw-target dependency
-audit pass (16 checks, 3.12 s). Logs are ``tests-hardisp-integration.log`` and
-``hardisp-generator-check.log`` in the local work log directory. Binding source
-and API documentation are included; final Python-kernel validation remains
-task 29. Explicit environment TDB-to-model-TT routing and UTC-phase derivative
-boundary handling remain tasks 07 and 12, respectively.
-
-Task 09: production EOP evaluation now uses continuous TAI epochs and interpolates
-UT1-TAI, with strict raw coverage, a default 36-hour gap limit and no artificial
-endpoint padding. Linear interpolation remains the default; an explicit
-four-point Lagrange option validates the entire selected stencil and its UT1
-monotonicity. There is no silent extrapolation, order reduction or missing-CPO
-fallback. Raw knot values remain available when a neighbouring gap prevents a
-rate; interval rates use the right-hand interval, except at the final knot.
-
-Twenty-seven frozen four-point comparisons were generated with the unmodified
-Paris Observatory LAGINT and original SOFA date/UTC routines for modern epochs,
-the 2016 inserted second and the 1962 drift era. Analytic cubic tests separately
-validate slopes and reject an interior non-monotonic UT1 inverse. The original
-LAGINT's undefined final-node branch is not executed; that endpoint is checked
-against the raw record. Provenance and generation instructions are recorded in
-``earth_orientation/interpolation_reference/README.md`` beside the C++ tests.
-
-The rotation, polar-motion and time-conversion paths share the selected EOP
-model. UT1 and observer-dependent TDB inversions stay within covered intervals.
-Scalar UTC explicitly rejects the inserted second; continuous TAI/TT/UT1 paths
-remain usable there. Exact rounded double images of coverage endpoints are
-accepted without accepting later precise-Time epochs. Identity conversions
-preserve their input without consulting unrelated tables. Geocentric atomic
-clock conversion requires no EOP or UTC coverage. Historical Delta T is an
-explicit clock-only policy, using the retained Julian-year table coordinate;
-it does not invent historical polar motion, CPO or precise UTC.
-
-The native geocentric TT/TDB rate differences the small SOFA clock offset rather
-than large epochs. Independent 16/32/64-second convergence checks agree within
-2.22e-16 in the rate. Selected clock interpolators retain position conversion
-but explicitly reject unsupported rate evaluation. The final integrated EOP
-suite passes 23 C++ cases, including exact endpoints, clock-interpolator coverage,
-legacy custom paths and precise-Time representability regressions. Full Earth
-rotation derivatives and deformation rate closure remain tasks 11 and 12.
-
-Task 12, initial API: body deformation models now provide displacement velocities
-and six-component states. The generic five-point difference uses a validated,
-representable uniform stencil, preserves the original failure type and restores
-central-epoch caches. Existing custom scalar callbacks retain their time basis.
-Native solid/ocean-tide UTC phase models reject derivative intervals touching
-an offset step or ambiguous inserted second; smooth historical UTC drift is
-allowed. This is a phase-representation limitation, not a physical singularity.
-
-Station-motion aggregation adds deformation velocities and propagates derivative
-failures once the central displacement is available. Optional missing central
-models can still be skipped. Position-only station access evaluates only the
-central displacement, so an available position at a coverage boundary remains
-usable when a derivative stencil is unavailable. Non-finite outputs are rejected.
-
-All 12 integrated C++ velocity cases pass, including fourth-order convergence,
-cache/exception behavior, large-epoch stencil representability, 2012/2016 leap
-boundaries, historical UTC drift/steps and a controlled rotating-frame closure.
-The IERS velocity changes by 1.22e-15 m/s between one- and half-second steps in
-the smooth test case. This initial commit does not close task 12: native context
-routing, selected-EOP-interval rates and closure with the complete physical
-Earth-rotation derivative remain required under tasks 07, 11 and 12.
-
-Task 16: the ocean pole-tide input reader preserves the dimensionless complex
-radial/north/east grid, source headers and CM origin. Its independent input target
-has no dynamics or estimation dependency. The model evaluates conventional IERS
-Chapter 7 Eq. (29), the 2018 secular pole and IERS 2010 constants, with bilinear
-geocentric-latitude interpolation and periodic longitude only for full global
-grids. The production coefficient is K=5340.428562229677 m/rad. The official CM
-grid already includes the geocentre contribution; no extra translation is added.
-Geocentric displacements rotate to Cartesian before optional station-ENU output.
-
-The raw grid stops at +/-89.75 degrees. Default evaluation requires grid coverage;
-clamping to the nearest latitude is an explicitly selected approximation. Bad
-headers, axis counts, duplicate/missing nodes and malformed rows produce source
-and line diagnostics. Construction loads a file once through the input layer;
-preloaded and file factories share the same evaluator and Earth polar-motion
-model. Python input/model declarations and documentation accompany the C++ API.
-
-All 731 published reference rows agree within 1 nm (maximum 0.7894 nm), using
-only the published benchmark's explicitly older K=5339.4043696 m/rad and mean
-pole for that comparison. These older constants do not change the production
-model. The original full 720-by-360 grid was parsed independently; normal tests
-use a checksum-pinned four-node extract and the unchanged published test series.
-Source hashes, extraction instructions, constants and coordinate provenance are
-recorded in ``reference_files/ocean_pole_tide/README.md``.
-
-The final integrated ocean-pole model and input suites pass seven and four C++
-cases, respectively, including file/preloaded parity, geometry, seam/coverage
-policies and continuous-EOP evaluation through the 2016 inserted second. The
-combined task 09/initial-12/16 milestone passes all 20 selected C++ executables
-and the actual input-target dependency audit (21 CTest checks, 2.07 s), plus both
-source-boundary checks. Exact-file formatting hooks pass. Evidence is recorded
-in ``tests-combined-final-identity.log``, ``architecture-final-identity.log`` and
-``combined-final-validation-summary.json`` in the local work log directory.
-No Python kernel was rebuilt for this milestone; final binding validation is
-still task 29.
-
-Task 07: station motion now supplies a physical-epoch context that preserves
-the original TDB input and lazily derives geocentric TT/TAI. Native solid tides
-use TDB ephemerides, the rotational ephemeris's declared clock and TT/UTC tide
-arguments. HARDISP and pole tides use their terrestrial clock explicitly.
-UT1 and polar motion use the requesting model's own converter and coverage
-policy. Generic/custom scalar callbacks retain their original forwarding.
-
-Both native IERS and basic solid-tide factories honor a GCRS/ITRS rotation's
-declared input time scale; SPICE and custom rotation inputs retain TDB. TT-only
-displacement rates include dTT/dTDB, while mixed-clock solid tides differentiate
-the complete routed displacement. Position evaluation remains independent of
-rate availability. The public documentation states the conventional tide-free
-nominal-coordinate requirement and the retained permanent degree-2 displacement.
-
-All 14 integrated time-routing C++ cases pass, including direct-SOFA clock
-fixtures, separate ephemeris/rotation/argument epochs, precise coverage limits,
-leap-second behavior, custom callbacks, factory ownership and TT-versus-TDB
-rotation equivalence. Existing solid/ocean/pole-tide and initial velocity tests
-also pass in the combined 25-check integration selection. Full rotation rates
-and station-state closure remain tasks 11 and 12. Logs are
-``tests-time-routing-atmospheric-final.log`` and
-``architecture-time-routing-atmospheric-final.log`` in the local work directory.
-
-Task 17, position checkpoint: neutral atmospheric S1/S2 grid and station readers
-preserve provider coefficients, source/origin metadata and explicit geometry
-conventions. The separately linkable input target has no dynamics or estimation
-dependency. Continuous UT1 drives the conventional midnight-referenced sine/cosine
-synthesis. Grid lookup latitude and displacement basis are separate choices;
-geodetic choices require the configured body shape. Cartesian displacement is
-independent of the station's input coordinate representation.
-
-The complete pinned RP03 provider grid was parsed independently. Its rounded
-longitude-seam and polar coefficients do not satisfy exact consistency. Strict
-evaluation rejects these inconsistencies; an explicit averaging approximation
-reports the discrepancy and preserves the raw data. Source-origin preservation
-is the default. Optional CE-to-CM translation uses IERS Table 7.6 only for an
-explicitly identified RP03/no-IB/Farrell source and applies once in Cartesian
-coordinates. An already-CM source receives no extra translation.
-
-The six input, eight synthesis/interpolation and seven model/factory C++ cases
-pass, including all lookup/basis combinations, oblate geometry, file/preloaded
-parity, exact station identifiers and the 2016 inserted second. Independent
-complex-Fourier fixtures check the published origin-translation equations;
-this fixture generator is not presented as original IERS reference software.
-A mismatching Bernese station example is recorded as an unsuitable oracle,
-without widening a tolerance. Source provenance and these limitations are in
-``reference_files/atmospheric_tides/README.md``.
-
-The optimized integration build exposed a dangling Eigen expression in one
-test's expected-value calculation. Materializing the vector fixed the test
-without changing model equations, fixtures or tolerances. All 24 selected C++
-executables and the actual input-target dependency audit now pass (25 CTest
-checks, 1.98 s), together with both source-boundary checks. Exact-file formatting
-also passes. The final source identities and evidence are recorded in
-``time-routing-atmospheric-final-files.json`` and
-``time-routing-atmospheric-validation-summary.json``. The full atmospheric
-velocity/state interfaces explicitly reject evaluation until the selected UT1
-rate is connected; task 17 remains open. No Python kernel was rebuilt.
-
-Task 20, transformation checkpoint: the neutral IGN table reader preserves
-published realization/release identities, decimal-year parameter epochs,
-original records/units and source provenance. The standalone input target links
-only Eigen. Explicit catalogue selection retains the original ITRF2014 and
-superseding ITRF2020 tables without inventing datum changes for aligned releases.
-
-Requested-epoch affine position and state evaluation use the published linearized
-Helmert matrix, its exact inverse and complete derivative/composition terms.
-The structured epoch supplies dDecimalYear/dInputSecond explicitly. Compatibility
-functions retain their uniform-Julian-year seconds since J2000 and ITRF2014
-catalogue, with corrected table transcription, same-frame identity and moving
-states. Their previous fixed-reference-epoch propagation is removed.
-
-All 25 published rows are checked at the reference epoch and +/-10.25 years:
-75 independent 80-digit Decimal forward/inverse moving-state fixtures agree
-within 2 nm and 2e-17 m/input-second. The generator verifies original and embedded
-table hashes and reproduces the frozen fixtures. It implements the published
-equations independently; it is not original IGN/IERS reference software.
-Five model and three input C++ cases also check individual parameter/rate signs,
-nonunit clock rates, inverse conditioning, identity, provenance and malformed
-data. Existing reference-frame compatibility tests pass.
-
-The recovered integration source matched all 38 files in its frozen manifest.
-All 27 selected C++ executables and the actual input-target dependency audit pass
-(28 CTest checks), together with both source-boundary checks. Exact-file
-formatting and fixture regeneration pass. Binding declarations and discoverable
-data/model API references accompany the implementation; no Python kernel was
-rebuilt. Evidence is recorded in ``recovery-itrf-validation-summary.json`` and
-the associated ``recovery-itrf-*``/``recovery-test-itrf-*`` logs in the local work
-directory. Task 20 remains open for station-catalogue integration with tasks 18
-and 19 and its chosen physical-time mapping; task 29 owns compiled binding checks.
-
-Task 17, rate completion after session recovery: native atmospheric deformation
-now differentiates the selected continuous UT1 model and applies dUT1/dTAI and
-dTT/dTDB exactly once. Positions remain available where a selected slope is
-unavailable. Model-owned time conversion preserves coverage endpoint policy;
-origin translations are differentiated in Cartesian coordinates. The nine
-synthesis and ten model cases pass in the actual integration CMake build,
-including knots, endpoints, leap seconds, geometry and factory equivalence.
-The three UT1 primitive cases and raw target-link audit also pass. Independent
-real128 origin-rate fixtures regenerate identically. Evidence is in
-``recovery-atmospheric-main-validation-summary.json``; Python-only runtime
-binding validation is queued under task 29.
+Dominic explicitly authorized gravity work in parallel on a separate branch.
+The full station review remains required. ``fix/gravity_field_variations`` and
+``tudatpy-earth-gravity-variations`` contain the integration branch/worktree;
+``docs/earth_gravity_field_variations.rst`` is its separate checklist, also open
+in gedit. Primary-literature review and the existing-model inventory are complete.
+Compatibility design continues, and a separate Sol-high worker has started the
+static ICGEM/tide-system foundation in its own gravity worktree. Implementations
+must share compatible rotation/EOP, clocks, frame axes, static tide conventions
+and physical component inventories. Desai--Sibois ocean EOP corrections do not
+replace ocean gravity tides or either pole tide. Gravity estimation is excluded.

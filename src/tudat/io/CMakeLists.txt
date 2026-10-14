@@ -139,141 +139,50 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
     add_subdirectory(serialization)
 endif ()
 
-# Pure EOP file loading is separately linkable, without dynamics/estimation,
-# interpolation, ephemerides, SOFA, or serialization dependencies.
-if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_earth_orientation_data STATIC readEarthOrientationData.cpp readHighFrequencyEopData.cpp)
-else()
-    add_library(tudat_earth_orientation_data SHARED readEarthOrientationData.cpp readHighFrequencyEopData.cpp)
-endif()
-target_compile_features(tudat_earth_orientation_data PUBLIC cxx_std_17)
-target_include_directories(tudat_earth_orientation_data PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-set_target_properties(tudat_earth_orientation_data PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-add_library(Tudat::tudat_earth_orientation_data ALIAS tudat_earth_orientation_data)
-install(TARGETS tudat_earth_orientation_data EXPORT tudat_export
-    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+# Directory-local registration for the six independently linkable neutral readers.
+# Keep this separate from TUDAT_ADD_LIBRARY and its dynamics-oriented dependencies.
+function(_tudat_add_neutral_reader target)
+    if(TUDAT_BUILD_STATIC_LIBRARY)
+        add_library(${target} STATIC ${ARGN})
+    else()
+        add_library(${target} SHARED ${ARGN})
+    endif()
+    target_include_directories(${target} PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>)
+    set_target_properties(${target} PROPERTIES
+        POSITION_INDEPENDENT_CODE ON
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+    add_library(Tudat::${target} ALIAS ${target})
+    install(TARGETS ${target} EXPORT tudat_export
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+        RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+endfunction()
 
-# BLQ input records/parsing are independent of dynamics, estimation and the legacy I/O library.
-if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_ocean_loading_data STATIC readOceanLoadingData.cpp readOceanPoleTideData.cpp)
-else()
-    add_library(tudat_ocean_loading_data SHARED readOceanLoadingData.cpp readOceanPoleTideData.cpp)
-endif()
-target_include_directories(tudat_ocean_loading_data PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-if(TARGET Eigen3::Eigen)
-    target_link_libraries(tudat_ocean_loading_data PUBLIC Eigen3::Eigen)
-else()
-    target_include_directories(tudat_ocean_loading_data SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
-endif()
-set_target_properties(tudat_ocean_loading_data PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-add_library(Tudat::tudat_ocean_loading_data ALIAS tudat_ocean_loading_data)
-install(TARGETS tudat_ocean_loading_data EXPORT tudat_export
-    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+_tudat_add_neutral_reader(tudat_earth_orientation_data readEarthOrientationData.cpp readHighFrequencyEopData.cpp)
+_tudat_add_neutral_reader(tudat_ocean_loading_data readOceanLoadingData.cpp readOceanPoleTideData.cpp)
+_tudat_add_neutral_reader(tudat_atmospheric_loading_data readAtmosphericTideData.cpp)
+_tudat_add_neutral_reader(tudat_terrestrial_frame_data readTerrestrialFrameTransformationData.cpp)
+_tudat_add_neutral_reader(tudat_station_history_data readSinexStationHistory.cpp)
+_tudat_add_neutral_reader(tudat_station_loading_data readStationLoadingData.cpp)
 
-# Atmospheric loading input remains separately linkable with only std/Eigen dependencies.
-if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_atmospheric_loading_data STATIC readAtmosphericTideData.cpp)
-else()
-    add_library(tudat_atmospheric_loading_data SHARED readAtmosphericTideData.cpp)
-endif()
-target_compile_features(tudat_atmospheric_loading_data PUBLIC cxx_std_17)
-target_include_directories(tudat_atmospheric_loading_data PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-if(TARGET Eigen3::Eigen)
-    target_link_libraries(tudat_atmospheric_loading_data PUBLIC Eigen3::Eigen)
-else()
-    target_include_directories(tudat_atmospheric_loading_data SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
-endif()
-set_target_properties(tudat_atmospheric_loading_data PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-add_library(Tudat::tudat_atmospheric_loading_data ALIAS tudat_atmospheric_loading_data)
-install(TARGETS tudat_atmospheric_loading_data EXPORT tudat_export
-    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+# Preserve the existing feature, runtime-location and Eigen interfaces exactly.
+foreach(target IN ITEMS tudat_earth_orientation_data tudat_atmospheric_loading_data
+        tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data)
+    target_compile_features(${target} PUBLIC cxx_std_17)
+endforeach()
+foreach(target IN ITEMS tudat_ocean_loading_data tudat_terrestrial_frame_data)
+    set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endforeach()
+foreach(target IN ITEMS tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_terrestrial_frame_data)
+    if(TARGET Eigen3::Eigen)
+        target_link_libraries(${target} PUBLIC Eigen3::Eigen)
+    else()
+        target_include_directories(${target} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
+    endif()
+endforeach()
 
-# Neutral terrestrial-frame parameter parsing has only std/Eigen dependencies.
-if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_terrestrial_frame_data STATIC readTerrestrialFrameTransformationData.cpp)
-else()
-    add_library(tudat_terrestrial_frame_data SHARED readTerrestrialFrameTransformationData.cpp)
-endif()
-target_compile_features(tudat_terrestrial_frame_data PUBLIC cxx_std_17)
-target_include_directories(tudat_terrestrial_frame_data PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-if(TARGET Eigen3::Eigen)
-    target_link_libraries(tudat_terrestrial_frame_data PUBLIC Eigen3::Eigen)
-else()
-    target_include_directories(tudat_terrestrial_frame_data SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
-endif()
-set_target_properties(tudat_terrestrial_frame_data PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-add_library(Tudat::tudat_terrestrial_frame_data ALIAS tudat_terrestrial_frame_data)
-install(TARGETS tudat_terrestrial_frame_data EXPORT tudat_export
-    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
-
-# Neutral SINEX station-product histories contain only standard-library records.
-if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_station_history_data STATIC readSinexStationHistory.cpp)
-else()
-    add_library(tudat_station_history_data SHARED readSinexStationHistory.cpp)
-endif()
-target_compile_features(tudat_station_history_data PUBLIC cxx_std_17)
-target_include_directories(tudat_station_history_data PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-set_target_properties(tudat_station_history_data PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-add_library(Tudat::tudat_station_history_data ALIAS tudat_station_history_data)
-install(TARGETS tudat_station_history_data EXPORT tudat_export
-    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
 # Only the compatibility adapter needs the old aggregate's other dependencies.
 target_link_libraries(tudat_input_output_raw PUBLIC tudat_station_history_data)
-
-# Generic loading-series records and EPHEDISP parsing have only standard-library dependencies.
-if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_station_loading_data STATIC readStationLoadingData.cpp)
-else()
-    add_library(tudat_station_loading_data SHARED readStationLoadingData.cpp)
-endif()
-target_compile_features(tudat_station_loading_data PUBLIC cxx_std_17)
-target_include_directories(tudat_station_loading_data PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-set_target_properties(tudat_station_loading_data PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-add_library(Tudat::tudat_station_loading_data ALIAS tudat_station_loading_data)
-install(TARGETS tudat_station_loading_data EXPORT tudat_export
-    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")

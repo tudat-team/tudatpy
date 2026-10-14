@@ -236,7 +236,8 @@ Value guardedStationRate( const Time& time,
         if( resolutionStep > requestedStep / 2 )
         {
             const Value resolved = derivative( resolutionStep );
-            if( ( resolved - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( resolved.norm( ), fine.norm( ) ) )
+            if( !resolved.allFinite( ) ||
+                ( resolved - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( resolved.norm( ), fine.norm( ) ) )
                 throw std::invalid_argument( "Relativistic station derivative step cannot resolve the supplied callback." );
         }
         restore( );
