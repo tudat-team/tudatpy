@@ -85,6 +85,7 @@ TUDAT_ADD_LIBRARY("environment_setup"
         "${environment_SOURCES}"
         "${environment_HEADERS}"
         PUBLIC_SERIALIZATION
+        PRIVATE_LINKS tudat_icgem_gravity_data
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )

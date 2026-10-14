@@ -1,0 +1,34 @@
+{
+  "specification": {
+    "url": "https://icgem.gfz-potsdam.de/docs/ICGEM-Format-2023.pdf",
+    "sha256": "6defd9f87a64b16ec96bd657a74d0292ae3447cc7418da5104441102d8cb2b58"
+  },
+  "fixtures": [
+    {
+      "file": "gfz_rl061_ddk4_202104_degree2.gfc",
+      "source": "https://icgem.gfz.de/getseries/01_GRACE/GFZ/GFZ%20Release%2006.1%20%28GFO%29/60x60/DDK4/kfilter_DDK4_GSM-2_2021091-2021120_GRFO_GFZOP_BA01_0601.gfc",
+      "source_sha256": "b0a6ac866101ec37053b686d5eccb802342797f37943487bb142898aeb20c1fa",
+      "source_bytes": 152568,
+      "source_lines": [
+        1,
+        61
+      ],
+      "selection": "Entire original preamble/header; exact gfc rows degree0..2. Header max_degree60 unchanged.",
+      "license": "CC BY4.0,explicit source preamble; Dahle et al2019,GRACE-FO GSM GFZ RL06 v6.1,doi:10.5880/GFZ.GRACEFO_06_GSM",
+      "fixture_sha256": "3906427230cce689c42220b328279b69a8808fa28696127dbe9ef4fa6e4156e5"
+    },
+    {
+      "file": "costg_eigen6_c4_duplicate_c00.gfc",
+      "source": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/models/EIGEN6-C4.gfc",
+      "source_sha256": "b5d58320c9ee03ff4ad258e65ea2bade002c477081df08c30e72f4d864737715",
+      "source_bytes": 1219371,
+      "source_lines": [
+        1,
+        16
+      ],
+      "selection": "Original metadata facts and two numeric records; negative fixture. Both C00 rows are retained without repair.",
+      "license": "Scientific metadata facts and numeric coefficient records only; no provider prose/software copied.",
+      "fixture_sha256": "dd3d94121bd9accacac1b36f13fb307e845bb32f1f5974aeb1afae3874bdfc5b"
+    }
+  ]
+}

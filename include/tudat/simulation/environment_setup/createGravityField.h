@@ -17,6 +17,7 @@
 #include <memory>
 
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
+#include "tudat/io/readIcgemGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
@@ -159,11 +160,12 @@ public:
                                             const Eigen::MatrixXd& cosineCoefficients,
                                             const Eigen::MatrixXd& sineCoefficients,
                                             const std::string& associatedReferenceFrame,
-                                            const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                            const double scaledMeanMomentOfInertia = TUDAT_NAN,
+                                            const basic_astrodynamics::TideSystem tideSystem = basic_astrodynamics::TideSystem::unknown ):
         GravityFieldSettings( spherical_harmonic ), gravitationalParameter_( gravitationalParameter ), referenceRadius_( referenceRadius ),
         inertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), associatedReferenceFrame_( associatedReferenceFrame ), createTimeDependentField_( 0 ),
-        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
+        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia ), tideSystem_( tideSystem )
     {}
 
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
@@ -171,10 +173,11 @@ public:
                                             const Eigen::Matrix3d& inertiaTensor,
                                             const Eigen::MatrixXd& cosineCoefficients,
                                             const Eigen::MatrixXd& sineCoefficients,
-                                            const std::string& associatedReferenceFrame ):
+                                            const std::string& associatedReferenceFrame,
+                                            const basic_astrodynamics::TideSystem tideSystem = basic_astrodynamics::TideSystem::unknown ):
         GravityFieldSettings( spherical_harmonic ), gravitationalParameter_( gravitationalParameter ), referenceRadius_( referenceRadius ),
         inertiaTensor_( inertiaTensor ), cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
-        associatedReferenceFrame_( associatedReferenceFrame ), createTimeDependentField_( 0 )
+        associatedReferenceFrame_( associatedReferenceFrame ), createTimeDependentField_( 0 ), tideSystem_( tideSystem )
     {
         std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > degreeTwoField =
                 gravitation::getDegreeTwoSphericalHarmonicCoefficients( inertiaTensor_, gravitationalParameter_, referenceRadius_ );
@@ -182,6 +185,11 @@ public:
         cosineCoefficients_.block( 2, 0, 1, 3 ) = std::get< 0 >( degreeTwoField ).block( 2, 0, 1, 3 );
         sineCoefficients_.block( 2, 1, 1, 2 ) = std::get< 1 >( degreeTwoField ).block( 2, 1, 1, 2 );
         scaledMeanMomentOfInertia_ = std::get< 2 >( degreeTwoField );
+    }
+
+    basic_astrodynamics::TideSystem getTideSystem( ) const
+    {
+        return tideSystem_;
     }
 
     virtual ~SphericalHarmonicsGravityFieldSettings( ) {}
@@ -324,6 +332,8 @@ protected:
     bool createTimeDependentField_;
 
     double scaledMeanMomentOfInertia_;
+
+    basic_astrodynamics::TideSystem tideSystem_;
 };
 
 // Derived class of GravityFieldSettings defining settings of polyhedron gravity
@@ -767,6 +777,15 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                                                   std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients,
                                                   const int gravitationalParameterIndex = -1,
                                                   const int referenceRadiusIndex = -1 );
+
+//! Adapt static raw ICGEM coefficients into one normalized field in an explicit target frame.
+//! Missing selected records reject by default. Explicit zero-fill preserves raw presence and always requires supplied C00.
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > icgemSphericalHarmonicsGravitySettings(
+        const input_output::IcgemGravityFieldData& data,
+        const std::string& associatedReferenceFrame,
+        int maximumDegree = -1,
+        int maximumOrder = -1,
+        bool zeroFillMissingCoefficients = false );
 
 // Function to create a gravity field model.
 /*

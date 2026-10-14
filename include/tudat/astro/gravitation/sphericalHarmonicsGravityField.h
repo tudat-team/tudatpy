@@ -28,6 +28,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/tideSystem.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
 
@@ -441,11 +442,13 @@ public:
                                     const Eigen::MatrixXd& cosineCoefficients = Eigen::MatrixXd::Identity( 1, 1 ),
                                     const Eigen::MatrixXd& sineCoefficients = Eigen::MatrixXd::Zero( 1, 1 ),
                                     const std::string& fixedReferenceFrame = "",
-                                    const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                    const double scaledMeanMomentOfInertia = TUDAT_NAN,
+                                    const basic_astrodynamics::TideSystem tideSystem = basic_astrodynamics::TideSystem::unknown ):
         GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), fixedReferenceFrame_( fixedReferenceFrame ),
         scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia ), maximumDegree_( cosineCoefficients_.rows( ) - 1 ),
-        maximumOrder_( cosineCoefficients_.cols( ) - 1 ), sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
+        maximumOrder_( cosineCoefficients_.cols( ) - 1 ), sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) ),
+        tideSystem_( tideSystem )
     {
         if( ( cosineCoefficients.rows( ) != sineCoefficients.rows( ) ) || ( cosineCoefficients.cols( ) != sineCoefficients.cols( ) ) )
         {
@@ -453,6 +456,11 @@ public:
         }
 
         sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumDegree_ + 2, maximumOrder_ + 2 );
+    }
+
+    basic_astrodynamics::TideSystem getTideSystem( ) const
+    {
+        return tideSystem_;
     }
 
     //! Virtual destructor.
@@ -809,6 +817,8 @@ protected:
 
     //! Cache object for potential calculations.
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
+
+    basic_astrodynamics::TideSystem tideSystem_;
 };
 
 //! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients

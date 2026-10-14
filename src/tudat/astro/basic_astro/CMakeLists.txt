@@ -57,6 +57,7 @@ set(basic_astrodynamics_HEADERS
         "astrodynamicsFunctions.h"
         "orbitalElementConversions.h"
         "physicalConstants.h"
+        "tideSystem.h"
         "polyhedronFunctions.h"
         "unitConversions.h"
         "bodyShapeModel.h"

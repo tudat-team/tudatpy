@@ -191,3 +191,5 @@ TUDAT_ADD_TEST_CASE(AtmosphericTideData PRIVATE_LINKS tudat_atmospheric_loading_
 TUDAT_ADD_TEST_CASE(TerrestrialFrameTransformationData PRIVATE_LINKS tudat_terrestrial_frame_data)
 
 TUDAT_ADD_TEST_CASE(SinexStationHistory PRIVATE_LINKS tudat_station_history_data)
+
+TUDAT_ADD_TEST_CASE(IcgemGravityFieldData PRIVATE_LINKS tudat_icgem_gravity_data)

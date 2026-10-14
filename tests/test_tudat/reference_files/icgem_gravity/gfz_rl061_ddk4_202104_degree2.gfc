@@ -1,0 +1,61 @@
+******************************************************************************
+** model after non-isotropic smoothing (Kusche 2009)
+******************************************************************************
+
+** used filter-matrix:
+** Wbd_2-120_DDK4.ascii
+** errors unchanged (no error propagation applied)
+
+** filtered model:
+** GSM-2_2021091-2021120_GRFO_GFZOP_BA01_0601.gfc
+
+** model subtracted before filtering:
+** eigen-6c4.gfc
+** ==> added back after filtering
+
+max_degree         60
+
+******************************************************************************
+** start of original header:
+******************************************************************************
+**************************************************************
+model converted into ICGEM-format at: Mon May 22 13:15:21 2023
+**************************************************************
+
+**** some information from original YAML header ****
+dictionary          : ftp.//isdcftp.gfz-potsdam.de/grace-fo/DOCUMENTS/Level-2/GRACE-FO_L2_Gravity_Field_Product_User_Handbook_v1.0.pdf
+summary             : Spherical harmonic coefficients representing an estimate of Earth's mean gravity field during the specified timespan derived from GRACE-FO mission measurements. These coefficients represent the full magnitude of land hydrology, ice, and solid Earth processes. Further, they represent atmospheric and oceanic processes not captured in the accompanying GAC product.
+history             : Original solution produced on 2022-03-30T14.33.39
+acknowledgement     : GRACE-FO is a joint mission of the US National Aeronautics and Space Administration and the German Research Center for Geosciences. Use "Dahle et al. (2019). GRACE-FO Geopotential GSM Coefficients GFZ RL06. V. 6.1. GFZ Data Services. http.//doi.org/10.5880/GFZ.GRACEFO_06_GSM" when citing this data.
+license             : https.//creativecommons.org/licenses/by/4.0/
+references          :
+- ftp://isdcftp.gfz-potsdam.de/grace-fo/DOCUMENTS/Level-2/GRACE-FO_L2_Gravity_Field_Product_User_Handbook_v1.0.pdf
+- ftp://isdcftp.gfz-potsdam.de/grace-fo/DOCUMENTS/Level-2/GRACE-FO_GFZ_L2_Processing_Standards_Document_for_RL06.pdf
+- ftp://isdcftp.gfz-potsdam.de/grace-fo/DOCUMENTS/RELEASE_NOTES/GRACE-FO_GFZ_L2_Release_Notes_for_RL06.pdf
+time_coverage_start : 2021-04-01T00.00.00.00
+time_coverage_end   : 2021-05-01T00.00.00.00
+unused_days         : []
+**********  end of original YAML header  ***********
+
+
+time_period_of_data    20210401 - 20210430   (mid: 20210416)
+generating_institute   GFZ German Research Centre for Geosciences
+
+begin_of_head ================================================================
+product_type                   gravity_field
+modelname                      GSM-2_2021091-2021120_GRFO_GFZOP_BA01_0601
+radius                         6.3781364600e+06
+earth_gravity_constant         3.9860044150e+14
+max_degree                     60
+norm                           fully_normalized
+tide_system                    tide_free
+errors                         formal
+
+key     L    M          C                   S            sigma C     sigma S  
+end_of_head ==================================================================
+gfc     0    0  1.000000000000E+00  0.000000000000E+00  0.0000E+00  0.0000E+00
+gfc     1    0  0.000000000000E+00  0.000000000000E+00  0.0000E+00  0.0000E+00
+gfc     1    1  0.000000000000E+00  0.000000000000E+00  0.0000E+00  0.0000E+00
+gfc     2    0 -4.841653458641E-04  0.000000000000E+00  1.0410E-12  0.0000E+00
+gfc     2    1 -5.154457482929E-10  1.539335353055E-09  7.7270E-13  7.6470E-13
+gfc     2    2  2.439400799597E-06 -1.400380164894E-06  1.0130E-12  1.1000E-12

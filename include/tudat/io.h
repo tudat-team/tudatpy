@@ -38,6 +38,7 @@
 #include "io/readOdfFile.h"
 #include "io/readPsfFile.h"
 #include "io/readSinexFile.h"
+#include "io/readIcgemGravityField.h"
 #include "io/readTabulatedMediaCorrections.h"
 #include "io/separatedParser.h"
 #include "io/solarActivityData.h"

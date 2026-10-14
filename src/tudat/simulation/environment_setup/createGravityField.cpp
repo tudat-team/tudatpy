@@ -162,6 +162,42 @@ FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravit
     sphericalHarmonicsModel_ = sphericalHarmonicsModel;
 }
 
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > icgemSphericalHarmonicsGravitySettings(
+        const input_output::IcgemGravityFieldData& data,
+        const std::string& frame,
+        int maximumDegree,
+        int maximumOrder,
+        bool zeroFillMissingCoefficients )
+{
+    input_output::validateIcgemGravityFieldData( data );
+    if( maximumDegree == -1 ) maximumDegree = data.maximumDegree;
+    if( maximumOrder == -1 ) maximumOrder = maximumDegree;
+    if( frame.empty( ) || maximumDegree < 0 || maximumDegree > data.maximumDegree || maximumOrder < 0 || maximumOrder > maximumDegree )
+        throw std::runtime_error( "ICGEM settings require an explicit frame and valid degree/order truncation" );
+    Eigen::MatrixXd cosine = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+    Eigen::MatrixXd sine = cosine;
+    for( int degree = 0; degree <= maximumDegree; ++degree )
+        for( int order = 0; order <= std::min( degree, maximumOrder ); ++order )
+        {
+            const auto record = data.coefficients.find( { degree, order } );
+            if( record == data.coefficients.end( ) && zeroFillMissingCoefficients && degree != 0 ) continue;
+            if( record == data.coefficients.end( ) )
+                throw std::runtime_error( data.source + ": Missing supplied ICGEM coefficient at " + std::to_string( degree ) + "/" +
+                                          std::to_string( order ) );
+            cosine( degree, order ) = record->second.cosine;
+            sine( degree, order ) = record->second.sine;
+        }
+    if( data.normalization == input_output::IcgemNormalization::unnormalized )
+    {
+        const auto normalized = basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients( cosine, sine );
+        cosine = normalized.first;
+        sine = normalized.second;
+    }
+    if( !cosine.allFinite( ) || !sine.allFinite( ) ) throw std::runtime_error( "ICGEM normalization produced nonfinite coefficients" );
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            data.gravitationalParameter, data.referenceRadius, cosine, sine, frame, TUDAT_NAN, data.tideSystem );
+}
+
 //! Function to read a gravity field file
 std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                                                   const int maximumDegree,
@@ -219,7 +255,7 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
     int counter = 0;
     std::string previousLine = "";
     // Read coefficients up to required maximum degree and order.
-    while( !stream.fail( ) && !stream.eof( ) && ( currentDegree <= maximumDegree && currentOrder < maximumOrder ) )
+    while( !stream.fail( ) && !stream.eof( ) && ( currentDegree <= maximumDegree ) )
     {
         // Read current line
         std::getline( stream, line );
@@ -399,7 +435,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
                                 associatedReferenceFrame,
-                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
+                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ),
+                                sphericalHarmonicFieldSettings->getTideSystem( ) );
                     }
                     else
                     {
@@ -417,7 +454,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
                                 associatedReferenceFrame,
-                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
+                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ),
+                                sphericalHarmonicFieldSettings->getTideSystem( ) );
                     }
                 }
             }

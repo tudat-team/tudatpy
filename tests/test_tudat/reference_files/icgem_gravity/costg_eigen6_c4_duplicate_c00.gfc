@@ -1,0 +1,16 @@
+begin_of_head =====================================
+format                     icgem2.0
+product_type               gravity_field
+modelname                  EIGEN-6C4_180
+earth_gravity_constant     0.3986004415E+15
+radius                     0.6378136460E+07
+max_degree                 180
+errors                     calibrated (sigma calibration factor =  2.00)
+norm                       fully_normalized
+tide_system                tide_free
+
+key    L    M         C                  S           sigma C    sigma S
+
+end_of_head =============================================================
+gfc    0    0  1.00000000000E+00  0.00000000000E+00 0.0000E+00 0.0000E+00
+gfc    0    0  0.10000000000E+01  0.00000000000E+00 0.0000E+00 0.0000E+00

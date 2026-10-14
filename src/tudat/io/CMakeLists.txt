@@ -167,10 +167,11 @@ _tudat_add_neutral_reader(tudat_atmospheric_loading_data readAtmosphericTideData
 _tudat_add_neutral_reader(tudat_terrestrial_frame_data readTerrestrialFrameTransformationData.cpp)
 _tudat_add_neutral_reader(tudat_station_history_data readSinexStationHistory.cpp)
 _tudat_add_neutral_reader(tudat_station_loading_data readStationLoadingData.cpp)
+_tudat_add_neutral_reader(tudat_icgem_gravity_data readIcgemGravityField.cpp)
 
 # Preserve the existing feature, runtime-location and Eigen interfaces exactly.
 foreach(target IN ITEMS tudat_earth_orientation_data tudat_atmospheric_loading_data
-        tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data)
+        tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data tudat_icgem_gravity_data)
     target_compile_features(${target} PUBLIC cxx_std_17)
 endforeach()
 foreach(target IN ITEMS tudat_ocean_loading_data tudat_terrestrial_frame_data)

@@ -27,3 +27,5 @@ TUDAT_ADD_TEST_CASE(IlrsStationLoader
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
         )
+
+TUDAT_ADD_TEST_CASE(IcgemGravityFieldSettings PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} tudat_icgem_gravity_data)
