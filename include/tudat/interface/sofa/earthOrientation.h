@@ -35,6 +35,29 @@ enum IAUConventions { iau_2000_a, iau_2000_b, iau_2006 };
 namespace sofa_interface
 {
 
+//! IAU convention pair used for mean- and true-of-date rotation matrices.
+enum class PrecessionNutationModel { iau_1976_1980, iau_2006_2000a };
+
+//! Rotation from J2000/GCRS axes to the mean equator and equinox of date, converted from SOFA to Eigen format.
+/*!
+ *  \param terrestrialTime TT seconds since referenceJulianDay.
+ *  \param model IAU 1976 or IAU 2006 precession convention.
+ *  \param referenceJulianDay Reference Julian day for terrestrialTime.
+ */
+Eigen::Matrix3d getPrecessionMatrix( const double terrestrialTime,
+                                     const PrecessionNutationModel model,
+                                     const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+//! Rotation from J2000/GCRS axes to the true equator and equinox of date, converted from SOFA to Eigen format.
+/*!
+ *  \param terrestrialTime TT seconds since referenceJulianDay.
+ *  \param model IAU 1976/1980 or IAU 2006/2000A precession-nutation convention.
+ *  \param referenceJulianDay Reference Julian day for terrestrialTime.
+ */
+Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime,
+                                             const PrecessionNutationModel model,
+                                             const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
 /*!
  *  Function to calculate CIP (Celestial Intermediate Pole, typically denoted as X and Y) and CIO locator

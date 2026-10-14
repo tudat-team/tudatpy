@@ -204,6 +204,13 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( ( observableType == observation_models::position_angle || observableType == observation_models::separation_distance ||
+              observableType == observation_models::position_angle_and_separation ) &&
+            ( linkEndIterator->first != receiver ) )
+        {
+            runSimulation = false;
+        }
+
         if( ( observableType == observation_models::n_way_differenced_range ) && ( linkEndIterator->first == retransmitter ) )
         {
             runSimulation = false;

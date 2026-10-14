@@ -17,6 +17,61 @@ namespace tudat
 
 namespace sofa_interface
 {
+namespace
+{
+
+Eigen::Matrix3d convertSofaRotationMatrix( const double sofaRotationMatrix[ 3 ][ 3 ] )
+{
+    Eigen::Matrix3d rotationMatrix;
+    for( int row = 0; row < 3; row++ )
+    {
+        for( int column = 0; column < 3; column++ )
+        {
+            rotationMatrix( row, column ) = sofaRotationMatrix[ row ][ column ];
+        }
+    }
+    return rotationMatrix;
+}
+
+}  // namespace
+
+Eigen::Matrix3d getPrecessionMatrix( const double terrestrialTime, const PrecessionNutationModel model, const double referenceJulianDay )
+{
+    double precessionMatrix[ 3 ][ 3 ];
+    const double elapsedJulianDays = terrestrialTime / physical_constants::JULIAN_DAY;
+    switch( model )
+    {
+        case PrecessionNutationModel::iau_1976_1980:
+            iauPmat76( referenceJulianDay, elapsedJulianDays, precessionMatrix );
+            break;
+        case PrecessionNutationModel::iau_2006_2000a:
+            iauPmat06( referenceJulianDay, elapsedJulianDays, precessionMatrix );
+            break;
+        default:
+            throw std::runtime_error( "Unsupported IAU precession model." );
+    }
+    return convertSofaRotationMatrix( precessionMatrix );
+}
+
+Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime,
+                                             const PrecessionNutationModel model,
+                                             const double referenceJulianDay )
+{
+    double precessionNutationMatrix[ 3 ][ 3 ];
+    const double elapsedJulianDays = terrestrialTime / physical_constants::JULIAN_DAY;
+    switch( model )
+    {
+        case PrecessionNutationModel::iau_1976_1980:
+            iauPnm80( referenceJulianDay, elapsedJulianDays, precessionNutationMatrix );
+            break;
+        case PrecessionNutationModel::iau_2006_2000a:
+            iauPnm06a( referenceJulianDay, elapsedJulianDays, precessionNutationMatrix );
+            break;
+        default:
+            throw std::runtime_error( "Unsupported IAU precession-nutation model." );
+    }
+    return convertSofaRotationMatrix( precessionNutationMatrix );
+}
 
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
 Eigen::Vector3d getPositionOfCipInGcrs( const double terrestrialTime,
@@ -114,23 +169,7 @@ double calculateEquationOfEquinoxes( const double terrestrialTime,
 
 Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const double referenceJulianDay )
 {
-    double pnm[ 3 ][ 3 ];
-
-    //	std::cout << "Ref JD: " << referenceJulianDay << "\nTT in Julian days: " << terrestrialTime / physical_constants::JULIAN_DAY <<
-    // std::endl;
-
-    iauPnm80( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, pnm );
-
-    return ( Eigen::Matrix3d( ) << pnm[ 0 ][ 0 ],
-             pnm[ 0 ][ 1 ],
-             pnm[ 0 ][ 2 ],
-             pnm[ 1 ][ 0 ],
-             pnm[ 1 ][ 1 ],
-             pnm[ 1 ][ 2 ],
-             pnm[ 2 ][ 0 ],
-             pnm[ 2 ][ 1 ],
-             pnm[ 2 ][ 2 ] )
-            .finished( );
+    return getPrecessionNutationMatrix( terrestrialTime, PrecessionNutationModel::iau_1976_1980, referenceJulianDay );
 }
 
 void getPrecessionAngles( double& zeta, double& z, double& theta, const double terrestrialTime, const double referenceJulianDay )
