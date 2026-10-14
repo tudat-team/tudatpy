@@ -41,7 +41,7 @@ void expose_bias_types( py::module& m )
             m,
             "ObservationBiasTypes",
             "All observation-bias model types. shared_observation_bias supports only constant_absolute_bias, "
-            "constant_relative_bias, and arc_wise_constant_absolute_bias." )
+            "constant_relative_bias, arc_wise_constant_absolute_bias, constant_time_bias, and arc_wise_time_bias." )
             .value( "multiple_observation_biases", tom::multiple_observation_biases )
             .value( "constant_absolute_bias", tom::constant_absolute_bias )
             .value( "constant_relative_bias", tom::constant_relative_bias )

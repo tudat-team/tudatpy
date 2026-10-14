@@ -254,11 +254,12 @@ SharedObservationBiasParameter::SharedObservationBiasParameter( const observatio
     observation_models::validateSharedObservationBiasSettings( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
 }
 
-//! Return one observable-sized bias vector per arc, independent of the number of linked models.
+//! Return one bias vector per arc, independent of the number of linked models; time biases are scalar per arc.
 int SharedObservationBiasParameter::getParameterSize( )
 {
-    return observation_models::getObservableSize( observableType_ ) *
-            ( biasType_ == observation_models::arc_wise_constant_absolute_bias ? arcStartTimes_.size( ) : 1 );
+    const int sizePerArc =
+            observation_models::isSharedObservationBiasTimeBias( biasType_ ) ? 1 : observation_models::getObservableSize( observableType_ );
+    return sizePerArc * ( observation_models::isSharedObservationBiasArcWise( biasType_ ) ? arcStartTimes_.size( ) : 1 );
 }
 
 //! Describe the shared selector and bias type for parameter listings and error messages.
@@ -345,6 +346,17 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > SharedObservationBias
                 getLinkEndIndicesForLinkEndTypeAtObservable( observableType_, timeLinkEnd_, linkEnds.size( ) ).at( 0 ),
                 linkEnds,
                 observableType_ );
+    }
+    // Time-bias members shift the observation at the common time link end of each link geometry.
+    if( biasType_ == constant_time_bias )
+    {
+        return std::make_shared< SingleArcTimeBiasParameter >(
+                constant_time_observation_bias, nullptr, nullptr, timeLinkEnd_, linkEnds, observableType_ );
+    }
+    if( biasType_ == arc_wise_time_bias )
+    {
+        return std::make_shared< MultiArcTimeBiasParameter >(
+                arc_wise_time_observation_bias, arcStartTimes_, nullptr, nullptr, timeLinkEnd_, linkEnds, observableType_ );
     }
     return std::make_shared< SingleArcObservationBiasParameter >(
             biasType_ == constant_absolute_bias ? constant_additive_observation_bias : constant_relative_observation_bias,

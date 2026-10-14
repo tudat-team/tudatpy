@@ -86,6 +86,18 @@ inline std::string getObservationBiasTypeString( const ObservationBiasTypes bias
     }
 }
 
+//! Return whether a shared bias of the given type is a time bias, with one scalar value per arc.
+inline bool isSharedObservationBiasTimeBias( const ObservationBiasTypes biasType )
+{
+    return biasType == constant_time_bias || biasType == arc_wise_time_bias;
+}
+
+//! Return whether a shared bias of the given type has one value block per arc.
+inline bool isSharedObservationBiasArcWise( const ObservationBiasTypes biasType )
+{
+    return biasType == arc_wise_constant_absolute_bias || biasType == arc_wise_time_bias;
+}
+
 //! Validate the bias type, link selector, and arc settings supported by a shared bias parameter.
 inline void validateSharedObservationBiasSettings( const ObservationBiasTypes biasType,
                                                    const LinkEndType linkEndType,
@@ -93,17 +105,24 @@ inline void validateSharedObservationBiasSettings( const ObservationBiasTypes bi
                                                    const std::vector< double >& arcStartTimes,
                                                    const LinkEndType timeLinkEnd )
 {
-    if( biasType != constant_absolute_bias && biasType != constant_relative_bias && biasType != arc_wise_constant_absolute_bias )
+    if( biasType != constant_absolute_bias && biasType != constant_relative_bias && biasType != arc_wise_constant_absolute_bias &&
+        !isSharedObservationBiasTimeBias( biasType ) )
     {
-        throw std::runtime_error(
-                "Unsupported shared observation bias type: " + getObservationBiasTypeString( biasType ) +
-                ". Supported types are constant_absolute_bias, constant_relative_bias, and arc_wise_constant_absolute_bias." );
+        throw std::runtime_error( "Unsupported shared observation bias type: " + getObservationBiasTypeString( biasType ) +
+                                  ". Supported types are constant_absolute_bias, constant_relative_bias, "
+                                  "arc_wise_constant_absolute_bias, constant_time_bias, and arc_wise_time_bias." );
     }
     if( linkEndType == unidentified_link_end || linkEndId.bodyName_.empty( ) )
     {
         throw std::runtime_error( "Shared observation bias requires a link-end role and body." );
     }
-    if( biasType == arc_wise_constant_absolute_bias )
+    // Time biases also use the time link end to define the event whose time is shifted.
+    if( timeLinkEnd != unidentified_link_end && !isSharedObservationBiasArcWise( biasType ) &&
+        !isSharedObservationBiasTimeBias( biasType ) )
+    {
+        throw std::runtime_error( "A time link end can only be supplied for an arc-wise or time shared bias." );
+    }
+    if( isSharedObservationBiasArcWise( biasType ) )
     {
         if( arcStartTimes.empty( ) )
         {
@@ -117,9 +136,9 @@ inline void validateSharedObservationBiasSettings( const ObservationBiasTypes bi
             }
         }
     }
-    else if( !arcStartTimes.empty( ) || timeLinkEnd != unidentified_link_end )
+    else if( !arcStartTimes.empty( ) )
     {
-        throw std::runtime_error( "Arc settings can only be supplied for an arc-wise shared bias." );
+        throw std::runtime_error( "Arc start times can only be supplied for an arc-wise shared bias." );
     }
 }
 

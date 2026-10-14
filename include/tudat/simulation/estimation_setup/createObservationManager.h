@@ -49,6 +49,21 @@ void registerObservationBiasParameterOwner( const std::shared_ptr< ObservationBi
     }
 }
 
+//! Return the index of the link-end time shifted by a constant or arc-wise time bias.
+template< int ObservationSize >
+int getTimeBiasLinkEndIndex( const std::shared_ptr< ObservationBias< ObservationSize > >& bias )
+{
+    if( const auto constantBias = std::dynamic_pointer_cast< ConstantTimeBias< ObservationSize > >( bias ) )
+    {
+        return constantBias->getLinkEndIndexForTime( );
+    }
+    if( const auto arcWiseBias = std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( bias ) )
+    {
+        return arcWiseBias->getLinkEndIndexForTime( );
+    }
+    throw std::runtime_error( "Error when retrieving time link end: bias is not a time bias." );
+}
+
 //! Function to perform the closure a single observation bias and a single estimated bias parameter.
 /*!
  *  Function to perform the closure a single observation bias and a single estimated bias parameter. Estimated parameter objects
@@ -629,6 +644,16 @@ void performObservationParameterEstimationClosure(
                         throw std::runtime_error( "Expected exactly one matching bias component for " +
                                                   sharedBias->getParameterDescription( ) + " at " + getLinkEndsString( model.first ) );
                     }
+                    // Time-bias partials use the shared time link end, so each model must shift the same event.
+                    if( isSharedObservationBiasTimeBias( sharedBias->getBiasType( ) ) &&
+                        getTimeBiasLinkEndIndex( matches.front( ) ) !=
+                                getLinkEndIndicesForLinkEndTypeAtObservable(
+                                        observationSimulator->getObservableType( ), sharedBias->getTimeLinkEnd( ), model.first.size( ) )
+                                        .at( 0 ) )
+                    {
+                        throw std::runtime_error( "Time link end of bias model at " + getLinkEndsString( model.first ) +
+                                                  " is inconsistent with " + sharedBias->getParameterDescription( ) );
+                    }
                     // Bind the ordinary per-link parameter using the existing model and arc-consistency checks.
                     const auto member = sharedBias->createMember( model.first );
                     if( !performObservationParameterEstimationClosureForSingleModelSet( member,
@@ -720,12 +745,12 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
         observationPartialsAndScaler = createObservablePartialsList(
                 observationSimulator->getObservationModels( ), bodies, parametersToEstimate, false, false, dependentVariablesInterface );
 
-        // Verify that partials exist for every shared relative-bias member.
+        // Verify that partials exist for every shared relative- and time-bias member.
         for( const auto& parameter : parametersToEstimate->getVectorParameters( ) )
         {
             const auto sharedBias = std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter.second );
             if( sharedBias != nullptr && sharedBias->getObservableType( ) == observableType &&
-                sharedBias->getBiasType( ) == constant_relative_bias )
+                ( sharedBias->getBiasType( ) == constant_relative_bias || isSharedObservationBiasTimeBias( sharedBias->getBiasType( ) ) ) )
             {
                 const auto parameterIndices = std::make_pair( parameter.first, sharedBias->getParameterSize( ) );
                 for( const auto& member : sharedBias->getMembers( ) )
