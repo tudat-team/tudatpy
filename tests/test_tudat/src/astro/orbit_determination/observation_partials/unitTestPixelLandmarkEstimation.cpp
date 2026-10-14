@@ -305,7 +305,7 @@ SyntheticOrbitScenario buildSyntheticOrbitScenario( const double pointingSigmaRa
         image.kMatrix_ << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
         image.pointingSigma_ = Eigen::Vector3d::Constant( pointingSigmaRadians );
 
-        const double epoch = observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( image );
+        const double epoch = getSumImageTdbObservationTime< double >( image );
         epochs.push_back( epoch );
         const double timeSinceFirstEpoch = epoch - epochs.front( );
         const Eigen::Vector6d keplerianAtEpoch =
@@ -416,11 +416,10 @@ RealRosettaScenario buildRealRosettaScenario( )
 
     std::vector< input_output::sum_lmk::SumImageData > sumImages = input_output::sum_lmk::readSumFiles( sumFiles );
     std::sort( sumImages.begin( ), sumImages.end( ), []( const auto& a, const auto& b ) {
-        return observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( a ) <
-                observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( b );
+        return getSumImageTdbObservationTime< double >( a ) < getSumImageTdbObservationTime< double >( b );
     } );
-    const double epoch0 = observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( sumImages.front( ) );
-    const double epochLast = observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( sumImages.back( ) );
+    const double epoch0 = getSumImageTdbObservationTime< double >( sumImages.front( ) );
+    const double epochLast = getSumImageTdbObservationTime< double >( sumImages.back( ) );
 
     // A-priori spacecraft state = reconstructed Rosetta orbiter state relative to the comet, from the
     // committed SPK (NAIF ids: Rosetta orbiter -226, comet 1000012), in metres.
@@ -1073,7 +1072,7 @@ BOOST_AUTO_TEST_CASE( testInitialStateRecoveryFromPixelLandmarks )
         // No pointing a-priori: leave SIGMA_PTG non-finite so no pointing parameter is implied.
         image.pointingSigma_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
 
-        const double epoch = observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( image );
+        const double epoch = getSumImageTdbObservationTime< double >( image );
         epochs.push_back( epoch );
         // All geometry is referenced to the first epoch.
         const double timeSinceFirstEpoch = epoch - epochs.front( );

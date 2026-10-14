@@ -1,4 +1,4 @@
-"""Python-level tests for the SPC SUM/LMK pixel-landmark workflow and the per-image camera
+"""Python-level tests for loading SPC SUM/LMK files as tracking data, and for the per-image camera
 pointing correction.
 
 The SUM/LMK fixtures used by the C++ tests live inside ``tests/test_tudat/data.zip`` and are only
@@ -10,9 +10,12 @@ independent of the C++ test data.
 import numpy as np
 import pytest
 
+from tudatpy.data_input.tracking_data import sum_lmk
 from tudatpy.dynamics import environment_setup, parameters_setup
-from tudatpy.estimation.observations_setup import observations_wrapper
-from tudatpy.interface import spice
+from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import model_settings
+from tudatpy.estimation.observations_setup import observations_simulation_settings
+from tudatpy.data_input.environment_data import spice
 
 
 def _fortran_double(value: float) -> str:
@@ -124,88 +127,129 @@ def _make_bodies():
     return environment_setup.create_system_of_bodies(body_settings)
 
 
+def _camera_data(supplementary_data):
+    """Map camera name to camera supplementary data."""
+    return {
+        camera.camera_id: camera
+        for entry in supplementary_data
+        for camera in entry.instrument_supplementary_data
+    }
+
+
 @pytest.fixture
-def conversion(sum_lmk_files):
+def loaded(sum_lmk_files):
+    """Read the files, apply the supplementary data and create the observation collection."""
     sum_files, lmk_files = sum_lmk_files
-    bodies = _make_bodies()
-    settings = observations_wrapper.SumLmkObservationConversionSettings("Target", "Spacecraft")
-    result = observations_wrapper.create_sum_lmk_observation_collection(
-        sum_files, lmk_files, bodies, settings
+    tracking_data, supplementary_data = sum_lmk.read_sum_lmk_data(
+        sum_files, lmk_files, "Target", "Spacecraft"
     )
-    return bodies, result
+    bodies = _make_bodies()
+    observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+    collection = observations.create_observation_collection_from_tracking_data(
+        tracking_data, bodies
+    )
+    return bodies, tracking_data, supplementary_data, collection
 
 
-def test_conversion_registers_one_camera_per_image(conversion):
-    bodies, result = conversion
+def _residuals(bodies, collection):
+    link_definitions = collection.get_link_definitions_for_observables(
+        model_settings.pixel_coordinates_type
+    )
+    simulators = observations_simulation_settings.create_observation_simulators(
+        [model_settings.pixel_coordinates(link) for link in link_definitions], bodies
+    )
+    observations.compute_residuals_and_dependent_variables(collection, simulators, bodies)
+    return np.array(collection.get_concatenated_residuals())
 
-    assert result.receiver_body_name == "Spacecraft"
-    image_to_camera = dict(result.image_id_to_camera_name)
-    assert set(image_to_camera) == set(IMAGE_IDS)
+
+def test_reading_needs_no_bodies(sum_lmk_files):
+    sum_files, lmk_files = sum_lmk_files
+    tracking_data, supplementary_data = sum_lmk.read_sum_lmk_data(
+        sum_files, lmk_files, "Target", "Spacecraft"
+    )
+
+    # One observation per (image, landmark) pair.
+    assert len(tracking_data) == len(IMAGE_IDS) * len(LANDMARK_POSITIONS)
+    for entry in tracking_data:
+        assert entry.observable_type == "PixelCoordinates"
+        assert entry.time_scale == "UTC"
+
+    landmarks = {
+        entry.reference_point_name: entry.reference_point_supplementary_data
+        for entry in supplementary_data
+        if entry.reference_point_supplementary_data is not None
+    }
+    assert set(landmarks) == set(LANDMARK_POSITIONS)
+    np.testing.assert_allclose(
+        landmarks["LMK0002"].body_fixed_position,
+        1000.0 * np.array(LANDMARK_POSITIONS["LMK0002"]),
+        rtol=1e-12,
+    )
+
+    cameras = _camera_data(supplementary_data)
+    assert set(cameras) == {f"Camera_{image_id}" for image_id in IMAGE_IDS}
+    for camera in cameras.values():
+        assert camera.pointing_reference_body_name == "Target"
+        np.testing.assert_allclose(camera.pointing_uncertainty, POINTING_SIGMA, rtol=1e-12)
+
+
+def test_raw_contents_convert_like_files(sum_lmk_files):
+    sum_files, lmk_files = sum_lmk_files
+    images = sum_lmk.read_raw_sum_files(sum_files)
+    landmarks = sum_lmk.read_raw_lmk_files(lmk_files)
+    assert {image.image_id for image in images} == set(IMAGE_IDS)
+    assert set(landmarks) == set(LANDMARK_POSITIONS)
+
+    tracking_data, supplementary_data = sum_lmk.convert_raw_sum_lmk_data(
+        images, landmarks, "Target", "Spacecraft"
+    )
+    assert len(tracking_data) == len(IMAGE_IDS) * len(LANDMARK_POSITIONS)
+    assert len(supplementary_data) == len(IMAGE_IDS) + len(LANDMARK_POSITIONS)
+
+
+def test_supplementary_data_adds_cameras_and_landmarks(loaded):
+    bodies, _, supplementary_data, collection = loaded
+
     # Each image gets its own camera, so each image gets its own pointing parameter.
-    assert len(set(image_to_camera.values())) == len(IMAGE_IDS)
-
     camera_dict = bodies.get("Spacecraft").system_models.camera_dict
-    for camera_name in image_to_camera.values():
+    for camera_name in _camera_data(supplementary_data):
         assert camera_name in camera_dict
 
-    assert result.observation_collection.concatenated_observations.size > 0
-    assert len(result.observation_model_settings) > 0
+    ground_stations = bodies.get("Target").ground_station_list
+    for landmark_id in LANDMARK_POSITIONS:
+        assert landmark_id in ground_stations
+
+    assert collection.concatenated_observations.size == 2 * len(IMAGE_IDS) * len(LANDMARK_POSITIONS)
 
 
-def test_pointing_parameter_settings(conversion):
-    _, result = conversion
+def test_pointing_parameters_and_apriori(loaded):
+    bodies, _, supplementary_data, _ = loaded
+    cameras = _camera_data(supplementary_data)
 
-    all_settings = observations_wrapper.create_sum_lmk_pointing_parameter_settings(result)
-    assert len(all_settings) == len(IMAGE_IDS)
-
-    subset = observations_wrapper.create_sum_lmk_pointing_parameter_settings(result, ["IMG002"])
-    assert len(subset) == 1
-
-    with pytest.raises(RuntimeError):
-        observations_wrapper.create_sum_lmk_pointing_parameter_settings(result, ["NOT_AN_IMAGE"])
-
-
-def test_inverse_apriori_covariance_from_sigma_ptg(conversion):
-    bodies, result = conversion
-
-    parameter_settings = observations_wrapper.create_sum_lmk_pointing_parameter_settings(result)
+    parameter_settings = [
+        parameters_setup.camera_pointing_correction("Spacecraft", camera_name)
+        for camera_name in sorted(cameras)
+    ]
     parameters = parameters_setup.create_parameter_set(parameter_settings, bodies)
     assert parameters.parameter_set_size == 3 * len(IMAGE_IDS)
 
-    covariance = observations_wrapper.create_sum_lmk_inverse_apriori_covariance(result, parameters)
-    assert covariance.shape == (3 * len(IMAGE_IDS), 3 * len(IMAGE_IDS))
+    # The SUM SIGMA_PTG values give a diagonal a-priori for the pointing parameters.
+    inverse_apriori = np.zeros((parameters.parameter_set_size,) * 2)
+    for camera_name, camera in cameras.items():
+        parameter_type = (
+            parameters_setup.EstimatableParameterTypes.camera_pointing_correction_type,
+            ("Spacecraft", camera_name),
+        )
+        ((start, size),) = parameters.indices_for_parameter_type(parameter_type)
+        block = slice(start, start + size)
+        inverse_apriori[block, block] = np.diag(1.0 / camera.pointing_uncertainty**2)
 
-    expected = 1.0 / POINTING_SIGMA**2
-    np.testing.assert_allclose(np.diag(covariance), expected, rtol=1e-12)
-    # Purely diagonal: SIGMA_PTG gives no cross-correlation.
-    np.testing.assert_allclose(covariance - np.diag(np.diag(covariance)), 0.0, atol=0.0)
-
-    # Composes with an existing a-priori rather than replacing it.
-    base = np.eye(covariance.shape[0])
-    combined = observations_wrapper.create_sum_lmk_inverse_apriori_covariance(
-        result, parameters, base
-    )
-    np.testing.assert_allclose(combined, covariance + base, rtol=1e-12)
+    np.testing.assert_allclose(np.diag(inverse_apriori), 1.0 / POINTING_SIGMA**2, rtol=1e-12)
 
 
-def test_apriori_skips_parameters_that_are_not_estimated(conversion):
-    bodies, result = conversion
-
-    # Only one image's pointing is estimated; the other image's a-priori has nowhere to go.
-    parameter_settings = observations_wrapper.create_sum_lmk_pointing_parameter_settings(
-        result, ["IMG002"]
-    )
-    parameters = parameters_setup.create_parameter_set(parameter_settings, bodies)
-    covariance = observations_wrapper.create_sum_lmk_inverse_apriori_covariance(result, parameters)
-
-    assert covariance.shape == (3, 3)
-    np.testing.assert_allclose(np.diag(covariance), 1.0 / POINTING_SIGMA**2, rtol=1e-12)
-
-
-def test_pointing_correction_changes_the_camera_orientation(conversion):
-    bodies, result = conversion
-    camera_name = dict(result.image_id_to_camera_name)["IMG001"]
-    camera = bodies.get("Spacecraft").system_models.get_camera(camera_name)
+def test_pointing_correction_changes_the_camera_orientation(loaded):
+    bodies, *_ = loaded
+    camera = bodies.get("Spacecraft").system_models.get_camera("Camera_IMG001")
 
     np.testing.assert_allclose(camera.pointing_correction, np.zeros(3), atol=0.0)
     nominal = np.array(camera.nominal_quaternion)
@@ -215,7 +259,7 @@ def test_pointing_correction_changes_the_camera_orientation(conversion):
     camera.pointing_correction = correction
     np.testing.assert_allclose(camera.pointing_correction, correction, rtol=1e-12)
 
-    # The nominal orientation is untouched; the effective orientation moves.
+    # The nominal orientation is untouched, the effective orientation moves.
     np.testing.assert_allclose(camera.nominal_quaternion, nominal, atol=1e-15)
     assert np.linalg.norm(np.array(camera.quaternion) - nominal) > 1e-6
 
@@ -223,23 +267,19 @@ def test_pointing_correction_changes_the_camera_orientation(conversion):
     np.testing.assert_allclose(camera.quaternion, nominal, atol=1e-15)
 
 
-def test_pointing_correction_moves_pixel_residuals(conversion):
-    bodies, result = conversion
+def test_pointing_correction_moves_pixel_residuals(loaded):
+    bodies, _, _, collection = loaded
 
-    baseline = observations_wrapper.compute_sum_lmk_residuals(result.observation_collection, bodies)
+    baseline = _residuals(bodies, collection)
     assert baseline.size > 0
 
-    camera_name = dict(result.image_id_to_camera_name)["IMG001"]
-    camera = bodies.get("Spacecraft").system_models.get_camera(camera_name)
+    camera = bodies.get("Spacecraft").system_models.get_camera("Camera_IMG001")
     camera.pointing_correction = np.array([1.0e-3, 0.0, 0.0])
-
-    perturbed = observations_wrapper.compute_sum_lmk_residuals(
-        result.observation_collection, bodies
-    )
+    perturbed = _residuals(bodies, collection)
 
     # The correction must actually reach the observation model.
     assert np.linalg.norm(perturbed - baseline) > 1e-3
 
     camera.pointing_correction = np.zeros(3)
-    restored = observations_wrapper.compute_sum_lmk_residuals(result.observation_collection, bodies)
+    restored = _residuals(bodies, collection)
     np.testing.assert_allclose(restored, baseline, atol=1e-10)

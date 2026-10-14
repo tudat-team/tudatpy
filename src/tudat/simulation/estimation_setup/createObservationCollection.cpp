@@ -1,5 +1,6 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
@@ -113,6 +114,35 @@ std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingF
             return lowerIterator->second;
         }
         return upperIterator->second;
+    };
+}
+
+std::function< Eigen::Quaterniond( const double ) > createCameraPointingFunction(
+        const simulation_setup::SystemOfBodies& bodies,
+        const data::CameraInstrumentSupplementaryData& cameraSupplementaryData )
+{
+    std::function< Eigen::Quaterniond( const double ) > nearestPointingFunction =
+            createNearestCameraPointingFunction( cameraSupplementaryData.getRotationFromInertialToCameraFrameHistory( ) );
+    const std::string& referenceBodyName = cameraSupplementaryData.getPointingReferenceBodyName( );
+    if( referenceBodyName.empty( ) || nearestPointingFunction == nullptr )
+    {
+        return nearestPointingFunction;
+    }
+
+    if( !bodies.doesBodyExist( referenceBodyName ) || bodies.at( referenceBodyName )->getRotationalEphemeris( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when setting camera supplementary data for camera " + cameraSupplementaryData.getCameraId( ) +
+                                  ": pointing is given relative to body " + referenceBodyName +
+                                  ", which does not exist or has no rotation model." );
+    }
+
+    // The stored pointing starts from the body-fixed frame, so the body's rotation completes it from the inertial frame.
+    const std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
+            bodies.at( referenceBodyName )->getRotationalEphemeris( );
+    return [ = ]( const double time ) {
+        return Eigen::Quaterniond( nearestPointingFunction( time ).toRotationMatrix( ) *
+                                   rotationalEphemeris->getRotationToTargetFrame( time ).toRotationMatrix( ) )
+                .normalized( );
     };
 }
 
@@ -697,13 +727,60 @@ void setInstrumentSupplementaryDataInBodies(
                         Eigen::Vector3d::Zero( ),
                         projectionModel,
                         Eigen::Vector3d::Zero( ),
-                        createNearestCameraPointingFunction( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) ) );
+                        createCameraPointingFunction( bodies, *cameraSupplementaryData ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
             }
             else
             {
                 throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName + ", reference point " +
                                           referencePointName + ": unsupported instrument data type." );
+            }
+        }
+    }
+}
+
+void setReferencePointSupplementaryDataInBodies(
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::ReferencePointSupplementaryData > > >&
+                referencePointSupplementaryData )
+{
+    for( auto it = referencePointSupplementaryData.begin( ); it != referencePointSupplementaryData.end( ); ++it )
+    {
+        const std::string& bodyName = it->first.first;
+        const std::string& referencePointName = it->first.second;
+        if( referencePointName.empty( ) )
+        {
+            throw std::runtime_error( "Error when setting reference point supplementary data in body " + bodyName +
+                                      ": reference point name is empty." );
+        }
+        if( !bodies.doesBodyExist( bodyName ) )
+        {
+            throw std::runtime_error( "Error when setting reference point supplementary data: body " + bodyName + " does not exist." );
+        }
+
+        const Eigen::Vector3d position = it->second.at( 0 )->getBodyFixedPosition( );
+        for( const std::shared_ptr< data::ReferencePointSupplementaryData >& currentData : it->second )
+        {
+            if( !currentData->getBodyFixedPosition( ).isApprox( position ) )
+            {
+                throw std::runtime_error( "Error when setting reference point supplementary data in body " + bodyName +
+                                          ": conflicting positions given for reference point " + referencePointName + "." );
+            }
+        }
+
+        std::shared_ptr< simulation_setup::Body > body = bodies.at( bodyName );
+        if( body->getGroundStationMap( ).count( referencePointName ) == 0 )
+        {
+            simulation_setup::createGroundStation( body, referencePointName, position, coordinate_conversions::cartesian_position );
+        }
+        else
+        {
+            const Eigen::Vector3d existingPosition =
+                    body->getGroundStation( referencePointName )->getNominalStationState( )->getNominalCartesianPosition( );
+            if( ( existingPosition - position ).norm( ) > 1.0E-9 * std::max( 1.0, position.norm( ) ) )
+            {
+                throw std::runtime_error( "Error when setting reference point supplementary data in body " + bodyName +
+                                          ": reference point " + referencePointName + " already exists at a different position." );
             }
         }
     }
@@ -720,6 +797,8 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
             frequencySupplementaryData;
     std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >
             instrumentSupplementaryData;
+    std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::ReferencePointSupplementaryData > > >
+            referencePointSupplementaryData;
 
     for( const data::TrackingSupplementaryData& currentSupplementaryData : supplementaryData )
     {
@@ -757,6 +836,12 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
                                                                      currentFrequencySupplementaryData.end( ) );
         }
 
+        if( currentSupplementaryData.getReferencePointSupplementaryData( ) != nullptr )
+        {
+            referencePointSupplementaryData[ bodyReferencePoint ].push_back(
+                    currentSupplementaryData.getReferencePointSupplementaryData( ) );
+        }
+
         const std::vector< std::shared_ptr< data::InstrumentSupplementaryData > >& currentInstrumentSupplementaryData =
                 currentSupplementaryData.getInstrumentSupplementaryData( );
         if( !currentInstrumentSupplementaryData.empty( ) )
@@ -769,6 +854,7 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
 
     setTranslationalStateSupplementaryDataInBodies( bodies, translationalStateSupplementaryData );
     setRotationalStateSupplementaryDataInBodies( bodies, rotationalStateSupplementaryData );
+    setReferencePointSupplementaryDataInBodies( bodies, referencePointSupplementaryData );
     setFrequencySupplementaryDataInBodies( bodies, frequencySupplementaryData );
     setInstrumentSupplementaryDataInBodies( bodies, instrumentSupplementaryData );
 }

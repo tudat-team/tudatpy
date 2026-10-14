@@ -11,36 +11,26 @@
 #ifndef TUDAT_PROCESS_SUM_LMK_FILES_H
 #define TUDAT_PROCESS_SUM_LMK_FILES_H
 
-#include <algorithm>
-#include <cctype>
-#include <cmath>
 #include <map>
 #include <memory>
-#include <limits>
 #include <set>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <Eigen/LU>
 
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/io/readSumLmkFiles.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
-#include "tudat/astro/system_models/camera.h"
-#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
-#include "tudat/simulation/estimation_setup/processPsfFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup/singleObservationSet.h"
 
 namespace tudat
 {
@@ -57,7 +47,6 @@ public:
 
     std::string targetBodyName_;
     std::string receiverBodyName_;
-    Eigen::Vector3d bodyFixedCameraPosition_ = Eigen::Vector3d::Zero( );
     bool validateSpacecraftObjectGeometry_ = true;
     bool skipObservationsWithMissingLandmarks_ = false;
 };
@@ -75,436 +64,61 @@ struct SumLmkObservationConversionResult {
     std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings_;
 };
 
+//! Observation epoch of a SUM image, in seconds since J2000 in the TDB time scale.
+template< typename TimeType = double >
+TimeType getSumImageTdbObservationTime( const input_output::sum_lmk::SumImageData& image )
+{
+    return earth_orientation::createDefaultTimeConverter( )->getCurrentTime< TimeType >(
+            basic_astrodynamics::utc_scale,
+            basic_astrodynamics::tdb_scale,
+            input_output::sum_lmk::getSumImageObservationTime( image ),
+            Eigen::Vector3d::Zero( ) );
+}
+
 namespace detail
 {
-
-inline std::string trimCopyForSumLmk( const std::string& input )
-{
-    const std::string whitespace = " \t\r\n";
-    const std::size_t first = input.find_first_not_of( whitespace );
-    if( first == std::string::npos )
-    {
-        return "";
-    }
-    const std::size_t last = input.find_last_not_of( whitespace );
-    return input.substr( first, last - first + 1 );
-}
-
-inline std::string sanitizeSumImageIdToCameraName( const std::string& imageId )
-{
-    const std::string trimmedImageId = trimCopyForSumLmk( imageId );
-    std::string sanitizedId;
-    sanitizedId.reserve( trimmedImageId.size( ) );
-    for( const char character : trimmedImageId )
-    {
-        const unsigned char unsignedCharacter = static_cast< unsigned char >( character );
-        if( std::isalnum( unsignedCharacter ) || character == '_' || character == '-' )
-        {
-            sanitizedId.push_back( character );
-        }
-        else
-        {
-            sanitizedId.push_back( '_' );
-        }
-    }
-
-    if( sanitizedId.empty( ) )
-    {
-        throw std::runtime_error( "Error when generating SUM camera name: image ID is empty after trimming." );
-    }
-    return "Camera_" + sanitizedId;
-}
-
-inline bool isFiniteVector( const Eigen::Vector3d& vector )
-{
-    return vector.array( ).isFinite( ).all( );
-}
-
-//! Validate SUM camera calibration and attitude inputs, including programmatically constructed SumImageData.
-inline void validateSumImageCalibrationAndAttitude( const input_output::sum_lmk::SumImageData& image )
-{
-    const std::string errorPrefix = "Error when converting SUM image '" + image.imageId_ + "': ";
-    if( image.imageSize_( 0 ) <= 0 || image.imageSize_( 1 ) <= 0 || image.threshold_ < 0 || image.maxDn_ < image.threshold_ )
-    {
-        throw std::runtime_error( errorPrefix + "NPX and NLN must be positive and 0 <= THRSH <= MAXDN." );
-    }
-    if( !std::isfinite( image.focalLengthMm_ ) || image.focalLengthMm_ <= std::numeric_limits< double >::epsilon( ) )
-    {
-        throw std::runtime_error( errorPrefix + "MMFL must be finite and positive." );
-    }
-    if( !image.opticalCenter_.array( ).isFinite( ).all( ) )
-    {
-        throw std::runtime_error( errorPrefix + "CTR coordinates must be finite." );
-    }
-    if( !image.kMatrix_.array( ).isFinite( ).all( ) || !image.kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).isInvertible( ) )
-    {
-        throw std::runtime_error( errorPrefix + "leading 2x2 K-MATRIX block must be finite and nonsingular." );
-    }
-    if( !image.cameraAxes_.array( ).isFinite( ).all( ) )
-    {
-        throw std::runtime_error( errorPrefix + "CX/CY/CZ entries must be finite." );
-    }
-
-    const double orthogonalityError = ( image.cameraAxes_ * image.cameraAxes_.transpose( ) - Eigen::Matrix3d::Identity( ) ).norm( );
-    const double determinantError = std::fabs( image.cameraAxes_.determinant( ) - 1.0 );
-    if( orthogonalityError > input_output::sum_lmk::sumCameraRotationMatrixTolerance ||
-        determinantError > input_output::sum_lmk::sumCameraRotationMatrixTolerance )
-    {
-        throw std::runtime_error( errorPrefix + "CX/CY/CZ must form an orthonormal right-handed rotation matrix." );
-    }
-}
-
-inline bool isCloseVector( const Eigen::Vector3d& lhs, const Eigen::Vector3d& rhs, const double tolerance = 1.0E-9 )
-{
-    return ( lhs - rhs ).norm( ) <= tolerance * std::max( 1.0, std::max( lhs.norm( ), rhs.norm( ) ) );
-}
-
-template< typename TimeType >
-TimeType convertSumUtcStringToSecondsSinceJ2000( const input_output::sum_lmk::SumImageData& image )
-{
-    try
-    {
-        return convertPsfUtcStringToSecondsSinceJ2000< TimeType >( image.utcEpochString_ );
-    }
-    catch( const std::exception& exception )
-    {
-        throw std::runtime_error( "Error when converting SUM UTC epoch for image '" + image.imageId_ +
-                                  "': " + std::string( exception.what( ) ) );
-    }
-}
 
 inline void validateReceiverAndTargetBodies( const simulation_setup::SystemOfBodies& bodies,
                                              const SumLmkObservationConversionSettings& conversionSettings )
 {
-    if( bodies.count( conversionSettings.targetBodyName_ ) == 0 )
+    for( const std::string& bodyName : { conversionSettings.targetBodyName_, conversionSettings.receiverBodyName_ } )
     {
-        throw std::runtime_error( "Error when converting SUM/LMK observations: target body '" + conversionSettings.targetBodyName_ +
-                                  "' not found." );
-    }
-    if( bodies.count( conversionSettings.receiverBodyName_ ) == 0 )
-    {
-        throw std::runtime_error( "Error when converting SUM/LMK observations: receiver body '" + conversionSettings.receiverBodyName_ +
-                                  "' not found." );
-    }
-    if( bodies.at( conversionSettings.targetBodyName_ )->getRotationalEphemeris( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when converting SUM/LMK observations: target body '" + conversionSettings.targetBodyName_ +
-                                  "' does not have a rotational ephemeris." );
-    }
-    if( bodies.at( conversionSettings.receiverBodyName_ )->getRotationalEphemeris( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when converting SUM/LMK observations: receiver body '" + conversionSettings.receiverBodyName_ +
-                                  "' does not have a rotational ephemeris." );
-    }
-}
-
-inline void validateSanitizedCameraNames( const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
-                                          std::map< std::string, std::string >& imageIdToCameraName )
-{
-    std::map< std::string, std::string > cameraNameToImageId;
-    for( const input_output::sum_lmk::SumImageData& image : sumImages )
-    {
-        const std::string cameraName = sanitizeSumImageIdToCameraName( image.imageId_ );
-        if( cameraNameToImageId.count( cameraName ) != 0 && cameraNameToImageId.at( cameraName ) != image.imageId_ )
+        if( bodies.count( bodyName ) == 0 )
         {
-            throw std::runtime_error( "Error when converting SUM/LMK observations: image IDs '" + cameraNameToImageId.at( cameraName ) +
-                                      "' and '" + image.imageId_ + "' both map to camera name '" + cameraName + "'." );
+            throw std::runtime_error( "Error when converting SUM/LMK observations: body '" + bodyName + "' not found." );
         }
-        cameraNameToImageId[ cameraName ] = image.imageId_;
-        imageIdToCameraName[ image.imageId_ ] = cameraName;
-    }
-}
-
-//! SUM's four-value DISTORTION row is not a complete camera-distortion model. In SPC, the row is
-//! conventionally zero and a non-zero Owen distortion model is defined separately in INIT_LITHOS.
-//! Rejecting non-zero values here avoids silently simulating a different camera from the one used
-//! to produce the SPC measurements.
-inline void validateSumImageDistortionCoefficients( const std::vector< input_output::sum_lmk::SumImageData >& sumImages )
-{
-    for( const input_output::sum_lmk::SumImageData& image : sumImages )
-    {
-        if( !image.distortionCoefficients_.array( ).isFinite( ).all( ) )
+        if( bodies.at( bodyName )->getRotationalEphemeris( ) == nullptr )
         {
-            throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ + "': DISTORTION coefficients must be finite." );
-        }
-        if( !image.distortionCoefficients_.isZero( 0.0 ) )
-        {
-            throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ +
-                                      "': non-zero SUM DISTORTION coefficients are unsupported. SPC supplies a non-zero Owen distortion "
-                                      "model separately through INIT_LITHOS; it cannot be reconstructed from this SUM row." );
+            throw std::runtime_error( "Error when converting SUM/LMK observations: body '" + bodyName +
+                                      "' does not have a rotational ephemeris." );
         }
     }
 }
 
-inline std::shared_ptr< system_models::PsfCameraProjectionModel > createSumCameraProjectionModel(
-        const input_output::sum_lmk::SumImageData& image )
+//! Inverse a-priori variance of each camera pointing correction, from the SUM SIGMA_PTG values.
+inline std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > getSumLmkPointingAprioriEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
 {
-    // validateSumImageDistortionCoefficients has established that the SUM row is zero. The
-    // PsfCameraProjectionModel implements the SUM focal-length/principal-point/K-MATRIX mapping.
-    return std::make_shared< system_models::PsfCameraProjectionModel >(
-            image.focalLengthMm_,
-            image.opticalCenter_,
-            image.kMatrix_,
-            Eigen::Matrix< double, 6, 1 >::Zero( ),
-            Eigen::Vector3d::Zero( ),
-            Eigen::Vector4d( 0.0, static_cast< double >( image.imageSize_( 0 ) ), 0.0, static_cast< double >( image.imageSize_( 1 ) ) ) );
-}
-
-inline void addSumLmkLandmarksToBody( const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks,
-                                      const std::shared_ptr< simulation_setup::Body >& targetBody )
-{
-    for( const auto& landmarkEntry : landmarks )
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries;
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
     {
-        const input_output::sum_lmk::LmkLandmarkData& landmark = landmarkEntry.second;
-        if( targetBody->getGroundStationMap( ).count( landmark.landmarkId_ ) == 0 )
+        for( const std::shared_ptr< data::InstrumentSupplementaryData >& instrument : currentData->getInstrumentSupplementaryData( ) )
         {
-            simulation_setup::createGroundStation( targetBody,
-                                                   landmark.landmarkId_,
-                                                   landmark.bodyFixedPosition_,
-                                                   coordinate_conversions::cartesian_position,
-                                                   std::vector< std::shared_ptr< simulation_setup::GroundStationMotionSettings > >( ) );
-        }
-        else
-        {
-            const Eigen::Vector3d existingPosition =
-                    targetBody->getGroundStation( landmark.landmarkId_ )->getNominalStationState( )->getNominalCartesianPosition( );
-            if( !isCloseVector( existingPosition, landmark.bodyFixedPosition_ ) )
+            auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
+            if( camera == nullptr || !camera->getPointingUncertainty( ).array( ).isFinite( ).all( ) )
             {
-                throw std::runtime_error( "Error when converting SUM/LMK observations: target body already has landmark/station '" +
-                                          landmark.landmarkId_ + "' at a conflicting position." );
+                continue;
             }
+            entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
+                                                       estimatable_parameters::camera_pointing_correction,
+                                                       std::make_pair( currentData->getBodyName( ), camera->getCameraId( ) ) ),
+                                               Eigen::VectorXd( camera->getPointingUncertainty( ).array( ).square( ).inverse( ) ) ) );
         }
     }
-}
-
-inline void validateReferencedLandmarksHaveDefinitions( const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
-                                                        const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks )
-{
-    std::map< std::string, std::set< std::string > > missingLandmarkImages;
-    for( const input_output::sum_lmk::SumImageData& image : sumImages )
-    {
-        for( const input_output::sum_lmk::SumLandmarkObservation& observation : image.landmarkObservations_ )
-        {
-            if( landmarks.count( observation.landmarkId_ ) == 0 )
-            {
-                missingLandmarkImages[ observation.landmarkId_ ].insert( image.imageId_ );
-            }
-        }
-    }
-
-    if( missingLandmarkImages.empty( ) )
-    {
-        return;
-    }
-
-    std::ostringstream errorMessage;
-    errorMessage << "Error when converting SUM/LMK observations: missing LMK data for " << missingLandmarkImages.size( )
-                 << " landmark(s): ";
-    bool firstLandmark = true;
-    for( const auto& missingEntry : missingLandmarkImages )
-    {
-        if( !firstLandmark )
-        {
-            errorMessage << "; ";
-        }
-        firstLandmark = false;
-
-        errorMessage << missingEntry.first << " referenced by image(s) ";
-        bool firstImage = true;
-        for( const std::string& imageId : missingEntry.second )
-        {
-            if( !firstImage )
-            {
-                errorMessage << ", ";
-            }
-            firstImage = false;
-            errorMessage << imageId;
-        }
-    }
-    errorMessage << ".";
-    throw std::runtime_error( errorMessage.str( ) );
-}
-
-inline std::vector< input_output::sum_lmk::SumImageData > filterSumImagesForAvailableLandmarks(
-        const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
-        const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks )
-{
-    std::vector< input_output::sum_lmk::SumImageData > filteredImages;
-    for( const input_output::sum_lmk::SumImageData& image : sumImages )
-    {
-        input_output::sum_lmk::SumImageData filteredImage = image;
-        filteredImage.landmarkObservations_.clear( );
-
-        for( const input_output::sum_lmk::SumLandmarkObservation& observation : image.landmarkObservations_ )
-        {
-            if( landmarks.count( observation.landmarkId_ ) != 0 )
-            {
-                filteredImage.landmarkObservations_.push_back( observation );
-            }
-        }
-
-        if( !filteredImage.landmarkObservations_.empty( ) )
-        {
-            filteredImages.push_back( filteredImage );
-        }
-    }
-    return filteredImages;
-}
-
-inline void validateSumImageGeometryWithScoBj( const input_output::sum_lmk::SumImageData& image,
-                                               const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks,
-                                               const std::shared_ptr< system_models::PsfCameraProjectionModel >& projectionModel )
-{
-    if( !isFiniteVector( image.spacecraftObjectVector_ ) )
-    {
-        return;
-    }
-
-    for( const input_output::sum_lmk::SumLandmarkObservation& observation : image.landmarkObservations_ )
-    {
-        if( landmarks.count( observation.landmarkId_ ) == 0 )
-        {
-            throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ + "': missing LMK data for landmark '" +
-                                      observation.landmarkId_ + "'." );
-        }
-        // SCOBJ is the spacecraft-to-object (target-centre) vector in the target body-fixed frame,
-        // so the spacecraft position relative to the target centre is -SCOBJ. The landmark position
-        // relative to the spacecraft is therefore VLM - (-SCOBJ) = VLM + SCOBJ.
-        const Eigen::Vector3d spacecraftBodyFixedPosition = -image.spacecraftObjectVector_;
-        const Eigen::Vector3d relativeBodyFixedPosition =
-                landmarks.at( observation.landmarkId_ ).bodyFixedPosition_ - spacecraftBodyFixedPosition;
-        const Eigen::Vector3d relativeCameraFramePosition = image.cameraAxes_ * relativeBodyFixedPosition;
-        if( relativeCameraFramePosition.z( ) <= std::numeric_limits< double >::epsilon( ) )
-        {
-            throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ + "': landmark '" + observation.landmarkId_ +
-                                      "' projects to non-positive camera-frame z using CX/CY/CZ and SCOBJ." );
-        }
-        projectionModel->projectUnitVectorToPixelLine( relativeCameraFramePosition );
-    }
-}
-
-inline void addSumLmkCamerasToBody( const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
-                                    const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks,
-                                    const std::shared_ptr< simulation_setup::Body >& receiverBody,
-                                    const std::shared_ptr< simulation_setup::Body >& targetBody,
-                                    const SumLmkObservationConversionSettings& conversionSettings,
-                                    const std::map< std::string, std::string >& imageIdToCameraName )
-{
-    for( const input_output::sum_lmk::SumImageData& image : sumImages )
-    {
-        const std::string cameraName = imageIdToCameraName.at( image.imageId_ );
-        if( receiverBody->getVehicleSystems( )->getCameraMap( ).count( cameraName ) != 0 )
-        {
-            throw std::runtime_error( "Error when converting SUM/LMK observations: receiver body '" + receiverBody->getBodyName( ) +
-                                      "' already has camera '" + cameraName + "'." );
-        }
-
-        std::shared_ptr< system_models::PsfCameraProjectionModel > projectionModel = createSumCameraProjectionModel( image );
-        if( conversionSettings.validateSpacecraftObjectGeometry_ )
-        {
-            validateSumImageGeometryWithScoBj( image, landmarks, projectionModel );
-        }
-
-        const Eigen::Matrix3d rotationFromTargetBodyFixedToCamera = image.cameraAxes_;
-        const std::shared_ptr< ephemerides::RotationalEphemeris > targetRotationalEphemeris = targetBody->getRotationalEphemeris( );
-        // Nominal (uncorrected) picture-specific pointing; the estimated pointing correction is applied on top of
-        // this by the Camera itself, so that it is applied identically for every way the camera frame is reached.
-        std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction =
-                [ rotationFromTargetBodyFixedToCamera, targetRotationalEphemeris ]( const double time ) {
-                    return Eigen::Quaterniond( rotationFromTargetBodyFixedToCamera *
-                                               targetRotationalEphemeris->getRotationToTargetFrame( time ).toRotationMatrix( ) )
-                            .normalized( );
-                };
-
-        std::shared_ptr< system_models::Camera > camera =
-                std::make_shared< system_models::Camera >( cameraName,
-                                                           Eigen::Quaterniond( rotationFromTargetBodyFixedToCamera ),
-                                                           projectionModel,
-                                                           rotationFromInertialToCameraFrameFunction );
-        receiverBody->getVehicleSystems( )->addCamera( cameraName, camera, conversionSettings.bodyFixedCameraPosition_ );
-    }
-}
-
-inline void addPointingAprioriEntryIfAvailable(
-        const input_output::sum_lmk::SumImageData& image,
-        const std::string& receiverBodyName,
-        const std::string& cameraName,
-        std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >&
-                inverseAprioriCovarianceDiagonalEntries )
-{
-    const bool hasAnyFiniteSigma = image.pointingSigma_.array( ).isFinite( ).any( );
-    if( !hasAnyFiniteSigma )
-    {
-        return;
-    }
-    if( !image.pointingSigma_.array( ).isFinite( ).all( ) )
-    {
-        throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ +
-                                  "': SIGMA_PTG must provide either all three components or no components." );
-    }
-
-    Eigen::VectorXd inverseVariance = Eigen::VectorXd::Zero( 3 );
-    for( int i = 0; i < 3; ++i )
-    {
-        if( image.pointingSigma_( i ) <= 0.0 )
-        {
-            throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ + "': SIGMA_PTG entries must be positive." );
-        }
-        inverseVariance( i ) = 1.0 / ( image.pointingSigma_( i ) * image.pointingSigma_( i ) );
-    }
-
-    inverseAprioriCovarianceDiagonalEntries.push_back(
-            std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier( estimatable_parameters::camera_pointing_correction,
-                                                                                    std::make_pair( receiverBodyName, cameraName ) ),
-                            inverseVariance ) );
+    return entries;
 }
 
 }  // namespace detail
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
-createSumLmkObservationSets( const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
-                             const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks,
-                             const SumLmkObservationConversionSettings& conversionSettings,
-                             const std::map< std::string, std::string >& imageIdToCameraName )
-{
-    std::map< ObservableType,
-              std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
-            observationSets;
-
-    for( const input_output::sum_lmk::SumImageData& image : sumImages )
-    {
-        const TimeType observationTime = detail::convertSumUtcStringToSecondsSinceJ2000< TimeType >( image );
-        const std::string cameraName = imageIdToCameraName.at( image.imageId_ );
-
-        for( const input_output::sum_lmk::SumLandmarkObservation& observation : image.landmarkObservations_ )
-        {
-            if( landmarks.count( observation.landmarkId_ ) == 0 )
-            {
-                throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ + "': missing LMK data for landmark '" +
-                                          observation.landmarkId_ + "'." );
-            }
-
-            LinkEnds currentLinkEnds;
-            currentLinkEnds[ transmitter ] = LinkEndId( conversionSettings.targetBodyName_, observation.landmarkId_ );
-            currentLinkEnds[ receiver ] = LinkEndId( conversionSettings.receiverBodyName_, cameraName );
-
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservable( 2 );
-            currentObservable( 0 ) = static_cast< ObservationScalarType >( observation.pixelCoordinates_( 0 ) );
-            currentObservable( 1 ) = static_cast< ObservationScalarType >( observation.pixelCoordinates_( 1 ) );
-
-            observationSets[ pixel_coordinates ][ currentLinkEnds ].push_back(
-                    std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                            pixel_coordinates,
-                            currentLinkEnds,
-                            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( 1, currentObservable ),
-                            std::vector< TimeType >( 1, observationTime ),
-                            receiver ) );
-        }
-    }
-
-    return observationSets;
-}
 
 //! Build the pixel-coordinate observation model settings matching every (image, landmark) link end
 //! in a SUM/LMK observation collection. Light-time is geometric and single-leg (an empty correction
@@ -530,58 +144,41 @@ std::vector< std::shared_ptr< ObservationModelSettings > > createSumLmkObservati
     return observationModelSettings;
 }
 
+//! Convert parsed SUM/LMK data and add the landmarks and per-image cameras to the bodies.
+/*!
+ *  This is a convenience wrapper around the general tracking-data path: convertSumLmkData, then
+ *  setTrackingSupplementaryDataInBodies and createObservationCollection.
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLmkObservationCollection(
         const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
         const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks,
-        const simulation_setup::SystemOfBodies& bodies,
+        simulation_setup::SystemOfBodies& bodies,
         const SumLmkObservationConversionSettings& conversionSettings )
 {
     detail::validateReceiverAndTargetBodies( bodies, conversionSettings );
 
-    std::vector< input_output::sum_lmk::SumImageData > sumImagesToConvert = sumImages;
-    if( conversionSettings.skipObservationsWithMissingLandmarks_ )
-    {
-        sumImagesToConvert = detail::filterSumImagesForAvailableLandmarks( sumImages, landmarks );
-    }
-    else
-    {
-        detail::validateReferencedLandmarksHaveDefinitions( sumImagesToConvert, landmarks );
-    }
-    // Do these before adding stations/cameras, so unsupported calibration input leaves the caller's
-    // environment unchanged.
-    for( const input_output::sum_lmk::SumImageData& image : sumImagesToConvert )
-    {
-        detail::validateSumImageCalibrationAndAttitude( image );
-    }
-    detail::validateSumImageDistortionCoefficients( sumImagesToConvert );
+    // Conversion checks all input before the bodies are changed.
+    const auto trackingData = input_output::sum_lmk::convertSumLmkData< ObservationScalarType, TimeType >(
+            sumImages,
+            landmarks,
+            conversionSettings.targetBodyName_,
+            conversionSettings.receiverBodyName_,
+            conversionSettings.skipObservationsWithMissingLandmarks_,
+            conversionSettings.validateSpacecraftObjectGeometry_ );
+    setTrackingSupplementaryDataInBodies( bodies, trackingData.second );
 
     SumLmkObservationConversionResult< ObservationScalarType, TimeType > result;
     result.receiverBodyName_ = conversionSettings.receiverBodyName_;
-    detail::validateSanitizedCameraNames( sumImagesToConvert, result.imageIdToCameraName_ );
-
-    std::shared_ptr< simulation_setup::Body > targetBody = bodies.at( conversionSettings.targetBodyName_ );
-    std::shared_ptr< simulation_setup::Body > receiverBody = bodies.at( conversionSettings.receiverBodyName_ );
-
-    detail::addSumLmkLandmarksToBody( landmarks, targetBody );
-    detail::addSumLmkCamerasToBody(
-            sumImagesToConvert, landmarks, receiverBody, targetBody, conversionSettings, result.imageIdToCameraName_ );
-
-    result.observationCollection_ = std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >(
-            createSumLmkObservationSets< ObservationScalarType, TimeType >(
-                    sumImagesToConvert, landmarks, conversionSettings, result.imageIdToCameraName_ ) );
-
-    for( const input_output::sum_lmk::SumImageData& image : sumImagesToConvert )
+    result.observationCollection_ = createObservationCollection< ObservationScalarType, TimeType >( trackingData.first, bodies );
+    result.inverseAprioriCovarianceDiagonalEntries_ = detail::getSumLmkPointingAprioriEntries( trackingData.second );
+    for( const input_output::sum_lmk::SumImageData& image : input_output::sum_lmk::getSumImagesToConvert(
+                 sumImages, landmarks, conversionSettings.skipObservationsWithMissingLandmarks_, false ) )
     {
-        detail::addPointingAprioriEntryIfAvailable( image,
-                                                    conversionSettings.receiverBodyName_,
-                                                    result.imageIdToCameraName_.at( image.imageId_ ),
-                                                    result.inverseAprioriCovarianceDiagonalEntries_ );
+        result.imageIdToCameraName_[ image.imageId_ ] = input_output::sum_lmk::getSumImageCameraName( image.imageId_ );
     }
-
     result.observationModelSettings_ =
             createSumLmkObservationModelSettings< ObservationScalarType, TimeType >( result.observationCollection_ );
-
     return result;
 }
 
@@ -589,7 +186,7 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLmkObservationCollection(
         const std::vector< std::string >& sumFiles,
         const std::vector< std::string >& lmkFiles,
-        const simulation_setup::SystemOfBodies& bodies,
+        simulation_setup::SystemOfBodies& bodies,
         const SumLmkObservationConversionSettings& conversionSettings )
 {
     return createSumLmkObservationCollection< ObservationScalarType, TimeType >(

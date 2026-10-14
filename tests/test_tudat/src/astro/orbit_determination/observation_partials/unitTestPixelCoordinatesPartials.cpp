@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( testSumUtcToTdbMatchesSpice )
     const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
     const input_output::sum_lmk::SumImageData image = input_output::sum_lmk::readSumFile( testDataPath + "/W48230079013.SUM" );
 
-    const double tdbSecondsSinceJ2000 = observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( image );
+    const double tdbSecondsSinceJ2000 = getSumImageTdbObservationTime< double >( image );
     // str2et interprets the calendar string as UTC and returns ephemeris time (TDB) seconds past J2000.
     const double expected = spice_interface::convertDateStringToEphemerisTime( "2015-04-14T16:26:27.974" );
     BOOST_CHECK_SMALL( tdbSecondsSinceJ2000 - expected, 1.0E-3 );
@@ -339,10 +339,10 @@ BOOST_AUTO_TEST_CASE( testSumUtcToTdbMatchesSpice )
 BOOST_AUTO_TEST_CASE( testSumCameraNameSanitization )
 {
     namespace detail = observation_models::detail;
-    BOOST_CHECK_EQUAL( detail::sanitizeSumImageIdToCameraName( "W48230079013" ), "Camera_W48230079013" );
-    BOOST_CHECK_EQUAL( detail::sanitizeSumImageIdToCameraName( "  N123 " ), "Camera_N123" );
-    BOOST_CHECK_EQUAL( detail::sanitizeSumImageIdToCameraName( "IMG/01:a" ), "Camera_IMG_01_a" );
-    BOOST_CHECK_THROW( detail::sanitizeSumImageIdToCameraName( "   " ), std::runtime_error );
+    BOOST_CHECK_EQUAL( input_output::sum_lmk::getSumImageCameraName( "W48230079013" ), "Camera_W48230079013" );
+    BOOST_CHECK_EQUAL( input_output::sum_lmk::getSumImageCameraName( "  N123 " ), "Camera_N123" );
+    BOOST_CHECK_EQUAL( input_output::sum_lmk::getSumImageCameraName( "IMG/01:a" ), "Camera_IMG_01_a" );
+    BOOST_CHECK_THROW( input_output::sum_lmk::getSumImageCameraName( "   " ), std::runtime_error );
 }
 
 //! SIGMA_PTG -> inverse a-priori covariance: positivity and all-or-nothing validation.
@@ -556,7 +556,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkTimeBoundsFilteringWorkflow )
     BOOST_REQUIRE_EQUAL( conversionResult.observationCollection_->getConcatenatedTimeVector( ).size( ), 4 );
     BOOST_REQUIRE_EQUAL( conversionResult.observationModelSettings_.size( ), 2 );
 
-    const double inWindowTime = observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( inWindowImage );
+    const double inWindowTime = getSumImageTdbObservationTime< double >( inWindowImage );
     const std::shared_ptr< ObservationFilterBase > timeBoundsFilter =
             observationFilter( time_bounds_filtering, inWindowTime - 1.0, inWindowTime + 1.0, true, true );
     conversionResult.observationCollection_->filterObservations( timeBoundsFilter );
