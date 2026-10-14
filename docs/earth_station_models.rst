@@ -124,11 +124,34 @@ independent effects outside its scope remain explicitly selected.
 Active work
 -----------
 
-All 25 retained tasks and the additional full-PR review are complete.
+All 25 retained tasks and the initial full-PR review are complete. Dominic's
+comments on `draft PR 1092 <https://github.com/tudat-team/tudatpy/pull/1092>`_
+are now being addressed.
 Implementation workers use **GPT-6.1 Sol, high reasoning** in isolated worktrees.
 The coordinator owns design, literature analysis, review and integration.
-Current compiler allocations: gravity solid/pole four, gravity ocean two,
-gravity input/setup two; total maximum eight. Numerical runtimes use one thread.
+Current compiler allocations: station EOP follow-up four, gravity ocean two,
+station aliases/gravity setup two; total maximum eight. Numerical runtimes use one thread.
+
+.. code-block:: text
+
+   [ ] Remove the EOP adapter that derives from a mathematical interpolator.  [ACTIVE]
+   [x] Remove the additional CMake dependency-check file and its registration.  [DONE]
+   [ ] Simplify duplicate polar-motion overloads and the short-period rate helper.  [ACTIVE]
+   [ ] Rewrite the reviewed comments and explain the remaining EOP/clock responsibilities.  [ACTIVE]
+   [ ] Remove the type aliases introduced by this PR.  [ACTIVE]
+   [ ] Validate the affected native EOP and rotation paths; review and push the fixes.  [QUEUED]
+
+The EOP review preserves continuous TAI sample times, UT1-TAI interpolation,
+rates of the selected interpolating function, and the existing coverage and
+missing-data checks. The standard factories already use this data directly;
+they do not need an additional interpolator adapter. Existing constructors
+accepting user-supplied interpolators remain supported.
+
+The first follow-up removes the CMake check and clarifies the existing custom
+interpolator path, station position/state methods, derivative fallback, fitted
+seasonal terms and relativistic coordinate conventions. These are comments and
+build-check removal; they do not change numerical evaluation. The adapter removal
+is a separate change and is not included in that first checkpoint.
 
 The station-history/parser/frame/reference-point, atmosphere/ocean/build,
 rotation/core and cross-component reviews are complete. Their fixes are

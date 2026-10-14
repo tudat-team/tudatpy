@@ -131,8 +131,6 @@ TUDAT_ADD_LIBRARY("input_output"
         tudat_input_output_raw
         tudat_ephemerides)
 
-# Check actual target links, including transitive and private static-library links.
-
 if (TUDAT_BUILD_WITH_SERIALIZATION)
     add_subdirectory(serialization)
 endif ()
