@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
+#include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
@@ -90,17 +91,42 @@ protected:
 class OceanTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
-    OceanTideBodyDeformationSettings( const std::vector< std::string > blqFiles ):
-        BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles )
+    OceanTideBodyDeformationSettings(
+            const std::vector< std::string > blqFiles,
+            const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp ):
+        BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles ), synthesis_( synthesis )
     {}
+
+    OceanTideBodyDeformationSettings(
+            const input_output::OceanLoadingData& data,
+            const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp ):
+        BodyDeformationSettings( gravitation::ocean_tide ), preloadedData_( data ), usePreloadedData_( true ), synthesis_( synthesis )
+    {
+        input_output::validateOceanLoadingData( preloadedData_ );
+    }
 
     std::vector< std::string > getBlqFiles( )
     {
         return blqFiles_;
     }
+    const input_output::OceanLoadingData& getOceanLoadingData( ) const
+    {
+        return preloadedData_;
+    }
+    bool usesPreloadedData( ) const
+    {
+        return usePreloadedData_;
+    }
+    basic_astrodynamics::OceanTideSynthesis getSynthesis( ) const
+    {
+        return synthesis_;
+    }
 
 protected:
     std::vector< std::string > blqFiles_;
+    input_output::OceanLoadingData preloadedData_;
+    bool usePreloadedData_ = false;
+    basic_astrodynamics::OceanTideSynthesis synthesis_;
 };
 
 inline std::shared_ptr< BasicSolidBodyDeformationSettings > basicTidalBodyShapeDeformation(
@@ -127,9 +153,18 @@ inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformat
     return std::make_shared< BodyDeformationSettings >( gravitation::iers_2010 );
 }
 
-inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation( const std::vector< std::string > blqFiles )
+inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation(
+        const std::vector< std::string > blqFiles,
+        const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp )
 {
-    return std::make_shared< OceanTideBodyDeformationSettings >( blqFiles );
+    return std::make_shared< OceanTideBodyDeformationSettings >( blqFiles, synthesis );
+}
+
+inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformationFromData(
+        const input_output::OceanLoadingData& data,
+        const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp )
+{
+    return std::make_shared< OceanTideBodyDeformationSettings >( data, synthesis );
 }
 
 inline std::shared_ptr< BodyDeformationSettings > poleTideBodyShapeDeformation( )

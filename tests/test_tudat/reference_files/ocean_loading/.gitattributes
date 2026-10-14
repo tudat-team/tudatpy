@@ -1,0 +1,2 @@
+# Preserve upstream Fortran bytes/checksums, including original trailing spaces.
+iers_hardisp/*.F whitespace=-blank-at-eol

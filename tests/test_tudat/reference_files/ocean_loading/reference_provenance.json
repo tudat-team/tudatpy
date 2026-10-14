@@ -1,0 +1,56 @@
+{
+  "source_url": "https://iers-conventions.obspm.fr/content/chapter7/software/hardisp/",
+  "downloaded": "2026-10-14",
+  "corrections": "IERS 19 June 2015 numerical corrections; ETUTC/HARDISP leap update 19 December 2016",
+  "files": {
+    "ADMINT.F": "478e3f0c001c09dd4d9e2e9920033d29e76eb60b808238e416e6db9ffaeae6c8",
+    "ETUTC.F": "a067c10de2c63269a54b6a14dce2daa49c30bfd52e66086b76492cd438414e1f",
+    "EVAL.F": "b4056a09ec5d77674cab8eac0fa32b5d1be8f471fbe33e753e81ab97a7767add",
+    "HARDISP.F": "df8556e0db396fe5358a1bb2edd8ae2ea19253993a5f8a8641495b9ca0224f75",
+    "JULDAT.F": "d1f39f83503178711845532e1a4ba46d0824b896fa961d81c983d694d48dde73",
+    "LEAP.F": "31d18153242823606beb9690ab0c685dd5403fe1e9bb5f214e22d21dd5e6a771",
+    "MDAY.F": "d4eae8a9a0b866a63f22134fb57bad1c57fc1f3baf98450892ddeee4f7ee8aec",
+    "RECURS.F": "8a3c88d69cebd130981887dc9c8c2f9e3d2af26fded3e052385c022126f9d44b",
+    "SHELLS.F": "6c69dede79f9adfb16d38dcbd890bbbfc3e4e47b2cbacd5fabfb520deba86701",
+    "SPLINE.F": "a13cc2b405079a2b86872341ca50d9b3f0cc219e43d1ce301b461af15df857f0",
+    "TDFRPH.F": "24068e0cd1e2e210fab7dd8d4473bb60ff8335bfcb53a2fc12dad7e6d1cccd19",
+    "TOYMD.F": "9b69b6a27d544215c516da60351e4ec51d03b04ce9bf71b6608ebf55080bf70a"
+  },
+  "production_changes": [
+    "Renamed C++ translations, not distributed or endorsed by IERS",
+    "Double-precision complex admittance, endpoint interpolation and direct epoch synthesis",
+    "UTC derived from supplied TT via SOFA rather than ETUTC decimal-year steps"
+  ],
+  "generation_command": "python3 generate_hardisp_fixtures.py --compiler /home/dominic/miniconda3/envs/tudatpy-dev/bin/x86_64-conda-linux-gnu-gfortran",
+  "compiler_version": "GNU Fortran (conda-forge gcc 15.2.0-19) 15.2.0",
+  "fixture_cases": 36,
+  "fixture_output_precision_metres": 1e-12,
+  "test_tolerance_metres": 1e-06,
+  "tolerance_reason": "IERS Fortran uses single-precision admittance/synthesis; C++ promotes to double. One micrometre covers numerical precision for the explicit high-load inputs, below HARDISP's stated model precision.",
+  "reference_compile_options": [
+    "-O0",
+    "-std=legacy",
+    "-ffixed-line-length-none"
+  ],
+  "station_input_conventions": "Rows U/W/S amplitude in metres, then U/W/S Greenwich lag in degrees; canonical M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm Ssa ordering.",
+  "station_input_sources": [
+    {
+      "name": "IERS HARDISP Onsala/Reykjavik published examples",
+      "url": "https://iers-conventions.obspm.fr/content/chapter7/software/hardisp/HARDISP.F",
+      "sha256": "df8556e0db396fe5358a1bb2edd8ae2ea19253993a5f8a8641495b9ca0224f75"
+    },
+    {
+      "name": "Tudat ILRS TPXO.7.2/Ssa TPXO.6.2 BLQ subset",
+      "provider": "https://barre.oso.chalmers.se/loading/legacy.html",
+      "source_file": "/home/dominic/Tudat/pr-876-data-review-20261014/old/resource/earth_deformation/ilrsStations.blq",
+      "source_sha256": "18dc0ab7c5f9f5fd05bc3a492fcff578b0b4ee59313c7568255bf16ff83bdf54",
+      "generation_date_from_headers": "2012-06-23",
+      "station_ids": [
+        "13402M005",
+        "30314M001",
+        "40445M004"
+      ]
+    }
+  ],
+  "high_load_stress_case": "REYKJAVIK_X5_STRESS is synthetic: all published Reykjavik amplitudes multiplied by five; phases unchanged."
+}

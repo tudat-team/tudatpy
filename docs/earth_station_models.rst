@@ -80,7 +80,7 @@ validation ledger below records completed changes and remaining limitations.
    [ ] 12 Complete deformation velocities and full station-state closure.
    [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.
    [x] 14 Validate BLQ loading inputs and preserve their conventions.
-   [ ] 15 Implement HARDISP-equivalent ocean tidal loading.
+   [x] 15 Implement HARDISP-equivalent ocean tidal loading.
    [ ] 16 Add conventional ocean pole-tide loading.
    [ ] 17 Add conventional atmospheric S1/S2 tidal loading.
    [ ] 18 Preserve full SINEX solution/validity/eccentricity histories.
@@ -101,6 +101,32 @@ Task numbers are stable identifiers rather than a rigid execution sequence.
 Tasks 05 and 06 can proceed with the initial build and data architecture audit.
 Tasks 13 and 30 follow verification and implementation of the accepted-standard
 baseline; experimental alternatives do not become defaults implicitly.
+
+Active work
+-----------
+
+* Task 04: independent reference packages are in use for solid Earth tides,
+  short-period EOP and HARDISP; reference coverage grows with each added model.
+* Task 07: the inertial-frame correction is committed. Explicit model time-scale
+  routing and complete displacement-system conventions remain under review.
+* Task 09: a continuous TAI-axis evaluator, strict coverage/gap policies and
+  leap-second-safe public rotation path pass isolated C++ tests. Integration,
+  conversion endpoint checks and optional four-point interpolation are underway.
+* Task 11: derivative architecture is being designed around the same rotation
+  and UT1 interpolant used for position evaluation; implementation is pending.
+* Task 12: a displacement-rate API and initial convergence tests pass in an
+  isolated checkout. Native Earth-model UTC boundary safeguards are being added;
+  full station-state closure still requires task 11.
+* Task 16: the ocean pole-tide reader/model and dedicated C++ tests pass in an
+  isolated checkout, including 731 published reference rows. Scientific review
+  and integration with task 09 remain.
+* Task 17: primary-source research and initial design are complete. The neutral
+  atmospheric S1/S2 reader and harmonic synthesis are being implemented; source
+  grid boundary and latitude conventions require explicit handling.
+
+Other unchecked tasks are queued. Tasks 13 and 30 remain deferred until the
+accepted-standard baseline is validated. Final Python-kernel compilation and
+binding validation are part of task 29, not each incremental model build.
 
 Completion criteria
 -------------------
@@ -223,3 +249,28 @@ serialization-disabled build; that narrow build fix is a separate commit.
 Subsequent full kernel builds are deferred to final integration at Dominic's
 request. Logs are in ``earth-station-model-work/logs``; raw EOP validity and
 the legacy adapter's artificial endpoint buffer remain task 09.
+
+Task 15: the default ocean tidal-loading model now expands the eleven BLQ
+constituents to the 342-constituent IERS HARDISP synthesis with complex admittance
+interpolation. The eleven-constituent implementation remains an explicit legacy
+option, and explicit custom argument callbacks retain that legacy behavior.
+Filename and preloaded-data factories select the same model. Cartesian loading
+uses the geocentric radial/north/east basis; public station ENU results are
+projected into the station's actual topocentric frame.
+
+The original corrected IERS Fortran package generates 36 frozen comparisons
+covering six stations and non-midnight epochs over 25 years. Its regeneration
+check passes, with source checksums and complete original notices preserved.
+The largest C++ difference is 0.106 micrometres, within the independently
+documented one-micrometre budget for the reference's single-precision synthesis.
+The existing 24-hour Onsala and Reykjavik reference series now pass at one
+micrometre in every component, replacing former 0.25--4 mm tolerances.
+
+All six C++ ocean-loading cases pass, including factory selection, zero
+amplitudes, legacy callbacks and ellipsoidal-coordinate geometry. The complete
+15-executable scientific/input regression selection and raw-target dependency
+audit pass (16 checks, 3.12 s). Logs are ``tests-hardisp-integration.log`` and
+``hardisp-generator-check.log`` in the local work log directory. Binding source
+and API documentation are included; final Python-kernel validation remains
+task 29. Explicit environment TDB-to-model-TT routing and UTC-phase derivative
+boundary handling remain tasks 07 and 12, respectively.

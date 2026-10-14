@@ -1,12 +1,17 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/included/unit_test.hpp>
-#include <iostream>
+#include <cmath>
+#include <limits>
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/basic_astro/dateTime.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
+#include "../../../reference_files/ocean_loading/hardisp_reference_cases.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 
 namespace tudat
 {
@@ -32,9 +37,12 @@ BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
 
     for( int i = 0; i < 24; i++ )
     {
-        onsalaResults.block( i, 0, 1, 3 ) = oceanTideDeformationModel.calculateDisplacementInEnuFrame( testTime, "ONSALA" ).transpose( );
+        onsalaResults.block( i, 0, 1, 3 ) =
+                oceanTideDeformationModel.calculateDisplacementInEnuFrame( sofa_interface::convertUTCtoTT( testTime ), "ONSALA" )
+                        .transpose( );
         icelandResults.block( i, 0, 1, 3 ) =
-                oceanTideDeformationModel.calculateDisplacementInEnuFrame( testTime, "REYKJAVIK" ).transpose( );
+                oceanTideDeformationModel.calculateDisplacementInEnuFrame( sofa_interface::convertUTCtoTT( testTime ), "REYKJAVIK" )
+                        .transpose( );
         testTime += timeStep;
     }
 
@@ -61,21 +69,19 @@ BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
     onsalaTestMatrix.block( 0, 1, 24, 1 ) = -onsalaRawTestMatrix.block( 0, 1, 24, 1 );
     onsalaTestMatrix.block( 0, 2, 24, 1 ) = onsalaRawTestMatrix.block( 0, 0, 24, 1 );
 
-    std::cout << onsalaTestMatrix << std::endl << std::endl << onsalaResults << std::endl;
-
     Eigen::Matrix< double, 24, 3 > icelandTestMatrix = icelandRawTestMatrix;
     //
     icelandTestMatrix.block( 0, 0, 24, 1 ) = -icelandRawTestMatrix.block( 0, 2, 24, 1 );
     icelandTestMatrix.block( 0, 1, 24, 1 ) = -icelandRawTestMatrix.block( 0, 1, 24, 1 );
     icelandTestMatrix.block( 0, 2, 24, 1 ) = icelandRawTestMatrix.block( 0, 0, 24, 1 );
 
-    BOOST_CHECK_SMALL( ( onsalaResults - onsalaTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.25E-3 );
-    BOOST_CHECK_SMALL( ( onsalaResults - onsalaTestMatrix ).block( 0, 1, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.25E-3 );
-    BOOST_CHECK_SMALL( ( onsalaResults - onsalaTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.75E-3 );
+    BOOST_CHECK_SMALL( ( onsalaResults - onsalaTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
+    BOOST_CHECK_SMALL( ( onsalaResults - onsalaTestMatrix ).block( 0, 1, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
+    BOOST_CHECK_SMALL( ( onsalaResults - onsalaTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
 
-    BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-3 );
-    BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 1, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-3 );
-    BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 4.0E-3 );
+    BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
+    BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 1, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
+    BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
 }
 
 BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
@@ -114,6 +120,153 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).stations.count( "ADDED_FIRST" ), 0 );
     BOOST_CHECK_SMALL( ( preloaded.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ) - before ).norm( ), 1.0E-14 );
     BOOST_CHECK_THROW( preloaded.calculateDisplacementInEnuFrame( 0.0, "MISSING" ), std::runtime_error );
+}
+
+namespace
+{
+
+input_output::OceanLoadingData makeHardispReferenceData( )
+{
+    input_output::OceanLoadingData data;
+    data.source = "Pinned IERS HARDISP/ILRS reference inputs";
+    for( const auto& reference : hardispReferenceStations )
+    {
+        input_output::OceanLoadingStation station;
+        station.stationIdentifier = reference.identifier;
+        station.source = data.source;
+        for( int row = 0; row < 3; ++row )
+        {
+            for( int column = 0; column < 11; ++column )
+            {
+                station.amplitudesMetres( row, column ) = reference.coefficients[ row ][ column ];
+                station.phaseLagsDegrees( row, column ) = reference.coefficients[ row + 3 ][ column ];
+            }
+        }
+        data.stations.emplace( station.stationIdentifier, station );
+    }
+    return data;
+}
+
+void checkOceanLoadingVector( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected, const double tolerance )
+{
+    for( int component = 0; component < 3; ++component )
+    {
+        BOOST_CHECK_SMALL( actual( component ) - expected( component ), tolerance );
+    }
+}
+
+}  // namespace
+
+BOOST_AUTO_TEST_CASE( testExpandedOceanLoadingAgainstIndependentHardisp )
+{
+    OceanTideEarthDeformation model( makeHardispReferenceData( ) );
+    BOOST_CHECK( model.getSynthesis( ) == OceanTideSynthesis::iersHardisp );
+    for( const auto& reference : hardispReferenceCases )
+    {
+        const auto& station = hardispReferenceStations[ reference.stationIndex ];
+        BOOST_TEST_CONTEXT( station.identifier << ", UTC epoch " << reference.year << "-" << reference.month << "-" << reference.day )
+        {
+            const double utc = timeFromDecomposedDateTime< double >(
+                    reference.year, reference.month, reference.day, reference.hour, reference.minute, reference.second );
+            const double tt = sofa_interface::convertUTCtoTT( utc );
+            // HARDISP writes U/S/W; the public spherical result is E/N/radial.
+            const Eigen::Vector3d expected( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
+            checkOceanLoadingVector( model.calculateDisplacementInEnuFrame( tt, station.identifier ), expected, 1.0E-6 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testOceanLoadingSphericalAndOblateGeometry )
+{
+    const auto& reference = hardispReferenceCases[ 35 ];
+    const auto& coefficients = hardispReferenceStations[ reference.stationIndex ];
+    const double utc = timeFromDecomposedDateTime< double >(
+            reference.year, reference.month, reference.day, reference.hour, reference.minute, reference.second );
+    const double tt = sofa_interface::convertUTCtoTT( utc );
+    OceanTideEarthDeformation model( makeHardispReferenceData( ) );
+    // A fixed WGS84 point, independently evaluated from geodetic 48/123 degrees, height 250 m.
+    const Eigen::Vector3d point( -2328813.9273189958, 3586058.9739219621, 4717062.1163217751 );
+    const auto shape = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137.0, 1.0 / 298.257223563 );
+    const auto spherical = std::make_shared< ground_stations::GroundStationState >( point, coordinate_conversions::cartesian_position );
+    const auto oblate = std::make_shared< ground_stations::GroundStationState >( point, coordinate_conversions::cartesian_position, shape );
+    spherical->setSiteId( coefficients.identifier );
+    oblate->setSiteId( coefficients.identifier );
+    const double phi = std::atan2( point( 2 ), std::hypot( point( 0 ), point( 1 ) ) );
+    const double lambda = 123.0 * mathematical_constants::PI / 180.0;
+    const double geodeticLatitude = 48.0 * mathematical_constants::PI / 180.0;
+    const Eigen::Vector3d east( -std::sin( lambda ), std::cos( lambda ), 0.0 );
+    const Eigen::Vector3d north( -std::sin( phi ) * std::cos( lambda ), -std::sin( phi ) * std::sin( lambda ), std::cos( phi ) );
+    const Eigen::Vector3d radial( std::cos( phi ) * std::cos( lambda ), std::cos( phi ) * std::sin( lambda ), std::sin( phi ) );
+    const Eigen::Vector3d sphericalEnu( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
+    const Eigen::Vector3d expectedCartesian = sphericalEnu( 0 ) * east + sphericalEnu( 1 ) * north + sphericalEnu( 2 ) * radial;
+    checkOceanLoadingVector( model.calculateDisplacement( tt, spherical ), expectedCartesian, 1.0E-6 );
+    checkOceanLoadingVector( model.calculateDisplacement( tt, oblate ), expectedCartesian, 1.0E-6 );
+    checkOceanLoadingVector( model.calculateDisplacement( tt, spherical ), model.calculateDisplacement( tt, oblate ), 1.0E-14 );
+    const Eigen::Vector3d geodeticNorth( -std::sin( geodeticLatitude ) * std::cos( lambda ),
+                                         -std::sin( geodeticLatitude ) * std::sin( lambda ),
+                                         std::cos( geodeticLatitude ) );
+    const Eigen::Vector3d geodeticUp( std::cos( geodeticLatitude ) * std::cos( lambda ),
+                                      std::cos( geodeticLatitude ) * std::sin( lambda ),
+                                      std::sin( geodeticLatitude ) );
+    const Eigen::Vector3d expectedTopocentric(
+            east.dot( expectedCartesian ), geodeticNorth.dot( expectedCartesian ), geodeticUp.dot( expectedCartesian ) );
+    checkOceanLoadingVector( model.calculateDisplacementInEnuFrame( tt, oblate ), expectedTopocentric, 1.0E-6 );
+    const Eigen::Vector3d uws( reference.upSouthWest[ 0 ], reference.upSouthWest[ 2 ], reference.upSouthWest[ 1 ] );
+    checkOceanLoadingVector(
+            convertLocalOceanTideDisplacementToPlentocentricDisplacement( uws, { east, north, radial } ), expectedCartesian, 1.0E-14 );
+}
+
+BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
+{
+    auto data = makeHardispReferenceData( );
+    for( auto& station : data.stations ) station.second.amplitudesMetres.setZero( );
+    OceanTideEarthDeformation zero( data );
+    checkOceanLoadingVector( zero.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ), Eigen::Vector3d::Zero( ), 1.0E-15 );
+    data.stations.at( "ONSALA" ).amplitudesMetres( 0, 0 ) = 0.01;
+    data.stations.at( "ONSALA" ).phaseLagsDegrees( 0, 0 ) = 0.1 * 180.0 / mathematical_constants::PI;
+    const std::function< Eigen::Vector6d( const double ) > arguments = []( const double ) {
+        Eigen::Vector6d result = Eigen::Vector6d::Zero( );
+        result( 0 ) = 0.25;
+        return result;
+    };
+    OceanTideEarthDeformation legacy( data, arguments );
+    BOOST_CHECK( legacy.getSynthesis( ) == OceanTideSynthesis::legacyElevenConstituents );
+    // Independent single-M2 fixture: 0.01*cos(0.5-0.1), with all other amplitudes zero.
+    checkOceanLoadingVector(
+            legacy.calculateDisplacementInEnuFrame( 0.0, "ONSALA" ), Eigen::Vector3d( 0.0, 0.0, 0.009210609940028852 ), 1.0E-14 );
+    OceanTideEarthDeformation explicitLegacy( data, OceanTideSynthesis::legacyElevenConstituents );
+    OceanTideEarthDeformation callbackLegacy(
+            data, []( const double time ) { return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
+    checkOceanLoadingVector( explicitLegacy.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ),
+                             callbackLegacy.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ),
+                             1.0E-14 );
+    BOOST_CHECK_THROW( zero.calculateDisplacementInEnuFrame( 0.0, "MISSING" ), std::runtime_error );
+    BOOST_CHECK_THROW( zero.calculateDisplacementInEnuFrame( std::numeric_limits< double >::quiet_NaN( ), "ONSALA" ), std::runtime_error );
+}
+
+BOOST_AUTO_TEST_CASE( testOceanLoadingFactoriesConsumePreloadedData )
+{
+    const auto data = makeHardispReferenceData( );
+    simulation_setup::SystemOfBodies bodies;
+    bodies.createEmptyBody( "Earth" );
+    const auto fullSettings = simulation_setup::oceanTideBodyShapeDeformationFromData( data );
+    const auto full = std::dynamic_pointer_cast< OceanTideEarthDeformation >(
+            simulation_setup::createBodyDeformationModel( fullSettings, "Earth", bodies ) );
+    BOOST_REQUIRE( full != nullptr );
+    BOOST_CHECK( full->getSynthesis( ) == OceanTideSynthesis::iersHardisp );
+    const auto legacySettings =
+            simulation_setup::oceanTideBodyShapeDeformationFromData( data, OceanTideSynthesis::legacyElevenConstituents );
+    const auto legacy = std::dynamic_pointer_cast< OceanTideEarthDeformation >(
+            simulation_setup::createBodyDeformationModel( legacySettings, "Earth", bodies ) );
+    BOOST_REQUIRE( legacy != nullptr );
+    BOOST_CHECK( legacy->getSynthesis( ) == OceanTideSynthesis::legacyElevenConstituents );
+    const auto& reference = hardispReferenceCases[ 0 ];
+    const double utc = timeFromDecomposedDateTime< double >(
+            reference.year, reference.month, reference.day, reference.hour, reference.minute, reference.second );
+    const double tt = sofa_interface::convertUTCtoTT( utc );
+    const Eigen::Vector3d expected( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
+    checkOceanLoadingVector( full->calculateDisplacementInEnuFrame( tt, "ONSALA" ), expected, 1.0E-6 );
+    BOOST_CHECK_EQUAL( full->getOceanLoadingData( ).stations.size( ), data.stations.size( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

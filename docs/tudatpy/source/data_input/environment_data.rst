@@ -22,6 +22,7 @@ functions in :ref:`environment_setup`.
    environment_data/horizons
    environment_data/missions
    environment_data/sbdb
+   environment_data/ocean_loading
    environment_data/space_weather
    environment_data/spacetrack
    environment_data/spice

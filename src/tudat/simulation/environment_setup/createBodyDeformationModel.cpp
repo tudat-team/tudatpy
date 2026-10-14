@@ -247,8 +247,16 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             }
             else
             {
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                        oceanTideBodyDeformationSettings->getBlqFiles( ) );
+                if( oceanTideBodyDeformationSettings->usesPreloadedData( ) )
+                {
+                    bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
+                            oceanTideBodyDeformationSettings->getOceanLoadingData( ), oceanTideBodyDeformationSettings->getSynthesis( ) );
+                }
+                else
+                {
+                    bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
+                            oceanTideBodyDeformationSettings->getBlqFiles( ), oceanTideBodyDeformationSettings->getSynthesis( ) );
+                }
             }
             break;
         }

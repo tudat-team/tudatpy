@@ -18,6 +18,10 @@ for the high-accuracy modelling of the positions of ground stations on a body. S
 of a station (such as plate motion) are set in the ground stations themselves (see :ref:`ground_station`).
 
 
+Ocean tidal loading evaluates TT seconds since J2000 and uses corresponding UTC phases.
+Standalone calls require TT. The existing environment currently passes its TDB time as TT,
+retaining the millisecond TDB-TT approximation until explicit time-scale routing is implemented.
+
 Functions
 ---------
 .. currentmodule:: tudatpy.dynamics.environment_setup.shape_deformation
@@ -32,6 +36,8 @@ Functions
 
    ocean_tidal
 
+   ocean_tidal_from_data
+
    pole_tidal
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.basic_solid_body_tidal
 
@@ -40,6 +46,11 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.iers_2010_solid_body_tidal
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal_from_data
+
+.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.OceanTideSynthesis
+   :members:
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.pole_tidal
 

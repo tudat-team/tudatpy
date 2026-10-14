@@ -20,6 +20,9 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+//! Ocean tidal loading synthesis convention.
+enum class OceanTideSynthesis { iersHardisp, legacyElevenConstituents };
+
 //! Function to read BLQ file.
 /*!
  *  Function to read BLQ file containing three-dimensional local (up, west, south) site displacement
@@ -30,44 +33,43 @@ namespace basic_astrodynamics
  */
 std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > readBlqFile( const std::string& fileName );
 
+//! Convert local up/west/south to Cartesian using east/north/radial unit vectors.
 Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
         const Eigen::Vector3d& localDisplacement,
         const std::vector< Eigen::Vector3d >& earthNorthradialUnitVectors );
 
 //! Class to calculate site displacement to to ocean tide deformation.
 /*!
- *  Class to calculate site displacement to to ocean tide deformation. Only the 11 main tidal constituents are include,
- *  i.e. Eqs. 5-85 to 5-87 of Moyer(2000), not the full interpolation as adviced by the IERS 2010 Conventions, section 7.1.2.
- *  Object requires data typically obtained from BLQ files generated at http://froste.oso.chalmers.se/loading/.
+ *  The default IERS HARDISP convention expands the eleven provider coefficients to
+ *  342 constituents using complex admittance interpolation (IERS section 7.1.2).
+ *  The explicit legacy mode retains the former eleven-constituent Moyer synthesis.
+ *  BLQ data are loaded before evaluation and retain their provider frame-origin metadata.
  */
 class OceanTideEarthDeformation : public BodyDeformationModel
 {
 public:
-    //! Constructor, reads and initializes tide displacement amplitudes and phases.
-    /*!
-     *  Constructor, reads and initializes tide displacement amplitudes and phases at number of sites provided
-     *  by BLQ file.
-     *  \param blqFile BLQ file containing ocean tide displacement amplitudes and phases.
-     */
-    OceanTideEarthDeformation(
-            const std::vector< std::string >& blqFiles,
-            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
-                return sofa_interface::calculateDoodsonFundamentalArguments( time );
-            } );
+    //! Filename adapters; all BLQ input occurs during construction or addBlqFile.
+    OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
+                               const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp );
 
-    OceanTideEarthDeformation(
-            const std::string& blqFile,
-            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
-                return sofa_interface::calculateDoodsonFundamentalArguments( time );
-            } ): OceanTideEarthDeformation( std::vector< std::string >( { blqFile } ), doodsonArgumentFunction )
+    OceanTideEarthDeformation( const std::string& blqFile, const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp ):
+        OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, synthesis )
     {}
 
-    //! Construct from validated, preloaded provider coefficients, with no file access.
-    OceanTideEarthDeformation(
-            const input_output::OceanLoadingData& data,
-            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
-                return sofa_interface::calculateDoodsonFundamentalArguments( time );
-            } );
+    //! Construct from validated, preloaded provider coefficients with no file access.
+    OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
+                               const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp );
+
+    //! Explicit custom-argument compatibility path, always using the legacy eleven constituents.
+    OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
+                               const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction );
+
+    OceanTideEarthDeformation( const std::string& blqFile, const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction ):
+        OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, doodsonArgumentFunction )
+    {}
+
+    OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
+                               const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction );
 
     void addBlqFile( const std::string& blqFile );
 
@@ -79,7 +81,17 @@ public:
         return oceanLoadingData_;
     }
 
+    //! Spherical east/north/radial displacement in metres; time is TT seconds since J2000.
     Eigen::Vector3d calculateDisplacementInEnuFrame( const double time, const std::string& siteIdentifier );
+
+    //! True station topocentric ENU (ellipsoid-normal up for oblate station shapes), in metres.
+    Eigen::Vector3d calculateDisplacementInEnuFrame( const double time,
+                                                     const std::shared_ptr< ground_stations::GroundStationState > stationState );
+
+    OceanTideSynthesis getSynthesis( ) const
+    {
+        return synthesis_;
+    }
 
     Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition )
     {
@@ -91,8 +103,10 @@ public:
      * Function to calculate site displacement at given time at given site. Note that the site identifier needs to be
      * identical to that provided in the BLQ file. If doodson arguments are available, it is recommended to use the second,
      * overloaded version of this function for performance reasons.
-     * \param ephemerisTime Time in seconds since J2000. Due to the rate of change and amplitude of the effect, the time
-     * scale in which this is provided is unlikely to be consequential, to measurement precision, on the resulting displacement.
+     * \param time TT seconds since J2000. HARDISP uses the corresponding UTC time of day.
+     * Standalone calls require TT. The existing environment passes its TDB time as TT,
+     * retaining the millisecond TDB-TT approximation until explicit time-scale routing is implemented.
+     * The Cartesian result uses the geocentric spherical basis, independently of the station shape.
      * \return Displacement of requested site, at requested time.
      */
     Eigen::Vector3d calculateDisplacement( const double time, const std::shared_ptr< ground_stations::GroundStationState > stationState );
@@ -134,6 +148,9 @@ public:
     }
 
 private:
+    void initializeLegacyConstituents( );
+    Eigen::Vector3d calculateGeocentricEnuDisplacement( const double time, const std::string& siteIdentifier );
+    OceanTideSynthesis synthesis_;
     input_output::OceanLoadingData oceanLoadingData_;
 
     //! Map containing site displacement amplitudes per tide.

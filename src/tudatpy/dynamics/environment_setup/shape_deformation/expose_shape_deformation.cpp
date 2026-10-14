@@ -195,27 +195,62 @@ BodyDeformationSettings
 
 )doc" );
 
+    py::enum_< tudat::basic_astrodynamics::OceanTideSynthesis >( m, "OceanTideSynthesis" )
+            .value( "iers_hardisp", tudat::basic_astrodynamics::OceanTideSynthesis::iersHardisp )
+            .value( "legacy_eleven_constituents", tudat::basic_astrodynamics::OceanTideSynthesis::legacyElevenConstituents );
+
     m.def( "ocean_tidal",
            &tss::oceanTideBodyShapeDeformation,
            py::arg( "blq_files" ),
+           py::arg( "synthesis" ) = tudat::basic_astrodynamics::OceanTideSynthesis::iersHardisp,
            R"doc(
 
 Function for creating IERS 2010 ocean tide deformation model
 
-Function for creating IERS 2010 ocean tide deformation model, implementing the 11 main tidal modes, as described ion Section 7.1.2
-(Equation 7.16 specifically) of the IERS Conventions 2010. This function requires BLQ files for the stations under consideration, which can
-be queried on the `Ocean Loading Provider <https://barre.oso.chalmers.se/loading/l.php>`_
+Creates the IERS ocean tidal loading model. The default ``iers_hardisp`` expands the eleven BLQ coefficients into 342 constituents
+using the corrected IERS HARDISP admittance interpolation. ``legacy_eleven_constituents`` explicitly retains the earlier eleven-term
+synthesis for reproducibility. This changes the previous default behavior.
+
+BLQ files can be obtained from the `Ocean Loading Provider <https://barre.oso.chalmers.se/loading/l.php>`_. Files are read when the
+model is constructed, and source headers, model names and CM/CE/unspecified origin declarations are retained. An origin declaration
+describes the supplied loading coefficients; this model does not silently convert their reference origin.
+
+Evaluation uses TT seconds since J2000 and corresponding UTC astronomical phases. Standalone model calls require TT;
+existing environment evaluation currently passes its TDB time as TT, retaining the millisecond TDB-TT approximation. The local physical components use the spherical
+radial/west/south basis; Cartesian output uses geocentric station latitude, including for an oblate station shape.
 
 Parameters
 ----------
 blq_files : list[ string ]
-    List of blq files defining ocean tide amplitudes and phases for the requested stations
+    List of BLQ files defining loading amplitudes and Greenwich phase lags for the requested stations.
+synthesis : OceanTideSynthesis, default=OceanTideSynthesis.iers_hardisp
+    Expanded IERS synthesis or the explicit legacy eleven-constituent convention.
 
 Returns
 -------
 BodyDeformationSettings
     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
 
+)doc" );
+
+    m.def( "ocean_tidal_from_data",
+           &tss::oceanTideBodyShapeDeformationFromData,
+           py::arg( "data" ),
+           py::arg( "synthesis" ) = tudat::basic_astrodynamics::OceanTideSynthesis::iersHardisp,
+           R"doc(
+Create ocean tidal loading settings from validated, preloaded BLQ records.
+
+Parameters
+----------
+data : tudatpy.data_input.environment_data.ocean_loading.OceanLoadingData
+    Provider coefficients read by ``read_ocean_loading_data`` or ``read_ocean_loading_data_text``.
+synthesis : OceanTideSynthesis, default=OceanTideSynthesis.iers_hardisp
+    Expanded IERS 342-constituent synthesis or the explicit legacy convention.
+
+Returns
+-------
+BodyDeformationSettings
+    Settings consuming the supplied data without additional BLQ file access.
 )doc" );
 }
 
