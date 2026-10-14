@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 20 of 25 tasks done; 4 active and 1 partial.
+Status: 21 of 25 tasks done; 3 active and 1 partial.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -106,7 +106,7 @@ validated and integrated.
    [x] 20 Modernise ITRF transformations and station-catalogue inputs.  [DONE]
    [x] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [DONE]
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [ACTIVE — interpolation, origin and signal-overlap enforcement]
-   [ ] 23 Validate relativistic station position and velocity transformations.  [ACTIVE — validated spatial model integrated; completing BodySettings factory wiring]
+   [x] 23 Validate relativistic station position and velocity transformations.  [DONE — explicit IERS spatial approximation and full intrinsic-state composition]
    [ ] 24 Improve instrument reference-point and calibrated geometry support.  [ACTIVE — dated equipment and calibrated reference points]
    [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [ACTIVE — deformation API audit; Python-specific coverage pending]
 
@@ -171,12 +171,13 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   its evidence; no provider records were silently repaired.
 * Task 22: the loading worker is implementing explicit interpolation, station
   selection, origin translation and tidal/empirical-seasonal overlap policies.
-* Task 23: the explicit IERS spatial approximation is integrated. Six focused
-  cases/79 assertions pass alongside affected station-state and clock suites.
+* Task 23: the explicit IERS spatial approximation is integrated. Seven focused
+  cases/91 assertions pass alongside affected station-state and clock suites.
   Terminal composition consumes the full displaced/moving state once; selected
   external potentials, coordinate scaling and actual axes/origin are explicit.
-  Review found a remaining BodySettings factory/environment wiring gap, now
-  being fixed and tested before this task is marked complete.
+  The BodySettings factory now supplies the bodies environment and establishes
+  ephemeris origin conversions before constructing stations. A focused native
+  regression covers both direct and Earth-relative Sun ephemerides.
 * Task 24: the station-history worker is implementing dated marker/ARP/calibrated
   reference-point geometry using retained equipment and eccentricity histories.
 * Task 29: the deformation entry-point audit confirms production aggregation
@@ -226,6 +227,13 @@ study.  Actual discontinuities are tested as discontinuities.
 
 Validation ledger
 -----------------
+
+2026-10-14, relativistic factory completion: commit ``a02d01a16`` integrates
+``002d57eb6`` without changes. The seven-case/91-assertion suite exercises the
+complete BodySettings creation path, nonzero station rates and explicit external
+ephemeris origin conversion. The bodies frame definitions are established before
+the station factories consume them. Task 23 is complete for the documented IERS
+spatial approximation; the declared simultaneity/worldline limitations remain.
 
 2026-10-14, catalogue adapter integration: task 20 commit ``875239f1c`` cleanly
 integrates ``f5a31d36b``. Four native cases/217 assertions cover 13 independent
