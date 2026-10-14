@@ -108,7 +108,7 @@ validated and integrated.
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [ACTIVE — interpolation, origin and signal-overlap enforcement]
    [x] 23 Validate relativistic station position and velocity transformations.  [DONE — explicit IERS spatial approximation and full intrinsic-state composition]
    [ ] 24 Improve instrument reference-point and calibrated geometry support.  [ACTIVE — dated equipment and calibrated reference points]
-   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [ACTIVE — deformation API audit; Python-specific coverage pending]
+   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [ACTIVE — remove EarthDeformationEpoch; simplify model API; preserve precision]
 
 Task numbers are stable identifiers rather than a rigid execution sequence.
 Tasks 25--28 and 30 were removed at Dominic's request: new estimation
@@ -180,10 +180,13 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   regression covers both direct and Earth-relative Sun ephemerides.
 * Task 24: the station-history worker is implementing dated marker/ARP/calibrated
   reference-point geometry using retained equipment and eccentricity histories.
-* Task 29: the deformation entry-point audit confirms production aggregation
-  uses epoch plus GroundStationState, while AtmosphericTideDeformation's ENU
-  helper is test-only. Consolidation will preserve position-only access and
-  explicit output frames; Python-only binding/import checks remain outstanding.
+* Task 29: Dominic explicitly requested removing EarthDeformationEpoch and
+  simplifying evaluation across deformation models. The common base will expose
+  displacement and full displacement/state for TDB Time plus a station; derived
+  models implement protected hooks. Shared converters stay with their models.
+  Native station aggregation must retain Time precision; scalar endpoint handling
+  remains confined to scalar boundaries. Position-only availability and numerical
+  quality remain required. Python-only binding/import checks are outstanding.
 
 Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
 kernel compilation is allowed only when needed for those Python-specific tests.
@@ -197,8 +200,9 @@ Subsequent gravity-field programme
 ---------------------------------
 
 Dominic requested this follow-on programme on 14 October 2026. It starts only
-after **every retained item in the current 25-task checklist is complete**. Do not create its branch or begin its
-implementation while any current item remains open.
+after **every retained item in the current 25-task checklist and the additional
+review gate below are complete**. Do not create its branch or begin its
+implementation while any current item or review finding remains open.
 
 At that point create ``fix/gravity_field_variations`` and review, implement
 and independently validate detailed Earth gravity-field variation models used
@@ -208,6 +212,29 @@ architecture, pinned reference data, primarily C++ validation and resource
 limits. Estimation of gravity-field coefficients is explicitly outside this
 follow-on programme's scope. Its detailed checklist will be established when
 the current programme is finished.
+
+Required review after the checklist
+-----------------------------------
+
+.. code-block:: text
+
+   [ ] Review the complete PR after all 25 tasks, before gravity work.  [QUEUED — mandatory additional gate]
+
+In addition to the normal correctness and numerical review, Dominic requires:
+
+* Find and remove functionality reimplemented when suitable code already exists.
+* Avoid invasive changes to generic code merely to support minor features.
+* Remove unnecessary abstractions, boilerplate, repeated validation and other
+  generated-code patterns that obscure the actual model.
+* Make Python interfaces follow existing Tudat conventions where practical.
+* Keep tests proportionate: preserve scientific reference cases and meaningful
+  regression coverage; every minor edge case or exception does not need a test.
+* Seek a reduction in net added lines without compromising numerical quality or
+  significantly increasing runtime. Record the changes and relevant validation.
+
+This review covers the full diff from the starting revision and is an additional
+completion requirement. It must not substitute a smaller scope for an unfinished
+task or bypass a remaining correctness issue.
 
 Completion criteria
 -------------------
