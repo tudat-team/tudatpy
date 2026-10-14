@@ -200,13 +200,14 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs( const std::pair< Eigen::Vect
                                             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
-//! Coherent orientation quantities with continuous clocks retained at extended precision.
+//! Earth orientation angles and the corresponding TAI, TT and UT1 epochs.
+//! All three epochs use Time, including when the caller supplies double.
 struct EarthOrientationAngles {
     Time tai, tt, ut1;
     Eigen::Vector5d angles = Eigen::Vector5d::Constant( TUDAT_NAN );
 };
 
-//! Rates are with respect to the original caller's input time seconds.
+//! Derivatives of the angles and time conversions with respect to the input scale's seconds.
 struct EarthOrientationAnglesAndRates : EarthOrientationAngles {
     Eigen::Vector5d angleRates = Eigen::Vector5d::Constant( TUDAT_NAN );
     double dTaiDInput = TUDAT_NAN;
@@ -268,9 +269,9 @@ public:
         }
         else
         {
-            // Legacy partial clock updates can leave a previously cached UT1
-            // alongside a newly requested TT. Populate all clocks for this epoch
-            // before collecting a coherent position or numerical rate stencil.
+            // Existing constructors with user-supplied UTC interpolators remain supported.
+            // Refresh all cached clocks for this epoch; updating TT alone can leave
+            // an old UT1 value in the converter.
             terrestrialTimeScaleConverter_->updateTimes< TimeType >( timeScale, timeValue, Eigen::Vector3d::Zero( ), true );
             terrestrialTime =
                     terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
@@ -313,7 +314,9 @@ public:
         return std::make_pair( rotationAngles, ut1 );
     }
 
-    //! Preserve continuous TT/UT1 even for double input. Canonicalize before converting the input type.
+    //! Return angles and Time-valued TAI/TT/UT1 epochs for the requested input time.
+    //! For double input at the first/last EOP observation, recognize that double
+    //! sample time before converting to Time, so rounding cannot move it outside coverage.
     template< typename TimeType >
     EarthOrientationAngles getRotationAnglesAndTimesFromItrsToGcrs(
             const TimeType& timeValue,
@@ -340,9 +343,12 @@ public:
         return result;
     }
 
-    //! Strict daily rates use their selected interpolation branch, including knots and coverage endpoints.
-    //! Legacy models use a 32 s five-point stencil, rejected at UTC jumps, interpolation knots/edges,
-    //! and before 1972. Position-only legacy evaluation remains available there.
+    //! Return angles and their derivatives with respect to the input scale's seconds.
+    //! Data-backed models differentiate the selected daily interpolant, using the
+    //! right-hand interval at a sample and the left-hand interval at the final sample.
+    //! Existing custom-interpolator models use a 32 s five-point stencil. Rates
+    //! are unavailable across UTC jumps, interpolation samples or coverage limits,
+    //! and before 1972; position evaluation remains supported there.
     EarthOrientationAnglesAndRates getRotationAnglesAndRatesFromItrsToGcrs(
             const double timeValue,
             const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );

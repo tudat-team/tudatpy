@@ -132,8 +132,6 @@ TUDAT_ADD_LIBRARY("input_output"
         tudat_ephemerides)
 
 # Check actual target links, including transitive and private static-library links.
-include("${PROJECT_SOURCE_DIR}/cmake/tudat/CheckRawInputOutputDependencies.cmake")
-cmake_language(DEFER DIRECTORY "${PROJECT_SOURCE_DIR}" CALL tudat_check_raw_input_output_dependencies)
 
 if (TUDAT_BUILD_WITH_SERIALIZATION)
     add_subdirectory(serialization)

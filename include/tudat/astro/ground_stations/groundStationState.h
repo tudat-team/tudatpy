@@ -52,14 +52,20 @@ public:
     StationMotionModel( ) {}
 
     virtual ~StationMotionModel( ) {}
+    //! Whether the configured data contain fitted seasonal terms. A model class
+    //! can contain zero or many terms; combined models report their constituents.
     virtual bool hasFittedSeasonalTerms( ) const
     {
         return false;
     }
 
+    //! Body-fixed position correction (metres) and velocity correction (m/s),
+    //! evaluated at TDB seconds since J2000 without reducing Time precision.
     virtual Eigen::Vector6d getBodyFixedStationMotion( const Time& tdb,
                                                        const std::shared_ptr< GroundStationState > station,
                                                        const std::string& origin ) = 0;
+    //! Scalar TDB input forwards to the Time method unless a model overrides
+    //! it to recognize rounded observation times or preserve a scalar callback.
     virtual Eigen::Vector6d getBodyFixedStationMotion( double tdb,
                                                        const std::shared_ptr< GroundStationState > station,
                                                        const std::string& origin )
@@ -67,12 +73,15 @@ public:
         return getBodyFixedStationMotion( Time( tdb ), station, origin );
     }
 
+    //! Body-fixed position correction in metres at TDB seconds since J2000.
+    //! Models can override this separately so position works when rates are unavailable.
     virtual Eigen::Vector3d getBodyFixedStationPositionCorrection( const Time& tdb,
                                                                    const std::shared_ptr< GroundStationState > station,
                                                                    const std::string& origin )
     {
         return getBodyFixedStationMotion( tdb, station, origin ).head< 3 >( );
     }
+    //! Scalar TDB input forwards to the position-only Time method unless overridden.
     virtual Eigen::Vector3d getBodyFixedStationPositionCorrection( double tdb,
                                                                    const std::shared_ptr< GroundStationState > station,
                                                                    const std::string& origin )
@@ -399,7 +408,10 @@ protected:
     std::vector< Eigen::Vector3d > displacementVectors_;
 };
 
-//! Coordinate compatibility for the IERS 2010 spatial-offset approximation.
+//! Specify whether station and global coordinates include TT/TDB rate scaling.
+//! Unscaled TCG/TCB coordinates use IERS equation 11.18; TT-compatible station
+//! coordinates converted to TDB-compatible global coordinates use equation 11.19
+//! and its additional constant scale factor. The model must know which to apply.
 enum RelativisticStationCoordinateCompatibility {
     unspecified_station_coordinate_compatibility,
     unscaled_tcg_to_tcb_station_coordinates,

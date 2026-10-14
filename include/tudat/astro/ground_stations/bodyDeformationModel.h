@@ -60,10 +60,11 @@ protected:
     explicit BodyDeformationModel( const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
     virtual Eigen::Vector3d evaluateDisplacement( const Time& tdb,
                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) = 0;
-    //! Guarded five-point precise-Time fallback; analytic models override this hook.
-    //! Sub-scalar-resolution steps additionally require agreement with a four-ULP
-    //! stencil to 1e-12 m/s plus 1e-6 relative. This is a resolution guard, not an
-    //! ordinary coarse/fine convergence check. Both intervals must be available.
+    //! Estimate velocity from four nearby positions when no analytic rate is supplied.
+    //! If the requested Time step is smaller than four adjacent double spacings,
+    //! compare with a larger step to detect callbacks that round Time to double.
+    //! Agreement must be within 1e-12 m/s plus 1e-6 relative; both sampling intervals
+    //! must be covered. Ordinary steps use one stencil, without a convergence check.
     virtual Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                        const std::shared_ptr< ground_stations::GroundStationState > station );
     Eigen::Vector3d differentiateDisplacement( const Time& time,
@@ -73,7 +74,7 @@ protected:
                                                const std::function< Eigen::Vector3d( const double& ) >& displacement,
                                                const std::function< void( const double&, const double& ) >& validateInterval ) const;
     virtual void validateDisplacementDerivativeInterval( const Time&, const Time& ) const {}
-    //! Only the original-double station boundary invokes this adapter.
+    //! Used only when a station is queried with double, never with precise Time.
     virtual Time normalizeScalarTdb( double tdb ) const;
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter_;
