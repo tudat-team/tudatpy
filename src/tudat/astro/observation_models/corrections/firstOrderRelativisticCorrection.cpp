@@ -71,46 +71,59 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionPart
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
+    double timePartial = 0.0;
+    for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
+    {
+        timePartial += calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                transmitterState, receiverState, transmissionTime, receptionTime, linkEndAtWhichPartialIsEvaluated, i );
+    }
+    return timePartial;
+}
+
+//! Partial derivative of a single body's contribution with respect to link-end time at fixed link-end states.
+double FirstOrderLightTimeCorrectionCalculator::calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+        const Eigen::Vector6d& transmitterState,
+        const Eigen::Vector6d& receiverState,
+        const double transmissionTime,
+        const double receptionTime,
+        const LinkEndType linkEndAtWhichPartialIsEvaluated,
+        const unsigned int bodyIndex )
+{
     if( linkEndAtWhichPartialIsEvaluated != transmitter && linkEndAtWhichPartialIsEvaluated != receiver )
     {
         throw std::runtime_error( "Error when computing relativistic light-time time partial: invalid link end." );
     }
 
-    const double ppnParameterGamma = ppnParameterGammaFunction_( );
-    double timePartial = 0.0;
-    for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
+    const double receptionTimeWeight = lightTimeEvaluationContribution_.at( bodyIndex );
+    const double timeWeight = ( linkEndAtWhichPartialIsEvaluated == receiver ) ? receptionTimeWeight : 1.0 - receptionTimeWeight;
+    if( timeWeight == 0.0 )
     {
-        const double receptionTimeWeight = lightTimeEvaluationContribution_.at( i );
-        const double timeWeight = ( linkEndAtWhichPartialIsEvaluated == receiver ) ? receptionTimeWeight : 1.0 - receptionTimeWeight;
-        if( timeWeight == 0.0 )
-        {
-            continue;
-        }
-
-        const double evaluationTime = transmissionTime + receptionTimeWeight * ( receptionTime - transmissionTime );
-        const Eigen::Vector6d perturbingBodyState = perturbingBodyStateFunctions_.at( i )( evaluationTime );
-        const double gravitationalParameter = perturbingBodyGravitationalParameterFunctions_.at( i )( );
-        const Eigen::RowVector3d transmitterGradient =
-                relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient( gravitationalParameter,
-                                                                                       transmitterState.segment( 0, 3 ),
-                                                                                       receiverState.segment( 0, 3 ),
-                                                                                       perturbingBodyState.segment( 0, 3 ),
-                                                                                       false,
-                                                                                       ppnParameterGamma,
-                                                                                       useBending_ );
-        const Eigen::RowVector3d receiverGradient =
-                relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient( gravitationalParameter,
-                                                                                       transmitterState.segment( 0, 3 ),
-                                                                                       receiverState.segment( 0, 3 ),
-                                                                                       perturbingBodyState.segment( 0, 3 ),
-                                                                                       true,
-                                                                                       ppnParameterGamma,
-                                                                                       useBending_ );
-
-        // Translational invariance gives the body-position gradient as minus the sum of the link-end gradients.
-        timePartial -= timeWeight * ( transmitterGradient + receiverGradient ).dot( perturbingBodyState.segment( 3, 3 ) );
+        return 0.0;
     }
-    return timePartial;
+
+    const double ppnParameterGamma = ppnParameterGammaFunction_( );
+    const double evaluationTime = transmissionTime + receptionTimeWeight * ( receptionTime - transmissionTime );
+    const Eigen::Vector6d perturbingBodyState = perturbingBodyStateFunctions_.at( bodyIndex )( evaluationTime );
+    const double gravitationalParameter = perturbingBodyGravitationalParameterFunctions_.at( bodyIndex )( );
+    const Eigen::RowVector3d transmitterGradient =
+            relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient( gravitationalParameter,
+                                                                                   transmitterState.segment( 0, 3 ),
+                                                                                   receiverState.segment( 0, 3 ),
+                                                                                   perturbingBodyState.segment( 0, 3 ),
+                                                                                   false,
+                                                                                   ppnParameterGamma,
+                                                                                   useBending_ );
+    const Eigen::RowVector3d receiverGradient =
+            relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient( gravitationalParameter,
+                                                                                   transmitterState.segment( 0, 3 ),
+                                                                                   receiverState.segment( 0, 3 ),
+                                                                                   perturbingBodyState.segment( 0, 3 ),
+                                                                                   true,
+                                                                                   ppnParameterGamma,
+                                                                                   useBending_ );
+
+    // Translational invariance gives the body-position gradient as minus the sum of the link-end gradients.
+    return -timeWeight * ( transmitterGradient + receiverGradient ).dot( perturbingBodyState.segment( 3, 3 ) );
 }
 
 //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
@@ -122,33 +135,40 @@ Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::calculate
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
-    // Retrieve ppn parameter gamma.
-    double ppnParameterGamma = ppnParameterGammaFunction_( );
-
     // Initialize correction to zero.
     Eigen::Matrix< double, 3, 1 > currentTotalLightTimeCorrectionPartial_ = Eigen::Matrix< double, 3, 1 >::Zero( );
 
-    double evaluationTime = TUDAT_NAN;
-
-    Eigen::Vector6d perturbingBodyState;
     // Iterate over all gravitating bodies.
     for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
     {
-        evaluationTime = transmissionTime + lightTimeEvaluationContribution_.at( i ) * ( receptionTime - transmissionTime );
-        perturbingBodyState = perturbingBodyStateFunctions_.at( i )( evaluationTime );
-
-        // Calculate correction due to current body and add to total.
-        currentTotalLightTimeCorrectionPartial_ += relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
-                perturbingBodyGravitationalParameterFunctions_.at( i )( ),
-                transmitterState.segment( 0, 3 ),
-                receiverState.segment( 0, 3 ),
-                perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
-                ( linkEndAtWhichPartialIsEvaluated == receiver ),
-                ppnParameterGamma,
-                useBending_ );
+        currentTotalLightTimeCorrectionPartial_ += calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                transmitterState, receiverState, transmissionTime, receptionTime, linkEndAtWhichPartialIsEvaluated, i );
     }
 
     return currentTotalLightTimeCorrectionPartial_;
+}
+
+//! Function to compute the partial derivative of a single body's light-time correction w.r.t. link end position
+Eigen::Matrix< double, 3, 1 >
+FirstOrderLightTimeCorrectionCalculator::calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+        const Eigen::Vector6d& transmitterState,
+        const Eigen::Vector6d& receiverState,
+        const double transmissionTime,
+        const double receptionTime,
+        const LinkEndType linkEndAtWhichPartialIsEvaluated,
+        const unsigned int bodyIndex )
+{
+    const double evaluationTime =
+            transmissionTime + lightTimeEvaluationContribution_.at( bodyIndex ) * ( receptionTime - transmissionTime );
+    return relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
+                   perturbingBodyGravitationalParameterFunctions_.at( bodyIndex )( ),
+                   transmitterState.segment( 0, 3 ),
+                   receiverState.segment( 0, 3 ),
+                   perturbingBodyStateFunctions_.at( bodyIndex )( evaluationTime ).segment( 0, 3 ),
+                   ( linkEndAtWhichPartialIsEvaluated == receiver ),
+                   ppnParameterGammaFunction_( ),
+                   useBending_ )
+            .transpose( );
 }
 
 }  // namespace observation_models

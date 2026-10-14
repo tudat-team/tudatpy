@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 
 namespace tudat
@@ -391,6 +393,29 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
                     currentLinkEndStates_, currentLinkEndTimes_, observation_models::transmitter );
             auto receiverPartial = correctionPartial->timeDerivativeWrtPpnParameterGamma(
                     currentLinkEndStates_, currentLinkEndTimes_, observation_models::receiver );
+            transmitterPartial.first *= -transmitterPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            receiverPartial.first *= receiverPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            totalPartial.push_back( transmitterPartial );
+            totalPartial.push_back( receiverPartial );
+        }
+    }
+    else if( parameterType.first == estimatable_parameters::gravitational_parameter )
+    {
+        for( const auto& correctionPartial : relativisticLightTimeCorrectionPartials_ )
+        {
+            const std::vector< std::string > perturbingBodies = correctionPartial->getPerturbingBodies( );
+            const auto findIterator = std::find( perturbingBodies.begin( ), perturbingBodies.end( ), parameterType.second.first );
+            if( findIterator == perturbingBodies.end( ) )
+            {
+                continue;
+            }
+            const int bodyIndex = static_cast< int >( std::distance( perturbingBodies.begin( ), findIterator ) );
+
+            // Same scaling as the gamma time-derivative partials above.
+            auto transmitterPartial = correctionPartial->timeDerivativeWrtBodyGravitationalParameter(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::transmitter, bodyIndex );
+            auto receiverPartial = correctionPartial->timeDerivativeWrtBodyGravitationalParameter(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::receiver, bodyIndex );
             transmitterPartial.first *= -transmitterPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
             receiverPartial.first *= receiverPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
             totalPartial.push_back( transmitterPartial );

@@ -127,6 +127,25 @@ public:
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
+    //! Partial derivative of a single body's contribution with respect to link-end time, holding both link-end states fixed.
+    /*!
+     * Single-body term of calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime.
+     * Does not modify the cached nominal light-time correction or its individual components.
+     * \param transmitterState State of transmitter at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of signal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end whose time is differentiated
+     * \param bodyIndex Index of the perturbing body (in getPerturbingBodyNames)
+     * \return Partial derivative of the light-time correction due to the given body with respect to link-end time
+     */
+    double calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
+                                                                                  const Eigen::Vector6d& receiverState,
+                                                                                  const double transmissionTime,
+                                                                                  const double receptionTime,
+                                                                                  const LinkEndType linkEndAtWhichPartialIsEvaluated,
+                                                                                  const unsigned int bodyIndex );
+
     //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
     /*!
      * Function to compute the partial derivative of the light-time correction w.r.t. link end position
@@ -144,6 +163,25 @@ public:
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
+
+    //! Function to compute the partial derivative of a single body's light-time correction w.r.t. link end position
+    /*!
+     * Single-body term of calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \param bodyIndex Index of the perturbing body (in getPerturbingBodyNames)
+     * \return Light-time correction due to the given body w.r.t. link end position
+     */
+    Eigen::Matrix< double, 3, 1 > calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated,
+            const unsigned int bodyIndex );
 
     //! Function to get the names of bodies causing light-time correction.
     /*!

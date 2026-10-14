@@ -220,7 +220,8 @@ public:
      * \param receiverProperTimePartials Object used to compute the contribution of transmitter proper time rate to the scaling
      * \param observableType Observable type for this scaling object (defaults to one_way_doppler, but can be overridden
      *        for one_way_doppler_measured_frequency which uses the same mathematical formulation)
-     * \param lightTimeCorrections Light-time corrections whose explicit time derivatives depend on gamma.
+     * \param lightTimeCorrections Light-time corrections whose explicit time derivatives depend on gamma and on the
+     *        gravitational parameters of the perturbing bodies.
      */
     OneWayDopplerScaling( const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
                           const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
