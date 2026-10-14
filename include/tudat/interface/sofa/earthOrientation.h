@@ -134,13 +134,14 @@ double calculateEarthRotationAngle( const double ut1, const double referenceJuli
 template< typename TimeType >
 double calculateEarthRotationAngleTemplated( const TimeType currentUt1 );
 
-//! Function to compute the rotation matrix from GCRS to J2000 at epoch
+//! Function to compute the constant SOFA frame-bias matrix from GCRS to EME2000.
 /*!
- * Function to compute the rotation matrix from GCRS to J2000 at epoch, e.g. frame bias
- * \param julianDaysSinceReference Days since reference epoch at which the frame bias is to be determined
+ * The returned SOFA rb matrix maps to dynamical mean equator/equinox at J2000,
+ * not to the ICRF axes carried by modern SPICE data labelled J2000. It is time independent.
+ * \param julianDaysSinceReference Days since reference epoch passed to the SOFA bias-precession routine
  * \param precessionNutationTheory IAU precession theory to use
  * \param referenceJulianDay Reference Julian day for julianDaysSinceReference
- * \return
+ * \return Rotation matrix from GCRS to dynamical mean-J2000 (EME2000) axes.
  */
 Eigen::Matrix3d getFrameBias( const double julianDaysSinceReference,
                               const basic_astrodynamics::IAUConventions precessionNutationTheory = basic_astrodynamics::iau_2006,

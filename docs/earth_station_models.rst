@@ -143,4 +143,12 @@ an oblate Earth.  The conventional secular pole remains the explicitly pinned
 1 February 2018 IERS update.  Compilation also exposed and fixed a missing
 direct constants include in the geodetic-coordinate header.
 
-Solid-tide and inertial-frame corrections are under integration test.
+Task 07, inertial-frame portion: ``J2000`` and ``ICRF`` now share the GCRS axis
+orientation, ``ECLIPJ2000`` uses the SPICE fixed ecliptic rotation, and the
+previous dynamical-J2000 bias is available explicitly as ``EME2000``.  The C++
+ItrsToGcrsRotationModel executable passes independent SOFA cookbook and fixed
+frame-bias/ecliptic matrix cases, including forward/inverse transformations and
+the double/extended-time interfaces.  Full time-scale and displacement-system
+conventions remain open under task 07; derivative completeness is task 11.
+
+Solid-tide corrections are under integration test.

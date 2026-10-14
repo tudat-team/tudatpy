@@ -163,7 +163,7 @@ double calculateEarthRotationAngleTemplated< Time >( const Time currentUt1 )
                                         basic_astrodynamics::JULIAN_DAY_ON_J2000 + currentUt1.fullDaysSinceEpoch( ) );
 }
 
-//! Function to compute the rotation matrix from GCRS to J2000 at epoch
+//! Function to compute the constant SOFA frame-bias matrix from GCRS to EME2000.
 Eigen::Matrix3d getFrameBias( const double julianDaysSinceReference,
                               const basic_astrodynamics::IAUConventions precessionNutationTheory,
                               const double referenceJulianDay )

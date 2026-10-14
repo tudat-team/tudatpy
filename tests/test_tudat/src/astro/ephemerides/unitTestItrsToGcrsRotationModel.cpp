@@ -11,12 +11,17 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/included/unit_test.hpp>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/earth_orientation/sofaEarthOrientationCookbookExamples.h"
 #include "tudat/interface/sofa/earthOrientation.h"
+#include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
@@ -32,6 +37,82 @@ using namespace earth_orientation;
 using namespace basic_astrodynamics;
 using namespace simulation_setup;
 
+namespace
+{
+
+// SOFA Tools for Earth Attitude, C edition, revision 1.64, section 5.5:
+// 2007-04-05 12:00:00 UTC, xp=0.0349282 arcsec, yp=0.4833163 arcsec,
+// UT1-UTC=-0.072073685 s, dX=0.1750 mas, dY=-0.2259 mas.
+// The calculator receives these inputs directly, without daily EOP or
+// short-period correction files. The existing time converter retains its
+// historical Delta T resource, which is not used at this modern epoch.
+std::shared_ptr< EarthOrientationAnglesCalculator > createCookbookAnglesCalculator( )
+{
+    const Eigen::Vector2d pole = unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( 0.0349282, 0.4833163 ) );
+    const Eigen::Vector2d correction = unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( 0.0001750, -0.0002259 ) );
+    const std::map< double, Eigen::Vector2d > poleData = { { -1.0E9, pole }, { 1.0E9, pole } };
+    const std::map< double, Eigen::Vector2d > correctionData = { { -1.0E9, correction }, { 1.0E9, correction } };
+    const std::map< double, double > ut1Data = { { -1.0E9, -0.072073685 }, { 1.0E9, -0.072073685 } };
+    const auto poleInterpolator = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( poleData );
+    const auto correctionInterpolator = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( correctionData );
+    const auto ut1Interpolator = std::make_shared< interpolators::LinearInterpolator< double, double > >( ut1Data );
+    const auto zeroArguments = []( const double ) -> Eigen::Vector6d { return Eigen::Vector6d::Zero( ); };
+    const auto zeroPolarCorrections = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
+            1.0, 0.0, std::vector< std::string >( ), std::vector< std::string >( ), zeroArguments );
+    const auto zeroUt1Corrections = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
+            1.0, 0.0, std::vector< std::string >( ), std::vector< std::string >( ), zeroArguments );
+    return std::make_shared< EarthOrientationAnglesCalculator >(
+            std::make_shared< PolarMotionCalculator >( poleInterpolator, zeroPolarCorrections ),
+            std::make_shared< PrecessionNutationCalculator >( iau_2006, correctionInterpolator ),
+            std::make_shared< TerrestrialTimeScaleConverter >( ut1Interpolator, zeroUt1Corrections ) );
+}
+
+std::map< std::string, Eigen::Matrix3d > getIndependentBaseFrameRotations( )
+{
+    // Time-independent rb fixture from the IAU SOFA 2023-10-11 validation
+    // program t_sofa_c.c, t_bp06. Do not obtain the oracle from getFrameBias.
+    const Eigen::Matrix3d gcrsToEme2000 = ( Eigen::Matrix3d( ) << 0.9999999999999942497,
+                                            -0.7078368960971557145E-7,
+                                            0.8056213977613185606E-7,
+                                            0.7078368694637674333E-7,
+                                            0.9999999999999969484,
+                                            0.3305943742989134124E-7,
+                                            -0.8056214211620056792E-7,
+                                            -0.3305943172740586950E-7,
+                                            0.9999999999999962084 )
+                                                  .finished( );
+    // NAIF's built-in ECLIPJ2000 frame: rotation about x by 84381.448 arcsec.
+    // The fixed values below are independent of the production SPICE wrapper.
+    const Eigen::Matrix3d j2000ToEclipj2000 = ( Eigen::Matrix3d( ) << 1.0,
+                                                0.0,
+                                                0.0,
+                                                0.0,
+                                                0.9174820620691818,
+                                                0.3977771559319137,
+                                                0.0,
+                                                -0.3977771559319137,
+                                                0.9174820620691818 )
+                                                      .finished( );
+    return { { "GCRS", Eigen::Matrix3d::Identity( ) },
+             { "J2000", Eigen::Matrix3d::Identity( ) },
+             { "ICRF", Eigen::Matrix3d::Identity( ) },
+             { "EME2000", gcrsToEme2000 },
+             { "ECLIPJ2000", j2000ToEclipj2000 } };
+}
+
+void checkRotationMatrix( const Eigen::Matrix3d& actual, const Eigen::Matrix3d& expected, const double tolerance )
+{
+    for( int row = 0; row < 3; ++row )
+    {
+        for( int column = 0; column < 3; ++column )
+        {
+            BOOST_CHECK_SMALL( actual( row, column ) - expected( row, column ), tolerance );
+        }
+    }
+}
+
+}  // namespace
+
 BOOST_AUTO_TEST_SUITE( test_itrs_to_gcrs_rotation )
 
 //! Test ITRS <-> GCRS rotation by compariong against Spice
@@ -42,8 +123,8 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
     spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/earth_fixed.tf" );
 
     // Create rotation model
-    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
-            std::make_shared< GcrsToItrsRotationModel >( earth_orientation::createStandardEarthOrientationCalculator( ) );
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel = std::make_shared< GcrsToItrsRotationModel >(
+            earth_orientation::createStandardEarthOrientationCalculator( ), tdb_scale, "J2000" );
 
     // Compare spice vs. Tudat for list of evaluation times
     std::vector< double > testTimes;
@@ -177,6 +258,80 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
             for( unsigned int j = 0; j < 3; j++ )
             {
                 BOOST_CHECK_SMALL( sofaCookbookResult( i, j ) - tudatResultPrecise( i, j ), 1.0E-15 );
+            }
+        }
+    }
+}
+
+//! Test each base frame against an independent absolute orientation reference.
+BOOST_AUTO_TEST_CASE( test_InertialFramesAgainstFrozenSofaCookbook )
+{
+    const auto calculator = createCookbookAnglesCalculator( );
+    const double utc =
+            convertCalendarDateToJulianDaysSinceEpoch( 2007, 4, 5, 12, 0, 0.0, JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
+    const Time extendedUtc( convertCalendarDateToJulianDaysSinceEpoch< long double >( 2007, 4, 5, 12, 0, 0.0L, JULIAN_DAY_ON_J2000 ) *
+                            physical_constants::JULIAN_DAY_LONG );
+
+    // Published celestial-to-terrestrial matrix, SOFA cookbook section 5.5.
+    // Transposition maps the independent reference from ITRS to GCRS axes.
+    const Eigen::Matrix3d gcrsToItrs = ( Eigen::Matrix3d( ) << 0.973104317697535,
+                                         0.230363826239128,
+                                         -0.000703163482198,
+                                         -0.230363800456037,
+                                         0.973104570632801,
+                                         0.000118545366625,
+                                         0.000711560162668,
+                                         0.000046626403995,
+                                         0.999999745754024 )
+                                               .finished( );
+
+    for( const auto& frame : getIndependentBaseFrameRotations( ) )
+    {
+        BOOST_TEST_CONTEXT( "base frame = " << frame.first )
+        {
+            GcrsToItrsRotationModel model( calculator, utc_scale, frame.first );
+            const Eigen::Matrix3d expected = frame.second * gcrsToItrs.transpose( );
+            BOOST_CHECK_EQUAL( model.getBaseFrameOrientation( ), frame.first );
+            checkRotationMatrix( model.getRotationToBaseFrame( utc ).toRotationMatrix( ), expected, 2.0E-11 );
+            checkRotationMatrix( model.getRotationToTargetFrame( utc ).toRotationMatrix( ), expected.transpose( ), 2.0E-11 );
+            checkRotationMatrix( model.getRotationToBaseFrameFromExtendedTime( extendedUtc ).toRotationMatrix( ), expected, 2.0E-14 );
+            checkRotationMatrix(
+                    model.getRotationToTargetFrameFromExtendedTime( extendedUtc ).toRotationMatrix( ), expected.transpose( ), 2.0E-14 );
+        }
+    }
+    BOOST_CHECK_THROW( GcrsToItrsRotationModel( calculator, utc_scale, "UNKNOWN" ), std::runtime_error );
+}
+
+//! Test fixed frame mappings for rotations, inverse rotations, extended time and derivatives.
+BOOST_AUTO_TEST_CASE( test_InertialFrameRotationAndDerivativeMapping )
+{
+    const auto calculator = createCookbookAnglesCalculator( );
+    GcrsToItrsRotationModel gcrsModel( calculator, utc_scale, "GCRS" );
+    const std::vector< double > testTimes = { -1.0E8, 0.0, 1.0E8, 3.0E8 };
+    for( const double time : testTimes )
+    {
+        const Eigen::Matrix3d gcrsRotation = gcrsModel.getRotationToBaseFrame( time ).toRotationMatrix( );
+        const Eigen::Matrix3d gcrsDerivative = gcrsModel.getDerivativeOfRotationToBaseFrame( time );
+        const Time extendedTime( static_cast< long double >( time ) + 0.123456789L );
+        const Eigen::Matrix3d extendedGcrsRotation = gcrsModel.getRotationToBaseFrameFromExtendedTime( extendedTime ).toRotationMatrix( );
+        for( const auto& frame : getIndependentBaseFrameRotations( ) )
+        {
+            BOOST_TEST_CONTEXT( "base frame = " << frame.first << ", UTC seconds since J2000 = " << time )
+            {
+                GcrsToItrsRotationModel model( calculator, utc_scale, frame.first );
+                const Eigen::Matrix3d expectedRotation = frame.second * gcrsRotation;
+                const Eigen::Matrix3d expectedDerivative = frame.second * gcrsDerivative;
+                const Eigen::Matrix3d expectedExtendedRotation = frame.second * extendedGcrsRotation;
+                checkRotationMatrix( model.getRotationToBaseFrame( time ).toRotationMatrix( ), expectedRotation, 2.0E-15 );
+                checkRotationMatrix( model.getRotationToTargetFrame( time ).toRotationMatrix( ), expectedRotation.transpose( ), 2.0E-15 );
+                checkRotationMatrix( model.getDerivativeOfRotationToBaseFrame( time ), expectedDerivative, 2.0E-19 );
+                checkRotationMatrix( model.getDerivativeOfRotationToTargetFrame( time ), expectedDerivative.transpose( ), 2.0E-19 );
+                checkRotationMatrix( model.getRotationToBaseFrameFromExtendedTime( extendedTime ).toRotationMatrix( ),
+                                     expectedExtendedRotation,
+                                     2.0E-15 );
+                checkRotationMatrix( model.getRotationToTargetFrameFromExtendedTime( extendedTime ).toRotationMatrix( ),
+                                     expectedExtendedRotation.transpose( ),
+                                     2.0E-15 );
             }
         }
     }

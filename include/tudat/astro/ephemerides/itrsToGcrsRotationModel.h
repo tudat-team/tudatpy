@@ -66,12 +66,16 @@ public:
      *  \param anglesCalculator Class performing calculation to obtain earth orientation angle.
      *  \param timeScale Time scale in which input to this class (in getRotationToBaseFrame, getDerivativeOfRotationToBaseFrame) is
      * provided, needed for correct input to EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs.
+     *  \param baseFrame Base axes: GCRS, J2000 (SPICE/ICRF convention), ICRF,
+     *  ECLIPJ2000 (SPICE ecliptic axes), or EME2000 (dynamical mean equator/equinox at J2000).
+     *  J2000 and ICRF use the GCRS axis orientation. This does not equate frame origins,
+     *  time scales, or relativistic coordinate scaling. EME2000 applies the SOFA frame bias.
      */
     GcrsToItrsRotationModel( const std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > anglesCalculator,
                              const basic_astrodynamics::TimeScales inputTimeScale = basic_astrodynamics::tdb_scale,
                              const std::string& baseFrame = "GCRS" ):
         RotationalEphemeris( baseFrame, "ITRS" ), anglesCalculator_( anglesCalculator ), inputTimeScale_( inputTimeScale ),
-        frameBias_( Eigen::Matrix3d::Identity( ) )
+        rotationFromGcrsToBaseFrame_( Eigen::Matrix3d::Identity( ) )
 
     {
         functionToGetRotationAngles =
@@ -80,20 +84,22 @@ public:
                            std::placeholders::_1,
                            inputTimeScale );
 
-        if( baseFrame == "J2000" )
+        // Modern SPICE J2000 ephemerides already have ICRF axes. Applying
+        // SOFA's dynamical mean-J2000 bias to these vectors adds an unwanted rotation.
+        // The previous J2000 bias behavior is now explicitly named EME2000.
+        if( baseFrame == "EME2000" )
         {
-            frameBias_ = sofa_interface::getFrameBias(
+            rotationFromGcrsToBaseFrame_ = sofa_interface::getFrameBias(
                     0.0, anglesCalculator->getPrecessionNutationCalculator( )->getPrecessionNutationTheory( ) );
         }
         else if( baseFrame == "ECLIPJ2000" )
         {
-            frameBias_ = spice_interface::getRotationFromJ2000ToEclipJ2000( ) *
-                    sofa_interface::getFrameBias( 0.0,
-                                                  anglesCalculator->getPrecessionNutationCalculator( )->getPrecessionNutationTheory( ) );
+            rotationFromGcrsToBaseFrame_ = spice_interface::getRotationFromJ2000ToEclipJ2000( );
         }
-        else if( baseFrame != "J2000" && baseFrame != "ECLIPJ2000" && baseFrame != "GCRS" )
+        else if( baseFrame != "GCRS" && baseFrame != "J2000" && baseFrame != "ICRF" )
         {
-            throw std::runtime_error( "Error in GCRS<->ITRS model, base frame not recognized" );
+            throw std::runtime_error( "Error in GCRS<->ITRS model, base frame not recognized: " + baseFrame +
+                                      ". Supported frames are GCRS, J2000, ICRF, ECLIPJ2000 and EME2000." );
         }
     }
 
@@ -105,7 +111,7 @@ public:
      */
     Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime )
     {
-        return Eigen::Quaterniond( frameBias_ ) *
+        return Eigen::Quaterniond( rotationFromGcrsToBaseFrame_ ) *
                 earth_orientation::calculateRotationFromItrsToGcrs< double >(
                         anglesCalculator_->getRotationAnglesFromItrsToGcrs< double >( ephemerisTime, inputTimeScale_ ), ephemerisTime );
     }
@@ -119,7 +125,7 @@ public:
      */
     Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime( const Time ephemerisTime )
     {
-        return Eigen::Quaterniond( frameBias_ ) *
+        return Eigen::Quaterniond( rotationFromGcrsToBaseFrame_ ) *
                 earth_orientation::calculateRotationFromItrsToGcrs< Time >(
                         anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime, inputTimeScale_ ), ephemerisTime );
     }
@@ -155,7 +161,7 @@ public:
      */
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
     {
-        return frameBias_ *
+        return rotationFromGcrsToBaseFrame_ *
                 earth_orientation::calculateRotationRateFromItrsToGcrs< double >( functionToGetRotationAngles( ephemerisTime ),
                                                                                   ephemerisTime );
     }
@@ -284,11 +290,12 @@ private:
     //! Time scale in which the input time for class functions are interpreted
     basic_astrodynamics::TimeScales inputTimeScale_;
 
-    //! Frame rotation from GCRS to base frame
+    //! Constant rotation from GCRS axes to the selected base-frame axes.
     /*!
-     * Frame rotation from GCRS to base frame. If base frame is J2000, this is the standard frame bias, as computed from Spice.
+     * Identity for GCRS, SPICE J2000 and ICRF; the SPICE ecliptic rotation for
+     * ECLIPJ2000; or the SOFA dynamical mean-J2000 frame bias for EME2000.
      */
-    Eigen::Matrix3d frameBias_;
+    Eigen::Matrix3d rotationFromGcrsToBaseFrame_;
 };
 
 }  // namespace ephemerides

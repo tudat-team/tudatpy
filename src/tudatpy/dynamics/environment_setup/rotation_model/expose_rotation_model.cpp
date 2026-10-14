@@ -442,8 +442,12 @@ void expose_rotation_model_setup( py::module& m )
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
  * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory (for epoch 01-01-1962 and later, zero otherwise)
 
- Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
- The target frame (e.g. body-fixed frame) name is ITRS.
+ The supported base frames are ``GCRS``, ``J2000``, ``ICRF``, ``ECLIPJ2000`` and ``EME2000``. The target frame is ``ITRS``.
+ ``J2000`` follows the SPICE convention for modern ephemerides, whose axes are already aligned with ICRF. ``GCRS``, ``J2000`` and ``ICRF`` therefore use the same axis orientation in this rotation model.
+ ``ECLIPJ2000`` applies only the fixed SPICE rotation from J2000 to its ecliptic axes. ``EME2000`` applies the SOFA frame bias to the dynamical mean equator and equinox at J2000.
+
+ This changes the earlier ``J2000`` and ``ECLIPJ2000`` behavior, which applied an additional SOFA frame bias. Use ``EME2000`` when the earlier dynamical mean-J2000 convention is required.
+ Equal axis orientation does not imply equal origins, time scales or relativistic coordinate scaling; those transformations are outside this rotation model.
 
  Alternative options to modify the input (not exposed here) include the EOP correction file, input time scale, short period UT1 and polar motion variations.
 
@@ -452,7 +456,7 @@ void expose_rotation_model_setup( py::module& m )
  precession_nutation_theory : IAUConventions, default=tba::iau_2006
      Setting theory for modelling Earth nutation.
  base_frame : str, default='GCRS'
-     Base frame of rotation model
+     Base axes: ``GCRS``, SPICE ``J2000``, ``ICRF``, SPICE ``ECLIPJ2000``, or dynamical ``EME2000``.
  Returns
  -------
  GcrsToItrsRotationModelSettings
