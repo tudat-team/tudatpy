@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 16 of 25 tasks done; 3 active, 2 partial and 4 queued.
+Status: 17 of 25 tasks done; 3 active, 2 partial and 3 queued.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -96,7 +96,7 @@ validated and integrated.
    [x] 10 Verify existing short-period EOP corrections independently.  [DONE]
    [x] 11 Complete Earth-rotation derivatives.  [DONE]
    [x] 12 Complete deformation velocities and full station-state closure.  [DONE]
-   [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.  [ACTIVE — opt-in only; replaces corresponding default ocean effects]
+   [x] 13 Add the optional Desai-Sibois high-frequency EOP configuration.  [DONE — opt-in only; replaces corresponding default ocean effects]
    [x] 14 Validate BLQ loading inputs and preserve their conventions.  [DONE]
    [x] 15 Implement HARDISP-equivalent ocean tidal loading.  [DONE]
    [x] 16 Add conventional ocean pole-tide loading.  [DONE]
@@ -104,7 +104,7 @@ validated and integrated.
    [x] 18 Preserve full SINEX solution/validity/eccentricity histories.  [DONE]
    [ ] 19 Implement post-seismic and seasonal station motion with rates.  [ACTIVE — explicit source clocks, PSD and seasonal evaluation]
    [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [PARTIAL — transformations validated and committed; catalogue integration pending]
-   [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [QUEUED]
+   [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [ACTIVE — strict provider inputs and metadata]
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
    [ ] 23 Validate relativistic station position and velocity transformations.  [ACTIVE — spatial/event conventions and full-state composition]
    [ ] 24 Improve instrument reference-point and calibrated geometry support.  [QUEUED]
@@ -126,7 +126,7 @@ Active work
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
 The coordinator handles architecture and integration. Current compiler allocations
-are relativistic station transforms 4, station history 2, and Desai--Sibois 2; the combined
+are relativistic station transforms 4, station history 2, and non-tidal loading 2; the combined
 limit remains eight. Earlier workers are stopped and their work is preserved.
 
 * Task 04: independent reference packages are in use for solid Earth tides,
@@ -140,9 +140,11 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   the complete public station factory, nonzero body translation, four base axes,
   five declared rotation clocks, double/extended epochs, leap and coverage cases.
   The maximum native velocity closure error is 4.53e-9 m/s, below 1e-7 m/s.
-* Task 13: implementation is active in its own worktree. Desai--Sibois will be
-  explicit opt-in, with tests of unchanged default selection and replacement
-  of the corresponding ocean terms while preserving independent effects.
+* Task 13: Desai--Sibois is integrated as explicit opt-in. It replaces only ocean
+  EOP terms and retains conventional libration once. The default is unchanged;
+  ambiguous custom-file combinations reject. Seven native cases/276 assertions
+  pass, with independent value/rate fixtures, full factory SOFA comparisons,
+  provenance/dependency checks and syntax checks of both changed binding units.
 * Task 17: complete atmospheric S1/S2 positions and velocities are integrated.
   All 19 relevant native atmospheric cases and the three UT1 prerequisite cases
   pass, together with input dependency checks. No Python kernel was compiled.
@@ -164,6 +166,12 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
 * Task 23: the rotation worker is now resolving the relativistic transformation
   contract and implementing correct spatial/state composition, external-body
   selection and explicit coordinate/time compatibility against primary standards.
+* Task 21: strict EPHEDISP parsing and neutral preloaded loading-series records
+  are being implemented from the pinned specification and a complete real IMLS
+  provider file. Model evaluation, interpolation and overlap policy follow in 22.
+* Task 29 will also simplify deformation-model entry points, following Dominic's
+  AtmosphericTideDeformation example: consolidate redundant clock/geometry
+  adapters and avoid convenience methods with subtly different output frames.
 
 Other unchecked tasks are queued. Python-only binding/import validation is part of task 29;
 kernel compilation is allowed only when needed for those Python-specific tests.
@@ -207,6 +215,17 @@ study.  Actual discontinuities are tested as discontinuities.
 
 Validation ledger
 -----------------
+
+2026-10-14, optional high-frequency EOP integration: task 13 commit ``8155c1145``
+cleanly integrates ``1216f6bb1``. Three reader cases/32 assertions and four model
+cases/244 assertions pass. Fourteen independent Decimal-polynomial phase/value
+and analytic-rate fixtures cover 1962--2025; model tests include retained
+libration, selected UT1/rotation rates and the full factory SOFA matrix sequence.
+The embedded 159-term NASA mirror is byte-identical to its pinned 12586-byte
+source. Three architecture/provenance checks and both binding translation-unit
+syntax checks pass. The default conventional path remains unchanged; the explicit
+Desai--Sibois selector replaces ocean contributions and rejects ambiguous custom
+correction composition. Identical numerical tests were not rerun after integration.
 
 2026-10-14, complete station-state integration: task 12 commit ``0eeccfcb2``
 cleanly integrates ``5c1029c9a``. The station suite passes 5 cases/151 assertions;
