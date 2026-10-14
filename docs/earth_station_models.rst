@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 17 of 25 tasks done; 3 active, 2 partial and 3 queued.
+Status: 18 of 25 tasks done; 3 active, 1 partial and 3 queued.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -102,8 +102,8 @@ validated and integrated.
    [x] 16 Add conventional ocean pole-tide loading.  [DONE]
    [x] 17 Add conventional atmospheric S1/S2 tidal loading.  [DONE]
    [x] 18 Preserve full SINEX solution/validity/eccentricity histories.  [DONE]
-   [ ] 19 Implement post-seismic and seasonal station motion with rates.  [ACTIVE — explicit source clocks, PSD and seasonal evaluation]
-   [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [PARTIAL — transformations validated and committed; catalogue integration pending]
+   [x] 19 Implement post-seismic and seasonal station motion with rates.  [DONE]
+   [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [ACTIVE — validated transformations; catalogue/trajectory adapter underway]
    [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [ACTIVE — strict provider inputs and metadata]
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
    [ ] 23 Validate relativistic station position and velocity transformations.  [ACTIVE — spatial/event conventions and full-state composition]
@@ -154,15 +154,17 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   official IGS row is deliberately rejected and retained as a regression fixture.
   The merged CMake graph passes its raw-input dependency audit. Unchanged parser
   tests were not rerun. Compiled Python binding behaviour remains task 29.
-* Task 19: station-motion evaluation is active in the history worktree. Physical
-  validity uses TAI; the named IGN nominal-UTC profile preserves the published
-  linear, post-seismic and seasonal source-time conventions and supplies rates
-  only where their clock and validity semantics are defined.
+* Task 19: station-motion evaluation is integrated. Nine cases/343 assertions
+  pass, including 126 independent IGN Fortran rows, cumulative earthquakes,
+  calendar seasonal motion, P/V history identity, validity and public factories.
+  Physical validity uses TAI; the named IGN nominal-UTC profile preserves the
+  published source-time conventions and rejects unsupported leap/rate ambiguity.
 * Task 20: neutral ITRF parameter ingestion and affine position/state transforms
   pass integrated comparisons against 75 independent high-precision fixtures.
   The transformation checkpoint includes bindings and API documentation.
-  Station-catalogue inputs and their explicit physical-to-decimal-year mapping
-  remain open with tasks 18 and 19; final compiled binding checks are task 29.
+  The catalogue adapter is now active, connecting complete station trajectories
+  to explicit frame/release/origin/tide metadata and the shared decimal-year
+  clock. Runtime Python binding checks remain task 29.
 * Task 23: the rotation worker is now resolving the relativistic transformation
   contract and implementing correct spatial/state composition, external-body
   selection and explicit coordinate/time compatibility against primary standards.
@@ -215,6 +217,19 @@ study.  Actual discontinuities are tested as discontinuities.
 
 Validation ledger
 -----------------
+
+2026-10-14, station-history motion integration: task 19 commit ``d30e0b309``
+cleanly integrates ``cc14e9728``. Nine native cases/343 assertions pass, with
+126 pinned IGN Fortran reference rows covering selectors 0--5. Published repeated
+PSD and seasonal coefficients, reordered records, independent P/V history IDs,
+physical validity and the public settings/factory path are covered. Attached SSC
+velocities retain their P-solution coefficients while preserving independent V
+interval IDs; consistency has an explicit 1e-8 m/Julian-year budget. Source clocks
+use named IGN nominal UTC with continuous TAI validity; unavailable rates and
+inserted-second ambiguity reject. Both binding translation units and source
+architecture checks pass. Tested C++ tokens/Python ASTs survived formatting;
+integration changed no numerical implementation. No redundant test rerun or
+Python kernel build was performed.
 
 2026-10-14, optional high-frequency EOP integration: task 13 commit ``8155c1145``
 cleanly integrates ``1216f6bb1``. Three reader cases/32 assertions and four model
