@@ -10,10 +10,12 @@
 
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
+#include <iostream>
+
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
-#include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
+#include "tudat/io/readEarthOrientationData.h"
 
 namespace tudat
 {
@@ -21,27 +23,61 @@ namespace tudat
 namespace simulation_setup
 {
 
+// Construct the selected Earth rotation directly from neutral EOP observations and its model policies.
 std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationModel(
         const std::shared_ptr< GcrsToItrsRotationModelSettings >& gcrsToItrsRotationSettings )
 {
     if( gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) )
+    {
         throw std::runtime_error(
                 "Strict GCRS/ITRS models do not support short-term EOP interpolation settings: "
                 "short-period corrections must use continuous UT1/TT arguments" );
+    }
+
+    // Use supplied observations, or read the requested file without building legacy UTC maps.
     std::shared_ptr< const input_output::EarthOrientationData > data = gcrsToItrsRotationSettings->getEopData( );
+
     if( !data )
     {
-        const earth_orientation::EOPReader reader( gcrsToItrsRotationSettings->getEopFile( ),
-                                                   gcrsToItrsRotationSettings->getEopFileFormat( ),
-                                                   gcrsToItrsRotationSettings->getNutationTheory( ) );
-        data = std::make_shared< input_output::EarthOrientationData >( reader.getRawEarthOrientationData( ) );
+        // Preserve the file-format names accepted by the existing rotation settings.
+        const std::string formatName = gcrsToItrsRotationSettings->getEopFileFormat( );
+
+        if( formatName != "C04" && formatName != "finals2000A" )
+        {
+            throw std::runtime_error( "Unsupported Earth orientation format: " + formatName );
+        }
+
+        const input_output::EarthOrientationFormat format = formatName == "C04" ? input_output::EarthOrientationFormat::c04
+                                                                               : input_output::EarthOrientationFormat::finals2000a;
+
+        data = std::make_shared< input_output::EarthOrientationData >(
+                input_output::readEarthOrientationData( gcrsToItrsRotationSettings->getEopFile( ), format ) );
+
+        // Retain the legacy file-reader warning for unsupported measured-pole conventions.
+        if( gcrsToItrsRotationSettings->getNutationTheory( ) != basic_astrodynamics::iau_2000_a &&
+            gcrsToItrsRotationSettings->getNutationTheory( ) != basic_astrodynamics::iau_2006 )
+        {
+            std::cerr << "Warning, only IAU2000 nutation theory format currently supported by reader." << std::endl;
+        }
     }
+
+    // One evaluator supplies the selected daily observations to clocks and orientation models.
     const auto evaluator = std::make_shared< earth_orientation::EarthOrientationDataEvaluator >(
             *data, gcrsToItrsRotationSettings->getEopEvaluationSettings( ) );
+
+    // Selected sub-daily corrections accompany the daily observations.
     const auto polarSettings = gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( );
+
     const auto ut1Settings = gcrsToItrsRotationSettings->getUt1CorrectionSettings( );
-    if( !polarSettings || !ut1Settings ) throw std::runtime_error( "Missing short-period EOP correction settings" );
+
+    if( !polarSettings || !ut1Settings )
+    {
+        throw std::runtime_error( "Missing short-period EOP correction settings" );
+    }
+
+    // Store the selected polar-motion and UT1 correction calculators.
     earth_orientation::HighFrequencyEopCorrectionCalculators corrections;
+
     if( gcrsToItrsRotationSettings->getOceanTideEopModel( ) == earth_orientation::OceanTideEopModel::desai_sibois_2016 )
     {
         // Custom files have no reliable component identity. Reject an ambiguous

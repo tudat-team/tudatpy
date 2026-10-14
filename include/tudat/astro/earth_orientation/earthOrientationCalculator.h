@@ -251,61 +251,61 @@ public:
             const TimeType timeValue,
             basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
     {
-        TimeType terrestrialTime, ut1;
-        Eigen::Vector3d positionOfCipInGcrs;
-        Eigen::Vector2d positionOfCipInItrs;
         if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
         {
-            const Time tai = terrestrialTimeScaleConverter_->getTaiTime( timeScale, timeValue );
-            const Time preciseTt = basic_astrodynamics::convertTAItoTT( tai );
-            const Time preciseUt1 = terrestrialTimeScaleConverter_->getUt1FromTai( tai );
-            terrestrialTime = static_cast< TimeType >( preciseTt );
-            ut1 = static_cast< TimeType >( preciseUt1 );
-            const auto arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
-                    static_cast< double >( terrestrialTime ), static_cast< double >( terrestrialTime ), static_cast< double >( ut1 ) );
-            positionOfCipInGcrs =
-                    precessionNutationCalculator_->getPositionOfCipInGcrsFromTai( static_cast< double >( terrestrialTime ), tai );
-            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrsFromTai( tai, arguments );
+            // The precise calculation owns modern clock conversion and angle evaluation.
+            const EarthOrientationAngles result = getRotationAnglesAndTimesFromItrsToGcrs( timeValue, timeScale );
+
+            return std::make_pair( result.angles, static_cast< TimeType >( result.ut1 ) );
+        }
+
+        // Retain the supplied-interpolator calculation at the caller's original precision.
+        TimeType terrestrialTime, ut1;
+
+        Eigen::Vector3d positionOfCipInGcrs;
+
+        Eigen::Vector2d positionOfCipInItrs;
+
+        // Existing constructors with user-supplied UTC interpolators remain supported.
+        // Refresh all cached clocks for this epoch; updating TT alone can leave an old UT1 value.
+        terrestrialTimeScaleConverter_->updateTimes< TimeType >( timeScale, timeValue, Eigen::Vector3d::Zero( ), true );
+        terrestrialTime =
+                terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
+        ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::ut1_scale, timeValue );
+        TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
+
+        // Compute the celestial pole and CIO locator using the selected TT and UTC clocks.
+        positionOfCipInGcrs = precessionNutationCalculator_->getPositionOfCipInGcrs( terrestrialTime, utc );
+
+        // Before EOP introduction, use the historical UT1 already calculated above instead of converting TT to UTC through SOFA.
+        const double eopIntroductionEpochInTai =
+                ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY;
+
+        const TimeType atomicTime = basic_astrodynamics::convertTTtoTAI( terrestrialTime );
+
+        if( atomicTime < static_cast< TimeType >( eopIntroductionEpochInTai ) )
+        {
+            // Fundamental arguments use the custom TDB clock and the historical UT1 value.
+            TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                    timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );
+
+            Eigen::Vector6d fundamentalArguments =
+                    sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( static_cast< double >( barycentricDynamicalTime ),
+                                                                                   static_cast< double >( terrestrialTime ),
+                                                                                   static_cast< double >( ut1 ) );
+
+            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
         }
         else
         {
-            // Existing constructors with user-supplied UTC interpolators remain supported.
-            // Refresh all cached clocks for this epoch; updating TT alone can leave
-            // an old UT1 value in the converter.
-            terrestrialTimeScaleConverter_->updateTimes< TimeType >( timeScale, timeValue, Eigen::Vector3d::Zero( ), true );
-            terrestrialTime =
-                    terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
-            ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::ut1_scale, timeValue );
-            TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                    timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
-
-            // Compute nutation/precession parameters
-            positionOfCipInGcrs = precessionNutationCalculator_->getPositionOfCipInGcrs( terrestrialTime, utc );
-
-            // Compute polar motion values. Before the start of the EOP data, use the historical UT1 value already calculated above
-            // instead of asking the approximate fundamental-argument function to perform a TT->UTC conversion through SOFA.
-            const double eopIntroductionEpochInTai =
-                    ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-                    physical_constants::JULIAN_DAY;
-            const TimeType atomicTime = basic_astrodynamics::convertTTtoTAI( terrestrialTime );
-            if( atomicTime < static_cast< TimeType >( eopIntroductionEpochInTai ) )
-            {
-                TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                        timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );
-                Eigen::Vector6d fundamentalArguments =
-                        sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( static_cast< double >( barycentricDynamicalTime ),
-                                                                                       static_cast< double >( terrestrialTime ),
-                                                                                       static_cast< double >( ut1 ) );
-                positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
-            }
-            else
-            {
-                positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
-            }
+            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
         }
 
         // Return vector of angles.
         Eigen::Vector5d rotationAngles;
+
         rotationAngles[ 0 ] = positionOfCipInGcrs( 0 );
         rotationAngles[ 1 ] = positionOfCipInGcrs( 1 );
         rotationAngles[ 2 ] = positionOfCipInGcrs( 2 );
@@ -322,19 +322,35 @@ public:
             const TimeType& timeValue,
             const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
     {
+        // Store converted epochs as Time independently of the public return type.
         EarthOrientationAngles result;
+
         if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
         {
+            // Recognize scalar observation times before any conversion to Time.
             result.tai = terrestrialTimeScaleConverter_->getTaiTime( timeScale, timeValue );
             result.tt = basic_astrodynamics::convertTAItoTT( result.tai );
-            const auto angles = getRotationAnglesFromItrsToGcrs< Time >( result.tai, basic_astrodynamics::tai_scale );
-            result.angles = angles.first;
-            result.ut1 = angles.second;
+            result.ut1 = terrestrialTimeScaleConverter_->getUt1FromTai( result.tai );
+
+            // Use TT for the celestial model and UT1 for the sidereal angle.
+            const Eigen::Vector6d arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+                    static_cast< double >( result.tt ), static_cast< double >( result.tt ), static_cast< double >( result.ut1 ) );
+
+            const Eigen::Vector3d celestial =
+                    precessionNutationCalculator_->getPositionOfCipInGcrsFromTai( static_cast< double >( result.tt ), result.tai );
+
+            const Eigen::Vector2d polar = polarMotionCalculator_->getPositionOfCipInItrsFromTai( result.tai, arguments );
+
+            result.angles.head< 3 >( ) = celestial;
+            result.angles.tail< 2 >( ) = polar;
         }
         else
         {
+            // The existing precise legacy wrapper keeps its Time-valued custom-clock route.
             const Time input( timeValue );
+
             const auto angles = getRotationAnglesFromItrsToGcrs< Time >( input, timeScale );
+
             result.tt = terrestrialTimeScaleConverter_->getCurrentTime< Time >( timeScale, basic_astrodynamics::tt_scale, input );
             result.tai = basic_astrodynamics::convertTTtoTAI( result.tt );
             result.angles = angles.first;

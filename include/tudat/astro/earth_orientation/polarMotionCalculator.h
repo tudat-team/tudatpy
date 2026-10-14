@@ -80,10 +80,6 @@ public:
     }
 
     Eigen::Vector2d getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments );
-    bool usesContinuousEop( ) const
-    {
-        return evaluator_ != nullptr;
-    }
     std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
     {
         return evaluator_;

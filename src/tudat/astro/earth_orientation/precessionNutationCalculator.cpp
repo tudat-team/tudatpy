@@ -180,10 +180,17 @@ std::pair< Eigen::Vector3d, Eigen::Vector3d > PrecessionNutationCalculator::getN
     }
 }
 
+// Add the selected measured celestial-pole corrections to the nominal TT model.
 Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrsFromTai( const double terrestrialTime, const Time& tai )
 {
-    if( !evaluator_ ) throw std::runtime_error( "TAI CPO evaluation requires a continuous EOP model" );
+    if( !evaluator_ )
+    {
+        throw std::runtime_error( "TAI CPO evaluation requires a continuous EOP model" );
+    }
+
+    // Nominal X, Y and s in radians; measured dX/dY affect the first two components.
     Eigen::Vector3d value = nominalCipPositionFunction_( terrestrialTime );
+
     value.segment< 2 >( 0 ) += evaluator_->getCelestialPoleOffsets( tai );
     return value;
 }
@@ -192,7 +199,11 @@ Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrsFromTai( con
 Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const double terrestrialTime )
 {
     if( evaluator_ )
-        return getPositionOfCipInGcrsFromTai( terrestrialTime, basic_astrodynamics::convertTTtoTAI( Time( terrestrialTime ) ) );
+    {
+        // Recognize the exact rounded first/last TT observation before creating Time.
+        return getPositionOfCipInGcrsFromTai( terrestrialTime, evaluator_->convertTtToTai( terrestrialTime ) );
+    }
+
     // Calculate current UTC from SOFA.
     double utc = sofa_interface::convertTTtoUTC( terrestrialTime );
 
@@ -204,7 +215,10 @@ Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const doub
 Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const double terrestrialTime, const double utc )
 {
     if( evaluator_ )
-        return getPositionOfCipInGcrsFromTai( terrestrialTime, basic_astrodynamics::convertTTtoTAI( Time( terrestrialTime ) ) );
+    {
+        return getPositionOfCipInGcrsFromTai( terrestrialTime, evaluator_->convertTtToTai( terrestrialTime ) );
+    }
+
     // Calculate nominal precession-nutation values.
     Eigen::Vector3d nominalCipPosition = nominalCipPositionFunction_( terrestrialTime );
 

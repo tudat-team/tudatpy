@@ -45,9 +45,13 @@ struct EarthOrientationDataValue {
 class EarthOrientationDataEvaluator
 {
 public:
+    //! Own the supplied raw observations and prepare their continuous TAI times.
     EarthOrientationDataEvaluator( const input_output::EarthOrientationData& data,
                                    const EarthOrientationEvaluationSettings& settings = {} );
+
+    //! Return observed values and the selected interpolant's rates with respect to TAI seconds.
     EarthOrientationDataValue evaluate( const Time& tai, bool requireCelestialPole = false ) const;
+
     Eigen::Vector2d getCelestialPoleOffsets( const Time& tai ) const;
     const std::vector< Time >& getEpochsTai( ) const
     {
@@ -77,11 +81,20 @@ public:
     static Time convertTaiToScalarUtc( const Time& tai );
 
 private:
+    //! The sole owned set of raw observations and their source metadata.
     input_output::EarthOrientationData data_;
+
+    //! Interpolation, gap and missing-observation policies for these data.
     EarthOrientationEvaluationSettings settings_;
+
+    //! Continuous TAI observation times and their matching raw UTC MJD keys.
     std::vector< Time > epochs_;
-    std::vector< input_output::EarthOrientationRecord > records_;
+
+    std::vector< double > recordMjd_;
+
+    //! Continuous UT1-TAI seconds at each observation, excluding UTC jumps.
     std::vector< double > ut1MinusTai_;
+
     std::vector< std::size_t > stencil( std::size_t left ) const;
     bool validStencil( const std::vector< std::size_t >& indices ) const;
     void validateCubicUt1Monotonicity( ) const;

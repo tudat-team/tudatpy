@@ -472,6 +472,9 @@ BOOST_AUTO_TEST_CASE( canonical_tt_endpoint_images_preserve_precision_and_strict
     auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
     PolarMotionCalculator pole( nullptr, nullptr, evaluator );
+    // The scalar TT CPO routes must use the same exact observation time as polar motion.
+    PrecessionNutationCalculator celestial( iau_2006, nullptr, nullptr, evaluator );
+
     for( const Time& boundary : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )
     {
         const Time preciseTt = convertTAItoTT( boundary );
@@ -481,11 +484,17 @@ BOOST_AUTO_TEST_CASE( canonical_tt_endpoint_images_preserve_precision_and_strict
         BOOST_CHECK_SMALL( static_cast< double >( evaluator->convertTtToTai( preciseTt ) - boundary ), 1e-12 );
         BOOST_CHECK_SMALL( ( pole.getPositionOfCipInItrsAtTt( tt ) - evaluator->evaluate( boundary ).polarMotion ).norm( ), 1e-20 );
         BOOST_CHECK_SMALL( ( pole.getPositionOfCipInItrsAtTt( preciseTt ) - evaluator->evaluate( boundary ).polarMotion ).norm( ), 1e-20 );
+        BOOST_CHECK_SMALL( ( celestial.getPositionOfCipInGcrs( tt ) - celestial.getPositionOfCipInGcrsFromTai( tt, boundary ) ).norm( ),
+                           1e-20 );
+        BOOST_CHECK_SMALL( ( celestial.getPositionOfCipInGcrs( tt, 0.0 ) - celestial.getPositionOfCipInGcrsFromTai( tt, boundary ) ).norm( ),
+                           1e-20 );
         const double outside = std::nextafter( tt,
                                                boundary == evaluator->getStartTai( ) ? -std::numeric_limits< double >::infinity( )
                                                                                      : std::numeric_limits< double >::infinity( ) );
         BOOST_CHECK_THROW( evaluator->evaluate( evaluator->convertTtToTai( outside ) ), std::runtime_error );
         BOOST_CHECK_THROW( pole.getPositionOfCipInItrsAtTt( outside ), std::runtime_error );
+        BOOST_CHECK_THROW( celestial.getPositionOfCipInGcrs( outside ), std::runtime_error );
+        BOOST_CHECK_THROW( celestial.getPositionOfCipInGcrs( outside, 0.0 ), std::runtime_error );
         BOOST_CHECK_EQUAL( evaluator->convertTtToTai( Time( tt ) ), convertTTtoTAI( Time( tt ) ) );
     }
     // This exact double image rounds beyond the final TAI endpoint. Giving it as
@@ -514,6 +523,8 @@ BOOST_AUTO_TEST_CASE( public_double_atomic_endpoint_images_reach_angles_rotation
             const Time preciseInput = converter->getCurrentTime< Time >( tai_scale, scale, boundary );
             const double input = static_cast< double >( preciseInput );
             BOOST_CHECK_EQUAL( converter->getTaiTime( scale, input ), boundary );
+            // The free conversion wrapper must retain the original double observation image too.
+            BOOST_CHECK_EQUAL( convertTimeScale( input, scale, tai_scale, converter ), static_cast< double >( boundary ) );
             const auto result = angles->getRotationAnglesFromItrsToGcrs< double >( input, scale );
             const auto expected = angles->getRotationAnglesFromItrsToGcrs< Time >( boundary, tai_scale );
             BOOST_CHECK_SMALL( ( result.first - expected.first ).norm( ), 1e-16 );

@@ -792,6 +792,7 @@ std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( con
 
 // static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
 
+//! Convert an epoch between time scales, preserving scalar EOP observation recognition.
 template< typename TimeType >
 TimeType convertTimeScale( const TimeType& inputTime,
                            const basic_astrodynamics::TimeScales inputScale,
@@ -799,7 +800,19 @@ TimeType convertTimeScale( const TimeType& inputTime,
                            const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = createDefaultTimeConverter( ),
                            const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
 {
+    // Models constructed from EOP data retain precise intermediates themselves.
+    // Keep an original double recognizable at the rounded first/last observation.
+    if constexpr( std::is_same< TimeType, double >::value )
+    {
+        if( timeConverter->usesContinuousEop( ) )
+        {
+            return timeConverter->getCurrentTime( inputScale, outputScale, inputTime, earthFixedPosition );
+        }
+    }
+
+    // Preserve the existing Time route for custom converters and other scalar types.
     Time time = Time( inputTime );
+
     return static_cast< TimeType >( timeConverter->getCurrentTime( inputScale, outputScale, time, earthFixedPosition ) );
 }
 

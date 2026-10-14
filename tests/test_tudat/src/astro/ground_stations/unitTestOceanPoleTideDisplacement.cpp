@@ -267,7 +267,6 @@ BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
         data.records.emplace( record.utcModifiedJulianDate, record );
     }
     const auto angles = createStandardEarthOrientationCalculator( std::make_shared< EOPReader >( data ) );
-    BOOST_REQUIRE( angles->getPolarMotionCalculator( )->usesContinuousEop( ) );
     SystemOfBodies bodies;
     bodies.createEmptyBody( "Earth" );
     bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
