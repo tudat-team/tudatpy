@@ -130,12 +130,15 @@ comments on `draft PR 1092 <https://github.com/tudat-team/tudatpy/pull/1092>`_
 are now being addressed.
 Implementation workers use **GPT-6.1 Sol, high reasoning** in isolated worktrees.
 The coordinator owns design, literature analysis, review and integration.
-The three workers' documentation/formatting work is paused and preserved in
-their separate worktrees. The coordinator personally reviewed the current PR
-for unnecessary layers, duplicate code paths, numerical risks and exposure
-placement. Gravity work remains paused at its checkpoints. Dominic's latest
-instruction prohibits builds and test/application execution; no compilation,
-tests or numerical experiments were run for this review. The external-review
+The three workers' unfinished documentation/formatting edits are preserved in
+their original worktrees. Following the coordinator's personal review, the
+workers are implementing structural cleanup in three fresh worktrees:
+``tudatpy-pr1092-simplify-rotation``, ``tudatpy-pr1092-simplify-history`` and
+``tudatpy-pr1092-simplify-loading``. They cover EOP/rotation, frame/history APIs,
+and loading construction/evaluation respectively. The coordinator designs the
+shared changes and reviews integration. Gravity work remains paused at its
+checkpoints. Dominic's latest instruction prohibits builds and test/application
+execution; workers use static source inspection only. The external-review
 handover is held until the additional cleanup is resolved.
 
 .. code-block:: text
@@ -150,7 +153,7 @@ handover is held until the additional cleanup is resolved.
    [ ] Add blank lines after variable definitions and function declarations.  [PAUSED — edits preserved]
    [x] Validate the affected native EOP and rotation paths; review and push the fixes.  [DONE]
    [x] Personally review complexity, reuse, numerical contracts and C++/Python exposure.  [DONE — static analysis of 5a69997a6]
-   [ ] Resolve the structural findings below before the next review handover.  [OPEN — recommendations recorded, implementation not started]
+   [ ] Resolve the structural findings below before the next review handover.  [ACTIVE — three isolated implementation workers; no execution]
    [ ] Push the comment/style checkpoint and create MODIFICATIONS-DONE.md for local review.  [HELD — no marker created]
    [ ] Check every ten minutes for REVIEW-DONE.md and assess its recommendations.  [QUEUED — follows handover]
    [ ] Implement accepted external-review changes and push the PR branch.  [QUEUED — execution remains prohibited until instructed otherwise]
@@ -158,32 +161,36 @@ handover is held until the additional cleanup is resolved.
 The detailed personal review is saved locally at
 ``/home/dominic/Tudat/earth-station-model-work/pr1092-personal-static-review.rst``.
 It identifies source locations, specific removals/consolidations, numerical
-constraints, exposure placement, code to retain, and test reductions. These are
-review recommendations, not claims of implemented or validated refactoring.
+constraints, exposure placement, code to retain, and test reductions. These
+findings are tracked below. Completed cleanup has been reviewed from source
+only; no builds, tests or application code have been run for it.
 
 .. code-block:: text
 
-   [ ] R01 Unify time-conversion routing while preserving custom clocks and precise Time.  [RECOMMENDED — numerical refactor]
-   [ ] R02 Centralize EOP endpoint handling and correct the inconsistent scalar CPO route.  [RECOMMENDED — static correctness concern]
-   [ ] R03 Remove duplicate daily-EOP record ownership and the factory's legacy-reader detour.  [RECOMMENDED]
-   [ ] R04 Make orientation wrappers delegate to one precise calculation.  [RECOMMENDED]
-   [ ] R05 Remove copied histories from transformation/reference-point wrappers.  [RECOMMENDED]
-   [ ] R06 Remove the frame epoch wrapper and redundant clock-forwarding API.  [RECOMMENDED]
-   [ ] R07 Move runtime bindings into existing frame_conversion/environment modules.  [RECOMMENDED]
+   [ ] R01 Consolidate modern time inversion and UT1 evaluation; retain distinct custom-clock policies.  [ACTIVE — rotation worker; legacy cache redesign excluded]
+   [x] R02 Route scalar CPO and free clock conversion through existing precise endpoint handling.  [IMPLEMENTED — 59a84fe9e; static review only]
+   [x] R03 Remove duplicate daily-EOP records and the rotation factory's legacy-reader detour.  [IMPLEMENTED — 59a84fe9e; static review only]
+   [x] R04 Make orientation wrappers delegate to one precise calculation.  [IMPLEMENTED — 59a84fe9e; static review only]
+   [x] R05 Remove copied histories from transformation/reference-point wrappers.  [IMPLEMENTED — 5b2781949; static review only]
+   [x] R06 Remove the frame epoch wrapper and redundant clock-forwarding API.  [IMPLEMENTED — 39bb213f0; static review only]
+   [ ] R07 Move runtime bindings into existing frame_conversion/environment modules.  [ACTIVE — frame portion integrated at 39bb213f0; station runtime exposure in progress]
    [ ] R08 Simplify Python construction and keep internal helper records out of normal workflows.  [RECOMMENDED]
-   [ ] R09 Normalize file input into data-based settings at construction.  [RECOMMENDED — confirm file-loading timing]
-   [ ] R10 Consolidate station adapters and repeated value/rate loading work.  [RECOMMENDED]
+   [x] R09 Normalize file input into data-based settings at construction.  [IMPLEMENTED — 639d2fb6a; eager file loading documented; static review only]
+   [ ] R10 Consolidate repeated value/rate loading work while retaining required input precision.  [ACTIVE — loading worker; generic adapter changes require a simpler design]
    [ ] R11 Normalize relativistic callbacks and share guarded sampling locally.  [RECOMMENDED — preserve fallback guarantees]
-   [ ] R12 Distinguish unavailable deformation data from failed calculations.  [RECOMMENDED — inherited broad catch remains a concern]
+   [ ] R12 Distinguish unavailable deformation data from failed calculations.  [QUEUED — narrow explicit availability errors; loading worker]
    [ ] R13 Reduce loading-specific coupling and repeated compatibility work.  [RECOMMENDED — preserve active-model checks]
-   [ ] R14 Reuse existing calendar/basis utilities and hide model-specific helpers.  [RECOMMENDED]
-   [ ] R15 Simplify neutral-reader target registration.  [CONDITIONAL — preserve dependency/install contracts]
+   [ ] R14 Reuse existing basis utilities and hide model-specific helpers.  [QUEUED — calendar reuse rejected because the existing utility adds Eigen/Boost to a standard-library-only reader]
+   [x] R15 Simplify neutral-reader target registration.  [IMPLEMENTED — d95fd7db8; one standard environment_data target; static review only]
 
 The review retains independent reference fixtures, precise continuous clocks,
 selected-interpolant derivatives, HARDISP-specific spline behavior, explicit
 frame/origin identities and separate position/state availability. The earlier
-handover estimate no longer applies. Worker edits have not been discarded or
-integrated during this personal review.
+handover estimate no longer applies. The unfinished earlier comment/style
+edits remain preserved in their original worktrees. The structural commits
+listed above were integrated after the personal review. Comments and spacing
+currently increase the line count despite the removed APIs and duplicated
+logic; a net line reduction has not yet been achieved.
 
 The EOP review preserves continuous TAI sample times, UT1-TAI interpolation,
 rates of the selected interpolating function, and the existing coverage and
