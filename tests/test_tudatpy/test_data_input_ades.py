@@ -332,7 +332,7 @@ def test_rejects_empty_file_path():
         parser.parse_ades_file("")
 
 
-def test_rejects_unsupported_observation_type(tmp_path):
+def test_returns_empty_table_without_optical_observations(tmp_path):
     path = tmp_path / "unsupported.xml"
     path.write_text(
         """\
@@ -345,11 +345,9 @@ def test_rejects_unsupported_observation_type(tmp_path):
         encoding="utf-8",
     )
 
-    with pytest.raises(
-        ValueError,
-        match="Unsupported observation type: unknownObservation",
-    ):
-        parser.parse_ades_file(str(path))
+    result = parser.parse_ades_file(str(path))
+    assert isinstance(result, Table)
+    assert len(result) == 0
 
 
 # test the ADES weighting scheme application (in optical_utilities.py but implemented as part of the ades parser)

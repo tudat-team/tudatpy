@@ -870,6 +870,7 @@ def read_pandas_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read optical astrometry from a pandas table into TrackingData objects.
 
@@ -904,6 +905,7 @@ def read_pandas_optical_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
+        weighing_scheme,
     )
 
 
