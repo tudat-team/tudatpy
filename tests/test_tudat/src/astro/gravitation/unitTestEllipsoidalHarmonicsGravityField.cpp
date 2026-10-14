@@ -413,6 +413,15 @@ BOOST_AUTO_TEST_CASE( test_results_do_not_depend_on_the_order_of_the_calls )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getHessianOfPotential( position ), hessian, 1.0E-14 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getGradientOfPotential( position ), gradient, 1.0E-14 );
     }
+
+    // A gradient somewhere else between two Hessians at the same position.
+    {
+        const Eigen::Vector3d otherPosition = ( Eigen::Vector3d( ) << -4.0E3, 6.0E3, 2.0E3 ).finished( );
+        const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+        field->getHessianOfPotential( position );
+        field->getGradientOfPotential( otherPosition );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getHessianOfPotential( position ), hessian, 1.0E-14 );
+    }
 }
 
 /*! Tabulating the radial parts must not change the answers.

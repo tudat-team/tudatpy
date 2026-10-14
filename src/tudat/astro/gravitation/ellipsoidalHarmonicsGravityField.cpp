@@ -133,6 +133,10 @@ void EllipsoidalHarmonicsGravityCache::updateIncludingDerivatives( const Eigen::
     {
         positionOfCachedDerivatives_ = currentBodyFixedPosition;
 
+        // The Hessian reads the same first derivatives, which are about to belong to this
+        // position. Its cache has to be dropped, or it would use them at its own position.
+        positionOfCachedSecondDerivatives_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+
         // This recomputes the values as well, but it is the same work: the radial parts and
         // their derivatives share the one integral that dominates the cost.
         evaluateRadialFunctions( ellipsoidalCoordinates_( 0 ), radialFunctions_, radialFunctionDerivatives_ );
