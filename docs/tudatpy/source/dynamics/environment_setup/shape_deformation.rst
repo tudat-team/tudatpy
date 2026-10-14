@@ -90,9 +90,10 @@ latitudes -89.75 through +89.75 degrees. ``require_grid_coverage`` raises outsid
 the supplied extent; ``clamp_to_nearest_grid_latitude_approximation`` explicitly
 uses the nearest covered latitude. No polar-cap interpolation is specified by
 the IERS coefficient grid. Longitude is periodic for a complete grid. Cartesian
-displacement uses the geocentric spherical basis; public station ENU uses its
-actual topocentric frame. Standalone epochs are TT; station environment calls convert their TDB epoch
-through the rotation model's own clock and preserve precise EOP coverage.
+displacement uses the geocentric spherical basis; station ENU projections use
+the actual topocentric frame. Native displacement and state queries take precise
+TDB ``Time``. The model-owned shared converter supplies TT for polar motion,
+and state velocity chains the TT derivative to TDB once.
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_pole_tidal
 

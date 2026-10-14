@@ -288,6 +288,9 @@ BodyDeformationSettings
 
 )doc" );
 
+    py::class_< tss::OceanPoleTideBodyDeformationSettings,
+                std::shared_ptr< tss::OceanPoleTideBodyDeformationSettings >,
+                tss::BodyDeformationSettings >( m, "OceanPoleTideBodyDeformationSettings" );
     using OceanPolePolicy = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy;
     py::enum_< OceanPolePolicy >( m, "OceanPoleTideLatitudePolicy" )
             .value( "require_grid_coverage", OceanPolePolicy::requireGridCoverage )
@@ -303,7 +306,8 @@ The official grid already includes its geocentre correction. Source origin decla
 Bilinear interpolation is periodic in longitude for a complete grid. The default rejects latitudes outside the supplied
 coverage (the official grid ends at +/-89.75 degrees). The explicitly named clamp approximation uses the nearest grid latitude.
 Cartesian output uses the geocentric radial/north/east basis; station ENU uses its actual topocentric basis.
-Standalone epochs are TT seconds since J2000; the existing environment currently approximates its TDB argument as TT.
+Native displacement and state queries take precise Time in TDB seconds since J2000. The model-owned shared converter
+provides TT for polar motion; state velocity differentiates the TT evaluator and applies dTT/dTDB once.
 Requires Earth's GCRS/ITRS rotation model and its polar motion data. Grid coefficients are dimensionless; output is metres.
 )doc" );
     m.def( "ocean_pole_tidal_from_data",
@@ -332,9 +336,9 @@ BLQ files can be obtained from the `Ocean Loading Provider <https://barre.oso.ch
 model is constructed, and source headers, model names and CM/CE/unspecified origin declarations are retained. An origin declaration
 describes the supplied loading coefficients; this model does not silently convert their reference origin.
 
-Evaluation uses TT seconds since J2000 and corresponding UTC astronomical phases. Standalone model calls require TT;
-existing environment evaluation currently passes its TDB time as TT, retaining the millisecond TDB-TT approximation. The local physical components use the spherical
-radial/west/south basis; Cartesian output uses geocentric station latitude, including for an oblate station shape.
+Native displacement and state queries take precise Time in TDB seconds since J2000. The model-owned converter supplies
+TT and the corresponding UTC astronomical phases, and state velocity applies dTT/dTDB once. The local physical components
+use the spherical radial/west/south basis; Cartesian output uses geocentric station latitude, including for an oblate station shape.
 
 Parameters
 ----------
