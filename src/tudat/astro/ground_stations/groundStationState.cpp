@@ -2,6 +2,7 @@
 #include <exception>
 #include <set>
 #include "tudat/math/basic/coordinateConversions.h"
+#include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 /*    Copyright (c) 2010-2019, Delft University of Technology
@@ -190,67 +191,6 @@ Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
 
 namespace
 {
-template< typename Value >
-Value guardedStationRate( const Time& time,
-                          const double requestedStep,
-                          const std::function< Value( const Time& ) >& evaluate,
-                          const std::function< void( ) >& restore,
-                          const double absoluteTolerance )
-{
-    const auto derivative = [ & ]( const double requested ) -> Value {
-        const double h = static_cast< double >( ( time + requested ) - time );
-        const std::array< Time, 4 > epochs{ time - 2 * h, time - h, time + h, time + 2 * h };
-        if( !std::isfinite( static_cast< double >( time ) ) || !std::isfinite( h ) || h <= 0 ||
-            !( epochs[ 0 ] < epochs[ 1 ] && epochs[ 1 ] < time && time < epochs[ 2 ] && epochs[ 2 ] < epochs[ 3 ] ) )
-            throw std::invalid_argument( "Relativistic station rate requires finite distinct stencil epochs." );
-        std::array< Value, 4 > values;
-        for( std::size_t i = 0; i < epochs.size( ); ++i )
-        {
-            const double offset = ( i < 2 ? static_cast< double >( i ) - 2 : static_cast< double >( i ) - 1 ) * h;
-            if( !std::isfinite( static_cast< double >( epochs[ i ] ) ) ||
-                std::fabs( static_cast< double >( epochs[ i ] - time ) - offset ) > 16 * std::numeric_limits< double >::epsilon( ) * h )
-                throw std::invalid_argument( "Relativistic station rate stencil is not representably uniform." );
-            values[ i ] = evaluate( epochs[ i ] );
-            if( !values[ i ].allFinite( ) ) throw std::runtime_error( "Non-finite relativistic station rate sample." );
-        }
-        return ( 8 * ( values[ 2 ] - values[ 1 ] ) - ( values[ 3 ] - values[ 0 ] ) ) / ( 12 * h );
-    };
-    try
-    {
-        const Value coarse = derivative( requestedStep ), fine = derivative( requestedStep / 2 );
-        if( !coarse.allFinite( ) || !fine.allFinite( ) ||
-            ( coarse - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( coarse.norm( ), fine.norm( ) ) )
-            throw std::runtime_error( "Relativistic station rate fallback did not converge; supply smooth callbacks and available rates." );
-        // A callback may narrow its Time input internally. Tiny stencils can
-        // then agree at a false zero. Check at a representable scalar epoch
-        // spacing without narrowing any callback sample or the central epoch.
-        const double scalarCentre = static_cast< double >( time );
-        const double resolutionStep = 4 *
-                std::max( std::nextafter( scalarCentre, INFINITY ) - scalarCentre,
-                          scalarCentre - std::nextafter( scalarCentre, -INFINITY ) );
-        if( resolutionStep > requestedStep / 2 )
-        {
-            const Value resolved = derivative( resolutionStep );
-            if( !resolved.allFinite( ) ||
-                ( resolved - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( resolved.norm( ), fine.norm( ) ) )
-                throw std::invalid_argument( "Relativistic station derivative step cannot resolve the supplied callback." );
-        }
-        restore( );
-        return fine;
-    }
-    catch( ... )
-    {
-        const auto original = std::current_exception( );
-        try
-        {
-            restore( );
-        }
-        catch( ... )
-        {}
-        std::rethrow_exception( original );
-    }
-}
-
 constexpr double iersTtToTdbSpatialScale = 1.48082686741e-8;
 }  // namespace
 
@@ -315,17 +255,6 @@ double BodyCentricToBarycentricRelativisticStationMotion::potentialDerivative( c
     return rate;
 }
 
-void BodyCentricToBarycentricRelativisticStationMotion::restoreCentralEpoch( const Time& time )
-{
-    bodyBarycentricStateFunction_( time );
-    inertialToBodyFixedRotationFunction_( time );
-    for( const auto& body : externalBodies_ )
-    {
-        body.barycentricState( time );
-        body.gravitationalParameter( );
-    }
-}
-
 Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMatrix( const Time& time )
 {
     const Eigen::Vector6d host = bodyBarycentricStateFunction_( time );
@@ -341,22 +270,17 @@ Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMat
 Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMatrixDerivative( const Time& time )
 {
     const Eigen::Matrix3d rotation = inertialToBodyFixedRotationFunction_( time ).toRotationMatrix( );
+    // Rotation rate from its callback if available, otherwise numerically; the host acceleration is always numerical.
+    const std::function< Eigen::Matrix3d( const Time& ) > rotationMatrix = [ this ]( const Time& t ) -> Eigen::Matrix3d {
+        return inertialToBodyFixedRotationFunction_( t ).toRotationMatrix( );
+    };
+    const std::function< Eigen::Vector3d( const Time& ) > hostVelocity = [ this ]( const Time& t ) -> Eigen::Vector3d {
+        return bodyBarycentricStateFunction_( t ).tail< 3 >( );
+    };
     const Eigen::Matrix3d rotationRate = rotationDerivativeFunction_
             ? rotationDerivativeFunction_( time )
-            : guardedStationRate< Eigen::Matrix3d >(
-                      time,
-                      derivativeStep_,
-                      [ this ]( const Time& t ) -> Eigen::Matrix3d {
-                          return inertialToBodyFixedRotationFunction_( t ).toRotationMatrix( );
-                      },
-                      [ & ]( ) { restoreCentralEpoch( time ); },
-                      1e-12 );
-    const Eigen::Vector3d acceleration = guardedStationRate< Eigen::Vector3d >(
-            time,
-            derivativeStep_,
-            [ this ]( const Time& t ) -> Eigen::Vector3d { return bodyBarycentricStateFunction_( t ).tail< 3 >( ); },
-            [ & ]( ) { restoreCentralEpoch( time ); },
-            1e-10 );
+            : numerical_derivatives::computeFourthOrderCentralDifference( rotationMatrix, time, derivativeStep_ );
+    const Eigen::Vector3d acceleration = numerical_derivatives::computeFourthOrderCentralDifference( hostVelocity, time, derivativeStep_ );
     const Eigen::Vector3d velocity = bodyBarycentricStateFunction_( time ).tail< 3 >( );
     const Eigen::Vector3d localVelocity = rotation * velocity, localRate = rotationRate * velocity + rotation * acceleration;
     const Eigen::Matrix3d rate =

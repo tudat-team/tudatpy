@@ -419,7 +419,7 @@ public:
             const std::function< Eigen::Matrix3d( const Time& ) >& rotationDerivativeFunction,
             const std::vector< RelativisticStationExternalBody >& externalBodies,
             const RelativisticStationCoordinateCompatibility coordinateCompatibility,
-            const double derivativeStep = 32.0 );
+            const double derivativeStep = 16.0 );
 
     Eigen::Vector6d getBodyFixedStationMotion( const Time& time,
                                                const std::shared_ptr< GroundStationState > groundStationState,
@@ -441,7 +441,6 @@ private:
     Eigen::Matrix3d correctionMatrixDerivative( const Time& time );
     double potential( const Time& time );
     double potentialDerivative( const Time& time );
-    void restoreCentralEpoch( const Time& time );
 
     std::function< Eigen::Vector6d( const Time& ) > bodyBarycentricStateFunction_;
     std::function< Eigen::Quaterniond( const Time& ) > inertialToBodyFixedRotationFunction_;

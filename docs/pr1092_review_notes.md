@@ -48,7 +48,10 @@ Without them, selecting Desai–Sibois and the legacy ITRF conversion functions 
 | Test fix (pre-existing at PR head, test not in the coordinator's selection): `unitTestItrsToGcrsRotationModel` `test_RotationBetweenIntermediateFrames` built its expected matrices from a rounded double UT1 and a TDB TIO locator; now uses the model's precise TT/UT1 | Done |
 | S3: Desai–Sibois via resource files | Done, tested and pushed (stage 2): the embedded table (`desaiSibois2016EopData.inc`), the IVS reader (`readHighFrequencyEopData`), `highFrequencyEarthOrientationModel` and the matrix constructor of `ShortPeriodEarthOrientationCorrectionCalculator` are removed. `OceanTideEopModel` (now in `shortPeriodEarthOrientationCorrectionCalculator.h`) selects the `desaiSibois2016*` files instead of the conventional ocean files in the factory. Python bindings for the raw table and `read_high_frequency_eop_data` are removed (new in this PR, not base API) |
 | Official ITRF2014/2020 transformation tables moved from `pinnedItrfTransformationTables.h` to resource files | Done, tested and pushed (stage 2): `readOfficialItrf2014/2020TransformationData` read `station_locations/Transfo-ITRF2014_ITRFs.txt` and `Transfo-ITRF2020_TRFs.txt` (byte-identical, same SHA-256) |
-| S7 partial (custom-Doodson-callback constructors etc.), S4, S10 | Next, if time allows |
+| S4: one `numerical_derivatives::computeFourthOrderCentralDifference` (Time or double epoch) replaces the guarded stencils in `bodyDeformationModel.cpp`, the relativistic station motion, `getGeocentricTtRateWithRespectToTdb` and `calculateShortPeriodCorrectionRate` | Done, tested and pushed (stage 3). Same step, pairing and Time epochs, so results for valid inputs are unchanged; the relativistic default step is 16 s, which is the step whose result the PR returned (it checked it against 32 s). Removed: convergence/resolution checks, representability checks and the "restore callbacks to the central epoch" logic (tests pinning these removed) |
+| S7: custom-Doodson-callback constructors (ocean tide, IERS 2010) | **Not done**: they exist in `feature/data-refactor` (compatibility rule) |
+| S7: other policies new in this PR (station-loading overlap/inventory bookkeeping, atmospheric endpoint/origin policies, ocean-pole latitude policy, reference-point rate policy) | Next candidates |
+| S10 (time converter in deformation models) | Not started |
 | Stage 1 (all of the above) | Committed as `69dff7426` plus the Python test/notes commit, pushed to `origin/fix/earth_deformation_rotation` |
 | `DONE-WITH-EDITING.md` | When all editing stops |
 
@@ -89,3 +92,4 @@ Without them, selecting Desai–Sibois and the legacy ITRF conversion functions 
   tudat's `J2000` Earth-rotation base frame differs from SPICE `J2000` by the frame bias (~23 mas), exactly as in `feature/data-refactor`.
 - 14 Oct: stage 2 (S3 + ITRF tables to resources) — 28 native tests (26 + ReferenceFrameTransformations + TerrestrialFrameTransformationData
   reader) pass; kernel rebuilt; all modules import; focused Python + architecture tests (12) pass.
+- 14 Oct: stage 3 (S4) — 26 native tests pass after removing assertions that pinned the removed guards.

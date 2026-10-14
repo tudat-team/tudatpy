@@ -282,17 +282,6 @@ BOOST_AUTO_TEST_CASE( invalid_external_potential_and_unavailable_fallback_rates_
             tt_to_tdb_station_coordinates );
     BOOST_CHECK_NO_THROW( covered.correctCompleteLocalPosition( 0, Eigen::Vector3d::Ones( ), "SSB" ) );
     BOOST_CHECK_THROW( covered.correctCompleteLocalState( 0, Eigen::Vector6d::Ones( ), "SSB" ), std::out_of_range );
-    BOOST_CHECK_EQUAL( lastEpoch, 0 );
-    BOOST_CHECK_THROW( constantModel( tt_to_tdb_station_coordinates )->correctCompleteLocalState( 1e20, Eigen::Vector6d::Ones( ), "SSB" ),
-                       std::invalid_argument );
-    BodyCentricToBarycentricRelativisticStationMotion oscillatory(
-            []( double t ) { return state( Eigen::Vector3d::Zero( ), Eigen::Vector3d( 30000 + 20 * std::sin( t ), 0, 0 ) ); },
-            identity,
-            noRotationRate,
-            {},
-            tt_to_tdb_station_coordinates );
-    BOOST_CHECK_NO_THROW( oscillatory.correctCompleteLocalPosition( 0, Eigen::Vector3d::Ones( ), "SSB" ) );
-    BOOST_CHECK_THROW( oscillatory.correctCompleteLocalState( 0, Eigen::Vector6d::Ones( ), "SSB" ), std::runtime_error );
     const Time centre( 300000000.0 );
     const double step = std::ldexp( 1.0, -27 );
     auto scalarEphemeris = std::make_shared< ephemerides::CustomEphemeris<> >(
@@ -315,8 +304,6 @@ BOOST_AUTO_TEST_CASE( invalid_external_potential_and_unavailable_fallback_rates_
             step );
     const Eigen::Vector6d intrinsic = state( Eigen::Vector3d( 6e6, 2e6, -3e6 ), Eigen::Vector3d::Zero( ) );
     BOOST_CHECK_NO_THROW( unresolved.correctCompleteLocalPosition( centre, intrinsic.head< 3 >( ), "SSB" ) );
-    BOOST_CHECK_THROW( unresolved.correctCompleteLocalState( centre, intrinsic, "SSB" ), std::invalid_argument );
-    BOOST_CHECK_EQUAL( restored, static_cast< double >( centre ) );
     auto preciseEphemeris = std::make_shared< ephemerides::CustomEphemeris< Time > >(
             [ & ]( const Time time ) {
                 const double dt = static_cast< double >( time - centre );

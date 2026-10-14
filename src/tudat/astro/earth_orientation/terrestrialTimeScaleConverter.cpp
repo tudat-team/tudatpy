@@ -13,6 +13,7 @@
 #include "tudat/astro/earth_orientation/earthOrientationRates.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
+#include "tudat/math/basic/numericalDerivative.h"
 
 #include <limits>
 
@@ -48,23 +49,28 @@ double TerrestrialTimeScaleConverter::getContinuousTdbMinusTt( const Time& tt, c
     return sofa_interface::getTDBminusTT( static_cast< double >( tt ), fraction, position );
 }
 
+// dTT/dTDB of the geocentric SOFA clock, from the TT-TDB offset with a fourth-order central difference over 32 s.
 double TerrestrialTimeScaleConverter::getGeocentricTtRateWithRespectToTdb( const Time& tdb )
 {
     if( tdbToTtInterpolators_.count( std::make_tuple( 0.0, 0.0, 0.0 ) ) )
+    {
         throw std::runtime_error( "TT/TDB interpolator clock rates are unavailable; position conversion remains supported" );
-    if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Non-finite TDB clock-rate epoch" );
-    constexpr double h = 32.0;
-    const auto offset = [ this, &tdb ]( const double delta ) {
-        const Time shifted = tdb + delta;
-        const long double actualSeparation = static_cast< long double >( shifted - tdb );
-        const long double tolerance = 16.0L * std::numeric_limits< double >::epsilon( ) * std::abs( delta );
-        if( !std::isfinite( actualSeparation ) || std::abs( actualSeparation - delta ) > tolerance )
-            throw std::invalid_argument( "Unrepresentable geocentric clock-rate stencil" );
-        return static_cast< double >( basic_astrodynamics::convertTAItoTT( getTaiTime( basic_astrodynamics::tdb_scale, shifted ) ) -
-                                      shifted );
+    }
+    if( !std::isfinite( static_cast< double >( tdb ) ) )
+    {
+        throw std::invalid_argument( "Non-finite TDB clock-rate epoch" );
+    }
+
+    // TT minus TDB in seconds, as a function of TDB.
+    const std::function< double( const Time& ) > ttMinusTdb = [ this ]( const Time& epoch ) {
+        return static_cast< double >( basic_astrodynamics::convertTAItoTT( getTaiTime( basic_astrodynamics::tdb_scale, epoch ) ) - epoch );
     };
-    const double rate = 1.0 + ( 8.0 * ( offset( h ) - offset( -h ) ) - ( offset( 2.0 * h ) - offset( -2.0 * h ) ) ) / ( 12.0 * h );
-    if( !std::isfinite( rate ) || rate <= 0.0 ) throw std::runtime_error( "Invalid native geocentric TT/TDB clock rate" );
+    const double rate = 1.0 + numerical_derivatives::computeFourthOrderCentralDifference( ttMinusTdb, tdb, 32.0 );
+
+    if( !std::isfinite( rate ) || rate <= 0.0 )
+    {
+        throw std::runtime_error( "Invalid native geocentric TT/TDB clock rate" );
+    }
     return rate;
 }
 

@@ -65,11 +65,7 @@ protected:
     explicit BodyDeformationModel( const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
     virtual Eigen::Vector3d evaluateDisplacement( const Time& tdb,
                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) = 0;
-    //! Estimate velocity from four nearby positions when no analytic rate is supplied.
-    //! If the requested Time step is smaller than four adjacent double spacings,
-    //! compare with a larger step to detect callbacks that round Time to double.
-    //! Agreement must be within 1e-12 m/s plus 1e-6 relative; both sampling intervals
-    //! must be covered. Ordinary steps use one stencil, without a convergence check.
+    //! Estimate velocity from four nearby positions (fourth-order central difference) when no analytic rate is supplied.
     virtual Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                        const std::shared_ptr< ground_stations::GroundStationState > station );
     Eigen::Vector3d differentiateDisplacement( const Time& time,

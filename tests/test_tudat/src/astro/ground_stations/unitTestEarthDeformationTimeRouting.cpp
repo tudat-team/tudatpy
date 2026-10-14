@@ -202,8 +202,6 @@ BOOST_AUTO_TEST_CASE( explicit_custom_ocean_arguments_retain_environment_tdb_and
     BOOST_CHECK_NO_THROW( custom.calculateDisplacement( epoch, station ) );
     BOOST_CHECK_EQUAL( last, static_cast< double >( epoch ) );
     BOOST_CHECK( custom.calculateDisplacementState( epoch, station ).allFinite( ) );
-    custom.setDisplacementDerivativeTimeStep( 3.0 );
-    BOOST_CHECK_THROW( custom.calculateDisplacementState( Time( std::ldexp( 1.0, 53 ) - 1. ), station ), std::invalid_argument );
     OceanTideEarthDeformation native( routingOceanData( ) );
     const Time midnight = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
     const Time crossing = referenceTdb( convertTAItoTT( midnight ) );
