@@ -128,6 +128,27 @@ Other unchecked tasks are queued. Tasks 13 and 30 remain deferred until the
 accepted-standard baseline is validated. Final Python-kernel compilation and
 binding validation are part of task 29, not each incremental model build.
 
+The pinned :doc:`GROOPS source comparison <earth_station_models_groops_review>`
+maps additional implementation and regression-test scenarios to these task
+numbers. Executing the complete cross-software comparison remains task 27.
+
+Subsequent gravity-field programme
+---------------------------------
+
+Dominic requested this follow-on programme on 14 October 2026. It starts only
+after **every item in the current 30-task checklist is complete**, including
+the currently deferred items. Do not create its branch or begin its
+implementation while any current item remains open.
+
+At that point create ``fix/gravity_field_variations`` and review, implement
+and independently validate detailed Earth gravity-field variation models used
+in space geodesy, including solid Earth tides, ocean tides and pole tides.
+Apply the same standards-first literature review, neutral input-layer
+architecture, pinned reference data, primarily C++ validation and resource
+limits. Estimation of gravity-field coefficients is explicitly outside this
+follow-on programme's scope. Its detailed checklist will be established when
+the current programme is finished.
+
 Completion criteria
 -------------------
 
