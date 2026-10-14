@@ -119,8 +119,10 @@ Active work
   handles complete published station/discontinuity products. Native regression
   tests and the explicit legacy adapter are underway.
 * Task 20: neutral ITRF parameter ingestion and affine position/state transforms
-  pass isolated comparisons against 75 independent high-precision fixtures.
-  Final interface validation, review and integration remain open.
+  pass integrated comparisons against 75 independent high-precision fixtures.
+  The transformation checkpoint includes bindings and API documentation.
+  Station-catalogue inputs and their explicit physical-to-decimal-year mapping
+  remain open with tasks 18 and 19; final compiled binding checks are task 29.
 
 Other unchecked tasks are queued. Tasks 13 and 30 remain deferred until the
 accepted-standard baseline is validated. Final Python-kernel compilation and
@@ -443,3 +445,35 @@ also passes. The final source identities and evidence are recorded in
 ``time-routing-atmospheric-validation-summary.json``. The full atmospheric
 velocity/state interfaces explicitly reject evaluation until the selected UT1
 rate is connected; task 17 remains open. No Python kernel was rebuilt.
+
+Task 20, transformation checkpoint: the neutral IGN table reader preserves
+published realization/release identities, decimal-year parameter epochs,
+original records/units and source provenance. The standalone input target links
+only Eigen. Explicit catalogue selection retains the original ITRF2014 and
+superseding ITRF2020 tables without inventing datum changes for aligned releases.
+
+Requested-epoch affine position and state evaluation use the published linearized
+Helmert matrix, its exact inverse and complete derivative/composition terms.
+The structured epoch supplies dDecimalYear/dInputSecond explicitly. Compatibility
+functions retain their uniform-Julian-year seconds since J2000 and ITRF2014
+catalogue, with corrected table transcription, same-frame identity and moving
+states. Their previous fixed-reference-epoch propagation is removed.
+
+All 25 published rows are checked at the reference epoch and +/-10.25 years:
+75 independent 80-digit Decimal forward/inverse moving-state fixtures agree
+within 2 nm and 2e-17 m/input-second. The generator verifies original and embedded
+table hashes and reproduces the frozen fixtures. It implements the published
+equations independently; it is not original IGN/IERS reference software.
+Five model and three input C++ cases also check individual parameter/rate signs,
+nonunit clock rates, inverse conditioning, identity, provenance and malformed
+data. Existing reference-frame compatibility tests pass.
+
+The recovered integration source matched all 38 files in its frozen manifest.
+All 27 selected C++ executables and the actual input-target dependency audit pass
+(28 CTest checks), together with both source-boundary checks. Exact-file
+formatting and fixture regeneration pass. Binding declarations and discoverable
+data/model API references accompany the implementation; no Python kernel was
+rebuilt. Evidence is recorded in ``recovery-itrf-validation-summary.json`` and
+the associated ``recovery-itrf-*``/``recovery-test-itrf-*`` logs in the local work
+directory. Task 20 remains open for station-catalogue integration with tasks 18
+and 19 and its chosen physical-time mapping; task 29 owns compiled binding checks.

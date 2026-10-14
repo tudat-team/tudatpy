@@ -183,3 +183,5 @@ TUDAT_ADD_TEST_CASE(GrailRawTimeConversion
 TUDAT_ADD_TEST_CASE(OceanPoleTideData PRIVATE_LINKS tudat_ocean_loading_data)
 
 TUDAT_ADD_TEST_CASE(AtmosphericTideData PRIVATE_LINKS tudat_atmospheric_loading_data)
+
+TUDAT_ADD_TEST_CASE(TerrestrialFrameTransformationData PRIVATE_LINKS tudat_terrestrial_frame_data)

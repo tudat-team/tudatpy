@@ -20,4 +20,5 @@ from . import (
     space_weather,
     spacetrack,
     spice,
+    terrestrial_frames,
 )

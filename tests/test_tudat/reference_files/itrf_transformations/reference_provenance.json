@@ -1,0 +1,20 @@
+{
+  "method": "Independent 80-digit Decimal published affine equations and scalar Gaussian inverse, not original IGN software",
+  "fixture_count": 75,
+  "reference_source_sha256": "bc133e1fe96cf99c9573258fc00b46d68b9338bd55cabde5362a4c7e7d41fc1f",
+  "tables": {
+    "Transfo-ITRF2020_TRFs.txt": "0d8dc872e7ef994966063e614adb5b1b0fe20582359c6e77f1d83259d1ff1a68",
+    "Transfo-ITRF2014_ITRFs.txt": "6cc1c068d0d7e9ce53277752795dc2ef3ea5f8890c4b5d1878e1e9ccc05a0543"
+  },
+  "position_tolerance_metres": 2e-09,
+  "velocity_tolerance_metres_per_input_second": 2e-17,
+  "year_rate": ".75 / 31557600",
+  "input_state": [
+    4075578.385,
+    931852.89,
+    4801570.154,
+    0.012345,
+    -0.023456,
+    0.034567
+  ]
+}

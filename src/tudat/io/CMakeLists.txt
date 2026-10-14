@@ -209,3 +209,29 @@ install(TARGETS tudat_atmospheric_loading_data EXPORT tudat_export
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
     ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+
+# Neutral terrestrial-frame parameter parsing has only std/Eigen dependencies.
+if(TUDAT_BUILD_STATIC_LIBRARY)
+    add_library(tudat_terrestrial_frame_data STATIC readTerrestrialFrameTransformationData.cpp)
+else()
+    add_library(tudat_terrestrial_frame_data SHARED readTerrestrialFrameTransformationData.cpp)
+endif()
+target_compile_features(tudat_terrestrial_frame_data PUBLIC cxx_std_17)
+target_include_directories(tudat_terrestrial_frame_data PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+if(TARGET Eigen3::Eigen)
+    target_link_libraries(tudat_terrestrial_frame_data PUBLIC Eigen3::Eigen)
+else()
+    target_include_directories(tudat_terrestrial_frame_data SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
+endif()
+set_target_properties(tudat_terrestrial_frame_data PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+add_library(Tudat::tudat_terrestrial_frame_data ALIAS tudat_terrestrial_frame_data)
+install(TARGETS tudat_terrestrial_frame_data EXPORT tudat_export
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")

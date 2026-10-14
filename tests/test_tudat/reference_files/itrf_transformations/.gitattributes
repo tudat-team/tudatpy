@@ -1,0 +1,3 @@
+# Preserve the original published tables, including their trailing whitespace.
+Transfo-ITRF2014_ITRFs.txt -text -whitespace
+Transfo-ITRF2020_TRFs.txt -text -whitespace

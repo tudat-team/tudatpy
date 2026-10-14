@@ -34,6 +34,7 @@ a numerical propagation (for instance for custom models) see `here <https://docs
    /dynamics/environment_setup/shape
    /dynamics/environment_setup/shape_deformation
    /dynamics/environment_setup/space_time
+   /dynamics/environment_setup/terrestrial_frame_transformations
    /dynamics/environment_setup/vehicle_systems
 
 

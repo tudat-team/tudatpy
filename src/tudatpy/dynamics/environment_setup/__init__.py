@@ -44,6 +44,7 @@ from . import (
     rotation_model,
     shape,
     shape_deformation,
+    terrestrial_frame_transformations,
     space_time,
     vehicle_systems,
 )

@@ -104,6 +104,8 @@ def cpp_dependency_violations():
     roots += [
         ROOT / "include/tudat/io/readAtmosphericTideData.h",
         ROOT / "src/tudat/io/readAtmosphericTideData.cpp",
+        ROOT / "include/tudat/io/readTerrestrialFrameTransformationData.h",
+        ROOT / "src/tudat/io/readTerrestrialFrameTransformationData.cpp",
     ]
     queue = deque((path, [str(path.relative_to(ROOT))]) for path in roots)
     visited = set()
