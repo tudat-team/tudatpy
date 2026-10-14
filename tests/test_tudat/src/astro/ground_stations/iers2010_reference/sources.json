@@ -1,0 +1,18 @@
+{
+  "source_base_url": "https://iers-conventions.obspm.fr/content/chapter7/software/dehanttideinel/",
+  "retrieved_on": "2026-10-14",
+  "dehanttideinel_revision": "2016-12-19 (includes the 2013-05-17 fractional-hour correction)",
+  "files": {
+    "CAL2JD.F": "686af399ea3a493e6c0ca659d2d64f367280f5bb331584ded0800ae8d45964d3",
+    "DAT.F": "64a5a69c38d41f6d9b64204f353f5ce46750d59a1067ca507cb9b6e71e934462",
+    "DEHANTTIDEINEL.F": "bc6039a1704761881bb785ce44ce084ea82783107ff64c576e69155a4914e2cb",
+    "NORM8.F": "636b6399dc6ab273a7b6104dd9341bf3c36995754aeee696511dbf19c9e909b6",
+    "SPROD.F": "817761a92bb5416eb38322ea2d43d41cf8ea435e208a0ce229acf94311e9fa1e",
+    "ST1IDIU.F": "d2976b8b76be8dd1d57e57a8d6b48f5764676126515bada3592753a07d3acd1e",
+    "ST1ISEM.F": "efdf284bd977826a1f4aea4c79c5dbd0c38fc1c403a2376010048b511a11f2c6",
+    "ST1L1.F": "b1dfd0e797a3ce950631ad7dbbf5f576bf6b58dc515688253a3d84ca059bc282",
+    "STEP2DIU.F": "898c70d4b8d50e09e0c717c911c4117b3ad1ca4996d369c258b68d00ea3a5674",
+    "STEP2LON.F": "f9d3bf0317222986d22e53557020bb13a6fbb90f8e3c9915137da6184d82813a",
+    "ZERO_VEC8.F": "5ea9ab87e298d377f6dbe69c46b040906b6575a9132fab3830a4dc02c9139cef"
+  }
+}

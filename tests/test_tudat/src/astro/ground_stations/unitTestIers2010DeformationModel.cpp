@@ -12,6 +12,7 @@
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
+#include "iers2010_reference/fixtures.h"
 
 namespace tudat
 {
@@ -24,12 +25,13 @@ using namespace tudat::utilities;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::basic_astrodynamics::iers_2010_parameters;
 
-Eigen::Vector6d calculateFundamentalArgumentsIersCode( const double universalTimeSinceJ2000 )
+Eigen::Vector6d calculateFundamentalArgumentsIersCodeWithTimes( const double terrestrialTimeSinceJ2000,
+                                                                const double universalTimeSinceJ2000 )
 {
     int daysSinceJ2000 = std::floor( universalTimeSinceJ2000 / physical_constants::JULIAN_DAY + 0.5 );
-    double FHR = ( universalTimeSinceJ2000 / physical_constants::JULIAN_DAY + 0.5 - static_cast< double >( daysSinceJ2000 ) ) / 24.0;
+    double FHR = ( universalTimeSinceJ2000 / physical_constants::JULIAN_DAY + 0.5 - static_cast< double >( daysSinceJ2000 ) ) * 24.0;
 
-    double T = universalTimeSinceJ2000 / ( physical_constants::JULIAN_YEAR * 100.0 );
+    double T = terrestrialTimeSinceJ2000 / ( physical_constants::JULIAN_YEAR * 100.0 );
 
     double S = 218.31664563 + ( 481267.88194 + ( -0.0014663889 + ( 0.00000185139 ) * T ) * T ) * T;
 
@@ -55,6 +57,13 @@ Eigen::Vector6d calculateFundamentalArgumentsIersCode( const double universalTim
 
     Eigen::Vector6d doodsonArguments = ( Eigen::Vector6d( ) << TAU, S, H, P, ZNS, PS ).finished( );
     return doodsonArguments * mathematical_constants::PI / 180.0;
+}
+
+// Preserve the historical component tests' explicitly supplied polynomial epoch.
+// Full-reference tests below split TT polynomial time from UTC fractional hours.
+Eigen::Vector6d calculateFundamentalArgumentsIersCode( const double timeSinceJ2000 )
+{
+    return calculateFundamentalArgumentsIersCodeWithTimes( timeSinceJ2000, timeSinceJ2000 );
 }
 
 BOOST_AUTO_TEST_SUITE( test_iers_2010_solid_earth_tide_deformation )
@@ -107,7 +116,8 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
     ephemerides[ 0 ] = moonEphemeris;
     ephemerides[ 1 ] = sunEphemeris;
 
-    double evaluationTime = 0.1059411362080767 * 100.0 * 365.25 * 86400.0;
+    // Use the published midnight exactly; the rounded century value shifts it by about 0.1 microsecond.
+    double evaluationTime = 334324800.0;
 
     std::map< int, std::pair< double, double > > nominalDisplacementLoveNumbers;
     nominalDisplacementLoveNumbers[ 2 ] = std::make_pair( 0.0, 0.0 );
@@ -423,6 +433,69 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         calculatedDeformation = basicDeformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-12 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( test_corrected_Iers_reference_global_non_midnight )
+{
+    // Independent DEHANTTIDEINEL outputs: all coordinates are ECEF metres;
+    // TT epochs and UTC hours come from reference SOFA CAL2JD/DAT, not Tudat.
+    // Frozen controlled vectors isolate station geometry and argument/time handling.
+    for( const auto& fixture : iers2010_reference::fixtures )
+    {
+        BOOST_TEST_CONTEXT( fixture.name )
+        {
+            Eigen::Vector6d sunState = Eigen::Vector6d::Zero( );
+            Eigen::Vector6d moonState = Eigen::Vector6d::Zero( );
+            Eigen::Vector3d station, expected;
+            for( int i = 0; i < 3; ++i )
+            {
+                sunState( i ) = fixture.sun[ i ];
+                moonState( i ) = fixture.moon[ i ];
+                station( i ) = fixture.station[ i ];
+                expected( i ) = fixture.displacement[ i ];
+            }
+            const auto earthEphemeris = std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) );
+            const auto moonEphemeris = std::make_shared< ConstantEphemeris >( moonState );
+            const auto sunEphemeris = std::make_shared< ConstantEphemeris >( sunState );
+            const auto rotation = std::make_shared< ConstantRotationalEphemeris >( Eigen::Quaterniond::Identity( ) );
+
+            // Reference polynomials use TT for centuries and UTC for fractional hours.
+            const auto referenceArguments = [ &fixture ]( const double time ) {
+                return calculateFundamentalArgumentsIersCodeWithTimes( time, fixture.utcSeconds + ( time - fixture.ttSeconds ) );
+            };
+            const auto exactReferenceModel = simulation_setup::createDefaultEarthIers2010DeformationModel(
+                    earthEphemeris,
+                    moonEphemeris,
+                    sunEphemeris,
+                    rotation,
+                    []( ) { return 1.0; },
+                    []( ) { return 0.0123000371; },
+                    []( ) { return 332946.0482; },
+                    referenceArguments );
+            const Eigen::Vector3d exactDisplacement = exactReferenceModel->calculateDisplacement( fixture.ttSeconds, station );
+            for( int i = 0; i < 3; ++i )
+            {
+                BOOST_CHECK_SMALL( exactDisplacement( i ) - expected( i ), 1.0e-9 );
+            }
+
+            // Exercise the real production default: no replacement argument callback.
+            // This station model uses corrected IERS arguments, including lunar
+            // precession and separate TT centuries / UTC fractional hours.
+            const auto defaultModel = simulation_setup::createDefaultEarthIers2010DeformationModel(
+                    earthEphemeris,
+                    moonEphemeris,
+                    sunEphemeris,
+                    rotation,
+                    []( ) { return 1.0; },
+                    []( ) { return 0.0123000371; },
+                    []( ) { return 332946.0482; } );
+            const Eigen::Vector3d defaultDisplacement = defaultModel->calculateDisplacement( fixture.ttSeconds, station );
+            for( int i = 0; i < 3; ++i )
+            {
+                BOOST_CHECK_SMALL( defaultDisplacement( i ) - expected( i ), 1.0e-9 );
+            }
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/interface/sofa/sofaTimeConversions.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/matrixTextFileReader.h"
@@ -16,6 +17,43 @@ namespace tudat
 
 namespace basic_astrodynamics
 {
+
+// Tudat adaptation of STEP2DIU/STEP2LON argument polynomials supplied by
+// the IERS Conventions Center. This differently named C++ routine combines
+// their argument calculations, obtains UTC from the API's TT approximation,
+// and returns radians. It is neither supplied nor endorsed by the Center.
+// Original unmodified routines and their revisions are identified in the
+// independent test fixtures' sources.json; the IERS license is reproduced below.
+Eigen::Vector6d calculateIers2010SolidEarthTideArguments( const double secondsSinceJ2000 )
+{
+    const double utcSecondsSinceJ2000 = sofa_interface::convertTTtoUTC( secondsSinceJ2000 );
+    const double utcDaysSinceMidnight = utcSecondsSinceJ2000 / physical_constants::JULIAN_DAY + 0.5;
+    const double fractionalHours = 24.0 * ( utcDaysSinceMidnight - std::floor( utcDaysSinceMidnight ) );
+    const double centuries = secondsSinceJ2000 / ( physical_constants::JULIAN_DAY * 36525.0 );
+
+    const double unprecessedLunarLongitude =
+            218.31664563 + ( 481267.88194 + ( -0.0014663889 + 0.00000185139 * centuries ) * centuries ) * centuries;
+    const double tau = fractionalHours * 15.0 + 280.4606184 +
+            ( 36000.7700536 + ( 0.00038793 - 0.0000000258 * centuries ) * centuries ) * centuries - unprecessedLunarLongitude;
+    const double precession =
+            ( 1.396971278 + ( 0.000308889 + ( 0.000000021 + 0.000000007 * centuries ) * centuries ) * centuries ) * centuries;
+    const double solarLongitude = 280.46645 +
+            ( 36000.7697489 + ( 0.00030322222 + ( 0.000000020 - 0.00000000654 * centuries ) * centuries ) * centuries ) * centuries;
+    const double lunarPerigee = 83.35324312 +
+            ( 4069.01363525 + ( -0.01032172222 + ( -0.0000124991 + 0.00000005263 * centuries ) * centuries ) * centuries ) * centuries;
+    const double negativeLunarNode = 234.95544499 +
+            ( 1934.13626197 + ( -0.00207561111 + ( -0.00000213944 + 0.00000001650 * centuries ) * centuries ) * centuries ) * centuries;
+    const double solarPerigee = 282.93734098 +
+            ( 1.71945766667 + ( 0.00045688889 + ( -0.00000001778 - 0.00000000334 * centuries ) * centuries ) * centuries ) * centuries;
+
+    Eigen::Vector6d arguments;
+    arguments << tau, unprecessedLunarLongitude + precession, solarLongitude, lunarPerigee, negativeLunarNode, solarPerigee;
+    for( int i = 0; i < arguments.size( ); ++i )
+    {
+        arguments( i ) = std::fmod( arguments( i ), 360.0 ) * mathematical_constants::PI / 180.0;
+    }
+    return arguments;
+}
 
 //! Calculate trigonometric expressions for correction fo site displacements, step 1 of IERS Conventions 2010, Chapter 7
 std::vector< Eigen::Vector3d > calculateDisplacementCorrectionTrigonometricPart( const Eigen::Vector3d& relativeBodyState,
@@ -462,3 +500,84 @@ std::pair< Eigen::Vector3d, Eigen::Vector3d > Iers2010EarthDeformation::calculat
 }  // namespace basic_astrodynamics
 
 }  // namespace tudat
+
+/*
+Copyright (C) 2008
+IERS Conventions Center
+
+==================================
+IERS Conventions Software License
+==================================
+
+NOTICE TO USER:
+
+BY USING THIS SOFTWARE YOU ACCEPT THE FOLLOWING TERMS AND CONDITIONS
+WHICH APPLY TO ITS USE.
+
+1. The Software is provided by the IERS Conventions Center ("the
+   Center").
+
+2. Permission is granted to anyone to use the Software for any
+   purpose, including commercial applications, free of charge,
+   subject to the conditions and restrictions listed below.
+
+3. You (the user) may adapt the Software and its algorithms for your
+   own purposes and you may distribute the resulting "derived work"
+   to others, provided that the derived work complies with the
+   following requirements:
+
+   a) Your work shall be clearly identified so that it cannot be
+      mistaken for IERS Conventions software and that it has been
+      neither distributed by nor endorsed by the Center.
+
+   b) Your work (including source code) must contain descriptions of
+      how the derived work is based upon and/or differs from the
+      original Software.
+
+   c) The name(s) of all modified routine(s) that you distribute
+      shall be changed.
+
+   d) The origin of the IERS Conventions components of your derived
+      work must not be misrepresented; you must not claim that you
+      wrote the original Software.
+
+   e) The source code must be included for all routine(s) that you
+      distribute.  This notice must be reproduced intact in any
+      source distribution.
+
+4. In any published work produced by the user and which includes
+   results achieved by using the Software, you shall acknowledge
+   that the Software was used in obtaining those results.
+
+5. The Software is provided to the user "as is" and the Center makes
+   no warranty as to its use or performance.   The Center does not
+   and cannot warrant the performance or results which the user may
+   obtain by using the Software.  The Center makes no warranties,
+   express or implied, as to non-infringement of third party rights,
+   merchantability, or fitness for any particular purpose.  In no
+   event will the Center be liable to the user for any consequential,
+   incidental, or special damages, including any lost profits or lost
+   savings, even if a Center representative has been advised of such
+   damages, or for any claim by any third party.
+
+Correspondence concerning IERS Conventions software should be
+addressed as follows:
+
+                   Gerard Petit
+   Internet email: gpetit[at]bipm.org
+   Postal address: IERS Conventions Center
+                   Time, frequency and gravimetry section, BIPM
+                   Pavillon de Breteuil
+                   92312 Sevres  FRANCE
+
+   or
+
+                   Brian Luzum
+   Internet email: brian.luzum[at]usno.navy.mil
+   Postal address: IERS Conventions Center
+                   Earth Orientation Department
+                   3450 Massachusetts Ave, NW
+                   Washington, DC 20392
+
+
+*/

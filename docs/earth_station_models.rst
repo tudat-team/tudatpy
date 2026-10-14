@@ -66,7 +66,7 @@ validation ledger below records completed changes and remaining limitations.
    [ ] 03 Separate existing EOP and BLQ readers from model evaluation.
    [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.
    [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.
-   [ ] 06 Validate solid Earth tides through the production time/argument path.
+   [x] 06 Validate solid Earth tides through the production time/argument path.
    [ ] 07 Resolve inertial frames, time scales and displacement conventions.
    [ ] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
    [ ] 09 Implement EOP validity and leap-safe interpolation policies.
@@ -151,4 +151,20 @@ frame-bias/ecliptic matrix cases, including forward/inverse transformations and
 the double/extended-time interfaces.  Full time-scale and displacement-system
 conventions remain open under task 07; derivative completeness is task 11.
 
-Solid-tide corrections are under integration test.
+Tasks 04/06: pinned and executed the unmodified corrected IERS DEHANTTIDEINEL
+Fortran package, reproduced its two published examples, and generated 18
+offline reference cases spanning station geometry, epochs and non-midnight
+times.  Production solid-tide arguments now reproduce the reference's
+precession-adjusted lunar longitude and UTC-hour phase; explicit custom
+argument callbacks remain supported.  The C++ full-displacement comparisons
+pass at 1 nm component tolerance through both the default production factory
+and the independently implemented reference-argument callback.  The legacy
+test's fractional-hour conversion was corrected; its rounded-century midnight
+epoch was replaced by the exact published midnight without changing expected
+values or tolerances.  The existing API's TDB-as-TT approximation remains
+documented pending the broader time-scale work in task 07.  Task 04 remains
+open for the other models' reference packages.
+
+After these corrections, all 12 targeted C++ integration executables pass,
+along with both source-dependency checks.  Python binding compilation follows
+integration of the new EOP and ocean-loading input modules.

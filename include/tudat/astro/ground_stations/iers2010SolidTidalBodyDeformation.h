@@ -31,6 +31,19 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+//! Doodson arguments for the corrected IERS DEHANTTIDEINEL solid Earth tide model.
+/*!
+ * Uses the STEP2DIU/STEP2LON polynomials, including their lunar-longitude
+ * precession correction, and UTC fractional hours as specified by the reference
+ * routine (2016-12-19 revision, including the 2013 fractional-hour correction).
+ * As in the existing deformation API, TDB is approximated as TT; TT centuries
+ * are formed from the input and UTC is obtained with SOFA's TT-to-UTC conversion.
+ * These arguments are specific to this station displacement convention.
+ * \param secondsSinceJ2000 Seconds since J2000, using the API's TDB approximately TT convention.
+ * \return Doodson arguments in radians: tau, s, h, p, N-prime, p-s.
+ */
+Eigen::Vector6d calculateIers2010SolidEarthTideArguments( const double secondsSinceJ2000 );
+
 namespace iers_2010_parameters
 {
 
@@ -139,7 +152,7 @@ public:
             const std::string& diurnalFile = "",
             const std::string& longPeriodFile = "",
             const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
-                return sofa_interface::calculateDoodsonFundamentalArguments( time );
+                return calculateIers2010SolidEarthTideArguments( time );
             } );
 
     ~Iers2010EarthDeformation( ) {}
