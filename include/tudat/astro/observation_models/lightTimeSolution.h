@@ -739,6 +739,11 @@ public:
         return correctionsNeedFrequency;
     }
 
+    std::shared_ptr< LightTimeConvergenceCriteria > getLightTimeConvergenceCriteria( ) const
+    {
+        return lightTimeConvergenceCriteria_;
+    }
+
 protected:
     //! Transmitter state function.
     /*!
@@ -830,6 +835,15 @@ protected:
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
     {
+        // Frequency-dependent corrections retrieve the frequency from the ancillary settings
+        if( ancillarySettings == nullptr && doCorrectionsNeedFrequency( ) )
+        {
+            throw std::runtime_error(
+                    "Error when computing light-time corrections: frequency-dependent corrections (e.g. ionosphere, solar corona) are "
+                    "used, but no ancillary settings (containing the link frequencies) are available. Check that a transmitter "
+                    "frequency is defined for the link, or that the observation model provides the frequencies." );
+        }
+
         ObservationScalarType totalLightTimeCorrections = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
 
         std::vector< double > linkEndTimesDouble( linkEndTimes.size( ) );
