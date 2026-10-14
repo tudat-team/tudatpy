@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 21 of 25 tasks done; 3 active and 1 partial.
+Status: 24 of 25 tasks done; task 29 remains active for Python runtime validation.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -87,7 +87,7 @@ validated and integrated.
    [x] 01 Establish the PR #900 baseline, isolated build and task tracker.  [DONE]
    [x] 02 Define neutral data contracts and enforce the dependency boundary.  [DONE]
    [x] 03 Separate existing EOP and BLQ readers from model evaluation.  [DONE]
-   [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.  [PARTIAL — final reproducibility checks and loading/geometry evidence]
+   [x] 04 Establish pinned independent IERS/SOFA reference fixtures.  [DONE]
    [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.  [DONE]
    [x] 06 Validate solid Earth tides through the production time/argument path.  [DONE]
    [x] 07 Resolve inertial frames, time scales and displacement conventions.  [DONE]
@@ -105,10 +105,10 @@ validated and integrated.
    [x] 19 Implement post-seismic and seasonal station motion with rates.  [DONE]
    [x] 20 Modernise ITRF transformations and station-catalogue inputs.  [DONE]
    [x] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [DONE]
-   [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [ACTIVE — interpolation, origin and signal-overlap enforcement]
+   [x] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [DONE]
    [x] 23 Validate relativistic station position and velocity transformations.  [DONE — explicit IERS spatial approximation and full intrinsic-state composition]
-   [ ] 24 Improve instrument reference-point and calibrated geometry support.  [ACTIVE — dated equipment and calibrated reference points]
-   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [ACTIVE — remove EarthDeformationEpoch; simplify model API; preserve precision]
+   [x] 24 Improve instrument reference-point and calibrated geometry support.  [DONE]
+   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [ACTIVE — simplified API integrated; Python runtime checks remain]
 
 Task numbers are stable identifiers rather than a rigid execution sequence.
 Tasks 25--28 and 30 were removed at Dominic's request: new estimation
@@ -125,10 +125,10 @@ Active work
 -----------
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
-The coordinator handles architecture and integration. Current compiler allocations
-are final native API checks 6 and Python-specific binding validation 2; the combined
-limit remains eight. Geometry compilation is complete. Earlier workers are stopped
-and their work is preserved.
+The coordinator handles architecture and integration. All eight compiler jobs are
+allocated to Python-specific binding validation. Native compilation is complete;
+the other workers are available for the required full-PR review. Earlier workers
+are stopped and their work is preserved.
 
 * Task 04: the coverage audit confirms pinned independent sources and fixtures
   across the integrated models. The solid-pole reference now pins the original
@@ -136,8 +136,9 @@ and their work is preserved.
   eight unchanged vectors reproduce within 8.67e-19 m against the retained
   1e-14 m tolerance; the exact offline command and PDF hash are recorded in
   ``solid-pole-fixture-reproduction.log``. The independent 70-digit Decimal
-  generator also reproduces all nine unchanged relativistic literals. Final
-  integration of that generator and loading/instrument-geometry evidence remain.
+  generator also reproduces all nine unchanged relativistic literals. Both
+  generators and final loading/instrument-geometry evidence are integrated;
+  the reference coverage audit is complete.
 * Task 11: complete rotation derivatives are integrated with all ten checkpoint
   files unchanged from the tested worktree. Thirteen focused native cases and
   334 assertions pass, including independent full SOFA matrix/state comparisons.
@@ -180,7 +181,7 @@ and their work is preserved.
   checks pass seven focused native cases/80 assertions against the shared core
   checkpoint, including the real composition validator. The changed reader also
   passes its four existing cases/141 assertions; binding syntax passes.
-  Completion commit ``1f7e73d59`` is reviewed; integration with the common API remains.
+  Completion commit ``1f7e73d59`` is integrated as ``e04829e94`` with the common API.
 * Task 23: the explicit IERS spatial approximation is integrated. Seven focused
   cases/91 assertions pass alongside affected station-state and clock suites.
   Terminal composition consumes the full displaced/moving state once; selected
@@ -193,8 +194,8 @@ and their work is preserved.
   Completion commit ``883653bc4`` passes five geometry cases/52 assertions,
   nine history cases/343 assertions and four frame-adapter cases/217 assertions.
   Three binding syntax checks, architecture checks and CMake closure pass.
-  Integration remains; Python ownership and precise-Time dispatch checks are
-  prepared for the later binding runtime validation.
+  It is integrated as ``bc1807246``. Python ownership and precise-Time dispatch
+  checks are prepared for the binding runtime validation under task 29.
 * Task 29: Dominic explicitly requested removing EarthDeformationEpoch and
   simplifying evaluation across deformation models. The isolated implementation
   now removes that wrapper and exposes displacement and full displacement/state
@@ -203,11 +204,13 @@ and their work is preserved.
   Native station aggregation retains Time; scalar endpoint handling stays at
   scalar boundaries. All 14 changed native core translation units compile,
   including the real loading validator. Numerical/public-contract regression
-  passes for loading, geometry, atmospheric and ocean-pole tides; final core
-  checks and Python runtime validation remain. One EOP factory crash was traced
-  to a pre-Desai-Sibois archive in the worker's isolated link and awaits a targeted
-  current-source rebuild. Python record getters now explicitly copy validated records;
-  the ownership regression and other Python-only binding/import checks remain open.
+  passes for the affected tide models, station state, clock routing, loading and
+  geometry. Core completion ``3f7c272a6`` is integrated as ``f7ae6f147``; existing
+  deformation/station plumbing removes 366 net lines, excluding the new loading
+  model. The isolated EOP factory crash was resolved by rebuilding its stale
+  pre-Desai-Sibois factory objects; the failing case passes. Python record getters
+  explicitly copy validated records. The ownership regression and other
+  Python-only binding/import checks remain open.
 
 Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
 kernel compilation is allowed only when needed for those Python-specific tests.
