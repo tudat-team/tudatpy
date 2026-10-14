@@ -31,6 +31,9 @@ This work starts at PR #900 (``feature/data-refactor``), commit
 * Every change includes relevant bindings, documentation and tests.  Tolerances
   come from reference accuracy and numerical error budgets, not from fitting
   the implementation's current output.
+* Unit tests primarily use C++.  Python tests are reserved for Python-specific
+  imports/bindings or cases that cannot straightforwardly be exercised in C++.
+  Reference-data generation scripts may use Python to drive external programs.
 
 Data architecture
 -----------------
@@ -58,7 +61,7 @@ validation ledger below records completed changes and remaining limitations.
 
 .. code-block:: text
 
-   [ ] 01 Establish the PR #900 baseline, isolated build and task tracker.
+   [x] 01 Establish the PR #900 baseline, isolated build and task tracker.
    [ ] 02 Define neutral data contracts and enforce the dependency boundary.
    [ ] 03 Separate existing EOP and BLQ readers from model evaluation.
    [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.
@@ -113,7 +116,22 @@ study.  Actual discontinuities are tested as discontinuities.
 Validation ledger
 -----------------
 
-2026-10-14: starting revision verified against GitHub PR #900.  The isolated
-integration and worker worktrees were created.  Baseline compilation and
-independent pole/solid-tide work are in progress.  No model-conformance claim
-has yet been made for this branch.
+2026-10-14: starting revision verified against GitHub PR #900.  Task 01 baseline
+build completed with six build jobs: all 12 selected C++ test executables passed
+(EarthOrientationCalculator, EopReader, PolarMotionCalculator,
+TimeScaleConverter, ShortPeriodEopCorrections, ItrsToGcrsRotationModel,
+Iers2010DeformationModel, OceanTideDisplacement, PoleTideDisplacement,
+SofaEarthOrientationInterface, SofaFundamentalArguments, SofaTimeConversions).
+Configuration used the local ``tudatpy-dev`` compiler/dependencies, Release with
+``-O1``, serialization/PCH/explicit instantiations/extended precision disabled,
+and no unity build or LTO.  These are targeted baseline results, not a complete
+suite or a numerical-conformance claim.  Exact commands, compiler provenance,
+resource hashes and logs are saved locally in
+``/home/dominic/Tudat/earth-station-model-work/logs``.
+
+Task 02 source-boundary checks pass for transitive local Python imports and C++
+includes/associated implementations.  The committed checks use only Python's
+standard library and can run without a Tudat build.  Data contracts, independent
+input-library linkage and compiled binding initialization remain to validate.
+
+Pole-tide, solid-tide and inertial-frame corrections are under integration test.
