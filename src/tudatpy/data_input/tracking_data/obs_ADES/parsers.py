@@ -425,7 +425,7 @@ def parse_ades_file(file_path: str):  # -> Table:
         obs_kind = _tag_name(obs_type)
 
         if obs_kind not in {"optical", "radar", "offset", "occultation"}:
-            raise ValueError(f"Unsupported observation type: {obs_kind}")
+            continue
 
         # Include direct child fields, e.g. permID, obsTime, ra, dec.
         row = {_tag_name(child): (child.text or "").strip() for child in obs_type}
