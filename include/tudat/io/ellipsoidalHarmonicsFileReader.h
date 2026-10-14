@@ -42,6 +42,7 @@ double parseFortranDouble( const std::string& text );
  * The file lists one line per degree and order, "degree order cosineTerm sineTerm", in the same
  * layout a spherical harmonic coefficient file uses. The 2*degree+1 values of each degree are
  * then regrouped into the four term groups the expansion actually uses.
+ * Throws if any term up to the maximum degree is missing from the file.
  *
  * @param fileName Full path of the coefficient file.
  * @param maximumDegree Highest degree to read.
@@ -55,6 +56,7 @@ basic_mathematics::EllipsoidalHarmonicCoefficients readEllipsoidalHarmonicCoeffi
  * The file lists one line per term, "degree orderIndex groupLabel coefficient...". The
  * coefficients are stored in powers of (1 - (rho/h)^2) and are converted here to powers of
  * (rho/h)^2, which is the form the Lame functions are evaluated in.
+ * Throws if any term up to the maximum degree is missing from the file.
  *
  * @param fileName Full path of the Lame coefficient file.
  * @param maximumDegree Highest degree to read.
@@ -67,6 +69,7 @@ basic_mathematics::EllipsoidalHarmonicMatrices readLameFunctionCoefficients( con
  *
  * These mix the terms within each group, and the file has the same layout as the Lame
  * coefficient file, one line per term holding that term's row of its group's matrix.
+ * Throws if any term up to the maximum degree is missing from the file.
  *
  * @param fileName Full path of the transform factor file.
  * @param maximumDegree Highest degree to read.

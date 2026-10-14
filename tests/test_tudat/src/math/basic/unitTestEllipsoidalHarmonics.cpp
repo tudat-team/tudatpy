@@ -763,6 +763,23 @@ BOOST_AUTO_TEST_CASE( test_hessian_trace_vanishes )
     BOOST_CHECK_SMALL( largestScaledTrace, 1.0E-6 );
 }
 
+/*! Asking for a higher degree than a file holds must fail when reading.
+ *
+ * Otherwise the missing terms would stay zero, and a zero Lame polynomial makes the field NaN.
+ * The test files stop at degree 15.
+ */
+BOOST_AUTO_TEST_CASE( test_missing_terms_are_rejected )
+{
+    BOOST_CHECK_THROW( readEllipsoidalHarmonicCoefficients( getDataDirectory( ) + "67p_ellipsoidal_harmonic_coefficients.txt", 16 ),
+                       std::runtime_error );
+    BOOST_CHECK_THROW( readLameFunctionCoefficients( getDataDirectory( ) + "67p_lame_coefficients.txt", 16 ), std::runtime_error );
+    BOOST_CHECK_THROW( readEllipsoidalHarmonicTransformFactors( getDataDirectory( ) + "67p_transform_factors.txt", 16 ),
+                       std::runtime_error );
+
+    // Up to the degree the files hold, reading works.
+    BOOST_CHECK_NO_THROW( readLameFunctionCoefficients( getDataDirectory( ) + "67p_lame_coefficients.txt", 15 ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

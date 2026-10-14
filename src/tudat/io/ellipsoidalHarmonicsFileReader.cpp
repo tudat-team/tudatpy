@@ -130,6 +130,14 @@ EllipsoidalHarmonicMatrices readPerTermFile( const std::string& fileName,
 {
     EllipsoidalHarmonicMatrices matrices = createSquareMatrixSet( maximumDegree );
 
+    // Which terms the file has supplied, indexed by degree and file order index. A term left
+    // out would stay zero, and a zero Lame polynomial turns the whole field into NaN.
+    std::vector< std::vector< bool > > isTermRead( maximumDegree + 1 );
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        isTermRead[ degree ].assign( 2 * degree + 1, false );
+    }
+
     std::ifstream stream = openOrThrow( fileName );
     std::string line;
     int lineNumber = 0;
@@ -193,6 +201,21 @@ EllipsoidalHarmonicMatrices readPerTermFile( const std::string& fileName,
         {
             matrix.row( indexInGroup ) = values.transpose( );
         }
+        isTermRead[ degree ][ fileOrderIndex - 1 ] = true;
+    }
+
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int fileOrderIndex = 1; fileOrderIndex <= 2 * degree + 1; fileOrderIndex++ )
+        {
+            if( !isTermRead[ degree ][ fileOrderIndex - 1 ] )
+            {
+                throw std::runtime_error( "Error when reading ellipsoidal harmonics file " + fileName + ", no entry for degree " +
+                                          std::to_string( degree ) + " order index " + std::to_string( fileOrderIndex ) +
+                                          ". The file may not reach the requested maximum degree of " + std::to_string( maximumDegree ) +
+                                          "." );
+            }
+        }
     }
 
     return matrices;
@@ -247,9 +270,11 @@ EllipsoidalHarmonicCoefficients readEllipsoidalHarmonicCoefficients( const std::
     // descending order, the zero-order term, then sine terms of ascending order. The four
     // groups then take consecutive slices of that.
     std::vector< Eigen::VectorXd > perDegree( maximumDegree + 1 );
+    std::vector< std::vector< bool > > isOrderRead( maximumDegree + 1 );
     for( int degree = 0; degree <= maximumDegree; degree++ )
     {
         perDegree[ degree ] = Eigen::VectorXd::Zero( 2 * degree + 1 );
+        isOrderRead[ degree ].assign( degree + 1, false );
     }
 
     std::ifstream stream = openOrThrow( fileName );
@@ -278,6 +303,22 @@ EllipsoidalHarmonicCoefficients readEllipsoidalHarmonicCoefficients( const std::
         if( order > 0 )
         {
             perDegree[ degree ]( degree + order ) = sineTerm;
+        }
+        isOrderRead[ degree ][ order ] = true;
+    }
+
+    // A missing line would silently become a zero coefficient.
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int order = 0; order <= degree; order++ )
+        {
+            if( !isOrderRead[ degree ][ order ] )
+            {
+                throw std::runtime_error( "Error when reading ellipsoidal harmonic coefficients from " + fileName +
+                                          ", no entry for degree " + std::to_string( degree ) + " order " + std::to_string( order ) +
+                                          ". The file may not reach the requested maximum degree of " + std::to_string( maximumDegree ) +
+                                          "." );
+            }
         }
     }
 
