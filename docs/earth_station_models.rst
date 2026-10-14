@@ -124,6 +124,11 @@ independent effects outside its scope remain explicitly selected.
 Active work
 -----------
 
+Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
+The coordinator handles architecture and integration. Current compiler allocations
+are rotation/station closure 4, station history 2, and Desai--Sibois 2; the combined
+limit remains eight. Earlier workers are stopped and their work is preserved.
+
 * Task 04: independent reference packages are in use for solid Earth tides,
   short-period EOP and HARDISP; reference coverage grows with each added model.
 * Task 11: complete rotation derivatives are integrated with all ten checkpoint
