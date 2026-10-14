@@ -293,6 +293,47 @@ BOOST_AUTO_TEST_CASE( invalid_external_potential_and_unavailable_fallback_rates_
             tt_to_tdb_station_coordinates );
     BOOST_CHECK_NO_THROW( oscillatory.correctCompleteLocalPosition( 0, Eigen::Vector3d::Ones( ), "SSB" ) );
     BOOST_CHECK_THROW( oscillatory.correctCompleteLocalState( 0, Eigen::Vector6d::Ones( ), "SSB" ), std::runtime_error );
+    const Time centre( 300000000.0 );
+    const double step = std::ldexp( 1.0, -27 );
+    auto scalarEphemeris = std::make_shared< ephemerides::CustomEphemeris<> >(
+            []( double time ) {
+                const double dt = time - 300000000.0;
+                return state( Eigen::Vector3d( 30000 * dt + 0.5e6 * dt * dt, 0, 0 ), Eigen::Vector3d( 30000 + 1e6 * dt, 0, 0 ) );
+            },
+            "SSB",
+            "GCRS" );
+    double restored = NAN;
+    BodyCentricToBarycentricRelativisticStationMotion unresolved(
+            [ & ]( const Time& time ) {
+                restored = static_cast< double >( time );
+                return scalarEphemeris->getCartesianStateFromExtendedTime( time );
+            },
+            identity,
+            noRotationRate,
+            {},
+            unscaled_tcg_to_tcb_station_coordinates,
+            step );
+    const Eigen::Vector6d intrinsic = state( Eigen::Vector3d( 6e6, 2e6, -3e6 ), Eigen::Vector3d::Zero( ) );
+    BOOST_CHECK_NO_THROW( unresolved.correctCompleteLocalPosition( centre, intrinsic.head< 3 >( ), "SSB" ) );
+    BOOST_CHECK_THROW( unresolved.correctCompleteLocalState( centre, intrinsic, "SSB" ), std::invalid_argument );
+    BOOST_CHECK_EQUAL( restored, static_cast< double >( centre ) );
+    auto preciseEphemeris = std::make_shared< ephemerides::CustomEphemeris< Time > >(
+            [ & ]( const Time time ) {
+                const double dt = static_cast< double >( time - centre );
+                return state( Eigen::Vector3d( 30000 * dt + 0.5e6 * dt * dt, 0, 0 ), Eigen::Vector3d( 30000 + 1e6 * dt, 0, 0 ) );
+            },
+            "SSB",
+            "GCRS" );
+    BodyCentricToBarycentricRelativisticStationMotion precise(
+            [ & ]( const Time& time ) { return preciseEphemeris->getCartesianStateFromExtendedTime( time ); },
+            identity,
+            noRotationRate,
+            {},
+            unscaled_tcg_to_tcb_station_coordinates,
+            step );
+    const Eigen::Vector3d expectedRate( -6e6 * 30000 * 1e6 * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT, 0, 0 );
+    BOOST_CHECK_SMALL( ( precise.correctCompleteLocalState( centre, intrinsic, "SSB" ).tail< 3 >( ) - expectedRate ).norm( ), 1e-15 );
+
     BodyCentricToBarycentricRelativisticStationMotion legacy(
             host,
             []( double ) { return Eigen::Vector3d( 1.5e11, 0, 0 ); },
@@ -357,6 +398,19 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
         BOOST_CHECK_EQUAL( ephemeris->getReferenceFrameOrientation( ), "GCRS" );
         BOOST_CHECK_NO_THROW( ephemeris->getCartesianState( fixture.time ) );
     }
+    const auto boundStation = fixture.earth->getGroundStation( stationName )->getNominalStationState( );
+    const auto eop = fixture.clock->getEarthOrientationDataEvaluator( );
+    for( const Time& boundary : { eop->getStartTai( ), eop->getEndTai( ) } )
+    {
+        const Time tdb = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, boundary );
+        BOOST_CHECK_NO_THROW( boundStation->getCartesianPositionInTime( static_cast< double >( tdb ), "SSB" ) );
+        BOOST_CHECK_NO_THROW( boundStation->getCartesianStateInTime( static_cast< double >( tdb ), "SSB" ) );
+        BOOST_CHECK_NO_THROW( boundStation->getCartesianStateInTime( tdb, "SSB" ) );
+    }
+    const Time outside = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, eop->getEndTai( ) + 1e-9 );
+    BOOST_CHECK_THROW( boundStation->getCartesianPositionInTime( outside, "SSB" ), std::runtime_error );
+    BOOST_CHECK_THROW( boundStation->getCartesianStateInTime( outside, "SSB" ), std::runtime_error );
+
     const auto makeBadStation = [ & ]( std::vector< std::string > names ) {
         auto bad = std::make_shared< simulation_setup::GroundStationSettings >(
                 "bad",

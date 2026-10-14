@@ -74,7 +74,10 @@ five-point numerical stencil. Legacy callback-only rotations and external
 positions use the same fallback when analytic rates are absent. It compares
 32-second and 16-second stencils, checks finite/distinct/representably uniform
 samples and convergence, propagates callback/coverage errors, and restores
-central-epoch caches while preserving the original failure type. Callbacks must
+central-epoch caches while preserving the original failure type. For a requested
+step below scalar epoch resolution, an additional stencil at four scalar ULPs
+must agree within the same rate budget. This catches false convergence when an
+ephemeris internally narrows Time; all callback epochs remain precise Time. Callbacks must
 be smooth throughout the entire stencil; convergence alone cannot prove a black
 box callback has no discontinuity. The fallback is a numerical derivative of
 the supplied callback, not an invented analytic host dynamics model. Unsupported

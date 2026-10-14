@@ -322,10 +322,13 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                         std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrameFromExtendedTime,
                                    rotation,
                                    std::placeholders::_1 ),
-                        std::bind(
-                                &ephemerides::RotationalEphemeris::getDerivativeOfRotationToTargetFrame, rotation, std::placeholders::_1 ),
+                        std::bind( &ephemerides::RotationalEphemeris::getDerivativeOfRotationToTargetFrameFromExtendedTime,
+                                   rotation,
+                                   std::placeholders::_1 ),
                         externalBodies,
-                        relativisticStationMotionSettings->coordinateCompatibility_ );
+                        relativisticStationMotionSettings->coordinateCompatibility_,
+                        32.0,
+                        converter );
                 break;
             }
             case custom_station_motion: {

@@ -226,6 +226,19 @@ Value guardedStationRate( const Time& time,
         if( !coarse.allFinite( ) || !fine.allFinite( ) ||
             ( coarse - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( coarse.norm( ), fine.norm( ) ) )
             throw std::runtime_error( "Relativistic station rate fallback did not converge; supply smooth callbacks and available rates." );
+        // A callback may narrow its Time input internally. Tiny stencils can
+        // then agree at a false zero. Check at a representable scalar epoch
+        // spacing without narrowing any callback sample or the central epoch.
+        const double scalarCentre = static_cast< double >( time );
+        const double resolutionStep = 4 *
+                std::max( std::nextafter( scalarCentre, INFINITY ) - scalarCentre,
+                          scalarCentre - std::nextafter( scalarCentre, -INFINITY ) );
+        if( resolutionStep > requestedStep / 2 )
+        {
+            const Value resolved = derivative( resolutionStep );
+            if( ( resolved - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( resolved.norm( ), fine.norm( ) ) )
+                throw std::invalid_argument( "Relativistic station derivative step cannot resolve the supplied callback." );
+        }
         restore( );
         return fine;
     }
