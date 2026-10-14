@@ -25,6 +25,7 @@ functions in :ref:`environment_setup`.
    environment_data/sbdb
    environment_data/ocean_loading
    environment_data/space_weather
+   environment_data/station_history
    environment_data/spacetrack
    environment_data/spice
    environment_data/terrestrial_frames

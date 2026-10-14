@@ -18,6 +18,7 @@ from . import (
     ocean_loading,
     sbdb,
     space_weather,
+    station_history,
     spacetrack,
     spice,
     terrestrial_frames,

@@ -252,6 +252,59 @@ BOOST_AUTO_TEST_CASE( testSinexEccentricityParsing )
     std::remove( eccentricityFile.c_str( ) );
 }
 
+BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsAmbiguityAndPreservesUnambiguousData )
+{
+    const auto fixture = std::string( __FILE__ ).substr( 0, std::string( __FILE__ ).find_last_of( "/\\" ) ) +
+            "/../../reference_files/station_history/ab07_solutions.snx";
+    const auto raw = input_output::readSinexStationHistory( fixture );
+    BOOST_CHECK_THROW( input_output::readSinexStationData( fixture ), std::runtime_error );
+    BOOST_CHECK_THROW( input_output::readSinexStationData( raw ), std::runtime_error );
+    auto selectedRaw = raw;
+    for( auto it = selectedRaw.parameters.begin( ); it != selectedRaw.parameters.end( ); )
+        if( it->second.key.solutionId != "1" )
+            it = selectedRaw.parameters.erase( it );
+        else
+            ++it;
+    const auto adapted = input_output::readSinexStationData( selectedRaw );
+    const auto selected = input_output::getSinexCartesianSolution( raw, { { "AB07", "A" }, "1" }, true );
+    BOOST_REQUIRE_EQUAL( adapted.size( ), 1 );
+    const auto& state = adapted.at( "40423M002" );
+    BOOST_CHECK_EQUAL( state.siteCode_, "AB07" );
+    for( int i = 0; i < 3; ++i )
+    {
+        BOOST_CHECK_EQUAL( state.position_[ i ], selected.positionMetres[ i ] );
+        BOOST_CHECK_EQUAL( state.velocity_[ i ], *selected.velocityMetresPerSecond[ i ] );
+    }
+    // Original tokens are provenance: valid mutable civil epochs need not fabricate a raw token.
+    for( auto& parameter : selectedRaw.parameters ) parameter.second.referenceEpoch.original.clear( );
+    BOOST_CHECK_EQUAL( input_output::readSinexStationData( selectedRaw ).at( "40423M002" ).referenceEpoch_, state.referenceEpoch_ );
+    for( auto it = selectedRaw.parameters.begin( ); it != selectedRaw.parameters.end( ); )
+        if( it->second.type.rfind( "VEL", 0 ) == 0 )
+            it = selectedRaw.parameters.erase( it );
+        else
+            ++it;
+    const auto absent = input_output::readSinexStationData( selectedRaw );
+    for( int i = 0; i < 3; ++i ) BOOST_CHECK( std::isnan( absent.at( "40423M002" ).velocity_[ i ] ) );
+}
+
+BOOST_AUTO_TEST_CASE( testLegacySinexEpochPivotAndMultiSolutionDiagnostic )
+{
+    const double a = input_output::convertSinexDateTimeToSecondsSinceEpoch( "50:001:00000" );
+    const double b = input_output::convertSinexDateTimeToSecondsSinceEpoch( "49:001:00000" );
+    BOOST_CHECK_CLOSE_FRACTION( a - b, 365 * 86400.0, 1e-15 );
+    const auto file = createTempPath( ".snx" );
+    writeSyntheticSinexFile( file );
+    std::ifstream input( file );
+    std::string text{ std::istreambuf_iterator< char >( input ), std::istreambuf_iterator< char >( ) };
+    input.close( );
+    text.insert( text.find( "-SOLUTION/ESTIMATE" ), "7 STAX ARCB A 2 25:150:00000 m 2 2390491.0 0.001\n" );
+    std::ofstream output( file );
+    output << text;
+    output.close( );
+    BOOST_CHECK_THROW( input_output::readSinexStationData( file ), std::runtime_error );
+    std::remove( file.c_str( ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

@@ -235,3 +235,25 @@ install(TARGETS tudat_terrestrial_frame_data EXPORT tudat_export
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
     ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+
+# Neutral SINEX station-product histories contain only standard-library records.
+if(TUDAT_BUILD_STATIC_LIBRARY)
+    add_library(tudat_station_history_data STATIC readSinexStationHistory.cpp)
+else()
+    add_library(tudat_station_history_data SHARED readSinexStationHistory.cpp)
+endif()
+target_compile_features(tudat_station_history_data PUBLIC cxx_std_17)
+target_include_directories(tudat_station_history_data PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+set_target_properties(tudat_station_history_data PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+add_library(Tudat::tudat_station_history_data ALIAS tudat_station_history_data)
+install(TARGETS tudat_station_history_data EXPORT tudat_export
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+# Only the compatibility adapter needs the old aggregate's other dependencies.
+target_link_libraries(tudat_input_output_raw PUBLIC tudat_station_history_data)

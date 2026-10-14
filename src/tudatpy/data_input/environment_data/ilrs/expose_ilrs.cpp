@@ -65,7 +65,7 @@ void expose_ilrs( py::module& m )
       )doc" );
 
     m.def( "read_sinex_station_data",
-           &tio::readSinexStationData,
+           py::overload_cast< const std::string&, double >( &tio::readSinexStationData ),
            py::arg( "file_name" ),
            py::arg( "reference_julian_day" ) = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000,
            R"doc(

@@ -15,6 +15,7 @@
 #include "coma/expose_coma.h"
 #include "earth_orientation/expose_earth_orientation.h"
 #include "atmospheric_loading/expose_atmospheric_loading.h"
+#include "station_history/expose_station_history.h"
 #include "ocean_loading/expose_ocean_loading.h"
 #include "terrestrial_frames/expose_terrestrial_frames.h"
 #include "ilrs/expose_ilrs.h"
@@ -38,6 +39,9 @@ void expose_environment_data( py::module& m )
 
     auto atmospheric_loading_submodule = m.def_submodule( "atmospheric_loading" );
     atmospheric_loading::expose_atmospheric_loading( atmospheric_loading_submodule );
+
+    auto station_history_submodule = m.def_submodule( "station_history" );
+    station_history::expose_station_history( station_history_submodule );
 
     auto ocean_loading_submodule = m.def_submodule( "ocean_loading" );
     ocean_loading::expose_ocean_loading( ocean_loading_submodule );

@@ -1,0 +1,1313 @@
+[
+  {
+    "fixture": "ab07_solutions.snx",
+    "fixture_sha256": "d4cffe8ce779822e9acef392932d43674892fed4997eb1d82b95cf3939ed4797",
+    "source": "ITRF2020-IGS-TRF.SSC",
+    "source_metadata": {
+      "url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-IGS-TRF.SSC",
+      "final_url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-IGS-TRF.SSC",
+      "bytes": 2419570,
+      "sha256": "405db1c584233329c971946e08937929ad34de16bc52dadc5a8f5b751d8068b9",
+      "retrieved_utc": "2026-10-14T12:24:57.497708+00:00"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 641,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 2660,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 3860,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 4044,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 5213,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 10,
+        "source_line": 5617,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 11,
+        "source_line": 5630,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 14,
+        "source_line": 13461,
+        "source_parameter_index": 7819
+      },
+      {
+        "fixture_line": 15,
+        "source_line": 13462,
+        "source_parameter_index": 7820
+      },
+      {
+        "fixture_line": 16,
+        "source_line": 13463,
+        "source_parameter_index": 7821
+      },
+      {
+        "fixture_line": 17,
+        "source_line": 13464,
+        "source_parameter_index": 7822
+      },
+      {
+        "fixture_line": 18,
+        "source_line": 13465,
+        "source_parameter_index": 7823
+      },
+      {
+        "fixture_line": 19,
+        "source_line": 13466,
+        "source_parameter_index": 7824
+      },
+      {
+        "fixture_line": 20,
+        "source_line": 20661,
+        "source_parameter_index": 15019
+      },
+      {
+        "fixture_line": 21,
+        "source_line": 20662,
+        "source_parameter_index": 15020
+      },
+      {
+        "fixture_line": 22,
+        "source_line": 20663,
+        "source_parameter_index": 15021
+      },
+      {
+        "fixture_line": 23,
+        "source_line": 20664,
+        "source_parameter_index": 15022
+      },
+      {
+        "fixture_line": 24,
+        "source_line": 20665,
+        "source_parameter_index": 15023
+      },
+      {
+        "fixture_line": 25,
+        "source_line": 20666,
+        "source_parameter_index": 15024
+      },
+      {
+        "fixture_line": 26,
+        "source_line": 21765,
+        "source_parameter_index": 16123
+      },
+      {
+        "fixture_line": 27,
+        "source_line": 21766,
+        "source_parameter_index": 16124
+      },
+      {
+        "fixture_line": 28,
+        "source_line": 21767,
+        "source_parameter_index": 16125
+      },
+      {
+        "fixture_line": 29,
+        "source_line": 21768,
+        "source_parameter_index": 16126
+      },
+      {
+        "fixture_line": 30,
+        "source_line": 21769,
+        "source_parameter_index": 16127
+      },
+      {
+        "fixture_line": 31,
+        "source_line": 21770,
+        "source_parameter_index": 16128
+      },
+      {
+        "fixture_line": 32,
+        "source_line": 28779,
+        "source_parameter_index": 23137
+      },
+      {
+        "fixture_line": 33,
+        "source_line": 28780,
+        "source_parameter_index": 23138
+      },
+      {
+        "fixture_line": 34,
+        "source_line": 28781,
+        "source_parameter_index": 23139
+      },
+      {
+        "fixture_line": 35,
+        "source_line": 28782,
+        "source_parameter_index": 23140
+      },
+      {
+        "fixture_line": 36,
+        "source_line": 28783,
+        "source_parameter_index": 23141
+      },
+      {
+        "fixture_line": 37,
+        "source_line": 28784,
+        "source_parameter_index": 23142
+      },
+      {
+        "fixture_line": 38,
+        "source_line": 31203,
+        "source_parameter_index": 25561
+      },
+      {
+        "fixture_line": 39,
+        "source_line": 31204,
+        "source_parameter_index": 25562
+      },
+      {
+        "fixture_line": 40,
+        "source_line": 31205,
+        "source_parameter_index": 25563
+      },
+      {
+        "fixture_line": 41,
+        "source_line": 31206,
+        "source_parameter_index": 25564
+      },
+      {
+        "fixture_line": 42,
+        "source_line": 31207,
+        "source_parameter_index": 25565
+      },
+      {
+        "fixture_line": 43,
+        "source_line": 31208,
+        "source_parameter_index": 25566
+      },
+      {
+        "fixture_line": 44,
+        "source_line": 31281,
+        "source_parameter_index": 25639
+      },
+      {
+        "fixture_line": 45,
+        "source_line": 31282,
+        "source_parameter_index": 25640
+      },
+      {
+        "fixture_line": 46,
+        "source_line": 31283,
+        "source_parameter_index": 25641
+      },
+      {
+        "fixture_line": 47,
+        "source_line": 31284,
+        "source_parameter_index": 25642
+      },
+      {
+        "fixture_line": 48,
+        "source_line": 31285,
+        "source_parameter_index": 25643
+      },
+      {
+        "fixture_line": 49,
+        "source_line": 31286,
+        "source_parameter_index": 25644
+      }
+    ]
+  },
+  {
+    "fixture": "ab07_discontinuities.snx",
+    "fixture_sha256": "17a21f82f4256a8fbee1499a805dae3b63b309ddb19858a9af32cb5b8f9290a6",
+    "source": "ITRF2020-soln-gnss.snx",
+    "source_metadata": {
+      "url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-soln-gnss.snx",
+      "final_url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-soln-gnss.snx",
+      "bytes": 360035,
+      "sha256": "4b524110c816c6f0db0210dd4a2c4a3c4a7cdc71a90578812fd7d4b05858cb1d",
+      "retrieved_utc": "2026-10-14T12:24:58.325009+00:00"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 26,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 4,
+        "source_line": 27,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 5,
+        "source_line": 28,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 29,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 30,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 31,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 32,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 10,
+        "source_line": 33,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 11,
+        "source_line": 34,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 12,
+        "source_line": 35,
+        "source_parameter_index": null
+      }
+    ]
+  },
+  {
+    "fixture": "ab07_psd.snx",
+    "fixture_sha256": "29b62e7d3c8404d0689980cd42cb6ea4b4697e5fbdef86e8f7122b6ca38dfff5",
+    "source": "ITRF2020-psd-gnss.snx",
+    "source_metadata": {
+      "url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-psd-gnss.snx",
+      "final_url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-psd-gnss.snx",
+      "bytes": 91363,
+      "sha256": "ee22b174ff7803ffb5493cb8f7ebed53a0119d080900482420da7a3e630d138d",
+      "retrieved_utc": "2026-10-14T12:24:58.824421+00:00"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 7,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 138,
+        "source_parameter_index": 7
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 139,
+        "source_parameter_index": 8
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 140,
+        "source_parameter_index": 9
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 141,
+        "source_parameter_index": 10
+      }
+    ]
+  },
+  {
+    "fixture": "albh_seasonal.snx",
+    "fixture_sha256": "a50fc1f901fe8a681595ce706addef06f0706eccc46c27bfc9f397a145e86f57",
+    "source": "ITRF2020-Frequencies-ENU-CM.snx",
+    "source_metadata": {
+      "url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-Frequencies-ENU-CM.snx",
+      "final_url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-Frequencies-ENU-CM.snx",
+      "bytes": 4959033,
+      "sha256": "1657af691071e426e32e572adba48d49abfc26161b96a889be81f2b4f75941ec",
+      "retrieved_utc": "2026-10-14T12:25:02.666791+00:00"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 9,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 1858,
+        "source_parameter_index": 1
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 1859,
+        "source_parameter_index": 2
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 1860,
+        "source_parameter_index": 3
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 1861,
+        "source_parameter_index": 4
+      },
+      {
+        "fixture_line": 10,
+        "source_line": 1862,
+        "source_parameter_index": 5
+      },
+      {
+        "fixture_line": 11,
+        "source_line": 1863,
+        "source_parameter_index": 6
+      },
+      {
+        "fixture_line": 12,
+        "source_line": 2218,
+        "source_parameter_index": 361
+      },
+      {
+        "fixture_line": 13,
+        "source_line": 2219,
+        "source_parameter_index": 362
+      },
+      {
+        "fixture_line": 14,
+        "source_line": 2220,
+        "source_parameter_index": 363
+      },
+      {
+        "fixture_line": 15,
+        "source_line": 2221,
+        "source_parameter_index": 364
+      },
+      {
+        "fixture_line": 16,
+        "source_line": 2222,
+        "source_parameter_index": 365
+      },
+      {
+        "fixture_line": 17,
+        "source_line": 2223,
+        "source_parameter_index": 366
+      },
+      {
+        "fixture_line": 18,
+        "source_line": 2530,
+        "source_parameter_index": 673
+      },
+      {
+        "fixture_line": 19,
+        "source_line": 2531,
+        "source_parameter_index": 674
+      },
+      {
+        "fixture_line": 20,
+        "source_line": 2532,
+        "source_parameter_index": 675
+      },
+      {
+        "fixture_line": 21,
+        "source_line": 2533,
+        "source_parameter_index": 676
+      },
+      {
+        "fixture_line": 22,
+        "source_line": 2534,
+        "source_parameter_index": 677
+      },
+      {
+        "fixture_line": 23,
+        "source_line": 2535,
+        "source_parameter_index": 678
+      },
+      {
+        "fixture_line": 24,
+        "source_line": 2884,
+        "source_parameter_index": 1027
+      },
+      {
+        "fixture_line": 25,
+        "source_line": 2885,
+        "source_parameter_index": 1028
+      },
+      {
+        "fixture_line": 26,
+        "source_line": 2886,
+        "source_parameter_index": 1029
+      },
+      {
+        "fixture_line": 27,
+        "source_line": 2887,
+        "source_parameter_index": 1030
+      },
+      {
+        "fixture_line": 28,
+        "source_line": 2888,
+        "source_parameter_index": 1031
+      },
+      {
+        "fixture_line": 29,
+        "source_line": 2889,
+        "source_parameter_index": 1032
+      },
+      {
+        "fixture_line": 30,
+        "source_line": 8704,
+        "source_parameter_index": 6847
+      },
+      {
+        "fixture_line": 31,
+        "source_line": 8705,
+        "source_parameter_index": 6848
+      },
+      {
+        "fixture_line": 32,
+        "source_line": 8706,
+        "source_parameter_index": 6849
+      },
+      {
+        "fixture_line": 33,
+        "source_line": 8707,
+        "source_parameter_index": 6850
+      },
+      {
+        "fixture_line": 34,
+        "source_line": 8708,
+        "source_parameter_index": 6851
+      },
+      {
+        "fixture_line": 35,
+        "source_line": 8709,
+        "source_parameter_index": 6852
+      },
+      {
+        "fixture_line": 36,
+        "source_line": 22612,
+        "source_parameter_index": 20755
+      },
+      {
+        "fixture_line": 37,
+        "source_line": 22613,
+        "source_parameter_index": 20756
+      },
+      {
+        "fixture_line": 38,
+        "source_line": 22614,
+        "source_parameter_index": 20757
+      },
+      {
+        "fixture_line": 39,
+        "source_line": 22615,
+        "source_parameter_index": 20758
+      },
+      {
+        "fixture_line": 40,
+        "source_line": 22616,
+        "source_parameter_index": 20759
+      },
+      {
+        "fixture_line": 41,
+        "source_line": 22617,
+        "source_parameter_index": 20760
+      },
+      {
+        "fixture_line": 42,
+        "source_line": 31600,
+        "source_parameter_index": 29743
+      },
+      {
+        "fixture_line": 43,
+        "source_line": 31601,
+        "source_parameter_index": 29744
+      },
+      {
+        "fixture_line": 44,
+        "source_line": 31602,
+        "source_parameter_index": 29745
+      },
+      {
+        "fixture_line": 45,
+        "source_line": 31603,
+        "source_parameter_index": 29746
+      },
+      {
+        "fixture_line": 46,
+        "source_line": 31604,
+        "source_parameter_index": 29747
+      },
+      {
+        "fixture_line": 47,
+        "source_line": 31605,
+        "source_parameter_index": 29748
+      },
+      {
+        "fixture_line": 48,
+        "source_line": 31960,
+        "source_parameter_index": 30103
+      },
+      {
+        "fixture_line": 49,
+        "source_line": 31961,
+        "source_parameter_index": 30104
+      },
+      {
+        "fixture_line": 50,
+        "source_line": 31962,
+        "source_parameter_index": 30105
+      },
+      {
+        "fixture_line": 51,
+        "source_line": 31963,
+        "source_parameter_index": 30106
+      },
+      {
+        "fixture_line": 52,
+        "source_line": 31964,
+        "source_parameter_index": 30107
+      },
+      {
+        "fixture_line": 53,
+        "source_line": 31965,
+        "source_parameter_index": 30108
+      },
+      {
+        "fixture_line": 54,
+        "source_line": 32272,
+        "source_parameter_index": 30415
+      },
+      {
+        "fixture_line": 55,
+        "source_line": 32273,
+        "source_parameter_index": 30416
+      },
+      {
+        "fixture_line": 56,
+        "source_line": 32274,
+        "source_parameter_index": 30417
+      },
+      {
+        "fixture_line": 57,
+        "source_line": 32275,
+        "source_parameter_index": 30418
+      },
+      {
+        "fixture_line": 58,
+        "source_line": 32276,
+        "source_parameter_index": 30419
+      },
+      {
+        "fixture_line": 59,
+        "source_line": 32277,
+        "source_parameter_index": 30420
+      },
+      {
+        "fixture_line": 60,
+        "source_line": 32626,
+        "source_parameter_index": 30769
+      },
+      {
+        "fixture_line": 61,
+        "source_line": 32627,
+        "source_parameter_index": 30770
+      },
+      {
+        "fixture_line": 62,
+        "source_line": 32628,
+        "source_parameter_index": 30771
+      },
+      {
+        "fixture_line": 63,
+        "source_line": 32629,
+        "source_parameter_index": 30772
+      },
+      {
+        "fixture_line": 64,
+        "source_line": 32630,
+        "source_parameter_index": 30773
+      },
+      {
+        "fixture_line": 65,
+        "source_line": 32631,
+        "source_parameter_index": 30774
+      },
+      {
+        "fixture_line": 66,
+        "source_line": 38446,
+        "source_parameter_index": 36589
+      },
+      {
+        "fixture_line": 67,
+        "source_line": 38447,
+        "source_parameter_index": 36590
+      },
+      {
+        "fixture_line": 68,
+        "source_line": 38448,
+        "source_parameter_index": 36591
+      },
+      {
+        "fixture_line": 69,
+        "source_line": 38449,
+        "source_parameter_index": 36592
+      },
+      {
+        "fixture_line": 70,
+        "source_line": 38450,
+        "source_parameter_index": 36593
+      },
+      {
+        "fixture_line": 71,
+        "source_line": 38451,
+        "source_parameter_index": 36594
+      },
+      {
+        "fixture_line": 72,
+        "source_line": 52354,
+        "source_parameter_index": 50497
+      },
+      {
+        "fixture_line": 73,
+        "source_line": 52355,
+        "source_parameter_index": 50498
+      },
+      {
+        "fixture_line": 74,
+        "source_line": 52356,
+        "source_parameter_index": 50499
+      },
+      {
+        "fixture_line": 75,
+        "source_line": 52357,
+        "source_parameter_index": 50500
+      },
+      {
+        "fixture_line": 76,
+        "source_line": 52358,
+        "source_parameter_index": 50501
+      },
+      {
+        "fixture_line": 77,
+        "source_line": 52359,
+        "source_parameter_index": 50502
+      }
+    ]
+  },
+  {
+    "fixture": "repeated_psd.snx",
+    "fixture_sha256": "3025ea00b45f4e4080e5a9633b11a72ac6c1d11115f3510e7238297c8c1dc44b",
+    "source": "ITRF2020-psd-gnss.snx",
+    "source_metadata": {
+      "url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-psd-gnss.snx",
+      "final_url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-psd-gnss.snx",
+      "bytes": 91363,
+      "sha256": "ee22b174ff7803ffb5493cb8f7ebed53a0119d080900482420da7a3e630d138d",
+      "retrieved_utc": "2026-10-14T12:24:58.824421+00:00"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 8,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 4,
+        "source_line": 14,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 142,
+        "source_parameter_index": 11
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 143,
+        "source_parameter_index": 12
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 144,
+        "source_parameter_index": 13
+      },
+      {
+        "fixture_line": 10,
+        "source_line": 145,
+        "source_parameter_index": 14
+      },
+      {
+        "fixture_line": 11,
+        "source_line": 146,
+        "source_parameter_index": 15
+      },
+      {
+        "fixture_line": 12,
+        "source_line": 147,
+        "source_parameter_index": 16
+      },
+      {
+        "fixture_line": 13,
+        "source_line": 148,
+        "source_parameter_index": 17
+      },
+      {
+        "fixture_line": 14,
+        "source_line": 149,
+        "source_parameter_index": 18
+      },
+      {
+        "fixture_line": 15,
+        "source_line": 164,
+        "source_parameter_index": 33
+      },
+      {
+        "fixture_line": 16,
+        "source_line": 165,
+        "source_parameter_index": 34
+      },
+      {
+        "fixture_line": 17,
+        "source_line": 166,
+        "source_parameter_index": 35
+      },
+      {
+        "fixture_line": 18,
+        "source_line": 167,
+        "source_parameter_index": 36
+      },
+      {
+        "fixture_line": 19,
+        "source_line": 168,
+        "source_parameter_index": 37
+      },
+      {
+        "fixture_line": 20,
+        "source_line": 169,
+        "source_parameter_index": 38
+      },
+      {
+        "fixture_line": 21,
+        "source_line": 170,
+        "source_parameter_index": 39
+      },
+      {
+        "fixture_line": 22,
+        "source_line": 171,
+        "source_parameter_index": 40
+      },
+      {
+        "fixture_line": 23,
+        "source_line": 172,
+        "source_parameter_index": 41
+      },
+      {
+        "fixture_line": 24,
+        "source_line": 173,
+        "source_parameter_index": 42
+      }
+    ]
+  },
+  {
+    "fixture": "duplicate_sites.snx",
+    "fixture_sha256": "961b55ff80fe06553b616de9e88d7ea2ab2f817863bfb8bf69f7cc0d525836d4",
+    "source": "ITRF2020-Frequencies-ENU-CM.snx",
+    "source_metadata": {
+      "url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-Frequencies-ENU-CM.snx",
+      "final_url": "https://data.iers.org/products/reference-systems/terrestrial/itrf/itrf2020/ITRF2020-Frequencies-ENU-CM.snx",
+      "bytes": 4959033,
+      "sha256": "1657af691071e426e32e572adba48d49abfc26161b96a889be81f2b4f75941ec",
+      "retrieved_utc": "2026-10-14T12:25:02.666791+00:00"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 153,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 4,
+        "source_line": 1373,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 5,
+        "source_line": 1507,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 1659,
+        "source_parameter_index": null
+      }
+    ]
+  },
+  {
+    "fixture": "abmf_equipment.snx",
+    "fixture_sha256": "2f054636e80a54ac1eb024886f73be295fdfb7064ffc6c6b243c009c5282c741",
+    "source": "igs.snx",
+    "source_metadata": {
+      "url": "https://files.igs.org/pub/station/general/igs.snx",
+      "resolved_url": "https://files.igs.org/pub/station/general/igs.snx",
+      "retrieved_utc": "2026-10-14T14:17:58.426507+00:00",
+      "bytes": 974368,
+      "sha256": "290b43ee8a8c99fbf71d6737a0a19771349549af0740f6f3687e9c4df8cfbf4f"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 21,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 559,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 560,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 561,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 562,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 10,
+        "source_line": 563,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 11,
+        "source_line": 564,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 12,
+        "source_line": 565,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 13,
+        "source_line": 566,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 14,
+        "source_line": 567,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 15,
+        "source_line": 568,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 16,
+        "source_line": 569,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 17,
+        "source_line": 570,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 18,
+        "source_line": 571,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 19,
+        "source_line": 572,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 20,
+        "source_line": 573,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 21,
+        "source_line": 574,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 22,
+        "source_line": 575,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 23,
+        "source_line": 576,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 24,
+        "source_line": 577,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 25,
+        "source_line": 578,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 26,
+        "source_line": 579,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 27,
+        "source_line": 580,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 28,
+        "source_line": 581,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 29,
+        "source_line": 582,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 30,
+        "source_line": 583,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 33,
+        "source_line": 7783,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 34,
+        "source_line": 7784,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 35,
+        "source_line": 7785,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 38,
+        "source_line": 10110,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 39,
+        "source_line": 10111,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 40,
+        "source_line": 10112,
+        "source_parameter_index": null
+      }
+    ]
+  },
+  {
+    "fixture": "cedu_equipment.snx",
+    "fixture_sha256": "59ac214b59caf8001acd389f64f4b97340874714656f989b3bff73591aa99ae3",
+    "source": "igs.snx",
+    "source_metadata": {
+      "url": "https://files.igs.org/pub/station/general/igs.snx",
+      "resolved_url": "https://files.igs.org/pub/station/general/igs.snx",
+      "retrieved_utc": "2026-10-14T14:17:58.426507+00:00",
+      "bytes": 974368,
+      "sha256": "290b43ee8a8c99fbf71d6737a0a19771349549af0740f6f3687e9c4df8cfbf4f"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 91,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 1452,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 1453,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 1454,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 1455,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 10,
+        "source_line": 1456,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 11,
+        "source_line": 1457,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 12,
+        "source_line": 1458,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 13,
+        "source_line": 1459,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 14,
+        "source_line": 1460,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 15,
+        "source_line": 1461,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 16,
+        "source_line": 1462,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 17,
+        "source_line": 1463,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 18,
+        "source_line": 1464,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 19,
+        "source_line": 1465,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 20,
+        "source_line": 1466,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 21,
+        "source_line": 1467,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 22,
+        "source_line": 1468,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 23,
+        "source_line": 1469,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 24,
+        "source_line": 1470,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 25,
+        "source_line": 1471,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 26,
+        "source_line": 1472,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 27,
+        "source_line": 1473,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 30,
+        "source_line": 8019,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 31,
+        "source_line": 8020,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 32,
+        "source_line": 8021,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 33,
+        "source_line": 8022,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 34,
+        "source_line": 8023,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 35,
+        "source_line": 8024,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 36,
+        "source_line": 8025,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 39,
+        "source_line": 10346,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 40,
+        "source_line": 10347,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 41,
+        "source_line": 10348,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 42,
+        "source_line": 10349,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 43,
+        "source_line": 10350,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 44,
+        "source_line": 10351,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 45,
+        "source_line": 10352,
+        "source_parameter_index": null
+      }
+    ]
+  },
+  {
+    "fixture": "igs_malformed_site.snx",
+    "fixture_sha256": "8310d969e4e95fa82c6276af6ac145978ddff01154837ec65a03d6b522c6172d",
+    "source": "igs.snx",
+    "source_metadata": {
+      "url": "https://files.igs.org/pub/station/general/igs.snx",
+      "resolved_url": "https://files.igs.org/pub/station/general/igs.snx",
+      "retrieved_utc": "2026-10-14T14:17:58.426507+00:00",
+      "bytes": 974368,
+      "sha256": "290b43ee8a8c99fbf71d6737a0a19771349549af0740f6f3687e9c4df8cfbf4f"
+    },
+    "line_mapping": [
+      {
+        "fixture_line": 3,
+        "source_line": 389,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 6,
+        "source_line": 5457,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 7,
+        "source_line": 5458,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 8,
+        "source_line": 5459,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 9,
+        "source_line": 5460,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 10,
+        "source_line": 5461,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 11,
+        "source_line": 5462,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 12,
+        "source_line": 5463,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 13,
+        "source_line": 5464,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 14,
+        "source_line": 5465,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 15,
+        "source_line": 5466,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 18,
+        "source_line": 8980,
+        "source_parameter_index": null
+      },
+      {
+        "fixture_line": 21,
+        "source_line": 11307,
+        "source_parameter_index": null
+      }
+    ]
+  }
+]

@@ -337,7 +337,7 @@ double convertSinexDateTimeToSecondsSinceEpoch( const std::string& dateTime, con
     }
 
     int year = boost::lexical_cast< int >( dateTime.substr( 0, 2 ) );
-    if( year < 50 )
+    if( year <= 50 )
     {
         year += 2000;
     }
@@ -353,6 +353,46 @@ double convertSinexDateTimeToSecondsSinceEpoch( const std::string& dateTime, con
             physical_constants::JULIAN_DAY;
 }
 
+std::map< std::string, SinexStationState > readSinexStationData( const SinexStationHistory& history, const double referenceJulianDay )
+{
+    validateSinexStationHistory( history );
+    std::map< std::string, SinexStationState > result;
+    for( const auto& key : getSinexCartesianSolutionKeys( history ) )
+    {
+        const auto solution = getSinexCartesianSolution( history, key );
+        const auto& domes = solution.site.domesId;
+        if( result.count( domes ) )
+            throw std::runtime_error( history.source + ": DOMES " + domes +
+                                      " has multiple site/point/solution identities. Use readSinexStationHistory and "
+                                      "getSinexCartesianSolution with an explicit SinexSolutionKey." );
+        SinexStationState state;
+        state.siteCode_ = key.site.siteCode;
+        state.domesId_ = domes;
+        const auto& civil = *solution.positionReferenceEpoch.civilUtc;
+        if( civil.secondsOfDay == 86400 )
+            throw std::runtime_error( history.source +
+                                      ": Legacy SINEX map cannot represent an inserted-second UTC label; use the neutral history" );
+        const auto date = basic_astrodynamics::convertYearAndDaysInYearToDate( civil.year, civil.dayOfYear - 1 );
+        state.referenceEpoch_ = basic_astrodynamics::calculateJulianDaySinceEpoch(
+                                        date, civil.secondsOfDay / physical_constants::JULIAN_DAY, referenceJulianDay ) *
+                physical_constants::JULIAN_DAY;
+        for( int i = 0; i < 3; ++i )
+        {
+            state.position_[ i ] = solution.positionMetres[ i ];
+            if( solution.velocityMetresPerSecond[ i ] )
+            {
+                if( !( *solution.velocityReferenceEpochs[ i ]->civilUtc == *solution.positionReferenceEpoch.civilUtc ) )
+                    throw std::runtime_error( history.source +
+                                              ": Legacy SINEX map cannot represent distinct position/velocity reference epochs; use "
+                                              "getSinexCartesianSolution" );
+                state.velocity_[ i ] = *solution.velocityMetresPerSecond[ i ];
+            }
+        }
+        result.emplace( domes, state );
+    }
+    return result;
+}
+
 std::map< std::string, SinexStationState > readSinexStationData( const std::string& fileName, const double referenceJulianDay )
 {
     std::ifstream stream( fileName, std::ios_base::in );
@@ -361,6 +401,18 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
         throw std::runtime_error( "Error when opening SINEX file: " + fileName );
     }
 
+    // Standard files use the neutral history parser. Headerless token input retains
+    // the explicitly documented compatibility path below.
+    std::string firstLine;
+    while( std::getline( stream, firstLine ) )
+    {
+        if( sinexTrimCopy( firstLine ).empty( ) || sinexTrimCopy( firstLine ).front( ) == '*' ) continue;
+        if( firstLine.rfind( "%=SNX", 0 ) == 0 ) return readSinexStationData( readSinexStationHistory( fileName ), referenceJulianDay );
+        break;
+    }
+    stream.clear( );
+    stream.seekg( 0 );
+    std::map< std::string, std::pair< std::string, std::string > > legacyIdentities;
     std::map< std::string, std::string > siteCodeToDomes;
     std::map< int, std::string > siteIndexToDomes;
     std::map< std::string, Eigen::Matrix< double, 6, 1 > > siteStates;
@@ -494,6 +546,16 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
                 }
             }
 
+            const auto identityTokens = splitTokens( line );
+            if( identityTokens.size( ) >= 5 )
+            {
+                const auto identity = std::make_pair( identityTokens[ 3 ], identityTokens[ 4 ] );
+                if( legacyIdentities.count( domesId ) && legacyIdentities.at( domesId ) != identity )
+                    throw std::runtime_error( fileName +
+                                              ": Legacy DOMES map has multiple point/solution identities; use the strict full-history "
+                                              "reader and an explicit solution key" );
+                legacyIdentities[ domesId ] = identity;
+            }
             if( siteStates.count( domesId ) == 0 )
             {
                 siteStates[ domesId ] = Eigen::Matrix< double, 6, 1 >::Constant( TUDAT_NAN );
@@ -504,6 +566,8 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
             {
                 continue;
             }
+            if( std::isfinite( siteStates[ domesId ]( stateIndex ) ) )
+                throw std::runtime_error( fileName + ": Duplicate legacy Cartesian component; use the strict full-history reader" );
             siteStates[ domesId ]( stateIndex ) = stateValue;
 
             if( !referenceEpoch.empty( ) && referenceEpoch.find( ':' ) != std::string::npos )
