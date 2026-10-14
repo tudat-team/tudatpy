@@ -723,6 +723,56 @@ BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
             gravitationalParameter, gravityFieldSettings->getGravitationalParameter( ), 2.0 * std::numeric_limits< double >::epsilon( ) );
 }
 
+// Interpolated variations sample base-frame ephemerides while the system is built.
+BOOST_AUTO_TEST_CASE( test_interpolatedSolidTidesInitializeEphemerisFramesBeforeSampling )
+{
+    const double earthMu = 3.986004415e14;
+    const double moonMu = 4.902800066e12;
+    const double radius = 6378136.46;
+    const double loveNumber = 0.3;
+    Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
+    earthState( 0 ) = 1.0e8;
+    Eigen::MatrixXd cosine = Eigen::MatrixXd::Zero( 3, 3 );
+    cosine( 0, 0 ) = 1.0;
+    BodyListSettings settings( "SSB", "J2000" );
+    settings.addSettings( "Earth" );
+    settings.addSettings( "Moon" );
+    settings.at( "Earth" )->ephemerisSettings = constantEphemerisSettings( earthState, "SSB", "J2000" );
+    settings.at( "Earth" )->rotationModelSettings =
+            simpleRotationModelSettings( "J2000", "EarthFixed", Eigen::Quaterniond::Identity( ), 0.0, 0.0 );
+    settings.at( "Earth" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            earthMu, radius, cosine, Eigen::MatrixXd::Zero( 3, 3 ), "EarthFixed" );
+    int ephemerisCalls = 0;
+    settings.at( "Moon" )->ephemerisSettings = customEphemerisSettings(
+            [ &ephemerisCalls ]( const double time ) {
+                ++ephemerisCalls;
+                Eigen::Vector6d state = Eigen::Vector6d::Zero( );
+                state( 0 ) = 3.844e8 + 1.0e4 * time;
+                return state;
+            },
+            "Earth",
+            "J2000" );
+    settings.at( "Moon" )->gravityFieldSettings = centralGravitySettings( moonMu );
+    settings.at( "Earth" )->gravityFieldVariationSettings.push_back( orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings(
+            "Moon",
+            std::vector< double >( 3, loveNumber ),
+            2,
+            std::make_shared< ModelInterpolationSettings >(
+                    0.0, 10.0, 2.0, std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ) ) ) );
+    const auto bodies = createSystemOfBodies( settings );
+    const auto field = std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+            bodies.at( "Earth" )->getGravityFieldModel( ) );
+    BOOST_REQUIRE( field );
+    BOOST_CHECK_GT( ephemerisCalls, 0 );
+    field->update( 5.0 );
+    // At longitude/latitude zero: Pbar20=-sqrt(5)/2 and Pbar22=sqrt(15)/2.
+    // Linear interpolation at 5 s averages the independent 4 s and 6 s forcing.
+    const double forcing = loveNumber / 5.0 * moonMu / earthMu * 0.5 *
+            ( std::pow( radius / ( 3.844e8 + 4.0e4 ), 3 ) + std::pow( radius / ( 3.844e8 + 6.0e4 ), 3 ) );
+    BOOST_CHECK_CLOSE_FRACTION( field->getCosineCoefficients( )( 2, 0 ), -std::sqrt( 5.0 ) / 2.0 * forcing, 2.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( field->getCosineCoefficients( )( 2, 2 ), std::sqrt( 15.0 ) / 2.0 * forcing, 2.0e-14 );
+}
+
 //! Test set up of gravity field model variations environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {

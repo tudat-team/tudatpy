@@ -288,8 +288,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
-    // Ground-station motion factories consume global-frame ephemerides and may
-    // validate external-body origin conversions during construction.
+    // Install global-frame ephemeris callbacks before initializing deferred
+    // gravity-variation interpolators and constructing ground-station motion.
     bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
