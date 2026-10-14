@@ -125,7 +125,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
     //! Partial derivative of a single body's contribution with respect to link-end time, holding both link-end states fixed.
     /*!

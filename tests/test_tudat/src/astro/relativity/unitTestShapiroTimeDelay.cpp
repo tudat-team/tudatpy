@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE( testShapiroTimePartialsAndCache )
                                                    << ", link end=" << linkEnd )
                     {
                         const double analyticalPartial = correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                                transmitterState, receiverState, transmissionTime, receptionTime, linkEnd );
+                                transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, nullptr );
                         BOOST_CHECK_EQUAL( correction.getCurrentTotalLightTimeCorrection( ), nominalCorrection );
                         for( unsigned int i = 0; i < selectedNames.size( ); i++ )
                         {
