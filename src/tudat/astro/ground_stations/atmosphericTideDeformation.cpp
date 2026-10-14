@@ -1,6 +1,7 @@
 #include "tudat/astro/ground_stations/atmosphericTideDeformation.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <cmath>
 #include <stdexcept>
@@ -46,14 +47,6 @@ input_output::AtmosphericTideMetadata stationMetadata( const input_output::Atmos
     {
         result.greensFunction = common.greensFunction;
     }
-    return result;
-}
-Eigen::Matrix3d localToCartesian( double latitude, double longitude )
-{
-    Eigen::Matrix3d result;
-    result.col( 0 ) << std::cos( latitude ) * std::cos( longitude ), std::cos( latitude ) * std::sin( longitude ), std::sin( latitude );
-    result.col( 1 ) << -std::sin( latitude ) * std::cos( longitude ), -std::sin( latitude ) * std::sin( longitude ), std::cos( latitude );
-    result.col( 2 ) << -std::sin( longitude ), std::cos( longitude ), 0;
     return result;
 }
 }  // namespace
@@ -244,7 +237,10 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
                                                    : synthesizeAtmosphericTideLoading( coefficients, ut1 );
     const double basisLatitude =
             metadata.displacementBasis == AtmosphericTideDisplacementBasis::geodeticUpNorthEast ? geodeticLatitude : geocentricLatitude;
-    Eigen::Vector3d cartesian = localToCartesian( basisLatitude, longitude ) * local;
+    // Source R/N/E (or U/N/E) components become the existing helper's E/N/U axes.
+    const Eigen::Vector3d enu( local.z( ), local.y( ), local.x( ) );
+    Eigen::Vector3d cartesian =
+            reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( longitude, basisLatitude ) * enu;
     if( settings_.originPolicy == AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm &&
         metadata.referenceOrigin == AtmosphericLoadingReferenceOrigin::solidEarthCentre )
     {
