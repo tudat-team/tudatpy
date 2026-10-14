@@ -18,6 +18,7 @@
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createEarthGravityFieldVariations.h"
 
 namespace tudat
 {
@@ -46,6 +47,14 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
     {
         throw std::runtime_error( "Error when making gravity field variations of body " + body + ", body not found" );
     }
+    validateEarthGravityFieldVariationCollection( gravityFieldVariationSettings );
+    const auto field =
+            std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( bodies.at( body )->getGravityFieldModel( ) );
+    if( !field )
+    {
+        throw std::runtime_error( "Gravity variations require a time-dependent spherical harmonics field" );
+    }
+
     // Iterate over all variations to create.
     for( unsigned int i = 0; i < gravityFieldVariationSettings.size( ); i++ )
     {
@@ -53,7 +62,14 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         variationTypes.push_back( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) );
 
         // Set current variation object in list.
-        variationObjects.push_back( createGravityFieldVariationsModel( gravityFieldVariationSettings.at( i ), body, bodies ) );
+        const auto variation = createGravityFieldVariationsModel( gravityFieldVariationSettings.at( i ), body, bodies );
+        if( variation->getMinimumDegree( ) < 0 || variation->getMinimumOrder( ) < 0 ||
+            variation->getMinimumDegree( ) + variation->getNumberOfDegrees( ) > field->getCosineCoefficientsReference( ).rows( ) ||
+            variation->getMinimumOrder( ) + variation->getNumberOfOrders( ) > field->getCosineCoefficientsReference( ).cols( ) )
+        {
+            throw std::runtime_error( "Gravity variation block exceeds the nominal field dimensions" );
+        }
+        variationObjects.push_back( variation );
 
         if( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) == basic_solid_body )
         {
@@ -86,13 +102,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
     std::shared_ptr< GravityFieldVariationsSet > fieldVariationsSet = std::make_shared< GravityFieldVariationsSet >(
             variationObjects, variationTypes, variationIdentifiers, createInterpolators, initialTimes, finalTimes, timeSteps );
 
-    if( std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( bodies.at( body )->getGravityFieldModel( ) ) == nullptr )
-    {
-        throw std::runtime_error( "Error when making gravity field variations of body " + body + ", base type is not time dependent" );
-    }
-
-    std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( bodies.at( body )->getGravityFieldModel( ) )
-            ->setFieldVariationSettings( fieldVariationsSet, false );
+    field->setFieldVariationSettings( fieldVariationsSet, false );
 
     return fieldVariationsSet;
 }
@@ -110,6 +120,11 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
     // Check type of variation
     switch( gravityFieldVariationSettings->getBodyDeformationType( ) )
     {
+        case iers_2010:
+        case pole_tide:
+        case ocean_pole_tide:
+            gravityFieldVariationModel = createEarthGravityFieldVariationsModel( gravityFieldVariationSettings, body, bodies );
+            break;
         case basic_solid_body:
         case mode_coupled_solid_body: {
             std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =

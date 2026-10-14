@@ -22,6 +22,7 @@
 #include "environment_setup/createFlightConditions.h"
 #include "environment_setup/createGravityField.h"
 #include "environment_setup/createGravityFieldVariations.h"
+#include "environment_setup/createEarthGravityFieldVariations.h"
 #include "environment_setup/createGroundStations.h"
 #include "environment_setup/createRadiationSourceModel.h"
 #include "environment_setup/createRadiationPressureTargetModel.h"

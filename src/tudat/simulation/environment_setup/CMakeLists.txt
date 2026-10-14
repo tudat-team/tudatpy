@@ -28,6 +28,7 @@ set(environment_HEADERS
         rigidBodyProperties.h
         body.h
         createGravityFieldVariations.h
+        createEarthGravityFieldVariations.h
         createAtmosphereModel.h
         createFlightConditions.h
         createRadiationSourceModel.h
@@ -49,6 +50,7 @@ set(environment_SOURCES
         createRotationModel.cpp
         createRotationModelEarthOrientation.cpp
         createGravityFieldVariations.cpp
+        createEarthGravityFieldVariations.cpp
         createBodies.cpp
         createGravityField.cpp
         createBodyShapeModel.cpp
