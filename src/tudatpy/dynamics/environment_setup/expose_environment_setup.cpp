@@ -1090,6 +1090,17 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "body" ),
            py::arg( "ground_station_settings" ),
            R"doc(No documentation found.)doc" );
+
+    m.def( "add_ground_station",
+           py::overload_cast< const std::shared_ptr< tss::Body >,
+                              const std::shared_ptr< tss::GroundStationSettings >,
+                              const tss::SystemOfBodies& >( &tss::createGroundStation ),
+           py::arg( "body" ),
+           py::arg( "ground_station_settings" ),
+           py::arg( "bodies" ),
+           R"doc(Create a station with its bodies environment. Required when a motion model
+uses external ephemerides or gravitational parameters, including the IERS
+relativistic spatial approximation.)doc" );
     //
     //
     //    .. code-block:: python

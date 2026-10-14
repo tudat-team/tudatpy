@@ -216,7 +216,7 @@ Eigen::Vector3d getBodyFixedSpecialRelativisticDisplacementFunction( const doubl
     Eigen::Vector3d earthBarycentricVelocity = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( time ).segment( 3, 3 );
 
     return bodyFixedToInertial.inverse( ) *
-            ( inertialStationPosition.dot( earthBarycentricVelocity ) * earthBarycentricVelocity *
+            ( -0.5 * inertialStationPosition.dot( earthBarycentricVelocity ) * earthBarycentricVelocity *
               physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
 }
 
@@ -299,7 +299,8 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             }
             if( i == 4 )
             {
-                stationMotionSettings.push_back( std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( "", false ) );
+                stationMotionSettings.push_back( std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
+                        "", false, ground_stations::unscaled_tcg_to_tcb_station_coordinates ) );
             }
             stationMotionSettings.push_back( std::make_shared< BodyDeformationStationMotionSettings >( true ) );
 
@@ -396,8 +397,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                         Eigen::Vector3d currentState =
                                 stationState->getCartesianPositionInTime( testTimes.at( j ), bodies.getFrameOrigin( ) );
                         Eigen::Vector3d stateDifference = currentState - nominalStationState;
-                        Eigen::Vector3d expectedStateDifference =
-                                getBodyFixedSpecialRelativisticDisplacementFunction( testTimes.at( j ), bodies, nominalStationState );
+                        Eigen::Vector3d expectedStateDifference = Eigen::Vector3d::Zero( );
                         if( bodyDeformationType == 1 )
                         {
                             expectedStateDifference +=
@@ -406,7 +406,11 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                                     deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
                         }
 
-                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );
+                        expectedStateDifference += getBodyFixedSpecialRelativisticDisplacementFunction(
+                                testTimes.at( j ), bodies, nominalStationState + expectedStateDifference );
+                        // Subtracting metre-scale offsets from a ~6e6 m position
+                        // has an absolute rounding floor, even when one component is tiny.
+                        BOOST_CHECK_SMALL( ( stateDifference - expectedStateDifference ).norm( ), 2e-9 );
                     }
 
                     {

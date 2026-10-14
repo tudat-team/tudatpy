@@ -118,20 +118,34 @@ public:
     std::map< double, Eigen::Vector3d > displacementList_;
 };
 
+//! IERS Eq. 11.18/11.19 geocentre-epoch spatial approximation, not a full event map.
+//! External potential is evaluated from precisely this supplied body list, excluding the host.
 class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     BodyCentricToBarycentricGroundStationMotionSettings( const std::string centralBodyName = "Sun",
-                                                         const bool useGeneralRelativisticCorrection = true ):
+                                                         const bool useGeneralRelativisticCorrection = true,
+                                                         const ground_stations::RelativisticStationCoordinateCompatibility compatibility =
+                                                                 ground_stations::unspecified_station_coordinate_compatibility ):
         GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( centralBodyName ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
+        externalBodyNames_( useGeneralRelativisticCorrection ? std::vector< std::string >{ centralBodyName }
+                                                             : std::vector< std::string >{} ),
+        coordinateCompatibility_( compatibility )
     {}
 
-    virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ) {}
+    BodyCentricToBarycentricGroundStationMotionSettings( const ground_stations::RelativisticStationCoordinateCompatibility compatibility,
+                                                         const std::vector< std::string >& externalBodies ):
+        GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( "" ),
+        useGeneralRelativisticCorrection_( !externalBodies.empty( ) ), externalBodyNames_( externalBodies ),
+        coordinateCompatibility_( compatibility )
+    {}
 
     std::string centralBodyName_;
-
     bool useGeneralRelativisticCorrection_;
+    std::vector< std::string > externalBodyNames_;
+    ground_stations::RelativisticStationCoordinateCompatibility coordinateCompatibility_;
+    bool requireEarthHost_ = false;
 };
 
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
@@ -172,11 +186,27 @@ inline std::shared_ptr< GroundStationMotionSettings > bodyDeformationStationMoti
     return std::make_shared< BodyDeformationStationMotionSettings >( throwExceptionWhenNotAvailable );
 }
 
+//! Generic path requires explicit compatibility; legacy omission is rejected at construction.
 inline std::shared_ptr< GroundStationMotionSettings > bodycentricToBarycentricStationMotionSettings(
         const std::string centralBodyName = "Sun",
-        const bool useGeneralRelativisticCorrection = true )
+        const bool useGeneralRelativisticCorrection = true,
+        const ground_stations::RelativisticStationCoordinateCompatibility compatibility =
+                ground_stations::unspecified_station_coordinate_compatibility )
 {
-    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
+            centralBodyName, useGeneralRelativisticCorrection, compatibility );
+}
+
+//! Earth IERS spatial approximation: TT-compatible local to TDB-compatible offset.
+//! Uses the geocentre epoch; omits station simultaneity and full-event acceleration terms.
+//! The default external potential is explicitly the Sun-only approximation.
+inline std::shared_ptr< GroundStationMotionSettings > earthRelativisticStationMotionSettings(
+        const std::vector< std::string >& externalBodies = { "Sun" },
+        const ground_stations::RelativisticStationCoordinateCompatibility compatibility = ground_stations::tt_to_tdb_station_coordinates )
+{
+    auto settings = std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( compatibility, externalBodies );
+    settings->requireEarthHost_ = true;
+    return settings;
 }
 
 enum WeatherDataSettingsType { dsn_weather_data, estrack_weather_data };
@@ -406,6 +436,14 @@ void createGroundStation(
         const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
                 std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
 
+//! Environment-aware overload for motion models requiring external body ephemerides.
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::string groundStationName,
+                          const Eigen::Vector3d groundStationPosition,
+                          const coordinate_conversions::PositionElementTypes positionElementType,
+                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
+                          const SystemOfBodies& bodies );
+
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 /*!
  * Function to create a set of ground stations and add them to the corresponding Body objects
@@ -420,6 +458,9 @@ void createGroundStations(
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position );
 
 void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings );
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::shared_ptr< GroundStationSettings > groundStationSettings,
+                          const SystemOfBodies& bodies );
 
 std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList( const std::shared_ptr< Body > body );
 
@@ -432,12 +473,14 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
  *  \param bodyWithReferencePoint Body on which reference point is located
  *  \param referencePointStateFunction Function returning the state of the reference point on the body (in a body-fixed
  *  frame, with velocity equal to the TDB derivative of position).
+ *  \param frameOrigin Origin of the body's state in the global frame. Required if its ephemeris origin is converted.
  *  \return Reference point ephemeris in global coordinates.
  */
 template< typename TimeType = double, typename StateScalarType = double >
 std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
         const std::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
-        const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > referencePointStateFunction )
+        const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > referencePointStateFunction,
+        std::string frameOrigin = "" )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
@@ -456,6 +499,17 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
     if( referencePointStateFunction == nullptr )
     {
         throw std::runtime_error( "Error when creating reference point ephemeris, no reference point state function is provided" );
+    }
+
+    if( frameOrigin.empty( ) )
+    {
+        if( bodyWithReferencePoint->getIsBodyGlobalFrameOrigin( ) == 1 )
+            frameOrigin = bodyWithReferencePoint->getBodyName( );
+        else if( bodyWithReferencePoint->getEphemeris( ) &&
+                 bodyWithReferencePoint->getEphemerisFrameToBaseFrame( )->getBaseFrameId( ).empty( ) )
+            frameOrigin = bodyWithReferencePoint->getEphemeris( )->getReferenceFrameOrigin( );
+        else
+            throw std::invalid_argument( "Reference point ephemeris requires the explicit global frame origin after origin conversion." );
     }
 
     // Environment ephemerides and the complete local station state use TDB.
@@ -483,7 +537,7 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 
     // Create and return ephemeris
     return std::make_shared< ephemerides::CompositeEphemeris< TimeType, StateScalarType > >(
-            stationEphemerisVector, stationRotationVector, "SSB", "ECLIPJ2000" );
+            stationEphemerisVector, stationRotationVector, frameOrigin, bodyRotationModel->getBaseFrameOrientation( ) );
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
@@ -559,7 +613,8 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
         }
 
         // Retrieve function to calculate state of transmitter S/C
-        stationEphemeris = createReferencePointEphemeris< TimeType, StateScalarType >( bodyWithLinkEnd, referencePointStateFunction );
+        stationEphemeris = createReferencePointEphemeris< TimeType, StateScalarType >(
+                bodyWithLinkEnd, referencePointStateFunction, bodies.getFrameOrigin( ) );
     }
     else
     {

@@ -9,6 +9,7 @@
  */
 
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include <set>
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
@@ -259,6 +260,10 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                             "Error when making relativistic (body-centered to barycentered) ground station motion model, settings type is "
                             "incompatible" );
                 }
+                if( relativisticStationMotionSettings->requireEarthHost_ && body->getBodyName( ) != "Earth" )
+                    throw std::invalid_argument(
+                            "Earth relativistic station convenience requires the Earth host; use explicit generic compatibility "
+                            "otherwise." );
 
                 std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction;
                 if( bodies.getFrameOrigin( ) == "SSB" )
@@ -273,39 +278,53 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                             "SSB global frame origin is currently supported" );
                 }
 
-                std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction =
-                        std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                                   body->getRotationalEphemeris( ),
-                                   std::placeholders::_1 );
-
-                std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction = nullptr;
-                std::function< double( ) > centralBodyGravitationalParameterFunction = nullptr;
-                if( bodies.count( relativisticStationMotionSettings->centralBodyName_ ) == 0 &&
-                    relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
+                auto rotation = body->getRotationalEphemeris( );
+                if( !rotation ) throw std::invalid_argument( "Relativistic station correction requires a rotation model." );
+                const auto sameAxes = []( const std::string& first, const std::string& second ) {
+                    const std::set< std::string > icrfAxes{ "GCRS", "ICRF", "J2000" };
+                    return first == second || ( icrfAxes.count( first ) && icrfAxes.count( second ) );
+                };
+                if( !sameAxes( rotation->getBaseFrameOrientation( ), bodies.getFrameOrientation( ) ) )
+                    throw std::invalid_argument( "Relativistic station rotation base axes must match the bodies environment axes." );
+                const auto validateStateAxes = [ & ]( const std::shared_ptr< Body >& source ) {
+                    if( source->getEphemeris( ) &&
+                        !sameAxes( source->getEphemeris( )->getReferenceFrameOrientation( ), bodies.getFrameOrientation( ) ) )
+                        throw std::invalid_argument(
+                                "Relativistic station barycentric ephemeris axes must match the bodies environment axes." );
+                    if( source->getIsBodyGlobalFrameOrigin( ) != 1 && source->getEphemeris( ) &&
+                        source->getEphemeris( )->getReferenceFrameOrigin( ) != bodies.getFrameOrigin( ) &&
+                        source->getEphemerisFrameToBaseFrame( )->getBaseFrameId( ).empty( ) )
+                        throw std::invalid_argument( "Relativistic station ephemeris origin conversion has not been configured." );
+                };
+                validateStateAxes( body );
+                if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( rotation ) )
+                    rotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
+                            earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
+                std::vector< ground_stations::RelativisticStationExternalBody > externalBodies;
+                std::set< std::shared_ptr< Body > > selectedExternalBodies;
+                for( const auto& name : relativisticStationMotionSettings->externalBodyNames_ )
                 {
-                    throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " +
-                                              relativisticStationMotionSettings->centralBodyName_ + " not found" );
+                    if( !bodies.count( name ) ) throw std::invalid_argument( "Relativistic station external body not found: " + name );
+                    const auto external = bodies.at( name );
+                    if( external == body )
+                        throw std::invalid_argument( "Relativistic external potential must exclude the station host: " + name );
+                    if( !selectedExternalBodies.insert( external ).second )
+                        throw std::invalid_argument( "Duplicate external body in relativistic station potential: " + name );
+                    if( !external->getGravityFieldModel( ) ) throw std::invalid_argument( "Relativistic external body lacks GM: " + name );
+                    validateStateAxes( external );
+                    externalBodies.push_back(
+                            { name,
+                              std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, external, std::placeholders::_1 ),
+                              std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                         external->getGravityFieldModel( ) ) } );
                 }
-                else if( relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
-                {
-                    centralBodyBarycentricPositionFunction =
-                            std::bind( &Body::getPositionInBaseFrameFromEphemeris< double, double >, body, std::placeholders::_1 );
-                    if( bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
-                    {
-                        throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " +
-                                                  relativisticStationMotionSettings->centralBodyName_ + " has no grvaity field" );
-                    }
-                    centralBodyGravitationalParameterFunction =
-                            std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                       bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) );
-                }
-
                 currentStationMotionModel = std::make_shared< ground_stations::BodyCentricToBarycentricRelativisticStationMotion >(
                         bodyBarycentricStateFunction,
-                        centralBodyBarycentricPositionFunction,
-                        inertialToBodyFixedRotationFunction,
-                        centralBodyGravitationalParameterFunction,
-                        relativisticStationMotionSettings->useGeneralRelativisticCorrection_ );
+                        std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, rotation, std::placeholders::_1 ),
+                        std::bind(
+                                &ephemerides::RotationalEphemeris::getDerivativeOfRotationToTargetFrame, rotation, std::placeholders::_1 ),
+                        externalBodies,
+                        relativisticStationMotionSettings->coordinateCompatibility_ );
                 break;
             }
             case custom_station_motion: {
@@ -357,8 +376,19 @@ void createGroundStation( const std::shared_ptr< Body > body,
                           const coordinate_conversions::PositionElementTypes positionElementType,
                           const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings )
 {
-    createGroundStation(
-            body, groundStationName, createGroundStationState( body, groundStationPosition, positionElementType, stationMotionSettings ) );
+    createGroundStation( body, groundStationName, groundStationPosition, positionElementType, stationMotionSettings, SystemOfBodies( ) );
+}
+
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::string groundStationName,
+                          const Eigen::Vector3d groundStationPosition,
+                          const coordinate_conversions::PositionElementTypes positionElementType,
+                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
+                          const SystemOfBodies& bodies )
+{
+    createGroundStation( body,
+                         groundStationName,
+                         createGroundStationState( body, groundStationPosition, positionElementType, stationMotionSettings, bodies ) );
 }
 
 //! Function to create a set of ground stations and add them to the corresponding Body objects
@@ -383,6 +413,13 @@ void createGroundStations( const SystemOfBodies& bodies,
 
 void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings )
 {
+    createGroundStation( body, groundStationSettings, SystemOfBodies( ) );
+}
+
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::shared_ptr< GroundStationSettings > groundStationSettings,
+                          const SystemOfBodies& bodies )
+{
     if( body->getGroundStationMap( ).count( groundStationSettings->getStationName( ) ) != 0 )
     {
         throw std::runtime_error( "Error when creating ground station " + groundStationSettings->getStationName( ) + " on body " +
@@ -394,7 +431,8 @@ void createGroundStation( const std::shared_ptr< Body > body, const std::shared_
                              groundStationSettings->getStationName( ),
                              groundStationSettings->getGroundStationPosition( ),
                              groundStationSettings->getPositionElementType( ),
-                             groundStationSettings->getStationMotionSettings( ) );
+                             groundStationSettings->getStationMotionSettings( ),
+                             bodies );
         if( groundStationSettings->getWeatherDataSettings( ) != nullptr )
         {
             setWeatherDataInGroundStation( body->getGroundStation( groundStationSettings->getStationName( ) ),

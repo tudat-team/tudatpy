@@ -369,53 +369,75 @@ protected:
     std::vector< Eigen::Vector3d > displacementVectors_;
 };
 
+//! Coordinate compatibility for the IERS 2010 spatial-offset approximation.
+enum RelativisticStationCoordinateCompatibility {
+    unspecified_station_coordinate_compatibility,
+    unscaled_tcg_to_tcb_station_coordinates,
+    tt_to_tdb_station_coordinates
+};
+
+//! Explicit external potential contribution; the host must not be included.
+struct RelativisticStationExternalBody {
+    std::string name;
+    std::function< Eigen::Vector6d( double ) > barycentricState;
+    std::function< double( ) > gravitationalParameter;
+};
+
+//! IERS 2010 Eq. 11.18/11.19 spatial offset at the supplied geocentre TDB epoch.
+//! This approximation omits station simultaneity and acceleration terms in the
+//! full IAU event transformation. It is not a barycentric-time worldline solver.
+//! Position and velocity are SI; returned velocity differentiates this declared
+//! approximation with respect to the input TDB epoch.
 struct BodyCentricToBarycentricRelativisticStationMotion : public StationMotionModel {
 public:
     BodyCentricToBarycentricRelativisticStationMotion(
-            const std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction,
-            const std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction,
-            const std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction,
-            const std::function< double( ) > centralBodyGravitationalParameterFunction,
-            const bool useGeneralRelativisticCorrection ):
-        bodyBarycentricStateFunction_( bodyBarycentricStateFunction ),
-        centralBodyBarycentricPositionFunction_( centralBodyBarycentricPositionFunction ),
-        inertialToBodyFixedRotationFunction_( inertialToBodyFixedRotationFunction ),
-        centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
-    {
-        if( useGeneralRelativisticCorrection &&
-            ( centralBodyGravitationalParameterFunction == nullptr || centralBodyBarycentricPositionFunction == nullptr ) )
-        {
-            throw std::runtime_error(
-                    "Error wen creating body- to barycentric station position conversion, GR correction requested, but required functions "
-                    "not provided" );
-        }
-    }
+            const std::function< Eigen::Vector6d( double ) >& bodyBarycentricStateFunction,
+            const std::function< Eigen::Quaterniond( double ) >& inertialToBodyFixedRotationFunction,
+            const std::function< Eigen::Matrix3d( double ) >& rotationDerivativeFunction,
+            const std::vector< RelativisticStationExternalBody >& externalBodies,
+            const RelativisticStationCoordinateCompatibility coordinateCompatibility,
+            const double derivativeStep = 32.0 );
 
-    ~BodyCentricToBarycentricRelativisticStationMotion( ) {}
+    //! Legacy callbacks remain usable with explicit coordinate compatibility.
+    //! Missing rate callbacks use the guarded, converged numerical fallback.
+    BodyCentricToBarycentricRelativisticStationMotion(
+            const std::function< Eigen::Vector6d( double ) > bodyBarycentricStateFunction,
+            const std::function< Eigen::Vector3d( double ) > centralBodyBarycentricPositionFunction,
+            const std::function< Eigen::Quaterniond( double ) > inertialToBodyFixedRotationFunction,
+            const std::function< double( ) > centralBodyGravitationalParameterFunction,
+            const bool useGeneralRelativisticCorrection,
+            const RelativisticStationCoordinateCompatibility coordinateCompatibility );
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
-                                               const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
-                                               const std::string& targetFrameOrigin );
+                                               const std::shared_ptr< GroundStationState > groundStationState,
+                                               const std::string& targetFrameOrigin ) override;
+    Eigen::Vector3d getBodyFixedStationPositionCorrection( const double time,
+                                                           const std::shared_ptr< GroundStationState > groundStationState,
+                                                           const std::string& targetFrameOrigin ) override;
 
-protected:
-    std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction_;
+    //! Terminal corrections consume the full intrinsic state, without recursion.
+    Eigen::Vector6d correctCompleteLocalState( double time, const Eigen::Vector6d& state, const std::string& targetFrameOrigin );
+    Eigen::Vector3d correctCompleteLocalPosition( double time, const Eigen::Vector3d& position, const std::string& targetFrameOrigin );
+    const std::vector< RelativisticStationExternalBody >& getExternalBodies( ) const
+    {
+        return externalBodies_;
+    }
 
-    std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction_;
+private:
+    Eigen::Matrix3d correctionMatrix( double time );
+    Eigen::Matrix3d correctionMatrixDerivative( double time );
+    double potential( double time );
+    double potentialDerivative( double time );
+    void restoreCentralEpoch( double time );
 
-    std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction_;
-
-    std::function< double( ) > centralBodyGravitationalParameterFunction_;
-
-    Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
-
-    Eigen::Quaterniond currentRotationToBodyFixedFrame_;
-
-    Eigen::Vector3d inertialNominalStationPosition_;
-
-    Eigen::Vector6d centralBodyBarycentricState_;
-
-    bool useGeneralRelativisticCorrection_;
+    std::function< Eigen::Vector6d( double ) > bodyBarycentricStateFunction_;
+    std::function< Eigen::Quaterniond( double ) > inertialToBodyFixedRotationFunction_;
+    std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction_;
+    std::vector< RelativisticStationExternalBody > externalBodies_;
+    std::function< Eigen::Vector3d( double ) > legacyExternalPosition_;
+    std::function< double( ) > legacyExternalGm_;
+    RelativisticStationCoordinateCompatibility coordinateCompatibility_;
+    double derivativeStep_;
 };
 
 struct CustomStationMotionModel : public StationMotionModel {
@@ -437,36 +459,22 @@ protected:
     std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
 };
 
+//! Intrinsic motion is summed first; at most one coordinate map is applied last.
+//! Relativistic correction ordering in the supplied model list is immaterial.
 struct CombinedStationMotionModel : public StationMotionModel {
 public:
-    CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList ): modelList_( modelList ) {}
+    CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList );
+    Eigen::Vector6d getBodyFixedStationMotion( double time,
+                                               const std::shared_ptr< GroundStationState > groundStationState,
+                                               const std::string& targetFrameOrigin ) override;
+    Eigen::Vector3d getBodyFixedStationPositionCorrection( double time,
+                                                           const std::shared_ptr< GroundStationState > groundStationState,
+                                                           const std::string& targetFrameOrigin ) override;
 
-    Eigen::Vector6d getBodyFixedStationMotion( const double time,
-                                               const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
-                                               const std::string& targetFrameOrigin )
-    {
-        Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
-        for( unsigned int i = 0; i < modelList_.size( ); i++ )
-        {
-            motion += modelList_.at( i )->getBodyFixedStationMotion( time, groundStationState, targetFrameOrigin );
-        }
-        return motion;
-    }
-
-    Eigen::Vector3d getBodyFixedStationPositionCorrection( const double time,
-                                                           const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
-                                                           const std::string& targetFrameOrigin ) override
-    {
-        Eigen::Vector3d correction = Eigen::Vector3d::Zero( );
-        for( const auto& model : modelList_ )
-        {
-            correction += model->getBodyFixedStationPositionCorrection( time, groundStationState, targetFrameOrigin );
-        }
-        return correction;
-    }
-
-protected:
+private:
+    void appendModel( const std::shared_ptr< StationMotionModel >& model );
     std::vector< std::shared_ptr< StationMotionModel > > modelList_;
+    std::shared_ptr< BodyCentricToBarycentricRelativisticStationMotion > terminalModel_;
 };
 
 }  // namespace ground_stations
