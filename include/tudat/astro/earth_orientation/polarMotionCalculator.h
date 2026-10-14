@@ -19,6 +19,7 @@
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
+#include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
 
 namespace tudat
 {
@@ -46,9 +47,21 @@ public:
      */
     PolarMotionCalculator(
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyIersValueInterpolator,
-            const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator ):
-        dailyIersValueInterpolator_( dailyIersValueInterpolator ), shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
+            const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator,
+            const std::shared_ptr< EarthOrientationDataEvaluator > evaluator = nullptr,
+            const std::function< Time( const Time& ) > ut1FromTai = {} ):
+        evaluator_( evaluator ), ut1FromTai_( ut1FromTai ), dailyIersValueInterpolator_( dailyIersValueInterpolator ),
+        shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
     {}
+
+    //! TT-aware path used by strict rotation and pole tide, without scalar UTC.
+    Eigen::Vector2d getPositionOfCipInItrsAtTt( const double ttSinceEpoch );
+    Eigen::Vector2d getPositionOfCipInItrsAtTt( const Time& ttSinceEpoch );
+    Eigen::Vector2d getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments );
+    bool usesContinuousEop( ) const
+    {
+        return evaluator_ != nullptr;
+    }
 
     //! Calculate the position of the Celestial Intermediate Pole in the ITRS
     /*!
@@ -91,6 +104,8 @@ public:
     }
 
 private:
+    std::shared_ptr< EarthOrientationDataEvaluator > evaluator_;
+    std::function< Time( const Time& ) > ut1FromTai_;
     //! Interpolator for daily IERS-measured pole offsets.
     /*!
      *  Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output.

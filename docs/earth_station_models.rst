@@ -74,7 +74,7 @@ validation ledger below records completed changes and remaining limitations.
    [x] 06 Validate solid Earth tides through the production time/argument path.
    [ ] 07 Resolve inertial frames, time scales and displacement conventions.
    [x] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
-   [ ] 09 Implement EOP validity and leap-safe interpolation policies.
+   [x] 09 Implement EOP validity and leap-safe interpolation policies.
    [x] 10 Verify existing short-period EOP corrections independently.
    [ ] 11 Complete Earth-rotation derivatives.
    [ ] 12 Complete deformation velocities and full station-state closure.
@@ -107,22 +107,22 @@ Active work
 
 * Task 04: independent reference packages are in use for solid Earth tides,
   short-period EOP and HARDISP; reference coverage grows with each added model.
-* Task 07: the inertial-frame correction is committed. Explicit model time-scale
-  routing and complete displacement-system conventions remain under review.
-* Task 09: a continuous TAI-axis evaluator, strict coverage/gap policies and
-  leap-second-safe public rotation path pass isolated C++ tests. Integration,
-  conversion endpoint checks and optional four-point interpolation are underway.
-* Task 11: derivative architecture is being designed around the same rotation
-  and UT1 interpolant used for position evaluation; implementation is pending.
-* Task 12: a displacement-rate API and initial convergence tests pass in an
-  isolated checkout. Native Earth-model UTC boundary safeguards are being added;
-  full station-state closure still requires task 11.
-* Task 16: the ocean pole-tide reader/model and dedicated C++ tests pass in an
-  isolated checkout, including 731 published reference rows. Scientific review
-  and integration with task 09 remain.
-* Task 17: primary-source research and initial design are complete. The neutral
-  atmospheric S1/S2 reader and harmonic synthesis are being implemented; source
-  grid boundary and latitude conventions require explicit handling.
+* Task 07: the inertial-frame correction is committed. Native TT/TDB/UT1 routing
+  passes isolated C++ reference comparisons; factory integration and final review
+  are underway.
+* Task 11: derivative architecture uses the same rotation and selected UT1
+  interpolant as position evaluation. Implementation is starting in isolation.
+* Task 12: the initial displacement-rate API, UTC-phase boundary safeguards and
+  position-only station path pass integrated C++ tests. EOP-knot rate policies
+  and full station-state closure still require task 11.
+* Task 16: the ocean pole-tide reader/model passes integrated C++ tests, including
+  731 published reference rows and continuous-EOP leap-second evaluation; its
+  validated commit is being prepared.
+* Task 17: the neutral atmospheric S1/S2 reader, synthesis, grid geometry and
+  position factories pass isolated C++ tests. Integration and the UT1-to-TDB
+  derivative chain remain open.
+* Tasks 18/20: primary SINEX/ITRF sources and concrete legacy transformation
+  defects have been audited. Neutral history/parameter interfaces are next.
 
 Other unchecked tasks are queued. Tasks 13 and 30 remain deferred until the
 accepted-standard baseline is validated. Final Python-kernel compilation and
@@ -295,3 +295,37 @@ audit pass (16 checks, 3.12 s). Logs are ``tests-hardisp-integration.log`` and
 and API documentation are included; final Python-kernel validation remains
 task 29. Explicit environment TDB-to-model-TT routing and UTC-phase derivative
 boundary handling remain tasks 07 and 12, respectively.
+
+Task 09: production EOP evaluation now uses continuous TAI epochs and interpolates
+UT1-TAI, with strict raw coverage, a default 36-hour gap limit and no artificial
+endpoint padding. Linear interpolation remains the default; an explicit
+four-point Lagrange option validates the entire selected stencil and its UT1
+monotonicity. There is no silent extrapolation, order reduction or missing-CPO
+fallback. Raw knot values remain available when a neighbouring gap prevents a
+rate; interval rates use the right-hand interval, except at the final knot.
+
+Twenty-seven frozen four-point comparisons were generated with the unmodified
+Paris Observatory LAGINT and original SOFA date/UTC routines for modern epochs,
+the 2016 inserted second and the 1962 drift era. Analytic cubic tests separately
+validate slopes and reject an interior non-monotonic UT1 inverse. The original
+LAGINT's undefined final-node branch is not executed; that endpoint is checked
+against the raw record. Provenance and generation instructions are recorded in
+``earth_orientation/interpolation_reference/README.md`` beside the C++ tests.
+
+The rotation, polar-motion and time-conversion paths share the selected EOP
+model. UT1 and observer-dependent TDB inversions stay within covered intervals.
+Scalar UTC explicitly rejects the inserted second; continuous TAI/TT/UT1 paths
+remain usable there. Exact rounded double images of coverage endpoints are
+accepted without accepting later precise-Time epochs. Identity conversions
+preserve their input without consulting unrelated tables. Geocentric atomic
+clock conversion requires no EOP or UTC coverage. Historical Delta T is an
+explicit clock-only policy, using the retained Julian-year table coordinate;
+it does not invent historical polar motion, CPO or precise UTC.
+
+The native geocentric TT/TDB rate differences the small SOFA clock offset rather
+than large epochs. Independent 16/32/64-second convergence checks agree within
+2.22e-16 in the rate. Selected clock interpolators retain position conversion
+but explicitly reject unsupported rate evaluation. The final integrated EOP
+suite passes 23 C++ cases, including exact endpoints, clock-interpolator coverage,
+legacy custom paths and precise-Time representability regressions. Full Earth
+rotation derivatives and deformation rate closure remain tasks 11 and 12.

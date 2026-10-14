@@ -372,38 +372,44 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
     }
 }
 
-//! Test validity of time scale converter around leap seconds
+//! Strict factories preserve raw coverage; historical UT1 is an explicit policy.
 BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
 {
-    std::vector< basic_astrodynamics::DateTime > testDateTimes = { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
-                                                                   basic_astrodynamics::DateTime( 1962, 1, 1, 0, 1, 0.0 ),
-                                                                   basic_astrodynamics::DateTime( 1961, 12, 31, 23, 0, 0.0 ) };
-
-    std::vector< double > referenceUTDifference = { -0.0454859, 0.0326338, 0.0 };
-
-    std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter =
-            createStandardEarthOrientationCalculator( )->getTerrestrialTimeScaleConverter( );
-
-    for( unsigned int i = 0; i < testDateTimes.size( ); i++ )
+    const auto strict = createDefaultTimeConverter( );
+    const std::vector< basic_astrodynamics::DateTime > utcDates = { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
+                                                                    basic_astrodynamics::DateTime( 1962, 1, 1, 0, 1, 0.0 ) };
+    // Published C04 values at UTC midnight. Querying TDB midnight instead
+    // crosses the fractional 0.107758 s UTC adjustment at January 1, 1972.
+    const std::vector< double > referenceUt1MinusUtc = { -0.0454859, 0.0326338 };
+    for( std::size_t i = 0; i < utcDates.size( ); ++i )
     {
-        double currentUt1 = timeScaleConverter->getCurrentTime( tdb_scale, ut1_scale, testDateTimes.at( i ).epoch< double >( ) );
-        double currentUtc = timeScaleConverter->getCurrentTime( tdb_scale, utc_scale, testDateTimes.at( i ).epoch< double >( ) );
-        BOOST_CHECK_SMALL( ( currentUt1 - currentUtc ) - referenceUTDifference.at( i ), 1.0E-4 );
+        const Time utc = utcDates[ i ].epoch< Time >( );
+        const Time ut1 = strict->getCurrentTime< Time >( utc_scale, ut1_scale, utc );
+        BOOST_CHECK_SMALL( static_cast< double >( ut1 - utc ) - referenceUt1MinusUtc[ i ], 1.0E-4 );
     }
+    const Time startTai = strict->getEarthOrientationDataEvaluator( )->getStartTai( );
+    BOOST_CHECK_NO_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai ) );
+    BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0 ), std::runtime_error );
+    BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0E-9 ), std::runtime_error );
 
-    double switchEpoch = ( JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
-    basic_astrodynamics::DateTime dateTimeJustAfterSwitch = basic_astrodynamics::DateTime::fromTime( switchEpoch + 1.0 );
+    EarthOrientationEvaluationSettings historicalSettings;
+    historicalSettings.historicalUt1 = HistoricalUt1Policy::delta_t;
+    const auto historical = createDefaultTimeConverter( nullptr, false, historicalSettings );
+    // Exact knot in the separately installed historical Delta-T table.
+    const Time tt = Time( -39.0 * physical_constants::JULIAN_YEAR );
+    const Time ut1 = historical->getCurrentTime< Time >( tt_scale, ut1_scale, tt );
+    BOOST_CHECK_SMALL( static_cast< double >( tt - ut1 ) - 33.59, 1.0E-12 );
+    BOOST_CHECK_SMALL( static_cast< double >( historical->getCurrentTime< Time >( ut1_scale, tt_scale, ut1 ) - tt ), 1.0E-12 );
+    BOOST_CHECK_THROW(
+            historical->getCurrentTime< Time >( tai_scale, ut1_scale, historical->getEarthOrientationDataEvaluator( )->getEndTai( ) + 1.0 ),
+            std::runtime_error );
 
-    double currentUt1 = timeScaleConverter->getCurrentTime( tai_scale, ut1_scale, dateTimeJustAfterSwitch.epoch< double >( ) );
-    double currentUtc = timeScaleConverter->getCurrentTime( tai_scale, utc_scale, dateTimeJustAfterSwitch.epoch< double >( ) );
-    double expectedUtDifference = 0.0326338 + 1.5314e-05;  // First entrt from C04 file plus short-period correction
-    BOOST_CHECK_SMALL( expectedUtDifference - ( currentUt1 - currentUtc ), 1.0E-6 );
-
-    basic_astrodynamics::DateTime dateTimeJustBeforeSwitch = basic_astrodynamics::DateTime::fromTime( switchEpoch - 1.0 );
-
-    currentUt1 = timeScaleConverter->getCurrentTime( tai_scale, ut1_scale, dateTimeJustBeforeSwitch.epoch< double >( ) );
-    currentUtc = timeScaleConverter->getCurrentTime( tai_scale, utc_scale, dateTimeJustBeforeSwitch.epoch< double >( ) );
-    BOOST_CHECK_EQUAL( currentUt1, currentUtc );
+    // Explicit custom constructors retain their historical UTC-like alias.
+    TerrestrialTimeScaleConverter legacy( strict->getDailyUtcUt1CorrectionInterpolator( ), getDefaultUT1CorrectionCalculator( ) );
+    const Time legacyUt1 = legacy.getCurrentTime< Time >( tt_scale, ut1_scale, tt );
+    const Time legacyUtc = legacy.getCurrentTime< Time >( tt_scale, utc_scale, tt );
+    BOOST_CHECK_SMALL( static_cast< double >( tt - legacyUt1 ) - 33.59, 1.0E-12 );
+    BOOST_CHECK_EQUAL( legacyUtc, legacyUt1 );
 }
 
 //! Test that replacing direct default converter construction with the factory does not change UTC/TDB conversions.

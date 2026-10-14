@@ -1,0 +1,21 @@
+{
+  "retrieved_on": "2026-10-14",
+  "files": {
+    "DAT.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter7/software/dehanttideinel/DAT.F",
+      "sha256": "64a5a69c38d41f6d9b64204f353f5ce46750d59a1067ca507cb9b6e71e934462"
+    },
+    "interp.f": {
+      "url": "https://hpiers.obspm.fr/eoppc/models/interp.f",
+      "sha256": "9ff5f893ac06c8d4123ec45cecde4df99f18cb2f3b19518bcd7494b6aa35b4e6"
+    },
+    "interp.readme": {
+      "url": "https://hpiers.obspm.fr/eoppc/models/interp.readme",
+      "sha256": "becb272b0d153c54d9e31ef8b8ec4d24faa7289e7c163af47f35e9f273c838f2"
+    },
+    "CAL2JD.F": {
+      "url": "https://iers-conventions.obspm.fr/content/chapter7/software/dehanttideinel/CAL2JD.F",
+      "sha256": "686af399ea3a493e6c0ca659d2d64f367280f5bb331584ded0800ae8d45964d3"
+    }
+  }
+}

@@ -216,72 +216,31 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
 
 BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
 {
-    std::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator = createStandardEarthOrientationCalculator( );
-    basic_astrodynamics::DateTime dateTimePreC04( 1958, 12, 30, 12, 0.0, 0.0 );
-    basic_astrodynamics::DateTime dateTimeStartC04( 1962, 1, 1, 0, 0.0, 0.0 );
+    const auto strict = createStandardEarthOrientationCalculator( );
+    const auto strictConverter = strict->getTerrestrialTimeScaleConverter( );
+    const double preUtcEpoch = basic_astrodynamics::DateTime( 1958, 12, 30, 12, 0.0, 0.0 ).epoch< double >( );
+    // Raw data adapters and complete rotations no longer invent zero historical observations.
+    BOOST_CHECK_THROW( strict->getPolarMotionCalculator( )->getDailyIersValueInterpolator( )->interpolate( preUtcEpoch ),
+                       std::runtime_error );
+    BOOST_CHECK_THROW( strict->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate( preUtcEpoch ),
+                       std::runtime_error );
+    BOOST_CHECK_THROW( strictConverter->getDailyUtcUt1CorrectionInterpolator( )->interpolate( preUtcEpoch ), std::runtime_error );
+    const Time tt( ( 1893.0 - 2000.0 ) * physical_constants::JULIAN_YEAR );
+    BOOST_CHECK_THROW( strictConverter->getCurrentTime< Time >( basic_astrodynamics::tt_scale, basic_astrodynamics::ut1_scale, tt ),
+                       std::runtime_error );
+    BOOST_CHECK_THROW( strict->getRotationAnglesFromItrsToGcrs< Time >( tt, basic_astrodynamics::tt_scale ), std::runtime_error );
 
-    Eigen::Vector2d polarMotionPreC04 =
-            earthOrientationCalculator->getPolarMotionCalculator( )->getDailyIersValueInterpolator( )->interpolate(
-                    dateTimePreC04.epoch< double >( ) );
-    Eigen::Vector2d polarMotionPostC04 =
-            earthOrientationCalculator->getPolarMotionCalculator( )->getDailyIersValueInterpolator( )->interpolate(
-                    dateTimeStartC04.epoch< double >( ) );
-
-    Eigen::Vector2d pnCorrectionPreC04 =
-            earthOrientationCalculator->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
-                    dateTimePreC04.epoch< double >( ) );
-    Eigen::Vector2d pnCorrectionPostC04 =
-            earthOrientationCalculator->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
-                    dateTimeStartC04.epoch< double >( ) );
-
-    double ut1CorrectionPreC04 =
-            earthOrientationCalculator->getTerrestrialTimeScaleConverter( )->getDailyUtcUt1CorrectionInterpolator( )->interpolate(
-                    dateTimePreC04.epoch< double >( ) );
-    double ut1CorrectionPostC04 =
-            earthOrientationCalculator->getTerrestrialTimeScaleConverter( )->getDailyUtcUt1CorrectionInterpolator( )->interpolate(
-                    dateTimeStartC04.epoch< double >( ) );
-
-    // Check if polar motion is zero before c04 file starts
-    BOOST_CHECK_EQUAL( polarMotionPreC04( 0 ) == 0, true );
-    BOOST_CHECK_EQUAL( polarMotionPreC04( 1 ) == 0, true );
-
-    BOOST_CHECK_EQUAL( polarMotionPostC04( 0 ) == 0, false );
-    BOOST_CHECK_EQUAL( polarMotionPostC04( 1 ) == 0, false );
-
-    // Check if pn correction is zero before c04 file starts (also 0 after it starts due to absence of corrections)
-    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 0 ) == 0, true );
-    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 1 ) == 0, true );
-
-    BOOST_CHECK_EQUAL( pnCorrectionPostC04( 0 ) == 0, true );
-    BOOST_CHECK_EQUAL( pnCorrectionPostC04( 1 ) == 0, true );
-
-    // Check if UTC-UT1 is zero before c04 file starts
-    BOOST_CHECK_EQUAL( ut1CorrectionPreC04 == 0, true );
-    BOOST_CHECK_EQUAL( ut1CorrectionPostC04 == 0, false );
-
-    // Verify that the complete rotation-angle path uses historical Delta T instead of attempting a pre-UTC SOFA conversion.
-    const double historicalEpoch = basic_astrodynamics::DateTime( 1893, 1, 1, 0, 0, 0.0 ).epoch< double >( );
-    const std::pair< Eigen::Vector5d, double > historicalAngles =
-            earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >( historicalEpoch, basic_astrodynamics::tdb_scale );
-
-    std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter = earthOrientationCalculator->getTerrestrialTimeScaleConverter( );
-    const double barycentricDynamicalTime =
-            timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::tdb_scale, historicalEpoch );
-    const double terrestrialTime =
-            timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::tt_scale, historicalEpoch );
-    const double universalTime1 =
-            timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::ut1_scale, historicalEpoch );
-    const std::pair< Eigen::Vector5d, double > historicalAnglesFromUt1 =
-            earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >( universalTime1, basic_astrodynamics::ut1_scale );
-    BOOST_CHECK_EQUAL( historicalAnglesFromUt1.second, universalTime1 );
-    const Eigen::Vector6d historicalFundamentalArguments =
-            sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( barycentricDynamicalTime, terrestrialTime, universalTime1 );
-    const Eigen::Vector2d expectedPolarMotion = earthOrientationCalculator->getPolarMotionCalculator( )
-                                                        ->getShortPeriodPolarMotionCalculator( )
-                                                        ->getCorrectionsFromFundamentalArgument( historicalFundamentalArguments );
-
-    BOOST_CHECK_SMALL( ( historicalAngles.first.segment< 2 >( 3 ) - expectedPolarMotion ).norm( ),
-                       std::numeric_limits< double >::epsilon( ) );
+    EarthOrientationEvaluationSettings settings;
+    settings.historicalUt1 = HistoricalUt1Policy::delta_t;
+    const auto historical = createStandardEarthOrientationCalculator( std::make_shared< EOPReader >( ), settings );
+    const Time ut1 = historical->getTerrestrialTimeScaleConverter( )->getCurrentTime< Time >(
+            basic_astrodynamics::tt_scale, basic_astrodynamics::ut1_scale, tt );
+    // Retain the existing Julian-year coordinate TT/JULIAN_YEAR + 2000:
+    // exact 1893 knot in pinned historicalDeltaT.txt gives TT - UT1 = -6.64 s.
+    // This clock policy does not introduce a precise historical UTC model.
+    BOOST_CHECK_SMALL( static_cast< double >( tt - ut1 ) + 6.64, 1e-12 );
+    // Opting into a historical UT1 clock supplies neither observed PM nor CPO.
+    BOOST_CHECK_THROW( historical->getRotationAnglesFromItrsToGcrs< Time >( tt, basic_astrodynamics::tt_scale ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

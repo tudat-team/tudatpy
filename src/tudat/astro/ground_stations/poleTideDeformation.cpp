@@ -14,9 +14,8 @@ Eigen::Vector3d PoleTideDeformation::calculateGeocentricEnuDisplacement(
 {
     // Retrieve position of CIP in ITRS from polar motion calculator.
     double tt = ephemerisTime;
-    double utc = sofa_interface::convertTTtoUTC< double >( tt );
     Eigen::Vector2d cipPositionInItrs =
-            unit_conversions::convertRadiansToDegrees( polarMotionCalculator_->getPositionOfCipInItrs( tt, utc ) ) * 3600.0 * 1000.0;
+            unit_conversions::convertRadiansToDegrees( polarMotionCalculator_->getPositionOfCipInItrsAtTt( tt ) ) * 3600.0 * 1000.0;
 
     // Retrieve the conventional secular pole (IERS update of 1 February 2018), in mas.
     Eigen::Vector2d secularPolePositionInItrs = earth_orientation::getSecularPolePositionInMas( ephemerisTime );

@@ -196,7 +196,15 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differenceMinusOneMilliSecond ), 0.005 );
         BOOST_CHECK_SMALL( std::fabs( differencePlusOneDay - differenceAtEpochPlusOneMilliSecond ), 0.005 );
 
-        BOOST_CHECK_SMALL( std::fabs( differenceMinusOneMilliSecond - differenceAtEpochPlusOneMilliSecond + 1.0 ), 1.0E-10 );
+        // Scalar UTC jumps over the inserted second. The two samples are
+        // 1.002 TAI seconds apart, so continuous UT1-TAI also evolves between
+        // them. Account for its independently specified daily linear slopes.
+        const double atMidnight = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 );
+        const double beforeDuration = 1.0 + ( utcSecondsSinceJ2000 - ( utcSecondsSinceJ2000 - 1.0E-3 ) );
+        const double afterDuration = ( utcSecondsSinceJ2000 + 1.0E-3 ) - utcSecondsSinceJ2000;
+        const double expectedEvolution = -beforeDuration * ( atMidnight - differenceMinusOneDay - 1.0 ) / 86401.0 -
+                afterDuration * ( differencePlusOneDay - atMidnight ) / 86400.0;
+        BOOST_CHECK_SMALL( differenceMinusOneMilliSecond - differenceAtEpochPlusOneMilliSecond + 1.0 - expectedEvolution, 1.0E-14 );
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differencePlusOneDay + 1.0 ), 0.01 );
     }
 }
@@ -226,9 +234,9 @@ BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_adapter_equivalence_and_provenance
     BOOST_REQUIRE_EQUAL( raw.records.size( ), 3 );
     BOOST_CHECK_EQUAL( raw.records.begin( )->first, 45700.5 );
     BOOST_CHECK_EQUAL( raw.records.rbegin( )->first, 45702.5 );
-    // The legacy map buffer is isolated from the neutral data's exact coverage.
-    BOOST_CHECK_EQUAL( fromData.getUt1MinusUtcMapRaw( ).size( ), 4 );
-    BOOST_CHECK_SMALL( fromData.getUt1MinusUtcMapRaw( ).begin( )->first - ( 45700.5 - 1.0 / 24.0 ), 1e-10 );
+    // Compatibility maps retain the same exact raw coverage.
+    BOOST_CHECK_EQUAL( fromData.getUt1MinusUtcMapRaw( ).size( ), 3 );
+    BOOST_CHECK_SMALL( fromData.getUt1MinusUtcMapRaw( ).begin( )->first - 45700.5, 1e-10 );
 }
 
 BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_keeps_optional_absence )
@@ -254,7 +262,7 @@ BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_keeps_optional_absence )
     EOPReader withoutOptionalData( data );
     BOOST_CHECK( withoutOptionalData.getLengthOfDayMapRaw( ).empty( ) );
     BOOST_CHECK( withoutOptionalData.getCipInGcrsCorrectionMapRaw( ).empty( ) );
-    BOOST_CHECK_EQUAL( withoutOptionalData.getUt1MinusUtcMapRaw( ).size( ), data.records.size( ) + 1 );
+    BOOST_CHECK_EQUAL( withoutOptionalData.getUt1MinusUtcMapRaw( ).size( ), data.records.size( ) );
     input_output::EarthOrientationData empty;
     BOOST_CHECK_THROW( static_cast< void >( EOPReader( empty ) ), std::runtime_error );
 }

@@ -57,3 +57,6 @@ TUDAT_ADD_TEST_CASE(ShortPeriodEopCorrections
         tudat_basic_mathematics
         tudat_input_output
         )
+
+TUDAT_ADD_TEST_CASE(EarthOrientationDataEvaluator
+    PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})

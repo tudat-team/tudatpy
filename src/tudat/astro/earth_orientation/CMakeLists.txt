@@ -10,6 +10,7 @@
 # Set the source files.
 set(earth_orientation_SOURCES
         "earthOrientationCalculator.cpp"
+        "earthOrientationDataEvaluator.cpp"
         "terrestrialTimeScaleConverter.cpp"
         "eopReader.cpp"
         "polarMotionCalculator.cpp"
@@ -22,6 +23,7 @@ set(earth_orientation_SOURCES
 # Set the header files.
 set(earth_orientation_HEADERS
         "earthOrientationCalculator.h"
+        "earthOrientationDataEvaluator.h"
         "terrestrialTimeScaleConverter.h"
         "eopReader.h"
         "polarMotionCalculator.h"

@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <functional>
+#include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
 
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/interface/sofa/earthOrientation.h"
@@ -44,7 +45,14 @@ public:
     PrecessionNutationCalculator(
             const basic_astrodynamics::IAUConventions precessionNutationTheory,
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyCorrectionInterpolator,
-            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings = nullptr );
+            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings = nullptr,
+            const std::shared_ptr< EarthOrientationDataEvaluator > evaluator = nullptr );
+
+    Eigen::Vector3d getPositionOfCipInGcrsFromTai( const double terrestrialTime, const Time& tai );
+    bool usesContinuousEop( ) const
+    {
+        return evaluator_ != nullptr;
+    }
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
     /*!
@@ -87,6 +95,7 @@ public:
     }
 
 private:
+    std::shared_ptr< EarthOrientationDataEvaluator > evaluator_;
     //! IAU precession-nutation theory that is to be used.
     basic_astrodynamics::IAUConventions precessionNutationTheory_;
 

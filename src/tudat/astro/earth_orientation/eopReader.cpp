@@ -56,15 +56,6 @@ EOPReader::EOPReader( const input_output::EarthOrientationData& data ): rawData_
             cipInGcrsCorrection[ mjd ] = Eigen::Vector2d( ( *record.celestialPoleOffsets )[ 0 ], ( *record.celestialPoleOffsets )[ 1 ] );
         }
     }
-
-    // Compatibility only: the raw input layer retains exact unpadded coverage.
-    // Keep the old one-hour interpolation buffer until the model coverage API changes.
-    if( !cipInItrs.empty( ) ) cipInItrs[ cipInItrs.begin( )->first - 1.0 / 24.0 ] = cipInItrs.begin( )->second;
-    if( !cipInGcrsCorrection.empty( ) )
-        cipInGcrsCorrection[ cipInGcrsCorrection.begin( )->first - 1.0 / 24.0 ] = cipInGcrsCorrection.begin( )->second;
-    if( !ut1MinusUtc.empty( ) ) ut1MinusUtc[ ut1MinusUtc.begin( )->first - 1.0 / 24.0 ] = ut1MinusUtc.begin( )->second;
-    if( !lengthOfDayOffset.empty( ) )
-        lengthOfDayOffset[ lengthOfDayOffset.begin( )->first - 1.0 / 24.0 ] = lengthOfDayOffset.begin( )->second;
 }
 
 }  // namespace earth_orientation

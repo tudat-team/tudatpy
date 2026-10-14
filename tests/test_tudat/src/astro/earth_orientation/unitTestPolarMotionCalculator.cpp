@@ -52,15 +52,18 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
     Eigen::Vector2d totalPolarMotionFromTime = standardPolarMotionCalculator->getPositionOfCipInItrs( testEphemerisTime, testUtc );
     Eigen::Vector2d totalPolarMotionFromArguments = standardPolarMotionCalculator->getPositionOfCipInItrs( fundamentalArguments, testUtc );
 
-    // Check combinations fo calculations
-    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.x( ),
-                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
-                               .x( ) );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.y( ),
-                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
-                               .y( ) );
+    // The native time path uses the continuous TAI daily interpolant and actual
+    // modeled UT1; explicitly supplied approximate arguments remain supported.
+    const auto converter = standardEarthRotationModel->getTerrestrialTimeScaleConverter( );
+    const Time tai = converter->getTaiTime( basic_astrodynamics::tt_scale, testEphemerisTime );
+    const Time ut1 = converter->getUt1FromTai( tai );
+    const auto nativeArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+            testEphemerisTime, testEphemerisTime, static_cast< double >( ut1 ) );
+    const Eigen::Vector2d nativeExpected = converter->getEarthOrientationDataEvaluator( )->evaluate( tai ).polarMotion +
+            shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( nativeArguments );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.x( ), nativeExpected.x( ) );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.y( ), nativeExpected.y( ) );
+    BOOST_CHECK_GT( ( totalPolarMotionFromTime - totalPolarMotionFromArguments ).norm( ), 1e-14 );
 
     BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ),
                        ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +

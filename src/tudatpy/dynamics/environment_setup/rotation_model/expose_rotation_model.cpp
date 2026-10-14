@@ -161,9 +161,35 @@ void expose_rotation_model_setup( py::module& m )
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
             m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
 
+    py::enum_< tudat::earth_orientation::EarthOrientationInterpolation >( m, "EarthOrientationInterpolation" )
+            .value( "linear", tudat::earth_orientation::EarthOrientationInterpolation::linear )
+            .value( "lagrange_four_point", tudat::earth_orientation::EarthOrientationInterpolation::lagrange_four_point );
+    py::enum_< tudat::earth_orientation::MissingCelestialPolePolicy >( m, "MissingCelestialPolePolicy" )
+            .value( "reject", tudat::earth_orientation::MissingCelestialPolePolicy::reject )
+            .value( "zero", tudat::earth_orientation::MissingCelestialPolePolicy::zero );
+    py::enum_< tudat::earth_orientation::HistoricalUt1Policy >( m, "HistoricalUt1Policy" )
+            .value( "reject", tudat::earth_orientation::HistoricalUt1Policy::reject )
+            .value( "delta_t", tudat::earth_orientation::HistoricalUt1Policy::delta_t );
+    py::class_< tudat::earth_orientation::EarthOrientationEvaluationSettings >(
+            m,
+            "EarthOrientationEvaluationSettings",
+            "Strict raw EOP coverage, a maximum interpolation gap, and explicit missing-CPO/historical-UT1 policies." )
+            .def( py::init<>( ) )
+            .def_readwrite( "maximum_gap_seconds", &tudat::earth_orientation::EarthOrientationEvaluationSettings::maximumGapSeconds )
+            .def_readwrite( "missing_celestial_pole", &tudat::earth_orientation::EarthOrientationEvaluationSettings::missingCelestialPole )
+            .def_readwrite( "historical_ut1", &tudat::earth_orientation::EarthOrientationEvaluationSettings::historicalUt1 )
+            .def_readwrite( "interpolation", &tudat::earth_orientation::EarthOrientationEvaluationSettings::interpolation );
+
     py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
             m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
-            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile );
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile )
+            .def( "set_eop_data",
+                  &tss::GcrsToItrsRotationModelSettings::setEopData,
+                  "Use validated data loaded with data_input.environment_data.earth_orientation; copy its records and provenance." )
+            .def_property( "eop_evaluation_settings",
+                           &tss::GcrsToItrsRotationModelSettings::getEopEvaluationSettings,
+                           &tss::GcrsToItrsRotationModelSettings::setEopEvaluationSettings,
+                           py::return_value_policy::copy );
 
     m.def( "simple",
            py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d&, const double, const double >(
@@ -410,9 +436,35 @@ void expose_rotation_model_setup( py::module& m )
            py::arg_v( "short_term_eop_interpolation_settings",
                       std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ),
                       "None" ),
+           py::arg( "eop_data" ) = std::nullopt,
+           py::arg( "eop_evaluation_settings" ) = tudat::earth_orientation::EarthOrientationEvaluationSettings( ),
            R"doc(
 
  Function for creating high-accuracy Earth rotation model settings.
+
+ Preloaded ``eop_data`` comes from :mod:`tudatpy.data_input.environment_data.earth_orientation`.
+ Daily parameters are interpolated on continuous TAI using UT1-TAI. Raw coverage
+ includes available prediction records and retains their flags. Evaluation raises
+ outside the first/last raw epoch, across gaps longer than 36 hours by default,
+ or when CPO is missing. Explicit ``eop_evaluation_settings`` can select a zero-CPO
+ approximation or historical Delta T for UT1 before the EOP era. These choices
+ do not enable extrapolation of measured pole parameters.
+
+ Linear interpolation is the default. ``interpolation=lagrange_four_point``
+ explicitly selects a centered four-sample window, clamped to the first/last four
+ records at coverage edges. Its complete stencil must satisfy the gap and CPO
+ policies; no order reduction is applied. Exact raw samples retain their values
+ even beside an unusable stencil, with absent rates. The interval to the right
+ sets the derivative window at knots (left at the last record). Nonmonotonic
+ cubic UT1 interpolation is rejected before constructing an inverse map.
+
+ TT/TAI inputs remain valid during an inserted leap second. A scalar UTC request
+ for 23:59:60 raises because the scalar UTC interface cannot identify that instant
+ uniquely; use continuous atomic time for rotations and UT1.
+
+ ``short_term_eop_interpolation_settings`` must be None: short-period corrections
+ use continuous UT1/TT arguments directly. CIO and geocentric TDB interpolation
+ settings remain supported.
 
  Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010.  The model
  computes the rotation from ITRS to GCRS (with rotation matrix :math:`\mathbf{R}^{(\text{GCRS}/\text{ITRS})}`) and its inverse from:

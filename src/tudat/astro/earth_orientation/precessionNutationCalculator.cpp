@@ -25,8 +25,10 @@ namespace earth_orientation
 PrecessionNutationCalculator::PrecessionNutationCalculator(
         basic_astrodynamics::IAUConventions precessionNutationTheory,
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyCorrectionInterpolator,
-        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings ):
-    precessionNutationTheory_( precessionNutationTheory ), dailyCorrectionInterpolator_( dailyCorrectionInterpolator )
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings,
+        const std::shared_ptr< EarthOrientationDataEvaluator > evaluator ):
+    evaluator_( evaluator ), precessionNutationTheory_( precessionNutationTheory ),
+    dailyCorrectionInterpolator_( dailyCorrectionInterpolator )
 {
     if( angleInterpolatorSettings != nullptr )
     {
@@ -52,9 +54,19 @@ PrecessionNutationCalculator::PrecessionNutationCalculator(
     }
 }
 
+Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrsFromTai( const double terrestrialTime, const Time& tai )
+{
+    if( !evaluator_ ) throw std::runtime_error( "TAI CPO evaluation requires a continuous EOP model" );
+    Eigen::Vector3d value = nominalCipPositionFunction_( terrestrialTime );
+    value.segment< 2 >( 0 ) += evaluator_->getCelestialPoleOffsets( tai );
+    return value;
+}
+
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
 Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const double terrestrialTime )
 {
+    if( evaluator_ )
+        return getPositionOfCipInGcrsFromTai( terrestrialTime, basic_astrodynamics::convertTTtoTAI( Time( terrestrialTime ) ) );
     // Calculate current UTC from SOFA.
     double utc = sofa_interface::convertTTtoUTC( terrestrialTime );
 
@@ -65,6 +77,8 @@ Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const doub
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
 Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const double terrestrialTime, const double utc )
 {
+    if( evaluator_ )
+        return getPositionOfCipInGcrsFromTai( terrestrialTime, basic_astrodynamics::convertTTtoTAI( Time( terrestrialTime ) ) );
     // Calculate nominal precession-nutation values.
     Eigen::Vector3d nominalCipPosition = nominalCipPositionFunction_( terrestrialTime );
 

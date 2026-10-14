@@ -15,6 +15,8 @@
 #include <Eigen/Geometry>
 
 #include <functional>
+#include <optional>
+#include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -325,6 +327,24 @@ public:
     // Destructor
     ~GcrsToItrsRotationModelSettings( ) {}
 
+    void setEopData( const input_output::EarthOrientationData& data )
+    {
+        input_output::validateEarthOrientationData( data );
+        eopData_ = std::make_shared< input_output::EarthOrientationData >( data );
+    }
+    std::shared_ptr< const input_output::EarthOrientationData > getEopData( ) const
+    {
+        return eopData_;
+    }
+    void setEopEvaluationSettings( const earth_orientation::EarthOrientationEvaluationSettings& settings )
+    {
+        eopEvaluationSettings_ = settings;
+    }
+    const earth_orientation::EarthOrientationEvaluationSettings& getEopEvaluationSettings( ) const
+    {
+        return eopEvaluationSettings_;
+    }
+
     // Function to retrieve the time scale in which input to the rotation model class is provided
     /*
      * Function to retrieve the time scale in which input to the rotation model class is provided
@@ -418,6 +438,9 @@ public:
     }
 
 private:
+    std::shared_ptr< const input_output::EarthOrientationData > eopData_;
+    earth_orientation::EarthOrientationEvaluationSettings eopEvaluationSettings_;
+
     // Time scale in which input to the rotation model class is provided
     basic_astrodynamics::TimeScales inputTimeScale_;
 
@@ -1087,7 +1110,9 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
         const std::string baseFrameName = "GCRS",
         const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > cioInterpolatorSettings = nullptr,
         const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings = nullptr,
-        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings = nullptr )
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings = nullptr,
+        const std::optional< input_output::EarthOrientationData >& eopData = std::nullopt,
+        const earth_orientation::EarthOrientationEvaluationSettings& eopEvaluationSettings = {} )
 {
     std::shared_ptr< GcrsToItrsRotationModelSettings > rotationSettings =
             std::make_shared< GcrsToItrsRotationModelSettings >( nutationTheory, baseFrameName );
@@ -1095,6 +1120,8 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
     rotationSettings->setTdbToTtInterpolatorSettings( tdbToTtInterpolatorSettings );
     rotationSettings->setShortTermInterpolatorSettings( shortTermInterpolatorSettings );
 
+    if( eopData ) rotationSettings->setEopData( *eopData );
+    rotationSettings->setEopEvaluationSettings( eopEvaluationSettings );
     return rotationSettings;
 }
 

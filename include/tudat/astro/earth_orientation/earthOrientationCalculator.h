@@ -235,37 +235,53 @@ public:
             const TimeType timeValue,
             basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
     {
-        // Compute required time values
-        TimeType terrestrialTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                timeScale, basic_astrodynamics::tt_scale, timeValue, Eigen::Vector3d::Zero( ) );
-        TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
-        TimeType ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                timeScale, basic_astrodynamics::ut1_scale, timeValue, Eigen::Vector3d::Zero( ) );
-
-        // Compute nutation/precession parameters
-        Eigen::Vector3d positionOfCipInGcrs = precessionNutationCalculator_->getPositionOfCipInGcrs( terrestrialTime, utc );
-
-        // Compute polar motion values. Before the start of the EOP data, use the historical UT1 value already calculated above
-        // instead of asking the approximate fundamental-argument function to perform a TT->UTC conversion through SOFA.
-        const double eopIntroductionEpochInTai =
-                ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-                physical_constants::JULIAN_DAY;
-        const TimeType atomicTime = basic_astrodynamics::convertTTtoTAI( terrestrialTime );
+        TimeType terrestrialTime, ut1;
+        Eigen::Vector3d positionOfCipInGcrs;
         Eigen::Vector2d positionOfCipInItrs;
-        if( static_cast< double >( atomicTime ) < eopIntroductionEpochInTai )
+        if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
         {
-            TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                    timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );
-            Eigen::Vector6d fundamentalArguments =
-                    sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( static_cast< double >( barycentricDynamicalTime ),
-                                                                                   static_cast< double >( terrestrialTime ),
-                                                                                   static_cast< double >( ut1 ) );
-            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
+            const Time tai = terrestrialTimeScaleConverter_->getTaiTime( timeScale, timeValue );
+            const Time preciseTt = basic_astrodynamics::convertTAItoTT( tai );
+            const Time preciseUt1 = terrestrialTimeScaleConverter_->getUt1FromTai( tai );
+            terrestrialTime = static_cast< TimeType >( preciseTt );
+            ut1 = static_cast< TimeType >( preciseUt1 );
+            const auto arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+                    static_cast< double >( terrestrialTime ), static_cast< double >( terrestrialTime ), static_cast< double >( ut1 ) );
+            positionOfCipInGcrs =
+                    precessionNutationCalculator_->getPositionOfCipInGcrsFromTai( static_cast< double >( terrestrialTime ), tai );
+            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrsFromTai( tai, arguments );
         }
         else
         {
-            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
+            terrestrialTime =
+                    terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
+            ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::ut1_scale, timeValue );
+            TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                    timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
+
+            // Compute nutation/precession parameters
+            positionOfCipInGcrs = precessionNutationCalculator_->getPositionOfCipInGcrs( terrestrialTime, utc );
+
+            // Compute polar motion values. Before the start of the EOP data, use the historical UT1 value already calculated above
+            // instead of asking the approximate fundamental-argument function to perform a TT->UTC conversion through SOFA.
+            const double eopIntroductionEpochInTai =
+                    ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                    physical_constants::JULIAN_DAY;
+            const TimeType atomicTime = basic_astrodynamics::convertTTtoTAI( terrestrialTime );
+            if( static_cast< double >( atomicTime ) < eopIntroductionEpochInTai )
+            {
+                TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                        timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );
+                Eigen::Vector6d fundamentalArguments =
+                        sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( static_cast< double >( barycentricDynamicalTime ),
+                                                                                       static_cast< double >( terrestrialTime ),
+                                                                                       static_cast< double >( ut1 ) );
+                positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
+            }
+            else
+            {
+                positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
+            }
         }
 
         // Return vector of angles.
@@ -333,7 +349,8 @@ private:
  * \return Default Earth rotation parameter object.
  */
 std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
-        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
+        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ),
+        const EarthOrientationEvaluationSettings& settings = {} );
 
 //! Function to create an interpolator for the Earth orientation angles and UT1
 /*!

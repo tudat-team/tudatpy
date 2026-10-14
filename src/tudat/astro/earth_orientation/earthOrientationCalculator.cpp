@@ -58,42 +58,24 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs( const double xPolePosition, 
 }
 
 //! Function to create an EarthOrientationAnglesCalculator object, with default settings
-std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator( const std::shared_ptr< EOPReader > eopReader )
+std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
+        const std::shared_ptr< EOPReader > eopReader,
+        const EarthOrientationEvaluationSettings& settings )
 {
-    // Load polar motion corrections
-    std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
-            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                    eopReader->getCipInItrsMapInSecondsSinceJ2000( ),
-                    interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
-
-    // Load nutation corrections
-    std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
-            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                    eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ),
-                    interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
-
-    // Load default polar motion correction (sub-diural frequencies) object
-    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
-            getDefaultPolarMotionCorrectionCalculator( );
-
-    // Create full polar motion calculator
-    std::shared_ptr< PolarMotionCalculator > polarMotionCalculator =
-            std::make_shared< PolarMotionCalculator >( cipInItrsInterpolator, shortPeriodPolarMotionCalculator );
-
-    // Create IAU 2006 precession/nutation calculator
-    std::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator =
-            std::make_shared< PrecessionNutationCalculator >( basic_astrodynamics::iau_2006, cipInGcrsCorrectionInterpolator );
-
-    // Create default time scale converter
-    std::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter = createDefaultTimeConverter( eopReader );
-
-    // Create EarthOrientationAnglesCalculator object
-    return std::make_shared< EarthOrientationAnglesCalculator >(
-            polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
+    const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( eopReader->getRawEarthOrientationData( ), settings );
+    const auto ut1 = std::make_shared< EarthOrientationDataInterpolator< double > >( evaluator, EarthOrientationDataField::ut1_minus_utc );
+    const auto timeConverter =
+            std::make_shared< TerrestrialTimeScaleConverter >( ut1, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
+    const auto polar =
+            std::make_shared< EarthOrientationDataInterpolator< Eigen::Vector2d > >( evaluator, EarthOrientationDataField::polar_motion );
+    const auto cpo =
+            std::make_shared< EarthOrientationDataInterpolator< Eigen::Vector2d > >( evaluator, EarthOrientationDataField::celestial_pole );
+    const auto polarModel = std::make_shared< PolarMotionCalculator >(
+            polar, getDefaultPolarMotionCorrectionCalculator( ), evaluator, [ timeConverter ]( const Time& tai ) {
+                return timeConverter->getUt1FromTai( tai );
+            } );
+    const auto precession = std::make_shared< PrecessionNutationCalculator >( basic_astrodynamics::iau_2006, cpo, nullptr, evaluator );
+    return std::make_shared< EarthOrientationAnglesCalculator >( polarModel, precession, timeConverter );
 }
 
 ////! Function to create an interpolator for the Earth orientation angles
