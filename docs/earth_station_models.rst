@@ -187,12 +187,14 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   Focused tests, bindings and documentation are underway. Native integration
   depends on the shared Time/base API checkpoint.
 * Task 29: Dominic explicitly requested removing EarthDeformationEpoch and
-  simplifying evaluation across deformation models. The common base will expose
-  displacement and full displacement/state for TDB Time plus a station; derived
-  models implement protected hooks. Shared converters stay with their models.
-  Native station aggregation must retain Time precision; scalar endpoint handling
-  remains confined to scalar boundaries. Position-only availability and numerical
-  quality remain required. Python-only binding/import checks are outstanding.
+  simplifying evaluation across deformation models. The isolated implementation
+  now removes that wrapper and exposes displacement and full displacement/state
+  for TDB Time plus a station, with protected derived hooks and model-owned shared
+  converters. Atmospheric/ocean-pole migration compiles and removes 156 net lines.
+  Native station aggregation retains Time; scalar endpoint handling stays at
+  scalar boundaries. Core compilation and numerical/public-contract regression
+  remain pending. Python record getters now explicitly copy validated records;
+  the ownership regression and other Python-only binding/import checks remain open.
 
 Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
 kernel compilation is allowed only when needed for those Python-specific tests.
