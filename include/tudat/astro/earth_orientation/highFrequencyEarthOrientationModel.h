@@ -22,8 +22,7 @@ struct HighFrequencyEopCorrectionCalculators {
 HighFrequencyEopCorrectionCalculators createHighFrequencyEopCorrectionCalculators(
         OceanTideEopModel oceanModel = OceanTideEopModel::iers_2010,
         double minimumPolarMotionAmplitude = 0.0,
-        double minimumUt1Amplitude = 0.0,
-        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > interpolation = nullptr );
+        double minimumUt1Amplitude = 0.0 );
 
 }  // namespace earth_orientation
 }  // namespace tudat

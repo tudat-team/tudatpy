@@ -39,11 +39,9 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > oceanMatrices( const input_output:
 }
 }  // namespace
 
-HighFrequencyEopCorrectionCalculators createHighFrequencyEopCorrectionCalculators(
-        const OceanTideEopModel oceanModel,
-        const double minimumPolarMotionAmplitude,
-        const double minimumUt1Amplitude,
-        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > interpolation )
+HighFrequencyEopCorrectionCalculators createHighFrequencyEopCorrectionCalculators( const OceanTideEopModel oceanModel,
+                                                                                   const double minimumPolarMotionAmplitude,
+                                                                                   const double minimumUt1Amplitude )
 {
     if( !std::isfinite( minimumPolarMotionAmplitude ) || minimumPolarMotionAmplitude < 0.0 || !std::isfinite( minimumUt1Amplitude ) ||
         minimumUt1Amplitude < 0.0 )
@@ -70,13 +68,11 @@ HighFrequencyEopCorrectionCalculators createHighFrequencyEopCorrectionCalculator
     return { std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
                      std::vector< Eigen::MatrixXd >{ polarLibration.first, polarOcean.first },
                      std::vector< Eigen::MatrixXd >{ polarLibration.second, polarOcean.second },
-                     std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
-                     interpolation ),
+                     std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) ),
              std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
                      std::vector< Eigen::MatrixXd >{ ut1Libration.first, ut1Ocean.first },
                      std::vector< Eigen::MatrixXd >{ ut1Libration.second, ut1Ocean.second },
-                     std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
-                     interpolation ) };
+                     std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) ) };
 }
 
 }  // namespace earth_orientation

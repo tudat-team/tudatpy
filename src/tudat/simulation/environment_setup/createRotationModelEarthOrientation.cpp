@@ -62,10 +62,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                     "Desai--Sibois replaces the conventional ocean-tide EOP terms; "
                     "it cannot be combined automatically with custom short-period correction files or units" );
         corrections = earth_orientation::createHighFrequencyEopCorrectionCalculators(
-                earth_orientation::OceanTideEopModel::desai_sibois_2016,
-                polarSettings->minimumAmplitude_,
-                ut1Settings->minimumAmplitude_,
-                gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
+                earth_orientation::OceanTideEopModel::desai_sibois_2016, polarSettings->minimumAmplitude_, ut1Settings->minimumAmplitude_ );
     }
     else
     {
