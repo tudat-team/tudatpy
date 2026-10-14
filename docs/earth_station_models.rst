@@ -78,9 +78,10 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: all 25 retained tasks and the required full-PR review are complete.
-Reviewed 14 October 2026. This list is updated as relevant work is implemented,
-validated and integrated.
+Status: all 25 retained implementation tasks and the initial full-PR review are
+complete. Dominic requested a further personal static review of complexity and
+exposure on 14 October 2026; its findings and outstanding cleanup are recorded
+below. Completion of the physical models does not close those review findings.
 
 .. code-block:: text
 
@@ -129,26 +130,60 @@ comments on `draft PR 1092 <https://github.com/tudat-team/tudatpy/pull/1092>`_
 are now being addressed.
 Implementation workers use **GPT-6.1 Sol, high reasoning** in isolated worktrees.
 The coordinator owns design, literature analysis, review and integration.
-The three workers now own separate parts of the station PR's documentation and
-formatting pass: rotation/time/core, loading/deformation, and history/readers/
-interfaces. Gravity work pauses after its current reviewed checkpoints. The
-compiler limit remains eight; comments and formatting do not trigger rebuilds
-or numerical test reruns.
+The three workers' documentation/formatting work is paused and preserved in
+their separate worktrees. The coordinator personally reviewed the current PR
+for unnecessary layers, duplicate code paths, numerical risks and exposure
+placement. Gravity work remains paused at its checkpoints. Dominic's latest
+instruction prohibits builds and test/application execution; no compilation,
+tests or numerical experiments were run for this review. The external-review
+handover is held until the additional cleanup is resolved.
 
 .. code-block:: text
 
    [x] Remove the EOP adapter that derives from a mathematical interpolator.  [DONE — pushed e2be54597]
    [x] Remove the additional CMake dependency-check file and its registration.  [DONE]
    [x] Simplify duplicate polar-motion overloads and the short-period rate helper.  [DONE]
-   [ ] Rewrite the reviewed comments and explain the remaining EOP/clock responsibilities.  [ACTIVE]
+   [ ] Rewrite the reviewed comments and explain the remaining EOP/clock responsibilities.  [PAUSED — structural review first]
    [x] Remove the type aliases introduced by this PR.  [DONE]
-   [ ] Add braces on separate lines around single-statement control flow introduced by the PR.  [ACTIVE]
-   [ ] Describe functions in headers and implementations, variable groups and computation steps.  [ACTIVE]
-   [ ] Add blank lines after variable definitions and function declarations.  [ACTIVE]
+   [ ] Add braces on separate lines around single-statement control flow introduced by the PR.  [PAUSED — edits preserved]
+   [ ] Describe functions in headers and implementations, variable groups and computation steps.  [PAUSED — edits preserved]
+   [ ] Add blank lines after variable definitions and function declarations.  [PAUSED — edits preserved]
    [x] Validate the affected native EOP and rotation paths; review and push the fixes.  [DONE]
-   [ ] Push the comment/style checkpoint and create MODIFICATIONS-DONE.md for local review.  [QUEUED]
-   [ ] Check every ten minutes for REVIEW-DONE.md and assess its recommendations.  [QUEUED]
-   [ ] Implement accepted review changes, fix relevant test failures, and push the PR branch.  [QUEUED]
+   [x] Personally review complexity, reuse, numerical contracts and C++/Python exposure.  [DONE — static analysis of 5a69997a6]
+   [ ] Resolve the structural findings below before the next review handover.  [OPEN — recommendations recorded, implementation not started]
+   [ ] Push the comment/style checkpoint and create MODIFICATIONS-DONE.md for local review.  [HELD — no marker created]
+   [ ] Check every ten minutes for REVIEW-DONE.md and assess its recommendations.  [QUEUED — follows handover]
+   [ ] Implement accepted external-review changes and push the PR branch.  [QUEUED — execution remains prohibited until instructed otherwise]
+
+The detailed personal review is saved locally at
+``/home/dominic/Tudat/earth-station-model-work/pr1092-personal-static-review.rst``.
+It identifies source locations, specific removals/consolidations, numerical
+constraints, exposure placement, code to retain, and test reductions. These are
+review recommendations, not claims of implemented or validated refactoring.
+
+.. code-block:: text
+
+   [ ] R01 Unify time-conversion routing while preserving custom clocks and precise Time.  [RECOMMENDED — numerical refactor]
+   [ ] R02 Centralize EOP endpoint handling and correct the inconsistent scalar CPO route.  [RECOMMENDED — static correctness concern]
+   [ ] R03 Remove duplicate daily-EOP record ownership and the factory's legacy-reader detour.  [RECOMMENDED]
+   [ ] R04 Make orientation wrappers delegate to one precise calculation.  [RECOMMENDED]
+   [ ] R05 Remove copied histories from transformation/reference-point wrappers.  [RECOMMENDED]
+   [ ] R06 Remove the frame epoch wrapper and redundant clock-forwarding API.  [RECOMMENDED]
+   [ ] R07 Move runtime bindings into existing frame_conversion/environment modules.  [RECOMMENDED]
+   [ ] R08 Simplify Python construction and keep internal helper records out of normal workflows.  [RECOMMENDED]
+   [ ] R09 Normalize file input into data-based settings at construction.  [RECOMMENDED — confirm file-loading timing]
+   [ ] R10 Consolidate station adapters and repeated value/rate loading work.  [RECOMMENDED]
+   [ ] R11 Normalize relativistic callbacks and share guarded sampling locally.  [RECOMMENDED — preserve fallback guarantees]
+   [ ] R12 Distinguish unavailable deformation data from failed calculations.  [RECOMMENDED — inherited broad catch remains a concern]
+   [ ] R13 Reduce loading-specific coupling and repeated compatibility work.  [RECOMMENDED — preserve active-model checks]
+   [ ] R14 Reuse existing calendar/basis utilities and hide model-specific helpers.  [RECOMMENDED]
+   [ ] R15 Simplify neutral-reader target registration.  [CONDITIONAL — preserve dependency/install contracts]
+
+The review retains independent reference fixtures, precise continuous clocks,
+selected-interpolant derivatives, HARDISP-specific spline behavior, explicit
+frame/origin identities and separate position/state availability. The earlier
+handover estimate no longer applies. Worker edits have not been discarded or
+integrated during this personal review.
 
 The EOP review preserves continuous TAI sample times, UT1-TAI interpolation,
 rates of the selected interpolating function, and the existing coverage and
@@ -419,13 +454,14 @@ Parallel gravity-field programme
 --------------------------------
 
 Dominic explicitly authorized gravity work in parallel on a separate branch.
-The full station review is complete. ``fix/gravity_field_variations`` and
+The initial station review is complete; the additional personal review and
+cleanup status is recorded above. ``fix/gravity_field_variations`` and
 ``tudatpy-earth-gravity-variations`` contain the integration branch/worktree;
 ``docs/earth_gravity_field_variations.rst`` is its separate checklist, also open
 in gedit. Primary-literature review and the existing-model inventory are complete.
 Compatibility design continues; the static ICGEM/tide-system foundation is
-integrated and validated. Three Sol-high workers now cover gravity solid/pole,
-ocean and input/setup work in separate worktrees. Implementations
+integrated and validated. Gravity work is currently paused, with separate
+worktrees and checkpoints preserved. Implementations
 must share compatible rotation/EOP, clocks, frame axes, static tide conventions
 and physical component inventories. Desai--Sibois ocean EOP corrections do not
 replace ocean gravity tides or either pole tide. Gravity estimation is excluded.
