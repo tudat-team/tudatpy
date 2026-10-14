@@ -15,9 +15,12 @@
 #ifndef TUDAT_GEODETIC_COORDINATE_CONVERSIONS_H
 #define TUDAT_GEODETIC_COORDINATE_CONVERSIONS_H
 
+#include <limits>
 #include <utility>
 
 #include <Eigen/Core>
+
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {

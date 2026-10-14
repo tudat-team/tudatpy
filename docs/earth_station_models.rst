@@ -65,7 +65,7 @@ validation ledger below records completed changes and remaining limitations.
    [ ] 02 Define neutral data contracts and enforce the dependency boundary.
    [ ] 03 Separate existing EOP and BLQ readers from model evaluation.
    [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.
-   [ ] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.
+   [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.
    [ ] 06 Validate solid Earth tides through the production time/argument path.
    [ ] 07 Resolve inertial frames, time scales and displacement conventions.
    [ ] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
@@ -134,4 +134,13 @@ includes/associated implementations.  The committed checks use only Python's
 standard library and can run without a Tudat build.  Data contracts, independent
 input-library linkage and compiled binding initialization remain to validate.
 
-Pole-tide, solid-tide and inertial-frame corrections are under integration test.
+Task 05: corrected the pole-tide wobble units and east/north formulas, and use
+the geocentric basis for the IERS displacement before projecting to a station's
+topocentric frame.  The C++ PoleTideDisplacement executable passes eight frozen
+reference cases evaluated independently from the original colatitude equations,
+zero-wobble checks, and Cartesian/geodetic/spherical representation checks on
+an oblate Earth.  The conventional secular pole remains the explicitly pinned
+1 February 2018 IERS update.  Compilation also exposed and fixed a missing
+direct constants include in the geodetic-coordinate header.
+
+Solid-tide and inertial-frame corrections are under integration test.
