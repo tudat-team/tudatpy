@@ -1,5 +1,19 @@
 # PR 1092 review follow-up — implementation status (handover document)
 
+**Editing finished on 15 October 2026.** See `DONE-WITH-EDITING.md`. Final pushed head of `fix/earth_deformation_rotation`: see the
+commit list below. The coordinator's checkout `tudatpy-earth-station-models` is behind the remote and must be updated (`git pull`) before
+further work; any uncommitted work there must be rebased onto these commits.
+
+## Pushed commits (on top of 226d87de1)
+1. `69dff7426` Simplify PR 1092 time handling and restore base compatibility (proposed diff items, S1, compatibility fixes C1/C3 etc.)
+2. `b1bf14869` Use the station-history file reader in the binding test; add PR 1092 review and notes
+3. `6954ab6e1` Read Desai-Sibois and official ITRF tables from tudat resources (S3; **needs tudat-resources files**)
+4. `1969a1c49` Use one fourth-order central-difference helper for station and Earth orientation rates (S4)
+5. `12bddd0c6` Remove per-query station-loading overlap bookkeeping from the generic deformation aggregator (S7 part)
+6. (this notes update)
+
+Net effect of 1–5 against 226d87de1: native code +575 / −2,046 lines (net −1,471), Python bindings +68 / −179 (net −111), tests +136 / −376 (net −240); the review documents under docs/ are added.
+
 Keep this file current. Another agent must be able to continue from it.
 
 ## Locations
