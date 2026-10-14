@@ -30,6 +30,103 @@ module.
 For Earth, we provide several options to create default stations, such as the :func:`~tudatpy.dynamics.environment_setup.ground_station.dsn_stations` and
 :func:`~tudatpy.dynamics.environment_setup.ground_station.evn_stations`.
 
+Station histories, post-seismic deformation and seasonal motion
+--------------------------------------------------------------
+
+``ign_station_history`` builds an absolute terrestrial station trajectory from
+preloaded :mod:`tudatpy.data_input.environment_data.station_history` products.
+Supply explicit and matching ``frame``, ``release``, ``origin`` (for example CM
+or CF) and ``tide_system`` metadata on each product. The reader preserves source
+records and does not infer these scientific conventions from filenames.
+``ITRF2020`` and its aligned catalogue updates have separate release identities;
+mixing solution, PSD or seasonal releases raises an error.
+
+Select a site code and point code explicitly. Every selected Cartesian solution
+requires complete position and velocity coefficients and one matching position
+discontinuity interval. Physical TAI intervals are half-open: the new solution
+applies exactly at its start. Gaps, overlaps, unresolved default endpoints and
+extrapolation raise errors. Observational spans do not define model validity.
+The independent velocity discontinuity ID is retained in
+``trajectory.solutions[i].velocity_solution_id`` and ``velocity_validity``.
+Published SSC velocities remain attached to their Cartesian/position solution;
+the velocity discontinuity ID is not an SSC solution lookup. AB07 position
+solution 6, for example, belongs to velocity interval 4. Each position interval
+must fit one velocity interval. Coefficients sharing a velocity interval must
+agree within the explicit componentwise
+``velocity_consistency_tolerance_metres_per_julian_year`` (default ``1e-8``, or
+10 nm/year). This is a numerical equivalence budget, not printed-field precision;
+the supplied coefficients are preserved. Set zero for strict equality.
+
+PSD amplitudes retain their original parameter indices. The IGN profile pairs
+an amplitude at index ``i`` with the matching relaxation parameter at ``i+1``;
+record order is irrelevant. Every applicable event and every repeated EXP/LOG
+term accumulates. It interprets the native IGN ``TEXP``/``TLOG`` numbers as Julian
+years even when the published unit field says ``m``; raw records remain unchanged.
+Relaxation times must be positive and finite. At an event the correction is zero
+and the returned velocity is the right-hand rate. At a solution change the new
+solution supplies position and right-hand velocity. Neither value asserts a
+two-sided derivative at a discontinuity.
+
+ENU coefficients require an explicit, constant, proper ``enu_to_terrestrial``
+rotation whose columns are East, North and Up. The model does not recompute that
+basis as the station moves. Duplicate SITE/ID entries with distinct DOMES
+monuments require a ``domes_selector``; the selector resolves metadata, and the
+caller must establish the parameter-to-monument association from companion
+products. Metadata-only selection cannot recover information absent from a
+parameter-only source.
+
+The named native time convention is ``IGN nominal UTC``. Linear and PSD elapsed
+time is the difference of nominal civil MJD divided by 365.25. Annual and
+semiannual phase uses the elapsed fraction of the actual calendar year,
+including February 29; it is not a fixed 365.25-day sinusoid. ``StationHistoryTime``
+keeps physical TAI, split MJD and calendar-year coordinates separate and accepts
+optional derivatives with respect to environment TDB seconds. ``position`` does
+not need rates; ``state`` returns metres and metres per TDB second and requires
+the corresponding source rates. On ordinary UTC intervals these are
+``dTAI/dTDB / 86400`` and ``dTAI/dTDB / (days_in_year * 86400)``.
+
+The native conversion uses the installed SOFA leap table and supports UTC from
+1972 onward. Dubious dates, inserted-second source/reference/event labels and
+state derivatives exactly at a UTC offset step raise errors. Physical interval
+conversion can represent a real inserted-second label. At an ordinary January 1
+the seasonal phase is continuous and its rate uses the new year's length.
+Caller-supplied source coordinates or a ``source_time_function(TDB_Time,
+require_rates)`` callback may implement another explicitly named convention;
+its name must agree with the trajectory metadata.
+
+Attach the result with ``station_history_motion(trajectory)``. It subtracts the
+station's nominal position so that the resulting station position equals the
+absolute trajectory. The default callback uses the body's terrestrial time
+converter when available. For example, with matching metadata already supplied:
+
+.. code-block:: python
+
+    from tudatpy.data_input.environment_data import station_history as sh
+    from tudatpy.dynamics.environment_setup import ground_station as gs
+
+    trajectory = gs.ign_station_history(
+        coordinates, discontinuities, sh.SinexSiteKey("AB07", "A"),
+        post_seismic=psd, enu_to_terrestrial=enu_basis)
+    motion = gs.station_history_motion(trajectory)
+    station = gs.basic_station("AB07", nominal_position,
+                               station_motion_settings=[motion])
+
+``trajectory.metadata`` retains the release, origin, source inventory and signal
+inventory; ``trajectory.has_fitted_seasonal_terms`` reports whether empirical
+seasonal terms are active. When also applying physical loading, explicitly assess
+the overlap between fitted seasonal signals and the loading correction.
+
+Validation includes offline outputs from the unchanged hash-pinned IGN
+``parametric.f`` for selectors 0–5, signed amplitudes, very short and very long
+elapsed times, cumulative events, analytic rate checks, leap/year boundaries,
+physical interval selection and published repeated/seasonal coefficient inputs.
+The fixture provenance is in ``tests/test_tudat/reference_files/station_history``.
+No independent complete trajectory comparison is claimed.
+
+The direct C++ ``LinearStationMotionModel`` constructor now defaults its reference
+epoch to zero TDB seconds since J2000, matching the existing settings/factory
+default. Its previous default was the Julian day number used as seconds.
+
 
 
 

@@ -25,6 +25,7 @@ namespace ground_station
 {
 
 void expose_ground_station_setup( py::module& m );
+void expose_station_history_models( py::module& m );
 
 }  // namespace ground_station
 }  // namespace environment_setup

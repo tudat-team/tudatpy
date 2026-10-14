@@ -319,8 +319,8 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
 
 struct LinearStationMotionModel : public StationMotionModel {
 public:
-    LinearStationMotionModel( const Eigen::Vector3d& linearVelocity,
-                              const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
+    //! Reference epoch is in TDB seconds since J2000, matching station environment epochs.
+    LinearStationMotionModel( const Eigen::Vector3d& linearVelocity, const double referenceEpoch = 0.0 ):
         linearVelocity_( linearVelocity ), referenceEpoch_( referenceEpoch )
     {}
 

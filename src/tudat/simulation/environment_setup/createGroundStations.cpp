@@ -198,6 +198,18 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
         std::shared_ptr< ground_stations::StationMotionModel > currentStationMotionModel;
         switch( stationMotionSettings.at( i )->getModelType( ) )
         {
+            case station_history_motion: {
+                const auto settings =
+                        std::dynamic_pointer_cast< StationHistoryGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+                if( !settings ) throw std::runtime_error( "Incompatible station history motion settings" );
+                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
+                if( const auto rotation =
+                            std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( body->getRotationalEphemeris( ) ) )
+                    converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+                currentStationMotionModel = std::make_shared< ground_stations::StationHistoryMotionModel >(
+                        settings->trajectory_, settings->timeFunction_, converter );
+                break;
+            }
             case body_deformation_station_motion: {
                 std::shared_ptr< BodyDeformationStationMotionSettings > bodyDeformationModelSettings =
                         std::dynamic_pointer_cast< BodyDeformationStationMotionSettings >( stationMotionSettings.at( i ) );
@@ -319,14 +331,23 @@ std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
         const std::shared_ptr< Body > body,
         const Eigen::Vector3d groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType,
-        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-                std::vector< std::shared_ptr< GroundStationMotionSettings > >( ),
-        const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ) )
+        const std::vector< std::shared_ptr< GroundStationMotionSettings > >& stationMotionSettings,
+        const simulation_setup::SystemOfBodies& bodies )
 {
     std::shared_ptr< ground_stations::StationMotionModel > stationMotionModel =
             createGroundStationMotionModels( body, stationMotionSettings, bodies );
     return std::make_shared< ground_stations::GroundStationState >(
             groundStationPosition, positionElementType, body->getShapeModel( ), stationMotionModel );
+}
+
+std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
+        const std::shared_ptr< Body > body,
+        const Eigen::Vector3d groundStationPosition,
+        const coordinate_conversions::PositionElementTypes positionElementType,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    return createGroundStationState(
+            body, groundStationPosition, positionElementType, std::vector< std::shared_ptr< GroundStationMotionSettings > >( ), bodies );
 }
 
 //! Function to create a ground station and add it to a Body object

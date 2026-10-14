@@ -15,6 +15,7 @@
 #include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/ground_stations/stationHistoryMotionModel.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
@@ -40,6 +41,7 @@ enum StationMotionModelTypes {
     custom_station_motion,
     body_deformation_station_motion,
     bodycentric_to_barycentric_station_position_motion,
+    station_history_motion,
 };
 
 class GroundStationMotionSettings
@@ -83,6 +85,26 @@ public:
 
     double referenceEpoch_;
 };
+
+//! Absolute station history; its motion correction subtracts the nominal station position.
+class StationHistoryGroundStationMotionSettings : public GroundStationMotionSettings
+{
+public:
+    StationHistoryGroundStationMotionSettings( std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
+                                               ground_stations::StationHistoryTimeFunction timeFunction = nullptr ):
+        GroundStationMotionSettings( station_history_motion ), trajectory_( std::move( trajectory ) ),
+        timeFunction_( std::move( timeFunction ) )
+    {}
+    std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory_;
+    ground_stations::StationHistoryTimeFunction timeFunction_;
+};
+
+inline std::shared_ptr< StationHistoryGroundStationMotionSettings > stationHistoryGroundStationMotionSettings(
+        std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
+        ground_stations::StationHistoryTimeFunction timeFunction = nullptr )
+{
+    return std::make_shared< StationHistoryGroundStationMotionSettings >( std::move( trajectory ), std::move( timeFunction ) );
+}
 
 class PiecewiseConstantGroundStationMotionSettings : public GroundStationMotionSettings
 {
@@ -359,6 +381,13 @@ std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
         const std::shared_ptr< Body > body,
         const Eigen::Vector3d groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType,
+        const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ) );
+
+std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
+        const std::shared_ptr< Body > body,
+        const Eigen::Vector3d groundStationPosition,
+        const coordinate_conversions::PositionElementTypes positionElementType,
+        const std::vector< std::shared_ptr< GroundStationMotionSettings > >& stationMotionSettings,
         const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ) );
 
 //! Function to create a ground station and add it to a Body object

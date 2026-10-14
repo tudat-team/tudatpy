@@ -43,6 +43,7 @@ void expose_ground_station_setup( py::module& m )
             .value( "linear", tss::StationMotionModelTypes::linear_station_motion )
             .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion )
             .value( "custom", tss::StationMotionModelTypes::custom_station_motion )
+            .value( "station_history", tss::StationMotionModelTypes::station_history_motion )
             .value( "body_deformation", tss::StationMotionModelTypes::body_deformation_station_motion )
             .value( "bodycentric_to_barycentric_station_position_motion",
                     tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion );
@@ -637,6 +638,7 @@ reference_epoch:
         Dictionary mapping station name to velocities.
 
         )doc" );
+    expose_station_history_models( m );
 }
 
 }  // namespace ground_station
