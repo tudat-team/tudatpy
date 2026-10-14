@@ -28,7 +28,7 @@ set(reference_frames_HEADERS
 TUDAT_ADD_LIBRARY("reference_frames"
         "${reference_frames_SOURCES}"
         "${reference_frames_HEADERS}"
-        PUBLIC_LINKS tudat_environment_data
+        PUBLIC_LINKS tudat_environment_data tudat_basic_mathematics
 #        PUBLIC_LINKS tudat_basic_astrodynamics
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
