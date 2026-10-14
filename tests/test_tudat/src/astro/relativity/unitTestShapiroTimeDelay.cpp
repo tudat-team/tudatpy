@@ -360,6 +360,28 @@ BOOST_AUTO_TEST_CASE( testShapiroTimePartialsAndCache )
                     {
                         const double analyticalPartial = correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
                                 transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, nullptr );
+
+                        // Single-body helpers must reproduce the summed partials exactly (same operation order).
+                        const Eigen::Vector3d analyticalGradient =
+                                correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                                        transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, nullptr );
+                        std::vector< double > singleBodyTimePartials;
+                        double summedTimePartial = 0.0;
+                        Eigen::Vector3d summedGradient = Eigen::Vector3d::Zero( );
+                        for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                        {
+                            singleBodyTimePartials.push_back(
+                                    correction.calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                            transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, i ) );
+                            summedTimePartial += singleBodyTimePartials.at( i );
+                            summedGradient += correction.calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                                    transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, i );
+                        }
+                        BOOST_CHECK_EQUAL( summedTimePartial, analyticalPartial );
+                        for( unsigned int j = 0; j < 3; j++ )
+                        {
+                            BOOST_CHECK_EQUAL( summedGradient( j ), analyticalGradient( j ) );
+                        }
                         BOOST_CHECK_EQUAL( correction.getCurrentTotalLightTimeCorrection( ), nominalCorrection );
                         for( unsigned int i = 0; i < selectedNames.size( ); i++ )
                         {
@@ -371,8 +393,29 @@ BOOST_AUTO_TEST_CASE( testShapiroTimePartialsAndCache )
                         const double receiverStep = ( linkEnd == receiver ) ? timePerturbation : 0.0;
                         const double upCorrection = correction.calculateLightTimeCorrection(
                                 transmitterState, receiverState, transmissionTime + transmitterStep, receptionTime + receiverStep );
+                        std::vector< double > upComponents;
+                        for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                        {
+                            upComponents.push_back( correction.getCurrentLightTimeCorrectionComponent( i ) );
+                        }
                         const double downCorrection = correction.calculateLightTimeCorrection(
                                 transmitterState, receiverState, transmissionTime - transmitterStep, receptionTime - receiverStep );
+
+                        // Compare each single-body time partial with the numerical derivative of its own component.
+                        for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                        {
+                            const double numericalSingleBodyPartial =
+                                    ( upComponents.at( i ) - correction.getCurrentLightTimeCorrectionComponent( i ) ) /
+                                    ( 2.0 * timePerturbation );
+                            if( numericalSingleBodyPartial == 0.0 )
+                            {
+                                BOOST_CHECK_EQUAL( singleBodyTimePartials.at( i ), 0.0 );
+                            }
+                            else
+                            {
+                                BOOST_CHECK_CLOSE_FRACTION( singleBodyTimePartials.at( i ), numericalSingleBodyPartial, 1.0E-7 );
+                            }
+                        }
                         const double numericalPartial = ( upCorrection - downCorrection ) / ( 2.0 * timePerturbation );
                         if( !movingBodies || ( bodyCase == 0 && linkEnd == receiver ) || ( bodyCase == 1 && linkEnd == transmitter ) )
                         {
