@@ -135,50 +135,40 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
     add_subdirectory(serialization)
 endif ()
 
-# Directory-local registration for the six independently linkable neutral readers.
-# Keep this separate from TUDAT_ADD_LIBRARY and its dynamics-oriented dependencies.
-function(_tudat_add_neutral_reader target)
-    if(TUDAT_BUILD_STATIC_LIBRARY)
-        add_library(${target} STATIC ${ARGN})
-    else()
-        add_library(${target} SHARED ${ARGN})
-    endif()
-    target_include_directories(${target} PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>)
-    set_target_properties(${target} PROPERTIES
-        POSITION_INDEPENDENT_CODE ON
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-    add_library(Tudat::${target} ALIAS ${target})
-    install(TARGETS ${target} EXPORT tudat_export
-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-        RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
-endfunction()
+# Neutral environment readers compile once without links to dynamics models.
+set(environment_data_SOURCES
+        "readEarthOrientationData.cpp"
+        "readHighFrequencyEopData.cpp"
+        "readOceanLoadingData.cpp"
+        "readOceanPoleTideData.cpp"
+        "readAtmosphericTideData.cpp"
+        "readTerrestrialFrameTransformationData.cpp"
+        "readSinexStationHistory.cpp"
+        "readStationLoadingData.cpp")
 
-_tudat_add_neutral_reader(tudat_earth_orientation_data readEarthOrientationData.cpp readHighFrequencyEopData.cpp)
-_tudat_add_neutral_reader(tudat_ocean_loading_data readOceanLoadingData.cpp readOceanPoleTideData.cpp)
-_tudat_add_neutral_reader(tudat_atmospheric_loading_data readAtmosphericTideData.cpp)
-_tudat_add_neutral_reader(tudat_terrestrial_frame_data readTerrestrialFrameTransformationData.cpp)
-_tudat_add_neutral_reader(tudat_station_history_data readSinexStationHistory.cpp)
-_tudat_add_neutral_reader(tudat_station_loading_data readStationLoadingData.cpp)
+# Installed interfaces for the observations and their file readers.
+set(environment_data_HEADERS
+        "readEarthOrientationData.h"
+        "readHighFrequencyEopData.h"
+        "readOceanLoadingData.h"
+        "readOceanPoleTideData.h"
+        "readAtmosphericTideData.h"
+        "readTerrestrialFrameTransformationData.h"
+        "readSinexStationHistory.h"
+        "readStationLoadingData.h")
 
-# Preserve the existing feature, runtime-location and Eigen interfaces exactly.
-foreach(target IN ITEMS tudat_earth_orientation_data tudat_atmospheric_loading_data
-        tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data)
-    target_compile_features(${target} PUBLIC cxx_std_17)
-endforeach()
-foreach(target IN ITEMS tudat_ocean_loading_data tudat_terrestrial_frame_data)
-    set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-endforeach()
-foreach(target IN ITEMS tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_terrestrial_frame_data)
-    if(TARGET Eigen3::Eigen)
-        target_link_libraries(${target} PUBLIC Eigen3::Eigen)
-    else()
-        target_include_directories(${target} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
-    endif()
-endforeach()
+TUDAT_ADD_LIBRARY("environment_data"
+        "${environment_data_SOURCES}"
+        "${environment_data_HEADERS}")
+
+# Preserve language, shared-library and public Eigen requirements for all consumers.
+target_compile_features(tudat_environment_data PUBLIC cxx_std_17)
+set_target_properties(tudat_environment_data PROPERTIES POSITION_INDEPENDENT_CODE ON)
+if(TARGET Eigen3::Eigen)
+    target_link_libraries(tudat_environment_data PUBLIC Eigen3::Eigen)
+else()
+    target_include_directories(tudat_environment_data SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
+endif()
 
 # Only the compatibility adapter needs the old aggregate's other dependencies.
-target_link_libraries(tudat_input_output_raw PUBLIC tudat_station_history_data)
+target_link_libraries(tudat_input_output_raw PUBLIC tudat_environment_data)

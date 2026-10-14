@@ -72,7 +72,7 @@ TUDAT_ADD_TEST_CASE(EarthRotationDerivatives
     tudat_basic_astrodynamics
     tudat_basic_mathematics
     tudat_input_output_raw
-    tudat_earth_orientation_data
+    tudat_environment_data
     tudat_basics)
 
 TUDAT_ADD_TEST_CASE(HighFrequencyEarthOrientation
