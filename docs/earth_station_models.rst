@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 18 of 25 tasks done; 3 active, 1 partial and 3 queued.
+Status: 20 of 25 tasks done; 4 active and 1 partial.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -103,12 +103,12 @@ validated and integrated.
    [x] 17 Add conventional atmospheric S1/S2 tidal loading.  [DONE]
    [x] 18 Preserve full SINEX solution/validity/eccentricity histories.  [DONE]
    [x] 19 Implement post-seismic and seasonal station motion with rates.  [DONE]
-   [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [ACTIVE — validated transformations; catalogue/trajectory adapter underway]
-   [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [ACTIVE — strict provider inputs and metadata]
-   [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
-   [ ] 23 Validate relativistic station position and velocity transformations.  [ACTIVE — spatial/event conventions and full-state composition]
-   [ ] 24 Improve instrument reference-point and calibrated geometry support.  [QUEUED]
-   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [QUEUED]
+   [x] 20 Modernise ITRF transformations and station-catalogue inputs.  [DONE]
+   [x] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [DONE]
+   [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [ACTIVE — interpolation, origin and signal-overlap enforcement]
+   [ ] 23 Validate relativistic station position and velocity transformations.  [ACTIVE — validated spatial model integrated; completing BodySettings factory wiring]
+   [ ] 24 Improve instrument reference-point and calibrated geometry support.  [ACTIVE — dated equipment and calibrated reference points]
+   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [ACTIVE — deformation API audit; Python-specific coverage pending]
 
 Task numbers are stable identifiers rather than a rigid execution sequence.
 Tasks 25--28 and 30 were removed at Dominic's request: new estimation
@@ -126,7 +126,7 @@ Active work
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
 The coordinator handles architecture and integration. Current compiler allocations
-are relativistic station transforms 4, station history 2, and non-tidal loading 2; the combined
+are relativistic factories/API cleanup 4, instrument geometry 2, and non-tidal loading 2; the combined
 limit remains eight. Earlier workers are stopped and their work is preserved.
 
 * Task 04: independent reference packages are in use for solid Earth tides,
@@ -159,23 +159,32 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   calendar seasonal motion, P/V history identity, validity and public factories.
   Physical validity uses TAI; the named IGN nominal-UTC profile preserves the
   published source-time conventions and rejects unsupported leap/rate ambiguity.
-* Task 20: neutral ITRF parameter ingestion and affine position/state transforms
-  pass integrated comparisons against 75 independent high-precision fixtures.
-  The transformation checkpoint includes bindings and API documentation.
-  The catalogue adapter is now active, connecting complete station trajectories
-  to explicit frame/release/origin/tide metadata and the shared decimal-year
-  clock. Runtime Python binding checks remain task 29.
-* Task 23: the rotation worker is now resolving the relativistic transformation
-  contract and implementing correct spatial/state composition, external-body
-  selection and explicit coordinate/time compatibility against primary standards.
-* Task 21: strict EPHEDISP parsing and neutral preloaded loading-series records
-  are being implemented from the pinned specification and a complete real IMLS
-  provider file. Model evaluation, interpolation and overlap policy follow in 22.
-* Task 29 will also simplify deformation-model entry points, following Dominic's
-  AtmosphericTideDeformation example: consolidate redundant clock/geometry
-  adapters and avoid convenience methods with subtly different output frames.
+* Task 20: catalogue/trajectory integration is complete. Four adapter cases/217
+  assertions pass against published high-precision transformations, including
+  inverse states, leap-year calendar rates, position-only queries, release/origin/
+  tide guards and the public motion factory. The affected station-history suite
+  passes 9/343 and affine suite 5/995; binding syntax and dependency checks pass.
+* Task 21: strict EPHEDISP parsing and neutral preloaded records are integrated.
+  Four native cases/141 assertions and four architecture/provenance checks pass.
+  The real provider file has eight duplicated site labels and is correctly
+  rejected. Unchanged positive extracts and a negative duplicate fixture preserve
+  its evidence; no provider records were silently repaired.
+* Task 22: the loading worker is implementing explicit interpolation, station
+  selection, origin translation and tidal/empirical-seasonal overlap policies.
+* Task 23: the explicit IERS spatial approximation is integrated. Six focused
+  cases/79 assertions pass alongside affected station-state and clock suites.
+  Terminal composition consumes the full displaced/moving state once; selected
+  external potentials, coordinate scaling and actual axes/origin are explicit.
+  Review found a remaining BodySettings factory/environment wiring gap, now
+  being fixed and tested before this task is marked complete.
+* Task 24: the station-history worker is implementing dated marker/ARP/calibrated
+  reference-point geometry using retained equipment and eccentricity histories.
+* Task 29: the deformation entry-point audit confirms production aggregation
+  uses epoch plus GroundStationState, while AtmosphericTideDeformation's ENU
+  helper is test-only. Consolidation will preserve position-only access and
+  explicit output frames; Python-only binding/import checks remain outstanding.
 
-Other unchecked tasks are queued. Python-only binding/import validation is part of task 29;
+Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
 kernel compilation is allowed only when needed for those Python-specific tests.
 
 The pinned :doc:`GROOPS source comparison <earth_station_models_groops_review>`
@@ -217,6 +226,41 @@ study.  Actual discontinuities are tested as discontinuities.
 
 Validation ledger
 -----------------
+
+2026-10-14, catalogue adapter integration: task 20 commit ``875239f1c`` cleanly
+integrates ``f5a31d36b``. Four native cases/217 assertions cover 13 independent
+published ITRF2020 rows in both directions, complete affine velocity, shared
+calendar time, metadata guards and public factory dispatch. Rebuilt affected
+station-history and affine suites pass 9/343 and 5/995. Both binding units pass
+syntax checks; source and configured target-closure checks preserve neutral
+input dependencies. Integration preserves the tested numerical implementation.
+
+2026-10-14, loading input integration: task 21 commit ``0cb57a602`` integrates
+``bde585377``. Four native cases/141 assertions pass; the reader builds as a
+standard-library-only target. Four source-boundary/provenance checks and binding
+syntax checks pass. The 9728-byte positive extract preserves authoritative rows;
+the complete 4341-site provider file is rejected at duplicate AGGO line 563,
+as the format requires. A pinned negative fixture preserves that provider defect.
+Merge conflicts only combined additive library and module registrations.
+
+2026-10-14, relativistic spatial checkpoint: commit ``084d7aa2f`` cleanly
+integrates ``de42063e8`` while retaining task 19's motion factory. Six model
+cases/79 assertions, station aggregation 3/331, complete station velocity 5/151
+and clock routing 14/253 pass. Independent 70-digit equation fixtures, an exact
+Lorentz limiting case and declared-model velocity differences cover the spatial
+approximation. Station simultaneity/full-event acceleration terms remain
+explicitly outside that approximation. Review keeps task 23 open for a missing
+environment argument in the public BodySettings construction path; a focused
+regression is required for that newly identified gap. No unchanged numerical
+suites were rerun merely because of integration.
+
+The combined tasks 20/21/23 CMake target graph configures successfully, including
+the actual neutral-input dependency audit, without compiling the Python kernel.
+All task 20 numerical files and task 21 reader/fixtures match their tested
+checkpoints byte for byte. The task 23 differences retain only task 19's separate
+factory/settings and corrected linear reference epoch. Integration evidence is
+``logs/tasks20-21-23-integration.json`` and
+``logs/tasks20-21-23-merged-configure.log`` in the local work directory.
 
 2026-10-14, station-history motion integration: task 19 commit ``d30e0b309``
 cleanly integrates ``cc14e9728``. Nine native cases/343 assertions pass, with
