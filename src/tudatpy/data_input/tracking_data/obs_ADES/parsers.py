@@ -382,13 +382,16 @@ def _check_possible_failures(df, obs_kind):
         stn_codes = observatories_table["Code"].astype("string").tolist()
         # extract the stations from the input file to check them
         trx = df["trx"].astype("string").str.strip()
-        invalid_trx = stn.notna() & ~trx.isin(stn_codes)
+        invalid_trx = trx.notna() & ~trx.isin(stn_codes)
         rcv = df["trx"].astype("string").str.strip()
-        invalid_rcv = stn.notna() & ~rcv.isin(stn_codes)
+        invalid_rcv = rcv.notna() & ~rcv.isin(stn_codes)
         if invalid_trx.any():
             raise ValueError(f"Unknown MPC transmitter codes: {stn[invalid].unique().tolist()}")
         if invalid_rcv.any():
             raise ValueError(f"Unknown MPC receiver codes: {stn[invalid].unique().tolist()}")
+
+        # if all tests are passed then return df
+        return df
 
     # elif obs_kind == "offset":
 
@@ -430,6 +433,13 @@ def _astCat_to_catalog(df):
     return df
 
 
+def _numeric(df, column, scale=1.0):
+    """Numeric column times `scale`; all-NaN if the column is absent."""
+    if column not in df.columns:
+        return pd.Series(np.nan, index=df.index)
+    return pd.to_numeric(df[column], errors="coerce") * scale
+
+
 def parse_ades_file(file_path: str):  # -> Table:
     """
     Parses MPC observation data in the ADES format.
@@ -460,7 +470,7 @@ def parse_ades_file(file_path: str):  # -> Table:
         If the file is empty, if the format is not the expected psv or xml format
     """
 
-    # 1. LOAD RAW LINES & CHECK LENGTH
+    # check that the input file is given as input
     if not file_path:
         raise ValueError("There is no input file")
 
@@ -507,6 +517,9 @@ def parse_ades_file(file_path: str):  # -> Table:
 
         # create the columns containing seconds since J2000 UTC
         df = _epochs_UTC_to_seconds_UTC(df)
+
+        result_data_optical = pd.DataFrame()
+        result_data_radar = pd.DataFrame()
 
         # optical observations
         if obs_kind == "optical":
@@ -566,17 +579,17 @@ def parse_ades_file(file_path: str):  # -> Table:
                     "epoch_seconds_UTC": df["epoch_seconds_UTC"],
                     "transmitter": df["trx"],
                     "receiver": df["rcv"],
-                    "target_point": df["C"],
-                    "transmitter_frequency_Hz": pd.to_numeric(df["frq"]).to_numpy() * (10**6),
+                    "target_point": df["target_point"],
+                    "transmitter_frequency_hz": _numeric(df, "frq", 1e6),
                     # in the obs either the delay or the doppler is reported so depending on the case some of these columns might be = None
-                    "delay_us": df.get("delay")
-                    * 1e6,  # this needs to be in microseconds to be consistent with the 80 cols format
-                    "rmsDelay": df.egt("rmsDelay")
-                    * 1e6,  # this needs to be in microseconds to be consistent with the 80 cols format
-                    "doppler_hz": df.get("doppler"),
-                    "doppler_sigma_hz": df.get("rmsDoppler"),
+                    "delay_us": _numeric(df, "delay", 1e6),
+                    "delay_sigma_us": _numeric(df, "rmsDelay"),
+                    "doppler_hz": _numeric(df, "doppler"),
+                    "doppler_sigma_hz": _numeric(df, "rmsDoppler"),
                 }
             )
+
+            result_data_radar = radar_data_from_raw(result_data_radar, source="MPC")
 
         else:
             print("Unrecognized data type")
@@ -584,7 +597,6 @@ def parse_ades_file(file_path: str):  # -> Table:
         if result_data_optical.empty and result_data_radar.empty:
             raise ValueError("No valid observation lines found.")
 
-        # transform the optical data into an astropy Table
         optical_table = Table.from_pandas(result_data_optical)
 
         # if available add radar data as metadata of the optical astropy table
