@@ -134,8 +134,9 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   2018 chapter and includes an offline scalar colatitude-equation checker; all
   eight unchanged vectors reproduce within 8.67e-19 m against the retained
   1e-14 m tolerance; the exact offline command and PDF hash are recorded in
-  ``solid-pole-fixture-reproduction.log``. Remaining work is relativistic-fixture reproduction plus
-  final loading and instrument-geometry evidence.
+  ``solid-pole-fixture-reproduction.log``. The independent 70-digit Decimal
+  generator also reproduces all nine unchanged relativistic literals. Final
+  integration of that generator and loading/instrument-geometry evidence remain.
 * Task 11: complete rotation derivatives are integrated with all ten checkpoint
   files unchanged from the tested worktree. Thirteen focused native cases and
   334 assertions pass, including independent full SOFA matrix/state comparisons.
@@ -175,9 +176,10 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   rejected. Unchanged positive extracts and a negative duplicate fixture preserve
   its evidence; no provider records were silently repaired.
 * Task 22: interpolation, station selection, origin translation and signal-overlap
-  checks are implemented in the isolated worktree. Seven focused native cases
-  cover scientific values/rates and assembly behavior. Final compilation and
-  validation await the shared Time/base API checkpoint; documentation is ongoing.
+  checks pass seven focused native cases/78 assertions against the shared core
+  checkpoint, including the real composition validator. The changed reader also
+  passes its four existing cases/141 assertions; binding syntax passes.
+  Final source review, completion commit and integration remain.
 * Task 23: the explicit IERS spatial approximation is integrated. Seven focused
   cases/91 assertions pass alongside affected station-state and clock suites.
   Terminal composition consumes the full displaced/moving state once; selected
@@ -187,8 +189,9 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   regression covers both direct and Earth-relative Sun ephemerides.
 * Task 24: dated marker/ARP/calibrated geometry is implemented in the isolated
   worktree, reusing station metadata and retained equipment/eccentricity histories.
-  Focused tests, bindings and documentation are underway. Native integration
-  depends on the shared Time/base API checkpoint.
+  Focused native geometry/history/factory validation is running against the shared
+  core checkpoint. Python ownership and precise-Time dispatch checks are prepared
+  for the later binding runtime validation.
 * Task 29: Dominic explicitly requested removing EarthDeformationEpoch and
   simplifying evaluation across deformation models. The isolated implementation
   now removes that wrapper and exposes displacement and full displacement/state
