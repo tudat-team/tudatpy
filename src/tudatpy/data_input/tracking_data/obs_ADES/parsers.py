@@ -5,6 +5,7 @@ from astroquery.mpc import MPC
 import numpy as np
 import re
 from pathlib import Path
+import warnings
 
 # check these imports - maybe useful for radar??
 from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
@@ -494,15 +495,21 @@ def parse_ades_file(file_path: str):  # -> Table:
     # Collect observations, including those outside obsData blocks.
     rows_by_kind = {}
     for obs_type in root.iter():
+        print(obs_type)
         obs_kind = _tag_name(obs_type)
 
         if obs_kind not in {"optical", "radar", "offset", "occultation"}:
-            raise ValueError(f"Unsupported observation type: {obs_kind}")
+            continue
 
         # Include direct child fields, e.g. permID, obsTime, ra, dec.
         row = {_tag_name(child): (child.text or "").strip() for child in obs_type}
 
         rows_by_kind.setdefault(obs_kind, []).append(row)
+
+    result_data_optical = pd.DataFrame()
+    result_data_radar = pd.DataFrame()
+    result_data_occultations = pd.DataFrame()
+    result_data_offset = pd.DataFrame()
 
     for obs_kind, rows in rows_by_kind.items():
 
@@ -518,9 +525,6 @@ def parse_ades_file(file_path: str):  # -> Table:
 
         # create the columns containing seconds since J2000 UTC
         df = _epochs_UTC_to_seconds_UTC(df)
-
-        result_data_optical = pd.DataFrame()
-        result_data_radar = pd.DataFrame()
 
         # optical observations
         if obs_kind == "optical":
@@ -593,15 +597,17 @@ def parse_ades_file(file_path: str):  # -> Table:
             result_data_radar = radar_data_from_raw(result_data_radar, source="MPC")
 
         else:
-            print("Unrecognized data type")
+            warnings.warn(f"Skipping unsupported observation kind: {obs_kind}")
+            continue
 
-        if result_data_optical.empty and result_data_radar.empty:
-            raise ValueError("No valid observation lines found.")
+    if result_data_optical.empty and result_data_radar.empty:
+        # return an empty table
+        return Table()
 
-        optical_table = Table.from_pandas(result_data_optical)
+    optical_table = Table.from_pandas(result_data_optical)
 
-        # if available add radar data as metadata of the optical astropy table
-        if not result_data_radar.empty:
-            optical_table.meta[RADAR_TABLE_META_KEY] = result_data_radar
+    # if available add radar data as metadata of the optical astropy table
+    if not result_data_radar.empty:
+        optical_table.meta[RADAR_TABLE_META_KEY] = result_data_radar
 
-        return optical_table
+    return optical_table
