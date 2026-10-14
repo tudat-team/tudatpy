@@ -1,0 +1,76 @@
+# PR 1092 review follow-up — implementation status (handover document)
+
+Keep this file current. Another agent must be able to continue from it.
+
+## Locations
+- Review worktree: `/home/dominic/Tudat/tudat-monorepo/tudatpy-pr1092-external-review`, local branch `review/pr1092-external-simplify`.
+  Base: `226d87de16d2e962cbff7326a830efbc6f89fc3f` (= `origin/fix/earth_deformation_rotation` when fetched, unchanged).
+- Review build directory (my own; do not use the coordinator's): `/home/dominic/Tudat/pr1092-review-build`.
+  Configured with the same options as `/home/dominic/Tudat/earth-station-python-build`. Build with `make -j8 <targets>` (never more than 8 jobs).
+  Selected test targets are listed in `/tmp/claude-1000/-home-dominic/da490dc0-d594-4ff0-aa23-705088333291/scratchpad/selected.txt`
+  (26 earth_orientation / ground_stations / ItrsToGcrs / TerrestrialFrame tests).
+- Review: `/home/dominic/Tudat/tudat-monorepo/REVIEW-DONE.md`. The first proposed diff is `REVIEW-PROPOSED-CHANGES.diff`.
+  The list of riskier redesigns is `REVIEW-RISKIER-REDESIGNS.md`.
+- Resource additions for tudat-resources (not yet a PR):
+  `/home/dominic/Tudat/tudat-monorepo/tudat-resources-additions/earth_orientation/` (Desai–Sibois 2016 tables). These are already copied
+  into the local `~/.tudat/resource/earth_orientation/`.
+
+## Decisions from Dominic (14 October 2026)
+1. Nothing may break backwards compatibility with `feature/data-refactor` (`3070b20e8`). Existing code must compile and behave the
+   same. Deliberate accuracy improvements are the purpose of the PR; list each one.
+2. Deprecating existing interfaces (keeping a thin deprecated wrapper) is allowed when it brings a large simplification.
+3. C1: restore the base behaviour, i.e. `J2000`/`ECLIPJ2000` apply the SOFA frame bias. Keep `ICRF` (no bias) and `EME2000` as
+   additions.
+4. C2: HARDISP (342 constituents) stays the default; the 11-constituent synthesis must stay available.
+5. C3: `short_term_eop_interpolation_settings` must keep working (accepted, no error), since it exists in the base.
+6. Mandatory input files belong in tudat-resources. Add them locally under `~/.tudat/resource` and flag the resources change.
+7. Pushing this work to `fix/earth_deformation_rotation` is authorized by Dominic. Rebase onto the latest remote; never force-push.
+   Include this notes file in the repository commit (as `docs/pr1092_review_notes.md`).
+
+## Status per item
+| Item | Status |
+| --- | --- |
+| Proposed diff items (REVIEW-DONE §6): text bindings, default converter reuse, matrix-constructor argument, nominal-CIP rate, ocean-pole file constructor, relativistic settings collapse, station-creation overload merge, EOP evaluator internals | Done |
+| S1: rounded-double boundary machinery removed; 1 µs end-point tolerance (`EarthOrientationDataEvaluator::coverageToleranceSeconds`, station-loading grid) | Done. 26 native tests built and passing (after test updates: sub-µs "outside" checks moved to 1 ms) |
+| Compatibility with `feature/data-refactor` | Done and tested: C1 reverted (`J2000`/`ECLIPJ2000` apply the frame bias; `ICRF` identity and `EME2000` = `J2000` kept as additions); C3 short-term interpolation settings accepted again (no effect on the precise model; test added); old spin-only `calculateRotationRateFromItrsToGcrs` templates restored and used again for derivatives of custom-interpolator Earth models (base behaviour); base `BodyCentricToBarycentricGroundStationMotionSettings( centralBody, useGR )` constructor restored, default compatibility = unscaled (Eq. 11.18) so existing code no longer throws; `BodyDeformationModel::calculateDisplacement( time, position )` restored; `OceanTideBodyDeformationSettings::getBlqFiles` restored; `LinearStationMotionModel` default reference epoch restored to the base value |
+| Test fix (pre-existing at PR head, test not in the coordinator's selection): `unitTestItrsToGcrsRotationModel` `test_RotationBetweenIntermediateFrames` built its expected matrices from a rounded double UT1 and a TDB TIO locator; now uses the model's precise TT/UT1 | Done |
+| S3: Desai–Sibois via resource files | Resource files created and installed locally; code change next |
+| S7 partial (custom-Doodson-callback constructors etc.), S4, S10 | Next, if time allows |
+| Stage 1 (all of the above) | Committed as `69dff7426` plus the Python test/notes commit, pushed to `origin/fix/earth_deformation_rotation` |
+| `DONE-WITH-EDITING.md` | When all editing stops |
+
+## Not implemented (kept as recommendations; reasons)
+- S5 (station-history time model to plain `Time`) and S6 (remove trajectory wrapper classes): large public API redesign of new PR
+  features; needs Dominic's go-ahead.
+- Python exposure redesign (settings factories instead of mutable classes, one factory per deformation model, `ign_station_history`
+  returning settings): large user-facing change; needs Dominic's go-ahead.
+- S2 complete (remove the custom-interpolator EOP route): would remove a base interface; only possible with deprecation, not yet done.
+- C4 (hidden TDB re-wrapping of the Earth rotation) and C5 (frame-definition ordering in `createSystemOfBodies`): need a design
+  decision; flagged only.
+- S8 (shared reading helpers, per-record provenance), S9 (single grid interpolator), smaller S11 items, the broad
+  comment/format pass, and test-generator reorganisation: lower value; not started.
+- Behaviour changes already in the PR that are deliberate accuracy improvements and are kept: HARDISP default (C2), the exact
+  `a = 1/(1+Z)` in `calculateRotationFromCirsToGcrs` (C7), the corrected IERS 11.19 relativistic station formula, and the
+  continuous-TAI EOP interpolation.
+
+## Compatibility notes for maintainers (flag, not changed)
+- Base `LinearStationMotionModel` default reference epoch is `JULIAN_DAY_ON_J2000` used as seconds (looks like a unit error). It is kept for
+  compatibility; the environment factory always passes the epoch explicitly.
+- The PR replaces the base relativistic station formula (sign/factor errors with respect to IERS 2010 Eq. 11.18/11.19) by the IERS
+  formula. This is a deliberate correction; results of existing code using this model change.
+- The PR changes the C++ virtual interfaces `StationMotionModel::getBodyFixedStationMotion` (now `Time`) and `BodyDeformationModel`
+  (non-virtual `calculateDisplacement`, protected virtual `evaluateDisplacement`). Callers compile unchanged; user-written C++
+  subclasses would need updating.
+
+## Verification log
+- 14 Oct: proposed diff — `-fsyntax-only` on all changed files: OK.
+- 14 Oct: S1 — `-fsyntax-only` on 124 files: OK after test updates. Native build of the 26 test targets started in `/home/dominic/Tudat/pr1092-review-build`.
+- 14 Oct: S1 — 26 native tests built in `/home/dominic/Tudat/pr1092-review-build` and run serially: all pass after test updates.
+- 14 Oct: compatibility fixes — 26 native tests rebuilt and run: all pass (tests adapted: frame-bias fixtures for J2000/ECLIPJ2000,
+  SPICE comparison back to the base GCRS form, station round-trip tolerance 8e-9 m).
+- 14 Oct: Python kernel built in the review build; every tudatpy module imports; the PR's focused Python tests (9) pass;
+  `tests/architecture` (4) pass. The full `tests/test_tudatpy` suite has 214 failures/19 errors, all environmental: serialization is
+  disabled in this build configuration (`TUDAT_BUILD_WITH_SERIALIZATION=OFF`, as in the coordinator's build) and tracking-data tests need
+  data files that are not in this build tree. None involves the changed code.
+- Note: the SPICE comparison test passes only with the GCRS base (SPICE `J2000` has ICRF axes). With the base behaviour restored,
+  tudat's `J2000` Earth-rotation base frame differs from SPICE `J2000` by the frame bias (~23 mas), exactly as in `feature/data-refactor`.

@@ -14,15 +14,14 @@ def test_station_history_namespace_keys_and_array_binding():
     assert isinstance(history.parameters, dict)
     assert len(solution.position_metres) == 3
     assert key.site.site_code == "AB07"
-    text_history = station_history.read_sinex_station_history_text(
-        (FIXTURES / "duplicate_sites.snx").read_text(), "binding-text"
+    duplicate_history = station_history.read_sinex_station_history(
+        str(FIXTURES / "duplicate_sites.snx")
     )
-    assert text_history.source == "binding-text"
-    assert isinstance(text_history.sites, list)
-    assert len([site for site in text_history.sites if site.key.site_code == "GALA"]) == 2
-    text_history.release = "explicit source release"
-    assert text_history.release == "explicit source release"
-    station_history.validate_sinex_station_history(text_history)
+    assert isinstance(duplicate_history.sites, list)
+    assert len([site for site in duplicate_history.sites if site.key.site_code == "GALA"]) == 2
+    duplicate_history.release = "explicit source release"
+    assert duplicate_history.release == "explicit source release"
+    station_history.validate_sinex_station_history(duplicate_history)
 
 
 def test_unresolved_optional_binding_is_none():
