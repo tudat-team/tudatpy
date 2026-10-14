@@ -22,6 +22,7 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
+#include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createDopplerPartials.h"
 
@@ -820,6 +821,111 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
             }
         }
         std::cout << maxError << " " << maxErrorRelative << " " << maxErrorElevation << std::endl;
+    }
+}
+
+// Check that the time derivative of tabulated ionospheric corrections does not use data across validity boundaries
+BOOST_AUTO_TEST_CASE( testTabulatedIonosphericTimeDerivativeAtValidityBoundaries )
+{
+    // Two consecutive cards, each linear in time (TRK-2-23 power series), with different values and slopes
+    const double boundaryTime = 544795200.0;
+    const double boundaryUtcTime = sofa_interface::convertTTtoUTC( boundaryTime );
+    const double cardDuration = 3600.0;
+    const std::vector< std::vector< double > > cardCoefficients = { { 1.0, 0.2 }, { 3.0, -0.5 } };
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > correctionManager =
+            std::make_shared< TabulatedMediaReferenceCorrectionManager >(
+                    std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >{
+                            std::make_shared< PowerSeriesReferenceCorrection >(
+                                    boundaryUtcTime - cardDuration, boundaryUtcTime, cardCoefficients.at( 0 ) ),
+                            std::make_shared< PowerSeriesReferenceCorrection >(
+                                    boundaryUtcTime, boundaryUtcTime + cardDuration, cardCoefficients.at( 1 ) ) } );
+
+    const double referenceFrequency = 2295.0E6;
+    const double frequency = 7.2E9;
+    TabulatedIonosphericCorrection ionosphericCorrection( correctionManager, n_way_range, true, referenceFrequency );
+
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
+
+    // Epochs in card 1 and card 2, both far from and close to (5 s) the boundaries between cards, and at the end of the data
+    const std::vector< double > timesFromBoundary = { -600.0, -5.0, 5.0, 600.0, cardDuration - 5.0 };
+    for( const double timeFromBoundary : timesFromBoundary )
+    {
+        const std::vector< double >& coefficients = cardCoefficients.at( timeFromBoundary < 0.0 ? 0 : 1 );
+        const double expectedTimeDerivative = 2.0 * coefficients.at( 1 ) / cardDuration * std::pow( referenceFrequency / frequency, 2.0 ) /
+                physical_constants::SPEED_OF_LIGHT;
+
+        const double transmissionTime = boundaryTime + timeFromBoundary;
+        const double computedTimeDerivative =
+                ionosphericCorrection.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( Eigen::Vector6d::Zero( ),
+                                                                                                   Eigen::Vector6d::Zero( ),
+                                                                                                   transmissionTime,
+                                                                                                   transmissionTime + 1000.0,
+                                                                                                   transmitter,
+                                                                                                   ancillarySettings );
+
+        BOOST_CHECK_CLOSE_FRACTION( computedTimeDerivative, expectedTimeDerivative, 1.0E-6 );
+    }
+}
+
+// Correction depending only on the direction of the line of sight, mimicking an elevation-dependent media correction
+class LineOfSightDirectionCorrection : public LightTimeCorrection
+{
+public:
+    LineOfSightDirectionCorrection( const Eigen::Vector3d& referenceDirection, const double correctionScale ):
+        LightTimeCorrection( saastamoinen_tropospheric ), referenceDirection_( referenceDirection ), correctionScale_( correctionScale )
+    {}
+
+    double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings ) override
+    {
+        Eigen::Vector3d lineOfSight =
+                ( linkEndsStates.at( currentMultiLegTransmitterIndex + 1 ) - linkEndsStates.at( currentMultiLegTransmitterIndex ) )
+                        .segment( 0, 3 );
+        return correctionScale_ * lineOfSight.normalized( ).dot( referenceDirection_ );
+    }
+
+private:
+    Eigen::Vector3d referenceDirection_;
+
+    double correctionScale_;
+};
+
+// Check numerical position partials of light-time corrections for near-Earth links, with barycentric link end states
+BOOST_AUTO_TEST_CASE( testNumericalCorrectionPositionPartialsNearEarth )
+{
+    const Eigen::Vector3d earthPosition = ( Eigen::Vector3d( ) << 1.0E11, 1.1E11, 0.4E11 ).finished( );
+    const Eigen::Vector3d stationDirection = ( Eigen::Vector3d( ) << 0.3, -0.5, 0.8 ).finished( ).normalized( );
+    const Eigen::Vector3d stationPosition = earthPosition + 6378.0E3 * stationDirection;
+
+    LineOfSightDirectionCorrection correction( stationDirection, 1.0E-8 );
+
+    // Low-Earth orbit and lunar distance spacecraft, above the station's horizon
+    const Eigen::Vector3d offsetDirection = ( Eigen::Vector3d( ) << 0.6, -0.2, 0.7 ).finished( ).normalized( );
+    for( const double geocentricDistance : { 7500.0E3, 384400.0E3 } )
+    {
+        Eigen::Vector6d stationState = Eigen::Vector6d::Zero( );
+        stationState.segment( 0, 3 ) = stationPosition;
+        Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
+        spacecraftState.segment( 0, 3 ) = earthPosition + geocentricDistance * offsetDirection;
+
+        // Analytical partial of correction w.r.t. receiver (spacecraft) position; partial w.r.t. transmitter is opposite
+        const Eigen::Vector3d lineOfSight = spacecraftState.segment( 0, 3 ) - stationPosition;
+        const Eigen::Vector3d unitLineOfSight = lineOfSight.normalized( );
+        const Eigen::Vector3d expectedPartial =
+                1.0E-8 * ( stationDirection - unitLineOfSight.dot( stationDirection ) * unitLineOfSight ) / lineOfSight.norm( );
+
+        const Eigen::Vector3d partialWrtReceiver = correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                stationState, spacecraftState, 0.0, 0.0, receiver, nullptr );
+        const Eigen::Vector3d partialWrtTransmitter = correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                stationState, spacecraftState, 0.0, 0.0, transmitter, nullptr );
+
+        BOOST_CHECK_SMALL( ( partialWrtReceiver - expectedPartial ).norm( ) / expectedPartial.norm( ), 1.0E-5 );
+        BOOST_CHECK_SMALL( ( partialWrtTransmitter + expectedPartial ).norm( ) / expectedPartial.norm( ), 1.0E-5 );
     }
 }
 

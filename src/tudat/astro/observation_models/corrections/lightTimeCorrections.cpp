@@ -24,6 +24,8 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
     switch( lightTimeCorrectionType )
     {
         case first_order_relativistic:
+        // Custom corrections receive the ancillary settings, but are not assumed to require frequencies
+        case function_wrapper_light_time_correction:
         case tabulated_tropospheric:
         case saastamoinen_tropospheric:
         case vmf3_tropospheric:
