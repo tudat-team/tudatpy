@@ -172,61 +172,33 @@ public:
         auto ancillarySettings = ancillarySettingsInput;
         if( lightTimeCalculator_->doCorrectionsNeedFrequency( ) )
         {
-            if( ancillarySettings == nullptr )
-            {
-                ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
-            }
-            setTransmissionFrequency(
-                    lightTimeCalculator_, timeScaleConverter_, frequencyInterpolator_, time, linkEndAssociatedWithTime, ancillarySettings );
+            // Work on a copy, so that the frequencies set here do not leak into the caller's settings
+            ancillarySettings = ( ancillarySettingsInput == nullptr )
+                    ? std::make_shared< ObservationAncillarySimulationSettings >( )
+                    : std::make_shared< ObservationAncillarySimulationSettings >( *ancillarySettingsInput );
+
+            // Approximate transmitter frequency for the light-time corrections, looked up in the same way as the
+            // frequency of the observable below
+            TimeType approximateTransmitterTime = time - lightTimeCalculator_->calculateFirstIterationLightTime( time, true );
+            double approximateTransmittedFrequency = frequencyInterpolator_->template getTemplatedCurrentFrequency< double, TimeType >(
+                    getTransmitterFrequencyTime( approximateTransmitterTime ) );
+            ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmittedFrequency );
+            ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmittedFrequency );
         }
 
-        // Calculate the light time using correct signature
-        StateType receiverState, transmitterState;
-        bool isTimeAtReception = ( linkEndAssociatedWithTime == receiver );
-        TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                receiverState, transmitterState, time, isTimeAtReception, ancillarySettings );
-
-        // Update link end states and times
-        linkEndStates.resize( 2 );
-        linkEndTimes.resize( 2 );
-        linkEndStates[ 0 ] = transmitterState.template cast< double >( );
-        linkEndStates[ 1 ] = receiverState.template cast< double >( );
-        if( isTimeAtReception )
-        {
-            linkEndTimes[ 1 ] = static_cast< double >( time );
-            linkEndTimes[ 0 ] = static_cast< double >( time - lightTime );
-        }
-        else
-        {
-            linkEndTimes[ 0 ] = static_cast< double >( time );
-            linkEndTimes[ 1 ] = static_cast< double >( time + lightTime );
-        }
-
-        // Get the frequency of the transmitter
-        TimeType transmitterTime = time - lightTime;
-
-        Eigen::Vector3d transmitterPosition = transmitterState.template segment< 3 >( 0 ).template cast< double >( );
-        Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
-                ? transmitterPosition
-                : stationStates_.at( transmitter )->getNominalCartesianPosition( );
-
-        TimeType transmitterFrequencyTime = transmitterTime;
-        if( observableTimeScale_ == basic_astrodynamics::tdb_scale )
-        {
-            transmitterFrequencyTime = timeScaleConverter_->template getCurrentTime< TimeType >(
-                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
-        }
-
-        ObservationScalarType transmittedFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
-                        transmitterFrequencyTime );
-
-        // Calculate the Doppler observable
+        // Calculate the Doppler observable. This also computes the link end times and states (including link end
+        // delays), which are used for the transmitter frequency below
         ObservationScalarType dopplerMultiplicationTerm = oneWayDopplerModel_->getMultiplicationTerm( );
         ObservationScalarType oneWayDoppler =
                 oneWayDopplerModel_->computeIdealObservationsWithLinkEndData(
                         time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings )( 0, 0 ) /
                 dopplerMultiplicationTerm;
+
+        // Get the frequency of the transmitter
+        TimeType transmitterTime = linkEndTimes.at( 0 );
+        ObservationScalarType transmittedFrequency =
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
+                        getTransmitterFrequencyTime( transmitterTime ) );
 
         ObservationScalarType receivedFrequency =
                 ( transmittedFrequency * ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + oneWayDoppler ) );
@@ -268,6 +240,23 @@ public:
     }
 
 private:
+    // Time at which the transmitter frequency is looked up, from the (TDB) transmission time. For a TDB observable, this
+    // is converted to UTC; for a UTC observable it is used directly.
+    TimeType getTransmitterFrequencyTime( const TimeType transmitterTime )
+    {
+        if( observableTimeScale_ == basic_astrodynamics::tdb_scale )
+        {
+            // The conversion requires an Earth-fixed position. If the transmitter is not a ground station, use the geocenter
+            // (an inertial/barycentric position would give errors of up to tens of milliseconds)
+            Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
+                    ? Eigen::Vector3d::Zero( ).eval( )
+                    : stationStates_.at( transmitter )->getNominalCartesianPosition( );
+            return timeScaleConverter_->template getCurrentTime< TimeType >(
+                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
+        }
+        return transmitterTime;
+    }
+
     // Doppler observation model associated with the measurement
     std::shared_ptr< OneWayDopplerObservationModel< ObservationScalarType, TimeType > > oneWayDopplerModel_;
 

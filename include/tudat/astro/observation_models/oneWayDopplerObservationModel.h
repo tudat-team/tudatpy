@@ -567,10 +567,10 @@ public:
         // the frequency settings supplied by their parent observation model.
         if( this->frequencyInterpolator_ != nullptr )
         {
-            if( ancillarySetings == nullptr )
-            {
-                ancillarySetings = std::make_shared< ObservationAncillarySimulationSettings >( );
-            }
+            // Work on a copy, so that the frequencies set here do not leak into the caller's settings
+            ancillarySetings = ( ancillarySettingsInput == nullptr )
+                    ? std::make_shared< ObservationAncillarySimulationSettings >( )
+                    : std::make_shared< ObservationAncillarySimulationSettings >( *ancillarySettingsInput );
             setTransmissionFrequency( getLightTimeCalculator( ),
                                       this->timeScaleConverter_,
                                       this->frequencyInterpolator_,

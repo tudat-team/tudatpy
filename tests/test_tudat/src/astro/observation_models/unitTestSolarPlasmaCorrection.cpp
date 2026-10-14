@@ -121,6 +121,8 @@ BOOST_AUTO_TEST_CASE( testDopplerDownlinkFrequency )
                                 { receiver, LinkEndId( "Earth" ) } };
     const auto corona = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
             two_way_doppler, []( double ) { return Eigen::Vector6d::Zero( ).eval( ); } );
+    // Done by the observation model factory for the downlink of a two-way Doppler model
+    corona->setIsDownlinkOfTwoWayLink( true );
     const auto uplink = std::make_shared< LightTimeCalculator<> >( station, spacecraft );
     const auto ancillary = std::make_shared< ObservationAncillarySimulationSettings >( );
     const double frequency = 7.153e9;
