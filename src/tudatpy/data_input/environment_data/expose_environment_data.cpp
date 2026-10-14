@@ -16,6 +16,7 @@
 #include "earth_orientation/expose_earth_orientation.h"
 #include "atmospheric_loading/expose_atmospheric_loading.h"
 #include "station_history/expose_station_history.h"
+#include "station_loading/expose_station_loading.h"
 #include "ocean_loading/expose_ocean_loading.h"
 #include "terrestrial_frames/expose_terrestrial_frames.h"
 #include "ilrs/expose_ilrs.h"
@@ -34,6 +35,8 @@ namespace environment_data
 
 void expose_environment_data( py::module& m )
 {
+    auto station_loading_submodule = m.def_submodule( "station_loading" );
+    station_loading::expose_station_loading( station_loading_submodule );
     auto terrestrial_frames_submodule = m.def_submodule( "terrestrial_frames" );
     terrestrial_frames::expose_terrestrial_frames( terrestrial_frames_submodule );
 

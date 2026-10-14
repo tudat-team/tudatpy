@@ -1,0 +1,4 @@
+# Preserve the original bytes of these pinned primary-source payloads.
+src/tudat/io/desaiSibois2016EopData.inc whitespace=-blank-at-eol
+tests/test_tudat/src/io/station_loading_fixtures/imls_merra2_extract.eph whitespace=-blank-at-eol
+tests/test_tudat/src/io/station_loading_fixtures/imls_duplicate_identifier.eph whitespace=-blank-at-eol

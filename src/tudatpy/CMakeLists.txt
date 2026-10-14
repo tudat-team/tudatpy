@@ -62,6 +62,7 @@ target_link_libraries(kernel PRIVATE
     tudat_earth_orientation_data
     tudat_atmospheric_loading_data
     tudat_station_history_data
+    tudat_station_loading_data
     tudat_ocean_loading_data
     tudat_terrestrial_frame_data
     Boost::boost

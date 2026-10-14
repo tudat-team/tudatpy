@@ -9,6 +9,7 @@ from tudatpy.kernel.data_input.environment_data import *
 
 from . import (
     atmospheric_loading,
+    station_loading,
     coma,
     discos,
     earth_orientation,

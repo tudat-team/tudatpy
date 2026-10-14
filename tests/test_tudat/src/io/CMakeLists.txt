@@ -175,6 +175,8 @@ TUDAT_ADD_TEST_CASE(EarthOrientationData
 
 TUDAT_ADD_TEST_CASE(HighFrequencyEopData PRIVATE_LINKS tudat_earth_orientation_data)
 
+TUDAT_ADD_TEST_CASE(StationLoadingData PRIVATE_LINKS tudat_station_loading_data)
+
 TUDAT_ADD_TEST_CASE(OceanLoadingData PRIVATE_LINKS tudat_ocean_loading_data)
 
 # This consumer intentionally links only the raw reader target. Its frozen epoch
