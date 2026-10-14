@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 
 from tudatpy.data_input.environment_data import station_history as sh
+from tudatpy.data_input.environment_data import terrestrial_frames
 from tudatpy.dynamics.environment_setup import ground_station as gs
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics import environment
@@ -84,3 +85,45 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
     trajectory.solutions[3].position_metres = np.zeros(3)
     trajectory.post_seismic_terms[0].amplitude_metres = np.zeros(3)
     np.testing.assert_array_equal(trajectory.position(query), expected)
+
+    # Construct and inspect both ordered wrapper types through their setup factories.
+    target_frame = terrestrial_frames.TerrestrialFrameIdentity()
+    target_frame.realization = target_frame.release = "ITRF2014"
+    transformed = gs.transform_station_history(
+        trajectory,
+        terrestrial_frames.official_itrf2020_parameters(),
+        target_frame,
+        trajectory.metadata.origin,
+        trajectory.metadata.tide_system,
+    )
+    assert isinstance(transformed, environment.TransformedStationHistoryTrajectory)
+    assert transformed.source_trajectory is trajectory
+    assert transformed.catalogue.reference_frame.realization == "ITRF2020"
+    assert not transformed.acknowledged_release_alignment
+
+    point_offset = environment.StationReferencePointOffset()
+    point_offset.from_point = environment.station_reference_point_identity(transformed)
+    point_offset.to_point = point_offset.from_point
+    point_offset.to_point.kind = environment.StationReferencePointKind.antenna_reference_point
+    point_offset.to_point.name = "AB07:ARP"
+    point_offset.frame = transformed.metadata.frame
+    point_offset.components_metres = offset.components_metres
+    point_offset.equipment_type = offset.equipment_type
+    point_offset.equipment_serial_number = offset.equipment_serial_number
+    point_offset.source = offset.source
+    point_history = environment.StationReferencePointOffsetHistory([point_offset])
+    point = gs.station_reference_point_trajectory(transformed, point_history)
+    assert isinstance(point, environment.StationReferencePointTrajectory)
+    assert point.source_trajectory is transformed
+    assert point.offset_history is point_history
+    assert point.reference_point_identity.name == point.metadata.reference_point_name == "AB07:ARP"
+
+    # State queries supply explicit source-coordinate rates; returned wrapper records remain copies.
+    query = environment.ign_nominal_utc_station_time_from_tai(query.tai, 1.0)
+    expected_point = transformed.position(query) + point_offset.components_metres
+    np.testing.assert_array_equal(point.position(query), expected_point)
+    np.testing.assert_array_equal(point.state(query)[:3], expected_point)
+    point.solutions[3].position_metres = np.zeros(3)
+    point.post_seismic_terms[0].amplitude_metres = np.zeros(3)
+    point.offset_history.offsets[0].components_metres = np.zeros(3)
+    np.testing.assert_array_equal(point.position(query), expected_point)
