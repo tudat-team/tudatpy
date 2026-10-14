@@ -126,8 +126,9 @@ Active work
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
 The coordinator handles architecture and integration. Current compiler allocations
-are native API/time migration 4, instrument geometry 2, and non-tidal loading 2; the combined
-limit remains eight. Earlier workers are stopped and their work is preserved.
+are final native API checks 6 and Python-specific binding validation 2; the combined
+limit remains eight. Geometry compilation is complete. Earlier workers are stopped
+and their work is preserved.
 
 * Task 04: the coverage audit confirms pinned independent sources and fixtures
   across the integrated models. The solid-pole reference now pins the original
@@ -176,10 +177,10 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   rejected. Unchanged positive extracts and a negative duplicate fixture preserve
   its evidence; no provider records were silently repaired.
 * Task 22: interpolation, station selection, origin translation and signal-overlap
-  checks pass seven focused native cases/78 assertions against the shared core
+  checks pass seven focused native cases/80 assertions against the shared core
   checkpoint, including the real composition validator. The changed reader also
   passes its four existing cases/141 assertions; binding syntax passes.
-  Final source review, completion commit and integration remain.
+  Completion commit ``1f7e73d59`` is reviewed; integration with the common API remains.
 * Task 23: the explicit IERS spatial approximation is integrated. Seven focused
   cases/91 assertions pass alongside affected station-state and clock suites.
   Terminal composition consumes the full displaced/moving state once; selected
@@ -189,9 +190,11 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   regression covers both direct and Earth-relative Sun ephemerides.
 * Task 24: dated marker/ARP/calibrated geometry is implemented in the isolated
   worktree, reusing station metadata and retained equipment/eccentricity histories.
-  Focused native geometry/history/factory validation is running against the shared
-  core checkpoint. Python ownership and precise-Time dispatch checks are prepared
-  for the later binding runtime validation.
+  Completion commit ``883653bc4`` passes five geometry cases/52 assertions,
+  nine history cases/343 assertions and four frame-adapter cases/217 assertions.
+  Three binding syntax checks, architecture checks and CMake closure pass.
+  Integration remains; Python ownership and precise-Time dispatch checks are
+  prepared for the later binding runtime validation.
 * Task 29: Dominic explicitly requested removing EarthDeformationEpoch and
   simplifying evaluation across deformation models. The isolated implementation
   now removes that wrapper and exposes displacement and full displacement/state
@@ -200,7 +203,10 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   Native station aggregation retains Time; scalar endpoint handling stays at
   scalar boundaries. All 14 changed native core translation units compile,
   including the real loading validator. Numerical/public-contract regression
-  and binding validation remain pending. Python record getters now explicitly copy validated records;
+  passes for loading, geometry, atmospheric and ocean-pole tides; final core
+  checks and Python runtime validation remain. One EOP factory crash was traced
+  to a pre-Desai-Sibois archive in the worker's isolated link and awaits a targeted
+  current-source rebuild. Python record getters now explicitly copy validated records;
   the ownership regression and other Python-only binding/import checks remain open.
 
 Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
