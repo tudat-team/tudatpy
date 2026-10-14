@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 15 of 25 tasks done; 3 active, 2 partial and 5 queued.
+Status: 16 of 25 tasks done; 3 active, 2 partial and 4 queued.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -95,7 +95,7 @@ validated and integrated.
    [x] 09 Implement EOP validity and leap-safe interpolation policies.  [DONE]
    [x] 10 Verify existing short-period EOP corrections independently.  [DONE]
    [x] 11 Complete Earth-rotation derivatives.  [DONE]
-   [ ] 12 Complete deformation velocities and full station-state closure.  [ACTIVE — complete multi-model station-state closure]
+   [x] 12 Complete deformation velocities and full station-state closure.  [DONE]
    [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.  [ACTIVE — opt-in only; replaces corresponding default ocean effects]
    [x] 14 Validate BLQ loading inputs and preserve their conventions.  [DONE]
    [x] 15 Implement HARDISP-equivalent ocean tidal loading.  [DONE]
@@ -106,7 +106,7 @@ validated and integrated.
    [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [PARTIAL — transformations validated and committed; catalogue integration pending]
    [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [QUEUED]
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
-   [ ] 23 Validate relativistic station position and velocity transformations.  [QUEUED]
+   [ ] 23 Validate relativistic station position and velocity transformations.  [ACTIVE — spatial/event conventions and full-state composition]
    [ ] 24 Improve instrument reference-point and calibrated geometry support.  [QUEUED]
    [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [QUEUED]
 
@@ -126,7 +126,7 @@ Active work
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
 The coordinator handles architecture and integration. Current compiler allocations
-are rotation/station closure 4, station history 2, and Desai--Sibois 2; the combined
+are relativistic station transforms 4, station history 2, and Desai--Sibois 2; the combined
 limit remains eight. Earlier workers are stopped and their work is preserved.
 
 * Task 04: independent reference packages are in use for solid Earth tides,
@@ -135,9 +135,11 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   files unchanged from the tested worktree. Thirteen focused native cases and
   334 assertions pass, including independent full SOFA matrix/state comparisons.
   The additive CMake overlap was resolved to the tested eleven-library list.
-* Task 12: the displacement-rate API, UTC-phase boundary safeguards and
-  position-only station path pass integrated C++ tests. Complete multi-model
-  station-state closure is now being implemented against the task 11 checkpoint.
+* Task 12: complete IERS solid-tide, HARDISP ocean, pole-tide and secular station
+  state closure is integrated. Five focused cases/151 assertions pass, including
+  the complete public station factory, nonzero body translation, four base axes,
+  five declared rotation clocks, double/extended epochs, leap and coverage cases.
+  The maximum native velocity closure error is 4.53e-9 m/s, below 1e-7 m/s.
 * Task 13: implementation is active in its own worktree. Desai--Sibois will be
   explicit opt-in, with tests of unchanged default selection and replacement
   of the corresponding ocean terms while preserving independent effects.
@@ -159,6 +161,9 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   The transformation checkpoint includes bindings and API documentation.
   Station-catalogue inputs and their explicit physical-to-decimal-year mapping
   remain open with tasks 18 and 19; final compiled binding checks are task 29.
+* Task 23: the rotation worker is now resolving the relativistic transformation
+  contract and implementing correct spatial/state composition, external-body
+  selection and explicit coordinate/time compatibility against primary standards.
 
 Other unchecked tasks are queued. Python-only binding/import validation is part of task 29;
 kernel compilation is allowed only when needed for those Python-specific tests.
@@ -202,6 +207,18 @@ study.  Actual discontinuities are tested as discontinuities.
 
 Validation ledger
 -----------------
+
+2026-10-14, complete station-state integration: task 12 commit ``0eeccfcb2``
+cleanly integrates ``5c1029c9a``. The station suite passes 5 cases/151 assertions;
+the affected clock-routing suite passes 14/253 and the orientation suite 3/66.
+The public reference-point factory now evaluates native Earth rotations using
+TDB through the same angle calculator, preserving their EOP policies and axes
+while differentiating with respect to the environment clock. Full intrinsic
+motion, multiple deformations, rotation and nonzero body translation close
+against independent position differences. The isolated build's stale borrowed
+factory objects were rebuilt before validation. No post-merge numerical rerun
+was needed because the implementation and dependencies were not altered by
+integration. Evidence: ``rotation-derivative-build/task12-final.log``.
 
 2026-10-14, rotation and station-history integration: task 11 commit
 ``e06188e6e`` preserves every file from the independently tested checkpoint
