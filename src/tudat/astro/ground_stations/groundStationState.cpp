@@ -174,9 +174,9 @@ Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
         const std::string& targetFrameOrigin )
 {
     Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
-    if( !( time < firstDisplacementTime_ ) )
+    if( !( time < Time( firstDisplacementTime_ ) ) )
     {
-        if( time >= finalDisplacementTime_ )
+        if( time >= Time( finalDisplacementTime_ ) )
         {
             stationMotion.segment( 0, 3 ) += displacementVectors_.at( displacementVectors_.size( ) - 1 );
         }
