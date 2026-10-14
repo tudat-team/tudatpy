@@ -27,6 +27,11 @@ def file_path_psv():
     return f"{current_dir}/obs_1.psv"
 
 
+@pytest.fixture
+def file_path_xml_radar():
+    return f"{current_dir}/obs_radar.xml"
+
+
 # define a dataframe with observations equal to file obs_1.psv
 @pytest.fixture
 def observations():
@@ -56,6 +61,26 @@ def observations():
     )
 
 
+@pytest.fixture
+def observations_radar():
+    return pd.DataFrame(
+        {
+            "permID": [1234456, 1234457, 1234458, 1234459],
+            "provID": ["provID"] * 4,
+            "artSat": [None, None, None, None],
+            "trx": ["251", "251", "251", "251"],
+            "rcv": ["251", "251", "251", "251"],
+            "obsTime": ["2016-08-29T12:32:34Z"] * 4,
+            "doppler": [-80977.5254, 80977.5254, -60977.5254, 60977.5254],
+            "rmsDoppler": [0.250, 0.250, 0.250, 0.250],
+            "frq": [2380.0, 2380.0, 2380.0, 2380.0],
+        }
+    )
+
+
+RADAR_TABLE_META_KEY = "tudatpy_radar_tracking_table"
+
+
 """
 Test all internal functions used by the parser 
 """
@@ -79,26 +104,61 @@ def test_error_if_no_names(observations):
 
 
 # test _check_possible_failures
-def test_rejects_missing_required_column(observations):
+# common checks between radar and optical
+def test_rejects_missing_required_column_optical(observations):
     invalid = observations.drop(columns=["mode"])
     with pytest.raises(ValueError, match="Missing required column: mode"):
         parser._check_possible_failures(invalid, "optical")
 
 
-def test_rejects_missing_value_in_required_column(observations):
+def test_rejects_missing_required_column_radar(observations_radar):
+    invalid = observations_radar.drop(columns=["frq"])
+    with pytest.raises(ValueError, match="Missing required column: frq"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_missing_value_in_required_column_optical(observations):
     invalid = observations.copy()
     invalid.loc[0, "ra"] = None
     with pytest.raises(ValueError, match="Column 'ra' contains missing values"):
         parser._check_possible_failures(invalid, "optical")
 
 
-def test_rejects_row_without_identifier(observations):
+def test_rejects_missing_value_in_required_column_radar(observations_radar):
+    invalid = observations_radar.copy()
+    invalid.loc[0, "frq"] = None
+    with pytest.raises(ValueError, match="Column 'frq' contains missing values"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_row_without_identifier_optical(observations):
     invalid = observations.copy()
     invalid.loc[0, ["permID", "provID", "artSat", "trkSub"]] = None
     with pytest.raises(ValueError, match="Each row must have at least one non-missing identifier"):
         parser._check_possible_failures(invalid, "optical")
 
 
+def test_rejects_row_without_identifier_radar(observations_radar):
+    invalid = observations_radar.copy()
+    invalid.loc[0, ["permID", "provID", "artSat"]] = None
+    with pytest.raises(ValueError, match="Each row must have at least one non-missing identifier"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_invalid_observation_time(observations):
+    invalid = observations.copy()
+    invalid["obsTime"] = invalid["obsTime"].astype("object")
+    invalid.loc[0, "obsTime"] = "not-a-time"
+    with pytest.raises(ValueError, match="Column 'obsTime' must match yyyy-mm-ddThh:mm:ss"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_invalid_observation_kind(observations):
+    with pytest.raises(ValueError, match="The input observation kind is invalid"):
+        parser._check_possible_failures(observations.copy(), "unknown")
+
+
+# optical observations specific tests
 def test_rejects_incomplete_location_group(observations):
     invalid = observations.copy()
     invalid["sys"] = ["ICRF"] * 4
@@ -139,20 +199,59 @@ def test_rejects_rms_value_that_is_not_numeric(observations):
         parser._check_possible_failures(invalid, "optical")
 
 
-def test_rejects_invalid_observation_time(observations):
-    invalid = observations.copy()
-    invalid["obsTime"] = invalid["obsTime"].astype("object")
-    invalid.loc[0, "obsTime"] = "not-a-time"
-    with pytest.raises(ValueError, match="Column 'obsTime' must match yyyy-mm-ddThh:mm:ss"):
-        parser._check_possible_failures(invalid, "optical")
+# radar observations specific tests
+def test_missing_delay_or_doppler(observations_radar):
+    df = observations_radar.drop(columns=["doppler", "rmsDoppler"])
+    with pytest.raises(
+        ValueError, match="Each row must have at least one between doppler and delay"
+    ):
+        parser._check_possible_failures(df, "radar")
 
 
-# missing unit test for valid observatory code - could store the dataframe of the MPC locally to double check ??
+def test_row_missing_delay_and_doppler_raises(observations_radar):
+    df = observations_radar.copy()
+    df.loc[1, ["doppler", "rmsDoppler"]] = np.nan
+    with pytest.raises(
+        ValueError, match="Each row must have at least one between doppler and delay"
+    ):
+        parser._check_possible_failures(df, "radar")
 
 
-def test_rejects_invalid_observation_kind(observations):
-    with pytest.raises(ValueError, match="The input observation kind is invalid"):
-        parser._check_possible_failures(observations.copy(), "unknown")
+def test_doppler_without_rms_doppler(observations_radar):
+    df = observations_radar.drop(columns=["rmsDoppler"])
+    with pytest.raises(ValueError, match="doppler must also have rmsDoppler"):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_doppler_row_without_rms_doppler(observations_radar):
+    df = observations_radar.copy()
+    df.loc[2, "rmsDoppler"] = np.nan
+    with pytest.raises(ValueError, match="doppler must also have rmsDoppler"):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_delay_row_without_rms_delay(observations_radar):
+    df = observations_radar.copy()
+    df["delay"] = [1.0, 2.0, 3.0, 4.0]
+    df["rmsDelay"] = [0.1, np.nan, 0.1, 0.1]
+    with pytest.raises(ValueError, match="delay must also have rmsDelay"):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_rejects_frq_that_is_not_numeric(observations_radar):
+    invalid = observations_radar.copy()
+    invalid["frq"] = invalid["frq"].astype("object")
+    invalid.loc[0, "frq"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'frq' must be convertible to floats"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_rmsDoppler_value_that_is_not_numeric(observations_radar):
+    invalid = observations_radar.copy()
+    invalid["rmsDoppler"] = invalid["rmsDoppler"].astype("object")
+    invalid.loc[0, "rmsDoppler"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'rmsDoppler' must be convertible to floats"):
+        parser._check_possible_failures(invalid, "radar")
 
 
 # check _epochs_UTC_to_seconds_UTC
@@ -256,6 +355,76 @@ def test_rejects_different_number_of_rows(observations):
         parser._roving_obs_columns(observations.copy(), result_data)
 
 
+# test the ADES weighting scheme application (in optical_utilities.py but implemented as part of the ades parser)
+def test_apply_ades_weights(observations):
+    group = observations.rename(columns={"dec": "DEC"}).copy()
+    group["DEC"] = np.deg2rad(group["DEC"])
+
+    weights_ra, weights_dec = _apply_ades_weights(group, tracking_data_object=None)
+
+    expected_ra = ((0.15 * u.arcsec / np.cos(group["DEC"].to_numpy())).to_value(u.rad)) ** -2
+    expected_dec = (0.13 * u.arcsec).to_value(u.rad) ** -2
+
+    np.testing.assert_allclose(weights_ra, expected_ra)
+    np.testing.assert_allclose(weights_dec, expected_dec)
+
+
+def test_apply_ades_weights_per_night(observations):
+    group = observations.rename(columns={"dec": "DEC"}).copy()
+    group["DEC"] = np.deg2rad(group["DEC"])
+    group["epoch"] = group["obsTime"]
+
+    weights_ra, weights_dec = _apply_ades_weights_per_night(group, tracking_data_object=None)
+
+    counts = group["epoch"].str[:10].map(group["epoch"].str[:10].value_counts()).to_numpy()
+
+    expected_ra = np.array(
+        [
+            1 / ((((0.15 * u.arcsec) / np.cos(dec)).to_value(u.rad)) ** 2 * np.sqrt(n))
+            for dec, n in zip(group["DEC"], counts)
+        ]
+    )
+    expected_dec = np.array(
+        [1 / (((0.13 * u.arcsec).to_value(u.rad)) ** 2 * np.sqrt(n)) for n in counts]
+    )
+
+    np.testing.assert_allclose(weights_ra, expected_ra)
+    np.testing.assert_allclose(weights_dec, expected_dec)
+
+
+@pytest.mark.parametrize(
+    "function",
+    [_apply_ades_weights, _apply_ades_weights_per_night],
+)
+def test_ades_weights_reject_missing_rms(observations, function):
+    group = observations.rename(columns={"dec": "DEC"}).copy()
+    group["DEC"] = np.deg2rad(group["DEC"])
+    group["epoch"] = group["obsTime"]
+    group.loc[0, "rmsRA"] = np.nan
+
+    with pytest.raises(
+        ValueError,
+        match="ADES weighing requires non-missing rmsRA and rmsDec values",
+    ):
+        function(group, tracking_data_object=None)
+
+
+# test _numeric
+def test_numeric_default_scale(observations_radar):
+    result = parser._numeric(observations_radar, "doppler")
+    expected = pd.Series(
+        [-80977.5254, 80977.5254, -60977.5254, 60977.5254],
+        index=observations_radar.index,
+    )
+    pd.testing.assert_series_equal(result, expected, check_names=False)
+
+
+def test_numeric_applies_scale(observations_radar):
+    result = parser._numeric(observations_radar, "frq", 1e6)
+    expected = pd.Series([2380e6] * 4, index=observations_radar.index)
+    pd.testing.assert_series_equal(result, expected, check_names=False)
+
+
 # Final test on parse_ades_file
 # as all used functions have been previously tested, use them in the file
 @pytest.mark.remote_data
@@ -329,12 +498,47 @@ def test_parses_optical_psv(file_path_psv):
     )
 
 
+@pytest.mark.remote_data
+def test_parses_radar_xml(file_path_xml_radar):
+    result = parser.parse_ades_file(file_path_xml_radar)
+
+    # check that it is an astropy table
+    assert isinstance(result, Table)
+    # check that the radar data is stored in the metadata of the astropy table
+    assert RADAR_TABLE_META_KEY in result.meta
+
+    # extract the radar table
+    result = result.meta[RADAR_TABLE_META_KEY]
+    print(result)
+
+    # check that there are 4 observations
+    assert len(result) == 2
+    assert result["target_body"][0] == "99942"
+    assert result["epoch_seconds_UTC"][0] == 668025600
+    assert result["transmitter"][0] == "253"
+    assert result["receiver"][0] == "253"
+
+    # doppler and rmsDoppler are in Hz - not converted
+    assert result["value"][0] == pytest.approx(8560029329.8)
+    assert result["sigma"][0] == pytest.approx(0.400)
+    # frequency gets transformed to Hz
+    assert result["transmitter_frequency_hz"][0] == pytest.approx(8560 * 1e6)
+
+    # The epoch helper computes seconds from the J2000 UTC epoch.
+    assert result["epoch_seconds_UTC"][0] == pytest.approx(
+        (
+            parser.pd.Timestamp("2021-03-03T06:40:00Z")
+            - parser.pd.Timestamp("2000-01-01T12:00:00Z")
+        ).total_seconds()
+    )
+
+
 def test_rejects_empty_file_path():
     with pytest.raises(ValueError, match="There is no input file"):
         parser.parse_ades_file("")
 
 
-def test_returns_empty_table_without_optical_observations(tmp_path):
+def test_returns_empty_table_without_known_observations(tmp_path):
     path = tmp_path / "unsupported.xml"
     path.write_text(
         """\
@@ -350,57 +554,3 @@ def test_returns_empty_table_without_optical_observations(tmp_path):
     result = parser.parse_ades_file(str(path))
     assert isinstance(result, Table)
     assert len(result) == 0
-
-
-# test the ADES weighting scheme application (in optical_utilities.py but implemented as part of the ades parser)
-def test_apply_ades_weights(observations):
-    group = observations.rename(columns={"dec": "DEC"}).copy()
-    group["DEC"] = np.deg2rad(group["DEC"])
-
-    weights_ra, weights_dec = _apply_ades_weights(group, tracking_data_object=None)
-
-    expected_ra = ((0.15 * u.arcsec / np.cos(group["DEC"].to_numpy())).to_value(u.rad)) ** -2
-    expected_dec = (0.13 * u.arcsec).to_value(u.rad) ** -2
-
-    np.testing.assert_allclose(weights_ra, expected_ra)
-    np.testing.assert_allclose(weights_dec, expected_dec)
-
-
-def test_apply_ades_weights_per_night(observations):
-    group = observations.rename(columns={"dec": "DEC"}).copy()
-    group["DEC"] = np.deg2rad(group["DEC"])
-    group["epoch"] = group["obsTime"]
-
-    weights_ra, weights_dec = _apply_ades_weights_per_night(group, tracking_data_object=None)
-
-    counts = group["epoch"].str[:10].map(group["epoch"].str[:10].value_counts()).to_numpy()
-
-    expected_ra = np.array(
-        [
-            1 / ((((0.15 * u.arcsec) / np.cos(dec)).to_value(u.rad)) ** 2 * np.sqrt(n))
-            for dec, n in zip(group["DEC"], counts)
-        ]
-    )
-    expected_dec = np.array(
-        [1 / (((0.13 * u.arcsec).to_value(u.rad)) ** 2 * np.sqrt(n)) for n in counts]
-    )
-
-    np.testing.assert_allclose(weights_ra, expected_ra)
-    np.testing.assert_allclose(weights_dec, expected_dec)
-
-
-@pytest.mark.parametrize(
-    "function",
-    [_apply_ades_weights, _apply_ades_weights_per_night],
-)
-def test_ades_weights_reject_missing_rms(observations, function):
-    group = observations.rename(columns={"dec": "DEC"}).copy()
-    group["DEC"] = np.deg2rad(group["DEC"])
-    group["epoch"] = group["obsTime"]
-    group.loc[0, "rmsRA"] = np.nan
-
-    with pytest.raises(
-        ValueError,
-        match="ADES weighing requires non-missing rmsRA and rmsDec values",
-    ):
-        function(group, tracking_data_object=None)

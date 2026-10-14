@@ -32,4 +32,11 @@ def read_ades_data(
             add_ancillary_data=add_ancillary_data,
             weighing_scheme=weighing_scheme,
         )
-    return (optical_tracking_data, supplementary_data)
+    radar_data = radar_data_from_table(parsed_table)
+    if custom_name is not None:
+        radar_data = radar_data.assign(target_body=str(custom_name))
+    radar_tracking_data, radar_supplementary_data = radar_data_to_tracking_data(radar_data)
+    return (
+        optical_tracking_data + radar_tracking_data,
+        supplementary_data + radar_supplementary_data,
+    )
