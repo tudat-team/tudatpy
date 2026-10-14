@@ -11,8 +11,9 @@ programmes have separate integration worktrees. Reviewed station fixes will be
 merged before gravity setup depends on them.
 
 Status: primary-literature review and existing-code inventory are complete. The
-first implementation contract below is ready; model-specific product checks
-continue before their implementations. No new gravity model is claimed validated. The coordinator designs,
+static ICGEM adapter and solid-Earth, solid-pole and ocean-pole backends are
+integrated and validated. Their Earth factory wiring and the harmonic ocean
+products remain in progress. The coordinator designs,
 reviews and handles major debugging; GPT-6.1 Sol agents at high reasoning implement,
 compile and handle minor debugging. The global limit is eight compiler jobs across
 all worktrees. Only relevant native tests run; the Python kernel is built solely
@@ -23,15 +24,15 @@ for Python-specific tests. No new estimation parameters or gravity recovery work
    [x] G01 Review primary literature, provider conventions and existing implementations.  [DONE]
    [ ] G02 Define rotation/gravity compatibility and reuse existing Tudat functionality.  [ACTIVE]
    [ ] G03 Preserve neutral coefficient, constituent and source-convention records.  [ACTIVE — static ICGEM foundation integrated and validated]
-   [ ] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [ACTIVE — extending existing and legacy ILR kernels]
-   [ ] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [ACTIVE]
-   [ ] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [ACTIVE — isolated backend implementation]
+   [ ] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [ACTIVE — backend integrated and validated; factory pending]
+   [ ] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [ACTIVE — backend integrated and validated; factory pending]
+   [ ] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [ACTIVE — backend integrated and validated; factory pending]
    [ ] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [ACTIVE — coefficient contracts and reader]
    [ ] G08 Support identified ocean-tide products without mixing their phase conventions.  [QUEUED]
    [ ] G09 Handle atmospheric/non-tidal coefficient products and component overlap explicitly.  [QUEUED]
    [ ] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [QUEUED]
-   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — existing construction order verified; settings design]
-   [ ] G12 Validate individual models and assembled forces against pinned references.  [QUEUED]
+   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — settings implementation and focused factory tests]
+   [ ] G12 Validate individual models and assembled forces against pinned references.  [ACTIVE — three backends pass independent force comparisons]
    [ ] G13 Complete Python settings, diagnostics and a reproducible setup example.  [QUEUED]
    [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [QUEUED]
 
@@ -303,12 +304,26 @@ existing mechanism; moving frame initialization earlier would be incorrect.
 Dominic identified the legacy implementation under
 ``/home/dominic/Software/ILR/trunk/ILR/ILR/Astrodynamics/Gravitation``.
 It contains Earth solid, solid pole, ocean pole and ocean-tide implementations,
-with IERS frequency tables and FES2004 data in the ILR DataFiles tree. The workers
-are auditing and adapting useful kernels before adding overlapping code. Initial
-inspection finds reusable degree-two-to-four and harmonic constructions, but
-also an opposite diurnal S21 sign, hidden secular trends, an old pole coefficient,
-and ocean-pole degree-index/constructor defects. Primary-reference checks remain
-necessary; the old implementation is neither discarded nor treated as an oracle.
+with IERS frequency tables and FES2004 data in the ILR DataFiles tree. The audit
+is complete: all 71 frequency-table rows agree with the pinned primary tables.
+The solid-tide implementation reuses the old degree-two-to-four construction
+and frequency corrections alongside Tudat's current geometry and coefficient
+helpers. The diurnal S21 sign is corrected, and the old implicit secular trends
+are omitted. The audit also identified an old solid-pole coefficient, ocean-pole
+degree-index/constructor defects and an incorrect six-character Doodson decoder.
+Those defects are not carried into the new models. FES2004 data remain useful
+for validating the harmonic reader's distinct product convention.
+
+The solid-Earth and solid-pole backends are integrated at ``1ea8d4c6b`` and the
+ocean-pole backend at ``9e7a2d936``. The solid/pole native suite passes 3 cases
+and 34 assertions, including four COST-G force samples: maximum errors are
+8.94e-17 and 3.45e-16 m/s^2, respectively, against a fixed 1e-11 m/s^2 budget.
+The ocean-pole reader passes 2 cases/18 assertions and its model passes 3/830,
+including all 366 published daily reference rows and four degree-180 COST-G
+force samples (maximum error 2.57e-21 m/s^2). Independent table/fixture
+reproduction and the isolated reader target checks pass. Integration retained
+the tested numerical code unchanged; its only conflict combined adjacent test
+registrations, so the numerical tests were not repeated.
 
 The static ICGEM foundation is integrated at ``3d7c7d59c``. The reader preserves
 sparse coefficient presence, declared normalization/error columns, source rows
