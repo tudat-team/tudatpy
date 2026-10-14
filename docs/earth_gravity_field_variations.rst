@@ -299,3 +299,71 @@ benchmark force budget. This estimate does not justify extrapolation, event
 snapping or a claim of native-Time public gravity evaluation. Internal physical
 clock conversion and boundary selection retain Time where the existing API
 provides it.
+
+Conventional solid and pole models
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The conventional solid-tide implementation uses the anelastic parameters of
+table 6.3: degree-two complex Love numbers 0.30190, 0.29830-0.00144i and
+0.30102-0.00130i; degree-three values 0.093, 0.093, 0.093 and 0.094. The
+degree-two-to-four responses are -0.00089, -0.00080 and -0.00057. Reuse the
+existing per-body geometry and normalized single-coefficient forcing helper.
+Do not import a new generic rate interface or disguise the induced response as
+degree-four direct forcing. A small Earth-specific loop over these fixed terms
+is preferable to changing the generic Love-number API.
+
+Tables 6.5a/b/c supply the frequency corrections, once per Earth evaluation,
+not once per tide raiser. For Doodson phase theta and table amplitudes ip/op,
+the corrections are C20 += ip*cos(theta)-op*sin(theta),
+C21 += ip*sin(theta)+op*cos(theta), S21 += ip*cos(theta)-op*sin(theta),
+and C22 += ip*cos(theta), S22 -= ip*sin(theta). Units are 1e-12.
+The tables contain 48 diurnal, 21 zonal and two semidiurnal terms. Pin the
+numerical extraction against the primary IERS table; the cached Orekit 13.1.8
+resource files provide a second transcription check with their Apache notices.
+
+For a zero-tide nominal field, subtract the permanent C20 contribution
+4.4228e-8 * (-0.31460) * 0.30190 exactly once. A tide-free field retains it.
+Keep the Earth model's conventional constants explicit and apply the
+GM_source/GM_field * (R_source/R_field)^n output conversion once where required.
+Do not multiply by an additional normalization or loading factor.
+
+Solid pole gravity uses the IERS section 6.4 C21/S21 equations with wobble in
+arcseconds. Ocean pole gravity uses the full section 6.5 equation 6.23 with
+the supplied complex A/B coefficient table, explicit load Love numbers and
+wobble in radians. It must expose selected maximum degree/order and require
+all needed load coefficients. Standard geocentric gravity uses degrees >=2;
+degree-one geocentre physics is not silently added to this body-centered force.
+The short degree-two equation 6.24 is labelled an approximation if offered.
+
+Selected COST-G force samples provide an independent 1e-11 m/s^2 target using
+their exact supplied rotation, pole, constants and astronomical arguments.
+The solid-tide benchmark uses DE421: generate and freeze only the required
+geometric Sun/Moon vectors, not a runtime ephemeris download. Separate factory
+tests check proper production TT/UT1 routing and tide-system/overlap enforcement.
+
+Harmonic ocean products
+~~~~~~~~~~~~~~~~~~~~~~
+
+Use one harmonic evaluator for declared potential coefficients, with canonical
+cosine/sine amplitudes for each Cnm and Snm. For IERS potential-format prograde/
+retrograde columns Cp, Sp, Cm, Sm, equation 6.15 gives
+Ccos=Cp+Cm, Csin=Sp+Sm, Scos=Sp-Sm, Ssin=Cm-Cp. This transformation also handles
+zonal products whose retrograde coefficients are zero and prograde coefficients
+already doubled. Set physical Sn0 to zero; do not double the zonal terms again.
+Potential-format files already absorb their published phase/loading conversion.
+Water-height tables are a different input product and are not accepted as
+potential coefficients merely because their columns look similar.
+
+The FES2014b-v1 CNES/GRGS potential file is pinned separately from COST-G's own
+FES2014b conversion. Its S1 is the radiational 164.555 constituent and Sa is
+056.555; preserve those identifiers. The benchmark's EOT11a potential file has
+a contradictory leftover 'in cm' header alongside its explicit 1e-11 Stokes
+units; support it only with the identified provider profile, never by guessing
+from the filename. Source GM/radius, normalization, component, revision and
+included loading are explicit product metadata when absent from the header.
+
+Admittance takes an explicit ordered major inventory, target inventory and
+matrix. Validate the inventories and synthesize each output constituent once.
+Do not mix such explicit sidebands with another nodal modulation. Published
+FES2004 interpolation and TiME22-v1.1 matrices remain separate named profiles;
+the latter already includes phase and loading in its cosine/sine fields.
