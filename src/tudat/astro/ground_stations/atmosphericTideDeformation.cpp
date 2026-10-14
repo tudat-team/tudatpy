@@ -1,6 +1,7 @@
 #include "tudat/astro/ground_stations/atmosphericTideDeformation.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <cmath>
@@ -211,8 +212,10 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
         ( !usesStationCoefficients( ) && metadata.latitudeConvention == AtmosphericTideLatitudeConvention::geodetic ) )
     {
         // Use the configured body shape, independently of how this Cartesian point was represented by the station.
-        ground_stations::GroundStationState configuredGeometry( position, coordinate_conversions::cartesian_position, bodyShape_ );
-        geodeticLatitude = configuredGeometry.getNominalGeodeticPosition( ).y( );
+        geodeticLatitude =
+                coordinate_conversions::convertPositionElements(
+                        position, coordinate_conversions::cartesian_position, coordinate_conversions::geodetic_position, bodyShape_ )
+                        .y( );
     }
     if( !usesStationCoefficients( ) )
     {
