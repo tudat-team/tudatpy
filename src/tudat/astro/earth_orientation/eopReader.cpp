@@ -9,104 +9,63 @@
  *
  */
 
-#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/earth_orientation/eopReader.h"
+#include "tudat/io/readEarthOrientationData.h"
 
 namespace tudat
 {
-
 namespace earth_orientation
 {
 
-//! Constructor
-EOPReader::EOPReader( const std::string& eopFile, const std::string& format, const basic_astrodynamics::IAUConventions nutationTheory )
+namespace
 {
-    if( format != "C04" )
-    {
-        throw std::runtime_error( "Error, only C04 EOP file format currently supported by reader." );
-    }
+input_output::EarthOrientationData loadEarthOrientationFile( const std::string& fileName, const std::string& format )
+{
+    input_output::EarthOrientationFormat inputFormat;
+    if( format == "C04" )
+        inputFormat = input_output::EarthOrientationFormat::c04;
+    else if( format == "finals2000A" )
+        inputFormat = input_output::EarthOrientationFormat::finals2000a;
+    else
+        throw std::runtime_error( "Unsupported Earth orientation format: " + format );
+    return input_output::readEarthOrientationData( fileName, inputFormat );
+}
+}  // namespace
+
+EOPReader::EOPReader( const std::string& eopFile, const std::string& format, const basic_astrodynamics::IAUConventions nutationTheory ):
+    EOPReader( loadEarthOrientationFile( eopFile, format ) )
+{
     if( !( nutationTheory == basic_astrodynamics::iau_2000_a || nutationTheory == basic_astrodynamics::iau_2006 ) )
     {
-        std::cerr << ( "Warning, only IAU2000 nutation theory format currently supported by reader." ) << std::endl;
+        std::cerr << "Warning, only IAU2000 nutation theory format currently supported by reader." << std::endl;
     }
-    readEopFile( eopFile );
-
-    // Add one hour buffer time
-    cipInItrs[ cipInItrs.begin( )->first - 1.0 / 24.0 ] = cipInItrs.begin( )->second;
-    cipInGcrsCorrection[ cipInGcrsCorrection.begin( )->first - 1.0 / 24.0 ] = cipInGcrsCorrection.begin( )->second;
-    ut1MinusUtc[ ut1MinusUtc.begin( )->first - 1.0 / 24.0 ] = ut1MinusUtc.begin( )->second;
-    lengthOfDayOffset[ lengthOfDayOffset.begin( )->first - 1.0 / 24.0 ] = lengthOfDayOffset.begin( )->second;
 }
 
-//! Function to read EOP file
-void EOPReader::readEopFile( const std::string& fileName )
+EOPReader::EOPReader( const input_output::EarthOrientationData& data ): rawData_( data )
 {
-    using namespace tudat::unit_conversions;
-
-    // Open file and create file stream.
-    std::fstream stream( fileName.c_str( ), std::ios::in );
-
-    // Check if file opened correctly.
-    if( stream.fail( ) )
+    input_output::validateEarthOrientationData( data );
+    for( const auto& entry : data.records )
     {
-        throw std::runtime_error( "Data file could not be opened." + fileName );
-    }
-
-    // Initialize boolean that gets set to true once the file header is passed.
-    bool isHeaderPassed = 0;
-
-    // Line based parsing
-    std::string line;
-    std::vector< std::string > vectorOfIndividualStrings;
-    while( !stream.fail( ) && !stream.eof( ) )
-    {
-        // Get line from stream
-        std::getline( stream, line );
-
-        // Trim input string (removes all leading and trailing whitespaces).
-        boost::algorithm::trim( line );
-
-        // Split string into multiple strings, each containing one element from a line from the
-        // data file.
-        boost::algorithm::split( vectorOfIndividualStrings, line, boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
-
-        // If first line before data is found, check entry names and set isHeaderPassed to true.
-        if( !isHeaderPassed && vectorOfIndividualStrings[ 0 ] == "Date" )
+        const double mjd = entry.first;
+        const auto& record = entry.second;
+        cipInItrs[ mjd ] = Eigen::Vector2d( record.polarMotion[ 0 ], record.polarMotion[ 1 ] );
+        ut1MinusUtc[ mjd ] = record.ut1MinusUtc;
+        if( record.lengthOfDay ) lengthOfDayOffset[ mjd ] = *record.lengthOfDay;
+        if( record.celestialPoleOffsets )
         {
-            if( vectorOfIndividualStrings[ 6 ] == "dPsi" )
-            {
-                throw std::runtime_error( "Warning, found dPsi, expected dX as CIP offset in GCRS, wrong nutation format requested" );
-            }
-            else if( vectorOfIndividualStrings[ 7 ] == "dEps" )
-            {
-                throw std::runtime_error( "Warning, found dEps, expected dY as CIP offset in GCRS, wrong nutation format requested" );
-            }
-
-            isHeaderPassed = 1;
-        }
-
-        // Read line of data and set values.
-        if( isHeaderPassed && vectorOfIndividualStrings.size( ) == 16 )
-        {
-            // Read pole positions.
-            cipInItrs[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
-                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 4 ] ) );
-            cipInItrs[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].y( ) =
-                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 5 ] ) );
-
-            // Read UTC-UT1 and LOD corrections
-            ut1MinusUtc[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] = std::stod( vectorOfIndividualStrings[ 6 ] );
-            lengthOfDayOffset[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] = std::stod( vectorOfIndividualStrings[ 7 ] );
-
-            // Read precession-nutation corrections.
-            cipInGcrsCorrection[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
-                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 8 ] ) );
-            cipInGcrsCorrection[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].y( ) =
-                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 9 ] ) );
+            cipInGcrsCorrection[ mjd ] = Eigen::Vector2d( ( *record.celestialPoleOffsets )[ 0 ], ( *record.celestialPoleOffsets )[ 1 ] );
         }
     }
+
+    // Compatibility only: the raw input layer retains exact unpadded coverage.
+    // Keep the old one-hour interpolation buffer until the model coverage API changes.
+    if( !cipInItrs.empty( ) ) cipInItrs[ cipInItrs.begin( )->first - 1.0 / 24.0 ] = cipInItrs.begin( )->second;
+    if( !cipInGcrsCorrection.empty( ) )
+        cipInGcrsCorrection[ cipInGcrsCorrection.begin( )->first - 1.0 / 24.0 ] = cipInGcrsCorrection.begin( )->second;
+    if( !ut1MinusUtc.empty( ) ) ut1MinusUtc[ ut1MinusUtc.begin( )->first - 1.0 / 24.0 ] = ut1MinusUtc.begin( )->second;
+    if( !lengthOfDayOffset.empty( ) )
+        lengthOfDayOffset[ lengthOfDayOffset.begin( )->first - 1.0 / 24.0 ] = lengthOfDayOffset.begin( )->second;
 }
 
 }  // namespace earth_orientation
-
 }  // namespace tudat

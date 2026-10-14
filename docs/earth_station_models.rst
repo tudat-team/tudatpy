@@ -36,6 +36,9 @@ by Dominic on 14 October 2026.
 * Unit tests primarily use C++.  Python tests are reserved for Python-specific
   imports/bindings or cases that cannot straightforwardly be exercised in C++.
   Reference-data generation scripts may use Python to drive external programs.
+  Further full Python-kernel builds are deferred to final integration unless
+  an important functionality check specifically requires one. Incremental
+  scientific validation uses the C++ targets.
 
 Data architecture
 -----------------
@@ -64,19 +67,19 @@ validation ledger below records completed changes and remaining limitations.
 .. code-block:: text
 
    [x] 01 Establish the PR #900 baseline, isolated build and task tracker.
-   [ ] 02 Define neutral data contracts and enforce the dependency boundary.
-   [ ] 03 Separate existing EOP and BLQ readers from model evaluation.
+   [x] 02 Define neutral data contracts and enforce the dependency boundary.
+   [x] 03 Separate existing EOP and BLQ readers from model evaluation.
    [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.
    [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.
    [x] 06 Validate solid Earth tides through the production time/argument path.
    [ ] 07 Resolve inertial frames, time scales and displacement conventions.
-   [ ] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
+   [x] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
    [ ] 09 Implement EOP validity and leap-safe interpolation policies.
    [x] 10 Verify existing short-period EOP corrections independently.
    [ ] 11 Complete Earth-rotation derivatives.
    [ ] 12 Complete deformation velocities and full station-state closure.
    [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.
-   [ ] 14 Validate BLQ loading inputs and preserve their conventions.
+   [x] 14 Validate BLQ loading inputs and preserve their conventions.
    [ ] 15 Implement HARDISP-equivalent ocean tidal loading.
    [ ] 16 Add conventional ocean pole-tide loading.
    [ ] 17 Add conventional atmospheric S1/S2 tidal loading.
@@ -132,9 +135,9 @@ resource hashes and logs are saved locally in
 ``/home/dominic/Tudat/earth-station-model-work/logs``.
 
 Task 02 source-boundary checks pass for transitive local Python imports and C++
-includes/associated implementations.  The committed checks use only Python's
-standard library and can run without a Tudat build.  Data contracts, independent
-input-library linkage and compiled binding initialization remain to validate.
+includes/associated implementations. The committed checks use only Python's
+standard library and can run without a Tudat build. Independent input-library
+linkage and compiled binding initialization also pass, as detailed below.
 
 Task 05: corrected the pole-tide wobble units and east/north formulas, and use
 the geocentric basis for the IERS displacement before projecting to a station's
@@ -189,3 +192,34 @@ tolerance budgets are recorded in ``short_period_reference/README.md`` beside
 the C++ suite. All nine short-period test cases pass; the complete set of
 12 selected integration executables also passes after this change (1.63 s).
 Broader interpolation, time-scale and rotation-rate work remains open.
+
+Tasks 02/03/08/14: neutral EOP and BLQ records and readers now live in the input
+layer, with separately linkable C++ targets and Python modules beneath
+``data_input.environment_data``. EOP records retain SI values, optional missing
+quantities, per-component Bulletin A status flags, source headers and supplied
+frame metadata. Tests cover legacy 16-column and modern 21-column C04 plus
+fixed-width finals2000A Bulletin A, using pinned real input extracts. BLQ records
+retain the eleven standard constituents, up/west/south metre amplitudes,
+degree phase lags, provider metadata and declared CE/CM origin. Malformed input
+and duplicate station identifiers are rejected. Existing EOPReader/readBlqFile
+interfaces delegate parsing to these readers; models can consume preloaded
+records. Interpolation and full HARDISP synthesis remain separate tasks.
+
+The raw I/O archive excludes the three adapters that depend on environment
+models. GRAIL raw UTC-to-TDB conversions use the shared SOFA time utilities,
+with C++ regression tests against the previous conversion results. A CMake
+check traverses actual transitive links, including private static-library
+dependencies, from all three input targets and rejects model dependencies.
+All five reader/adapter test executables and all 12 selected scientific
+integration executables pass, as do the two source-dependency tests and the
+target-link audit. The EOP, ocean-loading and GRAIL suites contain seven, five
+and three C++ cases, respectively.
+
+The Python extension compiled successfully with input registration ordered
+before dynamics and estimation types. Import/registration smoke checks and
+both EOP binding-only Python tests pass against the newly built extension.
+Four unused serialization-namespace aliases needed conditional guards for the
+serialization-disabled build; that narrow build fix is a separate commit.
+Subsequent full kernel builds are deferred to final integration at Dominic's
+request. Logs are in ``earth-station-model-work/logs``; raw EOP validity and
+the legacy adapter's artificial endpoint buffer remain task 09.

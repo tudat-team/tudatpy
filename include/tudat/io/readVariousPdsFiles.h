@@ -23,7 +23,6 @@
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {

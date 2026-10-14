@@ -38,6 +38,7 @@ set(ground_stations_HEADERS
 TUDAT_ADD_LIBRARY("ground_stations"
         "${ground_stations_SOURCES}"
         "${ground_stations_HEADERS}"
+        PUBLIC_LINKS tudat_ocean_loading_data
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

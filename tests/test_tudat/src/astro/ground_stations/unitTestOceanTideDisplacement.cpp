@@ -78,6 +78,44 @@ BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
     BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 4.0E-3 );
 }
 
+BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
+{
+    const std::string file = paths::getEarthDeformationDataFilesPath( ) + "/oceanTidetest.blq";
+    const auto data = input_output::readOceanLoadingData( file );
+    const auto compatibility = readBlqFile( file );
+    const auto& onsala = data.getStation( "ONSALA" );
+    BOOST_CHECK_EQUAL( compatibility[ 0 ].at( "ONSALA" )( 0, 0 ), 0.00352 );
+    BOOST_CHECK_SMALL( compatibility[ 1 ].at( "ONSALA" )( 0, 0 ) + 1.1292280260403312, 1.0E-14 );
+    BOOST_CHECK_EQUAL( onsala.phaseLagsDegrees( 0, 0 ), -64.7 );
+    const std::function< Eigen::Vector6d( const double ) > arguments = []( const double time ) {
+        return sofa_interface::calculateDoodsonFundamentalArguments( time );
+    };
+    OceanTideEarthDeformation fromFile( file, arguments );
+    OceanTideEarthDeformation preloaded( data, arguments );
+    for( const double time : { 0.0, 1.0E8, 3.0E8 } )
+    {
+        BOOST_CHECK_SMALL(
+                ( fromFile.calculateDisplacementInEnuFrame( time, "ONSALA" ) - preloaded.calculateDisplacementInEnuFrame( time, "ONSALA" ) )
+                        .norm( ),
+                1.0E-14 );
+    }
+    BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).getStation( "ONSALA" ).source, file );
+    BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).getStation( "ONSALA" ).oceanTideModel, "CSR4.0_f_PP" );
+    auto conflicting = data;
+    auto additional = onsala;
+    additional.stationIdentifier = "ADDED_FIRST";
+    conflicting.stations.emplace( additional.stationIdentifier, additional );
+    const auto stationCount = preloaded.getOceanLoadingData( ).stations.size( );
+    const auto headerCount = preloaded.getOceanLoadingData( ).sourceHeaders.size( );
+    const auto before = preloaded.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" );
+    BOOST_CHECK_THROW( preloaded.addOceanLoadingData( conflicting ), std::runtime_error );
+    BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).stations.size( ), stationCount );
+    BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).sourceHeaders.size( ), headerCount );
+    BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).stations.count( "ADDED_FIRST" ), 0 );
+    BOOST_CHECK_SMALL( ( preloaded.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ) - before ).norm( ), 1.0E-14 );
+    BOOST_CHECK_THROW( preloaded.calculateDisplacementInEnuFrame( 0.0, "MISSING" ), std::runtime_error );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

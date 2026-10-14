@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.16)
+project(EarthOrientationDataStandalone LANGUAGES CXX)
+get_filename_component(REPOSITORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." ABSOLUTE)
+add_library(tudat_earth_orientation_data STATIC "${REPOSITORY}/src/tudat/io/readEarthOrientationData.cpp")
+target_compile_features(tudat_earth_orientation_data PUBLIC cxx_std_17)
+target_include_directories(tudat_earth_orientation_data PUBLIC "${REPOSITORY}/include")
+# Boost is used only by the test, never by the parser library.
+find_path(BOOST_TEST_INCLUDE_DIR boost/test/included/unit_test.hpp REQUIRED)
+add_executable(test_eop "${REPOSITORY}/tests/test_tudat/src/io/unitTestEarthOrientationData.cpp")
+target_include_directories(test_eop SYSTEM PRIVATE "${BOOST_TEST_INCLUDE_DIR}")
+target_link_libraries(test_eop PRIVATE tudat_earth_orientation_data)
+enable_testing()
+add_test(NAME EarthOrientationData COMMAND test_eop)

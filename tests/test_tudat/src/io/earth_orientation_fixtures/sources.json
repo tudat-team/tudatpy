@@ -1,0 +1,26 @@
+[
+  {
+    "fixture": "legacy_c04.txt",
+    "url": "https://hpiers.obspm.fr/iers/eop/eopc04_14/eopc04_IAU2000.62-now",
+    "retrieved_on": "2026-10-14",
+    "source_sha256": "9e26da8bc2c8490828f0c1e6ef9587b5d40716e8bac590cf3ab4149f855e5531",
+    "selection": "header and first three rows",
+    "fixture_sha256": "273992d531b2465078f2ab6ff7de3ba4e3ac9e9f5a9b906253da000f1d1124f9"
+  },
+  {
+    "fixture": "modern_c04.txt",
+    "url": "https://datacenter.iers.org/data/latestVersion/255_EOP_C04_20u24.12h.84-NOW255.txt",
+    "retrieved_on": "2026-10-14",
+    "source_sha256": "50b30ba686fb4714a0c8c8e0aa71eb94dc64fd3e16baa32d1c9d6d22b84512b4",
+    "selection": "header and first three rows",
+    "fixture_sha256": "294da5aa487cb8cb26fb4807f8d5e3ade79acab8b1bd96dda429a03ca44fba6b"
+  },
+  {
+    "fixture": "finals2000a.txt",
+    "url": "https://maia.usno.navy.mil/ser7/finals2000A.all",
+    "retrieved_on": "2026-10-14",
+    "source_sha256": "0baf00f67a39ab362a3e4f07d2a1f084842178523f56bcf5a861e7ac084d411a",
+    "selection": "first three rows, first predicted row without CPO, first future date-only placeholder",
+    "fixture_sha256": "5b7afb54e17fc8d35b2968ad2eb6d84124a8ece2dac5bb50ba50fd69dcdfd268"
+  }
+]

@@ -1,14 +1,6 @@
 #include <map>
 #include <vector>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <iostream>
-#include <iomanip>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <Eigen/Core>
 
@@ -21,116 +13,17 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-//! Function to read BLQ file.
+//! Compatibility wrapper; neutral input records retain phases in their original degrees.
 std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > readBlqFile( const std::string& fileName )
 {
-    std::cout << "Reading BLQ file " << fileName << std::endl;
-    using namespace tudat::unit_conversions;
-
-    // Create stream from given file name.
-    std::fstream stream( fileName.c_str( ), std::ios::in );
-
-    // Check if stream was successfully created.
-    if( stream.fail( ) )
+    const auto data = input_output::readOceanLoadingData( fileName );
+    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > result( 2 );
+    for( const auto& station : data.stations )
     {
-        throw std::runtime_error( "Blq data file " + fileName + " could not be opened." );
+        result[ 0 ].emplace( station.first, station.second.amplitudesMetres );
+        result[ 1 ].emplace( station.first, unit_conversions::convertDegreesToRadians( station.second.phaseLagsDegrees ) );
     }
-
-    std::vector< std::string > vectorOfIndividualStrings;
-    std::vector< std::vector< std::string > > unparsedSiteBlock;
-    unparsedSiteBlock.resize( 11 );
-
-    //    // Initialized number of parsed sites.
-    //    int numberOfSitesParsed = 0;
-
-    // Declare current site characteristics
-    std::string currentSiteName;
-    Eigen::Matrix< double, 6, 11 > currentDataMatrix;
-
-    // Declare maps containin return values.
-    std::map< std::string, Eigen::Matrix< double, 3, 11 > > phaseMap;
-    std::map< std::string, Eigen::Matrix< double, 3, 11 > > amplitudeMap;
-
-    // Declare variable to determine if file headerhas been passed.
-    bool isFileHeaderParsed = 0;
-
-    std::string line;
-
-    // While stream is successful and not at end, continue.
-    while( !stream.fail( ) && !stream.eof( ) )
-    {
-        // Continue this loop until file header has been passed.
-        while( !isFileHeaderParsed )
-        {
-            // Get line from file.
-            std::getline( stream, line );
-
-            // Trim input string (removes all leading and trailing whitespaces).
-            boost::algorithm::trim( line );
-
-            // Split string into multiple strings, each containing one element from a line from the
-            // data file.
-            boost::algorithm::split(
-                    vectorOfIndividualStrings, line, boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
-
-            // Check whether initial part of file header is finished.
-            if( vectorOfIndividualStrings[ 0 ] != "$$" )
-            {
-                isFileHeaderParsed = 1;
-            }
-        }
-
-        unparsedSiteBlock[ 0 ] = vectorOfIndividualStrings;
-
-        for( int i = 1; i < 11; i++ )
-        {
-            std::getline( stream, line );
-            boost::algorithm::trim( line );
-            boost::algorithm::split(
-                    unparsedSiteBlock[ i ], line, boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
-        }
-
-        for( int i = 0; i < 11; i++ )
-        {
-            assert( unparsedSiteBlock[ 0 ].size( ) == 1 );
-            currentSiteName = unparsedSiteBlock[ 0 ][ 0 ];
-            for( int i = 1; i < 4; i++ )
-            {
-                assert( unparsedSiteBlock[ i ][ 0 ] == "$$" );
-            }
-            for( int i = 4; i < 10; i++ )
-            {
-                for( int j = 0; j < 11; j++ )
-                {
-                    currentDataMatrix( i - 4, j ) = boost::lexical_cast< double >( unparsedSiteBlock[ i ][ j ] );
-                }
-            }
-            assert( unparsedSiteBlock[ 10 ][ 0 ] == "$$" );
-            amplitudeMap[ currentSiteName ] = currentDataMatrix.block( 0, 0, 3, 11 );
-            phaseMap[ currentSiteName ] = convertDegreesToRadians< Eigen::MatrixXd >( currentDataMatrix.block( 3, 0, 3, 11 ) );
-            //            numberOfSitesParsed++;
-        }
-
-        if( !stream.fail( ) && !stream.eof( ) )
-        {
-            std::getline( stream, line );
-
-            // Trim input string (removes all leading and trailing whitespaces).
-            boost::algorithm::trim( line );
-
-            // Split string into multiple strings, each containing one element from a line from the
-            // data file.
-            boost::algorithm::split(
-                    vectorOfIndividualStrings, line, boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
-        }
-    }
-
-    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > outputVector;
-    outputVector.resize( 2 );
-    outputVector[ 0 ] = amplitudeMap;
-    outputVector[ 1 ] = phaseMap;
-
-    return outputVector;
+    return result;
 }
 
 Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
@@ -167,16 +60,37 @@ OceanTideEarthDeformation::OceanTideEarthDeformation( const std::vector< std::st
     schwiderskiFactors_ *= mathematical_constants::PI;
 }
 
+OceanTideEarthDeformation::OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
+                                                      const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction ):
+    OceanTideEarthDeformation( std::vector< std::string >( ), doodsonArgumentFunction )
+{
+    addOceanLoadingData( data );
+}
+
 void OceanTideEarthDeformation::addBlqFile( const std::string& blqFile )
 {
-    // Read BLQ file.
-    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > blqFileData = readBlqFile( blqFile );
-    std::map< std::string, Eigen::Matrix< double, 3, 11 > > currentAmplitudes = blqFileData.at( 0 );
-    std::map< std::string, Eigen::Matrix< double, 3, 11 > > currentPhases = blqFileData.at( 1 );
+    addOceanLoadingData( input_output::readOceanLoadingData( blqFile ) );
+}
 
-    // Set data retriebed from BLQ files as member variables.
-    siteOceanTideAmplitudes_.insert( currentAmplitudes.begin( ), currentAmplitudes.end( ) );
-    siteOceanTidePhases_.insert( currentPhases.begin( ), currentPhases.end( ) );
+void OceanTideEarthDeformation::addOceanLoadingData( const input_output::OceanLoadingData& data )
+{
+    input_output::validateOceanLoadingData( data );
+    for( const auto& item : data.stations )
+    {
+        if( oceanLoadingData_.stations.count( item.first ) != 0 )
+        {
+            throw std::runtime_error( "Duplicate ocean loading station: " + item.first );
+        }
+    }
+    oceanLoadingData_.source = oceanLoadingData_.source.empty( ) ? data.source : "multiple BLQ inputs";
+    oceanLoadingData_.sourceHeaders.insert(
+            oceanLoadingData_.sourceHeaders.end( ), data.sourceHeaders.begin( ), data.sourceHeaders.end( ) );
+    for( const auto& item : data.stations )
+    {
+        oceanLoadingData_.stations.emplace( item.first, item.second );
+        siteOceanTideAmplitudes_.emplace( item.first, item.second.amplitudesMetres );
+        siteOceanTidePhases_.emplace( item.first, unit_conversions::convertDegreesToRadians( item.second.phaseLagsDegrees ) );
+    }
 }
 
 Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementInEnuFrame( const double time, const std::string& siteIdentifier )

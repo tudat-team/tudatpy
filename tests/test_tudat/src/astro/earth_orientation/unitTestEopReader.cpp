@@ -201,6 +201,78 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
     }
 }
 
+BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_adapter_equivalence_and_provenance )
+{
+    const std::string sourceFile = __FILE__;
+    const std::string file =
+            sourceFile.substr( 0, sourceFile.find_last_of( "/\\" ) + 1 ) + "../../io/earth_orientation_fixtures/modern_c04.txt";
+    const auto data = input_output::readEarthOrientationData( file );
+    EOPReader fromFile( file );
+    EOPReader fromData( data );
+    BOOST_CHECK( fromFile.getUt1MinusUtcMapRaw( ) == fromData.getUt1MinusUtcMapRaw( ) );
+    BOOST_CHECK( fromFile.getLengthOfDayMapRaw( ) == fromData.getLengthOfDayMapRaw( ) );
+    const auto filePolarMotion = fromFile.getCipInItrsMapRaw( );
+    const auto dataPolarMotion = fromData.getCipInItrsMapRaw( );
+    BOOST_REQUIRE_EQUAL( filePolarMotion.size( ), dataPolarMotion.size( ) );
+    for( const auto& entry : filePolarMotion ) BOOST_CHECK_SMALL( ( entry.second - dataPolarMotion.at( entry.first ) ).norm( ), 1e-30 );
+    const auto fileCpo = fromFile.getCipInGcrsCorrectionMapRaw( );
+    const auto dataCpo = fromData.getCipInGcrsCorrectionMapRaw( );
+    BOOST_REQUIRE_EQUAL( fileCpo.size( ), dataCpo.size( ) );
+    for( const auto& entry : fileCpo ) BOOST_CHECK_SMALL( ( entry.second - dataCpo.at( entry.first ) ).norm( ), 1e-30 );
+    const auto& raw = fromData.getRawEarthOrientationData( );
+    BOOST_CHECK_EQUAL( raw.source, data.source );
+    BOOST_CHECK( raw.header == data.header );
+    BOOST_CHECK_EQUAL( raw.terrestrialFrame, data.terrestrialFrame );
+    BOOST_REQUIRE_EQUAL( raw.records.size( ), 3 );
+    BOOST_CHECK_EQUAL( raw.records.begin( )->first, 45700.5 );
+    BOOST_CHECK_EQUAL( raw.records.rbegin( )->first, 45702.5 );
+    // The legacy map buffer is isolated from the neutral data's exact coverage.
+    BOOST_CHECK_EQUAL( fromData.getUt1MinusUtcMapRaw( ).size( ), 4 );
+    BOOST_CHECK_SMALL( fromData.getUt1MinusUtcMapRaw( ).begin( )->first - ( 45700.5 - 1.0 / 24.0 ), 1e-10 );
+}
+
+BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_keeps_optional_absence )
+{
+    const std::string sourceFile = __FILE__;
+    const std::string file =
+            sourceFile.substr( 0, sourceFile.find_last_of( "/\\" ) + 1 ) + "../../io/earth_orientation_fixtures/finals2000a.txt";
+    auto data = input_output::readEarthOrientationData( file, input_output::EarthOrientationFormat::finals2000a );
+    EOPReader reader( data );
+    BOOST_CHECK_EQUAL( reader.getUt1MinusUtcMapRaw( ).count( 61396.0 ), 1 );
+    BOOST_CHECK_EQUAL( reader.getLengthOfDayMapRaw( ).count( 61396.0 ), 0 );
+    BOOST_CHECK_EQUAL( reader.getCipInGcrsCorrectionMapRaw( ).count( 61396.0 ), 0 );
+    BOOST_CHECK( !reader.getRawEarthOrientationData( ).records.at( 61396.0 ).celestialPoleOffsets );
+    BOOST_CHECK_EQUAL( reader.getRawEarthOrientationData( ).records.size( ), 4 );
+    for( auto& entry : data.records )
+    {
+        entry.second.lengthOfDay.reset( );
+        entry.second.celestialPoleOffsets.reset( );
+        entry.second.lengthOfDayUncertainty.reset( );
+        entry.second.celestialPoleOffsetUncertainty.reset( );
+        entry.second.celestialPoleStatus.clear( );
+    }
+    EOPReader withoutOptionalData( data );
+    BOOST_CHECK( withoutOptionalData.getLengthOfDayMapRaw( ).empty( ) );
+    BOOST_CHECK( withoutOptionalData.getCipInGcrsCorrectionMapRaw( ).empty( ) );
+    BOOST_CHECK_EQUAL( withoutOptionalData.getUt1MinusUtcMapRaw( ).size( ), data.records.size( ) + 1 );
+    input_output::EarthOrientationData empty;
+    BOOST_CHECK_THROW( static_cast< void >( EOPReader( empty ) ), std::runtime_error );
+}
+
+BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_rejects_invalid_records )
+{
+    input_output::EarthOrientationData data;
+    input_output::EarthOrientationRecord record;
+    data.records.emplace( 51544.0, record );
+    BOOST_CHECK_THROW( static_cast< void >( EOPReader( data ) ), std::runtime_error );
+    data.records.begin( )->second.utcModifiedJulianDate = 51544.0;
+    data.records.begin( )->second.polarMotion = { 0.0, 0.0 };
+    data.records.begin( )->second.ut1MinusUtc = 0.0;
+    BOOST_CHECK_NO_THROW( static_cast< void >( EOPReader( data ) ) );
+    data.records.begin( )->second.utcModifiedJulianDate = 51545.0;
+    BOOST_CHECK_THROW( static_cast< void >( EOPReader( data ) ), std::runtime_error );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

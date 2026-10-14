@@ -9,6 +9,8 @@
  */
 
 #include "tudat/io/readVariousPdsFiles.h"
+#include "tudat/astro/basic_astro/dateTime.h"
+#include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "boost/algorithm/string.hpp"
 
 namespace tudat
@@ -173,8 +175,8 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
             double seconds = stod( individualStrTime.at( 2 ) );
             double timeInSecondsUtc = basic_astrodynamics::timeFromDecomposedDateTime< double >( year, month, day, hour, minutes, seconds );
 
-            double timeInSecondsTdb = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< double >(
-                    basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, timeInSecondsUtc, Eigen::Vector3d::Zero( ) );
+            double timeInSecondsTdb =
+                    sofa_interface::convertTTtoTDB( sofa_interface::convertUTCtoTT( timeInSecondsUtc ), Eigen::Vector3d::Zero( ) );
             double mass = std::stod( vectorOfIndividualStrings.at( 6 ) );
             massHistory[ timeInSecondsTdb ] = mass;
         }
@@ -264,8 +266,7 @@ std::map< double, double > grailMassLevel1FileReader( const std::string massFile
             if( dataLevel == "1a" )
             {
                 double timeUtcScet = std::stod( vectorOfIndividualStrings.at( 0 ) ) + std::stod( vectorOfIndividualStrings.at( 1 ) );
-                timeTdb = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< double >(
-                        basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, timeUtcScet, Eigen::Vector3d::Zero( ) );
+                timeTdb = sofa_interface::convertTTtoTDB( sofa_interface::convertUTCtoTT( timeUtcScet ), Eigen::Vector3d::Zero( ) );
             }
             if( dataLevel == "1b" )
             {

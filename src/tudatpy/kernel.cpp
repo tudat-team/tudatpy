@@ -40,16 +40,19 @@ PYBIND11_MODULE( kernel, m )
     // Register types used across top-level module boundaries before binding
     // functions whose signatures contain them.
     add_astro_types_to_kernel( astro );
-    add_estimation_types_to_kernel( estimation );
-
     add_math_to_kernel( math );
+
+    // Raw input data may use shared time and mathematical types, but must not
+    // require any dynamics or estimation type to have been registered first.
+    add_data_input_to_kernel( data_input );
+
+    add_estimation_types_to_kernel( estimation );
     add_dynamics_types_to_kernel( dynamics );
     add_astro_to_kernel( astro );
     add_trajectory_design_to_kernel( trajectory_design );
     add_constants_to_kernel( constants );
     add_interface_to_kernel( interface );
     add_data_to_kernel( data );
-    add_data_input_to_kernel( data_input );
     add_util_to_kernel( util );
     add_dynamics_to_kernel( dynamics );
     add_estimation_to_kernel( estimation );

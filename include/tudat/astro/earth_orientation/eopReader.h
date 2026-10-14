@@ -20,6 +20,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/io/readEarthOrientationData.h"
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/utilities.h"
@@ -40,12 +41,21 @@ public:
     /*!
      * Constructor
      * \param eopFile Name of EOP file that is to be used
-     * \param format Identifier for file format that is provied
+     * \param format File format: C04 (legacy or modern) or finals2000A
      * \param nutationTheory Nutation theory w.r.t. which the EOP data is given.
      */
     EOPReader( const std::string& eopFile = tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
                const std::string& format = "C04",
                const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006 );
+
+    //! Consume preloaded neutral data without reading another file or losing provenance.
+    explicit EOPReader( const input_output::EarthOrientationData& data );
+
+    //! Original, unpadded records and source metadata (independent of compatibility maps).
+    const input_output::EarthOrientationData& getRawEarthOrientationData( ) const
+    {
+        return rawData_;
+    }
 
     //! Function to retrieve the data of UT1-UTC, as provided in the EOP file.
     std::map< double, double > getUt1MinusUtcMapRaw( )
@@ -132,12 +142,7 @@ public:
     }
 
 private:
-    //! Function to read EOP file
-    /*!
-     * Function to read EOP file
-     * \param fileName EOP file name.
-     */
-    void readEopFile( const std::string& fileName );
+    input_output::EarthOrientationData rawData_;
 
     //! Terrestrial pole position corrections (CIP in ITRS; polar motion), read from file
     std::map< double, Eigen::Vector2d > cipInItrs;

@@ -1,0 +1,2 @@
+# Official extracts preserve fixed-width columns and original header padding.
+*.txt whitespace=-blank-at-eol

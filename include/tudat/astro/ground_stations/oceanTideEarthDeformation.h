@@ -9,6 +9,7 @@
 
 // #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
+#include "tudat/io/readOceanLoadingData.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
@@ -61,7 +62,22 @@ public:
             } ): OceanTideEarthDeformation( std::vector< std::string >( { blqFile } ), doodsonArgumentFunction )
     {}
 
+    //! Construct from validated, preloaded provider coefficients, with no file access.
+    OceanTideEarthDeformation(
+            const input_output::OceanLoadingData& data,
+            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
+                return sofa_interface::calculateDoodsonFundamentalArguments( time );
+            } );
+
     void addBlqFile( const std::string& blqFile );
+
+    //! Add preloaded station data; duplicate station identifiers are rejected atomically.
+    void addOceanLoadingData( const input_output::OceanLoadingData& data );
+
+    const input_output::OceanLoadingData& getOceanLoadingData( ) const
+    {
+        return oceanLoadingData_;
+    }
 
     Eigen::Vector3d calculateDisplacementInEnuFrame( const double time, const std::string& siteIdentifier );
 
@@ -118,6 +134,8 @@ public:
     }
 
 private:
+    input_output::OceanLoadingData oceanLoadingData_;
+
     //! Map containing site displacement amplitudes per tide.
     /*!
      *  Map containing site displacement amplitudes per tide.

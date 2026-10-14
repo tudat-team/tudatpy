@@ -168,3 +168,14 @@ TUDAT_ADD_TEST_CASE(IonexReader
         tudat_input_output
         tudat_basic_astrodynamics
         )
+
+TUDAT_ADD_TEST_CASE(EarthOrientationData
+        PRIVATE_LINKS tudat_earth_orientation_data
+        )
+
+TUDAT_ADD_TEST_CASE(OceanLoadingData PRIVATE_LINKS tudat_ocean_loading_data)
+
+# This consumer intentionally links only the raw reader target. Its frozen epoch
+# references were produced by the former Earth-orientation converter path.
+TUDAT_ADD_TEST_CASE(GrailRawTimeConversion
+        PRIVATE_LINKS tudat_input_output_raw)

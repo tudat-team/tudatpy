@@ -100,17 +100,87 @@ set(io_HEADERS
         "trackingData.h"
         )
 
-# Add library.
-TUDAT_ADD_LIBRARY("input_output"
+# Raw readers compile once in a target that has no environment or propagation models.
+# The legacy aggregate retains only the readers that construct or consume model objects.
+set(io_model_SOURCES
+        "readInpopEphemerisFile.cpp"
+        "readTabulatedMediaCorrections.cpp"
+        "readTabulatedWeatherData.cpp")
+set(io_model_HEADERS
+        "readInpopEphemerisFile.h"
+        "readTabulatedMediaCorrections.h"
+        "readTabulatedWeatherData.h")
+list(REMOVE_ITEM io_SOURCES ${io_model_SOURCES})
+list(REMOVE_ITEM io_HEADERS ${io_model_HEADERS})
+
+TUDAT_ADD_LIBRARY("input_output_raw"
         "${io_SOURCES}"
         "${io_HEADERS}"
         PUBLIC_LINKS
-        tudat_ephemerides
         tudat_interpolators
-#        PRIVATE_LINKS "Boost::boost"
-#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
-        )
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        tudat_basics
+        PRIVATE_LINKS
+        tudat_sofa_interface)
+
+TUDAT_ADD_LIBRARY("input_output"
+        "${io_model_SOURCES}"
+        "${io_model_HEADERS}"
+        PUBLIC_LINKS
+        tudat_input_output_raw
+        tudat_ephemerides)
+
+# Check actual target links, including transitive and private static-library links.
+include("${PROJECT_SOURCE_DIR}/cmake/tudat/CheckRawInputOutputDependencies.cmake")
+cmake_language(DEFER DIRECTORY "${PROJECT_SOURCE_DIR}" CALL tudat_check_raw_input_output_dependencies)
 
 if (TUDAT_BUILD_WITH_SERIALIZATION)
     add_subdirectory(serialization)
 endif ()
+
+# Pure EOP file loading is separately linkable, without dynamics/estimation,
+# interpolation, ephemerides, SOFA, or serialization dependencies.
+if(TUDAT_BUILD_STATIC_LIBRARY)
+    add_library(tudat_earth_orientation_data STATIC readEarthOrientationData.cpp)
+else()
+    add_library(tudat_earth_orientation_data SHARED readEarthOrientationData.cpp)
+endif()
+target_compile_features(tudat_earth_orientation_data PUBLIC cxx_std_17)
+target_include_directories(tudat_earth_orientation_data PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+set_target_properties(tudat_earth_orientation_data PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+add_library(Tudat::tudat_earth_orientation_data ALIAS tudat_earth_orientation_data)
+install(TARGETS tudat_earth_orientation_data EXPORT tudat_export
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+
+# BLQ input records/parsing are independent of dynamics, estimation and the legacy I/O library.
+if(TUDAT_BUILD_STATIC_LIBRARY)
+    add_library(tudat_ocean_loading_data STATIC readOceanLoadingData.cpp)
+else()
+    add_library(tudat_ocean_loading_data SHARED readOceanLoadingData.cpp)
+endif()
+target_include_directories(tudat_ocean_loading_data PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+if(TARGET Eigen3::Eigen)
+    target_link_libraries(tudat_ocean_loading_data PUBLIC Eigen3::Eigen)
+else()
+    target_include_directories(tudat_ocean_loading_data SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
+endif()
+set_target_properties(tudat_ocean_loading_data PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+add_library(Tudat::tudat_ocean_loading_data ALIAS tudat_ocean_loading_data)
+install(TARGETS tudat_ocean_loading_data EXPORT tudat_export
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
