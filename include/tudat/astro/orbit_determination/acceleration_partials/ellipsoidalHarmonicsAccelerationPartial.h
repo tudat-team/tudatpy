@@ -61,6 +61,48 @@ public:
      */
     void update( const double currentTime = TUDAT_NAN );
 
+    /*! Function returning the partial w.r.t. a double parameter.
+     *
+     * Covers the gravitational parameter and the rotation model of the body exerting the
+     * acceleration. Throws for a rotation parameter whose rotation matrix partial was not set up,
+     * rather than reporting that the acceleration does not depend on it.
+     *
+     * \param parameter Parameter w.r.t. which partial is to be taken.
+     * \return Pair of partial function and number of columns (0 for no dependency).
+     */
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+
+    /*! Function returning the partial w.r.t. a vector parameter.
+     *
+     * Covers the rotation model of the body exerting the acceleration.
+     *
+     * \param parameter Parameter w.r.t. which partial is to be taken.
+     * \return Pair of partial function and number of columns (0 for no dependency).
+     */
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+
+    /*! Partial w.r.t. the gravitational parameter used by the acceleration.
+     *
+     * The acceleration is proportional to that parameter, so the partial is the acceleration
+     * divided by it. With mutual attraction the parameter is the sum of both bodies', so the
+     * partial is the same for either body.
+     *
+     * \param partialMatrix Output partial.
+     */
+    void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
+
+    /*! Partial w.r.t. a parameter of the rotation model of the body exerting the acceleration.
+     *
+     * \param partialMatrix Output partial, one column per entry of the parameter.
+     * \param parameterType Type of the rotation parameter.
+     * \param secondaryIdentifier Secondary identifier of the rotation parameter.
+     */
+    void wrtRotationModelParameter( Eigen::MatrixXd& partialMatrix,
+                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                    const std::string& secondaryIdentifier );
+
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
     /*!
      *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration
@@ -205,6 +247,12 @@ private:
      *  set by update( time ) function.
      */
     Eigen::Vector3d bodyFixedPosition_;
+
+    //! Current rotation from the frame the propagation runs in to the body-fixed frame.
+    Eigen::Matrix3d currentRotationToBodyFixedFrame_;
+
+    //! Acceleration model of which partials are taken.
+    std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > ellipsoidalHarmonicsAccelerationModel_;
 
     //! The current partial of the acceleration wrt the position of the body undergoing the acceleration.
     /*!

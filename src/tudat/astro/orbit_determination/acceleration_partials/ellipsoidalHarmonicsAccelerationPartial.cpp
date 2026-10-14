@@ -28,6 +28,7 @@ EllipsoidalHarmonicsGravityPartial::EllipsoidalHarmonicsGravityPartial(
         const std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials ):
     AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::ellipsoidal_harmonic_gravity ),
+    ellipsoidalHarmonicsAccelerationModel_( accelerationModel ),
     gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
     gravityField_( accelerationModel->getGravityField( ) ),
     positionFunctionOfAcceleratedBody_(
@@ -47,6 +48,112 @@ EllipsoidalHarmonicsGravityPartial::EllipsoidalHarmonicsGravityPartial(
     rotationMatrixPartials_( rotationMatrixPartials )
 {}
 
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+EllipsoidalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+{
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
+    int numberOfColumns = 0;
+
+    const std::string& parameterBody = parameter->getParameterName( ).second.first;
+
+    if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
+    {
+        // With mutual attraction the accelerated body's parameter is part of the sum as well.
+        if( parameterBody == acceleratingBody_ ||
+            ( parameterBody == acceleratedBody_ && ellipsoidalHarmonicsAccelerationModel_->getIsMutualAttractionUsed( ) ) )
+        {
+            partialFunction = std::bind( &EllipsoidalHarmonicsGravityPartial::wrtGravitationalParameter, this, std::placeholders::_1 );
+            numberOfColumns = 1;
+        }
+    }
+    else if( parameterBody == acceleratingBody_ &&
+             estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) ==
+            0 )
+        {
+            throw std::runtime_error( "Error, no rotation matrix partial available for parameter " +
+                                      std::to_string( parameter->getParameterName( ).first ) + " of " + parameterBody +
+                                      " when making ellipsoidal harmonics acceleration partial." );
+        }
+
+        partialFunction = std::bind( &EllipsoidalHarmonicsGravityPartial::wrtRotationModelParameter,
+                                     this,
+                                     std::placeholders::_1,
+                                     parameter->getParameterName( ).first,
+                                     parameter->getSecondaryIdentifier( ) );
+        numberOfColumns = 1;
+    }
+
+    return std::make_pair( partialFunction, numberOfColumns );
+}
+
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+EllipsoidalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+{
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
+    int numberOfColumns = 0;
+
+    const std::string& parameterBody = parameter->getParameterName( ).second.first;
+
+    if( parameterBody == acceleratingBody_ &&
+        estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) ==
+            0 )
+        {
+            throw std::runtime_error( "Error, no rotation matrix partial available for parameter " +
+                                      std::to_string( parameter->getParameterName( ).first ) + " of " + parameterBody +
+                                      " when making ellipsoidal harmonics acceleration partial." );
+        }
+
+        partialFunction = std::bind( &EllipsoidalHarmonicsGravityPartial::wrtRotationModelParameter,
+                                     this,
+                                     std::placeholders::_1,
+                                     parameter->getParameterName( ).first,
+                                     parameter->getSecondaryIdentifier( ) );
+        numberOfColumns = parameter->getParameterSize( );
+    }
+
+    return std::make_pair( partialFunction, numberOfColumns );
+}
+
+void EllipsoidalHarmonicsGravityPartial::wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
+{
+    const double gravitationalParameter = gravitationalParameterFunction_( );
+    if( gravitationalParameter == 0.0 )
+    {
+        throw std::runtime_error( "Error, cannot compute partial of ellipsoidal harmonics gravity w.r.t. a zero gravitational parameter." );
+    }
+
+    partialMatrix = accelerationFunction_( ) / gravitationalParameter;
+}
+
+void EllipsoidalHarmonicsGravityPartial::wrtRotationModelParameter( Eigen::MatrixXd& partialMatrix,
+                                                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                                                    const std::string& secondaryIdentifier )
+{
+    const Eigen::Vector3d relativePosition = positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( );
+    const Eigen::Matrix3d rotationToIntegrationFrame = currentRotationToBodyFixedFrame_.transpose( );
+
+    // Each column is the derivative of the rotation matrix w.r.t. one entry of the parameter.
+    const std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+            rotationMatrixPartials_.at( std::make_pair( parameterType, secondaryIdentifier ) )
+                    ->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
+
+    partialMatrix.setZero( 3, rotationMatrixPartials.size( ) );
+    for( unsigned int i = 0; i < rotationMatrixPartials.size( ); i++ )
+    {
+        // The rotation enters twice: it turns the body-fixed acceleration into the propagation
+        // frame, and it sets where the position lies in the body-fixed frame.
+        partialMatrix.col( i ) = rotationMatrixPartials[ i ] * ( currentRotationToBodyFixedFrame_ * accelerationFunction_( ) ) +
+                rotationToIntegrationFrame * currentBodyFixedPartialWrtPosition_ * rotationMatrixPartials[ i ].transpose( ) *
+                        relativePosition;
+    }
+}
+
 void EllipsoidalHarmonicsGravityPartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
@@ -55,7 +162,7 @@ void EllipsoidalHarmonicsGravityPartial::update( const double currentTime )
         updateFunction_( currentTime );
 
         // Calculate Cartesian position in frame fixed to body exerting acceleration
-        Eigen::Matrix3d currentRotationToBodyFixedFrame_ = fromBodyFixedToIntegrationFrameRotation_( ).inverse( );
+        currentRotationToBodyFixedFrame_ = fromBodyFixedToIntegrationFrameRotation_( ).transpose( );
         bodyFixedPosition_ =
                 currentRotationToBodyFixedFrame_ * ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) );
 
