@@ -195,6 +195,30 @@ BodyDeformationSettings
 
 )doc" );
 
+    using OceanPolePolicy = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy;
+    py::enum_< OceanPolePolicy >( m, "OceanPoleTideLatitudePolicy" )
+            .value( "require_grid_coverage", OceanPolePolicy::requireGridCoverage )
+            .value( "clamp_to_nearest_grid_latitude_approximation", OceanPolePolicy::clampToNearestGridLatitudeApproximation );
+    m.def( "ocean_pole_tidal",
+           &tss::oceanPoleTideBodyShapeDeformation,
+           py::arg( "grid_file" ),
+           py::arg( "latitude_policy" ) = OceanPolePolicy::requireGridCoverage,
+           R"doc(
+Create conventional ocean pole-tide loading (IERS 7.1.5, Eq. 29), with the 2018 secular pole and IERS 2010 constants.
+Supply the decompressed IERS CM grid as a plain-text file; it is loaded only at model construction.
+The official grid already includes its geocentre correction. Source origin declarations are retained without conversion.
+Bilinear interpolation is periodic in longitude for a complete grid. The default rejects latitudes outside the supplied
+coverage (the official grid ends at +/-89.75 degrees). The explicitly named clamp approximation uses the nearest grid latitude.
+Cartesian output uses the geocentric radial/north/east basis; station ENU uses its actual topocentric basis.
+Standalone epochs are TT seconds since J2000; the existing environment currently approximates its TDB argument as TT.
+Requires Earth's GCRS/ITRS rotation model and its polar motion data. Grid coefficients are dimensionless; output is metres.
+)doc" );
+    m.def( "ocean_pole_tidal_from_data",
+           &tss::oceanPoleTideBodyShapeDeformationFromData,
+           py::arg( "grid" ),
+           py::arg( "latitude_policy" ) = OceanPolePolicy::requireGridCoverage,
+           "Create the same conventional loading model from a preloaded data_input.environment_data.ocean_loading.OceanPoleTideGrid." );
+
     py::enum_< tudat::basic_astrodynamics::OceanTideSynthesis >( m, "OceanTideSynthesis" )
             .value( "iers_hardisp", tudat::basic_astrodynamics::OceanTideSynthesis::iersHardisp )
             .value( "legacy_eleven_constituents", tudat::basic_astrodynamics::OceanTideSynthesis::legacyElevenConstituents );

@@ -162,9 +162,9 @@ install(TARGETS tudat_earth_orientation_data EXPORT tudat_export
 
 # BLQ input records/parsing are independent of dynamics, estimation and the legacy I/O library.
 if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_ocean_loading_data STATIC readOceanLoadingData.cpp)
+    add_library(tudat_ocean_loading_data STATIC readOceanLoadingData.cpp readOceanPoleTideData.cpp)
 else()
-    add_library(tudat_ocean_loading_data SHARED readOceanLoadingData.cpp)
+    add_library(tudat_ocean_loading_data SHARED readOceanLoadingData.cpp readOceanPoleTideData.cpp)
 endif()
 target_include_directories(tudat_ocean_loading_data PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

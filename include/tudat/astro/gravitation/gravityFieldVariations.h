@@ -31,7 +31,8 @@ enum BodyDeformationTypes {
     polynomial_variation,
     iers_2010,
     pole_tide,
-    ocean_tide
+    ocean_tide,
+    ocean_pole_tide
 };
 
 //! Interface class between GravityFieldVariations objects that are interpolated and

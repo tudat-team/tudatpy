@@ -1,0 +1,64 @@
+#ifndef TUDAT_OCEAN_POLE_TIDE_DEFORMATION_H
+#define TUDAT_OCEAN_POLE_TIDE_DEFORMATION_H
+
+#include "tudat/io/readOceanPoleTideData.h"
+#include "tudat/astro/ground_stations/bodyDeformationModel.h"
+#include "tudat/astro/earth_orientation/polarMotionCalculator.h"
+
+namespace tudat
+{
+namespace basic_astrodynamics
+{
+//! The official half-degree grid stops at +/-89.75 degrees: it does not define polar caps.
+enum class OceanPoleTideLatitudePolicy { requireGridCoverage, clampToNearestGridLatitudeApproximation };
+
+//! IERS 2010 Eq. (29), with radians as wobble input and metres as output (radial/north/east).
+//! Defaults use Chapter 1 constants, not the older G in the published 2003-mean-pole test.
+Eigen::Vector3d calculateOceanPoleTideLoading( const input_output::OceanPoleTideCoefficients& coefficients,
+                                               const Eigen::Vector2d& wobbleRadians,
+                                               const double scaleMetresPerRadian = 5340.428562229677 );
+
+//! Bilinear interpolation in the model layer; longitude wraps only for grids spanning a complete period.
+input_output::OceanPoleTideCoefficients interpolateOceanPoleTideCoefficients(
+        const input_output::OceanPoleTideGrid& grid,
+        const double latitudeDegrees,
+        const double longitudeDegrees,
+        const OceanPoleTideLatitudePolicy latitudePolicy = OceanPoleTideLatitudePolicy::requireGridCoverage );
+
+//! Conventional ocean pole-tide loading, IERS Section 7.1.5, using the 2018 secular pole.
+//! Grid origins are retained without conversion. The official CM grid already includes its geocentre correction.
+class OceanPoleTideDeformation : public BodyDeformationModel
+{
+public:
+    OceanPoleTideDeformation( const input_output::OceanPoleTideGrid& grid,
+                              const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
+                              const OceanPoleTideLatitudePolicy latitudePolicy = OceanPoleTideLatitudePolicy::requireGridCoverage );
+    OceanPoleTideDeformation( const std::string& gridFile,
+                              const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
+                              const OceanPoleTideLatitudePolicy latitudePolicy = OceanPoleTideLatitudePolicy::requireGridCoverage );
+
+    //! Time is TT seconds since J2000. Existing environment calls currently approximate its TDB argument as TT.
+    //! The Cartesian output uses the geocentric spherical basis, independent of station shape representation.
+    Eigen::Vector3d calculateDisplacement( const double time,
+                                           const std::shared_ptr< ground_stations::GroundStationState > stationState ) override;
+    Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition ) override;
+    //! Actual station topocentric east/north/up, with ellipsoid-normal up for oblate shapes.
+    Eigen::Vector3d calculateEnuDisplacement( const double time,
+                                              const std::shared_ptr< ground_stations::GroundStationState > stationState );
+    const input_output::OceanPoleTideGrid& getGrid( ) const
+    {
+        return grid_;
+    }
+    OceanPoleTideLatitudePolicy getLatitudePolicy( ) const
+    {
+        return latitudePolicy_;
+    }
+
+private:
+    input_output::OceanPoleTideGrid grid_;
+    std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator_;
+    OceanPoleTideLatitudePolicy latitudePolicy_;
+};
+}  // namespace basic_astrodynamics
+}  // namespace tudat
+#endif

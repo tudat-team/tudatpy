@@ -20,6 +20,7 @@ set(ground_stations_SOURCES
         "transmittingFrequencies.cpp"
         "oceanTideEarthDeformation.cpp"
         "poleTideDeformation.cpp"
+        "oceanPoleTideDeformation.cpp"
         "meteorologicalConditions.cpp"
 )
 
@@ -35,6 +36,7 @@ set(ground_stations_HEADERS
         "transmittingFrequencies.h"
         "oceanTideEarthDeformation.h"
         "poleTideDeformation.h"
+        "oceanPoleTideDeformation.h"
         "meteorologicalConditions.h"
 )
 

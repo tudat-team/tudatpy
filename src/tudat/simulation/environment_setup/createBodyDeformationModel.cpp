@@ -227,6 +227,39 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             }
             break;
         }
+        case ocean_pole_tide: {
+            const auto settings = std::dynamic_pointer_cast< OceanPoleTideBodyDeformationSettings >( bodyDeformationSettings );
+            if( !settings )
+            {
+                throw std::runtime_error( "Expected ocean pole-tide deformation settings" );
+            }
+            if( body != "Earth" )
+            {
+                throw std::runtime_error( "Conventional ocean pole-tide loading is defined for Earth only" );
+            }
+            if( bodyMap.count( body ) == 0 )
+            {
+                throw std::runtime_error( "Ocean pole-tide loading requires Earth in the environment" );
+            }
+            const auto rotation =
+                    std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) );
+            if( !rotation )
+            {
+                throw std::runtime_error( "Ocean pole-tide loading requires an Earth GCRS/ITRS rotation model" );
+            }
+            const auto pole = rotation->getAnglesCalculator( )->getPolarMotionCalculator( );
+            if( settings->hasPreloadedGrid( ) )
+            {
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
+                        settings->getGrid( ), pole, settings->getLatitudePolicy( ) );
+            }
+            else
+            {
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
+                        settings->getGridFile( ), pole, settings->getLatitudePolicy( ) );
+            }
+            break;
+        }
         case ocean_tide: {
             std::shared_ptr< OceanTideBodyDeformationSettings > oceanTideBodyDeformationSettings =
                     std::dynamic_pointer_cast< OceanTideBodyDeformationSettings >( bodyDeformationSettings );

@@ -81,7 +81,7 @@ validation ledger below records completed changes and remaining limitations.
    [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.
    [x] 14 Validate BLQ loading inputs and preserve their conventions.
    [x] 15 Implement HARDISP-equivalent ocean tidal loading.
-   [ ] 16 Add conventional ocean pole-tide loading.
+   [x] 16 Add conventional ocean pole-tide loading.
    [ ] 17 Add conventional atmospheric S1/S2 tidal loading.
    [ ] 18 Preserve full SINEX solution/validity/eccentricity histories.
    [ ] 19 Implement post-seismic and seasonal station motion with rates.
@@ -115,9 +115,6 @@ Active work
 * Task 12: the initial displacement-rate API, UTC-phase boundary safeguards and
   position-only station path pass integrated C++ tests. EOP-knot rate policies
   and full station-state closure still require task 11.
-* Task 16: the ocean pole-tide reader/model passes integrated C++ tests, including
-  731 published reference rows and continuous-EOP leap-second evaluation; its
-  validated commit is being prepared.
 * Task 17: the neutral atmospheric S1/S2 reader, synthesis, grid geometry and
   position factories pass isolated C++ tests. Integration and the UT1-to-TDB
   derivative chain remain open.
@@ -351,3 +348,38 @@ The IERS velocity changes by 1.22e-15 m/s between one- and half-second steps in
 the smooth test case. This initial commit does not close task 12: native context
 routing, selected-EOP-interval rates and closure with the complete physical
 Earth-rotation derivative remain required under tasks 07, 11 and 12.
+
+Task 16: the ocean pole-tide input reader preserves the dimensionless complex
+radial/north/east grid, source headers and CM origin. Its independent input target
+has no dynamics or estimation dependency. The model evaluates conventional IERS
+Chapter 7 Eq. (29), the 2018 secular pole and IERS 2010 constants, with bilinear
+geocentric-latitude interpolation and periodic longitude only for full global
+grids. The production coefficient is K=5340.428562229677 m/rad. The official CM
+grid already includes the geocentre contribution; no extra translation is added.
+Geocentric displacements rotate to Cartesian before optional station-ENU output.
+
+The raw grid stops at +/-89.75 degrees. Default evaluation requires grid coverage;
+clamping to the nearest latitude is an explicitly selected approximation. Bad
+headers, axis counts, duplicate/missing nodes and malformed rows produce source
+and line diagnostics. Construction loads a file once through the input layer;
+preloaded and file factories share the same evaluator and Earth polar-motion
+model. Python input/model declarations and documentation accompany the C++ API.
+
+All 731 published reference rows agree within 1 nm (maximum 0.7894 nm), using
+only the published benchmark's explicitly older K=5339.4043696 m/rad and mean
+pole for that comparison. These older constants do not change the production
+model. The original full 720-by-360 grid was parsed independently; normal tests
+use a checksum-pinned four-node extract and the unchanged published test series.
+Source hashes, extraction instructions, constants and coordinate provenance are
+recorded in ``reference_files/ocean_pole_tide/README.md``.
+
+The final integrated ocean-pole model and input suites pass seven and four C++
+cases, respectively, including file/preloaded parity, geometry, seam/coverage
+policies and continuous-EOP evaluation through the 2016 inserted second. The
+combined task 09/initial-12/16 milestone passes all 20 selected C++ executables
+and the actual input-target dependency audit (21 CTest checks, 2.07 s), plus both
+source-boundary checks. Exact-file formatting hooks pass. Evidence is recorded
+in ``tests-combined-final-identity.log``, ``architecture-final-identity.log`` and
+``combined-final-validation-summary.json`` in the local work log directory.
+No Python kernel was rebuilt for this milestone; final binding validation is
+still task 29.

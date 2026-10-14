@@ -58,6 +58,23 @@ Functions
 
 
 
+Conventional ocean pole-tide loading implements IERS Section 7.1.5 with the
+2018 secular pole and IERS 2010 Chapter 1 constants. The official grid covers
+latitudes -89.75 through +89.75 degrees. ``require_grid_coverage`` raises outside
+the supplied extent; ``clamp_to_nearest_grid_latitude_approximation`` explicitly
+uses the nearest covered latitude. No polar-cap interpolation is specified by
+the IERS coefficient grid. Longitude is periodic for a complete grid. Cartesian
+displacement uses the geocentric spherical basis; public station ENU uses its
+actual topocentric frame. Standalone epochs are TT; the existing environment
+currently approximates its TDB time argument as TT.
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_pole_tidal
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_pole_tidal_from_data
+
+.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.OceanPoleTideLatitudePolicy
+   :members:
+
 Classes
 -------
 .. currentmodule:: tudatpy.dynamics.environment_setup.shape_deformation

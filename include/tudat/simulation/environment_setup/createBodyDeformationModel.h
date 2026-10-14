@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
+#include "tudat/astro/ground_stations/oceanPoleTideDeformation.h"
 #include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
@@ -85,6 +86,56 @@ protected:
     std::map< int, std::pair< double, double > > displacementLoveNumbers_;
     double bodyReferenceRadius_;
 };
+
+//! Preloaded or plain-text ocean pole-load grid; loading is performed once when the model is constructed.
+class OceanPoleTideBodyDeformationSettings : public BodyDeformationSettings
+{
+public:
+    OceanPoleTideBodyDeformationSettings( const input_output::OceanPoleTideGrid& grid,
+                                          const basic_astrodynamics::OceanPoleTideLatitudePolicy policy ):
+        BodyDeformationSettings( gravitation::ocean_pole_tide ), grid_( grid ), policy_( policy ), preloaded_( true )
+    {}
+    OceanPoleTideBodyDeformationSettings( const std::string& gridFile, const basic_astrodynamics::OceanPoleTideLatitudePolicy policy ):
+        BodyDeformationSettings( gravitation::ocean_pole_tide ), gridFile_( gridFile ), policy_( policy ), preloaded_( false )
+    {}
+    const input_output::OceanPoleTideGrid& getGrid( ) const
+    {
+        return grid_;
+    }
+    const std::string& getGridFile( ) const
+    {
+        return gridFile_;
+    }
+    basic_astrodynamics::OceanPoleTideLatitudePolicy getLatitudePolicy( ) const
+    {
+        return policy_;
+    }
+    bool hasPreloadedGrid( ) const
+    {
+        return preloaded_;
+    }
+
+private:
+    input_output::OceanPoleTideGrid grid_;
+    std::string gridFile_;
+    basic_astrodynamics::OceanPoleTideLatitudePolicy policy_;
+    bool preloaded_;
+};
+
+inline std::shared_ptr< OceanPoleTideBodyDeformationSettings > oceanPoleTideBodyShapeDeformation(
+        const std::string& gridFile,
+        const basic_astrodynamics::OceanPoleTideLatitudePolicy policy =
+                basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage )
+{
+    return std::make_shared< OceanPoleTideBodyDeformationSettings >( gridFile, policy );
+}
+inline std::shared_ptr< OceanPoleTideBodyDeformationSettings > oceanPoleTideBodyShapeDeformationFromData(
+        const input_output::OceanPoleTideGrid& grid,
+        const basic_astrodynamics::OceanPoleTideLatitudePolicy policy =
+                basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage )
+{
+    return std::make_shared< OceanPoleTideBodyDeformationSettings >( grid, policy );
+}
 
 class OceanTideBodyDeformationSettings : public BodyDeformationSettings
 {

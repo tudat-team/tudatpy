@@ -179,3 +179,5 @@ TUDAT_ADD_TEST_CASE(OceanLoadingData PRIVATE_LINKS tudat_ocean_loading_data)
 # references were produced by the former Earth-orientation converter path.
 TUDAT_ADD_TEST_CASE(GrailRawTimeConversion
         PRIVATE_LINKS tudat_input_output_raw)
+
+TUDAT_ADD_TEST_CASE(OceanPoleTideData PRIVATE_LINKS tudat_ocean_loading_data)

@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "tudat/io/readOceanLoadingData.h"
+#include "tudat/io/readOceanPoleTideData.h"
 
 namespace tudatpy
 {
@@ -57,6 +58,35 @@ void expose_ocean_loading( pybind11::module& module )
             []( const std::string& text, const std::string& source ) {
                 std::istringstream stream( text );
                 return io::readOceanLoadingData( stream, source );
+            },
+            py::arg( "text" ),
+            py::arg( "source" ) = "<text>" );
+    py::class_< io::OceanPoleTideGrid >( module,
+                                         "OceanPoleTideGrid",
+                                         "Dimensionless ocean pole-load grid: longitude-fast nodes, radial/north/east rows and "
+                                         "real/imaginary columns; no interpolation." )
+            .def( py::init<>( ) )
+            .def_readwrite( "longitude_count", &io::OceanPoleTideGrid::longitudeCount )
+            .def_readwrite( "latitude_count", &io::OceanPoleTideGrid::latitudeCount )
+            .def_readwrite( "first_longitude_degrees", &io::OceanPoleTideGrid::firstLongitudeDegrees )
+            .def_readwrite( "first_latitude_degrees", &io::OceanPoleTideGrid::firstLatitudeDegrees )
+            .def_readwrite( "longitude_step_degrees", &io::OceanPoleTideGrid::longitudeStepDegrees )
+            .def_readwrite( "latitude_step_degrees", &io::OceanPoleTideGrid::latitudeStepDegrees )
+            .def_readwrite( "coefficients", &io::OceanPoleTideGrid::coefficients )
+            .def_readwrite( "source", &io::OceanPoleTideGrid::source )
+            .def_readwrite( "source_headers", &io::OceanPoleTideGrid::sourceHeaders )
+            .def_readwrite( "reference_origin", &io::OceanPoleTideGrid::referenceOrigin )
+            .def( "validate", &io::validateOceanPoleTideGrid );
+    module.def(
+            "read_ocean_pole_tide_grid",
+            py::overload_cast< const std::string& >( &io::readOceanPoleTideGrid ),
+            py::arg( "file_path" ),
+            "Read an IERS plain-text ocean pole-load grid; decompress .gz files before reading. No interpolation or origin conversion." );
+    module.def(
+            "read_ocean_pole_tide_grid_text",
+            []( const std::string& text, const std::string& source ) {
+                std::istringstream stream( text );
+                return io::readOceanPoleTideGrid( stream, source );
             },
             py::arg( "text" ),
             py::arg( "source" ) = "<text>" );
