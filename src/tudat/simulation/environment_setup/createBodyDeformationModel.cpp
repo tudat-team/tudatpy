@@ -15,6 +15,18 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Eagerly read BLQ inputs and combine them with the same provenance/duplicate rules as model append operations.
+OceanTideBodyDeformationSettings::OceanTideBodyDeformationSettings(
+        const std::vector< std::string > blqFiles,
+        const basic_astrodynamics::OceanTideSynthesis synthesis ):
+    BodyDeformationSettings( gravitation::ocean_tide ), synthesis_( synthesis )
+{
+    for( const auto& file : blqFiles )
+    {
+        input_output::appendOceanLoadingData( data_, input_output::readOceanLoadingData( file ) );
+    }
+}
+
 namespace
 {
 std::shared_ptr< ephemerides::RotationalEphemeris > deformationRotationInTdb( std::shared_ptr< ephemerides::RotationalEphemeris > rotation )
@@ -288,23 +300,13 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             const auto shape = bodyMap.at( body )->getShapeModel( );
             if( settings->getInputFormat( ) == AtmosphericTideInputFormat::grid )
             {
-                const auto grid = settings->hasPreloadedData( )
-                        ? settings->getGrid( )
-                        : input_output::readAtmosphericTideGrid( settings->getFile( ), settings->getMetadata( ) );
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
-                        grid, converter, settings->getEvaluationSettings( ), shape );
-            }
-            else if( settings->getInputFormat( ) == AtmosphericTideInputFormat::stationCoefficients )
-            {
-                const auto stations = settings->hasPreloadedData( )
-                        ? settings->getStations( )
-                        : input_output::readAtmosphericTideStationData( settings->getFile( ), settings->getMetadata( ) );
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
-                        stations, converter, settings->getEvaluationSettings( ), shape );
+                        settings->getGrid( ), converter, settings->getEvaluationSettings( ), shape );
             }
             else
             {
-                throw std::runtime_error( "Unknown atmospheric tide input format" );
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
+                        settings->getStations( ), converter, settings->getEvaluationSettings( ), shape );
             }
             break;
         }
@@ -329,22 +331,11 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 throw std::runtime_error( "Ocean pole-tide loading requires an Earth GCRS/ITRS rotation model" );
             }
             const auto pole = rotation->getAnglesCalculator( )->getPolarMotionCalculator( );
-            if( settings->hasPreloadedGrid( ) )
-            {
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
-                        settings->getGrid( ),
-                        pole,
-                        settings->getLatitudePolicy( ),
-                        rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
-            }
-            else
-            {
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
-                        settings->getGridFile( ),
-                        pole,
-                        settings->getLatitudePolicy( ),
-                        rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
-            }
+            bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
+                    settings->getGrid( ),
+                    pole,
+                    settings->getLatitudePolicy( ),
+                    rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
             break;
         }
         case ocean_tide: {
@@ -370,21 +361,14 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
                 if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >(
                             bodyMap.at( body )->getRotationalEphemeris( ) ) )
+                {
                     converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
-                if( oceanTideBodyDeformationSettings->usesPreloadedData( ) )
-                {
-                    bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                            oceanTideBodyDeformationSettings->getOceanLoadingData( ),
-                            oceanTideBodyDeformationSettings->getSynthesis( ),
-                            converter );
                 }
-                else
-                {
-                    bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                            oceanTideBodyDeformationSettings->getBlqFiles( ),
-                            oceanTideBodyDeformationSettings->getSynthesis( ),
-                            converter );
-                }
+
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
+                        oceanTideBodyDeformationSettings->getOceanLoadingData( ),
+                        oceanTideBodyDeformationSettings->getSynthesis( ),
+                        converter );
             }
             break;
         }

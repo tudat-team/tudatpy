@@ -145,14 +145,14 @@ stencils raise for state/rate evaluation without disabling valid positions.
            py::arg( "file_path" ),
            py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
            py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
-           "Read a grid once during construction; use the same explicit geometry, endpoint and origin policies as "
+           "Read a grid when creating these settings; file errors occur immediately. Use the geometry, endpoint and origin policies of "
            "atmospheric_tide_from_grid." );
     m.def( "atmospheric_tide_from_station_file",
            &tss::atmosphericTideBodyShapeDeformationFromStationFile,
            py::arg( "file_path" ),
            py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
            py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
-           "Read ATL station coefficients once during construction; use the same basis/origin policies as "
+           "Read ATL station coefficients when creating these settings; file errors occur immediately. Use the basis/origin policies of "
            "atmospheric_tide_from_stations." );
 
     m.def( "basic_solid_body_tidal",
@@ -301,7 +301,8 @@ BodyDeformationSettings
            py::arg( "latitude_policy" ) = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage,
            R"doc(
 Create conventional ocean pole-tide loading (IERS 7.1.5, Eq. 29), with the 2018 secular pole and IERS 2010 constants.
-Supply the decompressed IERS CM grid as a plain-text file; it is loaded only at model construction.
+Supply the decompressed IERS CM grid as a plain-text file; it is read when these settings are created.
+File errors occur immediately, and model construction performs no additional grid-file access.
 The official grid already includes its geocentre correction. Source origin declarations are retained without conversion.
 Bilinear interpolation is periodic in longitude for a complete grid. The default rejects latitudes outside the supplied
 coverage (the official grid ends at +/-89.75 degrees). The explicitly named clamp approximation uses the nearest grid latitude.
@@ -333,7 +334,7 @@ using the corrected IERS HARDISP admittance interpolation. ``legacy_eleven_const
 synthesis for reproducibility. This changes the previous default behavior.
 
 BLQ files can be obtained from the `Ocean Loading Provider <https://barre.oso.chalmers.se/loading/l.php>`_. Files are read when the
-model is constructed, and source headers, model names and CM/CE/unspecified origin declarations are retained. An origin declaration
+settings are created, so file errors occur immediately. Source headers, model names and CM/CE/unspecified origin declarations are retained. An origin declaration
 describes the supplied loading coefficients; this model does not silently convert their reference origin.
 
 Native displacement and state queries take precise Time in TDB seconds since J2000. The model-owned converter supplies
@@ -347,6 +348,8 @@ blq_files : list[ string ]
 synthesis : OceanTideSynthesis, default=OceanTideSynthesis.iers_hardisp
     Expanded IERS synthesis or the explicit legacy eleven-constituent convention.
 
+An empty file list creates an initially empty loading model that supports later station-data append in C++.
+
 Returns
 -------
 BodyDeformationSettings
@@ -359,7 +362,8 @@ BodyDeformationSettings
            py::arg( "data" ),
            py::arg( "synthesis" ) = tudat::basic_astrodynamics::OceanTideSynthesis::iersHardisp,
            R"doc(
-Create ocean tidal loading settings from validated, preloaded BLQ records.
+Create ocean tidal loading settings from preloaded BLQ records. Empty data creates an initially empty model
+that supports later station-data append in C++; populated records and all header conventions are validated.
 
 Parameters
 ----------

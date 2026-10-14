@@ -301,7 +301,15 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     const auto g = readAtmosphericTideGrid( path );
     const auto settings = explicitGeometry( );
     const auto preloaded = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g, settings ), "Earth", bodies );
-    const auto file = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGridFile( path, {}, settings ), "Earth", bodies );
+    // File settings already own the provider grid before an environment model is constructed.
+    const auto fileSettings = atmosphericTideBodyShapeDeformationFromGridFile( path, {}, settings );
+
+    BOOST_CHECK_EQUAL( fileSettings->getGrid( ).metadata.source, g.metadata.source );
+    BOOST_CHECK_EQUAL( fileSettings->getGrid( ).coefficientsMetres.size( ), g.coefficientsMetres.size( ) );
+    BOOST_CHECK_THROW( atmosphericTideBodyShapeDeformationFromGridFile( path + ".missing" ), std::runtime_error );
+
+    const auto file = createBodyDeformationModel( fileSettings, "Earth", bodies );
+
     const double lat = -19.5 * mathematical_constants::PI / 180, lon = 47.5 * mathematical_constants::PI / 180;
     const Eigen::Vector3d p =
             6378137 * Eigen::Vector3d( std::cos( lat ) * std::cos( lon ), std::cos( lat ) * std::sin( lon ), std::sin( lat ) );

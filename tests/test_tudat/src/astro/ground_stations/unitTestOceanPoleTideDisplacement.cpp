@@ -220,8 +220,14 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedFileAndConfigurationErrors )
     bodies.createEmptyBody( "Earth" );
     bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
     const auto preloaded = createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Earth", bodies );
-    const auto file =
-            createBodyDeformationModel( oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) ), "Earth", bodies );
+    // Filename settings retain preloaded coefficients and report unavailable files immediately.
+    const auto fileSettings = oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) );
+
+    BOOST_CHECK_EQUAL( fileSettings->getGrid( ).coefficients.size( ), grid.coefficients.size( ) );
+    BOOST_CHECK_THROW( oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt.missing" ) ), std::runtime_error );
+
+    const auto file = createBodyDeformationModel( fileSettings, "Earth", bodies );
+
     const Eigen::Vector3d spherical( 6378137, -43.75 * mathematical_constants::PI / 180, 232.25 * mathematical_constants::PI / 180 );
     const auto station = std::make_shared< ground_stations::GroundStationState >( spherical, coordinate_conversions::spherical_position );
     close( preloaded->calculateDisplacement( tdbAtTt( 0 ), station ), file->calculateDisplacement( tdbAtTt( 0 ), station ) );

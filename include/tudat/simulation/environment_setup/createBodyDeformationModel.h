@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
@@ -119,135 +120,135 @@ inline std::shared_ptr< StationLoadingBodyDeformationSettings > stationLoadingBo
     return std::make_shared< StationLoadingBodyDeformationSettings >( data, settings );
 }
 
-//! Preloaded or plain-text ocean pole-load grid; loading is performed once when the model is constructed.
+//! The two physical atmospheric coefficient representations; file input is loaded at settings creation.
 enum class AtmosphericTideInputFormat { grid, stationCoefficients };
+
+//! Atmospheric loading settings containing grid or station-specific provider coefficients.
 class AtmosphericTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
+    //! Copy grid data; geometry and origin policies are resolved when the model is created.
     AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideGrid& grid,
                                             const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
-        BodyDeformationSettings( gravitation::atmospheric_tide ), grid_( grid ), settings_( settings ),
-        format_( AtmosphericTideInputFormat::grid ), preloaded_( true )
-    {}
+        BodyDeformationSettings( gravitation::atmospheric_tide ), data_( grid ), settings_( settings )
+    {
+    }
+
+    //! Copy station-specific coefficients and their source metadata.
     AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideStationData& stations,
                                             const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
-        BodyDeformationSettings( gravitation::atmospheric_tide ), stations_( stations ), settings_( settings ),
-        format_( AtmosphericTideInputFormat::stationCoefficients ), preloaded_( true )
-    {}
-    AtmosphericTideBodyDeformationSettings( const std::string& path,
-                                            const AtmosphericTideInputFormat format,
-                                            const input_output::AtmosphericTideMetadata& metadata,
-                                            const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
-        BodyDeformationSettings( gravitation::atmospheric_tide ), file_( path ), metadata_( metadata ), settings_( settings ),
-        format_( format ), preloaded_( false )
-    {}
+        BodyDeformationSettings( gravitation::atmospheric_tide ), data_( stations ), settings_( settings )
+    {
+    }
+
+    //! Return the active grid representation; callers must select the matching input format.
     const input_output::AtmosphericTideGrid& getGrid( ) const
     {
-        return grid_;
+        return std::get< input_output::AtmosphericTideGrid >( data_ );
     }
+
+    //! Return the active station representation; callers must select the matching input format.
     const input_output::AtmosphericTideStationData& getStations( ) const
     {
-        return stations_;
+        return std::get< input_output::AtmosphericTideStationData >( data_ );
     }
-    const input_output::AtmosphericTideMetadata& getMetadata( ) const
-    {
-        return metadata_;
-    }
+
+    //! Return the requested scientific geometry, origin and endpoint policies.
     const basic_astrodynamics::AtmosphericTideEvaluationSettings& getEvaluationSettings( ) const
     {
         return settings_;
     }
-    const std::string& getFile( ) const
-    {
-        return file_;
-    }
+
+    //! Return whether these settings contain grid or station-specific coefficients.
     AtmosphericTideInputFormat getInputFormat( ) const
     {
-        return format_;
-    }
-    bool hasPreloadedData( ) const
-    {
-        return preloaded_;
+        return std::holds_alternative< input_output::AtmosphericTideGrid >( data_ )
+                ? AtmosphericTideInputFormat::grid
+                : AtmosphericTideInputFormat::stationCoefficients;
     }
 
 private:
-    input_output::AtmosphericTideGrid grid_;
-    input_output::AtmosphericTideStationData stations_;
-    std::string file_;
-    input_output::AtmosphericTideMetadata metadata_;
+    //! One provider data object, including its own metadata and file provenance.
+    std::variant< input_output::AtmosphericTideGrid, input_output::AtmosphericTideStationData > data_;
+
+    //! Policies resolved against the active provider data during environment creation.
     basic_astrodynamics::AtmosphericTideEvaluationSettings settings_;
-    AtmosphericTideInputFormat format_;
-    bool preloaded_;
 };
+
+//! Construct settings from a copied atmospheric grid.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromGrid(
         const input_output::AtmosphericTideGrid& grid,
         const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
 {
     return std::make_shared< AtmosphericTideBodyDeformationSettings >( grid, settings );
 }
+
+//! Construct settings from copied atmospheric station coefficients.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromStations(
         const input_output::AtmosphericTideStationData& stations,
         const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
 {
     return std::make_shared< AtmosphericTideBodyDeformationSettings >( stations, settings );
 }
+
+//! Read and validate the grid now; subsequent model creation performs no atmospheric file access.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromGridFile(
         const std::string& path,
         const input_output::AtmosphericTideMetadata& metadata = {},
         const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
 {
-    return std::make_shared< AtmosphericTideBodyDeformationSettings >( path, AtmosphericTideInputFormat::grid, metadata, settings );
+    return atmosphericTideBodyShapeDeformationFromGrid( input_output::readAtmosphericTideGrid( path, metadata ), settings );
 }
+
+//! Read and validate station coefficients now; subsequent model creation uses the same preloaded settings.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromStationFile(
         const std::string& path,
         const input_output::AtmosphericTideMetadata& metadata = {},
         const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
 {
-    return std::make_shared< AtmosphericTideBodyDeformationSettings >(
-            path, AtmosphericTideInputFormat::stationCoefficients, metadata, settings );
+    return atmosphericTideBodyShapeDeformationFromStations( input_output::readAtmosphericTideStationData( path, metadata ), settings );
 }
 
 class OceanPoleTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
+    //! Copy the provider grid, preserving its declared reference origin.
     OceanPoleTideBodyDeformationSettings( const input_output::OceanPoleTideGrid& grid,
                                           const basic_astrodynamics::OceanPoleTideLatitudePolicy policy ):
-        BodyDeformationSettings( gravitation::ocean_pole_tide ), grid_( grid ), policy_( policy ), preloaded_( true )
-    {}
-    OceanPoleTideBodyDeformationSettings( const std::string& gridFile, const basic_astrodynamics::OceanPoleTideLatitudePolicy policy ):
-        BodyDeformationSettings( gravitation::ocean_pole_tide ), gridFile_( gridFile ), policy_( policy ), preloaded_( false )
-    {}
+        BodyDeformationSettings( gravitation::ocean_pole_tide ), grid_( grid ), policy_( policy )
+    {
+    }
+
+    //! Return the single preloaded provider grid.
     const input_output::OceanPoleTideGrid& getGrid( ) const
     {
         return grid_;
     }
-    const std::string& getGridFile( ) const
-    {
-        return gridFile_;
-    }
+
+    //! Return the requested treatment of latitudes outside provider coverage.
     basic_astrodynamics::OceanPoleTideLatitudePolicy getLatitudePolicy( ) const
     {
         return policy_;
     }
-    bool hasPreloadedGrid( ) const
-    {
-        return preloaded_;
-    }
 
 private:
+    //! Provider coefficients, coverage and provenance.
     input_output::OceanPoleTideGrid grid_;
-    std::string gridFile_;
+
+    //! Strict coverage or explicitly requested latitude clamping.
     basic_astrodynamics::OceanPoleTideLatitudePolicy policy_;
-    bool preloaded_;
 };
 
+//! Read the grid at settings creation, retaining the existing filename convenience interface.
 inline std::shared_ptr< OceanPoleTideBodyDeformationSettings > oceanPoleTideBodyShapeDeformation(
         const std::string& gridFile,
         const basic_astrodynamics::OceanPoleTideLatitudePolicy policy =
                 basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage )
 {
-    return std::make_shared< OceanPoleTideBodyDeformationSettings >( gridFile, policy );
+    return std::make_shared< OceanPoleTideBodyDeformationSettings >( input_output::readOceanPoleTideGrid( gridFile ), policy );
 }
+
+//! Construct the same ocean pole-tide settings from preloaded grid data.
 inline std::shared_ptr< OceanPoleTideBodyDeformationSettings > oceanPoleTideBodyShapeDeformationFromData(
         const input_output::OceanPoleTideGrid& grid,
         const basic_astrodynamics::OceanPoleTideLatitudePolicy policy =
@@ -259,41 +260,37 @@ inline std::shared_ptr< OceanPoleTideBodyDeformationSettings > oceanPoleTideBody
 class OceanTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
+    //! Read and combine BLQ inputs now, retaining provenance and rejecting duplicate station identifiers.
     OceanTideBodyDeformationSettings(
             const std::vector< std::string > blqFiles,
-            const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp ):
-        BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles ), synthesis_( synthesis )
-    {}
+            const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp );
 
+    //! Copy BLQ amplitudes in metres and phase lags in degrees; empty data permits later model append.
     OceanTideBodyDeformationSettings(
             const input_output::OceanLoadingData& data,
             const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp ):
-        BodyDeformationSettings( gravitation::ocean_tide ), preloadedData_( data ), usePreloadedData_( true ), synthesis_( synthesis )
+        BodyDeformationSettings( gravitation::ocean_tide ), data_( data ), synthesis_( synthesis )
     {
-        input_output::validateOceanLoadingData( preloadedData_ );
+        input_output::validateOceanLoadingData( data_, true );
     }
 
-    std::vector< std::string > getBlqFiles( )
-    {
-        return blqFiles_;
-    }
+    //! Return BLQ station coefficients and their provider provenance.
     const input_output::OceanLoadingData& getOceanLoadingData( ) const
     {
-        return preloadedData_;
+        return data_;
     }
-    bool usesPreloadedData( ) const
-    {
-        return usePreloadedData_;
-    }
+
+    //! Return the selected conventional or explicit legacy synthesis method.
     basic_astrodynamics::OceanTideSynthesis getSynthesis( ) const
     {
         return synthesis_;
     }
 
 protected:
-    std::vector< std::string > blqFiles_;
-    input_output::OceanLoadingData preloadedData_;
-    bool usePreloadedData_ = false;
+    //! BLQ coefficients, including provider headers and per-station source provenance.
+    input_output::OceanLoadingData data_;
+
+    //! Synthesis convention applied when the environment constructs the model.
     basic_astrodynamics::OceanTideSynthesis synthesis_;
 };
 
@@ -321,6 +318,7 @@ inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformat
     return std::make_shared< BodyDeformationSettings >( gravitation::iers_2010 );
 }
 
+//! Read one or more BLQ files at settings creation; later model creation uses only normalized station data.
 inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation(
         const std::vector< std::string > blqFiles,
         const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp )
@@ -328,6 +326,7 @@ inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation(
     return std::make_shared< OceanTideBodyDeformationSettings >( blqFiles, synthesis );
 }
 
+//! Construct ocean-loading settings from preloaded BLQ coefficients and source metadata.
 inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformationFromData(
         const input_output::OceanLoadingData& data,
         const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp )

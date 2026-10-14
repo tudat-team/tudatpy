@@ -465,13 +465,23 @@ OceanTideEarthDeformation::OceanTideEarthDeformation(
     }
 }
 
+//! Construct from provider records, retaining the intentional empty state used for later station append.
 OceanTideEarthDeformation::OceanTideEarthDeformation(
         const input_output::OceanLoadingData& data,
         const OceanTideSynthesis synthesis,
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter ):
     OceanTideEarthDeformation( std::vector< std::string >( ), synthesis, converter )
 {
-    addOceanLoadingData( data );
+    // An intentional empty model supports later addBlqFile/addOceanLoadingData, like the filename constructor.
+    if( data.stations.empty( ) )
+    {
+        input_output::validateOceanLoadingData( data, true );
+        oceanLoadingData_ = data;
+    }
+    else
+    {
+        addOceanLoadingData( data );
+    }
 }
 
 OceanTideEarthDeformation::OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
@@ -486,11 +496,17 @@ OceanTideEarthDeformation::OceanTideEarthDeformation( const std::vector< std::st
     usesNativeUtcPhase_ = false;
 }
 
+//! Apply a supplied legacy argument clock after initializing the same preloaded/empty provider records.
 OceanTideEarthDeformation::OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
                                                       const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction ):
-    OceanTideEarthDeformation( std::vector< std::string >( ), doodsonArgumentFunction )
+    OceanTideEarthDeformation( data, OceanTideSynthesis::legacyElevenConstituents )
 {
-    addOceanLoadingData( data );
+    if( !doodsonArgumentFunction )
+    {
+        throw std::runtime_error( "Ocean loading legacy argument callback is empty" );
+    }
+    doodsonArgumentFunction_ = doodsonArgumentFunction;
+    usesNativeUtcPhase_ = false;
 }
 
 void OceanTideEarthDeformation::initializeLegacyConstituents( )
@@ -511,22 +527,13 @@ void OceanTideEarthDeformation::addBlqFile( const std::string& blqFile )
     addOceanLoadingData( input_output::readOceanLoadingData( blqFile ) );
 }
 
+//! Append provider records and prepare metre amplitudes and radian phases for the model's station lookup.
 void OceanTideEarthDeformation::addOceanLoadingData( const input_output::OceanLoadingData& data )
 {
-    input_output::validateOceanLoadingData( data );
+    // Settings construction and later model append operations share the neutral provenance/duplicate checks.
+    input_output::appendOceanLoadingData( oceanLoadingData_, data );
     for( const auto& item : data.stations )
     {
-        if( oceanLoadingData_.stations.count( item.first ) != 0 )
-        {
-            throw std::runtime_error( "Duplicate ocean loading station: " + item.first );
-        }
-    }
-    oceanLoadingData_.source = oceanLoadingData_.source.empty( ) ? data.source : "multiple BLQ inputs";
-    oceanLoadingData_.sourceHeaders.insert(
-            oceanLoadingData_.sourceHeaders.end( ), data.sourceHeaders.begin( ), data.sourceHeaders.end( ) );
-    for( const auto& item : data.stations )
-    {
-        oceanLoadingData_.stations.emplace( item.first, item.second );
         siteOceanTideAmplitudes_.emplace( item.first, item.second.amplitudesMetres );
         siteOceanTidePhases_.emplace( item.first, unit_conversions::convertDegreesToRadians( item.second.phaseLagsDegrees ) );
     }

@@ -48,7 +48,7 @@ void expose_ocean_loading( pybind11::module& module )
                   &io::OceanLoadingData::getStation,
                   py::arg( "station_identifier" ),
                   py::return_value_policy::reference_internal )
-            .def( "validate", &io::validateOceanLoadingData );
+            .def( "validate", []( const io::OceanLoadingData& data ) { io::validateOceanLoadingData( data ); } );
     module.def( "read_ocean_loading_data",
                 py::overload_cast< const std::string& >( &io::readOceanLoadingData ),
                 py::arg( "file_path" ),

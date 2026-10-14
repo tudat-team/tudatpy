@@ -47,8 +47,13 @@ struct OceanLoadingData {
 //! Canonical BLQ column ordering; aliases MF, MM and SSA in headers are case insensitive.
 const std::array< std::string, 11 >& getOceanLoadingConstituentNames( );
 
-//! Validate preloaded coefficients, including finite values, nonnegative amplitudes and station identities.
-void validateOceanLoadingData( const OceanLoadingData& data );
+//! Validate header conventions, finite coefficients, nonnegative amplitudes and station identities.
+//! Constructors may explicitly allow an empty station set for later append; readers and append sources reject it.
+void validateOceanLoadingData( const OceanLoadingData& data, bool allowEmpty = false );
+
+//! Append validated station records and provider headers, rejecting duplicates before changing the destination.
+//! An empty destination is allowed; each appended source must contain valid station records.
+void appendOceanLoadingData( OceanLoadingData& destination, const OceanLoadingData& source );
 
 //! Read a BLQ stream, preserving header provenance and U/W/S metre/degree conventions.
 /*!

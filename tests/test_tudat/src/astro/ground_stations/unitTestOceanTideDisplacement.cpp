@@ -110,9 +110,15 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
     };
     OceanTideEarthDeformation fromFile( file, arguments );
     OceanTideEarthDeformation preloaded( data, arguments );
+    // Both empty construction routes support later append while preserving provider station provenance.
+    OceanTideEarthDeformation initiallyEmpty( input_output::OceanLoadingData{}, arguments );
+
+    initiallyEmpty.addOceanLoadingData( data );
     for( const double time : { 0.0, 1.0E8, 3.0E8 } )
     {
         BOOST_CHECK_SMALL( ( enuDisplacement( fromFile, time, "ONSALA" ) - enuDisplacement( preloaded, time, "ONSALA" ) ).norm( ),
+                           1.0E-14 );
+        BOOST_CHECK_SMALL( ( enuDisplacement( initiallyEmpty, time, "ONSALA" ) - enuDisplacement( preloaded, time, "ONSALA" ) ).norm( ),
                            1.0E-14 );
     }
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).getStation( "ONSALA" ).source, file );
@@ -261,6 +267,16 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingFactoriesConsumePreloadedData )
     const auto data = makeHardispReferenceData( );
     simulation_setup::SystemOfBodies bodies;
     bodies.createEmptyBody( "Earth" );
+    // Empty filename settings normalize to empty provider data, allowing station records to be appended later.
+    const auto emptySettings = simulation_setup::oceanTideBodyShapeDeformation( std::vector< std::string >{} );
+
+    const auto empty = std::dynamic_pointer_cast< OceanTideEarthDeformation >(
+            simulation_setup::createBodyDeformationModel( emptySettings, "Earth", bodies ) );
+
+    BOOST_REQUIRE( empty != nullptr );
+    BOOST_CHECK( empty->getOceanLoadingData( ).stations.empty( ) );
+    empty->addOceanLoadingData( data );
+    BOOST_CHECK_EQUAL( empty->getOceanLoadingData( ).stations.size( ), data.stations.size( ) );
     const auto fullSettings = simulation_setup::oceanTideBodyShapeDeformationFromData( data );
     const auto full = std::dynamic_pointer_cast< OceanTideEarthDeformation >(
             simulation_setup::createBodyDeformationModel( fullSettings, "Earth", bodies ) );
