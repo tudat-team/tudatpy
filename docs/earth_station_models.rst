@@ -78,7 +78,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 24 of 25 tasks done; task 29 remains active for Python runtime validation.
+Status: all 25 retained tasks done; the required full-PR review is active.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -108,7 +108,7 @@ validated and integrated.
    [x] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [DONE]
    [x] 23 Validate relativistic station position and velocity transformations.  [DONE — explicit IERS spatial approximation and full intrinsic-state composition]
    [x] 24 Improve instrument reference-point and calibrated geometry support.  [DONE]
-   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [ACTIVE — simplified API integrated; Python runtime checks remain]
+   [x] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [DONE — simplified API and actual Python runtime validation]
 
 Task numbers are stable identifiers rather than a rigid execution sequence.
 Tasks 25--28 and 30 were removed at Dominic's request: new estimation
@@ -126,11 +126,12 @@ Active work
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
 The coordinator handles architecture, literature analysis and integration.
-Compiler allocations are rotation/core four, Python binding validation two and
-SINEX cleanup two, for a global maximum of eight. The full kernel build passed;
-seven of nine Python checks passed and two exposed defects now being corrected.
-The gravity-code inventory is complete. Earlier workers are stopped and their
-work is preserved.
+Compiler allocations are rotation/core four, model/build cleanup two and SINEX
+cleanup two, for a global maximum of eight. The actual Python kernel build passed.
+Seven runtime checks passed initially; two exposed defects were fixed and both
+affected checks now pass. The full-PR review is active. The gravity-code inventory
+and primary-literature review are complete; compatibility/API design continues.
+Earlier workers are stopped and their work is preserved.
 
 * Task 04: the coverage audit confirms pinned independent sources and fixtures
   across the integrated models. The solid-pole reference now pins the original
@@ -214,11 +215,13 @@ work is preserved.
   explicitly copy validated records. The ownership regression and other
   Python-only binding/import checks found two defects: mixed Time/double
   piecewise-motion endpoint guards and an unregistered ocean-pole settings type.
-  Both are being fixed; the other seven runtime cases passed. Task 29 stays open
-  until the two affected checks pass.
+  The two explicit Time comparisons and derived settings registration are fixed.
+  Both affected cases pass against the rebuilt isolated kernel; the unchanged
+  seven passing cases were retained. Completion commit ``e847b10ce`` and the
+  precise piecewise-motion fix ``b4996e899`` are integrated. Task 29 is complete.
 
-Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
-kernel compilation is allowed only when needed for those Python-specific tests.
+The additional full-PR review remains open. Kernel compilation remains restricted
+to an actual need for Python-specific validation.
 
 The pinned :doc:`GROOPS source comparison <earth_station_models_groops_review>`
 records useful implementation and regression-test scenarios. Its former
@@ -250,7 +253,7 @@ Required review after the checklist
 
 .. code-block:: text
 
-   [ ] Review the complete station/rotation PR after all 25 tasks.  [QUEUED — mandatory; gravity analysis may proceed in parallel]
+   [ ] Review the complete station/rotation PR after all 25 tasks.  [ACTIVE — correctness fixes, reuse, API/test/build simplification]
 
 In addition to the normal correctness and numerical review, Dominic requires:
 
