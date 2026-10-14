@@ -301,59 +301,6 @@ BOOST_AUTO_TEST_CASE( matching_scoped_origin_translation_is_cartesian_and_applie
     shift->series.metadata.components = { StationLoadingComponent::ocean };
     invalid.originTranslation = shift;
     BOOST_CHECK_THROW( StationLoadingDeformation( source, invalid, converter ), std::invalid_argument );
-    options.allowDeclaredOverlap = true;
-    auto first = std::make_shared< StationLoadingDeformation >( source, options, converter );
-    auto second = std::make_shared< StationLoadingDeformation >( source, options, converter );
-    BOOST_CHECK_THROW( validateStationLoadingComposition( { first, second }, { true, true }, station( ) ), std::invalid_argument );
-}
-
-BOOST_AUTO_TEST_CASE( scientific_overlap_and_unknown_inventory_are_not_optional_coverage_failures )
-{
-    const auto converter = loadingClock( );
-    auto source = data( );
-    const auto options = settings( source );
-    auto first = std::make_shared< StationLoadingDeformation >( source, options, converter );
-    auto second = std::make_shared< StationLoadingDeformation >( source, options, converter );
-    std::vector< std::shared_ptr< BodyDeformationModel > > models{ first, second };
-    BodyDeformationStationMotionModel optional( [ & ]( ) -> auto& { return models; }, false );
-    BOOST_CHECK_THROW( optional.getBodyFixedStationPositionCorrection(
-                               static_cast< double >( tdb( converter, originTai + 25.0 ) ), station( ), "Earth" ),
-                       std::invalid_argument );
-    auto allowed = options;
-    allowed.allowDeclaredOverlap = true;
-    models[ 1 ] = std::make_shared< StationLoadingDeformation >( source, allowed, converter );
-    BOOST_CHECK_NO_THROW( validateStationLoadingComposition( models, { true, true }, station( ) ) );
-    source.metadata.annual = StationLoadingSignalPresence::unknown;
-    BOOST_CHECK_THROW( StationLoadingDeformation( source, options, converter ), std::invalid_argument );
-    allowed = options;
-    allowed.allowUnknownInventory = true;
-    BOOST_CHECK_NO_THROW( StationLoadingDeformation( source, allowed, converter ) );
-    struct FittedSeasonalMotion : StationMotionModel {
-        bool hasFittedSeasonalTerms( ) const override
-        {
-            return true;
-        }
-        Eigen::Vector6d getBodyFixedStationMotion( const Time&, std::shared_ptr< GroundStationState >, const std::string& ) override
-        {
-            return Eigen::Vector6d::Zero( );
-        }
-    };
-    auto seasonal = station( providerPoint,
-                             std::make_shared< CombinedStationMotionModel >( std::vector< std::shared_ptr< StationMotionModel > >{
-                                     std::make_shared< FittedSeasonalMotion >( ) } ) );
-    BOOST_CHECK_THROW( validateStationLoadingComposition( { first }, { true }, seasonal ), std::invalid_argument );
-    BOOST_CHECK_NO_THROW( validateStationLoadingComposition( { first }, { false }, seasonal ) );
-    AtmosphericTideStation coefficients;
-    coefficients.stationIdentifier = "ENVIRONMENT_STATION";
-    coefficients.metadata.referenceOrigin = AtmosphericLoadingReferenceOrigin::wholeEarthCentreOfMass;
-    coefficients.metadata.displacementBasis = AtmosphericTideDisplacementBasis::geocentricRadialNorthEast;
-    AtmosphericTideStationData tides;
-    tides.stations.emplace( coefficients.stationIdentifier, coefficients );
-    auto tidal = std::make_shared< AtmosphericTideDeformation >( tides, converter );
-    source = data( );
-    source.metadata.diurnal = StationLoadingSignalPresence::present;
-    first = std::make_shared< StationLoadingDeformation >( source, options, converter );
-    BOOST_CHECK_THROW( validateStationLoadingComposition( { first, tidal }, { true, true }, station( ) ), std::invalid_argument );
 }
 
 BOOST_AUTO_TEST_CASE( native_factory_and_full_station_state_preserve_the_loading_velocity_once )

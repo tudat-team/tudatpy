@@ -52,13 +52,6 @@ public:
     StationMotionModel( ) {}
 
     virtual ~StationMotionModel( ) {}
-    //! Whether the configured data contain fitted seasonal terms. A model class
-    //! can contain zero or many terms; combined models report their constituents.
-    virtual bool hasFittedSeasonalTerms( ) const
-    {
-        return false;
-    }
-
     //! Body-fixed position correction (metres) and velocity correction (m/s),
     //! evaluated at TDB seconds since J2000 without reducing Time precision.
     virtual Eigen::Vector6d getBodyFixedStationMotion( const Time& tdb,
@@ -258,11 +251,6 @@ public:
     std::string getSiteId( )
     {
         return siteId_;
-    }
-
-    bool hasFittedSeasonalTerms( ) const
-    {
-        return stationMotionModel_ && stationMotionModel_->hasFittedSeasonalTerms( );
     }
 
 protected:
@@ -474,12 +462,6 @@ protected:
 struct CombinedStationMotionModel : public StationMotionModel {
 public:
     CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList );
-    bool hasFittedSeasonalTerms( ) const override
-    {
-        for( const auto& model : modelList_ )
-            if( model->hasFittedSeasonalTerms( ) ) return true;
-        return false;
-    }
 
     Eigen::Vector6d getBodyFixedStationMotion( const Time& time,
                                                const std::shared_ptr< GroundStationState > groundStationState,

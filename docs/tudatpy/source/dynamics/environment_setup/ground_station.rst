@@ -184,8 +184,7 @@ release, signal inventory and original coefficients remain available through
 ``transformed.source_trajectory``; inherited solution/PSD/seasonal records also
 remain source-coordinate records. ``transformed.catalogue`` retains the pinned
 parameter source and hash, and ``acknowledged_release_alignment`` records the
-explicit release declaration. Empirical seasonal activity is propagated for
-subsequent loading-overlap decisions.
+explicit release declaration.
 
 Marker, antenna and calibrated instrument points
 -----------------------------------------------

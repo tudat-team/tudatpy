@@ -52,11 +52,6 @@ public:
         return trajectory_;
     }
 
-    bool hasFittedSeasonalTerms( ) const override
-    {
-        return trajectory_->hasFittedSeasonalTerms( );
-    }
-
 private:
     //! Source coordinates of the TDB epoch, from the custom callback or the IGN nominal UTC profile.
     StationHistoryTime sourceTime( const Time& time, bool rates ) const

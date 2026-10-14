@@ -193,15 +193,13 @@ implicitly. Reusing the same global translation identifier across selected
 contributions raises an error even when overlaps are explicitly permitted;
 separate component-scoped translations may each apply once.
 
-Unknown product/release/component or signal inventory requires explicit
-``allow_unknown_inventory`` or resolved source metadata. Axes and origins still
-must be declared. Assemblies reject repeated physical components, retained tidal
-bands combined with another tidal-loading model, and physical seasonal loading
-combined with fitted station seasonal terms. ``allow_declared_overlap`` records
-an explicit decision to combine these contributions. Scientific conflicts
-propagate independently of optional coverage: optional configuration may skip
-an unavailable central displacement, while unavailable derivatives of a selected
-displacement still raise.
+Axes and origins must be declared. The product/release/component and signal
+inventory in the source metadata describes the series; avoiding double-counted
+signals (repeated physical components, tidal bands also supplied by another
+tidal-loading model, or seasonal loading combined with seasonal terms fitted in
+the station coordinates) is the responsibility of the configuration. Optional
+configuration may skip an unavailable central displacement, while unavailable
+derivatives of a selected displacement still raise.
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.station_loading
 

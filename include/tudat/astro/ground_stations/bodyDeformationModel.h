@@ -83,10 +83,6 @@ private:
     double displacementDerivativeTimeStep_ = 1.0;
 };
 
-void validateStationLoadingComposition( const std::vector< std::shared_ptr< BodyDeformationModel > >& models,
-                                        const std::vector< bool >& selected,
-                                        const std::shared_ptr< ground_stations::GroundStationState >& station );
-
 }  // namespace basic_astrodynamics
 
 namespace ground_stations
@@ -122,7 +118,6 @@ private:
         if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
         if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
         const auto& models = modelList_( );
-        std::vector< bool > selected( models.size( ), false );
         for( std::size_t i = 0; i < models.size( ); ++i )
         {
             const auto& model = models[ i ];
@@ -146,9 +141,7 @@ private:
                 result += model->calculateDisplacementState( tdb, station );
             else
                 result += displacement;
-            selected[ i ] = true;
         }
-        basic_astrodynamics::validateStationLoadingComposition( models, selected, station );
         return result;
     }
 

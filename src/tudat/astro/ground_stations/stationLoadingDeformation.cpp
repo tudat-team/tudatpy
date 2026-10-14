@@ -18,10 +18,6 @@ Eigen::Vector3d vector( const std::array< double, 3 >& values )
 {
     return { values[ 0 ], values[ 1 ], values[ 2 ] };
 }
-bool hasComponent( const StationLoadingMetadata& metadata, const StationLoadingComponent component )
-{
-    return std::find( metadata.components.begin( ), metadata.components.end( ), component ) != metadata.components.end( );
-}
 bool sameScope( const StationLoadingMetadata& first, const StationLoadingMetadata& second )
 {
     if( first.components.empty( ) ) return false;
@@ -60,20 +56,6 @@ StationLoadingDeformation::StationLoadingDeformation( const input_output::Statio
         settings_.outputOriginDefinition.empty( ) )
         throw std::invalid_argument(
                 "Loading basis, Cartesian reference frame, source origin and requested output origin must be explicit" );
-    if( !settings_.allowUnknownInventory )
-    {
-        if( data_.metadata.components.empty( ) || data_.metadata.product.empty( ) || data_.metadata.release.empty( ) )
-            throw std::invalid_argument(
-                    "Loading source product/release/component inventory is unknown; resolve it or explicitly accept unknown inventory" );
-        for( const auto signal : { data_.metadata.diurnal,
-                                   data_.metadata.semidiurnal,
-                                   data_.metadata.annual,
-                                   data_.metadata.semiannual,
-                                   data_.metadata.mean,
-                                   data_.metadata.trend } )
-            if( signal == StationLoadingSignalPresence::unknown )
-                throw std::invalid_argument( "Unknown loading signal inventory requires an explicit decision" );
-    }
     grid_ = prepareGrid( data_ );
     for( const auto& entry : data_.sites )
     {
@@ -311,54 +293,5 @@ Eigen::Vector6d StationLoadingDeformation::evaluateDisplacementState( const Time
     return evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), true );
 }
 
-void validateStationLoadingComposition( const std::vector< std::shared_ptr< BodyDeformationModel > >& models,
-                                        const std::vector< bool >& selected,
-                                        const std::shared_ptr< ground_stations::GroundStationState >& station )
-{
-    using namespace input_output;
-    if( models.size( ) != selected.size( ) ) throw std::invalid_argument( "Loading composition selection count mismatch" );
-    std::set< std::string > translations;
-    for( std::size_t i = 0; i < models.size( ); ++i )
-    {
-        const auto loading = std::dynamic_pointer_cast< StationLoadingDeformation >( models[ i ] );
-        if( !selected[ i ] || !loading ) continue;
-        const auto& metadata = loading->getData( ).metadata;
-        const auto& settings = loading->getEvaluationSettings( );
-        if( settings.originTranslation && !translations.insert( settings.originTranslation->identifier ).second )
-            throw std::invalid_argument( "The same global loading origin translation would be applied more than once" );
-        for( std::size_t j = i + 1; j < models.size( ); ++j )
-            if( selected[ j ] )
-                if( const auto other = std::dynamic_pointer_cast< StationLoadingDeformation >( models[ j ] ) )
-                    if( settings.outputOriginDefinition != other->getEvaluationSettings( ).outputOriginDefinition ||
-                        metadata.referenceFrame != other->getData( ).metadata.referenceFrame )
-                        throw std::invalid_argument(
-                                "Selected loading contributions do not share explicit Cartesian axes and output origin definitions" );
-        if( settings.allowDeclaredOverlap ) continue;
-        if( station && station->hasFittedSeasonalTerms( ) &&
-            ( metadata.annual != StationLoadingSignalPresence::absent || metadata.semiannual != StationLoadingSignalPresence::absent ) )
-            throw std::invalid_argument(
-                    "Physical seasonal loading and fitted station seasonal terms require an explicit overlap decision" );
-        for( std::size_t j = 0; j < models.size( ); ++j )
-        {
-            if( i == j || !selected[ j ] ) continue;
-            if( const auto other = std::dynamic_pointer_cast< StationLoadingDeformation >( models[ j ] ) )
-            {
-                for( const auto component : metadata.components )
-                    if( hasComponent( other->getData( ).metadata, component ) && !other->getEvaluationSettings( ).allowDeclaredOverlap )
-                        throw std::invalid_argument( "Selected loading series declare the same physical component twice" );
-            }
-            const bool atmospheric = hasComponent( metadata, StationLoadingComponent::atmosphere ) &&
-                    std::dynamic_pointer_cast< AtmosphericTideDeformation >( models[ j ] ) != nullptr;
-            const bool ocean = hasComponent( metadata, StationLoadingComponent::ocean ) &&
-                    std::dynamic_pointer_cast< OceanTideEarthDeformation >( models[ j ] ) != nullptr;
-            const bool retainedTides = metadata.diurnal == StationLoadingSignalPresence::present ||
-                    metadata.semidiurnal == StationLoadingSignalPresence::present;
-            const bool unknownTides = metadata.diurnal == StationLoadingSignalPresence::unknown ||
-                    metadata.semidiurnal == StationLoadingSignalPresence::unknown;
-            if( ( atmospheric || ocean ) && ( retainedTides || ( unknownTides && !settings.allowUnknownInventory ) ) )
-                throw std::invalid_argument( "Loading series retains tidal bands already supplied by another selected loading model" );
-        }
-    }
-}
 }  // namespace basic_astrodynamics
 }  // namespace tudat

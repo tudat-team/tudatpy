@@ -79,8 +79,6 @@ void expose_shape_deformation_setup( py::module& m )
             .def_readwrite( "spatial_selection", &ba::StationLoadingEvaluationSettings::spatialSelection )
             .def_readwrite( "station_bindings", &ba::StationLoadingEvaluationSettings::stationBindings )
             .def_readwrite( "maximum_gap_seconds", &ba::StationLoadingEvaluationSettings::maximumGapSeconds )
-            .def_readwrite( "allow_unknown_inventory", &ba::StationLoadingEvaluationSettings::allowUnknownInventory )
-            .def_readwrite( "allow_declared_overlap", &ba::StationLoadingEvaluationSettings::allowDeclaredOverlap )
             .def_readwrite( "output_origin_definition", &ba::StationLoadingEvaluationSettings::outputOriginDefinition )
             .def_readwrite( "origin_translation", &ba::StationLoadingEvaluationSettings::originTranslation );
     py::class_< tss::StationLoadingBodyDeformationSettings,
@@ -94,7 +92,9 @@ void expose_shape_deformation_setup( py::module& m )
            "Cartesian axes and origin definitions are required. Linear interpolation uses continuous TAI; native rates differentiate that "
            "interpolant and chain to environment TDB. Exact-knot rates use the right interval and the final endpoint uses the left. "
            "No extrapolation or silent gap bridging occurs; valid singleton positions remain usable with unavailable rates. "
-           "Overlap and unknown inventory require explicit decisions; matching scoped origin translations are added once." );
+           "Matching scoped origin translations are added once. Avoiding double-counted signals (for example tidal bands "
+           "also modelled by another loading model, or seasonal terms already fitted in the station coordinates) is the "
+           "responsibility of the configuration." );
     py::enum_< ba::AtmosphericTideEndpointPolicy >( m, "AtmosphericTideEndpointPolicy" )
             .value( "require_consistency", ba::AtmosphericTideEndpointPolicy::requireConsistency )
             .value( "average_seam_and_polar_cartesian_approximation",

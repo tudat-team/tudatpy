@@ -25,8 +25,6 @@ struct StationLoadingEvaluationSettings {
     std::map< std::string, std::string > stationBindings;
     //! Linear interpolation only; a gap larger than this is unavailable, even if present in an irregular source grid.
     double maximumGapSeconds = 86400.0;
-    bool allowUnknownInventory = false;
-    bool allowDeclaredOverlap = false;
     std::string outputOriginDefinition;
     std::shared_ptr< const StationLoadingOriginTranslation > originTranslation;
 };
@@ -78,10 +76,6 @@ private:
     std::map< std::string, Eigen::Matrix3d > sourceBases_;
 };
 
-//! Validate only centrally selected contributions. Optional coverage cannot suppress overlap errors.
-void validateStationLoadingComposition( const std::vector< std::shared_ptr< BodyDeformationModel > >& models,
-                                        const std::vector< bool >& selected,
-                                        const std::shared_ptr< ground_stations::GroundStationState >& station );
 }  // namespace basic_astrodynamics
 }  // namespace tudat
 #endif
