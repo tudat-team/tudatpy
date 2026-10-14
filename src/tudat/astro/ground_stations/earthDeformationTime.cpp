@@ -6,11 +6,49 @@
 #include <stdexcept>
 
 #include "tudat/interface/sofa/sofaTimeConversions.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {
 namespace basic_astrodynamics
 {
+
+const std::shared_ptr< EarthDeformationEpoch::Converter >& EarthDeformationEpoch::clock( ) const
+{
+    if( converter_ ) return converter_;
+    // No default forcing tables, daily EOP, UTC or observer-position terms.
+    static const auto geocentric = std::make_shared< Converter >( nullptr, nullptr );
+    return geocentric;
+}
+
+const Time& EarthDeformationEpoch::getTai( ) const
+{
+    if( !tai_ ) tai_ = originalDouble_ ? clock( )->getTaiTime( tdb_scale, getTdbSeconds( ) ) : clock( )->getTaiTime( tdb_scale, tdb_ );
+    return *tai_;
+}
+
+const Time& EarthDeformationEpoch::getTt( ) const
+{
+    if( !tt_ ) tt_ = convertTAItoTT( getTai( ) );
+    return *tt_;
+}
+
+Time EarthDeformationEpoch::getUt1( ) const
+{
+    if( !converter_ ) throw std::runtime_error( "Earth-deformation UT1 requires the requesting model's time converter" );
+    return converter_->getCurrentTime< Time >( tai_scale, ut1_scale, getTai( ) );
+}
+
+Time EarthDeformationEpoch::getUt1( const std::shared_ptr< Converter >& converter ) const
+{
+    if( !converter ) throw std::runtime_error( "Earth-deformation UT1 converter is missing" );
+    return withTimeConverter( converter ).getUt1( );
+}
+
+double EarthDeformationEpoch::getTtRateWithRespectToTdb( ) const
+{
+    return clock( )->getGeocentricTtRateWithRespectToTdb( tdb_ );
+}
 
 void validateEarthDeformationUtcInterval( const double lowerTt, const double upperTt )
 {

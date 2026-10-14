@@ -18,9 +18,32 @@ for the high-accuracy modelling of the positions of ground stations on a body. S
 of a station (such as plate motion) are set in the ground stations themselves (see :ref:`ground_station`).
 
 
-Ocean tidal loading evaluates TT seconds since J2000 and uses corresponding UTC phases.
-Standalone calls require TT. The existing environment currently passes its TDB time as TT,
-retaining the millisecond TDB-TT approximation until explicit time-scale routing is implemented.
+Station motion receives TDB seconds since J2000. Native Earth deformation models
+route that physical epoch explicitly: solid-tide astronomical arguments and
+HARDISP loading use TT and the corresponding UTC phase, ephemerides use TDB,
+and pole tides use the model's precise TT/EOP path. A GCRS/ITRS rotation uses
+its own converter and declared input scale. Generic models and explicitly
+supplied custom argument callbacks retain their original scalar forwarding.
+
+Standalone scalar ocean-loading and pole-tide calls require TT. The legacy
+scalar IERS solid-tide interface retains its shared epoch argument for
+TT tide arguments and TDB ephemeris callbacks; use the native C++ epoch-context
+interface to distinguish these clocks. Native environment velocities are
+with respect to TDB: TT-only models apply the shared geocentric dTT/dTDB factor,
+and mixed solid tides differentiate the complete routed displacement.
+A configured TT/TDB interpolator without a supported clock derivative permits
+positions but rejects native states/rates. Current scalar UTC tide phases reject
+ambiguous inserted-second positions and derivative intervals crossing an offset
+step; continuous UT1 pole-tide positions remain available through a leap second.
+
+The solid-tide displacement is equivalent to DEHANTTIDEINEL Steps 1 and 2 and
+includes the time-independent degree-2 displacement. Nominal coordinates must
+therefore be conventional tide-free coordinates. No Step 3 permanent-tide
+"uncorrection" is applied. A mean-tide catalogue cannot receive this full
+addition unchanged. This is the displacement convention in
+`IERS Conventions 2010, Chapter 7, section 7.1.1.2
+<https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf>`_; it does not set a
+gravity-field tide system.
 
 Functions
 ---------
@@ -65,8 +88,8 @@ the supplied extent; ``clamp_to_nearest_grid_latitude_approximation`` explicitly
 uses the nearest covered latitude. No polar-cap interpolation is specified by
 the IERS coefficient grid. Longitude is periodic for a complete grid. Cartesian
 displacement uses the geocentric spherical basis; public station ENU uses its
-actual topocentric frame. Standalone epochs are TT; the existing environment
-currently approximates its TDB time argument as TT.
+actual topocentric frame. Standalone epochs are TT; station environment calls convert their TDB epoch
+through the rotation model's own clock and preserve precise EOP coverage.
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_pole_tidal
 

@@ -580,6 +580,41 @@ Eigen::Vector3d OceanTideEarthDeformation::calculateGeocentricEnuDisplacement( c
     return ( Eigen::Vector3d( ) << -displacement( 1 ), -displacement( 2 ), displacement( 0 ) ).finished( );
 }
 
+Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+{
+    return calculateDisplacement( usesNativeUtcPhase_ ? static_cast< double >( epoch.getTt( ) ) : epoch.getTdbSeconds( ), position );
+}
+Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch,
+                                                                  const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    return calculateDisplacement( usesNativeUtcPhase_ ? static_cast< double >( epoch.getTt( ) ) : epoch.getTdbSeconds( ), station );
+}
+Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
+                                                                          const Eigen::Vector3d& position )
+{
+    return usesNativeUtcPhase_ ? calculateTerrestrialDisplacementVelocity( epoch, position )
+                               : BodyDeformationModel::calculateDisplacementVelocity( epoch, position );
+}
+Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementVelocity(
+        const EarthDeformationEpoch& epoch,
+        const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    return usesNativeUtcPhase_ ? calculateTerrestrialDisplacementVelocity( epoch, station )
+                               : BodyDeformationModel::calculateDisplacementVelocity( epoch, station );
+}
+Eigen::Vector6d OceanTideEarthDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+{
+    return usesNativeUtcPhase_ ? calculateNativeDisplacementState( epoch, position )
+                               : BodyDeformationModel::calculateDisplacementState( epoch, position );
+}
+Eigen::Vector6d OceanTideEarthDeformation::calculateDisplacementState(
+        const EarthDeformationEpoch& epoch,
+        const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    return usesNativeUtcPhase_ ? calculateNativeDisplacementState( epoch, station )
+                               : BodyDeformationModel::calculateDisplacementState( epoch, station );
+}
+
 void OceanTideEarthDeformation::validateDisplacementDerivativeInterval( const double, const double lower, const double upper ) const
 {
     if( usesNativeUtcPhase_ )

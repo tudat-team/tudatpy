@@ -9,6 +9,7 @@
  */
 
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
@@ -204,9 +205,14 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 {
                     throw std::runtime_error( "Error when making body deformation station motion model, settings type is incompatible" );
                 }
+                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter;
+                if( const auto earthRotation =
+                            std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( body->getRotationalEphemeris( ) ) )
+                    timeConverter = earthRotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
                 currentStationMotionModel = std::make_shared< ground_stations::BodyDeformationStationMotionModel >(
                         std::bind( &Body::getBodyDeformationModelsReference, body ),
-                        bodyDeformationModelSettings->throwExceptionWhenNotAvailable_ );
+                        bodyDeformationModelSettings->throwExceptionWhenNotAvailable_,
+                        timeConverter );
                 break;
             }
             case linear_station_motion: {

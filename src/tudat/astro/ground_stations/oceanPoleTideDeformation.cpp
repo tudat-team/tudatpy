@@ -111,10 +111,12 @@ input_output::OceanPoleTideCoefficients interpolateOceanPoleTideCoefficients( co
     return interpolateValidatedOceanPoleTideCoefficients( grid, latitudeDegrees, longitudeDegrees, latitudePolicy );
 }
 
-OceanPoleTideDeformation::OceanPoleTideDeformation( const input_output::OceanPoleTideGrid& grid,
-                                                    const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
-                                                    const OceanPoleTideLatitudePolicy latitudePolicy ):
-    grid_( grid ), polarMotionCalculator_( polarMotionCalculator ), latitudePolicy_( latitudePolicy )
+OceanPoleTideDeformation::OceanPoleTideDeformation(
+        const input_output::OceanPoleTideGrid& grid,
+        const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
+        const OceanPoleTideLatitudePolicy latitudePolicy,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock ):
+    contextClock_( contextClock ), grid_( grid ), polarMotionCalculator_( polarMotionCalculator ), latitudePolicy_( latitudePolicy )
 {
     input_output::validateOceanPoleTideGrid( grid_ );
     validatePolicy( latitudePolicy_ );
@@ -124,15 +126,26 @@ OceanPoleTideDeformation::OceanPoleTideDeformation( const input_output::OceanPol
     }
 }
 
-OceanPoleTideDeformation::OceanPoleTideDeformation( const std::string& gridFile,
-                                                    const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
-                                                    const OceanPoleTideLatitudePolicy latitudePolicy ):
-    OceanPoleTideDeformation( input_output::readOceanPoleTideGrid( gridFile ), polarMotionCalculator, latitudePolicy )
+OceanPoleTideDeformation::OceanPoleTideDeformation(
+        const std::string& gridFile,
+        const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
+        const OceanPoleTideLatitudePolicy latitudePolicy,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock ):
+    OceanPoleTideDeformation( input_output::readOceanPoleTideGrid( gridFile ), polarMotionCalculator, latitudePolicy, contextClock )
 {}
 
 Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacement( const double time,
                                                                  const std::shared_ptr< ground_stations::GroundStationState > stationState )
 {
+    return calculateDisplacementAtTt( Time( time ), true, stationState );
+}
+
+Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementAtTt(
+        const Time& tt,
+        const bool originalDouble,
+        const std::shared_ptr< ground_stations::GroundStationState > stationState )
+{
+    const double time = static_cast< double >( tt );
     if( !std::isfinite( time ) || !stationState )
     {
         throw std::runtime_error( "Invalid ocean pole-tide epoch or station" );
@@ -142,7 +155,8 @@ Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacement( const double ti
                                                                              stationState->getNominalLatitude( ) / radiansPerDegree,
                                                                              stationState->getNominalLongitude( ) / radiansPerDegree,
                                                                              latitudePolicy_ );
-    const Eigen::Vector2d pole = polarMotionCalculator_->getPositionOfCipInItrsAtTt( time );
+    const Eigen::Vector2d pole = originalDouble ? polarMotionCalculator_->getPositionOfCipInItrsAtTt( time )
+                                                : polarMotionCalculator_->getPositionOfCipInItrsAtTt( tt );
     const Eigen::Vector2d secularPole = earth_orientation::getSecularPolePositionInMas( time ) * ( radiansPerDegree / 3600000.0 );
     const Eigen::Vector2d wobble( pole.x( ) - secularPole.x( ), -( pole.y( ) - secularPole.y( ) ) );
     const Eigen::Vector3d radialNorthEast = calculateOceanPoleTideLoading( coefficients, wobble );
@@ -159,6 +173,38 @@ Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacement( const double ti
     return calculateDisplacement(
             time,
             std::make_shared< ground_stations::GroundStationState >( bodyFixedPosition, coordinate_conversions::cartesian_position ) );
+}
+
+Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+{
+    return calculateDisplacement(
+            epoch, std::make_shared< ground_stations::GroundStationState >( position, coordinate_conversions::cartesian_position ) );
+}
+Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch,
+                                                                 const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    const auto native = contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch;
+    return calculateDisplacementAtTt( native.getTt( ), false, station );
+}
+Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
+                                                                         const Eigen::Vector3d& position )
+{
+    return calculateTerrestrialDisplacementVelocity( contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch, position );
+}
+Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementVelocity(
+        const EarthDeformationEpoch& epoch,
+        const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    return calculateTerrestrialDisplacementVelocity( contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch, station );
+}
+Eigen::Vector6d OceanPoleTideDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+{
+    return calculateNativeDisplacementState( epoch, position );
+}
+Eigen::Vector6d OceanPoleTideDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch,
+                                                                      const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    return calculateNativeDisplacementState( epoch, station );
 }
 
 Eigen::Vector3d OceanPoleTideDeformation::calculateEnuDisplacement(

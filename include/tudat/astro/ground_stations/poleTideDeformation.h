@@ -21,13 +21,25 @@ namespace basic_astrodynamics
 class PoleTideDeformation : public BodyDeformationModel
 {
 public:
+    using BodyDeformationModel::calculateDisplacementState;
+    using BodyDeformationModel::calculateDisplacementVelocity;
+    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch,
+                                           const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
+                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch,
+                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
     //! Constructor creating pole tide deformation object from polar motion model.
     /*!
      *  Constructor creating pole tide deformation object from polar motion model.
      *  \param polarMotionCalculator Object capable of calculating pole position in ITRS at a given time instant.
      */
-    PoleTideDeformation( const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator ):
-        polarMotionCalculator_( polarMotionCalculator )
+    PoleTideDeformation( const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
+                         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock = nullptr ):
+        polarMotionCalculator_( polarMotionCalculator ), contextClock_( contextClock )
     {}
 
     ~PoleTideDeformation( ) {}
@@ -70,6 +82,7 @@ private:
      *  Pointer to object to calculate the polar motion at a given time.
      */
     std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator_;
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock_;
 };
 
 }  // namespace basic_astrodynamics

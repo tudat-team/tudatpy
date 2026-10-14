@@ -51,6 +51,17 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
 class OceanTideEarthDeformation : public BodyDeformationModel
 {
 public:
+    using BodyDeformationModel::calculateDisplacementState;
+    using BodyDeformationModel::calculateDisplacementVelocity;
+    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch,
+                                           const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
+                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch,
+                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
     //! Filename adapters; all BLQ input occurs during construction or addBlqFile.
     OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
                                const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp );
@@ -107,8 +118,7 @@ public:
      * identical to that provided in the BLQ file. If doodson arguments are available, it is recommended to use the second,
      * overloaded version of this function for performance reasons.
      * \param time TT seconds since J2000. HARDISP uses the corresponding UTC time of day.
-     * Standalone calls require TT. The existing environment passes its TDB time as TT,
-     * retaining the millisecond TDB-TT approximation until explicit time-scale routing is implemented.
+     * Standalone scalar calls require TT. Environment context calls convert TDB to TT explicitly.
      * The Cartesian result uses the geocentric spherical basis, independently of the station shape.
      * \return Displacement of requested site, at requested time.
      */

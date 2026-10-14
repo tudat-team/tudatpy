@@ -316,7 +316,9 @@ Iers2010EarthDeformation::Iers2010EarthDeformation(
         const std::vector< double >& correctionLoveAndShidaNumbers,
         const std::string& diurnalFile,
         const std::string& longPeriodFile,
-        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction ):
+        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction,
+        const std::function< Eigen::Quaterniond( const EarthDeformationEpoch& ) > contextRotation,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock ):
     BasicTidalBodyDeformation( deformedBodyEphemeris,
                                deformingBodyEphemerides,
                                deformedBodyRotation,
@@ -327,7 +329,7 @@ Iers2010EarthDeformation::Iers2010EarthDeformation(
     firstStepLatitudeDependenceTerms_( firstStepLatitudeDependenceTerms ),
     areFirstStepCorrectionsCalculated_( areFirstStepCorrectionsCalculated ),
     correctionLoveAndShidaNumbers_( correctionLoveAndShidaNumbers ), doodsonArgumentFunction_( doodsonArgumentFunction ),
-    usesNativeUtcPhase_( !doodsonArgumentFunction )
+    contextRotation_( contextRotation ), contextClock_( contextClock ), usesNativeUtcPhase_( !doodsonArgumentFunction )
 {
     if( usesNativeUtcPhase_ )
     {
@@ -395,6 +397,78 @@ Iers2010EarthDeformation::Iers2010EarthDeformation(
     }
 }
 
+void Iers2010EarthDeformation::updateBodyProperties( const EarthDeformationEpoch& epoch )
+{
+    // Explicit mixed-clock evaluation: user ephemeris callbacks retain TDB,
+    // while a factory-owned rotation callback can use the declared clock.
+    const double tdb = epoch.getTdbSeconds( );
+    const Eigen::Vector3d bodyPosition = deformedBodyStateFunction_( tdb ).head< 3 >( );
+    const Eigen::Quaterniond rotation = contextRotation_ ? contextRotation_( epoch ) : deformedBodyRotationFunction_( tdb );
+    const double gm = gravitionalParameterOfDeformedBody_( );
+    for( int i = 0; i < numberOfBodies_; ++i )
+    {
+        gravitationalParameterRatios_[ i ] = gravitionalParametersOfDeformingBodies_[ i ]( ) / gm;
+        relativeBodyStates_[ i ] = rotation * ( deformingBodyStateFunctions_[ i ]( tdb ).head< 3 >( ) - bodyPosition );
+    }
+    // These values may have used precise context rotation. Invalidate only the
+    // local legacy scalar cache so a later scalar call cannot reuse them.
+    currentTime_ = TUDAT_NAN;
+}
+
+Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+{
+    const auto station = std::make_shared< ground_stations::GroundStationState >(
+            position,
+            coordinate_conversions::cartesian_position,
+            std::make_shared< SphericalBodyShapeModel >( deformedBodyEquatorialRadius_ ) );
+    return calculateDisplacement( epoch, station );
+}
+Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch,
+                                                                 const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    if( !usesNativeUtcPhase_ ) return calculateDisplacement( epoch.getTdbSeconds( ), station );
+    const auto native = contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch;
+    updateBodyProperties( native );
+    Eigen::Vector6d arguments = doodsonArgumentFunction_( static_cast< double >( native.getTt( ) ) );
+    for( int i = 0; i < 6; ++i ) arguments[ i ] = std::fmod( arguments[ i ], 2.0 * mathematical_constants::PI );
+    return calculateDisplacement( station, arguments );
+}
+Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
+                                                                         const Eigen::Vector3d& position )
+{
+    if( !usesNativeUtcPhase_ ) return BodyDeformationModel::calculateDisplacementVelocity( epoch, position );
+    const auto native = contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch;
+    native.getTtRateWithRespectToTdb( );  // An interpolated clock without rates is explicitly unsupported.
+    return calculateRoutedDisplacementVelocity( native, position );
+}
+Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacementVelocity(
+        const EarthDeformationEpoch& epoch,
+        const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    if( !usesNativeUtcPhase_ ) return BodyDeformationModel::calculateDisplacementVelocity( epoch, station );
+    const auto native = contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch;
+    native.getTtRateWithRespectToTdb( );
+    return calculateRoutedDisplacementVelocity( native, station );
+}
+Eigen::Vector6d Iers2010EarthDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+{
+    return usesNativeUtcPhase_ ? calculateNativeDisplacementState( epoch, position )
+                               : BodyDeformationModel::calculateDisplacementState( epoch, position );
+}
+Eigen::Vector6d Iers2010EarthDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch,
+                                                                      const std::shared_ptr< ground_stations::GroundStationState > station )
+{
+    return usesNativeUtcPhase_ ? calculateNativeDisplacementState( epoch, station )
+                               : BodyDeformationModel::calculateDisplacementState( epoch, station );
+}
+void Iers2010EarthDeformation::validateContextDerivativeInterval( const EarthDeformationEpoch&,
+                                                                  const EarthDeformationEpoch& lower,
+                                                                  const EarthDeformationEpoch& upper ) const
+{
+    if( usesNativeUtcPhase_ )
+        validateEarthDeformationUtcInterval( static_cast< double >( lower.getTt( ) ), static_cast< double >( upper.getTt( ) ) );
+}
+
 void Iers2010EarthDeformation::validateDisplacementDerivativeInterval( const double, const double lower, const double upper ) const
 {
     if( usesNativeUtcPhase_ )
@@ -424,7 +498,7 @@ Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacement(
         const double ephemerisTime,
         const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
 {
-    updateBodyProperties( ephemerisTime );
+    BasicTidalBodyDeformation::updateBodyProperties( ephemerisTime );
 
     // If Doodson arguments are required and not provided by user, calculate them.
     Eigen::Vector6d doodsonArguments = doodsonArgumentFunction_( ephemerisTime );

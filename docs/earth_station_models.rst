@@ -27,8 +27,8 @@ by Dominic on 14 October 2026.
   input conventions and applicable licence.  Normal regression tests must
   use local fixtures and must not download data.
 * All concurrent builds together are limited to eight worker threads.
-  The Tudat build owner has six, the EOP/reference worker one, and the
-  ocean-loading worker one. The coordinator controls any reallocation.
+  The coordinator assigns explicit allocations before concurrent builds and
+  controls any reallocation across the integration build and isolated workers.
   Disable hidden nested build parallelism and multithreaded numerical runtimes.
 * Every change includes relevant bindings, documentation and tests.  Tolerances
   come from reference accuracy and numerical error budgets, not from fitting
@@ -72,7 +72,7 @@ validation ledger below records completed changes and remaining limitations.
    [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.
    [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.
    [x] 06 Validate solid Earth tides through the production time/argument path.
-   [ ] 07 Resolve inertial frames, time scales and displacement conventions.
+   [x] 07 Resolve inertial frames, time scales and displacement conventions.
    [x] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
    [x] 09 Implement EOP validity and leap-safe interpolation policies.
    [x] 10 Verify existing short-period EOP corrections independently.
@@ -107,19 +107,20 @@ Active work
 
 * Task 04: independent reference packages are in use for solid Earth tides,
   short-period EOP and HARDISP; reference coverage grows with each added model.
-* Task 07: the inertial-frame correction is committed. Native TT/TDB/UT1 routing
-  passes isolated C++ reference comparisons; factory integration and final review
-  are underway.
 * Task 11: derivative architecture uses the same rotation and selected UT1
-  interpolant as position evaluation. Implementation is starting in isolation.
+  interpolant as position evaluation. Implementation is underway in isolation.
 * Task 12: the initial displacement-rate API, UTC-phase boundary safeguards and
   position-only station path pass integrated C++ tests. EOP-knot rate policies
   and full station-state closure still require task 11.
 * Task 17: the neutral atmospheric S1/S2 reader, synthesis, grid geometry and
   position factories pass isolated C++ tests. Integration and the UT1-to-TDB
   derivative chain remain open.
-* Tasks 18/20: primary SINEX/ITRF sources and concrete legacy transformation
-  defects have been audited. Neutral history/parameter interfaces are next.
+* Task 18: the neutral SINEX history parser is implemented in isolation and
+  handles complete published station/discontinuity products. Native regression
+  tests and the explicit legacy adapter are underway.
+* Task 20: neutral ITRF parameter ingestion and affine position/state transforms
+  pass isolated comparisons against 75 independent high-precision fixtures.
+  Final interface validation, review and integration remain open.
 
 Other unchecked tasks are queued. Tasks 13 and 30 remain deferred until the
 accepted-standard baseline is validated. Final Python-kernel compilation and
@@ -383,3 +384,26 @@ in ``tests-combined-final-identity.log``, ``architecture-final-identity.log`` an
 ``combined-final-validation-summary.json`` in the local work log directory.
 No Python kernel was rebuilt for this milestone; final binding validation is
 still task 29.
+
+Task 07: station motion now supplies a physical-epoch context that preserves
+the original TDB input and lazily derives geocentric TT/TAI. Native solid tides
+use TDB ephemerides, the rotational ephemeris's declared clock and TT/UTC tide
+arguments. HARDISP and pole tides use their terrestrial clock explicitly.
+UT1 and polar motion use the requesting model's own converter and coverage
+policy. Generic/custom scalar callbacks retain their original forwarding.
+
+Both native IERS and basic solid-tide factories honor a GCRS/ITRS rotation's
+declared input time scale; SPICE and custom rotation inputs retain TDB. TT-only
+displacement rates include dTT/dTDB, while mixed-clock solid tides differentiate
+the complete routed displacement. Position evaluation remains independent of
+rate availability. The public documentation states the conventional tide-free
+nominal-coordinate requirement and the retained permanent degree-2 displacement.
+
+All 14 integrated time-routing C++ cases pass, including direct-SOFA clock
+fixtures, separate ephemeris/rotation/argument epochs, precise coverage limits,
+leap-second behavior, custom callbacks, factory ownership and TT-versus-TDB
+rotation equivalence. Existing solid/ocean/pole-tide and initial velocity tests
+also pass in the combined 25-check integration selection. Full rotation rates
+and station-state closure remain tasks 11 and 12. Logs are
+``tests-time-routing-atmospheric-final.log`` and
+``architecture-time-routing-atmospheric-final.log`` in the local work directory.

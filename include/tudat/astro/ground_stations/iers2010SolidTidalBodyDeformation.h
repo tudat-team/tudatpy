@@ -36,10 +36,11 @@ namespace basic_astrodynamics
  * Uses the STEP2DIU/STEP2LON polynomials, including their lunar-longitude
  * precession correction, and UTC fractional hours as specified by the reference
  * routine (2016-12-19 revision, including the 2013 fractional-hour correction).
- * As in the existing deformation API, TDB is approximated as TT; TT centuries
- * are formed from the input and UTC is obtained with SOFA's TT-to-UTC conversion.
+ * TT centuries are formed from the input and UTC is obtained with SOFA's
+ * TT-to-UTC conversion. Native environment context calls supply converted TT;
+ * the legacy scalar deformation path retains its shared TT/TDB epoch convention.
  * These arguments are specific to this station displacement convention.
- * \param secondsSinceJ2000 Seconds since J2000, using the API's TDB approximately TT convention.
+ * \param secondsSinceJ2000 TT seconds since J2000.
  * \return Doodson arguments in radians: tau, s, h, p, N-prime, p-s.
  */
 Eigen::Vector6d calculateIers2010SolidEarthTideArguments( const double secondsSinceJ2000 );
@@ -138,6 +139,18 @@ class Iers2010EarthDeformation : public BasicTidalBodyDeformation
 public:
     using BasicTidalBodyDeformation::calculateDisplacement;
 
+    using BodyDeformationModel::calculateDisplacementState;
+    using BodyDeformationModel::calculateDisplacementVelocity;
+    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch,
+                                           const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
+                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
+    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch,
+                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+
     // An empty argument callback selects the corrected native UTC-based phases. Their
     // numerical rates reject UTC offset steps; explicit custom callbacks keep their own time basis.
     Iers2010EarthDeformation( const std::function< Eigen::Vector6d( const double ) > deformedBodyEphemeris,
@@ -152,7 +165,9 @@ public:
                               const std::vector< double >& correctionLoveAndShidaNumbers,
                               const std::string& diurnalFile = "",
                               const std::string& longPeriodFile = "",
-                              const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = {} );
+                              const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = {},
+                              const std::function< Eigen::Quaterniond( const EarthDeformationEpoch& ) > contextRotation = {},
+                              const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock = nullptr );
 
     ~Iers2010EarthDeformation( ) {}
 
@@ -183,9 +198,15 @@ public:
                                            const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );
 
 protected:
+    void validateContextDerivativeInterval( const EarthDeformationEpoch& epoch,
+                                            const EarthDeformationEpoch& lower,
+                                            const EarthDeformationEpoch& upper ) const override;
     void validateDisplacementDerivativeInterval( const double time, const double lower, const double upper ) const override;
 
 private:
+    void updateBodyProperties( const EarthDeformationEpoch& epoch );
+    std::function< Eigen::Quaterniond( const EarthDeformationEpoch& ) > contextRotation_;
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock_;
     Eigen::Vector3d calculateDisplacement( const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState,
                                            const Eigen::Vector6d& doodsonArguments );
 

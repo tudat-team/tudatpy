@@ -15,6 +15,24 @@ namespace tudat
 namespace simulation_setup
 {
 
+namespace
+{
+Eigen::Quaterniond rotationForDeformationEpoch( const basic_astrodynamics::EarthDeformationEpoch& epoch,
+                                                const std::shared_ptr< ephemerides::RotationalEphemeris >& rotation )
+{
+    if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( rotation ) )
+    {
+        const auto converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+        const Time tai = epoch.originatedAsDouble( ) ? converter->getTaiTime( basic_astrodynamics::tdb_scale, epoch.getTdbSeconds( ) )
+                                                     : converter->getTaiTime( basic_astrodynamics::tdb_scale, epoch.getTdb( ) );
+        const Time rotationEpoch = converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, earth->getInputTimeScale( ), tai );
+        return earth->getRotationToTargetFrameFromExtendedTime( rotationEpoch );
+    }
+    // SPICE and legacy/custom rotational ephemerides keep their TDB input.
+    return rotation->getRotationToTargetFrameFromExtendedTime( epoch.getTdb( ) );
+}
+}  // namespace
+
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
         const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > lunarEphemeris,
@@ -70,10 +88,16 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
     std::string longPeriodFile = paths::getEarthDeformationDataFilesPath( ) + "/longPeriodDisplacementFrequencyDependence.txt";
     std::string diurnalFile = paths::getEarthDeformationDataFilesPath( ) + "/diurnalDisplacementFrequencyDependence2.txt";
 
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock;
+    if( const auto rotation = std::dynamic_pointer_cast< GcrsToItrsRotationModel >( earthRotation ) )
+        contextClock = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+    const auto contextRotation = [ earthRotation ]( const EarthDeformationEpoch& epoch ) {
+        return rotationForDeformationEpoch( epoch, earthRotation );
+    };
     std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >(
             std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
             ephemerides,
-            std::bind( &RotationalEphemeris::getRotationToTargetFrame, earthRotation, std::placeholders::_1 ),
+            [ contextRotation ]( const double tdb ) { return contextRotation( EarthDeformationEpoch( tdb ) ); },
             gravitionalParametersOfEarth,
             gravitationalParameters,
             equatorialRadius,
@@ -83,7 +107,9 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
             correctionNumbers,
             diurnalFile,
             longPeriodFile,
-            doodsonArgumentFunction );
+            doodsonArgumentFunction,
+            contextRotation,
+            contextClock );
 
     return deformationModel;
 }
@@ -165,9 +191,9 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::BasicTidalBodyDeformation >(
                         std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( body ), std::placeholders::_1 ),
                         deformingBodyEphemerides,
-                        std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                                   bodyMap.at( body )->getRotationalEphemeris( ),
-                                   std::placeholders::_1 ),
+                        [ rotation = bodyMap.at( body )->getRotationalEphemeris( ) ]( double tdb ) {
+                            return rotationForDeformationEpoch( EarthDeformationEpoch( tdb ), rotation );
+                        },
                         gravitionalParameterOfDeformedBody,
                         gravitionalParametersOfDeformingBodies,
                         deformationReferenceRadius,
@@ -223,7 +249,10 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::PoleTideDeformation >(
                         std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) )
                                 ->getAnglesCalculator( )
-                                ->getPolarMotionCalculator( ) );
+                                ->getPolarMotionCalculator( ),
+                        std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) )
+                                ->getAnglesCalculator( )
+                                ->getTerrestrialTimeScaleConverter( ) );
             }
             break;
         }
@@ -251,12 +280,18 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             if( settings->hasPreloadedGrid( ) )
             {
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
-                        settings->getGrid( ), pole, settings->getLatitudePolicy( ) );
+                        settings->getGrid( ),
+                        pole,
+                        settings->getLatitudePolicy( ),
+                        rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
             }
             else
             {
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
-                        settings->getGridFile( ), pole, settings->getLatitudePolicy( ) );
+                        settings->getGridFile( ),
+                        pole,
+                        settings->getLatitudePolicy( ),
+                        rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
             }
             break;
         }
