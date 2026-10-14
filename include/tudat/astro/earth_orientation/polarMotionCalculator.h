@@ -54,9 +54,31 @@ public:
         shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
     {}
 
-    //! TT-aware path used by strict rotation and pole tide, without scalar UTC.
-    Eigen::Vector2d getPositionOfCipInItrsAtTt( const double ttSinceEpoch );
-    Eigen::Vector2d getPositionOfCipInItrsAtTt( const Time& ttSinceEpoch );
+    //! Polar motion at a TT epoch. Models constructed from EOP data use TAI without converting through UTC.
+    template< typename TimeType >
+    Eigen::Vector2d getPositionOfCipInItrsAtTt( const TimeType& tt )
+    {
+        // SOFA evaluates its harmonic arguments using scalar TT seconds.
+        const double ttDouble = static_cast< double >( tt );
+
+        if( !evaluator_ )
+        {
+            return getPositionOfCipInItrs( ttDouble, sofa_interface::convertTTtoUTC( ttDouble ) );
+        }
+        // Keep double input as double here: the evaluator recognizes the rounded
+        // first/last TT sample times. A precise Time input is never rounded.
+        const Time tai = evaluator_->convertTtToTai( tt );
+
+        // Use the selected UT1 model when forming the short-period arguments.
+        const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + evaluator_->evaluate( tai ).ut1MinusTai;
+
+        // Delaunay arguments include GMST formed from UT1, with TT for precession.
+        const Eigen::Vector6d arguments =
+                sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( ttDouble, ttDouble, static_cast< double >( ut1 ) );
+
+        return getPositionOfCipInItrsFromTai( tai, arguments );
+    }
+
     Eigen::Vector2d getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments );
     bool usesContinuousEop( ) const
     {

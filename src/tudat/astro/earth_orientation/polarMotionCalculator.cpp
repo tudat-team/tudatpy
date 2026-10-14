@@ -25,28 +25,6 @@ Eigen::Vector2d getSecularPolePositionInMas( const double time )
     return ( Eigen::Vector2d( ) << 55.0 + 1.677 * timeInYears, 320.5 + 3.460 * timeInYears ).finished( );
 }
 
-Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrsAtTt( const double ttSinceEpoch )
-{
-    if( !evaluator_ ) return getPositionOfCipInItrs( ttSinceEpoch, sofa_interface::convertTTtoUTC( ttSinceEpoch ) );
-    const Time tai = evaluator_->convertTtToTai( ttSinceEpoch );
-    const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + evaluator_->evaluate( tai ).ut1MinusTai;
-    const Eigen::Vector6d arguments =
-            sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( ttSinceEpoch, ttSinceEpoch, static_cast< double >( ut1 ) );
-    return getPositionOfCipInItrsFromTai( tai, arguments );
-}
-
-Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrsAtTt( const Time& tt )
-{
-    if( !evaluator_ )
-        return getPositionOfCipInItrs( static_cast< double >( tt ), sofa_interface::convertTTtoUTC( static_cast< double >( tt ) ) );
-    const Time tai = evaluator_->convertTtToTai( tt );
-    const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + evaluator_->evaluate( tai ).ut1MinusTai;
-    const double ttDouble = static_cast< double >( tt );
-    const Eigen::Vector6d arguments =
-            sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( ttDouble, ttDouble, static_cast< double >( ut1 ) );
-    return getPositionOfCipInItrsFromTai( tai, arguments );
-}
-
 Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments )
 {
     if( !evaluator_ ) throw std::runtime_error( "TAI polar motion requires a continuous EOP model" );
