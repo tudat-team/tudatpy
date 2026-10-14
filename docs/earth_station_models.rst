@@ -171,8 +171,10 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   The real provider file has eight duplicated site labels and is correctly
   rejected. Unchanged positive extracts and a negative duplicate fixture preserve
   its evidence; no provider records were silently repaired.
-* Task 22: the loading worker is implementing explicit interpolation, station
-  selection, origin translation and tidal/empirical-seasonal overlap policies.
+* Task 22: interpolation, station selection, origin translation and signal-overlap
+  checks are implemented in the isolated worktree. Seven focused native cases
+  cover scientific values/rates and assembly behavior. Final compilation and
+  validation await the shared Time/base API checkpoint; documentation is ongoing.
 * Task 23: the explicit IERS spatial approximation is integrated. Seven focused
   cases/91 assertions pass alongside affected station-state and clock suites.
   Terminal composition consumes the full displaced/moving state once; selected
@@ -180,8 +182,10 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   The BodySettings factory now supplies the bodies environment and establishes
   ephemeris origin conversions before constructing stations. A focused native
   regression covers both direct and Earth-relative Sun ephemerides.
-* Task 24: the station-history worker is implementing dated marker/ARP/calibrated
-  reference-point geometry using retained equipment and eccentricity histories.
+* Task 24: dated marker/ARP/calibrated geometry is implemented in the isolated
+  worktree, reusing station metadata and retained equipment/eccentricity histories.
+  Focused tests, bindings and documentation are underway. Native integration
+  depends on the shared Time/base API checkpoint.
 * Task 29: Dominic explicitly requested removing EarthDeformationEpoch and
   simplifying evaluation across deformation models. The common base will expose
   displacement and full displacement/state for TDB Time plus a station; derived
