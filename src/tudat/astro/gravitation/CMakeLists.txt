@@ -15,6 +15,7 @@
 set(gravitation_SOURCES
         "basicSolidBodyTideGravityFieldVariations.cpp"
         "gravityFieldVariations.cpp"
+        "oceanPoleTideGravityFieldVariations.cpp"
         "centralGravityModel.cpp"
 #        "centralJ2GravityModel.cpp"
 #        "centralJ2J3GravityModel.cpp"
@@ -49,6 +50,7 @@ set(gravitation_SOURCES
 set(gravitation_HEADERS
         "basicSolidBodyTideGravityFieldVariations.h"
         "gravityFieldVariations.h"
+        "oceanPoleTideGravityFieldVariations.h"
         "centralGravityModel.h"
 #        "centralJ2GravityModel.h"
 #        "centralJ2J3GravityModel.h"
@@ -83,3 +85,5 @@ set(gravitation_HEADERS
 TUDAT_ADD_LIBRARY("gravitation"
         "${gravitation_SOURCES}"
         "${gravitation_HEADERS}")
+
+target_link_libraries(tudat_gravitation PUBLIC tudat_ocean_pole_gravity_data)

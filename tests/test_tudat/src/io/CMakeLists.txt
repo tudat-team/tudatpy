@@ -193,3 +193,5 @@ TUDAT_ADD_TEST_CASE(TerrestrialFrameTransformationData PRIVATE_LINKS tudat_terre
 TUDAT_ADD_TEST_CASE(SinexStationHistory PRIVATE_LINKS tudat_station_history_data)
 
 TUDAT_ADD_TEST_CASE(IcgemGravityFieldData PRIVATE_LINKS tudat_icgem_gravity_data)
+
+TUDAT_ADD_TEST_CASE(OceanPoleGravityData PRIVATE_LINKS tudat_ocean_pole_gravity_data)

@@ -397,3 +397,31 @@ matrix. Validate the inventories and synthesize each output constituent once.
 Do not mix such explicit sidebands with another nodal modulation. Published
 FES2004 interpolation and TiME22-v1.1 matrices remain separate named profiles;
 the latter already includes phase and loading in its cosine/sine fields.
+
+Ocean-pole backend checkpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``readOceanPoleGravityData`` reads the distinct IERS normalized complex A/B
+integrals into neutral sparse records. It preserves headers/source lines,
+published degree-one values and missing-entry identity; duplicate, malformed,
+nonfinite or physically nonzero zonal sine integrals reject. Its independent
+``tudat_ocean_pole_gravity_data`` target uses only the C++ standard library.
+
+``OceanPoleTideGravityFieldVariations`` implements equation 6.23 for explicitly
+selected degrees >=2 and orders including zero/one. It requires all selected
+integrals and degree-indexed load Love numbers, an explicit radians wobble
+callback at TDB seconds, physical forcing constants, and output field GM/R.
+The constructor freezes the scaled response; evaluations combine its four
+matrices with the two wobble components. Above-triangle entries remain zero.
+No factory/default pole model is selected at this backend checkpoint.
+
+The local legacy ILR kernel supplied the same useful A/B response structure;
+its uninitialized base dimensions, index-versus-size bounds and shifted load
+response indices are corrected. All 366 official 2004 gravity-reference epochs
+pass with budgets derived from published decimal precision. Four exact COST-G
+samples use degree/order 180, the supplied historical secular pole/EOP,
+Gegout97 load Love numbers and rotation/position records. Their maximum force
+residual is 2.57e-21 m/s^2 against the fixed 1e-11 m/s^2 budget. Separate checks
+cover selected blocks, GM/R scaling, immutable response and missing coverage.
+Pinned source hashes, exact extraction ranges and an offline reproduction script
+are in ``tests/test_tudat/reference_files/ocean_pole_gravity``.

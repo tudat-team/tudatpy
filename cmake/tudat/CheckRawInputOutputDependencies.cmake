@@ -16,7 +16,7 @@ set_property(GLOBAL PROPERTY TUDAT_RAW_FORBIDDEN_TARGETS "${_tudat_raw_forbidden
 
 function(tudat_check_raw_input_output_dependencies)
     get_property(_tudat_raw_forbidden GLOBAL PROPERTY TUDAT_RAW_FORBIDDEN_TARGETS)
-    set(pending tudat_input_output_raw tudat_earth_orientation_data tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data)
+    set(pending tudat_input_output_raw tudat_earth_orientation_data tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data tudat_icgem_gravity_data tudat_ocean_pole_gravity_data)
     foreach(root IN LISTS pending)
         if(NOT TARGET "${root}")
             message(FATAL_ERROR "Missing data-input target: ${root}")

@@ -1,0 +1,135 @@
+{
+  "desaiscopolecoef_degree180.txt": {
+    "source": "iers-desaiscopolecoef.txt.gz",
+    "url": "https://iers-conventions.obspm.fr/content/chapter6/additional_info/desaiscopolecoef.txt.gz",
+    "source_sha256": "075efd2ecbf2cd9137ffcbff8a60a75cd9d64a6a10cf271ddd57075257c9d3dc",
+    "extract_sha256": "5278a97815a03c83bbc5f1e64228e41a8163af0f92f4bc712459e960772cc8cb",
+    "source_lines": [
+      1,
+      16471
+    ],
+    "edits": []
+  },
+  "desaiscopole2004.txt": {
+    "source": "iers-desai-ocean-pole-reference.txt",
+    "url": "https://iers-conventions.obspm.fr/content/chapter6/additional_info/desaiscopole2004.txt",
+    "source_sha256": "07fca5c11f2ca4d76f42f729c857bcc7383e6ee1db7d888a1debaa58ed08766a",
+    "extract_sha256": "07fca5c11f2ca4d76f42f729c857bcc7383e6ee1db7d888a1debaa58ed08766a",
+    "source_lines": [
+      1,
+      390
+    ],
+    "edits": []
+  },
+  "costg_00orbit_itrf.txt": {
+    "source": "costg/00orbit_itrf.txt",
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/00orbit_itrf.txt",
+    "source_sha256": "ff7d151c16fdfe325d1d3a50ca59d260be73d122711ef2297b6fe98994b1b783",
+    "extract_sha256": "c799de27590fe38d4fcd79e67d37277a3add785c8d856907828461bb0fec57db",
+    "source_lines": [
+      [
+        6,
+        6
+      ],
+      [
+        727,
+        727
+      ],
+      [
+        1445,
+        1445
+      ],
+      [
+        2885,
+        2885
+      ]
+    ],
+    "edits": []
+  },
+  "costg_01earthRotation_rotaryMatrix.txt": {
+    "source": "costg/01earthRotation_rotaryMatrix.txt",
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/01earthRotation_rotaryMatrix.txt",
+    "source_sha256": "01b14f1794776219c605fe4fa4070b5d5f6a6bc6b7423d4bc90f778de747bdcf",
+    "extract_sha256": "30d399cf601b7c51e647d0d7ae3165156583798eb7eaaf0ee8620b5dae6af1dc",
+    "source_lines": [
+      [
+        6,
+        6
+      ],
+      [
+        727,
+        727
+      ],
+      [
+        1445,
+        1445
+      ],
+      [
+        2885,
+        2885
+      ]
+    ],
+    "edits": []
+  },
+  "costg_01earthRotation_interpolatedEOP.txt": {
+    "source": "costg/01earthRotation_interpolatedEOP.txt",
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/01earthRotation_interpolatedEOP.txt",
+    "source_sha256": "71bc568122fac59aceb3535c017ed4e3289a9c942b36538e7d09236be318f017",
+    "extract_sha256": "1acd7b7eff8e3fc53acfd844ad71d96fec70b7e045f7327db91f86b7ae3a89e4",
+    "source_lines": [
+      [
+        3,
+        3
+      ],
+      [
+        724,
+        724
+      ],
+      [
+        1442,
+        1442
+      ],
+      [
+        2882,
+        2882
+      ]
+    ],
+    "edits": []
+  },
+  "costg_06oceanPoleTide_icrf.txt": {
+    "source": "costg/06oceanPoleTide_icrf.txt",
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/06oceanPoleTide_icrf.txt",
+    "source_sha256": "cac56642ec8379c3bbb0d907bf4d0d97ed1f3add1ce56f5d6265d82788fb348a",
+    "extract_sha256": "9c26b7019ea09786d14276033ff8e9e050acfed74e3eb82c8ccd7bc74c1d1149",
+    "source_lines": [
+      [
+        6,
+        6
+      ],
+      [
+        727,
+        727
+      ],
+      [
+        1445,
+        1445
+      ],
+      [
+        2885,
+        2885
+      ]
+    ],
+    "edits": []
+  },
+  "loadLoveNumbers_Gegout97_degree180.txt": {
+    "source": "costg/models/groops/loadLoveNumbers_Gegout97.txt",
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/models/groops/loadLoveNumbers_Gegout97.txt",
+    "source_sha256": "5d4d582f4b3ff78e7ddd559c1e990170bda2c5bc13cfbb32a524e392fbbbcae3",
+    "extract_sha256": "0b32bf1654989fdddf620cd4fddf018fde8431432ed9778bae74fbad55ac0ba1",
+    "source_lines": [
+      1,
+      181
+    ],
+    "edits": []
+  }
+}

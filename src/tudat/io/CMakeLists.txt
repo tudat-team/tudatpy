@@ -139,7 +139,7 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
     add_subdirectory(serialization)
 endif ()
 
-# Directory-local registration for the six independently linkable neutral readers.
+# Directory-local registration for independently linkable neutral readers.
 # Keep this separate from TUDAT_ADD_LIBRARY and its dynamics-oriented dependencies.
 function(_tudat_add_neutral_reader target)
     if(TUDAT_BUILD_STATIC_LIBRARY)
@@ -168,10 +168,12 @@ _tudat_add_neutral_reader(tudat_terrestrial_frame_data readTerrestrialFrameTrans
 _tudat_add_neutral_reader(tudat_station_history_data readSinexStationHistory.cpp)
 _tudat_add_neutral_reader(tudat_station_loading_data readStationLoadingData.cpp)
 _tudat_add_neutral_reader(tudat_icgem_gravity_data readIcgemGravityField.cpp)
+_tudat_add_neutral_reader(tudat_ocean_pole_gravity_data readOceanPoleGravityData.cpp)
 
 # Preserve the existing feature, runtime-location and Eigen interfaces exactly.
 foreach(target IN ITEMS tudat_earth_orientation_data tudat_atmospheric_loading_data
-        tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data tudat_icgem_gravity_data)
+        tudat_terrestrial_frame_data tudat_station_history_data tudat_station_loading_data tudat_icgem_gravity_data
+        tudat_ocean_pole_gravity_data)
     target_compile_features(${target} PUBLIC cxx_std_17)
 endforeach()
 foreach(target IN ITEMS tudat_ocean_loading_data tudat_terrestrial_frame_data)
