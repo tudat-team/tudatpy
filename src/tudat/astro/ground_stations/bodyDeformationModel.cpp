@@ -126,6 +126,14 @@ Eigen::Vector3d BodyDeformationModel::differentiateDisplacement(
     return differentiateDisplacementAtEpoch< Time >( time, displacementDerivativeTimeStep_, displacement, validateInterval );
 }
 
+Eigen::Vector3d BodyDeformationModel::differentiateDisplacement(
+        double time,
+        const std::function< Eigen::Vector3d( const double& ) >& displacement,
+        const std::function< void( const double&, const double& ) >& validateInterval ) const
+{
+    return differentiateDisplacementAtEpoch< double >( time, displacementDerivativeTimeStep_, displacement, validateInterval );
+}
+
 Time BodyDeformationModel::normalizeScalarTdb( const double tdb ) const
 {
     return basic_astrodynamics::normalizeScalarTdb( tdb, timeConverter_ );

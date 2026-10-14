@@ -26,27 +26,22 @@ using basic_astrodynamics::BodyDeformationModel;
 using ground_stations::GroundStationState;
 
 struct FunctionDeformation : BodyDeformationModel {
-    explicit FunctionDeformation( const std::function< Eigen::Vector3d( double ) >& function ): function( function ) {}
+    explicit FunctionDeformation( const std::function< Eigen::Vector3d( const Time& ) >& function ): function( function ) {}
 
-    Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& ) override
+    Eigen::Vector3d evaluateDisplacement( const Time& time, const std::shared_ptr< GroundStationState > ) override
     {
-        lastTime = time;
+        lastTime = static_cast< double >( time );
         return function( time );
     }
 
-    Eigen::Vector3d calculateDisplacement( const double time, const std::shared_ptr< GroundStationState > ) override
-    {
-        return calculateDisplacement( time, Eigen::Vector3d::Zero( ) );
-    }
-
-    std::function< Eigen::Vector3d( double ) > function;
+    std::function< Eigen::Vector3d( const Time& ) > function;
     double lastTime = std::numeric_limits< double >::quiet_NaN( );
 };
 
 struct AnalyticStateDeformation : FunctionDeformation {
     AnalyticStateDeformation( ): FunctionDeformation( []( double ) { return Eigen::Vector3d::Zero( ).eval( ); } ) {}
 
-    Eigen::Vector6d calculateDisplacementState( const double, const std::shared_ptr< GroundStationState > ) override
+    Eigen::Vector6d evaluateDisplacementState( const Time&, const std::shared_ptr< GroundStationState > ) override
     {
         Eigen::Vector6d result;
         result << 0.1, 0.2, 0.3, 0.01, 0.02, 0.03;
@@ -100,10 +95,14 @@ BOOST_AUTO_TEST_CASE( analytic_constant_linear_and_sinusoidal_rates )
 {
     const Eigen::Vector3d position( 6.4e6, 1.0e6, 2.0e6 );
     FunctionDeformation constant( []( double ) { return Eigen::Vector3d( 0.1, -0.2, 0.3 ); } );
-    BOOST_CHECK_SMALL( constant.calculateDisplacementVelocity( 100.0, position ).norm( ), 1.0e-15 );
+    BOOST_CHECK_SMALL(
+            constant.calculateDisplacementState( 100.0, std::make_shared< GroundStationState >( position ) ).tail< 3 >( ).norm( ),
+            1.0e-15 );
     const Eigen::Vector3d slope( 1.0e-4, -3.0e-4, 7.0e-4 );
     FunctionDeformation linear( [ = ]( double t ) { return ( Eigen::Vector3d( 0.1, 0.2, 0.3 ) + t * slope ).eval( ); } );
-    BOOST_CHECK_SMALL( ( linear.calculateDisplacementVelocity( 100.0, position ) - slope ).norm( ), 1.0e-16 );
+    BOOST_CHECK_SMALL(
+            ( linear.calculateDisplacementState( 100.0, std::make_shared< GroundStationState >( position ) ).tail< 3 >( ) - slope ).norm( ),
+            1.0e-16 );
     FunctionDeformation sinusoid( []( double t ) {
         return Eigen::Vector3d( 0.3 * std::sin( 0.01 * t ), 0.1 * std::cos( 0.02 * t ), 0.2 * std::sin( 0.03 * t ) );
     } );
@@ -113,7 +112,9 @@ BOOST_AUTO_TEST_CASE( analytic_constant_linear_and_sinusoidal_rates )
     for( std::size_t i = 0; i < errors.size( ); ++i )
     {
         sinusoid.setDisplacementDerivativeTimeStep( 4.0 / std::pow( 2.0, i ) );
-        errors[ i ] = ( sinusoid.calculateDisplacementVelocity( epoch, position ) - expected ).norm( );
+        errors[ i ] =
+                ( sinusoid.calculateDisplacementState( epoch, std::make_shared< GroundStationState >( position ) ).tail< 3 >( ) - expected )
+                        .norm( );
         BOOST_CHECK_EQUAL( sinusoid.lastTime, epoch );
     }
     BOOST_CHECK_GT( errors[ 0 ] / errors[ 1 ], 15.0 );
@@ -130,32 +131,25 @@ BOOST_AUTO_TEST_CASE( derivative_step_and_nonfinite_validation )
         BOOST_CHECK_THROW( model.setDisplacementDerivativeTimeStep( step ), std::invalid_argument );
     }
     BOOST_CHECK_EQUAL( model.getDisplacementDerivativeTimeStep( ), 1.0 );
-    BOOST_CHECK_THROW( model.calculateDisplacementVelocity( 1.0e20, Eigen::Vector3d::Zero( ) ), std::invalid_argument );
-    BOOST_CHECK_THROW( model.calculateDisplacementVelocity( std::numeric_limits< double >::infinity( ), Eigen::Vector3d::Zero( ) ),
+    BOOST_CHECK_THROW( model.calculateDisplacementState( std::numeric_limits< double >::infinity( ),
+                                                         std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) ) )
+                               .tail< 3 >( ),
                        std::invalid_argument );
     FunctionDeformation invalid(
             []( double ) { return Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) ).eval( ); } );
-    BOOST_CHECK_THROW( invalid.calculateDisplacementVelocity( 0.0, Eigen::Vector3d::Zero( ) ), std::runtime_error );
+    BOOST_CHECK_THROW( invalid.calculateDisplacementState( 0.0, std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) ) )
+                               .tail< 3 >( ),
+                       std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( nonuniform_epoch_stencil_is_rejected_near_binade_boundary )
+BOOST_AUTO_TEST_CASE( precise_time_stencil_retains_offsets_below_double_resolution )
 {
-    const double boundaryEpoch = std::ldexp( 1.0, 53 ) - 1.0;
+    const Time centre( 334368000.125 );
     const Eigen::Vector3d slope( 0.001, -0.002, 0.003 );
-    FunctionDeformation model( [ = ]( double t ) { return ( ( t - boundaryEpoch ) * slope ).eval( ); } );
-    model.setDisplacementDerivativeTimeStep( 3.0 );
-    // All four points are distinct, but the upper outer point is only 5 seconds
-    // from the centre instead of 6. Uniform weights would bias this linear rate
-    // by 1/36. Reject it before evaluating any displacement samples.
-    BOOST_CHECK_THROW( model.calculateDisplacementVelocity( boundaryEpoch, Eigen::Vector3d::Zero( ) ), std::invalid_argument );
-    BOOST_CHECK( std::isnan( model.lastTime ) );
-    model.setDisplacementDerivativeTimeStep( 4.0 );
-    BOOST_CHECK_SMALL( ( model.calculateDisplacementVelocity( boundaryEpoch + 1.0, Eigen::Vector3d::Zero( ) ) - slope ).norm( ), 1.0e-17 );
-
-    const double contemporaryEpoch = 334368000.125;
-    FunctionDeformation contemporary( [ = ]( double t ) { return ( ( t - contemporaryEpoch ) * slope ).eval( ); } );
-    BOOST_CHECK_SMALL( ( contemporary.calculateDisplacementVelocity( contemporaryEpoch, Eigen::Vector3d::Zero( ) ) - slope ).norm( ),
-                       1.0e-17 );
+    FunctionDeformation model( [ = ]( const Time& time ) { return ( static_cast< double >( time - centre ) * slope ).eval( ); } );
+    model.setDisplacementDerivativeTimeStep( std::ldexp( 1.0, -27 ) );
+    auto station = std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) );
+    BOOST_CHECK_SMALL( ( model.calculateDisplacementState( centre, station ).tail< 3 >( ) - slope ).norm( ), 1e-17 );
 }
 
 BOOST_AUTO_TEST_CASE( errors_restore_central_cache_and_preserve_exception_type )
@@ -167,7 +161,9 @@ BOOST_AUTO_TEST_CASE( errors_restore_central_cache_and_preserve_exception_type )
         }
         return Eigen::Vector3d( t, t, t );
     } );
-    BOOST_CHECK_THROW( bounded.calculateDisplacementVelocity( 0.0, Eigen::Vector3d::Zero( ) ), CoverageError );
+    BOOST_CHECK_THROW( bounded.calculateDisplacementState( 0.0, std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) ) )
+                               .tail< 3 >( ),
+                       CoverageError );
     BOOST_CHECK_EQUAL( bounded.lastTime, 0.0 );
 
     bool failedSample = false;
@@ -185,8 +181,32 @@ BOOST_AUTO_TEST_CASE( errors_restore_central_cache_and_preserve_exception_type )
         }
         return Eigen::Vector3d::Zero( ).eval( );
     } );
-    BOOST_CHECK_THROW( failedRestore.calculateDisplacementVelocity( 0.0, Eigen::Vector3d::Zero( ) ), CoverageError );
+    BOOST_CHECK_THROW(
+            failedRestore.calculateDisplacementState( 0.0, std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) ) )
+                    .tail< 3 >( ),
+            CoverageError );
     BOOST_CHECK( attemptedRestore );
+    bool fail = false;
+    auto station = std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) );
+    basic_astrodynamics::BasicTidalBodyDeformation cached(
+            []( const Time& ) { return Eigen::Vector6d::Zero( ).eval( ); },
+            { []( const Time& t ) {
+                 return ( Eigen::Vector6d( ) << 3.8e8 + static_cast< double >( t ) * 1e6, 1e8, 2e7, 0, 0, 0 ).finished( );
+             },
+              [ & ]( const Time& t ) {
+                  if( fail ) throw CoverageError( );
+                  return ( Eigen::Vector6d( ) << 1.5e11, 5e10, 1e10, 0, 0, 0 ).finished( );
+              } },
+            []( const Time& ) { return Eigen::Quaterniond::Identity( ); },
+            []( ) { return 1.; },
+            { []( ) { return 0.0123; }, []( ) { return 332946.; } },
+            6378137.,
+            { { 2, { 0.6078, 0.0847 } } } );
+    const auto central = cached.calculateDisplacement( Time( 0. ), station );
+    fail = true;
+    BOOST_CHECK_THROW( cached.calculateDisplacement( Time( 1. ), station ), CoverageError );
+    fail = false;
+    BOOST_CHECK_SMALL( ( cached.calculateDisplacement( Time( 0. ), station ) - central ).norm( ), 1e-18 );
 }
 
 BOOST_AUTO_TEST_CASE( optional_missing_model_does_not_hide_rate_failure )
@@ -217,16 +237,6 @@ BOOST_AUTO_TEST_CASE( default_station_pipeline_and_state_override )
     const auto state = station->getCartesianStateInTime( 12.0, "" );
     BOOST_CHECK_SMALL( ( state.tail< 3 >( ) - slope ).norm( ), 1.0e-17 );
     BOOST_CHECK_SMALL( ( state.head< 3 >( ) - station->getNominalCartesianPosition( ) - 12.0 * slope ).norm( ), 1.0e-9 );
-    struct AnalyticRateDeformation : FunctionDeformation {
-        AnalyticRateDeformation( ): FunctionDeformation( []( double ) { return Eigen::Vector3d::Zero( ).eval( ); } ) {}
-        Eigen::Vector3d calculateDisplacementVelocity( const double, const std::shared_ptr< GroundStationState > ) override
-        {
-            return Eigen::Vector3d( 0.04, 0.05, 0.06 );
-        }
-    };
-    models[ 0 ] = std::make_shared< AnalyticRateDeformation >( );
-    BOOST_CHECK_SMALL( ( station->getCartesianStateInTime( 12.0, "" ).tail< 3 >( ) - Eigen::Vector3d( 0.04, 0.05, 0.06 ) ).norm( ),
-                       1.0e-17 );
     models[ 0 ] = std::make_shared< AnalyticStateDeformation >( );
     const auto overridden = station->getCartesianStateInTime( 12.0, "" );
     BOOST_CHECK_SMALL( ( overridden.tail< 3 >( ) - Eigen::Vector3d( 0.01, 0.02, 0.03 ) ).norm( ), 1.0e-17 );
@@ -235,12 +245,9 @@ BOOST_AUTO_TEST_CASE( default_station_pipeline_and_state_override )
 BOOST_AUTO_TEST_CASE( oblate_nominal_station_basis_is_preserved )
 {
     struct LocalDeformation : BodyDeformationModel {
-        Eigen::Vector3d calculateDisplacement( const double, const Eigen::Vector3d& ) override
+        Eigen::Vector3d evaluateDisplacement( const Time& time, const std::shared_ptr< GroundStationState > station ) override
         {
-            throw std::logic_error( "Full nominal station state required" );
-        }
-        Eigen::Vector3d calculateDisplacement( const double t, const std::shared_ptr< GroundStationState > station ) override
-        {
+            const double t = static_cast< double >( time );
             const auto enu = station->getEnuGeocentricUnitVectors( );
             return ( enu[ 0 ] * ( 0.1 + 0.001 * t ) + enu[ 1 ] * ( -0.2 + 0.002 * t ) + enu[ 2 ] * 0.3 ).eval( );
         }
@@ -255,7 +262,8 @@ BOOST_AUTO_TEST_CASE( oblate_nominal_station_basis_is_preserved )
     const Eigen::Vector3d north( -std::sin( phi ) * std::cos( lambda ), -std::sin( phi ) * std::sin( lambda ), std::cos( phi ) );
     BOOST_CHECK_GT( std::fabs( phi - 0.8 ), 0.001 );
     LocalDeformation model;
-    BOOST_CHECK_SMALL( ( model.calculateDisplacementVelocity( 123.0, station ) - 0.001 * east - 0.002 * north ).norm( ), 1.0e-16 );
+    BOOST_CHECK_SMALL( ( model.calculateDisplacementState( 123.0, station ).tail< 3 >( ) - 0.001 * east - 0.002 * north ).norm( ),
+                       1.0e-16 );
 }
 
 BOOST_AUTO_TEST_CASE( production_iers_velocity_step_convergence )
@@ -274,18 +282,18 @@ BOOST_AUTO_TEST_CASE( production_iers_velocity_step_convergence )
             []( ) { return 332946.0482; } );
     auto station = std::make_shared< GroundStationState >( Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ) );
     const double time = 334324800.0 + 43200.0;
-    const Eigen::Vector3d reference = model->calculateDisplacementVelocity( time, station );
+    const Eigen::Vector3d reference = model->calculateDisplacementState( time, station ).tail< 3 >( );
     std::array< double, 3 > errors;
     for( std::size_t i = 0; i < errors.size( ); ++i )
     {
         model->setDisplacementDerivativeTimeStep( 1800.0 / std::pow( 2.0, i ) );
-        errors[ i ] = ( model->calculateDisplacementVelocity( time, station ) - reference ).norm( );
+        errors[ i ] = ( model->calculateDisplacementState( time, station ).tail< 3 >( ) - reference ).norm( );
     }
     BOOST_CHECK_GT( reference.norm( ), 1.0e-7 );
     BOOST_CHECK_GT( errors[ 0 ] / errors[ 1 ], 10.0 );
     BOOST_CHECK_GT( errors[ 1 ] / errors[ 2 ], 10.0 );
     model->setDisplacementDerivativeTimeStep( 0.5 );
-    const double fineDifference = ( model->calculateDisplacementVelocity( time, station ) - reference ).norm( );
+    const double fineDifference = ( model->calculateDisplacementState( time, station ).tail< 3 >( ) - reference ).norm( );
     BOOST_CHECK_SMALL( fineDifference, 2.0e-10 );
     std::cout << "Production IERS velocity " << reference.transpose( ) << " m/s; errors h=1800,900,450 s: " << errors[ 0 ] << ' '
               << errors[ 1 ] << ' ' << errors[ 2 ] << "; h=1 vs0.5 s: " << fineDifference << '\n';
@@ -329,22 +337,23 @@ BOOST_AUTO_TEST_CASE( earth_model_hooks_reject_utc_limitations_and_preserve_cust
     for( const auto& date : { std::array< int, 3 >{ 2012, 7, 1 }, std::array< int, 3 >{ 2017, 1, 1 } } )
     {
         const double utc = basic_astrodynamics::timeFromDecomposedDateTime< double >( date[ 0 ], date[ 1 ], date[ 2 ], 0, 0, 0.0 );
-        const double leap = sofa_interface::convertUTCtoTT( utc );
-        BOOST_CHECK_THROW( iers->calculateDisplacementVelocity( leap, station ), std::domain_error );
-        BOOST_CHECK_THROW( iers->calculateDisplacementVelocity( leap, station->getNominalCartesianPosition( ) ), std::domain_error );
-        BOOST_CHECK_THROW( ocean.calculateDisplacementVelocity( leap, station ), std::domain_error );
+        const Time leap = basic_astrodynamics::getGeocentricTimeConverter( )->getCurrentTime< Time >(
+                basic_astrodynamics::tt_scale, basic_astrodynamics::tdb_scale, Time( sofa_interface::convertUTCtoTT( utc ) ) );
+        BOOST_CHECK_THROW( iers->calculateDisplacementState( leap, station ).tail< 3 >( ), std::domain_error );
+        BOOST_CHECK_THROW( ocean.calculateDisplacementState( leap, station ).tail< 3 >( ), std::domain_error );
         const auto customArguments = []( const double ) { return Eigen::Vector6d::Zero( ).eval( ); };
         auto customIers = makeIersModel( customArguments );
         basic_astrodynamics::OceanTideEarthDeformation customOcean( makeOceanData( ), customArguments );
-        BOOST_CHECK( customIers->calculateDisplacementVelocity( leap, station ).allFinite( ) );
-        BOOST_CHECK( customOcean.calculateDisplacementVelocity( leap, station ).allFinite( ) );
+        BOOST_CHECK( customIers->calculateDisplacementState( leap, station ).tail< 3 >( ).allFinite( ) );
+        BOOST_CHECK( customOcean.calculateDisplacementState( leap, station ).tail< 3 >( ).allFinite( ) );
     }
     for( const auto& date : { std::array< int, 3 >{ 2012, 7, 2 }, std::array< int, 3 >{ 1965, 6, 16 } } )
     {
         const double utc = basic_astrodynamics::timeFromDecomposedDateTime< double >( date[ 0 ], date[ 1 ], date[ 2 ], 0, 0, 0.0 );
-        const double midnight = sofa_interface::convertUTCtoTT( utc );
-        BOOST_CHECK( iers->calculateDisplacementVelocity( midnight, station ).allFinite( ) );
-        BOOST_CHECK( ocean.calculateDisplacementVelocity( midnight, station ).allFinite( ) );
+        const Time midnight = basic_astrodynamics::getGeocentricTimeConverter( )->getCurrentTime< Time >(
+                basic_astrodynamics::tt_scale, basic_astrodynamics::tdb_scale, Time( sofa_interface::convertUTCtoTT( utc ) ) );
+        BOOST_CHECK( iers->calculateDisplacementState( midnight, station ).tail< 3 >( ).allFinite( ) );
+        BOOST_CHECK( ocean.calculateDisplacementState( midnight, station ).tail< 3 >( ).allFinite( ) );
     }
 }
 

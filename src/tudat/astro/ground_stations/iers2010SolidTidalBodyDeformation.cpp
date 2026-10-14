@@ -413,8 +413,15 @@ Eigen::Vector3d Iers2010EarthDeformation::evaluateDisplacement( const Time& tdb,
 Eigen::Vector6d Iers2010EarthDeformation::evaluateDisplacementState( const Time& tdb,
                                                                      const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    if( usesNativeUtcPhase_ ) timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
-    return BodyDeformationModel::evaluateDisplacementState( tdb, station );
+    if( usesNativeUtcPhase_ )
+    {
+        timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
+        return BodyDeformationModel::evaluateDisplacementState( tdb, station );
+    }
+    const double centre = static_cast< double >( tdb );
+    const Eigen::Vector3d velocity = differentiateDisplacement(
+            centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); }, {} );
+    return ( Eigen::Vector6d( ) << calculateDisplacement( tdb, station ), velocity ).finished( );
 }
 
 void Iers2010EarthDeformation::validateDisplacementDerivativeInterval( const Time& lower, const Time& upper ) const

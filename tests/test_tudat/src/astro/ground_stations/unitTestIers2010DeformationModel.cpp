@@ -63,7 +63,9 @@ Eigen::Vector6d calculateFundamentalArgumentsIersCodeWithTimes( const double ter
 // Full-reference tests below split TT polynomial time from UTC fractional hours.
 Eigen::Vector6d calculateFundamentalArgumentsIersCode( const double timeSinceJ2000 )
 {
-    return calculateFundamentalArgumentsIersCodeWithTimes( timeSinceJ2000, timeSinceJ2000 );
+    const double tt =
+            static_cast< double >( getGeocentricTimeConverter( )->getCurrentTime< Time >( tdb_scale, tt_scale, Time( timeSinceJ2000 ) ) );
+    return calculateFundamentalArgumentsIersCodeWithTimes( tt, tt );
 }
 
 BOOST_AUTO_TEST_SUITE( test_iers_2010_solid_earth_tide_deformation )
@@ -104,14 +106,14 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                        std::make_shared< ConstantRotationalEphemeris >( orientationQuaternion ),
                        std::placeholders::_1 );
 
-    std::function< Eigen::Vector6d( const double ) > earthEphemeris =
+    std::function< Eigen::Vector6d( const Time& ) > earthEphemeris =
             std::bind( &Ephemeris::getCartesianState, std::make_shared< ConstantEphemeris >( earthState ), std::placeholders::_1 );
-    std::function< Eigen::Vector6d( const double ) > sunEphemeris =
+    std::function< Eigen::Vector6d( const Time& ) > sunEphemeris =
             std::bind( &Ephemeris::getCartesianState, std::make_shared< ConstantEphemeris >( sunState ), std::placeholders::_1 );
-    std::function< Eigen::Vector6d( const double ) > moonEphemeris =
+    std::function< Eigen::Vector6d( const Time& ) > moonEphemeris =
             std::bind( &Ephemeris::getCartesianState, std::make_shared< ConstantEphemeris >( moonState ), std::placeholders::_1 );
 
-    std::vector< std::function< Eigen::Vector6d( const double ) > > ephemerides;
+    std::vector< std::function< Eigen::Vector6d( const Time& ) > > ephemerides;
     ephemerides.resize( 2 );
     ephemerides[ 0 ] = moonEphemeris;
     ephemerides[ 1 ] = sunEphemeris;
@@ -170,7 +172,9 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
 
         expectedDeformation << -0.2836337012840008001E-03, 0.1125342324347507444E-03, -0.2471186224343683169E-03;
 
-        calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        calculatedDeformation = deformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-6 );
 
@@ -204,7 +208,9 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 "" );
 
         expectedDeformation << -0.2801334805106874015E-03, 0.2939522229284325029E-04, -0.6051677912316721561E-04;
-        calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        calculatedDeformation = deformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-6 );
 
@@ -238,7 +244,9 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 "" );
 
         expectedDeformation << 0.2367189532359759044E-03, 0.5181609907284959182E-03, -0.3014881422940427977E-03;
-        calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        calculatedDeformation = deformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-6 );
 
@@ -266,7 +274,9 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 "",
                 std::bind( &calculateFundamentalArgumentsIersCode, std::placeholders::_1 ) );
         expectedDeformation << 0.4193085327321284701E-02, 0.1456681241014607395E-02, 0.5123366597450316508E-02;
-        calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        calculatedDeformation = deformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-12 );
     }
@@ -289,7 +299,9 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 std::bind( &calculateFundamentalArgumentsIersCode, std::placeholders::_1 ) );
 
         expectedDeformation << -0.9780962849562107762E-04, -0.2236349699932734273E-04, 0.3561945821351565926E-03;
-        calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        calculatedDeformation = deformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-12 );
     }
@@ -331,7 +343,9 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
 
         evaluationTime = 292852800.0;
         expectedDeformation << 0.7700420357108125891E-01, 0.6304056321824967613E-01, 0.5516568152597246810E-01;
-        calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        calculatedDeformation = deformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-5 );
     }
@@ -391,7 +405,9 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
             }
             evaluationTime = 395409600.0;
             expectedDeformation << -0.2036831479592075833E-01, 0.5658254776225972449E-01, -0.7597679676871742227E-01;
-            calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+            calculatedDeformation = deformationModel->calculateDisplacement(
+                    getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                    std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-5 );
         }
@@ -429,8 +445,12 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 "",
                 "" );
 
-        expectedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
-        calculatedDeformation = basicDeformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        expectedDeformation = deformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
+        calculatedDeformation = basicDeformationModel->calculateDisplacement(
+                getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( evaluationTime ) ),
+                std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( siteState.segment( 0, 3 ) ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-12 );
     }
@@ -462,7 +482,9 @@ BOOST_AUTO_TEST_CASE( test_corrected_Iers_reference_global_non_midnight )
 
             // Reference polynomials use TT for centuries and UTC for fractional hours.
             const auto referenceArguments = [ &fixture ]( const double time ) {
-                return calculateFundamentalArgumentsIersCodeWithTimes( time, fixture.utcSeconds + ( time - fixture.ttSeconds ) );
+                const double tt =
+                        static_cast< double >( getGeocentricTimeConverter( )->getCurrentTime< Time >( tdb_scale, tt_scale, Time( time ) ) );
+                return calculateFundamentalArgumentsIersCodeWithTimes( tt, fixture.utcSeconds + ( tt - fixture.ttSeconds ) );
             };
             const auto exactReferenceModel = simulation_setup::createDefaultEarthIers2010DeformationModel(
                     earthEphemeris,
@@ -473,7 +495,9 @@ BOOST_AUTO_TEST_CASE( test_corrected_Iers_reference_global_non_midnight )
                     []( ) { return 0.0123000371; },
                     []( ) { return 332946.0482; },
                     referenceArguments );
-            const Eigen::Vector3d exactDisplacement = exactReferenceModel->calculateDisplacement( fixture.ttSeconds, station );
+            const Eigen::Vector3d exactDisplacement = exactReferenceModel->calculateDisplacement(
+                    getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( fixture.ttSeconds ) ),
+                    std::make_shared< ground_stations::GroundStationState >( station ) );
             for( int i = 0; i < 3; ++i )
             {
                 BOOST_CHECK_SMALL( exactDisplacement( i ) - expected( i ), 1.0e-9 );
@@ -490,7 +514,9 @@ BOOST_AUTO_TEST_CASE( test_corrected_Iers_reference_global_non_midnight )
                     []( ) { return 1.0; },
                     []( ) { return 0.0123000371; },
                     []( ) { return 332946.0482; } );
-            const Eigen::Vector3d defaultDisplacement = defaultModel->calculateDisplacement( fixture.ttSeconds, station );
+            const Eigen::Vector3d defaultDisplacement = defaultModel->calculateDisplacement(
+                    getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( fixture.ttSeconds ) ),
+                    std::make_shared< ground_stations::GroundStationState >( station ) );
             for( int i = 0; i < 3; ++i )
             {
                 BOOST_CHECK_SMALL( defaultDisplacement( i ) - expected( i ), 1.0e-9 );

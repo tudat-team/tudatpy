@@ -21,6 +21,18 @@ namespace unit_tests
 using namespace basic_astrodynamics;
 using namespace earth_orientation;
 
+Time tdbFromTt( double tt )
+{
+    return getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( tt ) );
+}
+Eigen::Vector3d enuDisplacement( OceanTideEarthDeformation& model, const Time& tdb, const std::string& id )
+{
+    auto station = std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) );
+    station->setSiteId( id );
+    return station->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( tdb ) ) *
+            model.calculateDisplacement( tdb, station );
+}
+
 BOOST_AUTO_TEST_SUITE( test_ocean_tide_site_displacement )
 
 BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
@@ -38,10 +50,10 @@ BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
     for( int i = 0; i < 24; i++ )
     {
         onsalaResults.block( i, 0, 1, 3 ) =
-                oceanTideDeformationModel.calculateDisplacementInEnuFrame( sofa_interface::convertUTCtoTT( testTime ), "ONSALA" )
+                enuDisplacement( oceanTideDeformationModel, tdbFromTt( sofa_interface::convertUTCtoTT( testTime ) ), "ONSALA" )
                         .transpose( );
         icelandResults.block( i, 0, 1, 3 ) =
-                oceanTideDeformationModel.calculateDisplacementInEnuFrame( sofa_interface::convertUTCtoTT( testTime ), "REYKJAVIK" )
+                enuDisplacement( oceanTideDeformationModel, tdbFromTt( sofa_interface::convertUTCtoTT( testTime ) ), "REYKJAVIK" )
                         .transpose( );
         testTime += timeStep;
     }
@@ -100,10 +112,8 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
     OceanTideEarthDeformation preloaded( data, arguments );
     for( const double time : { 0.0, 1.0E8, 3.0E8 } )
     {
-        BOOST_CHECK_SMALL(
-                ( fromFile.calculateDisplacementInEnuFrame( time, "ONSALA" ) - preloaded.calculateDisplacementInEnuFrame( time, "ONSALA" ) )
-                        .norm( ),
-                1.0E-14 );
+        BOOST_CHECK_SMALL( ( enuDisplacement( fromFile, time, "ONSALA" ) - enuDisplacement( preloaded, time, "ONSALA" ) ).norm( ),
+                           1.0E-14 );
     }
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).getStation( "ONSALA" ).source, file );
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).getStation( "ONSALA" ).oceanTideModel, "CSR4.0_f_PP" );
@@ -113,13 +123,13 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
     conflicting.stations.emplace( additional.stationIdentifier, additional );
     const auto stationCount = preloaded.getOceanLoadingData( ).stations.size( );
     const auto headerCount = preloaded.getOceanLoadingData( ).sourceHeaders.size( );
-    const auto before = preloaded.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" );
+    const auto before = enuDisplacement( preloaded, 1.0E8, "ONSALA" );
     BOOST_CHECK_THROW( preloaded.addOceanLoadingData( conflicting ), std::runtime_error );
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).stations.size( ), stationCount );
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).sourceHeaders.size( ), headerCount );
     BOOST_CHECK_EQUAL( preloaded.getOceanLoadingData( ).stations.count( "ADDED_FIRST" ), 0 );
-    BOOST_CHECK_SMALL( ( preloaded.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ) - before ).norm( ), 1.0E-14 );
-    BOOST_CHECK_THROW( preloaded.calculateDisplacementInEnuFrame( 0.0, "MISSING" ), std::runtime_error );
+    BOOST_CHECK_SMALL( ( enuDisplacement( preloaded, 1.0E8, "ONSALA" ) - before ).norm( ), 1.0E-14 );
+    BOOST_CHECK_THROW( enuDisplacement( preloaded, 0.0, "MISSING" ), std::runtime_error );
 }
 
 namespace
@@ -171,7 +181,7 @@ BOOST_AUTO_TEST_CASE( testExpandedOceanLoadingAgainstIndependentHardisp )
             const double tt = sofa_interface::convertUTCtoTT( utc );
             // HARDISP writes U/S/W; the public spherical result is E/N/radial.
             const Eigen::Vector3d expected( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
-            checkOceanLoadingVector( model.calculateDisplacementInEnuFrame( tt, station.identifier ), expected, 1.0E-6 );
+            checkOceanLoadingVector( enuDisplacement( model, tdbFromTt( tt ), station.identifier ), expected, 1.0E-6 );
         }
     }
 }
@@ -199,9 +209,10 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingSphericalAndOblateGeometry )
     const Eigen::Vector3d radial( std::cos( phi ) * std::cos( lambda ), std::cos( phi ) * std::sin( lambda ), std::sin( phi ) );
     const Eigen::Vector3d sphericalEnu( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
     const Eigen::Vector3d expectedCartesian = sphericalEnu( 0 ) * east + sphericalEnu( 1 ) * north + sphericalEnu( 2 ) * radial;
-    checkOceanLoadingVector( model.calculateDisplacement( tt, spherical ), expectedCartesian, 1.0E-6 );
-    checkOceanLoadingVector( model.calculateDisplacement( tt, oblate ), expectedCartesian, 1.0E-6 );
-    checkOceanLoadingVector( model.calculateDisplacement( tt, spherical ), model.calculateDisplacement( tt, oblate ), 1.0E-14 );
+    checkOceanLoadingVector( model.calculateDisplacement( tdbFromTt( tt ), spherical ), expectedCartesian, 1.0E-6 );
+    checkOceanLoadingVector( model.calculateDisplacement( tdbFromTt( tt ), oblate ), expectedCartesian, 1.0E-6 );
+    checkOceanLoadingVector(
+            model.calculateDisplacement( tdbFromTt( tt ), spherical ), model.calculateDisplacement( tdbFromTt( tt ), oblate ), 1.0E-14 );
     const Eigen::Vector3d geodeticNorth( -std::sin( geodeticLatitude ) * std::cos( lambda ),
                                          -std::sin( geodeticLatitude ) * std::sin( lambda ),
                                          std::cos( geodeticLatitude ) );
@@ -210,7 +221,10 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingSphericalAndOblateGeometry )
                                       std::sin( geodeticLatitude ) );
     const Eigen::Vector3d expectedTopocentric(
             east.dot( expectedCartesian ), geodeticNorth.dot( expectedCartesian ), geodeticUp.dot( expectedCartesian ) );
-    checkOceanLoadingVector( model.calculateDisplacementInEnuFrame( tt, oblate ), expectedTopocentric, 1.0E-6 );
+    checkOceanLoadingVector(
+            ( oblate->getRotationFromBodyFixedToTopocentricFrame( tt ) * model.calculateDisplacement( tdbFromTt( tt ), oblate ) ),
+            expectedTopocentric,
+            1.0E-6 );
     const Eigen::Vector3d uws( reference.upSouthWest[ 0 ], reference.upSouthWest[ 2 ], reference.upSouthWest[ 1 ] );
     checkOceanLoadingVector(
             convertLocalOceanTideDisplacementToPlentocentricDisplacement( uws, { east, north, radial } ), expectedCartesian, 1.0E-14 );
@@ -221,7 +235,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
     auto data = makeHardispReferenceData( );
     for( auto& station : data.stations ) station.second.amplitudesMetres.setZero( );
     OceanTideEarthDeformation zero( data );
-    checkOceanLoadingVector( zero.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ), Eigen::Vector3d::Zero( ), 1.0E-15 );
+    checkOceanLoadingVector( enuDisplacement( zero, 1.0E8, "ONSALA" ), Eigen::Vector3d::Zero( ), 1.0E-15 );
     data.stations.at( "ONSALA" ).amplitudesMetres( 0, 0 ) = 0.01;
     data.stations.at( "ONSALA" ).phaseLagsDegrees( 0, 0 ) = 0.1 * 180.0 / mathematical_constants::PI;
     const std::function< Eigen::Vector6d( const double ) > arguments = []( const double ) {
@@ -232,16 +246,14 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
     OceanTideEarthDeformation legacy( data, arguments );
     BOOST_CHECK( legacy.getSynthesis( ) == OceanTideSynthesis::legacyElevenConstituents );
     // Independent single-M2 fixture: 0.01*cos(0.5-0.1), with all other amplitudes zero.
-    checkOceanLoadingVector(
-            legacy.calculateDisplacementInEnuFrame( 0.0, "ONSALA" ), Eigen::Vector3d( 0.0, 0.0, 0.009210609940028852 ), 1.0E-14 );
+    checkOceanLoadingVector( enuDisplacement( legacy, 0.0, "ONSALA" ), Eigen::Vector3d( 0.0, 0.0, 0.009210609940028852 ), 1.0E-14 );
     OceanTideEarthDeformation explicitLegacy( data, OceanTideSynthesis::legacyElevenConstituents );
     OceanTideEarthDeformation callbackLegacy(
             data, []( const double time ) { return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
-    checkOceanLoadingVector( explicitLegacy.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ),
-                             callbackLegacy.calculateDisplacementInEnuFrame( 1.0E8, "ONSALA" ),
-                             1.0E-14 );
-    BOOST_CHECK_THROW( zero.calculateDisplacementInEnuFrame( 0.0, "MISSING" ), std::runtime_error );
-    BOOST_CHECK_THROW( zero.calculateDisplacementInEnuFrame( std::numeric_limits< double >::quiet_NaN( ), "ONSALA" ), std::runtime_error );
+    checkOceanLoadingVector(
+            enuDisplacement( explicitLegacy, tdbFromTt( 1.0E8 ), "ONSALA" ), enuDisplacement( callbackLegacy, 1.0E8, "ONSALA" ), 1.0E-14 );
+    BOOST_CHECK_THROW( enuDisplacement( zero, 0.0, "MISSING" ), std::runtime_error );
+    BOOST_CHECK_THROW( enuDisplacement( zero, std::numeric_limits< double >::quiet_NaN( ), "ONSALA" ), std::invalid_argument );
 }
 
 BOOST_AUTO_TEST_CASE( testOceanLoadingFactoriesConsumePreloadedData )
@@ -265,7 +277,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingFactoriesConsumePreloadedData )
             reference.year, reference.month, reference.day, reference.hour, reference.minute, reference.second );
     const double tt = sofa_interface::convertUTCtoTT( utc );
     const Eigen::Vector3d expected( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
-    checkOceanLoadingVector( full->calculateDisplacementInEnuFrame( tt, "ONSALA" ), expected, 1.0E-6 );
+    checkOceanLoadingVector( enuDisplacement( *full, tdbFromTt( tt ), "ONSALA" ), expected, 1.0E-6 );
     BOOST_CHECK_EQUAL( full->getOceanLoadingData( ).stations.size( ), data.stations.size( ) );
 }
 

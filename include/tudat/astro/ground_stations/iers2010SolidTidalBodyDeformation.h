@@ -37,8 +37,8 @@ namespace basic_astrodynamics
  * precession correction, and UTC fractional hours as specified by the reference
  * routine (2016-12-19 revision, including the 2013 fractional-hour correction).
  * TT centuries are formed from the input and UTC is obtained with SOFA's
- * TT-to-UTC conversion. Native environment context calls supply converted TT;
- * the legacy scalar deformation path retains its shared TT/TDB epoch convention.
+ * TT-to-UTC conversion. Native model calls convert their precise TDB input to TT
+ * with the model-owned converter before evaluating these scalar polynomials.
  * These arguments are specific to this station displacement convention.
  * \param secondsSinceJ2000 TT seconds since J2000.
  * \return Doodson arguments in radians: tau, s, h, p, N-prime, p-s.

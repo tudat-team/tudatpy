@@ -10,6 +10,7 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ground_stations/poleTideDeformation.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {
@@ -24,6 +25,14 @@ using namespace ground_stations;
 
 namespace
 {
+Time tdbFromTt( double tt )
+{
+    return getGeocentricTimeConverter( )->getCurrentTime< Time >( tt_scale, tdb_scale, Time( tt ) );
+}
+Eigen::Vector3d enuDisplacement( PoleTideDeformation& model, double tt, const std::shared_ptr< GroundStationState >& station )
+{
+    return station->getRotationFromBodyFixedToTopocentricFrame( tt ) * model.calculateDisplacement( tdbFromTt( tt ), station );
+}
 
 // Inject measured pole coordinates without external EOP files or short-period terms.
 std::shared_ptr< PolarMotionCalculator > createConstantPolarMotionCalculator( const double tt, const double xpMas, const double ypMas )
@@ -115,9 +124,8 @@ BOOST_AUTO_TEST_CASE( testPoleTideIndependentIersReferenceCases )
             const Eigen::Vector3d expectedEnu( reference.enuMetres[ 0 ], reference.enuMetres[ 1 ], reference.enuMetres[ 2 ] );
             const Eigen::Vector3d expectedCartesian(
                     reference.cartesianMetres[ 0 ], reference.cartesianMetres[ 1 ], reference.cartesianMetres[ 2 ] );
-            checkDisplacement( model.calculateEnuDisplacement( time, station ), expectedEnu );
-            checkDisplacement( model.calculateDisplacement( time, station ), expectedCartesian );
-            checkDisplacement( model.calculateDisplacement( time, station->getNominalCartesianPosition( ) ), expectedCartesian );
+            checkDisplacement( enuDisplacement( model, time, station ), expectedEnu );
+            checkDisplacement( model.calculateDisplacement( tdbFromTt( time ), station ), expectedCartesian );
         }
     }
 }
@@ -146,13 +154,12 @@ BOOST_AUTO_TEST_CASE( testPoleTideOblateStationRepresentation )
     // Independent projection of the same reference Cartesian vector onto the
     // geodetic east/north/normal basis at 48/123 degrees.
     const Eigen::Vector3d expectedGeodeticEnu( -0.00016710873300951118, -0.00022011967763310627, 0.0072966301950275498 );
-    checkDisplacement( model.calculateDisplacement( time, sphericalStation ), expectedCartesian );
-    checkDisplacement( model.calculateDisplacement( time, cartesianPosition ), expectedCartesian );
-    checkDisplacement( model.calculateEnuDisplacement( time, sphericalStation ), expectedSphericalEnu );
+    checkDisplacement( model.calculateDisplacement( tdbFromTt( time ), sphericalStation ), expectedCartesian );
+    checkDisplacement( enuDisplacement( model, time, sphericalStation ), expectedSphericalEnu );
     for( const auto& station : oblateStations )
     {
-        checkDisplacement( model.calculateDisplacement( time, station ), expectedCartesian );
-        const Eigen::Vector3d enu = model.calculateEnuDisplacement( time, station );
+        checkDisplacement( model.calculateDisplacement( tdbFromTt( time ), station ), expectedCartesian );
+        const Eigen::Vector3d enu = enuDisplacement( model, time, station );
         checkDisplacement( enu, expectedGeodeticEnu );
         checkDisplacement( station->getRotationFromBodyFixedToTopocentricFrame( time ).inverse( ) * enu, expectedCartesian );
     }
@@ -174,8 +181,8 @@ BOOST_AUTO_TEST_CASE( testPoleTideZeroWobbleAnd2018SecularPole )
         PoleTideDeformation model( createConstantPolarMotionCalculator( time, reference[ 1 ], reference[ 2 ] ) );
         for( const auto& station : stations )
         {
-            checkDisplacement( model.calculateEnuDisplacement( time, station ), Eigen::Vector3d::Zero( ) );
-            checkDisplacement( model.calculateDisplacement( time, station ), Eigen::Vector3d::Zero( ) );
+            checkDisplacement( enuDisplacement( model, time, station ), Eigen::Vector3d::Zero( ) );
+            checkDisplacement( model.calculateDisplacement( tdbFromTt( time ), station ), Eigen::Vector3d::Zero( ) );
         }
     }
 }

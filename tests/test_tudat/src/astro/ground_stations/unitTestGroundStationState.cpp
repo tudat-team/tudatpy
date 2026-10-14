@@ -330,9 +330,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                     if( bodyDeformationType == 1 )
                     {
                         expectedStateDifference +=
-                                deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 0 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                         expectedStateDifference +=
-                                deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 1 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-7 );
                 }
@@ -347,9 +347,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                     if( bodyDeformationType == 1 )
                     {
                         expectedStateDifference +=
-                                deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 0 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                         expectedStateDifference +=
-                                deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 1 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-7 );
                 }
@@ -364,9 +364,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                     if( bodyDeformationType == 1 )
                     {
                         expectedStateDifference +=
-                                deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 0 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                         expectedStateDifference +=
-                                deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 1 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-7 );
                 }
@@ -382,9 +382,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                     if( bodyDeformationType == 1 )
                     {
                         expectedStateDifference +=
-                                deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 0 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                         expectedStateDifference +=
-                                deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                deformationModels.at( 1 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );
                 }
@@ -401,9 +401,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                         if( bodyDeformationType == 1 )
                         {
                             expectedStateDifference +=
-                                    deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                    deformationModels.at( 0 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                             expectedStateDifference +=
-                                    deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                    deformationModels.at( 1 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                         }
 
                         expectedStateDifference += getBodyFixedSpecialRelativisticDisplacementFunction(
@@ -420,9 +420,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                         if( bodyDeformationType == 1 )
                         {
                             expectedStateDifference +=
-                                    deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                    deformationModels.at( 0 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                             expectedStateDifference +=
-                                    deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                                    deformationModels.at( 1 )->calculateDisplacement( Time( testTimes.at( j ) ), stationState );
                         }
 
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );

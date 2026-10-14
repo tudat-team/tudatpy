@@ -25,12 +25,15 @@ and pole tides use the model's precise TT/EOP path. A GCRS/ITRS rotation uses
 its own converter and declared input scale. Generic models and explicitly
 supplied custom argument callbacks retain their original scalar forwarding.
 
-Standalone scalar ocean-loading and pole-tide calls require TT. The legacy
-scalar IERS solid-tide interface retains its shared epoch argument for
-TT tide arguments and TDB ephemeris callbacks; use the native C++ epoch-context
-interface to distinguish these clocks. Native environment velocities are
-with respect to TDB: TT-only models apply the shared geocentric dTT/dTDB factor,
-and mixed solid tides differentiate the complete routed displacement.
+Native C++ deformation models expose ``calculateDisplacement(Time, station)``
+and ``calculateDisplacementState(Time, station)``. Both receive precise TDB;
+the model owns its selected time converter. Outputs are body-fixed Cartesian
+metres and, for states, metres per second with respect to TDB. Position evaluation
+does not require rates. Velocity callers extract the state tail; ENU callers
+apply the station's body-fixed-to-topocentric rotation. TT-only models apply the
+geocentric dTT/dTDB factor, and mixed solid tides differentiate the complete
+routed displacement. Existing explicit scalar argument callbacks receive TDB
+seconds and retain their own argument convention.
 A configured TT/TDB interpolator without a supported clock derivative permits
 positions but rejects native states/rates. Current scalar UTC tide phases reject
 ambiguous inserted-second positions and derivative intervals crossing an offset

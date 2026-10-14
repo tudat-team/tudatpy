@@ -18,6 +18,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <stdexcept>
@@ -65,6 +66,9 @@ protected:
     Eigen::Vector3d differentiateDisplacement( const Time& time,
                                                const std::function< Eigen::Vector3d( const Time& ) >& displacement,
                                                const std::function< void( const Time&, const Time& ) >& validateInterval ) const;
+    Eigen::Vector3d differentiateDisplacement( double time,
+                                               const std::function< Eigen::Vector3d( const double& ) >& displacement,
+                                               const std::function< void( const double&, const double& ) >& validateInterval ) const;
     virtual void validateDisplacementDerivativeInterval( const Time&, const Time& ) const {}
     //! Only the original-double station boundary invokes this adapter.
     virtual Time normalizeScalarTdb( double tdb ) const;
@@ -123,6 +127,9 @@ private:
     Eigen::Matrix< double, State ? 6 : 3, 1 > evaluateMotion( const Epoch& input, const std::shared_ptr< GroundStationState > station )
     {
         Eigen::Matrix< double, State ? 6 : 3, 1 > result = Eigen::Matrix < double, State ? 6 : 3, 1 > ::Zero( );
+        if( !std::isfinite( static_cast< double >( input ) ) )
+            throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
+        if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
         const auto& models = modelList_( );
         std::vector< bool > selected( models.size( ), false );
         for( std::size_t i = 0; i < models.size( ); ++i )
@@ -136,7 +143,7 @@ private:
                     tdb = model->normalizeScalarTdb( input );
                 else
                     tdb = input;
-                if( !State || !throwExceptionWhenNotAvailable_ ) displacement = model->calculateDisplacement( tdb, station );
+                if( !State || !throwExceptionWhenNotAvailable_ ) displacement = model->evaluateDisplacement( tdb, station );
             }
             catch( const std::invalid_argument& )
             {
@@ -147,6 +154,8 @@ private:
                 if( throwExceptionWhenNotAvailable_ ) throw;
                 continue;
             }
+            if( ( !State || !throwExceptionWhenNotAvailable_ ) && !displacement.allFinite( ) )
+                throw std::runtime_error( "Non-finite body deformation displacement." );
             if constexpr( State )
                 result += model->calculateDisplacementState( tdb, station );
             else

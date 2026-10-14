@@ -599,7 +599,13 @@ Eigen::Vector3d OceanTideEarthDeformation::evaluateDisplacement( const Time& tdb
 Eigen::Vector6d OceanTideEarthDeformation::evaluateDisplacementState( const Time& tdb,
                                                                       const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    if( !usesNativeUtcPhase_ ) return BodyDeformationModel::evaluateDisplacementState( tdb, station );
+    if( !usesNativeUtcPhase_ )
+    {
+        const double centre = static_cast< double >( tdb );
+        const Eigen::Vector3d velocity = differentiateDisplacement(
+                centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); }, {} );
+        return ( Eigen::Vector6d( ) << calculateDisplacement( tdb, station ), velocity ).finished( );
+    }
     const Time tt = timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb );
     const double rate = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     const Eigen::Vector3d velocity =

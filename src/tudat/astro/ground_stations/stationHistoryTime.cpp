@@ -4,6 +4,7 @@
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 namespace tudat
@@ -127,23 +128,30 @@ StationHistoryTime getIgnNominalUtcStationTimeFromTdb( double tdb,
     // Precise Time inputs never use this branch or snap to its double image.
     const int approximateMjd = static_cast< int >( std::floor( static_cast< long double >( tai ) / 86400.0L + 51544.5L ) );
     std::optional< Time > match;
+    Time rateEpoch = normalizedTdb;
+    const double candidateWindow =
+            std::max( 1e-6, 8 * std::numeric_limits< double >::epsilon( ) * std::abs( static_cast< double >( tai ) ) );
     for( int offset = -1; offset <= 1; ++offset )
     {
         const auto day = civilDay( approximateMjd + offset );
         for( const Time& boundary : { day.midnightTai, day.midnightTai + 86400.0 } )
         {
+            // An interior query must not probe a selected TT/TDB interpolator at
+            // unrelated civil boundaries outside its declared coverage.
+            if( std::abs( static_cast< long double >( boundary - tai ) ) > candidateWindow ) continue;
             const Time image =
                     converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, boundary );
             if( static_cast< double >( image ) == tdb )
             {
                 if( match && *match != boundary ) throw std::runtime_error( "IGN nominal UTC scalar clock has collapsed boundary images" );
                 match = boundary;
+                rateEpoch = image;
             }
         }
     }
     if( match ) tai = *match;
     return getIgnNominalUtcStationTimeFromTai(
-            tai, rates ? std::optional< double >( converter->getGeocentricTtRateWithRespectToTdb( normalizedTdb ) ) : std::nullopt );
+            tai, rates ? std::optional< double >( converter->getGeocentricTtRateWithRespectToTdb( rateEpoch ) ) : std::nullopt );
 }
 }  // namespace ground_stations
 }  // namespace tudat

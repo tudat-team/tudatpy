@@ -43,11 +43,11 @@ std::shared_ptr< BodyCentricToBarycentricRelativisticStationMotion > constantMod
 }
 
 struct PositionOnlyMotion : StationMotionModel {
-    Eigen::Vector6d getBodyFixedStationMotion( double, std::shared_ptr< GroundStationState >, const std::string& ) override
+    Eigen::Vector6d getBodyFixedStationMotion( const Time&, std::shared_ptr< GroundStationState >, const std::string& ) override
     {
         throw std::runtime_error( "Intrinsic rate unavailable" );
     }
-    Eigen::Vector3d getBodyFixedStationPositionCorrection( double, std::shared_ptr< GroundStationState >, const std::string& ) override
+    Eigen::Vector3d getBodyFixedStationPositionCorrection( const Time&, std::shared_ptr< GroundStationState >, const std::string& ) override
     {
         return Eigen::Vector3d( 17, -21, 8 );
     }

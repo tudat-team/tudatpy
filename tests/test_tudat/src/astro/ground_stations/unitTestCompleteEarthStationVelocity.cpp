@@ -55,17 +55,11 @@ struct EarthStationFixture {
         sun = inertialState( Eigen::Vector3d( 137859926952.015, 54228127881.435, 23509422341.696 ),
                              Eigen::Vector3d( -12000.0, 27000.0, 950.0 ) );
         zero = []( const double ) -> Eigen::Vector6d { return Eigen::Vector6d::Zero( ); };
-        const auto rotate = [ this ]( const double t ) { return rotation->getRotationToTargetFrame( t ); };
-        const auto contextRotate = [ this ]( const EarthDeformationEpoch& epoch ) {
-            // Match native factory routing: retain the original double's exact
-            // endpoint image before supplying the extended rotation epoch.
-            const Time tdb = clock->getCurrentTime< Time >( tai_scale, tdb_scale, epoch.getTai( ) );
-            return rotation->getRotationToTargetFrameFromExtendedTime( tdb );
-        };
+        const auto rotate = [ this ]( const Time& tdb ) { return rotation->getRotationToTargetFrameFromExtendedTime( tdb ); };
         const std::map< int, std::pair< double, double > > love = { { 2, { 0.6078, 0.0847 } }, { 3, { 0.292, 0.015 } } };
         solid = std::make_shared< Iers2010EarthDeformation >(
                 zero,
-                std::vector< std::function< Eigen::Vector6d( double ) > >{ moon, sun },
+                std::vector< std::function< Eigen::Vector6d( const Time& ) > >{ moon, sun },
                 rotate,
                 []( ) { return 1.0; },
                 std::vector< std::function< double( ) > >{ []( ) { return 0.0123000371; }, []( ) { return 332946.0482; } },
@@ -77,11 +71,10 @@ struct EarthStationFixture {
                 paths::getEarthDeformationDataFilesPath( ) + "/diurnalDisplacementFrequencyDependence2.txt",
                 paths::getEarthDeformationDataFilesPath( ) + "/longPeriodDisplacementFrequencyDependence.txt",
                 std::function< Eigen::Vector6d( double ) >( ),
-                contextRotate,
                 clock );
         basicSolid = std::make_shared< BasicTidalBodyDeformation >(
                 zero,
-                std::vector< std::function< Eigen::Vector6d( double ) > >{ moon, sun },
+                std::vector< std::function< Eigen::Vector6d( const Time& ) > >{ moon, sun },
                 rotate,
                 []( ) { return 1.0; },
                 std::vector< std::function< double( ) > >{ []( ) { return 0.0123000371; }, []( ) { return 332946.0482; } },
@@ -97,10 +90,10 @@ struct EarthStationFixture {
                 oceanStation.phaseLagsDegrees( row, column ) = 13.0 * column + 19.0 * row;
             }
         oceanData.stations.emplace( oceanStation.stationIdentifier, oceanStation );
-        ocean = std::make_shared< OceanTideEarthDeformation >( oceanData );
+        ocean = std::make_shared< OceanTideEarthDeformation >( oceanData, OceanTideSynthesis::iersHardisp, clock );
         pole = std::make_shared< PoleTideDeformation >( polar, clock );
         models = { solid, ocean, pole };
-        auto deformation = std::make_shared< BodyDeformationStationMotionModel >( [ this ]( ) -> auto& { return models; }, true, clock );
+        auto deformation = std::make_shared< BodyDeformationStationMotionModel >( [ this ]( ) -> auto& { return models; }, true );
         auto secular = std::make_shared< LinearStationMotionModel >( secularVelocity, referenceTdb );
         auto combined = std::make_shared< CombinedStationMotionModel >(
                 std::vector< std::shared_ptr< StationMotionModel > >{ secular, deformation } );
@@ -143,7 +136,7 @@ BOOST_AUTO_TEST_CASE( full_native_station_state_combines_each_deformation_veloci
     {
         const double t = fixture.referenceTdb + offset;
         Eigen::Vector6d deformation = Eigen::Vector6d::Zero( );
-        const EarthDeformationEpoch epoch( t, fixture.clock );
+        const Time epoch = normalizeScalarTdb( t, fixture.clock );
         for( const auto& model : fixture.models )
         {
             const auto contribution = model->calculateDisplacementState( epoch, fixture.station );
