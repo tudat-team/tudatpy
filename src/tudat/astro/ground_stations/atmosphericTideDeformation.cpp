@@ -61,10 +61,6 @@ Eigen::Matrix3d localToCartesian( double latitude, double longitude )
 void AtmosphericTideDeformation::validateCommonSettings( ) const
 {
     using namespace input_output;
-    if( !converter_ )
-    {
-        throw std::runtime_error( "Atmospheric tide deformation requires its own shared Earth time converter" );
-    }
     if( settings_.lookupLatitudeConvention != AtmosphericTideLatitudeConvention::unspecified &&
         settings_.lookupLatitudeConvention != AtmosphericTideLatitudeConvention::geocentric &&
         settings_.lookupLatitudeConvention != AtmosphericTideLatitudeConvention::geodetic )
@@ -130,9 +126,11 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
         const input_output::AtmosphericTideGrid& grid,
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter,
         const AtmosphericTideEvaluationSettings& settings,
-        const std::shared_ptr< BodyShapeModel >& bodyShape ): converter_( converter ), settings_( settings ), bodyShape_( bodyShape )
+        const std::shared_ptr< BodyShapeModel >& bodyShape ):
+    BodyDeformationModel( converter ), settings_( settings ), bodyShape_( bodyShape )
 {
     using namespace input_output;
+    if( !converter ) throw std::runtime_error( "Atmospheric tide deformation requires its own shared Earth time converter" );
     validateCommonSettings( );
     validateAtmosphericTideGrid( grid );
     resolvedGridMetadata_ = grid.metadata;
@@ -156,9 +154,10 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter,
         const AtmosphericTideEvaluationSettings& settings,
         const std::shared_ptr< BodyShapeModel >& bodyShape ):
-    stationData_( stations ), converter_( converter ), settings_( settings ), bodyShape_( bodyShape )
+    BodyDeformationModel( converter ), stationData_( stations ), settings_( settings ), bodyShape_( bodyShape )
 {
     using namespace input_output;
+    if( !converter ) throw std::runtime_error( "Atmospheric tide deformation requires its own shared Earth time converter" );
     validateCommonSettings( );
     validateAtmosphericTideStationData( stations );
     for( const auto& entry : stations.stations )
@@ -172,31 +171,21 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
     }
 }
 
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacement( double tdb, const Eigen::Vector3d& position )
+Eigen::Vector3d AtmosphericTideDeformation::evaluateDisplacement( const Time& tdb,
+                                                                  const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return calculateDisplacement( EarthDeformationEpoch( tdb, converter_ ), position );
+    return evaluateCartesianLoading( tdb, station, false );
 }
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacement( double tdb,
-                                                                   const std::shared_ptr< ground_stations::GroundStationState > station )
+Eigen::Vector6d AtmosphericTideDeformation::evaluateDisplacementState(
+        const Time& tdb,
+        const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return calculateDisplacement( EarthDeformationEpoch( tdb, converter_ ), station );
+    Eigen::Vector6d state;
+    state.head< 3 >( ) = evaluateCartesianLoading( tdb, station, false );
+    state.tail< 3 >( ) = evaluateCartesianLoading( tdb, station, true );
+    return state;
 }
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
-{
-    if( usesStationCoefficients( ) )
-    {
-        throw std::runtime_error( "Atmospheric station coefficients require an exact station identifier" );
-    }
-    return calculateDisplacement(
-            epoch,
-            std::make_shared< ground_stations::GroundStationState >( position, coordinate_conversions::cartesian_position, bodyShape_ ) );
-}
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch,
-                                                                   const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return evaluateCartesianLoading( epoch, station, false );
-}
-Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const EarthDeformationEpoch& epoch,
+Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time& tdb,
                                                                       const std::shared_ptr< ground_stations::GroundStationState >& station,
                                                                       bool derivativeWrtTdb )
 {
@@ -239,19 +228,17 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Eart
         coefficients =
                 gridInterpolator_->interpolate( latitude * 180 / mathematical_constants::PI, longitude * 180 / mathematical_constants::PI );
     }
-    // The supplied model clock owns coverage/leap policy; never use an unrelated context/global default clock.
-    // Rebind before canonicalizing the original double endpoint or converting a precise Time.
-    const EarthDeformationEpoch ownEpoch = epoch.withTimeConverter( converter_ );
+    const Time tai = timeConverter_->getTaiTime( tdb_scale, tdb );
     double ut1, ut1RateWrtTdb = 1;
     if( derivativeWrtTdb )
     {
-        const auto ut1WithRate = converter_->getUt1FromTaiWithRate( ownEpoch.getTai( ) );
+        const auto ut1WithRate = timeConverter_->getUt1FromTaiWithRate( tai );
         ut1 = static_cast< double >( ut1WithRate.ut1 );
-        ut1RateWrtTdb = ut1WithRate.dUt1DTai * ownEpoch.getTtRateWithRespectToTdb( );
+        ut1RateWrtTdb = ut1WithRate.dUt1DTai * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     }
     else
     {
-        ut1 = static_cast< double >( ownEpoch.getUt1( ) );
+        ut1 = static_cast< double >( timeConverter_->getUt1FromTai( tai ) );
     }
     const Eigen::Vector3d local = derivativeWrtTdb ? differentiateAtmosphericTideLoadingWrtUt1( coefficients, ut1 )
                                                    : synthesizeAtmosphericTideLoading( coefficients, ut1 );
@@ -265,68 +252,6 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Eart
                                       : calculateIers2010Rp03AtmosphericGeocentreTranslation( ut1 );
     }
     return ut1RateWrtTdb * cartesian;
-}
-Eigen::Vector3d AtmosphericTideDeformation::calculateEnuDisplacement( const EarthDeformationEpoch& epoch,
-                                                                      const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    const Eigen::Vector3d cartesian = calculateDisplacement( epoch, station );
-    return station->getRotationFromBodyFixedToTopocentricFrame( epoch.getTdbSeconds( ) ) * cartesian;
-}
-Eigen::Vector3d AtmosphericTideDeformation::calculateEnuDisplacement( double tdb,
-                                                                      const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return calculateEnuDisplacement( EarthDeformationEpoch( tdb, converter_ ), station );
-}
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacementVelocity( double tdb, const Eigen::Vector3d& position )
-{
-    return calculateDisplacementVelocity( EarthDeformationEpoch( tdb, converter_ ), position );
-}
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacementVelocity(
-        double tdb,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return calculateDisplacementVelocity( EarthDeformationEpoch( tdb, converter_ ), station );
-}
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                                           const Eigen::Vector3d& position )
-{
-    if( usesStationCoefficients( ) ) throw std::runtime_error( "Atmospheric station coefficients require an exact station identifier" );
-    return calculateDisplacementVelocity(
-            epoch,
-            std::make_shared< ground_stations::GroundStationState >( position, coordinate_conversions::cartesian_position, bodyShape_ ) );
-}
-Eigen::Vector3d AtmosphericTideDeformation::calculateDisplacementVelocity(
-        const EarthDeformationEpoch& epoch,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return evaluateCartesianLoading( epoch, station, true );
-}
-Eigen::Vector6d AtmosphericTideDeformation::calculateDisplacementState( double tdb, const Eigen::Vector3d& position )
-{
-    return calculateDisplacementState( EarthDeformationEpoch( tdb, converter_ ), position );
-}
-Eigen::Vector6d AtmosphericTideDeformation::calculateDisplacementState(
-        double tdb,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return calculateDisplacementState( EarthDeformationEpoch( tdb, converter_ ), station );
-}
-Eigen::Vector6d AtmosphericTideDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch,
-                                                                        const Eigen::Vector3d& position )
-{
-    Eigen::Vector6d result;
-    result.head< 3 >( ) = calculateDisplacement( epoch, position );
-    result.tail< 3 >( ) = calculateDisplacementVelocity( epoch, position );
-    return result;
-}
-Eigen::Vector6d AtmosphericTideDeformation::calculateDisplacementState(
-        const EarthDeformationEpoch& epoch,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    Eigen::Vector6d result;
-    result.head< 3 >( ) = calculateDisplacement( epoch, station );
-    result.tail< 3 >( ) = calculateDisplacementVelocity( epoch, station );
-    return result;
 }
 input_output::AtmosphericLoadingReferenceOrigin AtmosphericTideDeformation::getOutputReferenceOrigin( const std::string& identifier ) const
 {

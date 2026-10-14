@@ -30,34 +30,15 @@ input_output::OceanPoleTideCoefficients interpolateOceanPoleTideCoefficients(
 class OceanPoleTideDeformation : public BodyDeformationModel
 {
 public:
-    using BodyDeformationModel::calculateDisplacementState;
-    using BodyDeformationModel::calculateDisplacementVelocity;
-    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch,
-                                           const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch,
-                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
     OceanPoleTideDeformation( const input_output::OceanPoleTideGrid& grid,
                               const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
                               const OceanPoleTideLatitudePolicy latitudePolicy = OceanPoleTideLatitudePolicy::requireGridCoverage,
-                              const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock = nullptr );
+                              const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr );
     OceanPoleTideDeformation( const std::string& gridFile,
                               const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
                               const OceanPoleTideLatitudePolicy latitudePolicy = OceanPoleTideLatitudePolicy::requireGridCoverage,
-                              const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock = nullptr );
+                              const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr );
 
-    //! Scalar time is TT seconds since J2000; context calls route the environment TDB epoch explicitly.
-    //! The Cartesian output uses the geocentric spherical basis, independent of station shape representation.
-    Eigen::Vector3d calculateDisplacement( const double time,
-                                           const std::shared_ptr< ground_stations::GroundStationState > stationState ) override;
-    Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition ) override;
-    //! Actual station topocentric east/north/up, with ellipsoid-normal up for oblate shapes.
-    Eigen::Vector3d calculateEnuDisplacement( const double time,
-                                              const std::shared_ptr< ground_stations::GroundStationState > stationState );
     const input_output::OceanPoleTideGrid& getGrid( ) const
     {
         return grid_;
@@ -67,11 +48,13 @@ public:
         return latitudePolicy_;
     }
 
+protected:
+    Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
+                                               const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+
 private:
-    Eigen::Vector3d calculateDisplacementAtTt( const Time& tt,
-                                               bool originalDouble,
-                                               const std::shared_ptr< ground_stations::GroundStationState > station );
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock_;
+    Eigen::Vector3d calculateDisplacementAtTt( const Time& tt, const std::shared_ptr< ground_stations::GroundStationState > station );
     input_output::OceanPoleTideGrid grid_;
     std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator_;
     OceanPoleTideLatitudePolicy latitudePolicy_;

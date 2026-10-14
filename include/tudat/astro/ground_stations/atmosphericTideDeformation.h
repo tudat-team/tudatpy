@@ -3,7 +3,6 @@
 
 #include "tudat/astro/ground_stations/atmosphericTideLoading.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
-#include "tudat/astro/ground_stations/earthDeformationTime.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
@@ -20,7 +19,7 @@ struct AtmosphericTideEvaluationSettings {
 };
 
 //! Native conventional atmospheric loading with explicit geometry and source-origin conventions.
-//! Scalar epochs are environment TDB seconds since J2000. Phase uses continuous UT1 from this model's supplied converter.
+//! Native input is precise environment TDB Time. Phase and analytic state rates use the model-owned shared clock.
 //! No source file is read during evaluation; provider coefficients and source metadata remain unchanged.
 class AtmosphericTideDeformation : public BodyDeformationModel
 {
@@ -33,29 +32,6 @@ public:
                                 const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter,
                                 const AtmosphericTideEvaluationSettings& settings = {},
                                 const std::shared_ptr< BodyShapeModel >& bodyShape = nullptr );
-
-    Eigen::Vector3d calculateDisplacement( double tdb, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacement( double tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch,
-                                           const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    //! Actual station topocentric ENU, independently of the provider lookup/basis conventions.
-    Eigen::Vector3d calculateEnuDisplacement( const EarthDeformationEpoch& epoch,
-                                              const std::shared_ptr< ground_stations::GroundStationState > station );
-    Eigen::Vector3d calculateEnuDisplacement( double tdb, const std::shared_ptr< ground_stations::GroundStationState > station );
-    //! Exact analytic loading velocity/state with respect to TDB seconds, using this model's continuous UT1 rate.
-    //! Position is evaluated independently; rate requests reject unavailable EOP rate stencils.
-    Eigen::Vector3d calculateDisplacementVelocity( double tdb, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacementVelocity( double tdb,
-                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector6d calculateDisplacementState( double tdb, const Eigen::Vector3d& position ) override;
-    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch,
-                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector6d calculateDisplacementState( double tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
     bool usesStationCoefficients( ) const
     {
@@ -75,8 +51,13 @@ public:
     }
     input_output::AtmosphericLoadingReferenceOrigin getOutputReferenceOrigin( const std::string& identifier = "" ) const;
 
+protected:
+    Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
+                                               const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+
 private:
-    Eigen::Vector3d evaluateCartesianLoading( const EarthDeformationEpoch& epoch,
+    Eigen::Vector3d evaluateCartesianLoading( const Time& tdb,
                                               const std::shared_ptr< ground_stations::GroundStationState >& station,
                                               bool derivativeWrtTdb );
     void validateCommonSettings( ) const;
@@ -86,7 +67,6 @@ private:
     input_output::AtmosphericTideStationData stationData_;
     input_output::AtmosphericTideMetadata resolvedGridMetadata_;
     std::map< std::string, input_output::AtmosphericTideMetadata > resolvedStationMetadata_;
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter_;
     AtmosphericTideEvaluationSettings settings_;
     std::shared_ptr< BodyShapeModel > bodyShape_;
 };
