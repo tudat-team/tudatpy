@@ -123,6 +123,7 @@ Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImage
  *  skipObservationsWithMissingLandmarks is true, landmarks without an LMK file are dropped from the images (and images
  *  left without landmarks are dropped). Otherwise a missing landmark is an error. If validateSpacecraftObjectGeometry
  *  is true, every landmark must lie in front of the camera when placed with the SUM SCOBJ vector.
+ *  Repeated images and image/landmark measurements are merged; conflicting metadata or pixels are rejected.
  */
 std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageData >& sumImages,
                                                    const std::map< std::string, LmkLandmarkData >& landmarks,

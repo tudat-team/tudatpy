@@ -61,7 +61,6 @@ set(estimation_HEADERS
         createClockPartials.h
         processOdfFile.h
         processPsfFile.h
-        processSumLmkFiles.h
         processTrackingTxtFile.h
         trackingDataWeighting.h
         createObservationCollection.h

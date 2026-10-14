@@ -12,7 +12,7 @@
 //
 //   test_pixel_landmark_estimation       -- per-image camera-pointing smoke tests: a self-contained
 //                                           Gauss-Newton solve drives the CameraPointingCorrection
-//                                           parameter and PixelCoordinatesPointingPartial objects on
+//                                           parameter and DirectObservationPartial objects on
 //                                           a synthetic (+Z boresight) scene with the spacecraft state
 //                                           held fixed.
 //
@@ -56,7 +56,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
-#include "tudat/simulation/estimation_setup/processSumLmkFiles.h"
+#include "tudat/support/sumLmkTestHelpers.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
@@ -249,7 +249,7 @@ std::shared_ptr< RotationalEphemeris > loadCometAttitude( const std::string& att
 struct SyntheticOrbitScenario {
     SystemOfBodies bodies_;
     std::map< std::string, input_output::sum_lmk::LmkLandmarkData > landmarks_;
-    SumLmkObservationConversionResult< double, double > conversionResult_;
+    LoadedPixelTestData conversionResult_;
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings_;
     Eigen::Vector6d truthInitialState_;
     std::vector< std::string > imageIds_;
@@ -305,7 +305,7 @@ SyntheticOrbitScenario buildSyntheticOrbitScenario( const double pointingSigmaRa
         image.kMatrix_ << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
         image.pointingSigma_ = Eigen::Vector3d::Constant( pointingSigmaRadians );
 
-        const double epoch = getSumImageTdbObservationTime< double >( image );
+        const double epoch = sumImageTdbTimeForTest( image );
         epochs.push_back( epoch );
         const double timeSinceFirstEpoch = epoch - epochs.front( );
         const Eigen::Vector6d keplerianAtEpoch =
@@ -331,9 +331,8 @@ SyntheticOrbitScenario buildSyntheticOrbitScenario( const double pointingSigmaRa
 
     scenario.truthInitialState_ = convertKeplerianToCartesianElements( truthKeplerianElements, targetGravitationalParameter );
 
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
     scenario.conversionResult_ =
-            createSumLmkObservationCollection< double, double >( images, scenario.landmarks_, bodies, conversionSettings );
+            loadPixelTestData( images, scenario.landmarks_, bodies );
 
     SelectedAccelerationMap accelerationSettingsMap;
     accelerationSettingsMap[ "Spacecraft" ][ "Target" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
@@ -370,7 +369,7 @@ Eigen::Vector3d syntheticPointingOffset( const int imageIndex, const double magn
 //! ingested into a pixel observation collection. Shared by the real-data estimation tests.
 struct RealRosettaScenario {
     SystemOfBodies bodies_;
-    SumLmkObservationConversionResult< double, double > conversionResult_;
+    LoadedPixelTestData conversionResult_;
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings_;
     Eigen::Vector6d initialStateGuess_;
 };
@@ -416,17 +415,16 @@ RealRosettaScenario buildRealRosettaScenario( )
 
     std::vector< input_output::sum_lmk::SumImageData > sumImages = input_output::sum_lmk::readSumFiles( sumFiles );
     std::sort( sumImages.begin( ), sumImages.end( ), []( const auto& a, const auto& b ) {
-        return getSumImageTdbObservationTime< double >( a ) < getSumImageTdbObservationTime< double >( b );
+        return sumImageTdbTimeForTest( a ) < sumImageTdbTimeForTest( b );
     } );
-    const double epoch0 = getSumImageTdbObservationTime< double >( sumImages.front( ) );
-    const double epochLast = getSumImageTdbObservationTime< double >( sumImages.back( ) );
+    const double epoch0 = sumImageTdbTimeForTest( sumImages.front( ) );
+    const double epochLast = sumImageTdbTimeForTest( sumImages.back( ) );
 
     // A-priori spacecraft state = reconstructed Rosetta orbiter state relative to the comet, from the
     // committed SPK (NAIF ids: Rosetta orbiter -226, comet 1000012), in metres.
     scenario.initialStateGuess_ = spice_interface::getBodyCartesianStateAtEpoch( "-226", "1000012", "J2000", "none", epoch0 );
 
-    SumLmkObservationConversionSettings conversionSettings( "Comet", "Spacecraft" );
-    scenario.conversionResult_ = createSumLmkObservationCollection< double, double >( sumFiles, lmkFiles, bodies, conversionSettings );
+    scenario.conversionResult_ = loadPixelTestData( sumImages, input_output::sum_lmk::readLmkFiles( lmkFiles ), bodies, "Comet" );
 
     SelectedAccelerationMap accelerationSettingsMap;
     accelerationSettingsMap[ "Spacecraft" ][ "Comet" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
@@ -454,7 +452,7 @@ BOOST_AUTO_TEST_SUITE( test_pixel_landmark_estimation )
 
 //! Recover an injected per-image pointing offset from pixel-landmark observations, with the
 //! spacecraft translational state held fixed. Self-contained Gauss-Newton solve driving the
-//! actual CameraPointingCorrection parameter and PixelCoordinatesPointingPartial objects.
+//! actual CameraPointingCorrection parameter and DirectObservationPartial objects.
 BOOST_AUTO_TEST_CASE( testPointingOffsetRecovery )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -462,10 +460,9 @@ BOOST_AUTO_TEST_CASE( testPointingOffsetRecovery )
     const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
     SystemOfBodies bodies = makeBodies( -10000.0 );
     const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", landmarkIds, -10000.0 ) };
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
-    const std::string cameraName = conversionResult.imageIdToCameraName_.at( "IMGA" );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
+    const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( "IMGA" );
 
     // One observation model per landmark link end (all share the same receiver camera).
     std::vector< std::shared_ptr< ObservationModel< 2, double, double > > > models;
@@ -546,12 +543,11 @@ BOOST_AUTO_TEST_CASE( testObservationOnlyPointingRecoveryThroughOrbitDeterminati
     const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
     SystemOfBodies bodies = makeBodies( -10000.0 );
     const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", landmarkIds, -10000.0 ) };
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+            pointingSettingsForTest( conversionResult );
     const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, bodies );
     BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 );
@@ -630,12 +626,11 @@ BOOST_AUTO_TEST_CASE( testObservationOnlyMultiImagePointingRecovery )
         images.push_back( makeImage( imageId, landmarkIds, -10000.0 ) );
     }
 
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
 
     const std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+            pointingSettingsForTest( conversionResult );
     const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, bodies );
     BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 * static_cast< int >( imageIds.size( ) ) );
@@ -648,7 +643,7 @@ BOOST_AUTO_TEST_CASE( testObservationOnlyMultiImagePointingRecovery )
     std::vector< int > pointingStartIndices;
     for( const std::string& imageId : imageIds )
     {
-        const std::string cameraName = conversionResult.imageIdToCameraName_.at( imageId );
+        const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( imageId );
         const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType(
                 EstimatebleParameterIdentifier( camera_pointing_correction, std::make_pair( "Spacecraft", cameraName ) ) );
         BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
@@ -736,17 +731,16 @@ BOOST_AUTO_TEST_CASE( testObservationOnlyPointingApriori )
     SystemOfBodies bodies = makeBodies( -10000.0 );
     const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", landmarkIds, -10000.0 ),
                                                                         makeImage( "IMGB", landmarkIds, -10000.0 ) };
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
 
     const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
-            createSumLmkPointingParameterSettings< double, double >( conversionResult ), bodies );
+            pointingSettingsForTest( conversionResult ), bodies );
     BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 6 );
 
     // makeImage sets SIGMA_PTG = 1e-4 rad on all three axes.
     const Eigen::MatrixXd inverseAprioriCovariance =
-            createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate );
+            createCovarianceFromDiagonalEntries( parametersToEstimate, conversionResult.inverseAprioriCovarianceDiagonalEntries_, false );
     BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), 6 );
     BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.cols( ), 6 );
     const double expectedInverseVariance = 1.0 / ( 1.0E-4 * 1.0E-4 );
@@ -793,12 +787,11 @@ BOOST_AUTO_TEST_CASE( testObservationOnlyCovarianceAnalysis )
     const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
     SystemOfBodies bodies = makeBodies( -10000.0 );
     const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", landmarkIds, -10000.0 ) };
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+            pointingSettingsForTest( conversionResult );
     const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, bodies );
     BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 );
@@ -865,11 +858,10 @@ BOOST_AUTO_TEST_CASE( testMultiImagePointingIndependence )
     SystemOfBodies bodies = makeBodies( -10000.0 );
     const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", { "L1", "L2" }, -10000.0 ),
                                                                         makeImage( "IMGB", { "L1", "L2" }, -10000.0 ) };
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
-    const std::string cameraA = conversionResult.imageIdToCameraName_.at( "IMGA" );
-    const std::string cameraB = conversionResult.imageIdToCameraName_.at( "IMGB" );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
+    const std::string cameraA = input_output::sum_lmk::getSumImageCameraName( "IMGA" );
+    const std::string cameraB = input_output::sum_lmk::getSumImageCameraName( "IMGB" );
     BOOST_CHECK( cameraA != cameraB );
 
     auto makeModel = [ & ]( const std::string& cameraName ) {
@@ -906,14 +898,12 @@ BOOST_AUTO_TEST_CASE( testPointingParameterSettingsCreation )
     SystemOfBodies bodies = makeBodies( -10000.0 );
     const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", { "L1", "L2" }, -10000.0 ),
                                                                         makeImage( "IMGB", { "L1", "L2" }, -10000.0 ) };
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
 
-    BOOST_CHECK_EQUAL( conversionResult.receiverBodyName_, "Spacecraft" );
 
     const std::vector< std::shared_ptr< EstimatableParameterSettings > > allSettings =
-            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+            pointingSettingsForTest( conversionResult );
     BOOST_REQUIRE_EQUAL( allSettings.size( ), 2 );
 
     // Ordered by camera name, on the receiver body, with the camera as reference point.
@@ -925,17 +915,18 @@ BOOST_AUTO_TEST_CASE( testPointingParameterSettingsCreation )
         settingCameraNames.push_back( setting->parameterType_.second.second );
     }
     BOOST_CHECK( std::is_sorted( settingCameraNames.begin( ), settingCameraNames.end( ) ) );
-    BOOST_CHECK_EQUAL( settingCameraNames.at( 0 ), conversionResult.imageIdToCameraName_.at( "IMGA" ) );
-    BOOST_CHECK_EQUAL( settingCameraNames.at( 1 ), conversionResult.imageIdToCameraName_.at( "IMGB" ) );
+    BOOST_CHECK_EQUAL( settingCameraNames.at( 0 ), input_output::sum_lmk::getSumImageCameraName( "IMGA" ) );
+    BOOST_CHECK_EQUAL( settingCameraNames.at( 1 ), input_output::sum_lmk::getSumImageCameraName( "IMGB" ) );
 
     // Restricting to a subset of the images.
     const std::vector< std::shared_ptr< EstimatableParameterSettings > > subsetSettings =
-            createSumLmkPointingParameterSettings< double, double >( conversionResult, { "IMGB" } );
+            { cameraPointingCorrection( "Spacecraft", "Camera_IMGB" ) };
     BOOST_REQUIRE_EQUAL( subsetSettings.size( ), 1 );
-    BOOST_CHECK_EQUAL( subsetSettings.at( 0 )->parameterType_.second.second, conversionResult.imageIdToCameraName_.at( "IMGB" ) );
+    BOOST_CHECK_EQUAL( subsetSettings.at( 0 )->parameterType_.second.second, input_output::sum_lmk::getSumImageCameraName( "IMGB" ) );
 
-    // An unknown image ID is an error rather than being silently ignored.
-    BOOST_CHECK_THROW( ( createSumLmkPointingParameterSettings< double, double >( conversionResult, { "NOT_AN_IMAGE" } ) ),
+    // A parameter for an unknown camera is rejected by the ordinary parameter factory.
+    BOOST_CHECK_THROW( ( createParametersToEstimate< double, double >(
+                               { cameraPointingCorrection( "Spacecraft", "Camera_NOT_AN_IMAGE" ) }, bodies ) ),
                        std::runtime_error );
 }
 
@@ -948,9 +939,8 @@ BOOST_AUTO_TEST_CASE( testInverseAprioriCovarianceAssembly )
     SystemOfBodies bodies = makeBodies( -10000.0 );
     const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", { "L1", "L2" }, -10000.0 ),
                                                                         makeImage( "IMGB", { "L1", "L2" }, -10000.0 ) };
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, makeLandmarks( ), bodies );
     BOOST_REQUIRE_EQUAL( conversionResult.inverseAprioriCovarianceDiagonalEntries_.size( ), 2 );
 
     // makeImage uses SIGMA_PTG = 1e-4 rad on all three axes.
@@ -959,12 +949,12 @@ BOOST_AUTO_TEST_CASE( testInverseAprioriCovarianceAssembly )
     // --- Both images estimated: both blocks are filled.
     {
         const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
-                createSumLmkPointingParameterSettings< double, double >( conversionResult ), bodies );
+                pointingSettingsForTest( conversionResult ), bodies );
         const int numberOfParameters = parametersToEstimate->getEstimatedParameterSetSize( );
         BOOST_REQUIRE_EQUAL( numberOfParameters, 6 );
 
         const Eigen::MatrixXd inverseAprioriCovariance =
-                createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate );
+                createCovarianceFromDiagonalEntries( parametersToEstimate, conversionResult.inverseAprioriCovarianceDiagonalEntries_, false );
         BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), numberOfParameters );
         BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.cols( ), numberOfParameters );
 
@@ -975,26 +965,28 @@ BOOST_AUTO_TEST_CASE( testInverseAprioriCovarianceAssembly )
         BOOST_CHECK_SMALL( ( inverseAprioriCovariance - Eigen::MatrixXd( inverseAprioriCovariance.diagonal( ).asDiagonal( ) ) ).norm( ),
                            1.0E-12 );
 
-        // Adding onto an existing a-priori accumulates rather than overwrites.
+        // The generic helper assigns the requested diagonal and preserves unrelated entries.
         const Eigen::MatrixXd baseCovariance = Eigen::MatrixXd::Identity( numberOfParameters, numberOfParameters );
         const Eigen::MatrixXd combined =
-                createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate, baseCovariance );
-        BOOST_CHECK_SMALL( ( combined - ( inverseAprioriCovariance + baseCovariance ) ).norm( ) / expectedInverseVariance, 1.0E-12 );
+                addCovarianceDiagonalEntries( baseCovariance, parametersToEstimate,
+                                              conversionResult.inverseAprioriCovarianceDiagonalEntries_ );
+        BOOST_CHECK_SMALL( ( combined - inverseAprioriCovariance ).norm( ) / expectedInverseVariance, 1.0E-12 );
 
         // A base matrix of the wrong size is an error.
-        BOOST_CHECK_THROW( ( createSumLmkInverseAprioriCovariance< double, double, double >(
-                                   conversionResult, parametersToEstimate, Eigen::MatrixXd::Identity( 3, 3 ) ) ),
+        BOOST_CHECK_THROW( ( addCovarianceDiagonalEntries(
+                                   Eigen::MatrixXd::Identity( 3, 3 ), parametersToEstimate,
+                                   conversionResult.inverseAprioriCovarianceDiagonalEntries_ ) ),
                            std::runtime_error );
     }
 
     // --- Only one image estimated: the other image's a-priori is skipped, not an error.
     {
         const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
-                createSumLmkPointingParameterSettings< double, double >( conversionResult, { "IMGB" } ), bodies );
+                { cameraPointingCorrection( "Spacecraft", "Camera_IMGB" ) }, bodies );
         BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 );
 
         const Eigen::MatrixXd inverseAprioriCovariance =
-                createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate );
+                createCovarianceFromDiagonalEntries( parametersToEstimate, conversionResult.inverseAprioriCovarianceDiagonalEntries_, false );
         BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), 3 );
         BOOST_CHECK_SMALL( ( inverseAprioriCovariance.diagonal( ) - Eigen::VectorXd::Constant( 3, expectedInverseVariance ) ).norm( ) /
                                    expectedInverseVariance,
@@ -1072,7 +1064,7 @@ BOOST_AUTO_TEST_CASE( testInitialStateRecoveryFromPixelLandmarks )
         // No pointing a-priori: leave SIGMA_PTG non-finite so no pointing parameter is implied.
         image.pointingSigma_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
 
-        const double epoch = getSumImageTdbObservationTime< double >( image );
+        const double epoch = sumImageTdbTimeForTest( image );
         epochs.push_back( epoch );
         // All geometry is referenced to the first epoch.
         const double timeSinceFirstEpoch = epoch - epochs.front( );
@@ -1101,9 +1093,8 @@ BOOST_AUTO_TEST_CASE( testInitialStateRecoveryFromPixelLandmarks )
     const Eigen::Vector6d truthInitialState = convertKeplerianToCartesianElements( truthKeplerianElements, targetGravitationalParameter );
 
     // --- Convert to a pixel-coordinate observation collection (registers cameras + landmarks).
-    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
-    SumLmkObservationConversionResult< double, double > conversionResult =
-            createSumLmkObservationCollection< double, double >( images, landmarks, bodies, conversionSettings );
+    LoadedPixelTestData conversionResult =
+            loadPixelTestData( images, landmarks, bodies );
 
     // --- Dynamics: spacecraft under target point-mass gravity only.
     SelectedAccelerationMap accelerationSettingsMap;
@@ -1193,7 +1184,7 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
             "Spacecraft", scenario.truthInitialState_, "Target" ) );
     for( const std::shared_ptr< EstimatableParameterSettings >& pointingSetting :
-         createSumLmkPointingParameterSettings< double, double >( scenario.conversionResult_ ) )
+         pointingSettingsForTest( scenario.conversionResult_ ) )
     {
         parameterNames.push_back( pointingSetting );
     }
@@ -1210,7 +1201,7 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
     const double offsetMagnitude = 1.0E-3;
     for( std::size_t imageIndex = 0; imageIndex < scenario.imageIds_.size( ); ++imageIndex )
     {
-        const std::string cameraName = scenario.conversionResult_.imageIdToCameraName_.at( scenario.imageIds_.at( imageIndex ) );
+        const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( scenario.imageIds_.at( imageIndex ) );
         const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType(
                 EstimatebleParameterIdentifier( camera_pointing_correction, std::make_pair( "Spacecraft", cameraName ) ) );
         BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
@@ -1235,7 +1226,7 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
     perturbedParameters.segment( 3, 3 ) += Eigen::Vector3d::Constant( 0.01 );
     for( std::size_t imageIndex = 0; imageIndex < scenario.imageIds_.size( ); ++imageIndex )
     {
-        const std::string cameraName = scenario.conversionResult_.imageIdToCameraName_.at( scenario.imageIds_.at( imageIndex ) );
+        const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( scenario.imageIds_.at( imageIndex ) );
         const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType(
                 EstimatebleParameterIdentifier( camera_pointing_correction, std::make_pair( "Spacecraft", cameraName ) ) );
         perturbedParameters.segment( indices.at( 0 ).first, 3 ) = Eigen::Vector3d::Zero( );
@@ -1268,7 +1259,7 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
     // Pointing recovery, per image.
     for( std::size_t imageIndex = 0; imageIndex < scenario.imageIds_.size( ); ++imageIndex )
     {
-        const std::string cameraName = scenario.conversionResult_.imageIdToCameraName_.at( scenario.imageIds_.at( imageIndex ) );
+        const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( scenario.imageIds_.at( imageIndex ) );
         const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType(
                 EstimatebleParameterIdentifier( camera_pointing_correction, std::make_pair( "Spacecraft", cameraName ) ) );
         const Eigen::Vector3d pointingError = estimationError.segment( indices.at( 0 ).first, 3 );
@@ -1281,8 +1272,8 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
 //! With noise-free data and no a-priori, the truth is the exact minimiser and the pointing is recovered
 //! exactly (previous test). Adding an a-priori deliberately moves the minimum: it trades data fit for
 //! agreement with the a-priori, pulling each correction towards zero and shrinking its formal
-//! uncertainty. Both effects are checked here, which is what shows the a-priori matrix built by
-//! createSumLmkInverseAprioriCovariance reaches the normal equations at the right parameter indices -
+//! uncertainty. Both effects check that the generic a-priori covariance reaches the normal
+//! equations at the right parameter indices -
 //! a matrix assembled at the wrong offsets would constrain the wrong parameters and leave the pointing
 //! estimates untouched.
 BOOST_AUTO_TEST_CASE( testPointingAprioriConstrainsSolution )
@@ -1299,7 +1290,7 @@ BOOST_AUTO_TEST_CASE( testPointingAprioriConstrainsSolution )
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
             "Spacecraft", scenario.truthInitialState_, "Target" ) );
     for( const std::shared_ptr< EstimatableParameterSettings >& pointingSetting :
-         createSumLmkPointingParameterSettings< double, double >( scenario.conversionResult_ ) )
+         pointingSettingsForTest( scenario.conversionResult_ ) )
     {
         parameterNames.push_back( pointingSetting );
     }
@@ -1313,7 +1304,7 @@ BOOST_AUTO_TEST_CASE( testPointingAprioriConstrainsSolution )
     std::vector< int > pointingStartIndices;
     for( const std::string& imageId : scenario.imageIds_ )
     {
-        const std::string cameraName = scenario.conversionResult_.imageIdToCameraName_.at( imageId );
+        const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( imageId );
         const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType(
                 EstimatebleParameterIdentifier( camera_pointing_correction, std::make_pair( "Spacecraft", cameraName ) ) );
         BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
@@ -1344,7 +1335,7 @@ BOOST_AUTO_TEST_CASE( testPointingAprioriConstrainsSolution )
 
     // The a-priori built from the conversion's SIGMA_PTG entries.
     const Eigen::MatrixXd inverseAprioriCovariance =
-            createSumLmkInverseAprioriCovariance< double, double, double >( scenario.conversionResult_, parametersToEstimate );
+            createCovarianceFromDiagonalEntries( parametersToEstimate, scenario.conversionResult_.inverseAprioriCovarianceDiagonalEntries_, false );
     BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), parametersToEstimate->getEstimatedParameterSetSize( ) );
     for( const int startIndex : pointingStartIndices )
     {
@@ -1416,10 +1407,9 @@ BOOST_AUTO_TEST_CASE( testPointingAprioriSkipsUnestimatedImages )
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
             "Spacecraft", scenario.truthInitialState_, "Target" ) );
-    for( const std::shared_ptr< EstimatableParameterSettings >& pointingSetting :
-         createSumLmkPointingParameterSettings< double, double >( scenario.conversionResult_, estimatedImageIds ) )
+    for( const std::string& imageId : estimatedImageIds )
     {
-        parameterNames.push_back( pointingSetting );
+        parameterNames.push_back( cameraPointingCorrection( "Spacecraft", input_output::sum_lmk::getSumImageCameraName( imageId ) ) );
     }
     const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
@@ -1427,7 +1417,7 @@ BOOST_AUTO_TEST_CASE( testPointingAprioriSkipsUnestimatedImages )
 
     // All four a-priori entries are offered; only the two estimated ones may land in the matrix.
     const Eigen::MatrixXd inverseAprioriCovariance =
-            createSumLmkInverseAprioriCovariance< double, double, double >( scenario.conversionResult_, parametersToEstimate );
+            createCovarianceFromDiagonalEntries( parametersToEstimate, scenario.conversionResult_.inverseAprioriCovarianceDiagonalEntries_, false );
     BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), 12 );
     BOOST_CHECK_SMALL( inverseAprioriCovariance.block( 0, 0, 6, 6 ).norm( ), 1.0E-12 );
     for( int i = 6; i < 12; ++i )
@@ -1534,18 +1524,18 @@ BOOST_AUTO_TEST_CASE( testRealRosettaJointStateAndPointingEstimation )
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
             "Spacecraft", scenario.initialStateGuess_, "Comet" ) );
     for( const std::shared_ptr< EstimatableParameterSettings >& pointingSetting :
-         createSumLmkPointingParameterSettings< double, double >( scenario.conversionResult_ ) )
+         pointingSettingsForTest( scenario.conversionResult_ ) )
     {
         parameterNames.push_back( pointingSetting );
     }
     const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
 
-    const std::size_t numberOfImages = scenario.conversionResult_.imageIdToCameraName_.size( );
+    const std::size_t numberOfImages = pointingSettingsForTest( scenario.conversionResult_ ).size( );
     BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 6 + 3 * numberOfImages );
 
     const Eigen::MatrixXd inverseAprioriCovariance =
-            createSumLmkInverseAprioriCovariance< double, double, double >( scenario.conversionResult_, parametersToEstimate );
+            createCovarianceFromDiagonalEntries( parametersToEstimate, scenario.conversionResult_.inverseAprioriCovarianceDiagonalEntries_, false );
     BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), parametersToEstimate->getEstimatedParameterSetSize( ) );
 
     OrbitDeterminationManager< double, double > orbitDeterminationManager(

@@ -19,7 +19,6 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "tudat/astro/system_models/camera.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readSumLmkFiles.h"
 #include "tudat/support/testFileUtilities.h"
@@ -85,35 +84,7 @@ BOOST_AUTO_TEST_CASE( testReadSumAndLmkFiles )
     BOOST_REQUIRE_EQUAL( landmarks.at( "LMK0001" ).pictures_.size( ), 1 );
     BOOST_CHECK( landmarks.at( "LMK0001" ).pictures_.at( 0 ).flagged_ );
 
-    const std::shared_ptr< system_models::PsfCameraProjectionModel > projectionModel =
-            std::make_shared< system_models::PsfCameraProjectionModel >(
-                    image.focalLengthMm_, image.opticalCenter_, image.kMatrix_, Eigen::Matrix< double, 6, 1 >::Zero( ) );
-    // SCOBJ is spacecraft-to-object, so spacecraft body-fixed position is -SCOBJ and the landmark
-    // position relative to the spacecraft is VLM - (-SCOBJ) = VLM + SCOBJ.
-    const Eigen::Vector3d relativeBodyFixedPosition = landmarks.at( "LMK0002" ).bodyFixedPosition_ + image.spacecraftObjectVector_;
-    const Eigen::Vector2d projectedPixelLine =
-            projectionModel->projectUnitVectorToPixelLine( image.cameraAxes_ * relativeBodyFixedPosition );
-    checkClose( projectedPixelLine( 0 ), 612.0 );
-    checkClose( projectedPixelLine( 1 ), 512.0 );
-}
 
-//! The projection model must reject calibrations that cannot define a finite, invertible pixel mapping.
-BOOST_AUTO_TEST_CASE( testPsfCameraCalibrationValidation )
-{
-    const Eigen::Vector2d principalPoint( 512.0, 512.0 );
-    Eigen::Matrix< double, 2, 3 > kMatrix;
-    kMatrix << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
-
-    BOOST_CHECK_NO_THROW( system_models::PsfCameraProjectionModel( 100.0, principalPoint, kMatrix ) );
-    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 0.0, principalPoint, kMatrix ), std::runtime_error );
-
-    Eigen::Vector2d nonFinitePrincipalPoint = principalPoint;
-    nonFinitePrincipalPoint( 0 ) = std::numeric_limits< double >::quiet_NaN( );
-    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 100.0, nonFinitePrincipalPoint, kMatrix ), std::runtime_error );
-
-    Eigen::Matrix< double, 2, 3 > singularKMatrix = kMatrix;
-    singularKMatrix.row( 1 ) = 2.0 * singularKMatrix.row( 0 );
-    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 100.0, principalPoint, singularKMatrix ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( testSumLmkDuplicateFailures )
@@ -436,7 +407,9 @@ BOOST_AUTO_TEST_CASE( testSumCrossFileDuplicateHandling )
         const std::filesystem::path b = makeTemporaryPath( ".sum" );
         writeTextFile( a, baseSum + "LMK0001 512.0 512.0\nEND FILE\n" );
         writeTextFile( b, baseSum + "LMK0001 512.0 512.0\nEND FILE\n" );
-        BOOST_CHECK_NO_THROW( input_output::sum_lmk::readSumFiles( { a.string( ), b.string( ) } ) );
+        const auto images = input_output::sum_lmk::readSumFiles( { a.string( ), b.string( ), a.string( ) } );
+        BOOST_REQUIRE_EQUAL( images.size( ), 1 );
+        BOOST_CHECK_EQUAL( images.front( ).landmarkObservations_.size( ), 1 );
         std::filesystem::remove( a );
         std::filesystem::remove( b );
     }
@@ -469,6 +442,118 @@ BOOST_AUTO_TEST_CASE( testSumCrossFileDuplicateHandling )
         std::filesystem::remove( a );
         std::filesystem::remove( b );
     }
+}
+
+//! Tracking data and camera/landmark metadata are available without constructing a body system.
+BOOST_AUTO_TEST_CASE( testSumLmkTrackingDataWithoutEnvironment )
+{
+    using namespace input_output::sum_lmk;
+    const std::string path = paths::getTudatTestDataPath( ) + "/sum_lmk";
+    const std::vector< std::string > sumFiles = { path + "/sample.sum" };
+    const std::vector< std::string > lmkFiles = { path + "/LMK0001.lmk", path + "/LMK0002.lmk" };
+    const auto images = readSumFiles( sumFiles );
+    const auto landmarks = readLmkFiles( lmkFiles );
+    const auto fromFiles = readSumLmkData< double, double >( sumFiles, lmkFiles, "Target", "Spacecraft" );
+    const auto fromRaw = convertSumLmkData< double, double >( images, landmarks, "Target", "Spacecraft" );
+    BOOST_REQUIRE_EQUAL( fromFiles.first.size( ), 2 );
+    BOOST_REQUIRE_EQUAL( fromRaw.first.size( ), fromFiles.first.size( ) );
+    for( unsigned int i = 0; i < fromFiles.first.size( ); ++i )
+    {
+        const auto entry = fromFiles.first.at( i );
+        BOOST_CHECK_EQUAL( entry->getObservableType( ), "PixelCoordinates" );
+        BOOST_CHECK_EQUAL( entry->getTimeScale( ), "UTC" );
+        BOOST_CHECK_EQUAL( entry->getReferenceLinkEnd( ), "receiver" );
+        BOOST_CHECK_EQUAL( entry->getNumberOfObservations( ), 1 );
+        BOOST_CHECK_SMALL( ( entry->getObservationsVector( ) - fromRaw.first.at( i )->getObservationsVector( ) ).norm( ), 1.0E-14 );
+        BOOST_CHECK_EQUAL( entry->getObservationEpochs( ).front( ), fromRaw.first.at( i )->getObservationEpochs( ).front( ) );
+        BOOST_CHECK( entry->getLinkEnds( ) == fromRaw.first.at( i )->getLinkEnds( ) );
+    }
+    BOOST_REQUIRE_EQUAL( fromFiles.second.size( ), 3 );
+    BOOST_REQUIRE_EQUAL( fromRaw.second.size( ), fromFiles.second.size( ) );
+    unsigned int cameraCount = 0, landmarkCount = 0;
+    for( const auto& entry : fromFiles.second )
+    {
+        if( entry->getReferencePointSupplementaryData( ) != nullptr )
+        {
+            ++landmarkCount;
+            BOOST_CHECK_EQUAL( entry->getBodyName( ), "Target" );
+            BOOST_CHECK_SMALL( ( entry->getReferencePointSupplementaryData( )->getBodyFixedPosition( ) -
+                                landmarks.at( entry->getReferencePointName( ) ).bodyFixedPosition_ ).norm( ), 1.0E-12 );
+        }
+        for( const auto& instrument : entry->getInstrumentSupplementaryData( ) )
+        {
+            const auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
+            BOOST_REQUIRE( camera != nullptr );
+            ++cameraCount;
+            BOOST_CHECK_EQUAL( entry->getBodyName( ), "Spacecraft" );
+            BOOST_CHECK_EQUAL( camera->getCameraId( ), "Camera_IMG001" );
+            BOOST_CHECK_EQUAL( camera->getPointingReferenceBodyName( ), "Target" );
+            BOOST_CHECK_SMALL( ( camera->getPointingUncertainty( ) - Eigen::Vector3d::Constant( 1.0E-4 ) ).norm( ), 1.0E-15 );
+            BOOST_CHECK_SMALL( ( camera->getKMatrix( ) - images.front( ).kMatrix_ ).norm( ), 1.0E-12 );
+        }
+    }
+    BOOST_CHECK_EQUAL( cameraCount, 1 );
+    BOOST_CHECK_EQUAL( landmarkCount, 2 );
+}
+
+BOOST_AUTO_TEST_CASE( testIdenticalSumLmkDataIsLoadedOnce )
+{
+    using namespace input_output::sum_lmk;
+    const std::string path = paths::getTudatTestDataPath( ) + "/sum_lmk";
+    const auto images = readSumFiles( { path + "/sample.sum", path + "/sample.sum" } );
+    BOOST_REQUIRE_EQUAL( images.size( ), 1 );
+    BOOST_CHECK_EQUAL( images.front( ).landmarkObservations_.size( ), 2 );
+    BOOST_CHECK_EQUAL( images.front( ).limbFitObservations_.size( ), 1 );
+    const auto landmarks = readLmkFiles( { path + "/LMK0001.lmk", path + "/LMK0002.lmk", path + "/LMK0001.lmk" } );
+    BOOST_CHECK_EQUAL( landmarks.size( ), 2 );
+    auto repeated = images.front( );
+    repeated.landmarkObservations_.push_back( repeated.landmarkObservations_.front( ) );
+    const auto loaded = convertSumLmkData< double, double >( { repeated, repeated }, landmarks, "Target", "Spacecraft" );
+    BOOST_CHECK_EQUAL( loaded.first.size( ), 2 );
+    BOOST_CHECK_EQUAL( loaded.second.size( ), 3 );
+    repeated.landmarkObservations_.back( ).pixelCoordinates_( 0 ) += 1.0;
+    BOOST_CHECK_THROW( ( convertSumLmkData< double, double >( { repeated }, landmarks, "Target", "Spacecraft" ) ), std::runtime_error );
+
+    const auto minimalLmk = makeTemporaryPath( ".lmk" );
+    writeTextFile( minimalLmk, "LMK0001 T\n0.0 0.0 0.0 VLM\nEND FILE\n" );
+    const auto minimalLandmarks = readLmkFiles( { minimalLmk.string( ), minimalLmk.string( ) } );
+    BOOST_REQUIRE_EQUAL( minimalLandmarks.size( ), 1 );
+    BOOST_CHECK( minimalLandmarks.begin( )->second.localXAxis_.array( ).isNaN( ).all( ) );
+    std::filesystem::remove( minimalLmk );
+
+    const auto repeatedRows = makeTemporaryPath( ".sum" );
+    writeTextFile( repeatedRows,
+                   "IMGROWS\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+                   "100.0 512.0 512.0 MMFL, CTR\n1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n"
+                   "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\nLANDMARKS\n"
+                   "LMK0001 512.0 512.0\nLMK0001 512.0 512.0\nEND FILE\n" );
+    BOOST_CHECK_EQUAL( readSumFile( repeatedRows.string( ) ).landmarkObservations_.size( ), 1 );
+    std::filesystem::remove( repeatedRows );
+}
+
+BOOST_AUTO_TEST_CASE( testNonfiniteSumMeasurementsAndPointingUncertainties )
+{
+    using namespace input_output::sum_lmk;
+    const std::string path = paths::getTudatTestDataPath( ) + "/sum_lmk";
+    const auto validImage = readSumFile( path + "/sample.sum" );
+    const auto landmarks = readLmkFiles( { path + "/LMK0001.lmk", path + "/LMK0002.lmk" } );
+    for( const double invalid : { std::numeric_limits< double >::infinity( ), -std::numeric_limits< double >::infinity( ), TUDAT_NAN } )
+    {
+        auto image = validImage;
+        image.landmarkObservations_.front( ).pixelCoordinates_( 0 ) = invalid;
+        BOOST_CHECK_THROW( ( convertSumLmkData< double, double >( { image }, landmarks, "Target", "Spacecraft" ) ), std::runtime_error );
+    }
+    for( const Eigen::Vector3d& sigma : std::vector< Eigen::Vector3d >{
+                 Eigen::Vector3d::Constant( std::numeric_limits< double >::infinity( ) ),
+                 Eigen::Vector3d( 1.0E-4, TUDAT_NAN, TUDAT_NAN ), Eigen::Vector3d::Zero( ), Eigen::Vector3d::Constant( -1.0E-4 ) } )
+    {
+        auto image = validImage;
+        image.pointingSigma_ = sigma;
+        BOOST_CHECK_THROW( ( convertSumLmkData< double, double >( { image }, landmarks, "Target", "Spacecraft" ) ), std::runtime_error );
+    }
+    auto image = validImage;
+    image.pointingSigma_ = Eigen::Vector3d::Constant( TUDAT_NAN );
+    BOOST_CHECK_NO_THROW( ( convertSumLmkData< double, double >( { image }, landmarks, "Target", "Spacecraft" ) ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

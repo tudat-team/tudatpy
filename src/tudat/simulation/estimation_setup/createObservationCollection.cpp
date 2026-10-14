@@ -729,6 +729,8 @@ void setInstrumentSupplementaryDataInBodies(
                         Eigen::Vector3d::Zero( ),
                         createCameraPointingFunction( bodies, *cameraSupplementaryData ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
+                bodies.at( bodyName )->getVehicleSystems( )->getCamera( cameraSupplementaryData->getCameraId( ) )
+                        ->setPointingReferenceBodyName( cameraSupplementaryData->getPointingReferenceBodyName( ) );
             }
             else
             {
