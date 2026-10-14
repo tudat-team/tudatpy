@@ -427,6 +427,7 @@ def test_numeric_applies_scale(observations_radar):
 
 # Final test on parse_ades_file
 # as all used functions have been previously tested, use them in the file
+@pytest.mark.remote_data
 def test_parses_optical_xml(file_path_xml):
     result = parser.parse_ades_file(file_path_xml)
 
@@ -462,6 +463,7 @@ def test_parses_optical_xml(file_path_xml):
 
 
 # repeat the test giving a .psv file as input
+@pytest.mark.remote_data
 def test_parses_optical_psv(file_path_psv):
     result = parser.parse_ades_file(file_path_psv)
 
