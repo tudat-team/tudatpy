@@ -84,6 +84,12 @@ struct CurrentTimes {
     TimeType ut1;
 };
 
+//! Coherent UT1 value and derivative with respect to continuous TAI seconds.
+struct Ut1ValueAndRate {
+    Time ut1;
+    double dUt1DTai = TUDAT_NAN;
+};
+
 //! Class used to convert between terrestrial time scales TAI, TT, TDB, UTC ans UT1
 class TerrestrialTimeScaleConverter
 {
@@ -466,6 +472,9 @@ public:
         return continuousEopData_;
     }
     Time getUt1FromTai( const Time& tai );
+    //! Differentiate the selected daily interpolant plus its actual baseline-UT1 short-period correction.
+    //! Missing selected slopes and historical/custom clocks without supported rates throw; positions remain usable.
+    Ut1ValueAndRate getUt1FromTaiWithRate( const Time& tai );
 
     //! dTT/dTDB for the native geocentric SOFA clock, using smooth offset differences (32 s step).
     //! Selected TT/TDB interpolators retain position conversion but currently have no supported rate.

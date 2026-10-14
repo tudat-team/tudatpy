@@ -10,6 +10,7 @@
  */
 
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/astro/earth_orientation/earthOrientationRates.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
 
@@ -84,6 +85,31 @@ Time TerrestrialTimeScaleConverter::getUt1FromTai( const Time& tai )
         ut1 += shortPeriodUt1CorrectionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
     }
     return ut1;
+}
+
+Ut1ValueAndRate TerrestrialTimeScaleConverter::getUt1FromTaiWithRate( const Time& tai )
+{
+    if( !continuousEopData_ ) throw std::runtime_error( "UT1 rates require a supported continuous EOP model" );
+    if( tai < continuousEopData_->getStartTai( ) && continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
+        static_cast< double >( tai ) < utcIntroductionEpochInTai_ )
+        throw std::runtime_error( "Historical Delta-T clock rates are unavailable; position conversion remains supported" );
+    const auto daily = continuousEopData_->evaluate( tai );
+    if( !daily.ut1MinusTaiRate ) throw std::runtime_error( "Selected UT1-TAI interpolation slope is unavailable" );
+    const Time tt = basic_astrodynamics::convertTAItoTT( tai );
+    const Time baselineUt1 = tai + daily.ut1MinusTai;
+    Ut1ValueAndRate result{ baselineUt1, 1.0 + *daily.ut1MinusTaiRate };
+    if( shortPeriodUt1CorrectionCalculator_ )
+    {
+        const auto arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+                static_cast< double >( tt ), static_cast< double >( tt ), static_cast< double >( baselineUt1 ) );
+        result.ut1 += shortPeriodUt1CorrectionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
+        // The position path evaluates this correction once at baseline UT1.
+        // Its tangent therefore uses the baseline daily rate, not final corrected UT1.
+        result.dUt1DTai +=
+                calculateShortPeriodCorrectionRate< double >( shortPeriodUt1CorrectionCalculator_, tt, baselineUt1, result.dUt1DTai );
+    }
+    if( !std::isfinite( result.dUt1DTai ) || result.dUt1DTai <= 0.0 ) throw std::runtime_error( "Invalid modeled UT1 rate" );
+    return result;
 }
 
 Time TerrestrialTimeScaleConverter::invertContinuousUt1( const Time& requested, const bool roundedDoubleInput )

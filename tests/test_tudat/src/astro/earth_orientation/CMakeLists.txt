@@ -60,3 +60,6 @@ TUDAT_ADD_TEST_CASE(ShortPeriodEopCorrections
 
 TUDAT_ADD_TEST_CASE(EarthOrientationDataEvaluator
     PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(EarthRotationDerivatives
+    PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
