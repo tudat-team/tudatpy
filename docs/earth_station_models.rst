@@ -6,7 +6,9 @@ Starting point and decisions
 
 This work starts at PR #900 (``feature/data-refactor``), commit
 ``3070b20e83e18a749767fe0332a5280464f59b16``.  Changes are developed on
-``feature/earth-station-models`` and committed locally as validated units.
+``fix/earth_deformation_rotation`` and committed as validated units. Major
+validated milestones are pushed to the matching branch on GitHub, as authorized
+by Dominic on 14 October 2026.
 
 * First reproduce accepted standards and correct existing models.  The
   published IERS Conventions (2010), explicitly identified official updates,
@@ -25,8 +27,8 @@ This work starts at PR #900 (``feature/data-refactor``), commit
   input conventions and applicable licence.  Normal regression tests must
   use local fixtures and must not download data.
 * All concurrent builds together are limited to eight worker threads.
-  Initially the Tudat build owner has six and the reference worker has two.
-  No other worker may compile until the coordinator reallocates that budget.
+  The Tudat build owner has six, the EOP/reference worker one, and the
+  ocean-loading worker one. The coordinator controls any reallocation.
   Disable hidden nested build parallelism and multithreaded numerical runtimes.
 * Every change includes relevant bindings, documentation and tests.  Tolerances
   come from reference accuracy and numerical error budgets, not from fitting
