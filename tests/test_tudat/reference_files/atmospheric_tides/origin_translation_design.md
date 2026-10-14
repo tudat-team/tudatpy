@@ -25,8 +25,9 @@ retain original origins and headers. A converted model result declares CM.
 Full model tests should cover preserveCE, opt-inCE->CM, alreadyCM unchanged,
 unknown/profile/model rejection, equality between Cartesian addition and local
 projection, plus independent grid lookup latitude and displacement basis choices.
-Continuous UT1 comes from the shared EarthDeformationEpoch; velocity requires
-its dUT1/dTDB factor and must not silently substitute a zero rate.
+Continuous UT1 comes from the model-owned shared Earth time converter at the
+supplied precise Time in TDB; velocity requires its dUT1/dTDB factor and must
+not silently substitute a zero rate.
 
 Primary source: https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf
 Provenance, source PDF/reference-generator hashes and compiler are pinned in

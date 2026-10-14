@@ -141,7 +141,7 @@ components. It adds no implicit loading model to the environment.
    policy.station_bindings = {"MyStation": "weuc"}
    policy.output_origin_definition = data.metadata.origin_definition
    settings = shape_deformation.station_loading(data, policy)
-   body_settings.get("Earth").shape_deformation_settings.append(settings)
+   body_settings.get("Earth").shape_deformation_settings = [settings]
 
 Bindings map environment station IDs to arbitrary source labels and still
 enforce each provider point's validity radius. Alternatively, explicitly select
@@ -167,7 +167,9 @@ available when their rates are unavailable.
 Native C++ calls use the common ``Time`` argument in environment TDB and a
 ``GroundStationState`` for displacement or combined state. Source epochs remain
 split and precise. Native queries classify source-node TDB images exactly,
-without rounding or tolerance snapping. Only genuine scalar station adapters
+without rounding or tolerance snapping. Preloaded source TDB images remain the
+original precise epochs, and uniform TAI sampling need not be uniform in source
+TDB. Only genuine scalar station adapters
 recognize exact rounded node images; collapsed scalar images raise an error.
 Continuous TAI interpolation works through an inserted UTC second.
 

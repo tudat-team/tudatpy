@@ -141,8 +141,13 @@ StationLoadingDeformation::PreparedGrid StationLoadingDeformation::prepareGrid( 
         }
         if( !result.tai.empty( ) && tai <= result.tai.back( ) )
             throw std::invalid_argument( "Source loading epochs are not increasing on continuous TAI" );
+        const Time tdb = data.timeScale == input_output::StationLoadingTimeScale::tdb
+                ? time
+                : timeConverter_->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
+        if( !result.tdb.empty( ) && tdb <= result.tdb.back( ) )
+            throw std::invalid_argument( "Source loading epochs are not distinguishable on the precise TDB input axis" );
         result.tai.push_back( tai );
-        result.tdb.push_back( timeConverter_->getCurrentTime< Time >( tai_scale, tdb_scale, tai ) );
+        result.tdb.push_back( tdb );
     }
     return result;
 }
