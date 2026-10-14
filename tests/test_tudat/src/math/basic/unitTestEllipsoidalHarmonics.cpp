@@ -7,9 +7,14 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
- *    The reference potentials used here were produced by an independent implementation of the
- *    same model, for comet 67P/Churyumov-Gerasimenko expanded to degree 15. They are given at
- *    500 points on the sphere that encloses the body.
+ *    The reference potentials used here were produced by a separate implementation of the same
+ *    model, for comet 67P/Churyumov-Gerasimenko expanded to degree 15. They are given at 500
+ *    points on the sphere that encloses the body.
+ *
+ *    References:
+ *          Garmier, R., Barriot, J.-P. (2001), Celestial Mechanics and Dynamical Astronomy, 79(4), 235-275.
+ *          Hu, X., Jekeli, C. (2015), Journal of Geodesy, 89(2), 159-177.
+ *          See tudat/math/basic/ellipsoidalHarmonics.h for the full citations.
  */
 
 #define BOOST_TEST_MAIN

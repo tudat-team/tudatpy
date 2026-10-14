@@ -6,6 +6,11 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          Garmier, R., Barriot, J.-P. (2001), Celestial Mechanics and Dynamical Astronomy, 79(4), 235-275.
+ *          Hu, X., Jekeli, C. (2015), Journal of Geodesy, 89(2), 159-177.
+ *          See tudat/math/basic/ellipsoidalHarmonics.h for the full citations.
  */
 
 #define BOOST_TEST_MAIN

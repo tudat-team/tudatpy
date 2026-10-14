@@ -6,6 +6,15 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          Garmier, R., Barriot, J.-P. (2001), "Ellipsoidal harmonic expansions of the gravitational
+ *          potential: theory and application", Celestial Mechanics and Dynamical Astronomy, 79(4),
+ *          235-275.
+ *
+ *          Hu, X., Jekeli, C. (2015), "A numerical comparison of spherical, spheroidal and
+ *          ellipsoidal harmonic gravitational field models for small non-spherical bodies: examples
+ *          for the Martian moons", Journal of Geodesy, 89(2), 159-177.
  */
 
 #include "tudat/math/basic/ellipsoidalHarmonics.h"
@@ -115,6 +124,9 @@ void buildSecondKindIntegralNodes( const double rho,
 {
     if( rho <= k )
     {
+        // At rho equal to k the integrand is singular at its upper limit, so the two have to stay
+        // well apart rather than merely ordered. The caller guarantees that by staying outside the
+        // reference ellipsoid, whose longest semi-axis exceeds k by a wide margin.
         throw std::runtime_error( "Error when evaluating ellipsoidal harmonics, the ellipsoidal radius " + std::to_string( rho ) +
                                   " is not larger than the focal parameter " + std::to_string( k ) +
                                   "; the point lies inside the reference ellipsoid." );

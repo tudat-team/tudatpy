@@ -6,6 +6,15 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          Garmier, R., Barriot, J.-P. (2001), "Ellipsoidal harmonic expansions of the gravitational
+ *          potential: theory and application", Celestial Mechanics and Dynamical Astronomy, 79(4),
+ *          235-275.
+ *
+ *          Hu, X., Jekeli, C. (2015), "A numerical comparison of spherical, spheroidal and
+ *          ellipsoidal harmonic gravitational field models for small non-spherical bodies: examples
+ *          for the Martian moons", Journal of Geodesy, 89(2), 159-177.
  */
 
 #ifndef TUDAT_ELLIPSOIDAL_HARMONICS_H
@@ -28,6 +37,14 @@
  *
  *  The associated Legendre functions used here are the geodesy-normalised ones that
  *  LegendreCache provides, with no Condon-Shortley phase.
+ *
+ *  The formulation is the one of Garmier and Barriot, in the form Hu and Jekeli recast it in.
+ *
+ *  Note that the ellipsoidal radius has to stay well clear of the second focal parameter k. At
+ *  rho equal to k the integral that the radial part of each term is built from becomes singular,
+ *  so the routines here reject that radius outright. In practice the separation is guaranteed by
+ *  the expansion only being valid outside the reference ellipsoid, whose longest semi-axis
+ *  exceeds k by a wide margin.
  */
 
 #include <vector>
