@@ -419,13 +419,13 @@ def parse_ades_file(file_path: str):  # -> Table:
     tree = ET.parse(f"{file_path}")
     root = tree.getroot()
 
-    # Collect only optical observations, including those outside obsData blocks.
+    # Collect observations, including those outside obsData blocks.
     rows_by_kind = {}
     for obs_type in root.iter():
         obs_kind = _tag_name(obs_type)
 
-        if obs_kind != "optical":
-            continue
+        if obs_kind not in {"optical", "radar", "offset", "occultation"}:
+            raise ValueError(f"Unsupported observation type: {obs_kind}")
 
         # Include direct child fields, e.g. permID, obsTime, ra, dec.
         row = {_tag_name(child): (child.text or "").strip() for child in obs_type}
@@ -436,7 +436,7 @@ def parse_ades_file(file_path: str):  # -> Table:
 
         df = pd.DataFrame(rows)
 
-        # in creating the previsous dataframe, if one key is missing from the optical element, its value is assigned
+        # in creating the previous dataframe, if one key is missing from the optical element, its value is assigned
         #  to Nan, None or pd.NA - change all of these and all empty strings to None for consistency
         df = df.replace(r"^\s*$", None, regex=True)
         df = df.astype(object).where(pd.notna(df), None)
