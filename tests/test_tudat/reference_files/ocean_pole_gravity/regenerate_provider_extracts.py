@@ -1,4 +1,4 @@
-"""Offline reproduction: python regenerate_provider_extracts.py /path/to/pinned/gravity/cache."""
+"""Offline reproduction: python regenerate_provider_extracts.py CACHE [FIXTURE_DIRECTORY]."""
 
 import gzip
 import hashlib
@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import sys
 
-fixtures = Path(__file__).resolve().parent
+fixtures = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(__file__).resolve().parent
 cache = Path(sys.argv[1])
 for name, record in json.loads((fixtures / "manifest.json").read_text()).items():
     source = cache / record["source"]

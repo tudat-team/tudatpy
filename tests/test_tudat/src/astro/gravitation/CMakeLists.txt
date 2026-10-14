@@ -76,6 +76,9 @@ TUDAT_ADD_TEST_CASE(EarthSolidGravityTides
         tudat_gravitation tudat_earth_orientation tudat_basic_astrodynamics tudat_basic_mathematics
         )
 
+TUDAT_ADD_TEST_CASE(HarmonicGravityFieldVariations
+        PRIVATE_LINKS tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics)
+
 TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicAcceleration
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}

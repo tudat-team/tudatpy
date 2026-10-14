@@ -440,3 +440,33 @@ residual is 2.57e-21 m/s^2 against the fixed 1e-11 m/s^2 budget. Separate checks
 cover selected blocks, GM/R scaling, immutable response and missing coverage.
 Pinned source hashes, exact extraction ranges and an offline reproduction script
 are in ``tests/test_tudat/reference_files/ocean_pole_gravity``.
+
+Harmonic backend checkpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``readHarmonicPotentialData`` preserves the ordered raw potential inventory,
+source IDs, headers/units and sparse Cp/Sp/Cm/Sm records. Identified FES2004,
+CNES/GRGS FES2014b-v1 and COST-G EOT11a profiles retain their published wave
+extents; unknown units, duplicate records and incompatible profile inventories
+reject. FES2004's 1e-12 scale remains distinct from the other profiles' 1e-11.
+EOT11a's contradictory 'in cm' text requires its explicit identified profile.
+No source GM/R is inferred. The neutral target uses only the standard library.
+
+The single conversion helper applies equation 6.15 and physical Sn0=0. Selected
+Doodson IDs are unique and must exist, and their explicit supplied order is
+retained; the default selects every wave in raw order. Missing selected records
+inside a declared extent reject. Only declared outer extents become zero for
+identified profiles; generic sparse data needs an explicit zero-fill decision.
+The common canonical evaluator receives declared source GM/R, normalization,
+component, revision/loading and a Doodson callback, and applies output GM/R
+scaling once. It adds no phase, loading or nodal modulation. Ordered admittance
+synthesizes a replacement target inventory once.
+
+Three reader cases and four evaluator cases pass. Closed-phase checks cover the
+IERS signs, zonal convention, reference scaling and ordered admittance. Four
+COST-G M2 degree/order-120 force samples agree within 1.57e-13 m/s^2 against the
+fixed 1e-11 target with supplied benchmark arguments/positions/rotations and an
+explicitly labelled benchmark GM/R convention. This does not supply missing
+provider reference constants. Source ranges/hashes and offline extraction are
+in ``tests/test_tudat/reference_files/harmonic_potential``. Consuming Earth setup
+and Python registration remain separate checkpoints.
