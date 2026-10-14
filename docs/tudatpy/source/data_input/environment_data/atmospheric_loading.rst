@@ -42,8 +42,12 @@ Native deformation settings are available through
 station/file variants). The environment scalar time argument is TDB seconds
 since J2000; phase is measured from midnight UT1 using the model-owned shared
 Earth time converter. Context position evaluation remains continuous through
-inserted leap seconds. State/velocity mean derivatives with respect to TDB and
-currently raise while shared dUT1/dTDB is unavailable.
+inserted leap seconds. State/velocity are analytic loading derivatives with
+respect to TDB. They chain dUT1/dTAI from the selected continuous EOP interval
+and harmonic corrections with the model's geocentric dTT/dTDB clock. Values at
+knots use the interval to the right (left at the final sample). Unsupported or
+missing rate stencils raise for rates/states while independently valid position
+evaluation remains available.
 
 Source origin is preserved by default. The opt-in RP03 CE-to-CM policy requires
 explicit identification of the IERS RP03 no-IB Farrell source profile, declared

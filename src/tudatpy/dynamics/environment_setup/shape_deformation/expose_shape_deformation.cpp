@@ -97,14 +97,17 @@ The optional identified RP03 CE-to-CM policy adds Table 7.6 XYZ translation once
 after local rotation. Actual RP03 seam/polar rounding discrepancies require an
 explicit approximation policy, which records their maximum size and preserves
 raw records. Position evaluation works through inserted leap seconds. State
-and velocity (d/dTDB) currently raise while shared dUT1/dTDB is unavailable.
+and velocity are analytic derivatives with respect to TDB, chaining the model's
+continuous UT1/TAI rate and geocentric TT/TDB rate. Missing or unsupported rate
+stencils raise for state/rate evaluation without disabling valid positions.
 )doc" );
     m.def( "atmospheric_tide_from_stations",
            &tss::atmosphericTideBodyShapeDeformationFromStations,
            py::arg( "stations" ),
            py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
            "Create S1/S2 loading from exact station identifiers and precomputed SI coefficients. Explicit displacement basis is required; "
-           "source coordinates are not used for lookup. Epochs are TDB, phase UT1; d/dTDB state/rates are currently unavailable." );
+           "source coordinates are not used for lookup. Epochs are TDB, phase UT1; analytic d/dTDB state/rates require a valid selected "
+           "UT1-rate stencil and geocentric TT/TDB clock." );
     m.def( "atmospheric_tide_from_grid_file",
            &tss::atmosphericTideBodyShapeDeformationFromGridFile,
            py::arg( "file_path" ),

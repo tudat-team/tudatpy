@@ -67,5 +67,12 @@ converter through the inserted 2016 leap second. Scalar epochs are TDB; phase
 uses the model's supplied converter, even when another context clock is given.
 Source origin is preserved unless the explicit identified RP03 CE-to-CM policy
 is selected. Translation is added in Cartesian coordinates after local rotation.
-The first full model checkpoint rejects all d/dTDB velocity/state requests until
-shared dUT1/dTDB becomes available; it does not invent zero or implicit rates.
+Native velocity/state now use the exact UT1 harmonic derivative times the model's
+dUT1/dTAI and geocentric dTT/dTDB. Original double endpoint canonicalization and
+precise Time epochs are preserved when rebinding a foreign context clock. Rates
+use the selected daily interval (right at knots, final-left); unavailable stencils
+reject rates/states while valid position evaluation remains independent. Optional
+CE-to-CM translation rates are Cartesian and receive the clock chain exactly once.
+The independent complex-Fourier origin oracle uses Fortran real128 arithmetic,
+rounded only when freezing double position and per-UT1-second rate fixtures.
+Existing position tolerances are unchanged; new rate fixtures use 1e-22 m/UT1-s.

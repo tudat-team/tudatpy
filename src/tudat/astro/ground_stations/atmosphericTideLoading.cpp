@@ -46,15 +46,25 @@ Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const input_output::A
               2 * coefficients.col( 2 ) * std::sin( 2 * angle ) + 2 * coefficients.col( 3 ) * std::cos( 2 * angle ) );
 }
 
+namespace
+{
+input_output::AtmosphericTideCoefficients rp03GeocentreCoefficients( )
+{
+    // IERS2010 Chapter7 Eq.20/Table7.6: Cartesian X/Y/Z coefficients in metres.
+    input_output::AtmosphericTideCoefficients coefficients;
+    coefficients << 2.1188e-4, -7.6861e-4, 1.4472e-4, -1.7844e-4, -7.2766e-4, -2.3582e-4, -3.2691e-4, -1.5878e-4, -1.2176e-5, 3.2243e-5,
+            -9.6271e-5, 1.6976e-5;
+    return coefficients;
+}
+}  // namespace
 Eigen::Vector3d calculateIers2010Rp03AtmosphericGeocentreTranslation( const double ut1SecondsSinceJ2000 )
 {
-    // IERS2010 Chapter7 Eq.20/Table7.6: rows are Cartesian X/Y/Z, NOT local R/N/E; units are metres.
-    // Eq.18 gives X_crust=X_CM-dX. Thus conversion of a CE station displacement to CM adds this Cartesian vector.
-    // The same componentwise harmonic arithmetic applies, without any local rotation or additional phase shift.
-    input_output::AtmosphericTideCoefficients cartesianCoefficients;
-    cartesianCoefficients << 2.1188e-4, -7.6861e-4, 1.4472e-4, -1.7844e-4, -7.2766e-4, -2.3582e-4, -3.2691e-4, -1.5878e-4, -1.2176e-5,
-            3.2243e-5, -9.6271e-5, 1.6976e-5;
-    return synthesizeAtmosphericTideLoading( cartesianCoefficients, ut1SecondsSinceJ2000 );
+    // Eq.18: X_crust=X_CM-dX; CE-to-CM adds this Cartesian vector after local rotation.
+    return synthesizeAtmosphericTideLoading( rp03GeocentreCoefficients( ), ut1SecondsSinceJ2000 );
+}
+Eigen::Vector3d differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( const double ut1SecondsSinceJ2000 )
+{
+    return differentiateAtmosphericTideLoadingWrtUt1( rp03GeocentreCoefficients( ), ut1SecondsSinceJ2000 );
 }
 
 AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid,

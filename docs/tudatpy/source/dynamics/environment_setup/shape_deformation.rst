@@ -98,6 +98,28 @@ through the rotation model's own clock and preserve precise EOP coverage.
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.OceanPoleTideLatitudePolicy
    :members:
 
+Atmospheric S1/S2 loading accepts preloaded grid or station coefficients and
+file-backed settings. Lookup latitude and displacement basis are declared
+separately; geodetic choices require the configured body shape. The model uses
+continuous UT1 from its own time converter, including through inserted UTC leap
+seconds. Loading velocities differentiate the harmonics analytically and apply
+the selected dUT1/dTAI and geocentric dTT/dTDB factors to produce metres per TDB
+second. At daily EOP knots, rates use the interval to the right, except at the
+final sample where the left interval applies. Missing or unsupported rate
+stencils reject state/rate requests while independently valid positions remain
+available. An explicitly selected RP03 CE-to-CM translation and its derivative
+are added once in Cartesian coordinates. See
+:doc:`/data_input/environment_data/atmospheric_loading` for source, geometry and
+origin policies and the documented limits of the reference comparisons.
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.atmospheric_tide_from_grid
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.atmospheric_tide_from_stations
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.atmospheric_tide_from_grid_file
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.atmospheric_tide_from_station_file
+
 Classes
 -------
 .. currentmodule:: tudatpy.dynamics.environment_setup.shape_deformation

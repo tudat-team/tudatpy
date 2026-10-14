@@ -197,3 +197,20 @@ BOOST_AUTO_TEST_CASE( equation18CeToCmAdditionInCartesianAndExplicitLocalFrame )
         close( cmCartesian - d, ceCartesian, 1e-17 );
     }
 }
+BOOST_AUTO_TEST_CASE( independentRp03TranslationRatesAndQuarterDaySigns )
+{
+    for( const auto& reference : atmosphericOriginReferences )
+    {
+        close( differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( reference.ut1 ),
+               Eigen::Map< const Eigen::Vector3d >( reference.cartesianRateWrtUt1 ),
+               1e-22 );
+    }
+    const double omega = 2 * mathematical_constants::PI / 86400;
+    // At midnight: omega*(sinS1+2*sinS2); at noon: omega*(-sinS1+2*sinS2).
+    close( differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( -43200 ),
+           omega * Eigen::Vector3d( -.00112549, -.00055338, .000066195 ),
+           1e-22 );
+    close( differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( 0 ),
+           omega * Eigen::Vector3d( .00041173, -.00008174, .000001709 ),
+           1e-22 );
+}

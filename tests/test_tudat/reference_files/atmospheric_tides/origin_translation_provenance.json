@@ -6,12 +6,14 @@
     "Eq20 and Table7.6 printedp15"
   ],
   "method": "Independent optional Fortran complex-Fourier synthesis and cross-product local basis; newly written reference, not an IERS reference routine",
-  "reference_source_sha256": "dea1895688fb7429543ffc82ae5abbc244ef1dd5e4d34007a0559211286611f2",
+  "reference_source_sha256": "6fd6ef5d089e08cbc1a4feab65c697b1443cf7a3502a510580939f585866db39",
   "compiler_version": "GNU Fortran (conda-forge gcc 15.2.0-19) 15.2.0",
   "compile_options": [
     "-std=f2008",
     "-O0"
   ],
   "ordinary_test_tolerance_metres": 1e-17,
-  "scope_limit": "Verifies published table/time/basis algebra, not an independent RP03 CM grid or original provider interpolation program"
+  "scope_limit": "Verifies published table/time/basis algebra, not an independent RP03 CM grid or original provider interpolation program",
+  "rate_tolerance_metres_per_ut1_second": 1e-22,
+  "reference_precision": "Fortran real128 complex arithmetic, output rounded to double fixtures"
 }

@@ -43,7 +43,8 @@ public:
     Eigen::Vector3d calculateEnuDisplacement( const EarthDeformationEpoch& epoch,
                                               const std::shared_ptr< ground_stations::GroundStationState > station );
     Eigen::Vector3d calculateEnuDisplacement( double tdb, const std::shared_ptr< ground_stations::GroundStationState > station );
-    //! State velocity is d/dTDB. Until dUT1/dTDB is available, these methods throw rather than return an invented zero rate.
+    //! Exact analytic loading velocity/state with respect to TDB seconds, using this model's continuous UT1 rate.
+    //! Position is evaluated independently; rate requests reject unavailable EOP rate stencils.
     Eigen::Vector3d calculateDisplacementVelocity( double tdb, const Eigen::Vector3d& position ) override;
     Eigen::Vector3d calculateDisplacementVelocity( double tdb,
                                                    const std::shared_ptr< ground_stations::GroundStationState > station ) override;
@@ -75,6 +76,9 @@ public:
     input_output::AtmosphericLoadingReferenceOrigin getOutputReferenceOrigin( const std::string& identifier = "" ) const;
 
 private:
+    Eigen::Vector3d evaluateCartesianLoading( const EarthDeformationEpoch& epoch,
+                                              const std::shared_ptr< ground_stations::GroundStationState >& station,
+                                              bool derivativeWrtTdb );
     void validateCommonSettings( ) const;
     void validateShapeForBasis( input_output::AtmosphericTideDisplacementBasis basis, bool geodeticLookup = false ) const;
     void validateOriginConversion( const input_output::AtmosphericTideMetadata& metadata ) const;

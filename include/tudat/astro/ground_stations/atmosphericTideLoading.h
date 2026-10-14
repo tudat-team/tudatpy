@@ -22,6 +22,9 @@ Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const input_output::A
 //! This helper does not change any displacement's reference origin. Its RP03 applicability must be checked by a caller.
 Eigen::Vector3d calculateIers2010Rp03AtmosphericGeocentreTranslation( const double ut1SecondsSinceJ2000 );
 
+//! Cartesian derivative of the same table translation, in metres per UT1 second.
+Eigen::Vector3d differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( const double ut1SecondsSinceJ2000 );
+
 //! Validated interpolation object; no file I/O, time conversion, station latitude inference or origin conversion.
 class AtmosphericTideGridInterpolator
 {
