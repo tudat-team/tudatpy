@@ -6,9 +6,11 @@ Starting point and decisions
 
 This work starts at PR #900 (``feature/data-refactor``), commit
 ``3070b20e83e18a749767fe0332a5280464f59b16``.  Changes are developed on
-``fix/earth_deformation_rotation`` and committed as validated units. Major
-validated milestones are pushed to the matching branch on GitHub, as authorized
-by Dominic on 14 October 2026.
+``fix/earth_deformation_rotation`` and committed as validated units. The session
+was recovered on 14 October 2026 after an interrupted context compaction.
+Work in the recovered session remains local; remote publication requires an
+explicit instruction in the current conversation under Dominic's persistent
+workspace policy.
 
 * First reproduce accepted standards and correct existing models.  The
   published IERS Conventions (2010), explicitly identified official updates,
@@ -167,6 +169,21 @@ study.  Actual discontinuities are tested as discontinuities.
 
 Validation ledger
 -----------------
+
+2026-10-14, session recovery: the original readable conversation, user requests,
+last checklist and worker handoffs were recovered to
+``/home/dominic/Tudat/earth-station-model-work/recovery-20261014``. Original session
+records remain unchanged. Three workers survived interruption of their parent;
+their turns were stopped through the local application server before new agents
+took exclusive ownership of the existing worktrees. Their late edits were
+preserved. The integration source matched all 38 frozen ITRF paths and passed
+all 28 selected CTest checks plus both source-boundary checks. The ITRF
+transformation checkpoint was subsequently reviewed and committed; its detailed
+validation appears below. The independently tested UT1 value/rate prerequisite
+was integrated separately. Tasks 11 and 17 remain open until their complete
+models and integrated tests pass. Compilation allocations are centrally limited
+to eight jobs across all workers; the Python kernel remains deferred to final
+integration.
 
 2026-10-14: starting revision verified against GitHub PR #900.  Task 01 baseline
 build completed with six build jobs: all 12 selected C++ test executables passed
