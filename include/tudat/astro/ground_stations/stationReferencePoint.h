@@ -86,35 +86,46 @@ private:
 class StationReferencePointTrajectory : public StationHistoryTrajectory
 {
 public:
+    //! Retain the source and bind one validated reference-point offset history.
     StationReferencePointTrajectory( std::shared_ptr< StationHistoryTrajectory > source,
                                      std::shared_ptr< StationReferencePointOffsetHistory > offsets );
+
+    //! Add the active reference vector to the source position.
     Eigen::Vector3d getPosition( const StationHistoryTime& time ) const override;
+
+    //! Add the active reference vector and its TDB velocity to the source state.
     Eigen::Vector6d getState( const StationHistoryTime& time ) const override;
+
+    //! Describe the evaluated reference point while retaining source frame and provenance.
     const StationHistoryMetadata& getMetadata( ) const override
     {
         return outputMetadata_;
     }
-    bool hasFittedSeasonalTerms( ) const override
-    {
-        return source_->hasFittedSeasonalTerms( );
-    }
+
+    //! Return the directed offset's output point identity.
     const StationReferencePointIdentity& getReferencePointIdentity( ) const
     {
         return offsets_->getOffsets( ).front( ).to;
     }
+
+    //! Inspect the source retained by this ordered reference-point composition.
     const std::shared_ptr< StationHistoryTrajectory >& getSourceTrajectory( ) const
     {
         return source_;
     }
+
+    //! Inspect the validated offsets and their equipment association.
     const std::shared_ptr< StationReferencePointOffsetHistory >& getOffsetHistory( ) const
     {
         return offsets_;
     }
 
 private:
-    std::shared_ptr< StationHistoryTrajectory > source_;
+    //! Immutable offset history and metadata describing the evaluated output point.
     std::shared_ptr< StationReferencePointOffsetHistory > offsets_;
+
     StationHistoryMetadata outputMetadata_;
+
 };
 StationReferencePointIdentity getStationReferencePointIdentity( const std::shared_ptr< StationHistoryTrajectory >& trajectory );
 std::shared_ptr< StationReferencePointTrajectory > createStationReferencePointTrajectory(

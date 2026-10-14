@@ -131,8 +131,10 @@ Transforming a station history with a terrestrial frame catalogue
 ---------------------------------------------------------------
 
 ``transform_station_history`` applies a preloaded conventional or supplied
-linearized Helmert catalogue to the complete absolute trajectory. Its calendar
-decimal year and derivative come from the same ``StationHistoryTime`` as the
+linearized Helmert catalogue to the complete absolute trajectory.
+Source solution, post-seismic and seasonal records remain shared with the
+original trajectory; wrappers retain their own evaluated output metadata.
+Its calendar decimal year and derivative come from the same ``StationHistoryTime`` as the
 marker coordinates. Direct affine queries accept that decimal year and, for
 states, its derivative explicitly. Parameter rates still use their declared
 Julian-year units. An IGN nominal UTC leap-year query uses the actual calendar-year

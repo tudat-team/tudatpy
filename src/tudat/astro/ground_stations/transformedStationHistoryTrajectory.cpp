@@ -9,16 +9,6 @@ namespace ground_stations
 {
 namespace
 {
-//! Require a source before retaining its published trajectory records.
-const StationHistoryTrajectory& checkedSource( const std::shared_ptr< StationHistoryTrajectory >& source )
-{
-    if( !source )
-    {
-        throw std::runtime_error( "Transformed station history requires a source trajectory" );
-    }
-    return *source;
-}
-
 //! Recover the published calendar year from the trajectory's split coordinate.
 double decimalYear( const StationHistoryTime& time )
 {
@@ -53,11 +43,8 @@ TransformedStationHistoryTrajectory::TransformedStationHistoryTrajectory( std::s
                                                                           std::string targetOrigin,
                                                                           std::string targetTideSystem,
                                                                           bool acknowledgeAlignedReleases ):
-    StationHistoryTrajectory( checkedSource( source ).getSolutions( ),
-                              checkedSource( source ).getPostSeismicTerms( ),
-                              checkedSource( source ).getSeasonalTerms( ),
-                              checkedSource( source ).getMetadata( ) ),
-    source_( std::move( source ) ), model_( catalogue ), outputMetadata_( source_->getMetadata( ) ),
+    StationHistoryTrajectory( std::move( source ) ),
+    model_( catalogue ), outputMetadata_( source_->getMetadata( ) ),
     acknowledgedReleaseAlignment_( acknowledgeAlignedReleases )
 {
     // Origin and tide-system declarations must agree before any frame map is applied.

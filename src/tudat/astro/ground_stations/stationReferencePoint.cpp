@@ -28,11 +28,6 @@ bool sameIdentity( const StationReferencePointIdentity& a, const StationReferenc
 {
     return sameSite( a.site, b.site ) && a.domesId == b.domesId && a.kind == b.kind && a.name == b.name;
 }
-const StationHistoryTrajectory& checkedSource( const std::shared_ptr< StationHistoryTrajectory >& source )
-{
-    require( source != nullptr, "a source trajectory is required" );
-    return *source;
-}
 bool contains( const StationHistoryInterval& interval, const Time& tai )
 {
     return ( !interval.startTai || tai >= *interval.startTai ) && ( !interval.endTai || tai < *interval.endTai );
@@ -237,19 +232,21 @@ Eigen::Vector6d StationReferencePointOffsetHistory::getStateCorrection( const St
     return state;
 }
 
+//! Read the active reference-point identity from the trajectory's output metadata.
 StationReferencePointIdentity getStationReferencePointIdentity( const std::shared_ptr< StationHistoryTrajectory >& source )
 {
-    checkedSource( source );
+    require( source != nullptr, "a source trajectory is required" );
+
+    // Output metadata preserves point identity through frame transformations.
     const auto& meta = source->getMetadata( );
+
     return { meta.site, meta.domesId, meta.referencePointKind, meta.referencePointName };
 }
+//! Retain the source trajectory and bind one validated reference-point offset history.
 StationReferencePointTrajectory::StationReferencePointTrajectory( std::shared_ptr< StationHistoryTrajectory > source,
                                                                   std::shared_ptr< StationReferencePointOffsetHistory > offsets ):
-    StationHistoryTrajectory( checkedSource( source ).getSolutions( ),
-                              checkedSource( source ).getPostSeismicTerms( ),
-                              checkedSource( source ).getSeasonalTerms( ),
-                              checkedSource( source ).getMetadata( ) ),
-    source_( std::move( source ) ), offsets_( std::move( offsets ) ), outputMetadata_( source_->getMetadata( ) )
+    StationHistoryTrajectory( std::move( source ) ),
+    offsets_( std::move( offsets ) ), outputMetadata_( source_->getMetadata( ) )
 {
     require( offsets_ != nullptr, "an explicit reference-point offset history is required" );
     require( sameIdentity( getStationReferencePointIdentity( source_ ), offsets_->getOffsets( ).front( ).from ),
@@ -263,41 +260,58 @@ StationReferencePointTrajectory::StationReferencePointTrajectory( std::shared_pt
     {
         if( record.to.kind == StationReferencePointKind::calibratedInstrumentPoint )
         {
+            // A calibration must remain inside the parent ARP equipment coverage and use its equipment identity.
             const auto parent = pointSource( source_ );
+
             require( parent != nullptr, "calibration requires an explicitly bound ARP equipment history" );
             const auto& parentRecords = parent->getOffsetHistory( )->getOffsets( );
+
             require( ( !parentRecords.front( ).validity.startTai ||
                        ( record.validity.startTai && *record.validity.startTai >= *parentRecords.front( ).validity.startTai ) ) &&
                              ( !parentRecords.back( ).validity.endTai ||
                                ( record.validity.endTai && *record.validity.endTai <= *parentRecords.back( ).validity.endTai ) ),
                      "calibration extends beyond equipment validity" );
             for( const auto& equipment : parentRecords )
+            {
                 if( overlap( record.validity, equipment.validity ) )
+                {
                     require( record.equipmentType == equipment.equipmentType &&
                                      record.equipmentSerialNumber == equipment.equipmentSerialNumber,
                              "calibration contradicts the active equipment identity" );
+                }
+            }
         }
         for( const auto& source : { record.source,
                                     record.provenance.source,
                                     record.equipmentProvenance.source,
                                     record.headerTimeContext ? record.headerTimeContext->source : std::string( ) } )
+        {
             if( !source.empty( ) &&
                 std::find( outputMetadata_.sources.begin( ), outputMetadata_.sources.end( ), source ) == outputMetadata_.sources.end( ) )
+            {
                 outputMetadata_.sources.push_back( source );
+            }
+        }
     }
     outputMetadata_.signals.push_back( getReferencePointIdentity( ).kind == StationReferencePointKind::antennaReferencePoint
                                                ? "marker-to-antenna reference vector"
                                                : "calibrated instrument reference vector" );
 }
+//! Add the active offset in the declared terrestrial frame to the source position.
 Eigen::Vector3d StationReferencePointTrajectory::getPosition( const StationHistoryTime& time ) const
 {
+    // Evaluate source motion first, preserving the explicitly selected composition order.
     Eigen::Vector3d position = source_->getPosition( time );
+
     position += offsets_->getPositionCorrection( time );
     return position;
 }
+//! Add the active offset and its TDB velocity to the complete source state.
 Eigen::Vector6d StationReferencePointTrajectory::getState( const StationHistoryTime& time ) const
 {
+    // Source and offset velocities are derivatives with respect to the same TDB seconds.
     Eigen::Vector6d state = source_->getState( time );
+
     state += offsets_->getStateCorrection( time );
     return state;
 }

@@ -205,6 +205,10 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrameCompositionOrder )
     const auto& meta = point->getMetadata( );
     const auto transformedPoint =
             createTransformedStationHistoryTrajectory( point, catalogue, { "ITRF2014", "ITRF2014" }, meta.origin, meta.tideSystem );
+    // Both ordered wrappers expose the original record containers rather than copied histories.
+    BOOST_CHECK( &transformedPoint->getSolutions( ) == &point->getSourceTrajectory( )->getSolutions( ) );
+    BOOST_CHECK( &transformedPoint->getPostSeismicTerms( ) == &point->getSourceTrajectory( )->getPostSeismicTerms( ) );
+    BOOST_CHECK( &transformedPoint->getSeasonalTerms( ) == &point->getSourceTrajectory( )->getSeasonalTerms( ) );
     BOOST_CHECK( getStationReferencePointIdentity( transformedPoint ).kind == StationReferencePointKind::antennaReferencePoint );
     BOOST_CHECK_THROW( arp( transformedPoint ), std::runtime_error );
     const auto transformedMarker =

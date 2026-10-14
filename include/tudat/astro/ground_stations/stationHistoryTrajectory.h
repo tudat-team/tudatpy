@@ -108,40 +108,72 @@ struct StationHistoryMetadata {
 class StationHistoryTrajectory
 {
 public:
+    //! Own and validate the published solution and correction records once.
     StationHistoryTrajectory( std::vector< StationHistoryLinearSolution > solutions,
                               std::vector< StationPostSeismicTerm > postSeismicTerms,
                               std::vector< StationSeasonalTerm > seasonalTerms,
                               StationHistoryMetadata metadata );
+
+    //! Permit ordered trajectory wrappers to be destroyed through their base type.
     virtual ~StationHistoryTrajectory( ) = default;
+
+    //! Evaluate absolute terrestrial position without requiring source-coordinate rates.
     virtual Eigen::Vector3d getPosition( const StationHistoryTime& time ) const;
+
+    //! Evaluate absolute terrestrial position and its analytic TDB velocity.
     virtual Eigen::Matrix< double, 6, 1 > getState( const StationHistoryTime& time ) const;
+
+    //! Return the evaluated trajectory's frame, monument and reference-point identity.
     virtual const StationHistoryMetadata& getMetadata( ) const
     {
-        return metadata_;
-    }
-    const std::vector< StationHistoryLinearSolution >& getSolutions( ) const
-    {
-        return solutions_;
-    }
-    const std::vector< StationPostSeismicTerm >& getPostSeismicTerms( ) const
-    {
-        return postSeismicTerms_;
-    }
-    const std::vector< StationSeasonalTerm >& getSeasonalTerms( ) const
-    {
-        return seasonalTerms_;
-    }
-    virtual bool hasFittedSeasonalTerms( ) const
-    {
-        return !seasonalTerms_.empty( );
+        return source_ ? source_->getMetadata( ) : metadata_;
     }
 
+    //! Inspect the original published solutions through any ordered wrappers.
+    const std::vector< StationHistoryLinearSolution >& getSolutions( ) const
+    {
+        return source_ ? source_->getSolutions( ) : solutions_;
+    }
+
+    //! Inspect the original cumulative post-seismic coefficients without copying them.
+    const std::vector< StationPostSeismicTerm >& getPostSeismicTerms( ) const
+    {
+        return source_ ? source_->getPostSeismicTerms( ) : postSeismicTerms_;
+    }
+
+    //! Inspect the original fitted seasonal coefficients without copying them.
+    const std::vector< StationSeasonalTerm >& getSeasonalTerms( ) const
+    {
+        return source_ ? source_->getSeasonalTerms( ) : seasonalTerms_;
+    }
+
+    //! Identify fitted seasonal motion for loading-overlap decisions.
+    virtual bool hasFittedSeasonalTerms( ) const
+    {
+        return source_ ? source_->hasFittedSeasonalTerms( ) : !seasonalTerms_.empty( );
+    }
+
+protected:
+    //! Retain an already validated source for an ordered frame or reference-point wrapper.
+    explicit StationHistoryTrajectory( std::shared_ptr< StationHistoryTrajectory > source );
+
+    //! Shared source lifetime; null only for trajectories owning their published records.
+    const std::shared_ptr< StationHistoryTrajectory > source_;
+
 private:
+    //! Evaluate the owned linear, cumulative post-seismic and fitted seasonal records.
     Eigen::Matrix< double, 6, 1 > evaluate( const StationHistoryTime& time, bool rates ) const;
+
+    //! Published coefficients retained only by the original trajectory.
     std::vector< StationHistoryLinearSolution > solutions_;
+
     std::vector< StationPostSeismicTerm > postSeismicTerms_;
+
     std::vector< StationSeasonalTerm > seasonalTerms_;
+
+    //! Source coordinate conventions and provenance for the owned records.
     StationHistoryMetadata metadata_;
+
 };
 
 //! Explicit profile for IGN's source-index pairing and relaxation-unit convention.
