@@ -1,0 +1,20 @@
+{
+  "retrieved_utc": "2026-10-14T14:37:11.783811+00:00",
+  "files": {
+    "desai_model_jgrb51665-sup-0002-ds01.txt": {
+      "url": "https://ivscc.gsfc.nasa.gov/hfeop_wg/models/desai_model_jgrb51665-sup-0002-ds01.txt",
+      "sha256": "53398e40b70ccfa411d292e9a7f752a01cbac1be07d4e7fb18906d6481e57dd8",
+      "bytes": 12586
+    },
+    "HF_EOP_models_v2017Dec03.pdf": {
+      "url": "https://ivscc.gsfc.nasa.gov/hfeop_wg/memos/HF_EOP_models_v2017Dec03.pdf",
+      "sha256": "b241f5bc2c7ab74b667f0e8f9e9df002e1b0f2b0092835e032bf9d7d72457f09",
+      "bytes": 290974
+    },
+    "Desai_Sibois_2016.pdf": {
+      "url": "https://ivscc.gsfc.nasa.gov/hfeop_wg/papers/Desai_et_al-2016-Journal_of_Geophysical_Research-_Solid_Earth.pdf",
+      "sha256": "c2fc8761bed81d1f8d2152c8b34b5646b65f37fa4f8c05e49912ce473c376d93",
+      "bytes": 1442820
+    }
+  }
+}

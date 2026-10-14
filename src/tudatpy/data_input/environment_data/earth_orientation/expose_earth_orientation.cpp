@@ -1,5 +1,6 @@
 #include "expose_earth_orientation.h"
 #include "tudat/io/readEarthOrientationData.h"
+#include "tudat/io/readHighFrequencyEopData.h"
 #include <pybind11/stl.h>
 #include <sstream>
 namespace py = pybind11;
@@ -14,6 +15,36 @@ namespace earth_orientation
 void expose_earth_orientation( py::module& module )
 {
     using namespace tudat::input_output;
+    py::class_< HighFrequencyEopTerm >( module, "HighFrequencyEopTerm" )
+            .def_readonly( "name", &HighFrequencyEopTerm::name )
+            .def_readonly( "doodson_number", &HighFrequencyEopTerm::doodsonNumber )
+            .def_readonly( "argument_multipliers", &HighFrequencyEopTerm::argumentMultipliers )
+            .def_readonly( "period_days", &HighFrequencyEopTerm::periodDays )
+            .def_readonly( "sine_amplitudes", &HighFrequencyEopTerm::sineAmplitudes )
+            .def_readonly( "cosine_amplitudes", &HighFrequencyEopTerm::cosineAmplitudes );
+    py::class_< HighFrequencyEopData >( module,
+                                        "HighFrequencyEopData",
+                                        "Raw tidal harmonics and provenance. Amplitudes [xp,yp,UT1,excess LOD] use [rad,rad,s,s]; "
+                                        "arguments are [GMST+pi,l,l-prime,F,D,Omega]." )
+            .def_readonly( "source", &HighFrequencyEopData::source )
+            .def_readonly( "header", &HighFrequencyEopData::header )
+            .def_readonly( "terms", &HighFrequencyEopData::terms );
+    module.def( "read_high_frequency_eop_data",
+                py::overload_cast< const std::string& >( &readHighFrequencyEopData ),
+                py::arg( "file_name" ),
+                "Read an IVS 17-column harmonic table; normalize microarcseconds/microseconds to SI units." );
+    module.def(
+            "read_high_frequency_eop_data_text",
+            []( const std::string& text, const std::string& source ) {
+                std::istringstream stream( text );
+                return readHighFrequencyEopData( stream, source );
+            },
+            py::arg( "text" ),
+            py::arg( "source" ) = "<text>" );
+    module.def( "get_desai_sibois_2016_eop_data",
+                &getDesaiSibois2016EopData,
+                "Return the pinned 159-term ocean-tide coefficient table, DOI 10.1002/2016JB013125. "
+                "This data does not include libration and does not select a rotation model." );
     py::enum_< EarthOrientationFormat >( module, "EarthOrientationFormat", "Supported raw EOP file formats." )
             .value( "c04", EarthOrientationFormat::c04 )
             .value( "finals2000a", EarthOrientationFormat::finals2000a );

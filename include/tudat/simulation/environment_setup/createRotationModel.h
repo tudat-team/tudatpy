@@ -17,6 +17,7 @@
 #include <functional>
 #include <optional>
 #include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
+#include "tudat/astro/earth_orientation/highFrequencyEarthOrientationModel.h"
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -345,6 +346,18 @@ public:
         return eopEvaluationSettings_;
     }
 
+    //! Select an ocean model explicitly. Independent conventional libration is retained.
+    void setOceanTideEopModel( const earth_orientation::OceanTideEopModel model )
+    {
+        if( model != earth_orientation::OceanTideEopModel::iers_2010 && model != earth_orientation::OceanTideEopModel::desai_sibois_2016 )
+            throw std::runtime_error( "Unknown ocean-tide EOP model" );
+        oceanTideEopModel_ = model;
+    }
+    earth_orientation::OceanTideEopModel getOceanTideEopModel( ) const
+    {
+        return oceanTideEopModel_;
+    }
+
     // Function to retrieve the time scale in which input to the rotation model class is provided
     /*
      * Function to retrieve the time scale in which input to the rotation model class is provided
@@ -440,6 +453,7 @@ public:
 private:
     std::shared_ptr< const input_output::EarthOrientationData > eopData_;
     earth_orientation::EarthOrientationEvaluationSettings eopEvaluationSettings_;
+    earth_orientation::OceanTideEopModel oceanTideEopModel_ = earth_orientation::OceanTideEopModel::iers_2010;
 
     // Time scale in which input to the rotation model class is provided
     basic_astrodynamics::TimeScales inputTimeScale_;
@@ -1112,7 +1126,8 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
         const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings = nullptr,
         const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings = nullptr,
         const std::optional< input_output::EarthOrientationData >& eopData = std::nullopt,
-        const earth_orientation::EarthOrientationEvaluationSettings& eopEvaluationSettings = {} )
+        const earth_orientation::EarthOrientationEvaluationSettings& eopEvaluationSettings = {},
+        const earth_orientation::OceanTideEopModel oceanTideEopModel = earth_orientation::OceanTideEopModel::iers_2010 )
 {
     std::shared_ptr< GcrsToItrsRotationModelSettings > rotationSettings =
             std::make_shared< GcrsToItrsRotationModelSettings >( nutationTheory, baseFrameName );
@@ -1122,6 +1137,7 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
 
     if( eopData ) rotationSettings->setEopData( *eopData );
     rotationSettings->setEopEvaluationSettings( eopEvaluationSettings );
+    rotationSettings->setOceanTideEopModel( oceanTideEopModel );
     return rotationSettings;
 }
 

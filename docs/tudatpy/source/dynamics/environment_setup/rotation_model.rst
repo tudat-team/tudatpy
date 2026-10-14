@@ -68,6 +68,29 @@ Set ``EarthOrientationEvaluationSettings.interpolation`` to ``EarthOrientationIn
 
 Short-period EOP corrections use continuous UT1/TT arguments directly. The strict factory rejects non-None ``short_term_eop_interpolation_settings``; CIO and geocentric TDB interpolation settings remain supported.
 
+The ocean-tide EOP default remains ``OceanTideEopModel.iers_2010``. Explicitly
+select ``OceanTideEopModel.desai_sibois_2016`` to replace only those ocean terms
+with the 159-term `Desai and Sibois (2016) <https://doi.org/10.1002/2016JB013125>`_
+table. Conventional quasi-diurnal polar-motion libration (PMSDNUT2's short-period
+band) and semidiurnal UT1 libration (UTLIBR) remain included once. Daily EOP,
+observed celestial-pole offsets and precession/nutation retain their selected
+policies. Long-period zonal tides and extra free-core nutation are not added.
+
+.. code-block:: python
+
+   from tudatpy.dynamics.environment_setup import rotation_model
+
+   settings = rotation_model.gcrs_to_itrs(
+       eop_data=data,
+       ocean_tide_eop_model=rotation_model.OceanTideEopModel.desai_sibois_2016)
+
+The ``ocean_tide_eop_model`` settings property also permits an explicit choice.
+Custom short-period amplitude files, phase files or units cannot be combined
+automatically with this replacement: construction raises an error to prevent
+ambiguous omission or double counting. Minimum-amplitude cutoffs retain their
+original µas/µs units. Published LOD amplitudes are preserved in the source table;
+native clock and rotation derivatives differentiate the selected UT1 series.
+
 Use TT or TAI for an inserted leap second. Rotation and UT1 remain continuous there, while conversion to scalar UTC raises for ``23:59:60`` because that interface cannot identify the inserted second uniquely. Geocentric TT/TDB conversion needs no EOP coverage. A nonzero observer position requests SOFA's topocentric terms and therefore requires continuous UT1 within EOP coverage.
 
 

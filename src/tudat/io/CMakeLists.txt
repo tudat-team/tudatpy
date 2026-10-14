@@ -142,9 +142,9 @@ endif ()
 # Pure EOP file loading is separately linkable, without dynamics/estimation,
 # interpolation, ephemerides, SOFA, or serialization dependencies.
 if(TUDAT_BUILD_STATIC_LIBRARY)
-    add_library(tudat_earth_orientation_data STATIC readEarthOrientationData.cpp)
+    add_library(tudat_earth_orientation_data STATIC readEarthOrientationData.cpp readHighFrequencyEopData.cpp)
 else()
-    add_library(tudat_earth_orientation_data SHARED readEarthOrientationData.cpp)
+    add_library(tudat_earth_orientation_data SHARED readEarthOrientationData.cpp readHighFrequencyEopData.cpp)
 endif()
 target_compile_features(tudat_earth_orientation_data PUBLIC cxx_std_17)
 target_include_directories(tudat_earth_orientation_data PUBLIC

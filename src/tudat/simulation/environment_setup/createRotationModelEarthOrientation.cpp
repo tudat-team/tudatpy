@@ -42,16 +42,49 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
             evaluator, earth_orientation::EarthOrientationDataField::polar_motion );
     const auto cipInGcrsCorrectionInterpolator = std::make_shared< earth_orientation::EarthOrientationDataInterpolator< Eigen::Vector2d > >(
             evaluator, earth_orientation::EarthOrientationDataField::celestial_pole );
-    // Create polar motion correction (sub-diural frequencies) object
-    std::shared_ptr< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >
-            shortPeriodPolarMotionCalculator =
-                    std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
-                            gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->conversionFactor_,
-                            gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->minimumAmplitude_,
-                            gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->amplitudesFiles_,
-                            gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->argumentMultipliersFile_,
-                            std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
-                            gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
+    const auto polarSettings = gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( );
+    const auto ut1Settings = gcrsToItrsRotationSettings->getUt1CorrectionSettings( );
+    if( !polarSettings || !ut1Settings ) throw std::runtime_error( "Missing short-period EOP correction settings" );
+    earth_orientation::HighFrequencyEopCorrectionCalculators corrections;
+    if( gcrsToItrsRotationSettings->getOceanTideEopModel( ) == earth_orientation::OceanTideEopModel::desai_sibois_2016 )
+    {
+        // Custom files have no reliable component identity. Reject an ambiguous
+        // combination instead of dropping custom terms or counting ocean terms twice.
+        GcrsToItrsRotationModelSettings conventional;
+        const auto matches = []( const std::shared_ptr< EopCorrectionSettings >& actual,
+                                 const std::shared_ptr< EopCorrectionSettings >& expected ) {
+            return actual->conversionFactor_ == expected->conversionFactor_ && actual->amplitudesFiles_ == expected->amplitudesFiles_ &&
+                    actual->argumentMultipliersFile_ == expected->argumentMultipliersFile_;
+        };
+        if( !matches( polarSettings, conventional.getPolarMotionCorrectionSettings( ) ) ||
+            !matches( ut1Settings, conventional.getUt1CorrectionSettings( ) ) )
+            throw std::runtime_error(
+                    "Desai--Sibois replaces the conventional ocean-tide EOP terms; "
+                    "it cannot be combined automatically with custom short-period correction files or units" );
+        corrections = earth_orientation::createHighFrequencyEopCorrectionCalculators(
+                earth_orientation::OceanTideEopModel::desai_sibois_2016,
+                polarSettings->minimumAmplitude_,
+                ut1Settings->minimumAmplitude_,
+                gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
+    }
+    else
+    {
+        // Preserve the existing conventional/custom path and summation order.
+        corrections.polarMotion = std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
+                gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->conversionFactor_,
+                gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->minimumAmplitude_,
+                gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->amplitudesFiles_,
+                gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->argumentMultipliersFile_,
+                std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
+                gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
+        corrections.ut1 = std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< double > >(
+                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->conversionFactor_,
+                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->minimumAmplitude_,
+                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->amplitudesFiles_,
+                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->argumentMultipliersFile_,
+                std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
+                gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
+    }
 
     // Create IAU 2006 precession/nutation calculator
     std::shared_ptr< earth_orientation::PrecessionNutationCalculator > precessionNutationCalculator =
@@ -60,16 +93,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                                                                                  gcrsToItrsRotationSettings->getCioInterpolatorSettings( ),
                                                                                  evaluator );
 
-    // Create UT1 correction (sub-diural frequencies) object
-    std::shared_ptr< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< double > > ut1CorrectionSettings =
-            std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< double > >(
-                    gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->conversionFactor_,
-                    gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->minimumAmplitude_,
-                    gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->amplitudesFiles_,
-                    gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->argumentMultipliersFile_,
-                    std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
-                    gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
-
     const auto dailyUtcUt1CorrectionInterpolator = std::make_shared< earth_orientation::EarthOrientationDataInterpolator< double > >(
             evaluator, earth_orientation::EarthOrientationDataField::ut1_minus_utc );
 
@@ -77,12 +100,12 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
             std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >(
                     dailyUtcUt1CorrectionInterpolator,
-                    ut1CorrectionSettings,
+                    corrections.ut1,
                     gcrsToItrsRotationSettings->getTdbToTtInterpolatorSettings( ),
                     evaluator );
 
     const auto polarMotionCalculator = std::make_shared< earth_orientation::PolarMotionCalculator >(
-            cipInItrsInterpolator, shortPeriodPolarMotionCalculator, evaluator, [ terrestrialTimeScaleConverter ]( const Time& tai ) {
+            cipInItrsInterpolator, corrections.polarMotion, evaluator, [ terrestrialTimeScaleConverter ]( const Time& tai ) {
                 return terrestrialTimeScaleConverter->getUt1FromTai( tai );
             } );
 

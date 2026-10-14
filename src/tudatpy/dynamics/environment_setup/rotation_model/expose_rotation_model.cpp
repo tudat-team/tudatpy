@@ -180,9 +180,17 @@ void expose_rotation_model_setup( py::module& m )
             .def_readwrite( "historical_ut1", &tudat::earth_orientation::EarthOrientationEvaluationSettings::historicalUt1 )
             .def_readwrite( "interpolation", &tudat::earth_orientation::EarthOrientationEvaluationSettings::interpolation );
 
+    py::enum_< tudat::earth_orientation::OceanTideEopModel >(
+            m, "OceanTideEopModel", "Ocean-tide EOP model; independent IERS libration remains included." )
+            .value( "iers_2010", tudat::earth_orientation::OceanTideEopModel::iers_2010 )
+            .value( "desai_sibois_2016", tudat::earth_orientation::OceanTideEopModel::desai_sibois_2016 );
+
     py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
             m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
             .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile )
+            .def_property( "ocean_tide_eop_model",
+                           &tss::GcrsToItrsRotationModelSettings::getOceanTideEopModel,
+                           &tss::GcrsToItrsRotationModelSettings::setOceanTideEopModel )
             .def( "set_eop_data",
                   &tss::GcrsToItrsRotationModelSettings::setEopData,
                   "Use validated data loaded with data_input.environment_data.earth_orientation; copy its records and provenance." )
@@ -438,9 +446,20 @@ void expose_rotation_model_setup( py::module& m )
                       "None" ),
            py::arg( "eop_data" ) = std::nullopt,
            py::arg( "eop_evaluation_settings" ) = tudat::earth_orientation::EarthOrientationEvaluationSettings( ),
+           py::arg( "ocean_tide_eop_model" ) = tudat::earth_orientation::OceanTideEopModel::iers_2010,
            R"doc(
 
  Function for creating high-accuracy Earth rotation model settings.
+
+ ``ocean_tide_eop_model=OceanTideEopModel.iers_2010`` is the unchanged default.
+ Explicitly select ``OceanTideEopModel.desai_sibois_2016`` to replace the conventional
+ diurnal/semidiurnal ocean terms by the 159-term Desai--Sibois (2016) model
+ (DOI 10.1002/2016JB013125). Quasi-diurnal polar-motion and semidiurnal UT1
+ libration remain included exactly once. Daily EOP and celestial-pole offsets
+ retain their selected input/interpolation policies. Custom short-period files
+ cannot be combined automatically with this replacement and raise an error.
+ Published LOD coefficients are retained as input metadata; clock derivatives
+ differentiate the selected UT1 series without adding LOD a second time.
 
  Preloaded ``eop_data`` comes from :mod:`tudatpy.data_input.environment_data.earth_orientation`.
  Daily parameters are interpolated on continuous TAI using UT1-TAI. Raw coverage

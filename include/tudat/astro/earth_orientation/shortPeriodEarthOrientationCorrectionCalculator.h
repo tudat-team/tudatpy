@@ -15,6 +15,7 @@
 #include <string>
 
 #include <functional>
+#include <type_traits>
 
 #include <Eigen/Core>
 
@@ -43,6 +44,31 @@ template< typename OutputType >
 class ShortPeriodEarthOrientationCorrectionCalculator
 {
 public:
+    //! Construct from validated harmonic groups. Amplitudes already have the output's SI units.
+    ShortPeriodEarthOrientationCorrectionCalculator(
+            const std::vector< Eigen::MatrixXd >& amplitudes,
+            const std::vector< Eigen::MatrixXd >& argumentMultipliers,
+            const std::function< Eigen::Vector6d( const double ) > argumentFunction =
+                    std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
+            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > interpolation = nullptr ):
+        argumentAmplitudes_( amplitudes ), argumentMultipliers_( argumentMultipliers ), argumentFunction_( argumentFunction )
+    {
+        const int columns = std::is_same< OutputType, double >::value ? 2 : 4;
+        if( amplitudes.size( ) != argumentMultipliers.size( ) ) throw std::runtime_error( "Short-period EOP harmonic group counts differ" );
+        for( unsigned int i = 0; i < amplitudes.size( ); ++i )
+        {
+            if( amplitudes[ i ].cols( ) != columns || argumentMultipliers[ i ].cols( ) != 6 ||
+                amplitudes[ i ].rows( ) != argumentMultipliers[ i ].rows( ) || !amplitudes[ i ].allFinite( ) ||
+                !argumentMultipliers[ i ].allFinite( ) )
+                throw std::runtime_error( "Invalid short-period EOP harmonic matrices" );
+        }
+        if( interpolation )
+        {
+            std::function< OutputType( const double ) > function = [ this ]( const double time ) { return getCorrections( time ); };
+            correctionInterpolator_ = interpolators::createOneDimensionalInterpolator< double, OutputType >( function, interpolation );
+        }
+    }
+
     //! Constructor, requires files defining the amplitudes and fundamental argument multipliers of the variations.
     /*!
      *  Constructor, requires files defining the sine and cosine amplitudes and fundamental argument multipliers numbers
