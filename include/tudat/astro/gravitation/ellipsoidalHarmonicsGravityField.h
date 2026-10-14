@@ -325,7 +325,11 @@ public:
         return radialTable_;
     }
 
-    //! Field coefficients, with the normalisation to the reference surface already undone.
+    /*! Field coefficients, with the normalisation to the reference surface already undone.
+     *
+     * These still carry the gravitational parameter they were read with, not one set later
+     * through resetGravitationalParameter.
+     */
     basic_mathematics::EllipsoidalHarmonicCoefficients getCoefficients( )
     {
         return coefficients_;
@@ -344,6 +348,16 @@ public:
     }
 
 private:
+    /*! Factor that brings the coefficients to the current gravitational parameter.
+     *
+     * The coefficients carry the gravitational parameter they were read with. Scaling by this
+     * factor lets a reset of the parameter, for example during estimation, change the field.
+     */
+    double getCoefficientScaling( ) const
+    {
+        return gravitationalParameter_ / gravitationalParameterOfCoefficients_;
+    }
+
     //! Gradient obtained by differencing the potential, used close to the long axis.
     Eigen::Vector3d computeGradientByDifferencingPotential( const Eigen::Vector3d& bodyFixedPosition );
 
@@ -368,6 +382,9 @@ private:
 
     //! Coefficients with the normalisation to the reference surface undone.
     basic_mathematics::EllipsoidalHarmonicCoefficients coefficients_;
+
+    //! Gravitational parameter contained in the coefficients, as read from file.
+    double gravitationalParameterOfCoefficients_;
 
     basic_mathematics::EllipsoidalHarmonicMatrices lameFunctionCoefficients_;
 

@@ -492,6 +492,41 @@ BOOST_AUTO_TEST_CASE( test_radius_beyond_the_table_falls_back_on_exact_integrati
     BOOST_CHECK_CLOSE_FRACTION( tabulated->getGravitationalPotential( position ), exact->getGravitationalPotential( position ), 1.0E-14 );
 }
 
+/*! Changing the gravitational parameter must scale the whole field.
+ *
+ * Estimation changes it this way, so a field that ignored it would never respond.
+ */
+BOOST_AUTO_TEST_CASE( test_reset_gravitational_parameter_scales_the_field )
+{
+    const Eigen::Vector3d position = ( Eigen::Vector3d( ) << 5.0E3, 4.0E3, -3.0E3 ).finished( );
+    // Close to the long axis, where the gradient and Hessian are found by differencing.
+    const Eigen::Vector3d positionNearLongAxis = ( Eigen::Vector3d( ) << 6.0E3, 0.1, 0.1 ).finished( );
+
+    const std::shared_ptr< EllipsoidalHarmonicsGravityField > field = createTestField( );
+    const double originalParameter = field->getGravitationalParameter( );
+
+    const double potential = field->getGravitationalPotential( position );
+    const Eigen::Vector3d gradient = field->getGradientOfPotential( position );
+    const Eigen::Matrix3d hessian = field->getHessianOfPotential( position );
+    const Eigen::Vector3d gradientNearLongAxis = field->getGradientOfPotential( positionNearLongAxis );
+    const Eigen::Matrix3d hessianNearLongAxis = field->getHessianOfPotential( positionNearLongAxis );
+
+    field->resetGravitationalParameter( 1.5 * originalParameter );
+
+    BOOST_CHECK_CLOSE_FRACTION( field->getGravitationalPotential( position ), 1.5 * potential, 1.0E-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getGradientOfPotential( position ), ( 1.5 * gradient ).eval( ), 1.0E-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( field->getHessianOfPotential( position ), ( 1.5 * hessian ).eval( ), 1.0E-14 );
+
+    // Differencing adds rounding noise of the same absolute size to every component, so these
+    // are compared as a whole rather than component by component.
+    BOOST_CHECK_SMALL( ( field->getGradientOfPotential( positionNearLongAxis ) - 1.5 * gradientNearLongAxis ).norm( ) /
+                               ( 1.5 * gradientNearLongAxis ).norm( ),
+                       1.0E-10 );
+    BOOST_CHECK_SMALL( ( field->getHessianOfPotential( positionNearLongAxis ) - 1.5 * hessianNearLongAxis ).norm( ) /
+                               ( 1.5 * hessianNearLongAxis ).norm( ),
+                       1.0E-6 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

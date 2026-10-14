@@ -249,6 +249,7 @@ EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const Eigen:
     // the ellipsoidal radius. The normalised degree zero coefficient is therefore exactly the
     // gravitational parameter.
     resetGravitationalParameter( coefficients_.kTerms.at( 0 )( 0 ) );
+    gravitationalParameterOfCoefficients_ = gravitationalParameter_;
 
     // Tabulating the radial parts against the ellipsoidal radius is what makes repeated
     // evaluation cheap; outside the tabulated range they are integrated exactly instead.
@@ -288,11 +289,12 @@ double EllipsoidalHarmonicsGravityField::getGravitationalPotential( const Eigen:
     gravityCache_->update( bodyFixedPosition );
     checkPositionIsOutsideReferenceEllipsoid( bodyFixedPosition, gravityCache_->getEllipsoidalRadius( ) );
 
-    return sumEllipsoidalHarmonicTerms( coefficients_,
-                                        gravityCache_->getRadialFunctions( ),
-                                        transformFactors_,
-                                        gravityCache_->getLegendreCache( ),
-                                        gravityCache_->getAngleAboutLongAxis( ) );
+    return getCoefficientScaling( ) *
+            sumEllipsoidalHarmonicTerms( coefficients_,
+                                         gravityCache_->getRadialFunctions( ),
+                                         transformFactors_,
+                                         gravityCache_->getLegendreCache( ),
+                                         gravityCache_->getAngleAboutLongAxis( ) );
 }
 
 Eigen::Vector3d EllipsoidalHarmonicsGravityField::computeGradientByDifferencingPotential( const Eigen::Vector3d& bodyFixedPosition )
@@ -332,14 +334,15 @@ Eigen::Vector3d EllipsoidalHarmonicsGravityField::getGradientOfPotential( const 
     gravityCache_->updateIncludingDerivatives( bodyFixedPosition );
     checkPositionIsOutsideReferenceEllipsoid( bodyFixedPosition, gravityCache_->getEllipsoidalRadius( ) );
 
-    return computeEllipsoidalHarmonicPotentialGradient( coefficients_,
-                                                        gravityCache_->getRadialFunctions( ),
-                                                        gravityCache_->getRadialFunctionDerivatives( ),
-                                                        transformFactors_,
-                                                        gravityCache_->getLegendreCacheWithDerivatives( ),
-                                                        gravityCache_->getEllipsoidalCoordinates( ),
-                                                        firstFocalParameter_,
-                                                        secondFocalParameter_ );
+    return getCoefficientScaling( ) *
+            computeEllipsoidalHarmonicPotentialGradient( coefficients_,
+                                                         gravityCache_->getRadialFunctions( ),
+                                                         gravityCache_->getRadialFunctionDerivatives( ),
+                                                         transformFactors_,
+                                                         gravityCache_->getLegendreCacheWithDerivatives( ),
+                                                         gravityCache_->getEllipsoidalCoordinates( ),
+                                                         firstFocalParameter_,
+                                                         secondFocalParameter_ );
 }
 
 Eigen::Matrix3d EllipsoidalHarmonicsGravityField::computeHessianByDifferencingGradient( const Eigen::Vector3d& bodyFixedPosition )
@@ -376,15 +379,16 @@ Eigen::Matrix3d EllipsoidalHarmonicsGravityField::getHessianOfPotential( const E
 
     gravityCache_->updateIncludingSecondDerivatives( bodyFixedPosition );
 
-    return computeEllipsoidalHarmonicPotentialHessian( coefficients_,
-                                                       gravityCache_->getRadialFunctions( ),
-                                                       gravityCache_->getRadialFunctionDerivatives( ),
-                                                       gravityCache_->getRadialFunctionSecondDerivatives( ),
-                                                       transformFactors_,
-                                                       gravityCache_->getLegendreCacheWithSecondDerivatives( ),
-                                                       gravityCache_->getEllipsoidalCoordinates( ),
-                                                       firstFocalParameter_,
-                                                       secondFocalParameter_ );
+    return getCoefficientScaling( ) *
+            computeEllipsoidalHarmonicPotentialHessian( coefficients_,
+                                                        gravityCache_->getRadialFunctions( ),
+                                                        gravityCache_->getRadialFunctionDerivatives( ),
+                                                        gravityCache_->getRadialFunctionSecondDerivatives( ),
+                                                        transformFactors_,
+                                                        gravityCache_->getLegendreCacheWithSecondDerivatives( ),
+                                                        gravityCache_->getEllipsoidalCoordinates( ),
+                                                        firstFocalParameter_,
+                                                        secondFocalParameter_ );
 }
 
 double EllipsoidalHarmonicsGravityField::getLaplacianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
