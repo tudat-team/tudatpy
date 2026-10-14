@@ -90,18 +90,19 @@ public:
 class StationHistoryGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
-    StationHistoryGroundStationMotionSettings( std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
-                                               ground_stations::StationHistoryTimeFunction timeFunction = nullptr ):
+    StationHistoryGroundStationMotionSettings(
+            std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
+            std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction = nullptr ):
         GroundStationMotionSettings( station_history_motion ), trajectory_( std::move( trajectory ) ),
         timeFunction_( std::move( timeFunction ) )
     {}
     std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory_;
-    ground_stations::StationHistoryTimeFunction timeFunction_;
+    std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction_;
 };
 
 inline std::shared_ptr< StationHistoryGroundStationMotionSettings > stationHistoryGroundStationMotionSettings(
         std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
-        ground_stations::StationHistoryTimeFunction timeFunction = nullptr )
+        std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction = nullptr )
 {
     return std::make_shared< StationHistoryGroundStationMotionSettings >( std::move( trajectory ), std::move( timeFunction ) );
 }

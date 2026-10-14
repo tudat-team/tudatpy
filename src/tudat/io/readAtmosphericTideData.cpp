@@ -161,9 +161,9 @@ void axis( const std::vector< double >& values, const bool latitude )
         require( std::abs( values.back( ) - values.front( ) ) <= 360.0, "longitude span exceeds one period" );
     }
 }
-AtmosphericTideCoefficients matrix( const std::vector< double >& values, const std::size_t offset )
+Eigen::Matrix< double, 3, 4 > matrix( const std::vector< double >& values, const std::size_t offset )
 {
-    AtmosphericTideCoefficients result;
+    Eigen::Matrix< double, 3, 4 > result;
     for( int row = 0; row < 3; ++row )
     {
         for( int column = 0; column < 4; ++column )

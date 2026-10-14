@@ -21,7 +21,7 @@ void validatePolicy( const OceanPoleTideLatitudePolicy policy )
 }
 }  // namespace
 
-Eigen::Vector3d calculateOceanPoleTideLoading( const input_output::OceanPoleTideCoefficients& coefficients,
+Eigen::Vector3d calculateOceanPoleTideLoading( const Eigen::Matrix< double, 3, 2 >& coefficients,
                                                const Eigen::Vector2d& wobbleRadians,
                                                const double scaleMetresPerRadian )
 {
@@ -37,11 +37,10 @@ Eigen::Vector3d calculateOceanPoleTideLoading( const input_output::OceanPoleTide
               ( wobbleRadians.y( ) * 0.6870 - wobbleRadians.x( ) * 0.0036 ) * coefficients.col( 1 ) );
 }
 
-static input_output::OceanPoleTideCoefficients interpolateValidatedOceanPoleTideCoefficients(
-        const input_output::OceanPoleTideGrid& grid,
-        const double latitudeDegrees,
-        const double longitudeDegrees,
-        const OceanPoleTideLatitudePolicy latitudePolicy )
+static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficients( const input_output::OceanPoleTideGrid& grid,
+                                                                                    const double latitudeDegrees,
+                                                                                    const double longitudeDegrees,
+                                                                                    const OceanPoleTideLatitudePolicy latitudePolicy )
 {
     validatePolicy( latitudePolicy );
     if( !std::isfinite( latitudeDegrees ) || !std::isfinite( longitudeDegrees ) || latitudeDegrees < -90 || latitudeDegrees > 90 )
@@ -103,10 +102,10 @@ static input_output::OceanPoleTideCoefficients interpolateValidatedOceanPoleTide
             northWeight * ( ( 1 - eastWeight ) * nw + eastWeight * ne );
 }
 
-input_output::OceanPoleTideCoefficients interpolateOceanPoleTideCoefficients( const input_output::OceanPoleTideGrid& grid,
-                                                                              const double latitudeDegrees,
-                                                                              const double longitudeDegrees,
-                                                                              const OceanPoleTideLatitudePolicy latitudePolicy )
+Eigen::Matrix< double, 3, 2 > interpolateOceanPoleTideCoefficients( const input_output::OceanPoleTideGrid& grid,
+                                                                    const double latitudeDegrees,
+                                                                    const double longitudeDegrees,
+                                                                    const OceanPoleTideLatitudePolicy latitudePolicy )
 {
     input_output::validateOceanPoleTideGrid( grid );
     return interpolateValidatedOceanPoleTideCoefficients( grid, latitudeDegrees, longitudeDegrees, latitudePolicy );

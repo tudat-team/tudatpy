@@ -196,7 +196,7 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
     const double longitude = std::atan2( position.y( ), position.x( ) );
     const double geocentricLatitude = std::atan2( position.z( ), std::hypot( position.x( ), position.y( ) ) );
     AtmosphericTideMetadata metadata;
-    AtmosphericTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 4 > coefficients;
     if( usesStationCoefficients( ) )
     {
         const auto& record = stationData_.getStation( station->getSiteId( ) );

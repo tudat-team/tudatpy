@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( precisePublicPointSwitchAndCompleteInertialOffsetVelocity 
 {
     const auto point = arp( );
     const auto converter = basic_astrodynamics::getGeocentricTimeConverter( );
-    const StationHistoryTimeFunction sourceClock = [ converter ]( const Time& tdb, bool rates ) {
+    const std::function< StationHistoryTime( const Time&, bool ) > sourceClock = [ converter ]( const Time& tdb, bool rates ) {
         return getIgnNominalUtcStationTimeFromTdb( tdb, converter, rates );
     };
     const auto settings = simulation_setup::stationReferencePointSettings( point, Eigen::Vector3d( 3e6, -5e6, 2e6 ), sourceClock );

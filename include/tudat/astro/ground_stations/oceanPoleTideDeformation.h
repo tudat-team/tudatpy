@@ -14,12 +14,12 @@ enum class OceanPoleTideLatitudePolicy { requireGridCoverage, clampToNearestGrid
 
 //! IERS 2010 Eq. (29), with radians as wobble input and metres as output (radial/north/east).
 //! Defaults use Chapter 1 constants, not the older G in the published 2003-mean-pole test.
-Eigen::Vector3d calculateOceanPoleTideLoading( const input_output::OceanPoleTideCoefficients& coefficients,
+Eigen::Vector3d calculateOceanPoleTideLoading( const Eigen::Matrix< double, 3, 2 >& coefficients,
                                                const Eigen::Vector2d& wobbleRadians,
                                                const double scaleMetresPerRadian = 5340.428562229677 );
 
 //! Bilinear interpolation in the model layer; longitude wraps only for grids spanning a complete period.
-input_output::OceanPoleTideCoefficients interpolateOceanPoleTideCoefficients(
+Eigen::Matrix< double, 3, 2 > interpolateOceanPoleTideCoefficients(
         const input_output::OceanPoleTideGrid& grid,
         const double latitudeDegrees,
         const double longitudeDegrees,

@@ -11,7 +11,7 @@ namespace simulation_setup
 inline std::shared_ptr< GroundStationSettings > stationReferencePointSettings(
         std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
         const Eigen::Vector3d& nominalPosition,
-        ground_stations::StationHistoryTimeFunction sourceTimeFunction = nullptr )
+        std::function< ground_stations::StationHistoryTime( const Time&, bool ) > sourceTimeFunction = nullptr )
 {
     if( !trajectory || trajectory->getMetadata( ).referencePointKind == ground_stations::StationReferencePointKind::marker ||
         trajectory->getMetadata( ).referencePointName.empty( ) )

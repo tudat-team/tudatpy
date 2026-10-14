@@ -133,7 +133,7 @@ OceanPoleTideGrid readOceanPoleTideGrid( std::istream& stream, const std::string
                 const double expectedLatitude = grid.firstLatitudeDegrees + ( node / grid.longitudeCount ) * grid.latitudeStepDegrees;
                 require( std::abs( row[ 0 ] - expectedLongitude ) < 1e-9 && std::abs( row[ 1 ] - expectedLatitude ) < 1e-9,
                          "duplicate, missing, reordered or off-grid node" );
-                OceanPoleTideCoefficients coefficients;
+                Eigen::Matrix< double, 3, 2 > coefficients;
                 for( int component = 0; component < 3; ++component )
                 {
                     coefficients( component, 0 ) = row[ 2 + 2 * component ];

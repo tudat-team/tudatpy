@@ -11,11 +11,11 @@ enum class AtmosphericTideEndpointPolicy { requireConsistency, averageSeamAndPol
 
 //! Pure IERS Eqs.19a/b: METRE coefficients in radial/north/east rows; UT1 seconds since J2000 noon.
 //! The accepted RP03 convention has midnight phase origin; no further 20-minute or S1 180-degree shift.
-Eigen::Vector3d synthesizeAtmosphericTideLoading( const input_output::AtmosphericTideCoefficients& coefficientsMetres,
+Eigen::Vector3d synthesizeAtmosphericTideLoading( const Eigen::Matrix< double, 3, 4 >& coefficientsMetres,
                                                   const double ut1SecondsSinceJ2000 );
 //! Exact analytic derivative with respect to UT1 seconds, in metres/second.
 //! A derivative with respect to an environment epoch must additionally multiply by dUT1/d(epoch).
-Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const input_output::AtmosphericTideCoefficients& coefficientsMetres,
+Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const Eigen::Matrix< double, 3, 4 >& coefficientsMetres,
                                                            const double ut1SecondsSinceJ2000 );
 
 //! Pure Cartesian dX/dY/dZ of IERS Eq.20/Table7.6, in metres; UT1 seconds from J2000 noon.
@@ -32,8 +32,7 @@ public:
     AtmosphericTideGridInterpolator(
             const input_output::AtmosphericTideGrid& grid,
             const AtmosphericTideEndpointPolicy endpointPolicy = AtmosphericTideEndpointPolicy::requireConsistency );
-    input_output::AtmosphericTideCoefficients interpolate( const double providerLatitudeDegrees,
-                                                           const double providerLongitudeDegrees ) const;
+    Eigen::Matrix< double, 3, 4 > interpolate( const double providerLatitudeDegrees, const double providerLongitudeDegrees ) const;
     //! The original neutral grid, including both conflicting endpoints, is never modified.
     const input_output::AtmosphericTideGrid& getProviderGrid( ) const
     {
@@ -54,7 +53,7 @@ public:
 
 private:
     input_output::AtmosphericTideGrid providerGrid_;
-    std::vector< input_output::AtmosphericTideCoefficients > modelCoefficients_;
+    std::vector< Eigen::Matrix< double, 3, 4 > > modelCoefficients_;
     AtmosphericTideEndpointPolicy policy_;
     bool periodic_ = false;
     bool duplicatedSeam_ = false;

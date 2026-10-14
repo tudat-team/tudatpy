@@ -24,7 +24,7 @@ AtmosphericTideGrid grid( )
     {
         for( int j = 0; j < 3; ++j )
         {
-            result.coefficientsMetres.push_back( AtmosphericTideCoefficients::Constant( ( i == 4 ? 0 : i ) + 10 * j ) );
+            result.coefficientsMetres.push_back( Eigen::Matrix< double, 3, 4 >::Constant( ( i == 4 ? 0 : i ) + 10 * j ) );
         }
     }
     return result;
@@ -32,20 +32,20 @@ AtmosphericTideGrid grid( )
 }  // namespace
 BOOST_AUTO_TEST_CASE( directQuarterDaySignsAndS2HalfDayPeriod )
 {
-    AtmosphericTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 4 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12;
     close( synthesizeAtmosphericTideLoading( coefficients, -43200 ), Eigen::Vector3d( 4, 12, 20 ) );
     close( synthesizeAtmosphericTideLoading( coefficients, -21600 ), Eigen::Vector3d( -1, -1, -1 ) );
     close( synthesizeAtmosphericTideLoading( coefficients, 0 ), Eigen::Vector3d( 2, 2, 2 ) );
     close( synthesizeAtmosphericTideLoading( coefficients, 21600 ), Eigen::Vector3d( -5, -13, -21 ) );
-    auto s1 = AtmosphericTideCoefficients::Zero( ).eval( );
+    auto s1 = Eigen::Matrix< double, 3, 4 >::Zero( ).eval( );
     s1.col( 0 ) << 1, 2, 3;
     s1.col( 1 ) << 4, 5, 6;
     close( synthesizeAtmosphericTideLoading( s1, -43200 ), Eigen::Vector3d( 1, 2, 3 ) );
     close( synthesizeAtmosphericTideLoading( s1, -21600 ), Eigen::Vector3d( 4, 5, 6 ) );
     close( synthesizeAtmosphericTideLoading( s1, 0 ), Eigen::Vector3d( -1, -2, -3 ) );
     close( synthesizeAtmosphericTideLoading( s1, 21600 ), Eigen::Vector3d( -4, -5, -6 ) );
-    auto s2 = AtmosphericTideCoefficients::Zero( ).eval( );
+    auto s2 = Eigen::Matrix< double, 3, 4 >::Zero( ).eval( );
     s2.col( 2 ) << 1, 2, 3;
     s2.col( 3 ) << 4, 5, 6;
     close( synthesizeAtmosphericTideLoading( s2, -43200 ), Eigen::Vector3d( 1, 2, 3 ) );
@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE( directQuarterDaySignsAndS2HalfDayPeriod )
     close( synthesizeAtmosphericTideLoading( s2, -21600 ), Eigen::Vector3d( -1, -2, -3 ) );
     close( synthesizeAtmosphericTideLoading( s2, -10800 ), Eigen::Vector3d( -4, -5, -6 ) );
     close( synthesizeAtmosphericTideLoading( s2, 0 ), Eigen::Vector3d( 1, 2, 3 ) );
-    close( synthesizeAtmosphericTideLoading( AtmosphericTideCoefficients::Zero( ), 0 ), Eigen::Vector3d::Zero( ) );
+    close( synthesizeAtmosphericTideLoading( Eigen::Matrix< double, 3, 4 >::Zero( ), 0 ), Eigen::Vector3d::Zero( ) );
     BOOST_CHECK_THROW( synthesizeAtmosphericTideLoading( coefficients, NAN ), std::runtime_error );
 }
 BOOST_AUTO_TEST_CASE( analyticDerivativeAndEpochReduction )
 {
-    AtmosphericTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 4 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12;
     const double omega = 2 * mathematical_constants::PI / 86400;
     close( differentiateAtmosphericTideLoadingWrtUt1( coefficients, -43200 ), omega * Eigen::Vector3d( 10, 22, 34 ) );
@@ -77,11 +77,11 @@ BOOST_AUTO_TEST_CASE( interpolationIndependentLinearCasesAndRawEndpointRetention
 {
     const auto raw = grid( );
     AtmosphericTideGridInterpolator model( raw );
-    BOOST_CHECK_SMALL( ( model.interpolate( 22.5, 45 ) - AtmosphericTideCoefficients::Constant( 5.5 ) ).norm( ), 1e-14 );
-    BOOST_CHECK_SMALL( ( model.interpolate( 0, -45 ) - AtmosphericTideCoefficients::Constant( 11.5 ) ).norm( ), 1e-14 );
+    BOOST_CHECK_SMALL( ( model.interpolate( 22.5, 45 ) - Eigen::Matrix< double, 3, 4 >::Constant( 5.5 ) ).norm( ), 1e-14 );
+    BOOST_CHECK_SMALL( ( model.interpolate( 0, -45 ) - Eigen::Matrix< double, 3, 4 >::Constant( 11.5 ) ).norm( ), 1e-14 );
     for( double lon : { -720., -360., 0., 360., 720. } )
     {
-        BOOST_CHECK_SMALL( ( model.interpolate( 0, lon ) - AtmosphericTideCoefficients::Constant( 10 ) ).norm( ), 1e-14 );
+        BOOST_CHECK_SMALL( ( model.interpolate( 0, lon ) - Eigen::Matrix< double, 3, 4 >::Constant( 10 ) ).norm( ), 1e-14 );
     }
     BOOST_CHECK_THROW( model.interpolate( 90, 0 ), std::runtime_error );
     auto inconsistent = raw;
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( realGridNodesAndIndependentDecimalInterpolation )
                                                         AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation );
     BOOST_CHECK_THROW( polarApproximation.interpolate( 90, 10 ), std::runtime_error );
     // Independent Decimal interpolation of four original provider rows; this is not reference-software conformance.
-    AtmosphericTideCoefficients expected;
+    Eigen::Matrix< double, 3, 4 > expected;
     expected << -.229413396401398, -.140409687704627, 1.040762193571904, .276668845291711, .059365717547470, .059123892373735,
             -.033761020617976, -.014395543429494, .007941624058988, -.103894064696771, -.016544820023036, .059869142014747;
     BOOST_CHECK_SMALL( ( model.interpolate( -19.018307, 47.22921 ) - expected * 1e-3 ).norm( ), 1e-16 );

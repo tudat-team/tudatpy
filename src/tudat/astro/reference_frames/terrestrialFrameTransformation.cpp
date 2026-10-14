@@ -110,8 +110,9 @@ input_output::TerrestrialFrameTransformationData getConventionalItrfTransformati
             throw std::runtime_error( "Unknown conventional ITRF parameter catalogue" );
     }
 }
-TerrestrialFrameTransformationModel::TerrestrialFrameTransformationModel( const input_output::TerrestrialFrameTransformationData& data,
-                                                                          Clock clock ): data_( data ), clock_( std::move( clock ) )
+TerrestrialFrameTransformationModel::TerrestrialFrameTransformationModel(
+        const input_output::TerrestrialFrameTransformationData& data,
+        std::function< TerrestrialFrameEvaluationEpoch( const Time& ) > clock ): data_( data ), clock_( std::move( clock ) )
 {
     input_output::validateTerrestrialFrameTransformationData( data_ );
     for( const auto& entry : data_.records )

@@ -42,9 +42,9 @@ void expose_terrestrial_frame_transformations( pybind11::module& module )
     module.def( "evaluate_linearized_helmert", &rf::evaluateLinearizedHelmert, py::arg( "parameters" ), py::arg( "epoch" ) );
     py::class_< rf::TerrestrialFrameTransformationModel >( module, "TerrestrialFrameTransformationModel" )
             .def( py::init< const tudat::input_output::TerrestrialFrameTransformationData&,
-                            rf::TerrestrialFrameTransformationModel::Clock >( ),
+                            std::function< rf::TerrestrialFrameEvaluationEpoch( const tudat::Time& ) > >( ),
                   py::arg( "data" ),
-                  py::arg( "clock" ) = rf::TerrestrialFrameTransformationModel::Clock( ),
+                  py::arg( "clock" ) = std::function< rf::TerrestrialFrameEvaluationEpoch( const tudat::Time& ) >( ),
                   "Use preloaded parameters and an optional model-owned callback mapping Time to an explicit evaluation epoch. A clock is "
                   "required by at_time methods. All state velocities are with respect to the callback's input seconds; input release "
                   "provenance does not invent a different frame datum." )

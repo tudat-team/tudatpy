@@ -53,7 +53,7 @@ OceanPoleTideGrid syntheticGrid( )
     {
         for( int col = 0; col < 4; ++col )
         {
-            grid.coefficients.push_back( OceanPoleTideCoefficients::Constant( 10 * row + col ) );
+            grid.coefficients.push_back( Eigen::Matrix< double, 3, 2 >::Constant( 10 * row + col ) );
         }
     }
     return grid;
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( publishedIersSeriesOldTestParametersOnly )
 
 BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
 {
-    OceanPoleTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 2 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6;
     // Frozen via independent complex arithmetic: Re(conj(u)*(m1+i*m2)*conj(gamma))*K.
     close( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( 1e-6, -2e-6 ) ),
@@ -117,16 +117,16 @@ BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
 BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndExplicitClamp )
 {
     const auto grid = syntheticGrid( );
-    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, -44.875, 90 ) - OceanPoleTideCoefficients::Constant( 5.5 ) ).norm( ),
-                       1e-14 );
-    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 0, 0 ) - OceanPoleTideCoefficients::Constant( 11.5 ) ).norm( ),
+    BOOST_CHECK_SMALL(
+            ( interpolateOceanPoleTideCoefficients( grid, -44.875, 90 ) - Eigen::Matrix< double, 3, 2 >::Constant( 5.5 ) ).norm( ), 1e-14 );
+    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 0, 0 ) - Eigen::Matrix< double, 3, 2 >::Constant( 11.5 ) ).norm( ),
                        1e-14 );
     for( double lon : { -720.0, -360.0, 0.0, 360.0, 720.0 } )
     {
-        BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 0, lon ) - OceanPoleTideCoefficients::Constant( 11.5 ) ).norm( ),
-                           1e-14 );
+        BOOST_CHECK_SMALL(
+                ( interpolateOceanPoleTideCoefficients( grid, 0, lon ) - Eigen::Matrix< double, 3, 2 >::Constant( 11.5 ) ).norm( ), 1e-14 );
     }
-    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 89.75, 315 ) - OceanPoleTideCoefficients::Constant( 23 ) ).norm( ),
+    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 89.75, 315 ) - Eigen::Matrix< double, 3, 2 >::Constant( 23 ) ).norm( ),
                        1e-14 );
     for( double lat : { -90.0, 90.0 } )
     {
@@ -145,9 +145,9 @@ BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndExplicitClamp )
     const auto extract = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::runtime_error );
     BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( extract, -43.5, 232.5 ) -
-                         OceanPoleTideCoefficients( ( extract.coefficients[ 0 ] + extract.coefficients[ 1 ] + extract.coefficients[ 2 ] +
-                                                      extract.coefficients[ 3 ] ) /
-                                                    4 ) )
+                         Eigen::Matrix< double, 3, 2 >( ( extract.coefficients[ 0 ] + extract.coefficients[ 1 ] +
+                                                          extract.coefficients[ 2 ] + extract.coefficients[ 3 ] ) /
+                                                        4 ) )
                                .norm( ),
                        1e-14 );
 }
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( modelSecularPoleAndGeocentricBasisAcrossShapeRepresentatio
 BOOST_AUTO_TEST_CASE( futureSecularPoleWithIndependentMixedWobble )
 {
     auto grid = syntheticGrid( );
-    OceanPoleTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 2 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6;
     for( auto& node : grid.coefficients )
     {
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
     bodies.createEmptyBody( "Earth" );
     bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
     auto grid = syntheticGrid( );
-    OceanPoleTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 2 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6;
     for( auto& node : grid.coefficients )
     {

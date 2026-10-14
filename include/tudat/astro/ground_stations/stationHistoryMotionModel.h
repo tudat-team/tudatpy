@@ -9,14 +9,12 @@ namespace tudat
 {
 namespace ground_stations
 {
-//! The boolean requests rates; position callbacks may leave both rates unavailable.
-using StationHistoryTimeFunction = std::function< StationHistoryTime( const Time&, bool ) >;
-
 class StationHistoryMotionModel : public StationMotionModel
 {
 public:
+    //! The boolean requests rates; position callbacks may leave both rates unavailable.
     StationHistoryMotionModel( std::shared_ptr< StationHistoryTrajectory > trajectory,
-                               StationHistoryTimeFunction timeFunction = nullptr,
+                               std::function< StationHistoryTime( const Time&, bool ) > timeFunction = nullptr,
                                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr ):
         trajectory_( std::move( trajectory ) ), timeFunction_( std::move( timeFunction ) ), converter_( std::move( converter ) )
     {
@@ -79,7 +77,7 @@ private:
     }
 
     std::shared_ptr< StationHistoryTrajectory > trajectory_;
-    StationHistoryTimeFunction timeFunction_;
+    std::function< StationHistoryTime( const Time&, bool ) > timeFunction_;
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter_;
 };
 }  // namespace ground_stations

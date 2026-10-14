@@ -291,14 +291,14 @@ BodyDeformationSettings
     py::class_< tss::OceanPoleTideBodyDeformationSettings,
                 std::shared_ptr< tss::OceanPoleTideBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "OceanPoleTideBodyDeformationSettings" );
-    using OceanPolePolicy = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy;
-    py::enum_< OceanPolePolicy >( m, "OceanPoleTideLatitudePolicy" )
-            .value( "require_grid_coverage", OceanPolePolicy::requireGridCoverage )
-            .value( "clamp_to_nearest_grid_latitude_approximation", OceanPolePolicy::clampToNearestGridLatitudeApproximation );
+    py::enum_< tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy >( m, "OceanPoleTideLatitudePolicy" )
+            .value( "require_grid_coverage", tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage )
+            .value( "clamp_to_nearest_grid_latitude_approximation",
+                    tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation );
     m.def( "ocean_pole_tidal",
            &tss::oceanPoleTideBodyShapeDeformation,
            py::arg( "grid_file" ),
-           py::arg( "latitude_policy" ) = OceanPolePolicy::requireGridCoverage,
+           py::arg( "latitude_policy" ) = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage,
            R"doc(
 Create conventional ocean pole-tide loading (IERS 7.1.5, Eq. 29), with the 2018 secular pole and IERS 2010 constants.
 Supply the decompressed IERS CM grid as a plain-text file; it is loaded only at model construction.
@@ -313,7 +313,7 @@ Requires Earth's GCRS/ITRS rotation model and its polar motion data. Grid coeffi
     m.def( "ocean_pole_tidal_from_data",
            &tss::oceanPoleTideBodyShapeDeformationFromData,
            py::arg( "grid" ),
-           py::arg( "latitude_policy" ) = OceanPolePolicy::requireGridCoverage,
+           py::arg( "latitude_policy" ) = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage,
            "Create the same conventional loading model from a preloaded data_input.environment_data.ocean_loading.OceanPoleTideGrid." );
 
     py::enum_< tudat::basic_astrodynamics::OceanTideSynthesis >( m, "OceanTideSynthesis" )

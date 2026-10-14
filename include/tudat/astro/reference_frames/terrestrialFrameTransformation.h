@@ -35,8 +35,8 @@ input_output::TerrestrialFrameTransformationData getConventionalItrfTransformati
 class TerrestrialFrameTransformationModel
 {
 public:
-    using Clock = std::function< TerrestrialFrameEvaluationEpoch( const Time& ) >;
-    explicit TerrestrialFrameTransformationModel( const input_output::TerrestrialFrameTransformationData& data, Clock clock = {} );
+    explicit TerrestrialFrameTransformationModel( const input_output::TerrestrialFrameTransformationData& data,
+                                                  std::function< TerrestrialFrameEvaluationEpoch( const Time& ) > clock = {} );
     //! Equal nonempty realization labels give identity before catalogue lookup, including unknown labels.
     //! This identity behavior does not validate catalogue membership; distinct labels require known hub records.
     TerrestrialFrameAffineTransformation getTransformation( const std::string& sourceRealization,
@@ -73,7 +73,7 @@ public:
 
 private:
     input_output::TerrestrialFrameTransformationData data_;
-    Clock clock_;
+    std::function< TerrestrialFrameEvaluationEpoch( const Time& ) > clock_;
 };
 //! Compatibility coordinate: uniform Julian-year seconds since J2000; not calendar decimal year or TDB conversion.
 TerrestrialFrameEvaluationEpoch getLegacyItrfEvaluationEpoch( double secondsSinceJ2000 );

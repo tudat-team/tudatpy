@@ -13,7 +13,6 @@ namespace tudat
 namespace input_output
 {
 //! Neutral, dimensionless IERS ocean pole-load coefficients; rows radial/north/east, columns real/imaginary.
-using OceanPoleTideCoefficients = Eigen::Matrix< double, 3, 2 >;
 
 //! Uniform provider grid. Nodes are stored longitude-fast, then latitude, with no interpolation in the input layer.
 struct OceanPoleTideGrid {
@@ -23,7 +22,7 @@ struct OceanPoleTideGrid {
     double firstLatitudeDegrees = 0.0;
     double longitudeStepDegrees = 0.0;
     double latitudeStepDegrees = 0.0;
-    std::vector< OceanPoleTideCoefficients > coefficients;
+    std::vector< Eigen::Matrix< double, 3, 2 > > coefficients;
     std::string source;
     std::vector< std::string > sourceHeaders;
     OceanLoadingReferenceOrigin referenceOrigin = OceanLoadingReferenceOrigin::unspecified;

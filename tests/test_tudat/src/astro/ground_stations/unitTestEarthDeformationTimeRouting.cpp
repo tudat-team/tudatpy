@@ -132,7 +132,7 @@ input_output::OceanPoleTideGrid routingGrid( )
     grid.longitudeStepDegrees = 90;
     grid.firstLatitudeDegrees = -89.75;
     grid.latitudeStepDegrees = 89.75;
-    for( int i = 0; i < 12; ++i ) grid.coefficients.push_back( input_output::OceanPoleTideCoefficients::Constant( 1.0 + i ) );
+    for( int i = 0; i < 12; ++i ) grid.coefficients.push_back( Eigen::Matrix< double, 3, 2 >::Constant( 1.0 + i ) );
     return grid;
 }
 }  // namespace

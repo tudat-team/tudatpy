@@ -53,7 +53,7 @@ AtmosphericTideGrid grid( bool latitudeDependent = false )
     for( int longitude = 0; longitude < 2; ++longitude )
         for( double latitude : g.latitudesDegrees )
         {
-            AtmosphericTideCoefficients c = AtmosphericTideCoefficients::Zero( );
+            Eigen::Matrix< double, 3, 4 > c = Eigen::Matrix< double, 3, 4 >::Zero( );
             c.col( 0 ) << 1e-3 * ( latitudeDependent ? 1 + latitude : 1 ), 2e-3, 3e-3;
             c.col( 1 ) << 4e-3, 5e-3, 6e-3;
             c.col( 2 ) << 7e-3, 8e-3, 9e-3;
@@ -66,7 +66,7 @@ Time tdbAtUt1( const std::shared_ptr< TerrestrialTimeScaleConverter >& c, const 
 {
     return c->getCurrentTime< Time >( ut1_scale, tdb_scale, ut1 );
 }
-Eigen::Vector3d independentLocal( const AtmosphericTideCoefficients& c, double ut1 )
+Eigen::Vector3d independentLocal( const Eigen::Matrix< double, 3, 4 >& c, double ut1 )
 {
     // Complex Fourier synthesis is independent of the production real sine/cosine expression.
     const double phase = 2 * mathematical_constants::PI * ( ( ut1 - 86400.0 * std::floor( ut1 / 86400.0 ) ) / 86400.0 + .5 );
@@ -76,7 +76,7 @@ Eigen::Vector3d independentLocal( const AtmosphericTideCoefficients& c, double u
                                  std::complex< double >( c( i, 2 ), -c( i, 3 ) ) * std::exp( std::complex< double >( 0, 2 * phase ) ) );
     return result;
 }
-Eigen::Vector3d independentLocalRate( const AtmosphericTideCoefficients& c, double ut1 )
+Eigen::Vector3d independentLocalRate( const Eigen::Matrix< double, 3, 4 >& c, double ut1 )
 {
     const double phase = 2 * mathematical_constants::PI * ( ( ut1 - 86400 * std::floor( ut1 / 86400 ) ) / 86400 + .5 );
     const std::complex< double > iOmega( 0, 2 * mathematical_constants::PI / 86400 );
