@@ -125,7 +125,6 @@ Classes
    CustomConstantTemperatureAtmosphereSettings
    ScaledAtmosphereSettings
    NRLMSISE00Input
-   NRLMSISE00Atmosphere
 
 
 Wind Model Settings
@@ -176,17 +175,12 @@ Atmosphere Settings
    :show-inheritance:
 
 
-Atmosphere Model Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~
+NRLMSISE-00 Inputs
+~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.NRLMSISE00Input
    :members:
    :special-members: __init__
-
-.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.NRLMSISE00Atmosphere
-   :members:
-   :special-members: __init__
-
 
 Enumerations
 ------------
