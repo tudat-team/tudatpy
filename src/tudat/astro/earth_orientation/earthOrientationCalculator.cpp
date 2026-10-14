@@ -10,6 +10,7 @@
  */
 
 #include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/earth_orientation/earthOrientationRates.h"
 
@@ -62,14 +63,6 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs( const double xPolePosition, 
 
 namespace
 {
-Eigen::Matrix3d rotationGenerator( const int axis )
-{
-    Eigen::Matrix3d result = Eigen::Matrix3d::Zero( );
-    result( ( axis + 1 ) % 3, ( axis + 2 ) % 3 ) = -1.0;
-    result( ( axis + 2 ) % 3, ( axis + 1 ) % 3 ) = 1.0;
-    return result;
-}
-
 // SOFA DAT is affine in UTC within each pre-1972 segment and constant afterwards.
 // Scalar UTC derivatives at an offset/rate change are undefined, including the
 // midnight following a leap second. Continuous TAI/TT derivatives remain defined.
@@ -133,7 +126,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAngle
     b << 1.0 - a * x * x, -a * x * y, x, -a * x * y, 1.0 - a * y * y, y, -x, -y, z;
     db << -da * x * x - 2.0 * a * x * dx, -da * x * y - a * ( dx * y + x * dy ), dx, -da * x * y - a * ( dx * y + x * dy ),
             -da * y * y - 2.0 * a * y * dy, dy, -dx, -dy, -( x * dx + y * dy ) / z;
-    const Eigen::Matrix3d generatorZ = rotationGenerator( 2 );
+    const Eigen::Matrix3d generatorZ = linear_algebra::getCrossProductMatrix( Eigen::Vector3d::UnitZ( ) );
     const Eigen::Matrix3d spinS = Eigen::AngleAxisd( -s, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
     const Eigen::Matrix3d q = b * spinS;
     const Eigen::Matrix3d dq = db * spinS - ds * b * generatorZ * spinS;
@@ -149,8 +142,9 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAngle
     // SOFA iauSp00: -47 microarcseconds per Julian century of TT (IERS 2010, 5.13).
     const double tioRate = -47e-6 * mathematical_constants::PI / ( 180.0 * 3600.0 ) / ( 36525.0 * 86400.0 ) * orientation.dTtDInput;
     const Eigen::Matrix3d w = tio * polarX * polarY;
-    const Eigen::Matrix3d dw = tioRate * generatorZ * w - orientation.angleRates[ 3 ] * tio * rotationGenerator( 1 ) * polarX * polarY -
-            orientation.angleRates[ 4 ] * tio * polarX * rotationGenerator( 0 ) * polarY;
+    const Eigen::Matrix3d dw = tioRate * generatorZ * w -
+            orientation.angleRates[ 3 ] * tio * linear_algebra::getCrossProductMatrix( Eigen::Vector3d::UnitY( ) ) * polarX * polarY -
+            orientation.angleRates[ 4 ] * tio * polarX * linear_algebra::getCrossProductMatrix( Eigen::Vector3d::UnitX( ) ) * polarY;
     return dq * spin * w + spinRate * q * generatorZ * spin * w + q * spin * dw;
 }
 
