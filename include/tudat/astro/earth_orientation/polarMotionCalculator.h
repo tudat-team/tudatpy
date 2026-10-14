@@ -62,6 +62,10 @@ public:
     {
         return evaluator_ != nullptr;
     }
+    std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
+    {
+        return evaluator_;
+    }
 
     //! Calculate the position of the Celestial Intermediate Pole in the ITRS
     /*!

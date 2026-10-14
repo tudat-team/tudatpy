@@ -33,8 +33,7 @@ namespace earth_orientation
 /*!
  * Function to get the value of the TIO locator, approximated as described in IERS 2010 conventions, Eq. (5.13), evaluated using
  * iauSp00 SOFA function.
- * \param secondsSinceJ2000 Time at which TIO locator is to be computed. Formally, input should be in TT, but may be provided
- * in any common time scale, as variations in TIO are slow.
+ * \param secondsSinceJ2000 TT seconds since J2000 at which TIO locator is to be computed.
  * \return Value of TIO locator
  */
 double getApproximateTioLocator( const double secondsSinceJ2000 );
@@ -97,7 +96,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const double celestialPoleX
             ( -2.0 * mathematical_constants::PI / 86400.0 * 1.00273781191135448 );
 
     return ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
-             calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 - 1.42E-3 ) ) )
+             calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) ) )
                    .toRotationMatrix( ) *
             auxiliaryMatrix * calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
 }
@@ -201,6 +200,23 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs( const std::pair< Eigen::Vect
                                             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
+//! Coherent orientation quantities with continuous clocks retained at extended precision.
+struct EarthOrientationAngles {
+    Time tai, tt, ut1;
+    Eigen::Vector5d angles = Eigen::Vector5d::Constant( TUDAT_NAN );
+};
+
+//! Rates are with respect to the original caller's input time seconds.
+struct EarthOrientationAnglesAndRates : EarthOrientationAngles {
+    Eigen::Vector5d angleRates = Eigen::Vector5d::Constant( TUDAT_NAN );
+    double dTaiDInput = TUDAT_NAN;
+    double dTtDInput = TUDAT_NAN;
+    double dUt1DInput = TUDAT_NAN;
+};
+
+//! Complete product derivative of Q(X,Y,s) A(ERA) W(xp,yp,s'), including clock rates.
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAnglesAndRates& orientation );
+
 //! Class to calculate earth orientation angles, i.e. those used for transforming from ITRS to GCRS
 class EarthOrientationAnglesCalculator
 {
@@ -223,8 +239,7 @@ public:
     //! Calculate rotation angles from ITRS to GCRS at given time value.
     /*!
      *  Calculate rotation angles from ITRS to GCRS at given time value. Any time scale combined with any time value
-     *  can be used as input. TIO locator is not included in output as its value is minute and cal be easily evaluated, with
-     *  no regard for time conversions in input value.
+     *  can be used as input. TIO locator is evaluated separately using TT.
      *  \param timeValue Number of seconds since J2000 at which orientation is to be evaluated.
      *  \param timeScale Time scale in which the timeValue is given. To be taken from TimeScales enum.
      *  \return Rotation angles for ITRS<->GCRS transformation at given epoch. First pair entry is: X, Y, s, x_p, y_p. Second
@@ -253,6 +268,10 @@ public:
         }
         else
         {
+            // Legacy partial clock updates can leave a previously cached UT1
+            // alongside a newly requested TT. Populate all clocks for this epoch
+            // before collecting a coherent position or numerical rate stencil.
+            terrestrialTimeScaleConverter_->updateTimes< TimeType >( timeScale, timeValue, Eigen::Vector3d::Zero( ), true );
             terrestrialTime =
                     terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
             ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::ut1_scale, timeValue );
@@ -294,6 +313,43 @@ public:
         return std::make_pair( rotationAngles, ut1 );
     }
 
+    //! Preserve continuous TT/UT1 even for double input. Canonicalize before converting the input type.
+    template< typename TimeType >
+    EarthOrientationAngles getRotationAnglesAndTimesFromItrsToGcrs(
+            const TimeType& timeValue,
+            const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
+    {
+        EarthOrientationAngles result;
+        if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
+        {
+            result.tai = terrestrialTimeScaleConverter_->getTaiTime( timeScale, timeValue );
+            result.tt = basic_astrodynamics::convertTAItoTT( result.tai );
+            const auto angles = getRotationAnglesFromItrsToGcrs< Time >( result.tai, basic_astrodynamics::tai_scale );
+            result.angles = angles.first;
+            result.ut1 = angles.second;
+        }
+        else
+        {
+            const Time input( timeValue );
+            const auto angles = getRotationAnglesFromItrsToGcrs< Time >( input, timeScale );
+            result.tt = terrestrialTimeScaleConverter_->getCurrentTime< Time >( timeScale, basic_astrodynamics::tt_scale, input );
+            result.tai = basic_astrodynamics::convertTTtoTAI( result.tt );
+            result.angles = angles.first;
+            result.ut1 = angles.second;
+        }
+        return result;
+    }
+
+    //! Strict daily rates use their selected interpolation branch, including knots and coverage endpoints.
+    //! Legacy models use a 32 s five-point stencil, rejected at UTC jumps, interpolation knots/edges,
+    //! and before 1972. Position-only legacy evaluation remains available there.
+    EarthOrientationAnglesAndRates getRotationAnglesAndRatesFromItrsToGcrs(
+            const double timeValue,
+            const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
+    EarthOrientationAnglesAndRates getRotationAnglesAndRatesFromItrsToGcrs(
+            const Time& timeValue,
+            const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
+
     //! Function to get object that calculates polar motion.
     /*!
      *  Function to get object that calculates polar motion.
@@ -322,6 +378,9 @@ public:
     }
 
 private:
+    EarthOrientationAnglesAndRates calculateRates( const EarthOrientationAngles& orientation,
+                                                   const basic_astrodynamics::TimeScales inputScale,
+                                                   const Time& input );
     //! Pointer to object for calculating position of pole in ITRS (polarm motion).
     /*!
      *  Pointer to object for calculating position of pole in ITRS (polarm motion).

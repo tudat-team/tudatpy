@@ -49,9 +49,25 @@ public:
             const std::shared_ptr< EarthOrientationDataEvaluator > evaluator = nullptr );
 
     Eigen::Vector3d getPositionOfCipInGcrsFromTai( const double terrestrialTime, const Time& tai );
+    //! Nominal X/Y/s and d(X,Y,s)/dTT, before observed CPO. Selected interpolation branches are differentiated locally.
+    std::pair< Eigen::Vector3d, Eigen::Vector3d > getNominalPositionAndRate( const Time& tt );
+    void setNominalDerivativeTimeStep( const double step );
+    double getNominalDerivativeTimeStep( ) const
+    {
+        return nominalDerivativeTimeStep_;
+    }
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > getNominalCipInterpolator( ) const
+    {
+        return nominalCipInterpolator_;
+    }
+
     bool usesContinuousEop( ) const
     {
         return evaluator_ != nullptr;
+    }
+    std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
+    {
+        return evaluator_;
     }
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
@@ -112,6 +128,8 @@ private:
      *  first pair argument, and CIO locator (s, see IERS Conventions 2010), second pair argument.
      */
     std::function< Eigen::Vector3d( const double ) > nominalCipPositionFunction_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > nominalCipInterpolator_;
+    double nominalDerivativeTimeStep_ = 32.0;
 };
 
 }  // namespace earth_orientation

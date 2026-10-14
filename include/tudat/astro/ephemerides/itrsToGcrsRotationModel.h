@@ -37,29 +37,6 @@ enum class EarthOrientationIntermediateFrame { itrs, tirs, cirs, icrs };
 class GcrsToItrsRotationModel : public RotationalEphemeris
 {
 public:
-    //    //! Constructor taking interpolator providing the earth orientation angles.
-    //    /*!
-    //     *  Constructor taking interpolator providing the earth orientation angles.
-    //     *  \param anglesInterpolator Interpolator providing the earth orientation angles (dependent variable) as a function of time
-    //     (independent
-    //     *  variable) The return vector of the interpolator provides the values for X-nutation correction, Y-nutation correction,
-    //     *  CIO-locator, earth orientation angle, x-component polar motion, y-component polar motion.
-    //     */
-    //    GcrsToItrsRotationModel( const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >
-    //                        anglesInterpolator,
-    //                        const basic_astrodynamics::TimeScales inputTimeScale  = basic_astrodynamics::tdb_scale ):
-    //        RotationalEphemeris( "GCRS", "ITRS" ), anglesCalculator_( nullptr ), inputTimeScale_( inputTimeScale )
-    //    {
-    //        using namespace interpolators;
-
-    //        // Set function binding to interpolator.
-    //        functionToGetRotationAngles = std::bind(
-    //                    static_cast< Eigen::Vector6d(
-    //                        interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::* )( const double )>
-    //                    ( &interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::interpolate ), anglesInterpolator,
-    //                    std::placeholders::_1 );
-    //    }
-
     //! Constructor taking class calculating earth orientation angles directly
     /*!
      *  Constructor taking class calculating earth orientation angles directly
@@ -78,12 +55,6 @@ public:
         rotationFromGcrsToBaseFrame_( Eigen::Matrix3d::Identity( ) )
 
     {
-        functionToGetRotationAngles =
-                std::bind( &earth_orientation::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs< double >,
-                           anglesCalculator,
-                           std::placeholders::_1,
-                           inputTimeScale );
-
         // Modern SPICE J2000 ephemerides already have ICRF axes. Applying
         // SOFA's dynamical mean-J2000 bias to these vectors adds an unwanted rotation.
         // The previous J2000 bias behavior is now explicitly named EME2000.
@@ -109,11 +80,10 @@ public:
      *  \param ephemerisTime Time at which rotation is to be calculated.
      *  \return Rotation quaternion from ITRS to base frame at specified time.
      */
-    Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime )
+    Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime ) override
     {
         return Eigen::Quaterniond( rotationFromGcrsToBaseFrame_ ) *
-                earth_orientation::calculateRotationFromItrsToGcrs< double >(
-                        anglesCalculator_->getRotationAnglesFromItrsToGcrs< double >( ephemerisTime, inputTimeScale_ ), ephemerisTime );
+                getRotationFromOrientation( anglesCalculator_->getRotationAnglesAndTimesFromItrsToGcrs( ephemerisTime, inputTimeScale_ ) );
     }
 
     //! Function to calculate the rotation quaternion from ITRS to base frame
@@ -123,11 +93,10 @@ public:
      *  \param ephemerisTime Time at which rotation is to be calculated.
      *  \return Rotation quaternion from ITRS to base frame at specified time.
      */
-    Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime( const Time ephemerisTime )
+    Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime( const Time ephemerisTime ) override
     {
         return Eigen::Quaterniond( rotationFromGcrsToBaseFrame_ ) *
-                earth_orientation::calculateRotationFromItrsToGcrs< Time >(
-                        anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime, inputTimeScale_ ), ephemerisTime );
+                getRotationFromOrientation( anglesCalculator_->getRotationAnglesAndTimesFromItrsToGcrs( ephemerisTime, inputTimeScale_ ) );
     }
 
     //! Function to calculate the rotation quaternion from base frame to ITRS
@@ -136,7 +105,7 @@ public:
      *  \param ephemerisTime Time at which rotation is to be calculated.
      *  \return Rotation quaternion from base frame to ITRS at specified time.
      */
-    Eigen::Quaterniond getRotationToTargetFrame( const double ephemerisTime )
+    Eigen::Quaterniond getRotationToTargetFrame( const double ephemerisTime ) override
     {
         return getRotationToBaseFrame( ephemerisTime ).inverse( );
     }
@@ -148,7 +117,7 @@ public:
      *  \param ephemerisTime Time at which rotation is to be calculated.
      *  \return Rotation quaternion from base frame to ITRS at specified time.
      */
-    Eigen::Quaterniond getRotationToTargetFrameFromExtendedTime( const Time ephemerisTime )
+    Eigen::Quaterniond getRotationToTargetFrameFromExtendedTime( const Time ephemerisTime ) override
     {
         return getRotationToBaseFrameFromExtendedTime( ephemerisTime ).inverse( );
     }
@@ -159,11 +128,23 @@ public:
      *  \param ephemerisTime Time at which derivative of rotation is to be calculated.
      *  \return Derivative of rotation from ITRS to base frame at specified time.
      */
-    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime ) override
     {
         return rotationFromGcrsToBaseFrame_ *
-                earth_orientation::calculateRotationRateFromItrsToGcrs< double >( functionToGetRotationAngles( ephemerisTime ),
-                                                                                  ephemerisTime );
+                earth_orientation::calculateRotationRateFromItrsToGcrs(
+                        anglesCalculator_->getRotationAnglesAndRatesFromItrsToGcrs( ephemerisTime, inputTimeScale_ ) );
+    }
+
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrameFromExtendedTime( const Time ephemerisTime ) override
+    {
+        return rotationFromGcrsToBaseFrame_ *
+                earth_orientation::calculateRotationRateFromItrsToGcrs(
+                        anglesCalculator_->getRotationAnglesAndRatesFromItrsToGcrs( ephemerisTime, inputTimeScale_ ) );
+    }
+
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrameFromExtendedTime( const Time ephemerisTime ) override
+    {
+        return getDerivativeOfRotationToBaseFrameFromExtendedTime( ephemerisTime ).transpose( );
     }
 
     //! Function to calculate the derivative of the rotation matrix from base frame to ITRS
@@ -172,7 +153,7 @@ public:
      *  \param ephemerisTime Time at which derivative of rotation is to be calculated.
      *  \return Derivative of rotation from base frame to ITRS at specified time.
      */
-    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double ephemerisTime )
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double ephemerisTime ) override
     {
         return getDerivativeOfRotationToBaseFrame( ephemerisTime ).transpose( );
     }
@@ -191,8 +172,7 @@ public:
                                                              const EarthOrientationIntermediateFrame targetFrame,
                                                              const double ephemerisTime )
     {
-        std::pair< Eigen::Vector5d, double > rotationAnglesAndUt1 =
-                anglesCalculator_->getRotationAnglesFromItrsToGcrs< double >( ephemerisTime, inputTimeScale_ );
+        const auto orientation = anglesCalculator_->getRotationAnglesAndTimesFromItrsToGcrs( ephemerisTime, inputTimeScale_ );
 
         auto getFrameIndex = []( const EarthOrientationIntermediateFrame frame ) {
             switch( frame )
@@ -215,15 +195,15 @@ public:
             {
                 case 0:
                     return earth_orientation::calculateRotationFromItrsToTirs(
-                            rotationAnglesAndUt1.first[ 3 ],
-                            rotationAnglesAndUt1.first[ 4 ],
-                            earth_orientation::getApproximateTioLocator( ephemerisTime ) );
+                            orientation.angles[ 3 ],
+                            orientation.angles[ 4 ],
+                            earth_orientation::getApproximateTioLocator( static_cast< double >( orientation.tt ) ) );
                 case 1:
                     return earth_orientation::calculateRotationFromTirsToCirs(
-                            sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) );
+                            sofa_interface::calculateEarthRotationAngleTemplated< Time >( orientation.ut1 ) );
                 case 2:
                     return earth_orientation::calculateRotationFromCirsToGcrs(
-                            rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ] );
+                            orientation.angles[ 0 ], orientation.angles[ 1 ], orientation.angles[ 2 ] );
                 default:
                     throw std::runtime_error( "Error when getting Earth rotation between intermediate frames, chain link not recognized" );
             }
@@ -272,13 +252,11 @@ public:
     }
 
 private:
-    //! Function providing the earth orientation angles as a function of time
-    /*!
-     * Function providing the earth orientation angles as a function of time.
-     *  The return vector of the interpolator provides the values for X-nutation correction, Y-nutation correction,
-     *  CIO-locator, earth orientation angle, x-component polar motion, y-component polar motion.
-     */
-    std::function< std::pair< Eigen::Vector5d, double >( const double& ) > functionToGetRotationAngles;
+    static Eigen::Quaterniond getRotationFromOrientation( const earth_orientation::EarthOrientationAngles& orientation )
+    {
+        return earth_orientation::calculateRotationFromItrsToGcrs< Time >( std::make_pair( orientation.angles, orientation.ut1 ),
+                                                                           static_cast< double >( orientation.tt ) );
+    }
 
     //! Object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)
     /*!
