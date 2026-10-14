@@ -39,9 +39,7 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
         const std::function< double( ) > gravitionalParametersOfEarth,
         const std::function< double( ) > gravitionalParametersOfMoon,
         const std::function< double( ) > gravitionalParametersOfSun,
-        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
-            return basic_astrodynamics::calculateIers2010SolidEarthTideArguments( time );
-        } );
+        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = {} );
 
 class BodyDeformationSettings
 {

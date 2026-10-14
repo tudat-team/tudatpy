@@ -329,3 +329,25 @@ but explicitly reject unsupported rate evaluation. The final integrated EOP
 suite passes 23 C++ cases, including exact endpoints, clock-interpolator coverage,
 legacy custom paths and precise-Time representability regressions. Full Earth
 rotation derivatives and deformation rate closure remain tasks 11 and 12.
+
+Task 12, initial API: body deformation models now provide displacement velocities
+and six-component states. The generic five-point difference uses a validated,
+representable uniform stencil, preserves the original failure type and restores
+central-epoch caches. Existing custom scalar callbacks retain their time basis.
+Native solid/ocean-tide UTC phase models reject derivative intervals touching
+an offset step or ambiguous inserted second; smooth historical UTC drift is
+allowed. This is a phase-representation limitation, not a physical singularity.
+
+Station-motion aggregation adds deformation velocities and propagates derivative
+failures once the central displacement is available. Optional missing central
+models can still be skipped. Position-only station access evaluates only the
+central displacement, so an available position at a coverage boundary remains
+usable when a derivative stencil is unavailable. Non-finite outputs are rejected.
+
+All 12 integrated C++ velocity cases pass, including fourth-order convergence,
+cache/exception behavior, large-epoch stencil representability, 2012/2016 leap
+boundaries, historical UTC drift/steps and a controlled rotating-frame closure.
+The IERS velocity changes by 1.22e-15 m/s between one- and half-second steps in
+the smooth test case. This initial commit does not close task 12: native context
+routing, selected-EOP-interval rates and closure with the complete physical
+Earth-rotation derivative remain required under tasks 07, 11 and 12.

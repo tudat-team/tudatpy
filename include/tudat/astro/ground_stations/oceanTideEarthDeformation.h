@@ -44,6 +44,9 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
  *  342 constituents using complex admittance interpolation (IERS section 7.1.2).
  *  The explicit legacy mode retains the former eleven-constituent Moyer synthesis.
  *  BLQ data are loaded before evaluation and retain their provider frame-origin metadata.
+ *  Native phase rates reject UTC offset steps/ambiguity in the current scalar-UTC
+ *  representation. This is not a physical tide singularity. Explicit custom argument
+ *  callbacks retain their own time basis and interval policy.
  */
 class OceanTideEarthDeformation : public BodyDeformationModel
 {
@@ -147,6 +150,9 @@ public:
         return doodsonMultipliers_;
     }
 
+protected:
+    void validateDisplacementDerivativeInterval( const double time, const double lower, const double upper ) const override;
+
 private:
     void initializeLegacyConstituents( );
     Eigen::Vector3d calculateGeocentricEnuDisplacement( const double time, const std::string& siteIdentifier );
@@ -178,6 +184,7 @@ private:
     Eigen::Matrix< double, 11, 4 > doodsonMultipliers_;
 
     std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction_;
+    bool usesNativeUtcPhase_ = true;
 };
 
 }  // namespace basic_astrodynamics

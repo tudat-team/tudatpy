@@ -138,22 +138,21 @@ class Iers2010EarthDeformation : public BasicTidalBodyDeformation
 public:
     using BasicTidalBodyDeformation::calculateDisplacement;
 
-    Iers2010EarthDeformation(
-            const std::function< Eigen::Vector6d( const double ) > deformedBodyEphemeris,
-            const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyEphemerides,
-            const std::function< Eigen::Quaterniond( const double ) > deformedBodyRotation,
-            const std::function< double( ) > gravitionalParameterOfDeformedBody,
-            const std::vector< std::function< double( ) > >& gravitionalParametersOfDeformingBodies,
-            const double deformedBodyEquatorialRadius,
-            const std::map< int, std::pair< double, double > >& nominalDisplacementLoveNumbers,
-            const std::vector< double >& firstStepLatitudeDependenceTerms,
-            const std::vector< bool >& areFirstStepCorrectionsCalculated,
-            const std::vector< double >& correctionLoveAndShidaNumbers,
-            const std::string& diurnalFile = "",
-            const std::string& longPeriodFile = "",
-            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
-                return calculateIers2010SolidEarthTideArguments( time );
-            } );
+    // An empty argument callback selects the corrected native UTC-based phases. Their
+    // numerical rates reject UTC offset steps; explicit custom callbacks keep their own time basis.
+    Iers2010EarthDeformation( const std::function< Eigen::Vector6d( const double ) > deformedBodyEphemeris,
+                              const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyEphemerides,
+                              const std::function< Eigen::Quaterniond( const double ) > deformedBodyRotation,
+                              const std::function< double( ) > gravitionalParameterOfDeformedBody,
+                              const std::vector< std::function< double( ) > >& gravitionalParametersOfDeformingBodies,
+                              const double deformedBodyEquatorialRadius,
+                              const std::map< int, std::pair< double, double > >& nominalDisplacementLoveNumbers,
+                              const std::vector< double >& firstStepLatitudeDependenceTerms,
+                              const std::vector< bool >& areFirstStepCorrectionsCalculated,
+                              const std::vector< double >& correctionLoveAndShidaNumbers,
+                              const std::string& diurnalFile = "",
+                              const std::string& longPeriodFile = "",
+                              const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = {} );
 
     ~Iers2010EarthDeformation( ) {}
 
@@ -182,6 +181,9 @@ public:
      */
     Eigen::Vector3d calculateDisplacement( const double ephemerisTime,
                                            const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );
+
+protected:
+    void validateDisplacementDerivativeInterval( const double time, const double lower, const double upper ) const override;
 
 private:
     Eigen::Vector3d calculateDisplacement( const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState,
@@ -223,6 +225,9 @@ private:
     Eigen::MatrixXd tideCorrectionAmplitudes_;
 
     std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction_;
+
+    // Empty/default callback selects native UTC phases; explicit callbacks retain their own time basis.
+    bool usesNativeUtcPhase_;
 };
 
 }  // namespace basic_astrodynamics

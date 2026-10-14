@@ -10,6 +10,8 @@
 
 # Set the source files.
 set(ground_stations_SOURCES
+        "bodyDeformationModel.cpp"
+        "earthDeformationTime.cpp"
         "groundStation.cpp"
         "groundStationState.cpp"
         "pointingAnglesCalculator.cpp"        
@@ -28,6 +30,7 @@ set(ground_stations_HEADERS
         "pointingAnglesCalculator.h"        
         "basicTidalBodyDeformation.h"
         "bodyDeformationModel.h"
+        "earthDeformationTime.h"
         "iers2010SolidTidalBodyDeformation.h"
         "transmittingFrequencies.h"
         "oceanTideEarthDeformation.h"

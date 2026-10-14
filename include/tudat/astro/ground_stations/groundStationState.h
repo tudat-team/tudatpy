@@ -55,6 +55,15 @@ public:
     virtual Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                        const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
                                                        const std::string& targetFrameOrigin ) = 0;
+
+    //! Position correction; existing motion models retain their full-state implementation by default.
+    virtual Eigen::Vector3d getBodyFixedStationPositionCorrection(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+            const std::string& targetFrameOrigin )
+    {
+        return getBodyFixedStationMotion( time, groundStationState, targetFrameOrigin ).head< 3 >( );
+    }
 };
 
 //! Class storing and computing the (time-variable) state of a ground station in a body-fixed frame.
@@ -99,7 +108,13 @@ public:
      */
     Eigen::Vector3d getCartesianPositionInTime( const double secondsSinceEpoch, const std::string& targetFrameOrigin )
     {
-        return getCartesianStateInTime( secondsSinceEpoch, targetFrameOrigin ).segment( 0, 3 );
+        Eigen::Vector3d position = cartesianPosition_;
+        if( stationMotionModel_ != nullptr )
+        {
+            position +=
+                    stationMotionModel_->getBodyFixedStationPositionCorrection( secondsSinceEpoch, shared_from_this( ), targetFrameOrigin );
+        }
+        return position;
     }
 
     //! Function to return the nominal (unperturbed) Cartesian position of the station
@@ -436,6 +451,18 @@ public:
             motion += modelList_.at( i )->getBodyFixedStationMotion( time, groundStationState, targetFrameOrigin );
         }
         return motion;
+    }
+
+    Eigen::Vector3d getBodyFixedStationPositionCorrection( const double time,
+                                                           const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+                                                           const std::string& targetFrameOrigin ) override
+    {
+        Eigen::Vector3d correction = Eigen::Vector3d::Zero( );
+        for( const auto& model : modelList_ )
+        {
+            correction += model->getBodyFixedStationPositionCorrection( time, groundStationState, targetFrameOrigin );
+        }
+        return correction;
     }
 
 protected:

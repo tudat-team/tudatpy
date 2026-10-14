@@ -11,6 +11,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 
 #include "tudat/basics/utilities.h"
+#include "tudat/astro/ground_stations/earthDeformationTime.h"
 
 namespace tudat
 {
@@ -325,8 +326,13 @@ Iers2010EarthDeformation::Iers2010EarthDeformation(
                                nominalDisplacementLoveNumbers ),
     firstStepLatitudeDependenceTerms_( firstStepLatitudeDependenceTerms ),
     areFirstStepCorrectionsCalculated_( areFirstStepCorrectionsCalculated ),
-    correctionLoveAndShidaNumbers_( correctionLoveAndShidaNumbers ), doodsonArgumentFunction_( doodsonArgumentFunction )
+    correctionLoveAndShidaNumbers_( correctionLoveAndShidaNumbers ), doodsonArgumentFunction_( doodsonArgumentFunction ),
+    usesNativeUtcPhase_( !doodsonArgumentFunction )
 {
+    if( usesNativeUtcPhase_ )
+    {
+        doodsonArgumentFunction_ = calculateIers2010SolidEarthTideArguments;
+    }
     assert( firstStepLatitudeDependenceTerms_.size( ) == 2 );
     assert( areFirstStepCorrectionsCalculated_.size( ) == 6 );
     assert( correctionLoveAndShidaNumbers_.size( ) == 6 );
@@ -386,6 +392,14 @@ Iers2010EarthDeformation::Iers2010EarthDeformation(
     if( areFrequencyDependentTermsCalculated_ )
     {
         tideCorrectionAmplitudes_ = tideCorrectionAmplitudes_ / 1000.0;
+    }
+}
+
+void Iers2010EarthDeformation::validateDisplacementDerivativeInterval( const double, const double lower, const double upper ) const
+{
+    if( usesNativeUtcPhase_ )
+    {
+        validateEarthDeformationUtcInterval( lower, upper );
     }
 }
 

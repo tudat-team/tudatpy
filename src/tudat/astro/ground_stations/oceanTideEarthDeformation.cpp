@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "tudat/astro/ground_stations/earthDeformationTime.h"
 #include <array>
 #include <cmath>
 #include <map>
@@ -475,6 +476,7 @@ OceanTideEarthDeformation::OceanTideEarthDeformation( const std::vector< std::st
         throw std::runtime_error( "Ocean loading legacy argument callback is empty" );
     }
     doodsonArgumentFunction_ = doodsonArgumentFunction;
+    usesNativeUtcPhase_ = false;
 }
 
 OceanTideEarthDeformation::OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
@@ -576,6 +578,14 @@ Eigen::Vector3d OceanTideEarthDeformation::calculateGeocentricEnuDisplacement( c
     }
 
     return ( Eigen::Vector3d( ) << -displacement( 1 ), -displacement( 2 ), displacement( 0 ) ).finished( );
+}
+
+void OceanTideEarthDeformation::validateDisplacementDerivativeInterval( const double, const double lower, const double upper ) const
+{
+    if( usesNativeUtcPhase_ )
+    {
+        validateEarthDeformationUtcInterval( lower, upper );
+    }
 }
 
 Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementInEnuFrame( const double time, const std::string& siteIdentifier )
