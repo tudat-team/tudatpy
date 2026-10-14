@@ -20,8 +20,8 @@ are developed from the scientific specifications. Any later executable
 benchmark must pin its input data, build options and conventions as well as
 the code revision.
 
-Earth orientation and derivatives: tasks 07, 09--13, 25, 27
-----------------------------------------------------------
+Earth orientation and derivatives: tasks 07, 09--13
+--------------------------------------------------
 
 The `IERS 2010 implementation
 <https://github.com/groops-devs/groops/blob/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee/source/classes/earthRotation/earthRotationIers2010.cpp>`_
@@ -45,21 +45,13 @@ closure; a rotation-matrix match alone does not validate velocity.
 
 The separate `high-frequency EOP configuration
 <https://github.com/groops-devs/groops/blob/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee/source/classes/earthRotation/earthRotationIers2010b.cpp>`_
-provides a useful later comparison for the optional Desai--Sibois model.
+provides comparison scenarios for the implemented optional Desai--Sibois model.
 Keep that choice separate from the conventional default, and test that an
 alternative ocean contribution replaces the corresponding default exactly
-once. Task 13 remains deferred until the standards baseline is validated.
+once. Task 13 is complete as an explicit opt-in; it does not change the default.
 
-`GNSS Earth-orientation partials
-<https://github.com/groops-devs/groops/blob/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee/source/gnss/gnssParametrization/gnssParametrizationEarthRotation.cpp>`_
-and the corresponding SLR class separate spatial derivatives from temporal
-basis functions. Include tests for angular versus UT1 units, independently
-perturbed complete observations, temporal support boundaries and parameter
-ordering. Approximate matrix expressions in another implementation are not
-an oracle for exact Tudat derivatives.
-
-Tides and loading: tasks 06--07, 14--17, 21--22, 26--28
-------------------------------------------------------
+Tides and loading: tasks 06--07, 14--17, 21--22
+---------------------------------------------
 
 `Pole tides
 <https://github.com/groops-devs/groops/blob/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee/source/classes/tides/tidesPole.cpp>`_
@@ -90,14 +82,14 @@ origin and included signals. Tasks 21--22 must reject incompatible or duplicate
 contributions. Test tide/loading sums component by component before combining
 complete station trajectories.
 
-Station histories and instrument geometry: tasks 18--20, 24, 27--28
-------------------------------------------------------------------
+Station histories and instrument geometry: tasks 18--20, 24
+---------------------------------------------------------
 
 `SINEX station trajectories
 <https://github.com/groops-devs/groops/blob/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee/source/programs/conversion/gnss/sinex2StationPositions.cpp>`_
 combine solution intervals, velocities, discontinuities, logarithmic and
 exponential post-seismic terms, and annual/semiannual terms in XYZ or local
-coordinates. This is a valuable complete-trajectory comparison target.
+coordinates. These provide useful individual model and source-convention checks.
 
 Tudat tests must retain station/point/solution identity, support reordered
 parameter records, distinguish a 365.25-day velocity unit from calendar-year
@@ -119,14 +111,13 @@ coordinates. Add dated equipment changes, local-axis order, marker-to-
 instrument reference-point offsets and overlap diagnostics to the existing
 task 24 tests. Preserve these histories in neutral input records.
 
-Planned independent execution
------------------------------
+Comparison scope
+----------------
 
-Task 27 will run a pinned GROOPS configuration after the required Tudat
-components are validated. Start with rotation-only and individually enabled
-station terms, then complete trajectories at shared epochs and conventions.
-Use matched inputs and explicitly list any algorithm differences. Save the
-configuration, source/data hashes, generation command and results as offline
-fixtures. Normal C++ regression tests must not require GROOPS, network access
-or a Python-kernel build. Reserve build threads within the existing global
-eight-thread limit when producing the reference results.
+The complete-trajectory comparison and new estimation tasks were removed at
+Dominic's request. They are not outstanding work. This source review informed
+individual model checks; it does not claim a completed GROOPS executable
+comparison. The retained independent IERS/SOFA/IGN and published-equation
+fixtures are documented in the main checklist and their reference directories.
+Gravity variations now have a separate literature and compatibility review on
+``fix/gravity_field_variations``.
