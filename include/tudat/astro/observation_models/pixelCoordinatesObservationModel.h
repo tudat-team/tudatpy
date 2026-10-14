@@ -30,6 +30,16 @@ namespace tudat
 namespace observation_models
 {
 
+//! Convert a geometric unit direction to an apparent direction using inverse Jacobson stellar aberration.
+inline Eigen::Vector3d computeApparentDirectionWithStellarAberration( const Eigen::Vector3d& actualDirection,
+                                                                      const Eigen::Vector3d& observerVelocityDividedBySpeedOfLight )
+{
+    const double directionDotVelocity = actualDirection.dot( observerVelocityDividedBySpeedOfLight );
+    const double velocitySquared = observerVelocityDividedBySpeedOfLight.squaredNorm( );
+    const double scaleFactor = -directionDotVelocity + std::sqrt( 1.0 - velocitySquared + directionDotVelocity * directionDotVelocity );
+    return ( scaleFactor * actualDirection + observerVelocityDividedBySpeedOfLight ).normalized( );
+}
+
 //! Class for simulating camera pixel observables.
 /*!
  *  Class for simulating camera pixel observables, using light-time (with light-time corrections)
@@ -176,16 +186,6 @@ public:
     }
 
 protected:
-    //! Convert actual geometric direction to apparent direction using the inverse of Jacobson's stellar-aberration correction.
-    Eigen::Vector3d computeApparentDirectionWithStellarAberration( const Eigen::Vector3d& actualDirection,
-                                                                   const Eigen::Vector3d& observerVelocityDividedBySpeedOfLight ) const
-    {
-        const double directionDotVelocity = actualDirection.dot( observerVelocityDividedBySpeedOfLight );
-        const double velocitySquared = observerVelocityDividedBySpeedOfLight.squaredNorm( );
-        const double scaleFactor = -directionDotVelocity + std::sqrt( 1.0 - velocitySquared + directionDotVelocity * directionDotVelocity );
-        return ( scaleFactor * actualDirection + observerVelocityDividedBySpeedOfLight ).normalized( );
-    }
-
     //! Object to compute the light-time (including any corrections w.r.t. Euclidean case) between source and receiver
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 

@@ -10,6 +10,36 @@ In addition to the top-level classes, this module contains functionality to mani
 
 
 
+Selecting observations of one type
+----------------------------------
+
+Use an observation parser with the collection methods to retrieve, weight or
+filter a subset of a mixed observation collection. For example, given a
+collection named ``collection`` whose residuals have already been computed:
+
+.. code-block:: python
+
+   from tudatpy.estimation.observable_models_setup import model_settings
+   from tudatpy.estimation.observations import observations_processing
+
+   pixels = observations_processing.observation_parser(
+       model_settings.pixel_coordinates_type
+   )
+   pixel_residuals = collection.get_concatenated_residuals(pixels)
+
+   sigma_pixels = 2.0
+   collection.set_constant_weight(1.0 / sigma_pixels**2, pixels)
+
+   residual_filter = observations_processing.observation_filter(
+       observations_processing.ObservationFilterType.residual_filtering, 10.0
+   )
+   collection.filter_observations(residual_filter, pixels)
+
+The same parser can be passed to ``get_concatenated_observations`` and
+``get_concatenated_weights``. Component-wise uncertainties can be supplied by
+passing a vector of inverse variances to ``set_constant_weight``.
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Modules

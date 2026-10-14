@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <functional>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -183,12 +184,43 @@ public:
         return rotationFromInertialToCameraFrameHistory_;
     }
 
+    //! Body whose body-fixed frame the pointing history starts from.
+    /*!
+     * When empty, the pointing history holds rotations from the inertial frame to the camera frame. When set, it holds
+     * rotations from the body-fixed frame of this body to the camera frame. The body's rotation model then completes
+     * the rotation from the inertial frame when the camera is created.
+     */
+    const std::string& getPointingReferenceBodyName( ) const
+    {
+        return pointingReferenceBodyName_;
+    }
+
+    void setPointingReferenceBodyName( const std::string& pointingReferenceBodyName )
+    {
+        pointingReferenceBodyName_ = pointingReferenceBodyName;
+    }
+
+    //! A-priori uncertainty of the camera pointing about the three camera axes [rad]. NaN when not provided.
+    const Eigen::Vector3d& getPointingUncertainty( ) const
+    {
+        return pointingUncertainty_;
+    }
+
+    void setPointingUncertainty( const Eigen::Vector3d& pointingUncertainty )
+    {
+        pointingUncertainty_ = pointingUncertainty;
+    }
+
     //! Merge compatible camera histories; conflicting calibration or attitudes are errors.
     void merge( const CameraInstrumentSupplementaryData& other )
     {
         if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
             !fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) || !kMatrix_.isApprox( other.kMatrix_ ) ||
-            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) )
+            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) ||
+            pointingReferenceBodyName_ != other.pointingReferenceBodyName_ ||
+            !( ( pointingUncertainty_.array( ) == other.pointingUncertainty_.array( ) ) ||
+               ( pointingUncertainty_.array( ).isNaN( ) && other.pointingUncertainty_.array( ).isNaN( ) ) )
+                     .all( ) )
         {
             throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
         }
@@ -220,6 +252,10 @@ private:
     Eigen::Vector3d mountingOffsets_ = Eigen::Vector3d::Zero( );
 
     std::map< double, Eigen::Quaterniond > rotationFromInertialToCameraFrameHistory_;
+
+    std::string pointingReferenceBodyName_;
+
+    Eigen::Vector3d pointingUncertainty_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
 };
 
 class TranslationalStateSupplementaryData
@@ -307,6 +343,22 @@ private:
     bool isAngularVelocityDefined_ = false;
 };
 
+//! Position of a reference point that is fixed to a body, such as a ground station or a surface landmark.
+class ReferencePointSupplementaryData
+{
+public:
+    explicit ReferencePointSupplementaryData( const Eigen::Vector3d& bodyFixedPosition ): bodyFixedPosition_( bodyFixedPosition ) {}
+
+    //! Cartesian position of the reference point in the body-fixed frame [m].
+    const Eigen::Vector3d& getBodyFixedPosition( ) const
+    {
+        return bodyFixedPosition_;
+    }
+
+private:
+    Eigen::Vector3d bodyFixedPosition_;
+};
+
 class TrackingSupplementaryData
 {
 public:
@@ -376,6 +428,17 @@ public:
         return referencePointName_;
     }
 
+    //! Body-fixed position of the reference point. Null when the reference point position is not provided.
+    void setReferencePointSupplementaryData( const std::shared_ptr< ReferencePointSupplementaryData >& referencePointSupplementaryData )
+    {
+        referencePointSupplementaryData_ = referencePointSupplementaryData;
+    }
+
+    const std::shared_ptr< ReferencePointSupplementaryData >& getReferencePointSupplementaryData( ) const
+    {
+        return referencePointSupplementaryData_;
+    }
+
     bool isPassiveRadarReflector( ) const
     {
         return isPassiveRadarReflector_;
@@ -394,6 +457,8 @@ private:
     std::vector< std::shared_ptr< FrequencySupplementaryData > > frequencySupplementaryData_;
 
     std::vector< std::shared_ptr< InstrumentSupplementaryData > > instrumentSupplementaryData_;
+
+    std::shared_ptr< ReferencePointSupplementaryData > referencePointSupplementaryData_;
 
     std::string bodyName_;
 

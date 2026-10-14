@@ -34,6 +34,7 @@ For more information on the tracking data architecture, see the `user guide <htt
    tracking_data/optical_utilities
    tracking_data/psf
    tracking_data/radar_utilities
+   tracking_data/sum_lmk
    tracking_data/tnf
 
 .. automodule:: tudatpy.data_input.tracking_data
@@ -77,6 +78,7 @@ before the supplementary data is applied to the bodies.
    CameraInstrumentSupplementaryData
    TranslationalStateSupplementaryData
    RotationalStateSupplementaryData
+   ReferencePointSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.FrequencySupplementaryData
    :members:
@@ -100,4 +102,7 @@ before the supplementary data is applied to the bodies.
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.RotationalStateSupplementaryData
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ReferencePointSupplementaryData
    :members:
