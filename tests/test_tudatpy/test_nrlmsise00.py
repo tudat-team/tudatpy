@@ -6,6 +6,7 @@ import pytest
 # Load Tudatpy modules
 from tudatpy.dynamics import environment, environment_setup
 from tudatpy.data import (
+    read_solar_activity_data,
     get_space_weather_path,
     get_atmosphere_tables_path,
 )
@@ -31,11 +32,6 @@ def test_nrlmsise00_model_exposure(nrlmsise00_bodies):
     assert isinstance(model, environment.AtmosphereModel)
     assert not hasattr(environment_setup.atmosphere, "NRLMSISE00Atmosphere")
 
-    with pytest.raises(TypeError):
-        environment.NRLMSISE00Atmosphere()
-    with pytest.raises(TypeError):
-        environment.NRLMSISE00Atmosphere({}, True, False, True)
-
     # The derived model can be passed back through an AtmosphereModel property.
     nrlmsise00_bodies.create_empty_body("Other")
     nrlmsise00_bodies.get("Other").atmosphere_model = model
@@ -51,6 +47,30 @@ def test_nrlmsise00_model_exposure(nrlmsise00_bodies):
     assert model.get_temperature(400e3, 0.0, 0.0, epoch) > 0.0
     assert model.get_pressure(400e3, 0.0, 0.0, epoch) > 0.0
     assert model.get_speed_of_sound(400e3, 0.0, 0.0, epoch) > 0.0
+
+
+def test_nrlmsise00_constructor(nrlmsise00_bodies):
+    solar_activity_data = read_solar_activity_data(get_space_weather_path() + "/sw19571001.txt")
+    model = environment.NRLMSISE00Atmosphere(
+        solar_activity_data,
+        use_ideal_gas_law=True,
+        use_storm_conditions=False,
+        use_anomalous_oxygen=True,
+    )
+    assert isinstance(model, environment.AtmosphereModel)
+
+    # A directly constructed model reproduces the model created by the environment factory.
+    factory_model = nrlmsise00_bodies.get("Earth").atmosphere_model
+    model.set_use_utc(factory_model.get_use_utc())
+    model.set_use_geodetic_latitude(factory_model.get_use_geodetic_latitude())
+    epoch = iso_string_to_epoch("2020-01-01T12:00:00")
+    for altitude in [100e3, 400e3, 800e3]:
+        assert model.get_density(altitude, 0.3, -0.5, epoch) == pytest.approx(
+            factory_model.get_density(altitude, 0.3, -0.5, epoch), rel=1e-14
+        )
+        assert model.get_temperature(altitude, 0.3, -0.5, epoch) == pytest.approx(
+            factory_model.get_temperature(altitude, 0.3, -0.5, epoch), rel=1e-14
+        )
 
 
 def test_nrlmsise00(nrlmsise00_bodies):

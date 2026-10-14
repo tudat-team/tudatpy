@@ -1223,11 +1223,6 @@ void expose_transfer_trajectory( py::module& m )
          engine_name : str
              Identifier of the existing engine whose thrust-magnitude function is updated.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 };
 

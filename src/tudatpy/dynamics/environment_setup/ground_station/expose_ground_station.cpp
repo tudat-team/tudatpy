@@ -223,11 +223,6 @@ reference_epoch:
          station_motion_setting : GroundStationMotionSettings
              Settings defining the motion model to add to each station.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     m.def( "basic_station",

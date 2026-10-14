@@ -1566,7 +1566,7 @@ The type of the acceleration that is to be saved.
          ----------
          body : str
              Name of the body for which the settings are created.
-         central_body : str, optional
+         central_body : str, default = ""
              Name of the body relative to which the state or aerodynamic quantity is defined.
 
          Returns
@@ -1595,7 +1595,7 @@ The type of the acceleration that is to be saved.
          ----------
          body : str
              Name of the body for which the settings are created.
-         central_body : str, optional
+         central_body : str, default = ""
              Name of the body relative to which the state or aerodynamic quantity is defined.
 
          Returns
@@ -1627,7 +1627,7 @@ The type of the acceleration that is to be saved.
              Name of the body for which the settings are created.
          control_surface_name : str
              Identifier of the control surface whose coefficient increment is saved.
-         central_body : str, optional
+         central_body : str, default = ""
              Name of the body relative to which the state or aerodynamic quantity is defined.
 
          Returns
@@ -1659,7 +1659,7 @@ The type of the acceleration that is to be saved.
              Name of the body for which the settings are created.
          control_surface_name : str
              Identifier of the control surface whose coefficient increment is saved.
-         central_body : str, optional
+         central_body : str, default = ""
              Name of the body relative to which the state or aerodynamic quantity is defined.
 
          Returns
@@ -2276,10 +2276,6 @@ The type of the acceleration that is to be saved.
  -------------
  9
 
-
-
-
-
      )doc" );
 
     m.def( "tnw_to_inertial_rotation_matrix",
@@ -2324,10 +2320,6 @@ The type of the acceleration that is to be saved.
  -------------
  9
 
-
-
-
-
      )doc" );
 
     m.def( "rsw_to_inertial_rotation_matrix",
@@ -2371,10 +2363,6 @@ The type of the acceleration that is to be saved.
  Variable Size
  -------------
  9
-
-
-
-
 
      )doc" );
 
@@ -2452,10 +2440,6 @@ The type of the acceleration that is to be saved.
  Variable Size
  -------------
  9
-
-
-
-
 
      )doc" );
 
@@ -2986,7 +2970,7 @@ The type of the acceleration that is to be saved.
          ----------
          body_name : str
              Name of the body in the system of bodies.
-         part_name : str, optional
+         part_name : str, default = ""
              Identifier of the vehicle part whose panels are used; an empty string selects all panels.
 
          Returns
@@ -3015,7 +2999,7 @@ The type of the acceleration that is to be saved.
          ----------
          body_name : str
              Name of the body in the system of bodies.
-         part_name : str, optional
+         part_name : str, default = ""
              Identifier of the vehicle part whose panels are used; an empty string selects all panels.
 
          Returns
@@ -3128,7 +3112,7 @@ The type of the acceleration that is to be saved.
              Name of the body receiving the radiation or aerodynamic force.
          source_name : str
              Name of the radiation source body.
-         panel_type : str, optional
+         panel_type : str, default = ""
              Panel type for which the illuminated fractions are saved; an empty string includes all panel types.
 
          Returns
@@ -3158,7 +3142,7 @@ The type of the acceleration that is to be saved.
              Name of the body receiving the radiation or aerodynamic force.
          source_name : str
              Name of the radiation source body.
-         acceleration_type : str, optional
+         acceleration_type : str, default = "radiation_pressure"
              Type of acceleration to which the settings apply.
 
          Returns
@@ -3238,7 +3222,7 @@ The type of the acceleration that is to be saved.
              Name of the body receiving the radiation or aerodynamic force.
          central_body_name : str
              Name of the body defining the atmosphere or the source of the selected acceleration.
-         acceleration_type : str, optional
+         acceleration_type : str, default = "radiation_pressure"
              Type of acceleration to which the settings apply.
 
          Returns

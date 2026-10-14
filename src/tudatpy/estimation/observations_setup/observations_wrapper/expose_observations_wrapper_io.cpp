@@ -126,7 +126,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
          ----------
          receiver_body_name : str
              Name of the body hosting the receiving camera.
-         image_name_to_body_name : dict[str, str], optional
+         image_name_to_body_name : dict[str, str], default = {}
              Mapping from PSF image target names to names in the system of bodies.
 
       )doc" )

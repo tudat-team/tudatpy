@@ -802,11 +802,6 @@ void expose_spice( py::module& m )
 
          Configure SPICE to return control to the caller after an error instead of aborting the process.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     m.def( "suppress_error_output",
@@ -814,11 +809,6 @@ void expose_spice( py::module& m )
            R"doc(
 
          Suppress SPICE error messages emitted to its output stream.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" );
 

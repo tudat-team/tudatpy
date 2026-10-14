@@ -74,7 +74,7 @@ void expose_statistics( py::module& m )
              Amplitudes of the Allan variance power-law terms, keyed by integer powers of averaging time.
          frequency_domain_cutoff_frequency : float
              High-frequency cutoff of the phase-noise model, in hertz.
-         is_inverse_square_term_flicker_phase_noise : bool, optional
+         is_inverse_square_term_flicker_phase_noise : bool, default = False
              Whether the inverse-square Allan variance term represents flicker phase noise instead of white phase noise.
 
          Returns
@@ -113,10 +113,10 @@ void expose_statistics( py::module& m )
              End of the noise-generation interval, in seconds.
          number_of_time_steps : int
              Number of samples in the generated noise series.
-         is_inverse_square_term_flicker_phase_noise : bool, optional
+         is_inverse_square_term_flicker_phase_noise : bool, default = False
              Whether the inverse-square Allan variance term represents flicker phase noise instead of white phase noise.
          seed : float, optional
-             Seed used by the random number generator.
+             Seed used by the random number generator. If not provided, a random seed drawn once when tudatpy is imported is used.
 
          Returns
          -------
@@ -154,7 +154,7 @@ void expose_statistics( py::module& m )
          number_of_time_steps : int
              Number of samples in the generated noise series.
          seed : float, optional
-             Seed used by the random number generator.
+             Seed used by the random number generator. If not provided, a random seed drawn once when tudatpy is imported is used.
 
          Returns
          -------
@@ -189,10 +189,10 @@ void expose_statistics( py::module& m )
              End of the noise-generation interval, in seconds.
          time_step : float
              Sampling interval, in seconds.
-         is_inverse_square_term_flicker_phase_noise : bool, optional
+         is_inverse_square_term_flicker_phase_noise : bool, default = False
              Whether the inverse-square Allan variance term represents flicker phase noise instead of white phase noise.
          seed : float, optional
-             Seed used by the random number generator.
+             Seed used by the random number generator. If not provided, a random seed drawn once when tudatpy is imported is used.
 
          Returns
          -------
@@ -231,7 +231,7 @@ void expose_statistics( py::module& m )
          time_step : float
              Sampling interval, in seconds.
          seed : float, optional
-             Seed used by the random number generator.
+             Seed used by the random number generator. If not provided, a random seed drawn once when tudatpy is imported is used.
 
          Returns
          -------

@@ -124,11 +124,11 @@ void expose_observations( py::module& m )
              Epochs of the measurements, in seconds since J2000.
          reference_link_end : LinkEndType
              Link end at which the observation epochs are defined.
-         observation_dependent_variables : list[numpy.ndarray[numpy.float64[m, 1]]], optional
+         observation_dependent_variables : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
              Dependent-variable values associated with each measurement.
-         dependent_variable_bookkeeping : ObservationDependentVariableBookkeeping, optional
+         dependent_variable_bookkeeping : ObservationDependentVariableBookkeeping, default = None
              Optional object defining the dependent-variable layout.
-         ancillary_settings : ObservationAncillarySimulationSettings, optional
+         ancillary_settings : ObservationAncillarySimulationSettings, default = None
              Optional observable-specific ancillary data.
 
       )doc" )
@@ -1398,11 +1398,6 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          observation_collection_to_append : ObservationCollection
              Collection whose observation sets are appended to this collection.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" )
             .def( "filter_observations",

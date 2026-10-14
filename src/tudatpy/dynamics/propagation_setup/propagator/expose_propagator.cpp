@@ -994,11 +994,6 @@ Enumeration of available integrated state types.
          bodies : SystemOfBodies
              System of bodies defining the physical environment.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     //            .def_property_readonly("acceleration_settings",
@@ -1030,11 +1025,6 @@ Enumeration of available integrated state types.
          initial_states : numpy.ndarray[numpy.float64[m, 1]]
              Initial state vector, in the order defined by the propagator settings.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" )
             .def( "recreate_state_derivative_models",
                   &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetIntegratedStateModels,
@@ -1047,11 +1037,6 @@ Enumeration of available integrated state types.
          ----------
          bodies : SystemOfBodies
              System of bodies defining the physical environment.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" )
             .def( "single_type_settings",
@@ -1293,7 +1278,6 @@ TranslationalStatePropagatorSettings
          formulation in which the differential equations are set up. The dynamical models are
          defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.dynamics.propagation_setup.create_torque_models` function.
          Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`__
-
 
          Parameters
          ----------

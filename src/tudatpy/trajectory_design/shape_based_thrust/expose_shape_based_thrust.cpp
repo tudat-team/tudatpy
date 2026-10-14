@@ -334,7 +334,7 @@ void expose_shape_based_thrust( py::module& m )
          ----------
          exponent : float
              Exponential rate multiplying elapsed time.
-         scale_factor : float, optional
+         scale_factor : float, default = 1.0
              Scaling factor in the basis function expression given above.
 
          Returns
@@ -393,7 +393,7 @@ void expose_shape_based_thrust( py::module& m )
              Exponential rate multiplying elapsed time.
          frequency : float
              Angular frequency in the trigonometric factor, in radians per second.
-         scale_factor : float, optional
+         scale_factor : float, default = 1.0
              Scaling factor in the basis function expression given above.
 
          Returns
@@ -453,7 +453,7 @@ void expose_shape_based_thrust( py::module& m )
              Exponential rate multiplying elapsed time.
          frequency : float
              Angular frequency in the trigonometric factor, in radians per second.
-         scale_factor : float, optional
+         scale_factor : float, default = 1.0
              Scaling factor in the basis function expression given above.
 
          Returns
@@ -505,7 +505,7 @@ void expose_shape_based_thrust( py::module& m )
          ----------
          exponent : float
              Exponent of the time power.
-         scale_factor : float, optional
+         scale_factor : float, default = 1.0
              Scaling factor in the basis function expression given above.
 
          Returns

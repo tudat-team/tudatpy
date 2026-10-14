@@ -1116,7 +1116,6 @@ acceleration, :math:`h`_{B}` is the angular momentum vector per unit mass of the
 :math:`\mathbf{R}_{S}` are the gravitational parameter of the 'de Sitter central body' and the position of the body exerting the acceleration w.r.t. the 'de Sitter central body'.
 For normal applications, the 'de Sitter central body' should be set as the Sun, if the body exerting the acceleration is a natural solar system body (except the Sun itself)
 
-
 Parameters
 ----------
 use_schwarzschild : bool, default=False
@@ -1158,7 +1157,6 @@ In this example, we define the relativistic correction acceleration for a Mars o
        use_de_sitter,
        de_sitter_central_body,
        lense_thirring_angular_momentum)]
-
 
      )doc" );
 

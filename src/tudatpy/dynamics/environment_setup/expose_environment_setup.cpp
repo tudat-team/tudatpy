@@ -744,11 +744,6 @@ void expose_environment_setup( py::module& m )
          is_part_of_multi_arc : bool, default=False
              If True, place the empty tabulated ephemeris inside a multi-arc ephemeris.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     m.def( "create_tabulated_ephemeris_from_spice",
@@ -973,11 +968,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
          gravity_field_variation_settings : list[tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings], default=[]
              Settings defining variations of the gravity field coefficients, such as those due to tides.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     m.def(
@@ -1187,11 +1177,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
          station_motion_settings : list[tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings], default=[]
              Settings for station displacements relative to the nominal body-fixed position.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     m.def( "add_ground_station",
@@ -1209,11 +1194,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
              Body to which the ground station is added.
          ground_station_settings : tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings
              Settings defining the station name, position, motion and weather data.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" );
     //
@@ -1246,11 +1226,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                Body to which the camera is added. The camera is added to the vehicle systems of this body.
            camera_settings : CameraSettings
                Settings defining the camera that is to be created and added to the body.
-
-           Returns
-           -------
-           None
-               No return value.
 
            Examples
            --------
@@ -1290,17 +1265,12 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                Name of the camera to be created.
            boresight_euler_angles : numpy.ndarray[numpy.float64[3, 1]]
                Euler angles (in radians) defining the camera boresight direction. The rotation sequence RA, DEC, Twist. A zero twist angle will result in the x-axis being aligned with the horizontal direction in the focal plane.
-           focal_lengths : tuple[float, float], optional
+           focal_lengths : tuple[float, float], default = (1.0, 1.0)
                Focal lengths of the camera in the x and y directions, in pixels. To obtain this value from focal length in meters and pixel size, do f_px = f_m / pixel_size. Default is (1.0, 1.0).
-           optical_center : tuple[float, float], optional
+           optical_center : tuple[float, float], default = (0.0, 0.0)
                Optical center of the camera in the x and y directions, in pixels. Default is (0.0, 0.0).
-           body_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+           body_fixed_position : numpy.ndarray[numpy.float64[3, 1]], default = numpy.array([0.0, 0.0, 0.0])
                Position of the camera in the body-fixed frame, in meters. Default is (0.0, 0.0, 0.0).
-
-           Returns
-           -------
-           None
-               No return value.
 
            Examples
            --------

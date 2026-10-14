@@ -254,13 +254,13 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
          ----------
          interpolate_order : int
              Order of the Lagrange interpolator.
-         use_long_double_time_step : bool, optional
+         use_long_double_time_step : bool, default = False
              Whether to use long double precision in time-step calculations.
-         selected_lookup_scheme : AvailableLookupScheme, optional
+         selected_lookup_scheme : AvailableLookupScheme, default = hunting_algorithm
              Algorithm used to locate the bracketing data points.
-         lagrange_boundary_handling : LagrangeInterpolatorBoundaryHandling, optional
+         lagrange_boundary_handling : LagrangeInterpolatorBoundaryHandling, default = lagrange_cubic_spline_boundary_interpolation
              Method used near the edges of the Lagrange interpolation interval.
-         boundary_handling : BoundaryInterpolationType, optional
+         boundary_handling : BoundaryInterpolationType, default = extrapolate_at_boundary
              Method used when a request falls outside the interpolation interval.
 
       )doc" );
@@ -527,9 +527,9 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
          Parameters
          ----------
-         lookup_scheme : AvailableLookupScheme, optional
+         lookup_scheme : AvailableLookupScheme, default = hunting_algorithm
              Algorithm used to locate the bracketing data points.
-         boundary_interpolation : BoundaryInterpolationType, optional
+         boundary_interpolation : BoundaryInterpolationType, default = extrapolate_at_boundary_with_warning
              Method used when a request falls outside the interpolation interval.
 
          Returns

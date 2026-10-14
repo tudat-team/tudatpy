@@ -768,7 +768,6 @@ void expose_estimation_analysis( py::module& m )
          Covariance matrix of the estimated parameters that includes the contribution of the consider parameters,
          equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
 
-
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
             .def_property_readonly(

@@ -438,11 +438,6 @@ void expose_environment( py::module& m )
          new_state : numpy.ndarray[numpy.float64[6, 1]]
              New Cartesian state, containing position in m and velocity in m/s, expressed in the ephemeris reference frame.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     py::class_< te::KeplerEphemeris, std::shared_ptr< te::KeplerEphemeris >, te::Ephemeris >( m, "KeplerEphemeris", R"doc(
@@ -1424,22 +1419,41 @@ bool
          :class:`~AtmosphereModel` methods.
 
       )doc" )
+            .def( py::init< const tudat::input_output::solar_activity::SolarActivityDataMap, const bool, const bool, const bool >( ),
+                  py::arg( "solar_activity_data" ),
+                  py::arg( "use_ideal_gas_law" ) = true,
+                  py::arg( "use_storm_conditions" ) = false,
+                  py::arg( "use_anomalous_oxygen" ) = true,
+                  R"doc(
+
+         Create an NRLMSISE-00 atmosphere model directly from solar activity data.
+
+         The GTD7 function of NRLMSISE-00 is used to compute the atmospheric density and temperature, from the surface to
+         the lower exosphere. The specific heat ratio is assumed constant and equal to 1.4.
+
+         Parameters
+         ----------
+         solar_activity_data : dict[float, SolarActivityData]
+             Solar activity data for a range of epochs, as produced by :func:`~tudatpy.data.read_solar_activity_data`.
+         use_ideal_gas_law : bool, default = True
+             Whether to use the ideal gas law to compute the pressure and speed of sound.
+         use_storm_conditions : bool, default = False
+             Whether to include the geomagnetic storm-time contribution in the model inputs.
+         use_anomalous_oxygen : bool, default = True
+             Whether to include anomalous oxygen in the computed total mass density.
+
+      )doc" )
             .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude, R"doc(
 
          Set whether the atmosphere model uses geodetic latitude.
 
-         The boolean positional argument selects geodetic latitude when True and geocentric latitude when False.
-         This flag is used when obtaining the coordinates for atmosphere model evaluation.
+         When True, geodetic latitude is used when obtaining the coordinates for atmosphere model evaluation; when
+         False, geocentric latitude is used.
 
          Parameters
          ----------
          use_geodetic_latitude : bool
-             Whether to use geodetic latitude (True) or geocentric latitude (False). This is a positional argument.
-
-         Returns
-         -------
-         None
-             No return value.
+             Whether to use geodetic latitude (True) or geocentric latitude (False).
 
       )doc" )
             .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude, R"doc(
@@ -1456,18 +1470,13 @@ bool
 
          Set whether UTC epochs are used for atmosphere model evaluation.
 
-         The boolean positional argument enables the use of UTC when True. This flag is used when preparing the time
-         input for the atmosphere model.
+         When True, the epoch is converted to UTC when preparing the time input for the atmosphere model; when False,
+         TDB is used.
 
          Parameters
          ----------
          use_utc : bool
-             Whether to use UTC (True) or TDB (False) when evaluating the atmosphere inputs. This is a positional argument.
-
-         Returns
-         -------
-         None
-             No return value.
+             Whether to use UTC (True) or TDB (False) when evaluating the atmosphere inputs.
 
       )doc" )
             .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc, R"doc(
@@ -1675,11 +1684,6 @@ bool
          control_surface_list : dict[str, ControlSurfaceIncrementAerodynamicInterface]
              Dictionary mapping each control surface name to its aerodynamic coefficient increment model.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" )
             .def( "update_coefficients",
                   &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
@@ -1867,11 +1871,6 @@ bool
          Clears the coefficient-generation data, cached panel inclinations and pressure coefficients. This function is used
          to release analysis data that are no longer required.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" );
 
     py::class_< ta::CustomControlSurfaceIncrementAerodynamicInterface,
@@ -2046,11 +2045,6 @@ bool
          transponder_ratio_per_uplink_and_downlink_frequency_band : dict[tuple[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands, tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands], float]
              Dictionary mapping an uplink and downlink frequency band pair to its turnaround ratio.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" )
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
@@ -2139,11 +2133,6 @@ bool
          frame_orientation : str, default=""
              Frame orientation label stored in the constant ephemeris.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" )
             .def( "set_reference_point",
                   py::overload_cast< const std::string, std::shared_ptr< te::Ephemeris > >(
@@ -2163,11 +2152,6 @@ bool
              Identifier of the antenna or instrument location.
          ephemeris : Ephemeris
              Ephemeris returning the body-fixed position in m and velocity in m/s of the specified location.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" )
 
@@ -2203,11 +2187,6 @@ bool
          ----------
          timing_system : TimingSystem
              Timing system defining the vehicle clock errors.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" )
             .def( "get_camera",
@@ -2313,11 +2292,11 @@ bool
          ----------
          arc_times : list[Time]
              Clock arc boundaries in seconds since J2000, with one more boundary than the number of arcs.
-         all_arcs_polynomial_drift_coefficients : list[float], optional
+         all_arcs_polynomial_drift_coefficients : list[float], default = []
              Polynomial clock-drift coefficients, ordered by increasing power of elapsed time and shared by all arcs.
-         clock_noise_generation_function : Callable[[float, float, float], Callable[[float], float]], optional
+         clock_noise_generation_function : Callable[[float, float, float], Callable[[float], float]], default = None
              Optional function of arc start time, arc end time and sampling step, returning a function of time that evaluates clock noise in seconds.
-         clock_noise_time_step : float, optional
+         clock_noise_time_step : float, default = 1.0E-3
              Sampling interval for clock-noise generation, in seconds.
 
       )doc" )
@@ -2343,9 +2322,9 @@ bool
              Clock arc boundaries in seconds since J2000, with one more boundary than the number of arcs.
          polynomial_drift_coefficients : list[list[float]]
              Polynomial clock-drift coefficients for each arc, ordered by increasing power of elapsed time within the arc.
-         clock_noise_generation_function : Callable[[float, float, float], Callable[[float], float]], optional
+         clock_noise_generation_function : Callable[[float, float, float], Callable[[float], float]], default = None
              Optional function of arc start time, arc end time and sampling step, returning a function of time that evaluates clock noise in seconds.
-         clock_noise_time_step : float, optional
+         clock_noise_time_step : float, default = 1.0E-3
              Sampling interval for clock-noise generation, in seconds.
 
       )doc" )
@@ -2505,11 +2484,6 @@ bool
          ----------
          current_time : float
              Epoch at which the flight conditions are evaluated, in seconds since J2000.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" )
             .def_property_readonly( "aerodynamic_angle_calculator",
@@ -3083,12 +3057,6 @@ bool
          ----------
          aerodynamic_angle_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
              Function returning angle of attack, sideslip angle and bank angle, in rad, from time in seconds since J2000.
-             The function is supplied as a positional argument.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" );
 
@@ -3250,7 +3218,7 @@ bool
          ----------
          gravitational_parameter : float
              Gravitational parameter of the body, in cubic metres per second squared.
-         update_inertia_tensor : Callable[[], None], optional
+         update_inertia_tensor : Callable[[], None], default = None
              Optional callback without arguments that updates the body's inertia tensor when its gravitational parameter changes.
 
       )doc" )
@@ -3454,7 +3422,6 @@ bool
          Dimensionless radiation pressure coefficient used to scale the force on the cannonball target.
 
          :type: float
-
 
          See :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target`
          for the coefficient definition and target model.
@@ -3774,7 +3741,6 @@ bool
 
                                     :type: numpy.ndarray
 
-
                                     )doc" )
             .def_property_readonly( "end_times",
                                     &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes,
@@ -3783,7 +3749,6 @@ bool
                                     End times of the piecewise linear frequency intervals.
 
                                     :type: numpy.ndarray
-
 
                                     )doc" )
             .def_property_readonly( "ramp_rates",
@@ -3794,7 +3759,6 @@ bool
 
                                     :type: numpy.ndarray
 
-
                                     )doc" )
             .def_property_readonly( "start_frequencies",
                                     &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies,
@@ -3803,7 +3767,6 @@ bool
                                     Frequencies of the piecewise linear frequency interval at the start epoch.
 
                                     :type: numpy.ndarray
-
 
                                     )doc" )
             .def( "compute_current_frequency",
@@ -3838,11 +3801,6 @@ bool
                      ----------
                      frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
                          The frequency interpolator to add to the current interpolator.
-
-                     Returns
-                     -------
-                     None
-                         No return value.
 
                   )doc" );
 
@@ -4131,11 +4089,6 @@ bool
          timing_system : TimingSystem
              Timing system defining the station clock errors.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" )
 
             .def( "set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg( "meteo_data" ), R"doc(
@@ -4146,11 +4099,6 @@ bool
          ----------
          meteo_data : StationMeteoData
              Model supplying the meteorological quantities used for atmospheric tracking observation corrections.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" );
 

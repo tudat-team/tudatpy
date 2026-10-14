@@ -440,7 +440,6 @@ void expose_parameters_setup( py::module& m )
     # better: list concatenation --> will result in simple list, desired!
     list_of_all_parameters = dynamics.parameters_setup.initial_states(...) + [single_parameter_1, single_parameter_2, ...]
 
-
  Parameters
  ----------
  propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
@@ -456,7 +455,6 @@ void expose_parameters_setup( py::module& m )
  -------
  List[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` ]
      List of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
-
 
      )doc" );
 
@@ -517,7 +515,6 @@ void expose_parameters_setup( py::module& m )
 
  .. note:: This parameter may be estimated for a single-arc propagation, or a multi-arc propagation. In the latter case, the arcs selected for the estimation of the drag coefficient may, but need not, correspond to the arcs used for a multi-arc propagation.
 
-
  Parameters
  ----------
  body : str
@@ -530,7 +527,6 @@ void expose_parameters_setup( py::module& m )
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseDragCoefficientEstimatableParameterSettings` class
      for arc-wise treatment of the specified body's constant drag coefficient.
-
 
      )doc" );
 
@@ -2740,7 +2736,7 @@ Returns
              Name of the body exerting the acceleration.
          acceleration_type : AvailableAcceleration
              Type of acceleration to which the settings apply.
-         environment_updates : dict[EnvironmentModelsToUpdate, list[str]], optional
+         environment_updates : dict[EnvironmentModelsToUpdate, list[str]], default = {}
              Environment models to refresh for each perturbed parameter value, with the corresponding body names.
 
          Returns

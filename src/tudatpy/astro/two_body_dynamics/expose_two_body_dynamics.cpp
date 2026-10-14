@@ -154,7 +154,7 @@ void expose_two_body_dynamics( py::module& m )
          Parameters
          ----------
          pericenter_radius : float
-             Pericentre radius at which to evaluate the objective, in metres. This is a positional argument.
+             Pericentre radius at which to evaluate the objective, in metres.
 
          Returns
          -------
@@ -172,7 +172,7 @@ void expose_two_body_dynamics( py::module& m )
          Parameters
          ----------
          pericenter_radius : float
-             Pericentre radius at which to evaluate the objective, in metres. This is a positional argument.
+             Pericentre radius at which to evaluate the objective, in metres.
 
          Returns
          -------

@@ -506,7 +506,7 @@ void expose_torque_setup( py::module& m )
          ----------
          torque_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
              Function of epoch in seconds since J2000 returning the body-fixed torque vector, in newton metres.
-         scaling_function : Callable[[float], float], optional
+         scaling_function : Callable[[float], float], default = None
              Optional function of epoch multiplying the torque by a dimensionless scaling factor.
 
          Returns

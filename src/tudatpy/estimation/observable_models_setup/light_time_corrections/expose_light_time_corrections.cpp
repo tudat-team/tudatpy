@@ -750,13 +750,13 @@ Returns
 
          Parameters
          ----------
-         coefficients : list[float], optional
+         coefficients : list[float], default = [1.3e14, 0.5e12]
              Coefficients of the inverse-power series defining solar-corona electron density.
-         positive_exponents : list[float], optional
+         positive_exponents : list[float], default = [6.0, 2.0]
              Positive radial powers for the inverse-power density series, paired with the coefficients.
-         delay_coefficient : float, optional
+         delay_coefficient : float, default = 40.3
              Coefficient converting the electron-density integral into the light-time correction.
-         sun_body_name : str, optional
+         sun_body_name : str, default = "Sun"
              Name of the Sun body in the system of bodies.
 
          Returns
@@ -797,7 +797,7 @@ Returns
              Function returning the Sun's declination, in radians, from epoch in seconds since J2000.
          f10p7_function : Callable[[float], float]
              Function returning the 10.7 cm solar flux, in solar flux units, from epoch in seconds since J2000.
-         use_utc_time_for_local_time : bool, optional
+         use_utc_time_for_local_time : bool, default = False
              Whether to interpret the epoch as UTC when computing local time.
 
       )doc" )

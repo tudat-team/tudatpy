@@ -330,7 +330,6 @@ void expose_propagation_results_bindings( py::module& m )
          The vector of all dependent variables concatenated into a single vector as value, with the epoch as key.
          They order of the concatenated dependent variables in a single value is provided by the ``dependent_variable_ids`` attribute of this object.
 
-
          :type: dict[float, numpy.ndarray]
       )doc" )
 

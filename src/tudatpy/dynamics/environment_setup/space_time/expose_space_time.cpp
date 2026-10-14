@@ -60,7 +60,7 @@ void expose_space_time_types( py::module& m )
              Dimensionless PPN gamma parameter.
          parameter_beta : float
              Dimensionless PPN beta parameter.
-         parameter_epsilon : float, optional
+         parameter_epsilon : float, default = 0.0
              Dimensionless PPN epsilon parameter.
 
       )doc" )
@@ -132,11 +132,11 @@ void expose_space_time_setup( py::module& m )
 
          Parameters
          ----------
-         metric_settings : SpaceTimeMetricSettings, optional
+         metric_settings : SpaceTimeMetricSettings, default = None
              Optional settings defining the space-time metric.
-         ppn_parameter_set : PPNParameterSet, optional
+         ppn_parameter_set : PPNParameterSet, default = None
              Optional set of PPN parameters used by the metric.
-         equivalence_principle_lpi_violation_parameter : float, optional
+         equivalence_principle_lpi_violation_parameter : float, default = 0.0
              Dimensionless local position invariance violation parameter.
 
       )doc" )

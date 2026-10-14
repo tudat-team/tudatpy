@@ -82,23 +82,23 @@ The values in this class may be recomputed every time step to reflect changing a
 
          Parameters
          ----------
-         year : int, optional
+         year : int, default = 0
              Calendar year.
-         day_of_year : int, optional
+         day_of_year : int, default = 0
              Day of the year, starting at 1.
-         seconds_of_day : float, optional
+         seconds_of_day : float, default = 0.0
              UTC seconds elapsed since midnight.
-         local_solar_time : float, optional
+         local_solar_time : float, default = 0.0
              Local solar time, in hours.
-         f107 : float, optional
+         f107 : float, default = 0.0
              Daily 10.7 cm solar radio flux, in solar flux units.
-         f107a : float, optional
+         f107a : float, default = 0.0
              81-day average of the 10.7 cm solar radio flux, in solar flux units.
-         ap_daily : float, optional
+         ap_daily : float, default = 0.0
              Daily geomagnetic Ap index.
-         ap_vector : list[float], optional
+         ap_vector : list[float], default = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
              Seven geomagnetic Ap values used for the storm-time model.
-         switches : list[int], optional
+         switches : list[int], default = []
              NRLMSISE-00 model switches controlling the included effects.
 
       )doc" );

@@ -312,7 +312,7 @@ void expose_time_representation( py::module& m )
              Time scale to which the epoch is converted.
          input_value : float
              Input epoch in the input time scale, in seconds since J2000.
-         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], default = numpy.array([0.0, 0.0, 0.0])
              Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
 
          Returns
@@ -342,7 +342,7 @@ void expose_time_representation( py::module& m )
              Time scale to which the epoch is converted.
          input_value : Time
              Input epoch in the input time scale, in seconds since J2000.
-         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], default = numpy.array([0.0, 0.0, 0.0])
              Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
 
          Returns
@@ -371,7 +371,7 @@ void expose_time_representation( py::module& m )
              Time scale to which the epoch is converted.
          input_value : float
              Input epoch in the input time scale, in seconds since J2000.
-         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], default = numpy.array([0.0, 0.0, 0.0])
              Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
 
          Returns
@@ -400,7 +400,7 @@ void expose_time_representation( py::module& m )
              Time scale to which the epoch is converted.
          input_value : Time
              Input epoch in the input time scale, in seconds since J2000.
-         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+         earth_fixed_position : numpy.ndarray[numpy.float64[3, 1]], default = numpy.array([0.0, 0.0, 0.0])
              Earth-fixed Cartesian position in metres for position-dependent time conversions; the default is the Earth centre.
 
          Returns
@@ -445,44 +445,21 @@ void expose_time_representation( py::module& m )
              Calendar month, from 1 to 12.
          day : int
              Day of the month, starting at 1.
-         hour : int, optional
+         hour : int, default = 12
              Hour of the day.
-         minute : int, optional
+         minute : int, default = 0
              Minute within the hour.
-         seconds : float, optional
+         seconds : float, default = 0.0
              Seconds within the minute, including any fractional part.
 
       )doc" )
-            .def(
-                    "__str__",
-                    []( const tba::DateTime& datetime ) { return datetime.isoString( ); },
-                    R"doc(
-
-         Return the calendar date and time as an ISO-format string.
-
-         Returns
-         -------
-         str
-             ISO-format calendar date and time string.
-
-      )doc" )
-            .def(
-                    "__repr__",
-                    []( const tba::DateTime& datetime ) {
-                        return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
-                                std::to_string( datetime.getDay( ) ) + ", " + std::to_string( datetime.getHour( ) ) + ", " +
-                                std::to_string( datetime.getMinute( ) ) + ", " + std::to_string( datetime.getSeconds( ) ) + ")";
-                    },
-                    R"doc(
-
-         Return a DateTime constructor representation containing the calendar components.
-
-         Returns
-         -------
-         str
-             String containing the DateTime constructor and calendar components.
-
-      )doc" )
+            .def( "__str__", []( const tba::DateTime& datetime ) { return datetime.isoString( ); } )
+            .def( "__repr__",
+                  []( const tba::DateTime& datetime ) {
+                      return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
+                              std::to_string( datetime.getDay( ) ) + ", " + std::to_string( datetime.getHour( ) ) + ", " +
+                              std::to_string( datetime.getMinute( ) ) + ", " + std::to_string( datetime.getSeconds( ) ) + ")";
+                  } )
             .def_property( "year", &tba::DateTime::getYear, &tba::DateTime::setYear, R"doc(
 
  Calendar year
@@ -720,15 +697,10 @@ void expose_time_representation( py::module& m )
 
  Function to get the epoch as modified Julian day for the current date and time
 
-
  Returns
  -------
  float
      Current modified Julian day
-
-
-
-
 
  )doc" )
             .def( "to_modified_julian_day",
@@ -1167,10 +1139,6 @@ datetime.datetime
  float
      Date in Julian days since January 1st 4713 BC, as computed from the input parameters
 
-
-
-
-
  Examples
  --------
  In this example, an amount of seconds since J2000 (January 1st 2000) is converted to the Julian date (in days since January 1st 4713 BC).
@@ -1183,7 +1151,6 @@ datetime.datetime
    julian_date = time_representation.seconds_since_epoch_to_julian_day(seconds_since_J2000)
    # Print the converted output
    print(julian_date)  # prints 2459721.0783
-
 
      )doc" );
 

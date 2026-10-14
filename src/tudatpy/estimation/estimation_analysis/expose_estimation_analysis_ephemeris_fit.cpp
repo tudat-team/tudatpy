@@ -80,13 +80,13 @@ void expose_estimation_analysis_ephemeris_fit( py::module& m )
              Final epoch, in seconds since J2000.
          data_point_interval : Time
              Interval between ephemeris observations used for the fit, in seconds.
-         additional_parameter_names : list[EstimatableParameterSettings], optional
+         additional_parameter_names : list[EstimatableParameterSettings], default = []
              Settings for additional parameters to estimate alongside the initial states.
-         number_of_iterations : int, optional
+         number_of_iterations : int, default = 3
              Number of estimation iterations.
-         reintegrate_variational_equations : bool, optional
+         reintegrate_variational_equations : bool, default = True
              Whether to reintegrate the variational equations at each iteration.
-         results_print_frequency : float, optional
+         results_print_frequency : float, default = 0.0
              Interval in seconds between printed propagation results.
 
          Returns

@@ -171,6 +171,7 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.NRLMSISE00Atmosphere
    :members:
+   :special-members: __init__
    :show-inheritance:
 
 .. autoclass:: tudatpy.dynamics.environment.RadiationSourceModel

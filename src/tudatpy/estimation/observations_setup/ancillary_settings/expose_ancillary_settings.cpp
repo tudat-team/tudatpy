@@ -238,11 +238,6 @@ void expose_ancillary_settings_types( py::module& m )
          value : float
              Value to store for the specified data field.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" )
             .def( "get_float_settings",
                   &tom::ObservationAncillarySimulationSettings::getAncillaryDoubleData,

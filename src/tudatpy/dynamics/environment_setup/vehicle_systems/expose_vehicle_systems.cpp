@@ -315,7 +315,6 @@ surface_normal_function : callable[[], np.ndarray]
          This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` or :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.box_wing_panelled_body_settings` functions.
          The class contains a list of panel settings, and (optionally) a list of rotation model settings for vehicle parts.
 
-
      )doc" )
             .def_readwrite( "panel_settings_list", &tss::FullPanelledBodySettings::panelSettingsList_, R"doc(
         List of individual body panel settings on the body.

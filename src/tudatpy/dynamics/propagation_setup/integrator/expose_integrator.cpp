@@ -804,7 +804,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  IntegratorStepSizeControlSettings
      Object containing settings for per-element step-size control.
 
-
  Examples
  --------
  In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
@@ -878,7 +877,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
      )
      ...
 
-
      )doc" );
 
     m.def( "step_size_control_blockwise_matrix_tolerance",
@@ -899,7 +897,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  different tolerances can be provided for each state block.
 
  If the size of the tolerances used as input differ from one another, or differ from the number of blocks, an exception is thrown
-
 
  .. note::
 
@@ -1002,9 +999,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
          )
      )
      ...
-
-
-
 
      )doc" );
 
@@ -1665,26 +1659,7 @@ IntegratorSettings
     m.def( "euler",
            &tni::eulerSettings< TIME_TYPE >,
            py::arg( "initial_time_step" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false,
-           R"doc(
-
-         Create fixed-step forward Euler integrator settings with ``initial_time_step`` in seconds.
-
-         ``assess_termination_on_minor_steps`` enables termination checks during intermediate evaluations.
-
-         Parameters
-         ----------
-         initial_time_step : Time
-             Initial integration step size, in seconds.
-         assess_termination_on_minor_steps : bool, optional
-             Whether to assess propagation termination at the intermediate integrator stages.
-
-         Returns
-         -------
-         IntegratorSettings
-             Settings for the specified numerical integration method.
-
-      )doc" );
+           py::arg( "assess_termination_on_minor_steps" ) = false );
 
     m.def( "bulirsch_stoer",
            &tni::bulirschStoerIntegratorSettings< TIME_TYPE >,
@@ -1698,47 +1673,7 @@ IntegratorSettings
            py::arg( "assess_termination_on_minor_steps" ) = false,
            py::arg( "safety_factor" ) = 0.7,
            py::arg( "maximum_factor_increase" ) = 10.0,
-           py::arg( "minimum_factor_increase" ) = 0.1,
-           R"doc(
-
-         Create adaptive Bulirsch-Stoer integrator settings.
-
-         ``initial_time_step``, ``minimum_step_size`` and ``maximum_step_size`` are in seconds.
-         ``extrapolation_sequence`` selects the substep sequence and ``maximum_number_of_steps`` limits extrapolation
-         depth. Relative and absolute tolerances control accuracy; ``safety_factor`` and the factor bounds limit step-
-         size adjustments. ``assess_termination_on_minor_steps`` enables intermediate termination checks.
-
-         Parameters
-         ----------
-         initial_time_step : Time
-             Initial integration step size, in seconds.
-         extrapolation_sequence : ExtrapolationMethodStepSequences
-             Sequence of substep counts used for Bulirsch-Stoer extrapolation.
-         maximum_number_of_steps : int
-             Maximum number of extrapolation steps.
-         minimum_step_size : Time
-             Minimum permitted integration step size, in seconds.
-         maximum_step_size : Time
-             Maximum permitted integration step size, in seconds.
-         relative_error_tolerance : float, optional
-             Relative local integration error tolerance.
-         absolute_error_tolerance : float, optional
-             Absolute local integration error tolerance, in the units of the integrated state.
-         assess_termination_on_minor_steps : bool, optional
-             Whether to assess propagation termination at the intermediate integrator stages.
-         safety_factor : Time, optional
-             Safety factor applied when adapting the integration step size.
-         maximum_factor_increase : Time, optional
-             Maximum permitted factor by which an integration step may increase.
-         minimum_factor_increase : Time, optional
-             Minimum permitted factor by which an integration step may change.
-
-         Returns
-         -------
-         IntegratorSettings
-             Settings for the specified numerical integration method.
-
-      )doc" );
+           py::arg( "minimum_factor_increase" ) = 0.1 );
 }
 
 }  // namespace integrator

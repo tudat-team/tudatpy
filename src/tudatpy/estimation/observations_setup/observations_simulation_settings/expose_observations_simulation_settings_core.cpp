@@ -97,12 +97,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
          Parameters
          ----------
          dependent_variable_settings : list[ObservationDependentVariableSettings]
-             Dependent-variable settings to append to the simulation settings. This is a positional argument.
-
-         Returns
-         -------
-         None
-             No return value.
+             Dependent-variable settings to append to the simulation settings.
 
       )doc" )
             .def( "clear_dependent_variables",
@@ -110,11 +105,6 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
                   R"doc(
 
          Remove all observation dependent variables currently configured for this simulation.
-
-         Returns
-         -------
-         None
-             No return value.
 
       )doc" );
     //            .def_property("observable_type",

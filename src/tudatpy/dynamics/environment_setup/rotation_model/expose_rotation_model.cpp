@@ -354,7 +354,6 @@ void expose_rotation_model_setup( py::module& m )
 
      A dedicated API documentation page deriving this mathematical libration model remains to be written.
 
-
  Parameters
  ----------
  central_body_name : str
@@ -367,10 +366,6 @@ void expose_rotation_model_setup( py::module& m )
  -------
  SynchronousRotationModelSettings
      Settings for a synchronous rotation model.
-
-
-
-
 
  Examples
  --------
@@ -387,7 +382,6 @@ void expose_rotation_model_setup( py::module& m )
     # create rotation model settings for target frame and assign to body settings of "Phobos"
     body_settings.get( "Phobos" ).rotation_model_settings = environment_setup.rotation_model.synchronous(
     central_body_name, original_frame, target_frame)
-
 
      )doc" );
 

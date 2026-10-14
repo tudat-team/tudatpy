@@ -68,11 +68,6 @@ void expose_propagation_state_utility_types( py::module& m )
          current_time : float
              Epoch at which to update the model, in seconds since J2000.
 
-         Returns
-         -------
-         None
-             No return value.
-
       )doc" )
             .def_property_readonly( "acceleration",
                                     &AccelerationModel::getAcceleration,

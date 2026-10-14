@@ -133,7 +133,7 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
              Measurements grouped by observable type; each entry contains the link ends and paired lists of measurement vectors and epochs.
          reference_link_end : LinkEndType
              Link end at which the observation epochs are defined.
-         ancillary_settings_per_observatble : dict[ObservableType, ObservationAncillarySimulationSettings], optional
+         ancillary_settings_per_observatble : dict[ObservableType, ObservationAncillarySimulationSettings], default = {}
              Ancillary data for each observable type.
 
          Returns
@@ -213,7 +213,7 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
              Observation epochs in seconds since J2000, paired with the measurement vectors.
          reference_link_end : LinkEndType
              Link end at which the observation epochs are defined.
-         ancillary_settings : ObservationAncillarySimulationSettings, optional
+         ancillary_settings : ObservationAncillarySimulationSettings, default = None
              Optional observable-specific ancillary data.
 
          Returns
