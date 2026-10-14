@@ -133,7 +133,8 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   across the integrated models. The solid-pole reference now pins the original
   2018 chapter and includes an offline scalar colatitude-equation checker; all
   eight unchanged vectors reproduce within 8.67e-19 m against the retained
-  1e-14 m tolerance. Remaining work is relativistic-fixture reproduction plus
+  1e-14 m tolerance; the exact offline command and PDF hash are recorded in
+  ``solid-pole-fixture-reproduction.log``. Remaining work is relativistic-fixture reproduction plus
   final loading and instrument-geometry evidence.
 * Task 11: complete rotation derivatives are integrated with all ten checkpoint
   files unchanged from the tested worktree. Thirteen focused native cases and
@@ -194,8 +195,9 @@ limit remains eight. Earlier workers are stopped and their work is preserved.
   for TDB Time plus a station, with protected derived hooks and model-owned shared
   converters. Atmospheric/ocean-pole migration compiles and removes 156 net lines.
   Native station aggregation retains Time; scalar endpoint handling stays at
-  scalar boundaries. Core compilation and numerical/public-contract regression
-  remain pending. Python record getters now explicitly copy validated records;
+  scalar boundaries. All 14 changed native core translation units compile,
+  including the real loading validator. Numerical/public-contract regression
+  and binding validation remain pending. Python record getters now explicitly copy validated records;
   the ownership regression and other Python-only binding/import checks remain open.
 
 Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
