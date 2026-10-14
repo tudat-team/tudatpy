@@ -112,6 +112,12 @@ Eigen::Vector3d BodyDeformationModel::calculateDisplacement( const Time& tdb,
     return displacement;
 }
 
+Eigen::Vector3d BodyDeformationModel::calculateDisplacement( const Time& tdb, const Eigen::Vector3d& bodyFixedPosition )
+{
+    return calculateDisplacement(
+            tdb, std::make_shared< ground_stations::GroundStationState >( bodyFixedPosition, coordinate_conversions::cartesian_position ) );
+}
+
 Eigen::Vector6d BodyDeformationModel::calculateDisplacementState( const Time& tdb,
                                                                   const std::shared_ptr< ground_stations::GroundStationState > station )
 {
@@ -148,11 +154,6 @@ Eigen::Vector3d BodyDeformationModel::differentiateDisplacement(
         const std::function< void( const double&, const double& ) >& validateInterval ) const
 {
     return differentiateDisplacementAtEpoch< double >( time, displacementDerivativeTimeStep_, displacement, validateInterval );
-}
-
-Time BodyDeformationModel::normalizeScalarTdb( const double tdb ) const
-{
-    return basic_astrodynamics::normalizeScalarTdb( tdb, timeConverter_ );
 }
 
 void BodyDeformationModel::setDisplacementDerivativeTimeStep( const double timeStep )

@@ -46,6 +46,11 @@ public:
 
     //! Body-fixed Cartesian displacement in metres at the supplied precise TDB epoch.
     Eigen::Vector3d calculateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station );
+
+    //! Displacement in metres of a site given only by its body-fixed Cartesian position (existing interface).
+    //! Models that need a station identifier, such as ocean tide loading, cannot evaluate this.
+    Eigen::Vector3d calculateDisplacement( const Time& tdb, const Eigen::Vector3d& bodyFixedPosition );
+
     //! Displacement and its d/dTDB velocity, in metres and metres per second.
     //! Position evaluation remains independent of rate availability.
     Eigen::Vector6d calculateDisplacementState( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station );
@@ -74,8 +79,6 @@ protected:
                                                const std::function< Eigen::Vector3d( const double& ) >& displacement,
                                                const std::function< void( const double&, const double& ) >& validateInterval ) const;
     virtual void validateDisplacementDerivativeInterval( const Time&, const Time& ) const {}
-    //! Used only when a station is queried with double, never with precise Time.
-    virtual Time normalizeScalarTdb( double tdb ) const;
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter_;
 
@@ -107,19 +110,7 @@ public:
     {
         return evaluateMotion< true >( tdb, station );
     }
-    Eigen::Vector6d getBodyFixedStationMotion( double tdb,
-                                               const std::shared_ptr< GroundStationState > station,
-                                               const std::string& origin = "" ) override
-    {
-        return evaluateMotion< true >( tdb, station );
-    }
     Eigen::Vector3d getBodyFixedStationPositionCorrection( const Time& tdb,
-                                                           const std::shared_ptr< GroundStationState > station,
-                                                           const std::string& origin = "" ) override
-    {
-        return evaluateMotion< false >( tdb, station );
-    }
-    Eigen::Vector3d getBodyFixedStationPositionCorrection( double tdb,
                                                            const std::shared_ptr< GroundStationState > station,
                                                            const std::string& origin = "" ) override
     {
@@ -128,26 +119,20 @@ public:
 
 private:
     //! Sum selected models, omitting only unavailable position coverage when permitted.
-    template< bool State, typename Epoch >
-    Eigen::Matrix< double, State ? 6 : 3, 1 > evaluateMotion( const Epoch& input, const std::shared_ptr< GroundStationState > station )
+    template< bool State >
+    Eigen::Matrix< double, State ? 6 : 3, 1 > evaluateMotion( const Time& tdb, const std::shared_ptr< GroundStationState > station )
     {
         Eigen::Matrix< double, State ? 6 : 3, 1 > result = Eigen::Matrix < double, State ? 6 : 3, 1 > ::Zero( );
-        if( !std::isfinite( static_cast< double >( input ) ) )
-            throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
+        if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
         if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
         const auto& models = modelList_( );
         std::vector< bool > selected( models.size( ), false );
         for( std::size_t i = 0; i < models.size( ); ++i )
         {
             const auto& model = models[ i ];
-            Time tdb;
             Eigen::Vector3d displacement;
             try
             {
-                if constexpr( std::is_same< Epoch, double >::value )
-                    tdb = model->normalizeScalarTdb( input );
-                else
-                    tdb = input;
                 if( !State || !throwExceptionWhenNotAvailable_ ) displacement = model->evaluateDisplacement( tdb, station );
             }
             catch( const std::out_of_range& )

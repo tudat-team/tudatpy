@@ -1,6 +1,5 @@
 #include "expose_ocean_loading.h"
 
-#include <sstream>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
 
@@ -53,14 +52,6 @@ void expose_ocean_loading( pybind11::module& module )
                 py::overload_cast< const std::string& >( &io::readOceanLoadingData ),
                 py::arg( "file_path" ),
                 "Read validated BLQ data, preserving provider units, headers, station identifiers and origin declarations." );
-    module.def(
-            "read_ocean_loading_data_text",
-            []( const std::string& text, const std::string& source ) {
-                std::istringstream stream( text );
-                return io::readOceanLoadingData( stream, source );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>" );
     py::class_< io::OceanPoleTideGrid >( module,
                                          "OceanPoleTideGrid",
                                          "Dimensionless ocean pole-load grid: longitude-fast nodes, radial/north/east rows and "
@@ -82,14 +73,6 @@ void expose_ocean_loading( pybind11::module& module )
             py::overload_cast< const std::string& >( &io::readOceanPoleTideGrid ),
             py::arg( "file_path" ),
             "Read an IERS plain-text ocean pole-load grid; decompress .gz files before reading. No interpolation or origin conversion." );
-    module.def(
-            "read_ocean_pole_tide_grid_text",
-            []( const std::string& text, const std::string& source ) {
-                std::istringstream stream( text );
-                return io::readOceanPoleTideGrid( stream, source );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>" );
     module.def( "constituent_names", &io::getOceanLoadingConstituentNames );
 }
 

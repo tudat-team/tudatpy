@@ -93,23 +93,6 @@ double taiRateWithRespectToUtc( const Time& utc )
     return 1.0 + driftPerDay / 86400.0;
 }
 
-template< typename Value >
-void requireLegacyStencilInSingleInterval(
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Value > >& interpolator,
-        const double first,
-        const double last )
-{
-    if( !interpolator ) throw std::runtime_error( "Legacy Earth orientation rate requires its daily interpolator" );
-    const auto type = interpolator->getInterpolatorType( );
-    if( type != interpolators::linear_interpolator && type != interpolators::discrete_jump_linear_interpolator &&
-        type != interpolators::cubic_spline_interpolator && type != interpolators::hermite_spline_interpolator &&
-        type != interpolators::lagrange_interpolator && type != interpolators::piecewise_constant_interpolator )
-        throw std::runtime_error( "Unsupported legacy Earth orientation interpolator rate" );
-    const auto nodes = interpolator->getIndependentValues( );
-    if( nodes.size( ) < 2 || first <= nodes.front( ) || last >= nodes.back( ) ||
-        std::lower_bound( nodes.begin( ), nodes.end( ), first ) != std::upper_bound( nodes.begin( ), nodes.end( ), last ) )
-        throw std::runtime_error( "Legacy Earth orientation rate stencil touches an interpolation knot or coverage boundary" );
-}
 }  // namespace
 
 Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAnglesAndRates& orientation )
@@ -148,104 +131,92 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAngle
     return dq * spin * w + spinRate * q * generatorZ * spin * w + q * spin * dw;
 }
 
-EarthOrientationAnglesAndRates EarthOrientationAnglesCalculator::getRotationAnglesAndRatesFromItrsToGcrs(
-        const double input,
-        const basic_astrodynamics::TimeScales scale )
-{
-    return calculateRates( getRotationAnglesAndTimesFromItrsToGcrs( input, scale ), scale, Time( input ) );
-}
-
-EarthOrientationAnglesAndRates EarthOrientationAnglesCalculator::getRotationAnglesAndRatesFromItrsToGcrs(
+// Return angles and Time-valued TAI/TT/UT1 epochs for the requested input time.
+EarthOrientationAngles EarthOrientationAnglesCalculator::getRotationAnglesAndTimesFromItrsToGcrs(
         const Time& input,
         const basic_astrodynamics::TimeScales scale )
 {
-    return calculateRates( getRotationAnglesAndTimesFromItrsToGcrs( input, scale ), scale, input );
-}
+    EarthOrientationAngles result;
 
-EarthOrientationAnglesAndRates EarthOrientationAnglesCalculator::calculateRates( const EarthOrientationAngles& orientation,
-                                                                                 const basic_astrodynamics::TimeScales inputScale,
-                                                                                 const Time& input )
-{
-    using namespace basic_astrodynamics;
-    EarthOrientationAnglesAndRates result;
-    static_cast< EarthOrientationAngles& >( result ) = orientation;
     if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
     {
-        const auto ut1 = terrestrialTimeScaleConverter_->getUt1FromTaiWithRate( result.tai );
-        const auto polarEvaluator = polarMotionCalculator_->getEarthOrientationDataEvaluator( );
-        const auto cpoEvaluator = precessionNutationCalculator_->getEarthOrientationDataEvaluator( );
-        if( !polarEvaluator || !cpoEvaluator ) throw std::runtime_error( "Inconsistent continuous Earth orientation models" );
-        const auto polar = polarEvaluator->evaluate( result.tai );
-        const auto cpo = cpoEvaluator->evaluate( result.tai, true );
-        if( !polar.polarMotionRate || !cpo.celestialPoleOffsetRate )
-            throw std::runtime_error( "Selected polar motion or celestial pole interpolation rate is unavailable" );
-        const auto nominal = precessionNutationCalculator_->getNominalPositionAndRate( result.tt );
-        result.angleRates.head< 3 >( ) = nominal.second;
-        result.angleRates.head< 2 >( ) += *cpo.celestialPoleOffsetRate;
-        result.angleRates.tail< 2 >( ) = *polar.polarMotionRate;
-        const auto shortPeriodPolar = polarMotionCalculator_->getShortPeriodPolarMotionCalculator( );
-        if( shortPeriodPolar )
-            result.angleRates.tail< 2 >( ) +=
-                    calculateShortPeriodCorrectionRate< Eigen::Vector2d >( shortPeriodPolar, result.tt, result.ut1, ut1.dUt1DTai );
-        result.dTaiDInput = 1.0;
-        switch( inputScale )
-        {
-            case tai_scale:
-            case tt_scale:
-                break;
-            case ut1_scale:
-                result.dTaiDInput = 1.0 / ut1.dUt1DTai;
-                break;
-            case tdb_scale:
-                result.dTaiDInput = terrestrialTimeScaleConverter_->getGeocentricTtRateWithRespectToTdb( input );
-                break;
-            case utc_scale:
-                result.dTaiDInput = taiRateWithRespectToUtc( input );
-                break;
-            default:
-                throw std::runtime_error( "Unknown Earth rotation input time scale" );
-        }
-        result.dTtDInput = result.dTaiDInput;
-        result.dUt1DInput = ut1.dUt1DTai * result.dTaiDInput;
-        result.angleRates *= result.dTaiDInput;
+        // Clock epochs are formed in Time; TT gives the celestial model and UT1 the sidereal angle.
+        result.tai = terrestrialTimeScaleConverter_->getTaiTime( scale, input );
+        result.tt = basic_astrodynamics::convertTAItoTT( result.tai );
+        result.ut1 = terrestrialTimeScaleConverter_->getUt1FromTai( result.tai );
+
+        const Eigen::Vector6d arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+                static_cast< double >( result.tt ), static_cast< double >( result.tt ), static_cast< double >( result.ut1 ) );
+
+        result.angles.head< 3 >( ) =
+                precessionNutationCalculator_->getPositionOfCipInGcrsFromTai( static_cast< double >( result.tt ), result.tai );
+        result.angles.tail< 2 >( ) = polarMotionCalculator_->getPositionOfCipInItrsFromTai( result.tai, arguments );
     }
     else
     {
-        // The legacy constructor may use arbitrary interpolators and approximate
-        // clock inverses. Differentiate exactly that supplied position path, only
-        // on a stencil inside a single daily interpolation interval and UTC era.
-        constexpr double h = 32.0;
-        if( static_cast< double >( result.tai ) < ( 41317.0 - 51544.5 ) * 86400.0 + 10.0 )
-            throw std::runtime_error( "Legacy Earth rotation rates before 1972 are unsupported; use continuous EOP" );
-        const auto first = getRotationAnglesAndTimesFromItrsToGcrs( input - 2.0 * h, inputScale );
-        const auto last = getRotationAnglesAndTimesFromItrsToGcrs( input + 2.0 * h, inputScale );
-        const Time firstUtc = EarthOrientationDataEvaluator::convertTaiToScalarUtc( first.tai );
-        const Time lastUtc = EarthOrientationDataEvaluator::convertTaiToScalarUtc( last.tai );
-        if( std::abs( static_cast< double >( ( last.tai - lastUtc ) - ( first.tai - firstUtc ) ) ) > 1e-12 )
-            throw std::runtime_error( "Legacy Earth rotation rate stencil crosses a UTC discontinuity" );
-        requireLegacyStencilInSingleInterval( polarMotionCalculator_->getDailyIersValueInterpolator( ),
-                                              static_cast< double >( firstUtc ),
-                                              static_cast< double >( lastUtc ) );
-        requireLegacyStencilInSingleInterval( precessionNutationCalculator_->getDailyCorrectionInterpolator( ),
-                                              static_cast< double >( firstUtc ),
-                                              static_cast< double >( lastUtc ) );
-        requireLegacyStencilInSingleInterval( terrestrialTimeScaleConverter_->getDailyUtcUt1CorrectionInterpolator( ),
-                                              static_cast< double >( firstUtc ),
-                                              static_cast< double >( lastUtc ) );
-        if( precessionNutationCalculator_->getNominalCipInterpolator( ) )
-            requireLegacyStencilInSingleInterval( precessionNutationCalculator_->getNominalCipInterpolator( ),
-                                                  static_cast< double >( first.tt ),
-                                                  static_cast< double >( last.tt ) );
-        const auto before = getRotationAnglesAndTimesFromItrsToGcrs( input - h, inputScale );
-        const auto after = getRotationAnglesAndTimesFromItrsToGcrs( input + h, inputScale );
-        result.angleRates = ( 8.0 * ( after.angles - before.angles ) - ( last.angles - first.angles ) ) / ( 12.0 * h );
-        result.dTtDInput =
-                ( 8.0 * static_cast< double >( after.tt - before.tt ) - static_cast< double >( last.tt - first.tt ) ) / ( 12.0 * h );
-        result.dTaiDInput = result.dTtDInput;
-        result.dUt1DInput =
-                ( 8.0 * static_cast< double >( after.ut1 - before.ut1 ) - static_cast< double >( last.ut1 - first.ut1 ) ) / ( 12.0 * h );
-        getRotationAnglesAndTimesFromItrsToGcrs( input, inputScale );
+        // Models with custom daily interpolators use their own clock conversion.
+        const auto angles = getRotationAnglesFromItrsToGcrs< Time >( input, scale );
+
+        result.tt = terrestrialTimeScaleConverter_->getCurrentTime< Time >( scale, basic_astrodynamics::tt_scale, input );
+        result.tai = basic_astrodynamics::convertTTtoTAI( result.tt );
+        result.angles = angles.first;
+        result.ut1 = angles.second;
     }
+    return result;
+}
+
+// Return angles and their derivatives with respect to the input scale's seconds.
+EarthOrientationAnglesAndRates EarthOrientationAnglesCalculator::getRotationAnglesAndRatesFromItrsToGcrs(
+        const Time& input,
+        const basic_astrodynamics::TimeScales inputScale )
+{
+    using namespace basic_astrodynamics;
+
+    // Rates differentiate the selected daily EOP interpolant, which custom-interpolator models do not provide.
+    if( !terrestrialTimeScaleConverter_->usesContinuousEop( ) )
+    {
+        throw std::runtime_error( "Earth orientation rates require a model constructed from EOP data" );
+    }
+
+    EarthOrientationAnglesAndRates result;
+    static_cast< EarthOrientationAngles& >( result ) = getRotationAnglesAndTimesFromItrsToGcrs( input, inputScale );
+    const auto ut1 = terrestrialTimeScaleConverter_->getUt1FromTaiWithRate( result.tai );
+    const auto polarEvaluator = polarMotionCalculator_->getEarthOrientationDataEvaluator( );
+    const auto cpoEvaluator = precessionNutationCalculator_->getEarthOrientationDataEvaluator( );
+    if( !polarEvaluator || !cpoEvaluator ) throw std::runtime_error( "Inconsistent continuous Earth orientation models" );
+    const auto polar = polarEvaluator->evaluate( result.tai );
+    const auto cpo = cpoEvaluator->evaluate( result.tai, true );
+    if( !polar.polarMotionRate || !cpo.celestialPoleOffsetRate )
+        throw std::runtime_error( "Selected polar motion or celestial pole interpolation rate is unavailable" );
+    const auto nominal = precessionNutationCalculator_->getNominalPositionAndRate( result.tt );
+    result.angleRates.head< 3 >( ) = nominal.second;
+    result.angleRates.head< 2 >( ) += *cpo.celestialPoleOffsetRate;
+    result.angleRates.tail< 2 >( ) = *polar.polarMotionRate;
+    const auto shortPeriodPolar = polarMotionCalculator_->getShortPeriodPolarMotionCalculator( );
+    if( shortPeriodPolar )
+        result.angleRates.tail< 2 >( ) +=
+                calculateShortPeriodCorrectionRate< Eigen::Vector2d >( shortPeriodPolar, result.tt, result.ut1, ut1.dUt1DTai );
+    result.dTaiDInput = 1.0;
+    switch( inputScale )
+    {
+        case tai_scale:
+        case tt_scale:
+            break;
+        case ut1_scale:
+            result.dTaiDInput = 1.0 / ut1.dUt1DTai;
+            break;
+        case tdb_scale:
+            result.dTaiDInput = terrestrialTimeScaleConverter_->getGeocentricTtRateWithRespectToTdb( input );
+            break;
+        case utc_scale:
+            result.dTaiDInput = taiRateWithRespectToUtc( input );
+            break;
+        default:
+            throw std::runtime_error( "Unknown Earth rotation input time scale" );
+    }
+    result.dTtDInput = result.dTaiDInput;
+    result.dUt1DInput = ut1.dUt1DTai * result.dTaiDInput;
+    result.angleRates *= result.dTaiDInput;
     if( !result.angleRates.allFinite( ) || !std::isfinite( result.dTaiDInput ) || !std::isfinite( result.dUt1DInput ) ||
         result.dTaiDInput <= 0.0 || result.dUt1DInput <= 0.0 )
         throw std::runtime_error( "Invalid Earth orientation rate" );

@@ -1068,24 +1068,29 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "target_frame" ),
            R"doc(Transform a moving state through the explicitly pinned IGN ITRF2014 hub table. Epoch is the existing uniform Julian-year seconds since J2000 (year=2000+epoch/31557600), not a calendar-decimal-year or TDB conversion. Position and velocity use the requested-epoch affine matrix and exact derivative; inverse uses the actual matrix inverse. Equal realizations return identity. Use astro.frame_conversion.TerrestrialFrameTransformationModel for explicitly selected current ITRF2020 parameters and supplied decimal-year coordinates and rates.)doc" );
 
-    m.def( "add_ground_station",
-           py::overload_cast< const std::shared_ptr< tss::Body >,
-                              const std::string,
-                              const Eigen::Vector3d,
-                              const tcc::PositionElementTypes,
-                              const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >( &tss::createGroundStation ),
-           py::arg( "body" ),
-           py::arg( "ground_station_name" ),
-           py::arg( "ground_station_position" ),
-           py::arg( "position_type" ) = tcc::cartesian_position,
-           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
+    m.def(
+            "add_ground_station",
+            []( const std::shared_ptr< tss::Body > body,
+                const std::string& groundStationName,
+                const Eigen::Vector3d& groundStationPosition,
+                const tcc::PositionElementTypes positionType,
+                const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >& stationMotionSettings ) {
+                tss::createGroundStation( body, groundStationName, groundStationPosition, positionType, stationMotionSettings );
+            },
+            py::arg( "body" ),
+            py::arg( "ground_station_name" ),
+            py::arg( "ground_station_position" ),
+            py::arg( "position_type" ) = tcc::cartesian_position,
+            py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
 
-    m.def( "add_ground_station",
-           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::GroundStationSettings > >(
-                   &tss::createGroundStation ),
-           py::arg( "body" ),
-           py::arg( "ground_station_settings" ),
-           R"doc(No documentation found.)doc" );
+    m.def(
+            "add_ground_station",
+            []( const std::shared_ptr< tss::Body > body, const std::shared_ptr< tss::GroundStationSettings > groundStationSettings ) {
+                tss::createGroundStation( body, groundStationSettings );
+            },
+            py::arg( "body" ),
+            py::arg( "ground_station_settings" ),
+            R"doc(No documentation found.)doc" );
 
     m.def( "add_ground_station",
            py::overload_cast< const std::shared_ptr< tss::Body >,

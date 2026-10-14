@@ -269,8 +269,7 @@ public:
         // Existing constructors with user-supplied UTC interpolators remain supported.
         // Refresh all cached clocks for this epoch; updating TT alone can leave an old UT1 value.
         terrestrialTimeScaleConverter_->updateTimes< TimeType >( timeScale, timeValue, Eigen::Vector3d::Zero( ), true );
-        terrestrialTime =
-                terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
+        terrestrialTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
         ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::ut1_scale, timeValue );
         TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
                 timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
@@ -315,59 +314,14 @@ public:
     }
 
     //! Return angles and Time-valued TAI/TT/UT1 epochs for the requested input time.
-    //! For double input at the first/last EOP observation, recognize that double
-    //! sample time before converting to Time, so rounding cannot move it outside coverage.
-    template< typename TimeType >
     EarthOrientationAngles getRotationAnglesAndTimesFromItrsToGcrs(
-            const TimeType& timeValue,
-            const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
-    {
-        // Store converted epochs as Time independently of the public return type.
-        EarthOrientationAngles result;
-
-        if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
-        {
-            // Recognize scalar observation times before any conversion to Time.
-            result.tai = terrestrialTimeScaleConverter_->getTaiTime( timeScale, timeValue );
-            result.tt = basic_astrodynamics::convertTAItoTT( result.tai );
-            result.ut1 = terrestrialTimeScaleConverter_->getUt1FromTai( result.tai );
-
-            // Use TT for the celestial model and UT1 for the sidereal angle.
-            const Eigen::Vector6d arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
-                    static_cast< double >( result.tt ), static_cast< double >( result.tt ), static_cast< double >( result.ut1 ) );
-
-            const Eigen::Vector3d celestial =
-                    precessionNutationCalculator_->getPositionOfCipInGcrsFromTai( static_cast< double >( result.tt ), result.tai );
-
-            const Eigen::Vector2d polar = polarMotionCalculator_->getPositionOfCipInItrsFromTai( result.tai, arguments );
-
-            result.angles.head< 3 >( ) = celestial;
-            result.angles.tail< 2 >( ) = polar;
-        }
-        else
-        {
-            // The existing precise legacy wrapper keeps its Time-valued custom-clock route.
-            const Time input( timeValue );
-
-            const auto angles = getRotationAnglesFromItrsToGcrs< Time >( input, timeScale );
-
-            result.tt = terrestrialTimeScaleConverter_->getCurrentTime< Time >( timeScale, basic_astrodynamics::tt_scale, input );
-            result.tai = basic_astrodynamics::convertTTtoTAI( result.tt );
-            result.angles = angles.first;
-            result.ut1 = angles.second;
-        }
-        return result;
-    }
+            const Time& timeValue,
+            const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
 
     //! Return angles and their derivatives with respect to the input scale's seconds.
     //! Models constructed from EOP data differentiate the selected daily interpolant, using the
     //! right-hand interval at a sample and the left-hand interval at the final sample.
-    //! Existing custom-interpolator models use a 32 s five-point stencil. Rates
-    //! are unavailable across UTC jumps, interpolation samples or coverage limits,
-    //! and before 1972; position evaluation remains supported there.
-    EarthOrientationAnglesAndRates getRotationAnglesAndRatesFromItrsToGcrs(
-            const double timeValue,
-            const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
+    //! Models constructed from custom daily interpolators provide positions only.
     EarthOrientationAnglesAndRates getRotationAnglesAndRatesFromItrsToGcrs(
             const Time& timeValue,
             const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
@@ -400,9 +354,6 @@ public:
     }
 
 private:
-    EarthOrientationAnglesAndRates calculateRates( const EarthOrientationAngles& orientation,
-                                                   const basic_astrodynamics::TimeScales inputScale,
-                                                   const Time& input );
     //! Pointer to object for calculating position of pole in ITRS (polarm motion).
     /*!
      *  Pointer to object for calculating position of pole in ITRS (polarm motion).

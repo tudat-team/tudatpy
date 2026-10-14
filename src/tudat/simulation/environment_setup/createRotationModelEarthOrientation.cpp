@@ -27,13 +27,6 @@ namespace simulation_setup
 std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationModel(
         const std::shared_ptr< GcrsToItrsRotationModelSettings >& gcrsToItrsRotationSettings )
 {
-    if( gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) )
-    {
-        throw std::runtime_error(
-                "Strict GCRS/ITRS models do not support short-term EOP interpolation settings: "
-                "short-period corrections must use continuous UT1/TT arguments" );
-    }
-
     // Use supplied observations, or read the requested file without building legacy UTC maps.
     std::shared_ptr< const input_output::EarthOrientationData > data = gcrsToItrsRotationSettings->getEopData( );
 
@@ -47,8 +40,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
             throw std::runtime_error( "Unsupported Earth orientation format: " + formatName );
         }
 
-        const input_output::EarthOrientationFormat format = formatName == "C04" ? input_output::EarthOrientationFormat::c04
-                                                                               : input_output::EarthOrientationFormat::finals2000a;
+        const input_output::EarthOrientationFormat format =
+                formatName == "C04" ? input_output::EarthOrientationFormat::c04 : input_output::EarthOrientationFormat::finals2000a;
 
         data = std::make_shared< input_output::EarthOrientationData >(
                 input_output::readEarthOrientationData( gcrsToItrsRotationSettings->getEopFile( ), format ) );

@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             if( i == 4 )
             {
                 stationMotionSettings.push_back( std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
-                        "", false, ground_stations::unscaled_tcg_to_tcb_station_coordinates ) );
+                        std::vector< std::string >( ), ground_stations::unscaled_tcg_to_tcb_station_coordinates ) );
             }
             stationMotionSettings.push_back( std::make_shared< BodyDeformationStationMotionSettings >( true ) );
 

@@ -131,15 +131,13 @@ public:
     AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideGrid& grid,
                                             const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
         BodyDeformationSettings( gravitation::atmospheric_tide ), data_( grid ), settings_( settings )
-    {
-    }
+    {}
 
     //! Copy station-specific coefficients and their source metadata.
     AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideStationData& stations,
                                             const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
         BodyDeformationSettings( gravitation::atmospheric_tide ), data_( stations ), settings_( settings )
-    {
-    }
+    {}
 
     //! Return the active grid representation; callers must select the matching input format.
     const input_output::AtmosphericTideGrid& getGrid( ) const
@@ -162,9 +160,8 @@ public:
     //! Return whether these settings contain grid or station-specific coefficients.
     AtmosphericTideInputFormat getInputFormat( ) const
     {
-        return std::holds_alternative< input_output::AtmosphericTideGrid >( data_ )
-                ? AtmosphericTideInputFormat::grid
-                : AtmosphericTideInputFormat::stationCoefficients;
+        return std::holds_alternative< input_output::AtmosphericTideGrid >( data_ ) ? AtmosphericTideInputFormat::grid
+                                                                                    : AtmosphericTideInputFormat::stationCoefficients;
     }
 
 private:
@@ -216,8 +213,7 @@ public:
     OceanPoleTideBodyDeformationSettings( const input_output::OceanPoleTideGrid& grid,
                                           const basic_astrodynamics::OceanPoleTideLatitudePolicy policy ):
         BodyDeformationSettings( gravitation::ocean_pole_tide ), grid_( grid ), policy_( policy )
-    {
-    }
+    {}
 
     //! Return the single preloaded provider grid.
     const input_output::OceanPoleTideGrid& getGrid( ) const
@@ -286,7 +282,16 @@ public:
         return synthesis_;
     }
 
+    //! Return the BLQ files from which the data were read (empty for preloaded data).
+    std::vector< std::string > getBlqFiles( )
+    {
+        return blqFiles_;
+    }
+
 protected:
+    //! BLQ files from which the data were read, if any.
+    std::vector< std::string > blqFiles_;
+
     //! BLQ coefficients, including provider headers and per-station source provenance.
     input_output::OceanLoadingData data_;
 

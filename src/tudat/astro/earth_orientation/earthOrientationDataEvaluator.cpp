@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <stdexcept>
+#include <type_traits>
 
 namespace tudat
 {
@@ -57,20 +58,6 @@ EarthOrientationDataEvaluator::EarthOrientationDataEvaluator( const input_output
     {
         validateCubicUt1Monotonicity( );
     }
-}
-
-Time EarthOrientationDataEvaluator::convertTtToTai( const double tt ) const
-{
-    for( const Time& boundary : { getStartTai( ), getEndTai( ) } )
-    {
-        if( tt == static_cast< double >( basic_astrodynamics::convertTAItoTT( boundary ) ) ) return boundary;
-    }
-    return convertTtToTai( Time( tt ) );
-}
-
-Time EarthOrientationDataEvaluator::convertTtToTai( const Time& tt ) const
-{
-    return basic_astrodynamics::convertTTtoTAI( tt );
 }
 
 std::vector< std::size_t > EarthOrientationDataEvaluator::stencil( const std::size_t left ) const
@@ -130,12 +117,17 @@ void EarthOrientationDataEvaluator::validateCubicUt1Monotonicity( ) const
 }
 
 // Evaluate values and selected-interpolant rates from the same two or four observations.
-EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& tai, const bool requireCelestialPole ) const
+EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& requestedTai, const bool requireCelestialPole ) const
 {
-    if( !std::isfinite( static_cast< double >( tai ) ) || tai < epochs_.front( ) || tai > epochs_.back( ) )
+    if( !std::isfinite( static_cast< double >( requestedTai ) ) || requestedTai < epochs_.front( ) - coverageToleranceSeconds ||
+        requestedTai > epochs_.back( ) + coverageToleranceSeconds )
     {
         throw std::runtime_error( data_.source + ": requested epoch outside raw EOP coverage" );
     }
+
+    // An epoch within the coverage tolerance outside the first or last observation (for instance the
+    // rounded double value of that observation's epoch) is evaluated at that observation.
+    const Time tai = std::min( std::max( requestedTai, epochs_.front( ) ), epochs_.back( ) );
 
     // Select the right-hand interval at an exact sample, except at the final sample.
     const auto upper = std::upper_bound( epochs_.begin( ), epochs_.end( ), tai );
@@ -176,11 +168,11 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& t
         const double u = static_cast< double >( tai - epochs_[ left ] ) / duration;
 
         // Node abscissae, value weights and derivative weights in inverse TAI seconds.
-        std::vector< double > x, weight, rate;
+        std::array< double, 4 > x{}, weight{}, rate{};
 
-        for( const auto node : indices )
+        for( std::size_t j = 0; j < indices.size( ); ++j )
         {
-            x.push_back( static_cast< double >( epochs_[ node ] - epochs_[ left ] ) / duration );
+            x[ j ] = static_cast< double >( epochs_[ indices[ j ] ] - epochs_[ left ] ) / duration;
         }
         for( std::size_t j = 0; j < indices.size( ); ++j )
         {
@@ -210,20 +202,23 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& t
                 }
                 derivative += term;
             }
-            weight.push_back( w );
-            rate.push_back( derivative / duration );
+            weight[ j ] = w;
+            rate[ j ] = derivative / duration;
         }
         // Sum differences from the first observation to avoid cancellation of large UTC offsets.
+        // The same sum is used for scalar (double) and vector (Eigen::Vector2d) quantities.
         const auto interpolate = [ &indices, &weight, &rate ]( const auto& get ) {
-            const auto anchor = get( 0 );
+            using Value = std::decay_t< decltype( get( 0 ) ) >;
 
-            auto result = anchor;
+            const Value anchor = get( 0 );
 
-            auto derivative = ( anchor * 0.0 ).eval( );
+            Value result = anchor;
+
+            Value derivative = anchor * 0.0;
 
             for( std::size_t j = 1; j < indices.size( ); ++j )
             {
-                const auto difference = ( get( j ) - anchor ).eval( );
+                const Value difference = get( j ) - anchor;
 
                 result += weight[ j ] * difference;
                 derivative += rate[ j ] * difference;
@@ -231,14 +226,10 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& t
             return std::make_pair( result, derivative );
         };
 
-        // A one-element Eigen vector lets scalar and vector quantities use the
-        // same stable difference-from-anchor sum without large-DAT cancellation.
-        const auto ut1 = interpolate( [ this, &indices ]( std::size_t sample ) {
-            return Eigen::Matrix< double, 1, 1 >::Constant( ut1MinusTai_[ indices[ sample ] ] ).eval( );
-        } );
+        const auto ut1 = interpolate( [ this, &indices ]( std::size_t sample ) { return ut1MinusTai_[ indices[ sample ] ]; } );
 
-        value.ut1MinusTai = ut1.first( 0 );
-        value.ut1MinusTaiRate = ut1.second( 0 );
+        value.ut1MinusTai = ut1.first;
+        value.ut1MinusTaiRate = ut1.second;
         // Polar-motion values are radians and rates are radians per TAI second.
         const auto pm = interpolate( [ &selectedRecords ]( std::size_t sample ) {
             return Eigen::Vector2d( selectedRecords[ sample ]->polarMotion[ 0 ], selectedRecords[ sample ]->polarMotion[ 1 ] );
@@ -256,7 +247,7 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& t
             // Interpolate the measured celestial-pole offsets and their TAI rates together.
             const auto cpo = interpolate( [ &selectedRecords ]( std::size_t sample ) {
                 return Eigen::Vector2d( ( *selectedRecords[ sample ]->celestialPoleOffsets )[ 0 ],
-                                         ( *selectedRecords[ sample ]->celestialPoleOffsets )[ 1 ] );
+                                        ( *selectedRecords[ sample ]->celestialPoleOffsets )[ 1 ] );
             } );
 
             value.celestialPoleOffsets = cpo.first;
@@ -269,9 +260,8 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& t
 
         if( allLod )
         {
-            value.lengthOfDay = interpolate( [ &selectedRecords ]( std::size_t sample ) {
-                                    return Eigen::Matrix< double, 1, 1 >::Constant( *selectedRecords[ sample ]->lengthOfDay ).eval( );
-                                } ).first( 0 );
+            value.lengthOfDay =
+                    interpolate( [ &selectedRecords ]( std::size_t sample ) { return *selectedRecords[ sample ]->lengthOfDay; } ).first;
         }
     }
     if( exactNode )

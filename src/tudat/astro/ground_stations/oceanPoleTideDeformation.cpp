@@ -126,13 +126,6 @@ OceanPoleTideDeformation::OceanPoleTideDeformation( const input_output::OceanPol
     }
 }
 
-OceanPoleTideDeformation::OceanPoleTideDeformation( const std::string& gridFile,
-                                                    const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
-                                                    const OceanPoleTideLatitudePolicy latitudePolicy,
-                                                    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter ):
-    OceanPoleTideDeformation( input_output::readOceanPoleTideGrid( gridFile ), polarMotionCalculator, latitudePolicy, converter )
-{}
-
 //! Evaluate ocean pole-tide displacement at TT using valid nominal geocentric station geometry.
 Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementAtTt(
         const Time& tt,
@@ -152,10 +145,8 @@ Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementAtTt(
     }
     const double radiansPerDegree = mathematical_constants::PI / 180.0;
 
-    const auto coefficients = interpolateValidatedOceanPoleTideCoefficients( grid_,
-                                                                             sphericalPosition.y( ) / radiansPerDegree,
-                                                                             sphericalPosition.z( ) / radiansPerDegree,
-                                                                             latitudePolicy_ );
+    const auto coefficients = interpolateValidatedOceanPoleTideCoefficients(
+            grid_, sphericalPosition.y( ) / radiansPerDegree, sphericalPosition.z( ) / radiansPerDegree, latitudePolicy_ );
 
     const Eigen::Vector2d pole = polarMotionCalculator_->getPositionOfCipInItrsAtTt( tt );
     const Eigen::Vector2d secularPole = earth_orientation::getSecularPolePositionInMas( time ) * ( radiansPerDegree / 3600000.0 );

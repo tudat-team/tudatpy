@@ -13,8 +13,7 @@
 #define TUDAT_TERRESTRIALTIMESCALECONVERTER_H
 
 #include <functional>
-#include <type_traits>
-#include <limits>
+#include <optional>
 #include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
 
 #include "tudat/math/interpolators/createInterpolator.h"
@@ -505,87 +504,11 @@ public:
     //! Selected TT/TDB interpolators retain position conversion but currently have no supported rate.
     double getGeocentricTtRateWithRespectToTdb( const Time& tdb );
 
-    //! Convert the supplied epoch to TAI, always returning Time even for double input.
-    //! The ordinary converter uses this internally so intermediate clock conversions
-    //! and EOP queries keep Time precision. Keep double input recognizable at the
-    //! rounded first/last EOP sample time; precise Time inputs are not adjusted.
-    //! Geocentric TAI/TT/TDB conversions need no EOP data; UT1 uses the selected EOP model.
-    template< typename TimeType >
+    //! Convert an epoch in the given time scale to TAI, without reducing Time precision.
+    //! Geocentric TAI/TT/TDB conversions need no EOP data; UT1 and topocentric TDB use the selected EOP model.
     Time getTaiTime( const basic_astrodynamics::TimeScales inputScale,
-                     const TimeType& input,
-                     const Eigen::Vector3d& position = Eigen::Vector3d::Zero( ) )
-    {
-        Time tai;
-        const Time value( input );
-        switch( inputScale )
-        {
-            case basic_astrodynamics::tai_scale:
-                tai = value;
-                break;
-            case basic_astrodynamics::tt_scale:
-                if( continuousEopData_ )
-                {
-                    if constexpr( std::is_same< TimeType, double >::value )
-                        tai = continuousEopData_->convertTtToTai( input );
-                    else
-                        tai = continuousEopData_->convertTtToTai( value );
-                }
-                else
-                    tai = basic_astrodynamics::convertTTtoTAI( value );
-                break;
-            case basic_astrodynamics::tdb_scale: {
-                if( continuousEopData_ && !position.isZero( 0.0 ) )
-                {
-                    tai = invertContinuousTime( inputScale, value, position, std::is_same< TimeType, double >::value );
-                }
-                else
-                {
-                    Time tt = value;
-                    for( int i = 0; i < 3; ++i ) tt = value - getContinuousTdbMinusTt( tt, position );
-                    tai = basic_astrodynamics::convertTTtoTAI( tt );
-                }
-                break;
-            }
-            case basic_astrodynamics::utc_scale:
-                tai = sofa_interface::convertUTCtoTAI( value );
-                break;
-            case basic_astrodynamics::ut1_scale:
-                if( !continuousEopData_ )
-                {
-                    throw std::runtime_error( "UT1 requires EOP data" );
-                }
-                tai = invertContinuousTime( inputScale, value, position, std::is_same< TimeType, double >::value );
-                break;
-            default:
-                throw std::runtime_error( "Unknown input time scale" );
-        }
-        if constexpr( std::is_same< TimeType, double >::value )
-        {
-            // The rounded double image of an exact atomic endpoint denotes
-            // that endpoint, as for corrected UT1/TDB endpoint inversion.
-            if( continuousEopData_ &&
-                ( inputScale == basic_astrodynamics::tai_scale ||
-                  ( inputScale == basic_astrodynamics::tdb_scale && position.isZero( 0.0 ) ) ) )
-            {
-                for( const Time& boundary : { continuousEopData_->getStartTai( ), continuousEopData_->getEndTai( ) } )
-                {
-                    Time inputBoundary = boundary;
-                    if( inputScale == basic_astrodynamics::tdb_scale )
-                    {
-                        // Candidate filter only: avoid probing distant clock-interpolator epochs.
-                        // Snapping below still requires exact equality to the rounded input image.
-                        const double candidateWindow = std::max(
-                                1e-6, 8.0 * std::numeric_limits< double >::epsilon( ) * std::abs( static_cast< double >( boundary ) ) );
-                        if( std::abs( static_cast< double >( tai - boundary ) ) > candidateWindow ) continue;
-                        const Time tt = basic_astrodynamics::convertTAItoTT( boundary );
-                        inputBoundary = tt + getContinuousTdbMinusTt( tt, position );
-                    }
-                    if( input == static_cast< double >( inputBoundary ) ) tai = boundary;
-                }
-            }
-        }
-        return tai;
-    }
+                     const Time& input,
+                     const Eigen::Vector3d& position = Eigen::Vector3d::Zero( ) );
 
 private:
     //! Selected daily EOP observations for continuous TAI-based conversion.
@@ -598,11 +521,7 @@ private:
     Ut1ValueAndRate evaluateUt1FromTai( const Time& tai, bool requireRate );
 
     //! Invert continuous UT1 or topocentric TDB within the raw TAI observation intervals.
-    //! Exact rounded double endpoint images retain their original observation time.
-    Time invertContinuousTime( basic_astrodynamics::TimeScales inputScale,
-                               const Time& requested,
-                               const Eigen::Vector3d& position,
-                               bool roundedDoubleInput );
+    Time invertContinuousTime( basic_astrodynamics::TimeScales inputScale, const Time& requested, const Eigen::Vector3d& position );
 
     //! Geocentric conversion is EOP-free; a nonzero observer requires covered continuous UT1.
     double getContinuousTdbMinusTt( const Time& tt, const Eigen::Vector3d& position );
@@ -799,13 +718,13 @@ private:
  * \param reuseExistingConverter Reuse a previously created default converter. This option is only used when eopReader is nullptr.
  * \return Default Earth time scales conversion object
  */
-std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader = nullptr,
-                                                                             const bool reuseExistingConverter = true,
-                                                                             const EarthOrientationEvaluationSettings& settings = {} );
+std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter(
+        const std::shared_ptr< EOPReader > eopReader = nullptr,
+        const bool reuseExistingConverter = true,
+        const std::optional< EarthOrientationEvaluationSettings >& settings = std::nullopt );
 
 // static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
 
-//! Convert an epoch between time scales, preserving scalar EOP observation recognition.
 template< typename TimeType >
 TimeType convertTimeScale( const TimeType& inputTime,
                            const basic_astrodynamics::TimeScales inputScale,
@@ -813,19 +732,7 @@ TimeType convertTimeScale( const TimeType& inputTime,
                            const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = createDefaultTimeConverter( ),
                            const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
 {
-    // Models constructed from EOP data retain precise intermediates themselves.
-    // Keep an original double recognizable at the rounded first/last observation.
-    if constexpr( std::is_same< TimeType, double >::value )
-    {
-        if( timeConverter->usesContinuousEop( ) )
-        {
-            return timeConverter->getCurrentTime( inputScale, outputScale, inputTime, earthFixedPosition );
-        }
-    }
-
-    // Preserve the existing Time route for custom converters and other scalar types.
     Time time = Time( inputTime );
-
     return static_cast< TimeType >( timeConverter->getCurrentTime( inputScale, outputScale, time, earthFixedPosition ) );
 }
 

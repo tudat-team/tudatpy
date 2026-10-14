@@ -56,8 +56,7 @@ remain opaque records with source/line provenance and are not evaluated.
 Provider extensions after the standard equipment fields, such as the IGS
 antenna azimuth column, remain available in the original source line.
 
-``read_sinex_station_history_text`` applies the file reader's same validation
-to an in-memory string and accepts a diagnostic source label. Malformed fields,
+Malformed fields,
 nonfinite values, reversed intervals, duplicate Cartesian components, estimate
 counts inconsistent with the header, and truncated blocks raise exceptions with
 source and line information. The declared parameter count remains source
@@ -74,8 +73,6 @@ a SINEX header, fixed-width records, matching block delimiters and ``%ENDSNX``.
 .. currentmodule:: tudatpy.data_input.environment_data.station_history
 
 .. autofunction:: read_sinex_station_history
-
-.. autofunction:: read_sinex_station_history_text
 
 .. autofunction:: validate_sinex_station_history
 

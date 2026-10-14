@@ -124,29 +124,25 @@ public:
 class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
+    BodyCentricToBarycentricGroundStationMotionSettings( const std::vector< std::string >& externalBodyNames,
+                                                         const ground_stations::RelativisticStationCoordinateCompatibility compatibility ):
+        GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), externalBodyNames_( externalBodyNames ),
+        coordinateCompatibility_( compatibility )
+    {}
+
+    //! Existing interface: the potential of one central body (if requested), with unscaled station coordinates.
     BodyCentricToBarycentricGroundStationMotionSettings( const std::string centralBodyName = "Sun",
-                                                         const bool useGeneralRelativisticCorrection = true,
-                                                         const ground_stations::RelativisticStationCoordinateCompatibility compatibility =
-                                                                 ground_stations::unspecified_station_coordinate_compatibility ):
-        GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( centralBodyName ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
-        externalBodyNames_( useGeneralRelativisticCorrection ? std::vector< std::string >{ centralBodyName }
-                                                             : std::vector< std::string >{} ),
-        coordinateCompatibility_( compatibility )
+                                                         const bool useGeneralRelativisticCorrection = true ):
+        BodyCentricToBarycentricGroundStationMotionSettings(
+                useGeneralRelativisticCorrection ? std::vector< std::string >{ centralBodyName } : std::vector< std::string >{},
+                ground_stations::unscaled_tcg_to_tcb_station_coordinates )
     {}
 
-    BodyCentricToBarycentricGroundStationMotionSettings( const ground_stations::RelativisticStationCoordinateCompatibility compatibility,
-                                                         const std::vector< std::string >& externalBodies ):
-        GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( "" ),
-        useGeneralRelativisticCorrection_( !externalBodies.empty( ) ), externalBodyNames_( externalBodies ),
-        coordinateCompatibility_( compatibility )
-    {}
-
-    std::string centralBodyName_;
-    bool useGeneralRelativisticCorrection_;
+    //! Bodies whose potential is evaluated at the host centre; an empty list gives zero external potential.
     std::vector< std::string > externalBodyNames_;
+
+    //! Whether station and global coordinates include TT/TDB rate scaling.
     ground_stations::RelativisticStationCoordinateCompatibility coordinateCompatibility_;
-    bool requireEarthHost_ = false;
 };
 
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
@@ -187,27 +183,26 @@ inline std::shared_ptr< GroundStationMotionSettings > bodyDeformationStationMoti
     return std::make_shared< BodyDeformationStationMotionSettings >( throwExceptionWhenNotAvailable );
 }
 
-//! Generic path requires explicit compatibility; legacy omission is rejected at construction.
+//! IERS 2010 Eq. 11.18/11.19 spatial approximation at the host-centre TDB epoch.
+//! The default maps TT-compatible station coordinates to TDB-compatible coordinates, with a Sun-only external potential.
+inline std::shared_ptr< GroundStationMotionSettings > relativisticStationMotionSettings(
+        const std::vector< std::string >& externalBodyNames = { "Sun" },
+        const ground_stations::RelativisticStationCoordinateCompatibility compatibility = ground_stations::tt_to_tdb_station_coordinates )
+{
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( externalBodyNames, compatibility );
+}
+
+//! Existing interface: the potential of one central body (if requested). Without an explicit compatibility, station
+//! coordinates are unscaled (IERS 2010 Eq. 11.18), as in the original model.
 inline std::shared_ptr< GroundStationMotionSettings > bodycentricToBarycentricStationMotionSettings(
         const std::string centralBodyName = "Sun",
         const bool useGeneralRelativisticCorrection = true,
         const ground_stations::RelativisticStationCoordinateCompatibility compatibility =
-                ground_stations::unspecified_station_coordinate_compatibility )
+                ground_stations::unscaled_tcg_to_tcb_station_coordinates )
 {
-    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
-            centralBodyName, useGeneralRelativisticCorrection, compatibility );
-}
-
-//! Earth IERS spatial approximation: TT-compatible local to TDB-compatible offset.
-//! Uses the geocentre epoch; omits station simultaneity and full-event acceleration terms.
-//! The default external potential is explicitly the Sun-only approximation.
-inline std::shared_ptr< GroundStationMotionSettings > earthRelativisticStationMotionSettings(
-        const std::vector< std::string >& externalBodies = { "Sun" },
-        const ground_stations::RelativisticStationCoordinateCompatibility compatibility = ground_stations::tt_to_tdb_station_coordinates )
-{
-    auto settings = std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( compatibility, externalBodies );
-    settings->requireEarthHost_ = true;
-    return settings;
+    return relativisticStationMotionSettings(
+            useGeneralRelativisticCorrection ? std::vector< std::string >{ centralBodyName } : std::vector< std::string >{},
+            compatibility );
 }
 
 enum WeatherDataSettingsType { dsn_weather_data, estrack_weather_data };
@@ -428,6 +423,8 @@ std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
  * \param groundStationName Name of ground station that is to be created
  * \param groundStationPosition Position of ground station in body-fixed frame
  * \param positionElementType Element type (e.g. Cartesian, spherical, etc.) of groundStationPosition.
+ * \param stationMotionSettings Settings for the time variations of the station position.
+ * \param bodies Environment, required by motion models that use other bodies' ephemerides or gravitational parameters.
  */
 void createGroundStation(
         const std::shared_ptr< Body > body,
@@ -435,15 +432,8 @@ void createGroundStation(
         const Eigen::Vector3d groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position,
         const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-                std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
-
-//! Environment-aware overload for motion models requiring external body ephemerides.
-void createGroundStation( const std::shared_ptr< Body > body,
-                          const std::string groundStationName,
-                          const Eigen::Vector3d groundStationPosition,
-                          const coordinate_conversions::PositionElementTypes positionElementType,
-                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
-                          const SystemOfBodies& bodies );
+                std::vector< std::shared_ptr< GroundStationMotionSettings > >( ),
+        const SystemOfBodies& bodies = SystemOfBodies( ) );
 
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 /*!
@@ -458,10 +448,9 @@ void createGroundStations(
         const std::map< std::pair< std::string, std::string >, Eigen::Vector3d >& groundStationsWithPosition,
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position );
 
-void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings );
 void createGroundStation( const std::shared_ptr< Body > body,
                           const std::shared_ptr< GroundStationSettings > groundStationSettings,
-                          const SystemOfBodies& bodies );
+                          const SystemOfBodies& bodies = SystemOfBodies( ) );
 
 std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList( const std::shared_ptr< Body > body );
 

@@ -16,10 +16,9 @@ namespace simulation_setup
 {
 
 //! Eagerly read BLQ inputs and combine them with the same provenance/duplicate rules as model append operations.
-OceanTideBodyDeformationSettings::OceanTideBodyDeformationSettings(
-        const std::vector< std::string > blqFiles,
-        const basic_astrodynamics::OceanTideSynthesis synthesis ):
-    BodyDeformationSettings( gravitation::ocean_tide ), synthesis_( synthesis )
+OceanTideBodyDeformationSettings::OceanTideBodyDeformationSettings( const std::vector< std::string > blqFiles,
+                                                                    const basic_astrodynamics::OceanTideSynthesis synthesis ):
+    BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles ), synthesis_( synthesis )
 {
     for( const auto& file : blqFiles )
     {

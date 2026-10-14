@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( full_native_station_state_combines_each_deformation_veloci
     {
         const double t = fixture.referenceTdb + offset;
         Eigen::Vector6d deformation = Eigen::Vector6d::Zero( );
-        const Time epoch = normalizeScalarTdb( t, fixture.clock );
+        const Time epoch( t );
         for( const auto& model : fixture.models )
         {
             const auto contribution = model->calculateDisplacementState( epoch, fixture.station );
@@ -170,7 +170,8 @@ BOOST_AUTO_TEST_CASE( full_native_station_state_combines_each_deformation_veloci
                 BOOST_CHECK_SMALL( error, 1e-7 );
             }
             const auto returned = ephemerides::transformStateToTargetFrame< double, double >( inertial, t, rotation );
-            BOOST_CHECK_SMALL( ( returned.head< 3 >( ) - local.head< 3 >( ) ).norm( ), 4e-9 );
+            // A few units in the last place of a 6400 km position, including the constant base-frame rotation.
+            BOOST_CHECK_SMALL( ( returned.head< 3 >( ) - local.head< 3 >( ) ).norm( ), 8e-9 );
             // The inverse subtracts two ~300 m/s rotational terms to recover
             // a micrometre/s local velocity. Budget matrix/quaternion roundoff
             // against those terms rather than the small recovered result.

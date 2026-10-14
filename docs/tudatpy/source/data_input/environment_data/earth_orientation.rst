@@ -65,8 +65,6 @@ and has no dynamics, estimation, interpolation or SOFA dependency.
 
 .. autofunction:: read_earth_orientation_data
 
-.. autofunction:: read_earth_orientation_data_text
-
 High-frequency tidal coefficients
 ---------------------------------
 
@@ -98,5 +96,3 @@ its selected UT1 series.
 .. autofunction:: get_desai_sibois_2016_eop_data
 
 .. autofunction:: read_high_frequency_eop_data
-
-.. autofunction:: read_high_frequency_eop_data_text

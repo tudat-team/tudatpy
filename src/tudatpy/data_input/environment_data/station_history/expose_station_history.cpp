@@ -1,7 +1,6 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
 #include "expose_station_history.h"
 #include <pybind11/stl.h>
-#include <sstream>
 #include "tudat/io/readSinexStationHistory.h"
 namespace py = pybind11;
 namespace tudatpy
@@ -161,15 +160,6 @@ void expose_station_history( py::module& m )
            py::overload_cast< const std::string& >( &tio::readSinexStationHistory ),
            py::arg( "file_name" ),
            "Read strict fixed-width SINEX station-product histories without constructing a model." );
-    m.def(
-            "read_sinex_station_history_text",
-            []( const std::string& text, const std::string& source ) {
-                std::istringstream stream( text );
-                return tio::readSinexStationHistory( stream, source );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>",
-            "Read SINEX text with the same validation and original-field preservation as the file reader." );
     m.def( "validate_sinex_station_history",
            &tio::validateSinexStationHistory,
            py::arg( "history" ),

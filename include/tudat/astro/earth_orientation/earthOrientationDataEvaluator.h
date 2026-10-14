@@ -49,6 +49,11 @@ public:
     EarthOrientationDataEvaluator( const input_output::EarthOrientationData& data,
                                    const EarthOrientationEvaluationSettings& settings = {} );
 
+    //! Margin (in seconds) by which a requested TAI epoch may lie outside the first or last observation.
+    //! Such an epoch is evaluated at that observation. The margin covers the rounding of an observation
+    //! epoch to double (about 1e-7 s), and changes UT1 by less than 1e-13 s.
+    static constexpr double coverageToleranceSeconds = 1.0E-6;
+
     //! Return observed values and the selected interpolant's rates with respect to TAI seconds.
     EarthOrientationDataValue evaluate( const Time& tai, bool requireCelestialPole = false ) const;
 
@@ -73,10 +78,6 @@ public:
     {
         return settings_;
     }
-    //! Preserve precise TT; only exact rounded double endpoint images denote raw boundaries.
-    Time convertTtToTai( const double tt ) const;
-    Time convertTtToTai( const Time& tt ) const;
-
     //! Scalar UTC cannot uniquely represent an inserted second; throw for it.
     static Time convertTaiToScalarUtc( const Time& tai );
 

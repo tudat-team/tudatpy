@@ -16,13 +16,6 @@ namespace basic_astrodynamics
 //! or short-period correction files. Sharing this converter is not required for precision.
 std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > getGeocentricTimeConverter( );
 
-//! For a double station query equal to the rounded TDB time of the first or last
-//! EOP observation, return that observation's precise TDB time. This prevents
-//! rounding from placing an otherwise valid query just outside EOP coverage.
-//! Reject a double that cannot distinguish the two observation times.
-//! Queries supplied as precise Time never call this function.
-Time normalizeScalarTdb( double tdb, const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter );
-
 //! Validate a closed TT interval for the current Earth models' scalar-UTC phase convention.
 /*!
  * Reject ambiguous scalar UTC samples and UTC offset steps, including steps at either

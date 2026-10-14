@@ -1,5 +1,4 @@
 #include "expose_station_loading.h"
-#include <sstream>
 #include <pybind11/stl.h>
 #include "tudat/io/readStationLoadingData.h"
 
@@ -97,16 +96,6 @@ void expose_station_loading( pybind11::module& module )
                 py::overload_cast< const std::string&, const io::StationLoadingMetadata& >( &io::readEphedispStationLoadingData ),
                 py::arg( "file_path" ),
                 py::arg( "metadata" ) = io::StationLoadingMetadata( ) );
-    module.def(
-            "read_ephedisp_station_loading_data_text",
-            []( const std::string& text, const std::string& source, io::StationLoadingMetadata metadata ) {
-                std::istringstream stream( text );
-                metadata.source = source;
-                return io::readEphedispStationLoadingData( stream, metadata );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>",
-            py::arg( "metadata" ) = io::StationLoadingMetadata( ) );
     module.def( "imls_merra2_atmospheric_loading_metadata",
                 &io::imlsMerra2AtmosphericLoadingMetadata,
                 py::arg( "release" ),

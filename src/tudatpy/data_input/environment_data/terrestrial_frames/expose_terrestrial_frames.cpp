@@ -1,5 +1,4 @@
 #include "expose_terrestrial_frames.h"
-#include <sstream>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
 #include "tudat/io/readTerrestrialFrameTransformationData.h"
@@ -69,16 +68,6 @@ void expose_terrestrial_frames( pybind11::module& module )
                         &io::readTerrestrialFrameTransformationData ),
                 py::arg( "file_path" ),
                 py::arg( "source" ) = io::TerrestrialFrameTransformationSource( ) );
-    module.def(
-            "read_terrestrial_frame_transformation_data_text",
-            []( const std::string& text, const std::string& source, io::TerrestrialFrameTransformationSource provenance ) {
-                std::istringstream stream( text );
-                provenance.source = source;
-                return io::readTerrestrialFrameTransformationData( stream, provenance );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>",
-            py::arg( "provenance" ) = io::TerrestrialFrameTransformationSource( ) );
     module.def( "official_itrf2014_parameters", &io::readOfficialItrf2014TransformationData );
     module.def( "official_itrf2020_parameters", &io::readOfficialItrf2020TransformationData );
 }

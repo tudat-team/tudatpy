@@ -64,14 +64,6 @@ public:
     virtual Eigen::Vector6d getBodyFixedStationMotion( const Time& tdb,
                                                        const std::shared_ptr< GroundStationState > station,
                                                        const std::string& origin ) = 0;
-    //! Scalar TDB input forwards to the Time method unless a model overrides
-    //! it to recognize rounded observation times or preserve a scalar callback.
-    virtual Eigen::Vector6d getBodyFixedStationMotion( double tdb,
-                                                       const std::shared_ptr< GroundStationState > station,
-                                                       const std::string& origin )
-    {
-        return getBodyFixedStationMotion( Time( tdb ), station, origin );
-    }
 
     //! Body-fixed position correction in metres at TDB seconds since J2000.
     //! Models can override this separately so position works when rates are unavailable.
@@ -80,13 +72,6 @@ public:
                                                                    const std::string& origin )
     {
         return getBodyFixedStationMotion( tdb, station, origin ).head< 3 >( );
-    }
-    //! Scalar TDB input forwards to the position-only Time method unless overridden.
-    virtual Eigen::Vector3d getBodyFixedStationPositionCorrection( double tdb,
-                                                                   const std::shared_ptr< GroundStationState > station,
-                                                                   const std::string& origin )
-    {
-        return getBodyFixedStationPositionCorrection( Time( tdb ), station, origin );
     }
 };
 
@@ -144,13 +129,7 @@ public:
 
     Eigen::Vector3d getCartesianPositionInTime( const double secondsSinceEpoch, const std::string& targetFrameOrigin )
     {
-        Eigen::Vector3d position = cartesianPosition_;
-        if( stationMotionModel_ != nullptr )
-        {
-            position +=
-                    stationMotionModel_->getBodyFixedStationPositionCorrection( secondsSinceEpoch, shared_from_this( ), targetFrameOrigin );
-        }
-        return position;
+        return getCartesianPositionInTime( Time( secondsSinceEpoch ), targetFrameOrigin );
     }
 
     //! Function to return the nominal (unperturbed) Cartesian position of the station
@@ -360,8 +339,10 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
 
 struct LinearStationMotionModel : public StationMotionModel {
 public:
-    //! Reference epoch is in TDB seconds since J2000, matching station environment epochs.
-    LinearStationMotionModel( const Eigen::Vector3d& linearVelocity, const double referenceEpoch = 0.0 ):
+    //! Reference epoch is in TDB seconds since J2000, matching station environment epochs. The default value is
+    //! retained from earlier versions for compatibility (note that it is a Julian day number, not seconds).
+    LinearStationMotionModel( const Eigen::Vector3d& linearVelocity,
+                              const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
         linearVelocity_( linearVelocity ), referenceEpoch_( referenceEpoch )
     {}
 
@@ -438,18 +419,7 @@ public:
             const std::function< Eigen::Matrix3d( const Time& ) >& rotationDerivativeFunction,
             const std::vector< RelativisticStationExternalBody >& externalBodies,
             const RelativisticStationCoordinateCompatibility coordinateCompatibility,
-            const double derivativeStep = 32.0,
-            const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
-
-    //! Legacy callbacks remain usable with explicit coordinate compatibility.
-    //! Missing rate callbacks use the guarded, converged numerical fallback.
-    BodyCentricToBarycentricRelativisticStationMotion(
-            const std::function< Eigen::Vector6d( const Time& ) > bodyBarycentricStateFunction,
-            const std::function< Eigen::Vector3d( const Time& ) > centralBodyBarycentricPositionFunction,
-            const std::function< Eigen::Quaterniond( const Time& ) > inertialToBodyFixedRotationFunction,
-            const std::function< double( ) > centralBodyGravitationalParameterFunction,
-            const bool useGeneralRelativisticCorrection,
-            const RelativisticStationCoordinateCompatibility coordinateCompatibility );
+            const double derivativeStep = 32.0 );
 
     Eigen::Vector6d getBodyFixedStationMotion( const Time& time,
                                                const std::shared_ptr< GroundStationState > groundStationState,
@@ -457,13 +427,6 @@ public:
     Eigen::Vector3d getBodyFixedStationPositionCorrection( const Time& time,
                                                            const std::shared_ptr< GroundStationState > groundStationState,
                                                            const std::string& targetFrameOrigin ) override;
-
-    Eigen::Vector6d getBodyFixedStationMotion( double time,
-                                               const std::shared_ptr< GroundStationState > station,
-                                               const std::string& origin ) override;
-    Eigen::Vector3d getBodyFixedStationPositionCorrection( double time,
-                                                           const std::shared_ptr< GroundStationState > station,
-                                                           const std::string& origin ) override;
 
     //! Terminal corrections consume the full intrinsic state, without recursion.
     Eigen::Vector6d correctCompleteLocalState( const Time& time, const Eigen::Vector6d& state, const std::string& targetFrameOrigin );
@@ -474,7 +437,6 @@ public:
     }
 
 private:
-    friend struct CombinedStationMotionModel;
     Eigen::Matrix3d correctionMatrix( const Time& time );
     Eigen::Matrix3d correctionMatrixDerivative( const Time& time );
     double potential( const Time& time );
@@ -485,11 +447,8 @@ private:
     std::function< Eigen::Quaterniond( const Time& ) > inertialToBodyFixedRotationFunction_;
     std::function< Eigen::Matrix3d( const Time& ) > rotationDerivativeFunction_;
     std::vector< RelativisticStationExternalBody > externalBodies_;
-    std::function< Eigen::Vector3d( const Time& ) > legacyExternalPosition_;
-    std::function< double( ) > legacyExternalGm_;
     RelativisticStationCoordinateCompatibility coordinateCompatibility_;
     double derivativeStep_;
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter_;
 };
 
 struct CustomStationMotionModel : public StationMotionModel {
@@ -530,18 +489,7 @@ public:
                                                            const std::shared_ptr< GroundStationState > groundStationState,
                                                            const std::string& targetFrameOrigin ) override;
 
-    Eigen::Vector6d getBodyFixedStationMotion( double time,
-                                               const std::shared_ptr< GroundStationState > station,
-                                               const std::string& origin ) override;
-    Eigen::Vector3d getBodyFixedStationPositionCorrection( double time,
-                                                           const std::shared_ptr< GroundStationState > station,
-                                                           const std::string& origin ) override;
-
 private:
-    template< typename Epoch >
-    Eigen::Vector6d evaluateMotion( const Epoch& time, const std::shared_ptr< GroundStationState > station, const std::string& origin );
-    template< typename Epoch >
-    Eigen::Vector3d evaluatePosition( const Epoch& time, const std::shared_ptr< GroundStationState > station, const std::string& origin );
     void appendModel( const std::shared_ptr< StationMotionModel >& model );
     std::vector< std::shared_ptr< StationMotionModel > > modelList_;
     std::shared_ptr< BodyCentricToBarycentricRelativisticStationMotion > terminalModel_;

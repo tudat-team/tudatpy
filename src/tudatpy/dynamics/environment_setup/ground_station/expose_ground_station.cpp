@@ -71,32 +71,32 @@ void expose_ground_station_setup( py::module& m )
       )doc" )
             .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType );
 
-    m.def( "earth_relativistic_station_motion",
-           &tss::earthRelativisticStationMotionSettings,
+    m.def( "relativistic_station_motion",
+           &tss::relativisticStationMotionSettings,
            py::arg( "external_bodies" ) = std::vector< std::string >{ "Sun" },
            py::arg( "coordinate_compatibility" ) = tudat::ground_stations::tt_to_tdb_station_coordinates,
-           R"doc(IERS 2010 Eq. 11.18/11.19 spatial approximation at the geocentre TDB epoch.
+           R"doc(
 
-The default maps TT-compatible Earth station coordinates to a TDB-compatible
-offset with an explicitly Sun-only external potential. The selected bodies
-exclude Earth. Intrinsic motion/deformations are included before the map.
-This omits station simultaneity and full IAU acceleration terms; it is not a
-complete event map or barycentric-time worldline. Returned velocity differentiates
-this approximation with respect to TDB. Pass the bodies environment to
-environment_setup.add_ground_station when constructing the station.
-)doc" );
+ Function for creating settings for the IERS 2010 relativistic station position correction.
 
-    m.def(
-            "relativistic_station_motion",
-            []( const tudat::ground_stations::RelativisticStationCoordinateCompatibility compatibility,
-                const std::vector< std::string >& externalBodies ) -> std::shared_ptr< tss::GroundStationMotionSettings > {
-                return std::make_shared< tss::BodyCentricToBarycentricGroundStationMotionSettings >( compatibility, externalBodies );
-            },
-            py::arg( "coordinate_compatibility" ),
-            py::arg( "external_bodies" ),
-            R"doc(Generic IERS geocentre-epoch spatial approximation with explicit compatibility
-and external potential bodies. Omits station simultaneity/full-event acceleration
-terms. An empty body list selects zero external potential.)doc" );
+ Implements the spatial approximation of Eqs. 11.18/11.19 of the IERS Conventions 2010 at the host-centre TDB epoch.
+ Intrinsic station motion and deformation are included before the correction is applied. Station simultaneity and
+ full-event acceleration terms are omitted. The returned velocity is the TDB derivative of this approximation.
+ The ground station must be created with the bodies environment (see ``environment_setup.add_ground_station``).
+
+ Parameters
+ ----------
+ external_bodies : list[str], default=["Sun"]
+     Bodies, excluding the station's host body, whose gravitational potential is included. An empty list gives zero external potential.
+ coordinate_compatibility : RelativisticStationCoordinateCompatibility, default=RelativisticStationCoordinateCompatibility.tt_to_tdb
+     Whether TT-compatible station coordinates are mapped to TDB-compatible coordinates (Eq. 11.19), or unscaled coordinates are used (Eq. 11.18).
+
+ Returns
+ -------
+ GroundStationMotionSettings
+     Settings for the relativistic station position correction.
+
+ )doc" );
 
     py::class_< tss::LinearGroundStationMotionSettings,
                 std::shared_ptr< tss::LinearGroundStationMotionSettings >,

@@ -333,15 +333,6 @@ BOOST_AUTO_TEST_CASE( invalid_external_potential_and_unavailable_fallback_rates_
             step );
     const Eigen::Vector3d expectedRate( -6e6 * 30000 * 1e6 * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT, 0, 0 );
     BOOST_CHECK_SMALL( ( precise.correctCompleteLocalState( centre, intrinsic, "SSB" ).tail< 3 >( ) - expectedRate ).norm( ), 1e-15 );
-
-    BodyCentricToBarycentricRelativisticStationMotion legacy(
-            host,
-            []( double ) { return Eigen::Vector3d( 1.5e11, 0, 0 ); },
-            identity,
-            []( ) { return 1e20; },
-            true,
-            unscaled_tcg_to_tcb_station_coordinates );
-    BOOST_CHECK_NO_THROW( legacy.correctCompleteLocalState( 0, Eigen::Vector6d::Ones( ), "SSB" ) );
 }
 
 BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_tdb_rotation )
@@ -349,7 +340,7 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
     using namespace basic_astrodynamics;
     FactoryFixture fixture;
     const Eigen::Vector3d nominal( 4e6, 1e6, 5e6 ), drift( .02, -.01, .03 );
-    const auto settings = simulation_setup::earthRelativisticStationMotionSettings( { "Sun", "Moon" } );
+    const auto settings = simulation_setup::relativisticStationMotionSettings( { "Sun", "Moon" } );
     auto physical = std::make_shared< GroundStationState >( nominal,
                                                             coordinate_conversions::cartesian_position,
                                                             nullptr,
@@ -407,7 +398,7 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
         BOOST_CHECK_NO_THROW( boundStation->getCartesianStateInTime( static_cast< double >( tdb ), "SSB" ) );
         BOOST_CHECK_NO_THROW( boundStation->getCartesianStateInTime( tdb, "SSB" ) );
     }
-    const Time outside = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, eop->getEndTai( ) + 1e-9 );
+    const Time outside = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, eop->getEndTai( ) + 1e-3 );
     BOOST_CHECK_THROW( boundStation->getCartesianPositionInTime( outside, "SSB" ), std::runtime_error );
     BOOST_CHECK_THROW( boundStation->getCartesianStateInTime( outside, "SSB" ), std::runtime_error );
 
@@ -417,7 +408,7 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
                 nominal,
                 coordinate_conversions::cartesian_position,
                 std::vector< std::shared_ptr< simulation_setup::GroundStationMotionSettings > >{
-                        simulation_setup::earthRelativisticStationMotionSettings( names ) } );
+                        simulation_setup::relativisticStationMotionSettings( names ) } );
         simulation_setup::createGroundStation( fixture.earth, bad, fixture.bodies );
     };
     BOOST_CHECK_THROW( makeBadStation( { "Earth" } ), std::invalid_argument );
@@ -483,7 +474,7 @@ BOOST_AUTO_TEST_CASE( body_settings_factory_retains_environment_and_converts_ext
                 "body_settings_site",
                 nominal,
                 coordinate_conversions::cartesian_position,
-                std::vector< std::shared_ptr< GroundStationMotionSettings > >{ earthRelativisticStationMotionSettings( ),
+                std::vector< std::shared_ptr< GroundStationMotionSettings > >{ relativisticStationMotionSettings( ),
                                                                                linearGroundStationMotionSettings( drift, 0 ) } ) );
         const BodyListSettings settings( { { "Earth", earth }, { "Sun", sun } }, "SSB", "GCRS" );
         const auto bodies = createSystemOfBodies( settings );

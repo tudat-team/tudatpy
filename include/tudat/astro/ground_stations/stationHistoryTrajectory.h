@@ -39,10 +39,6 @@ StationHistoryTime getIgnNominalUtcStationTimeFromTdb(
         const Time& tdb,
         std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr,
         bool requireRates = false );
-StationHistoryTime getIgnNominalUtcStationTimeFromTdb(
-        double tdb,
-        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr,
-        bool requireRates = false );
 //! Explicit TAI input; a missing clock rate still permits position evaluation.
 StationHistoryTime getIgnNominalUtcStationTimeFromTai( const Time& tai, std::optional< double > taiRateWithRespectToTdb = std::nullopt );
 StationHistoryTime getIgnNominalUtcStationTime( const input_output::SinexCivilUtc& civil );
@@ -173,7 +169,6 @@ private:
 
     //! Source coordinate conventions and provenance for the owned records.
     StationHistoryMetadata metadata_;
-
 };
 
 //! Explicit profile for IGN's source-index pairing and relaxation-unit convention.

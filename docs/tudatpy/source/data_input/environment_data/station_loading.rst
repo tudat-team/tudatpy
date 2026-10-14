@@ -71,6 +71,4 @@ standard C++17. The reader is compiled in the separately linkable
 
 .. autofunction:: read_ephedisp_station_loading_data
 
-.. autofunction:: read_ephedisp_station_loading_data_text
-
 .. autofunction:: imls_merra2_atmospheric_loading_metadata

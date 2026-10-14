@@ -57,8 +57,6 @@ protected:
     Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
-    Time normalizeScalarTdb( double tdb ) const override;
-
 private:
     struct PreparedGrid {
         std::vector< Time > tai, tdb;
@@ -69,7 +67,10 @@ private:
     Eigen::Vector6d evaluate( const Time& tdb, const Eigen::Vector3d& position, const std::string& stationId, bool withRate ) const;
 
     //! Evaluate one physical TAI interval; the optional velocity is returned per TAI second.
-    Eigen::Vector6d interpolate( const input_output::StationLoadingSite& site, const PreparedGrid& grid, const Time& tdb, bool withRate ) const;
+    Eigen::Vector6d interpolate( const input_output::StationLoadingSite& site,
+                                 const PreparedGrid& grid,
+                                 const Time& tdb,
+                                 bool withRate ) const;
 
     input_output::StationLoadingData data_;
     StationLoadingEvaluationSettings settings_;

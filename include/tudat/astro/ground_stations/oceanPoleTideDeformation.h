@@ -35,10 +35,6 @@ public:
                               const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
                               const OceanPoleTideLatitudePolicy latitudePolicy = OceanPoleTideLatitudePolicy::requireGridCoverage,
                               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr );
-    OceanPoleTideDeformation( const std::string& gridFile,
-                              const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
-                              const OceanPoleTideLatitudePolicy latitudePolicy = OceanPoleTideLatitudePolicy::requireGridCoverage,
-                              const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr );
 
     const input_output::OceanPoleTideGrid& getGrid( ) const
     {

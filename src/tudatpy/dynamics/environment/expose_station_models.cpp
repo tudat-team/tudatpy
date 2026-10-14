@@ -91,9 +91,13 @@ void expose_station_models( py::module& m )
                   py::arg( "post_seismic_terms" ),
                   py::arg( "seasonal_terms" ),
                   py::arg( "metadata" ) )
-            .def( "position", &gs::StationHistoryTrajectory::getPosition, py::arg( "source_time" ),
+            .def( "position",
+                  &gs::StationHistoryTrajectory::getPosition,
+                  py::arg( "source_time" ),
                   "Evaluate absolute Cartesian metres in the frame and origin declared by metadata." )
-            .def( "state", &gs::StationHistoryTrajectory::getState, py::arg( "source_time" ),
+            .def( "state",
+                  &gs::StationHistoryTrajectory::getState,
+                  py::arg( "source_time" ),
                   "Evaluate Cartesian metres and metres per TDB second; source-coordinate rates must be available." )
             .def_property_readonly( "metadata", []( const gs::StationHistoryTrajectory& trajectory ) { return trajectory.getMetadata( ); } )
             .def_property_readonly( "solutions", &gs::StationHistoryTrajectory::getSolutions, py::return_value_policy::copy )
@@ -107,14 +111,7 @@ void expose_station_models( py::module& m )
            py::arg( "tai" ),
            py::arg( "tai_rate_with_respect_to_tdb" ) = py::none( ) );
     m.def( "ign_nominal_utc_station_time_from_tdb",
-           py::overload_cast< const tudat::Time&, std::shared_ptr< tudat::earth_orientation::TerrestrialTimeScaleConverter >, bool >(
-                   &gs::getIgnNominalUtcStationTimeFromTdb ),
-           py::arg( "tdb" ),
-           py::arg( "converter" ) = nullptr,
-           py::arg( "require_rates" ) = false );
-    m.def( "ign_nominal_utc_station_time_from_tdb",
-           py::overload_cast< double, std::shared_ptr< tudat::earth_orientation::TerrestrialTimeScaleConverter >, bool >(
-                   &gs::getIgnNominalUtcStationTimeFromTdb ),
+           &gs::getIgnNominalUtcStationTimeFromTdb,
            py::arg( "tdb" ),
            py::arg( "converter" ) = nullptr,
            py::arg( "require_rates" ) = false );

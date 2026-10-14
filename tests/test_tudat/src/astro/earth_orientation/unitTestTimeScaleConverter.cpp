@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
     const Time startTai = strict->getEarthOrientationDataEvaluator( )->getStartTai( );
     BOOST_CHECK_NO_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai ) );
     BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0 ), std::runtime_error );
-    BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0E-9 ), std::runtime_error );
+    BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0E-3 ), std::runtime_error );
 
     EarthOrientationEvaluationSettings historicalSettings;
     historicalSettings.historicalUt1 = HistoricalUt1Policy::delta_t;

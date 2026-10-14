@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE( continuous_tai_axis_values_slopes_and_exact_coverage )
     BOOST_CHECK_EQUAL( model.getRawData( ).records.begin( )->first, 57752.0 );
     BOOST_CHECK_NO_THROW( model.evaluate( model.getStartTai( ), true ) );
     BOOST_CHECK_NO_THROW( model.evaluate( model.getEndTai( ), true ) );
-    BOOST_CHECK_THROW( model.evaluate( model.getStartTai( ) - 1e-9 ), std::runtime_error );
-    BOOST_CHECK_THROW( model.evaluate( model.getEndTai( ) + 1e-9 ), std::runtime_error );
+    BOOST_CHECK_THROW( model.evaluate( model.getStartTai( ) - 1e-3 ), std::runtime_error );
+    BOOST_CHECK_THROW( model.evaluate( model.getEndTai( ) + 1e-3 ), std::runtime_error );
     const auto before = model.evaluate( leapMidnightTai( ) - 0.5 );
     const auto after = model.evaluate( leapMidnightTai( ) + 0.5 );
     BOOST_CHECK_SMALL( before.ut1MinusTai + 36.4, 1e-13 );
@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE( leap_second_ut1_is_continuous_and_inverse_stays_in_coverag
         BOOST_CHECK_EQUAL( converter.getCurrentTime< double >( ut1_scale, tai_scale, roundedUt1 ), static_cast< double >( tai ) );
     }
     const Time startUt1 = converter.getCurrentTime< Time >( tai_scale, ut1_scale, evaluator->getStartTai( ) );
-    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( ut1_scale, tai_scale, startUt1 - 1e-9 ), std::runtime_error );
-    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( tai_scale, ut1_scale, evaluator->getEndTai( ) + 1e-9 ), std::runtime_error );
+    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( ut1_scale, tai_scale, startUt1 - 1e-3 ), std::runtime_error );
+    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( tai_scale, ut1_scale, evaluator->getEndTai( ) + 1e-3 ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( atomic_conversions_do_not_require_eop_or_missing_cpo )
@@ -150,8 +150,8 @@ BOOST_AUTO_TEST_CASE( strict_topocentric_tdb_endpoint_images_round_trip_without_
     }
     const Time firstTdb = converter.getCurrentTime< Time >( tai_scale, tdb_scale, evaluator->getStartTai( ), station );
     const Time lastTdb = converter.getCurrentTime< Time >( tai_scale, tdb_scale, evaluator->getEndTai( ), station );
-    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( tdb_scale, tai_scale, firstTdb - 1e-9, station ), std::runtime_error );
-    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( tdb_scale, tai_scale, lastTdb + 1e-9, station ), std::runtime_error );
+    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( tdb_scale, tai_scale, firstTdb - 1e-3, station ), std::runtime_error );
+    BOOST_CHECK_THROW( converter.getCurrentTime< Time >( tdb_scale, tai_scale, lastTdb + 1e-3, station ), std::runtime_error );
     BOOST_CHECK_THROW( converter.getCurrentTime< double >( tdb_scale, tai_scale, static_cast< double >( firstTdb ) - 1.0, station ),
                        std::runtime_error );
     BOOST_CHECK_THROW( converter.getCurrentTime< double >( tdb_scale, tai_scale, static_cast< double >( lastTdb ) + 1.0, station ),
@@ -268,8 +268,8 @@ BOOST_AUTO_TEST_CASE( public_rotation_factory_is_continuous_during_the_inserted_
         BOOST_CHECK_EQUAL( converter->getCurrentTime< double >( tdb_scale, tai_scale, static_cast< double >( tdb ), station ),
                            static_cast< double >( endpoint ) );
     }
-    BOOST_CHECK_THROW( earthRotation->getRotationToTargetFrameFromExtendedTime( evaluator->getStartTai( ) - 1e-9 ), std::runtime_error );
-    BOOST_CHECK_THROW( earthRotation->getRotationToTargetFrameFromExtendedTime( evaluator->getEndTai( ) + 1e-9 ), std::runtime_error );
+    BOOST_CHECK_THROW( earthRotation->getRotationToTargetFrameFromExtendedTime( evaluator->getStartTai( ) - 1e-3 ), std::runtime_error );
+    BOOST_CHECK_THROW( earthRotation->getRotationToTargetFrameFromExtendedTime( evaluator->getEndTai( ) + 1e-3 ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( public_factory_obeys_missing_cpo_and_gap_policies_only_when_needed )
@@ -301,17 +301,22 @@ BOOST_AUTO_TEST_CASE( public_factory_obeys_missing_cpo_and_gap_policies_only_whe
     BOOST_CHECK_THROW( rotation->getRotationToTargetFrameFromExtendedTime( gap ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( strict_factory_rejects_legacy_short_period_interpolation_settings )
+BOOST_AUTO_TEST_CASE( factory_accepts_legacy_short_period_interpolation_settings_without_effect )
 {
     auto settings = std::make_shared< simulation_setup::GcrsToItrsRotationModelSettings >(
             iau_2006, "GCRS", "/must-not-read-this-file", tai_scale );
     settings->setEopData( leapData( ) );
+    auto referenceRotation = simulation_setup::createRotationModel( settings, "Earth" );
     settings->setShortTermInterpolatorSettings(
             interpolators::interpolatorGenerationSettings< double >( interpolators::linearInterpolation( ), 0.0, 86400.0, 3600.0 ) );
-    BOOST_CHECK_EXCEPTION(
-            simulation_setup::createRotationModel( settings, "Earth" ), std::runtime_error, []( const std::runtime_error& error ) {
-                return std::string( error.what( ) ).find( "short-term EOP interpolation" ) != std::string::npos;
-            } );
+    auto rotation = simulation_setup::createRotationModel( settings, "Earth" );
+
+    // Short-period corrections are evaluated at the continuous arguments, independently of these settings.
+    const Time epoch = Time( ( 57753.0 - 51544.5 ) * 86400.0 ) + 1234.5;
+    BOOST_CHECK_EQUAL( ( rotation->getRotationToTargetFrameFromExtendedTime( epoch ).toRotationMatrix( ) -
+                         referenceRotation->getRotationToTargetFrameFromExtendedTime( epoch ).toRotationMatrix( ) )
+                               .norm( ),
+                       0.0 );
 }
 
 namespace
@@ -467,44 +472,37 @@ BOOST_AUTO_TEST_CASE( public_rotation_factory_selects_four_point_reference_polic
     BOOST_CHECK_NO_THROW( rotation->getRotationToTargetFrameFromExtendedTime( evaluator->getEndTai( ) ) );
 }
 
-BOOST_AUTO_TEST_CASE( canonical_tt_endpoint_images_preserve_precision_and_strict_polar_coverage )
+BOOST_AUTO_TEST_CASE( rounded_tt_endpoints_use_endpoint_values_and_strict_polar_coverage )
 {
     auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
     PolarMotionCalculator pole( nullptr, nullptr, evaluator );
-    // The scalar TT CPO routes must use the same exact observation time as polar motion.
+    // The scalar TT CPO routes must use the same observation as polar motion.
     PrecessionNutationCalculator celestial( iau_2006, nullptr, nullptr, evaluator );
 
     for( const Time& boundary : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )
     {
+        // The rounded double TT of an end point lies within the coverage tolerance of that end point.
         const Time preciseTt = convertTAItoTT( boundary );
         const double tt = static_cast< double >( preciseTt );
-        BOOST_CHECK_EQUAL( evaluator->convertTtToTai( tt ), boundary );
-        BOOST_CHECK_EQUAL( converter.getTaiTime( tt_scale, tt ), boundary );
-        BOOST_CHECK_SMALL( static_cast< double >( evaluator->convertTtToTai( preciseTt ) - boundary ), 1e-12 );
+        BOOST_CHECK_SMALL( static_cast< double >( converter.getTaiTime( tt_scale, tt ) - boundary ), 1e-6 );
         BOOST_CHECK_SMALL( ( pole.getPositionOfCipInItrsAtTt( tt ) - evaluator->evaluate( boundary ).polarMotion ).norm( ), 1e-20 );
         BOOST_CHECK_SMALL( ( pole.getPositionOfCipInItrsAtTt( preciseTt ) - evaluator->evaluate( boundary ).polarMotion ).norm( ), 1e-20 );
         BOOST_CHECK_SMALL( ( celestial.getPositionOfCipInGcrs( tt ) - celestial.getPositionOfCipInGcrsFromTai( tt, boundary ) ).norm( ),
                            1e-20 );
-        BOOST_CHECK_SMALL( ( celestial.getPositionOfCipInGcrs( tt, 0.0 ) - celestial.getPositionOfCipInGcrsFromTai( tt, boundary ) ).norm( ),
-                           1e-20 );
-        const double outside = std::nextafter( tt,
-                                               boundary == evaluator->getStartTai( ) ? -std::numeric_limits< double >::infinity( )
-                                                                                     : std::numeric_limits< double >::infinity( ) );
-        BOOST_CHECK_THROW( evaluator->evaluate( evaluator->convertTtToTai( outside ) ), std::runtime_error );
+        BOOST_CHECK_SMALL(
+                ( celestial.getPositionOfCipInGcrs( tt, 0.0 ) - celestial.getPositionOfCipInGcrsFromTai( tt, boundary ) ).norm( ), 1e-20 );
+
+        // One millisecond outside the coverage is rejected.
+        const double outside = boundary == evaluator->getStartTai( ) ? tt - 1.0E-3 : tt + 1.0E-3;
+        BOOST_CHECK_THROW( evaluator->evaluate( convertTTtoTAI( Time( outside ) ) ), std::runtime_error );
         BOOST_CHECK_THROW( pole.getPositionOfCipInItrsAtTt( outside ), std::runtime_error );
         BOOST_CHECK_THROW( celestial.getPositionOfCipInGcrs( outside ), std::runtime_error );
         BOOST_CHECK_THROW( celestial.getPositionOfCipInGcrs( outside, 0.0 ), std::runtime_error );
-        BOOST_CHECK_EQUAL( evaluator->convertTtToTai( Time( tt ) ), convertTTtoTAI( Time( tt ) ) );
     }
-    // This exact double image rounds beyond the final TAI endpoint. Giving it as
-    // precise Time denotes that later instant, not the original rounded endpoint.
-    const double finalTt = static_cast< double >( convertTAItoTT( evaluator->getEndTai( ) ) );
-    BOOST_CHECK_GT( static_cast< double >( converter.getTaiTime( tt_scale, Time( finalTt ) ) - evaluator->getEndTai( ) ), 1e-9 );
-    BOOST_CHECK_THROW( pole.getPositionOfCipInItrsAtTt( Time( finalTt ) ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( public_double_atomic_endpoint_images_reach_angles_rotation_and_convenience_methods )
+BOOST_AUTO_TEST_CASE( public_double_atomic_endpoints_reach_angles_rotation_and_convenience_methods )
 {
     auto settings =
             std::make_shared< simulation_setup::GcrsToItrsRotationModelSettings >( iau_2006, "GCRS", "/must-not-read-this-file", tt_scale );
@@ -522,21 +520,20 @@ BOOST_AUTO_TEST_CASE( public_double_atomic_endpoint_images_reach_angles_rotation
         {
             const Time preciseInput = converter->getCurrentTime< Time >( tai_scale, scale, boundary );
             const double input = static_cast< double >( preciseInput );
-            BOOST_CHECK_EQUAL( converter->getTaiTime( scale, input ), boundary );
-            // The free conversion wrapper must retain the original double observation image too.
-            BOOST_CHECK_EQUAL( convertTimeScale( input, scale, tai_scale, converter ), static_cast< double >( boundary ) );
+            // The rounded double input lies within the coverage tolerance of the end point.
+            BOOST_CHECK_SMALL( static_cast< double >( converter->getTaiTime( scale, input ) - boundary ), 1e-6 );
+            BOOST_CHECK_SMALL( convertTimeScale( input, scale, tai_scale, converter ) - static_cast< double >( boundary ), 1e-6 );
             const auto result = angles->getRotationAnglesFromItrsToGcrs< double >( input, scale );
             const auto expected = angles->getRotationAnglesFromItrsToGcrs< Time >( boundary, tai_scale );
             BOOST_CHECK_SMALL( ( result.first - expected.first ).norm( ), 1e-16 );
-            BOOST_CHECK_EQUAL( result.second, static_cast< double >( ut1 ) );
-            BOOST_CHECK_SMALL( converter->getUt1Correction( scale, input ) - static_cast< double >( ut1 - utc ), 1e-15 );
+            BOOST_CHECK_SMALL( result.second - static_cast< double >( ut1 ), 1e-6 );
+            BOOST_CHECK_SMALL( converter->getUt1Correction( scale, input ) - static_cast< double >( ut1 - utc ), 1e-12 );
             BOOST_CHECK_SMALL(
-                    converter->getCurrentTimeDifference( scale, ut1_scale, input ) - static_cast< double >( ut1 - Time( input ) ), 1e-15 );
+                    converter->getCurrentTimeDifference( scale, ut1_scale, input ) - static_cast< double >( ut1 - Time( input ) ), 1e-6 );
             BOOST_CHECK_NO_THROW( angles->getPolarMotionCalculator( )->getPositionOfCipInItrsAtTt(
                     static_cast< double >( convertTAItoTT( boundary ) ) ) );
-            const double outside = std::nextafter( input,
-                                                   boundary == evaluator->getStartTai( ) ? -std::numeric_limits< double >::infinity( )
-                                                                                         : std::numeric_limits< double >::infinity( ) );
+            // One millisecond outside the coverage is rejected by EOP consumers.
+            const double outside = boundary == evaluator->getStartTai( ) ? input - 1.0E-3 : input + 1.0E-3;
             BOOST_CHECK_THROW( angles->getRotationAnglesFromItrsToGcrs< double >( outside, scale ), std::runtime_error );
             BOOST_CHECK_THROW( converter->getUt1Correction( scale, outside ), std::runtime_error );
             // Geocentric clock conversion remains available; only EOP consumers reject it.
@@ -595,8 +592,7 @@ BOOST_AUTO_TEST_CASE( interior_clock_interpolator_does_not_probe_distant_raw_eop
             100.0 );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr, interpolation, evaluator );
     const Time tdb = converter.getCurrentTime< Time >( tai_scale, tdb_scale, tai );
-    // Exact equality is still the only snap criterion; the candidate filter merely
-    // avoids querying endpoint clock values outside this intentionally narrow table.
+    // An interior epoch must not query clock values outside this intentionally narrow table.
     BOOST_CHECK_SMALL( static_cast< double >( converter.getTaiTime( tdb_scale, static_cast< double >( tdb ) ) - tai ), 1e-7 );
     BOOST_CHECK_SMALL( static_cast< double >( converter.getTaiTime( tdb_scale, tdb ) - tai ), 1e-12 );
     BOOST_CHECK_THROW( converter.getTaiTime( tdb_scale, static_cast< double >( tdb ) + 5000.0 ), std::runtime_error );

@@ -55,8 +55,7 @@ public:
     {}
 
     //! Polar motion at a TT epoch. Models constructed from EOP data use TAI without converting through UTC.
-    template< typename TimeType >
-    Eigen::Vector2d getPositionOfCipInItrsAtTt( const TimeType& tt )
+    Eigen::Vector2d getPositionOfCipInItrsAtTt( const Time& tt )
     {
         // SOFA evaluates its harmonic arguments using scalar TT seconds.
         const double ttDouble = static_cast< double >( tt );
@@ -65,9 +64,7 @@ public:
         {
             return getPositionOfCipInItrs( ttDouble, sofa_interface::convertTTtoUTC( ttDouble ) );
         }
-        // Keep double input as double here: the evaluator recognizes the rounded
-        // first/last TT sample times. A precise Time input is never rounded.
-        const Time tai = evaluator_->convertTtToTai( tt );
+        const Time tai = basic_astrodynamics::convertTTtoTAI( tt );
 
         // Use the selected UT1 model when forming the short-period arguments.
         const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + evaluator_->evaluate( tai ).ut1MinusTai;

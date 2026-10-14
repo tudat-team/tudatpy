@@ -481,9 +481,9 @@ void expose_rotation_model_setup( py::module& m )
  for 23:59:60 raises because the scalar UTC interface cannot identify that instant
  uniquely; use continuous atomic time for rotations and UT1.
 
- ``short_term_eop_interpolation_settings`` must be None: short-period corrections
- use continuous UT1/TT arguments directly. CIO and geocentric TDB interpolation
- settings remain supported.
+ Short-period (sub-daily) corrections are evaluated directly at the continuous UT1/TT arguments, so
+ ``short_term_eop_interpolation_settings`` no longer affects the result; it is accepted for compatibility.
+ CIO and geocentric TDB interpolation settings remain supported.
 
  Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010.  The model
  computes the rotation from ITRS to GCRS (with rotation matrix :math:`\mathbf{R}^{(\text{GCRS}/\text{ITRS})}`) and its inverse from:
@@ -513,11 +513,9 @@ void expose_rotation_model_setup( py::module& m )
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
  * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory (for epoch 01-01-1962 and later, zero otherwise)
 
- The supported base frames are ``GCRS``, ``J2000``, ``ICRF``, ``ECLIPJ2000`` and ``EME2000``. The target frame is ``ITRS``.
- ``J2000`` follows the SPICE convention for modern ephemerides, whose axes are already aligned with ICRF. ``GCRS``, ``J2000`` and ``ICRF`` therefore use the same axis orientation in this rotation model.
- ``ECLIPJ2000`` applies only the fixed SPICE rotation from J2000 to its ecliptic axes. ``EME2000`` applies the SOFA frame bias to the dynamical mean equator and equinox at J2000.
-
- This changes the earlier ``J2000`` and ``ECLIPJ2000`` behavior, which applied an additional SOFA frame bias. Use ``EME2000`` when the earlier dynamical mean-J2000 convention is required.
+ The supported base frames are ``GCRS``, ``ICRF``, ``J2000``, ``EME2000`` and ``ECLIPJ2000``. The target frame is ``ITRS``.
+ ``GCRS`` and ``ICRF`` use the GCRS axes. ``J2000`` (and its synonym ``EME2000``) applies the SOFA frame bias between the GCRS and
+ the dynamical mean equator and equinox of J2000. ``ECLIPJ2000`` applies the frame bias followed by the SPICE rotation from J2000 to its ecliptic axes.
  Equal axis orientation does not imply equal origins, time scales or relativistic coordinate scaling; those transformations are outside this rotation model.
 
  Alternative options to modify the input (not exposed here) include the EOP correction file, input time scale, short period UT1 and polar motion variations.
@@ -527,7 +525,7 @@ void expose_rotation_model_setup( py::module& m )
  precession_nutation_theory : IAUConventions, default=tba::iau_2006
      Setting theory for modelling Earth nutation.
  base_frame : str, default='GCRS'
-     Base axes: ``GCRS``, SPICE ``J2000``, ``ICRF``, SPICE ``ECLIPJ2000``, or dynamical ``EME2000``.
+     Base axes: ``GCRS``, ``ICRF``, ``J2000``, ``EME2000`` or ``ECLIPJ2000``.
  Returns
  -------
  GcrsToItrsRotationModelSettings

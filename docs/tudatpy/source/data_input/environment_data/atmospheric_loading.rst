@@ -25,8 +25,6 @@ endpoints remain in the raw grid. They perform no interpolation or synthesis.
 The supported grid has no count header; expected counts additionally detect
 truncation of complete terminal longitude blocks. Malformed, nonfinite,
 incomplete, duplicate or inconsistent data raise with source and line context.
-Text APIs ``read_atmospheric_tide_grid_text`` and
-``read_atmospheric_tide_station_data_text`` accept a source label.
 
 The provider and Bernese manual establish the component labels and units, but
 do not settle the grid latitude convention or whether radial means spherical

@@ -368,7 +368,7 @@ that supports later station-data append in C++; populated records and all header
 Parameters
 ----------
 data : tudatpy.data_input.environment_data.ocean_loading.OceanLoadingData
-    Provider coefficients read by ``read_ocean_loading_data`` or ``read_ocean_loading_data_text``.
+    Provider coefficients read by ``read_ocean_loading_data``.
 synthesis : OceanTideSynthesis, default=OceanTideSynthesis.iers_hardisp
     Expanded IERS 342-constituent synthesis or the explicit legacy convention.
 

@@ -182,7 +182,7 @@ const input_output::StationLoadingSite& StationLoadingDeformation::selectSite( c
 //! Preserve exact source-node positions and optionally differentiate the same linear physical-time interval.
 Eigen::Vector6d StationLoadingDeformation::interpolate( const input_output::StationLoadingSite& site,
                                                         const PreparedGrid& grid,
-                                                        const Time& tdb,
+                                                        const Time& requestedTdb,
                                                         const bool withRate ) const
 {
     if( site.samples.empty( ) )
@@ -190,13 +190,19 @@ Eigen::Vector6d StationLoadingDeformation::interpolate( const input_output::Stat
         throw std::out_of_range( "Loading site has no source samples" );
     }
 
-    // Exact site coverage and source-node lookup stay on the precise TDB axis.
+    // Site coverage and source-node lookup use the precise TDB axis.
     const std::size_t first = site.samples.begin( )->first, last = site.samples.rbegin( )->first;
 
-    if( tdb < grid.tdb[ first ] || tdb > grid.tdb[ last ] )
+    // An epoch less than one microsecond outside the first or last sample (for instance the rounded
+    // double value of that sample's epoch) is evaluated at that sample.
+    const double coverageToleranceSeconds = 1.0E-6;
+
+    if( requestedTdb < grid.tdb[ first ] - coverageToleranceSeconds || requestedTdb > grid.tdb[ last ] + coverageToleranceSeconds )
     {
         throw std::out_of_range( "Loading epoch outside exact site coverage" );
     }
+
+    const Time tdb = std::min( std::max( requestedTdb, grid.tdb[ first ] ), grid.tdb[ last ] );
 
     const auto sourceNode = std::lower_bound( grid.tdb.begin( ) + first, grid.tdb.begin( ) + last + 1, tdb );
 
@@ -303,22 +309,6 @@ Eigen::Vector6d StationLoadingDeformation::evaluateDisplacementState( const Time
                                                                       const std::shared_ptr< ground_stations::GroundStationState > station )
 {
     return evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), true );
-}
-
-Time StationLoadingDeformation::normalizeScalarTdb( const double tdb ) const
-{
-    std::optional< Time > exact;
-    for( const auto* grid : { &grid_, &translationGrid_ } )
-    {
-        const auto found = std::lower_bound( grid->tdb.begin( ), grid->tdb.end( ), tdb, []( const Time& source, double input ) {
-            return static_cast< double >( source ) < input;
-        } );
-        if( found == grid->tdb.end( ) || static_cast< double >( *found ) != tdb ) continue;
-        if( ( found + 1 != grid->tdb.end( ) && static_cast< double >( *( found + 1 ) ) == tdb ) || ( exact && *exact != *found ) )
-            throw std::invalid_argument( "Scalar TDB input cannot distinguish loading source epochs; use precise Time input" );
-        exact = *found;
-    }
-    return exact ? *exact : BodyDeformationModel::normalizeScalarTdb( tdb );
 }
 
 void validateStationLoadingComposition( const std::vector< std::shared_ptr< BodyDeformationModel > >& models,

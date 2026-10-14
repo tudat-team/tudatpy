@@ -11,8 +11,6 @@ remain unspecified. These records do not convert the supplied reference origin.
 
 .. autofunction:: read_ocean_loading_data
 
-.. autofunction:: read_ocean_loading_data_text
-
 .. autofunction:: constituent_names
 
 .. autoclass:: OceanLoadingData
@@ -51,5 +49,3 @@ applies no further geocentre correction.
    :members:
 
 .. autofunction:: read_ocean_pole_tide_grid
-
-.. autofunction:: read_ocean_pole_tide_grid_text

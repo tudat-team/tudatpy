@@ -1,5 +1,4 @@
 #include "expose_atmospheric_loading.h"
-#include <sstream>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
 #include "tudat/io/readAtmosphericTideData.h"
@@ -72,30 +71,10 @@ void expose_atmospheric_loading( pybind11::module& module )
                 py::overload_cast< const std::string&, const io::AtmosphericTideMetadata& >( &io::readAtmosphericTideGrid ),
                 py::arg( "file_path" ),
                 py::arg( "metadata" ) = io::AtmosphericTideMetadata( ) );
-    module.def(
-            "read_atmospheric_tide_grid_text",
-            []( const std::string& text, const std::string& source, io::AtmosphericTideMetadata metadata ) {
-                std::istringstream stream( text );
-                metadata.source = source;
-                return io::readAtmosphericTideGrid( stream, metadata );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>",
-            py::arg( "metadata" ) = io::AtmosphericTideMetadata( ) );
     module.def( "read_atmospheric_tide_station_data",
                 py::overload_cast< const std::string&, const io::AtmosphericTideMetadata& >( &io::readAtmosphericTideStationData ),
                 py::arg( "file_path" ),
                 py::arg( "metadata" ) = io::AtmosphericTideMetadata( ) );
-    module.def(
-            "read_atmospheric_tide_station_data_text",
-            []( const std::string& text, const std::string& source, io::AtmosphericTideMetadata metadata ) {
-                std::istringstream stream( text );
-                metadata.source = source;
-                return io::readAtmosphericTideStationData( stream, metadata );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>",
-            py::arg( "metadata" ) = io::AtmosphericTideMetadata( ) );
 }
 }  // namespace atmospheric_loading
 }  // namespace environment_data

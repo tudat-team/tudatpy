@@ -2,7 +2,6 @@
 #include "tudat/io/readEarthOrientationData.h"
 #include "tudat/io/readHighFrequencyEopData.h"
 #include <pybind11/stl.h>
-#include <sstream>
 namespace py = pybind11;
 namespace tudatpy
 {
@@ -33,14 +32,6 @@ void expose_earth_orientation( py::module& module )
                 py::overload_cast< const std::string& >( &readHighFrequencyEopData ),
                 py::arg( "file_name" ),
                 "Read an IVS 17-column harmonic table; normalize microarcseconds/microseconds to SI units." );
-    module.def(
-            "read_high_frequency_eop_data_text",
-            []( const std::string& text, const std::string& source ) {
-                std::istringstream stream( text );
-                return readHighFrequencyEopData( stream, source );
-            },
-            py::arg( "text" ),
-            py::arg( "source" ) = "<text>" );
     module.def( "get_desai_sibois_2016_eop_data",
                 &getDesaiSibois2016EopData,
                 "Return the pinned 159-term ocean-tide coefficient table, DOI 10.1002/2016JB013125. "
@@ -84,16 +75,6 @@ void expose_earth_orientation( py::module& module )
             py::arg( "file_name" ),
             py::arg( "format" ) = EarthOrientationFormat::c04,
             "Read a C04 or finals2000A Bulletin A file. Optional values remain missing; no interpolation or extrapolation is performed." );
-    module.def(
-            "read_earth_orientation_data_text",
-            []( const std::string& text, const EarthOrientationFormat format, const std::string& source ) {
-                std::istringstream stream( text );
-                return readEarthOrientationData( stream, format, source );
-            },
-            py::arg( "text" ),
-            py::arg( "format" ) = EarthOrientationFormat::c04,
-            py::arg( "source" ) = "<text>",
-            "Read raw EOP text with the same validation and unit normalization as the file reader." );
 }
 }  // namespace earth_orientation
 }  // namespace environment_data
