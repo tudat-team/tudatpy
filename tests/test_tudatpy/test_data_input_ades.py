@@ -5,7 +5,6 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
     _apply_ades_weights_per_night,
 )
 
-import os
 import pandas as pd
 import pytest
 from astropy.table import Table
@@ -14,7 +13,7 @@ from numpy.testing import assert_equal
 from pathlib import Path
 from astropy import units as u
 
-current_dir = os.getcwd()
+current_dir = Path(__file__).resolve().parent
 
 
 # define the path of the file to be saved
@@ -195,7 +194,7 @@ def test_astCat_to_catalog(observations):
     assert result["catalog"].tolist() == ["L", "L", "L", "L"]
 
 
-def test_returns_dataframe_with_note2_column(observations):
+def test_returns_dataframe_with_catalog_column(observations):
     result = parser._astCat_to_catalog(observations.copy())
     assert isinstance(result, pd.DataFrame)
     assert "catalog" in result.columns
@@ -333,7 +332,7 @@ def test_rejects_empty_file_path():
         parser.parse_ades_file("")
 
 
-def test_rejects_unsupported_observation_type(tmp_path):
+def test_returns_empty_table_without_optical_observations(tmp_path):
     path = tmp_path / "unsupported.xml"
     path.write_text(
         """\
@@ -346,11 +345,9 @@ def test_rejects_unsupported_observation_type(tmp_path):
         encoding="utf-8",
     )
 
-    with pytest.raises(
-        ValueError,
-        match="Unsupported observation type: unknownObservation",
-    ):
-        parser.parse_ades_file(str(path))
+    result = parser.parse_ades_file(str(path))
+    assert isinstance(result, Table)
+    assert len(result) == 0
 
 
 # test the ADES weighting scheme application (in optical_utilities.py but implemented as part of the ades parser)

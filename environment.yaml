@@ -48,6 +48,7 @@ dependencies:
   # Pip
   - pip
   - pip:
+     - iau-ades
      - nbsphinx
      - sphinxcontrib-napoleon
      - sphinx_rtd_theme

@@ -4,6 +4,7 @@ import astropy.units as u
 from astroquery.mpc import MPC
 import numpy as np
 import re
+from pathlib import Path
 
 # check these imports - maybe useful for radar??
 from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
@@ -113,10 +114,12 @@ def _first_present_column(df, *names):
     if not names:
         raise ValueError("At least one column name must be provided")
 
+    result = None
     for name in names:
         if name in df.columns:
-            return df[name]
-    return None
+            values = df[name].replace(r"^\s*$", None, regex=True)
+            result = values if result is None else result.fillna(values)
+    return result
 
 
 def _roving_obs_columns(df, result_data):
@@ -308,11 +311,11 @@ def _check_possible_failures(df, obs_kind):
                     raise ValueError(f"Column '{column}' must be convertible to floats")
 
         # check that obsTime is in the right format
-        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,4})?Z"
+        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z"
 
         df["obsTime"] = df["obsTime"].astype("string").str.strip()
         if not df["obsTime"].str.fullmatch(pattern).fillna(False).all():
-            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssss]Z")
+            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssssss]Z")
 
         # check that the station is part of the MPC list (a recognized station code)
         observatories_table = MPC.get_observatory_codes().to_pandas()
@@ -474,9 +477,9 @@ def parse_ades_file(file_path: str):  # -> Table:
     if not file_path:
         raise ValueError("There is no input file")
 
-    if file_path.split(".")[1] == "psv":
+    if Path(file_path).suffix == ".psv":
         # transform the PSV file on XML format and proceed with the XML parser
-        file_path_xml = file_path.split(".")[0] + ".xml"
+        file_path_xml = str(Path(file_path).with_suffix(".xml"))
         # transfrom the psv file to an xml file using the MPC ades functionalities
         # try:
         psvtoxml(file_path, file_path_xml)
@@ -488,26 +491,24 @@ def parse_ades_file(file_path: str):  # -> Table:
     tree = ET.parse(f"{file_path}")
     root = tree.getroot()
 
-    # separate the observations according to their type: optical, radar, offset, occultation
-    # this creates a dictionary with the key = obs_kind and the item = list of rows corresponding to that observation kind
+    # Collect observations, including those outside obsData blocks.
     rows_by_kind = {}
-    for obs_data in root.findall(".//obsData"):
-        for obs_type in obs_data:
-            obs_kind = _tag_name(obs_type)
+    for obs_type in root.iter():
+        obs_kind = _tag_name(obs_type)
 
-            if obs_kind not in {"optical", "radar", "offset", "occultation"}:
-                raise ValueError(f"Unsupported observation type: {obs_kind}")
+        if obs_kind not in {"optical", "radar", "offset", "occultation"}:
+            raise ValueError(f"Unsupported observation type: {obs_kind}")
 
-            # Include direct child fields, e.g. permID, obsTime, ra, dec.
-            row = {_tag_name(child): (child.text or "").strip() for child in obs_type}
+        # Include direct child fields, e.g. permID, obsTime, ra, dec.
+        row = {_tag_name(child): (child.text or "").strip() for child in obs_type}
 
-            rows_by_kind.setdefault(obs_kind, []).append(row)
+        rows_by_kind.setdefault(obs_kind, []).append(row)
 
     for obs_kind, rows in rows_by_kind.items():
 
         df = pd.DataFrame(rows)
 
-        # in creating the previsous dataframe, if one key is missing from the observation element, its value is assigned
+        # in creating the previous dataframe, if one key is missing from the optical element, its value is assigned
         #  to Nan, None or pd.NA - change all of these and all empty strings to None for consistency
         df = df.replace(r"^\s*$", None, regex=True)
         df = df.astype(object).where(pd.notna(df), None)
