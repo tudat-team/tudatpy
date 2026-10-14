@@ -23,6 +23,7 @@
 
 namespace py = pybind11;
 namespace tep = tudat::estimatable_parameters;
+namespace tom = tudat::observation_models;
 namespace tp = tudat::propagators;
 namespace tss = tudat::simulation_setup;
 namespace tba = tudat::basic_astrodynamics;
@@ -130,6 +131,9 @@ void expose_parameters_setup_types( py::module& m )
             .value( "constant_additive_observation_bias_type",
                     tep::EstimatebleParametersEnum::constant_additive_observation_bias,
                     R"doc(Estimatable parameter for constant additive observation bias.)doc" )
+            .value( "shared_observation_bias_type",
+                    tep::EstimatebleParametersEnum::shared_observation_bias,
+                    R"doc(Estimatable parameter for shared observation bias.)doc" )
             .value( "arcwise_constant_additive_observation_bias_type",
                     tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias,
                     R"doc(Estimatable parameter for arc-wise constant additive observation bias.)doc" )
@@ -227,6 +231,9 @@ void expose_parameters_setup_types( py::module& m )
             .value( "rtg_force_vector_type",
                     tep::EstimatebleParametersEnum::rtg_force_vector,
                     R"doc(Estimatable parameter for RTG force vector.)doc" )
+            .value( "area_to_mass_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::area_to_mass_scaling_factor,
+                    R"doc(Estimatable parameter for area-to-mass scaling factor.)doc" )
             .value( "rtg_force_vector_magnitude_type",
                     tep::EstimatebleParametersEnum::rtg_force_vector_magnitude,
                     R"doc(Estimatable parameter for RTG force vector magnitude.)doc" )
@@ -1714,6 +1721,68 @@ EstimatableParameterSettings
 
     // ###############   Observation Model Parameters
     // ################################
+
+    m.def(
+            "shared_observation_bias",
+            // Convert optional Python arguments to the defaults used by the C++ shared-bias factory.
+            []( tom::ObservationBiasTypes biasType,
+                tom::ObservableType observableType,
+                tom::LinkEndType linkEndType,
+                const tom::LinkEndId& linkEndId,
+                const py::object& arcStartTimes,
+                const py::object& timeLinkEnd ) {
+                return tep::sharedObservationBias(
+                        biasType,
+                        observableType,
+                        linkEndType,
+                        linkEndId,
+                        arcStartTimes.is_none( ) ? std::vector< double >( ) : arcStartTimes.cast< std::vector< double > >( ),
+                        timeLinkEnd.is_none( ) ? tom::unidentified_link_end : timeLinkEnd.cast< tom::LinkEndType >( ) );
+            },
+            py::arg( "bias_type" ),
+            py::arg( "observable_type" ),
+            py::arg( "link_end_type" ),
+            py::arg( "link_end_id" ),
+            py::arg( "arc_start_times" ) = py::none( ),
+            py::arg( "time_link_end" ) = py::none( ),
+            R"doc(
+Create one estimatable bias shared by all observation links matching a selector.
+
+Each selected observation model must already contain exactly one bias of the
+requested type, optionally within a combined bias. Initial values must agree
+unless the shared parameter value is explicitly set before its first binding.
+This assignment initializes the first set of models only. Reusing the parameter
+set for another estimator takes initial values from the new model settings;
+updates made while bound, including estimation updates, do not override them.
+A bias component can be owned by only one estimated parameter: overlapping
+ordinary or shared bias parameters are rejected.
+The matching body and reference-point name are both compared exactly.
+
+Parameters
+----------
+bias_type : tudatpy.estimation.observable_models_setup.biases.ObservationBiasTypes
+    Supports constant_absolute_bias, constant_relative_bias, and
+    arc_wise_constant_absolute_bias. Relative biases are component-wise fractions.
+observable_type : ObservableType
+    Observable whose biases are shared.
+link_end_type : LinkEndType
+    Role of the shared link end, e.g. receiver.
+link_end_id : LinkEndId
+    Body and reference point of the shared link end.
+arc_start_times : list[float], optional
+    Required for arc-wise biases; finite, strictly increasing start times.
+    Every matching model must use these same arcs.
+time_link_end : LinkEndType, optional
+    Event time used to select the active arc, defaulting to link_end_type.
+    Reception and transmission times differ by the light travel time.
+    Omit both arc arguments for constant biases.
+
+Returns
+-------
+EstimatableParameterSettings
+    One vector parameter of observable size, or observable size times the number
+    of arcs. Values are ordered by arc, then by observable component.
+)doc" );
 
     m.def( "absolute_observation_bias",
            &tep::observationBias,

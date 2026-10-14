@@ -41,6 +41,9 @@ void expose_observable_models_setup_types( py::module& m )
 
     model_settings::expose_observable_type( model_settings );
     links::expose_links( links );
+    // Register the bias enum before the parameter factory that accepts it is exposed.
+    auto biases = m.def_submodule( "biases" );
+    biases::expose_bias_types( biases );
 }
 
 void expose_observable_models_setup( py::module& m )
