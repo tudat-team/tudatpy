@@ -38,10 +38,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
     }
     const auto evaluator = std::make_shared< earth_orientation::EarthOrientationDataEvaluator >(
             *data, gcrsToItrsRotationSettings->getEopEvaluationSettings( ) );
-    const auto cipInItrsInterpolator = std::make_shared< earth_orientation::EarthOrientationDataInterpolator< Eigen::Vector2d > >(
-            evaluator, earth_orientation::EarthOrientationDataField::polar_motion );
-    const auto cipInGcrsCorrectionInterpolator = std::make_shared< earth_orientation::EarthOrientationDataInterpolator< Eigen::Vector2d > >(
-            evaluator, earth_orientation::EarthOrientationDataField::celestial_pole );
     const auto polarSettings = gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( );
     const auto ut1Settings = gcrsToItrsRotationSettings->getUt1CorrectionSettings( );
     if( !polarSettings || !ut1Settings ) throw std::runtime_error( "Missing short-period EOP correction settings" );
@@ -86,23 +82,17 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
     // Create IAU 2006 precession/nutation calculator
     std::shared_ptr< earth_orientation::PrecessionNutationCalculator > precessionNutationCalculator =
             std::make_shared< earth_orientation::PrecessionNutationCalculator >( gcrsToItrsRotationSettings->getNutationTheory( ),
-                                                                                 cipInGcrsCorrectionInterpolator,
+                                                                                 nullptr,
                                                                                  gcrsToItrsRotationSettings->getCioInterpolatorSettings( ),
                                                                                  evaluator );
-
-    const auto dailyUtcUt1CorrectionInterpolator = std::make_shared< earth_orientation::EarthOrientationDataInterpolator< double > >(
-            evaluator, earth_orientation::EarthOrientationDataField::ut1_minus_utc );
 
     // Create default time scale converter
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
             std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >(
-                    dailyUtcUt1CorrectionInterpolator,
-                    corrections.ut1,
-                    gcrsToItrsRotationSettings->getTdbToTtInterpolatorSettings( ),
-                    evaluator );
+                    nullptr, corrections.ut1, gcrsToItrsRotationSettings->getTdbToTtInterpolatorSettings( ), evaluator );
 
     const auto polarMotionCalculator = std::make_shared< earth_orientation::PolarMotionCalculator >(
-            cipInItrsInterpolator, corrections.polarMotion, evaluator, [ terrestrialTimeScaleConverter ]( const Time& tai ) {
+            nullptr, corrections.polarMotion, evaluator, [ terrestrialTimeScaleConverter ]( const Time& tai ) {
                 return terrestrialTimeScaleConverter->getUt1FromTai( tai );
             } );
 

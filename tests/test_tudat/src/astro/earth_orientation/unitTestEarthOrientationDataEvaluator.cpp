@@ -50,10 +50,6 @@ BOOST_AUTO_TEST_CASE( continuous_tai_axis_values_slopes_and_exact_coverage )
     BOOST_CHECK_SMALL( after.ut1MinusTai + 36.4, 1e-13 );
     BOOST_CHECK_SMALL( *before.ut1MinusTaiRate, 1e-18 );
     BOOST_CHECK_SMALL( before.polarMotionRate->x( ) - 1e-9 / 86401.0, 1e-24 );
-    EarthOrientationDataInterpolator< Eigen::Vector2d > view( std::make_shared< EarthOrientationDataEvaluator >( data ),
-                                                              EarthOrientationDataField::polar_motion );
-    const double utc = ( 57752.0 - 51544.5 ) * 86400.0;
-    BOOST_CHECK_SMALL( ( view.interpolate( std::vector< double >{ utc } ) - view.interpolate( utc ) ).norm( ), 1e-24 );
 }
 
 BOOST_AUTO_TEST_CASE( leap_second_ut1_is_continuous_and_inverse_stays_in_coverage )

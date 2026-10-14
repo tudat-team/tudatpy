@@ -322,6 +322,28 @@ public:
                       const Eigen::Vector3d& earthFixedPosition,
                       const bool requireUt1 = true )
     {
+        if( continuousEopData_ )
+        {
+            // Convert once to TAI without rounding intermediate times to double.
+            const Time tai = getTaiTime( inputScale, inputTimeValue, earthFixedPosition );
+
+            // Keep previous cached times intact if a requested conversion fails.
+            CurrentTimes< TimeType > updated;
+
+            updated.tai = static_cast< TimeType >( tai );
+            updated.tt = static_cast< TimeType >( basic_astrodynamics::convertTAItoTT( tai ) );
+            updated.tdb = static_cast< TimeType >( getContinuousOutputTime( basic_astrodynamics::tdb_scale, tai, earthFixedPosition ) );
+            updated.utc = static_cast< TimeType >( getContinuousOutputTime( basic_astrodynamics::utc_scale, tai, earthFixedPosition ) );
+            if( requireUt1 )
+            {
+                updated.ut1 = static_cast< TimeType >( getUt1FromTai( tai ) );
+            }
+            // Publish only after all requested conversions succeed. The default
+            // NaN clears an old UT1 when this update does not request it.
+            getCurrentTimeList< TimeType >( ) = updated;
+            setCurrentGroundStation< TimeType >( earthFixedPosition );
+            return;
+        }
         // Retrieve CurrentTimes object that is to be updated
         CurrentTimes< TimeType >& timesToUpdate = getCurrentTimeList< TimeType >( );
 
@@ -461,6 +483,12 @@ public:
     //! Interpolator for UT1 corrections, values published daily by IERS
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > getDailyUtcUt1CorrectionInterpolator( )
     {
+        if( continuousEopData_ )
+        {
+            throw std::runtime_error(
+                    "Models constructed from EOP data do not have a daily UTC interpolator; use "
+                    "getEarthOrientationDataEvaluator()->evaluate(tai).ut1MinusTai." );
+        }
         return dailyUtcUt1CorrectionInterpolator_;
     }
 
@@ -481,8 +509,11 @@ public:
     //! Selected TT/TDB interpolators retain position conversion but currently have no supported rate.
     double getGeocentricTtRateWithRespectToTdb( const Time& tdb );
 
-    //! Canonical atomic epoch. Preserve the original input type for exact double endpoint images.
-    //! Geocentric atomic conversions are available without EOP coverage; UT1 needs its model.
+    //! Convert the supplied epoch to TAI, always returning Time even for double input.
+    //! The ordinary converter uses this internally so intermediate clock conversions
+    //! and EOP queries keep Time precision. Keep double input recognizable at the
+    //! rounded first/last EOP sample time; precise Time inputs are not adjusted.
+    //! Geocentric TAI/TT/TDB conversions need no EOP data; UT1 uses the selected EOP model.
     template< typename TimeType >
     Time getTaiTime( const basic_astrodynamics::TimeScales inputScale,
                      const TimeType& input,

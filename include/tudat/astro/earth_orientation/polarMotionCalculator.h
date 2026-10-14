@@ -94,6 +94,12 @@ public:
      */
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > getDailyIersValueInterpolator( )
     {
+        if( evaluator_ )
+        {
+            throw std::runtime_error(
+                    "Models constructed from EOP data do not have a daily UTC interpolator; use "
+                    "getEarthOrientationDataEvaluator()->evaluate(tai).polarMotion." );
+        }
         return dailyIersValueInterpolator_;
     }
 

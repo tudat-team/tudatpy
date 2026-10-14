@@ -97,6 +97,12 @@ public:
      */
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > getDailyCorrectionInterpolator( )
     {
+        if( evaluator_ )
+        {
+            throw std::runtime_error(
+                    "Models constructed from EOP data do not have a daily UTC interpolator; use "
+                    "getEarthOrientationDataEvaluator()->getCelestialPoleOffsets(tai)." );
+        }
         return dailyCorrectionInterpolator_;
     }
 

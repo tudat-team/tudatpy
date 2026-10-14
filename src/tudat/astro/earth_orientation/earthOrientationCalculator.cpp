@@ -258,18 +258,13 @@ std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientati
         const EarthOrientationEvaluationSettings& settings )
 {
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( eopReader->getRawEarthOrientationData( ), settings );
-    const auto ut1 = std::make_shared< EarthOrientationDataInterpolator< double > >( evaluator, EarthOrientationDataField::ut1_minus_utc );
     const auto timeConverter =
-            std::make_shared< TerrestrialTimeScaleConverter >( ut1, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
-    const auto polar =
-            std::make_shared< EarthOrientationDataInterpolator< Eigen::Vector2d > >( evaluator, EarthOrientationDataField::polar_motion );
-    const auto cpo =
-            std::make_shared< EarthOrientationDataInterpolator< Eigen::Vector2d > >( evaluator, EarthOrientationDataField::celestial_pole );
+            std::make_shared< TerrestrialTimeScaleConverter >( nullptr, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
     const auto polarModel = std::make_shared< PolarMotionCalculator >(
-            polar, getDefaultPolarMotionCorrectionCalculator( ), evaluator, [ timeConverter ]( const Time& tai ) {
+            nullptr, getDefaultPolarMotionCorrectionCalculator( ), evaluator, [ timeConverter ]( const Time& tai ) {
                 return timeConverter->getUt1FromTai( tai );
             } );
-    const auto precession = std::make_shared< PrecessionNutationCalculator >( basic_astrodynamics::iau_2006, cpo, nullptr, evaluator );
+    const auto precession = std::make_shared< PrecessionNutationCalculator >( basic_astrodynamics::iau_2006, nullptr, nullptr, evaluator );
     return std::make_shared< EarthOrientationAnglesCalculator >( polarModel, precession, timeConverter );
 }
 

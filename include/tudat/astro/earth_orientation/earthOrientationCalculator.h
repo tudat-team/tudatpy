@@ -344,7 +344,7 @@ public:
     }
 
     //! Return angles and their derivatives with respect to the input scale's seconds.
-    //! Data-backed models differentiate the selected daily interpolant, using the
+    //! Models constructed from EOP data differentiate the selected daily interpolant, using the
     //! right-hand interval at a sample and the left-hand interval at the final sample.
     //! Existing custom-interpolator models use a 32 s five-point stencil. Rates
     //! are unavailable across UTC jumps, interpolation samples or coverage limits,

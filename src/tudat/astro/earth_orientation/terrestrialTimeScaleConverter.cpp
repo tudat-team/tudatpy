@@ -248,8 +248,7 @@ std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( con
 
     std::shared_ptr< EOPReader > eopReaderToUse = ( eopReader == nullptr ) ? std::make_shared< EOPReader >( ) : eopReader;
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( eopReaderToUse->getRawEarthOrientationData( ), settings );
-    const auto view = std::make_shared< EarthOrientationDataInterpolator< double > >( evaluator, EarthOrientationDataField::ut1_minus_utc );
-    return std::make_shared< TerrestrialTimeScaleConverter >( view, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
+    return std::make_shared< TerrestrialTimeScaleConverter >( nullptr, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
 }
 
 }  // namespace earth_orientation

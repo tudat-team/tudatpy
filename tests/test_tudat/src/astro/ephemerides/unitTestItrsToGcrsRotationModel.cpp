@@ -195,16 +195,10 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
                 utc_scale, tt_scale, interpolationUtc );
 
         // Get EOP corrections
-        double Xcorrection = earthRotationModelFromUtc->getAnglesCalculator( )
-                                     ->getPrecessionNutationCalculator( )
-                                     ->getDailyCorrectionInterpolator( )
-                                     ->interpolate( interpolationUtc )
-                                     .x( );
-        double Ycorrection = earthRotationModelFromUtc->getAnglesCalculator( )
-                                     ->getPrecessionNutationCalculator( )
-                                     ->getDailyCorrectionInterpolator( )
-                                     ->interpolate( interpolationUtc )
-                                     .y( );
+        const auto eop =
+                earthRotationModelFromUtc->getAnglesCalculator( )->getPrecessionNutationCalculator( )->getEarthOrientationDataEvaluator( );
+        const Eigen::Vector2d cpo = eop->getCelestialPoleOffsets( sofa_interface::convertUTCtoTAI( Time( interpolationUtc ) ) );
+        const double Xcorrection = cpo.x( ), Ycorrection = cpo.y( );
         double xPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )
                                       ->getPolarMotionCalculator( )
                                       ->getPositionOfCipInItrs( interpolationTt, interpolationUtc )
