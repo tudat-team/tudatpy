@@ -127,6 +127,57 @@ The direct C++ ``LinearStationMotionModel`` constructor now defaults its referen
 epoch to zero TDB seconds since J2000, matching the existing settings/factory
 default. Its previous default was the Julian day number used as seconds.
 
+Transforming a station history with a terrestrial frame catalogue
+---------------------------------------------------------------
+
+``transform_station_history`` applies a preloaded conventional or supplied
+linearized Helmert catalogue to the complete absolute trajectory. Its calendar
+decimal year and derivative come from the same ``StationHistoryTime`` as the
+marker coordinates; ``station_history_frame_epoch`` exposes that epoch for
+explicit affine model queries. Parameter rates still use their declared Julian
+year units. An IGN nominal UTC leap-year query uses the actual calendar-year
+fraction and its TDB derivative, including the documented right-hand year rate.
+
+Supply a :class:`~tudatpy.data_input.environment_data.terrestrial_frames.TerrestrialFrameIdentity`
+with both target realization and release, plus explicit target origin and tide
+system. Origin and tide conventions must match the source. This operation does
+not convert CM to CF or change a tide system. A release different from the
+catalogue's declared identity requires ``acknowledge_aligned_releases=True``;
+that declaration warrants alignment of the release to the named realization,
+not the existence of an additional transform. In particular, an aligned
+ITRF2020-u2024 catalogue can retain the ITRF2020 realization. Same-frame identity
+preserves origin/tide semantics and requires an explicit alignment declaration
+when the release label changes. Distinct realizations require actual catalogue
+records.
+
+The returned trajectory uses full affine kinematics:
+``y = T + A*x`` and ``dy/dTDB = dT/dTDB + dA/dTDB*x + A*dx/dTDB``. Inverses use
+the actual matrix inverse, including scale. Position evaluation remains available
+when source-coordinate rates are absent; state evaluation requires the rates
+needed by the source and, for a nonidentity transformation, the calendar-year
+rate. No derivative is invented to obtain a position.
+
+.. code-block:: python
+
+    from tudatpy.data_input.environment_data import terrestrial_frames as tf
+    from tudatpy.dynamics.environment_setup import ground_station as gs
+
+    target = tf.TerrestrialFrameIdentity()
+    target.realization = target.release = "ITRF2014"
+    transformed = gs.transform_station_history(
+        trajectory, tf.official_itrf2020_parameters(), target,
+        target_origin=trajectory.metadata.origin,
+        target_tide_system=trajectory.metadata.tide_system)
+    motion = gs.station_history_motion(transformed)
+
+``transformed.metadata`` describes the evaluated output. The input identity,
+release, signal inventory and original coefficients remain available through
+``transformed.source_trajectory``; inherited solution/PSD/seasonal records also
+remain source-coordinate records. ``transformed.catalogue`` retains the pinned
+parameter source and hash, and ``acknowledged_release_alignment`` records the
+explicit release declaration. Empirical seasonal activity is propagated for
+subsequent loading-overlap decisions.
+
 
 
 

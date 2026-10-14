@@ -70,6 +70,13 @@ void expose_terrestrial_frame_transformations( pybind11::module& module )
                   py::arg( "source_realization" ),
                   py::arg( "target_realization" ),
                   py::arg( "epoch" ) )
+            .def( "transform_position_at_decimal_year",
+                  &rf::TerrestrialFrameTransformationModel::transformPositionAtDecimalYear,
+                  py::arg( "position" ),
+                  py::arg( "source_realization" ),
+                  py::arg( "target_realization" ),
+                  py::arg( "decimal_year" ),
+                  "Value-only evaluation; no physical derivative is required or invented." )
             .def( "transform_position_at_time",
                   &rf::TerrestrialFrameTransformationModel::transformPositionAtTime,
                   py::arg( "position" ),

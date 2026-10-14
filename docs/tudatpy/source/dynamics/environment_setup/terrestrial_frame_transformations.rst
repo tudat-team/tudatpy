@@ -29,6 +29,11 @@ For native time evaluation, supply the model's ``clock`` callback. It accepts a
 second convention as the input velocity. The ``*_at_time`` methods require this
 callback; no clock mapping is inferred from a scalar epoch or a catalogue label.
 
+For a value-only position query, ``transform_position_at_decimal_year`` accepts
+the declared decimal year without requiring a physical derivative. To transform
+a full station history using its calendar coordinate and source-rate policy, use
+``ground_station.transform_station_history``; see :ref:`ground_station`.
+
 The affine matrix includes scale and linearized signed rotations. Position and
 velocity are evaluated at the requested epoch:
 

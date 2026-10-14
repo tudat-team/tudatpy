@@ -4,6 +4,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/astro/ground_stations/transformedStationHistoryTrajectory.h"
 
 namespace tudatpy
 {
@@ -84,7 +85,7 @@ void expose_station_history_models( py::module& m )
                   py::arg( "metadata" ) )
             .def( "position", &gs::StationHistoryTrajectory::getPosition, py::arg( "source_time" ) )
             .def( "state", &gs::StationHistoryTrajectory::getState, py::arg( "source_time" ) )
-            .def_property_readonly( "metadata", &gs::StationHistoryTrajectory::getMetadata )
+            .def_property_readonly( "metadata", []( const gs::StationHistoryTrajectory& trajectory ) { return trajectory.getMetadata( ); } )
             .def_property_readonly( "solutions", &gs::StationHistoryTrajectory::getSolutions )
             .def_property_readonly( "post_seismic_terms", &gs::StationHistoryTrajectory::getPostSeismicTerms )
             .def_property_readonly( "seasonal_terms", &gs::StationHistoryTrajectory::getSeasonalTerms )
@@ -116,6 +117,28 @@ void expose_station_history_models( py::module& m )
            py::arg( "domes_selector" ) = py::none( ),
            py::arg( "velocity_consistency_tolerance_metres_per_julian_year" ) = 1.0e-8,
            "Construct the explicit IGN source profile from preloaded station products." );
+    py::class_< gs::TransformedStationHistoryTrajectory,
+                std::shared_ptr< gs::TransformedStationHistoryTrajectory >,
+                gs::StationHistoryTrajectory >( m, "TransformedStationHistoryTrajectory" )
+            .def_property_readonly( "source_trajectory", &gs::TransformedStationHistoryTrajectory::getSourceTrajectory )
+            .def_property_readonly( "catalogue",
+                                    []( const gs::TransformedStationHistoryTrajectory& trajectory ) { return trajectory.getCatalogue( ); } )
+            .def_property_readonly( "acknowledged_release_alignment",
+                                    &gs::TransformedStationHistoryTrajectory::getAcknowledgedReleaseAlignment );
+    m.def( "station_history_frame_epoch",
+           &gs::getStationHistoryTerrestrialFrameEpoch,
+           py::arg( "source_time" ),
+           "Use the station's declared calendar coordinate and dYear/dTDB for affine state evaluation." );
+    m.def( "transform_station_history",
+           &gs::createTransformedStationHistoryTrajectory,
+           py::arg( "source" ),
+           py::arg( "catalogue" ),
+           py::arg( "target_frame" ),
+           py::arg( "target_origin" ),
+           py::arg( "target_tide_system" ),
+           py::arg( "acknowledge_aligned_releases" ) = false,
+           "Transform the complete absolute trajectory using preloaded affine parameters and shared source time."
+           "Origin/tide changes reject; release alignment requires an explicit declaration." );
     py::class_< ss::StationHistoryGroundStationMotionSettings,
                 std::shared_ptr< ss::StationHistoryGroundStationMotionSettings >,
                 ss::GroundStationMotionSettings >( m, "StationHistoryGroundStationMotionSettings" );

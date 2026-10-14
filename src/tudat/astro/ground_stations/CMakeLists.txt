@@ -16,6 +16,7 @@ set(ground_stations_SOURCES
         "groundStationState.cpp"
         "stationHistoryTrajectory.cpp"
         "stationHistoryTime.cpp"
+        "transformedStationHistoryTrajectory.cpp"
         "pointingAnglesCalculator.cpp"        
         "basicTidalBodyDeformation.cpp"
         "iers2010SolidTidalBodyDeformation.cpp"
@@ -34,6 +35,7 @@ set(ground_stations_HEADERS
         "groundStationState.h"
         "stationHistoryTrajectory.h"
         "stationHistoryMotionModel.h"
+        "transformedStationHistoryTrajectory.h"
         "pointingAnglesCalculator.h"        
         "basicTidalBodyDeformation.h"
         "bodyDeformationModel.h"
@@ -51,7 +53,7 @@ set(ground_stations_HEADERS
 TUDAT_ADD_LIBRARY("ground_stations"
         "${ground_stations_SOURCES}"
         "${ground_stations_HEADERS}"
-        PUBLIC_LINKS tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_station_history_data
+        PUBLIC_LINKS tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_station_history_data tudat_reference_frames
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

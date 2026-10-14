@@ -2,6 +2,7 @@
 #include <Eigen/LU>
 #include <cmath>
 #include <stdexcept>
+#include <optional>
 namespace tudat
 {
 namespace reference_frames
@@ -68,17 +69,20 @@ TerrestrialFrameAffineTransformation TerrestrialFrameAffineTransformation::compo
     validateAffine( result );
     return result;
 }
-TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_output::TerrestrialFrameTransformationParameters& p,
-                                                                const TerrestrialFrameEvaluationEpoch& epoch )
+namespace
+{
+TerrestrialFrameAffineTransformation evaluateHelmertCoordinates( const input_output::TerrestrialFrameTransformationParameters& p,
+                                                                 double decimalYear,
+                                                                 std::optional< double > rate )
 {
     input_output::validateTerrestrialFrameTransformationParameters( p );
-    validateEpoch( epoch );
+    if( !std::isfinite( decimalYear ) ) throw std::runtime_error( "Nonfinite terrestrial-frame decimal year" );
     if( p.rotationConvention == input_output::HelmertRotationConvention::unspecified )
         throw std::runtime_error( "Explicit Helmert rotation convention required" );
     const double sign = p.rotationConvention == input_output::HelmertRotationConvention::positionVector ? 1.0 : -1.0;
-    const double elapsed = p.parameterRateYearSeconds * ( epoch.decimalYear - p.referenceDecimalYear );
+    const double elapsed = p.parameterRateYearSeconds * ( decimalYear - p.referenceDecimalYear );
     // Convert normalized SI rates back to the published parameter-year difference, then chain its physical differential.
-    const double rateFactor = p.parameterRateYearSeconds * epoch.decimalYearRateWithRespectToInputSeconds;
+    const double rateFactor = rate ? p.parameterRateYearSeconds * *rate : 0.0;
     TerrestrialFrameAffineTransformation result;
     result.translation = p.translationMetres + elapsed * p.translationRateMetresPerSecond;
     result.matrix = ( 1 + p.scale + elapsed * p.scaleRatePerSecond ) * Eigen::Matrix3d::Identity( ) +
@@ -89,6 +93,15 @@ TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_outp
     validateAffine( result );
     return result;
 }
+}  // namespace
+
+TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_output::TerrestrialFrameTransformationParameters& p,
+                                                                const TerrestrialFrameEvaluationEpoch& epoch )
+{
+    validateEpoch( epoch );
+    return evaluateHelmertCoordinates( p, epoch.decimalYear, epoch.decimalYearRateWithRespectToInputSeconds );
+}
+
 input_output::TerrestrialFrameTransformationData getConventionalItrfTransformationData( ItrfTransformationCatalogue catalogue )
 {
     switch( catalogue )
@@ -137,6 +150,27 @@ Eigen::Vector3d TerrestrialFrameTransformationModel::transformPosition( const Ei
                                                                         const TerrestrialFrameEvaluationEpoch& epoch ) const
 {
     return getTransformation( source, target, epoch ).transformPosition( position );
+}
+Eigen::Vector3d TerrestrialFrameTransformationModel::transformPositionAtDecimalYear( const Eigen::Vector3d& position,
+                                                                                     const std::string& source,
+                                                                                     const std::string& target,
+                                                                                     double decimalYear ) const
+{
+    if( !std::isfinite( decimalYear ) || source.empty( ) || target.empty( ) )
+        throw std::runtime_error( "Invalid value-only terrestrial-frame coordinates" );
+    if( source == target )
+    {
+        if( !position.allFinite( ) ) throw std::runtime_error( "Nonfinite terrestrial position" );
+        return position;
+    }
+    // These internal affine objects carry only value coordinates. Their unused
+    // derivative entries never escape this position-only API.
+    TerrestrialFrameAffineTransformation fromHub, toHub;
+    if( source != data_.referenceFrame.realization )
+        toHub = evaluateHelmertCoordinates( data_.getParameters( source ), decimalYear, std::nullopt ).inverse( );
+    if( target != data_.referenceFrame.realization )
+        fromHub = evaluateHelmertCoordinates( data_.getParameters( target ), decimalYear, std::nullopt );
+    return fromHub.composeAfter( toHub ).transformPosition( position );
 }
 Eigen::Vector6d TerrestrialFrameTransformationModel::transformState( const Eigen::Vector6d& state,
                                                                      const std::string& source,

@@ -102,9 +102,10 @@ public:
                               std::vector< StationPostSeismicTerm > postSeismicTerms,
                               std::vector< StationSeasonalTerm > seasonalTerms,
                               StationHistoryMetadata metadata );
-    Eigen::Vector3d getPosition( const StationHistoryTime& time ) const;
-    Eigen::Matrix< double, 6, 1 > getState( const StationHistoryTime& time ) const;
-    const StationHistoryMetadata& getMetadata( ) const
+    virtual ~StationHistoryTrajectory( ) = default;
+    virtual Eigen::Vector3d getPosition( const StationHistoryTime& time ) const;
+    virtual Eigen::Matrix< double, 6, 1 > getState( const StationHistoryTime& time ) const;
+    virtual const StationHistoryMetadata& getMetadata( ) const
     {
         return metadata_;
     }
@@ -120,7 +121,7 @@ public:
     {
         return seasonalTerms_;
     }
-    bool hasFittedSeasonalTerms( ) const
+    virtual bool hasFittedSeasonalTerms( ) const
     {
         return !seasonalTerms_.empty( );
     }

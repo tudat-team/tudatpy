@@ -49,6 +49,11 @@ public:
                                        const std::string& sourceRealization,
                                        const std::string& targetRealization,
                                        const TerrestrialFrameEvaluationEpoch& epoch ) const;
+    //! Value-only calendar/declared coordinate evaluation; no physical rate is needed or invented.
+    Eigen::Vector3d transformPositionAtDecimalYear( const Eigen::Vector3d& position,
+                                                    const std::string& sourceRealization,
+                                                    const std::string& targetRealization,
+                                                    double decimalYear ) const;
     Eigen::Vector6d transformState( const Eigen::Vector6d& state,
                                     const std::string& sourceRealization,
                                     const std::string& targetRealization,
