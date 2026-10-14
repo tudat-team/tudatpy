@@ -1,4 +1,5 @@
 #include "tudat/astro/reference_frames/terrestrialFrameTransformation.h"
+#include "tudat/math/basic/linearAlgebra.h"
 #include <Eigen/LU>
 #include <cmath>
 #include <stdexcept>
@@ -14,12 +15,6 @@ void validateEpoch( const TerrestrialFrameEvaluationEpoch& epoch )
     if( !std::isfinite( epoch.decimalYear ) || !std::isfinite( epoch.decimalYearRateWithRespectToInputSeconds ) ||
         epoch.decimalYearRateWithRespectToInputSeconds <= 0 )
         throw std::runtime_error( "Terrestrial transformation requires explicit finite decimal year and positive dYear/dInputSecond" );
-}
-Eigen::Matrix3d crossMatrix( const Eigen::Vector3d& vector )
-{
-    Eigen::Matrix3d matrix;
-    matrix << 0, -vector.z( ), vector.y( ), vector.z( ), 0, -vector.x( ), -vector.y( ), vector.x( ), 0;
-    return matrix;
 }
 void validateAffine( const TerrestrialFrameAffineTransformation& affine )
 {
@@ -86,10 +81,11 @@ TerrestrialFrameAffineTransformation evaluateHelmertCoordinates( const input_out
     TerrestrialFrameAffineTransformation result;
     result.translation = p.translationMetres + elapsed * p.translationRateMetresPerSecond;
     result.matrix = ( 1 + p.scale + elapsed * p.scaleRatePerSecond ) * Eigen::Matrix3d::Identity( ) +
-            sign * crossMatrix( p.rotationRadians + elapsed * p.rotationRateRadiansPerSecond );
+            sign * linear_algebra::getCrossProductMatrix( p.rotationRadians + elapsed * p.rotationRateRadiansPerSecond );
     result.translationRate = rateFactor * p.translationRateMetresPerSecond;
-    result.matrixRate =
-            rateFactor * ( p.scaleRatePerSecond * Eigen::Matrix3d::Identity( ) + sign * crossMatrix( p.rotationRateRadiansPerSecond ) );
+    result.matrixRate = rateFactor *
+            ( p.scaleRatePerSecond * Eigen::Matrix3d::Identity( ) +
+              sign * linear_algebra::getCrossProductMatrix( p.rotationRateRadiansPerSecond ) );
     validateAffine( result );
     return result;
 }
