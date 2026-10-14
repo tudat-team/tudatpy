@@ -104,8 +104,6 @@ def cpp_dependency_violations():
     roots += [
         ROOT / "include/tudat/io/readAtmosphericTideData.h",
         ROOT / "src/tudat/io/readAtmosphericTideData.cpp",
-        ROOT / "include/tudat/io/readHighFrequencyEopData.h",
-        ROOT / "src/tudat/io/readHighFrequencyEopData.cpp",
         ROOT / "include/tudat/io/readStationLoadingData.h",
         ROOT / "src/tudat/io/readStationLoadingData.cpp",
         ROOT / "include/tudat/io/readTerrestrialFrameTransformationData.h",

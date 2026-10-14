@@ -23,7 +23,7 @@ establish a physical-to-decimal-year time mapping.
 File and text readers are also available. Units, column order, paired rates and
 the explicit published position-vector equation are checked; malformed records,
 nonfinite data, duplicates or truncation raise with source and line context.
-Pinned 2014 and superseding 2020 catalogues retain their distinct original hashes.
+The official 2014 and superseding 2020 catalogues are read from the ``station_locations`` tudat resource directory and retain their distinct original hashes.
 Release metadata is provenance rather than an automatically different frame
 datum; an aligned ITRF2020 catalogue update does not imply a nonzero Helmert shift.
 

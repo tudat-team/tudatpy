@@ -77,17 +77,12 @@ def main():
         path = root / name
         if hashlib.sha256(path.read_bytes()).hexdigest() != EXPECTED[catalogue]:
             raise RuntimeError("Pinned official input checksum mismatch: " + name)
-        pinned_source = root.parents[3] / "src/tudat/io/pinnedItrfTransformationTables.h"
-        embedded = re.search(
-            r"pinnedItrf" + str(catalogue) + r'Table\[\] = R"ITRF\((.*?)\)ITRF";',
-            pinned_source.read_text(),
-            re.S,
-        )
+        resource = Path.home() / ".tudat/resource/station_locations" / name
         if (
-            embedded is None
-            or hashlib.sha256(embedded.group(1).encode()).hexdigest() != EXPECTED[catalogue]
+            resource.exists()
+            and hashlib.sha256(resource.read_bytes()).hexdigest() != EXPECTED[catalogue]
         ):
-            raise RuntimeError("Production pinned raw input differs: " + name)
+            raise RuntimeError("Installed tudat resource differs from the pinned input: " + name)
         pending = None
         for line in path.read_text().splitlines():
             parts = line.split()

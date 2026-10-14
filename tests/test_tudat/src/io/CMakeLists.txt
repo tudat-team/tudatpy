@@ -173,7 +173,6 @@ TUDAT_ADD_TEST_CASE(EarthOrientationData
         PRIVATE_LINKS tudat_environment_data
         )
 
-TUDAT_ADD_TEST_CASE(HighFrequencyEopData PRIVATE_LINKS tudat_environment_data)
 
 TUDAT_ADD_TEST_CASE(StationLoadingData PRIVATE_LINKS tudat_environment_data)
 

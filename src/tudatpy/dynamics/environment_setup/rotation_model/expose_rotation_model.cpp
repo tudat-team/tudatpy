@@ -454,12 +454,13 @@ void expose_rotation_model_setup( py::module& m )
  ``ocean_tide_eop_model=OceanTideEopModel.iers_2010`` is the unchanged default.
  Explicitly select ``OceanTideEopModel.desai_sibois_2016`` to replace the conventional
  diurnal/semidiurnal ocean terms by the 159-term Desai--Sibois (2016) model
- (DOI 10.1002/2016JB013125). Quasi-diurnal polar-motion and semidiurnal UT1
+ (DOI 10.1002/2016JB013125), read from the ``desaiSibois2016*`` files in the
+ ``earth_orientation`` resource directory. Quasi-diurnal polar-motion and semidiurnal UT1
  libration remain included exactly once. Daily EOP and celestial-pole offsets
  retain their selected input/interpolation policies. Custom short-period files
  cannot be combined automatically with this replacement and raise an error.
- Published LOD coefficients are retained as input metadata; clock derivatives
- differentiate the selected UT1 series without adding LOD a second time.
+ The published LOD coefficients are not used; clock derivatives differentiate the
+ selected UT1 series.
 
  Preloaded ``eop_data`` comes from :mod:`tudatpy.data_input.environment_data.earth_orientation`.
  Daily parameters are interpolated on continuous TAI using UT1-TAI. Raw coverage

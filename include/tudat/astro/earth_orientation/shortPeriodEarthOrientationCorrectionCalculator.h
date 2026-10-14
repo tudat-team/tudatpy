@@ -15,7 +15,6 @@
 #include <string>
 
 #include <functional>
-#include <type_traits>
 
 #include <Eigen/Core>
 
@@ -35,6 +34,10 @@ namespace tudat
 namespace earth_orientation
 {
 
+//! Model for the diurnal and semidiurnal ocean-tide variations of polar motion and UT1. The conventional
+//! libration terms are included for either model.
+enum class OceanTideEopModel { iers_2010, desai_sibois_2016 };
+
 //! Object to calculate the short period variations in Earth orientaion parameters
 /*!
  *  Object to calculate the short period  variations in Earth orientaion parameters, e.g. taking into account
@@ -44,25 +47,6 @@ template< typename OutputType >
 class ShortPeriodEarthOrientationCorrectionCalculator
 {
 public:
-    //! Construct from validated harmonic groups. Amplitudes already have the output's SI units.
-    ShortPeriodEarthOrientationCorrectionCalculator( const std::vector< Eigen::MatrixXd >& amplitudes,
-                                                     const std::vector< Eigen::MatrixXd >& argumentMultipliers,
-                                                     const std::function< Eigen::Vector6d( const double ) > argumentFunction = std::bind(
-                                                             &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst,
-                                                             std::placeholders::_1 ) ):
-        argumentAmplitudes_( amplitudes ), argumentMultipliers_( argumentMultipliers ), argumentFunction_( argumentFunction )
-    {
-        const int columns = std::is_same< OutputType, double >::value ? 2 : 4;
-        if( amplitudes.size( ) != argumentMultipliers.size( ) ) throw std::runtime_error( "Short-period EOP harmonic group counts differ" );
-        for( unsigned int i = 0; i < amplitudes.size( ); ++i )
-        {
-            if( amplitudes[ i ].cols( ) != columns || argumentMultipliers[ i ].cols( ) != 6 ||
-                amplitudes[ i ].rows( ) != argumentMultipliers[ i ].rows( ) || !amplitudes[ i ].allFinite( ) ||
-                !argumentMultipliers[ i ].allFinite( ) )
-                throw std::runtime_error( "Invalid short-period EOP harmonic matrices" );
-        }
-    }
-
     //! Constructor, requires files defining the amplitudes and fundamental argument multipliers of the variations.
     /*!
      *  Constructor, requires files defining the sine and cosine amplitudes and fundamental argument multipliers numbers

@@ -64,35 +64,3 @@ and has no dynamics, estimation, interpolation or SOFA dependency.
    :members:
 
 .. autofunction:: read_earth_orientation_data
-
-High-frequency tidal coefficients
----------------------------------
-
-``get_desai_sibois_2016_eop_data()`` returns the pinned 159-term ocean-tide
-coefficient table from `Desai and Sibois (2016) <https://doi.org/10.1002/2016JB013125>`_.
-It includes 86 diurnal and 73 semidiurnal terms and requires no download. Loading
-the table does not change any rotation-model setting.
-
-``read_high_frequency_eop_data`` and its text counterpart read the NASA IVS
-17-column format. Each term retains its tidal name, Doodson label, period and
-six integer multipliers for ``[GMST+pi, l, l-prime, F, D, Omega]``. Sine and
-cosine amplitude arrays have components ``[xp, yp, UT1, excess LOD]`` in
-``[rad, rad, s, s]``. Header lines and source provenance remain available.
-Malformed records, nonfinite coefficients, nonpositive periods and duplicate
-phase multipliers raise an exception. The neutral C++ reader belongs to
-``tudat_environment_data``; this reader's implementation uses only the standard library.
-
-The table supplies the ocean contribution. A consuming rotation model retains
-the independent conventional polar-motion and UT1 libration terms. Published
-LOD coefficients are input metadata; the rotation clock rate differentiates
-its selected UT1 series.
-
-.. autoclass:: HighFrequencyEopData
-   :members:
-
-.. autoclass:: HighFrequencyEopTerm
-   :members:
-
-.. autofunction:: get_desai_sibois_2016_eop_data
-
-.. autofunction:: read_high_frequency_eop_data

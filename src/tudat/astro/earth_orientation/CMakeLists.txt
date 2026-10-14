@@ -9,7 +9,6 @@
 
 # Set the source files.
 set(earth_orientation_SOURCES
-        "highFrequencyEarthOrientationModel.cpp"
         "earthOrientationCalculator.cpp"
         "earthOrientationDataEvaluator.cpp"
         "terrestrialTimeScaleConverter.cpp"
@@ -23,7 +22,6 @@ set(earth_orientation_SOURCES
 
 # Set the header files.
 set(earth_orientation_HEADERS
-        "highFrequencyEarthOrientationModel.h"
         "earthOrientationCalculator.h"
         "earthOrientationDataEvaluator.h"
         "earthOrientationRates.h"

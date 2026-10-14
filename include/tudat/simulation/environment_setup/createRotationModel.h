@@ -17,7 +17,7 @@
 #include <functional>
 #include <optional>
 #include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
-#include "tudat/astro/earth_orientation/highFrequencyEarthOrientationModel.h"
+#include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include <map>
 #include <memory>
 #include <stdexcept>
