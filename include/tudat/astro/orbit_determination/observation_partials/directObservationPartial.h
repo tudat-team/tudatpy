@@ -221,7 +221,7 @@ public:
 
     virtual bool useLinkIndependentPartials( )
     {
-        return positionPartialScaler_->useLinkIndependentPartials( );
+        return positionPartialScaler_->useLinkIndependentPartialsForParameter( this->parameterIdentifier_ );
     }
 
     observation_models::ObservableType getObservableType( )

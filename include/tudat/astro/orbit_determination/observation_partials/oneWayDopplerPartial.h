@@ -21,6 +21,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
 namespace tudat
@@ -219,18 +220,31 @@ public:
      * \param receiverProperTimePartials Object used to compute the contribution of transmitter proper time rate to the scaling
      * \param observableType Observable type for this scaling object (defaults to one_way_doppler, but can be overridden
      *        for one_way_doppler_measured_frequency which uses the same mathematical formulation)
+     * \param lightTimeCorrections Light-time corrections whose explicit time derivatives depend on gamma and on the
+     *        gravitational parameters of the perturbing bodies.
      */
     OneWayDopplerScaling( const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
                           const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
                           const double divisionTerm,
                           const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
                           const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr,
-                          const observation_models::ObservableType observableType = observation_models::one_way_doppler ):
+                          const observation_models::ObservableType observableType = observation_models::one_way_doppler,
+                          const std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections = {} ):
         DirectPositionPartialScaling< 1 >( observableType ), transmitterAccelerationFunction_( transmitterAccelerationFunction ),
         receiverAccelerationFunction_( receiverAccelerationFunction ), divisionTerm_( divisionTerm ),
         transmitterProperTimePartials_( transmitterProperTimePartials ), receiverProperTimePartials_( receiverProperTimePartials )
     {
         this->doesVelocityScalingFactorExist_ = true;
+        for( const auto& correction : lightTimeCorrections )
+        {
+            const auto relativisticCorrection =
+                    std::dynamic_pointer_cast< observation_models::FirstOrderLightTimeCorrectionCalculator >( correction );
+            if( relativisticCorrection != nullptr )
+            {
+                relativisticLightTimeCorrectionPartials_.push_back(
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionPartial >( relativisticCorrection ) );
+            }
+        }
     }
 
     //! Destructor
@@ -343,7 +357,7 @@ public:
      */
     int getProperTimeParameterDependencySize( const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
 
-    //! Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials
+    //! Direct parameter partials of proper time and explicit light-time time derivatives.
     /*!
      *  Function to get the direct partial derivatives (e.g. independent of state partials), and associated times, of proper
      *  time components of Doppler partials, w.r.t. parameter defined by parameterType.
@@ -355,8 +369,12 @@ public:
 
     bool useLinkIndependentPartials( )
     {
-        return ( transmitterProperTimePartials_ != nullptr ) || ( receiverProperTimePartials_ != nullptr );
+        return ( transmitterProperTimePartials_ != nullptr ) || ( receiverProperTimePartials_ != nullptr ) ||
+                !relativisticLightTimeCorrectionPartials_.empty( );
     }
+
+    //! Whether getLinkIndependentPartials can return a non-empty contribution for the given parameter.
+    bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterType ) override;
 
     virtual bool useLightTimeGradientPartials( )
     {
@@ -404,6 +422,12 @@ private:
     Eigen::Vector3d receiverVelocity_;
 
     Eigen::Vector3d transmitterVelocity_;
+
+    std::vector< std::shared_ptr< FirstOrderRelativisticLightTimeCorrectionPartial > > relativisticLightTimeCorrectionPartials_;
+
+    // Retain the geometry to evaluate the additional time-derivative terms only when a gamma partial is requested.
+    std::vector< Eigen::Vector6d > currentLinkEndStates_;
+    std::vector< double > currentLinkEndTimes_;
 };
 
 //! Function to computed the derivative of the unit vector from transmitter to receiver w.r.t. the observation time
@@ -581,6 +605,11 @@ public:
     bool useLinkIndependentPartials( )
     {
         return oneWayDopplerScaling_->useLinkIndependentPartials( );
+    }
+
+    bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterType ) override
+    {
+        return oneWayDopplerScaling_->useLinkIndependentPartialsForParameter( parameterType );
     }
 
     virtual bool useLightTimeGradientPartials( )
