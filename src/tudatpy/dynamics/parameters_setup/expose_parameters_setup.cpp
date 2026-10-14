@@ -1612,8 +1612,9 @@ The matching body and reference-point name are both compared exactly.
 Parameters
 ----------
 bias_type : tudatpy.estimation.observable_models_setup.biases.ObservationBiasTypes
-    Supports constant_absolute_bias, constant_relative_bias, and
-    arc_wise_constant_absolute_bias. Relative biases are component-wise fractions.
+    Supports constant_absolute_bias, constant_relative_bias,
+    arc_wise_constant_absolute_bias, constant_time_bias, and arc_wise_time_bias.
+    Relative biases are component-wise fractions.
 observable_type : ObservableType
     Observable whose biases are shared.
 link_end_type : LinkEndType
@@ -1626,13 +1627,15 @@ arc_start_times : list[float], optional
 time_link_end : LinkEndType, optional
     Event time used to select the active arc, defaulting to link_end_type.
     Reception and transmission times differ by the light travel time.
-    Omit both arc arguments for constant biases.
+    For time biases, this is also the event whose time is shifted, and every
+    matching model must use the same link end. Omit for other constant biases.
 
 Returns
 -------
 EstimatableParameterSettings
     One vector parameter of observable size, or observable size times the number
-    of arcs. Values are ordered by arc, then by observable component.
+    of arcs. Values are ordered by arc, then by observable component. Time biases
+    have a single value (in seconds) per arc, independent of the observable size.
 )doc" );
 
     m.def( "absolute_observation_bias",

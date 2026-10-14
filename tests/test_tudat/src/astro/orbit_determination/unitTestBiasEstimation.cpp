@@ -490,13 +490,11 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
     const LinkEndId observerId( "ObserverSatellite", "" );
     const auto constantSettings = sharedObservationBias( constant_absolute_bias, angular_position, receiver, observerId );
 
-    // Exposing all enum values must not enable any of the eight unsupported shared-bias types.
+    // Exposing all enum values must not enable any of the six unsupported shared-bias types.
     for( const auto type : { multiple_observation_biases,
                              arc_wise_constant_relative_bias,
                              constant_time_drift_bias,
                              arc_wise_time_drift_bias,
-                             constant_time_bias,
-                             arc_wise_time_bias,
                              clock_induced_bias,
                              two_way_range_time_scale_bias } )
     {
@@ -506,8 +504,15 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasValidation )
     // Arc-wise biases require arc boundaries; constant biases must not accept them.
     BOOST_CHECK_THROW( sharedObservationBias( arc_wise_constant_absolute_bias, angular_position, receiver, observerId ),
                        std::runtime_error );
+    BOOST_CHECK_THROW( sharedObservationBias( arc_wise_time_bias, angular_position, receiver, observerId ), std::runtime_error );
     BOOST_CHECK_THROW( sharedObservationBias( constant_absolute_bias, angular_position, receiver, observerId, { 0.0 } ),
                        std::runtime_error );
+    BOOST_CHECK_THROW( sharedObservationBias( constant_time_bias, angular_position, receiver, observerId, { 0.0 } ), std::runtime_error );
+
+    // A time link end only has meaning for arc-wise and time biases.
+    BOOST_CHECK_THROW( sharedObservationBias( constant_absolute_bias, angular_position, receiver, observerId, {}, transmitter ),
+                       std::runtime_error );
+    BOOST_CHECK_NO_THROW( sharedObservationBias( constant_time_bias, angular_position, receiver, observerId, {}, transmitter ) );
 
     // Arc boundaries must be ordered, distinct, and finite so their parameter blocks are unambiguous.
     BOOST_CHECK_THROW( sharedObservationBias( arc_wise_constant_absolute_bias, angular_position, receiver, observerId, { 2.0, 1.0 } ),
@@ -721,6 +726,192 @@ BOOST_AUTO_TEST_CASE( test_SharedObservationBiasOwnership )
                 sharedObservationBias( type, angular_position, transmitter, LinkEndId( "B", "" ), arcTimes, timeRole );
         BOOST_CHECK_NO_THROW( createSharedBiasTestEstimator(
                 bodies, names, observerId, transmitterSettings, { bias, bias, bias }, { secondTransmitterSettings } ) );
+    }
+}
+
+//! Estimate one time bias shared by the angular-position links from three transmitters to one receiver.
+//! The three target states are estimated as well, with position observations making them identifiable.
+//! An angular link to a different receiver has its own fixed time bias, which must not be selected or changed.
+//! Cover constant and arc-wise time biases; after estimation, check the shared time-bias partials numerically.
+BOOST_AUTO_TEST_CASE( test_SharedTimeBiasEstimation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    using namespace observation_models;
+    using namespace estimatable_parameters;
+    using namespace simulation_setup;
+
+    const LinkEndId observerId( "ObserverSatellite", "" );
+    const LinkEndId otherReceiver( "Earth", "Station1" );
+    const std::vector< std::string > targets = { "A", "B", "C" };
+    const std::vector< std::string > centralBodies( targets.size( ), "Earth" );
+
+    // No observation lies within one time bias of the arc boundary, so each observation uses a single unambiguous arc.
+    const std::vector< double > arcTimes = { 0.0, 3750.0 };
+    const double unsharedTimeBias = 2.0;
+    for( const auto biasType : { constant_time_bias, arc_wise_time_bias } )
+    {
+        BOOST_TEST_CONTEXT( "shared time bias type " << getObservationBiasTypeString( biasType ) )
+        {
+            const bool arcWise = biasType == arc_wise_time_bias;
+            const std::vector< double > biasArcTimes = arcWise ? arcTimes : std::vector< double >{};
+            const Eigen::VectorXd trueTimeBias =
+                    arcWise ? Eigen::VectorXd( Eigen::Vector2d( 0.8, -1.3 ) ) : Eigen::VectorXd::Constant( 1, 0.8 );
+
+            SystemOfBodies bodies = createSharedBiasTestBodies( );
+            Eigen::VectorXd initialState( 18 );
+            SelectedAccelerationMap accelerationSettings;
+
+            // Start from the Keplerian orbit, then let numerical propagation supply each target's ephemeris.
+            for( unsigned int i = 0; i < targets.size( ); ++i )
+            {
+                initialState.segment< 6 >( 6 * i ) = bodies.at( targets.at( i ) )->getStateInBaseFrameFromEphemeris( 0.0 );
+                bodies.at( targets.at( i ) )
+                        ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris<> >(
+                                std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ),
+                                "Earth",
+                                "J2000" ) );
+                accelerationSettings[ targets.at( i ) ][ "Earth" ] = { pointMassGravityAcceleration( ) };
+            }
+            const auto accelerations = createAccelerationModelsMap( bodies, accelerationSettings, targets, centralBodies );
+            auto propagator = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerations,
+                    targets,
+                    initialState,
+                    0.0,
+                    numerical_integrators::rungeKuttaFixedStepSettings( 60.0, numerical_integrators::rungeKuttaFehlberg78 ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 7200.0 ) );
+
+            std::vector< double > observationTimes;
+            for( double time = 600.0; time <= 6600.0; time += 300.0 )
+            {
+                observationTimes.push_back( time );
+            }
+            std::vector< std::shared_ptr< ObservationModelSettings > > models;
+            std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > simulations;
+            std::vector< LinkEnds > angularLinks;
+
+            // Each selected link starts with its own bias model, all initialized to the common true value.
+            for( const auto& target : targets )
+            {
+                const auto selectedBias = arcWise ? arcWiseTimeBias( { trueTimeBias( 0 ), trueTimeBias( 1 ) }, arcTimes, receiver )
+                                                  : constantTimeBias( trueTimeBias( 0 ), receiver );
+                addSharedBiasTestObservationModel( observationTimes,
+                                                   models,
+                                                   simulations,
+                                                   angularLinks,
+                                                   angular_position,
+                                                   { { transmitter, LinkEndId( target, "" ) }, { receiver, observerId } },
+                                                   selectedBias );
+                addSharedBiasTestObservationModel( observationTimes,
+                                                   models,
+                                                   simulations,
+                                                   angularLinks,
+                                                   position_observable,
+                                                   { { observed_body, LinkEndId( target, "" ) } },
+                                                   nullptr );
+            }
+            addSharedBiasTestObservationModel( observationTimes,
+                                               models,
+                                               simulations,
+                                               angularLinks,
+                                               angular_position,
+                                               { { transmitter, LinkEndId( "A", "" ) }, { receiver, otherReceiver } },
+                                               constantTimeBias( unsharedTimeBias, receiver ) );
+            BOOST_REQUIRE_EQUAL( angularLinks.size( ), 4 );
+
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > settings;
+            for( unsigned int i = 0; i < targets.size( ); ++i )
+            {
+                settings.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                        targets.at( i ), initialState.segment< 6 >( 6 * i ), "Earth" ) );
+            }
+            settings.push_back( sharedObservationBias( biasType, angular_position, receiver, observerId, biasArcTimes ) );
+            auto parameters = createParametersToEstimate< double, double >( settings, bodies, propagator );
+            auto sharedParameter =
+                    std::dynamic_pointer_cast< SharedObservationBiasParameter >( parameters->getVectorParameters( ).at( 18 ) );
+            BOOST_REQUIRE( sharedParameter != nullptr );
+
+            OrbitDeterminationManager< double, double > manager( bodies, parameters, models, propagator );
+
+            // One scalar time bias per arc, independent of the two-component angular observable, bound to the three selected links.
+            BOOST_CHECK_EQUAL( sharedParameter->getParameterSize( ), trueTimeBias.size( ) );
+            BOOST_CHECK_EQUAL( parameters->getParameterSetSize( ), 18 + trueTimeBias.size( ) );
+            BOOST_REQUIRE_EQUAL( sharedParameter->getMembers( ).size( ), 3 );
+            for( const auto& member : sharedParameter->getMembers( ) )
+            {
+                BOOST_CHECK( member.first.at( receiver ) == observerId );
+            }
+
+            const Eigen::VectorXd truth = parameters->getFullParameterValues< double >( );
+            BOOST_CHECK_SMALL( ( truth.tail( trueTimeBias.size( ) ) - trueTimeBias ).norm( ), 1.0E-15 );
+            auto observations = simulateObservations< double, double >( simulations, manager.getObservationSimulators( ), bodies );
+
+            // Perturb the target states and the shared time bias before estimating them jointly.
+            Eigen::VectorXd initialGuess = truth;
+            for( int i = 0; i < 3; ++i )
+            {
+                initialGuess.segment< 3 >( 6 * i ) += Eigen::Vector3d( 10.0, -20.0, 15.0 );
+                initialGuess.segment< 3 >( 6 * i + 3 ) += Eigen::Vector3d( 0.01, -0.02, 0.03 );
+            }
+            initialGuess.tail( trueTimeBias.size( ) ).array( ) += 0.5;
+            manager.resetParameterEstimate( initialGuess );
+            auto input = std::make_shared< EstimationInput< double, double > >( observations );
+            input->defineEstimationSettings( true, true, true, false, true, false );
+            auto output = manager.estimateParameters( input );
+            BOOST_REQUIRE( !output->exceptionDuringInversion_ );
+
+            // Recover the target states and the shared time bias, leaving only numerical-noise residuals.
+            BOOST_CHECK_SMALL( ( output->parameterEstimate_.head( 18 ) - truth.head( 18 ) ).norm( ), 1.0E-5 );
+            BOOST_CHECK_SMALL( ( output->parameterEstimate_.tail( trueTimeBias.size( ) ) - trueTimeBias ).norm( ), 1.0E-8 );
+            BOOST_CHECK_SMALL( output->residuals_.cwiseAbs( ).maxCoeff( ), 1.0E-5 );
+
+            // Every selected model receives the estimated common value.
+            for( const auto& member : sharedParameter->getMembers( ) )
+            {
+                BOOST_CHECK_SMALL( ( member.second->getParameterValue( ) - trueTimeBias ).norm( ), 1.0E-8 );
+            }
+
+            // The time-bias partial is the negative observable rate at the biased time; compare with a central difference.
+            const auto angularManager = manager.getObservationManagers( ).at( angular_position );
+            const auto simulator = std::dynamic_pointer_cast< ObservationSimulator< 2 > >( angularManager->getObservationSimulator( ) );
+            BOOST_REQUIRE( simulator != nullptr );
+            const std::vector< double > checkTimes = { 1800.0, 5400.0 };
+            const double timeStep = 0.1;
+            for( const auto& links : angularLinks )
+            {
+                Eigen::VectorXd values;
+                Eigen::MatrixXd partials;
+                angularManager->computeObservationsWithPartials( checkTimes, links, receiver, nullptr, values, partials );
+                const Eigen::MatrixXd timeBiasPartials = partials.rightCols( trueTimeBias.size( ) );
+                const auto model = simulator->getObservationModel( links );
+                if( links.at( receiver ) == observerId )
+                {
+                    for( unsigned int i = 0; i < checkTimes.size( ); ++i )
+                    {
+                        const int arc = arcWise && checkTimes.at( i ) >= arcTimes.at( 1 ) ? 1 : 0;
+                        const double biasedTime = checkTimes.at( i ) - trueTimeBias( arc );
+                        const Eigen::Vector2d expectedPartial = -( model->computeIdealObservations( biasedTime + timeStep, receiver ) -
+                                                                   model->computeIdealObservations( biasedTime - timeStep, receiver ) ) /
+                                ( 2.0 * timeStep );
+                        Eigen::MatrixXd expectedPartials = Eigen::MatrixXd::Zero( 2, trueTimeBias.size( ) );
+                        expectedPartials.col( arc ) = expectedPartial;
+                        // The time-bias partial agrees to O(v/c) of the link's range rate (up to about 2E-5 relative here).
+                        BOOST_CHECK_SMALL( ( timeBiasPartials.middleRows< 2 >( 2 * i ) - expectedPartials ).norm( ),
+                                           5.0E-5 * expectedPartial.norm( ) );
+                    }
+                }
+                else
+                {
+                    // The unselected link keeps its own time bias and has no shared time-bias partial.
+                    const auto bias = std::dynamic_pointer_cast< ConstantTimeBias< 2 > >( model->getObservationBiasCalculator( ) );
+                    BOOST_REQUIRE( bias != nullptr );
+                    BOOST_CHECK_EQUAL( bias->getTemplateFreeConstantObservationBias( )( 0 ), unsharedTimeBias );
+                    BOOST_CHECK_EQUAL( timeBiasPartials.norm( ), 0.0 );
+                }
+            }
+        }
     }
 }
 

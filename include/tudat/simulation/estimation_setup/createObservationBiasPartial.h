@@ -118,7 +118,11 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 if( useObservationBiasPartials && sharedBias->doesObservationMatch( linkEnds, observableType ) )
                 {
                     const auto member = sharedBias->getMember( linkEnds );
-                    if( member != nullptr )
+
+                    // As for per-link time biases, n-way range partials do not support time biases.
+                    const bool isUnsupportedTimeBias = observation_models::isSharedObservationBiasTimeBias( sharedBias->getBiasType( ) ) &&
+                            ( observableType == observation_models::n_way_range || observableType == observation_models::dsn_n_way_range );
+                    if( member != nullptr && !isUnsupportedTimeBias )
                     {
                         // Reuse this link's ordinary partial; the caller retains the shared parameter's column indices.
                         observationPartial = createObservationPartialWrtLinkProperty< ObservationSize >( linkEnds,

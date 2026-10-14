@@ -252,7 +252,7 @@ public:
     //! Apply a value to linked biases, or defer it until models are first linked.
     void setParameterValue( Eigen::VectorXd value ) override;
 
-    //! Return the observable dimension multiplied by the number of bias arcs.
+    //! Return the observable dimension (one for time biases) multiplied by the number of bias arcs.
     int getParameterSize( ) override;
 
     //! Describe the observable, selected link end, and bias type for diagnostics.
@@ -271,6 +271,12 @@ public:
     observation_models::ObservationBiasTypes getBiasType( ) const
     {
         return biasType_;
+    }
+
+    //! Return the link-end event whose time selects the active arc and, for time biases, is shifted by the bias.
+    observation_models::LinkEndType getTimeLinkEnd( ) const
+    {
+        return timeLinkEnd_;
     }
 
     //! Create an ordinary bias parameter to be bound using the existing closure.
@@ -311,7 +317,7 @@ private:
     //! Common arc boundaries; empty for constant biases.
     std::vector< double > arcStartTimes_;
 
-    //! Link-end event whose time determines the active bias arc.
+    //! Link-end event whose time determines the active bias arc, and the event shifted by a time bias.
     observation_models::LinkEndType timeLinkEnd_;
 
     //! Bound bias parameters indexed by their complete link geometry.
