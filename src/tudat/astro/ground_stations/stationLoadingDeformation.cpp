@@ -179,54 +179,132 @@ const input_output::StationLoadingSite& StationLoadingDeformation::selectSite( c
     return *selected;
 }
 
-Eigen::Vector3d StationLoadingDeformation::interpolate( const input_output::StationLoadingSite& site,
+//! Preserve exact source-node positions and optionally differentiate the same linear physical-time interval.
+Eigen::Vector6d StationLoadingDeformation::interpolate( const input_output::StationLoadingSite& site,
                                                         const PreparedGrid& grid,
                                                         const Time& tdb,
-                                                        const bool rate ) const
+                                                        const bool withRate ) const
 {
-    if( site.samples.empty( ) ) throw std::out_of_range( "Loading site has no source samples" );
-    const std::size_t first = site.samples.begin( )->first, last = site.samples.rbegin( )->first;
-    if( tdb < grid.tdb[ first ] || tdb > grid.tdb[ last ] ) throw std::out_of_range( "Loading epoch outside exact site coverage" );
-    const auto sourceNode = std::lower_bound( grid.tdb.begin( ) + first, grid.tdb.begin( ) + last + 1, tdb );
-    const bool exactNode = *sourceNode == tdb;
-    const std::size_t sourceIndex = std::distance( grid.tdb.begin( ), sourceNode );
-    const Time tai = exactNode ? grid.tai[ sourceIndex ] : timeConverter_->getTaiTime( tdb_scale, tdb );
-    if( exactNode && !rate ) return vector( site.samples.at( sourceIndex ).displacement );
-    if( first == last ) throw std::out_of_range( "Loading position exists at this singleton epoch, but no interpolant rate is available" );
-    const std::size_t lower = exactNode ? ( sourceIndex == last ? last - 1 : sourceIndex ) : sourceIndex - 1;
-    const double duration = static_cast< double >( grid.tai[ lower + 1 ] - grid.tai[ lower ] );
-    if( duration > settings_.maximumGapSeconds ) throw std::out_of_range( "Loading interpolant support exceeds the declared maximum gap" );
-    const Eigen::Vector3d left = vector( site.samples.at( lower ).displacement );
-    const Eigen::Vector3d right = vector( site.samples.at( lower + 1 ).displacement );
-    if( rate ) return ( right - left ) / duration * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
-    return left + ( right - left ) * ( static_cast< double >( tai - grid.tai[ lower ] ) / duration );
-}
+    if( site.samples.empty( ) )
+    {
+        throw std::out_of_range( "Loading site has no source samples" );
+    }
 
-Eigen::Vector3d StationLoadingDeformation::evaluate( const Time& tdb,
-                                                     const Eigen::Vector3d& position,
-                                                     const std::string& stationId,
-                                                     const bool rate ) const
-{
-    const auto& site = selectSite( position, stationId );
-    Eigen::Vector3d result = sourceBases_.at( site.identifier ) * interpolate( site, grid_, tdb, rate );
-    if( settings_.originTranslation )
-        result += interpolate( settings_.originTranslation->series.sites.begin( )->second, translationGrid_, tdb, rate );
+    // Exact site coverage and source-node lookup stay on the precise TDB axis.
+    const std::size_t first = site.samples.begin( )->first, last = site.samples.rbegin( )->first;
+
+    if( tdb < grid.tdb[ first ] || tdb > grid.tdb[ last ] )
+    {
+        throw std::out_of_range( "Loading epoch outside exact site coverage" );
+    }
+
+    const auto sourceNode = std::lower_bound( grid.tdb.begin( ) + first, grid.tdb.begin( ) + last + 1, tdb );
+
+    const bool exactNode = *sourceNode == tdb;
+
+    const std::size_t sourceIndex = std::distance( grid.tdb.begin( ), sourceNode );
+
+    // Use authoritative TAI nodes at exact source epochs rather than round-tripping their TDB images.
+    const Time tai = exactNode ? grid.tai[ sourceIndex ] : timeConverter_->getTaiTime( tdb_scale, tdb );
+
+    Eigen::Vector6d result = Eigen::Vector6d::Zero( );
+
+    if( exactNode )
+    {
+        result.head< 3 >( ) = vector( site.samples.at( sourceIndex ).displacement );
+        if( !withRate )
+        {
+            return result;
+        }
+    }
+    if( first == last )
+    {
+        throw std::out_of_range( "Loading position exists at this singleton epoch, but no interpolant rate is available" );
+    }
+
+    // Rates use the interval to the right at a knot and the left interval at the final endpoint.
+    const std::size_t lower = exactNode ? ( sourceIndex == last ? last - 1 : sourceIndex ) : sourceIndex - 1;
+
+    const double duration = static_cast< double >( grid.tai[ lower + 1 ] - grid.tai[ lower ] );
+
+    if( duration > settings_.maximumGapSeconds )
+    {
+        throw std::out_of_range( "Loading interpolant support exceeds the declared maximum gap" );
+    }
+
+    // Source-component displacements in metres at the two interval endpoints.
+    const Eigen::Vector3d left = vector( site.samples.at( lower ).displacement );
+
+    const Eigen::Vector3d right = vector( site.samples.at( lower + 1 ).displacement );
+
+    if( !exactNode )
+    {
+        result.head< 3 >( ) = left + ( right - left ) * ( static_cast< double >( tai - grid.tai[ lower ] ) / duration );
+    }
+    if( withRate )
+    {
+        result.tail< 3 >( ) = ( right - left ) / duration;
+    }
     return result;
 }
 
+//! Share provider selection, interpolation and fixed source basis between displacement and state requests.
+Eigen::Vector6d StationLoadingDeformation::evaluate( const Time& tdb,
+                                                     const Eigen::Vector3d& position,
+                                                     const std::string& stationId,
+                                                     const bool withRate ) const
+{
+    // Select the provider point once; both state components use its original Cartesian component basis.
+    const auto& site = selectSite( position, stationId );
+
+    Eigen::Vector6d loading = interpolate( site, grid_, tdb, withRate );
+
+    Eigen::Vector6d translation = Eigen::Vector6d::Zero( );
+
+    if( settings_.originTranslation )
+    {
+        translation = interpolate( settings_.originTranslation->series.sites.begin( )->second, translationGrid_, tdb, withRate );
+    }
+    if( withRate )
+    {
+        // TAI and TT differ by a constant; obtain their common derivative with respect to TDB only once.
+        const double physicalRateWrtTdb = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
+
+        loading.tail< 3 >( ) *= physicalRateWrtTdb;
+        translation.tail< 3 >( ) *= physicalRateWrtTdb;
+    }
+
+    // Preserve the source-rate scaling before rotation and the Cartesian origin addition after rotation.
+    const auto& basis = sourceBases_.at( site.identifier );
+
+    Eigen::Vector6d result = Eigen::Vector6d::Zero( );
+
+    result.head< 3 >( ) = basis * loading.head< 3 >( );
+    if( withRate )
+    {
+        result.tail< 3 >( ) = basis * loading.tail< 3 >( );
+    }
+    if( settings_.originTranslation )
+    {
+        result += translation;
+    }
+    return result;
+}
+
+//! Evaluate displacement alone without requiring a neighbouring source sample or clock derivative.
 Eigen::Vector3d StationLoadingDeformation::evaluateDisplacement( const Time& tdb,
                                                                  const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), false );
+    return evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), false ).head< 3 >( );
 }
+
+//! Evaluate both Cartesian state components with one provider/interpolant selection.
 Eigen::Vector6d StationLoadingDeformation::evaluateDisplacementState( const Time& tdb,
                                                                       const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    Eigen::Vector6d state;
-    state.head< 3 >( ) = evaluateDisplacement( tdb, station );
-    state.tail< 3 >( ) = evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), true );
-    return state;
+    return evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), true );
 }
+
 Time StationLoadingDeformation::normalizeScalarTdb( const double tdb ) const
 {
     std::optional< Time > exact;

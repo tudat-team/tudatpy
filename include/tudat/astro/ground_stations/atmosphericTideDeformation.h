@@ -52,14 +52,19 @@ public:
     input_output::AtmosphericLoadingReferenceOrigin getOutputReferenceOrigin( const std::string& identifier = "" ) const;
 
 protected:
+    //! Return Cartesian atmospheric displacement in metres without requesting a clock rate.
     Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+
+    //! Return displacement and its analytic derivative in metres per TDB second.
     Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
 private:
-    Eigen::Vector3d evaluateCartesianLoading( const Time& tdb,
+    //! Select coefficients/geometry once and optionally evaluate the rate with the same UT1 phase and basis.
+    Eigen::Vector6d evaluateCartesianLoading( const Time& tdb,
                                               const std::shared_ptr< ground_stations::GroundStationState >& station,
-                                              bool derivativeWrtTdb );
+                                              bool withRate );
+
     void validateCommonSettings( ) const;
     void validateShapeForBasis( input_output::AtmosphericTideDisplacementBasis basis, bool geodeticLookup = false ) const;
     void validateOriginConversion( const input_output::AtmosphericTideMetadata& metadata ) const;
