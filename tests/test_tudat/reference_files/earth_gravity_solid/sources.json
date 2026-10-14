@@ -1,0 +1,104 @@
+{
+  "iers_chapter6_2018.pdf": {
+    "url": "https://iers-conventions.obspm.fr/content/chapter6/icc6.pdf",
+    "sha256": "abb3c0b0b6d2079b19893d6872a9d8e7320516d9a4736acb5eecaa79c4543388",
+    "bytes": 412891
+  },
+  "costg-readme.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/00README_simulation.txt",
+    "sha256": "3e18481f3e4619984fbdff690285b0d3f3dca24ca059ffb6b9918b3fb671ce59",
+    "bytes": 10736
+  },
+  "orekit-tab6.3.txt": {
+    "url": "https://raw.githubusercontent.com/CS-SI/Orekit/13.1.8/src/main/resources/assets/org/orekit/IERS-conventions/2010/tab6.3.txt",
+    "sha256": "5eacca9f1068bccc1a8fd6a861c17fbe9569341dd121fe34c69032dc9e757e97",
+    "bytes": 519
+  },
+  "orekit-tab6.5a.txt": {
+    "url": "https://raw.githubusercontent.com/CS-SI/Orekit/13.1.8/src/main/resources/assets/org/orekit/IERS-conventions/2010/tab6.5a.txt",
+    "sha256": "52155b267d2444e6f85fe9912dc9a5153d251e1dee56bf13d76c329997f73df0",
+    "bytes": 5055
+  },
+  "orekit-tab6.5b.txt": {
+    "url": "https://raw.githubusercontent.com/CS-SI/Orekit/13.1.8/src/main/resources/assets/org/orekit/IERS-conventions/2010/tab6.5b.txt",
+    "sha256": "e9ca1b90f0b83c6389f680b3926e753bbdedef5a6e1f34a66445f906cbaaccec",
+    "bytes": 2362
+  },
+  "orekit-tab6.5c.txt": {
+    "url": "https://raw.githubusercontent.com/CS-SI/Orekit/13.1.8/src/main/resources/assets/org/orekit/IERS-conventions/2010/tab6.5c.txt",
+    "sha256": "8ccc01f0c8055b844f78bc62b700362c5612b4e4e7c47d537c7f82d19dfd3e9f",
+    "bytes": 497
+  },
+  "orekit-LICENSE.txt": {
+    "url": "https://raw.githubusercontent.com/CS-SI/Orekit/13.1.8/LICENSE.txt",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  "orekit-NOTICE.txt": {
+    "url": "https://raw.githubusercontent.com/CS-SI/Orekit/13.1.8/NOTICE.txt",
+    "sha256": "dc8ea1d4aed11cba83d3f38de87518b274260fb529f01072af9d6c553ce8c440",
+    "bytes": 1661
+  },
+  "de421.bsp": {
+    "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421.bsp",
+    "sha256": "08b20db2ae22488650641c5a9033e5bfda4b1c4b440cfeaf20f621cfa18ecdb3",
+    "bytes": 16790528
+  },
+  "costg/00orbit_icrf.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/00orbit_icrf.txt",
+    "sha256": "57bf1735f584ba9c40d0e3854caf3be30c42fde05177af15463a71546156b2e5",
+    "bytes": 749397
+  },
+  "costg/00orbit_itrf.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/00orbit_itrf.txt",
+    "sha256": "ff7d151c16fdfe325d1d3a50ca59d260be73d122711ef2297b6fe98994b1b783",
+    "bytes": 749397
+  },
+  "costg/01earthRotation_rotaryMatrix.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/01earthRotation_rotaryMatrix.txt",
+    "sha256": "01b14f1794776219c605fe4fa4070b5d5f6a6bc6b7423d4bc90f778de747bdcf",
+    "bytes": 749397
+  },
+  "costg/01earthRotation_interpolatedEOP.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/01earthRotation_interpolatedEOP.txt",
+    "sha256": "71bc568122fac59aceb3535c017ed4e3289a9c942b36538e7d09236be318f017",
+    "bytes": 676851
+  },
+  "costg/04solidEarthTide_icrf.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/04solidEarthTide_icrf.txt",
+    "sha256": "90600c06eff1012b791c9484713ef5f9d0210ee3af56ece64175342915deecef",
+    "bytes": 299813
+  },
+  "costg/05poleTide_icrf.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/05poleTide_icrf.txt",
+    "sha256": "75cd5300240174c51b4954e23d23bcf6984940cf4186a7ba76168bb629fa4893",
+    "bytes": 299813
+  },
+  "costg/90doodsonArguments.txt": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/satellite/90doodsonArguments.txt",
+    "sha256": "1ad54e14123815a52c4012b38ca095c46a9d2304990bb833f110e6a15cead8aa",
+    "bytes": 899270
+  },
+  "groops/source/base/constants.cpp": {
+    "url": "https://github.com/groops-devs/groops/blob/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee/source/base/constants.cpp",
+    "sha256": "9f29386f5bbb94f78093c38e109aad72f0ac20268cd28a59017daa6c5a248708",
+    "bytes": 5243,
+    "use": "Constants/convention verification only; no software copied."
+  },
+  "iers_chapter6_2018.txt": {
+    "sha256": "fbf6f117c1146b89cdd4e58b8013ba617a6e3594c94f31891a13f49a647e3ae1",
+    "reproduction": "pdftotext -layout iers_chapter6_2018.pdf iers_chapter6_2018.txt"
+  },
+  "groops/source/classes/tides/tidesEarth.cpp": {
+    "url": "https://github.com/groops-devs/groops/blob/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee/source/classes/tides/tidesEarth.cpp",
+    "sha256": "61fa3433a7e21d9ddd6c0ba585f7e33fddc58fe0b8a417b04642abae58e702b1",
+    "bytes": 10088,
+    "use": "Source/consumer GM/R verification only; no software copied."
+  },
+  "costg/models/EIGEN6-C4.gfc": {
+    "url": "https://ftp.tugraz.at/pub/ITSG/COST-G/softwareComparison/models/EIGEN6-C4.gfc",
+    "sha256": "b5d58320c9ee03ff4ad258e65ea2bade002c477081df08c30e72f4d864737715",
+    "bytes": 1219371,
+    "use": "Consuming field GM/radius/tide-system header only; coefficients not copied."
+  }
+}

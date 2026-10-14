@@ -14,6 +14,7 @@
 # Set the source files.
 set(gravitation_SOURCES
         "basicSolidBodyTideGravityFieldVariations.cpp"
+        "earthSolidBodyTideGravityFieldVariations.cpp"
         "gravityFieldVariations.cpp"
         "oceanPoleTideGravityFieldVariations.cpp"
         "centralGravityModel.cpp"
@@ -49,6 +50,7 @@ set(gravitation_SOURCES
 # Set the header files.
 set(gravitation_HEADERS
         "basicSolidBodyTideGravityFieldVariations.h"
+        "earthSolidBodyTideGravityFieldVariations.h"
         "gravityFieldVariations.h"
         "oceanPoleTideGravityFieldVariations.h"
         "centralGravityModel.h"

@@ -14,3 +14,9 @@ This software makes use of the Eigen (http://eigen.tuxfamily.org/) and Boost C++
 (http://www.boost.org/).
 
 For any enquires, please contact tudat-AE@tudelft.nl.
+
+The IERS 2010 solid Earth gravity tide frequency tables are transcribed from
+Orekit 13.1.8 resource data (Copyright 2002-2025 CS GROUP), licensed under
+Apache License 2.0. The original license and notices are retained in
+third_parties/orekit-data/. See the solid-gravity reference fixture README for
+source hashes, extraction and the primary IERS table cross-check.
