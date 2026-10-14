@@ -100,6 +100,11 @@ def python_dependency_violations():
 
 def cpp_dependency_violations():
     roots = sorted(DATA_INPUT.rglob("*.cpp")) + sorted(DATA_INPUT.rglob("*.h"))
+    # Include the standalone parser directly, even if its binding registration changes.
+    roots += [
+        ROOT / "include/tudat/io/readAtmosphericTideData.h",
+        ROOT / "src/tudat/io/readAtmosphericTideData.cpp",
+    ]
     queue = deque((path, [str(path.relative_to(ROOT))]) for path in roots)
     visited = set()
     violations = []

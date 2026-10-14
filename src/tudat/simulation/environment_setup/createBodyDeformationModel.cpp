@@ -256,6 +256,46 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             }
             break;
         }
+        case atmospheric_tide: {
+            const auto settings = std::dynamic_pointer_cast< AtmosphericTideBodyDeformationSettings >( bodyDeformationSettings );
+            if( !settings )
+            {
+                throw std::runtime_error( "Expected atmospheric tide deformation settings" );
+            }
+            if( body != "Earth" || bodyMap.count( body ) == 0 )
+            {
+                throw std::runtime_error( "Conventional atmospheric loading requires Earth" );
+            }
+            const auto rotation =
+                    std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) );
+            if( !rotation || !rotation->getAnglesCalculator( ) )
+            {
+                throw std::runtime_error( "Atmospheric loading requires Earth's GCRS/ITRS model and shared time converter" );
+            }
+            const auto converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+            const auto shape = bodyMap.at( body )->getShapeModel( );
+            if( settings->getInputFormat( ) == AtmosphericTideInputFormat::grid )
+            {
+                const auto grid = settings->hasPreloadedData( )
+                        ? settings->getGrid( )
+                        : input_output::readAtmosphericTideGrid( settings->getFile( ), settings->getMetadata( ) );
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
+                        grid, converter, settings->getEvaluationSettings( ), shape );
+            }
+            else if( settings->getInputFormat( ) == AtmosphericTideInputFormat::stationCoefficients )
+            {
+                const auto stations = settings->hasPreloadedData( )
+                        ? settings->getStations( )
+                        : input_output::readAtmosphericTideStationData( settings->getFile( ), settings->getMetadata( ) );
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
+                        stations, converter, settings->getEvaluationSettings( ), shape );
+            }
+            else
+            {
+                throw std::runtime_error( "Unknown atmospheric tide input format" );
+            }
+            break;
+        }
         case ocean_pole_tide: {
             const auto settings = std::dynamic_pointer_cast< OceanPoleTideBodyDeformationSettings >( bodyDeformationSettings );
             if( !settings )

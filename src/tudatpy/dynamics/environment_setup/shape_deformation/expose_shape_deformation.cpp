@@ -62,6 +62,64 @@ void expose_shape_deformation_setup( py::module& m )
 
       )doc" );
 
+    namespace ba = tudat::basic_astrodynamics;
+    py::enum_< ba::AtmosphericTideEndpointPolicy >( m, "AtmosphericTideEndpointPolicy" )
+            .value( "require_consistency", ba::AtmosphericTideEndpointPolicy::requireConsistency )
+            .value( "average_seam_and_polar_cartesian_approximation",
+                    ba::AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation );
+    py::enum_< ba::AtmosphericLoadingOriginPolicy >( m, "AtmosphericLoadingOriginPolicy" )
+            .value( "preserve_source_origin", ba::AtmosphericLoadingOriginPolicy::preserveSourceOrigin )
+            .value( "convert_identified_rp03_ce_to_cm", ba::AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm );
+    py::class_< ba::AtmosphericTideEvaluationSettings >(
+            m,
+            "AtmosphericTideEvaluationSettings",
+            "Independent grid lookup latitude and displacement basis declarations. Geodetic choices require Earth's configured shape. "
+            "Strict endpoint consistency and preserved source origin are defaults." )
+            .def( py::init<>( ) )
+            .def_readwrite( "lookup_latitude_convention", &ba::AtmosphericTideEvaluationSettings::lookupLatitudeConvention )
+            .def_readwrite( "displacement_basis", &ba::AtmosphericTideEvaluationSettings::displacementBasis )
+            .def_readwrite( "endpoint_policy", &ba::AtmosphericTideEvaluationSettings::endpointPolicy )
+            .def_readwrite( "origin_policy", &ba::AtmosphericTideEvaluationSettings::originPolicy );
+    py::class_< tss::AtmosphericTideBodyDeformationSettings,
+                std::shared_ptr< tss::AtmosphericTideBodyDeformationSettings >,
+                tss::BodyDeformationSettings >( m, "AtmosphericTideBodyDeformationSettings" );
+    m.def( "atmospheric_tide_from_grid",
+           &tss::atmosphericTideBodyShapeDeformationFromGrid,
+           py::arg( "grid" ),
+           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           R"doc(Create conventional S1/S2 loading from preloaded SI grid records.
+
+The environment epoch is TDB seconds since J2000. Phase is measured from UT1
+midnight using Earth's shared continuous time converter. Grid latitude lookup
+and displacement component basis must each be declared explicitly; the provider
+latitude label does not resolve either convention. Source origin is preserved.
+The optional identified RP03 CE-to-CM policy adds Table 7.6 XYZ translation once
+after local rotation. Actual RP03 seam/polar rounding discrepancies require an
+explicit approximation policy, which records their maximum size and preserves
+raw records. Position evaluation works through inserted leap seconds. State
+and velocity (d/dTDB) currently raise while shared dUT1/dTDB is unavailable.
+)doc" );
+    m.def( "atmospheric_tide_from_stations",
+           &tss::atmosphericTideBodyShapeDeformationFromStations,
+           py::arg( "stations" ),
+           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           "Create S1/S2 loading from exact station identifiers and precomputed SI coefficients. Explicit displacement basis is required; "
+           "source coordinates are not used for lookup. Epochs are TDB, phase UT1; d/dTDB state/rates are currently unavailable." );
+    m.def( "atmospheric_tide_from_grid_file",
+           &tss::atmosphericTideBodyShapeDeformationFromGridFile,
+           py::arg( "file_path" ),
+           py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
+           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           "Read a grid once during construction; use the same explicit geometry, endpoint and origin policies as "
+           "atmospheric_tide_from_grid." );
+    m.def( "atmospheric_tide_from_station_file",
+           &tss::atmosphericTideBodyShapeDeformationFromStationFile,
+           py::arg( "file_path" ),
+           py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
+           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           "Read ATL station coefficients once during construction; use the same basis/origin policies as "
+           "atmospheric_tide_from_stations." );
+
     m.def( "basic_solid_body_tidal",
            &tss::basicTidalBodyShapeDeformation,
            py::arg( "tide_raising_bodies" ),

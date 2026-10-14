@@ -16,6 +16,7 @@ functions in :ref:`environment_setup`.
    :maxdepth: 2
    :caption: Modules
 
+   environment_data/atmospheric_loading
    environment_data/coma
    environment_data/discos
    environment_data/earth_orientation

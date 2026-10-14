@@ -21,6 +21,8 @@ set(ground_stations_SOURCES
         "oceanTideEarthDeformation.cpp"
         "poleTideDeformation.cpp"
         "oceanPoleTideDeformation.cpp"
+        "atmosphericTideLoading.cpp"
+        "atmosphericTideDeformation.cpp"
         "meteorologicalConditions.cpp"
 )
 
@@ -37,13 +39,15 @@ set(ground_stations_HEADERS
         "oceanTideEarthDeformation.h"
         "poleTideDeformation.h"
         "oceanPoleTideDeformation.h"
+        "atmosphericTideLoading.h"
+        "atmosphericTideDeformation.h"
         "meteorologicalConditions.h"
 )
 
 TUDAT_ADD_LIBRARY("ground_stations"
         "${ground_stations_SOURCES}"
         "${ground_stations_HEADERS}"
-        PUBLIC_LINKS tudat_ocean_loading_data
+        PUBLIC_LINKS tudat_ocean_loading_data tudat_atmospheric_loading_data
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

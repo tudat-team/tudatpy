@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
+#include "tudat/astro/ground_stations/atmosphericTideDeformation.h"
 #include "tudat/astro/ground_stations/oceanPoleTideDeformation.h"
 #include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
@@ -88,6 +89,93 @@ protected:
 };
 
 //! Preloaded or plain-text ocean pole-load grid; loading is performed once when the model is constructed.
+enum class AtmosphericTideInputFormat { grid, stationCoefficients };
+class AtmosphericTideBodyDeformationSettings : public BodyDeformationSettings
+{
+public:
+    AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideGrid& grid,
+                                            const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
+        BodyDeformationSettings( gravitation::atmospheric_tide ), grid_( grid ), settings_( settings ),
+        format_( AtmosphericTideInputFormat::grid ), preloaded_( true )
+    {}
+    AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideStationData& stations,
+                                            const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
+        BodyDeformationSettings( gravitation::atmospheric_tide ), stations_( stations ), settings_( settings ),
+        format_( AtmosphericTideInputFormat::stationCoefficients ), preloaded_( true )
+    {}
+    AtmosphericTideBodyDeformationSettings( const std::string& path,
+                                            const AtmosphericTideInputFormat format,
+                                            const input_output::AtmosphericTideMetadata& metadata,
+                                            const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
+        BodyDeformationSettings( gravitation::atmospheric_tide ), file_( path ), metadata_( metadata ), settings_( settings ),
+        format_( format ), preloaded_( false )
+    {}
+    const input_output::AtmosphericTideGrid& getGrid( ) const
+    {
+        return grid_;
+    }
+    const input_output::AtmosphericTideStationData& getStations( ) const
+    {
+        return stations_;
+    }
+    const input_output::AtmosphericTideMetadata& getMetadata( ) const
+    {
+        return metadata_;
+    }
+    const basic_astrodynamics::AtmosphericTideEvaluationSettings& getEvaluationSettings( ) const
+    {
+        return settings_;
+    }
+    const std::string& getFile( ) const
+    {
+        return file_;
+    }
+    AtmosphericTideInputFormat getInputFormat( ) const
+    {
+        return format_;
+    }
+    bool hasPreloadedData( ) const
+    {
+        return preloaded_;
+    }
+
+private:
+    input_output::AtmosphericTideGrid grid_;
+    input_output::AtmosphericTideStationData stations_;
+    std::string file_;
+    input_output::AtmosphericTideMetadata metadata_;
+    basic_astrodynamics::AtmosphericTideEvaluationSettings settings_;
+    AtmosphericTideInputFormat format_;
+    bool preloaded_;
+};
+inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromGrid(
+        const input_output::AtmosphericTideGrid& grid,
+        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+{
+    return std::make_shared< AtmosphericTideBodyDeformationSettings >( grid, settings );
+}
+inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromStations(
+        const input_output::AtmosphericTideStationData& stations,
+        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+{
+    return std::make_shared< AtmosphericTideBodyDeformationSettings >( stations, settings );
+}
+inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromGridFile(
+        const std::string& path,
+        const input_output::AtmosphericTideMetadata& metadata = {},
+        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+{
+    return std::make_shared< AtmosphericTideBodyDeformationSettings >( path, AtmosphericTideInputFormat::grid, metadata, settings );
+}
+inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromStationFile(
+        const std::string& path,
+        const input_output::AtmosphericTideMetadata& metadata = {},
+        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+{
+    return std::make_shared< AtmosphericTideBodyDeformationSettings >(
+            path, AtmosphericTideInputFormat::stationCoefficients, metadata, settings );
+}
+
 class OceanPoleTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:

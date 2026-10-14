@@ -1,0 +1,17 @@
+{
+  "source_url": "https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf",
+  "source_pdf_sha256": "ffe8ffb13c8bbc3b07ac298f458fcbb564974377b165fb93921a05bb0d55043d",
+  "source_locations": [
+    "Eq18 printedp13",
+    "Eq20 and Table7.6 printedp15"
+  ],
+  "method": "Independent optional Fortran complex-Fourier synthesis and cross-product local basis; newly written reference, not an IERS reference routine",
+  "reference_source_sha256": "dea1895688fb7429543ffc82ae5abbc244ef1dd5e4d34007a0559211286611f2",
+  "compiler_version": "GNU Fortran (conda-forge gcc 15.2.0-19) 15.2.0",
+  "compile_options": [
+    "-std=f2008",
+    "-O0"
+  ],
+  "ordinary_test_tolerance_metres": 1e-17,
+  "scope_limit": "Verifies published table/time/basis algebra, not an independent RP03 CM grid or original provider interpolation program"
+}

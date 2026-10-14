@@ -184,3 +184,28 @@ install(TARGETS tudat_ocean_loading_data EXPORT tudat_export
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
     ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}")
+
+# Atmospheric loading input remains separately linkable with only std/Eigen dependencies.
+if(TUDAT_BUILD_STATIC_LIBRARY)
+    add_library(tudat_atmospheric_loading_data STATIC readAtmosphericTideData.cpp)
+else()
+    add_library(tudat_atmospheric_loading_data SHARED readAtmosphericTideData.cpp)
+endif()
+target_compile_features(tudat_atmospheric_loading_data PUBLIC cxx_std_17)
+target_include_directories(tudat_atmospheric_loading_data PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+if(TARGET Eigen3::Eigen)
+    target_link_libraries(tudat_atmospheric_loading_data PUBLIC Eigen3::Eigen)
+else()
+    target_include_directories(tudat_atmospheric_loading_data SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIRS})
+endif()
+set_target_properties(tudat_atmospheric_loading_data PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+add_library(Tudat::tudat_atmospheric_loading_data ALIAS tudat_atmospheric_loading_data)
+install(TARGETS tudat_atmospheric_loading_data EXPORT tudat_export
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+    RUNTIME DESTINATION "${INSTALL_BIN_DIR}")

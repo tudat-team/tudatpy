@@ -113,8 +113,8 @@ Active work
   position-only station path pass integrated C++ tests. EOP-knot rate policies
   and full station-state closure still require task 11.
 * Task 17: the neutral atmospheric S1/S2 reader, synthesis, grid geometry and
-  position factories pass isolated C++ tests. Integration and the UT1-to-TDB
-  derivative chain remain open.
+  position factories pass integrated C++ tests. This position-model checkpoint
+  is committed; the UT1-to-TDB derivative chain remains open.
 * Task 18: the neutral SINEX history parser is implemented in isolation and
   handles complete published station/discontinuity products. Native regression
   tests and the explicit legacy adapter are underway.
@@ -407,3 +407,39 @@ also pass in the combined 25-check integration selection. Full rotation rates
 and station-state closure remain tasks 11 and 12. Logs are
 ``tests-time-routing-atmospheric-final.log`` and
 ``architecture-time-routing-atmospheric-final.log`` in the local work directory.
+
+Task 17, position checkpoint: neutral atmospheric S1/S2 grid and station readers
+preserve provider coefficients, source/origin metadata and explicit geometry
+conventions. The separately linkable input target has no dynamics or estimation
+dependency. Continuous UT1 drives the conventional midnight-referenced sine/cosine
+synthesis. Grid lookup latitude and displacement basis are separate choices;
+geodetic choices require the configured body shape. Cartesian displacement is
+independent of the station's input coordinate representation.
+
+The complete pinned RP03 provider grid was parsed independently. Its rounded
+longitude-seam and polar coefficients do not satisfy exact consistency. Strict
+evaluation rejects these inconsistencies; an explicit averaging approximation
+reports the discrepancy and preserves the raw data. Source-origin preservation
+is the default. Optional CE-to-CM translation uses IERS Table 7.6 only for an
+explicitly identified RP03/no-IB/Farrell source and applies once in Cartesian
+coordinates. An already-CM source receives no extra translation.
+
+The six input, eight synthesis/interpolation and seven model/factory C++ cases
+pass, including all lookup/basis combinations, oblate geometry, file/preloaded
+parity, exact station identifiers and the 2016 inserted second. Independent
+complex-Fourier fixtures check the published origin-translation equations;
+this fixture generator is not presented as original IERS reference software.
+A mismatching Bernese station example is recorded as an unsuitable oracle,
+without widening a tolerance. Source provenance and these limitations are in
+``reference_files/atmospheric_tides/README.md``.
+
+The optimized integration build exposed a dangling Eigen expression in one
+test's expected-value calculation. Materializing the vector fixed the test
+without changing model equations, fixtures or tolerances. All 24 selected C++
+executables and the actual input-target dependency audit now pass (25 CTest
+checks, 1.98 s), together with both source-boundary checks. Exact-file formatting
+also passes. The final source identities and evidence are recorded in
+``time-routing-atmospheric-final-files.json`` and
+``time-routing-atmospheric-validation-summary.json``. The full atmospheric
+velocity/state interfaces explicitly reject evaluation until the selected UT1
+rate is connected; task 17 remains open. No Python kernel was rebuilt.

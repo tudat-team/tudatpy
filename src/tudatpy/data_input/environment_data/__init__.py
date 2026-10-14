@@ -8,6 +8,7 @@ weather, Earth orientation records, comet-coma data, and mission-specific enviro
 from tudatpy.kernel.data_input.environment_data import *
 
 from . import (
+    atmospheric_loading,
     coma,
     discos,
     earth_orientation,

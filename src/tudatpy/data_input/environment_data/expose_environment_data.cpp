@@ -14,6 +14,7 @@
 
 #include "coma/expose_coma.h"
 #include "earth_orientation/expose_earth_orientation.h"
+#include "atmospheric_loading/expose_atmospheric_loading.h"
 #include "ocean_loading/expose_ocean_loading.h"
 #include "ilrs/expose_ilrs.h"
 #include "space_weather/expose_space_weather.h"
@@ -31,6 +32,9 @@ namespace environment_data
 
 void expose_environment_data( py::module& m )
 {
+    auto atmospheric_loading_submodule = m.def_submodule( "atmospheric_loading" );
+    atmospheric_loading::expose_atmospheric_loading( atmospheric_loading_submodule );
+
     auto ocean_loading_submodule = m.def_submodule( "ocean_loading" );
     ocean_loading::expose_ocean_loading( ocean_loading_submodule );
 
