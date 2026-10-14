@@ -62,4 +62,12 @@ TUDAT_ADD_TEST_CASE(EarthOrientationDataEvaluator
     PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(EarthRotationDerivatives
-    PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+    PRIVATE_LINKS
+        tudat_earth_orientation
+        tudat_sofa_interface
+        tudat_interpolators
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        tudat_input_output_raw
+        tudat_earth_orientation_data
+        tudat_basics)
