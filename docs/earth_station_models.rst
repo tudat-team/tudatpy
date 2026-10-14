@@ -8,9 +8,9 @@ This work starts at PR #900 (``feature/data-refactor``), commit
 ``3070b20e83e18a749767fe0332a5280464f59b16``.  Changes are developed on
 ``fix/earth_deformation_rotation`` and committed as validated units. The session
 was recovered on 14 October 2026 after an interrupted context compaction.
-Work in the recovered session remains local; remote publication requires an
-explicit instruction in the current conversation under Dominic's persistent
-workspace policy.
+Dominic explicitly authorized pushing the current milestone and subsequent major
+milestones on 14 October 2026. The coordinator publishes reviewed integration
+checkpoints to the existing ``origin/fix/earth_deformation_rotation`` branch.
 
 * First reproduce accepted standards and correct existing models.  The
   published IERS Conventions (2010), explicitly identified official updates,
