@@ -670,6 +670,7 @@ reference_epoch:
 
         )doc" );
     expose_station_history_models( m );
+    expose_station_reference_points( m );
 }
 
 }  // namespace ground_station

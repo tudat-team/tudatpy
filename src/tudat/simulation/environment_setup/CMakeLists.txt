@@ -22,6 +22,7 @@ set(environment_HEADERS
         createBodiesFactory.h
         createBodiesSettings.h
         createGroundStations.h
+        createStationReferencePoint.h
         createBodyDeformationModel.h
         baseStateInterface.h
         rigidBodyProperties.h

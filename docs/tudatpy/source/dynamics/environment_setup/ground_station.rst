@@ -178,6 +178,96 @@ parameter source and hash, and ``acknowledged_release_alignment`` records the
 explicit release declaration. Empirical seasonal activity is propagated for
 subsequent loading-overlap decisions.
 
+Marker, antenna and calibrated instrument points
+-----------------------------------------------
+
+``sinex_antenna_reference_point`` composes a GNSS marker trajectory with the
+dated SINEX marker-to-antenna reference point (ARP) vector. It matches the
+selected station/point/DOMES to the antenna history and preserves the original
+equipment type, radome suffix, serial number and source records. It does not
+infer a phase centre from an antenna name. ``equipment_site`` explicitly selects
+an equipment-product key when identifiers differ, such as ITRF ``ABMF`` and IGS
+``abmf``; the selected row must identify the same DOMES. Raw identifiers remain
+unchanged and no case folding or alias registry is applied.
+
+SINEX UNE components are Up, North, East, in metres, directed from the marker
+to the ARP. The model preserves that order and converts using an explicitly
+supplied fixed ENU-to-terrestrial geometry. ``geocentric_reference_point_geometry``
+uses radial up at its anchor. ``geodetic_reference_point_geometry`` uses the
+ellipsoid normal and requires an equatorial radius and flattening. The basis
+stays frozen at that anchor; it does not imply a changing local orientation or
+invent its rate. An explicit proper fixed basis is also supported. XYZ vectors
+remain XYZ and require an explicitly matching source frame. Geometry and offset
+frame labels must agree with the evaluated source trajectory frame.
+
+Equipment and eccentricity intervals use precise physical TAI and are half-open.
+Gaps, overlaps, missing identity associations and extrapolation raise errors.
+Zero SINEX endpoints retain their header-default meaning. When the source header
+does not specify a limit, supply ``SinexEquipmentHeaderTimeContext`` with a
+finite confirmed bound and provenance; no infinity is guessed. A supplied
+context cannot contradict an actually specified source header. This context is
+retained with the evaluated records. The IGS master template has unspecified
+header limits, so its final equipment records require such a context.
+
+At a switch, position selects the new record. State evaluation defaults to
+``reject_at_switch`` because an ordinary two-sided rate is unavailable there.
+``right_hand_at_switch`` explicitly requests the new record's one-sided rate.
+Do not use a centered finite difference across a hardware or offset jump.
+
+.. code-block:: python
+
+    from tudatpy.data_input.environment_data import station_history as sh
+    from tudatpy.dynamics.environment_setup import ground_station as gs
+
+    geometry = gs.geodetic_reference_point_geometry(
+        anchor_position, marker.metadata.frame,
+        equatorial_radius_metres=6378137.0, flattening=1.0 / 298.257223563)
+    context = gs.SinexEquipmentHeaderTimeContext()
+    context.end_tai = confirmed_equipment_coverage_end_tai
+    context.source = "description of the supplied coverage evidence"
+    arp = gs.sinex_antenna_reference_point(
+        marker, equipment_product, "ABMF:ARP", geometry=geometry,
+        header_context=context, equipment_site=sh.SinexSiteKey("abmf", "A"))
+    station = gs.reference_point_station(arp, nominal_marker_position)
+
+For an explicit calibrated instrument point, construct
+``StationReferencePointOffset`` records from the ARP to a named instrument
+point and pass a ``StationReferencePointOffsetHistory`` to
+``station_reference_point_trajectory``. Declare frame, component basis, validity,
+equipment type/serial, calibration ID, signal and source. Every calibration
+must match all antenna intervals it overlaps and remain inside their coverage.
+Fixed vectors have zero body-fixed rate. Optional ``position_function`` and
+``state_function`` receive ``StationHistoryTime``; the state callback must return
+the same position plus its derivative in metres per TDB second. A position-only
+callback remains usable for position queries. Direction-dependent phase-centre
+variation is not represented as a reference-point vector, and no ANTEX or other
+provider format is assumed.
+
+The existing trajectory metadata carries ``reference_point_kind`` and
+``reference_point_name`` together with station/DOMES. Frame transformations copy
+that identity. A marker-to-ARP offset cannot be applied again through a frame
+wrapper. Apply an offset before a frame transform to transform the complete
+point; apply it afterwards only when the supplied offset/geometry already belongs
+to the output frame. These are explicit composition choices, and affine scale
+and rotation can make their vectors differ. Source marker/point trajectories and
+offset histories remain inspectable; returned Python record lists are independent
+snapshots, preserving construction-time validation.
+
+``reference_point_station`` uses the declared point name as the station name and
+the selected complete absolute trajectory. Its nominal position is subtracted
+once when constructing station motion. Observable reference-point ephemerides
+then use the body's actual rotation axes and environment origin. Their inertial
+velocity includes both the rotated point velocity and ``Rdot`` times the full
+point position, including every reference-point offset.
+
+Native station/history dispatch preserves ``Time`` TDB inputs throughout physical
+interval selection and source-coordinate conversion. Two distinct precise
+epochs sharing a floating-point ``double`` image can therefore select opposite
+sides of an equipment switch. Genuine scalar input boundaries may normalize
+an exact rounded clock-boundary image; precise ``Time`` queries never snap or
+round-trip through ``double``. The default source clock is model-owned; callers
+may instead provide ``source_time_function(TDB_Time, require_rates)``.
+
 
 
 

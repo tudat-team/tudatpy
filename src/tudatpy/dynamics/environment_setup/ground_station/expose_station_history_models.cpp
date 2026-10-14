@@ -20,6 +20,10 @@ namespace io = tudat::input_output;
 
 void expose_station_history_models( py::module& m )
 {
+    py::enum_< gs::StationReferencePointKind >( m, "StationReferencePointKind" )
+            .value( "marker", gs::StationReferencePointKind::marker )
+            .value( "antenna_reference_point", gs::StationReferencePointKind::antennaReferencePoint )
+            .value( "calibrated_instrument_point", gs::StationReferencePointKind::calibratedInstrumentPoint );
     py::class_< gs::StationHistoryTime >(
             m, "StationHistoryTime", "Split source coordinates and optional derivatives with respect to TDB seconds." )
             .def( py::init<>( ) )
@@ -44,6 +48,8 @@ void expose_station_history_models( py::module& m )
             .def_readwrite( "origin", &gs::StationHistoryMetadata::origin )
             .def_readwrite( "tide_system", &gs::StationHistoryMetadata::tideSystem )
             .def_readwrite( "time_convention", &gs::StationHistoryMetadata::timeConvention )
+            .def_readwrite( "reference_point_kind", &gs::StationHistoryMetadata::referencePointKind )
+            .def_readwrite( "reference_point_name", &gs::StationHistoryMetadata::referencePointName )
             .def_readwrite( "sources", &gs::StationHistoryMetadata::sources )
             .def_readwrite( "signals", &gs::StationHistoryMetadata::signals );
     py::class_< gs::StationHistoryLinearSolution >( m, "StationHistoryLinearSolution" )
@@ -86,9 +92,10 @@ void expose_station_history_models( py::module& m )
             .def( "position", &gs::StationHistoryTrajectory::getPosition, py::arg( "source_time" ) )
             .def( "state", &gs::StationHistoryTrajectory::getState, py::arg( "source_time" ) )
             .def_property_readonly( "metadata", []( const gs::StationHistoryTrajectory& trajectory ) { return trajectory.getMetadata( ); } )
-            .def_property_readonly( "solutions", &gs::StationHistoryTrajectory::getSolutions )
-            .def_property_readonly( "post_seismic_terms", &gs::StationHistoryTrajectory::getPostSeismicTerms )
-            .def_property_readonly( "seasonal_terms", &gs::StationHistoryTrajectory::getSeasonalTerms )
+            .def_property_readonly( "solutions", &gs::StationHistoryTrajectory::getSolutions, py::return_value_policy::copy )
+            .def_property_readonly(
+                    "post_seismic_terms", &gs::StationHistoryTrajectory::getPostSeismicTerms, py::return_value_policy::copy )
+            .def_property_readonly( "seasonal_terms", &gs::StationHistoryTrajectory::getSeasonalTerms, py::return_value_policy::copy )
             .def_property_readonly( "has_fitted_seasonal_terms", &gs::StationHistoryTrajectory::hasFittedSeasonalTerms );
     m.def( "ign_nominal_utc_station_time_from_tai",
            &gs::getIgnNominalUtcStationTimeFromTai,
@@ -154,17 +161,11 @@ void expose_station_history_models( py::module& m )
     py::class_< ss::StationHistoryGroundStationMotionSettings,
                 std::shared_ptr< ss::StationHistoryGroundStationMotionSettings >,
                 ss::GroundStationMotionSettings >( m, "StationHistoryGroundStationMotionSettings" );
-    using PythonTimeFunction = std::function< gs::StationHistoryTime( const tudat::Time&, bool ) >;
-    m.def(
-            "station_history_motion",
-            []( std::shared_ptr< gs::StationHistoryTrajectory > trajectory, PythonTimeFunction callback ) {
-                gs::StationHistoryTimeFunction sourceFunction;
-                if( callback ) sourceFunction = [ callback ]( const auto& epoch, bool rates ) { return callback( epoch, rates ); };
-                return ss::stationHistoryGroundStationMotionSettings( std::move( trajectory ), std::move( sourceFunction ) );
-            },
-            py::arg( "trajectory" ),
-            py::arg( "source_time_function" ) = py::none( ),
-            "Absolute trajectory motion. Optional callback receives (TDB Time, require_rates)." );
+    m.def( "station_history_motion",
+           &ss::stationHistoryGroundStationMotionSettings,
+           py::arg( "trajectory" ),
+           py::arg( "source_time_function" ) = py::none( ),
+           "Absolute trajectory motion. Optional callback receives (TDB Time, require_rates)." );
 }
 }  // namespace ground_station
 }  // namespace environment_setup

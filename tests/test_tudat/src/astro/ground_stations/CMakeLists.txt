@@ -19,6 +19,9 @@ TUDAT_ADD_TEST_CASE(StationHistoryTrajectory
 TUDAT_ADD_TEST_CASE(StationHistoryFrameTransformation
     PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(StationReferencePoint
+    PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(PointingAnglesCalculator
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES})

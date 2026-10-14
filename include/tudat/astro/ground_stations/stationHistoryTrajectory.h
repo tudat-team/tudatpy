@@ -82,6 +82,7 @@ struct StationSeasonalTerm {
     Eigen::Vector3d sineMetres = Eigen::Vector3d::Zero( );
     std::vector< std::size_t > parameterIndices;
 };
+enum class StationReferencePointKind { marker, antennaReferencePoint, calibratedInstrumentPoint };
 struct StationHistoryMetadata {
     input_output::SinexSiteKey site;
     std::string domesId;
@@ -90,6 +91,8 @@ struct StationHistoryMetadata {
     std::string origin;
     std::string tideSystem;
     std::string timeConvention;
+    StationReferencePointKind referencePointKind = StationReferencePointKind::marker;
+    std::string referencePointName = "marker";
     std::vector< std::string > sources;
     std::vector< std::string > signals;
 };
