@@ -41,7 +41,6 @@
 #include "rotation_model/expose_rotation_model.h"
 #include "scalarTypes.h"
 #include "shape/expose_shape.h"
-#include "terrestrial_frame_transformations/expose_terrestrial_frame_transformations.h"
 #include "shape_deformation/expose_shape_deformation.h"
 #include "space_time/expose_space_time.h"
 #include "vehicle_systems/expose_vehicle_systems.h"
@@ -100,9 +99,6 @@ void setRelativisticTimeConverters(
 
 void expose_environment_setup( py::module& m )
 {
-    auto terrestrial_frame_transformations_submodule = m.def_submodule( "terrestrial_frame_transformations" );
-    terrestrial_frame_transformations::expose_terrestrial_frame_transformations( terrestrial_frame_transformations_submodule );
-
     auto aerodynamic_coefficient_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients" );
     aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
 
@@ -1070,7 +1066,7 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "epoch" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           R"doc(Transform a moving state through the explicitly pinned IGN ITRF2014 hub table. Epoch is the existing uniform Julian-year seconds since J2000 (year=2000+epoch/31557600), not a calendar-decimal-year or TDB conversion. Position and velocity use the requested-epoch affine matrix and exact derivative; inverse uses the actual matrix inverse. Equal realizations return identity. Use terrestrial_frame_transformations for explicitly selected current ITRF2020 parameters and a declared physical-time mapping.)doc" );
+           R"doc(Transform a moving state through the explicitly pinned IGN ITRF2014 hub table. Epoch is the existing uniform Julian-year seconds since J2000 (year=2000+epoch/31557600), not a calendar-decimal-year or TDB conversion. Position and velocity use the requested-epoch affine matrix and exact derivative; inverse uses the actual matrix inverse. Equal realizations return identity. Use astro.frame_conversion.TerrestrialFrameTransformationModel for explicitly selected current ITRF2020 parameters and supplied decimal-year coordinates and rates.)doc" );
 
     m.def( "add_ground_station",
            py::overload_cast< const std::shared_ptr< tss::Body >,

@@ -96,6 +96,62 @@ Functions
 
 .. autofunction:: tudatpy.astro.frame_conversion.body_fixed_to_inertial_rotation_matrix
 
+.. _terrestrial_frame_transformations:
+
+Terrestrial affine transformations
+---------------------------------
+
+Transform Cartesian positions and moving states between terrestrial-frame
+realizations using published linearized Helmert parameters. Load a catalogue
+through :ref:`terrestrial_frame_data`, then construct a
+``TerrestrialFrameTransformationModel``. Each catalogue retains its published
+reference hub and source provenance.
+
+Position evaluation accepts a decimal year. State evaluation also requires its
+derivative with respect to the input state's seconds. The following example uses
+a uniform 365.25-day year coordinate; the model itself performs no calendar or
+time-scale conversion:
+
+.. code-block:: python
+
+   from tudatpy.data_input.environment_data import terrestrial_frames as data
+   from tudatpy.astro import frame_conversion as frames
+
+   model = frames.TerrestrialFrameTransformationModel(data.official_itrf2020_parameters())
+   source_state = [4075578.385, 931852.890, 4801570.154, 0.012345, -0.023456, 0.034567]
+   target_state = model.transform_state(
+       source_state, "ITRF2020", "ITRF2014", 2025.0, 1.0 / 31557600.0)
+
+``transform_position`` needs only the decimal year. To transform a full station
+history with its calendar coordinate and source-rate policy, use
+``ground_station.transform_station_history``; see :ref:`ground_station`.
+
+The affine matrix includes scale and linearized signed rotations:
+
+.. math::
+
+   y=T+A x, \qquad \dot y=\dot T+\dot A x+A\dot x.
+
+``inverse`` uses the actual matrix inverse and its derivative. ``compose_after``
+includes all translation and matrix derivative terms. Model composition follows
+the declared catalogue hub. Equal nonempty realization labels return identity
+before catalogue lookup, including unknown identical labels. Aligned catalogue
+release updates retain their realization identity and do not create additional
+datum transformations.
+
+The existing
+:func:`~tudatpy.dynamics.environment_setup.convert_ground_station_state_between_itrf_frames`
+retains the IGN ITRF2014 catalogue and its uniform-Julian-year epoch convention.
+Station histories instead retain their calendar-decimal-year convention.
+
+.. autoclass:: TerrestrialFrameAffineTransformation
+   :members:
+
+.. autoclass:: TerrestrialFrameTransformationModel
+   :members:
+
+.. autofunction:: evaluate_linearized_helmert
+
 
 
 

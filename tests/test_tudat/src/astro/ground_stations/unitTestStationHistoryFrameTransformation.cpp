@@ -96,9 +96,9 @@ BOOST_AUTO_TEST_CASE( sharedNativeCalendarClockAndCompleteAffineVelocity )
     const auto transformed = transform( source );
     const Time tai = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
     const auto query = getIgnNominalUtcStationTimeFromTai( tai, 1.0 );
-    const auto epoch = getStationHistoryTerrestrialFrameEpoch( query );
-    BOOST_CHECK_EQUAL( epoch.decimalYear, 2020 + 59.5 / 366 );
-    BOOST_CHECK_EQUAL( epoch.decimalYearRateWithRespectToInputSeconds, 1.0 / ( 366 * 86400.0 ) );
+    // The station's split calendar year and TDB rate are the direct frame-operation inputs.
+    BOOST_CHECK_EQUAL( static_cast< double >( query.calendarYear + query.yearFraction ), 2020 + 59.5 / 366 );
+    BOOST_CHECK_EQUAL( *query.decimalYearRate, 1.0 / ( 366 * 86400.0 ) );
     const double h = 300000;
     const Eigen::Vector3d finiteDifference = ( transformed->getPosition( getIgnNominalUtcStationTimeFromTai( tai + h ) ) -
                                                transformed->getPosition( getIgnNominalUtcStationTimeFromTai( tai - h ) ) ) /
@@ -108,10 +108,8 @@ BOOST_AUTO_TEST_CASE( sharedNativeCalendarClockAndCompleteAffineVelocity )
     missingCalendarRate.decimalYearRate.reset( );
     BOOST_CHECK_NO_THROW( transformed->getPosition( missingCalendarRate ) );
     BOOST_CHECK_THROW( transformed->getState( missingCalendarRate ), std::runtime_error );
-    BOOST_CHECK_THROW( getStationHistoryTerrestrialFrameEpoch( missingCalendarRate ), std::runtime_error );
     const auto nextYear = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2021, 1, 0 } ), 1.0 );
-    BOOST_CHECK_EQUAL( getStationHistoryTerrestrialFrameEpoch( nextYear ).decimalYearRateWithRespectToInputSeconds,
-                       1.0 / ( 365 * 86400.0 ) );
+    BOOST_CHECK_EQUAL( *nextYear.decimalYearRate, 1.0 / ( 365 * 86400.0 ) );
 }
 
 BOOST_AUTO_TEST_CASE( sameFrameIdentityExplicitReleaseAlignmentAndOriginTidePreservation )

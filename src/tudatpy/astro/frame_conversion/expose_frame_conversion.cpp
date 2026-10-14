@@ -18,6 +18,7 @@
 #include <pybind11/pybind11.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+#include <tudat/astro/reference_frames/terrestrialFrameTransformation.h>
 
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
@@ -32,6 +33,7 @@ namespace astro
 namespace frame_conversion
 {
 
+// Register Cartesian frame conversions and terrestrial affine transformations.
 void expose_frame_conversion( py::module& m )
 {
     m.def( "inertial_to_rsw_rotation_matrix",
@@ -329,6 +331,51 @@ void expose_frame_conversion( py::module& m )
 
 
      )doc" );
+
+    // Terrestrial catalogue operations are numerical frame conversions, independent of environment settings.
+    py::class_< trf::TerrestrialFrameAffineTransformation >( m, "TerrestrialFrameAffineTransformation" )
+            .def( py::init<>( ) )
+            .def_readwrite( "translation", &trf::TerrestrialFrameAffineTransformation::translation )
+            .def_readwrite( "matrix", &trf::TerrestrialFrameAffineTransformation::matrix )
+            .def_readwrite( "translation_rate", &trf::TerrestrialFrameAffineTransformation::translationRate )
+            .def_readwrite( "matrix_rate", &trf::TerrestrialFrameAffineTransformation::matrixRate )
+            .def( "transform_position", &trf::TerrestrialFrameAffineTransformation::transformPosition, py::arg( "position" ) )
+            .def( "transform_state", &trf::TerrestrialFrameAffineTransformation::transformState, py::arg( "state" ) )
+            .def( "inverse", &trf::TerrestrialFrameAffineTransformation::inverse )
+            .def( "compose_after", &trf::TerrestrialFrameAffineTransformation::composeAfter, py::arg( "before" ) );
+
+    m.def( "evaluate_linearized_helmert",
+           &trf::evaluateLinearizedHelmert,
+           py::arg( "parameters" ),
+           py::arg( "decimal_year" ),
+           py::arg( "decimal_year_rate_with_respect_to_input_seconds" ),
+           "Evaluate one published parameter record with explicit year and years-per-input-second rate." );
+
+    py::class_< trf::TerrestrialFrameTransformationModel >( m, "TerrestrialFrameTransformationModel" )
+            .def( py::init< const tudat::input_output::TerrestrialFrameTransformationData& >( ),
+                  py::arg( "data" ),
+                  "Use preloaded parameters. The caller supplies decimal year, and a year rate for state evaluation." )
+            .def( "get_transformation",
+                  &trf::TerrestrialFrameTransformationModel::getTransformation,
+                  py::arg( "source_realization" ),
+                  py::arg( "target_realization" ),
+                  py::arg( "decimal_year" ),
+                  py::arg( "decimal_year_rate_with_respect_to_input_seconds" ) )
+            .def( "transform_position",
+                  &trf::TerrestrialFrameTransformationModel::transformPosition,
+                  py::arg( "position" ),
+                  py::arg( "source_realization" ),
+                  py::arg( "target_realization" ),
+                  py::arg( "decimal_year" ),
+                  "Transform position without requiring or inventing a physical year rate." )
+            .def( "transform_state",
+                  &trf::TerrestrialFrameTransformationModel::transformState,
+                  py::arg( "state" ),
+                  py::arg( "source_realization" ),
+                  py::arg( "target_realization" ),
+                  py::arg( "decimal_year" ),
+                  py::arg( "decimal_year_rate_with_respect_to_input_seconds" ) )
+            .def_property_readonly( "data", []( const trf::TerrestrialFrameTransformationModel& model ) { return model.getData( ); } );
 
     m.attr( "transform_cartesian_state_to_frame" ) = m.attr( "rotate_state_to_frame" );
 }

@@ -27,11 +27,12 @@ Pinned 2014 and superseding 2020 catalogues retain their distinct original hashe
 Release metadata is provenance rather than an automatically different frame
 datum; an aligned ITRF2020 catalogue update does not imply a nonzero Helmert shift.
 
-The dynamics API is :ref:`terrestrial_frame_transformations`. Its structured epoch
-contains the published decimal year and dDecimalYear/dInputSecond. The model
-accepts preloaded data and an explicitly supplied time callback. No scalar epoch
-is guessed to be UTC, TT, TDB or calendar decimal year. Model evaluation performs
-no file I/O. State velocity follows the callback's input seconds:
+The numerical API is :ref:`terrestrial_frame_transformations` in
+``tudatpy.astro.frame_conversion``. The model accepts preloaded data and an
+explicit decimal year. State evaluation also requires dDecimalYear/dInputSecond,
+using the same seconds as the input velocity. Position evaluation requires no
+physical time derivative. Model evaluation performs no file I/O or time
+conversion:
 
 .. math::
 

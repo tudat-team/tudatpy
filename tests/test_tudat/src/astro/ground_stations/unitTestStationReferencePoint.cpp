@@ -216,7 +216,11 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrameCompositionOrder )
     // vector must be supplied in the declared output geometry; do not silently
     // equate those distinct composition choices.
     reference_frames::TerrestrialFrameTransformationModel model( catalogue );
-    const auto affine = model.getTransformation( "ITRF2020", "ITRF2014", getStationHistoryTerrestrialFrameEpoch( query ) );
+    // Preserve the source calendar coordinate and its TDB rate through ordered point/frame composition.
+    const auto affine = model.getTransformation( "ITRF2020", "ITRF2014",
+                                                static_cast< double >( query.calendarYear + query.yearFraction ),
+                                                *query.decimalYearRate );
+
     close( transformedPoint->getPosition( query ), affine.transformPosition( point->getPosition( query ) ) );
     close( pointAfterFrame->getPosition( query ),
            transformedMarker->getPosition( query ) + pointAfterFrame->getOffsetHistory( )->getPositionCorrection( query ) );

@@ -8,9 +8,6 @@ namespace tudat
 {
 namespace ground_stations
 {
-//! Calendar decimal year/rate from the very same source coordinates as the station.
-reference_frames::TerrestrialFrameEvaluationEpoch getStationHistoryTerrestrialFrameEpoch( const StationHistoryTime& time );
-
 //! A complete affine state transform; source coefficients and metadata remain inspectable.
 /*!
  * The inherited solution/PSD/seasonal records retain source coordinates and provenance.

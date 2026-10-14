@@ -133,9 +133,9 @@ Transforming a station history with a terrestrial frame catalogue
 ``transform_station_history`` applies a preloaded conventional or supplied
 linearized Helmert catalogue to the complete absolute trajectory. Its calendar
 decimal year and derivative come from the same ``StationHistoryTime`` as the
-marker coordinates; ``station_history_frame_epoch`` exposes that epoch for
-explicit affine model queries. Parameter rates still use their declared Julian
-year units. An IGN nominal UTC leap-year query uses the actual calendar-year
+marker coordinates. Direct affine queries accept that decimal year and, for
+states, its derivative explicitly. Parameter rates still use their declared
+Julian-year units. An IGN nominal UTC leap-year query uses the actual calendar-year
 fraction and its TDB derivative, including the documented right-hand year rate.
 
 Supply a :class:`~tudatpy.data_input.environment_data.terrestrial_frames.TerrestrialFrameIdentity`

@@ -10,10 +10,15 @@ using namespace reference_frames;
 using namespace input_output;
 namespace
 {
+//! Compare positions and velocities with the unchanged independent-reference tolerances.
 void close( const Eigen::Vector6d& actual, const Eigen::Vector6d& expected )
 {
-    for( int i = 0; i < 6; ++i ) BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], i < 3 ? 2e-9 : 2e-17 );
+    for( int i = 0; i < 6; ++i )
+    {
+        BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], i < 3 ? 2e-9 : 2e-17 );
+    }
 }
+//! Load the frozen Cartesian input state used by both published catalogues.
 Eigen::Vector6d state( )
 {
     return Eigen::Map< const Eigen::Vector6d >( itrfReferenceInputState );
@@ -21,12 +26,17 @@ Eigen::Vector6d state( )
 }  // namespace
 BOOST_AUTO_TEST_CASE( allPublishedRowsIndependentHighPrecisionForwardAndInverseStates )
 {
-    const auto d2014 = getConventionalItrfTransformationData( ItrfTransformationCatalogue::ignItrf2014 ),
-               d2020 = getConventionalItrfTransformationData( ItrfTransformationCatalogue::ignItrf2020 );
+    // Keep both pinned provider catalogues and every independent expected vector unchanged.
+    const auto d2014 = readOfficialItrf2014TransformationData( );
+
+    const auto d2020 = readOfficialItrf2020TransformationData( );
+
     for( const auto& fixture : itrfReferenceFixtures )
     {
         const auto& data = fixture.catalogue == 2014 ? d2014 : d2020;
-        const auto affine = evaluateLinearizedHelmert( data.getParameters( fixture.frame ), { fixture.year, fixture.yearRate } );
+
+        const auto affine = evaluateLinearizedHelmert( data.getParameters( fixture.frame ), fixture.year, fixture.yearRate );
+
         close( affine.transformState( state( ) ), Eigen::Map< const Eigen::Vector6d >( fixture.forward ) );
         close( affine.inverse( ).transformState( state( ) ), Eigen::Map< const Eigen::Vector6d >( fixture.inverse ) );
     }
@@ -46,21 +56,35 @@ BOOST_AUTO_TEST_CASE( individualSevenParametersAndPhysicalRateChain )
         auto q = p;
         const double amplitude = 1e-3;
         if( k < 3 )
+        {
             q.translationMetres[ k ] = amplitude;
+        }
         else if( k == 3 )
+        {
             q.scale = amplitude;
+        }
         else
+        {
             q.rotationRadians[ k - 4 ] = amplitude;
-        const auto value = evaluateLinearizedHelmert( q, { 2000, 1 / 31557600. } );
+        }
+        const auto value = evaluateLinearizedHelmert( q, 2000, 1 / 31557600. );
+
         BOOST_CHECK_SMALL( ( value.transformPosition( position ) - position - amplitude * effects[ k ] ).norm( ), 2e-15 );
         auto rate = p;
         if( k < 3 )
+        {
             rate.translationRateMetresPerSecond[ k ] = amplitude / 31557600.;
+        }
         else if( k == 3 )
+        {
             rate.scaleRatePerSecond = amplitude / 31557600.;
+        }
         else
+        {
             rate.rotationRateRadiansPerSecond[ k - 4 ] = amplitude / 31557600.;
-        const auto changing = evaluateLinearizedHelmert( rate, { 2002, 2 / 31557600. } );
+        }
+        const auto changing = evaluateLinearizedHelmert( rate, 2002, 2 / 31557600. );
+
         BOOST_CHECK_SMALL( ( changing.transformPosition( position ) - position - 2 * amplitude * effects[ k ] ).norm( ), 2e-15 );
         const auto stationary = ( Eigen::Vector6d( ) << position, Eigen::Vector3d::Zero( ) ).finished( );
         BOOST_CHECK_SMALL( ( changing.transformState( stationary ).tail< 3 >( ) - ( 2 * amplitude / 31557600. ) * effects[ k ] ).norm( ),
@@ -68,45 +92,50 @@ BOOST_AUTO_TEST_CASE( individualSevenParametersAndPhysicalRateChain )
         if( k >= 4 )
         {
             rate.rotationConvention = HelmertRotationConvention::coordinateFrame;
-            const auto reversed = evaluateLinearizedHelmert( rate, { 2002, 2 / 31557600. } );
+            const auto reversed = evaluateLinearizedHelmert( rate, 2002, 2 / 31557600. );
+
             BOOST_CHECK_SMALL( ( reversed.transformPosition( position ) - position + 2 * amplitude * effects[ k ] ).norm( ), 2e-15 );
             BOOST_CHECK_SMALL(
                     ( reversed.transformState( stationary ).tail< 3 >( ) + ( 2 * amplitude / 31557600. ) * effects[ k ] ).norm( ), 1e-23 );
         }
         q.rotationConvention = HelmertRotationConvention::coordinateFrame;
         if( k >= 4 )
-            BOOST_CHECK_SMALL( ( evaluateLinearizedHelmert( q, { 2000, 1 / 31557600. } ).transformPosition( position ) - position +
+        {
+            BOOST_CHECK_SMALL( ( evaluateLinearizedHelmert( q, 2000, 1 / 31557600. ).transformPosition( position ) - position +
                                  amplitude * effects[ k ] )
                                        .norm( ),
                                2e-15 );
+        }
     }
 }
-BOOST_AUTO_TEST_CASE( modelClockAndProvenanceHubComposition )
+//! Check published provenance, hub composition and the full affine inverse.
+BOOST_AUTO_TEST_CASE( modelProvenanceAndHubComposition )
 {
-    const auto data = getConventionalItrfTransformationData( ItrfTransformationCatalogue::ignItrf2020 );
-    int calls = 0;
-    Time observed;
-    TerrestrialFrameTransformationModel model( data, [ & ]( const Time& t ) {
-        ++calls;
-        observed = t;
-        return TerrestrialFrameEvaluationEpoch{ 2025.25, 2 / 31557600. };
-    } );
-    const Time time( 12345.125 );
-    const TerrestrialFrameEvaluationEpoch epoch{ 2025.25, 2 / 31557600. };
-    const auto source = model.getTransformation( "ITRF93", "ITRF2020", epoch ),
-               target = model.getTransformation( "ITRF2020", "ITRF88", epoch );
-    close( model.transformStateAtTime( state( ), "ITRF93", "ITRF88", time ), target.transformState( source.transformState( state( ) ) ) );
-    BOOST_CHECK_EQUAL( calls, 1 );
-    BOOST_CHECK( observed == time );
+    // Published catalogue and explicit year/rate preserve the original composition case.
+    const auto data = readOfficialItrf2020TransformationData( );
+
+    TerrestrialFrameTransformationModel model( data );
+
+    const double year = 2025.25;
+
+    const double yearRate = 2 / 31557600.;
+
+    const auto source = model.getTransformation( "ITRF93", "ITRF2020", year, yearRate );
+
+    const auto target = model.getTransformation( "ITRF2020", "ITRF88", year, yearRate );
+
+    close( model.transformState( state( ), "ITRF93", "ITRF88", year, yearRate ),
+           target.transformState( source.transformState( state( ) ) ) );
     BOOST_CHECK_EQUAL( model.getData( ).referenceFrame.realization, "ITRF2020" );
-    const auto complete = model.getTransformation( "ITRF93", "ITRF88", epoch );
+
+    // The full nonorthogonal affine inverse must recover position and velocity.
+    const auto complete = model.getTransformation( "ITRF93", "ITRF88", year, yearRate );
+
     close( complete.inverse( ).transformState( complete.transformState( state( ) ) ), state( ) );
-    BOOST_CHECK_EQUAL( model.getTransformation( "ITRF2020", "ITRF2020", epoch ).matrix( 0, 0 ), 1 );
-    close( model.transformState( state( ), "ITRF2014", "ITRF2014", epoch ), state( ) );
-    close( model.transformState( state( ), "unknown", "unknown", epoch ), state( ) );
-    BOOST_CHECK_THROW( TerrestrialFrameTransformationModel( data ).transformStateAtTime( state( ), "ITRF2020", "ITRF2014", time ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW( model.getTransformation( "unknown", "ITRF2020", epoch ), std::runtime_error );
+    BOOST_CHECK_EQUAL( model.getTransformation( "ITRF2020", "ITRF2020", year, yearRate ).matrix( 0, 0 ), 1 );
+    close( model.transformState( state( ), "ITRF2014", "ITRF2014", year, yearRate ), state( ) );
+    close( model.transformState( state( ), "unknown", "unknown", year, yearRate ), state( ) );
+    BOOST_CHECK_THROW( model.getTransformation( "unknown", "ITRF2020", year, yearRate ), std::runtime_error );
 }
 BOOST_AUTO_TEST_CASE( legacyTranscriptionDefectsAndMovingStateAtRequestedEpoch )
 {
@@ -126,7 +155,6 @@ BOOST_AUTO_TEST_CASE( legacyTranscriptionDefectsAndMovingStateAtRequestedEpoch )
             Eigen::Vector3d( 0, 0, -.0001 / year ) + ( .03e-9 / year ) * state( ).head< 3 >( ) + ( 1 + scale ) * state( ).tail< 3 >( );
     close( convertGroundStationStateItrf2014ToArbitraryItrf( state( ), 20 * year, "ITRF2008" ), expected );
     close( convertGroundStationStateArbitraryItrfToItrf2014( expected, 20 * year, "ITRF2008" ), state( ) );
-    BOOST_CHECK_EQUAL( getLegacyItrfEvaluationEpoch( 10 * year ).decimalYear, 2010 );
 }
 BOOST_AUTO_TEST_CASE( exactNonorthogonalInverseAndInvalidInputs )
 {
@@ -160,11 +188,11 @@ BOOST_AUTO_TEST_CASE( exactNonorthogonalInverseAndInvalidInputs )
     BOOST_CHECK_THROW( affine.inverse( ), std::runtime_error );
     auto p = readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" );
     p.rotationConvention = HelmertRotationConvention::unspecified;
-    BOOST_CHECK_THROW( evaluateLinearizedHelmert( p, { 2020, 1 / 31557600. } ), std::runtime_error );
+    BOOST_CHECK_THROW( evaluateLinearizedHelmert( p, 2020, 1 / 31557600. ), std::runtime_error );
     BOOST_CHECK_THROW(
-            evaluateLinearizedHelmert( readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" ), { NAN, 1 / 31557600. } ),
+            evaluateLinearizedHelmert( readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" ), NAN, 1 / 31557600. ),
             std::runtime_error );
-    BOOST_CHECK_THROW( evaluateLinearizedHelmert( readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" ), { 2020, 0 } ),
+    BOOST_CHECK_THROW( evaluateLinearizedHelmert( readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" ), 2020, 0 ),
                        std::runtime_error );
-    BOOST_CHECK_THROW( getLegacyItrfEvaluationEpoch( NAN ), std::runtime_error );
+    BOOST_CHECK_THROW( convertGroundStationStateBetweenItrfFrames( state( ), NAN, "ITRF2014", "ITRF2014" ), std::runtime_error );
 }

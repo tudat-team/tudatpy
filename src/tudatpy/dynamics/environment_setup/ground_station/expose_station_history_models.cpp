@@ -144,10 +144,6 @@ void expose_station_history_models( py::module& m )
                                     []( const gs::TransformedStationHistoryTrajectory& trajectory ) { return trajectory.getCatalogue( ); } )
             .def_property_readonly( "acknowledged_release_alignment",
                                     &gs::TransformedStationHistoryTrajectory::getAcknowledgedReleaseAlignment );
-    m.def( "station_history_frame_epoch",
-           &gs::getStationHistoryTerrestrialFrameEpoch,
-           py::arg( "source_time" ),
-           "Use the station's declared calendar coordinate and dYear/dTDB for affine state evaluation." );
     m.def( "transform_station_history",
            &gs::createTransformedStationHistoryTrajectory,
            py::arg( "source" ),
