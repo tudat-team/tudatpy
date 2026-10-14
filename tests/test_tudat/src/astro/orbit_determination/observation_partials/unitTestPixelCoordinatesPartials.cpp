@@ -224,8 +224,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversionAndCameraPointingPartials )
             input_output::sum_lmk::readLmkFiles( { testDataPath + "/LMK0001.lmk", testDataPath + "/LMK0002.lmk" } );
 
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-    LoadedPixelTestData conversionResult =
-            loadPixelTestData( sumImages, landmarks, bodies );
+    LoadedPixelTestData conversionResult = loadPixelTestData( sumImages, landmarks, bodies );
 
     BOOST_REQUIRE( conversionResult.observationCollection_ != nullptr );
     const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( "IMG001" );
@@ -357,24 +356,21 @@ BOOST_AUTO_TEST_CASE( testSumPointingSigmaValidation )
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
         const std::vector< input_output::sum_lmk::SumImageData > images = { makeSyntheticSumImage(
                 "IMGNEG", ( Eigen::Vector3d( ) << -1.0E-4, -1.0E-4, -1.0E-4 ).finished( ) ) };
-        BOOST_CHECK_THROW( ( loadPixelTestData( images, landmarks, bodies ) ),
-                           std::runtime_error );
+        BOOST_CHECK_THROW( ( loadPixelTestData( images, landmarks, bodies ) ), std::runtime_error );
     }
     // Partially-specified sigma (one finite, two NaN) must throw.
     {
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
         const std::vector< input_output::sum_lmk::SumImageData > images = { makeSyntheticSumImage(
                 "IMGPART", ( Eigen::Vector3d( ) << 1.0E-4, TUDAT_NAN, TUDAT_NAN ).finished( ) ) };
-        BOOST_CHECK_THROW( ( loadPixelTestData( images, landmarks, bodies ) ),
-                           std::runtime_error );
+        BOOST_CHECK_THROW( ( loadPixelTestData( images, landmarks, bodies ) ), std::runtime_error );
     }
     // Valid uniform sigma yields one inverse-variance entry of 1/sigma^2 per component.
     {
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
         const std::vector< input_output::sum_lmk::SumImageData > images = { makeSyntheticSumImage( "IMGOK",
                                                                                                    Eigen::Vector3d::Constant( 1.0E-4 ) ) };
-        LoadedPixelTestData result =
-                loadPixelTestData( images, landmarks, bodies );
+        LoadedPixelTestData result = loadPixelTestData( images, landmarks, bodies );
         BOOST_REQUIRE_EQUAL( result.inverseAprioriCovarianceDiagonalEntries_.size( ), 1 );
         BOOST_CHECK_CLOSE( result.inverseAprioriCovarianceDiagonalEntries_.at( 0 ).second( 0 ), 1.0E8, 1.0E-6 );
         BOOST_CHECK_CLOSE( result.inverseAprioriCovarianceDiagonalEntries_.at( 0 ).second( 2 ), 1.0E8, 1.0E-6 );
@@ -412,8 +408,7 @@ BOOST_AUTO_TEST_CASE( testSumNonZeroDistortionIsRejected )
 BOOST_AUTO_TEST_CASE( testSumCalibrationAndAttitudeAreValidatedBeforeEnvironmentMutation )
 {
     spice_interface::loadStandardSpiceKernels( );
-    const auto checkRejectedImage = [ ]( const input_output::sum_lmk::SumImageData& image,
-                                                             const std::string& expectedDiagnostic ) {
+    const auto checkRejectedImage = []( const input_output::sum_lmk::SumImageData& image, const std::string& expectedDiagnostic ) {
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
         bool threw = false;
         try
@@ -456,9 +451,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkValidation )
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
     try
     {
-        loadPixelTestData( { firstImage, secondImage },
-                                                             std::map< std::string, input_output::sum_lmk::LmkLandmarkData >( ),
-                                                             bodies );
+        loadPixelTestData( { firstImage, secondImage }, std::map< std::string, input_output::sum_lmk::LmkLandmarkData >( ), bodies );
         BOOST_FAIL( "Expected missing LMK validation to throw." );
     }
     catch( const std::runtime_error& exception )
@@ -482,8 +475,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkSkipMode )
     image.landmarkObservations_.push_back( missingObservation );
 
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-    LoadedPixelTestData result =
-            loadPixelTestData( { image }, makeSyntheticLandmarks( ), bodies, "Target", "Spacecraft", true );
+    LoadedPixelTestData result = loadPixelTestData( { image }, makeSyntheticLandmarks( ), bodies, "Target", "Spacecraft", true );
 
     BOOST_REQUIRE_EQUAL( result.observationCollection_->getConcatenatedObservations( ).size( ), 2 );
     BOOST_REQUIRE_EQUAL( result.observationModelSettings_.size( ), 1 );
@@ -524,7 +516,8 @@ BOOST_AUTO_TEST_CASE( testSumReceiverEphemerisGuard )
         SystemOfBodies bodies = makeBodies( false );
         const auto loaded = loadPixelTestData( images, landmarks, bodies );
         BOOST_CHECK( bodies.at( "Spacecraft" )->getRotationalEphemeris( ) == nullptr );
-        BOOST_CHECK_THROW( ( createObservationSimulators< double, double >( loaded.observationModelSettings_, bodies ) ), std::runtime_error );
+        BOOST_CHECK_THROW( ( createObservationSimulators< double, double >( loaded.observationModelSettings_, bodies ) ),
+                           std::runtime_error );
     }
     // Caller-supplied placeholder rotation -> succeeds.
     {
@@ -543,8 +536,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkTimeBoundsFilteringWorkflow )
     outOfWindowImage.utcEpochString_ = "2015 JUN 05 08:24:42.053";
 
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-    LoadedPixelTestData conversionResult = loadPixelTestData(
-            { inWindowImage, outOfWindowImage }, makeSyntheticLandmarks( ), bodies );
+    LoadedPixelTestData conversionResult = loadPixelTestData( { inWindowImage, outOfWindowImage }, makeSyntheticLandmarks( ), bodies );
 
     BOOST_REQUIRE_EQUAL( conversionResult.observationCollection_->getConcatenatedTimeVector( ).size( ), 4 );
     BOOST_REQUIRE_EQUAL( conversionResult.observationModelSettings_.size( ), 2 );
@@ -613,8 +605,7 @@ BOOST_AUTO_TEST_CASE( testRealSumLmkReprojection )
     }
 
     // Conversion succeeds on real geometry.
-    LoadedPixelTestData conversionResult =
-            loadPixelTestData( sumImages, landmarks, bodies );
+    LoadedPixelTestData conversionResult = loadPixelTestData( sumImages, landmarks, bodies );
     const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( "W48230079013" );
 
     // Each modelled pixel matches the measured SUM pixel within the SPC solution residual.
@@ -645,8 +636,7 @@ BOOST_AUTO_TEST_CASE( testCameraPointingPartialRoutingGuard )
             input_output::sum_lmk::readLmkFiles( { testDataPath + "/LMK0001.lmk", testDataPath + "/LMK0002.lmk" } );
 
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-    LoadedPixelTestData conversionResult =
-            loadPixelTestData( sumImages, landmarks, bodies );
+    LoadedPixelTestData conversionResult = loadPixelTestData( sumImages, landmarks, bodies );
     const std::string cameraName = input_output::sum_lmk::getSumImageCameraName( "IMG001" );
 
     LinkEnds linkEnds;
@@ -810,8 +800,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkObservationModelSettings )
             input_output::sum_lmk::readLmkFiles( { testDataPath + "/LMK0001.lmk", testDataPath + "/LMK0002.lmk" } );
 
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-    LoadedPixelTestData conversionResult =
-            loadPixelTestData( sumImages, landmarks, bodies );
+    LoadedPixelTestData conversionResult = loadPixelTestData( sumImages, landmarks, bodies );
 
     // Two (image, landmark) link ends -> two settings, all pixel_coordinates.
     BOOST_REQUIRE_EQUAL( conversionResult.observationModelSettings_.size( ), 2 );
@@ -837,8 +826,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkResidualsZeroForSelfConsistentData )
             input_output::sum_lmk::readLmkFiles( { testDataPath + "/LMK0001.lmk", testDataPath + "/LMK0002.lmk" } );
 
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-    LoadedPixelTestData conversionResult =
-            loadPixelTestData( sumImages, landmarks, bodies );
+    LoadedPixelTestData conversionResult = loadPixelTestData( sumImages, landmarks, bodies );
 
     const auto simulators = createObservationSimulators< double, double >( conversionResult.observationModelSettings_, bodies );
     computeResidualsAndDependentVariables( conversionResult.observationCollection_, simulators, bodies );
@@ -869,8 +857,8 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
         Eigen::Vector6d receiverState;
         receiverState << 200.0, -300.0, -10000.0, 30000.0, -20000.0, 10000.0;
-        bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< ConstantEphemeris >(
-                [ &receiverState ]( ) { return receiverState; }, "SSB", "J2000" ) );
+        bodies.at( "Spacecraft" )
+                ->setEphemeris( std::make_shared< ConstantEphemeris >( [ &receiverState ]( ) { return receiverState; }, "SSB", "J2000" ) );
         const auto loaded = loadPixelTestData(
                 { makeSyntheticSumImage( "IMGABERRATION", Eigen::Vector3d::Constant( 1.0E-4 ) ) }, makeSyntheticLandmarks( ), bodies );
         const auto link = loaded.observationCollection_->getLinkDefinitionsForSingleObservable( pixel_coordinates ).front( );
@@ -890,10 +878,10 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
             bodies.at( "Spacecraft" )->recomputeStateOnNextCall( );
             return Eigen::VectorXd( model->computeObservations( time, receiver ) );
         };
-        for( const Eigen::Vector3d& correction : std::vector< Eigen::Vector3d >{
-                     Eigen::Vector3d::Zero( ), Eigen::Vector3d( 1.0E-10, -2.0E-10, 3.0E-10 ),
-                     Eigen::Vector3d( 1.0E-6, -2.0E-6, 3.0E-6 ),
-                     Eigen::Vector3d( 0.02, -0.01, 0.03 ) } )
+        for( const Eigen::Vector3d& correction : std::vector< Eigen::Vector3d >{ Eigen::Vector3d::Zero( ),
+                                                                                 Eigen::Vector3d( 1.0E-10, -2.0E-10, 3.0E-10 ),
+                                                                                 Eigen::Vector3d( 1.0E-6, -2.0E-6, 3.0E-6 ),
+                                                                                 Eigen::Vector3d( 0.02, -0.01, 0.03 ) } )
         {
             parameter->setParameterValue( correction );
             std::vector< double > times;
@@ -903,8 +891,8 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
             const auto analytical = partials.first.begin( )->second->calculatePartial( states, times, receiver, nullptr, observation );
             BOOST_REQUIRE_EQUAL( analytical.size( ), 1 );
             BOOST_CHECK_EQUAL( analytical.front( ).second, epoch );
-            const Eigen::MatrixXd numerical = calculateNumericalObservationParameterPartial(
-                    parameter, Eigen::Vector3d::Constant( 1.0E-7 ), observable, epoch );
+            const Eigen::MatrixXd numerical =
+                    calculateNumericalObservationParameterPartial( parameter, Eigen::Vector3d::Constant( 1.0E-7 ), observable, epoch );
             BOOST_CHECK_SMALL( ( analytical.front( ).first - numerical ).norm( ), 1.0E-5 );
         }
         parameter->setParameterValue( Eigen::Vector3d::Zero( ) );
@@ -923,9 +911,9 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
             const Eigen::Vector2d down = observable( epoch );
             receiverState( component ) = original;
             const Eigen::Vector2d numerical = ( up - down ) / ( 2.0 * step );
-            const Eigen::Vector2d analytical = component < 3 ?
-                    Eigen::Vector2d( scaling->getPositionScalingFactor( receiver ).col( component ) ) :
-                    Eigen::Vector2d( scaling->getVelocityScalingFactor( receiver ).col( component - 3 ) );
+            const Eigen::Vector2d analytical = component < 3
+                    ? Eigen::Vector2d( scaling->getPositionScalingFactor( receiver ).col( component ) )
+                    : Eigen::Vector2d( scaling->getVelocityScalingFactor( receiver ).col( component - 3 ) );
             BOOST_CHECK_SMALL( ( analytical - numerical ).norm( ), component < 3 ? 1.0E-8 : 1.0E-11 );
         }
     }
@@ -940,9 +928,12 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartial )
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
         const auto image = makeSyntheticSumImage( "IMGROTATION", Eigen::Vector3d::Constant( 1.0E-4 ) );
         const double epoch = sumImageTdbTimeForTest( image );
-        const auto rotation = std::make_shared< SimpleRotationalEphemeris >(
-                Eigen::Quaterniond( Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) ), 1.0E-4, epoch - 1000.0,
-                "J2000", "Target_Fixed" );
+        const auto rotation =
+                std::make_shared< SimpleRotationalEphemeris >( Eigen::Quaterniond( Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) ),
+                                                               1.0E-4,
+                                                               epoch - 1000.0,
+                                                               "J2000",
+                                                               "Target_Fixed" );
         bodies.at( "Target" )->setRotationalEphemeris( rotation );
         Eigen::Vector6d receiverState;
         receiverState << 1500.0, -700.0, -10000.0, 30000.0, -20000.0, 10000.0;
@@ -951,8 +942,13 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartial )
         landmarks.at( "LMK0001" ).bodyFixedPosition_ = Eigen::Vector3d( 400.0, -250.0, 100.0 );
         const auto loaded = loadPixelTestData( { image }, landmarks, bodies );
         const auto model = ObservationModelCreator< 2, double, double >::createObservationModel(
-                pixelCoordinatesSettings( loaded.observationCollection_->getLinkDefinitionsForSingleObservable( pixel_coordinates ).front( ),
-                                          {}, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), aberration ), bodies );
+                pixelCoordinatesSettings(
+                        loaded.observationCollection_->getLinkDefinitionsForSingleObservable( pixel_coordinates ).front( ),
+                        {},
+                        nullptr,
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        aberration ),
+                bodies );
         const auto parameter = std::make_shared< RotationRate >( rotation, "Target" );
         const auto parameters = std::make_shared< EstimatableParameterSet< double > >(
                 std::vector< std::shared_ptr< EstimatableParameter< double > > >{ parameter },
@@ -986,9 +982,10 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationalStatePartial )
     bodies.at( "Target" )->setRotationalEphemeris( rotation );
     auto landmarks = makeSyntheticLandmarks( );
     landmarks.at( "LMK0001" ).bodyFixedPosition_ = Eigen::Vector3d( 400.0, -250.0, 100.0 );
-    const auto loaded = loadPixelTestData(
-            { makeSyntheticSumImage( "IMGSTATE", Eigen::Vector3d::Constant( 1.0E-4 ) ) }, landmarks, bodies );
-    const auto model = ObservationModelCreator< 2, double, double >::createObservationModel( loaded.observationModelSettings_.front( ), bodies );
+    const auto loaded =
+            loadPixelTestData( { makeSyntheticSumImage( "IMGSTATE", Eigen::Vector3d::Constant( 1.0E-4 ) ) }, landmarks, bodies );
+    const auto model =
+            ObservationModelCreator< 2, double, double >::createObservationModel( loaded.observationModelSettings_.front( ), bodies );
     const auto parameter = std::make_shared< InitialRotationalStateParameter< double > >(
             "Target", rotationalState, []( ) { return Eigen::Matrix3d::Identity( ); }, "SSB", "J2000" );
     const auto parameters = std::make_shared< EstimatableParameterSet< double > >(
@@ -1056,8 +1053,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkResidualsRealData )
                     Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Spacecraft_Fixed" ) );
     bodies.processBodyFrameDefinitions< double, double >( );
 
-    LoadedPixelTestData conversionResult =
-            loadPixelTestData( sumImages, landmarks, bodies );
+    LoadedPixelTestData conversionResult = loadPixelTestData( sumImages, landmarks, bodies );
 
     const auto simulators = createObservationSimulators< double, double >( conversionResult.observationModelSettings_, bodies );
     computeResidualsAndDependentVariables( conversionResult.observationCollection_, simulators, bodies );

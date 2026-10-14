@@ -345,9 +345,10 @@ std::vector< SumImageData > mergeSumImages( const std::vector< SumImageData >& i
         }
         for( const SumLandmarkObservation& observation : image.landmarkObservations_ )
         {
-            const auto existing = std::find_if(
-                    existingImage.landmarkObservations_.begin( ), existingImage.landmarkObservations_.end( ),
-                    [ & ]( const SumLandmarkObservation& entry ) { return entry.landmarkId_ == observation.landmarkId_; } );
+            const auto existing =
+                    std::find_if( existingImage.landmarkObservations_.begin( ),
+                                  existingImage.landmarkObservations_.end( ),
+                                  [ & ]( const SumLandmarkObservation& entry ) { return entry.landmarkId_ == observation.landmarkId_; } );
             if( existing == existingImage.landmarkObservations_.end( ) )
             {
                 existingImage.landmarkObservations_.push_back( observation );
@@ -361,13 +362,13 @@ std::vector< SumImageData > mergeSumImages( const std::vector< SumImageData >& i
         }
         for( const SumLimbFitObservation& observation : image.limbFitObservations_ )
         {
-            const auto existing = std::find_if(
-                    existingImage.limbFitObservations_.begin( ), existingImage.limbFitObservations_.end( ),
-                    [ & ]( const SumLimbFitObservation& entry ) {
-                        return entry.featureId_ == observation.featureId_ &&
-                                isClose( entry.pixelCoordinates_, observation.pixelCoordinates_ ) &&
-                                isClose( entry.sigma_, observation.sigma_ );
-                    } );
+            const auto existing = std::find_if( existingImage.limbFitObservations_.begin( ),
+                                                existingImage.limbFitObservations_.end( ),
+                                                [ & ]( const SumLimbFitObservation& entry ) {
+                                                    return entry.featureId_ == observation.featureId_ &&
+                                                            isClose( entry.pixelCoordinates_, observation.pixelCoordinates_ ) &&
+                                                            isClose( entry.sigma_, observation.sigma_ );
+                                                } );
             if( existing == existingImage.limbFitObservations_.end( ) )
             {
                 existingImage.limbFitObservations_.push_back( observation );

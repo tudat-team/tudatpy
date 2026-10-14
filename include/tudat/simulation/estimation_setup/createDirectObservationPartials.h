@@ -115,7 +115,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     // Create observation partials if any position partials are created (i.e. if any dependency
     // exists).
     std::shared_ptr< DirectObservationPartial< ObservationSize > > observationPartial;
-    if( positionPartials.size( ) > 0 || positionPartialScaler->hasLinkIndependentPartial(
+    if( positionPartials.size( ) > 0 ||
+        positionPartialScaler->hasLinkIndependentPartial(
                 std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ) ) )
     {
         observationPartial = std::make_shared< DirectObservationPartial< ObservationSize > >(
@@ -156,7 +157,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     // Create observation partials if any position partials are created (i.e. if any dependency
     // exists).
     std::shared_ptr< DirectObservationPartial< ObservationSize > > observationPartial;
-    if( positionPartials.size( ) > 0 || positionPartialScaler->hasLinkIndependentPartial(
+    if( positionPartials.size( ) > 0 ||
+        positionPartialScaler->hasLinkIndependentPartial(
                 std::make_pair( estimatable_parameters::initial_rotational_body_state, std::make_pair( bodyToEstimate, "" ) ) ) )
     {
         observationPartial = std::make_shared< DirectObservationPartial< ObservationSize > >(
@@ -236,16 +238,16 @@ createSingleLinkObservationPartials(
         if( observableType == observation_models::pixel_coordinates )
         {
             const observation_models::LinkEndId receiverLinkEnd = oneWayLinkEnds.at( observation_models::receiver );
-            const auto camera = bodies.at( receiverLinkEnd.bodyName_ )->getVehicleSystems( )->getCamera(
-                    receiverLinkEnd.getReferencePointName( ) );
+            const auto camera =
+                    bodies.at( receiverLinkEnd.bodyName_ )->getVehicleSystems( )->getCamera( receiverLinkEnd.getReferencePointName( ) );
             const std::string& referenceBodyName = camera->getPointingReferenceBodyName( );
             if( camera->hasRotationFromInertialToCameraFrameFunction( ) && !referenceBodyName.empty( ) )
             {
                 const auto rotationModel = bodies.at( referenceBodyName )->getRotationalEphemeris( );
                 if( rotationModel == nullptr )
                 {
-                    throw std::runtime_error( "Error when creating pixel-coordinate reference-frame partials: body " +
-                                              referenceBodyName + " has no rotation model." );
+                    throw std::runtime_error( "Error when creating pixel-coordinate reference-frame partials: body " + referenceBodyName +
+                                              " has no rotation model." );
                 }
                 const std::function< Eigen::Quaterniond( const double ) > rotationToInertialFunction =
                         [ rotationModel ]( const double time ) { return rotationModel->getRotationToBaseFrame( time ); };
@@ -259,8 +261,8 @@ createSingleLinkObservationPartials(
                     rotationalStatePartial->second =
                             std::make_shared< RotationMatrixPartialWrtRotationalState >( rotationToInertialFunction );
                 }
-                std::dynamic_pointer_cast< PixelCoordinatesScaling >( positionScaling )->setRotationMatrixPartials(
-                        referenceBodyName, rotationToInertialFunction, rotationPartials );
+                std::dynamic_pointer_cast< PixelCoordinatesScaling >( positionScaling )
+                        ->setRotationMatrixPartials( referenceBodyName, rotationToInertialFunction, rotationPartials );
             }
         }
     }

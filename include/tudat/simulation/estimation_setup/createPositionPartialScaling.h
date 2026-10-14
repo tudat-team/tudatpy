@@ -416,8 +416,9 @@ public:
                             return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
                         },
                         pixelCoordinatesModel != nullptr && pixelCoordinatesModel->getCorrectForStellarAberration( ) );
-                std::static_pointer_cast< PixelCoordinatesScaling >( positionPartialScaler )->setPointingCorrectionFunction(
-                        linkEnds.at( observation_models::receiver ), [ camera ]( ) { return camera->getPointingCorrection( ); } );
+                std::static_pointer_cast< PixelCoordinatesScaling >( positionPartialScaler )
+                        ->setPointingCorrectionFunction( linkEnds.at( observation_models::receiver ),
+                                                         [ camera ]( ) { return camera->getPointingCorrection( ); } );
                 break;
             }
             case observation_models::azimuth_elevation_angle: {

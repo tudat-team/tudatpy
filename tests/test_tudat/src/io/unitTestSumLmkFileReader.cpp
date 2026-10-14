@@ -83,8 +83,6 @@ BOOST_AUTO_TEST_CASE( testReadSumAndLmkFiles )
     checkClose( landmarks.at( "LMK0001" ).landmarkPositionSigma_( 0 ), 1.0 );
     BOOST_REQUIRE_EQUAL( landmarks.at( "LMK0001" ).pictures_.size( ), 1 );
     BOOST_CHECK( landmarks.at( "LMK0001" ).pictures_.at( 0 ).flagged_ );
-
-
 }
 
 BOOST_AUTO_TEST_CASE( testSumLmkDuplicateFailures )
@@ -478,7 +476,9 @@ BOOST_AUTO_TEST_CASE( testSumLmkTrackingDataWithoutEnvironment )
             ++landmarkCount;
             BOOST_CHECK_EQUAL( entry->getBodyName( ), "Target" );
             BOOST_CHECK_SMALL( ( entry->getReferencePointSupplementaryData( )->getBodyFixedPosition( ) -
-                                landmarks.at( entry->getReferencePointName( ) ).bodyFixedPosition_ ).norm( ), 1.0E-12 );
+                                 landmarks.at( entry->getReferencePointName( ) ).bodyFixedPosition_ )
+                                       .norm( ),
+                               1.0E-12 );
         }
         for( const auto& instrument : entry->getInstrumentSupplementaryData( ) )
         {
@@ -543,9 +543,11 @@ BOOST_AUTO_TEST_CASE( testNonfiniteSumMeasurementsAndPointingUncertainties )
         image.landmarkObservations_.front( ).pixelCoordinates_( 0 ) = invalid;
         BOOST_CHECK_THROW( ( convertSumLmkData< double, double >( { image }, landmarks, "Target", "Spacecraft" ) ), std::runtime_error );
     }
-    for( const Eigen::Vector3d& sigma : std::vector< Eigen::Vector3d >{
-                 Eigen::Vector3d::Constant( std::numeric_limits< double >::infinity( ) ),
-                 Eigen::Vector3d( 1.0E-4, TUDAT_NAN, TUDAT_NAN ), Eigen::Vector3d::Zero( ), Eigen::Vector3d::Constant( -1.0E-4 ) } )
+    for( const Eigen::Vector3d& sigma :
+         std::vector< Eigen::Vector3d >{ Eigen::Vector3d::Constant( std::numeric_limits< double >::infinity( ) ),
+                                         Eigen::Vector3d( 1.0E-4, TUDAT_NAN, TUDAT_NAN ),
+                                         Eigen::Vector3d::Zero( ),
+                                         Eigen::Vector3d::Constant( -1.0E-4 ) } )
     {
         auto image = validImage;
         image.pointingSigma_ = sigma;

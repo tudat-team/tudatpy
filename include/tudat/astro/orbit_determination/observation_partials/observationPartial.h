@@ -133,8 +133,7 @@ public:
     }
 
     //! Whether a particular parameter has a contribution independent of the link-end positions.
-    virtual bool hasLinkIndependentPartial(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
+    virtual bool hasLinkIndependentPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
     {
         return useLinkIndependentPartials( );
     }

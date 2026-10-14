@@ -132,10 +132,9 @@ public:
     }
 
     //! Supply the reference-body rotation partials contributing directly to the camera orientation.
-    void setRotationMatrixPartials(
-            const std::string& referenceBodyName,
-            const std::function< Eigen::Quaterniond( const double ) >& rotationFromReferenceFrameToInertialFunction,
-            const RotationMatrixPartialNamedList& rotationMatrixPartials )
+    void setRotationMatrixPartials( const std::string& referenceBodyName,
+                                    const std::function< Eigen::Quaterniond( const double ) >& rotationFromReferenceFrameToInertialFunction,
+                                    const RotationMatrixPartialNamedList& rotationMatrixPartials )
     {
         pointingReferenceBodyName_ = referenceBodyName;
         rotationFromReferenceFrameToInertialFunction_ = rotationFromReferenceFrameToInertialFunction;
@@ -147,17 +146,15 @@ public:
         return pointingCorrectionFunction_ || !rotationMatrixPartials_.empty( );
     }
 
-    bool hasLinkIndependentPartial(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ) override;
+    bool hasLinkIndependentPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ) override;
 
     //! Identify the receiver camera and supply its current rotation-vector correction.
-    void setPointingCorrectionFunction(
-            const observation_models::LinkEndId& cameraLinkEnd,
-            const std::function< Eigen::Vector3d( ) >& pointingCorrectionFunction )
+    void setPointingCorrectionFunction( const observation_models::LinkEndId& cameraLinkEnd,
+                                        const std::function< Eigen::Vector3d( ) >& pointingCorrectionFunction )
     {
-        pointingCorrectionParameterIdentifier_ = std::make_pair(
-                estimatable_parameters::camera_pointing_correction,
-                std::make_pair( cameraLinkEnd.bodyName_, cameraLinkEnd.getReferencePointName( ) ) );
+        pointingCorrectionParameterIdentifier_ =
+                std::make_pair( estimatable_parameters::camera_pointing_correction,
+                                std::make_pair( cameraLinkEnd.bodyName_, cameraLinkEnd.getReferencePointName( ) ) );
         pointingCorrectionFunction_ = pointingCorrectionFunction;
     }
 

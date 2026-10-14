@@ -31,9 +31,8 @@ namespace observation_models
 {
 
 //! Convert a geometric unit direction to an apparent direction using inverse Jacobson stellar aberration.
-inline Eigen::Vector3d computeApparentDirectionWithStellarAberration(
-        const Eigen::Vector3d& actualDirection,
-        const Eigen::Vector3d& observerVelocityDividedBySpeedOfLight )
+inline Eigen::Vector3d computeApparentDirectionWithStellarAberration( const Eigen::Vector3d& actualDirection,
+                                                                      const Eigen::Vector3d& observerVelocityDividedBySpeedOfLight )
 {
     const double directionDotVelocity = actualDirection.dot( observerVelocityDividedBySpeedOfLight );
     const double velocitySquared = observerVelocityDividedBySpeedOfLight.squaredNorm( );

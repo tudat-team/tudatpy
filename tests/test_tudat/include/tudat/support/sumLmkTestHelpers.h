@@ -17,8 +17,7 @@ namespace unit_tests
 {
 
 //! Shared fixture setup; all conversion and environment changes use the public tracking-data interface.
-struct LoadedPixelTestData
-{
+struct LoadedPixelTestData {
     std::shared_ptr< observation_models::ObservationCollection< double, double > > observationCollection_;
     std::vector< std::shared_ptr< data::TrackingSupplementaryData > > supplementaryData_;
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettings_;
@@ -37,31 +36,31 @@ inline std::vector< std::shared_ptr< observation_models::ObservationModelSetting
     return settings;
 }
 
-inline LoadedPixelTestData loadPixelTestData(
-        const std::vector< input_output::sum_lmk::SumImageData >& images,
-        const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks,
-        simulation_setup::SystemOfBodies& bodies,
-        const std::string& targetBody = "Target",
-        const std::string& receiverBody = "Spacecraft",
-        const bool skipMissingLandmarks = false )
+inline LoadedPixelTestData loadPixelTestData( const std::vector< input_output::sum_lmk::SumImageData >& images,
+                                              const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks,
+                                              simulation_setup::SystemOfBodies& bodies,
+                                              const std::string& targetBody = "Target",
+                                              const std::string& receiverBody = "Spacecraft",
+                                              const bool skipMissingLandmarks = false )
 {
-    const auto loaded = input_output::sum_lmk::convertSumLmkData< double, double >(
-            images, landmarks, targetBody, receiverBody, skipMissingLandmarks );
+    const auto loaded =
+            input_output::sum_lmk::convertSumLmkData< double, double >( images, landmarks, targetBody, receiverBody, skipMissingLandmarks );
     observation_models::setTrackingSupplementaryDataInBodies( bodies, loaded.second );
     LoadedPixelTestData result;
     result.supplementaryData_ = loaded.second;
     result.observationCollection_ = observation_models::createObservationCollection< double, double >( loaded.first, bodies );
     result.observationModelSettings_ = pixelModelSettingsForTest( result.observationCollection_ );
-    result.inverseAprioriCovarianceDiagonalEntries_ =
-            simulation_setup::getCameraPointingInverseAprioriCovarianceEntries( loaded.second );
+    result.inverseAprioriCovarianceDiagonalEntries_ = simulation_setup::getCameraPointingInverseAprioriCovarianceEntries( loaded.second );
     return result;
 }
 
 inline double sumImageTdbTimeForTest( const input_output::sum_lmk::SumImageData& image )
 {
     return earth_orientation::createDefaultTimeConverter( )->getCurrentTime< double >(
-            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale,
-            input_output::sum_lmk::getSumImageObservationTime( image ), Eigen::Vector3d::Zero( ) );
+            basic_astrodynamics::utc_scale,
+            basic_astrodynamics::tdb_scale,
+            input_output::sum_lmk::getSumImageObservationTime( image ),
+            Eigen::Vector3d::Zero( ) );
 }
 
 inline std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > pointingSettingsForTest(

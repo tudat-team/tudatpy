@@ -108,16 +108,16 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
         const Eigen::Matrix3d normalizationPartial =
                 ( Eigen::Matrix3d::Identity( ) - currentInertialDirectionToProject_ * currentInertialDirectionToProject_.transpose( ) ) /
                 unnormalizedApparentDirection.norm( );
-        const Eigen::Matrix3d apparentDirectionPartialWrtUnitDirection =
-                scaleFactor * Eigen::Matrix3d::Identity( ) +
+        const Eigen::Matrix3d apparentDirectionPartialWrtUnitDirection = scaleFactor * Eigen::Matrix3d::Identity( ) +
                 normalizedRelativeRangeVector * ( ( directionDotVelocity / squareRoot - 1.0 ) * beta.transpose( ) );
         directionPartialWrtRelativePosition = normalizationPartial * apparentDirectionPartialWrtUnitDirection *
                 ( Eigen::Matrix3d::Identity( ) - normalizedRelativeRangeVector * normalizedRelativeRangeVector.transpose( ) ) /
                 relativeRangeVector.norm( );
         directionPartialWrtReceiverVelocity = normalizationPartial *
-                ( Eigen::Matrix3d::Identity( ) + normalizedRelativeRangeVector *
-                          ( -normalizedRelativeRangeVector +
-                            ( directionDotVelocity * normalizedRelativeRangeVector - beta ) / squareRoot ).transpose( ) ) /
+                ( Eigen::Matrix3d::Identity( ) +
+                  normalizedRelativeRangeVector *
+                          ( -normalizedRelativeRangeVector + ( directionDotVelocity * normalizedRelativeRangeVector - beta ) / squareRoot )
+                                  .transpose( ) ) /
                 physical_constants::SPEED_OF_LIGHT;
     }
 
@@ -144,8 +144,7 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
     currentLinkEndType_ = fixedLinkEnd;
 }
 
-bool PixelCoordinatesScaling::hasLinkIndependentPartial(
-        const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
+bool PixelCoordinatesScaling::hasLinkIndependentPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
 {
     return ( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ ) ||
             ( parameterIdentifier.second.first == pointingReferenceBodyName_ &&
@@ -166,27 +165,26 @@ std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > P
     if( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ )
     {
         // For r_camera = Exp(correction) * r_nominal, differentiate additive changes of the rotation vector.
-        const Eigen::Matrix< double, 2, Eigen::Dynamic > partial =
-                -currentPixelLinePartialWrtCameraFramePosition_ *
+        const Eigen::Matrix< double, 2, Eigen::Dynamic > partial = -currentPixelLinePartialWrtCameraFramePosition_ *
                 linear_algebra::getCrossProductMatrix( currentRelativeRangeVectorCameraFrame_ ) *
                 getLeftJacobianOfSO3( pointingCorrectionFunction_( ) );
         return { std::make_pair( partial, currentReceiverTime_ ) };
     }
 
-    const auto partialIterator = rotationMatrixPartials_.find(
-            std::make_pair( parameterIdentifier.first, parameterIdentifier.second.second ) );
+    const auto partialIterator =
+            rotationMatrixPartials_.find( std::make_pair( parameterIdentifier.first, parameterIdentifier.second.second ) );
     const std::vector< Eigen::Matrix3d > rotationPartials =
             partialIterator->second->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentReceiverTime_ );
-    const Eigen::Matrix< double, 2, 3 > pixelPartialWrtReferenceFrameDirection =
-            currentPixelLinePartialWrtCameraFramePosition_ * currentRotationFromInertialToCameraFrame_ *
+    const Eigen::Matrix< double, 2, 3 > pixelPartialWrtReferenceFrameDirection = currentPixelLinePartialWrtCameraFramePosition_ *
+            currentRotationFromInertialToCameraFrame_ *
             rotationFromReferenceFrameToInertialFunction_( currentReceiverTime_ ).toRotationMatrix( );
     Eigen::Matrix< double, 2, Eigen::Dynamic > partial( 2, rotationPartials.size( ) );
     for( unsigned int i = 0; i < rotationPartials.size( ); ++i )
     {
         // R_inertial_to_camera = R_reference_to_camera * R_inertial_to_reference.
         // RotationMatrixPartial supplies dR_reference_to_inertial/dp, so transpose its derivative.
-        partial.col( i ) = pixelPartialWrtReferenceFrameDirection * rotationPartials.at( i ).transpose( ) *
-                currentInertialDirectionToProject_;
+        partial.col( i ) =
+                pixelPartialWrtReferenceFrameDirection * rotationPartials.at( i ).transpose( ) * currentInertialDirectionToProject_;
     }
     return { std::make_pair( partial, currentReceiverTime_ ) };
 }
