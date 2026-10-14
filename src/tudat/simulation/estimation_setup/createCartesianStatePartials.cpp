@@ -78,7 +78,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
             // Set ground station position function
             std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
-                    std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
+                    std::bind( static_cast< Eigen::Vector3d ( ground_stations::GroundStationState::* )( double, const std::string& ) >(
+                                       &ground_stations::GroundStationState::getCartesianPositionInTime ),
                                currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )->getNominalStationState( ),
                                std::placeholders::_1,
                                bodies.getFrameOrigin( ) );
@@ -129,7 +130,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             {
                 // Set ground station position function
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction = std::bind(
-                        &ground_stations::GroundStationState::getCartesianPositionInTime,
+                        static_cast< Eigen::Vector3d ( ground_stations::GroundStationState::* )( double, const std::string& ) >(
+                                &ground_stations::GroundStationState::getCartesianPositionInTime ),
                         ( currentBody )->getGroundStation( linkEndIterator->second.getReferencePointName( ) )->getNominalStationState( ),
                         std::placeholders::_1,
                         bodies.getFrameOrigin( ) );
@@ -188,7 +190,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
                 // Set ground station position function
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction = std::bind(
-                        &ground_stations::GroundStationState::getCartesianPositionInTime,
+                        static_cast< Eigen::Vector3d ( ground_stations::GroundStationState::* )( double, const std::string& ) >(
+                                &ground_stations::GroundStationState::getCartesianPositionInTime ),
                         currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )->getNominalStationState( ),
                         std::placeholders::_1,
                         bodies.getFrameOrigin( ) );
