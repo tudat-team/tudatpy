@@ -24,9 +24,8 @@ namespace environment_setup
 namespace ground_station
 {
 
+//! Register ground-station construction functions and station-motion settings.
 void expose_ground_station_setup( py::module& m );
-void expose_station_history_models( py::module& m );
-void expose_station_reference_points( py::module& m );
 
 }  // namespace ground_station
 }  // namespace environment_setup

@@ -78,7 +78,8 @@ parameter-only source.
 The named native time convention is ``IGN nominal UTC``. Linear and PSD elapsed
 time is the difference of nominal civil MJD divided by 365.25. Annual and
 semiannual phase uses the elapsed fraction of the actual calendar year,
-including February 29; it is not a fixed 365.25-day sinusoid. ``StationHistoryTime``
+including February 29; it is not a fixed 365.25-day sinusoid.
+:class:`~tudatpy.dynamics.environment.StationHistoryTime`
 keeps physical TAI, split MJD and calendar-year coordinates separate and accepts
 optional derivatives with respect to environment TDB seconds. ``position`` does
 not need rates; ``state`` returns metres and metres per TDB second and requires
@@ -93,6 +94,11 @@ the seasonal phase is continuous and its rate uses the new year's length.
 Caller-supplied source coordinates or a ``source_time_function(TDB_Time,
 require_rates)`` callback may implement another explicitly named convention;
 its name must agree with the trajectory metadata.
+
+Runtime trajectories, metadata, source coordinates and offset histories are in
+:ref:`environment`; this setup module provides their construction functions and
+station-motion settings. Most workflows use ``ign_station_history`` and the
+default source-time conversion rather than assembling coordinate records.
 
 Attach the result with ``station_history_motion(trajectory)``. It subtracts the
 station's nominal position so that the resulting station position equals the
@@ -134,8 +140,9 @@ Transforming a station history with a terrestrial frame catalogue
 linearized Helmert catalogue to the complete absolute trajectory.
 Source solution, post-seismic and seasonal records remain shared with the
 original trajectory; wrappers retain their own evaluated output metadata.
-Its calendar decimal year and derivative come from the same ``StationHistoryTime`` as the
-marker coordinates. Direct affine queries accept that decimal year and, for
+Its calendar decimal year and derivative come from the same
+:class:`~tudatpy.dynamics.environment.StationHistoryTime` as the marker
+coordinates. Direct affine queries accept that decimal year and, for
 states, its derivative explicitly. Parameter rates still use their declared
 Julian-year units. An IGN nominal UTC leap-year query uses the actual calendar-year
 fraction and its TDB derivative, including the documented right-hand year rate.
@@ -205,7 +212,8 @@ frame labels must agree with the evaluated source trajectory frame.
 Equipment and eccentricity intervals use precise physical TAI and are half-open.
 Gaps, overlaps, missing identity associations and extrapolation raise errors.
 Zero SINEX endpoints retain their header-default meaning. When the source header
-does not specify a limit, supply ``SinexEquipmentHeaderTimeContext`` with a
+does not specify a limit, supply
+:class:`~tudatpy.dynamics.environment.SinexEquipmentHeaderTimeContext` with a
 finite confirmed bound and provenance; no infinity is guessed. A supplied
 context cannot contradict an actually specified source header. This context is
 retained with the evaluated records. The IGS master template has unspecified
@@ -219,12 +227,13 @@ Do not use a centered finite difference across a hardware or offset jump.
 .. code-block:: python
 
     from tudatpy.data_input.environment_data import station_history as sh
+    from tudatpy.dynamics import environment
     from tudatpy.dynamics.environment_setup import ground_station as gs
 
     geometry = gs.geodetic_reference_point_geometry(
         anchor_position, marker.metadata.frame,
         equatorial_radius_metres=6378137.0, flattening=1.0 / 298.257223563)
-    context = gs.SinexEquipmentHeaderTimeContext()
+    context = environment.SinexEquipmentHeaderTimeContext()
     context.end_tai = confirmed_equipment_coverage_end_tai
     context.source = "description of the supplied coverage evidence"
     arp = gs.sinex_antenna_reference_point(
@@ -233,8 +242,9 @@ Do not use a centered finite difference across a hardware or offset jump.
     station = gs.reference_point_station(arp, nominal_marker_position)
 
 For an explicit calibrated instrument point, construct
-``StationReferencePointOffset`` records from the ARP to a named instrument
-point and pass a ``StationReferencePointOffsetHistory`` to
+:class:`~tudatpy.dynamics.environment.StationReferencePointOffset` records from
+the ARP to a named instrument point and pass a
+:class:`~tudatpy.dynamics.environment.StationReferencePointOffsetHistory` to
 ``station_reference_point_trajectory``. Declare frame, component basis, validity,
 equipment type/serial, calibration ID, signal and source. Every calibration
 must match all antenna intervals it overlaps and remain inside their coverage.

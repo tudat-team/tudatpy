@@ -10,6 +10,56 @@ Much of the functionality in this module concerns classes stored inside :class:`
 stored in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. Note that the classes in this module are rarely created manually, 
 but are instead created by the functionality in the :ref:`environment_setup` module. 
 
+Station histories and instrument reference points
+------------------------------------------------
+
+Station histories evaluate absolute terrestrial positions in metres and states
+in metres and metres per TDB second. Construct the usual IGN trajectory with
+``environment_setup.ground_station.ign_station_history`` and attach it with
+``station_history_motion``; see :ref:`ground_station` for the complete workflow.
+Frame and reference-point construction functions remain in that setup module.
+
+The runtime objects below retain source records, output metadata and explicit
+composition order. Returned record lists are independent copies. Source-coordinate
+types and the named IGN conversion functions support advanced custom trajectories
+and callbacks; the default station-motion settings perform that conversion.
+
+.. currentmodule:: tudatpy.dynamics.environment
+
+.. autoclass:: StationHistoryTrajectory
+   :members:
+
+.. autoclass:: TransformedStationHistoryTrajectory
+   :members:
+
+.. autoclass:: StationReferencePointTrajectory
+   :members:
+
+.. autoclass:: StationReferencePointOffsetHistory
+   :members:
+
+.. autoclass:: StationHistoryMetadata
+   :members:
+
+.. autoclass:: StationHistoryTime
+   :members:
+
+.. autoclass:: SinexEquipmentHeaderTimeContext
+   :members:
+
+.. autoclass:: StationReferencePointOffset
+   :members:
+
+.. autofunction:: ign_nominal_utc_station_time_from_tdb
+
+.. autofunction:: ign_nominal_utc_station_time_from_tai
+
+.. autofunction:: ign_nominal_utc_station_time
+
+.. autofunction:: sinex_civil_utc_to_tai
+
+.. autofunction:: station_reference_point_identity
+
 
 
 

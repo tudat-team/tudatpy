@@ -21,6 +21,8 @@
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include <tudat/simulation/environment_setup/defaultBodies.h>
+#include "tudat/simulation/environment_setup/createStationReferencePoint.h"
+#include "tudat/astro/ground_stations/transformedStationHistoryTrajectory.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -36,6 +38,7 @@ namespace environment_setup
 namespace ground_station
 {
 
+//! Register ground-station construction functions and station-motion settings.
 void expose_ground_station_setup( py::module& m )
 {
     // Ground station motion settings
@@ -669,8 +672,122 @@ reference_epoch:
         Dictionary mapping station name to velocities.
 
         )doc" );
-    expose_station_history_models( m );
-    expose_station_reference_points( m );
+    // Build source-profile trajectories from neutral input products, then bind absolute station motion.
+    m.def( "ign_station_history",
+           &tudat::ground_stations::createIgnStationHistoryTrajectory,
+           py::arg( "solutions" ),
+           py::arg( "discontinuities" ),
+           py::arg( "site" ),
+           py::arg( "post_seismic" ) = nullptr,
+           py::arg( "seasonal" ) = nullptr,
+           py::arg( "enu_to_terrestrial" ) = py::none( ),
+           py::arg( "domes_selector" ) = py::none( ),
+           py::arg( "velocity_consistency_tolerance_metres_per_julian_year" ) = 1.0e-8,
+           R"doc(Construct an IGN station trajectory from preloaded products.
+
+Parameters
+----------
+solutions, discontinuities : SinexStationHistory
+    Coordinate and independent position/velocity history products with matching
+    explicit frame, release, origin and tide-system metadata.
+site : SinexSiteKey
+    Station and point identifier to select.
+post_seismic, seasonal : SinexStationHistory, optional
+    Cumulative post-seismic and fitted seasonal coefficients.
+enu_to_terrestrial : numpy.ndarray, optional
+    Constant proper rotation with East, North and Up as columns; required for ENU coefficients.
+domes_selector : str, optional
+    Monument identifier when source SITE/ID entries are ambiguous.
+velocity_consistency_tolerance_metres_per_julian_year : float, default=1e-8
+    Componentwise tolerance for velocities sharing a V interval; coefficients are unchanged.
+
+Returns
+-------
+StationHistoryTrajectory
+    Absolute terrestrial trajectory using the named IGN nominal UTC convention.
+)doc" );
+    m.def( "transform_station_history",
+           &tudat::ground_stations::createTransformedStationHistoryTrajectory,
+           py::arg( "source" ),
+           py::arg( "catalogue" ),
+           py::arg( "target_frame" ),
+           py::arg( "target_origin" ),
+           py::arg( "target_tide_system" ),
+           py::arg( "acknowledge_aligned_releases" ) = false,
+           R"doc(Transform the complete trajectory through a preloaded affine catalogue.
+
+Parameters
+----------
+source : StationHistoryTrajectory
+    Input trajectory; its calendar year and TDB derivative supply the parameter coordinates.
+catalogue : TerrestrialFrameTransformationData
+    Preloaded Helmert parameters and source provenance.
+target_frame : TerrestrialFrameIdentity
+    Explicit target realization and release.
+target_origin, target_tide_system : str
+    Target conventions, which must match the source conventions.
+acknowledge_aligned_releases : bool, default=False
+    Declare alignment when a supplied release differs from the catalogue's identity.
+
+Returns
+-------
+TransformedStationHistoryTrajectory
+    Trajectory in the target frame with the original monument and reference-point identity.
+)doc" );
+    py::class_< tss::StationHistoryGroundStationMotionSettings,
+                std::shared_ptr< tss::StationHistoryGroundStationMotionSettings >,
+                tss::GroundStationMotionSettings >( m, "StationHistoryGroundStationMotionSettings" );
+    m.def( "station_history_motion",
+           &tss::stationHistoryGroundStationMotionSettings,
+           py::arg( "trajectory" ),
+           py::arg( "source_time_function" ) = py::none( ),
+           R"doc(Create station-motion settings for an absolute history trajectory.
+
+Parameters
+----------
+trajectory : StationHistoryTrajectory
+    Complete terrestrial trajectory. The station's nominal position is subtracted once.
+source_time_function : callable, optional
+    Advanced conversion receiving (TDB Time, require_rates) and returning StationHistoryTime.
+    The default uses the selected terrestrial time converter and IGN nominal UTC profile.
+
+Returns
+-------
+StationHistoryGroundStationMotionSettings
+    Motion settings to supply to basic_station.
+)doc" );
+
+    // Bind reference-point geometry and ordered offset composition before constructing a named station.
+    m.def( "geocentric_reference_point_geometry",
+           &tudat::ground_stations::createGeocentricStationReferencePointGeometry,
+           py::arg( "anchor_metres" ),
+           py::arg( "frame" ) );
+    m.def( "geodetic_reference_point_geometry",
+           &tudat::ground_stations::createGeodeticStationReferencePointGeometry,
+           py::arg( "anchor_metres" ),
+           py::arg( "frame" ),
+           py::arg( "equatorial_radius_metres" ),
+           py::arg( "flattening" ) );
+    m.def( "station_reference_point_trajectory",
+           &tudat::ground_stations::createStationReferencePointTrajectory,
+           py::arg( "source" ),
+           py::arg( "offset_history" ) );
+    m.def( "sinex_antenna_reference_point",
+           &tudat::ground_stations::createSinexAntennaReferencePointTrajectory,
+           py::arg( "marker" ),
+           py::arg( "equipment" ),
+           py::arg( "reference_point_name" ),
+           py::arg( "geometry" ) = py::none( ),
+           py::arg( "header_context" ) = py::none( ),
+           py::arg( "rate_policy" ) = tudat::ground_stations::StationReferencePointRatePolicy::rejectAtSwitch,
+           py::arg( "domes_selector" ) = py::none( ),
+           py::arg( "equipment_site" ) = py::none( ) );
+    m.def( "reference_point_station",
+           &tss::stationReferencePointSettings,
+           py::arg( "trajectory" ),
+           py::arg( "nominal_position" ),
+           py::arg( "source_time_function" ) = py::none( ),
+           "Create a named station for the selected instrument point, including complete absolute trajectory motion." );
 }
 
 }  // namespace ground_station

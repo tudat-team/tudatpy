@@ -367,7 +367,7 @@ void expose_frame_conversion( py::module& m )
                   py::arg( "source_realization" ),
                   py::arg( "target_realization" ),
                   py::arg( "decimal_year" ),
-                  "Transform position without requiring or inventing a physical year rate." )
+                  "Transform position at the supplied decimal year." )
             .def( "transform_state",
                   &trf::TerrestrialFrameTransformationModel::transformState,
                   py::arg( "state" ),

@@ -145,6 +145,9 @@ namespace environment
 
 void expose_environment( py::module& m )
 {
+    // Runtime station types are registered before station construction settings in environment_setup.
+    expose_station_models( m );
+
     // Register types that occur in signatures before their detailed binding
     // sections below. Keep a class handle only when members are added later.
     py::class_< ta::ControlSurfaceIncrementAerodynamicInterface, std::shared_ptr< ta::ControlSurfaceIncrementAerodynamicInterface > >(

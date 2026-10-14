@@ -197,7 +197,7 @@ TerrestrialFrameAffineTransformation TerrestrialFrameTransformationModel::getTra
     return evaluateTransformation( source, target, decimalYear, decimalYearRateWithRespectToInputSeconds );
 }
 
-//! Transform metre-valued position without requiring or inventing a physical year rate.
+//! Transform metre-valued position at the supplied decimal year.
 Eigen::Vector3d TerrestrialFrameTransformationModel::transformPosition( const Eigen::Vector3d& position,
                                                                         const std::string& source,
                                                                         const std::string& target,

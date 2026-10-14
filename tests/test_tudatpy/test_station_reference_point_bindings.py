@@ -7,6 +7,7 @@ import numpy as np
 from tudatpy.data_input.environment_data import station_history as sh
 from tudatpy.dynamics.environment_setup import ground_station as gs
 from tudatpy.dynamics import environment_setup
+from tudatpy.dynamics import environment
 from tudatpy.astro.time_representation import Time
 
 
@@ -33,24 +34,26 @@ def test_ground_station_time_overload_keeps_sub_float_jump_order():
     np.testing.assert_array_equal(station.get_cartesian_state(right)[:3], nominal + [0.1, 0.2, 0.3])
 
 
+# Mutating records returned by runtime models must leave their validated coefficients unchanged.
 def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
-    identity = gs.StationReferencePointIdentity()
+    # Bind a directed marker-to-ARP offset using the runtime environment types.
+    identity = environment.StationReferencePointIdentity()
     identity.site = sh.SinexSiteKey("TEST", "A")
     identity.domes_id = "00000M001"
     identity.name = "marker"
-    target = gs.StationReferencePointIdentity()
+    target = environment.StationReferencePointIdentity()
     target.site = identity.site
     target.domes_id = identity.domes_id
-    target.kind = gs.StationReferencePointKind.antenna_reference_point
+    target.kind = environment.StationReferencePointKind.antenna_reference_point
     target.name = "ARP"
-    offset = gs.StationReferencePointOffset()
+    offset = environment.StationReferencePointOffset()
     offset.from_point, offset.to_point = identity, target
     offset.frame = "ITRF2020"
     offset.equipment_type, offset.equipment_serial_number = "antenna", "serial"
     offset.source = "explicit test reference vector"
     offset.components_metres = np.array([0.1, 0.2, 0.3])
-    history = gs.StationReferencePointOffsetHistory([offset])
-    query = gs.StationHistoryTime()
+    history = environment.StationReferencePointOffsetHistory([offset])
+    query = environment.StationHistoryTime()
     expected = history.position_correction(query)
     snapshot = history.offsets[0]
     snapshot.components_metres = np.ones(3)
@@ -59,6 +62,7 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
     np.testing.assert_array_equal(history.position_correction(query), expected)
     assert history.offsets[0].equipment_serial_number == "serial"
 
+    # The unchanged source fixtures provide trajectory records for the same ownership check.
     fixtures = Path(__file__).parents[1] / "test_tudat/reference_files/station_history"
     products = [
         sh.read_sinex_station_history(str(fixtures / filename))
@@ -75,7 +79,7 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
         post_seismic=products[2],
         enu_to_terrestrial=np.eye(3),
     )
-    query = gs.ign_nominal_utc_station_time(2019, 200, 0)
+    query = environment.ign_nominal_utc_station_time(2019, 200, 0)
     expected = trajectory.position(query)
     trajectory.solutions[3].position_metres = np.zeros(3)
     trajectory.post_seismic_terms[0].amplitude_metres = np.zeros(3)

@@ -56,7 +56,7 @@ public:
                                                             double decimalYear,
                                                             double decimalYearRateWithRespectToInputSeconds ) const;
 
-    //! Transform position from a declared decimal year without requiring or inventing a rate.
+    //! Transform position at the supplied decimal year; no time derivative is needed.
     Eigen::Vector3d transformPosition( const Eigen::Vector3d& position,
                                        const std::string& sourceRealization,
                                        const std::string& targetRealization,
