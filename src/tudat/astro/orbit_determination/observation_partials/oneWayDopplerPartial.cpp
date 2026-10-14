@@ -425,15 +425,33 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
     else if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter &&
              ( transmitterProperTimePartials_ != nullptr || receiverProperTimePartials_ != nullptr ) )
     {
+        // A missing proper-time model contributes nothing (empty partial).
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
-                transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
-        transmitterPartial.first /= divisionTerm_;
+                std::make_pair( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 0 ), TUDAT_NAN );
+        if( transmitterProperTimePartials_ != nullptr )
+        {
+            transmitterPartial = transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
+            transmitterPartial.first /= divisionTerm_;
+        }
 
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > receiverPartial =
-                receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
-        receiverPartial.first /= divisionTerm_;
+                std::make_pair( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 0 ), TUDAT_NAN );
+        if( receiverProperTimePartials_ != nullptr )
+        {
+            receiverPartial = receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
+            receiverPartial.first /= divisionTerm_;
+        }
 
-        if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
+        if( transmitterProperTimePartials_ == nullptr )
+        {
+            totalPartial.push_back( receiverPartial );
+            totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
+        }
+        else if( receiverProperTimePartials_ == nullptr )
+        {
+            totalPartial.push_back( transmitterPartial );
+        }
+        else if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
         {
             totalPartial.push_back( transmitterPartial );
             totalPartial.push_back( receiverPartial );
