@@ -287,7 +287,7 @@ public:
                     ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
                     physical_constants::JULIAN_DAY;
             const TimeType atomicTime = basic_astrodynamics::convertTTtoTAI( terrestrialTime );
-            if( static_cast< double >( atomicTime ) < eopIntroductionEpochInTai )
+            if( atomicTime < static_cast< TimeType >( eopIntroductionEpochInTai ) )
             {
                 TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
                         timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );

@@ -368,7 +368,8 @@ public:
                 timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
                 // --- 3. Calculate UT1 if possible (for modern era) ---
-                if( requireUt1 && dailyUtcUt1CorrectionInterpolator_ != nullptr && timesToUpdate.tai >= utcIntroductionEpochInTai_ )
+                if( requireUt1 && dailyUtcUt1CorrectionInterpolator_ != nullptr &&
+                    timesToUpdate.tai >= static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
                 {
                     timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
                             timesToUpdate.utc;
@@ -379,7 +380,7 @@ public:
             case basic_astrodynamics::ut1_scale:
 
                 timesToUpdate.ut1 = inputTimeValue;
-                if( timesToUpdate.ut1 < utcIntroductionEpochInTai_ )
+                if( timesToUpdate.ut1 < static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
                 {
                     // Before EOP data starts, UTC is treated as UT1 and TT is obtained from historical Delta T.
                     calculateAtomicTimesFromUtc< TimeType >( inputTimeValue );
@@ -639,7 +640,7 @@ private:
     template< typename TimeType >
     void calculateUniversalTimes( const bool requireUt1 = true )
     {
-        if( getCurrentTimeList< TimeType >( ).tai < utcIntroductionEpochInTai_ )
+        if( getCurrentTimeList< TimeType >( ).tai < static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
         {
             loadHistoricalDeltaTInterpolator( );
             double approximateYear = getCurrentTimeList< TimeType >( ).tt / physical_constants::JULIAN_YEAR + 2000.0;
@@ -686,7 +687,7 @@ private:
         // The UTC introduction epoch is in TAI, but we can use it as an approximate
         // threshold for the input time (which is UTC-like) to decide which path to take.
         // This avoids calling SOFA functions with dates they cannot handle.
-        if( inputUtcTime < utcIntroductionEpochInTai_ )
+        if( inputUtcTime < static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
         {
             // --- 1. Historical Time (Pre-UTC Era) ---
             // This path is now correctly taken for the 1893 date.

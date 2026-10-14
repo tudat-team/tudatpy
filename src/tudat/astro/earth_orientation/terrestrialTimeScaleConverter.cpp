@@ -69,7 +69,7 @@ Time TerrestrialTimeScaleConverter::getUt1FromTai( const Time& tai )
 {
     if( !continuousEopData_ ) throw std::runtime_error( "Continuous UT1 evaluation requires EOP data" );
     if( tai < continuousEopData_->getStartTai( ) && continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
-        static_cast< double >( tai ) < utcIntroductionEpochInTai_ )
+        tai < Time( utcIntroductionEpochInTai_ ) )
     {
         loadHistoricalDeltaTInterpolator( );
         const Time tt = basic_astrodynamics::convertTAItoTT( tai );
@@ -91,7 +91,7 @@ Ut1ValueAndRate TerrestrialTimeScaleConverter::getUt1FromTaiWithRate( const Time
 {
     if( !continuousEopData_ ) throw std::runtime_error( "UT1 rates require a supported continuous EOP model" );
     if( tai < continuousEopData_->getStartTai( ) && continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
-        static_cast< double >( tai ) < utcIntroductionEpochInTai_ )
+        tai < Time( utcIntroductionEpochInTai_ ) )
         throw std::runtime_error( "Historical Delta-T clock rates are unavailable; position conversion remains supported" );
     const auto daily = continuousEopData_->evaluate( tai );
     if( !daily.ut1MinusTaiRate ) throw std::runtime_error( "Selected UT1-TAI interpolation slope is unavailable" );
@@ -124,7 +124,7 @@ Time TerrestrialTimeScaleConverter::invertContinuousUt1( const Time& requested, 
     if( requested < firstUt1 || requested > lastUt1 )
     {
         if( requested < firstUt1 && continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
-            static_cast< double >( requested ) < utcIntroductionEpochInTai_ )
+            requested < Time( utcIntroductionEpochInTai_ ) )
         {
             loadHistoricalDeltaTInterpolator( );
             Time tt = requested;
