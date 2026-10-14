@@ -125,10 +125,12 @@ Active work
 -----------
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
-The coordinator handles architecture and integration. All eight compiler jobs are
-allocated to Python-specific binding validation. Native compilation is complete;
-the other workers are available for the required full-PR review. Earlier workers
-are stopped and their work is preserved.
+The coordinator handles architecture, literature analysis and integration.
+Compiler allocations are rotation/core four, Python binding validation two and
+SINEX cleanup two, for a global maximum of eight. The full kernel build passed;
+seven of nine Python checks passed and two exposed defects now being corrected.
+The gravity-code inventory is complete. Earlier workers are stopped and their
+work is preserved.
 
 * Task 04: the coverage audit confirms pinned independent sources and fixtures
   across the integrated models. The solid-pole reference now pins the original
@@ -210,7 +212,10 @@ are stopped and their work is preserved.
   model. The isolated EOP factory crash was resolved by rebuilding its stale
   pre-Desai-Sibois factory objects; the failing case passes. Python record getters
   explicitly copy validated records. The ownership regression and other
-  Python-only binding/import checks remain open.
+  Python-only binding/import checks found two defects: mixed Time/double
+  piecewise-motion endpoint guards and an unregistered ocean-pole settings type.
+  Both are being fixed; the other seven runtime cases passed. Task 29 stays open
+  until the two affected checks pass.
 
 Unchecked tasks remain open. Python-only binding/import validation is part of task 29;
 kernel compilation is allowed only when needed for those Python-specific tests.
@@ -220,29 +225,32 @@ records useful implementation and regression-test scenarios. Its former
 estimation and complete-trajectory comparison proposals are outside the revised
 scope; targeted reference checks remain useful.
 
-Subsequent gravity-field programme
----------------------------------
+Parallel gravity-field programme
+--------------------------------
 
-Dominic requested this follow-on programme on 14 October 2026. It starts only
-after **every retained item in the current 25-task checklist and the additional
-review gate below are complete**. Do not create its branch or begin its
-implementation while any current item or review finding remains open.
+Dominic subsequently authorized starting the gravity programme in parallel on
+14 October 2026. This supersedes the earlier instruction to wait for every station
+task and the full-PR review. The station review remains a completion requirement.
 
-At that point create ``fix/gravity_field_variations`` and review, implement
-and independently validate detailed Earth gravity-field variation models used
-in space geodesy, including solid Earth tides, ocean tides and pole tides.
-Apply the same standards-first literature review, neutral input-layer
-architecture, pinned reference data, primarily C++ validation and resource
-limits. Estimation of gravity-field coefficients is explicitly outside this
-follow-on programme's scope. Its detailed checklist will be established when
-the current programme is finished.
+Branch ``fix/gravity_field_variations`` was created from ``a3be1612a`` in the
+separate ``tudatpy-earth-gravity-variations`` worktree. Literature and existing-model
+analysis are active; implementation follows that analysis. Review, implement and
+independently validate detailed Earth gravity-field variation models used in space
+geodesy, including solid Earth tides, ocean tides and pole tides. Establish explicit
+compatibility between rotation, gravity, static-field and correction conventions;
+do not combine incompatible models or count an effect twice. Apply the same
+standards-first review, neutral input layer, pinned reference data, primarily C++
+validation and global eight-compiler limit. Sol agents at high reasoning implement,
+compile and handle minor debugging. Gravity-coefficient estimation is excluded.
+The detailed gravity checklist is ``docs/earth_gravity_field_variations.rst`` in
+that branch and is also open in gedit.
 
 Required review after the checklist
 -----------------------------------
 
 .. code-block:: text
 
-   [ ] Review the complete PR after all 25 tasks, before gravity work.  [QUEUED — mandatory additional gate]
+   [ ] Review the complete station/rotation PR after all 25 tasks.  [QUEUED — mandatory; gravity analysis may proceed in parallel]
 
 In addition to the normal correctness and numerical review, Dominic requires:
 
