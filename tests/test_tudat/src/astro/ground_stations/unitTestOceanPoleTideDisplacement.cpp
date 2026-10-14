@@ -30,6 +30,16 @@ void close( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected, cons
         BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], tolerance );
     }
 }
+// Published fixtures and injected mean-pole values use TT. The model receives TDB.
+Time tdbAtTt( const double tt,
+              const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = getGeocentricTimeConverter( ) )
+{
+    return converter->getCurrentTime< Time >( basic_astrodynamics::tt_scale, basic_astrodynamics::tdb_scale, Time( tt ) );
+}
+std::shared_ptr< ground_stations::GroundStationState > stationAt( const Eigen::Vector3d& position )
+{
+    return std::make_shared< ground_stations::GroundStationState >( position, coordinate_conversions::cartesian_position );
+}
 OceanPoleTideGrid syntheticGrid( )
 {
     OceanPoleTideGrid grid;
@@ -161,15 +171,22 @@ BOOST_AUTO_TEST_CASE( modelSecularPoleAndGeocentricBasisAcrossShapeRepresentatio
     const Eigen::Vector3d north( -std::sin( lat ) * std::cos( lon ), -std::sin( lat ) * std::sin( lon ), std::cos( lat ) );
     const Eigen::Vector3d east( -std::sin( lon ), std::cos( lon ), 0 );
     const Eigen::Vector3d expected = u.x( ) * radial + u.y( ) * north + u.z( ) * east;
-    close( model.calculateDisplacement( 0, sphere ), expected );
-    close( model.calculateDisplacement( 0, oblate ), expected );
-    close( model.calculateDisplacement( 0, position ), expected );
-    close( model.calculateEnuDisplacement( 0, oblate ), oblate->getRotationFromBodyFixedToTopocentricFrame( 0 ) * expected );
-    BOOST_CHECK_GT( ( model.calculateEnuDisplacement( 0, sphere ) - model.calculateEnuDisplacement( 0, oblate ) ).norm( ), 1e-6 );
+    close( model.calculateDisplacement( tdbAtTt( 0 ), sphere ), expected );
+    close( model.calculateDisplacement( tdbAtTt( 0 ), oblate ), expected );
+    close( model.calculateDisplacement( tdbAtTt( 0 ), stationAt( position ) ), expected );
+    close( oblate->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( tdbAtTt( 0 ) ) ) *
+                   model.calculateDisplacement( tdbAtTt( 0 ), oblate ),
+           oblate->getRotationFromBodyFixedToTopocentricFrame( 0 ) * expected );
+    BOOST_CHECK_GT( ( sphere->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( tdbAtTt( 0 ) ) ) *
+                              model.calculateDisplacement( tdbAtTt( 0 ), sphere ) -
+                      oblate->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( tdbAtTt( 0 ) ) ) *
+                              model.calculateDisplacement( tdbAtTt( 0 ), oblate ) )
+                            .norm( ),
+                    1e-6 );
     OceanPoleTideDeformation zero( grid, poleCalculator( 0, Eigen::Vector2d( 55, 320.5 ) * ( pi / 648000000.0 ) ) );
-    close( zero.calculateDisplacement( 0, position ), Eigen::Vector3d::Zero( ) );
-    BOOST_CHECK_THROW( model.calculateDisplacement( NAN, sphere ), std::runtime_error );
-    BOOST_CHECK_THROW( model.calculateDisplacement( 0, Eigen::Vector3d::Zero( ) ), std::runtime_error );
+    close( zero.calculateDisplacement( tdbAtTt( 0 ), stationAt( position ) ), Eigen::Vector3d::Zero( ) );
+    BOOST_CHECK_THROW( model.calculateDisplacement( Time( NAN ), sphere ), std::invalid_argument );
+    BOOST_CHECK_THROW( model.calculateDisplacement( tdbAtTt( 0 ), stationAt( Eigen::Vector3d::Zero( ) ) ), std::runtime_error );
     BOOST_CHECK_THROW( OceanPoleTideDeformation( grid, nullptr ), std::runtime_error );
 }
 
@@ -188,7 +205,7 @@ BOOST_AUTO_TEST_CASE( futureSecularPoleWithIndependentMixedWobble )
     OceanPoleTideDeformation model( grid, pole );
     const Eigen::Vector3d position( 6378137, 0, 0 );
     // Independent complex arithmetic yields radial,north,east. At this point Cartesian = radial,east,north.
-    close( model.calculateDisplacement( tt, position ),
+    close( model.calculateDisplacement( tdbAtTt( tt ), stationAt( position ) ),
            Eigen::Vector3d( 0.005373444767292916, 0.012600176498269108, 0.008986810632781011 ),
            1e-14 );
 }
@@ -207,7 +224,7 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedFileAndConfigurationErrors )
             createBodyDeformationModel( oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) ), "Earth", bodies );
     const Eigen::Vector3d spherical( 6378137, -43.75 * mathematical_constants::PI / 180, 232.25 * mathematical_constants::PI / 180 );
     const auto station = std::make_shared< ground_stations::GroundStationState >( spherical, coordinate_conversions::spherical_position );
-    close( preloaded->calculateDisplacement( 0, station ), file->calculateDisplacement( 0, station ) );
+    close( preloaded->calculateDisplacement( tdbAtTt( 0 ), station ), file->calculateDisplacement( tdbAtTt( 0 ), station ) );
     const auto typed = std::dynamic_pointer_cast< OceanPoleTideDeformation >( preloaded );
     BOOST_REQUIRE( typed );
     BOOST_CHECK( typed->getGrid( ).referenceOrigin == OceanLoadingReferenceOrigin::wholeEarthCentreOfMass );
@@ -287,6 +304,8 @@ BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
                                std::conj( std::complex< double >( 0.687, 0.0036 ) ) );
         }
         // Independent complex loading formula and equatorial radial/east/north basis.
-        close( model->calculateDisplacement( tt, position ), Eigen::Vector3d( loading.x( ), loading.z( ), loading.y( ) ), 1.0e-13 );
+        close( model->calculateDisplacement( tdbAtTt( tt, angles->getTerrestrialTimeScaleConverter( ) ), stationAt( position ) ),
+               Eigen::Vector3d( loading.x( ), loading.z( ), loading.y( ) ),
+               1.0e-13 );
     }
 }

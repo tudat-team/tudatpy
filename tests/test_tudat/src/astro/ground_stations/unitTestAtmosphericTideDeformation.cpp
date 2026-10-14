@@ -118,7 +118,7 @@ AtmosphericTideMetadata rp03( )
 }  // namespace
 BOOST_AUTO_TEST_CASE( nativeContinuousLeapPhaseAndOwnClock )
 {
-    const auto c = modelClock( ), other = modelClock( 3600 );
+    const auto c = modelClock( );
     const auto g = grid( );
     AtmosphericTideDeformation model( g, c, explicitGeometry( ) );
     const Eigen::Vector3d p( 6378137, 0, 0 );
@@ -131,22 +131,21 @@ BOOST_AUTO_TEST_CASE( nativeContinuousLeapPhaseAndOwnClock )
         const double ut1 = static_cast< double >( tai - 36.4 );
         const auto local = independentLocal( g.coefficientsMetres.front( ), ut1 );
         const Eigen::Vector3d expected( local.x( ), local.z( ), local.y( ) );
-        // Even a context supplied with another clock must use this model's clock.
-        close( model.calculateDisplacement( EarthDeformationEpoch( tdb, other ), p ), expected, 2e-14 );
-        close( model.calculateDisplacement( static_cast< double >( tdb ), p ), expected, 3e-13 );
+        // The model owns the converter used by this native TDB query.
+        close( model.calculateDisplacement( tdb, station( p ) ), expected, 2e-14 );
+        close( model.calculateDisplacement( Time( static_cast< double >( tdb ) ), station( p ) ), expected, 3e-13 );
     }
     const auto early = tdbAtUt1( c, Time( ( 57752. - 51544.5 ) * 86400. - .4 ) );
-    BOOST_CHECK_THROW( model.calculateDisplacement( EarthDeformationEpoch( early - 1.0, c ), p ), std::runtime_error );
+    BOOST_CHECK_THROW( model.calculateDisplacement( early - 1.0, station( p ) ), std::runtime_error );
     AtmosphericTideDeformation gap( grid( ), modelClock( 0, 3600 ), explicitGeometry( ) );
-    BOOST_CHECK_THROW(
-            gap.calculateDisplacement( EarthDeformationEpoch( tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. - .4 ) ), c ), p ),
-            std::runtime_error );
+    BOOST_CHECK_THROW( gap.calculateDisplacement( tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. - .4 ) ), station( p ) ),
+                       std::runtime_error );
 }
 BOOST_AUTO_TEST_CASE( independentLookupAndBasisAndSameCartesianRepresentation )
 {
     const auto c = modelClock( );
     const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
-    const EarthDeformationEpoch epoch( tdbAtUt1( c, Time( ut1 ) ), c );
+    const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
     const auto oblate = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137, 1. / 298.257223563 );
     const auto sphere = std::make_shared< SphericalBodyShapeModel >( 6378137 );
     // Known ellipsoid surface coordinate 45deg,30deg; normal direction is known independently.
@@ -173,22 +172,24 @@ BOOST_AUTO_TEST_CASE( independentLookupAndBasisAndSameCartesianRepresentation )
             const Eigen::Vector3d expected = ( geodeticBasis ? normalBasis : basis( p ) ) * independentLocal( coeff, ut1 );
             close( model.calculateDisplacement( epoch, station( p, oblate ) ), expected, 1e-13 );
             close( model.calculateDisplacement( epoch, station( p, sphere ) ), expected, 1e-13 );
-            close( model.calculateDisplacement( epoch, p ), expected, 1e-13 );
+            close( model.calculateDisplacement( epoch, station( p ) ), expected, 1e-13 );
             const Eigen::Vector3d expectedRate = ( geodeticBasis ? normalBasis : basis( p ) ) *
-                    independentLocalRate( coeff, static_cast< double >( epoch.getUt1( c ) ) ) * epoch.getTtRateWithRespectToTdb( );
-            close( model.calculateDisplacementVelocity( epoch, station( p, oblate ) ), expectedRate, 2e-20 );
-            close( model.calculateDisplacementVelocity( epoch, station( p, sphere ) ), expectedRate, 2e-20 );
-            close( model.calculateDisplacementVelocity( epoch, p ), expectedRate, 2e-20 );
+                    independentLocalRate( coeff, static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) *
+                    c->getGeocentricTtRateWithRespectToTdb( epoch );
+            close( model.calculateDisplacementState( epoch, station( p, oblate ) ).tail< 3 >( ), expectedRate, 2e-20 );
+            close( model.calculateDisplacementState( epoch, station( p, sphere ) ).tail< 3 >( ), expectedRate, 2e-20 );
+            close( model.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( ), expectedRate, 2e-20 );
             const Eigen::Vector3d expectedEnuRate( expectedRate.dot( normalBasis.col( 2 ) ),
                                                    expectedRate.dot( normalBasis.col( 1 ) ),
                                                    expectedRate.dot( normalBasis.col( 0 ) ) );
             const Eigen::Vector3d actualEnuRate =
-                    station( p, oblate )->getRotationFromBodyFixedToTopocentricFrame( epoch.getTdbSeconds( ) ) *
-                    model.calculateDisplacementVelocity( epoch, p );
+                    station( p, oblate )->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch ) ) *
+                    model.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( );
             close( actualEnuRate, expectedEnuRate, 2e-20 );
             const auto s = station( p, oblate );
-            close( model.calculateEnuDisplacement( epoch, s ),
-                   s->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch.getTdb( ) ) ) * expected );
+            close( s->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch ) ) *
+                           model.calculateDisplacement( epoch, s ),
+                   s->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch ) ) * expected );
         }
 }
 BOOST_AUTO_TEST_CASE( requiredGeometryAndSourceConflicts )
@@ -220,16 +221,15 @@ BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
     settings.originPolicy = AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm;
     AtmosphericTideDeformation cm( g, c, settings );
     const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
-    const EarthDeformationEpoch epoch( tdbAtUt1( c, Time( ut1 ) ), c );
+    const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
     const Eigen::Vector3d p( 4000000, 3000000, 3500000 );
     const auto translation = calculateIers2010Rp03AtmosphericGeocentreTranslation( ut1 );
-    close( cm.calculateDisplacement( epoch, p ) - ce.calculateDisplacement( epoch, p ), translation );
-    close( cm.calculateDisplacement( epoch, p ) - ce.calculateDisplacement( epoch, p ), translation );
+    close( cm.calculateDisplacement( epoch, station( p ) ) - ce.calculateDisplacement( epoch, station( p ) ), translation );
     BOOST_CHECK( cm.getOutputReferenceOrigin( ) == AtmosphericLoadingReferenceOrigin::wholeEarthCentreOfMass );
     BOOST_CHECK( ce.getOutputReferenceOrigin( ) == AtmosphericLoadingReferenceOrigin::solidEarthCentre );
     g.metadata.referenceOrigin = AtmosphericLoadingReferenceOrigin::wholeEarthCentreOfMass;
     AtmosphericTideDeformation alreadyCm( g, c, settings );
-    close( alreadyCm.calculateDisplacement( epoch, p ), ce.calculateDisplacement( epoch, p ) );
+    close( alreadyCm.calculateDisplacement( epoch, station( p ) ), ce.calculateDisplacement( epoch, station( p ) ) );
     for( int wrong = 0; wrong < 4; ++wrong )
     {
         auto bad = g;
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
         BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( bad, c, settings ) ), std::runtime_error );
     }
 }
-BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRateOverloads )
+BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRate )
 {
     const auto c = modelClock( );
     AtmosphericTideStationData data;
@@ -252,21 +252,19 @@ BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRateOverloads )
     AtmosphericTideDeformation model( data, c, explicitGeometry( ) );
     const Eigen::Vector3d p( 6378137, 0, 0 );
     const auto s = station( p );
-    const auto epoch = EarthDeformationEpoch( tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. ) ), c );
+    const auto epoch = tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. ) );
     close( model.calculateDisplacement( epoch, s ),
-           basis( p ) * independentLocal( row.coefficientsMetres, static_cast< double >( epoch.getUt1( c ) ) ) );
+           basis( p ) *
+                   independentLocal( row.coefficientsMetres,
+                                     static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) );
     BOOST_CHECK_THROW( model.calculateDisplacement( epoch, station( p, nullptr, "783" ) ), std::runtime_error );
-    BOOST_CHECK_THROW( model.calculateDisplacement( epoch, p ), std::runtime_error );
     const std::shared_ptr< BodyDeformationModel > base = std::make_shared< AtmosphericTideDeformation >( data, c, explicitGeometry( ) );
-    const double ut1 = static_cast< double >( epoch.getUt1( c ) );
-    const Eigen::Vector3d expected = basis( p ) * independentLocalRate( row.coefficientsMetres, ut1 ) * epoch.getTtRateWithRespectToTdb( );
-    close( base->calculateDisplacementVelocity( epoch, s ), expected, 2e-20 );
-    close( base->calculateDisplacementVelocity( epoch.getTdbSeconds( ), s ), expected, 2e-18 );
-    close( base->calculateDisplacementState( epoch, s ).head< 3 >( ), model.calculateDisplacement( epoch, s ) );
+    const double ut1 = static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) );
+    const Eigen::Vector3d expected =
+            basis( p ) * independentLocalRate( row.coefficientsMetres, ut1 ) * c->getGeocentricTtRateWithRespectToTdb( epoch );
     close( base->calculateDisplacementState( epoch, s ).tail< 3 >( ), expected, 2e-20 );
-    close( base->calculateDisplacementState( epoch.getTdbSeconds( ), s ).tail< 3 >( ), expected, 2e-18 );
-    BOOST_CHECK_THROW( base->calculateDisplacementVelocity( epoch, p ), std::runtime_error );
-    BOOST_CHECK_THROW( base->calculateDisplacementState( epoch, p ), std::runtime_error );
+    close( base->calculateDisplacementState( Time( static_cast< double >( epoch ) ), s ).tail< 3 >( ), expected, 2e-18 );
+    close( base->calculateDisplacementState( epoch, s ).head< 3 >( ), model.calculateDisplacement( epoch, s ) );
 }
 BOOST_AUTO_TEST_CASE( modelEndpointPoliciesAndRegionalCoverage )
 {
@@ -283,10 +281,10 @@ BOOST_AUTO_TEST_CASE( modelEndpointPoliciesAndRegionalCoverage )
     BOOST_CHECK_SMALL( approximate.getGridInterpolator( )->getMaximumSeamDiscrepancyMetres( ) - 8e-7, 1e-18 );
     BOOST_CHECK_EQUAL( approximate.getGridInterpolator( )->getProviderGrid( ).coefficientsMetres.back( )( 0, 0 ),
                        g.coefficientsMetres.back( )( 0, 0 ) );
-    const EarthDeformationEpoch epoch( tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. ) ), c );
-    BOOST_CHECK_THROW( approximate.calculateDisplacement( epoch, Eigen::Vector3d( 0, 0, 6378137 ) ), std::runtime_error );
+    const Time epoch( tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. ) ) );
+    BOOST_CHECK_THROW( approximate.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, 0, 6378137 ) ) ), std::runtime_error );
     AtmosphericTideDeformation regional( grid( ), c, explicitGeometry( ) );
-    BOOST_CHECK_THROW( regional.calculateDisplacement( epoch, Eigen::Vector3d( 0, -6378137, 0 ) ), std::runtime_error );
+    BOOST_CHECK_THROW( regional.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, -6378137, 0 ) ) ), std::runtime_error );
 }
 BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
 {
@@ -311,10 +309,9 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     for( double offset : { -.5, 0., .5 } )
     {
         const auto tdb = c->getCurrentTime< Time >( tai_scale, tdb_scale, midnightTai + offset );
-        close( preloaded->calculateDisplacement( EarthDeformationEpoch( tdb, c ), p ),
-               file->calculateDisplacement( EarthDeformationEpoch( tdb, c ), p ) );
-        const Eigen::Vector6d a = preloaded->calculateDisplacementState( EarthDeformationEpoch( tdb, c ), p );
-        const Eigen::Vector6d b = file->calculateDisplacementState( EarthDeformationEpoch( tdb, c ), p );
+        close( preloaded->calculateDisplacement( tdb, station( p ) ), file->calculateDisplacement( tdb, station( p ) ) );
+        const Eigen::Vector6d a = preloaded->calculateDisplacementState( tdb, station( p ) );
+        const Eigen::Vector6d b = file->calculateDisplacementState( tdb, station( p ) );
         close( a.head< 3 >( ), b.head< 3 >( ) );
         close( a.tail< 3 >( ), b.tail< 3 >( ), 2e-20 );
     }
@@ -324,7 +321,7 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     const auto stationFile = createBodyDeformationModel(
             atmosphericTideBodyShapeDeformationFromStationFile( base + "bernese_manual_stations.atl", {}, settings ), "Earth", bodies );
     const auto namedStation = station( p, nullptr, stations.stations.begin( )->first );
-    const EarthDeformationEpoch epoch( c->getCurrentTime< Time >( tai_scale, tdb_scale, midnightTai ), c );
+    const Time epoch( c->getCurrentTime< Time >( tai_scale, tdb_scale, midnightTai ) );
     close( stationPreloaded->calculateDisplacement( epoch, namedStation ), stationFile->calculateDisplacement( epoch, namedStation ) );
     close( stationPreloaded->calculateDisplacementState( epoch, namedStation ).tail< 3 >( ),
            stationFile->calculateDisplacementState( epoch, namedStation ).tail< 3 >( ),
@@ -364,15 +361,15 @@ std::shared_ptr< TerrestrialTimeScaleConverter > slopedClock( const std::vector<
     return std::make_shared< TerrestrialTimeScaleConverter >(
             nullptr, nullptr, nullptr, std::make_shared< EarthOrientationDataEvaluator >( data, settings ) );
 }
-EarthDeformationEpoch epochAtTai( const std::shared_ptr< TerrestrialTimeScaleConverter >& c, const Time& tai )
+Time epochAtTai( const std::shared_ptr< TerrestrialTimeScaleConverter >& c, const Time& tai )
 {
-    return EarthDeformationEpoch( c->getCurrentTime< Time >( tai_scale, tdb_scale, tai ), c );
+    return c->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
 }
 }  // namespace
-BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndAllOverloads )
+BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
 {
     const std::vector< double > slopes{ .01, .02, .03, .04 };
-    const auto c = slopedClock( slopes ), foreign = modelClock( 3600 );
+    const auto c = slopedClock( slopes );
     AtmosphericTideDeformation model( grid( ), c, explicitGeometry( ) );
     const Eigen::Vector3d p( 6378137, 0, 0 );
     const auto s = station( p );
@@ -383,19 +380,19 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndAllOverloads )
             if( i + 1 == epochs.size( ) && shift > 0 ) continue;
             const Time tai = epochs[ i ] + shift;
             const auto epoch = epochAtTai( c, tai );
-            const auto own = epoch.withTimeConverter( c );
             if( shift == 0 )
             {
-                BOOST_REQUIRE_MESSAGE(
-                        own.getTai( ) == tai,
-                        "TAI round trip at node " << i << " differs by " << static_cast< long double >( own.getTai( ) - tai ) << " s" );
+                BOOST_REQUIRE_MESSAGE( c->getTaiTime( tdb_scale, epoch ) == tai,
+                                       "TAI round trip at node " << i << " differs by "
+                                                                 << static_cast< long double >( c->getTaiTime( tdb_scale, epoch ) - tai )
+                                                                 << " s" );
             }
             else
             {
                 // Time stores seconds within an hour as long double. Interior
                 // clock round trips need only respect that representation's
                 // arithmetic error; exact knot identity above controls side choice.
-                BOOST_REQUIRE_SMALL( static_cast< long double >( own.getTai( ) - tai ),
+                BOOST_REQUIRE_SMALL( static_cast< long double >( c->getTaiTime( tdb_scale, epoch ) - tai ),
                                      16.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM );
             }
             const auto value = c->getEarthOrientationDataEvaluator( )->evaluate( tai );
@@ -403,22 +400,19 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndAllOverloads )
             const double ut1 = static_cast< double >( tai + value.ut1MinusTai );
             const Eigen::Vector3d local = independentLocalRate( grid( ).coefficientsMetres.front( ), ut1 );
             const Eigen::Vector3d expected =
-                    Eigen::Vector3d( local.x( ), local.z( ), local.y( ) ) * ( 1 + slope ) * own.getTtRateWithRespectToTdb( );
-            close( model.calculateDisplacementVelocity( epoch, p ), expected, 2e-20 );
-            close( model.calculateDisplacementVelocity( EarthDeformationEpoch( epoch.getTdb( ), foreign ), p ), expected, 2e-20 );
-            close( model.calculateDisplacementVelocity( epoch, s ), expected, 2e-20 );
-            close( model.calculateDisplacementState( epoch, p ).tail< 3 >( ), expected, 2e-20 );
+                    Eigen::Vector3d( local.x( ), local.z( ), local.y( ) ) * ( 1 + slope ) * c->getGeocentricTtRateWithRespectToTdb( epoch );
             close( model.calculateDisplacementState( epoch, s ).tail< 3 >( ), expected, 2e-20 );
-            // Original double boundary images must keep their canonical endpoint treatment.
-            const double tdb = epoch.getTdbSeconds( );
-            close( model.calculateDisplacementVelocity( tdb, p ), model.calculateDisplacementState( tdb, p ).tail< 3 >( ), 2e-20 );
-            close( model.calculateDisplacementVelocity( tdb, s ), model.calculateDisplacementState( tdb, s ).tail< 3 >( ), 2e-20 );
+            // Only the ground-station scalar boundary normalizes rounded endpoint images.
+            std::vector< std::shared_ptr< BodyDeformationModel > > models{ std::make_shared< AtmosphericTideDeformation >(
+                    grid( ), c, explicitGeometry( ) ) };
+            ground_stations::BodyDeformationStationMotionModel adapter( [ & ]( ) -> auto& { return models; }, true );
+            const auto scalarState = adapter.getBodyFixedStationMotion( static_cast< double >( epoch ), s );
             if( shift == 0 && ( i == 0 || i + 1 == epochs.size( ) ) )
-            {
-                const EarthDeformationEpoch rounded( tdb, foreign );
-                BOOST_CHECK( rounded.withTimeConverter( c ).getTai( ) == tai );
-                close( model.calculateDisplacementVelocity( rounded, p ), expected, 2e-20 );
-            }
+                close( scalarState.tail< 3 >( ), expected, 2e-20 );
+            else
+                close( scalarState.tail< 3 >( ),
+                       model.calculateDisplacementState( Time( static_cast< double >( epoch ) ), s ).tail< 3 >( ),
+                       2e-20 );
         }
 }
 BOOST_AUTO_TEST_CASE( unavailableSelectedRatePreservesNodePositionAndRejectsState )
@@ -430,12 +424,11 @@ BOOST_AUTO_TEST_CASE( unavailableSelectedRatePreservesNodePositionAndRejectsStat
     const Eigen::Vector3d p( 6378137, 0, 0 );
     const auto& nodes = c->getEarthOrientationDataEvaluator( )->getEpochsTai( );
     const auto epoch = epochAtTai( c, nodes[ 2 ] );
-    BOOST_CHECK( model.calculateDisplacement( epoch, p ).allFinite( ) );
-    BOOST_CHECK_THROW( model.calculateDisplacementVelocity( epoch, p ), std::runtime_error );
-    BOOST_CHECK_THROW( model.calculateDisplacementState( epoch, p ), std::runtime_error );
-    BOOST_CHECK_THROW( model.calculateDisplacement( epochAtTai( c, nodes[ 2 ] + 1000. ), p ), std::runtime_error );
-    BOOST_CHECK_THROW( model.calculateDisplacement( epochAtTai( c, nodes.front( ) - 1. ), p ), std::runtime_error );
-    BOOST_CHECK_THROW( model.calculateDisplacementState( epochAtTai( c, nodes.back( ) + 1. ), p ), std::runtime_error );
+    BOOST_CHECK( model.calculateDisplacement( epoch, station( p ) ).allFinite( ) );
+    BOOST_CHECK_THROW( model.calculateDisplacementState( epoch, station( p ) ), std::runtime_error );
+    BOOST_CHECK_THROW( model.calculateDisplacement( epochAtTai( c, nodes[ 2 ] + 1000. ), station( p ) ), std::runtime_error );
+    BOOST_CHECK_THROW( model.calculateDisplacement( epochAtTai( c, nodes.front( ) - 1. ), station( p ) ), std::runtime_error );
+    BOOST_CHECK_THROW( model.calculateDisplacementState( epochAtTai( c, nodes.back( ) + 1. ), station( p ) ), std::runtime_error );
 }
 BOOST_AUTO_TEST_CASE( analyticRatesSmoothConvergenceLeapContinuityAndOriginOnce )
 {
@@ -451,17 +444,20 @@ BOOST_AUTO_TEST_CASE( analyticRatesSmoothConvergenceLeapContinuityAndOriginOnce 
     for( double offset : { -.75, -.5, -.25, 0., .25, .5, .75, 12345. } )
     {
         const auto epoch = epochAtTai( c, midnightTai + offset );
-        const auto own = epoch.withTimeConverter( c );
-        const double rate = 1.02 * own.getTtRateWithRespectToTdb( );
-        const Eigen::Vector3d expected =
-                differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( static_cast< double >( epoch.getUt1( c ) ) ) * rate;
-        close( cm.calculateDisplacementVelocity( epoch, p ) - ce.calculateDisplacementVelocity( epoch, p ), expected, 2e-20 );
-        const Eigen::Vector3d analytic = cm.calculateDisplacementVelocity( epoch, p );
+        const double rate = 1.02 * c->getGeocentricTtRateWithRespectToTdb( epoch );
+        const Eigen::Vector3d expected = differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1(
+                                                 static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) *
+                rate;
+        close( cm.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( ) -
+                       ce.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( ),
+               expected,
+               2e-20 );
+        const Eigen::Vector3d analytic = cm.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( );
         double prior = 1;
         for( double h : { 32., 16., 8. } )
         {
-            const Eigen::Vector3d numeric = ( cm.calculateDisplacement( epoch.withTdb( epoch.getTdb( ) + h ), p ) -
-                                              cm.calculateDisplacement( epoch.withTdb( epoch.getTdb( ) - h ), p ) ) /
+            const Eigen::Vector3d numeric =
+                    ( cm.calculateDisplacement( epoch + h, station( p ) ) - cm.calculateDisplacement( epoch - h, station( p ) ) ) /
                     ( 2 * h );
             const double error = ( numeric - analytic ).norm( );
             BOOST_CHECK_LT( error, prior * .3 );
