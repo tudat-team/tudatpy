@@ -373,6 +373,9 @@ public:
                 !relativisticLightTimeCorrectionPartials_.empty( );
     }
 
+    //! Whether getLinkIndependentPartials can return a non-empty contribution for the given parameter.
+    bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterType ) override;
+
     virtual bool useLightTimeGradientPartials( )
     {
         return true;
@@ -602,6 +605,11 @@ public:
     bool useLinkIndependentPartials( )
     {
         return oneWayDopplerScaling_->useLinkIndependentPartials( );
+    }
+
+    bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterType ) override
+    {
+        return oneWayDopplerScaling_->useLinkIndependentPartialsForParameter( parameterType );
     }
 
     virtual bool useLightTimeGradientPartials( )

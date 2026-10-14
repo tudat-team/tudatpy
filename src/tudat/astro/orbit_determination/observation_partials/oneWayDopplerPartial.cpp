@@ -379,6 +379,32 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize( const estimatabl
     return totalDependencySize;
 }
 
+//! Whether getLinkIndependentPartials can return a non-empty contribution for the given parameter.
+bool OneWayDopplerScaling::useLinkIndependentPartialsForParameter(
+        const estimatable_parameters::EstimatebleParameterIdentifier& parameterType )
+{
+    if( getProperTimeParameterDependencySize( parameterType ) > 0 )
+    {
+        return true;
+    }
+    else if( parameterType.first == estimatable_parameters::ppn_parameter_gamma )
+    {
+        return !relativisticLightTimeCorrectionPartials_.empty( );
+    }
+    else if( parameterType.first == estimatable_parameters::gravitational_parameter )
+    {
+        for( const auto& correctionPartial : relativisticLightTimeCorrectionPartials_ )
+        {
+            const std::vector< std::string > perturbingBodies = correctionPartial->getPerturbingBodies( );
+            if( std::find( perturbingBodies.begin( ), perturbingBodies.end( ), parameterType.second.first ) != perturbingBodies.end( ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //! Direct parameter partials of proper time and explicit light-time time derivatives.
 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
