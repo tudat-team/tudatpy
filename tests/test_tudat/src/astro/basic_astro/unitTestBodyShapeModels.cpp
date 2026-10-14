@@ -485,6 +485,17 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModelFacetAndEdgeSelection )
             BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( fieldPoint ), expectedAltitude, 1.0E-12 );
         }
     }
+
+    // Compress the mesh so vertex 25 is closest to the centre of facet 1 (11, 13, 12).
+    // Only vertex 13 of that facet is adjacent to vertex 25; the old lookup misses it.
+    const Eigen::Vector3d facetCentre =
+            ( verticesCoordinates.row( 11 ) + verticesCoordinates.row( 13 ) + verticesCoordinates.row( 12 ) ) / 3.0;
+    const Eigen::Vector3d compressionAxis = ( verticesCoordinates.row( 25 ).transpose( ) - facetCentre ).normalized( );
+    verticesCoordinates = ( verticesCoordinates.rowwise( ) - facetCentre.transpose( ) ) *
+            ( Eigen::Matrix3d::Identity( ) - ( 1.0 - 1.0E-3 ) * compressionAxis * compressionAxis.transpose( ) );
+
+    PolyhedronBodyShapeModel compressedShapeModel( verticesCoordinates, verticesDefiningEachFacet, false, false );
+    BOOST_CHECK_SMALL( compressedShapeModel.getAltitude( Eigen::Vector3d::Zero( ) ), 1.0E-10 );
 }
 
 BOOST_AUTO_TEST_CASE( testHybridShapeModel )
