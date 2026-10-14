@@ -76,7 +76,7 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: 12 of 28 tasks done; 3 active, 3 partial, 8 queued and 2 deferred.
+Status: 13 of 25 tasks done; 4 active, 2 partial and 6 queued.
 Reviewed 14 October 2026. This list is updated as relevant work is implemented,
 validated and integrated.
 
@@ -93,12 +93,12 @@ validated and integrated.
    [x] 09 Implement EOP validity and leap-safe interpolation policies.  [DONE]
    [x] 10 Verify existing short-period EOP corrections independently.  [DONE]
    [ ] 11 Complete Earth-rotation derivatives.  [ACTIVE — full derivative implementation and C++ tests]
-   [ ] 12 Complete deformation velocities and full station-state closure.  [PARTIAL — rate API done; complete rotation/state closure pending]
-   [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.  [DEFERRED — follows accepted-standard baseline]
+   [ ] 12 Complete deformation velocities and full station-state closure.  [ACTIVE — complete multi-model station-state closure]
+   [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.  [ACTIVE — opt-in only; replaces corresponding default ocean effects]
    [x] 14 Validate BLQ loading inputs and preserve their conventions.  [DONE]
    [x] 15 Implement HARDISP-equivalent ocean tidal loading.  [DONE]
    [x] 16 Add conventional ocean pole-tide loading.  [DONE]
-   [ ] 17 Add conventional atmospheric S1/S2 tidal loading.  [ACTIVE — position model done; rate validation underway]
+   [x] 17 Add conventional atmospheric S1/S2 tidal loading.  [DONE]
    [ ] 18 Preserve full SINEX solution/validity/eccentricity histories.  [ACTIVE — strict history API, equipment records, bindings and tests]
    [ ] 19 Implement post-seismic and seasonal station motion with rates.  [QUEUED]
    [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [PARTIAL — transformations validated and committed; catalogue integration pending]
@@ -106,19 +106,18 @@ validated and integrated.
    [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
    [ ] 23 Validate relativistic station position and velocity transformations.  [QUEUED]
    [ ] 24 Improve instrument reference-point and calibrated geometry support.  [QUEUED]
-   [ ] 27 Compare complete trajectories with independent geodetic software.  [QUEUED]
-   [ ] 28 Validate observations and controlled model omissions.  [QUEUED]
    [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [QUEUED]
-   [ ] 30 Evaluate research extensions after the accepted-standard baseline.  [DEFERRED — follows accepted-standard baseline]
+
 Task numbers are stable identifiers rather than a rigid execution sequence.
-Tasks 25 and 26 were removed at Dominic's request: adding new estimation
-parameters or their estimation partials is outside this programme. Synthetic
-parameter recovery is also removed from task 28. The retained scope comprises
-28 tasks; existing model state/time derivatives and observation validation
-remain in scope.
-Tasks 05 and 06 can proceed with the initial build and data architecture audit.
-Tasks 13 and 30 follow verification and implementation of the accepted-standard
-baseline; experimental alternatives do not become defaults implicitly.
+Tasks 25--28 and 30 were removed at Dominic's request: new estimation
+parameters/partials, cross-software complete-trajectory comparisons, observation
+validation/controlled omissions and research-extension evaluation are outside
+this programme. The retained scope comprises 25 tasks. Targeted independent
+model-reference tests and physical state/time derivatives remain in scope.
+Task 13 is explicitly authorized now as an opt-in; it must not become the
+default. Selecting Desai--Sibois must replace the
+corresponding default ocean-EOP contributions, with no duplicate application;
+independent effects outside its scope remain explicitly selected.
 
 Active work
 -----------
@@ -128,13 +127,15 @@ Active work
 * Task 11: the selected-interpolant UT1 rate prerequisite is integrated.
   Complete rotation derivatives and independent SOFA/clock tests are implemented
   in isolation and undergoing compilation and validation.
-* Task 12: the initial displacement-rate API, UTC-phase boundary safeguards and
-  position-only station path pass integrated C++ tests. EOP-knot rate policies
-  and full station-state closure still require task 11.
-* Task 17: the neutral atmospheric S1/S2 reader, synthesis, grid geometry and
-  position factories pass integrated C++ tests. This position-model checkpoint
-  is committed; the UT1-to-TDB derivative chain is implemented in isolation.
-  Native rate tests are running, including exact-knot clock-roundoff checks.
+* Task 12: the displacement-rate API, UTC-phase boundary safeguards and
+  position-only station path pass integrated C++ tests. Complete multi-model
+  station-state closure is now being implemented against the task 11 checkpoint.
+* Task 13: implementation is active in its own worktree. Desai--Sibois will be
+  explicit opt-in, with tests of unchanged default selection and replacement
+  of the corresponding ocean terms while preserving independent effects.
+* Task 17: complete atmospheric S1/S2 positions and velocities are integrated.
+  All 19 relevant native atmospheric cases and the three UT1 prerequisite cases
+  pass, together with input dependency checks. No Python kernel was compiled.
 * Task 18: the neutral SINEX history parser is implemented in isolation and
   handles complete published station/discontinuity products. Full-history
   bindings, equipment records and strict native regression tests are underway.
@@ -145,21 +146,19 @@ Active work
   Station-catalogue inputs and their explicit physical-to-decimal-year mapping
   remain open with tasks 18 and 19; final compiled binding checks are task 29.
 
-Other unchecked tasks are queued. Tasks 13 and 30 remain deferred until the
-accepted-standard baseline is validated. Python-only binding/import validation
-is part of task 29; kernel compilation is allowed only when needed for those
-Python-specific tests.
+Other unchecked tasks are queued. Python-only binding/import validation is part of task 29;
+kernel compilation is allowed only when needed for those Python-specific tests.
 
 The pinned :doc:`GROOPS source comparison <earth_station_models_groops_review>`
-maps additional implementation and regression-test scenarios to these task
-numbers. Executing the complete cross-software comparison remains task 27.
+records useful implementation and regression-test scenarios. Its former
+estimation and complete-trajectory comparison proposals are outside the revised
+scope; targeted reference checks remain useful.
 
 Subsequent gravity-field programme
 ---------------------------------
 
 Dominic requested this follow-on programme on 14 October 2026. It starts only
-after **every retained item in the current 28-task checklist is complete**, including
-the currently deferred items. Do not create its branch or begin its
+after **every retained item in the current 25-task checklist is complete**. Do not create its branch or begin its
 implementation while any current item remains open.
 
 At that point create ``fix/gravity_field_variations`` and review, implement
@@ -514,3 +513,15 @@ rebuilt. Evidence is recorded in ``recovery-itrf-validation-summary.json`` and
 the associated ``recovery-itrf-*``/``recovery-test-itrf-*`` logs in the local work
 directory. Task 20 remains open for station-catalogue integration with tasks 18
 and 19 and its chosen physical-time mapping; task 29 owns compiled binding checks.
+
+Task 17, rate completion after session recovery: native atmospheric deformation
+now differentiates the selected continuous UT1 model and applies dUT1/dTAI and
+dTT/dTDB exactly once. Positions remain available where a selected slope is
+unavailable. Model-owned time conversion preserves coverage endpoint policy;
+origin translations are differentiated in Cartesian coordinates. The nine
+synthesis and ten model cases pass in the actual integration CMake build,
+including knots, endpoints, leap seconds, geometry and factory equivalence.
+The three UT1 primitive cases and raw target-link audit also pass. Independent
+real128 origin-rate fixtures regenerate identically. Evidence is in
+``recovery-atmospheric-main-validation-summary.json``; Python-only runtime
+binding validation is queued under task 29.
