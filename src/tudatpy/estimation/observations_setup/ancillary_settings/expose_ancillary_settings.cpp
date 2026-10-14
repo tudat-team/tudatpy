@@ -86,7 +86,8 @@ void expose_ancillary_settings_types( py::module& m )
         Direction convention for position-angle and angular-separation observations.
 
         The astrometric convention uses the independently light-time-corrected geometric directions. The aberrated convention applies
-        stellar aberration using the receiver's inertial velocity at reception.
+        (classical) stellar aberration using the receiver's inertial velocity at reception; no light deflection or refraction is applied.
+        See :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` for the exact model.
         )doc" )
             .value( "astrometric", tom::PositionAngleDirectionType::astrometric_position_angle_direction )
             .value( "aberrated", tom::PositionAngleDirectionType::aberrated_position_angle_direction )
@@ -107,10 +108,12 @@ void expose_ancillary_settings_types( py::module& m )
                                                    R"doc(
         Enumeration of celestial reference frames whose north pole can define a position-angle observable.
 
-        The mean- and true-of-date choices specify the IAU precession/nutation convention.
+        The mean- and true-of-date choices specify the IAU precession/nutation convention, and are computed using SOFA.
         For these choices, ``reference_epoch`` in :func:`position_angle_ancillary_settings`
         fixes the pole at that date; otherwise the pole uses each observation's reception epoch.
-        The observation epochs are unchanged.
+        The observation epochs are unchanged. The ``b1950`` choice rotates only the pole, using the NAIF B1950-to-J2000 rotation;
+        it is not a complete FK4 catalogue-coordinate transformation.
+        See :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` for details and references.
         )doc" )
             .value( "j2000", tom::PositionAngleReferenceFrame::j2000_position_angle_reference_frame )
             .value( "b1950", tom::PositionAngleReferenceFrame::b1950_position_angle_reference_frame )
@@ -403,7 +406,19 @@ void expose_ancillary_settings( py::module& m )
            py::arg( "direction_type" ) = tom::astrometric_position_angle_direction,
            R"doc(
 
- Create ancillary settings selecting the celestial north pole used for position-angle observations.
+ Create ancillary settings selecting the celestial north pole and direction convention used for position-angle observations.
+
+ These settings define the convention in which position-angle and separation observations are given, and are used by the
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle`,
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance` and
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` observation models
+ (whose settings themselves contain no pole or direction choice). They must be added to each set of simulated observations
+ (*e.g.* through the ``ancillary_settings`` argument of
+ :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings`) or real
+ observations (*e.g.* through the ``ancillary_settings`` argument of
+ :func:`~tudatpy.estimation.observations.create_single_observation_set`). Observations without such settings use J2000/ICRF north
+ and astrometric directions. See
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` for the model definition.
 
  Parameters
  ----------
@@ -429,6 +444,9 @@ void expose_ancillary_settings( py::module& m )
            R"doc(
 
  Create ancillary settings using a custom celestial north-pole direction for position angle.
+
+ Usage is identical to :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`,
+ with the pole defined by the user rather than by a predefined reference frame.
 
  Parameters
  ----------

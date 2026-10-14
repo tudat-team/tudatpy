@@ -106,6 +106,18 @@ struct AngularStatistics {
     double maximumAbsoluteRadians = 0.0;
 };
 
+// The tests below compare P/S observations from the literature with Tudat predictions computed from published ephemerides,
+// without fitting any orbit (pre-fit residuals). The ResidualBounds of each data set are derived from the precision reported by the
+// publication of the observations (or of a later orbit fit to the same data) as follows:
+//  - The published values are post-fit RMS residuals of an orbit fitted to these (and other) data. The pre-fit residuals w.r.t. an
+//    independent ephemeris are expected to be of the same order, so the RMS bounds bracket the published RMS by a factor of a few
+//    (lower bound: residuals much smaller than the measurement precision would indicate a defective test setup; upper bound: margin
+//    for ephemeris differences and outliers that were removed in the published fit).
+//  - The mean residual is bounded by about the published RMS, as a mean offset larger than the scatter indicates a convention error
+//    (e.g. in reference pole, time scale, or reference body).
+// The CorrectionBounds are bounds on the difference between two conventions (reference pole, or aberrated vs. astrometric
+// directions), and are derived from an independent computation of that difference (stated per data set), with a margin of a
+// factor of a few. They verify that the convention options have the expected effect, independently of the observation noise.
 struct ResidualBounds {
     // All bounds are in arcseconds, including the milliarcsecond-scale HST case.
     double maximumAbsoluteMeanArcseconds;
@@ -521,10 +533,13 @@ BOOST_AUTO_TEST_CASE( testPlutoCharonHstPrefitResiduals )
     dataset.primarySettings = nullptr;
     dataset.models[ 0 ] = createPositionSeparationModel( bodies, "", "Pluto", "Charon" );
 
-    // Tholen and Buie (1997), NSDB pm0001: UTC Julian date at HST exposure
-    // midpoint, separation [arcsec], and J2000 position angle [deg].  Exposure
-    // midpoints agree with MAST to 6 ms; geocentric versus HST receiver changes
-    // either observable by less than 0.002 mas for these records.
+    // Source: Tholen, D.J. and Buie, M.W. (1997), The orbit of Charon, Icarus 125, 245-260, https://doi.org/10.1006/icar.1996.5494
+    // (https://www2.boulder.swri.edu/~buie/biblio/pub024.pdf); data from NSDB record pm0001
+    // (https://nsdb.imcce.fr/obspos/OBS_COLL/P/pm0001.html). Columns: Julian date at HST exposure midpoint, separation [arcsec],
+    // and position angle [deg] w.r.t. J2000 north, astrometric (no stellar aberration). Although NSDB lists the time scale as TDT,
+    // the dates agree with the UTC exposure midpoints in the MAST archive to 6 ms, so they are interpreted as UTC. The observations
+    // are of the centres of light; the geocentric receiver used here (instead of HST) changes either observable by less than
+    // 0.002 mas for these records.
     dataset.decodeRecord = []( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
         return ReferenceObservation{ convertUtcJulianDateToTdb( observations( row, 0 ) ),
                                      0,
@@ -532,8 +547,8 @@ BOOST_AUTO_TEST_CASE( testPlutoCharonHstPrefitResiduals )
                                      unit_conversions::convertArcSecondsToRadians( observations( row, 1 ) ) };
     };
 
-    // Source-file fitted-orbit RMS is 2.93 mas radial and 2.70 mas transverse;
-    // independent PLU060 pre-fit residuals should have the same order of magnitude.
+    // Tholen and Buie (1997) report a post-fit RMS of 2.93 mas (separation) and 2.70 mas (transverse PA). Bounds on pre-fit residuals
+    // w.r.t. PLU060: |mean| < 5 mas and 1 mas < RMS < 10 mas, i.e. RMS within a factor of about 3 of the published values.
     dataset.separationBounds = { 0.005, 0.001, 0.010 };
     dataset.transversePositionAngleBounds = { 0.005, 0.001, 0.010 };
     validateReferenceDataset( dataset );
@@ -571,9 +586,11 @@ BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
                 createPositionSeparationModel( bodies, "JKT", observedBodyPair.second.first, observedBodyPair.second.second );
     }
 
-    // Jones, Sinclair, and Williams (1989), NSDB mm0012: UTC calendar date;
-    // columns 14/15 give astrometric separation [arcsec] and PA [deg] referred
-    // to the true equator and equinox of date.  Reject unexpected NSDB format flags.
+    // Source: Jones, D.H.P., Sinclair, A.T., and Williams, I.P. (1989), Secular acceleration of Phobos confirmed from positions
+    // obtained on La Palma, MNRAS 237, 15P-19P, https://doi.org/10.1093/mnras/237.1.15P; data from NSDB record mm0012
+    // (https://nsdb.imcce.fr/obspos/OBS_COLL/M/mm0012.html). UTC calendar date; columns 14/15 give astrometric separation [arcsec]
+    // and PA [deg] w.r.t. the true equator and equinox of date (modelled here with IAU 1976/1980 precession-nutation).
+    // Whether differential refraction was removed is not documented, and it is not modelled. Reject unexpected NSDB format flags.
     const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
     dataset.decodeRecord = [ timeScaleConverter ]( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
         BOOST_REQUIRE_EQUAL( static_cast< int >( observations( row, 0 ) ), 1 );
@@ -590,9 +607,11 @@ BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
                                      unit_conversions::convertArcSecondsToRadians( observations( row, 13 ) ) };
     };
 
-    // Published photographic scatter is about 0.2 arcsec.  The frame signal is
-    // independently reproduced with ERFA pnm80 and SPICE at about 6 mas RMS;
-    // changing the pole must leave the geometric separation unchanged.
+    // Jones et al. (1989) report a scatter of about 0.2 arcsec. Residual bounds: |mean| < 0.05 arcsec (separation) and < 0.1 arcsec
+    // (transverse PA), and 0.1 arcsec < RMS < 0.5 arcsec.
+    // The difference between true-of-date and J2000 PA (times separation) was computed independently with ERFA pnm80 and SPICE as
+    // about 6 mas RMS; it is required to be between 1 and 10 mas RMS, with a maximum between 5 and 50 mas. Changing the pole must
+    // leave the separation unchanged (to within rounding error).
     dataset.separationBounds = { 0.05, 0.1, 0.5 };
     dataset.transversePositionAngleBounds = { 0.1, 0.1, 0.5 };
     dataset.transversePositionAngleCorrectionBounds = CorrectionBounds{ 0.001, 0.01, 0.005, 0.05 };
@@ -637,9 +656,11 @@ BOOST_AUTO_TEST_CASE( testNereidB1950ReferencePolePrefitResiduals )
         dataset.models[ stationParallaxConstant.first ] = createPositionSeparationModel( bodies, stationName, "Neptune", "Nereid" );
     }
 
-    // Veillet (1982) and Veillet & Bois (1988), NSDB nm1007: UTC topocentric
-    // astrometric B1950 offsets x/y [arcsec].  Convert those offsets to P/S;
-    // undocumented atmospheric reduction is deliberately not modeled here.
+    // Source: Veillet, C. (1982), Orbital elements of Nereid from new observations, A&A 112, 277-280, and Veillet, C. and Bois, E.
+    // (1988), 1982-1984 observations of Nereid - New orbital determination, A&A 189, 303-305; data from NSDB record nm1007
+    // (https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm1007.html). UTC; topocentric astrometric offsets x/y [arcsec] w.r.t. the B1950
+    // equator. These offsets are converted to P/S here, so that this data set provides a secondary check of the B1950 pole.
+    // The atmospheric reduction is not documented, and is not modelled.
     const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
     dataset.decodeRecord = [ timeScaleConverter ]( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
         const double observedX = unit_conversions::convertArcSecondsToRadians( observations( row, 4 ) );
@@ -653,8 +674,11 @@ BOOST_AUTO_TEST_CASE( testNereidB1950ReferencePolePrefitResiduals )
                                      std::hypot( observedX, observedY ) };
     };
 
-    // Yuan et al. (2021) report 0.17--0.22 arcsec coordinate RMS for these
-    // historical series; the B1950 pole correction is larger than that noise.
+    // Yuan et al. (2021), A&A 645, A48, https://doi.org/10.1051/0004-6361/202038776, report 0.17--0.22 arcsec coordinate RMS for
+    // these historical series. Residual bounds: |mean| < 0.1 arcsec (separation) and < 0.2 arcsec (transverse PA), and RMS between
+    // 0.05 (separation) or 0.1 (PA) and 0.5 arcsec. The B1950 vs. J2000 PA difference (times separation), caused by the 0.28 deg
+    // rotation of the pole, is required to be between 0.2 and 0.5 arcsec RMS, and between 0.5 and 1.0 arcsec maximum. As it exceeds
+    // the noise, the B1950 pole must also give a smaller transverse PA RMS than J2000.
     dataset.separationBounds = { 0.1, 0.05, 0.5 };
     dataset.transversePositionAngleBounds = { 0.2, 0.1, 0.5 };
     dataset.transversePositionAngleCorrectionBounds = CorrectionBounds{ 0.2, 0.5, 0.5, 1.0 };
@@ -696,8 +720,9 @@ BOOST_AUTO_TEST_CASE( testUranianSatelliteNativeB1950PrefitResiduals )
                 createPositionSeparationModel( bodies, "Tokyo-Okayama", "Uranus", observedSatellite.second );
     }
 
-    // Tomita and Soma (1979), NSDB um0027: native topocentric astrometric
-    // B1950 P/S.  The file specifies ET calendar time, not UTC.
+    // Source: Tomita, K. and Soma, M. (1979), Astrometric observations of satellites of Uranus, Tokyo Astronomical Bulletin, Second
+    // Series 261, 2977-2981; data from NSDB record um0027 (https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.html). Topocentric
+    // astrometric P/S w.r.t. the B1950 equator, with ET calendar time (not UTC).
     dataset.decodeRecord = []( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
         const double receiverTimeTdb = basic_astrodynamics::DateTime( static_cast< int >( observations( row, 0 ) ),
                                                                       static_cast< int >( observations( row, 1 ) ),
@@ -713,9 +738,11 @@ BOOST_AUTO_TEST_CASE( testUranianSatelliteNativeB1950PrefitResiduals )
                                      unit_conversions::convertArcSecondsToRadians( observations( row, 8 ) ) };
     };
 
-    // Jacobson (2014), Table 3 gives post-fit RMS 0.443 arcsec radial and
-    // 0.363 arcsec transverse for retained records; this unfiltered set has
-    // outliers.  B1950 still improves transverse PA over J2000.
+    // Jacobson, R.A. (2014), AJ 148, 76, https://doi.org/10.1088/0004-6256/148/5/76, Table 3, gives a post-fit RMS of 0.443 arcsec
+    // (separation) and 0.363 arcsec (transverse) for the records retained in his fit; this unfiltered set contains outliers, so the
+    // RMS upper bound is relaxed to 2 arcsec (lower bound 0.2 arcsec, |mean| < 0.2 arcsec). The B1950 vs. J2000 PA difference (times
+    // separation) is required to be between 0.02 and 0.1 arcsec RMS (maximum between 0.05 and 0.2 arcsec); B1950 must still give a
+    // smaller transverse PA RMS than J2000.
     dataset.separationBounds = { 0.2, 0.2, 2.0 };
     dataset.transversePositionAngleBounds = { 0.2, 0.2, 2.0 };
     dataset.transversePositionAngleCorrectionBounds = CorrectionBounds{ 0.02, 0.1, 0.05, 0.2 };
@@ -754,9 +781,10 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
         dataset.models[ observedSatellite.first ] = createPositionSeparationModel( bodies, "Sheshan", "Titan", observedSatellite.second );
     }
 
-    // Qiao et al. (1999), Table 4: apparent topocentric P/S with differential
-    // refraction removed, stellar aberration and parallax retained.  Columns:
-    // UTC Julian date, measured-satellite NAIF ID, PA [deg], separation [arcsec].
+    // Source: Qiao, R.C., Shen, K.X., Liu, J.R., and Harper, D. (1999), 1994-1996 CCD astrometric observations of Saturn's
+    // satellites and comparison with theories, A&AS 137, 1-5, https://doi.org/10.1051/aas:1999238, Table 4: apparent topocentric P/S
+    // of satellites w.r.t. Titan, w.r.t. the true equator of date, with differential refraction removed, and stellar aberration and
+    // parallax retained. Columns: UTC Julian date, measured-satellite NAIF ID, PA [deg], separation [arcsec].
     dataset.decodeRecord = []( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
         return ReferenceObservation{ convertUtcJulianDateToTdb( observations( row, 0 ) ),
                                      static_cast< int >( observations( row, 1 ) ),
@@ -764,8 +792,11 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
                                      unit_conversions::convertArcSecondsToRadians( observations( row, 3 ) ) };
     };
 
-    // Reported coordinate RMS is roughly 0.08--0.20 arcsec, while independent
-    // SpiceyPy calculations show a differential-aberration signal of a few mas.
+    // Qiao et al. (1999) report a coordinate RMS of roughly 0.08--0.20 arcsec. Residual bounds: |mean| < 0.2 arcsec and RMS between
+    // 0.1 and 0.5 arcsec (separation), and |mean| < 0.1 arcsec and RMS between 0.05 and 0.2 arcsec (transverse PA).
+    // The difference between aberrated and astrometric directions is only differential aberration (of order |v/c| ~ 1.0E-4 times
+    // the separation), of a few mas as computed independently with SpiceyPy. It is required to be
+    // between 2 and 10 mas RMS (maximum between 5 and 20 mas) in separation, and between 0.1 and 1 mas in transverse PA.
     dataset.separationBounds = { 0.2, 0.1, 0.5 };
     dataset.transversePositionAngleBounds = { 0.1, 0.05, 0.2 };
     dataset.separationCorrectionBounds = CorrectionBounds{ 0.002, 0.01, 0.005, 0.02 };

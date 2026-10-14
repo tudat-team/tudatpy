@@ -949,11 +949,32 @@ createPositionAngleAndSeparationPartials(
     const auto mergedAngularPartials =
             mergeUndifferencedPartialContribution< 2 >( firstAngularPartials.first, secondAngularPartials.first );
 
+    // Retrieve the receiver state partial from either angular-position partial; it is used for the receiver-velocity dependency
+    // of stellar aberration.
+    const auto getReceiverStatePartial = []( const std::shared_ptr< ObservationPartial< 2 > >& angularPositionPartial ) {
+        std::shared_ptr< CartesianStatePartial > receiverStatePartial;
+        const auto directAngularPositionPartial = std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( angularPositionPartial );
+        if( directAngularPositionPartial != nullptr )
+        {
+            const auto positionPartialList = directAngularPositionPartial->getPositionPartialList( );
+            if( positionPartialList.count( receiver ) > 0 )
+            {
+                receiverStatePartial = positionPartialList.at( receiver );
+            }
+        }
+        return receiverStatePartial;
+    };
+
     std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > partials;
     for( const auto& partial : mergedAngularPartials )
     {
+        std::shared_ptr< CartesianStatePartial > receiverStatePartial = getReceiverStatePartial( partial.second.first );
+        if( receiverStatePartial == nullptr )
+        {
+            receiverStatePartial = getReceiverStatePartial( partial.second.second );
+        }
         partials[ partial.first ] = std::make_shared< PositionAngleAndSeparationPartial< ObservationSize > >(
-                partial.second.first, partial.second.second, j2000ToGlobalFrameTransformation, componentIndex );
+                partial.second.first, partial.second.second, j2000ToGlobalFrameTransformation, componentIndex, receiverStatePartial );
     }
 
     // Biases acting on the final observable are not part of either angular-position leg.

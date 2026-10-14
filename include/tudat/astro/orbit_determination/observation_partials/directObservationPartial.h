@@ -209,6 +209,16 @@ public:
         return positionPartialScaler_;
     }
 
+    //! Function to get the list of position partials per link end.
+    /*!
+     * Function to get the list of position partials per link end.
+     * \return List of position partials per link end.
+     */
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > getPositionPartialList( ) const
+    {
+        return positionPartialList_;
+    }
+
     //! Function to get the number of light-time correction partial functions.
     /*!
      * Number of light-time correction partial functions.

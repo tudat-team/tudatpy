@@ -101,7 +101,9 @@ Eigen::Matrix< ScalarType, 2, 1 > calculatePositionAngleAndSeparation(
  *  Position angle is measured from the celestial north pole selected in the observation ancillary settings through east and returned
  *  in [-pi, pi], matching the unnormalised right-ascension convention. ICRF/J2000 is used when no reference-frame setting is supplied.
  *  The ancillary settings also select whether the independently retarded lines of sight remain astrometric or are transformed to
- *  apparent directions using stellar aberration and the receiver's inertial velocity.
+ *  apparent directions using (classical) stellar aberration and the receiver's inertial velocity. The pole and direction convention
+ *  are therefore properties of each observation set, not of this model; such ancillary settings are created with
+ *  getPositionAngleAncillarySettings or getCustomPositionAngleAncillarySettings.
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
