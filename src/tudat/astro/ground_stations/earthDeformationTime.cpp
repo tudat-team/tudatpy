@@ -13,41 +13,38 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-const std::shared_ptr< EarthDeformationEpoch::Converter >& EarthDeformationEpoch::clock( ) const
+std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > getGeocentricTimeConverter( )
 {
-    if( converter_ ) return converter_;
-    // No default forcing tables, daily EOP, UTC or observer-position terms.
-    static const auto geocentric = std::make_shared< Converter >( nullptr, nullptr );
-    return geocentric;
+    static const auto converter = std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >( nullptr, nullptr );
+    return converter;
 }
 
-const Time& EarthDeformationEpoch::getTai( ) const
+Time normalizeScalarTdb( const double tdb, const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter )
 {
-    if( !tai_ ) tai_ = originalDouble_ ? clock( )->getTaiTime( tdb_scale, getTdbSeconds( ) ) : clock( )->getTaiTime( tdb_scale, tdb_ );
-    return *tai_;
-}
-
-const Time& EarthDeformationEpoch::getTt( ) const
-{
-    if( !tt_ ) tt_ = convertTAItoTT( getTai( ) );
-    return *tt_;
-}
-
-Time EarthDeformationEpoch::getUt1( ) const
-{
-    if( !converter_ ) throw std::runtime_error( "Earth-deformation UT1 requires the requesting model's time converter" );
-    return converter_->getCurrentTime< Time >( tai_scale, ut1_scale, getTai( ) );
-}
-
-Time EarthDeformationEpoch::getUt1( const std::shared_ptr< Converter >& converter ) const
-{
-    if( !converter ) throw std::runtime_error( "Earth-deformation UT1 converter is missing" );
-    return withTimeConverter( converter ).getUt1( );
-}
-
-double EarthDeformationEpoch::getTtRateWithRespectToTdb( ) const
-{
-    return clock( )->getGeocentricTtRateWithRespectToTdb( tdb_ );
+    if( !std::isfinite( tdb ) ) throw std::invalid_argument( "Station TDB epoch must be finite." );
+    if( converter && converter->getEarthOrientationDataEvaluator( ) )
+    {
+        // Reuse the converter's original-double candidate filtering: an interior
+        // clock interpolator must not be probed at unrelated EOP endpoints.
+        const Time tai = converter->getTaiTime( tdb_scale, tdb );
+        const auto& evaluator = converter->getEarthOrientationDataEvaluator( );
+        const Time start = evaluator->getStartTai( ), end = evaluator->getEndTai( );
+        if( tai == start || tai == end )
+        {
+            const Time image = converter->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
+            if( static_cast< double >( image ) == tdb )
+            {
+                const Time other = tai == start ? end : start;
+                const double candidateWindow =
+                        std::max( 1e-6, 8 * std::numeric_limits< double >::epsilon( ) * std::abs( static_cast< double >( tai ) ) );
+                if( other != tai && std::abs( static_cast< double >( other - tai ) ) <= candidateWindow &&
+                    static_cast< double >( converter->getCurrentTime< Time >( tai_scale, tdb_scale, other ) ) == tdb )
+                    throw std::invalid_argument( "Double TDB endpoint image is ambiguous; supply precise Time." );
+                return image;
+            }
+        }
+    }
+    return Time( tdb );
 }
 
 void validateEarthDeformationUtcInterval( const double lowerTt, const double upperTt )

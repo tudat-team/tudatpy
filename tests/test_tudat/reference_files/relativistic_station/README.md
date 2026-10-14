@@ -54,3 +54,9 @@ declared geocentre-epoch approximation. They do not establish accuracy of a
 complete IAU event transformation or barycentric-time station worldline. These
 fixtures are original equation evaluations, not copied implementation code or
 cross-software station trajectories.
+
+Reproduce and check the frozen literals without Tudat imports:
+
+```sh
+python3 tests/test_tudat/reference_files/relativistic_station/generate_fixtures.py --check
+```

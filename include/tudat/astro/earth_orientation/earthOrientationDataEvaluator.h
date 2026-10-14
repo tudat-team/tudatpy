@@ -94,6 +94,7 @@ template< typename Value >
 class EarthOrientationDataInterpolator : public interpolators::OneDimensionalInterpolator< double, Value >
 {
 public:
+    using interpolators::OneDimensionalInterpolator< double, Value >::interpolate;
     EarthOrientationDataInterpolator( const std::shared_ptr< EarthOrientationDataEvaluator >& evaluator,
                                       const EarthOrientationDataField field ):
         interpolators::OneDimensionalInterpolator< double, Value >( interpolators::throw_exception_at_boundary ), evaluator_( evaluator ),

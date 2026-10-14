@@ -14,10 +14,10 @@ namespace basic_astrodynamics
 namespace
 {
 template< typename Epoch >
-Eigen::Vector3d differentiateDisplacement( const Epoch& time,
-                                           const double requestedStep,
-                                           const std::function< Eigen::Vector3d( const Epoch& ) >& displacement,
-                                           const std::function< void( const Epoch&, const Epoch& ) >& validateInterval )
+Eigen::Vector3d differentiateDisplacementAtEpoch( const Epoch& time,
+                                                  const double requestedStep,
+                                                  const std::function< Eigen::Vector3d( const Epoch& ) >& displacement,
+                                                  const std::function< void( const Epoch&, const Epoch& ) >& validateInterval )
 {
     // Use the actual representable first-point spacing in the denominator.
     const double step = static_cast< double >( ( time + requestedStep ) - time );
@@ -40,7 +40,7 @@ Eigen::Vector3d differentiateDisplacement( const Epoch& time,
         }
     }
 
-    validateInterval( epochs.front( ), epochs.back( ) );
+    if( validateInterval ) validateInterval( epochs.front( ), epochs.back( ) );
 
     Eigen::Vector3d velocity;
     try
@@ -82,168 +82,60 @@ Eigen::Vector3d differentiateDisplacement( const Epoch& time,
 }
 }  // namespace
 
-Eigen::Vector3d BodyDeformationModel::calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
-{
-    return calculateDisplacement( epoch.getTdbSeconds( ), position );
-}
+BodyDeformationModel::BodyDeformationModel( const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter ):
+    timeConverter_( converter ? converter : getGeocentricTimeConverter( ) )
+{}
 
-Eigen::Vector3d BodyDeformationModel::calculateDisplacement( const EarthDeformationEpoch& epoch,
+Eigen::Vector3d BodyDeformationModel::calculateDisplacement( const Time& tdb,
                                                              const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return calculateDisplacement( epoch.getTdbSeconds( ), station );
+    if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
+    if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
+    const Eigen::Vector3d displacement = evaluateDisplacement( tdb, station );
+    if( !displacement.allFinite( ) ) throw std::runtime_error( "Non-finite body deformation displacement." );
+    return displacement;
 }
 
-Eigen::Vector3d BodyDeformationModel::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
-{
-    return calculateDisplacementVelocity( epoch.getTdbSeconds( ), position );
-}
-
-Eigen::Vector3d BodyDeformationModel::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                                     const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return calculateDisplacementVelocity( epoch.getTdbSeconds( ), station );
-}
-
-Eigen::Vector6d BodyDeformationModel::calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
-{
-    return calculateDisplacementState( epoch.getTdbSeconds( ), position );
-}
-
-Eigen::Vector6d BodyDeformationModel::calculateDisplacementState( const EarthDeformationEpoch& epoch,
+Eigen::Vector6d BodyDeformationModel::calculateDisplacementState( const Time& tdb,
                                                                   const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return calculateDisplacementState( epoch.getTdbSeconds( ), station );
-}
-
-namespace
-{
-template< typename Position >
-Eigen::Vector6d nativeState( BodyDeformationModel& model, const EarthDeformationEpoch& epoch, const Position& position )
-{
-    Eigen::Vector6d state;
-    try
-    {
-        state.tail< 3 >( ) = model.calculateDisplacementVelocity( epoch, position );
-    }
-    catch( ... )
-    {
-        const auto original = std::current_exception( );
-        try
-        {
-            model.calculateDisplacement( epoch, position );
-        }
-        catch( ... )
-        {}
-        std::rethrow_exception( original );
-    }
-    state.head< 3 >( ) = model.calculateDisplacement( epoch, position );
-    if( !state.allFinite( ) ) throw std::runtime_error( "Non-finite native deformation state" );
+    if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
+    if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
+    const Eigen::Vector6d state = evaluateDisplacementState( tdb, station );
+    if( !state.allFinite( ) ) throw std::runtime_error( "Non-finite body deformation state." );
     return state;
 }
-}  // namespace
 
-Eigen::Vector6d BodyDeformationModel::calculateNativeDisplacementState( const EarthDeformationEpoch& epoch,
-                                                                        const Eigen::Vector3d& position )
+Eigen::Vector6d BodyDeformationModel::evaluateDisplacementState( const Time& tdb,
+                                                                 const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return nativeState( *this, epoch, position );
-}
-Eigen::Vector6d BodyDeformationModel::calculateNativeDisplacementState(
-        const EarthDeformationEpoch& epoch,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return nativeState( *this, epoch, station );
+    Eigen::Vector6d state;
+    state.tail< 3 >( ) = differentiateDisplacement(
+            tdb,
+            [ & ]( const Time& time ) { return calculateDisplacement( time, station ); },
+            [ & ]( const Time& lower, const Time& upper ) { validateDisplacementDerivativeInterval( lower, upper ); } );
+    state.head< 3 >( ) = calculateDisplacement( tdb, station );
+    return state;
 }
 
-Eigen::Vector3d BodyDeformationModel::calculateTerrestrialDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                                                const Eigen::Vector3d& position )
+Eigen::Vector3d BodyDeformationModel::differentiateDisplacement(
+        const Time& time,
+        const std::function< Eigen::Vector3d( const Time& ) >& displacement,
+        const std::function< void( const Time&, const Time& ) >& validateInterval ) const
 {
-    const double rate = epoch.getTtRateWithRespectToTdb( );
-    return calculateDisplacementVelocity( static_cast< double >( epoch.getTt( ) ), position ) * rate;
+    return differentiateDisplacementAtEpoch< Time >( time, displacementDerivativeTimeStep_, displacement, validateInterval );
 }
-Eigen::Vector3d BodyDeformationModel::calculateTerrestrialDisplacementVelocity(
-        const EarthDeformationEpoch& epoch,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
+
+Time BodyDeformationModel::normalizeScalarTdb( const double tdb ) const
 {
-    const double rate = epoch.getTtRateWithRespectToTdb( );
-    return calculateDisplacementVelocity( static_cast< double >( epoch.getTt( ) ), station ) * rate;
-}
-Eigen::Vector3d BodyDeformationModel::calculateRoutedDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                                           const Eigen::Vector3d& position )
-{
-    return differentiateDisplacement< Time >(
-            epoch.getTdb( ),
-            displacementDerivativeTimeStep_,
-            [ & ]( const Time& time ) { return calculateDisplacement( epoch.withTdb( time ), position ); },
-            [ & ]( const Time& lower, const Time& upper ) {
-                validateContextDerivativeInterval( epoch, epoch.withTdb( lower ), epoch.withTdb( upper ) );
-            } );
-}
-Eigen::Vector3d BodyDeformationModel::calculateRoutedDisplacementVelocity(
-        const EarthDeformationEpoch& epoch,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return differentiateDisplacement< Time >(
-            epoch.getTdb( ),
-            displacementDerivativeTimeStep_,
-            [ & ]( const Time& time ) { return calculateDisplacement( epoch.withTdb( time ), station ); },
-            [ & ]( const Time& lower, const Time& upper ) {
-                validateContextDerivativeInterval( epoch, epoch.withTdb( lower ), epoch.withTdb( upper ) );
-            } );
+    return basic_astrodynamics::normalizeScalarTdb( tdb, timeConverter_ );
 }
 
 void BodyDeformationModel::setDisplacementDerivativeTimeStep( const double timeStep )
 {
-    if( !std::isfinite( timeStep ) || timeStep <= 0.0 )
-    {
+    if( !std::isfinite( timeStep ) || timeStep <= 0 )
         throw std::invalid_argument( "Displacement derivative time step must be finite and positive." );
-    }
     displacementDerivativeTimeStep_ = timeStep;
-}
-
-Eigen::Vector3d BodyDeformationModel::calculateDisplacementVelocity( const double time, const Eigen::Vector3d& bodyFixedPosition )
-{
-    return differentiateDisplacement< double >(
-            time,
-            displacementDerivativeTimeStep_,
-            [ & ]( const double epoch ) { return calculateDisplacement( epoch, bodyFixedPosition ); },
-            [ & ]( const double lower, const double upper ) { validateDisplacementDerivativeInterval( time, lower, upper ); } );
-}
-
-Eigen::Vector3d BodyDeformationModel::calculateDisplacementVelocity(
-        const double time,
-        const std::shared_ptr< ground_stations::GroundStationState > stationState )
-{
-    return differentiateDisplacement< double >(
-            time,
-            displacementDerivativeTimeStep_,
-            [ & ]( const double epoch ) { return calculateDisplacement( epoch, stationState ); },
-            [ & ]( const double lower, const double upper ) { validateDisplacementDerivativeInterval( time, lower, upper ); } );
-}
-
-Eigen::Vector6d BodyDeformationModel::calculateDisplacementState( const double time, const Eigen::Vector3d& bodyFixedPosition )
-{
-    Eigen::Vector6d state;
-    state.head< 3 >( ) = calculateDisplacement( time, bodyFixedPosition );
-    state.tail< 3 >( ) = calculateDisplacementVelocity( time, bodyFixedPosition );
-    if( !state.allFinite( ) )
-    {
-        throw std::runtime_error( "Non-finite displacement state." );
-    }
-    return state;
-}
-
-Eigen::Vector6d BodyDeformationModel::calculateDisplacementState(
-        const double time,
-        const std::shared_ptr< ground_stations::GroundStationState > stationState )
-{
-    Eigen::Vector6d state;
-    state.head< 3 >( ) = calculateDisplacement( time, stationState );
-    state.tail< 3 >( ) = calculateDisplacementVelocity( time, stationState );
-    if( !state.allFinite( ) )
-    {
-        throw std::runtime_error( "Non-finite displacement state." );
-    }
-    return state;
 }
 
 }  // namespace basic_astrodynamics

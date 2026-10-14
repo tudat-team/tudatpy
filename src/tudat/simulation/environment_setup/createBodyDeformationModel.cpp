@@ -17,19 +17,12 @@ namespace simulation_setup
 
 namespace
 {
-Eigen::Quaterniond rotationForDeformationEpoch( const basic_astrodynamics::EarthDeformationEpoch& epoch,
-                                                const std::shared_ptr< ephemerides::RotationalEphemeris >& rotation )
+std::shared_ptr< ephemerides::RotationalEphemeris > deformationRotationInTdb( std::shared_ptr< ephemerides::RotationalEphemeris > rotation )
 {
     if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( rotation ) )
-    {
-        const auto converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
-        const Time tai = epoch.originatedAsDouble( ) ? converter->getTaiTime( basic_astrodynamics::tdb_scale, epoch.getTdbSeconds( ) )
-                                                     : converter->getTaiTime( basic_astrodynamics::tdb_scale, epoch.getTdb( ) );
-        const Time rotationEpoch = converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, earth->getInputTimeScale( ), tai );
-        return earth->getRotationToTargetFrameFromExtendedTime( rotationEpoch );
-    }
-    // SPICE and legacy/custom rotational ephemerides keep their TDB input.
-    return rotation->getRotationToTargetFrameFromExtendedTime( epoch.getTdb( ) );
+        return std::make_shared< ephemerides::GcrsToItrsRotationModel >(
+                earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
+    return rotation;
 }
 }  // namespace
 
@@ -51,10 +44,10 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
     gravitationalParameters[ 0 ] = gravitionalParametersOfMoon;
     gravitationalParameters[ 1 ] = gravitionalParametersOfSun;
 
-    std::vector< std::function< Eigen::Vector6d( const double ) > > ephemerides;
+    std::vector< std::function< Eigen::Vector6d( const Time& ) > > ephemerides;
     ephemerides.resize( 2 );
-    ephemerides[ 0 ] = std::bind( &Ephemeris::getCartesianState, lunarEphemeris, std::placeholders::_1 );
-    ephemerides[ 1 ] = std::bind( &Ephemeris::getCartesianState, solarEphemeris, std::placeholders::_1 );
+    ephemerides[ 0 ] = std::bind( &Ephemeris::getCartesianStateFromExtendedTime, lunarEphemeris, std::placeholders::_1 );
+    ephemerides[ 1 ] = std::bind( &Ephemeris::getCartesianStateFromExtendedTime, solarEphemeris, std::placeholders::_1 );
 
     double equatorialRadius = 6378136.6;
 
@@ -91,13 +84,11 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock;
     if( const auto rotation = std::dynamic_pointer_cast< GcrsToItrsRotationModel >( earthRotation ) )
         contextClock = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
-    const auto contextRotation = [ earthRotation ]( const EarthDeformationEpoch& epoch ) {
-        return rotationForDeformationEpoch( epoch, earthRotation );
-    };
+    const auto nativeRotation = deformationRotationInTdb( earthRotation );
     std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >(
-            std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
+            std::bind( &Ephemeris::getCartesianStateFromExtendedTime, earthEphemeris, std::placeholders::_1 ),
             ephemerides,
-            [ contextRotation ]( const double tdb ) { return contextRotation( EarthDeformationEpoch( tdb ) ); },
+            [ nativeRotation ]( const Time& tdb ) { return nativeRotation->getRotationToTargetFrameFromExtendedTime( tdb ); },
             gravitionalParametersOfEarth,
             gravitationalParameters,
             equatorialRadius,
@@ -108,7 +99,6 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
             diurnalFile,
             longPeriodFile,
             doodsonArgumentFunction,
-            contextRotation,
             contextClock );
 
     return deformationModel;
@@ -137,7 +127,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             else
             {
                 std::vector< std::string > deformingBodies = basicSolidBodyDeformationSettings->getDeformingBodies( );
-                std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyEphemerides;
+                std::vector< std::function< Eigen::Vector6d( const Time& ) > > deformingBodyEphemerides;
                 std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
 
                 for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
@@ -148,7 +138,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                                                   deformingBodies.at( i ) );
                     }
 
-                    deformingBodyEphemerides.push_back( std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
+                    deformingBodyEphemerides.push_back( std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >,
                                                                    bodyMap.at( deformingBodies.at( i ) ),
                                                                    std::placeholders::_1 ) );
 
@@ -188,16 +178,21 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                     }
                 }
 
+                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
+                if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >(
+                            bodyMap.at( body )->getRotationalEphemeris( ) ) )
+                    converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::BasicTidalBodyDeformation >(
-                        std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( body ), std::placeholders::_1 ),
+                        std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >, bodyMap.at( body ), std::placeholders::_1 ),
                         deformingBodyEphemerides,
-                        [ rotation = bodyMap.at( body )->getRotationalEphemeris( ) ]( double tdb ) {
-                            return rotationForDeformationEpoch( EarthDeformationEpoch( tdb ), rotation );
+                        [ rotation = deformationRotationInTdb( bodyMap.at( body )->getRotationalEphemeris( ) ) ]( const Time& tdb ) {
+                            return rotation->getRotationToTargetFrameFromExtendedTime( tdb );
                         },
                         gravitionalParameterOfDeformedBody,
                         gravitionalParametersOfDeformingBodies,
                         deformationReferenceRadius,
-                        basicSolidBodyDeformationSettings->getDisplacementLoveNumbers( ) );
+                        basicSolidBodyDeformationSettings->getDisplacementLoveNumbers( ),
+                        converter );
             }
             break;
         }
@@ -254,6 +249,23 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                                 ->getAnglesCalculator( )
                                 ->getTerrestrialTimeScaleConverter( ) );
             }
+            break;
+        }
+        case station_loading: {
+            const auto settings = std::dynamic_pointer_cast< StationLoadingBodyDeformationSettings >( bodyDeformationSettings );
+            if( !settings || body != "Earth" || bodyMap.count( body ) == 0 )
+                throw std::invalid_argument( "Station-loading deformation requires preloaded settings and Earth" );
+            const auto rotation =
+                    std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) );
+            if( !rotation || !rotation->getAnglesCalculator( ) )
+                throw std::invalid_argument( "Station loading requires Earth's model-owned GCRS/ITRS time converter" );
+            if( settings->getData( ).metadata.referenceFrame != rotation->getTargetFrameOrientation( ) )
+                throw std::invalid_argument(
+                        "Loading source Cartesian frame must explicitly match the body's fixed frame; no frame identity is inferred" );
+            bodyDeformationModel = std::make_shared< basic_astrodynamics::StationLoadingDeformation >(
+                    settings->getData( ),
+                    settings->getEvaluationSettings( ),
+                    rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
             break;
         }
         case atmospheric_tide: {
@@ -355,15 +367,23 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             }
             else
             {
+                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
+                if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >(
+                            bodyMap.at( body )->getRotationalEphemeris( ) ) )
+                    converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
                 if( oceanTideBodyDeformationSettings->usesPreloadedData( ) )
                 {
                     bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                            oceanTideBodyDeformationSettings->getOceanLoadingData( ), oceanTideBodyDeformationSettings->getSynthesis( ) );
+                            oceanTideBodyDeformationSettings->getOceanLoadingData( ),
+                            oceanTideBodyDeformationSettings->getSynthesis( ),
+                            converter );
                 }
                 else
                 {
                     bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                            oceanTideBodyDeformationSettings->getBlqFiles( ), oceanTideBodyDeformationSettings->getSynthesis( ) );
+                            oceanTideBodyDeformationSettings->getBlqFiles( ),
+                            oceanTideBodyDeformationSettings->getSynthesis( ),
+                            converter );
                 }
             }
             break;

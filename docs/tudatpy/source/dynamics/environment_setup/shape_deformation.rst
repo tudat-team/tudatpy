@@ -120,6 +120,84 @@ origin policies and the documented limits of the reference comparisons.
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.atmospheric_tide_from_station_file
 
+Precomputed station loading
+---------------------------
+
+``station_loading(data, evaluation_settings)`` consumes neutral series loaded
+with :mod:`tudatpy.data_input.environment_data.station_loading`. It supports
+atmospheric, hydrological and ocean loading as explicitly inventoried source
+components. It adds no implicit loading model to the environment.
+
+.. code-block:: python
+
+   from tudatpy.data_input.environment_data import station_loading
+   from tudatpy.dynamics.environment_setup import shape_deformation
+
+   metadata = station_loading.imls_merra2_atmospheric_loading_metadata(
+       release="my documented provider release")
+   metadata.reference_frame = "ITRS"  # Explicit caller declaration of Cartesian axes.
+   data = station_loading.read_ephedisp_station_loading_data("provider.eph", metadata)
+   policy = shape_deformation.StationLoadingEvaluationSettings()
+   policy.station_bindings = {"MyStation": "weuc"}
+   policy.output_origin_definition = data.metadata.origin_definition
+   settings = shape_deformation.station_loading(data, policy)
+   body_settings.get("Earth").shape_deformation_settings.append(settings)
+
+Bindings map environment station IDs to arbitrary source labels and still
+enforce each provider point's validity radius. Alternatively, explicitly select
+``within_provider_radius``; zero matches are unavailable and multiple matches
+raise a configuration error. Zero-radius points cover only their exact source
+location. Source radial/east/north axes are geocentric axes at the provider
+Cartesian point, independent of the evaluated station's geodetic topocentric
+axes. Displacements and their rates are returned in Cartesian body-fixed axes.
+The factory requires the declared Cartesian frame to match the body's fixed
+frame; it performs no implicit transformation between realizations.
+
+Source TAI, TT, UTC or TDB epochs are converted with the model-owned clock to
+continuous TAI before interpolation. EPHEDISP supplies TAI. The supported
+policy is explicit linear interpolation, with a default maximum support gap of
+86400 SI seconds. This is not a claim of equivalence to provider B-spline
+interpolation. A rate differentiates the selected interpolant and applies
+``dTAI/dTDB`` once. At an exact knot it uses the interval to the right, except
+at the final endpoint where it uses the interval to the left. No extrapolation,
+edge order reduction or silent gap bridging occurs. Exact source-node positions
+remain available beside unsupported gaps, and singleton positions remain
+available when their rates are unavailable.
+
+Native C++ calls use the common ``Time`` argument in environment TDB and a
+``GroundStationState`` for displacement or combined state. Source epochs remain
+split and precise. Native queries classify source-node TDB images exactly,
+without rounding or tolerance snapping. Only genuine scalar station adapters
+recognize exact rounded node images; collapsed scalar images raise an error.
+Continuous TAI interpolation works through an inserted UTC second.
+
+The requested output-origin definition must match the declared source definition
+or have a supplied ``StationLoadingOriginTranslation``. Its Cartesian series
+adds ``source origin - target origin`` once after source-basis rotation, including
+its derivative. Both origin definitions, Cartesian axes and the complete known
+physical component/signal scope must match. CE and CF are never equated
+implicitly. Reusing the same global translation identifier across selected
+contributions raises an error even when overlaps are explicitly permitted;
+separate component-scoped translations may each apply once.
+
+Unknown product/release/component or signal inventory requires explicit
+``allow_unknown_inventory`` or resolved source metadata. Axes and origins still
+must be declared. Assemblies reject repeated physical components, retained tidal
+bands combined with another tidal-loading model, and physical seasonal loading
+combined with fitted station seasonal terms. ``allow_declared_overlap`` records
+an explicit decision to combine these contributions. Scientific conflicts
+propagate independently of optional coverage: optional configuration may skip
+an unavailable central displacement, while unavailable derivatives of a selected
+displacement still raise.
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.station_loading
+
+.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingEvaluationSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingOriginTranslation
+   :members:
+
 Classes
 -------
 .. currentmodule:: tudatpy.dynamics.environment_setup.shape_deformation

@@ -1,6 +1,7 @@
 #include "tudat/astro/ground_stations/poleTideDeformation.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/earth_orientation/polarMotionCalculator.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {
@@ -40,66 +41,30 @@ Eigen::Vector3d geocentricEnuToCartesian( const Eigen::Vector3d& enu, const std:
 }
 }  // namespace
 
-Eigen::Vector3d PoleTideDeformation::calculateGeocentricEnuDisplacement(
-        const double tt,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
+Eigen::Vector3d PoleTideDeformation::displacementAtTt( const Time& tt,
+                                                       const std::shared_ptr< ground_stations::GroundStationState > station )
 {
     const Eigen::Vector2d polarMas =
             unit_conversions::convertRadiansToDegrees( polarMotionCalculator_->getPositionOfCipInItrsAtTt( tt ) ) * 3600000.0;
-    return poleTideGeocentricEnu( polarMas, tt, station );
+    return geocentricEnuToCartesian( poleTideGeocentricEnu( polarMas, static_cast< double >( tt ), station ), station );
 }
 
-Eigen::Vector3d PoleTideDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+Eigen::Vector3d PoleTideDeformation::evaluateDisplacement( const Time& tdb,
+                                                           const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return calculateDisplacement(
-            epoch, std::make_shared< ground_stations::GroundStationState >( position, coordinate_conversions::cartesian_position ) );
-}
-Eigen::Vector3d PoleTideDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch,
-                                                            const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    const auto native = contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch;
-    const Eigen::Vector2d polarMas =
-            unit_conversions::convertRadiansToDegrees( polarMotionCalculator_->getPositionOfCipInItrsAtTt( native.getTt( ) ) ) * 3600000.0;
-    return geocentricEnuToCartesian( poleTideGeocentricEnu( polarMas, static_cast< double >( native.getTt( ) ), station ), station );
-}
-Eigen::Vector3d PoleTideDeformation::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
-{
-    return calculateTerrestrialDisplacementVelocity( contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch, position );
-}
-Eigen::Vector3d PoleTideDeformation::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                                    const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return calculateTerrestrialDisplacementVelocity( contextClock_ ? epoch.withTimeConverter( contextClock_ ) : epoch, station );
-}
-Eigen::Vector6d PoleTideDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
-{
-    return calculateNativeDisplacementState( epoch, position );
-}
-Eigen::Vector6d PoleTideDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch,
-                                                                 const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return calculateNativeDisplacementState( epoch, station );
+    return displacementAtTt( timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb ), station );
 }
 
-Eigen::Vector3d PoleTideDeformation::calculateEnuDisplacement(
-        const double ephemerisTime,
-        const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
+Eigen::Vector6d PoleTideDeformation::evaluateDisplacementState( const Time& tdb,
+                                                                const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return nominalSiteState->getRotationFromBodyFixedToTopocentricFrame( ephemerisTime ) *
-            calculateDisplacement( ephemerisTime, nominalSiteState );
-}
-
-//! Function to calculate site displacement due to pole tide deformation.
-Eigen::Vector3d PoleTideDeformation::calculateDisplacement( const double ephemerisTime,
-                                                            const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
-{
-    // IERS Eqs. (27)-(28): rotate the spherical local displacement to ITRS.
-    // Using the geocentric basis makes the Cartesian result independent of the
-    // station's shape model (whose topocentric frame can be geodetic).
-    const Eigen::Vector3d geocentricEnuDisplacement = calculateGeocentricEnuDisplacement( ephemerisTime, nominalSiteState );
-    const std::vector< Eigen::Vector3d > unitVectors = nominalSiteState->getEnuGeocentricUnitVectors( );
-    return geocentricEnuDisplacement( 0 ) * unitVectors[ 0 ] + geocentricEnuDisplacement( 1 ) * unitVectors[ 1 ] +
-            geocentricEnuDisplacement( 2 ) * unitVectors[ 2 ];
+    const Time tt = timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb );
+    const double rate = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
+    const Eigen::Vector3d velocity =
+            differentiateDisplacement(
+                    tt, [ & ]( const Time& sample ) { return displacementAtTt( sample, station ); }, []( const Time&, const Time& ) {} ) *
+            rate;
+    return ( Eigen::Vector6d( ) << displacementAtTt( tt, station ), velocity ).finished( );
 }
 
 }  // namespace basic_astrodynamics

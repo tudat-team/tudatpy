@@ -122,7 +122,10 @@ void validateStationLoadingData( const StationLoadingData& data )
         if( !std::isfinite( interval ) || interval < 0.0L || ( data.epochs.size( ) > 1 && interval == 0.0L ) )
             fail( source, 0, "invalid sampling interval" );
         for( std::size_t i = 1; i < data.epochs.size( ); ++i )
-            if( std::abs( separation( data.epochs[ i - 1 ], data.epochs[ i ] ) - interval ) > 1e-8L )
+            if( std::abs( separation( data.epochs[ i - 1 ], data.epochs[ i ] ) - interval ) > 64.0L *
+                        std::numeric_limits< long double >::epsilon( ) *
+                        ( 1.0L + std::abs( data.epochs[ i - 1 ].secondsOfDay ) + std::abs( data.epochs[ i ].secondsOfDay ) +
+                          std::abs( interval ) + std::abs( separation( data.epochs.front( ), data.epochs[ i ] ) ) ) )
                 fail( source, 0, "epoch grid disagrees with declared sampling" );
     }
     std::set< StationLoadingComponent > components;

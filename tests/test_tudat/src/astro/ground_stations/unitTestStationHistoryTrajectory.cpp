@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( nativeCivilUtcLeapSecondAndSofaReference )
     const auto converter = std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >( nullptr, nullptr );
     const Time ordinary = midnight + 12345.25;
     const Time tdb = converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, ordinary );
-    const auto native = getIgnNominalUtcStationTime( basic_astrodynamics::EarthDeformationEpoch( tdb, converter ), true );
+    const auto native = getIgnNominalUtcStationTimeFromTdb( tdb, converter, true );
     BOOST_CHECK_SMALL( static_cast< double >( native.tai - ordinary ), 1e-12 );
     BOOST_CHECK_SMALL( static_cast< double >( native.mjdFraction * 86400 - 12345.25L ), 1e-11 );
     BOOST_REQUIRE( native.mjdRate && native.decimalYearRate );

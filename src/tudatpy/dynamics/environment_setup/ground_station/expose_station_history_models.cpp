@@ -94,6 +94,18 @@ void expose_station_history_models( py::module& m )
            &gs::getIgnNominalUtcStationTimeFromTai,
            py::arg( "tai" ),
            py::arg( "tai_rate_with_respect_to_tdb" ) = py::none( ) );
+    m.def( "ign_nominal_utc_station_time_from_tdb",
+           py::overload_cast< const tudat::Time&, std::shared_ptr< tudat::earth_orientation::TerrestrialTimeScaleConverter >, bool >(
+                   &gs::getIgnNominalUtcStationTimeFromTdb ),
+           py::arg( "tdb" ),
+           py::arg( "converter" ) = nullptr,
+           py::arg( "require_rates" ) = false );
+    m.def( "ign_nominal_utc_station_time_from_tdb",
+           py::overload_cast< double, std::shared_ptr< tudat::earth_orientation::TerrestrialTimeScaleConverter >, bool >(
+                   &gs::getIgnNominalUtcStationTimeFromTdb ),
+           py::arg( "tdb" ),
+           py::arg( "converter" ) = nullptr,
+           py::arg( "require_rates" ) = false );
     m.def(
             "ign_nominal_utc_station_time",
             []( int year, int day, int seconds ) { return gs::getIgnNominalUtcStationTime( io::SinexCivilUtc{ year, day, seconds } ); },
@@ -147,8 +159,7 @@ void expose_station_history_models( py::module& m )
             "station_history_motion",
             []( std::shared_ptr< gs::StationHistoryTrajectory > trajectory, PythonTimeFunction callback ) {
                 gs::StationHistoryTimeFunction sourceFunction;
-                if( callback )
-                    sourceFunction = [ callback ]( const auto& epoch, bool rates ) { return callback( epoch.getTdb( ), rates ); };
+                if( callback ) sourceFunction = [ callback ]( const auto& epoch, bool rates ) { return callback( epoch, rates ); };
                 return ss::stationHistoryGroundStationMotionSettings( std::move( trajectory ), std::move( sourceFunction ) );
             },
             py::arg( "trajectory" ),

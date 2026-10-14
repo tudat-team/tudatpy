@@ -1,6 +1,7 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
 #include "tudat/astro/ground_stations/stationHistoryTrajectory.h"
 #include "tudat/astro/ground_stations/earthDeformationTime.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include <cmath>
 #include <stdexcept>
@@ -106,10 +107,43 @@ StationHistoryTime getIgnNominalUtcStationTime( const input_output::SinexCivilUt
         throw std::runtime_error( "IGN nominal UTC reference/event epoch cannot be an inserted-second label" );
     return getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( civil ) );
 }
-StationHistoryTime getIgnNominalUtcStationTime( const basic_astrodynamics::EarthDeformationEpoch& epoch, bool requireRates )
+StationHistoryTime getIgnNominalUtcStationTimeFromTdb( const Time& tdb,
+                                                       std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter,
+                                                       bool rates )
 {
+    if( !converter ) converter = basic_astrodynamics::getGeocentricTimeConverter( );
     return getIgnNominalUtcStationTimeFromTai(
-            epoch.getTai( ), requireRates ? std::optional< double >( epoch.getTtRateWithRespectToTdb( ) ) : std::nullopt );
+            converter->getTaiTime( basic_astrodynamics::tdb_scale, tdb ),
+            rates ? std::optional< double >( converter->getGeocentricTtRateWithRespectToTdb( tdb ) ) : std::nullopt );
+}
+StationHistoryTime getIgnNominalUtcStationTimeFromTdb( double tdb,
+                                                       std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter,
+                                                       bool rates )
+{
+    if( !converter ) converter = basic_astrodynamics::getGeocentricTimeConverter( );
+    const Time normalizedTdb = basic_astrodynamics::normalizeScalarTdb( tdb, converter );
+    Time tai = converter->getTaiTime( basic_astrodynamics::tdb_scale, normalizedTdb );
+    // Genuine scalar inputs may name an exact rounded civil-clock boundary.
+    // Precise Time inputs never use this branch or snap to its double image.
+    const int approximateMjd = static_cast< int >( std::floor( static_cast< long double >( tai ) / 86400.0L + 51544.5L ) );
+    std::optional< Time > match;
+    for( int offset = -1; offset <= 1; ++offset )
+    {
+        const auto day = civilDay( approximateMjd + offset );
+        for( const Time& boundary : { day.midnightTai, day.midnightTai + 86400.0 } )
+        {
+            const Time image =
+                    converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, boundary );
+            if( static_cast< double >( image ) == tdb )
+            {
+                if( match && *match != boundary ) throw std::runtime_error( "IGN nominal UTC scalar clock has collapsed boundary images" );
+                match = boundary;
+            }
+        }
+    }
+    if( match ) tai = *match;
+    return getIgnNominalUtcStationTimeFromTai(
+            tai, rates ? std::optional< double >( converter->getGeocentricTtRateWithRespectToTdb( normalizedTdb ) ) : std::nullopt );
 }
 }  // namespace ground_stations
 }  // namespace tudat

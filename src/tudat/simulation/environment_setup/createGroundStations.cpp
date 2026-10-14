@@ -218,14 +218,9 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 {
                     throw std::runtime_error( "Error when making body deformation station motion model, settings type is incompatible" );
                 }
-                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter;
-                if( const auto earthRotation =
-                            std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( body->getRotationalEphemeris( ) ) )
-                    timeConverter = earthRotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
                 currentStationMotionModel = std::make_shared< ground_stations::BodyDeformationStationMotionModel >(
                         std::bind( &Body::getBodyDeformationModelsReference, body ),
-                        bodyDeformationModelSettings->throwExceptionWhenNotAvailable_,
-                        timeConverter );
+                        bodyDeformationModelSettings->throwExceptionWhenNotAvailable_ );
                 break;
             }
             case linear_station_motion: {
@@ -265,11 +260,11 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                             "Earth relativistic station convenience requires the Earth host; use explicit generic compatibility "
                             "otherwise." );
 
-                std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction;
+                std::function< Eigen::Vector6d( const Time& ) > bodyBarycentricStateFunction;
                 if( bodies.getFrameOrigin( ) == "SSB" )
                 {
                     bodyBarycentricStateFunction =
-                            std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, body, std::placeholders::_1 );
+                            std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >, body, std::placeholders::_1 );
                 }
                 else
                 {
@@ -297,9 +292,13 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                         throw std::invalid_argument( "Relativistic station ephemeris origin conversion has not been configured." );
                 };
                 validateStateAxes( body );
+                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
                 if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( rotation ) )
+                {
+                    converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
                     rotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
                             earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
+                }
                 std::vector< ground_stations::RelativisticStationExternalBody > externalBodies;
                 std::set< std::shared_ptr< Body > > selectedExternalBodies;
                 for( const auto& name : relativisticStationMotionSettings->externalBodyNames_ )
@@ -314,13 +313,15 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                     validateStateAxes( external );
                     externalBodies.push_back(
                             { name,
-                              std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, external, std::placeholders::_1 ),
+                              std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >, external, std::placeholders::_1 ),
                               std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
                                          external->getGravityFieldModel( ) ) } );
                 }
                 currentStationMotionModel = std::make_shared< ground_stations::BodyCentricToBarycentricRelativisticStationMotion >(
                         bodyBarycentricStateFunction,
-                        std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, rotation, std::placeholders::_1 ),
+                        std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrameFromExtendedTime,
+                                   rotation,
+                                   std::placeholders::_1 ),
                         std::bind(
                                 &ephemerides::RotationalEphemeris::getDerivativeOfRotationToTargetFrame, rotation, std::placeholders::_1 ),
                         externalBodies,

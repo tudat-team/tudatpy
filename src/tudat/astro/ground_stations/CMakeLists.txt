@@ -11,6 +11,7 @@
 # Set the source files.
 set(ground_stations_SOURCES
         "bodyDeformationModel.cpp"
+        "stationLoadingDeformation.cpp"
         "earthDeformationTime.cpp"
         "groundStation.cpp"
         "groundStationState.cpp"
@@ -39,6 +40,7 @@ set(ground_stations_HEADERS
         "pointingAnglesCalculator.h"        
         "basicTidalBodyDeformation.h"
         "bodyDeformationModel.h"
+        "stationLoadingDeformation.h"
         "earthDeformationTime.h"
         "iers2010SolidTidalBodyDeformation.h"
         "transmittingFrequencies.h"
@@ -53,7 +55,7 @@ set(ground_stations_HEADERS
 TUDAT_ADD_LIBRARY("ground_stations"
         "${ground_stations_SOURCES}"
         "${ground_stations_HEADERS}"
-        PUBLIC_LINKS tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_station_history_data tudat_reference_frames
+        PUBLIC_LINKS tudat_ocean_loading_data tudat_atmospheric_loading_data tudat_station_history_data tudat_station_loading_data tudat_reference_frames
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

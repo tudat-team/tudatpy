@@ -20,6 +20,7 @@
 
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/ground_stations/atmosphericTideDeformation.h"
+#include "tudat/astro/ground_stations/stationLoadingDeformation.h"
 #include "tudat/astro/ground_stations/oceanPoleTideDeformation.h"
 #include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
@@ -87,6 +88,36 @@ protected:
     std::map< int, std::pair< double, double > > displacementLoveNumbers_;
     double bodyReferenceRadius_;
 };
+
+class StationLoadingBodyDeformationSettings : public BodyDeformationSettings
+{
+public:
+    StationLoadingBodyDeformationSettings( const input_output::StationLoadingData& data,
+                                           const basic_astrodynamics::StationLoadingEvaluationSettings& settings ):
+        BodyDeformationSettings( gravitation::station_loading ), data_( data ), settings_( settings )
+    {
+        input_output::validateStationLoadingData( data_ );
+    }
+    const input_output::StationLoadingData& getData( ) const
+    {
+        return data_;
+    }
+    const basic_astrodynamics::StationLoadingEvaluationSettings& getEvaluationSettings( ) const
+    {
+        return settings_;
+    }
+
+private:
+    input_output::StationLoadingData data_;
+    basic_astrodynamics::StationLoadingEvaluationSettings settings_;
+};
+
+inline std::shared_ptr< StationLoadingBodyDeformationSettings > stationLoadingBodyShapeDeformation(
+        const input_output::StationLoadingData& data,
+        const basic_astrodynamics::StationLoadingEvaluationSettings& settings )
+{
+    return std::make_shared< StationLoadingBodyDeformationSettings >( data, settings );
+}
 
 //! Preloaded or plain-text ocean pole-load grid; loading is performed once when the model is constructed.
 enum class AtmosphericTideInputFormat { grid, stationCoefficients };

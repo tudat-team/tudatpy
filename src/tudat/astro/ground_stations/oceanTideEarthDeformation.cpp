@@ -10,6 +10,7 @@
 
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {
@@ -446,8 +447,11 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
             localDisplacement( 0 ) * earthNorthradialUnitVectors[ 2 ];
 }
 
-OceanTideEarthDeformation::OceanTideEarthDeformation( const std::vector< std::string >& blqFiles, const OceanTideSynthesis synthesis ):
-    synthesis_( synthesis ),
+OceanTideEarthDeformation::OceanTideEarthDeformation(
+        const std::vector< std::string >& blqFiles,
+        const OceanTideSynthesis synthesis,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter ):
+    BodyDeformationModel( converter ), synthesis_( synthesis ),
     doodsonArgumentFunction_( []( const double time ) { return sofa_interface::calculateDoodsonFundamentalArguments( time ); } )
 {
     if( synthesis != OceanTideSynthesis::iersHardisp && synthesis != OceanTideSynthesis::legacyElevenConstituents )
@@ -461,8 +465,11 @@ OceanTideEarthDeformation::OceanTideEarthDeformation( const std::vector< std::st
     }
 }
 
-OceanTideEarthDeformation::OceanTideEarthDeformation( const input_output::OceanLoadingData& data, const OceanTideSynthesis synthesis ):
-    OceanTideEarthDeformation( std::vector< std::string >( ), synthesis )
+OceanTideEarthDeformation::OceanTideEarthDeformation(
+        const input_output::OceanLoadingData& data,
+        const OceanTideSynthesis synthesis,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter ):
+    OceanTideEarthDeformation( std::vector< std::string >( ), synthesis, converter )
 {
     addOceanLoadingData( data );
 }
@@ -580,63 +587,34 @@ Eigen::Vector3d OceanTideEarthDeformation::calculateGeocentricEnuDisplacement( c
     return ( Eigen::Vector3d( ) << -displacement( 1 ), -displacement( 2 ), displacement( 0 ) ).finished( );
 }
 
-Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
+Eigen::Vector3d OceanTideEarthDeformation::evaluateDisplacement( const Time& tdb,
+                                                                 const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return calculateDisplacement( usesNativeUtcPhase_ ? static_cast< double >( epoch.getTt( ) ) : epoch.getTdbSeconds( ), position );
-}
-Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacement( const EarthDeformationEpoch& epoch,
-                                                                  const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return calculateDisplacement( usesNativeUtcPhase_ ? static_cast< double >( epoch.getTt( ) ) : epoch.getTdbSeconds( ), station );
-}
-Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                                          const Eigen::Vector3d& position )
-{
-    return usesNativeUtcPhase_ ? calculateTerrestrialDisplacementVelocity( epoch, position )
-                               : BodyDeformationModel::calculateDisplacementVelocity( epoch, position );
-}
-Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementVelocity(
-        const EarthDeformationEpoch& epoch,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return usesNativeUtcPhase_ ? calculateTerrestrialDisplacementVelocity( epoch, station )
-                               : BodyDeformationModel::calculateDisplacementVelocity( epoch, station );
-}
-Eigen::Vector6d OceanTideEarthDeformation::calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position )
-{
-    return usesNativeUtcPhase_ ? calculateNativeDisplacementState( epoch, position )
-                               : BodyDeformationModel::calculateDisplacementState( epoch, position );
-}
-Eigen::Vector6d OceanTideEarthDeformation::calculateDisplacementState(
-        const EarthDeformationEpoch& epoch,
-        const std::shared_ptr< ground_stations::GroundStationState > station )
-{
-    return usesNativeUtcPhase_ ? calculateNativeDisplacementState( epoch, station )
-                               : BodyDeformationModel::calculateDisplacementState( epoch, station );
+    const double argumentTime = usesNativeUtcPhase_
+            ? static_cast< double >( timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb ) )
+            : static_cast< double >( tdb );
+    return displacementAtArgumentTime( argumentTime, station );
 }
 
-void OceanTideEarthDeformation::validateDisplacementDerivativeInterval( const double, const double lower, const double upper ) const
+Eigen::Vector6d OceanTideEarthDeformation::evaluateDisplacementState( const Time& tdb,
+                                                                      const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    if( usesNativeUtcPhase_ )
-    {
-        validateEarthDeformationUtcInterval( lower, upper );
-    }
-}
-
-Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementInEnuFrame( const double time, const std::string& siteIdentifier )
-{
-    return calculateGeocentricEnuDisplacement( time, siteIdentifier );
-}
-
-Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementInEnuFrame(
-        const double time,
-        const std::shared_ptr< ground_stations::GroundStationState > stationState )
-{
-    return stationState->getRotationFromBodyFixedToTopocentricFrame( time ) * calculateDisplacement( time, stationState );
+    if( !usesNativeUtcPhase_ ) return BodyDeformationModel::evaluateDisplacementState( tdb, station );
+    const Time tt = timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb );
+    const double rate = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
+    const Eigen::Vector3d velocity =
+            differentiateDisplacement(
+                    tt,
+                    [ & ]( const Time& sample ) { return displacementAtArgumentTime( static_cast< double >( sample ), station ); },
+                    []( const Time& lower, const Time& upper ) {
+                        validateEarthDeformationUtcInterval( static_cast< double >( lower ), static_cast< double >( upper ) );
+                    } ) *
+            rate;
+    return ( Eigen::Vector6d( ) << displacementAtArgumentTime( static_cast< double >( tt ), station ), velocity ).finished( );
 }
 
 //! Function to calculate site displacement at given time.
-Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacement(
+Eigen::Vector3d OceanTideEarthDeformation::displacementAtArgumentTime(
         const double time,
         const std::shared_ptr< ground_stations::GroundStationState > stationState )
 {

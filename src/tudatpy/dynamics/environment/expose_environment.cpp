@@ -2889,11 +2889,15 @@ bool
 
      )doc" )
             .def( "get_cartesian_state",
-                  &tgs::GroundStationState::getCartesianStateInTime,
+                  py::overload_cast< double, const std::string& >( &tgs::GroundStationState::getCartesianStateInTime ),
+                  py::arg( "current_time" ),
+                  py::arg( "target_frame_origin" ) = "" )
+            .def( "get_cartesian_state",
+                  py::overload_cast< const tudat::Time&, const std::string& >( &tgs::GroundStationState::getCartesianStateInTime ),
                   py::arg( "current_time" ),
                   py::arg( "target_frame_origin" ) = "" )
             .def( "get_cartesian_position",
-                  &tgs::GroundStationState::getCartesianPositionInTime,
+                  py::overload_cast< double, const std::string& >( &tgs::GroundStationState::getCartesianPositionInTime ),
                   py::arg( "current_time" ),
                   py::arg( "target_frame_origin" ) = "",
                   R"doc(
@@ -2919,6 +2923,10 @@ bool
              Cartesian position of the station at the current epoch, in a body-centered, body-fixed frame
 
      )doc" )
+            .def( "get_cartesian_position",
+                  py::overload_cast< const tudat::Time&, const std::string& >( &tgs::GroundStationState::getCartesianPositionInTime ),
+                  py::arg( "current_time" ),
+                  py::arg( "target_frame_origin" ) = "" )
             .def_property_readonly( "cartesian_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalCartesianPosition,
                                     R"doc(

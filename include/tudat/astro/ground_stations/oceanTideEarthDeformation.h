@@ -51,28 +51,21 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
 class OceanTideEarthDeformation : public BodyDeformationModel
 {
 public:
-    using BodyDeformationModel::calculateDisplacementState;
-    using BodyDeformationModel::calculateDisplacementVelocity;
-    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacement( const EarthDeformationEpoch& epoch,
-                                           const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector3d calculateDisplacementVelocity( const EarthDeformationEpoch& epoch,
-                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch, const Eigen::Vector3d& position ) override;
-    Eigen::Vector6d calculateDisplacementState( const EarthDeformationEpoch& epoch,
-                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
     //! Filename adapters; all BLQ input occurs during construction or addBlqFile.
     OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
-                               const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp );
+                               const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp,
+                               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
 
-    OceanTideEarthDeformation( const std::string& blqFile, const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp ):
-        OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, synthesis )
+    OceanTideEarthDeformation( const std::string& blqFile,
+                               const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp,
+                               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr ):
+        OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, synthesis, converter )
     {}
 
     //! Construct from validated, preloaded provider coefficients with no file access.
     OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
-                               const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp );
+                               const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp,
+                               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
 
     //! Explicit custom-argument compatibility path, always using the legacy eleven constituents.
     OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
@@ -95,34 +88,10 @@ public:
         return oceanLoadingData_;
     }
 
-    //! Spherical east/north/radial displacement in metres; time is TT seconds since J2000.
-    Eigen::Vector3d calculateDisplacementInEnuFrame( const double time, const std::string& siteIdentifier );
-
-    //! True station topocentric ENU (ellipsoid-normal up for oblate station shapes), in metres.
-    Eigen::Vector3d calculateDisplacementInEnuFrame( const double time,
-                                                     const std::shared_ptr< ground_stations::GroundStationState > stationState );
-
     OceanTideSynthesis getSynthesis( ) const
     {
         return synthesis_;
     }
-
-    Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition )
-    {
-        throw std::runtime_error( "Error, cannot compute ocean tide displacements from position alone." );
-    }
-
-    //! Function to calculate site displacement at given time.
-    /*!
-     * Function to calculate site displacement at given time at given site. Note that the site identifier needs to be
-     * identical to that provided in the BLQ file. If doodson arguments are available, it is recommended to use the second,
-     * overloaded version of this function for performance reasons.
-     * \param time TT seconds since J2000. HARDISP uses the corresponding UTC time of day.
-     * Standalone scalar calls require TT. Environment context calls convert TDB to TT explicitly.
-     * The Cartesian result uses the geocentric spherical basis, independently of the station shape.
-     * \return Displacement of requested site, at requested time.
-     */
-    Eigen::Vector3d calculateDisplacement( const double time, const std::shared_ptr< ground_stations::GroundStationState > stationState );
 
     //! Function to retrieve the map containing site displacement amplitudes per tide.
     /*!
@@ -161,9 +130,12 @@ public:
     }
 
 protected:
-    void validateDisplacementDerivativeInterval( const double time, const double lower, const double upper ) const override;
+    Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+    Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
+                                               const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
 private:
+    Eigen::Vector3d displacementAtArgumentTime( double time, const std::shared_ptr< ground_stations::GroundStationState > station );
     void initializeLegacyConstituents( );
     Eigen::Vector3d calculateGeocentricEnuDisplacement( const double time, const std::string& siteIdentifier );
     OceanTideSynthesis synthesis_;

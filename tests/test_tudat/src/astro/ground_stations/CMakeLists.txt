@@ -66,3 +66,5 @@ TUDAT_ADD_TEST_CASE(CompleteEarthStationVelocity
     PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} tudat_ocean_loading_data tudat_terrestrial_frame_data)
 
 TUDAT_ADD_TEST_CASE(RelativisticStationPosition PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(StationLoadingDeformation PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})

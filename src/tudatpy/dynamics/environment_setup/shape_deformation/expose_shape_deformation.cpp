@@ -63,6 +63,38 @@ void expose_shape_deformation_setup( py::module& m )
       )doc" );
 
     namespace ba = tudat::basic_astrodynamics;
+    py::enum_< ba::StationLoadingSpatialSelection >( m, "StationLoadingSpatialSelection" )
+            .value( "explicit_bindings", ba::StationLoadingSpatialSelection::explicitBindings )
+            .value( "within_provider_radius", ba::StationLoadingSpatialSelection::withinProviderRadius );
+    py::class_< ba::StationLoadingOriginTranslation, std::shared_ptr< ba::StationLoadingOriginTranslation > >(
+            m, "StationLoadingOriginTranslation", "Scoped Cartesian source-origin minus target-origin correction in metres." )
+            .def( py::init<>( ) )
+            .def_readwrite( "identifier", &ba::StationLoadingOriginTranslation::identifier )
+            .def_readwrite( "source_origin_definition", &ba::StationLoadingOriginTranslation::sourceOriginDefinition )
+            .def_readwrite( "target_origin_definition", &ba::StationLoadingOriginTranslation::targetOriginDefinition )
+            .def_readwrite( "target_origin", &ba::StationLoadingOriginTranslation::targetOrigin )
+            .def_readwrite( "series", &ba::StationLoadingOriginTranslation::series );
+    py::class_< ba::StationLoadingEvaluationSettings >( m, "StationLoadingEvaluationSettings" )
+            .def( py::init<>( ) )
+            .def_readwrite( "spatial_selection", &ba::StationLoadingEvaluationSettings::spatialSelection )
+            .def_readwrite( "station_bindings", &ba::StationLoadingEvaluationSettings::stationBindings )
+            .def_readwrite( "maximum_gap_seconds", &ba::StationLoadingEvaluationSettings::maximumGapSeconds )
+            .def_readwrite( "allow_unknown_inventory", &ba::StationLoadingEvaluationSettings::allowUnknownInventory )
+            .def_readwrite( "allow_declared_overlap", &ba::StationLoadingEvaluationSettings::allowDeclaredOverlap )
+            .def_readwrite( "output_origin_definition", &ba::StationLoadingEvaluationSettings::outputOriginDefinition )
+            .def_readwrite( "origin_translation", &ba::StationLoadingEvaluationSettings::originTranslation );
+    py::class_< tss::StationLoadingBodyDeformationSettings,
+                std::shared_ptr< tss::StationLoadingBodyDeformationSettings >,
+                tss::BodyDeformationSettings >( m, "StationLoadingBodyDeformationSettings" );
+    m.def( "station_loading",
+           &tss::stationLoadingBodyShapeDeformation,
+           py::arg( "data" ),
+           py::arg( "evaluation_settings" ),
+           "Create station loading from neutral preloaded source series. Explicit station/provider binding or requested radius matching, "
+           "Cartesian axes and origin definitions are required. Linear interpolation uses continuous TAI; native rates differentiate that "
+           "interpolant and chain to environment TDB. Exact-knot rates use the right interval and the final endpoint uses the left. "
+           "No extrapolation or silent gap bridging occurs; valid singleton positions remain usable with unavailable rates. "
+           "Overlap and unknown inventory require explicit decisions; matching scoped origin translations are added once." );
     py::enum_< ba::AtmosphericTideEndpointPolicy >( m, "AtmosphericTideEndpointPolicy" )
             .value( "require_consistency", ba::AtmosphericTideEndpointPolicy::requireConsistency )
             .value( "average_seam_and_polar_cartesian_approximation",

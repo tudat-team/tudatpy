@@ -33,7 +33,8 @@ enum BodyDeformationTypes {
     pole_tide,
     ocean_tide,
     ocean_pole_tide,
-    atmospheric_tide
+    atmospheric_tide,
+    station_loading
 };
 
 //! Interface class between GravityFieldVariations objects that are interpolated and

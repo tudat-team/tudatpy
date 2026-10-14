@@ -67,19 +67,20 @@ Eigen::Vector3d calculateDegreeThreeBasicTidalDisplacement( const double gravita
 }
 
 BasicTidalBodyDeformation::BasicTidalBodyDeformation(
-        const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
-        const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyStateFunctions,
-        const std::function< Eigen::Quaterniond( const double ) > deformedBodyRotationFunction,
+        const std::function< Eigen::Vector6d( const Time& ) > deformedBodyStateFunction,
+        const std::vector< std::function< Eigen::Vector6d( const Time& ) > >& deformingBodyStateFunctions,
+        const std::function< Eigen::Quaterniond( const Time& ) > deformedBodyRotationFunction,
         const std::function< double( ) > gravitionalParameterOfDeformedBody,
         const std::vector< std::function< double( ) > >& gravitionalParametersOfDeformingBodies,
         const double deformedBodyEquatorialRadius,
-        const std::map< int, std::pair< double, double > >& displacementLoveNumbers ):
-    deformedBodyStateFunction_( deformedBodyStateFunction ), deformingBodyStateFunctions_( deformingBodyStateFunctions ),
-    deformedBodyRotationFunction_( deformedBodyRotationFunction ),
+        const std::map< int, std::pair< double, double > >& displacementLoveNumbers,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter ):
+    BodyDeformationModel( converter ), deformedBodyStateFunction_( deformedBodyStateFunction ),
+    deformingBodyStateFunctions_( deformingBodyStateFunctions ), deformedBodyRotationFunction_( deformedBodyRotationFunction ),
     gravitionalParameterOfDeformedBody_( gravitionalParameterOfDeformedBody ),
     gravitionalParametersOfDeformingBodies_( gravitionalParametersOfDeformingBodies ),
     deformedBodyEquatorialRadius_( deformedBodyEquatorialRadius ), displacementLoveNumbers_( displacementLoveNumbers ),
-    currentTime_( TUDAT_NAN )
+    currentTime_( std::nullopt )
 {
     if( deformingBodyStateFunctions_.size( ) != gravitionalParametersOfDeformingBodies_.size( ) )
     {
@@ -132,16 +133,18 @@ Eigen::Vector3d BasicTidalBodyDeformation::calculateBasicTicalDisplacement(
     return siteDisplacement;
 }
 
-Eigen::Vector3d BasicTidalBodyDeformation::calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition )
+Eigen::Vector3d BasicTidalBodyDeformation::evaluateDisplacement( const Time& time,
+                                                                 const std::shared_ptr< ground_stations::GroundStationState > station )
 {
     updateBodyProperties( time );
-    return calculateBasicTicalDisplacement( bodyFixedPosition, displacementLoveNumbers_ );
+    return calculateBasicTicalDisplacement( station->getNominalCartesianPosition( ), displacementLoveNumbers_ );
 }
 
-void BasicTidalBodyDeformation::updateBodyProperties( const double time )
+void BasicTidalBodyDeformation::updateBodyProperties( const Time& time )
 {
-    if( !( currentTime_ == time ) )
+    if( !currentTime_ || *currentTime_ != time )
     {
+        currentTime_.reset( );
         Eigen::Vector3d deformedBodyPosition = deformedBodyStateFunction_( time ).segment( 0, 3 );
         Eigen::Quaterniond currentDeformedBodyRotation = deformedBodyRotationFunction_( time );
         double currentDeformedBodyGravitationalParameter = gravitionalParameterOfDeformedBody_( );

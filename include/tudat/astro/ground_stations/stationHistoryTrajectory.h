@@ -11,9 +11,9 @@
 
 namespace tudat
 {
-namespace basic_astrodynamics
+namespace earth_orientation
 {
-class EarthDeformationEpoch;
+class TerrestrialTimeScaleConverter;
 }
 namespace ground_stations
 {
@@ -35,7 +35,14 @@ struct StationHistoryTime {
 };
 
 //! Strict nominal civil UTC profile, post-1972; inserted seconds are not representable.
-StationHistoryTime getIgnNominalUtcStationTime( const basic_astrodynamics::EarthDeformationEpoch& epoch, bool requireRates = false );
+StationHistoryTime getIgnNominalUtcStationTimeFromTdb(
+        const Time& tdb,
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr,
+        bool requireRates = false );
+StationHistoryTime getIgnNominalUtcStationTimeFromTdb(
+        double tdb,
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr,
+        bool requireRates = false );
 //! Explicit TAI input; a missing clock rate still permits position evaluation.
 StationHistoryTime getIgnNominalUtcStationTimeFromTai( const Time& tai, std::optional< double > taiRateWithRespectToTdb = std::nullopt );
 StationHistoryTime getIgnNominalUtcStationTime( const input_output::SinexCivilUtc& civil );
