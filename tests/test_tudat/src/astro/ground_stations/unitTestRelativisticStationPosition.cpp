@@ -7,6 +7,7 @@
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 using namespace tudat;
 using namespace tudat::ground_stations;
@@ -389,4 +390,57 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
     auto ephemeris = simulation_setup::createReferencePointEphemerisFromId( fixture.earth, stationName, geocentricBodies );
     BOOST_CHECK_EQUAL( ephemeris->getReferenceFrameOrigin( ), "Earth" );
     BOOST_CHECK_EQUAL( ephemeris->getReferenceFrameOrientation( ), "GCRS" );
+}
+
+BOOST_AUTO_TEST_CASE( body_settings_factory_retains_environment_and_converts_external_body_origin_before_station_creation )
+{
+    using namespace simulation_setup;
+    const Eigen::Vector3d nominal( 4e6, 1e6, 5e6 ), drift( .02, -.01, .03 );
+    const Eigen::Vector3d earthPosition( 1.5e11, 2e10, -1e10 ), earthVelocity( 28000, -11000, 4000 );
+    const Eigen::Vector3d sunPosition( -1e8, 2e8, -3e8 );
+    const double time = 1000, gm = 1.32712440018e20;
+    const Eigen::Vector3d hostPosition = earthPosition + time * earthVelocity;
+    const Eigen::Vector3d separation = hostPosition - sunPosition;
+    const double distance = separation.norm( ), potential = gm / distance;
+    const double potentialRate = -gm * separation.dot( earthVelocity ) / ( distance * distance * distance );
+    const Eigen::Vector3d intrinsic = nominal + time * drift;
+    const double scale = potential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT + 1.48082686741e-8;
+    const Eigen::Vector3d expectedCorrection =
+            -scale * intrinsic - .5 * earthVelocity.dot( intrinsic ) * earthVelocity * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+    const Eigen::Vector3d expectedVelocityCorrection = -potentialRate * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * intrinsic -
+            scale * drift - .5 * earthVelocity.dot( drift ) * earthVelocity * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+    for( const bool convertSunOrigin : { false, true } )
+    {
+        auto earth = std::make_shared< BodySettings >( );
+        auto sun = std::make_shared< BodySettings >( );
+        earth->ephemerisSettings = customEphemerisSettings(
+                [ = ]( double t ) { return state( earthPosition + t * earthVelocity, earthVelocity ); }, "SSB", "GCRS" );
+        earth->rotationModelSettings = customRotationModelSettings(
+                "GCRS", "ITRS", []( double ) -> Eigen::Matrix3d { return Eigen::Matrix3d::Identity( ); }, 1.0 );
+        sun->ephemerisSettings = customEphemerisSettings(
+                [ = ]( double t ) {
+                    return convertSunOrigin ? state( sunPosition - earthPosition - t * earthVelocity, -earthVelocity )
+                                            : state( sunPosition, Eigen::Vector3d::Zero( ) );
+                },
+                convertSunOrigin ? "Earth" : "SSB",
+                "GCRS" );
+        sun->gravityFieldSettings = centralGravitySettings( gm );
+        earth->groundStationSettings.push_back( std::make_shared< GroundStationSettings >(
+                "body_settings_site",
+                nominal,
+                coordinate_conversions::cartesian_position,
+                std::vector< std::shared_ptr< GroundStationMotionSettings > >{ earthRelativisticStationMotionSettings( ),
+                                                                               linearGroundStationMotionSettings( drift, 0 ) } ) );
+        const BodyListSettings settings( { { "Earth", earth }, { "Sun", sun } }, "SSB", "GCRS" );
+        const auto bodies = createSystemOfBodies( settings );
+        const auto station = bodies.at( "Earth" )->getGroundStation( "body_settings_site" )->getNominalStationState( );
+        BOOST_CHECK_SMALL( ( bodies.at( "Sun" )->getPositionInBaseFrameFromEphemeris( time ) - sunPosition ).norm( ), 1e-6 );
+        BOOST_CHECK_SMALL( ( station->getCartesianPositionInTime( time, "SSB" ) - intrinsic - expectedCorrection ).norm( ), 2e-9 );
+        const Eigen::Vector3d velocityCorrection = station->getCartesianStateInTime( time, "SSB" ).tail< 3 >( ) - drift;
+        BOOST_CHECK_SMALL( ( velocityCorrection - expectedVelocityCorrection ).norm( ), 2e-17 );
+        BOOST_CHECK_GT( velocityCorrection.norm( ), 1e-9 );
+        const auto ephemeris = createReferencePointEphemerisFromId( bodies.at( "Earth" ), "body_settings_site", bodies );
+        BOOST_CHECK_EQUAL( ephemeris->getReferenceFrameOrientation( ), "GCRS" );
+        BOOST_CHECK_EQUAL( ephemeris->getReferenceFrameOrigin( ), "SSB" );
+    }
 }

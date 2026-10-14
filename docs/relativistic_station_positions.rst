@@ -43,6 +43,10 @@ names, the host itself, zero separation and non-finite values are rejected.
 Gravitational parameters are assumed constant. Use the environment-aware public
 ``createGroundStation`` overload to supply ``SystemOfBodies`` for those callbacks.
 The external-body callback binds each selected external body, not the station host.
+``createSystemOfBodies`` also supplies that environment for stations configured in
+``BodySettings`` and configures ephemeris origin conversions before constructing
+them. An external ephemeris expressed relative to Earth therefore contributes its
+converted barycentric state to the potential.
 
 Intrinsic linear motion, displacements and body deformation are combined first.
 The relativistic map then consumes that complete position/state exactly once,
