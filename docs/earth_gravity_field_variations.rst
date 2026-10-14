@@ -22,15 +22,15 @@ for Python-specific tests. No new estimation parameters or gravity recovery work
 
    [x] G01 Review primary literature, provider conventions and existing implementations.  [DONE]
    [ ] G02 Define rotation/gravity compatibility and reuse existing Tudat functionality.  [ACTIVE]
-   [ ] G03 Preserve neutral coefficient, constituent and source-convention records.  [ACTIVE — static ICGEM foundation]
-   [ ] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [QUEUED]
-   [ ] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [QUEUED]
-   [ ] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [QUEUED]
-   [ ] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [QUEUED]
+   [ ] G03 Preserve neutral coefficient, constituent and source-convention records.  [ACTIVE — static ICGEM foundation integrated and validated]
+   [ ] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [ACTIVE — extending existing and legacy ILR kernels]
+   [ ] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [ACTIVE]
+   [ ] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [ACTIVE — isolated backend implementation]
+   [ ] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [ACTIVE — coefficient contracts and reader]
    [ ] G08 Support identified ocean-tide products without mixing their phase conventions.  [QUEUED]
    [ ] G09 Handle atmospheric/non-tidal coefficient products and component overlap explicitly.  [QUEUED]
    [ ] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [QUEUED]
-   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [QUEUED]
+   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — existing construction order verified; settings design]
    [ ] G12 Validate individual models and assembled forces against pinned references.  [QUEUED]
    [ ] G13 Complete Python settings, diagnostics and a reproducible setup example.  [QUEUED]
    [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [QUEUED]
@@ -152,9 +152,10 @@ factory; neutral readers must not depend on bodies, dynamics or estimation.
    * - Rotation clock and EOP
      - Consume the rotation's converter and EOP/polar-motion calculation. Route
        TT and UT1 explicitly to fundamental arguments; do not use a convenience
-       routine that substitutes UTC for UT1 or TDB for TT. A non-TDB rotation
-       must be adapted at the factory, not called with an incorrectly labelled
-       propagation epoch.
+       routine that substitutes UTC for UT1 or TDB for TT. The production Earth
+       gravity factory requires the selected rotation to accept TDB, the existing
+       default. Adapting only the gravity callback would leave the body's cached
+       rotation, and hence the final force transformation, at the wrong epoch.
    * - Pole convention
      - Both gravity pole tides and station pole loading use the same secular-pole
        convention and EOP source. A conventional high-accuracy preset rejects a
@@ -283,13 +284,42 @@ arbitrary-degree recurrence will only be imported if a concrete model needs it.
 
 Factory helpers remain local to Earth gravity setup. They obtain the selected
 ``GcrsToItrsRotationModel``, its converter and polar-motion calculator, check the
-field's target axes against the rotation, and adapt the propagation TDB epoch to
-the rotation's declared input scale. Body ephemeris base axes must agree with the
+field's target axes against the rotation, and require its input scale to be TDB.
+This also protects the existing body rotation and force-evaluation path without
+adding Earth-specific time machinery to the generic Body class. Body ephemeris base axes must agree with the
 rotation's base axes; already supported explicit base-frame rotations remain
 available. No extra frame-bias rotation is added. The full conventional preset
 uses the selected corrected pole with the shared 2018 secular pole; matched
 benchmark tests inject their published wobble instead of changing production
 defaults. Setup rejects complete/basic solid-tide overlap for the same raiser.
+
+The existing construction order is correct. Variation settings are attached with
+correction initialization deferred. ``processBodyFrameDefinitions`` first
+installs the global-frame ephemeris callbacks, then initializes the correction
+functions and samples interpolated variations. An actual BodySettings test with
+an Earth-relative lunar ephemeris passes 1 case/4 assertions. Preserve this
+existing mechanism; moving frame initialization earlier would be incorrect.
+
+Dominic identified the legacy implementation under
+``/home/dominic/Software/ILR/trunk/ILR/ILR/Astrodynamics/Gravitation``.
+It contains Earth solid, solid pole, ocean pole and ocean-tide implementations,
+with IERS frequency tables and FES2004 data in the ILR DataFiles tree. The workers
+are auditing and adapting useful kernels before adding overlapping code. Initial
+inspection finds reusable degree-two-to-four and harmonic constructions, but
+also an opposite diurnal S21 sign, hidden secular trends, an old pole coefficient,
+and ocean-pole degree-index/constructor defects. Primary-reference checks remain
+necessary; the old implementation is neither discarded nor treated as an oracle.
+
+The static ICGEM foundation is integrated at ``3d7c7d59c``. The reader preserves
+sparse coefficient presence, declared normalization/error columns, source rows
+and tide-system metadata. The consuming adapter requires an explicit frame and
+complete selected coefficients unless zero-fill is requested; C00 is always
+required. Normalization is applied once. Tests cover a real GFZ snapshot and its
+comment preamble, the published COST-G duplicate-C00 failure, normalization,
+static/time-dependent factory metadata and the existing numeric reader's
+truncated-order defect: raw reader 4 cases/32 assertions, consuming factory
+2/26, plus two architecture checks. The actual raw-only target links the new
+standard-library-only reader. No Python kernel was built for these native tests.
 
 The existing scalar coefficient-evaluation interface is retained. At epochs
 within roughly 100 years of J2000 its double rounding is below 0.25 microseconds;
