@@ -48,8 +48,9 @@ for an irregular grid. Source epochs remain split; they are never rounded throug
 a large Julian date. Declared EPHEDISP begin/end epochs remain separate from its
 index-derived grid, preserving the original fields' stated precision.
 
-The separately linkable C++ target ``tudat_station_loading_data`` and header
-``tudat/io/readStationLoadingData.h`` require only standard C++17.
+The C++ reader and header ``tudat/io/readStationLoadingData.h`` require only
+standard C++17. The reader is compiled in the separately linkable
+``tudat_environment_data`` target alongside the other environment readers.
 
 .. currentmodule:: tudatpy.data_input.environment_data.station_loading
 

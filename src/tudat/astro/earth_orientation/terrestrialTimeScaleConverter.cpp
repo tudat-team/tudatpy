@@ -20,6 +20,7 @@ namespace tudat
 namespace earth_orientation
 {
 
+// Load the existing historical Delta-T values only when the fallback is needed.
 void TerrestrialTimeScaleConverter::loadHistoricalDeltaTInterpolator( )
 {
     if( historicalDeltaTInterpolator_ == nullptr )
@@ -65,130 +66,172 @@ double TerrestrialTimeScaleConverter::getGeocentricTtRateWithRespectToTdb( const
     return rate;
 }
 
+// Return the modeled UT1 position without requiring a daily interpolation slope.
 Time TerrestrialTimeScaleConverter::getUt1FromTai( const Time& tai )
 {
-    if( !continuousEopData_ ) throw std::runtime_error( "Continuous UT1 evaluation requires EOP data" );
-    if( tai < continuousEopData_->getStartTai( ) && continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
-        tai < Time( utcIntroductionEpochInTai_ ) )
-    {
-        loadHistoricalDeltaTInterpolator( );
-        const Time tt = basic_astrodynamics::convertTAItoTT( tai );
-        return tt - historicalDeltaTInterpolator_->interpolate( static_cast< double >( tt ) / physical_constants::JULIAN_YEAR + 2000.0 );
-    }
-    const double baseline = continuousEopData_->evaluate( tai ).ut1MinusTai;
-    const Time tt = basic_astrodynamics::convertTAItoTT( tai );
-    Time ut1 = tai + baseline;
-    if( shortPeriodUt1CorrectionCalculator_ )
-    {
-        const Eigen::Vector6d arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
-                static_cast< double >( tt ), static_cast< double >( tt ), static_cast< double >( ut1 ) );
-        ut1 += shortPeriodUt1CorrectionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
-    }
-    return ut1;
+    return evaluateUt1FromTai( tai, false ).ut1;
 }
 
+// Return the same UT1 value together with the derivative of its actual daily and short-period models.
 Ut1ValueAndRate TerrestrialTimeScaleConverter::getUt1FromTaiWithRate( const Time& tai )
 {
-    if( !continuousEopData_ ) throw std::runtime_error( "UT1 rates require a supported continuous EOP model" );
+    return evaluateUt1FromTai( tai, true );
+}
+
+// Share the value calculation while keeping unsupported rates independent of position availability.
+Ut1ValueAndRate TerrestrialTimeScaleConverter::evaluateUt1FromTai( const Time& tai, const bool requireRate )
+{
+    if( !continuousEopData_ )
+    {
+        throw std::runtime_error( requireRate ? "UT1 rates require a supported continuous EOP model"
+                                             : "Continuous UT1 evaluation requires EOP data" );
+    }
     if( tai < continuousEopData_->getStartTai( ) && continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
         tai < Time( utcIntroductionEpochInTai_ ) )
-        throw std::runtime_error( "Historical Delta-T clock rates are unavailable; position conversion remains supported" );
+    {
+        if( requireRate )
+        {
+            throw std::runtime_error( "Historical Delta-T clock rates are unavailable; position conversion remains supported" );
+        }
+        loadHistoricalDeltaTInterpolator( );
+
+        // Historical Delta-T is TT minus UT1 in seconds; it supplies no supported derivative.
+        const Time tt = basic_astrodynamics::convertTAItoTT( tai );
+
+        return { tt - historicalDeltaTInterpolator_->interpolate(
+                              static_cast< double >( tt ) / physical_constants::JULIAN_YEAR + 2000.0 ) };
+    }
+
+    // Daily UT1-TAI and its optional slope come from the selected interpolation policy.
     const auto daily = continuousEopData_->evaluate( tai );
-    if( !daily.ut1MinusTaiRate ) throw std::runtime_error( "Selected UT1-TAI interpolation slope is unavailable" );
+
+    if( requireRate && !daily.ut1MinusTaiRate )
+    {
+        throw std::runtime_error( "Selected UT1-TAI interpolation slope is unavailable" );
+    }
+
+    // Fundamental arguments use TT and daily UT1 before adding any short-period correction.
     const Time tt = basic_astrodynamics::convertTAItoTT( tai );
+
     const Time baselineUt1 = tai + daily.ut1MinusTai;
-    Ut1ValueAndRate result{ baselineUt1, 1.0 + *daily.ut1MinusTaiRate };
+
+    Ut1ValueAndRate result{ baselineUt1 };
+
+    if( requireRate )
+    {
+        result.dUt1DTai = 1.0 + *daily.ut1MinusTaiRate;
+    }
     if( shortPeriodUt1CorrectionCalculator_ )
     {
+        // Short-period values and tangents are evaluated at the same baseline clocks.
         const auto arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
                 static_cast< double >( tt ), static_cast< double >( tt ), static_cast< double >( baselineUt1 ) );
+
         result.ut1 += shortPeriodUt1CorrectionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
-        // The position path evaluates this correction once at baseline UT1.
-        // Its tangent therefore uses the baseline daily rate, not final corrected UT1.
-        result.dUt1DTai +=
-                calculateShortPeriodCorrectionRate< double >( shortPeriodUt1CorrectionCalculator_, tt, baselineUt1, result.dUt1DTai );
+        if( requireRate )
+        {
+            // The correction's tangent uses the baseline daily rate, not the final corrected UT1 rate.
+            result.dUt1DTai +=
+                    calculateShortPeriodCorrectionRate< double >( shortPeriodUt1CorrectionCalculator_, tt, baselineUt1, result.dUt1DTai );
+        }
     }
-    if( !std::isfinite( result.dUt1DTai ) || result.dUt1DTai <= 0.0 ) throw std::runtime_error( "Invalid modeled UT1 rate" );
+    if( requireRate && ( !std::isfinite( result.dUt1DTai ) || result.dUt1DTai <= 0.0 ) )
+    {
+        throw std::runtime_error( "Invalid modeled UT1 rate" );
+    }
     return result;
 }
 
-Time TerrestrialTimeScaleConverter::invertContinuousUt1( const Time& requested, const bool roundedDoubleInput )
+// Bracket and bisect the requested continuous clock using the original raw TAI nodes.
+Time TerrestrialTimeScaleConverter::invertContinuousTime( const basic_astrodynamics::TimeScales inputScale,
+                                                          const Time& requested,
+                                                          const Eigen::Vector3d& position,
+                                                          const bool roundedDoubleInput )
 {
+    // Forward clock values at the raw endpoints define this inverse's coverage.
     const auto& epochs = continuousEopData_->getEpochsTai( );
-    const Time firstUt1 = getUt1FromTai( epochs.front( ) );
-    const Time lastUt1 = getUt1FromTai( epochs.back( ) );
-    if( requested == firstUt1 || ( roundedDoubleInput && static_cast< double >( requested ) == static_cast< double >( firstUt1 ) ) )
-        return epochs.front( );
-    if( requested == lastUt1 || ( roundedDoubleInput && static_cast< double >( requested ) == static_cast< double >( lastUt1 ) ) )
-        return epochs.back( );
-    if( requested < firstUt1 || requested > lastUt1 )
+
+    const Time first = getContinuousOutputTime( inputScale, epochs.front( ), position );
+
+    const Time last = getContinuousOutputTime( inputScale, epochs.back( ), position );
+
+    if( requested == first || ( roundedDoubleInput && static_cast< double >( requested ) == static_cast< double >( first ) ) )
     {
-        if( requested < firstUt1 && continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
+        return epochs.front( );
+    }
+    if( requested == last || ( roundedDoubleInput && static_cast< double >( requested ) == static_cast< double >( last ) ) )
+    {
+        return epochs.back( );
+    }
+    if( requested < first || requested > last )
+    {
+        // Only UT1 has the existing pre-UTC historical Delta-T inverse.
+        if( inputScale == basic_astrodynamics::ut1_scale && requested < first &&
+            continuousEopData_->getSettings( ).historicalUt1 == HistoricalUt1Policy::delta_t &&
             requested < Time( utcIntroductionEpochInTai_ ) )
         {
             loadHistoricalDeltaTInterpolator( );
+
+            // Retain the four fixed-point updates used by the historical UT1 route.
             Time tt = requested;
+
             for( int i = 0; i < 4; ++i )
+            {
                 tt = requested +
                         historicalDeltaTInterpolator_->interpolate( static_cast< double >( tt ) / physical_constants::JULIAN_YEAR +
                                                                     2000.0 );
+            }
             return basic_astrodynamics::convertTTtoTAI( tt );
         }
-        throw std::runtime_error( "Requested UT1 outside corrected raw EOP coverage" );
+        throw std::runtime_error( inputScale == basic_astrodynamics::ut1_scale ? "Requested UT1 outside corrected raw EOP coverage"
+                                                                             : "Requested topocentric TDB outside raw EOP coverage" );
     }
-    const auto right = std::lower_bound( epochs.begin( ), epochs.end( ), requested, [ this ]( const Time& epoch, const Time& ut1 ) {
-        return getUt1FromTai( epoch ) < ut1;
-    } );
-    if( right == epochs.end( ) || right == epochs.begin( ) ) throw std::runtime_error( "Cannot bracket UT1 in EOP coverage" );
-    if( getUt1FromTai( *right ) == requested ) return *right;
-    Time lo = *( right - 1 ), hi = *right;
-    for( int i = 0; i < 100; ++i )
-    {
-        const Time middle = lo + ( hi - lo ) * 0.5;
-        const Time residual = getUt1FromTai( middle ) - requested;
-        if( std::abs( static_cast< double >( residual ) ) < 1e-12 ) return middle;
-        if( residual < Time( 0.0 ) )
-            lo = middle;
-        else
-            hi = middle;
-        if( middle == lo && middle == hi ) return middle;
-    }
-    throw std::runtime_error( "UT1 inversion did not converge within its EOP interval" );
-}
 
-Time TerrestrialTimeScaleConverter::invertContinuousTdb( const Time& requested,
-                                                         const Eigen::Vector3d& position,
-                                                         const bool roundedDoubleInput )
-{
-    const auto tdbFromTai = [ this, &position ]( const Time& tai ) {
-        const Time tt = basic_astrodynamics::convertTAItoTT( tai );
-        return tt + getContinuousTdbMinusTt( tt, position );
-    };
-    const auto& epochs = continuousEopData_->getEpochsTai( );
-    const Time firstTdb = tdbFromTai( epochs.front( ) );
-    const Time lastTdb = tdbFromTai( epochs.back( ) );
-    if( requested == firstTdb || ( roundedDoubleInput && static_cast< double >( requested ) == static_cast< double >( firstTdb ) ) )
-        return epochs.front( );
-    if( requested == lastTdb || ( roundedDoubleInput && static_cast< double >( requested ) == static_cast< double >( lastTdb ) ) )
-        return epochs.back( );
-    if( requested < firstTdb || requested > lastTdb ) throw std::runtime_error( "Requested topocentric TDB outside raw EOP coverage" );
-    const auto right = std::lower_bound( epochs.begin( ), epochs.end( ), requested, [ &tdbFromTai ]( const Time& tai, const Time& tdb ) {
-        return tdbFromTai( tai ) < tdb;
-    } );
-    if( right == epochs.end( ) || right == epochs.begin( ) ) throw std::runtime_error( "Cannot bracket topocentric TDB in EOP coverage" );
-    if( tdbFromTai( *right ) == requested ) return *right;
+    // Locate the raw TAI interval whose forward clock values bracket the request.
+    const auto right = std::lower_bound( epochs.begin( ), epochs.end( ), requested,
+                                         [ this, inputScale, &position ]( const Time& epoch, const Time& input ) {
+                                             return getContinuousOutputTime( inputScale, epoch, position ) < input;
+                                         } );
+
+    if( right == epochs.end( ) || right == epochs.begin( ) )
+    {
+        throw std::runtime_error( inputScale == basic_astrodynamics::ut1_scale ? "Cannot bracket UT1 in EOP coverage"
+                                                                             : "Cannot bracket topocentric TDB in EOP coverage" );
+    }
+
+    if( getContinuousOutputTime( inputScale, *right, position ) == requested )
+    {
+        return *right;
+    }
+
+    // Bisect in Time; only the residual comparison uses double seconds.
     Time lo = *( right - 1 ), hi = *right;
+
     for( int i = 0; i < 100; ++i )
     {
         const Time middle = lo + ( hi - lo ) * 0.5;
-        const Time residual = tdbFromTai( middle ) - requested;
-        if( std::abs( static_cast< double >( residual ) ) < 1e-12 ) return middle;
+
+        const Time residual = getContinuousOutputTime( inputScale, middle, position ) - requested;
+
+        if( std::abs( static_cast< double >( residual ) ) < 1e-12 )
+        {
+            return middle;
+        }
         if( residual < Time( 0.0 ) )
+        {
             lo = middle;
+        }
         else
+        {
             hi = middle;
+        }
+        if( inputScale == basic_astrodynamics::ut1_scale && middle == lo && middle == hi )
+        {
+            return middle;
+        }
     }
-    throw std::runtime_error( "Topocentric TDB inversion did not converge within its EOP interval" );
+    throw std::runtime_error( inputScale == basic_astrodynamics::ut1_scale ? "UT1 inversion did not converge within its EOP interval"
+                                                                         : "Topocentric TDB inversion did not converge within its EOP interval" );
 }
 
 //! Function to get current time list at double precision

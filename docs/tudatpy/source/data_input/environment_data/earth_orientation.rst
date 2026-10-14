@@ -49,7 +49,7 @@ uncertainties. Both file and text readers apply the same checks.
 
 The C++ equivalents are ``tudat::input_output::EarthOrientationData`` and
 ``readEarthOrientationData`` in ``tudat/io/readEarthOrientationData.h``. The
-separately linkable ``tudat_earth_orientation_data`` target uses standard C++17
+separately linkable ``tudat_environment_data`` target uses C++17 and Eigen
 and has no dynamics, estimation, interpolation or SOFA dependency.
 
 .. currentmodule:: tudatpy.data_input.environment_data.earth_orientation
@@ -82,7 +82,7 @@ cosine amplitude arrays have components ``[xp, yp, UT1, excess LOD]`` in
 ``[rad, rad, s, s]``. Header lines and source provenance remain available.
 Malformed records, nonfinite coefficients, nonpositive periods and duplicate
 phase multipliers raise an exception. The neutral C++ reader belongs to
-``tudat_earth_orientation_data`` and has only standard-library dependencies.
+``tudat_environment_data``; this reader's implementation uses only the standard library.
 
 The table supplies the ocean contribution. A consuming rotation model retains
 the independent conventional polar-motion and UT1 libration terms. Published

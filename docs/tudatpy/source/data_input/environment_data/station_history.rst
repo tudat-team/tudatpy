@@ -61,9 +61,10 @@ to an in-memory string and accepts a diagnostic source label. Malformed fields,
 nonfinite values, reversed intervals, duplicate Cartesian components, estimate
 counts inconsistent with the header, and truncated blocks raise exceptions with
 source and line information. The declared parameter count remains source
-metadata when a caller explicitly edits C++ preloaded records. The neutral
-``tudat_station_history_data`` C++17 target is independently linkable with only
-the standard library; it has no dynamics, estimation, Eigen or SOFA dependency.
+metadata when a caller explicitly edits C++ preloaded records. This reader uses
+only standard C++17 and is compiled in the independently linkable
+``tudat_environment_data`` target. The target also provides the other environment
+readers and uses Eigen, without dynamics, estimation or SOFA dependencies.
 
 The ``ilrs.read_sinex_station_data`` map represents one solution
 per DOMES monument and rejects ambiguous multi-solution histories. Use the full
