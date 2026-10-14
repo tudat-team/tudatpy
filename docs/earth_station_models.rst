@@ -38,9 +38,16 @@ workspace policy.
 * Unit tests primarily use C++.  Python tests are reserved for Python-specific
   imports/bindings or cases that cannot straightforwardly be exercised in C++.
   Reference-data generation scripts may use Python to drive external programs.
-  Further full Python-kernel builds are deferred to final integration unless
-  an important functionality check specifically requires one. Incremental
-  scientific validation uses the C++ targets.
+  Compile only the native tests highly relevant to each change. Record unrelated
+  unexpected failures for final integration instead of broadening every build.
+  Compile the Python kernel only to test Python-only functionality, such as
+  binding registration, Python imports or Python-specific API behaviour. A full
+  kernel build is not a general C++ integration requirement.
+* Implementation agents work in separate worktrees and separate build directories.
+  The coordinator integrates reviewed changes into the authoritative worktree.
+* SINEX readers and ILRS interfaces do not need backward compatibility, as
+  instructed during session recovery. Prioritize strict, complete history
+  semantics and update affected consumers consistently.
 
 Data architecture
 -----------------
@@ -66,39 +73,42 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
+Status: 12 of 30 tasks done; 3 active, 3 partial, 10 queued and 2 deferred.
+Reviewed 14 October 2026. This list is updated as relevant work is implemented,
+validated and integrated.
+
 .. code-block:: text
 
-   [x] 01 Establish the PR #900 baseline, isolated build and task tracker.
-   [x] 02 Define neutral data contracts and enforce the dependency boundary.
-   [x] 03 Separate existing EOP and BLQ readers from model evaluation.
-   [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.
-   [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.
-   [x] 06 Validate solid Earth tides through the production time/argument path.
-   [x] 07 Resolve inertial frames, time scales and displacement conventions.
-   [x] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.
-   [x] 09 Implement EOP validity and leap-safe interpolation policies.
-   [x] 10 Verify existing short-period EOP corrections independently.
-   [ ] 11 Complete Earth-rotation derivatives.
-   [ ] 12 Complete deformation velocities and full station-state closure.
-   [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.
-   [x] 14 Validate BLQ loading inputs and preserve their conventions.
-   [x] 15 Implement HARDISP-equivalent ocean tidal loading.
-   [x] 16 Add conventional ocean pole-tide loading.
-   [ ] 17 Add conventional atmospheric S1/S2 tidal loading.
-   [ ] 18 Preserve full SINEX solution/validity/eccentricity histories.
-   [ ] 19 Implement post-seismic and seasonal station motion with rates.
-   [ ] 20 Modernise ITRF transformations and station-catalogue inputs.
-   [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.
-   [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.
-   [ ] 23 Validate relativistic station position and velocity transformations.
-   [ ] 24 Improve instrument reference-point and calibrated geometry support.
-   [ ] 25 Add Earth-orientation estimation parameters and verified partials.
-   [ ] 26 Add station-motion/loading parameters and verified partials.
-   [ ] 27 Compare complete trajectories with independent geodetic software.
-   [ ] 28 Validate observations, controlled omissions and synthetic recovery.
-   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.
-   [ ] 30 Evaluate research extensions after the accepted-standard baseline.
-
+   [x] 01 Establish the PR #900 baseline, isolated build and task tracker.  [DONE]
+   [x] 02 Define neutral data contracts and enforce the dependency boundary.  [DONE]
+   [x] 03 Separate existing EOP and BLQ readers from model evaluation.  [DONE]
+   [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.  [PARTIAL — reference coverage grows with each model]
+   [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.  [DONE]
+   [x] 06 Validate solid Earth tides through the production time/argument path.  [DONE]
+   [x] 07 Resolve inertial frames, time scales and displacement conventions.  [DONE]
+   [x] 08 Implement robust legacy/current/rapid EOP ingestion with metadata.  [DONE]
+   [x] 09 Implement EOP validity and leap-safe interpolation policies.  [DONE]
+   [x] 10 Verify existing short-period EOP corrections independently.  [DONE]
+   [ ] 11 Complete Earth-rotation derivatives.  [ACTIVE — full derivative implementation and C++ tests]
+   [ ] 12 Complete deformation velocities and full station-state closure.  [PARTIAL — rate API done; complete rotation/state closure pending]
+   [ ] 13 Add the optional Desai-Sibois high-frequency EOP configuration.  [DEFERRED — follows accepted-standard baseline]
+   [x] 14 Validate BLQ loading inputs and preserve their conventions.  [DONE]
+   [x] 15 Implement HARDISP-equivalent ocean tidal loading.  [DONE]
+   [x] 16 Add conventional ocean pole-tide loading.  [DONE]
+   [ ] 17 Add conventional atmospheric S1/S2 tidal loading.  [ACTIVE — position model done; rate validation underway]
+   [ ] 18 Preserve full SINEX solution/validity/eccentricity histories.  [ACTIVE — strict history API, equipment records, bindings and tests]
+   [ ] 19 Implement post-seismic and seasonal station motion with rates.  [QUEUED]
+   [ ] 20 Modernise ITRF transformations and station-catalogue inputs.  [PARTIAL — transformations validated and committed; catalogue integration pending]
+   [ ] 21 Add non-tidal atmosphere/ocean/hydrology loading inputs.  [QUEUED]
+   [ ] 22 Integrate non-tidal loading with explicit overlap/validity policies.  [QUEUED]
+   [ ] 23 Validate relativistic station position and velocity transformations.  [QUEUED]
+   [ ] 24 Improve instrument reference-point and calibrated geometry support.  [QUEUED]
+   [ ] 25 Add Earth-orientation estimation parameters and verified partials.  [QUEUED]
+   [ ] 26 Add station-motion/loading parameters and verified partials.  [QUEUED]
+   [ ] 27 Compare complete trajectories with independent geodetic software.  [QUEUED]
+   [ ] 28 Validate observations, controlled omissions and synthetic recovery.  [QUEUED]
+   [ ] 29 Consolidate public interfaces, diagnostics and reproducible examples.  [QUEUED]
+   [ ] 30 Evaluate research extensions after the accepted-standard baseline.  [DEFERRED — follows accepted-standard baseline]
 Task numbers are stable identifiers rather than a rigid execution sequence.
 Tasks 05 and 06 can proceed with the initial build and data architecture audit.
 Tasks 13 and 30 follow verification and implementation of the accepted-standard
@@ -109,17 +119,20 @@ Active work
 
 * Task 04: independent reference packages are in use for solid Earth tides,
   short-period EOP and HARDISP; reference coverage grows with each added model.
-* Task 11: derivative architecture uses the same rotation and selected UT1
-  interpolant as position evaluation. Implementation is underway in isolation.
+* Task 11: the selected-interpolant UT1 rate prerequisite is integrated.
+  Complete rotation derivatives and independent SOFA/clock tests are implemented
+  in isolation and undergoing compilation and validation.
 * Task 12: the initial displacement-rate API, UTC-phase boundary safeguards and
   position-only station path pass integrated C++ tests. EOP-knot rate policies
   and full station-state closure still require task 11.
 * Task 17: the neutral atmospheric S1/S2 reader, synthesis, grid geometry and
   position factories pass integrated C++ tests. This position-model checkpoint
-  is committed; the UT1-to-TDB derivative chain remains open.
+  is committed; the UT1-to-TDB derivative chain is implemented in isolation.
+  Native rate tests are running, including exact-knot clock-roundoff checks.
 * Task 18: the neutral SINEX history parser is implemented in isolation and
-  handles complete published station/discontinuity products. Native regression
-  tests and the explicit legacy adapter are underway.
+  handles complete published station/discontinuity products. Full-history
+  bindings, equipment records and strict native regression tests are underway.
+  SINEX/ILRS backward compatibility is not required, per Dominic's latest instruction.
 * Task 20: neutral ITRF parameter ingestion and affine position/state transforms
   pass integrated comparisons against 75 independent high-precision fixtures.
   The transformation checkpoint includes bindings and API documentation.
@@ -127,8 +140,9 @@ Active work
   remain open with tasks 18 and 19; final compiled binding checks are task 29.
 
 Other unchecked tasks are queued. Tasks 13 and 30 remain deferred until the
-accepted-standard baseline is validated. Final Python-kernel compilation and
-binding validation are part of task 29, not each incremental model build.
+accepted-standard baseline is validated. Python-only binding/import validation
+is part of task 29; kernel compilation is allowed only when needed for those
+Python-specific tests.
 
 The pinned :doc:`GROOPS source comparison <earth_station_models_groops_review>`
 maps additional implementation and regression-test scenarios to these task
