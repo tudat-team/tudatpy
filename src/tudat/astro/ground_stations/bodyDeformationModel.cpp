@@ -19,32 +19,29 @@ Eigen::Vector3d differentiateDisplacementAtEpoch( const Epoch& time,
                                                   const std::function< Eigen::Vector3d( const Epoch& ) >& displacement,
                                                   const std::function< void( const Epoch&, const Epoch& ) >& validateInterval )
 {
-    // Use the actual representable first-point spacing in the denominator.
-    const double step = static_cast< double >( ( time + requestedStep ) - time );
-    const std::array< Epoch, 4 > epochs = { time - 2.0 * step, time - step, time + step, time + 2.0 * step };
-    if( !std::isfinite( static_cast< double >( time ) ) || !std::isfinite( step ) || step <= 0.0 ||
-        !( epochs[ 0 ] < epochs[ 1 ] && epochs[ 1 ] < time && time < epochs[ 2 ] && epochs[ 2 ] < epochs[ 3 ] ) )
-    {
-        throw std::invalid_argument( "Displacement derivative step does not give finite distinct stencil epochs." );
-    }
-    // Floating epochs must support an approximately uniform stencil. Do not silently
-    // differentiate across a sampling grid too coarse to represent the selected step.
-    const double spacingTolerance = 16.0 * std::numeric_limits< double >::epsilon( ) * step;
-    for( std::size_t i = 0; i < epochs.size( ); ++i )
-    {
-        const double expectedOffset = ( i < 2 ? static_cast< double >( i ) - 2.0 : static_cast< double >( i ) - 1.0 ) * step;
-        if( !std::isfinite( static_cast< double >( epochs[ i ] ) ) ||
-            std::fabs( static_cast< double >( epochs[ i ] - time ) - expectedOffset ) > spacingTolerance )
+    const auto derivative = [ & ]( double requested ) -> Eigen::Vector3d {
+        // Use the actual representable first-point spacing in the denominator.
+        const double step = static_cast< double >( ( time + requested ) - time );
+        const std::array< Epoch, 4 > epochs = { time - 2.0 * step, time - step, time + step, time + 2.0 * step };
+        if( !std::isfinite( static_cast< double >( time ) ) || !std::isfinite( step ) || step <= 0.0 ||
+            !( epochs[ 0 ] < epochs[ 1 ] && epochs[ 1 ] < time && time < epochs[ 2 ] && epochs[ 2 ] < epochs[ 3 ] ) )
         {
-            throw std::invalid_argument( "Displacement derivative epochs cannot represent a uniform stencil." );
+            throw std::invalid_argument( "Displacement derivative step does not give finite distinct stencil epochs." );
         }
-    }
+        // Floating epochs must support an approximately uniform stencil. Do not silently
+        // differentiate across a sampling grid too coarse to represent the selected step.
+        const double spacingTolerance = 16.0 * std::numeric_limits< double >::epsilon( ) * step;
+        for( std::size_t i = 0; i < epochs.size( ); ++i )
+        {
+            const double expectedOffset = ( i < 2 ? static_cast< double >( i ) - 2.0 : static_cast< double >( i ) - 1.0 ) * step;
+            if( !std::isfinite( static_cast< double >( epochs[ i ] ) ) ||
+                std::fabs( static_cast< double >( epochs[ i ] - time ) - expectedOffset ) > spacingTolerance )
+            {
+                throw std::invalid_argument( "Displacement derivative epochs cannot represent a uniform stencil." );
+            }
+        }
 
-    if( validateInterval ) validateInterval( epochs.front( ), epochs.back( ) );
-
-    Eigen::Vector3d velocity;
-    try
-    {
+        if( validateInterval ) validateInterval( epochs.front( ), epochs.back( ) );
         std::array< Eigen::Vector3d, 4 > values;
         for( std::size_t i = 0; i < epochs.size( ); ++i )
         {
@@ -54,10 +51,29 @@ Eigen::Vector3d differentiateDisplacementAtEpoch( const Epoch& time,
                 throw std::runtime_error( "Non-finite displacement in derivative stencil." );
             }
         }
-        velocity = ( 8.0 * ( values[ 2 ] - values[ 1 ] ) - ( values[ 3 ] - values[ 0 ] ) ) / ( 12.0 * step );
-        if( !velocity.allFinite( ) )
+        const Eigen::Vector3d result = ( 8.0 * ( values[ 2 ] - values[ 1 ] ) - ( values[ 3 ] - values[ 0 ] ) ) / ( 12.0 * step );
+        if( !result.allFinite( ) )
         {
             throw std::runtime_error( "Non-finite displacement derivative." );
+        }
+        return result;
+    };
+    Eigen::Vector3d velocity;
+    try
+    {
+        velocity = derivative( requestedStep );
+        if constexpr( std::is_same< Epoch, Time >::value )
+        {
+            const double scalarCentre = static_cast< double >( time );
+            const double resolutionStep = 4 *
+                    std::max( std::nextafter( scalarCentre, INFINITY ) - scalarCentre,
+                              scalarCentre - std::nextafter( scalarCentre, -INFINITY ) );
+            if( requestedStep < resolutionStep )
+            {
+                const Eigen::Vector3d resolved = derivative( resolutionStep );
+                if( ( resolved - velocity ).norm( ) > 1e-12 + 1e-6 * std::max( resolved.norm( ), velocity.norm( ) ) )
+                    throw std::invalid_argument( "Displacement derivative step cannot resolve the supplied callback." );
+            }
         }
     }
     catch( ... )

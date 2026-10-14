@@ -61,6 +61,9 @@ protected:
     virtual Eigen::Vector3d evaluateDisplacement( const Time& tdb,
                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) = 0;
     //! Guarded five-point precise-Time fallback; analytic models override this hook.
+    //! Sub-scalar-resolution steps additionally require agreement with a four-ULP
+    //! stencil to 1e-12 m/s plus 1e-6 relative. This is a resolution guard, not an
+    //! ordinary coarse/fine convergence check. Both intervals must be available.
     virtual Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                        const std::shared_ptr< ground_stations::GroundStationState > station );
     Eigen::Vector3d differentiateDisplacement( const Time& time,
