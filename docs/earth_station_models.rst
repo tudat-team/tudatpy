@@ -129,17 +129,26 @@ comments on `draft PR 1092 <https://github.com/tudat-team/tudatpy/pull/1092>`_
 are now being addressed.
 Implementation workers use **GPT-6.1 Sol, high reasoning** in isolated worktrees.
 The coordinator owns design, literature analysis, review and integration.
-Current compiler allocations: station EOP follow-up four, gravity ocean two,
-station aliases/gravity setup two; total maximum eight. Numerical runtimes use one thread.
+The three workers now own separate parts of the station PR's documentation and
+formatting pass: rotation/time/core, loading/deformation, and history/readers/
+interfaces. Gravity work pauses after its current reviewed checkpoints. The
+compiler limit remains eight; comments and formatting do not trigger rebuilds
+or numerical test reruns.
 
 .. code-block:: text
 
-   [ ] Remove the EOP adapter that derives from a mathematical interpolator.  [ACTIVE]
+   [x] Remove the EOP adapter that derives from a mathematical interpolator.  [DONE — pushed e2be54597]
    [x] Remove the additional CMake dependency-check file and its registration.  [DONE]
-   [ ] Simplify duplicate polar-motion overloads and the short-period rate helper.  [ACTIVE]
+   [x] Simplify duplicate polar-motion overloads and the short-period rate helper.  [DONE]
    [ ] Rewrite the reviewed comments and explain the remaining EOP/clock responsibilities.  [ACTIVE]
-   [ ] Remove the type aliases introduced by this PR.  [ACTIVE]
-   [ ] Validate the affected native EOP and rotation paths; review and push the fixes.  [QUEUED]
+   [x] Remove the type aliases introduced by this PR.  [DONE]
+   [ ] Add braces on separate lines around single-statement control flow introduced by the PR.  [ACTIVE]
+   [ ] Describe functions in headers and implementations, variable groups and computation steps.  [ACTIVE]
+   [ ] Add blank lines after variable definitions and function declarations.  [ACTIVE]
+   [x] Validate the affected native EOP and rotation paths; review and push the fixes.  [DONE]
+   [ ] Push the comment/style checkpoint and create MODIFICATIONS-DONE.md for local review.  [QUEUED]
+   [ ] Check every ten minutes for REVIEW-DONE.md and assess its recommendations.  [QUEUED]
+   [ ] Implement accepted review changes, fix relevant test failures, and push the PR branch.  [QUEUED]
 
 The EOP review preserves continuous TAI sample times, UT1-TAI interpolation,
 rates of the selected interpolating function, and the existing coverage and
@@ -152,6 +161,33 @@ interpolator path, station position/state methods, derivative fallback, fitted
 seasonal terms and relativistic coordinate conventions. These are comments and
 build-check removal; they do not change numerical evaluation. The adapter removal
 is a separate change and is not included in that first checkpoint.
+
+The six added type aliases are removed at ``206ae7d45``. Their uses now spell
+out the existing underlying types; affected native sources and tests compile.
+Numerical tests and the Python kernel were not rerun for this spelling change.
+
+``e2be54597`` removes ``EarthOrientationDataInterpolator`` and its factory
+allocations. Models created from EOP records use the shared evaluator directly;
+the old interpolator getters remain available for constructors supplied with
+actual interpolators. The public clock-update method also uses the continuous
+conversion functions, avoiding a null interpolator after this removal. Focused
+checks pass: direct clocks 3 cases/110 assertions, reader/leap behavior 2/128,
+factory/coverage 5/95 and polar motion 1/7. Original numerical tolerances remain.
+
+``658bef7fa`` replaces the duplicate TT polar-motion methods with one template
+and writes the short-period rate calculation as an explicit four-sample loop.
+The paired-difference arithmetic and precise-time handling are retained. The
+existing short-period rate and precise TT-boundary checks pass 2 cases/24 assertions.
+
+The requested ``MODIFICATIONS-DONE.md`` review trigger will be written in the
+monorepo parent after the documentation/formatting checkpoint is pushed. The
+source ownership manifest is recorded locally in
+``earth-station-model-work/logs/pr1092-style-ownership.json``.
+Another local AI will write ``REVIEW-DONE.md`` beside the trigger. After writing
+the trigger, check for the review every ten minutes. Assess its suggestions
+seriously against Tudat's existing code and numerical requirements; do not copy
+them without review. Sol agents implement accepted changes and run all relevant
+tests. Fix failures before the final reviewed checkpoint is committed and pushed.
 
 The station-history/parser/frame/reference-point, atmosphere/ocean/build,
 rotation/core and cross-component reviews are complete. Their fixes are
