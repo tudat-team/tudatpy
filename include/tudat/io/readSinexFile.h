@@ -55,7 +55,7 @@ struct IlrsStationRegistryEntry {
 double convertSinexDateTimeToSecondsSinceEpoch( const std::string& dateTime,
                                                 const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-//! Compatibility DOMES map; rejects histories with multiple site/point/solution identities.
+//! DOMES-indexed projection of strict SINEX records; rejects histories with multiple site/point/solution identities.
 //! Select a complete solution explicitly through getSinexCartesianSolution for histories.
 std::map< std::string, SinexStationState > readSinexStationData(
         const SinexStationHistory& history,

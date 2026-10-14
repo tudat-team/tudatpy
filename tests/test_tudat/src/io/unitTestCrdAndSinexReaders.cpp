@@ -54,19 +54,19 @@ void writeSyntheticStationInfoFile( const std::string& fileName )
 void writeSyntheticSinexFile( const std::string& fileName )
 {
     std::ofstream file( fileName );
+    file << "%=SNX 2.02 TUD 25:150:00000 TUD 25:001:00000 25:365:86399 L 00006 2 X V\n";
     file << "+SITE/ID\n";
-    file << "*CODE PT DOMES____ T STATION DESCRIPTION         APPROX_LON_ APPROX_LAT_ APPROX_H_\n";
-    file << "ARCB A 12345M001 P ARECIBO                       0 0 0\n";
+    file << " ARCB  A 12345M001 L ARECIBO               \n";
     file << "-SITE/ID\n";
     file << "+SOLUTION/ESTIMATE\n";
-    file << "*INDEX TYPE__ CODE PT SOLN _REF_EPOCH__ UNIT S ____ESTIMATED_VALUE ____STD_DEV___\n";
-    file << "1 STAX ARCB A 1 25:150:00000 m 2 2390490.0 0.001\n";
-    file << "2 STAY ARCB A 1 25:150:00000 m 2 -5564763.0 0.001\n";
-    file << "3 STAZ ARCB A 1 25:150:00000 m 2 1994727.0 0.001\n";
-    file << "4 VELX ARCB A 1 25:150:00000 m/y 2 31557600.0 0.001\n";
-    file << "5 VELY ARCB A 1 25:150:00000 m/y 2 0.0 0.001\n";
-    file << "6 VELZ ARCB A 1 25:150:00000 m/y 2 -31557600.0 0.001\n";
+    file << "     1 STAX   ARCB  A    1 25:150:00000 m    2  2.39049000000000E+06 1.00000E-03\n";
+    file << "     2 STAY   ARCB  A    1 25:150:00000 m    2 -5.56476300000000E+06 1.00000E-03\n";
+    file << "     3 STAZ   ARCB  A    1 25:150:00000 m    2  1.99472700000000E+06 1.00000E-03\n";
+    file << "     4 VELX   ARCB  A    1 25:150:00000 m/y  2  3.15576000000000E+07 1.00000E-03\n";
+    file << "     5 VELY   ARCB  A    1 25:150:00000 m/y  2  0.00000000000000E+00 1.00000E-03\n";
+    file << "     6 VELZ   ARCB  A    1 25:150:00000 m/y  2 -3.15576000000000E+07 1.00000E-03\n";
     file << "-SOLUTION/ESTIMATE\n";
+    file << "%ENDSNX\n";
 }
 
 void writeSyntheticSinexSiteIdOnlyFile( const std::string& fileName )
@@ -285,24 +285,6 @@ BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsAmbiguityAndPreserve
             ++it;
     const auto absent = input_output::readSinexStationData( selectedRaw );
     for( int i = 0; i < 3; ++i ) BOOST_CHECK( std::isnan( absent.at( "40423M002" ).velocity_[ i ] ) );
-}
-
-BOOST_AUTO_TEST_CASE( testLegacySinexEpochPivotAndMultiSolutionDiagnostic )
-{
-    const double a = input_output::convertSinexDateTimeToSecondsSinceEpoch( "50:001:00000" );
-    const double b = input_output::convertSinexDateTimeToSecondsSinceEpoch( "49:001:00000" );
-    BOOST_CHECK_CLOSE_FRACTION( a - b, 365 * 86400.0, 1e-15 );
-    const auto file = createTempPath( ".snx" );
-    writeSyntheticSinexFile( file );
-    std::ifstream input( file );
-    std::string text{ std::istreambuf_iterator< char >( input ), std::istreambuf_iterator< char >( ) };
-    input.close( );
-    text.insert( text.find( "-SOLUTION/ESTIMATE" ), "7 STAX ARCB A 2 25:150:00000 m 2 2390491.0 0.001\n" );
-    std::ofstream output( file );
-    output << text;
-    output.close( );
-    BOOST_CHECK_THROW( input_output::readSinexStationData( file ), std::runtime_error );
-    std::remove( file.c_str( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

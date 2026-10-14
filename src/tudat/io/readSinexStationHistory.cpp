@@ -295,7 +295,7 @@ SinexStationHistory readSinexStationHistory( std::istream& stream, const std::st
             header = true;
             continue;
         }
-        if( !header ) fail( record, "Strict station history requires a SINEX header; use the explicit legacy reader for token input" );
+        if( !header ) fail( record, "Station history requires a SINEX header" );
         if( stripped == "%ENDSNX" )
         {
             if( !block.empty( ) ) fail( record, "Unclosed SINEX block " + block );

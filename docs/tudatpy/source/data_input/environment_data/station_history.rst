@@ -65,11 +65,10 @@ metadata when a caller explicitly edits C++ preloaded records. The neutral
 ``tudat_station_history_data`` C++17 target is independently linkable with only
 the standard library; it has no dynamics, estimation, Eigen or SOFA dependency.
 
-The compatibility ``ilrs.read_sinex_station_data`` map represents one solution
+The ``ilrs.read_sinex_station_data`` map represents one solution
 per DOMES monument and rejects ambiguous multi-solution histories. Use the full
-history reader and an explicit solution key in that case. Headerless token input
-is supported only by the existing compatibility reader; the new reader requires
-a SINEX header, matching block delimiters and ``%ENDSNX``.
+history reader and an explicit solution key in that case. Both readers require
+a SINEX header, fixed-width records, matching block delimiters and ``%ENDSNX``.
 
 .. currentmodule:: tudatpy.data_input.environment_data.station_history
 

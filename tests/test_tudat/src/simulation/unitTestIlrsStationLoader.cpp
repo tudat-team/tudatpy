@@ -37,19 +37,19 @@ std::string createTempPath( const std::string& suffix )
 void writeSyntheticSinexFile( const std::string& fileName )
 {
     std::ofstream file( fileName );
+    file << "%=SNX 2.02 TUD 25:150:00000 TUD 25:001:00000 25:365:86399 L 00006 2 X V\n";
     file << "+SITE/ID\n";
-    file << "*CODE PT __DOMES__ T _STATION DESCRIPTION__ APPROX_LON_ APPROX_LAT_ _APP_H_     _SOD#___\n";
-    file << " 7110  A 12345M001 L ARECIBO    FIXED      66 45  0.0  18 20  0.0   400.0     71100901\n";
+    file << " 7110  A 12345M001 L ARECIBO               \n";
     file << "-SITE/ID\n";
     file << "+SOLUTION/ESTIMATE\n";
-    file << "*INDEX TYPE__ CODE PT SOLN _REF_EPOCH__ UNIT S ____ESTIMATED_VALUE ____STD_DEV___\n";
-    file << "1 STAX 7110 A 1 25:150:00000 m 2 2390490.0 0.001\n";
-    file << "2 STAY 7110 A 1 25:150:00000 m 2 -5564763.0 0.001\n";
-    file << "3 STAZ 7110 A 1 25:150:00000 m 2 1994727.0 0.001\n";
-    file << "4 VELX 7110 A 1 25:150:00000 m/y 2 31557600.0 0.001\n";
-    file << "5 VELY 7110 A 1 25:150:00000 m/y 2 0.0 0.001\n";
-    file << "6 VELZ 7110 A 1 25:150:00000 m/y 2 -31557600.0 0.001\n";
+    file << "     1 STAX   7110  A    1 25:150:00000 m    2  2.39049000000000E+06 1.00000E-03\n";
+    file << "     2 STAY   7110  A    1 25:150:00000 m    2 -5.56476300000000E+06 1.00000E-03\n";
+    file << "     3 STAZ   7110  A    1 25:150:00000 m    2  1.99472700000000E+06 1.00000E-03\n";
+    file << "     4 VELX   7110  A    1 25:150:00000 m/y  2  3.15576000000000E+07 1.00000E-03\n";
+    file << "     5 VELY   7110  A    1 25:150:00000 m/y  2  0.00000000000000E+00 1.00000E-03\n";
+    file << "     6 VELZ   7110  A    1 25:150:00000 m/y  2 -3.15576000000000E+07 1.00000E-03\n";
     file << "-SOLUTION/ESTIMATE\n";
+    file << "%ENDSNX\n";
 }
 
 struct SyntheticEccentricityArc {

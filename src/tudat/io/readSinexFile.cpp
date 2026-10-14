@@ -10,7 +10,6 @@
 
 #include "tudat/io/readSinexFile.h"
 
-#include <cctype>
 #include <cmath>
 #include <fstream>
 
@@ -68,11 +67,6 @@ std::vector< std::string > splitTokens( const std::string& line )
     return tokens;
 }
 
-bool isStateEntry( const std::string& entry )
-{
-    return ( entry == "STAX" || entry == "STAY" || entry == "STAZ" || entry == "VELX" || entry == "VELY" || entry == "VELZ" );
-}
-
 bool parseSiteIdStyleEntry( const std::vector< std::string >& tokens, int& stationCode, std::string& domesId )
 {
     if( tokens.size( ) < 3 )
@@ -92,35 +86,6 @@ bool parseSiteIdStyleEntry( const std::vector< std::string >& tokens, int& stati
     }
 
     return true;
-}
-
-int getStateIndex( const std::string& stateType )
-{
-    if( stateType == "STAX" )
-    {
-        return 0;
-    }
-    if( stateType == "STAY" )
-    {
-        return 1;
-    }
-    if( stateType == "STAZ" )
-    {
-        return 2;
-    }
-    if( stateType == "VELX" )
-    {
-        return 3;
-    }
-    if( stateType == "VELY" )
-    {
-        return 4;
-    }
-    if( stateType == "VELZ" )
-    {
-        return 5;
-    }
-    return -1;
 }
 
 std::string extractDomesIdFromSiteIdLine( const std::string& line )
@@ -293,24 +258,6 @@ bool parseApproximateCoordinatesFromTokens( const std::vector< std::string >& to
     return true;
 }
 
-bool isIntegerString( const std::string& input )
-{
-    if( input.empty( ) )
-    {
-        return false;
-    }
-
-    for( const char character : input )
-    {
-        if( !std::isdigit( static_cast< unsigned char >( character ) ) )
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 std::string extractStationNameFromSiteIdLine( const std::string& line, const std::vector< std::string >& tokens )
 {
     std::string stationName;
@@ -371,7 +318,7 @@ std::map< std::string, SinexStationState > readSinexStationData( const SinexStat
         const auto& civil = *solution.positionReferenceEpoch.civilUtc;
         if( civil.secondsOfDay == 86400 )
             throw std::runtime_error( history.source +
-                                      ": Legacy SINEX map cannot represent an inserted-second UTC label; use the neutral history" );
+                                      ": DOMES-indexed SINEX map cannot represent an inserted-second UTC label; use the neutral history" );
         const auto date = basic_astrodynamics::convertYearAndDaysInYearToDate( civil.year, civil.dayOfYear - 1 );
         state.referenceEpoch_ = basic_astrodynamics::calculateJulianDaySinceEpoch(
                                         date, civil.secondsOfDay / physical_constants::JULIAN_DAY, referenceJulianDay ) *
@@ -383,7 +330,7 @@ std::map< std::string, SinexStationState > readSinexStationData( const SinexStat
             {
                 if( !( *solution.velocityReferenceEpochs[ i ]->civilUtc == *solution.positionReferenceEpoch.civilUtc ) )
                     throw std::runtime_error( history.source +
-                                              ": Legacy SINEX map cannot represent distinct position/velocity reference epochs; use "
+                                              ": DOMES-indexed SINEX map cannot represent distinct position/velocity reference epochs; use "
                                               "getSinexCartesianSolution" );
                 state.velocity_[ i ] = *solution.velocityMetresPerSecond[ i ];
             }
@@ -395,226 +342,7 @@ std::map< std::string, SinexStationState > readSinexStationData( const SinexStat
 
 std::map< std::string, SinexStationState > readSinexStationData( const std::string& fileName, const double referenceJulianDay )
 {
-    std::ifstream stream( fileName, std::ios_base::in );
-    if( !stream.good( ) )
-    {
-        throw std::runtime_error( "Error when opening SINEX file: " + fileName );
-    }
-
-    // Standard files use the neutral history parser. Headerless token input retains
-    // the explicitly documented compatibility path below.
-    std::string firstLine;
-    while( std::getline( stream, firstLine ) )
-    {
-        if( sinexTrimCopy( firstLine ).empty( ) || sinexTrimCopy( firstLine ).front( ) == '*' ) continue;
-        if( firstLine.rfind( "%=SNX", 0 ) == 0 ) return readSinexStationData( readSinexStationHistory( fileName ), referenceJulianDay );
-        break;
-    }
-    stream.clear( );
-    stream.seekg( 0 );
-    std::map< std::string, std::pair< std::string, std::string > > legacyIdentities;
-    std::map< std::string, std::string > siteCodeToDomes;
-    std::map< int, std::string > siteIndexToDomes;
-    std::map< std::string, Eigen::Matrix< double, 6, 1 > > siteStates;
-    std::map< std::string, double > siteReferenceEpochs;
-
-    bool isInSiteIdBlock = false;
-    bool isInSolutionEstimateBlock = false;
-
-    std::string line;
-    while( std::getline( stream, line ) )
-    {
-        std::string trimmedLine = sinexTrimCopy( line );
-        if( trimmedLine.empty( ) )
-        {
-            continue;
-        }
-
-        if( trimmedLine == "+SITE/ID" )
-        {
-            isInSiteIdBlock = true;
-            continue;
-        }
-        if( trimmedLine == "-SITE/ID" )
-        {
-            isInSiteIdBlock = false;
-            continue;
-        }
-        if( trimmedLine == "+SOLUTION/ESTIMATE" )
-        {
-            isInSolutionEstimateBlock = true;
-            continue;
-        }
-        if( trimmedLine == "-SOLUTION/ESTIMATE" )
-        {
-            isInSolutionEstimateBlock = false;
-            continue;
-        }
-
-        if( trimmedLine.at( 0 ) == '*' )
-        {
-            continue;
-        }
-
-        if( isInSiteIdBlock )
-        {
-            parseSiteIdBlockLine( line, siteCodeToDomes, siteIndexToDomes );
-            continue;
-        }
-
-        if( isInSolutionEstimateBlock )
-        {
-            std::string stateType;
-            std::string siteIdentifier;
-            std::string referenceEpoch;
-            double stateValue = TUDAT_NAN;
-            bool hasParsedValue = false;
-
-            if( line.size( ) >= 68 )
-            {
-                stateType = sinexTrimCopy( line.substr( 6, 6 ) );
-                siteIdentifier = sinexTrimCopy( line.substr( 13, 4 ) );
-                referenceEpoch = sinexTrimCopy( line.substr( 26, 12 ) );
-                hasParsedValue = sinexTryParseDouble( sinexTrimCopy( line.substr( 47, 21 ) ), stateValue );
-            }
-
-            if( !isStateEntry( stateType ) || !hasParsedValue )
-            {
-                std::vector< std::string > tokens;
-                boost::algorithm::split( tokens, trimmedLine, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
-
-                int stateTokenIndex = -1;
-                for( unsigned int i = 0; i < tokens.size( ); i++ )
-                {
-                    if( isStateEntry( tokens.at( i ) ) )
-                    {
-                        stateTokenIndex = static_cast< int >( i );
-                        break;
-                    }
-                }
-
-                if( stateTokenIndex < 0 || tokens.size( ) <= static_cast< unsigned int >( stateTokenIndex + 1 ) )
-                {
-                    continue;
-                }
-
-                stateType = tokens.at( stateTokenIndex );
-                siteIdentifier = tokens.at( stateTokenIndex + 1 );
-
-                if( tokens.size( ) > static_cast< unsigned int >( stateTokenIndex + 4 ) )
-                {
-                    referenceEpoch = tokens.at( stateTokenIndex + 4 );
-                }
-
-                int parsedFromEnd = 0;
-                for( int i = static_cast< int >( tokens.size( ) ) - 1; i >= 0; i-- )
-                {
-                    double parsedValue = TUDAT_NAN;
-                    if( sinexTryParseDouble( tokens.at( static_cast< unsigned int >( i ) ), parsedValue ) )
-                    {
-                        parsedFromEnd++;
-                        if( parsedFromEnd == 2 )
-                        {
-                            stateValue = parsedValue;
-                            hasParsedValue = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if( !isStateEntry( stateType ) || !hasParsedValue )
-            {
-                continue;
-            }
-
-            std::string domesId;
-            if( siteCodeToDomes.count( siteIdentifier ) > 0 )
-            {
-                domesId = siteCodeToDomes.at( siteIdentifier );
-            }
-            else
-            {
-                int siteIndex = -1;
-                if( sinexTryParseInt( siteIdentifier, siteIndex ) && siteIndexToDomes.count( siteIndex ) > 0 )
-                {
-                    domesId = siteIndexToDomes.at( siteIndex );
-                }
-                else
-                {
-                    domesId = siteIdentifier;
-                }
-            }
-
-            const auto identityTokens = splitTokens( line );
-            if( identityTokens.size( ) >= 5 )
-            {
-                const auto identity = std::make_pair( identityTokens[ 3 ], identityTokens[ 4 ] );
-                if( legacyIdentities.count( domesId ) && legacyIdentities.at( domesId ) != identity )
-                    throw std::runtime_error( fileName +
-                                              ": Legacy DOMES map has multiple point/solution identities; use the strict full-history "
-                                              "reader and an explicit solution key" );
-                legacyIdentities[ domesId ] = identity;
-            }
-            if( siteStates.count( domesId ) == 0 )
-            {
-                siteStates[ domesId ] = Eigen::Matrix< double, 6, 1 >::Constant( TUDAT_NAN );
-            }
-
-            int stateIndex = getStateIndex( stateType );
-            if( stateIndex < 0 )
-            {
-                continue;
-            }
-            if( std::isfinite( siteStates[ domesId ]( stateIndex ) ) )
-                throw std::runtime_error( fileName + ": Duplicate legacy Cartesian component; use the strict full-history reader" );
-            siteStates[ domesId ]( stateIndex ) = stateValue;
-
-            if( !referenceEpoch.empty( ) && referenceEpoch.find( ':' ) != std::string::npos )
-            {
-                siteReferenceEpochs[ domesId ] = convertSinexDateTimeToSecondsSinceEpoch( referenceEpoch, referenceJulianDay );
-            }
-        }
-    }
-
-    std::map< std::string, std::string > domesToSiteCode;
-    for( const auto& siteIdEntry : siteCodeToDomes )
-    {
-        const std::string& siteCode = siteIdEntry.first;
-        const std::string& domesId = siteIdEntry.second;
-        const auto existingEntry = domesToSiteCode.find( domesId );
-        if( existingEntry == domesToSiteCode.end( ) || ( isIntegerString( existingEntry->second ) && !isIntegerString( siteCode ) ) )
-        {
-            domesToSiteCode[ domesId ] = siteCode;
-        }
-    }
-
-    std::map< std::string, SinexStationState > stationStates;
-    for( const auto& stateEntry : siteStates )
-    {
-        SinexStationState currentState;
-        currentState.domesId_ = stateEntry.first;
-        if( domesToSiteCode.count( stateEntry.first ) > 0 )
-        {
-            currentState.siteCode_ = domesToSiteCode.at( stateEntry.first );
-        }
-        currentState.position_ = stateEntry.second.segment( 0, 3 );
-        currentState.velocity_ = stateEntry.second.segment( 3, 3 );
-        currentState.referenceEpoch_ =
-                ( siteReferenceEpochs.count( stateEntry.first ) > 0 ) ? siteReferenceEpochs.at( stateEntry.first ) : TUDAT_NAN;
-
-        for( int i = 0; i < 3; i++ )
-        {
-            if( currentState.velocity_( i ) == currentState.velocity_( i ) )
-            {
-                currentState.velocity_( i ) /= physical_constants::JULIAN_YEAR;
-            }
-        }
-
-        stationStates[ stateEntry.first ] = currentState;
-    }
-
-    return stationStates;
+    return readSinexStationData( readSinexStationHistory( fileName ), referenceJulianDay );
 }
 
 std::map< std::string, std::vector< SinexStationEccentricity > > readSinexStationEccentricities( const std::string& fileName,
