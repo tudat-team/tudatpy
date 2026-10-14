@@ -87,7 +87,7 @@ validated and integrated.
    [x] 01 Establish the PR #900 baseline, isolated build and task tracker.  [DONE]
    [x] 02 Define neutral data contracts and enforce the dependency boundary.  [DONE]
    [x] 03 Separate existing EOP and BLQ readers from model evaluation.  [DONE]
-   [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.  [PARTIAL — reference coverage grows with each model]
+   [ ] 04 Establish pinned independent IERS/SOFA reference fixtures.  [PARTIAL — final reproducibility checks and loading/geometry evidence]
    [x] 05 Correct solid pole tides and validate spherical/ellipsoidal geometry.  [DONE]
    [x] 06 Validate solid Earth tides through the production time/argument path.  [DONE]
    [x] 07 Resolve inertial frames, time scales and displacement conventions.  [DONE]
@@ -126,11 +126,13 @@ Active work
 
 Implementation workers use **GPT-6.1 Sol, high reasoning**, explicitly selected.
 The coordinator handles architecture and integration. Current compiler allocations
-are relativistic factories/API cleanup 4, instrument geometry 2, and non-tidal loading 2; the combined
+are native API/time migration 4, instrument geometry 2, and non-tidal loading 2; the combined
 limit remains eight. Earlier workers are stopped and their work is preserved.
 
-* Task 04: independent reference packages are in use for solid Earth tides,
-  short-period EOP and HARDISP; reference coverage grows with each added model.
+* Task 04: the coverage audit confirms pinned independent sources and fixtures
+  across the integrated models. Remaining work is executable reproduction for
+  the solid-pole and relativistic equation fixtures, plus final loading and
+  instrument-geometry evidence. Existing scientific tolerances remain unchanged.
 * Task 11: complete rotation derivatives are integrated with all ten checkpoint
   files unchanged from the tested worktree. Thirteen focused native cases and
   334 assertions pass, including independent full SOFA matrix/state comparisons.
