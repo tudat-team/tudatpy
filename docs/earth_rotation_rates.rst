@@ -1,8 +1,8 @@
 Earth rotation values and physical time derivatives
 ==================================================
 
-The native ``GcrsToItrsRotationModel`` differentiates its complete position
-rotation, with respect to the input clock declared at construction. The inverse
+The native ``GcrsToItrsRotationModel`` computes the rotation rate with respect
+to the input time scale declared at construction. The inverse
 rate is the transpose of the forward rate. The constant GCRS-to-base matrix
 premultiplies both. GCRS, SPICE J2000 and ICRF have identical axes; EME2000 uses
 the selected SOFA frame bias and ECLIPJ2000 uses the fixed SPICE ecliptic axes.
@@ -27,16 +27,20 @@ Clocks, knots and availability
 -----------------------------
 
 ``EarthOrientationEvaluatedAnglesAndRates`` holds TAI, TT, UT1, the five small angles and, when
-requested, their derivatives with respect to the input time scale. The
-original double input is canonicalized through ``getTaiTime`` before conversion
-to ``Time``; TT and UT1 then retain extended precision throughout rotation and
-rate evaluation. The extended-time virtual derivative APIs are overridden.
+requested, their derivatives with respect to the input time scale. A double
+input is first converted to ``Time``; time conversion then proceeds through TAI.
+TT and UT1 retain extended precision throughout rotation and rate evaluation.
+The extended-time virtual derivative APIs are overridden.
 Intermediate-frame rotations use the same TT/UT1 evaluation.
 
 Daily UT1-TAI, polar motion and observed celestial pole rates come from each
 selected EOP interpolator. At a knot they use the right interval, except the
 final sample uses the left interval, with the selected four-point Lagrange
-window when requested. An unavailable slope, rejected gap or missing required
+window when requested. Node comparisons admit differences up to
+``2*epsilon(long double)*TIME_NORMALIZATION_TERM`` seconds, accounting for
+rounding in the fractional-hour part of ``Time`` when the same epoch is formed
+through different arithmetic. This representation budget is separate from
+the data-coverage margin. An unavailable slope, rejected gap or missing required
 CPO raises an exception; it is never silently replaced by zero. The explicitly
 selected missing-CPO zero policy still applies. Covered raw positions remain
 usable when a neighboring gap makes the rate unavailable. Historical Delta-T
@@ -49,8 +53,10 @@ within a civil-date segment, including pre-1972 drift. Its derivative is
 undefined at an offset or drift boundary, including midnight immediately after
 a leap second, and raises an exception there. This restriction does not affect
 continuous TAI/TT/TDB/UT1 rotation through inserted seconds. The scalar UTC
-representation itself cannot label an inserted second uniquely. A selected
-custom TT/TDB clock interpolator has positions but no native clock-rate API.
+representation itself cannot label an inserted second uniquely. The geocentric
+TT/TDB rate also supports a selected TT/TDB interpolator: a five-point stencil
+with fixed step 32 s differentiates its converted TT-minus-TDB values. The
+stencil queries obey the selected interpolator's boundary policy.
 
 Numerical components and error budget
 ------------------------------------
@@ -62,16 +68,10 @@ short-period correction is evaluated at baseline UT1 in the position path, so
 its rate uses that same baseline tangent. Polar motion uses final corrected
 UT1 and its full rate.
 
-Nominal SOFA X/Y/s use a five-point derivative with default step 32 s. The step
-is available through ``getNominalDerivativeTimeStep`` and configurable through
-``setNominalDerivativeTimeStep``; nonpositive, nonfinite, or numerically
-unresolvable stencils are rejected. If nominal-CIO interpolation is configured,
-its selected linear, cubic, Hermite or Lagrange polynomial branch is
-differentiated consistently. Polynomial recovery samples only inside that
-interval. Knot derivatives use the right branch, except the final endpoint
-uses the left branch; configured cubic Lagrange boundary fallback is respected.
-Rates outside nominal interpolation coverage or for unsupported interpolation
-policies throw, independently of the position extrapolation setting.
+Nominal SOFA X/Y/s use a five-point derivative with fixed step 32 s. If
+nominal-CIO interpolation is configured, the returned positions use that
+interpolator, but their rates are still computed from SOFA. The interpolating
+polynomial is not differentiated. Nonfinite nominal rates are rejected.
 
 For the nominal-coordinate step comparison, the test budgets eight double
 machine epsilons of absolute error from unit-scale SOFA matrix arithmetic per
