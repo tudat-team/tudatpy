@@ -15,6 +15,8 @@ from pathlib import Path
 
 import numpy as np
 
+from ocean_loading import got410c_ocean_loading
+
 import tudatpy
 from tudatpy import constants, kernel
 from tudatpy.astro import element_conversion, time_representation as time
@@ -123,7 +125,9 @@ def station_kinematic_displacement(epoch, converter, station_profile):
     return np.asarray(profile["velocity_m_per_julian_year"]) * elapsed_years
 
 
-def create_environment(points, spice_knot_step=30, station_profile="survey2005"):
+def create_environment(
+    points, spice_knot_step=30, station_profile="survey2005", got410c_harpos=None
+):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
     settings = setup.BodyListSettings("SSB", "J2000")
@@ -179,16 +183,28 @@ def create_environment(points, spice_knot_step=30, station_profile="survey2005")
     station_motion = [deformation]
     station_position = survey
     station_position_type = element_conversion.geodetic_position_type
+    converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
+    loading = None
 
     if station_profile != "survey2005":
         station_position = STATION_PROFILES[station_profile]["position_m"]
         station_position_type = element_conversion.cartesian_position_type
-        converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
         station_motion.append(
             setup.ground_station.custom_station_motion(
                 lambda epoch: station_kinematic_displacement(epoch, converter, station_profile)
             )
         )
+
+    if got410c_harpos is not None:
+        nominal_xyz = element_conversion.convert_position_elements(
+            station_position,
+            station_position_type,
+            element_conversion.cartesian_position_type,
+            bodies.get("Earth").shape_model,
+            1e-6,
+        )
+        loading = got410c_ocean_loading(got410c_harpos, "Apollo", nominal_xyz, converter)
+        station_motion.append(setup.ground_station.custom_station_motion(loading[0]))
 
     # Auxiliary points expose the full intrinsic displacement before applying each spatial conversion once.
     setup.add_ground_station(
@@ -314,7 +330,7 @@ def create_environment(points, spice_knot_step=30, station_profile="survey2005")
             bodies,
         )
 
-    return bodies, position
+    return bodies, position, loading
 
 
 def computed_range(point, epoch, bodies, corrections):
@@ -462,6 +478,11 @@ def main():
         default="survey2005",
         help="Approximate survey (default) or published station-only INPOP17a G+IR sensitivity",
     )
+    parser.add_argument(
+        "--got410c-harpos",
+        type=Path,
+        help="Optional cached, hash-pinned GOT4.10c HARPOS product for the exact Apollo site",
+    )
     args = parser.parse_args()
 
     dataset = json.loads(Path(__file__).with_name("llr_dataset.json").read_text())
@@ -489,7 +510,9 @@ def main():
 
         spice.load_kernel(str(path))
 
-    bodies, position = create_environment(points, args.spice_knot_step, args.station_profile)
+    bodies, position, loading = create_environment(
+        points, args.spice_knot_step, args.station_profile, args.got410c_harpos
+    )
 
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
 
@@ -530,6 +553,9 @@ def main():
                     position
                     + station_kinematic_displacement(epoch, converter, args.station_profile)
                 ).tolist(),
+                "ocean_loading_displacement_at_launch_m": (
+                    loading[0](epoch).tolist() if loading is not None else [0.0, 0.0, 0.0]
+                ),
                 "geometric": geometric_events,
                 "relativistic": relativistic_events,
                 "atmospheric": atmospheric_events,
@@ -589,6 +615,10 @@ def main():
         "station_profile_metadata": STATION_PROFILES.get(
             args.station_profile, dataset["station_survey"]
         ),
+        "ocean_loading": loading[1] if loading is not None else None,
+        "ocean_loading_helper_sha256": (
+            sha256(Path(__file__).with_name("ocean_loading.py")) if loading is not None else None
+        ),
         "ephemeris_route": "cubic_spline_time" if args.spice_knot_step else "direct_spice",
         "spice_knot_step_s": args.spice_knot_step,
         "limitations": [
@@ -597,7 +627,11 @@ def main():
                 if args.station_profile == "survey2005"
                 else "Published INPOP17a G+IR station-only sensitivity; see station-profile frame, tide and loading limitations."
             ),
-            "No Earth ocean/atmospheric loading; lunar dissipative/thermal terms omitted.",
+            (
+                "GOT4.10c 17-term Apollo loading sensitivity enabled; not a matched JPL/INPOP loading model. No atmospheric loading; lunar dissipative/thermal terms omitted."
+                if loading is not None
+                else "No Earth ocean/atmospheric loading; lunar dissipative/thermal terms omitted."
+            ),
             "DE440-fit NP calibration version is not established to match the 2022 ACS release.",
             "Earth simultaneity omits deformation velocity over microseconds and ~1.34 micrometre acceleration terms.",
             "Existing custom position callbacks supply zero additional velocity; no Doppler/state-rate claim is made.",
