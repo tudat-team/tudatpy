@@ -212,42 +212,56 @@ BOOST_AUTO_TEST_CASE( native_station_state_preserves_utc_and_coverage_rate_unava
     BOOST_CHECK_THROW( fixture.station->getCartesianStateInTime( endpoint, "Earth" ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( reference_point_ephemeris_routes_all_declared_earth_clocks_from_tdb )
+BOOST_AUTO_TEST_CASE( reference_point_ephemeris_closes_tdb_leap_and_coverage_epochs )
 {
     EarthStationFixture fixture;
+
     auto body = std::make_shared< simulation_setup::Body >( );
+
     body->setIsBodyGlobalFrameOrigin( 0 );
     body->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
     // A constant local state isolates the factory rotation clock at the leap
     // and EOP endpoints, where native loading velocities are unavailable.
     Eigen::Vector6d local = Eigen::Vector6d::Zero( );
+
     local.head< 3 >( ) = fixture.station->getNominalCartesianPosition( );
     local.tail< 3 >( ) = fixture.secularVelocity;
     const auto evaluator = fixture.clock->getEarthOrientationDataEvaluator( );
+
     const Time leap = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
-    for( const auto scale : { tdb_scale, tt_scale, tai_scale, ut1_scale, utc_scale } )
+
+    // Environment epochs are TDB; use the body's TDB rotation at physical coverage boundaries.
+    auto tdbRotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, tdb_scale, "ECLIPJ2000" );
+
+    body->setRotationalEphemeris( tdbRotation );
+    const std::function< Eigen::Vector6d( const double& ) > doubleState = [ local ]( const double& ) { return local; };
+
+    const std::function< Eigen::Vector6d( const Time& ) > timeState = [ local ]( const Time& ) { return local; };
+
+    const auto doubleEphemeris = simulation_setup::createReferencePointEphemeris< double, double >( body, doubleState );
+
+    const auto timeEphemeris = simulation_setup::createReferencePointEphemeris< Time, double >( body, timeState );
+
+    for( const Time& tai : { evaluator->getStartTai( ), leap - 0.5, leap, leap + 0.5, evaluator->getEndTai( ) } )
     {
-        body->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, scale, "ECLIPJ2000" ) );
-        const std::function< Eigen::Vector6d( const double& ) > doubleState = [ local ]( const double& ) { return local; };
-        const std::function< Eigen::Vector6d( const Time& ) > timeState = [ local ]( const Time& ) { return local; };
-        const auto doubleEphemeris = simulation_setup::createReferencePointEphemeris< double, double >( body, doubleState );
-        const auto timeEphemeris = simulation_setup::createReferencePointEphemeris< Time, double >( body, timeState );
-        auto tdbRotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, tdb_scale, "ECLIPJ2000" );
-        for( const Time& tai : { evaluator->getStartTai( ), leap - 0.5, leap, leap + 0.5, evaluator->getEndTai( ) } )
-        {
-            const Time tdb = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
-            const double t = static_cast< double >( tdb );
-            const auto expectedDouble = ephemerides::transformStateToInertialOrientation< double, double >( local, t, tdbRotation );
-            const auto expectedTime = ephemerides::transformStateToInertialOrientation< double, Time >( local, tdb, tdbRotation );
-            const auto actualDouble = doubleEphemeris->getCartesianState( t );
-            const auto actualTime = timeEphemeris->getCartesianStateFromExtendedTime( tdb );
-            BOOST_CHECK_SMALL( ( actualDouble - expectedDouble ).norm( ), 1e-12 );
-            BOOST_CHECK_SMALL( ( actualTime - expectedTime ).norm( ), 1e-12 );
-        }
+        const Time tdb = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
+
+        const double t = static_cast< double >( tdb );
+
+        const auto expectedDouble = ephemerides::transformStateToInertialOrientation< double, double >( local, t, tdbRotation );
+
+        const auto expectedTime = ephemerides::transformStateToInertialOrientation< double, Time >( local, tdb, tdbRotation );
+
+        const auto actualDouble = doubleEphemeris->getCartesianState( t );
+
+        const auto actualTime = timeEphemeris->getCartesianStateFromExtendedTime( tdb );
+
+        BOOST_CHECK_SMALL( ( actualDouble - expectedDouble ).norm( ), 1e-12 );
+        BOOST_CHECK_SMALL( ( actualTime - expectedTime ).norm( ), 1e-12 );
     }
 }
 
-BOOST_AUTO_TEST_CASE( public_station_ephemeris_closes_complete_native_velocity_in_tdb )
+BOOST_AUTO_TEST_CASE( public_station_ephemeris_uses_registered_rotation_and_closes_velocity )
 {
     EarthStationFixture fixture;
     auto body = std::make_shared< simulation_setup::Body >( );
@@ -259,13 +273,17 @@ BOOST_AUTO_TEST_CASE( public_station_ephemeris_closes_complete_native_velocity_i
     body->setEphemeris( std::make_shared< ephemerides::CustomEphemeris<> >( bodyState ) );
     const simulation_setup::SystemOfBodies bodies( "Earth", "ECLIPJ2000" );
     const double t = fixture.referenceTdb + 12345.6789;
-    auto tdbRotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, tdb_scale, "ECLIPJ2000" );
-    const Eigen::Vector6d expected = bodyState( t ) +
-            ephemerides::transformStateToInertialOrientation< double, double >(
-                                             fixture.station->getCartesianStateInTime( t, "Earth" ), t, tdbRotation );
+
+    // TDB is the environment convention; other scales verify that the factory uses the supplied body rotation unchanged.
     for( const auto scale : { tdb_scale, tt_scale, tai_scale, ut1_scale, utc_scale } )
     {
-        body->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, scale, "ECLIPJ2000" ) );
+        const auto registeredRotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, scale, "ECLIPJ2000" );
+
+        body->setRotationalEphemeris( registeredRotation );
+        const Eigen::Vector6d expected = bodyState( t ) +
+                ephemerides::transformStateToInertialOrientation< double, double >(
+                                                 fixture.station->getCartesianStateInTime( t, "Earth" ), t, registeredRotation );
+
         simulation_setup::createGroundStation( body, "COMPLETE_VELOCITY", fixture.station );
         const auto ephemeris = simulation_setup::createReferencePointEphemerisFromId( body, "COMPLETE_VELOCITY", bodies );
         const Eigen::Vector6d actual = ephemeris->getCartesianState( t );

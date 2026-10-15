@@ -11,6 +11,7 @@
 #ifndef TUDAT_PROPAGATIONPROCESSINGSETTINGS_H
 #define TUDAT_PROPAGATIONPROCESSINGSETTINGS_H
 
+#include <cmath>
 #include <vector>
 #include <string>
 #include <map>
@@ -365,6 +366,7 @@ private:
 
     bool saveWarningPrinted_ = false;
 
+    //! Compare single-arc processing settings, treating two unset save intervals as equal.
     bool equals( const PropagatorProcessingSettings& other ) const override
     {
         const auto* rhs = dynamic_cast< const SingleArcPropagatorProcessingSettings* >( &other );
@@ -381,8 +383,11 @@ private:
         const bool printSettingsAreEqual = ( printSettings_ == rhs->printSettings_ ) ||
                 ( printSettings_ != nullptr && rhs->printSettings_ != nullptr && ( *printSettings_ == *rhs->printSettings_ ) );
 
-        return resultsSaveFrequencyInSteps_ == rhs->resultsSaveFrequencyInSteps_ &&
-                resultsSaveFrequencyInSeconds_ == rhs->resultsSaveFrequencyInSeconds_ && printSettingsAreEqual &&
+        // NaN denotes an unset time interval; two unset intervals describe the same output settings.
+        const bool saveIntervalsAreEqual = ( resultsSaveFrequencyInSeconds_ == rhs->resultsSaveFrequencyInSeconds_ ) ||
+                ( std::isnan( resultsSaveFrequencyInSeconds_ ) && std::isnan( rhs->resultsSaveFrequencyInSeconds_ ) );
+
+        return resultsSaveFrequencyInSteps_ == rhs->resultsSaveFrequencyInSteps_ && saveIntervalsAreEqual && printSettingsAreEqual &&
                 isPartOfMultiArc_ == rhs->isPartOfMultiArc_ && arcIndex_ == rhs->arcIndex_ &&
                 saveWarningPrinted_ == rhs->saveWarningPrinted_;
     }

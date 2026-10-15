@@ -515,7 +515,6 @@ class TestPropagationTerminationDetailsFileIO:
 
     def test_termination_details_binary(self):
         """Requires a real propagation to create a valid instance."""
-        pytest.importorskip("spice")
         from tudatpy.interface import spice
         from tudatpy.astro import element_conversion
         from tudatpy.astro.time_representation import DateTime
@@ -525,7 +524,7 @@ class TestPropagationTerminationDetailsFileIO:
         bodies = environment_setup.create_system_of_bodies(
             environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
         )
-        bodies.add_empty_settings("Delfi-C3")
+        bodies.create_empty_body("Delfi-C3")
         bodies.get("Delfi-C3").mass = 2.2
 
         start = DateTime(2008, 4, 28).to_epoch()
@@ -559,8 +558,8 @@ class TestPropagationTerminationDetailsFileIO:
 
         path = _temp_path()
         try:
-            obj.save_binary(path)
-            loaded = PropagationTerminationDetails.load_binary(path)
+            obj.save_to_binary(path)
+            loaded = PropagationTerminationDetails.load_from_binary(path)
             assert loaded == obj
             assert type(loaded) is type(obj)
         finally:
@@ -583,7 +582,6 @@ class TestSimulationResultsFileIO:
 
     @staticmethod
     def _single_arc_results():
-        pytest.importorskip("spice")
         from tudatpy.interface import spice
         from tudatpy.astro import element_conversion
         from tudatpy.astro.time_representation import DateTime
@@ -593,7 +591,7 @@ class TestSimulationResultsFileIO:
         bodies = environment_setup.create_system_of_bodies(
             environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
         )
-        bodies.add_empty_settings("Delfi-C3")
+        bodies.create_empty_body("Delfi-C3")
         bodies.get("Delfi-C3").mass = 2.2
 
         start = DateTime(2008, 4, 28).to_epoch()
@@ -630,8 +628,8 @@ class TestSimulationResultsFileIO:
         obj = self._single_arc_results()
         path = _temp_path()
         try:
-            obj.save_binary(path)
-            loaded = SimulationResults.load_binary(path)
+            obj.save_to_binary(path)
+            loaded = SingleArcSimulationResults.load_from_binary(path)
             assert type(loaded) is type(
                 obj
             ), f"Expected {type(obj).__name__}, got {type(loaded).__name__}"
@@ -650,17 +648,17 @@ class TestSimulationResultsFileIO:
 
     def test_single_arc_variational_simulation_results_binary(self):
         """Save/load SingleArcVariationalSimulationResults through binary file."""
-        pytest.importorskip("spice")
         from tudatpy.interface import spice
         from tudatpy.astro import element_conversion
         from tudatpy.astro.time_representation import DateTime
         from tudatpy.dynamics import environment_setup, propagation_setup, simulator
+        from tudatpy.dynamics import parameters_setup
 
         spice.load_standard_kernels()
         bodies = environment_setup.create_system_of_bodies(
             environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
         )
-        bodies.add_empty_settings("Delfi-C3")
+        bodies.create_empty_body("Delfi-C3")
         bodies.get("Delfi-C3").mass = 2.2
 
         start = DateTime(2008, 4, 28).to_epoch()
@@ -689,25 +687,25 @@ class TestSimulationResultsFileIO:
             ),
             propagation_setup.propagator.time_termination(start + 600.0),
         )
-        variational_equations = propagation_setup.variational_equations(
-            bodies,
-            ["Delfi-C3"],
-            [propagation_setup.variation.estimated_bodies_settings(["Delfi-C3"])],
-            propagate_on_creation=True,
-        )
-        sim = simulator.create_dynamics_simulator(
-            bodies, propagator_settings, variational_equations
-        )
-        obj = sim.propagation_results
+        parameter_settings = parameters_setup.initial_states(propagator_settings, bodies)
+        parameters = parameters_setup.create_parameter_set(parameter_settings, bodies)
+        sim = simulator.create_variational_equations_solver(bodies, propagator_settings, parameters)
+        obj = sim.variational_propagation_results
         assert type(obj) is SingleArcVariationalSimulationResults
 
         path = _temp_path()
         try:
             obj.save_to_binary(path)
-            loaded = SimulationResults.load_from_binary(path)
+            loaded = SingleArcVariationalSimulationResults.load_from_binary(path)
             assert type(loaded) is type(obj)
-            assert loaded.propagated_state_vector_length == obj.propagated_state_vector_length
-            assert loaded.propagation_is_performed == obj.propagation_is_performed
+            assert (
+                loaded.dynamics_results.propagated_state_vector_length
+                == obj.dynamics_results.propagated_state_vector_length
+            )
+            assert (
+                loaded.dynamics_results.propagation_is_performed
+                == obj.dynamics_results.propagation_is_performed
+            )
         finally:
             for ext in (".json", ".tudat"):
                 full = path + ext
@@ -728,7 +726,6 @@ class TestHybridTerminationDetailsFileIO:
 
     def test_hybrid_termination_details_binary(self):
         """Save/load PropagationTerminationDetailsFromHybridCondition through binary."""
-        pytest.importorskip("spice")
         from tudatpy.interface import spice
         from tudatpy.astro import element_conversion
         from tudatpy.astro.time_representation import DateTime
@@ -738,7 +735,7 @@ class TestHybridTerminationDetailsFileIO:
         bodies = environment_setup.create_system_of_bodies(
             environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
         )
-        bodies.add_empty_settings("Delfi-C3")
+        bodies.create_empty_body("Delfi-C3")
         bodies.get("Delfi-C3").mass = 2.2
 
         start = DateTime(2008, 4, 28).to_epoch()
@@ -762,6 +759,9 @@ class TestHybridTerminationDetailsFileIO:
             ["Delfi-C3"],
             initial_state,
             start,
+            propagation_setup.integrator.runge_kutta_fixed_step(
+                30.0, coefficient_set=propagation_setup.integrator.CoefficientSets.rk_4
+            ),
             propagation_setup.propagator.hybrid_termination(
                 [
                     propagation_setup.propagator.time_termination(start + 600.0),
@@ -775,8 +775,8 @@ class TestHybridTerminationDetailsFileIO:
 
         path = _temp_path()
         try:
-            obj.save_binary(path)
-            loaded = PropagationTerminationDetails.load_binary(path)
+            obj.save_to_binary(path)
+            loaded = PropagationTerminationDetails.load_from_binary(path)
             assert loaded == obj
             assert type(loaded) is type(obj)
         finally:

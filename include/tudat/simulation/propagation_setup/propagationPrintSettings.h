@@ -11,6 +11,7 @@
 #ifndef TUDAT_PROPAGATIONPRINTSETTINGS_H
 #define TUDAT_PROPAGATIONPRINTSETTINGS_H
 
+#include <cmath>
 #include <vector>
 #include <string>
 #include <map>
@@ -280,11 +281,15 @@ private:
 
     bool printArcIndex_;
 
+    //! Compare print settings, treating two unset print intervals as equal.
     bool equals( const PropagationPrintSettings& rhs ) const
     {
+        // NaN denotes an unset print interval; it remains unset after a serialization roundtrip.
+        const bool printIntervalsAreEqual = ( resultsPrintFrequencyInSeconds_ == rhs.resultsPrintFrequencyInSeconds_ ) ||
+                ( std::isnan( resultsPrintFrequencyInSeconds_ ) && std::isnan( rhs.resultsPrintFrequencyInSeconds_ ) );
+
         return printNumberOfFunctionEvaluations_ == rhs.printNumberOfFunctionEvaluations_ &&
-                printDependentVariableData_ == rhs.printDependentVariableData_ &&
-                resultsPrintFrequencyInSeconds_ == rhs.resultsPrintFrequencyInSeconds_ &&
+                printDependentVariableData_ == rhs.printDependentVariableData_ && printIntervalsAreEqual &&
                 resultsPrintFrequencyInSteps_ == rhs.resultsPrintFrequencyInSteps_ &&
                 printTerminationReason_ == rhs.printTerminationReason_ && printPropagationTime_ == rhs.printPropagationTime_ &&
                 printPropagatedStateData_ == rhs.printPropagatedStateData_ &&

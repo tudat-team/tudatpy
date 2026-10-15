@@ -324,6 +324,10 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     const auto g = readAtmosphericTideGrid( path );
     const auto settings = explicitGeometry( );
     const auto preloaded = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g, settings ), "Earth", bodies );
+
+    // The factory applies the RP03 geocentric defaults when no conventions are supplied.
+    const auto defaulted = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g ), "Earth", bodies );
+
     // File settings already own the provider grid before an environment model is constructed.
     const auto fileSettings = atmosphericTideBodyShapeDeformationFromGridFile( path, {}, settings );
 
@@ -341,10 +345,17 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     {
         const auto tdb = c->getCurrentTime< Time >( tai_scale, tdb_scale, midnightTai + offset );
         close( preloaded->calculateDisplacement( tdb, station( p ) ), file->calculateDisplacement( tdb, station( p ) ) );
+        close( preloaded->calculateDisplacement( tdb, station( p ) ), defaulted->calculateDisplacement( tdb, station( p ) ) );
         const Eigen::Vector6d a = preloaded->calculateDisplacementState( tdb, station( p ) );
+
         const Eigen::Vector6d b = file->calculateDisplacementState( tdb, station( p ) );
+
+        const Eigen::Vector6d defaultedState = defaulted->calculateDisplacementState( tdb, station( p ) );
+
         close( a.head< 3 >( ), b.head< 3 >( ) );
         close( a.tail< 3 >( ), b.tail< 3 >( ), 2e-20 );
+        close( a.head< 3 >( ), defaultedState.head< 3 >( ) );
+        close( a.tail< 3 >( ), defaultedState.tail< 3 >( ), 2e-20 );
     }
     const auto stations = readAtmosphericTideStationData( base + "bernese_manual_stations.atl" );
     const auto stationPreloaded =
@@ -357,8 +368,6 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     close( stationPreloaded->calculateDisplacementState( epoch, namedStation ).tail< 3 >( ),
            stationFile->calculateDisplacementState( epoch, namedStation ).tail< 3 >( ),
            2e-20 );
-    BOOST_CHECK_THROW( createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g ), "Earth", bodies ),
-                       std::runtime_error );
     BOOST_CHECK_THROW( createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g, settings ), "Mars", bodies ),
                        std::runtime_error );
     BOOST_CHECK_THROW(
