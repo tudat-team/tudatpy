@@ -6,6 +6,7 @@ adjacent README for input provenance, coordinate conventions and limitations.
 
 import argparse
 import csv
+from datetime import date, timedelta
 import gzip
 import hashlib
 import json
@@ -316,14 +317,17 @@ def station_simultaneity(earth, nominal_position):
     return position
 
 
-def load_stations(station_file, eccentricity_file, converter, require_velocity):
+def load_stations(
+    station_file, eccentricity_file, converter, require_velocity, week_start, week_end
+):
     """Select the two unique monument solutions without projecting unrelated SINEX pieces."""
     history = station_history.read_sinex_station_history(str(station_file))
     keys = station_history.get_station_coordinate_solution_keys(history)
     eccentricities = ilrs.read_sinex_station_eccentricities(str(eccentricity_file))
     settings, ledger = [], []
-    week_start = float(calendar_epoch(2024, 3, 31))
-    week_end = float(calendar_epoch(2024, 4, 7))
+    week_start = float(week_start)
+
+    week_end = float(week_end)
 
     for code, domes in STATIONS.items():
         selected = [key for key in keys if key.site.site_code == code]
@@ -667,35 +671,60 @@ def main():
     loading.add_argument("--got410c-blq", type=Path)
     loading.add_argument("--got410c-harpos", type=Path)
     parser.add_argument("--points", choices=(8, 10), type=int, default=10)
+    parser.add_argument("--week-ending", choices=("2024-04-06", "2024-04-13"), default="2024-04-06")
     parser.add_argument("--body-ephemeris", choices=("cubic-time", "direct"), default="cubic-time")
     parser.add_argument("--body-step", choices=(30, 60), type=int, default=30)
     parser.add_argument("--satellite-epoch", choices=("time", "double"), default="time")
     args = parser.parse_args()
+
+    if args.week_ending != "2024-04-06" and (
+        args.orbit != "combined" or args.station_solution != "slrf2020"
+    ):
+        raise ValueError("Only combined orbit and SLRF2020 stations are frozen for the second week")
+
+    week_ending = date.fromisoformat(args.week_ending)
+
+    week_start = week_ending - timedelta(days=6)
+
+    week_stop = week_ending + timedelta(days=1)
+
+    product_date = week_ending.strftime("%y%m%d")
+
+    week_start_epoch = calendar_epoch(week_start.year, week_start.month, week_start.day)
+
+    week_stop_epoch = calendar_epoch(week_stop.year, week_stop.month, week_stop.day)
+
     args.output.mkdir(parents=True, exist_ok=False)
     input_directory = args.output / "uncompressed-inputs"
     input_directory.mkdir()
     root = args.data_root
+
+    week_directory = root / week_ending.strftime("%Y-%m")
+
     orbit_name = (
-        "ilrsa.orb.lageos1.240406.v81.sp3.gz"
+        f"ilrsa.orb.lageos1.{product_date}.v81.sp3.gz"
         if args.orbit == "combined"
-        else "asi.orb.lageos1.240406.v80.sp3.gz"
+        else f"asi.orb.lageos1.{product_date}.v80.sp3.gz"
     )
     station_path = (
         root / "metadata/SLRF2020_POS+VEL_2023.10.02.snx"
         if args.station_solution == "slrf2020"
-        else root / "2024-04/asi.pos+eop.240406.v80.snx.gz"
+        else week_directory / f"asi.pos+eop.{product_date}.v80.snx.gz"
     )
     eop_path = Path(resource_paths.get_earth_orientation_path()) / "eopc04_20_IAU2000.62-now.txt"
-    crd_files = sorted((root / "2024-04").glob("lageos1_20240[34]*.np2"))
+    crd_files = [
+        week_directory / f"lageos1_{week_start + timedelta(days=offset):%Y%m%d}.np2"
+        for offset in range(7)
+    ]
 
-    if len(crd_files) != 7:
+    if not all(path.is_file() for path in crd_files):
         raise ValueError("The pinned week requires all seven daily CRDv2 files")
 
-    inputs = [root / "2024-04" / orbit_name, station_path, eop_path, *crd_files]
+    inputs = [week_directory / orbit_name, station_path, eop_path, *crd_files]
     inputs.extend(
         root / path
         for path in (
-            "2024-04/ilrsa.pos+eop.240406.v80.snx.gz",
+            f"{week_ending:%Y-%m}/ilrsa.pos+eop.{product_date}.v80.snx.gz",
             "metadata/com6.220915.tar.gz",
             "metadata/ILRS_Data_Handling_File_2024.02.13.snx",
         )
@@ -739,8 +768,9 @@ def main():
 
     # Integer SPICE knots and native Time interpolation preserve sub-double event offsets.
     if args.body_ephemeris == "cubic-time":
-        table_start = float(calendar_epoch(2024, 3, 31)) - 86400
-        table_end = float(calendar_epoch(2024, 4, 7)) + 86400
+        table_start = float(week_start_epoch) - 86400
+
+        table_end = float(week_stop_epoch) + 86400
         spline = interpolators.cubic_spline_interpolation(
             boundary_interpolation=interpolators.throw_exception_at_boundary
         )
@@ -783,10 +813,15 @@ def main():
 
     # Both selected stations have zero XYZ eccentricities in the pinned weekly combined solution.
     eccentricity_file = unpack_input(
-        root / "2024-04/ilrsa.pos+eop.240406.v80.snx.gz", input_directory
+        week_directory / f"ilrsa.pos+eop.{product_date}.v80.snx.gz", input_directory
     )
     station_settings, station_ledger = load_stations(
-        station_file, eccentricity_file, converter, args.station_solution == "slrf2020"
+        station_file,
+        eccentricity_file,
+        converter,
+        args.station_solution == "slrf2020",
+        week_start_epoch,
+        week_stop_epoch,
     )
 
     ocean_ledger = []
@@ -874,6 +909,9 @@ def main():
 
     summary = {
         "orbit": args.orbit,
+        "week_ending": args.week_ending,
+        "week_start_utc": week_start.isoformat(),
+        "week_stop_exclusive_utc": week_stop.isoformat(),
         "station_solution": args.station_solution,
         "sp3_interpolation_points": args.points,
         "ephemeris_routes": {

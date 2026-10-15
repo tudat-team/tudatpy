@@ -1,0 +1,379 @@
+{
+  "week": "2024-04-07 through2024-04-13",
+  "preselected_station_domes": {
+    "7839": "11001S002",
+    "7840": "13212S001"
+  },
+  "daily_raw_normal_point_counts": {
+    "lageos1_20240407.np2": {
+      "7839": 10,
+      "7840": 10
+    },
+    "lageos1_20240408.np2": {
+      "7839": 0,
+      "7840": 0
+    },
+    "lageos1_20240409.np2": {
+      "7839": 0,
+      "7840": 32
+    },
+    "lageos1_20240410.np2": {
+      "7839": 0,
+      "7840": 0
+    },
+    "lageos1_20240411.np2": {
+      "7839": 19,
+      "7840": 0
+    },
+    "lageos1_20240412.np2": {
+      "7839": 24,
+      "7840": 10
+    },
+    "lageos1_20240413.np2": {
+      "7839": 5,
+      "7840": 24
+    }
+  },
+  "total_raw_normal_point_counts": {
+    "7839": 58,
+    "7840": 76
+  },
+  "selected_session_count": 17,
+  "sessions": [
+    {
+      "source": "lageos1_20240407.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 7 2 37 0 2024 4 7 3 40 20 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 3,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 3
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240407.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 7 18 25 0 2024 4 7 19 24 20 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 4,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 4
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240407.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 7 21 51 0 2024 4 7 22 46 20 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 3,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 3
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240407.np2",
+      "station": "7840",
+      "header_h2": "H2 HERL 7840 35 1 4 ILRS",
+      "header_h4": "H4 1 2024 4 7 22 6 57 2024 4 7 22 36 54 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 10,
+      "meteo_origin_counts": {
+        "0": 7
+      },
+      "epoch_event_counts": {
+        "2": 10
+      },
+      "system_configurations": {
+        "KS": 532.08
+      }
+    },
+    {
+      "source": "lageos1_20240409.np2",
+      "station": "7840",
+      "header_h2": "H2 HERL 7840 35 1 4 ILRS",
+      "header_h4": "H4 1 2024 4 9 19 34 53 2024 4 9 20 4 33 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 15,
+      "meteo_origin_counts": {
+        "0": 8
+      },
+      "epoch_event_counts": {
+        "2": 15
+      },
+      "system_configurations": {
+        "KS": 532.08
+      }
+    },
+    {
+      "source": "lageos1_20240409.np2",
+      "station": "7840",
+      "header_h2": "H2 HERL 7840 35 1 4 ILRS",
+      "header_h4": "H4 1 2024 4 9 22 54 54 2024 4 9 23 29 11 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 17,
+      "meteo_origin_counts": {
+        "0": 9
+      },
+      "epoch_event_counts": {
+        "2": 17
+      },
+      "system_configurations": {
+        "KS": 532.08
+      }
+    },
+    {
+      "source": "lageos1_20240411.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 11 16 28 20 2024 4 11 17 30 20 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 3,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 3
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240411.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 11 19 59 0 2024 4 11 20 55 0 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 8,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 8
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240411.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 11 23 21 40 2024 4 12 0 21 0 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 8,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 8
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240412.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 12 15 5 0 2024 4 12 16 7 40 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 9,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 9
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240412.np2",
+      "station": "7840",
+      "header_h2": "H2 HERL 7840 35 1 4 ILRS",
+      "header_h4": "H4 1 2024 4 12 15 23 19 2024 4 12 15 46 22 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 10,
+      "meteo_origin_counts": {
+        "0": 8
+      },
+      "epoch_event_counts": {
+        "2": 10
+      },
+      "system_configurations": {
+        "KS": 532.08
+      }
+    },
+    {
+      "source": "lageos1_20240412.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 12 18 38 20 2024 4 12 19 37 0 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 6,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 6
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240412.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 12 22 3 40 2024 4 12 22 59 40 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 9,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 9
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240413.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 13 1 28 20 2024 4 13 2 31 40 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 2,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 2
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240413.np2",
+      "station": "7839",
+      "header_h2": "H2 GRZL 7839 34 02 4 EUROLAS",
+      "header_h4": "H4 1 2024 4 13 17 17 0 2024 4 13 18 17 40 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 3,
+      "meteo_origin_counts": {
+        "1": 2
+      },
+      "epoch_event_counts": {
+        "2": 3
+      },
+      "system_configurations": {
+        "0902": 532.0
+      }
+    },
+    {
+      "source": "lageos1_20240413.np2",
+      "station": "7840",
+      "header_h2": "H2 HERL 7840 35 1 4 ILRS",
+      "header_h4": "H4 1 2024 4 13 17 31 55 2024 4 13 18 6 20 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 13,
+      "meteo_origin_counts": {
+        "0": 9
+      },
+      "epoch_event_counts": {
+        "2": 13
+      },
+      "system_configurations": {
+        "KS": 532.08
+      }
+    },
+    {
+      "source": "lageos1_20240413.np2",
+      "station": "7840",
+      "header_h2": "H2 HERL 7840 35 1 4 ILRS",
+      "header_h4": "H4 1 2024 4 13 21 2 9 2024 4 13 21 36 43 0 0 0 0 1 0 2 0",
+      "ilrs_target": "7603901",
+      "normal_point_count": 11,
+      "meteo_origin_counts": {
+        "0": 10
+      },
+      "epoch_event_counts": {
+        "2": 11
+      },
+      "system_configurations": {
+        "KS": 532.08
+      }
+    }
+  ],
+  "orbit": {
+    "file": "ilrsa.orb.lageos1.240413.v81.sp3.gz",
+    "header": "#cV2024  4  7  0  0  0.00000000    5040   SLR SLR20 FIT COMB",
+    "time_system": "UTC",
+    "coordinate_system": "SLR20",
+    "frame_declaration": "SLRF2020",
+    "kind": "FIT COMB postfit",
+    "epoch_count": 5040,
+    "position_record_count": 5040,
+    "velocity_record_count": 5040,
+    "cadence_seconds": 120,
+    "first_epoch": "*  2024  4  7  0  0  0.00000000",
+    "last_epoch": "*  2024  4 13 23 58  0.00000000",
+    "source_position_units": "km",
+    "source_velocity_units": "dm/s"
+  },
+  "weekly_metadata": {
+    "file": "ilrsa.pos+eop.240413.v80.snx.gz",
+    "header": "%=SNX 2.00 ASI 24:115:34224 ASI 24:098:00000 24:105:00000 L 00093 2 E S        ",
+    "selected_zero_xyz_eccentricities": [
+      " 7839  A    1 L 88:214:00000 00:000:00000 XYZ   0.0000   0.0000   0.0000        ",
+      " 7840  A    1 L 83:001:00000 00:000:00000 XYZ   0.0000   0.0000   0.0000        "
+    ],
+    "station_positions_used": "Pinned external SLRF2020 positions plus supplied velocities, not these weekly estimated coordinates."
+  },
+  "reused_fixed_metadata": [
+    {
+      "path": "metadata/SLRF2020_POS+VEL_2023.10.02.snx",
+      "bytes": 172299,
+      "sha256": "aecd35c12fd1e4e0525f13610f5605d379ad2c6f7761e74cdbb9771ec6a95a3f"
+    },
+    {
+      "path": "metadata/ILRS_Data_Handling_File_2024.02.13.snx",
+      "bytes": 180827,
+      "sha256": "41caafc2dd63bcd91504f529b6de3c37b48156523322ade5d3154ccce8ce52a1"
+    },
+    {
+      "path": "metadata/com6.220915.tar.gz",
+      "bytes": 22221,
+      "sha256": "78289ea4184a508382bbd0b70f7df9189b40fa26683dec2d7cf26de58dcc9a7a"
+    }
+  ],
+  "unchanged_physical_criteria": "20-degree provider elevation, common8/10point SP3 interior, measured/supplied weather coverage; no residual cuts, fitting or tuning.",
+  "input_manifest": "../../dataset.json",
+  "selection_rule": "Second consecutive week frozen before any residuals; combined orbitv81 and weeklymetadatav80 chosen to match the first-week release conventions.",
+  "residuals_computed_at_preflight": false
+}

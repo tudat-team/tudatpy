@@ -1,6 +1,8 @@
 # Fixed-orbit LAGEOS-1 observation reduction
 
-`fixed_orbit_slr.py` is a bounded analysis of 2024-03-31 through 2024-04-06.
+`fixed_orbit_slr.py` defaults to the frozen week 2024-03-31 through 2024-04-06.
+The separately frozen consecutive week 2024-04-07 through 2024-04-13 is selected
+with `--week-ending 2024-04-13` and its own data root.
 It uses actual ILRS CRDv2 normal points and a final fitted SP3 orbit. It does not
 propagate, estimate, fit an offset, remove a trend, clip residuals, or use a CPF
 prediction as truth. Orbit and station configurations are separate experiments;
@@ -23,8 +25,9 @@ python analysis/laser_ranging/fixed_orbit_slr.py \
 ```
 
 The output directory must not exist; each configuration keeps its own artifacts.
-The script reads, but does not download or modify, provider data. The adjacent `dataset.json` records official URLs, hashes, retrieval dates and
-rights notes for all fourteen selected provider products. It checks pinned
+The script reads, but does not download or modify, provider data. The adjacent
+`dataset.json` records official URLs, hashes, retrieval dates and rights notes
+for both frozen weeks and the optional loading product. It checks pinned
 input hashes against that manifest, and records actual input hashes
 including the selected packaged C04 EOP file. Provider gzip files are decompressed
 unchanged into the output directory. Public availability is not an invented
@@ -43,6 +46,18 @@ Required products are:
   eccentricities, required to cover the entire week;
 - `metadata/com6.220915.tar.gz` and
   `metadata/ILRS_Data_Handling_File_2024.02.13.snx`.
+
+For the second week, the exact seven daily filenames are derived from the selected
+week ending; the orbit is `ilrsa.orb.lageos1.240413.v81.sp3.gz` and eccentricities
+come from `ilrsa.pos+eop.240413.v80.snx.gz`. Its combined postfit UTC/SLRF2020
+orbit has 5040 position/velocity samples at 120-second cadence, through April 13
+23:58. The same dated station, CoM and DHF releases are reused. This week supplies
+the combined-orbit/SLRF2020 configuration; the ASI alternatives remain confined
+to the original week. Data live in a separate root to retain the original frozen
+seven-file selection. The [preflight record](results/frozen_2024-04-07_13/preflight.json)
+pins the selection before residual evaluation: 58 raw Graz and 76 raw Herstmonceux
+normal points across 17 selected sessions. The same 20-degree, weather-coverage
+and SP3-interior criteria apply; no residual-dependent selection is introduced.
 
 The station selection is fixed in advance: Graz 7839 / 11001S002 and
 Herstmonceux 7840 / 13212S001 (19 and 10 normal points before physical selection).
