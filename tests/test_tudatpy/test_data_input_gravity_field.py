@@ -212,6 +212,21 @@ def test_aod1b_records_and_time22_final_inventory_settings():
     assert isinstance(time22, variation.HarmonicGravityFieldVariationSettings)
     assert len(time22.constituents) == 16
     assert time22.metadata.component == variation.HarmonicGravityComponent.direct_atmospheric_mass
+
+    # Inspecting owned settings must not expose a mutable route around constructor validation.
+    identifier = time22.identifier
+
+    metadata = time22.metadata
+
+    metadata.component = variation.HarmonicGravityComponent.ocean_mass
+    constituents = time22.constituents
+
+    original_doodson = constituents[0].doodson
+
+    constituents[0].doodson = "000.000"
+    assert time22.identifier == identifier
+    assert time22.metadata.component == variation.HarmonicGravityComponent.direct_atmospheric_mass
+    assert time22.constituents[0].doodson == original_doodson
     if hasattr(variation.GravityFieldVariationSettings, "__setstate__"):
         assert pickle.loads(pickle.dumps(aod)) == aod
         assert pickle.loads(pickle.dumps(time22)) == time22

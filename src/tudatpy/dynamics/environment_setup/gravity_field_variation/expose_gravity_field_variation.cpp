@@ -290,9 +290,12 @@ void expose_gravity_field_variation_setup( py::module& m )
                   py::arg( "interpolation_settings" ) = nullptr )
             .def_property_readonly( "constituents",
                                     &tss::HarmonicGravityFieldVariationSettings::getConstituents,
-                                    "Final ordered wave inventory; no admittance remains to apply." )
-            .def_property_readonly(
-                    "metadata", &tss::HarmonicGravityFieldVariationSettings::getMetadata, "Retained source and physical conventions." )
+                                    py::return_value_policy::copy,
+                                    "Copy of the final ordered wave inventory; changing it does not modify the settings." )
+            .def_property_readonly( "metadata",
+                                    &tss::HarmonicGravityFieldVariationSettings::getMetadata,
+                                    py::return_value_policy::copy,
+                                    "Copy of the retained source and physical conventions." )
             .def_property_readonly( "identifier",
                                     &tss::HarmonicGravityFieldVariationSettings::getIdentifier,
                                     "Component, product revision and final inventory label used for model lookup." )
