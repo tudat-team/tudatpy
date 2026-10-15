@@ -45,6 +45,11 @@ the ICGEM and AOD1B readers in ``4eb777328``, removing forty net lines without
 changing coefficient interpretation. The complete planned Python settings are
 also integrated, including the temporal factory and explicit time conventions.
 Gravity has not been pushed during this resumed work.
+Local rotation/deformation commit ``3613e38d3`` adds its C++ fixtures, support
+files, generators and seven resources to ``tests/test_tudat/data.zip``; the
+existing 705 archive entries are unchanged. All 121 added source files passed
+fresh-extraction byte comparisons. This separately requested change is on the
+local rotation branch and merged into gravity at ``5b2be31cd``; it was not pushed.
 
 The coordinator designs, reviews and handles major debugging. Three GPT-6.1 Sol
 workers at high reasoning use separate worktrees: rotation_impl owns
@@ -69,14 +74,14 @@ recovery work or examples are included.
    [x] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [DONE — model and factory checkpoint validated; dependency integration is G11]
    [x] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [DONE — model and factory checkpoint validated]
    [x] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [DONE — full model and factory checkpoint validated]
-   [x] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [DONE — harmonic setup and TiME22 published admittance pass; later zero-weight optimization check is in G12]
+   [x] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [DONE — harmonic setup, TiME22 published admittance and exact-zero optimization pass]
    [x] G08 Support identified ocean-tide products without mixing their phase conventions.  [DONE — FES2004/FES2014b/EOT11a profiles and TiME22 1.1 pass focused native checks]
    [x] G09 Handle atmospheric/non-tidal coefficient products and component overlap explicitly.  [DONE — AOD1B reader/model/factory and TiME22 atmosphere pass]
-   [ ] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [ACTIVE — evaluator, settings and independent tests integrated; two source reviews complete; native validation pending]
-   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — all planned factories integrated; temporal assembled/serialization case pending]
-   [ ] G12 Validate individual models and assembled forces against pinned references.  [ACTIVE — retained 13-executable checkpoint passes 62 cases/2978 assertions; updated reader passes 6/50; remaining focused checks in progress]
+   [x] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [DONE — temporal evaluator passes 3 cases/63 assertions against independent scalar references]
+   [x] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [DONE — final Earth assembly/serialization passes 8 cases/57 assertions]
+   [x] G12 Validate individual models and assembled forces against pinned references.  [DONE — 14 native executables, 68 cases and 3069 assertions pass, including the two narrowed links]
    [ ] G13 Complete Python settings and diagnostics.  [ACTIVE — all planned bindings integrated and reviewed; kernel/runtime/autosummary validation pending; examples excluded by Dominic]
-   [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [ACTIVE — generic changes reviewed; move ownership fixed; comments and API review ongoing]
+   [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [ACTIVE — source/API review complete; verification-driven follow-up remains]
 
 Resumed verification
 --------------------
@@ -108,18 +113,51 @@ executables, 62 cases and 2978 assertions, all passing. This total counts the
 latest result for each executable, rather than adding repeated runs.
 
 The subsequent exact-zero admittance optimization, temporal reader and include
-cleanup require their focused integration checks. Python source and documentation
+cleanup pass their focused integration checks. Python source and documentation
 now cover AOD1B, TiME22 and raw temporal records. Review fixed Python getters that
 could otherwise expose mutable owned harmonic metadata/constituents: these return
 copies, with assertions added to the existing provider-settings test. Kernel and
 Python runtime validation remain pending.
 The updated temporal ICGEM reader now also passes 6 cases and 50 assertions;
 ``verification-20261015/icgem-temporal-reader-runtime.log`` records that run.
-The static adapter and harmonic/TiME22 checks are still in the same eight-job
-build. The temporal evaluator has separate, independently generated scalar
+That four-target build has now finished successfully at ``86c71fb1f``: ICGEM
+reader 6 cases/50 assertions, harmonic model 4/29, static ICGEM adapter 2/28 and
+TiME22 setup 2/430, all passing. The temporal evaluator has separate, independently generated scalar
 references covering published multi-interval periodic terms, exact shared
 boundaries, normalization and the two explicit definitions of a year. Those
-model checks have not run yet.
+model checks now pass: 3 cases and 63 assertions. Final Earth setup passes
+8 cases/57 assertions, including the selected converter, adopted nominal
+baseline, shared interval start and settings serialization. The static ICGEM
+adapter also passes 2 cases/28 assertions. No numerical fixes or tolerance
+changes were needed. The build log is ``verification-20261015/g10-final-build.log``.
+The compiler checkout has integrated the reviewed source, including the updated
+rotation dependency and shared parser reuse. One Python kernel build now precedes focused Python/architecture tests,
+autosummary-name validation and the full Python suite against the established
+offline-resource baseline. No broad native test build is planned.
+At this final snapshot, the ICGEM reader (6 cases/50 assertions) and AOD1B reader
+(2/49) already pass after shared parser reuse. The autosummary inventory covers
+283 entries in 21 changed RST pages; runtime lookup still awaits the kernel.
+
+Source review has checked the generic changes, baseline subtraction, selected
+clocks, independent temporal origins, normalization and model overlap. The final
+code reuses the existing gravity update, interpolation and derivative machinery;
+it adds no epoch wrapper or universal configuration layer. Review removed two
+empty settings classes, duplicated parsing, an unnecessary harmonic inventory
+copy and mutable Python access to owned harmonic settings. Comments and new API
+placement were checked against nearby Tudat code. The independent temporal
+numerical checks use three cases, with frozen arithmetic budgets established
+before running the implementation. ``eba17ab61`` also narrows the two new
+standalone AOD1B/temporal model test links so they no longer request the full
+propagation library list. This CMake-only cleanup is now applied in the compiler
+checkout; the two links are checked alongside the kernel build. The tracked
+source files match ``eba17ab61`` exactly; the compiler checkout retains the
+small patch uncommitted until its build finishes, to avoid changing generated
+Git metadata during verification. It does not change a numerical expression.
+Both narrowed targets now link and pass: AOD1B 2 cases/12 assertions and temporal
+ICGEM 3/63. The final retained native results cover fourteen distinct executables,
+68 cases and 3069 assertions, with zero failures. The machine-readable record is
+``verification-20261015/retained-latest-native-summary.json``. No further native
+runs are pending. The kernel build is active; Python runtime validation remains.
 
 Literature and model decisions
 -----------------------------
@@ -222,8 +260,8 @@ Setup compatibility rules
 -------------------------
 
 These enforcement rules follow the analysis above and the existing Tudat setup
-paths. They are implemented in the Earth-specific consuming factory; the temporal
-baseline checks are being completed with G10. Neutral readers do not depend on
+paths. They are implemented in the Earth-specific consuming factory, including
+the temporal baseline checks. Neutral readers do not depend on
 bodies, dynamics or estimation.
 
 .. list-table:: Compatibility decisions
@@ -531,8 +569,8 @@ nominal baseline once, without subtracting nearly equal complete coefficients
 on every evaluation. The 2023 specification does not define the time scale or
 duration of its year; these must be explicit consuming choices. Piecewise
 coefficient intervals and their endpoints require a documented rule. This
-neutral reader now being implemented retains temporal records, while the static
-consumer rejects them. The consuming adapter is being implemented with one
+neutral reader retains temporal records, while the static
+consumer rejects them. The consuming adapter uses one
 coefficient/interval model: existing polynomial and periodic models have one
 global reference epoch and cannot directly represent the published independent
 intervals. Tabulation is unsuitable across coefficient jumps or coverage gaps.
@@ -540,8 +578,9 @@ intervals. Tabulation is unsuitable across coefficient jumps or coverage gaps.
 Consumption requires an explicit source time scale and year convention. The
 Julian-year option uses elapsed TAI seconds divided by 31557600; the fractional
 Gregorian-year option uses the calendar coordinate in the declared source scale.
-Intervals are half-open, with the right-hand record owning a shared boundary.
-Date-only records use midnight; subday records use strict hours and minutes.
+Format 2.0 intervals are half-open, with the right-hand record owning a shared
+boundary. Its date tokens require HHMM. Format 1.0 date-only records use midnight
+and have no artificial validity limit.
 An optional map of printed date tokens to source-scale epochs permits an explicit
 caller correction of irregular provider dates. In particular, EIGEN's
 ``20041226.0060`` is preserved by the reader and is not silently rolled to 01:00.
