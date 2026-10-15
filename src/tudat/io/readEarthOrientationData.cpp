@@ -1,4 +1,5 @@
 #include "tudat/io/readEarthOrientationData.h"
+#include "tudat/io/textParsing.h"
 
 #include <algorithm>
 #include <cctype>
@@ -16,37 +17,30 @@ namespace
 constexpr double arcsecondToRadian = 3.141592653589793238462643383279502884 / ( 180.0 * 3600.0 );
 constexpr double secondsPerDay = 86400.0;
 
-std::string trim( const std::string& text )
-{
-    const auto first = text.find_first_not_of( " \t\r\n" );
-    return first == std::string::npos ? "" : text.substr( first, text.find_last_not_of( " \t\r\n" ) - first + 1 );
-}
-
 bool unsupportedCelestialPoleConvention( std::string text )
 {
     std::transform( text.begin( ), text.end( ), text.begin( ), []( unsigned char character ) { return std::tolower( character ); } );
     return text.find( "dpsi" ) != std::string::npos || text.find( "deps" ) != std::string::npos;
 }
 
-double number( const std::string& text )
+double parseEarthOrientationNumber( const std::string& text )
 {
-    std::size_t consumed = 0;
-    const double value = std::stod( text, &consumed );
-    if( consumed != text.size( ) || !std::isfinite( value ) )
+    const auto value = text_parsing::parseFiniteNumber( text );
+    if( !value )
     {
         throw std::runtime_error( "invalid finite number: " + text );
     }
-    return value;
+    return *value;
 }
 
-int integer( const std::string& text )
+int parseEarthOrientationCalendarInteger( const std::string& text )
 {
-    const double value = number( text );
-    if( std::floor( value ) != value || value < 0 || value > 9999 )
+    const auto value = text_parsing::parseNonNegativeInteger( text );
+    if( !value || *value > 9999 )
     {
         throw std::runtime_error( "invalid calendar integer: " + text );
     }
-    return static_cast< int >( value );
+    return *value;
 }
 
 // Gregorian midnight MJD, independently of any dynamics or SOFA library.
@@ -83,12 +77,15 @@ EarthOrientationRecord c04Record( const std::vector< std::string >& tokens )
     const bool modern = tokens.size( ) == 21;
     if( !modern && tokens.size( ) != 16 ) throw std::runtime_error( "C04 requires 16 or 21 columns" );
     std::vector< double > v;
-    for( const auto& token : tokens ) v.push_back( number( token ) );
+    for( const auto& token : tokens ) v.push_back( parseEarthOrientationNumber( token ) );
     EarthOrientationRecord record;
     const int offset = modern ? 1 : 0;
     record.utcModifiedJulianDate = v[ 3 + offset ];
-    validateDate(
-            integer( tokens[ 0 ] ), integer( tokens[ 1 ] ), integer( tokens[ 2 ] ), modern ? v[ 3 ] : 0.0, record.utcModifiedJulianDate );
+    validateDate( parseEarthOrientationCalendarInteger( tokens[ 0 ] ),
+                  parseEarthOrientationCalendarInteger( tokens[ 1 ] ),
+                  parseEarthOrientationCalendarInteger( tokens[ 2 ] ),
+                  modern ? v[ 3 ] : 0.0,
+                  record.utcModifiedJulianDate );
     record.polarMotion = { v[ 4 + offset ] * arcsecondToRadian, v[ 5 + offset ] * arcsecondToRadian };
     record.ut1MinusUtc = v[ 6 + offset ];
     if( modern )
@@ -118,16 +115,16 @@ EarthOrientationRecord c04Record( const std::vector< std::string >& tokens )
     return record;
 }
 
-std::string field( const std::string& line, const std::size_t first, const std::size_t count )
+std::string finalsField( const std::string& line, const std::size_t first, const std::size_t count )
 {
-    return trim( line.substr( first - 1, count ) );  // USNO specification columns are one-based.
+    return text_parsing::trim( line.substr( first - 1, count ) );  // USNO specification columns are one-based.
 }
 
 std::optional< double > optionalNumber( const std::string& line, const int first, const int count, const double scale = 1.0 )
 {
-    const std::string text = field( line, first, count );
+    const std::string text = finalsField( line, first, count );
     if( text.empty( ) ) return std::nullopt;
-    return number( text ) * scale;
+    return parseEarthOrientationNumber( text ) * scale;
 }
 
 std::optional< std::array< double, 2 > > optionalPair( const std::optional< double >& x, const std::optional< double >& y )
@@ -138,7 +135,7 @@ std::optional< std::array< double, 2 > > optionalPair( const std::optional< doub
 
 std::string statusFlag( const std::string& line, const int column, const bool required )
 {
-    const std::string flag = field( line, column, 1 );
+    const std::string flag = finalsField( line, column, 1 );
     if( flag != "I" && flag != "P" && !( !required && flag.empty( ) ) )
         throw std::runtime_error( "invalid or missing Bulletin A I/P flag" );
     return flag;
@@ -149,17 +146,18 @@ std::optional< EarthOrientationRecord > finalsRecord( const std::string& line )
     // Optional fields must still occupy their fixed columns, even when blank.
     if( line.size( ) < 134 ) throw std::runtime_error( "truncated finals2000A record (requires columns 1-134)" );
     EarthOrientationRecord record;
-    record.utcModifiedJulianDate = number( field( line, 8, 8 ) );
-    const int year = integer( field( line, 1, 2 ) ) + ( record.utcModifiedJulianDate <= 51543 ? 1900 : 2000 );
+    record.utcModifiedJulianDate = parseEarthOrientationNumber( finalsField( line, 8, 8 ) );
+    const int year =
+            parseEarthOrientationCalendarInteger( finalsField( line, 1, 2 ) ) + ( record.utcModifiedJulianDate <= 51543 ? 1900 : 2000 );
     validateDate( year,
-                  integer( field( line, 3, 2 ) ),
-                  integer( field( line, 5, 2 ) ),
+                  parseEarthOrientationCalendarInteger( finalsField( line, 3, 2 ) ),
+                  parseEarthOrientationCalendarInteger( finalsField( line, 5, 2 ) ),
                   24.0 * ( record.utcModifiedJulianDate - std::floor( record.utcModifiedJulianDate ) ),
                   record.utcModifiedJulianDate );
     const auto x = optionalNumber( line, 19, 9, arcsecondToRadian );
     const auto y = optionalNumber( line, 38, 9, arcsecondToRadian );
     const auto ut1 = optionalNumber( line, 59, 10 );
-    if( !x && !y && !ut1 && trim( line.substr( 16 ) ).empty( ) ) return std::nullopt;  // date-only future placeholders
+    if( !x && !y && !ut1 && text_parsing::trim( line.substr( 16 ) ).empty( ) ) return std::nullopt;  // date-only future placeholders
     if( !x || !y || !ut1 ) throw std::runtime_error( "missing mandatory Bulletin A polar motion or UT1" );
     record.polarMotion = { *x, *y };
     record.ut1MinusUtc = *ut1;
@@ -266,7 +264,7 @@ EarthOrientationData readEarthOrientationData( std::istream& stream, const Earth
     while( std::getline( stream, line ) )
     {
         ++lineNumber;
-        const std::string content = trim( line );
+        const std::string content = text_parsing::trim( line );
         if( content.empty( ) ) continue;
         try
         {
@@ -287,16 +285,15 @@ EarthOrientationData readEarthOrientationData( std::istream& stream, const Earth
                     {
                         const auto first = content.find( "ITRF" );
                         const auto last = content.find( " -", first );
-                        data.terrestrialFrame = trim( content.substr( first, last == std::string::npos ? last : last - first ) );
+                        data.terrestrialFrame =
+                                text_parsing::trim( content.substr( first, last == std::string::npos ? last : last - first ) );
                     }
                     if( content.find( "YR" ) != std::string::npos && content.find( "HH" ) != std::string::npos &&
                         content.find( "MJD" ) != std::string::npos )
                         c04Columns = 21;
                     continue;
                 }
-                std::istringstream tokensStream( content );
-                std::vector< std::string > tokens;
-                for( std::string token; tokensStream >> token; ) tokens.push_back( token );
+                const std::vector< std::string > tokens = text_parsing::splitIntoTokens( content );
                 if( c04Columns && tokens.size( ) != c04Columns ) throw std::runtime_error( "mixed C04 record formats" );
                 auto record = c04Record( tokens );
                 c04Columns = tokens.size( );

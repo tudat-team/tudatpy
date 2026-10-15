@@ -54,9 +54,6 @@ set(ground_stations_HEADERS
         "meteorologicalConditions.h"
 )
 
-# Its file-local helpers share names with those of stationHistoryTrajectory.cpp.
-set_source_files_properties("stationReferencePoint.cpp" PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
-
 TUDAT_ADD_LIBRARY("ground_stations"
         "${ground_stations_SOURCES}"
         "${ground_stations_HEADERS}"

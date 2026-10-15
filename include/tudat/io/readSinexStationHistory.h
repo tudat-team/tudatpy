@@ -43,6 +43,10 @@ struct SinexEpoch {
 struct SinexSiteKey {
     std::string siteCode;
     std::string pointCode;
+    bool operator==( const SinexSiteKey& other ) const
+    {
+        return siteCode == other.siteCode && pointCode == other.pointCode;
+    }
     bool operator<( const SinexSiteKey& other ) const
     {
         return std::tie( siteCode, pointCode ) < std::tie( other.siteCode, other.pointCode );
@@ -51,6 +55,10 @@ struct SinexSiteKey {
 struct SinexSolutionKey {
     SinexSiteKey site;
     std::string solutionId;
+    bool operator==( const SinexSolutionKey& other ) const
+    {
+        return site == other.site && solutionId == other.solutionId;
+    }
     bool operator<( const SinexSolutionKey& other ) const
     {
         return std::tie( site.siteCode, site.pointCode, solutionId ) <
