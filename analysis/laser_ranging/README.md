@@ -148,10 +148,10 @@ explicitly; no route is selected by its residual mean.
   provider sites are `Graz` and `Herstmon`; the nearby `GRAZ` and `HERS` monuments
   are not substituted. The summary and manifest retain product hash, provider
   XYZ, separation from the selected station and the 3 km applicability radius.
-  The helper uses 17 supplied TT harmonic terms, geocentric radial Up/East/North,
-  whole-Earth centre-of-mass origin and STW105/REAR response. The product narrative
-  calls Up ellipsoid-normal, whereas its HARPOS definition specifies radial Up;
-  this experiment explicitly follows the latter. Ocean-pole and equilibrium
+  The helper uses 17 supplied TT harmonic terms, geodetic Up/East/North,
+  whole-Earth centre-of-mass origin and STW105/REAR response. Up follows the product
+  narrative and provider's consumer code; the basis section below documents the
+  conflicting formal HARPOS wording. Ocean-pole and equilibrium
   terms are absent. This is an alternate realization, not exact ASI 11-constituent
   BLQ/HARDISP reproduction. One native custom station-motion callback supplies
   the displacement; the terminal relativistic map then sees the complete loaded

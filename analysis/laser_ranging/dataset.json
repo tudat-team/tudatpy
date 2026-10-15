@@ -138,7 +138,7 @@
         ]
       }
     },
-    "axes": "HARPOS geocentric radial Up, East, North; product narrative says ellipsoid-normal Up, an explicitly retained discrepancy.",
+    "axes": "Geodetic Up, East, North at provider XYZ, following product narrative and pinned consumer; see ocean_loading_basis.json for the conflicting formal HARPOS definition and historical uncertainty.",
     "origin": "Whole-Earth centre of mass; STW105/REAR Earth response; 17 supplied gravity-tide terms; TT J2000 harmonic arguments.",
     "rights": "Public International Mass Loading Service scientific product; retain provider and Ray (2013) citations. No explicit per-file redistribution licence observed; product bytes are not included here."
   }

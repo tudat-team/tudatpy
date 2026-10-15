@@ -152,17 +152,13 @@ kernel SHA-256
 Optional ocean loading and historical radial-basis controls
 ----------------------------------------------------------
 
-The following results are retained as historical radial-Up controls, with
-their original source/helper hashes. A different basis requires a separately
-labelled run; these numerical outputs are not replaced.
-
 ``--got410c-harpos PATH`` enables the hash-pinned GOT4.10c HARPOS product from
 ``https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps``.
 The existing helper selects the exact case-sensitive ``Apollo`` site. Its
 callback is included once in each Earth station's motion list, intrinsic and
 final; lunar stations are unchanged. It evaluates the 17 supplied TT harmonics
-and returns terrestrial XYZ
-displacement. This is a whole-Earth-centre-of-mass STW105/REAR realization,
+and returns terrestrial XYZ displacement. This is a whole-Earth-centre-of-mass
+STW105/REAR realization,
 different from JPL FES2004 and the older INPOP CSR4.0 model. It includes neither
 ocean-pole nor equilibrium terms. The current helper uses geodetic Up, following
 the product narrative and the provider's source code; the analysis README records
@@ -171,7 +167,8 @@ Loading remains disabled by default for both station profiles.
 
 The following archived controls used the original radial-Up interpretation.
 Their bytes and metadata are retained; they are not results from the corrected
-geodetic helper. With all eleven points and 30-second cubic tables, survey plus loading gives
+geodetic helper. With all eleven points and 30-second cubic tables, survey plus
+loading gives
 mean ``+0.231725481 m``, RMS ``0.235149176 m`` and scatter ``0.039980448 m``.
 INPOP17a station plus loading gives mean ``+0.092049003 m``, RMS
 ``0.100350376 m`` and scatter ``0.039964722 m``. The respective mean changes
