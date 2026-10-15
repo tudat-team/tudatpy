@@ -379,7 +379,7 @@ BOOST_AUTO_TEST_CASE( custom_solid_tide_callback_retains_original_tdb )
     BOOST_CHECK_EQUAL( lastArgumentTime, static_cast< double >( epoch ) );
 }
 
-BOOST_AUTO_TEST_CASE( native_mixed_and_tt_only_models_keep_positions_when_interpolated_clock_rates_are_unavailable )
+BOOST_AUTO_TEST_CASE( native_mixed_and_tt_only_models_support_interpolated_clock_rates )
 {
     const auto& fixture = iers2010_reference::fixtures.front( );
     const auto zero = std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ) );
@@ -413,7 +413,14 @@ BOOST_AUTO_TEST_CASE( native_mixed_and_tt_only_models_keep_positions_when_interp
     const auto model = makeModel( routingRotation( converter, tt_scale ) );
     const Time epoch( 0.0 );
     BOOST_CHECK_NO_THROW( ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter ) );
-    BOOST_CHECK_THROW( ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter, true ), std::runtime_error );
+
+    // The history clock and both deformation states use the rate of the selected interpolated clock.
+    const auto historyTime = ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter, true );
+
+    BOOST_REQUIRE( historyTime.mjdRate.has_value( ) );
+    BOOST_REQUIRE( historyTime.decimalYearRate.has_value( ) );
+    BOOST_CHECK( std::isfinite( *historyTime.mjdRate ) );
+    BOOST_CHECK( std::isfinite( *historyTime.decimalYearRate ) );
     const auto positionOnly = std::make_shared< ContextOnlyPositionModel >( converter );
     std::vector< std::shared_ptr< BodyDeformationModel > > selected{ positionOnly };
     const auto motion =
@@ -425,9 +432,9 @@ BOOST_AUTO_TEST_CASE( native_mixed_and_tt_only_models_keep_positions_when_interp
     station->setSiteId( hardispReferenceStations[ 0 ].identifier );
     OceanTideEarthDeformation loading( routingOceanData( ), OceanTideSynthesis::iersHardisp, converter );
     BOOST_CHECK_NO_THROW( model->calculateDisplacement( epoch, station ) );
-    BOOST_CHECK_THROW( model->calculateDisplacementState( epoch, station ), std::runtime_error );
+    BOOST_CHECK( model->calculateDisplacementState( epoch, station ).allFinite( ) );
     BOOST_CHECK_NO_THROW( loading.calculateDisplacement( epoch, station ) );
-    BOOST_CHECK_THROW( loading.calculateDisplacementState( epoch, station ), std::runtime_error );
+    BOOST_CHECK( loading.calculateDisplacementState( epoch, station ).allFinite( ) );
 }
 
 BOOST_AUTO_TEST_CASE( basic_solid_factory_uses_registered_rotation )
