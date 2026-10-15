@@ -307,7 +307,7 @@ callbacks and the double overload.
 `getStationReferencePointIdentity` then downcasts through the chain. Simpler design:
 
 - `StationHistoryTrajectory` is a plain, final data/evaluation class (no `source_`, no virtuals);
-- `StationHistoryMotionModel` holds the trajectory plus an optional `TerrestrialFrameTransformationModel`
+- `StationHistoryMotionModel` holds the trajectory plus an optional `HelmertTransformationModel`
   (with target identity) and an optional `StationReferencePointOffsetHistory`, applied in that
   fixed order: frame transformation first, then the offset. The required ordering is "transform
   the marker, then add the eccentricity expressed in the target frame". Arbitrary interleavings are
@@ -460,7 +460,7 @@ previously hard-coded tables, so keeping them in code is acceptable.
   `gcrs_to_itrs( …, eop_data=None, eop_interpolation=…, maximum_eop_gap=…, … )`. Raw data records
   from readers may stay inspectable.
 - `astro.frame_conversion`: adds two classes (`TerrestrialFrameAffineTransformation` with mutable
-  fields, `inverse`, `compose_after`; `TerrestrialFrameTransformationModel`). The rest of that
+  fields, `inverse`, `compose_after`; `HelmertTransformationModel`). The rest of that
   module is free functions. A single free function
   `transform_terrestrial_state( state, data, source_frame, target_frame, decimal_year, decimal_year_rate )`
   covers the user need. The affine algebra can stay C++-only.

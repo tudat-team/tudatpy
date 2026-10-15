@@ -115,10 +115,20 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationEvalu
     }
     const double a = 1.0 / ( 1.0 + z );
     const double da = a * a * ( x * dx + y * dy ) / z;
-    Eigen::Matrix3d b, db;
-    b << 1.0 - a * x * x, -a * x * y, x, -a * x * y, 1.0 - a * y * y, y, -x, -y, z;
-    db << -da * x * x - 2.0 * a * x * dx, -da * x * y - a * ( dx * y + x * dy ), dx, -da * x * y - a * ( dx * y + x * dy ),
-            -da * y * y - 2.0 * a * y * dy, dy, -dx, -dy, -( x * dx + y * dy ) / z;
+    const Eigen::Matrix3d b =
+            ( Eigen::Matrix3d( ) << 1.0 - a * x * x, -a * x * y, x, -a * x * y, 1.0 - a * y * y, y, -x, -y, z ).finished( );
+
+    const Eigen::Matrix3d db = ( Eigen::Matrix3d( ) << -da * x * x - 2.0 * a * x * dx,
+                                 -da * x * y - a * ( dx * y + x * dy ),
+                                 dx,
+                                 -da * x * y - a * ( dx * y + x * dy ),
+                                 -da * y * y - 2.0 * a * y * dy,
+                                 dy,
+                                 -dx,
+                                 -dy,
+                                 -( x * dx + y * dy ) / z )
+                                       .finished( );
+
     const Eigen::Matrix3d generatorZ = linear_algebra::getCrossProductMatrix( Eigen::Vector3d::UnitZ( ) );
     const Eigen::Matrix3d spinS = Eigen::AngleAxisd( -s, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
     const Eigen::Matrix3d q = b * spinS;

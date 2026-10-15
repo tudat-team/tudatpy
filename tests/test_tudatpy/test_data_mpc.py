@@ -213,12 +213,9 @@ def test_tracking_dataset_can_create_observation_collection_from_tracking_data()
     """Check the integration boundary from UTC TrackingData to ObservationCollection."""
     query = BatchMPC()
     query.get_observations([222])
-    # Keep this live integration case within the packaged Earth orientation data.
     query = _batch_from_augmented_table(
         filter_augmented_optical_table(
             query.table,
-            epoch_start=datetime.datetime(2022, 1, 1),
-            epoch_end=datetime.datetime(2023, 1, 1),
             observatories=["T05"],
         )
     )
