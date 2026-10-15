@@ -92,6 +92,11 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         {
             variationIdentifiers.push_back( aod->getIdentifier( ) );
         }
+        else if( const auto temporal =
+                         std::dynamic_pointer_cast< IcgemTemporalGravityFieldVariationSettings >( gravityFieldVariationSettings.at( i ) ) )
+        {
+            variationIdentifiers.push_back( temporal->getIdentifier( ) );
+        }
         else
         {
             variationIdentifiers.push_back( "" );
@@ -135,6 +140,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
         case ocean_tide:
         case atmospheric_tide:
         case aod1b_rl07:
+        case icgem_temporal:
             gravityFieldVariationModel = createEarthGravityFieldVariationsModel( gravityFieldVariationSettings, body, bodies );
             break;
         case basic_solid_body:

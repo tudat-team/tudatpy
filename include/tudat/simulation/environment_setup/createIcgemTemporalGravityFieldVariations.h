@@ -61,7 +61,8 @@ namespace simulation_setup
 {
 
 //! Select temporal ICGEM coefficients with explicit source time/year conventions and a nominal-field baseline.
-//! Evaluation remains analytic and bounded by the supplied gfct pieces; no second interpolation stage is supported.
+//! Evaluation is analytic: format 2.0 uses declared half-open gfct coverage and format 1.0 remains unbounded.
+//! A second interpolation stage is not supported.
 class IcgemTemporalGravityFieldVariationSettings : public GravityFieldVariationSettings
 {
 public:

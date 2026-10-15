@@ -163,6 +163,7 @@ FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravit
     sphericalHarmonicsModel_ = sphericalHarmonicsModel;
 }
 
+//! Consume only static ICGEM records in an explicitly selected frame, preserving their declared tide system.
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > icgemSphericalHarmonicsGravitySettings(
         const input_output::IcgemGravityFieldData& data,
         const std::string& frame,
@@ -176,30 +177,55 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > icgemSphericalHarmonic
         throw std::runtime_error(
                 "Temporal ICGEM data require an explicit baseline-aware adapter; static consumption would discard records" );
     }
-    if( maximumDegree == -1 ) maximumDegree = data.maximumDegree;
-    if( maximumOrder == -1 ) maximumOrder = maximumDegree;
+    if( maximumDegree == -1 )
+    {
+        maximumDegree = data.maximumDegree;
+    }
+    if( maximumOrder == -1 )
+    {
+        maximumOrder = maximumDegree;
+    }
     if( frame.empty( ) || maximumDegree < 0 || maximumDegree > data.maximumDegree || maximumOrder < 0 || maximumOrder > maximumDegree )
+    {
         throw std::runtime_error( "ICGEM settings require an explicit frame and valid degree/order truncation" );
+    }
+
+    // Missing terms remain distinguishable in the raw product; only an explicit consuming choice fills them with zero.
     Eigen::MatrixXd cosine = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+
     Eigen::MatrixXd sine = cosine;
+
     for( int degree = 0; degree <= maximumDegree; ++degree )
+    {
         for( int order = 0; order <= std::min( degree, maximumOrder ); ++order )
         {
             const auto record = data.coefficients.find( { degree, order } );
-            if( record == data.coefficients.end( ) && zeroFillMissingCoefficients && degree != 0 ) continue;
+
+            if( record == data.coefficients.end( ) && zeroFillMissingCoefficients && degree != 0 )
+            {
+                continue;
+            }
             if( record == data.coefficients.end( ) )
+            {
                 throw std::runtime_error( data.source + ": Missing supplied ICGEM coefficient at " + std::to_string( degree ) + "/" +
                                           std::to_string( order ) );
+            }
             cosine( degree, order ) = record->second.cosine;
             sine( degree, order ) = record->second.sine;
         }
+    }
     if( data.normalization == input_output::IcgemNormalization::unnormalized )
     {
+        // Reuse the existing Legendre convention exactly once before passing values to the gravity field.
         const auto normalized = basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients( cosine, sine );
+
         cosine = normalized.first;
         sine = normalized.second;
     }
-    if( !cosine.allFinite( ) || !sine.allFinite( ) ) throw std::runtime_error( "ICGEM normalization produced nonfinite coefficients" );
+    if( !cosine.allFinite( ) || !sine.allFinite( ) )
+    {
+        throw std::runtime_error( "ICGEM normalization produced nonfinite coefficients" );
+    }
     return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
             data.gravitationalParameter, data.referenceRadius, cosine, sine, frame, TUDAT_NAN, data.tideSystem );
 }

@@ -4,6 +4,7 @@
 
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 #include "tudat/simulation/environment_setup/createAod1bGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createIcgemTemporalGravityFieldVariations.h"
 #include "tudat/astro/gravitation/oceanPoleTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/harmonicGravityFieldVariations.h"
 

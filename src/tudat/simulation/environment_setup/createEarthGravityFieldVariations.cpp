@@ -207,6 +207,30 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
     constexpr double sourceRadius = 6378136.3;
     switch( settings->getBodyDeformationType( ) )
     {
+        case gravitation::icgem_temporal: {
+            // Preserve analytic interval ownership; interpolating again could bridge a jump or missing base piece.
+            const auto temporal = std::dynamic_pointer_cast< IcgemTemporalGravityFieldVariationSettings >( settings );
+
+            if( !temporal || settings->getInterpolatorSettings( ) != nullptr )
+            {
+                throw std::runtime_error( "Expected temporal ICGEM settings without a second interpolation stage" );
+            }
+            if( field->getTideSystem( ) == TideSystem::unknown || temporal->getData( ).tideSystem != field->getTideSystem( ) )
+            {
+                throw std::runtime_error( "Temporal ICGEM source and nominal field require matching known tide systems" );
+            }
+            return gravitation::createIcgemTemporalGravityFieldVariations( temporal->getData( ),
+                                                                           temporal->getSourceTimeScale( ),
+                                                                           temporal->getYearConvention( ),
+                                                                           temporal->getMaximumDegree( ),
+                                                                           temporal->getMaximumOrder( ),
+                                                                           temporal->getDateOverrides( ),
+                                                                           field->getNominalCosineCoefficients( ),
+                                                                           field->getNominalSineCoefficients( ),
+                                                                           field->getGravitationalParameter( ),
+                                                                           field->getReferenceRadius( ),
+                                                                           converter );
+        }
         case gravitation::aod1b_rl07: {
             // RL07 already interpolates in GPS seconds; another TDB interpolation stage would change that model.
             const auto aod = std::dynamic_pointer_cast< Aod1bGravityFieldVariationSettings >( settings );
@@ -362,11 +386,12 @@ void validateEarthGravityFieldVariationCollection( const std::vector< std::share
                 }
             }
         }
-        if( type == gravitation::iers_2010 || type == gravitation::pole_tide || type == gravitation::ocean_pole_tide )
+        if( type == gravitation::iers_2010 || type == gravitation::pole_tide || type == gravitation::ocean_pole_tide ||
+            type == gravitation::icgem_temporal )
         {
             if( !unique.insert( type ).second )
             {
-                throw std::runtime_error( "Duplicate complete solid or pole gravity tide" );
+                throw std::runtime_error( "Duplicate complete solid tide, pole tide or temporal ICGEM model" );
             }
         }
     }

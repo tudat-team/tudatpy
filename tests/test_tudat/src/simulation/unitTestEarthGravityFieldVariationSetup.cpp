@@ -8,6 +8,7 @@
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include <sstream>
 #include <cmath>
 #if TUDAT_BUILD_WITH_SERIALIZATION
@@ -47,6 +48,20 @@ input_output::Aod1bGravityFieldData aodData( )
 
     return input_output::readAod1bGravityField( source.substr( 0, source.find_last_of( "/\\" ) ) +
                                                 "/../../reference_files/aod1b_gravity/AOD1B_2026-01-01_degree2_extract_07.asc" );
+}
+
+//! Supply two adjacent complete C20 pieces for testing the consuming baseline and selected time conversion.
+input_output::IcgemGravityFieldData temporalData( )
+{
+    // The source potential differs from the nominal field; no omitted selected coefficient is synthesized.
+    std::istringstream source(
+            "begin_of_head\nproduct_type gravity_field\nmodelname controlled_temporal_setup\n"
+            "earth_gravity_constant 3e14\nradius 6000000\nmax_degree 2\nerrors no\n"
+            "norm fully_normalized\ntide_system zero_tide\nformat icgem2.0\nend_of_head\n"
+            "gfct 2 0 -4.8e-4 0 20161231.0000 20170101.0000\n"
+            "gfct 2 0 -4.6e-4 0 20170101.0000 20170102.0000\n" );
+
+    return input_output::readIcgemGravityField( source, "controlled temporal setup coefficients" );
 }
 
 //! Declare a controlled, fully normalized potential with its source GM and radius.
@@ -450,6 +465,79 @@ BOOST_AUTO_TEST_CASE( aodAssemblyUsesSelectedConverterScalingAndComponentIdentit
     BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
 }
 
+//! Assemble temporal anomalies against the actual field, preserving source-clock boundaries and the adopted nominal snapshot.
+BOOST_AUTO_TEST_CASE( temporalAssemblyUsesSelectedConverterBaselineAndIntervalOwnership )
+{
+    const auto data = temporalData( );
+
+    auto setup = settings( );
+
+    const auto selected = std::dynamic_pointer_cast< GcrsToItrsRotationModelSettings >( setup.at( "Earth" )->rotationModelSettings );
+
+    // A coarse selected time conversion makes accidentally constructing a default converter observable.
+    selected->setTdbToTtInterpolatorSettings( interpolators::interpolatorGenerationSettings< double >(
+            std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ),
+            testTime - 30.0 * 86400.0,
+            testTime + 150.0 * 86400.0,
+            90.0 * 86400.0 ) );
+
+    // Adopt a nonzero nominal C20 so the complete provider baseline must replace, rather than add to, it.
+    const auto nominalSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( setup.at( "Earth" )->gravityFieldSettings );
+
+    Eigen::MatrixXd nominal = nominalSettings->getCosineCoefficients( );
+
+    nominal( 2, 0 ) = -4.7e-4;
+    nominalSettings->resetCosineCoefficients( nominal );
+
+    const auto temporal = icgemTemporalGravityFieldVariationSettings( data, tai_scale, gravitation::IcgemYearConvention::julianYear, 2, 0 );
+
+    setup.at( "Earth" )->gravityFieldVariationSettings = { temporal };
+    const auto bodies = createSystemOfBodies( setup );
+
+    const auto gravity = field( bodies );
+
+    const auto rotation =
+            std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodies.at( "Earth" )->getRotationalEphemeris( ) );
+
+    const auto converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+
+    const Time boundary = timeFromDecomposedDateTime< Time >( 2017, 1, 1, 0, 0, 0.0L );
+
+    const double tdb = static_cast< double >( converter->getCurrentTime< Time >( tai_scale, tdb_scale, boundary ) );
+
+    const double scale = data.gravitationalParameter / gravity->getGravitationalParameter( ) *
+            std::pow( data.referenceRadius / gravity->getReferenceRadius( ), 2 );
+
+    const auto native = std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >( nullptr, nullptr );
+
+    BOOST_CHECK_GT( std::abs( static_cast< double >( native->getTaiTime( tdb_scale, Time( tdb ) ) -
+                                                     converter->getTaiTime( tdb_scale, Time( tdb ) ) ) ),
+                    1e-6 );
+    gravity->update( tdb );
+
+    // The exact scalar boundary belongs to the right base. Only binary multiplication/addition rounding remains.
+    BOOST_CHECK_SMALL( gravity->getCosineCoefficients( )( 2, 0 ) - scale * -4.6e-4, 2e-19 );
+    BOOST_CHECK( gravity->getGravityFieldVariationsSet( )
+                         ->getGravityFieldVariation( gravitation::icgem_temporal, "ICGEM_TEMPORAL_controlled_temporal_setup" )
+                         .first );
+
+    // An intentional later nominal change adds an offset without redefining the adopted anomaly baseline.
+    gravity->setNominalCosineCoefficient( 2, 0, nominal( 2, 0 ) + 1e-5 );
+    gravity->update( tdb + 1.0 );
+    BOOST_CHECK_SMALL( gravity->getCosineCoefficients( )( 2, 0 ) - ( scale * -4.6e-4 + 1e-5 ), 2e-19 );
+
+    setup.at( "Earth" )->gravityFieldVariationSettings.push_back( temporal );
+    BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
+
+    auto incompatible = data;
+
+    incompatible.tideSystem = TideSystem::tideFree;
+    setup.at( "Earth" )->gravityFieldVariationSettings = { icgemTemporalGravityFieldVariationSettings(
+            incompatible, tai_scale, gravitation::IcgemYearConvention::julianYear, 2, 0 ) };
+    BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
+}
+
 #if TUDAT_BUILD_WITH_SERIALIZATION
 BOOST_AUTO_TEST_CASE( earthGravitySettingsRoundTripCompleteInputsAndFinalInventory )
 {
@@ -466,7 +554,13 @@ BOOST_AUTO_TEST_CASE( earthGravitySettingsRoundTripCompleteInputsAndFinalInvento
         oceanPoleTideGravityFieldVariationSettings( oceanData( ), { 0, 0, -0.3075 }, oceanConstants( ), 2, 2 ),
         std::make_shared< HarmonicGravityFieldVariationSettings >(
                 std::vector< gravitation::HarmonicGravityConstituent >{ harmonicWave( ) }, harmonicMetadata( ), 2, 2, interpolation ),
-        aod1bGravityFieldVariationSettings( { aodData( ) }, input_output::Aod1bComponent::global, 2, 2 )
+        aod1bGravityFieldVariationSettings( { aodData( ) }, input_output::Aod1bComponent::global, 2, 2 ),
+        icgemTemporalGravityFieldVariationSettings( temporalData( ),
+                                                    tt_scale,
+                                                    gravitation::IcgemYearConvention::fractionalGregorianYear,
+                                                    2,
+                                                    0,
+                                                    { { "20161231.0000", testTime - 100.0 } } )
     };
 
     std::stringstream stream;

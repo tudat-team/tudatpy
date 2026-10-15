@@ -31,6 +31,7 @@ set(environment_HEADERS
         createEarthGravityFieldVariations.h
         createAod1bGravityFieldVariations.h
         createTime22GravityFieldVariations.h
+        createIcgemTemporalGravityFieldVariations.h
         createAtmosphereModel.h
         createFlightConditions.h
         createRadiationSourceModel.h
@@ -55,6 +56,7 @@ set(environment_SOURCES
         createEarthGravityFieldVariations.cpp
         createAod1bGravityFieldVariations.cpp
         createTime22GravityFieldVariations.cpp
+        createIcgemTemporalGravityFieldVariations.cpp
         createBodies.cpp
         createGravityField.cpp
         createBodyShapeModel.cpp
