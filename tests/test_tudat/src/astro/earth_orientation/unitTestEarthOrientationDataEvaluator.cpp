@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <iomanip>
@@ -118,7 +119,12 @@ BOOST_AUTO_TEST_CASE( strict_topocentric_tdb_uses_continuous_ut1_in_sofa )
                                      radius,
                                      station.z( ) / 1000.0 );
     const Time tdb = converter.getCurrentTime< Time >( tt_scale, tdb_scale, tt, station );
-    BOOST_CHECK_SMALL( static_cast< double >( tdb - tt ) - expected, 1e-14 );
+
+    // Forming and recovering the offset allows four fractional-hour roundings.
+    const long double offsetTolerance = std::max(
+            1e-14L, 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM );
+
+    BOOST_CHECK_SMALL( static_cast< double >( tdb - tt ) - expected, offsetTolerance );
     BOOST_CHECK_SMALL( static_cast< double >( converter.getCurrentTime< Time >( tdb_scale, tt_scale, tdb, station ) - tt ), 1e-12 );
     BOOST_CHECK_THROW(
             converter.getCurrentTime< Time >( tt_scale, tdb_scale, convertTAItoTT( evaluator->getEndTai( ) + 86400.0 ), station ),
@@ -424,6 +430,20 @@ BOOST_AUTO_TEST_CASE( four_point_stencils_reject_gaps_and_missing_cpo_without_re
     BOOST_CHECK_EQUAL( exact.polarMotion.x( ), data.records.at( 59001.0 ).polarMotion[ 0 ] );
     BOOST_CHECK( !exact.polarMotionRate );
     BOOST_CHECK( !exact.ut1MinusTaiRate );
+
+    // Both neighboring intervals must recognize the same raw node across an interpolation gap.
+    const long double roundoff = std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM;
+
+    for( const long double shift : { -roundoff, roundoff } )
+    {
+        const auto nearby = gaps.evaluate( raw + shift, true );
+
+        BOOST_CHECK_EQUAL( nearby.polarMotion.x( ), exact.polarMotion.x( ) );
+        BOOST_CHECK_EQUAL( nearby.ut1MinusTai, exact.ut1MinusTai );
+        BOOST_CHECK( !nearby.polarMotionRate );
+        BOOST_CHECK( !nearby.ut1MinusTaiRate );
+        BOOST_CHECK_THROW( gaps.evaluate( raw + 32.0L * shift ), std::runtime_error );
+    }
     BOOST_CHECK_THROW( gaps.evaluate( raw + 43200.0 ), std::runtime_error );
     BOOST_CHECK_NO_THROW( gaps.evaluate( gaps.getEndTai( ) - 43200.0, true ) );
     data = interpolationData( interpolation_reference::datasets.front( ) );
@@ -614,6 +634,12 @@ BOOST_AUTO_TEST_CASE( native_geocentric_clock_rate_matches_independent_sofa_step
         const Time tt = convertTAItoTT( tai );
         const Time tdb = converter.getCurrentTime< Time >( tai_scale, tdb_scale, tai );
         const double actual = converter.getGeocentricTtRateWithRespectToTdb( tdb );
+
+        // Propagate four fractional-hour roundings per recovered offset through the 32-second stencil's absolute weights.
+        const long double rateTolerance = std::max(
+                2e-15L,
+                2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM * 18.0L / ( 12.0L * 32.0L ) );
+
         for( double h : { 16.0, 32.0, 64.0 } )
         {
             const auto directOffset = [ &tt ]( double delta ) {
@@ -622,7 +648,7 @@ BOOST_AUTO_TEST_CASE( native_geocentric_clock_rate_matches_independent_sofa_step
             const double derivative =
                     ( 8.0 * ( directOffset( h ) - directOffset( -h ) ) - ( directOffset( 2 * h ) - directOffset( -2 * h ) ) ) / ( 12 * h );
             const double expected = 1.0 / ( 1.0 + derivative );
-            BOOST_CHECK_SMALL( actual - expected, 2e-15 );
+            BOOST_CHECK_SMALL( actual - expected, rateTolerance );
             std::cout << std::setprecision( 17 ) << "SOFA clock epoch=" << static_cast< double >( tai ) << " h=" << h
                       << " dTT/dTDB=" << actual << " residual=" << actual - expected << '\n';
         }
@@ -677,7 +703,7 @@ BOOST_AUTO_TEST_CASE( precise_time_clock_stencil_accepts_roundoff_at_a_fractiona
     const Time tdb( 0, std::nextafter( 100.0L, std::numeric_limits< long double >::infinity( ) ) );
 
     // Adding 32/64 s crosses the 128-s fractional binade and rounds by one
-    // long-double ULP (~7e-18 s), far below the precision of the returned rate.
+    // long-double ULP; its size depends on the platform's long-double precision.
     BOOST_CHECK_NE( tdb + 32.0 - tdb, Time( 32.0 ) );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr );
     const double actual = converter.getGeocentricTtRateWithRespectToTdb( tdb );
@@ -686,5 +712,11 @@ BOOST_AUTO_TEST_CASE( precise_time_clock_stencil_accepts_roundoff_at_a_fractiona
         return sofa_interface::getTDBminusTT( static_cast< double >( tt + delta ), 0.0, Eigen::Vector3d::Zero( ) );
     };
     const double derivative = ( 8.0 * ( offset( 32 ) - offset( -32 ) ) - ( offset( 64 ) - offset( -64 ) ) ) / 384.0;
-    BOOST_CHECK_SMALL( actual - 1.0 / ( 1.0 + derivative ), 2e-15 );
+
+    // Use the same fractional-hour offset budget and absolute stencil weights as the clock step study above.
+    const long double rateTolerance = std::max(
+            2e-15L,
+            2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM * 18.0L / ( 12.0L * 32.0L ) );
+
+    BOOST_CHECK_SMALL( actual - 1.0 / ( 1.0 + derivative ), rateTolerance );
 }

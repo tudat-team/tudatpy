@@ -99,8 +99,10 @@ struct EarthOrientationInputDataValue {
  *  and the time derivative of the interpolating function is returned with each value.
  *
  *  Epochs outside the data, and epochs in an interval between data points that is longer than the maximum gap, throw an
- *  exception. Exactly at a data point, the value from the file is returned. Its rate is taken from the interval after that
- *  point (or before it, at the last data point), and is not available if that interval is longer than the maximum gap.
+ *  exception. An epoch within fractional-hour clock roundoff of a data point is evaluated at that point. Its value is taken
+ *  from the file and its rate from the interval after that point (or before it, at the last data point). The rate is not
+ *  available if that interval is longer than the maximum gap. The recognition margin depends
+ *  on long-double precision, not on the number of seconds since J2000.
  */
 class EarthOrientationDataEvaluator
 {
@@ -116,6 +118,7 @@ public:
 
     //! Interpolated EOP values and their rates at the given TAI epoch (seconds since J2000). If requireCelestialPole is true
     //! and the data has no celestial pole offsets at this epoch, the missingCelestialPole setting is applied.
+    //! Epochs within fractional-hour rounding error of a data point use that point before selecting the interval.
     EarthOrientationInputDataValue evaluate( const Time& tai, bool requireCelestialPole = false ) const;
 
     //! Celestial pole offsets dX and dY (radians) at the given TAI epoch, applying the missingCelestialPole setting.

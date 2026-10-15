@@ -11,6 +11,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <limits>
 #include <boost/test/included/unit_test.hpp>
 
@@ -209,7 +210,12 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
         const Time beforeUt1 = converter.getUt1FromTai( beforeTai );
         const Time afterUt1 = converter.getUt1FromTai( afterTai );
         const double evolution = static_cast< double >( ( beforeUt1 - afterUt1 ) - ( beforeTai - afterTai ) );
-        BOOST_CHECK_SMALL( evolution - expectedEvolution, 1.0E-14 );
+
+        // Four fractional-hour roundings can enter the two UT1 epochs and their differenced evolution.
+        const long double evolutionTolerance = std::max(
+                1.0E-14L, 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM );
+
+        BOOST_CHECK_SMALL( evolution - expectedEvolution, evolutionTolerance );
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differencePlusOneDay + 1.0 ), 0.01 );
     }
 }

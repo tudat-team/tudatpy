@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -181,7 +182,22 @@ EarthOrientationInputDataValue EarthOrientationDataEvaluator::evaluate( const Ti
 
     // An epoch within the coverage tolerance outside the first or last observation (for instance the
     // rounded double value of that observation's epoch) is evaluated at that observation.
-    const Time tai = std::min( std::max( requestedTai, epochs_.front( ) ), epochs_.back( ) );
+    Time tai = std::min( std::max( requestedTai, epochs_.front( ) ), epochs_.back( ) );
+
+    // Allow fractional-hour clock roundoff before choosing a node's interval, also when long double has double precision.
+    // Positive differences avoid normalizing a tiny negative interval through the preceding hour.
+    const long double nodeTolerance = 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM;
+
+    const auto next = std::lower_bound( epochs_.begin( ), epochs_.end( ), tai );
+
+    if( next != epochs_.end( ) && static_cast< long double >( *next - tai ) <= nodeTolerance )
+    {
+        tai = *next;
+    }
+    else if( next != epochs_.begin( ) && static_cast< long double >( tai - *( next - 1 ) ) <= nodeTolerance )
+    {
+        tai = *( next - 1 );
+    }
 
     // Select the right-hand interval at an exact sample, except at the final sample.
     const auto upper = std::upper_bound( epochs_.begin( ), epochs_.end( ), tai );

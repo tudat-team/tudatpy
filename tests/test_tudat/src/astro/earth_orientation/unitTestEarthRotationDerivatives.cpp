@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
+#include <limits>
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 
@@ -376,7 +377,18 @@ BOOST_AUTO_TEST_CASE( strict_rates_retain_endpoints_knot_policy_and_missing_rate
             const Time input = converter->getCurrentTime< Time >( tai_scale, scale, tai );
             const auto rate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( input, scale );
             const auto doubleRate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( static_cast< double >( input ), scale );
-            BOOST_CHECK_EQUAL( rate.tai, tai );
+            if( std::numeric_limits< long double >::digits > std::numeric_limits< double >::digits )
+            {
+                BOOST_CHECK_EQUAL( rate.tai, tai );
+            }
+            else
+            {
+                // Four fractional-hour roundings bound the native clock round trip on binary64 long-double platforms.
+                const long double epochTolerance =
+                        2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM;
+
+                BOOST_CHECK_SMALL( static_cast< long double >( rate.tai - tai ), epochTolerance );
+            }
 
             // A rounded double end point lies within the EOP coverage tolerance of the exact end point.
             BOOST_CHECK_SMALL( static_cast< double >( doubleRate.tai - tai ), 1e-6 );
@@ -399,6 +411,16 @@ BOOST_AUTO_TEST_CASE( strict_rates_retain_endpoints_knot_policy_and_missing_rate
     const auto at = knotCalculator->getRotationAnglesAndRatesFromItrsToGcrs( referenceTai( ), tai_scale );
     const auto before = knotCalculator->getRotationAnglesAndRatesFromItrsToGcrs( referenceTai( ) - 0.01, tai_scale );
     BOOST_CHECK_SMALL( at.angleRates[ 3 ] - ( 2e-12 + 1e-6 / 86400.0 ), 1e-25 );
+
+    // Fractional-hour clock roundoff on either side of the knot must retain the right-hand slope.
+    const long double roundoff = std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM;
+
+    for( const long double shift : { -roundoff, roundoff } )
+    {
+        const auto nearby = knotCalculator->getRotationAnglesAndRatesFromItrsToGcrs( referenceTai( ) + shift, tai_scale );
+
+        BOOST_CHECK_EQUAL( nearby.angleRates[ 3 ], at.angleRates[ 3 ] );
+    }
     BOOST_CHECK_SMALL( before.angleRates[ 3 ] - 2e-12, 1e-25 );
 }
 

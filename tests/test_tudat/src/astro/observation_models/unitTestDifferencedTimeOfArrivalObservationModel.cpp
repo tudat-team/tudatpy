@@ -10,6 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <limits>
 #include <string>
 
@@ -166,7 +167,12 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
                                                                   receptionTdbTime2,
                                                                   getApproximateDsnGroundStationPositions( ).at( "DSS-43" ) );
 
-            BOOST_CHECK_SMALL( static_cast< double >( receptionUtcTime1 - receptionUtcTime2 ) - differencedTimeOfArrival, 5.0E-13 );
+            // Allow eight fractional-hour roundings for the independently formed receiver epochs, their conversions and subtraction.
+            const long double timeDifferenceTolerance = std::max(
+                    5.0E-13L, 4.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM );
+
+            BOOST_CHECK_SMALL( static_cast< double >( receptionUtcTime1 - receptionUtcTime2 ) - differencedTimeOfArrival,
+                               timeDifferenceTolerance );
         }
     }
 }

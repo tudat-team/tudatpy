@@ -457,7 +457,7 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
             }
             const Time tai = epochs[ i ] + shift;
             const auto epoch = epochAtTai( c, tai );
-            if( shift == 0 )
+            if( shift == 0 && std::numeric_limits< long double >::digits > std::numeric_limits< double >::digits )
             {
                 BOOST_REQUIRE_MESSAGE( c->getTaiTime( tdb_scale, epoch ) == tai,
                                        "TAI round trip at node " << i << " differs by "
@@ -466,11 +466,11 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
             }
             else
             {
-                // Time stores seconds within an hour as long double. Interior
-                // clock round trips need only respect that representation's
-                // arithmetic error; exact knot identity above controls side choice.
+                // Time stores seconds within an hour as long double. On binary64 long-double platforms even a node
+                // round trip can round; the EOP evaluator recognizes it before choosing the interval and its slope.
                 BOOST_REQUIRE_SMALL( static_cast< long double >( c->getTaiTime( tdb_scale, epoch ) - tai ),
-                                     16.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM );
+                                     ( shift == 0 ? 2.0L : 16.0L ) * std::numeric_limits< long double >::epsilon( ) *
+                                             TIME_NORMALIZATION_INTEGER_TERM );
             }
             const auto value = c->getEarthOrientationDataEvaluator( )->evaluate( tai );
             const double slope = slopes[ std::min( i, slopes.size( ) - 1 ) ];
