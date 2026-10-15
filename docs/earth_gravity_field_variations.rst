@@ -7,34 +7,90 @@ Scope and status
 Branch: ``fix/gravity_field_variations``, created from the Earth rotation/station
 checkpoint ``a3be1612a`` on 14 October 2026. Dominic authorized this programme to
 start in parallel with the remaining station validation and review. The two
-programmes have separate integration worktrees. Reviewed station fixes will be
-merged before gravity setup depends on them.
+programmes have separate integration worktrees. The reviewed station fixes have
+now been merged before extending gravity setup.
 
-Status: primary-literature review and existing-code inventory are complete. The
-static ICGEM adapter and solid-Earth, solid-pole and ocean-pole backends are
-integrated and validated. Their Earth factory wiring and the harmonic ocean
-products remain in progress. The coordinator designs,
-reviews and handles major debugging; GPT-6.1 Sol agents at high reasoning implement,
-compile and handle minor debugging. The global limit is eight compiler jobs across
-all worktrees. Only relevant native tests run; the Python kernel is built solely
-for Python-specific tests. No new estimation parameters or gravity recovery work.
+Status updated 15 October 2026: resumed after the rotation/deformation handover.
+The static ICGEM adapter and solid-Earth, solid-pole and ocean-pole models are
+integrated and have passing reference checks. Their conventional Earth factories
+are also implemented locally; the earlier factory checkpoint passed 3 cases and
+16 assertions. The tracker below supersedes the older "factory pending" status.
+The harmonic ocean checkpoint is integrated. Its recovered original reader and
+model tests pass 7 cases and 57 assertions; the largest of four COST-G M2 force
+residuals is 1.57e-13 m/s^2 against the unchanged 1e-11 m/s^2 budget.
+
+Authoritative checkout: ``tudatpy-earth-gravity-variations`` on
+``fix/gravity_field_variations``. Last published gravity
+checkpoint: ``98b2e67e1``. Merge ``2a79c232d`` includes reviewed rotation/deformation
+revision ``d34b32718``; ``83f36358c`` integrates harmonic checkpoint ``353aa728b``.
+Checkpoint ``0ad9cf79d`` adds harmonic consuming settings and removes the two
+empty conventional preset classes. The later local fixes declare existing
+Earth-orientation link dependencies and compare harmonic matrix dimensions
+before coefficient equality.
+Checkpoints ``39f58f9b6`` and ``d42704f96`` add AOD1B RL07 input, interpolation
+and Earth-factory integration, including component overlap checks and serialization.
+TiME22 source is integrated at ``2ae468a64`` and the first Python bindings at
+``c2700aa53``. ``5e982c022`` moves final harmonic inventories into settings to avoid
+an unnecessary large temporary copy.
+``6a6fc5082`` documents the harmonic code and skips exact-zero admittance weights.
+``b39c320fd`` integrates neutral temporal ICGEM records and the explicit static
+consumer rejection. A separate comments-only pass covers the conventional and
+ocean-pole models without changing numerical expressions.
+``72ed3b5fc`` removes the raw ICGEM record include from the generic gravity setup
+header; only code that consumes those records now includes their complete type.
+Gravity has not been pushed during this resumed work.
+
+The coordinator designs, reviews and handles major debugging. Three GPT-6.1 Sol
+workers at high reasoning are active in separate worktrees: rotation_impl owns
+dependency integration, the build and a separate Python exposure checkout;
+desai_impl has completed the TiME22 adapter and is reviewing comments and reuse;
+history_impl is extending the neutral ICGEM reader after completing AOD1B.
+rotation_impl has validated the initial targets and harmonic setup, and is building
+AOD1B and TiME22 in ``/home/dominic/Tudat/gravity-resume-build``
+from a consistent source tree and owns the entire eight-job allowance. Its
+configuration follows the validated PR1092 build, including serialization.
+Tests run serially. Only relevant native tests run; the Python kernel is built
+solely for Python-specific validation. No new estimation parameters, gravity
+recovery work or examples are included.
 
 .. code-block:: text
 
    [x] G01 Review primary literature, provider conventions and existing implementations.  [DONE]
    [ ] G02 Define rotation/gravity compatibility and reuse existing Tudat functionality.  [ACTIVE]
-   [ ] G03 Preserve neutral coefficient, constituent and source-convention records.  [ACTIVE — static ICGEM foundation integrated and validated]
-   [ ] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [ACTIVE — backend integrated and validated; factory pending]
-   [ ] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [ACTIVE — backend integrated and validated; factory pending]
-   [ ] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [ACTIVE — backend integrated and validated; factory pending]
-   [ ] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [ACTIVE — coefficient contracts and reader]
-   [ ] G08 Support identified ocean-tide products without mixing their phase conventions.  [QUEUED]
-   [ ] G09 Handle atmospheric/non-tidal coefficient products and component overlap explicitly.  [QUEUED]
-   [ ] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [QUEUED]
-   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — settings implementation and focused factory tests]
-   [ ] G12 Validate individual models and assembled forces against pinned references.  [ACTIVE — three backends pass independent force comparisons]
-   [ ] G13 Complete Python settings, diagnostics and a reproducible setup example.  [QUEUED]
-   [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [QUEUED]
+   [ ] G03 Preserve neutral coefficient, constituent and source-convention records.  [ACTIVE — all source records integrated; temporal/AOD1B validation pending]
+   [x] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [DONE — model and factory checkpoint validated; dependency integration is G11]
+   [x] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [DONE — model and factory checkpoint validated]
+   [x] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [DONE — full model and factory checkpoint validated]
+   [ ] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [ACTIVE — backend and setup pass; TiME22 integrated, validation underway]
+   [ ] G08 Support identified ocean-tide products without mixing their phase conventions.  [ACTIVE — FES2004/FES2014b/EOT11a integrated; TiME22 integrated, validation underway]
+   [ ] G09 Handle atmospheric/non-tidal coefficient products and component overlap explicitly.  [ACTIVE — AOD1B integrated through d42704f96; TiME22 atmospheric source complete; validation pending]
+   [ ] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [ACTIVE — neutral reader integrated; coefficient-interval adapter in progress with explicit clock/year/date contract]
+   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — conventional and harmonic factories pass; AOD1B/TiME22 validation underway]
+   [ ] G12 Validate individual models and assembled forces against pinned references.  [ACTIVE — initial 10 native executables pass: 52 cases, 2452 assertions; new adapters follow]
+   [ ] G13 Complete Python settings and diagnostics.  [ACTIVE — first bindings integrated; AOD1B/TiME22/temporal bindings follow; examples excluded by Dominic]
+   [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [ACTIVE — generic changes reviewed; move ownership fixed; comments and API review ongoing]
+
+Resumed verification
+--------------------
+
+The first build of the isolated solid-tide test exposed missing link declarations
+for the Earth-orientation library's existing SOFA and raw-reader dependencies.
+The two-line owning-target fix links successfully; no numerical source change
+was required. Logs retain the failed attempt and its successful replacement in
+``/home/dominic/Tudat/gravity-resume-build/verification-20261015``.
+
+The initial ten native executables pass: ICGEM, ocean-pole and harmonic-potential
+readers; solid-Earth, ocean-pole and harmonic gravity models; ICGEM settings;
+Earth variation setup; existing gravity variations; and environment model setup.
+Together they pass 52 cases and 2452 assertions, with zero failures. This includes
+the Earth-relative Moon and deferred-interpolation factory checks. Evidence is in
+``verification-20261015/native-summary-initial.json``. Runtime tests are serial
+with numerical-library threads set to one.
+
+The later harmonic checkpoint also passes: harmonic reader 3 cases/30 assertions
+and Earth setup 6 cases/39 assertions, including ordered admittance, selected
+clocks, deferred sampling and exact serialization. AOD1B and TiME22 share the next
+focused four-target build; Python validation remains pending.
 
 Literature and model decisions
 -----------------------------
@@ -111,11 +167,12 @@ Existing-model comparison
 
 Tudat already has basic complex Love-number response, real mode coupling,
 tabulated, periodic and polynomial coefficient variations, a variation collection,
-time-dependent spherical harmonics and force evaluation. Extend these seams.
-The ``iers_2010_tidal``, ``ocean_tide`` and ``pole_tide`` enum names currently do
-not have matching factory implementations. Do not present enum exposure as model
-support. A separate local gravity/rigid-body branch contains candidate numerical
-reuse; inspect individual routines rather than importing its unrelated machinery.
+time-dependent spherical harmonics and force evaluation. The implementation uses
+these existing interfaces. At the initial audit, the conventional solid, ocean
+and pole enum names lacked their corresponding factory implementations; those
+factories are now present. The local legacy ILR code supplied reusable numerical
+structure for the solid, ocean-pole and harmonic models. Its unrelated framework
+and obsolete build machinery were not imported.
 
 The pinned `GROOPS source
 <https://github.com/groops-devs/groops/tree/7e1bd6dc8bf2fb1c9180f2f9366efa7e7b4477ee>`_
@@ -135,9 +192,10 @@ Reference execution has not yet been performed.
 Setup compatibility rules
 -------------------------
 
-These are proposed enforcement rules derived from the analysis above and the
-existing Tudat setup paths. They will be checked in the Earth-specific consuming
-factory; neutral readers must not depend on bodies, dynamics or estimation.
+These enforcement rules follow the analysis above and the existing Tudat setup
+paths. They are implemented in the Earth-specific consuming factory; the temporal
+baseline checks are being completed with G10. Neutral readers do not depend on
+bodies, dynamics or estimation.
 
 .. list-table:: Compatibility decisions
    :header-rows: 1
@@ -241,18 +299,17 @@ not vendored production dependencies. Any committed fixture extract must record
 its exact source ranges, conventions, licence and reproduction command. Ordinary
 tests must be entirely offline.
 
-Open decisions before implementation
------------------------------------
+Remaining work at this checkpoint
+---------------------------------
 
-* Finish the local-branch reuse assessment and final Earth factory/API design.
-* Verify coefficient-file licences and precise product headers before choosing
-  fixture extracts and packaged optional profiles.
-* Derive model-specific coefficient and acceleration tolerances from published
-  reference precision and truncation, then freeze them before testing.
-* Decide the smallest supported atmospheric/non-tidal input set after checking
-  real product records. Do not manufacture missing scientific metadata.
-* Preserve an explicit difference between a low-degree pole approximation and
-  the full declared harmonic expansion.
+* Finish the temporal consuming adapter and validate its explicit date/year and
+  nominal-baseline choices.
+* Complete the focused native tests for the later AOD1B, TiME22 and temporal
+  checkpoints, retaining the numerical tolerances set before execution.
+* Finish the corresponding Python bindings, compile the kernel for their tests,
+  and check documentation imports and the relevant architecture tests.
+* Finish the review of added code, comments, API placement and offline test data.
+  Examples remain excluded.
 
 Implementation contracts
 ------------------------
@@ -413,6 +470,63 @@ Do not mix such explicit sidebands with another nodal modulation. Published
 FES2004 interpolation and TiME22-v1.1 matrices remain separate named profiles;
 the latter already includes phase and loading in its cosine/sine fields.
 
+The complete official TiME22 revision 1.1 archive was retrieved on 15 October
+2026 into the local reference cache. Its SHA256 is
+``79c9ef695b4c15d45f5a35dd706a7ed2e1df5acc4d7e509b5f6e404a71467ab3``;
+the archive has 153 files, with individual checksums in
+``references/gravity/time22-v1_1/files.json``. The provider permits reuse under
+CC BY 4.0. Only necessary documented fixtures will enter the repository.
+The ocean matrix has 57 input rows and 435 output columns and must be transposed
+for the existing target-by-major helper. The atmospheric matrix is 16 by 16.
+The supplied multiplier tables, rather than filename parsing alone, define
+the output phases. Real S5/S6 identifiers include ``5A0.555`` and ``6BZ.555``;
+section 4.3 defines A=10, B=11 and Z=-1 before the usual Doodson offsets.
+The current setup work includes support for these verified identifier codes.
+
+Non-tidal and temporal adaptation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+AOD1B RL07 consumption keeps the provider GPS sampling grid and reuses
+``TabulatedGravityFieldVariations`` with linear interpolation and no
+extrapolation. Each query is converted from the selected rotation's TDB clock
+to GPS before interpolation; converting only the sample knots to TDB would
+change the interpolation weights. Missing three-hour intervals reject.
+Published anomalies are added relative to the provider's 2007--2014 mean and
+scaled once to the consuming field's GM and radius. Standard Earth setup starts
+at degree two. GLO cannot accompany ATM or OCN, and OBA cannot be combined with
+another AOD component without a supported explicit physical decomposition.
+
+The ICGEM temporal audit confirms that ``gfct``, trend and periodic terms define
+replacement coefficient histories. An adapter must subtract the consuming
+nominal baseline once, without subtracting nearly equal complete coefficients
+on every evaluation. The 2023 specification does not define the time scale or
+duration of its year; these must be explicit consuming choices. Piecewise
+coefficient intervals and their endpoints require a documented rule. This
+neutral reader now being implemented retains temporal records, while the static
+consumer rejects them. The consuming adapter is being implemented with one
+coefficient/interval model: existing polynomial and periodic models have one
+global reference epoch and cannot directly represent the published independent
+intervals. Tabulation is unsuitable across coefficient jumps or coverage gaps.
+
+Consumption requires an explicit source time scale and year convention. The
+Julian-year option uses elapsed TAI seconds divided by 31557600; the fractional
+Gregorian-year option uses the calendar coordinate in the declared source scale.
+Intervals are half-open, with the right-hand record owning a shared boundary.
+Date-only records use midnight; subday records use strict hours and minutes.
+An optional map of printed date tokens to source-scale epochs permits an explicit
+caller correction of irregular provider dates. In particular, EIGEN's
+``20041226.0060`` is preserved by the reader and is not silently rolled to 01:00.
+The nominal field at construction defines the added anomaly. Later intentional
+nominal-field changes act as offsets, as with existing additive variations.
+No deferred interpolation or extra epoch wrapper is introduced for this model.
+
+The primary EIGEN-6S4 version 2 file is now pinned in the reference cache
+(``eigen6s4-v2-source.json``). Its independently dated periodic records confirm
+that one cannot attach every term to an identical ``gfct`` interval: twelve
+published periodic records have longer validity intervals than their associated
+baseline records. This is part of the temporal adapter design, not a reason to
+change or approximate the published coefficients.
+
 Ocean-pole backend checkpoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -420,7 +534,8 @@ Ocean-pole backend checkpoint
 integrals into neutral sparse records. It preserves headers/source lines,
 published degree-one values and missing-entry identity; duplicate, malformed,
 nonfinite or physically nonzero zonal sine integrals reject. Its independent
-``tudat_ocean_pole_gravity_data`` target uses only the C++ standard library.
+reader uses only the C++ standard library and is now part of the consolidated
+``tudat_environment_data`` target.
 
 ``OceanPoleTideGravityFieldVariations`` implements equation 6.23 for explicitly
 selected degrees >=2 and orders including zero/one. It requires all selected
