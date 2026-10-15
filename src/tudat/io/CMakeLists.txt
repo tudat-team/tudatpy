@@ -162,6 +162,8 @@ TUDAT_ADD_LIBRARY("environment_data"
 # Preserve language, shared-library and public Eigen requirements for all consumers.
 target_compile_features(tudat_environment_data PUBLIC cxx_std_17)
 set_target_properties(tudat_environment_data PROPERTIES POSITION_INDEPENDENT_CODE ON)
+# Each reader keeps its own file-local parsing helpers; they cannot share a unity translation unit.
+set_target_properties(tudat_environment_data PROPERTIES UNITY_BUILD OFF)
 if(TARGET Eigen3::Eigen)
     target_link_libraries(tudat_environment_data PUBLIC Eigen3::Eigen)
 else()
