@@ -467,9 +467,10 @@ HarmonicGravityFieldVariationSettings
 Create analytic temporal ICGEM variations with explicit source time conventions.
 
 The response is an anomaly relative to the nominal field snapshot at construction.
-The selected Earth rotation supplies the clock conversion. Evaluation remains
-bounded by the supplied gfct pieces, without extrapolation or a second interpolation
-stage. Julian years use elapsed TAI SI seconds divided by 31557600; fractional
+The selected Earth rotation supplies the clock conversion. Format 2.0 uses the
+supplied half-open gfct validity intervals; format 1.0 has no artificial validity
+bound. Neither format adds a second interpolation stage. Julian years use elapsed
+TAI SI seconds divided by 31557600; fractional
 Gregorian years use the declared source calendar. Later nominal-field changes do
 not rebase the adopted snapshot. In format 1.0, date-only tokens mean midnight;
 format 2.0 requires HHMM. Irregular suffixes that are not HHMM require explicit
