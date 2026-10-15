@@ -31,3 +31,35 @@ functions in :ref:`environment_setup`.
    environment_data/spacetrack
    environment_data/spice
    environment_data/terrestrial_frames
+
+SP3 ephemeris products
+---------------------
+
+.. currentmodule:: tudatpy.data_input.environment_data
+
+The SP3 reader loads uncompressed SP3c/d files as raw ephemeris records. Positions
+and velocities are converted once to metres and metres per second. Clock
+corrections are seconds and clock rates are seconds per second; missing clock
+values are NaN. Missing positions/velocities and predicted-orbit flags remain
+explicit. The reader neither interpolates an ephemeris nor converts its frame
+or time system.
+
+Each record's :class:`~tudatpy.astro.time_representation.Time` represents the
+coordinate printed in the file's declared time system. In particular, an ILRS
+SP3 declaring UTC must not be treated as a GPS-time product. Frame labels and
+provider comments must be interpreted before constructing an environment model;
+a frame label alone does not specify an available reference-frame conversion.
+
+.. autosummary::
+
+   read_sp3_file
+   Sp3Data
+   Sp3Record
+
+.. autofunction:: read_sp3_file
+
+.. autoclass:: Sp3Data
+   :members:
+
+.. autoclass:: Sp3Record
+   :members:

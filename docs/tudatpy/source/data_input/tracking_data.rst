@@ -34,6 +34,7 @@ For more information on the tracking data architecture, see the `user guide <htt
    tracking_data/optical_utilities
    tracking_data/psf
    tracking_data/radar_utilities
+   tracking_data/slr
    tracking_data/tnf
 
 .. automodule:: tudatpy.data_input.tracking_data
