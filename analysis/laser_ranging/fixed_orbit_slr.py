@@ -224,11 +224,10 @@ class FixedOrbit:
 
     def relative_position(self, tdb):
         """Apply IERS 11.19 spatial scaling and the topocentric simultaneity term."""
+        tdb = tdb if isinstance(tdb, time.Time) else time.Time(tdb)
         earth_state = np.asarray(self.earth.state_in_base_frame_from_ephemeris(tdb)).reshape(6)
         sun_state = np.asarray(self.sun.state_in_base_frame_from_ephemeris(tdb)).reshape(6)
-        tt_geocentre = self.converter.convert_time_object(
-            time.tdb_scale, time.tt_scale, time.Time(tdb)
-        )
+        tt_geocentre = self.converter.convert_time_object(time.tdb_scale, time.tt_scale, tdb)
         tt_site = tt_geocentre
 
         # Iterate the position-dependent offset before evaluating and rotating the fixed orbit.
@@ -257,10 +256,11 @@ class FixedOrbit:
         return position
 
     def state(self, tdb):
-        """Supply a fixed-orbit BCRS state at the custom ephemeris's double TDB boundary."""
-        self.maximum_callback_half_ulp_seconds = max(
-            self.maximum_callback_half_ulp_seconds, abs(np.spacing(tdb)) / 2
-        )
+        """Supply a fixed-orbit BCRS state, preserving a Time callback's TDB epoch."""
+        if not isinstance(tdb, time.Time):
+            self.maximum_callback_half_ulp_seconds = max(
+                self.maximum_callback_half_ulp_seconds, abs(np.spacing(tdb)) / 2
+            )
         earth_state = np.asarray(self.earth.state_in_base_frame_from_ephemeris(tdb)).reshape(6)
         position = self.relative_position(tdb)
 
@@ -566,8 +566,11 @@ def reduce_session(session, session_index, bodies, orbit, correction_rows):
                     + bodies.get("Earth").rotation_model.body_fixed_to_inertial_rotation(tdb)
                     @ local
                 )
-                bounce = float(transmit + record.two_way_time_of_flight / 2)
-                direction = orbit.state(bounce)[:3] - station_bcrs
+                bounce = transmit + record.two_way_time_of_flight / 2
+                satellite = np.asarray(
+                    bodies.get("LAGEOS1").ephemeris.cartesian_state(bounce)
+                ).reshape(6)
+                direction = satellite[:3] - station_bcrs
                 elevations.append(
                     station.pointing_angles_calculator.calculate_elevation_angle(direction, tdb)
                 )
@@ -660,6 +663,9 @@ def main():
     )
     parser.add_argument("--got410c-blq", type=Path)
     parser.add_argument("--points", choices=(8, 10), type=int, default=10)
+    parser.add_argument("--body-ephemeris", choices=("cubic-time", "direct"), default="cubic-time")
+    parser.add_argument("--body-step", choices=(30, 60), type=int, default=30)
+    parser.add_argument("--satellite-epoch", choices=("time", "double"), default="time")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     input_directory = args.output / "uncompressed-inputs"
@@ -723,6 +729,19 @@ def main():
 
     provenance.extend(file_record(path) for path in spice_inputs)
     settings = environment_setup.get_default_body_settings(["Earth", "Sun", "Moon"], "SSB", "J2000")
+
+    # Integer SPICE knots and native Time interpolation preserve sub-double event offsets.
+    if args.body_ephemeris == "cubic-time":
+        table_start = float(calendar_epoch(2024, 3, 31)) - 86400
+        table_end = float(calendar_epoch(2024, 4, 7)) + 86400
+        spline = interpolators.cubic_spline_interpolation(
+            boundary_interpolation=interpolators.throw_exception_at_boundary
+        )
+
+        for name in ("Earth", "Sun", "Moon"):
+            settings.get(name).ephemeris_settings = ephemeris.interpolated_spice(
+                table_start, table_end, args.body_step, "SSB", "J2000", spline, name
+            )
     settings.get("Earth").rotation_model_settings = rotation_model.gcrs_to_itrs(
         base_frame="J2000", eop_data=earth_orientation.read_earth_orientation_data(str(eop_path))
     )
@@ -743,8 +762,12 @@ def main():
         args.points,
     )
     bodies.create_empty_body("LAGEOS1")
-    bodies.get("LAGEOS1").ephemeris = environment_setup.create_body_ephemeris(
-        ephemeris.custom_ephemeris(orbit.state, "SSB", "J2000"), "LAGEOS1"
+    bodies.get("LAGEOS1").ephemeris = (
+        environment.CustomEphemerisTimeObject(orbit.state, "SSB", "J2000")
+        if args.satellite_epoch == "time"
+        else environment_setup.create_body_ephemeris(
+            ephemeris.custom_ephemeris(orbit.state, "SSB", "J2000"), "LAGEOS1"
+        )
     )
 
     # Refresh the existing frame callbacks after assigning the newly added body's ephemeris.
@@ -828,6 +851,21 @@ def main():
     summary = {
         "orbit": args.orbit,
         "station_solution": args.station_solution,
+        "sp3_interpolation_points": args.points,
+        "ephemeris_routes": {
+            "bodies": args.body_ephemeris,
+            "body_table_step_seconds": (
+                args.body_step if args.body_ephemeris == "cubic-time" else None
+            ),
+            "satellite_epoch": args.satellite_epoch,
+            "rotation_epoch": "double",
+            "body_table_start_tdb_seconds": (
+                table_start if args.body_ephemeris == "cubic-time" else None
+            ),
+            "body_table_end_tdb_seconds": (
+                table_end if args.body_ephemeris == "cubic-time" else None
+            ),
+        },
         "inputs": provenance,
         "software": {
             "interpreter": sys.executable,

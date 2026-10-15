@@ -97,6 +97,15 @@ frame, making their common rotation less sensitive to this difference than an
 inertial-orbit/terrestrial-station comparison. The script does not claim exact
 reproduction of the provider's orbit determination.
 
+The current default uses existing native cubic-spline `Time` ephemerides for
+Earth, Sun and Moon on integer 30-second SPICE knots, padded one day beyond the
+week. The satellite uses `environment.CustomEphemerisTimeObject`: its callback
+keeps TDB and converted TT as `Time`, converting only local SP3 time differences
+to double. `--body-ephemeris direct --satellite-epoch double` selects the original
+frozen baseline route. Use `--satellite-epoch double` alone for a body-only change
+and `--body-step 60` for a table-spacing convergence check. Routes are recorded
+explicitly; no route is selected by its residual mean.
+
 ## Physical corrections and selection
 
 - Native Sun/Earth relativistic light time and Mendes-Pavlis zenith delays with
@@ -154,11 +163,12 @@ these statistics is fitted back into the model.
 Source-node holdouts omit one central sample in a local window and compare the
 interpolated position to the withheld provider sample at orders 8 and 10. These
 and order convergence quantify interpolation independently of SLR residuals;
-the SP3 position print resolution is 1 mm. The custom ephemeris API accepts double
-TDB, while native observable epochs use `Time`. The largest callback half-ULP
-and an upper position bound from relative orbital/rotational speed are reported.
-The full native SPICE and rotation paths also have double interfaces; none of
-these diagnostics claims a submillimetre end-to-end floor without runtime checks.
+the SP3 position print resolution is 1 mm. The default custom callback retains
+the native observable's `Time` epoch. The explicit legacy double route reports
+its largest callback half-ULP and a position bound from relative orbital/rotational
+speed; zero callback truncation in the Time route is not an overall error bound.
+The rotation interface remains double, and direct SPICE also rounds epochs;
+none of these diagnostics establishes a submillimetre end-to-end floor.
 The 0.5 s velocity stencil is only for a consistent custom state; range uses its
 position. Absolute BCRS position subtraction can add tens of micrometres of
 floating-point rounding.
@@ -201,12 +211,18 @@ rotation double boundaries prevent an end-to-end submillimetre claim.
 
 The [precision summary](results/body_time_precision/summary.json) and
 [per-point half-range changes](results/body_time_precision/half_range_changes.csv)
-retain the controls and hashes. Reproduce each table spacing with the same
-baseline kernel:
+retain the controls and hashes. The original experiment wrapper is retained in
+source commit `91ee4afbd`; route selection now belongs to the main script.
+For a controlled comparison on a current kernel, first run that script into
+separate result directories with the desired explicit route options, then use:
 
 ```
 python analysis/laser_ranging/body_time_precision.py \
-  --data-root /path/to/laser-ranging-work/data/slr \
-  --baseline analysis/laser_ranging/results/slrf2020_combined_2024-03-31_2024-04-06 \
-  --step 60 --output /path/to/new-precision-result-directory
+  --baseline /path/to/current-kernel-legacy-result \
+  --candidate /path/to/current-kernel-time-result \
+  --output /path/to/new-comparison-directory
 ```
+
+The comparison requires identical input, script and kernel hashes, physical
+configuration, accepted point keys and exclusions. It reports computed half-range
+changes without fitting or comparing residual improvement.
