@@ -168,3 +168,23 @@ pass-bias stability several mm. These describe a complete analysis, not a raw
 zero-mean acceptance threshold for this SP3 reduction with omitted ocean loading.
 The combined product's orbit-comparison RMS is not a measured-range RMS. Report
 all results and correction omissions before interpreting any difference.
+
+## Measured frozen baseline
+
+The 2026-10-16 run against the unchanged combined orbit and SLRF2020 station
+release accepted 23 normal points: 13 Graz and 10 Herstmonceux. Signed one-way
+O−C mean was −0.474 mm, uncentred RMS 8.843 mm and centred standard deviation
+8.830 mm. Graz RMS was 11.526 mm; Herstmonceux RMS was 2.675 mm. No fitted bias,
+demeaning, residual clipping or parameter estimation was applied. Three further
+points fell below the declared 20-degree cutoff and three lacked the common SP3
+interpolation interior. Exact GOT4.10c ocean loading was omitted.
+
+The [raw residuals](results/slrf2020_combined_2024-03-31_2024-04-06/residuals.csv)
+and [summary](results/slrf2020_combined_2024-03-31_2024-04-06/summary.json) retain
+every accepted point, exclusions, input/software hashes and correction metadata.
+Only machine-specific paths were replaced for portability. Independent 8/10-point
+SP3 node holdouts had position RMS 1.412/1.481 mm and maxima 5.818/5.986 mm.
+The custom callback's 59.605 ns half-ULP gives a 0.415 mm relative-position bound;
+this is not yet an end-to-end range precision measurement. Body SPICE evaluation
+and the satellite custom callback retain their original double epoch boundaries
+in this baseline.
