@@ -81,10 +81,11 @@ Unresolved differences include the station reference frame/tide convention and
 velocity, ocean/atmospheric loading, lunar dissipative and thermal displacement,
 and the exact calibration version used in the DE440 fit. Earth orientation uses
 Tudat's selected public EOP configuration rather than a claimed copy of JPL's
-historical solution. The constant lunar tide is retained with the native full
-elastic displacement; its fitted-coordinate convention still requires careful
-comparison with JPL's complete parameter file. These limitations must accompany
-the results rather than be absorbed into a fitted range bias.
+historical solution. The full constant lunar tide is retained: JPL2020
+Section 3.9 explicitly leaves Eq. 10's constant part unmodified, and Section 3.12
+applies that same equation to the Moon, with constant components tabulated in
+Appendix A2. These limitations must accompany the results rather than be absorbed
+into a fitted range bias.
 
 Primary sources
 ---------------

@@ -988,10 +988,12 @@ BOOST_AUTO_TEST_CASE( testMendesPavlisOfficialReferences )
 
     const Eigen::Vector2d zenith = calculateMendesPavlisZenithDelay( latitude, 2010.344, 79841.88, 1432.2, 532e-9 );
 
-    // A nanometre bound covers decimal/single-literal rounding in the published Fortran reference, far below 1 mm.
-    BOOST_CHECK_SMALL( zenith[ 0 ] - 1.932992176591644462, 1e-9 );
-    BOOST_CHECK_SMALL( zenith[ 1 ] - 0.002233748255158703871, 1e-9 );
-    BOOST_CHECK_SMALL( zenith.sum( ) - 1.935225924846803114, 1e-9 );
+    // Controls come from the unmodified official Fortran at its printed inputs; its header outputs are inconsistent.
+    // Source, driver, output and discrepancy are archived under laser_ranging/optical_reference in tests/test_tudat/data.zip.
+    // The unchanged nanometre bound covers the source's single-precision literals, far below 1 mm.
+    BOOST_CHECK_SMALL( zenith[ 0 ] - 1.93299597223469832, 1e-9 );
+    BOOST_CHECK_SMALL( zenith[ 1 ] - 0.00223375264136944527, 1e-9 );
+    BOOST_CHECK_SMALL( zenith.sum( ) - 1.93522972487606770, 1e-9 );
 
     // FCUL_A.F uses a different height and temperature in its independent 15-degree mapping example.
     BOOST_CHECK_SMALL( calculateFculaMapping( latitude, 2075.0, 300.15, 15.0 * mathematical_constants::PI / 180.0 ) - 3.800243667312344087,
