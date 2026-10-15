@@ -38,6 +38,7 @@ const std::vector< ProfileWave >& profileWaves( HarmonicPotentialProfile profile
     }
 }
 
+//! Normalize an omitted leading zero and reject unverified Doodson character codes.
 std::string canonicalDoodson( std::string identifier )
 {
     if( identifier.size( ) == 6 )
@@ -50,7 +51,8 @@ std::string canonicalDoodson( std::string identifier )
     }
     for( std::size_t i = 0; i < identifier.size( ); ++i )
     {
-        if( i != 3 && ( identifier[ i ] < '0' || identifier[ i ] > '9' ) )
+        if( i != 3 && ( identifier[ i ] < '0' || identifier[ i ] > '9' ) && identifier[ i ] != 'A' && identifier[ i ] != 'B' &&
+            identifier[ i ] != 'Z' )
         {
             throw std::invalid_argument( "Invalid Doodson digit" );
         }
@@ -58,11 +60,23 @@ std::string canonicalDoodson( std::string identifier )
     return identifier;
 }
 }  // namespace
+//! Convert the provider identifier to the six phase multipliers without changing its phase convention.
 std::array< int, 6 > parseDoodsonMultipliers( const std::string& identifier )
 {
     const auto canonical = canonicalDoodson( identifier );
-    return { canonical[ 0 ] - '0',     canonical[ 1 ] - '0' - 5, canonical[ 2 ] - '0' - 5,
-             canonical[ 4 ] - '0' - 5, canonical[ 5 ] - '0' - 5, canonical[ 6 ] - '0' - 5 };
+
+    std::array< int, 6 > multipliers{};
+
+    // TiME22 revision 1.1 uses A=10, B=11 and Z=-1 before the usual five-digit offset.
+    for( std::size_t i = 0; i < multipliers.size( ); ++i )
+    {
+        const char digit = canonical[ i < 3 ? i : i + 1 ];
+
+        const int encoded = digit == 'A' ? 10 : digit == 'B' ? 11 : digit == 'Z' ? -1 : digit - '0';
+
+        multipliers[ i ] = encoded - ( i == 0 ? 0 : 5 );
+    }
+    return multipliers;
 }
 void validateHarmonicPotentialData( const HarmonicPotentialData& data )
 {

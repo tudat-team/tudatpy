@@ -21,6 +21,13 @@ struct HarmonicGravityMetadata {
     bool fullyNormalized = false;
     std::string revision;
     HarmonicGravityLoading loading = HarmonicGravityLoading::unspecified;
+
+    //! Archive the declared product conventions without reconstructing them from a file name.
+    template< class Archive >
+    void serialize( Archive& archive )
+    {
+        archive( component, gravitationalParameter, referenceRadius, fullyNormalized, revision, loading );
+    }
 };
 
 //! Dimensionless normalized coefficients. Matrices use full degree/order indices.
@@ -29,6 +36,13 @@ struct HarmonicGravityConstituent {
     std::string doodson;
     std::array< int, 6 > multipliers{};
     Eigen::MatrixXd cCos, cSin, sCos, sSin;
+
+    //! Archive the final phase identity and its four canonical coefficient matrices.
+    template< class Archive >
+    void serialize( Archive& archive )
+    {
+        archive( doodson, multipliers, cCos, cSin, sCos, sSin );
+    }
 };
 
 //! Convert IERS 6.15 once; named profiles permit zeros only outside declared wave extents.

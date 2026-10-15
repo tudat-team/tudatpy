@@ -23,6 +23,7 @@
  */
 
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createEarthGravityFieldVariations.h"
 
 // =====================================================================
 // GravityFieldVariationSettings hierarchy
@@ -34,6 +35,8 @@ CEREAL_REGISTER_TYPE( tudat::simulation_setup::ModeCoupledSolidBodyGravityFieldV
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::TabulatedGravityFieldVariationSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::PeriodicGravityFieldVariationsSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::PolynomialGravityFieldVariationsSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::HarmonicGravityFieldVariationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::OceanPoleTideGravityFieldVariationSettings )
 
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
                                       tudat::simulation_setup::BasicSolidBodyGravityFieldVariationSettings )
@@ -45,5 +48,9 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVaria
                                       tudat::simulation_setup::PeriodicGravityFieldVariationsSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
                                       tudat::simulation_setup::PolynomialGravityFieldVariationsSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::HarmonicGravityFieldVariationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::OceanPoleTideGravityFieldVariationSettings )
 
 CEREAL_REGISTER_DYNAMIC_INIT( tudat_serialization_environment )

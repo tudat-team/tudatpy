@@ -18,6 +18,13 @@ namespace input_output
 struct OceanPoleGravityCoefficient {
     std::complex< double > a, b;
     std::size_t sourceLine = 0;
+
+    //! Archive the published complex values and original source row.
+    template< class Archive >
+    void serialize( Archive& archive )
+    {
+        archive( a, b, sourceLine );
+    }
 };
 
 //! Sparse published values: a missing entry remains distinct from a published zero.
@@ -26,6 +33,13 @@ struct OceanPoleGravityData {
     std::vector< std::string > headerLines;
     std::map< std::pair< int, int >, OceanPoleGravityCoefficient > coefficients;
     int maximumDegree = 0;
+
+    //! Archive sparse coverage and provenance without filling missing source terms.
+    template< class Archive >
+    void serialize( Archive& archive )
+    {
+        archive( source, headerLines, coefficients, maximumDegree );
+    }
 };
 
 void validateOceanPoleGravityData( const OceanPoleGravityData& data );

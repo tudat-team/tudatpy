@@ -54,6 +54,10 @@ BOOST_AUTO_TEST_CASE( sixCharacterProviderIdsHaveCorrectDigitOffsets )
     BOOST_CHECK( parseDoodsonMultipliers( "56.554" ) == sa );
     BOOST_CHECK( parseDoodsonMultipliers( "056.554" ) == sa );
     BOOST_CHECK( parseDoodsonMultipliers( "55.565" ) == om1 );
+    const std::array< int, 6 > s5 = { 5, 5, -5, 0, 0, 0 }, s6 = { 6, 6, -6, 0, 0, 0 };
+
+    BOOST_CHECK( parseDoodsonMultipliers( "5A0.555" ) == s5 );
+    BOOST_CHECK( parseDoodsonMultipliers( "6BZ.555" ) == s6 );
     for( const auto id : { "055565", "055,565", "x55.565", "0055.565" } )
     {
         BOOST_CHECK_THROW( parseDoodsonMultipliers( id ), std::invalid_argument );

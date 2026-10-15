@@ -17,6 +17,7 @@ namespace input_output
 enum class HarmonicPotentialProfile { iersPotential, fes2004, fes2014bV1, costgEot11a };
 
 //! Accept the provider's omitted leading zero (55.565) and full identifier (055.565).
+//! Decode decimal Doodson identifiers and the verified TiME22 codes A=10, B=11, Z=-1.
 std::array< int, 6 > parseDoodsonMultipliers( const std::string& identifier );
 
 //! Published Cp, Sp, Cm, Sm in declared Stokes units; no phase or loading conversion here.

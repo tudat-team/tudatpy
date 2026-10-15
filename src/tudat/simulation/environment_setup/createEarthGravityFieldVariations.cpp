@@ -6,6 +6,8 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
 #include <set>
+#include <stdexcept>
+#include <tuple>
 
 namespace tudat
 {
@@ -36,6 +38,127 @@ Eigen::Vector2d earthGravityWobble( double time,
     return wobble * radiansToOutputUnits;
 }
 }  // namespace
+
+//! Compare complete ocean-pole source records and physical response settings exactly.
+bool OceanPoleTideGravityFieldVariationSettings::equals( const GravityFieldVariationSettings& other ) const
+{
+    const auto* rhs = dynamic_cast< const OceanPoleTideGravityFieldVariationSettings* >( &other );
+
+    if( !rhs || !GravityFieldVariationSettings::equals( other ) || maximumDegree_ != rhs->maximumDegree_ ||
+        maximumOrder_ != rhs->maximumOrder_ || loadLoveNumbers_ != rhs->loadLoveNumbers_ || data_.source != rhs->data_.source ||
+        data_.headerLines != rhs->data_.headerLines || data_.maximumDegree != rhs->data_.maximumDegree ||
+        data_.coefficients.size( ) != rhs->data_.coefficients.size( ) ||
+        std::tie( constants_.angularVelocity,
+                  constants_.gravitationalConstant,
+                  constants_.oceanDensity,
+                  constants_.equatorialGravity,
+                  constants_.gravitationalParameter,
+                  constants_.referenceRadius,
+                  constants_.gamma2 ) !=
+                std::tie( rhs->constants_.angularVelocity,
+                          rhs->constants_.gravitationalConstant,
+                          rhs->constants_.oceanDensity,
+                          rhs->constants_.equatorialGravity,
+                          rhs->constants_.gravitationalParameter,
+                          rhs->constants_.referenceRadius,
+                          rhs->constants_.gamma2 ) )
+    {
+        return false;
+    }
+    auto right = rhs->data_.coefficients.begin( );
+
+    for( const auto& left : data_.coefficients )
+    {
+        if( left.first != right->first || left.second.a != right->second.a || left.second.b != right->second.b ||
+            left.second.sourceLine != right->second.sourceLine )
+        {
+            return false;
+        }
+        ++right;
+    }
+    return true;
+}
+
+//! Preserve final coefficients and select the gravity variation type from their declared physical component.
+HarmonicGravityFieldVariationSettings::HarmonicGravityFieldVariationSettings(
+        const std::vector< gravitation::HarmonicGravityConstituent >& constituents,
+        const gravitation::HarmonicGravityMetadata& metadata,
+        int maximumDegree,
+        int maximumOrder,
+        const std::shared_ptr< ModelInterpolationSettings >& interpolation ):
+    GravityFieldVariationSettings( metadata.component == gravitation::HarmonicGravityComponent::oceanMass ? gravitation::ocean_tide
+                                                                                                          : gravitation::atmospheric_tide,
+                                   interpolation ),
+    constituents_( constituents ), metadata_( metadata ), maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
+{
+    if( metadata_.component != gravitation::HarmonicGravityComponent::oceanMass &&
+        metadata_.component != gravitation::HarmonicGravityComponent::directAtmosphericMass )
+    {
+        throw std::invalid_argument( "Harmonic gravity settings require an explicit ocean or direct atmospheric mass component" );
+    }
+}
+
+//! Label each harmonic model with its declared component, revision and complete ordered target inventory.
+std::string HarmonicGravityFieldVariationSettings::getIdentifier( ) const
+{
+    std::string identifier = metadata_.component == gravitation::HarmonicGravityComponent::oceanMass ? "ocean_mass:" : "direct_air_mass:";
+
+    identifier += metadata_.revision;
+    for( const auto& wave : constituents_ )
+    {
+        identifier += ":" + wave.doodson;
+    }
+    return identifier;
+}
+
+//! Compare every stored product declaration and canonical matrix, including the final constituent order.
+bool HarmonicGravityFieldVariationSettings::equals( const GravityFieldVariationSettings& other ) const
+{
+    const auto* rhs = dynamic_cast< const HarmonicGravityFieldVariationSettings* >( &other );
+
+    if( !rhs || !GravityFieldVariationSettings::equals( other ) || maximumDegree_ != rhs->maximumDegree_ ||
+        maximumOrder_ != rhs->maximumOrder_ || metadata_.component != rhs->metadata_.component ||
+        metadata_.gravitationalParameter != rhs->metadata_.gravitationalParameter ||
+        metadata_.referenceRadius != rhs->metadata_.referenceRadius || metadata_.fullyNormalized != rhs->metadata_.fullyNormalized ||
+        metadata_.revision != rhs->metadata_.revision || metadata_.loading != rhs->metadata_.loading ||
+        constituents_.size( ) != rhs->constituents_.size( ) )
+    {
+        return false;
+    }
+    for( std::size_t i = 0; i < constituents_.size( ); ++i )
+    {
+        const auto& left = constituents_[ i ];
+
+        const auto& right = rhs->constituents_[ i ];
+
+        if( left.doodson != right.doodson || left.multipliers != right.multipliers || left.cCos != right.cCos || left.cSin != right.cSin ||
+            left.sCos != right.sCos || left.sSin != right.sSin )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+//! Convert a selected raw potential inventory and replace it by the requested ordered admittance targets once.
+std::shared_ptr< GravityFieldVariationSettings > harmonicPotentialGravityFieldVariationSettings(
+        const input_output::HarmonicPotentialData& data,
+        const gravitation::HarmonicGravityMetadata& metadata,
+        int maximumDegree,
+        int maximumOrder,
+        const std::vector< std::string >& selectedDoodsonIds,
+        const std::optional< gravitation::HarmonicGravityAdmittance >& admittance,
+        const std::shared_ptr< ModelInterpolationSettings >& interpolation )
+{
+    auto constituents = gravitation::convertHarmonicPotentialData( data, maximumDegree, maximumOrder, false, selectedDoodsonIds );
+
+    if( admittance )
+    {
+        constituents = gravitation::applyHarmonicGravityAdmittance( constituents, *admittance );
+    }
+    return std::make_shared< HarmonicGravityFieldVariationSettings >( constituents, metadata, maximumDegree, maximumOrder, interpolation );
+}
+
 //! Construct the Earth response using the selected rotation and consuming field conventions.
 std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings >& settings,
@@ -78,11 +201,26 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
     constexpr double sourceRadius = 6378136.3;
     switch( settings->getBodyDeformationType( ) )
     {
-        case gravitation::iers_2010: {
-            if( !std::dynamic_pointer_cast< Iers2010SolidBodyGravityFieldVariationSettings >( settings ) )
+        case gravitation::ocean_tide:
+        case gravitation::atmospheric_tide: {
+            const auto harmonic = std::dynamic_pointer_cast< HarmonicGravityFieldVariationSettings >( settings );
+
+            if( !harmonic )
             {
-                throw std::runtime_error( "Expected complete IERS Earth solid-tide settings" );
+                throw std::runtime_error( "Expected canonical harmonic gravity settings" );
             }
+            return std::make_shared< gravitation::HarmonicGravityFieldVariations >(
+                    harmonic->getConstituents( ),
+                    harmonic->getMetadata( ),
+                    std::bind( earthGravityDoodsonArguments, std::placeholders::_1, converter ),
+                    field->getGravitationalParameter( ),
+                    field->getReferenceRadius( ),
+                    2,
+                    0,
+                    harmonic->getMaximumDegree( ),
+                    harmonic->getMaximumOrder( ) );
+        }
+        case gravitation::iers_2010: {
             if( field->getTideSystem( ) != TideSystem::tideFree && field->getTideSystem( ) != TideSystem::zeroTide )
             {
                 throw std::runtime_error( "Complete IERS Earth solid tide requires an explicit tide-free or zero-tide nominal field" );
@@ -143,10 +281,6 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
                     field->getTideSystem( ) );
         }
         case gravitation::pole_tide: {
-            if( !std::dynamic_pointer_cast< SolidPoleTideGravityFieldVariationSettings >( settings ) )
-            {
-                throw std::runtime_error( "Expected solid pole gravity settings" );
-            }
             return std::make_shared< gravitation::SolidPoleTideGravityFieldVariations >(
                     std::bind( earthGravityWobble, std::placeholders::_1, converter, polar, 180.0 * 3600.0 / mathematical_constants::PI ),
                     sourceMu,
@@ -177,10 +311,13 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
     }
 }
 
-//! Reject repeated responses and Moon/Sun forcing already included by the complete IERS model.
+//! Reject repeated conventional responses and duplicate final harmonic waves within one physical component.
 void validateEarthGravityFieldVariationCollection( const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& settings )
 {
     std::set< gravitation::BodyDeformationTypes > unique;
+
+    std::set< std::pair< gravitation::HarmonicGravityComponent, std::string > > harmonicInventory;
+
     for( const auto& entry : settings )
     {
         if( !entry )
@@ -188,6 +325,18 @@ void validateEarthGravityFieldVariationCollection( const std::vector< std::share
             throw std::runtime_error( "Null gravity variation settings" );
         }
         const auto type = entry->getBodyDeformationType( );
+
+        if( const auto harmonic = std::dynamic_pointer_cast< HarmonicGravityFieldVariationSettings >( entry ) )
+        {
+            // Radiational ocean tides remain ocean mass; direct air mass is a separate physical signal.
+            for( const auto& wave : harmonic->getConstituents( ) )
+            {
+                if( !harmonicInventory.emplace( harmonic->getMetadata( ).component, wave.doodson ).second )
+                {
+                    throw std::runtime_error( "Overlapping final harmonic gravity constituents within the same physical component" );
+                }
+            }
+        }
         if( type == gravitation::iers_2010 || type == gravitation::pole_tide || type == gravitation::ocean_pole_tide )
         {
             if( !unique.insert( type ).second )

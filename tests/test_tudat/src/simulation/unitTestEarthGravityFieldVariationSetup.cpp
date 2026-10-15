@@ -8,6 +8,12 @@
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
+#include <sstream>
+#include <cmath>
+#if TUDAT_BUILD_WITH_SERIALIZATION
+#include "tudat/io/serialization/archives.h"
+#include "tudat/io/serialization/registrations_environment.h"
+#endif
 
 using namespace tudat;
 using namespace tudat::simulation_setup;
@@ -33,7 +39,30 @@ input_output::OceanPoleGravityData oceanData( )
     data.coefficients.at( { 2, 0 } ).b = 0.0;
     return data;
 }
-BodyListSettings settings( const std::shared_ptr< ModelInterpolationSettings >& interpolation = nullptr )
+//! Declare a controlled, fully normalized potential with its source GM and radius.
+gravitation::HarmonicGravityMetadata harmonicMetadata( )
+{
+    return { gravitation::HarmonicGravityComponent::oceanMass, 3e14, 6e6, true, "controlled potential revision",
+             gravitation::HarmonicGravityLoading::included };
+}
+
+//! Supply one nontrivial sectorial term so both phase quadratures are observable.
+gravitation::HarmonicGravityConstituent harmonicWave( const std::string& doodson = "255.555" )
+{
+    gravitation::HarmonicGravityConstituent wave;
+
+    wave.doodson = doodson;
+    wave.multipliers = input_output::parseDoodsonMultipliers( doodson );
+    wave.cCos = wave.cSin = wave.sCos = wave.sSin = Eigen::MatrixXd::Zero( 3, 3 );
+    wave.cCos( 2, 2 ) = 2e-10;
+    wave.cSin( 2, 2 ) = 3e-10;
+    wave.sCos( 2, 2 ) = -1e-10;
+    wave.sSin( 2, 2 ) = 4e-10;
+    return wave;
+}
+
+//! Assemble selected Earth rotation and field settings; a UT1 offset tests phase-clock routing.
+BodyListSettings settings( const std::shared_ptr< ModelInterpolationSettings >& interpolation = nullptr, double ut1Offset = 0.0 )
 {
     input_output::EarthOrientationData data;
     data.source = "controlled selected clock and pole";
@@ -42,7 +71,7 @@ BodyListSettings settings( const std::shared_ptr< ModelInterpolationSettings >& 
         input_output::EarthOrientationRecord row;
         row.utcModifiedJulianDate = 57752.0 + i;
         row.polarMotion = { 1e-6 + i * 1e-8, -2e-6 };
-        row.ut1MinusUtc = i < 2 ? -0.4 : 0.6;
+        row.ut1MinusUtc = ( i < 2 ? -0.4 : 0.6 ) + ut1Offset;
         row.celestialPoleOffsets = std::array< double, 2 >{ 0.0, 0.0 };
         data.records[ row.utcModifiedJulianDate ] = row;
     }
@@ -217,3 +246,159 @@ BOOST_AUTO_TEST_CASE( groupedOverlapFrameClockTideSystemAndCoverageRejections )
         BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
     }
 }
+
+BOOST_AUTO_TEST_CASE( harmonicAssemblyUsesSelectedUt1ReferenceScalingAndDeferredNode )
+{
+    // Compare the assembled field against scalar quadratures and explicit source-to-field scaling.
+    const auto metadata = harmonicMetadata( );
+
+    const auto wave = harmonicWave( );
+
+    auto directSettings = settings( );
+
+    directSettings.at( "Earth" )->gravityFieldVariationSettings = { std::make_shared< HarmonicGravityFieldVariationSettings >(
+            std::vector< gravitation::HarmonicGravityConstituent >{ wave }, metadata, 2, 2 ) };
+    const auto direct = createSystemOfBodies( directSettings );
+
+    update( direct );
+    const auto rotation =
+            std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( direct.at( "Earth" )->getRotationalEphemeris( ) );
+
+    const auto converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+
+    const Time tai = converter->getTaiTime( tdb_scale, testTime );
+
+    const double tt = static_cast< double >( convertTAItoTT( tai ) );
+
+    const auto arguments =
+            sofa_interface::calculateDoodsonFundamentalArguments( tt, tt, static_cast< double >( converter->getUt1FromTai( tai ) ) );
+
+    const double phase = 2 * arguments( 0 );
+
+    const double scale = ( 3e14 / 4e14 ) * std::pow( 6e6 / 6.4e6, 2 );
+
+    BOOST_CHECK_SMALL(
+            field( direct )->getCosineCoefficients( )( 2, 2 ) - scale * ( 2e-10 * std::cos( phase ) + 3e-10 * std::sin( phase ) ), 1e-25 );
+    BOOST_CHECK_SMALL( field( direct )->getSineCoefficients( )( 2, 2 ) - scale * ( -1e-10 * std::cos( phase ) + 4e-10 * std::sin( phase ) ),
+                       1e-25 );
+
+    // A changed selected UT1 series must change the same coefficients at unchanged TDB.
+    auto shiftedSettings = settings( nullptr, 0.2 );
+
+    shiftedSettings.at( "Earth" )->gravityFieldVariationSettings = directSettings.at( "Earth" )->gravityFieldVariationSettings;
+    const auto shifted = createSystemOfBodies( shiftedSettings );
+
+    update( shifted );
+    BOOST_CHECK_GT( ( field( direct )->getCosineCoefficients( ) - field( shifted )->getCosineCoefficients( ) ).norm( ) +
+                            ( field( direct )->getSineCoefficients( ) - field( shifted )->getSineCoefficients( ) ).norm( ),
+                    1e-15 );
+
+    // Deferred interpolation samples the same selected clock, including this interior node.
+    const auto interpolation = std::make_shared< ModelInterpolationSettings >(
+            testTime - 20,
+            testTime + 30,
+            10,
+            std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ) );
+
+    auto sampledSettings = settings( );
+
+    sampledSettings.at( "Earth" )->gravityFieldVariationSettings = { std::make_shared< HarmonicGravityFieldVariationSettings >(
+            std::vector< gravitation::HarmonicGravityConstituent >{ wave }, metadata, 2, 2, interpolation ) };
+    const auto sampled = createSystemOfBodies( sampledSettings );
+
+    update( sampled );
+    BOOST_CHECK_SMALL( ( field( direct )->getCosineCoefficients( ) - field( sampled )->getCosineCoefficients( ) ).norm( ), 1e-25 );
+    BOOST_CHECK_SMALL( ( field( direct )->getSineCoefficients( ) - field( sampled )->getSineCoefficients( ) ).norm( ), 1e-25 );
+}
+
+BOOST_AUTO_TEST_CASE( rawPotentialSettingsRetainFinalAdmittanceInventoryAndComponentIdentity )
+{
+    // A controlled major-to-target map tests overlap after admittance, without claiming a provider product.
+    std::istringstream source(
+            "Coefficients to compute variations in normalized Stokes coefficients (unit = 10^-12)\n"
+            "Doodson Darw l m DelC+ DelS+ DelC- DelS-\n"
+            "255.555 M2 2 0 0 0 0 0\n255.555 M2 2 1 0 0 0 0\n255.555 M2 2 2 1 2 3 4\n" );
+
+    const auto raw = input_output::readHarmonicPotentialData( source );
+
+    gravitation::HarmonicGravityAdmittance admittance;
+
+    admittance.majorDoodsonIds = { "255.555" };
+    admittance.targetDoodsonIds = { "255.555", "245.655" };
+    admittance.matrix = Eigen::MatrixXd( 2, 1 );
+    admittance.matrix << 1.0, 0.5;
+    const auto converted = harmonicPotentialGravityFieldVariationSettings( raw, harmonicMetadata( ), 2, 2, {}, admittance );
+
+    const auto ocean = std::dynamic_pointer_cast< HarmonicGravityFieldVariationSettings >( converted );
+
+    BOOST_REQUIRE( ocean );
+    BOOST_REQUIRE_EQUAL( ocean->getConstituents( ).size( ), 2 );
+    BOOST_CHECK_EQUAL( ocean->getConstituents( )[ 1 ].doodson, "245.655" );
+    BOOST_CHECK_EQUAL( ocean->getConstituents( )[ 1 ].cCos( 2, 2 ), 2e-12 );
+    const auto disjointOcean = std::make_shared< HarmonicGravityFieldVariationSettings >(
+            std::vector< gravitation::HarmonicGravityConstituent >{ harmonicWave( "273.555" ) }, harmonicMetadata( ), 2, 2 );
+
+    auto airMetadata = harmonicMetadata( );
+
+    airMetadata.component = gravitation::HarmonicGravityComponent::directAtmosphericMass;
+    const auto air = std::make_shared< HarmonicGravityFieldVariationSettings >( ocean->getConstituents( ), airMetadata, 2, 2 );
+
+    auto setup = settings( );
+
+    setup.at( "Earth" )->gravityFieldVariationSettings = { ocean, disjointOcean, air };
+    const auto bodies = createSystemOfBodies( setup );
+
+    update( bodies );
+    const auto models = field( bodies )->getGravityFieldVariationsSet( );
+
+    BOOST_CHECK_NE( ocean->getIdentifier( ), disjointOcean->getIdentifier( ) );
+    BOOST_CHECK( models->getGravityFieldVariation( gravitation::ocean_tide, ocean->getIdentifier( ) ).first );
+    BOOST_CHECK( models->getGravityFieldVariation( gravitation::ocean_tide, disjointOcean->getIdentifier( ) ).first );
+    BOOST_CHECK( models->getGravityFieldVariation( gravitation::atmospheric_tide, air->getIdentifier( ) ).first );
+
+    // A second ocean model containing the inferred N2 target would apply the same mass term twice.
+    setup.at( "Earth" )->gravityFieldVariationSettings.push_back( std::make_shared< HarmonicGravityFieldVariationSettings >(
+            std::vector< gravitation::HarmonicGravityConstituent >{ harmonicWave( "245.655" ) }, harmonicMetadata( ), 2, 2 ) );
+    BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
+}
+
+#if TUDAT_BUILD_WITH_SERIALIZATION
+BOOST_AUTO_TEST_CASE( earthGravitySettingsRoundTripCompleteInputsAndFinalInventory )
+{
+    // Retain polymorphic presets, source provenance, physical constants and canonical coefficients exactly.
+    const auto interpolation = std::make_shared< ModelInterpolationSettings >(
+            testTime - 20,
+            testTime + 30,
+            10,
+            std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ) );
+
+    std::vector< std::shared_ptr< GravityFieldVariationSettings > > original{
+        iers2010SolidBodyTideGravityFieldVariationSettings( interpolation ),
+        solidPoleTideGravityFieldVariationSettings( ),
+        oceanPoleTideGravityFieldVariationSettings( oceanData( ), { 0, 0, -0.3075 }, oceanConstants( ), 2, 2 ),
+        std::make_shared< HarmonicGravityFieldVariationSettings >(
+                std::vector< gravitation::HarmonicGravityConstituent >{ harmonicWave( ) }, harmonicMetadata( ), 2, 2, interpolation )
+    };
+
+    std::stringstream stream;
+
+    {
+        cereal::BinaryOutputArchive archive( stream );
+
+        archive( original );
+    }
+    std::vector< std::shared_ptr< GravityFieldVariationSettings > > restored;
+
+    {
+        cereal::BinaryInputArchive archive( stream );
+
+        archive( restored );
+    }
+    BOOST_REQUIRE_EQUAL( original.size( ), restored.size( ) );
+    for( std::size_t i = 0; i < original.size( ); ++i )
+    {
+        BOOST_REQUIRE( restored[ i ] );
+        BOOST_CHECK( *original[ i ] == *restored[ i ] );
+    }
+}
+#endif

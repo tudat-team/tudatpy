@@ -21,6 +21,13 @@ struct OceanPoleGravityConstants {
     double gravitationalParameter = TUDAT_NAN;
     double referenceRadius = TUDAT_NAN;
     std::complex< double > gamma2{ TUDAT_NAN, TUDAT_NAN };
+
+    //! Archive all explicit forcing and reference constants, including the complex ocean response.
+    template< class Archive >
+    void serialize( Archive& archive )
+    {
+        archive( angularVelocity, gravitationalConstant, oceanDensity, equatorialGravity, gravitationalParameter, referenceRadius, gamma2 );
+    }
 };
 
 //! Full normalized ocean-pole response. Wobble callback returns (m1,m2) in radians at TDB seconds.
