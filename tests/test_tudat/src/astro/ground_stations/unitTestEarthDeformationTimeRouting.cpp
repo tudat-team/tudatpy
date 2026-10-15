@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( native_pole_context_accepts_rounded_double_endpoints_and_r
     const auto converter = routingConverter( routingLeapData( ) );
     const auto polar = routingPolar( converter );
     PoleTideDeformation solid( polar, converter );
-    OceanPoleTideDeformation ocean( routingGrid( ), polar, OceanPoleTideLatitudePolicy::requireGridCoverage, converter );
+    OceanPoleTideDeformation ocean( routingGrid( ), polar, converter );
     const auto station = std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ) );
     const auto evaluator = converter->getEarthOrientationDataEvaluator( );
     for( const Time& endpoint : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )

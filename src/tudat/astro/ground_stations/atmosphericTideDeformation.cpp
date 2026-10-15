@@ -67,16 +67,6 @@ void AtmosphericTideDeformation::validateCommonSettings( ) const
     {
         throw std::runtime_error( "Unknown atmospheric displacement basis" );
     }
-    if( settings_.endpointPolicy != AtmosphericTideEndpointPolicy::requireConsistency &&
-        settings_.endpointPolicy != AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
-    {
-        throw std::runtime_error( "Unknown atmospheric endpoint policy" );
-    }
-    if( settings_.originPolicy != AtmosphericLoadingOriginPolicy::preserveSourceOrigin &&
-        settings_.originPolicy != AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm )
-    {
-        throw std::runtime_error( "Unknown atmospheric origin policy" );
-    }
 }
 void AtmosphericTideDeformation::validateShapeForBasis( input_output::AtmosphericTideDisplacementBasis basis, bool geodeticLookup ) const
 {
@@ -100,7 +90,7 @@ void AtmosphericTideDeformation::validateShapeForBasis( input_output::Atmospheri
 void AtmosphericTideDeformation::validateOriginConversion( const input_output::AtmosphericTideMetadata& metadata ) const
 {
     using namespace input_output;
-    if( settings_.originPolicy == AtmosphericLoadingOriginPolicy::preserveSourceOrigin )
+    if( !settings_.convertToCentreOfMass )
     {
         return;
     }
@@ -134,6 +124,18 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
                                                         "lookup latitude" );
     resolvedGridMetadata_.displacementBasis =
             resolve( grid.metadata.displacementBasis, settings.displacementBasis, AtmosphericTideDisplacementBasis::unspecified, "basis" );
+    // RP03 grids: default to the geocentric convention when neither the source nor the settings declare one.
+    if( grid.metadata.modelName == "Ray-Ponte 2003" && grid.metadata.greensFunction == "Farrell elastic Green functions" )
+    {
+        if( resolvedGridMetadata_.latitudeConvention == AtmosphericTideLatitudeConvention::unspecified )
+        {
+            resolvedGridMetadata_.latitudeConvention = AtmosphericTideLatitudeConvention::geocentric;
+        }
+        if( resolvedGridMetadata_.displacementBasis == AtmosphericTideDisplacementBasis::unspecified )
+        {
+            resolvedGridMetadata_.displacementBasis = AtmosphericTideDisplacementBasis::geocentricRadialNorthEast;
+        }
+    }
     if( resolvedGridMetadata_.latitudeConvention == AtmosphericTideLatitudeConvention::unspecified )
     {
         throw std::runtime_error( "Automatic atmospheric grid lookup requires an explicit latitude convention" );
@@ -141,7 +143,7 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
     validateShapeForBasis( resolvedGridMetadata_.displacementBasis,
                            resolvedGridMetadata_.latitudeConvention == AtmosphericTideLatitudeConvention::geodetic );
     validateOriginConversion( resolvedGridMetadata_ );
-    gridInterpolator_ = std::make_shared< AtmosphericTideGridInterpolator >( grid, settings.endpointPolicy );
+    gridInterpolator_ = std::make_shared< AtmosphericTideGridInterpolator >( grid );
 }
 AtmosphericTideDeformation::AtmosphericTideDeformation(
         const input_output::AtmosphericTideStationData& stations,
@@ -274,8 +276,7 @@ Eigen::Vector6d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
 
         state.tail< 3 >( ) = rotation * Eigen::Vector3d( localRate.z( ), localRate.y( ), localRate.x( ) );
     }
-    if( settings_.originPolicy == AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm &&
-        metadata.referenceOrigin == AtmosphericLoadingReferenceOrigin::solidEarthCentre )
+    if( settings_.convertToCentreOfMass && metadata.referenceOrigin == AtmosphericLoadingReferenceOrigin::solidEarthCentre )
     {
         state.head< 3 >( ) += calculateIers2010Rp03AtmosphericGeocentreTranslation( ut1 );
         if( withRate )
@@ -297,7 +298,7 @@ input_output::AtmosphericLoadingReferenceOrigin AtmosphericTideDeformation::getO
     {
         stationData_.getStation( identifier );
     }
-    if( settings_.originPolicy == AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm )
+    if( settings_.convertToCentreOfMass )
     {
         return input_output::AtmosphericLoadingReferenceOrigin::wholeEarthCentreOfMass;
     }

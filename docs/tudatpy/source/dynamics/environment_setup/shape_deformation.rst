@@ -93,9 +93,8 @@ Functions
 
 Conventional ocean pole-tide loading implements IERS Section 7.1.5 with the
 2018 secular pole and IERS 2010 Chapter 1 constants. The official grid covers
-latitudes -89.75 through +89.75 degrees. ``require_grid_coverage`` raises outside
-the supplied extent; ``clamp_to_nearest_grid_latitude_approximation`` explicitly
-uses the nearest covered latitude. No polar-cap interpolation is specified by
+latitudes -89.75 through +89.75 degrees; latitudes beyond the first or last grid
+row use that row. No polar-cap interpolation is specified by
 the IERS coefficient grid. Longitude is periodic for a complete grid. Cartesian
 displacement uses the geocentric spherical basis; station ENU projections use
 the actual topocentric frame. Native displacement and state queries take precise
@@ -106,22 +105,20 @@ and state velocity chains the TT derivative to TDB once.
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_pole_tidal_from_data
 
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.OceanPoleTideLatitudePolicy
-   :members:
-
 Atmospheric S1/S2 loading accepts preloaded grid or station coefficients and
 file-backed settings. Lookup latitude and displacement basis are declared
-separately; geodetic choices require the configured body shape. The model uses
+separately; geodetic choices require the configured body shape. For an RP03
+(Ray-Ponte 2003, Farrell) grid, undeclared conventions default to geocentric. The model uses
 continuous UT1 from its own time converter, including through inserted UTC leap
 seconds. Loading velocities differentiate the harmonics analytically and apply
 the selected dUT1/dTAI and geocentric dTT/dTDB factors to produce metres per TDB
 second. At daily EOP knots, rates use the interval to the right, except at the
 final sample where the left interval applies. Missing or unsupported rate
 stencils reject state/rate requests while independently valid positions remain
-available. An explicitly selected RP03 CE-to-CM translation and its derivative
-are added once in Cartesian coordinates. See
+available. With ``convert_to_centre_of_mass``, the RP03 CE-to-CM translation and
+its derivative are added once in Cartesian coordinates. See
 :doc:`/data_input/environment_data/atmospheric_loading` for source, geometry and
-origin policies and the documented limits of the reference comparisons.
+origin handling and the documented limits of the reference comparisons.
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.atmospheric_tide_from_grid
 

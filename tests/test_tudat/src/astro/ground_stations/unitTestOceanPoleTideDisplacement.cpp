@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
     BOOST_CHECK_THROW( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d::Zero( ), -1 ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndExplicitClamp )
+BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndPolarClamp )
 {
     const auto grid = syntheticGrid( );
     BOOST_CHECK_SMALL(
@@ -130,20 +130,17 @@ BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndExplicitClamp )
                        1e-14 );
     for( double lat : { -90.0, 90.0 } )
     {
-        BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, lat, 45 ), std::out_of_range );
         const double edge = lat < 0 ? -89.75 : 89.75;
-        BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients(
-                                     grid, lat, 45, OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation ) -
-                             interpolateOceanPoleTideCoefficients( grid, edge, 45 ) )
-                                   .norm( ),
-                           1e-14 );
+        BOOST_CHECK_SMALL(
+                ( interpolateOceanPoleTideCoefficients( grid, lat, 45 ) - interpolateOceanPoleTideCoefficients( grid, edge, 45 ) ).norm( ),
+                1e-14 );
     }
-    BOOST_CHECK_THROW(
-            interpolateOceanPoleTideCoefficients( grid, 91, 45, OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation ),
-            std::runtime_error );
+    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 91, 45 ), std::runtime_error );
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 0, NAN ), std::runtime_error );
     const auto extract = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::out_of_range );
+    // Latitudes more than one grid step outside a regional extract are rejected rather than clamped.
+    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, 0, 232.5 ), std::out_of_range );
     BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( extract, -43.5, 232.5 ) -
                          Eigen::Matrix< double, 3, 2 >( ( extract.coefficients[ 0 ] + extract.coefficients[ 1 ] +
                                                           extract.coefficients[ 2 ] + extract.coefficients[ 3 ] ) /
@@ -234,13 +231,6 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedFileAndConfigurationErrors )
     const auto typed = std::dynamic_pointer_cast< OceanPoleTideDeformation >( preloaded );
     BOOST_REQUIRE( typed );
     BOOST_CHECK( typed->getGrid( ).referenceOrigin == OceanLoadingReferenceOrigin::wholeEarthCentreOfMass );
-    BOOST_CHECK( typed->getLatitudePolicy( ) == OceanPoleTideLatitudePolicy::requireGridCoverage );
-    const auto clamped = std::dynamic_pointer_cast< OceanPoleTideDeformation >( createBodyDeformationModel(
-            oceanPoleTideBodyShapeDeformationFromData( grid, OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation ),
-            "Earth",
-            bodies ) );
-    BOOST_REQUIRE( clamped );
-    BOOST_CHECK( clamped->getLatitudePolicy( ) == OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation );
     BOOST_CHECK_THROW( createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Mars", bodies ),
                        std::runtime_error );
     BOOST_CHECK_THROW(

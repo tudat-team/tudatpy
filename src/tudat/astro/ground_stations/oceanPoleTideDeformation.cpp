@@ -9,18 +9,6 @@ namespace tudat
 {
 namespace basic_astrodynamics
 {
-namespace
-{
-void validatePolicy( const OceanPoleTideLatitudePolicy policy )
-{
-    if( policy != OceanPoleTideLatitudePolicy::requireGridCoverage &&
-        policy != OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation )
-    {
-        throw std::runtime_error( "Unknown ocean pole-tide latitude policy" );
-    }
-}
-}  // namespace
-
 Eigen::Vector3d calculateOceanPoleTideLoading( const Eigen::Matrix< double, 3, 2 >& coefficients,
                                                const Eigen::Vector2d& wobbleRadians,
                                                const double scaleMetresPerRadian )
@@ -40,10 +28,8 @@ Eigen::Vector3d calculateOceanPoleTideLoading( const Eigen::Matrix< double, 3, 2
 //! Interpolate a checked grid, reporting absent latitude/longitude coverage separately from invalid coordinates.
 static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficients( const input_output::OceanPoleTideGrid& grid,
                                                                                     const double latitudeDegrees,
-                                                                                    const double longitudeDegrees,
-                                                                                    const OceanPoleTideLatitudePolicy latitudePolicy )
+                                                                                    const double longitudeDegrees )
 {
-    validatePolicy( latitudePolicy );
     if( !std::isfinite( latitudeDegrees ) || !std::isfinite( longitudeDegrees ) || latitudeDegrees < -90 || latitudeDegrees > 90 )
     {
         throw std::runtime_error( "Invalid ocean pole-tide interpolation coordinates" );
@@ -58,14 +44,13 @@ static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficien
     {
         latitude = lastLatitude;
     }
-    if( latitude < grid.firstLatitudeDegrees || latitude > lastLatitude )
+    // The official grid stops half a step short of the poles; use the edge row there, but reject latitudes
+    // further outside a (regional) grid.
+    if( latitude < grid.firstLatitudeDegrees - grid.latitudeStepDegrees || latitude > lastLatitude + grid.latitudeStepDegrees )
     {
-        if( latitudePolicy == OceanPoleTideLatitudePolicy::requireGridCoverage )
-        {
-            throw std::out_of_range( "Ocean pole-tide latitude lies outside the supplied grid coverage" );
-        }
-        latitude = std::clamp( latitude, grid.firstLatitudeDegrees, lastLatitude );
+        throw std::out_of_range( "Ocean pole-tide latitude lies outside the supplied grid coverage" );
     }
+    latitude = std::clamp( latitude, grid.firstLatitudeDegrees, lastLatitude );
     double longitude = longitudeDegrees - grid.firstLongitudeDegrees;
     // Even a regional extract accepts equivalent east longitudes, but it never interpolates across missing longitudes.
     longitude = std::fmod( longitude, 360.0 );
@@ -105,21 +90,18 @@ static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficien
 
 Eigen::Matrix< double, 3, 2 > interpolateOceanPoleTideCoefficients( const input_output::OceanPoleTideGrid& grid,
                                                                     const double latitudeDegrees,
-                                                                    const double longitudeDegrees,
-                                                                    const OceanPoleTideLatitudePolicy latitudePolicy )
+                                                                    const double longitudeDegrees )
 {
     input_output::validateOceanPoleTideGrid( grid );
-    return interpolateValidatedOceanPoleTideCoefficients( grid, latitudeDegrees, longitudeDegrees, latitudePolicy );
+    return interpolateValidatedOceanPoleTideCoefficients( grid, latitudeDegrees, longitudeDegrees );
 }
 
 OceanPoleTideDeformation::OceanPoleTideDeformation( const input_output::OceanPoleTideGrid& grid,
                                                     const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator,
-                                                    const OceanPoleTideLatitudePolicy latitudePolicy,
                                                     const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter ):
-    BodyDeformationModel( converter ), grid_( grid ), polarMotionCalculator_( polarMotionCalculator ), latitudePolicy_( latitudePolicy )
+    BodyDeformationModel( converter ), grid_( grid ), polarMotionCalculator_( polarMotionCalculator )
 {
     input_output::validateOceanPoleTideGrid( grid_ );
-    validatePolicy( latitudePolicy_ );
     if( !polarMotionCalculator_ )
     {
         throw std::runtime_error( "Ocean pole-tide loading requires a polar motion calculator" );
@@ -146,7 +128,7 @@ Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementAtTt(
     const double radiansPerDegree = mathematical_constants::PI / 180.0;
 
     const auto coefficients = interpolateValidatedOceanPoleTideCoefficients(
-            grid_, sphericalPosition.y( ) / radiansPerDegree, sphericalPosition.z( ) / radiansPerDegree, latitudePolicy_ );
+            grid_, sphericalPosition.y( ) / radiansPerDegree, sphericalPosition.z( ) / radiansPerDegree );
 
     const Eigen::Vector2d pole = polarMotionCalculator_->getPositionOfCipInItrsAtTt( tt );
     const Eigen::Vector2d secularPole = earth_orientation::getSecularPolePositionInMas( time ) * ( radiansPerDegree / 3600000.0 );

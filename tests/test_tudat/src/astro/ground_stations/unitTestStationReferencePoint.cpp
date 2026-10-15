@@ -40,12 +40,10 @@ std::shared_ptr< StationHistoryTrajectory > marker( const Eigen::Vector3d& posit
                                                          std::vector< StationSeasonalTerm >{},
                                                          meta );
 }
-std::shared_ptr< StationReferencePointTrajectory > arp(
-        std::shared_ptr< StationHistoryTrajectory > source = marker( ),
-        StationReferencePointRatePolicy policy = StationReferencePointRatePolicy::rejectAtSwitch )
+std::shared_ptr< StationReferencePointTrajectory > arp( std::shared_ptr< StationHistoryTrajectory > source = marker( ) )
 {
     auto geometry = createGeocentricStationReferencePointGeometry( Eigen::Vector3d( 3e6, -5e6, 2e6 ), source->getMetadata( ).frame );
-    return createSinexAntennaReferencePointTrajectory( source, equipment( ), "ABMF:ARP", geometry, context( ), policy );
+    return createSinexAntennaReferencePointTrajectory( source, equipment( ), "ABMF:ARP", geometry, context( ) );
 }
 StationReferencePointOffset calibration( const std::shared_ptr< StationReferencePointTrajectory >& source )
 {
@@ -80,14 +78,8 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
     BOOST_CHECK_THROW(
             createSinexAntennaReferencePointTrajectory( uppercaseMarker, equipment( ), "ABMF:ARP", geometryForAlias, context( ) ),
             std::runtime_error );
-    const auto aliasedPoint = createSinexAntennaReferencePointTrajectory( uppercaseMarker,
-                                                                          equipment( ),
-                                                                          "ABMF:ARP",
-                                                                          geometryForAlias,
-                                                                          context( ),
-                                                                          StationReferencePointRatePolicy::rejectAtSwitch,
-                                                                          std::nullopt,
-                                                                          SinexSiteKey{ "abmf", "A" } );
+    const auto aliasedPoint = createSinexAntennaReferencePointTrajectory(
+            uppercaseMarker, equipment( ), "ABMF:ARP", geometryForAlias, context( ), std::nullopt, SinexSiteKey{ "abmf", "A" } );
     BOOST_CHECK_EQUAL( aliasedPoint->getMetadata( ).site.siteCode, "ABMF" );
     BOOST_CHECK( aliasedPoint->getOffsetHistory( )->getOffsets( ).front( ).equipmentProvenance.text.find( "abmf" ) != std::string::npos );
     const auto query = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2008, 200, 0 } ), 1.0 );
@@ -107,8 +99,9 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
     BOOST_CHECK_EQUAL( record.headerTimeContext->source, context( ).source );
     const auto atSwitch = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2009, 288, 72000 } ), 1.0 );
     close( point->getPosition( atSwitch ), source->getPosition( atSwitch ) );
-    BOOST_CHECK_THROW( point->getState( atSwitch ), std::runtime_error );
-    BOOST_CHECK_NO_THROW( arp( source, StationReferencePointRatePolicy::rightHandAtSwitch )->getState( atSwitch ) );
+    // The state at a switch uses the new (right-hand) record, consistent with the position.
+    BOOST_REQUIRE_NO_THROW( point->getState( atSwitch ) );
+    close( point->getState( atSwitch ).head< 3 >( ), point->getPosition( atSwitch ) );
     auto outside = query;
     outside.tai = *context( ).endTai;
     BOOST_CHECK_THROW( point->getPosition( outside ), std::runtime_error );
@@ -221,9 +214,8 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrameCompositionOrder )
     // equate those distinct composition choices.
     reference_frames::TerrestrialFrameTransformationModel model( catalogue );
     // Preserve the source calendar coordinate and its TDB rate through ordered point/frame composition.
-    const auto affine = model.getTransformation( "ITRF2020", "ITRF2014",
-                                                static_cast< double >( query.calendarYear + query.yearFraction ),
-                                                *query.decimalYearRate );
+    const auto affine = model.getTransformation(
+            "ITRF2020", "ITRF2014", static_cast< double >( query.calendarYear + query.yearFraction ), *query.decimalYearRate );
 
     close( transformedPoint->getPosition( query ), affine.transformPosition( point->getPosition( query ) ) );
     close( pointAfterFrame->getPosition( query ),

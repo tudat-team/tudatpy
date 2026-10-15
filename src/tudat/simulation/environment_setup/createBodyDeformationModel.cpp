@@ -331,10 +331,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             }
             const auto pole = rotation->getAnglesCalculator( )->getPolarMotionCalculator( );
             bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanPoleTideDeformation >(
-                    settings->getGrid( ),
-                    pole,
-                    settings->getLatitudePolicy( ),
-                    rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
+                    settings->getGrid( ), pole, rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
             break;
         }
         case ocean_tide: {

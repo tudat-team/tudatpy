@@ -211,6 +211,28 @@ BOOST_AUTO_TEST_CASE( requiredGeometryAndSourceConflicts )
     g.metadata.displacementBasis = AtmosphericTideDisplacementBasis::geodeticUpNorthEast;
     BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c, settings ) ), std::runtime_error );
 }
+BOOST_AUTO_TEST_CASE( rp03GridDefaultsToGeocentricConventions )
+{
+    const auto c = modelClock( );
+    auto g = grid( );
+    g.metadata = rp03( );
+    AtmosphericTideDeformation defaulted( g, c );
+    AtmosphericTideDeformation declared( g, c, explicitGeometry( ) );
+    const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
+    const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
+    const Eigen::Vector3d p( 4000000, 3000000, 3500000 );
+    BOOST_CHECK_EQUAL( ( defaulted.calculateDisplacement( epoch, station( p ) ) - declared.calculateDisplacement( epoch, station( p ) ) )
+                               .cwiseAbs( )
+                               .maxCoeff( ),
+                       0.0 );
+    // An explicit declaration still takes precedence: geodetic lookup without a body shape is rejected.
+    AtmosphericTideEvaluationSettings geodetic;
+    geodetic.lookupLatitudeConvention = AtmosphericTideLatitudeConvention::geodetic;
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c, geodetic ) ), std::runtime_error );
+    // Without the RP03 identification, conventions remain mandatory.
+    g.metadata.modelName = "Vienna APL";
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c ) ), std::runtime_error );
+}
 BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
 {
     const auto c = modelClock( );
@@ -218,7 +240,7 @@ BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
     g.metadata = rp03( );
     auto settings = explicitGeometry( );
     AtmosphericTideDeformation ce( g, c, settings );
-    settings.originPolicy = AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm;
+    settings.convertToCentreOfMass = true;
     AtmosphericTideDeformation cm( g, c, settings );
     const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
     const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
@@ -266,17 +288,18 @@ BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRate )
     close( base->calculateDisplacementState( Time( static_cast< double >( epoch ) ), s ).tail< 3 >( ), expected, 2e-18 );
     close( base->calculateDisplacementState( epoch, s ).head< 3 >( ), model.calculateDisplacement( epoch, s ) );
 }
-BOOST_AUTO_TEST_CASE( modelEndpointPoliciesAndRegionalCoverage )
+BOOST_AUTO_TEST_CASE( modelSeamAveragingAndRegionalCoverage )
 {
     auto g = grid( );
     g.longitudesDegrees = { 0, 180, 360 };
     g.coefficientsMetres = { g.coefficientsMetres[ 0 ], g.coefficientsMetres[ 1 ], g.coefficientsMetres[ 0 ],
                              g.coefficientsMetres[ 1 ], g.coefficientsMetres[ 0 ], g.coefficientsMetres[ 1 ] };
-    g.coefficientsMetres.back( )( 0, 0 ) += 8e-7;
     const auto c = modelClock( );
-    auto settings = explicitGeometry( );
-    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c, settings ) ), std::runtime_error );
-    settings.endpointPolicy = AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation;
+    const auto settings = explicitGeometry( );
+    auto grosslyInconsistent = g;
+    grosslyInconsistent.coefficientsMetres.back( )( 0, 0 ) += 2e-5;
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( grosslyInconsistent, c, settings ) ), std::runtime_error );
+    g.coefficientsMetres.back( )( 0, 0 ) += 8e-7;
     AtmosphericTideDeformation approximate( g, c, settings );
     BOOST_CHECK_SMALL( approximate.getGridInterpolator( )->getMaximumSeamDiscrepancyMetres( ) - 8e-7, 1e-18 );
     BOOST_CHECK_EQUAL( approximate.getGridInterpolator( )->getProviderGrid( ).coefficientsMetres.back( )( 0, 0 ),
@@ -445,7 +468,7 @@ BOOST_AUTO_TEST_CASE( analyticRatesSmoothConvergenceLeapContinuityAndOriginOnce 
     g.metadata = rp03( );
     auto options = explicitGeometry( );
     AtmosphericTideDeformation ce( g, c, options );
-    options.originPolicy = AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm;
+    options.convertToCentreOfMass = true;
     AtmosphericTideDeformation cm( g, c, options );
     const Eigen::Vector3d p( 4000000, 3000000, 3500000 );
     const Time midnightTai( ( 57754. - 51544.5 ) * 86400. + 37 );

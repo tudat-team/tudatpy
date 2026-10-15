@@ -67,16 +67,10 @@ Eigen::Vector3d differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( 
     return differentiateAtmosphericTideLoadingWrtUt1( rp03GeocentreCoefficients( ), ut1SecondsSinceJ2000 );
 }
 
-AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid,
-                                                                  const AtmosphericTideEndpointPolicy endpointPolicy ):
-    providerGrid_( grid ), modelCoefficients_( grid.coefficientsMetres ), policy_( endpointPolicy )
+AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid ):
+    providerGrid_( grid ), modelCoefficients_( grid.coefficientsMetres )
 {
     input_output::validateAtmosphericTideGrid( grid );
-    if( policy_ != AtmosphericTideEndpointPolicy::requireConsistency &&
-        policy_ != AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
-    {
-        throw std::runtime_error( "Unknown atmospheric tide endpoint policy" );
-    }
     const auto& lon = grid.longitudesDegrees;
     const auto& lat = grid.latitudesDegrees;
     const std::size_t nlon = lon.size( ), nlat = lat.size( );
@@ -91,12 +85,9 @@ AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_ou
             auto& first = modelCoefficients_[ j ];
             auto& last = modelCoefficients_[ ( nlon - 1 ) * nlat + j ];
             seamDiscrepancy_ = std::max( seamDiscrepancy_, ( first - last ).cwiseAbs( ).maxCoeff( ) );
-            if( policy_ == AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
-            {
-                const Eigen::Matrix< double, 3, 4 > mean = ( first + last ) / 2;
-                first = mean;
-                last = mean;
-            }
+            const Eigen::Matrix< double, 3, 4 > mean = ( first + last ) / 2;
+            first = mean;
+            last = mean;
         }
     }
     for( std::size_t j = 0; j < nlat; ++j )
@@ -124,20 +115,15 @@ AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_ou
             mean += radialNorthEastBasis( lat[ j ], lon[ i ] ) * modelCoefficients_[ i * nlat + j ];
         }
         polarDiscrepancy_ = std::max( polarDiscrepancy_, ( maximum - minimum ).cwiseAbs( ).maxCoeff( ) );
-        if( policy_ == AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
+        mean /= uniqueLongitudes;
+        for( std::size_t i = 0; i < nlon; ++i )
         {
-            mean /= uniqueLongitudes;
-            for( std::size_t i = 0; i < nlon; ++i )
-            {
-                modelCoefficients_[ i * nlat + j ] = radialNorthEastBasis( lat[ j ], lon[ i ] ).transpose( ) * mean;
-            }
+            modelCoefficients_[ i * nlat + j ] = radialNorthEastBasis( lat[ j ], lon[ i ] ).transpose( ) * mean;
         }
     }
-    // Only floating-point rotation noise is accepted by the strict policy, not inconsistent rounded provider values.
-    if( policy_ == AtmosphericTideEndpointPolicy::requireConsistency && ( seamDiscrepancy_ > 1e-15 || polarDiscrepancy_ > 1e-15 ) )
+    if( seamDiscrepancy_ > maximumEndpointDiscrepancyMetres || polarDiscrepancy_ > maximumEndpointDiscrepancyMetres )
     {
-        throw std::runtime_error(
-                "Atmospheric grid seam/polar coefficients are inconsistent; select the explicit averaging approximation to use this grid" );
+        throw std::runtime_error( "Atmospheric grid seam/polar coefficients differ by more than provider rounding" );
     }
 }
 

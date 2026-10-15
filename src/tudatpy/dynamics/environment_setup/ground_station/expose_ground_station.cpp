@@ -779,7 +779,6 @@ StationHistoryGroundStationMotionSettings
            py::arg( "reference_point_name" ),
            py::arg( "geometry" ) = py::none( ),
            py::arg( "header_context" ) = py::none( ),
-           py::arg( "rate_policy" ) = tudat::ground_stations::StationReferencePointRatePolicy::rejectAtSwitch,
            py::arg( "domes_selector" ) = py::none( ),
            py::arg( "equipment_site" ) = py::none( ) );
     m.def( "reference_point_station",

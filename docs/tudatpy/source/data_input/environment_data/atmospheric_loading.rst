@@ -47,17 +47,20 @@ knots use the interval to the right (left at the final sample). Unsupported or
 missing rate stencils raise for rates/states while independently valid position
 evaluation remains available.
 
-Source origin is preserved by default. The opt-in RP03 CE-to-CM policy requires
+Source origin is preserved by default. The opt-in RP03 CE-to-CM conversion
+(``convert_to_centre_of_mass``) requires
 explicit identification of the IERS RP03 no-IB Farrell source profile, declared
 model/Green function and CE or CM origin. It adds the IERS Table 7.6 Cartesian
 translation after local rotation exactly once for CE inputs; already-CM data
 receive none. Unknown products, including the separate Vienna APL grid, cannot
 use this conversion.
 
-The pinned RP03 provider has rounded seam and polar coefficient differences.
-Strict endpoint consistency is the default. The explicitly named averaged-seam
-and polar-Cartesian approximation records their maximum discrepancies and
-modifies only model coefficients. The original grid remains available.
+The pinned RP03 provider has rounded seam and polar coefficient differences
+(at most 0.0008 mm). The model always averages the duplicated seam columns and
+replaces each polar row by its Cartesian mean, records the maximum
+discrepancies, and modifies only model coefficients. The original grid remains
+available. A grid whose duplicates differ by more than 10 micrometres is
+rejected as inconsistent.
 The Bernese manual station sample does not agree with this downloaded grid;
 that discrepancy remains documented in the test provenance and is not claimed
 as independent-software conformance.

@@ -218,10 +218,9 @@ context cannot contradict an actually specified source header. This context is
 retained with the evaluated records. The IGS master template has unspecified
 header limits, so its final equipment records require such a context.
 
-At a switch, position selects the new record. State evaluation defaults to
-``reject_at_switch`` because an ordinary two-sided rate is unavailable there.
-``right_hand_at_switch`` explicitly requests the new record's one-sided rate.
-Do not use a centered finite difference across a hardware or offset jump.
+At a switch, position and state both use the new record (its one-sided rate),
+as at other station-history discontinuities. Do not use a centered finite
+difference across a hardware or offset jump.
 
 .. code-block:: python
 

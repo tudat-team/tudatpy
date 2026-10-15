@@ -95,23 +95,16 @@ void expose_shape_deformation_setup( py::module& m )
            "Matching scoped origin translations are added once. Avoiding double-counted signals (for example tidal bands "
            "also modelled by another loading model, or seasonal terms already fitted in the station coordinates) is the "
            "responsibility of the configuration." );
-    py::enum_< ba::AtmosphericTideEndpointPolicy >( m, "AtmosphericTideEndpointPolicy" )
-            .value( "require_consistency", ba::AtmosphericTideEndpointPolicy::requireConsistency )
-            .value( "average_seam_and_polar_cartesian_approximation",
-                    ba::AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation );
-    py::enum_< ba::AtmosphericLoadingOriginPolicy >( m, "AtmosphericLoadingOriginPolicy" )
-            .value( "preserve_source_origin", ba::AtmosphericLoadingOriginPolicy::preserveSourceOrigin )
-            .value( "convert_identified_rp03_ce_to_cm", ba::AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm );
     py::class_< ba::AtmosphericTideEvaluationSettings >(
             m,
             "AtmosphericTideEvaluationSettings",
             "Independent grid lookup latitude and displacement basis declarations. Geodetic choices require Earth's configured shape. "
-            "Strict endpoint consistency and preserved source origin are defaults." )
+            "For an RP03 (Ray-Ponte 2003, Farrell) grid, undeclared conventions default to geocentric. Source origin is preserved "
+            "unless convert_to_centre_of_mass is set, which requires the identified RP03 product." )
             .def( py::init<>( ) )
             .def_readwrite( "lookup_latitude_convention", &ba::AtmosphericTideEvaluationSettings::lookupLatitudeConvention )
             .def_readwrite( "displacement_basis", &ba::AtmosphericTideEvaluationSettings::displacementBasis )
-            .def_readwrite( "endpoint_policy", &ba::AtmosphericTideEvaluationSettings::endpointPolicy )
-            .def_readwrite( "origin_policy", &ba::AtmosphericTideEvaluationSettings::originPolicy );
+            .def_readwrite( "convert_to_centre_of_mass", &ba::AtmosphericTideEvaluationSettings::convertToCentreOfMass );
     py::class_< tss::AtmosphericTideBodyDeformationSettings,
                 std::shared_ptr< tss::AtmosphericTideBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "AtmosphericTideBodyDeformationSettings" );
@@ -123,12 +116,14 @@ void expose_shape_deformation_setup( py::module& m )
 
 The environment epoch is TDB seconds since J2000. Phase is measured from UT1
 midnight using Earth's shared continuous time converter. Grid latitude lookup
-and displacement component basis must each be declared explicitly; the provider
-latitude label does not resolve either convention. Source origin is preserved.
-The optional identified RP03 CE-to-CM policy adds Table 7.6 XYZ translation once
-after local rotation. Actual RP03 seam/polar rounding discrepancies require an
-explicit approximation policy, which records their maximum size and preserves
-raw records. Position evaluation works through inserted leap seconds. State
+and displacement component basis are taken from the settings or the source
+metadata; for an RP03 (Ray-Ponte 2003, Farrell) grid, undeclared conventions
+default to geocentric. Other grids require explicit declarations. Source origin
+is preserved unless ``convert_to_centre_of_mass`` is set, which adds the IERS
+Table 7.6 XYZ translation once after local rotation (identified RP03 only).
+Duplicated seam columns are averaged and polar rows replaced by their Cartesian
+mean on a model copy (RP03 rounding differences are below 1 micrometre); grids
+whose duplicates differ by more than 10 micrometres are rejected. Position evaluation works through inserted leap seconds. State
 and velocity are analytic derivatives with respect to TDB, chaining the model's
 continuous UT1/TAI rate and geocentric TT/TDB rate. Missing or unsupported rate
 stencils raise for state/rate evaluation without disabling valid positions.
@@ -145,14 +140,14 @@ stencils raise for state/rate evaluation without disabling valid positions.
            py::arg( "file_path" ),
            py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
            py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
-           "Read a grid when creating these settings; file errors occur immediately. Use the geometry, endpoint and origin policies of "
+           "Read a grid when creating these settings; file errors occur immediately. Use the geometry, seam/pole and origin handling of "
            "atmospheric_tide_from_grid." );
     m.def( "atmospheric_tide_from_station_file",
            &tss::atmosphericTideBodyShapeDeformationFromStationFile,
            py::arg( "file_path" ),
            py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
            py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
-           "Read ATL station coefficients when creating these settings; file errors occur immediately. Use the basis/origin policies of "
+           "Read ATL station coefficients when creating these settings; file errors occur immediately. Use the basis/origin handling of "
            "atmospheric_tide_from_stations." );
 
     m.def( "basic_solid_body_tidal",
@@ -291,21 +286,16 @@ BodyDeformationSettings
     py::class_< tss::OceanPoleTideBodyDeformationSettings,
                 std::shared_ptr< tss::OceanPoleTideBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "OceanPoleTideBodyDeformationSettings" );
-    py::enum_< tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy >( m, "OceanPoleTideLatitudePolicy" )
-            .value( "require_grid_coverage", tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage )
-            .value( "clamp_to_nearest_grid_latitude_approximation",
-                    tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation );
     m.def( "ocean_pole_tidal",
            &tss::oceanPoleTideBodyShapeDeformation,
            py::arg( "grid_file" ),
-           py::arg( "latitude_policy" ) = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage,
            R"doc(
 Create conventional ocean pole-tide loading (IERS 7.1.5, Eq. 29), with the 2018 secular pole and IERS 2010 constants.
 Supply the decompressed IERS CM grid as a plain-text file; it is read when these settings are created.
 File errors occur immediately, and model construction performs no additional grid-file access.
 The official grid already includes its geocentre correction. Source origin declarations are retained without conversion.
-Bilinear interpolation is periodic in longitude for a complete grid. The default rejects latitudes outside the supplied
-coverage (the official grid ends at +/-89.75 degrees). The explicitly named clamp approximation uses the nearest grid latitude.
+Bilinear interpolation is periodic in longitude for a complete grid. Latitudes beyond the first or last grid row (the
+official grid ends at +/-89.75 degrees) use that row.
 Cartesian output uses the geocentric radial/north/east basis; station ENU uses its actual topocentric basis.
 Native displacement and state queries take precise Time in TDB seconds since J2000. The model-owned shared converter
 provides TT for polar motion; state velocity differentiates the TT evaluator and applies dTT/dTDB once.
@@ -314,7 +304,6 @@ Requires Earth's GCRS/ITRS rotation model and its polar motion data. Grid coeffi
     m.def( "ocean_pole_tidal_from_data",
            &tss::oceanPoleTideBodyShapeDeformationFromData,
            py::arg( "grid" ),
-           py::arg( "latitude_policy" ) = tudat::basic_astrodynamics::OceanPoleTideLatitudePolicy::requireGridCoverage,
            "Create the same conventional loading model from a preloaded data_input.environment_data.ocean_loading.OceanPoleTideGrid." );
 
     py::enum_< tudat::basic_astrodynamics::OceanTideSynthesis >( m, "OceanTideSynthesis" )

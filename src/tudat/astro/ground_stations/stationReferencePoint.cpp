@@ -151,13 +151,10 @@ StationReferencePointGeometry createGeodeticStationReferencePointGeometry( const
 }
 
 StationReferencePointOffsetHistory::StationReferencePointOffsetHistory( std::vector< StationReferencePointOffset > offsets,
-                                                                        std::optional< StationReferencePointGeometry > geometry,
-                                                                        StationReferencePointRatePolicy policy ):
-    offsets_( std::move( offsets ) ), geometry_( std::move( geometry ) ), ratePolicy_( policy )
+                                                                        std::optional< StationReferencePointGeometry > geometry ):
+    offsets_( std::move( offsets ) ), geometry_( std::move( geometry ) )
 {
     sortAndCheck( offsets_ );
-    require( policy == StationReferencePointRatePolicy::rejectAtSwitch || policy == StationReferencePointRatePolicy::rightHandAtSwitch,
-             "unknown switch-rate policy" );
     if( geometry_ ) checkGeometry( *geometry_ );
     for( const auto& offset : offsets_ )
     {
@@ -210,10 +207,6 @@ Eigen::Vector3d StationReferencePointOffsetHistory::getPositionCorrection( const
 Eigen::Vector6d StationReferencePointOffsetHistory::getStateCorrection( const StationHistoryTime& time ) const
 {
     const auto& offset = getActiveOffset( time.tai );
-    if( ratePolicy_ == StationReferencePointRatePolicy::rejectAtSwitch && &offset != &offsets_.front( ) && offset.validity.startTai &&
-        time.tai == *offset.validity.startTai )
-        throw std::runtime_error(
-                "Reference-point state derivative is unavailable at an equipment/offset switch; choose explicit right-hand policy" );
     Eigen::Vector6d state = Eigen::Vector6d::Zero( );
     if( offset.positionFunction )
     {
@@ -245,8 +238,7 @@ StationReferencePointIdentity getStationReferencePointIdentity( const std::share
 //! Retain the source trajectory and bind one validated reference-point offset history.
 StationReferencePointTrajectory::StationReferencePointTrajectory( std::shared_ptr< StationHistoryTrajectory > source,
                                                                   std::shared_ptr< StationReferencePointOffsetHistory > offsets ):
-    StationHistoryTrajectory( std::move( source ) ),
-    offsets_( std::move( offsets ) ), outputMetadata_( source_->getMetadata( ) )
+    StationHistoryTrajectory( std::move( source ) ), offsets_( std::move( offsets ) ), outputMetadata_( source_->getMetadata( ) )
 {
     require( offsets_ != nullptr, "an explicit reference-point offset history is required" );
     require( sameIdentity( getStationReferencePointIdentity( source_ ), offsets_->getOffsets( ).front( ).from ),
@@ -328,7 +320,6 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
         std::string name,
         std::optional< StationReferencePointGeometry > geometry,
         std::optional< SinexEquipmentHeaderTimeContext > context,
-        StationReferencePointRatePolicy policy,
         const std::optional< std::string >& domesSelector,
         const std::optional< SinexSiteKey >& equipmentSite )
 {
@@ -404,8 +395,8 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
                 record.headerTimeContext = context;
                 offsets.push_back( record );
             }
-    auto result = createStationReferencePointTrajectory(
-            marker, std::make_shared< StationReferencePointOffsetHistory >( offsets, geometry, policy ) );
+    auto result =
+            createStationReferencePointTrajectory( marker, std::make_shared< StationReferencePointOffsetHistory >( offsets, geometry ) );
     return result;
 }
 }  // namespace ground_stations

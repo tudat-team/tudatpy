@@ -164,9 +164,6 @@ void expose_station_models( py::module& m )
     py::enum_< gs::StationReferencePointOffsetBasis >( m, "StationReferencePointOffsetBasis" )
             .value( "une", gs::StationReferencePointOffsetBasis::une )
             .value( "xyz", gs::StationReferencePointOffsetBasis::xyz );
-    py::enum_< gs::StationReferencePointRatePolicy >( m, "StationReferencePointRatePolicy" )
-            .value( "reject_at_switch", gs::StationReferencePointRatePolicy::rejectAtSwitch )
-            .value( "right_hand_at_switch", gs::StationReferencePointRatePolicy::rightHandAtSwitch );
     py::class_< gs::StationReferencePointOffset >( m, "StationReferencePointOffset" )
             .def( py::init<>( ) )
             .def_readwrite( "from_point", &gs::StationReferencePointOffset::from )
@@ -188,17 +185,13 @@ void expose_station_models( py::module& m )
             .def_readonly( "header_time_context", &gs::StationReferencePointOffset::headerTimeContext );
     py::class_< gs::StationReferencePointOffsetHistory, std::shared_ptr< gs::StationReferencePointOffsetHistory > >(
             m, "StationReferencePointOffsetHistory" )
-            .def( py::init< std::vector< gs::StationReferencePointOffset >,
-                            std::optional< gs::StationReferencePointGeometry >,
-                            gs::StationReferencePointRatePolicy >( ),
+            .def( py::init< std::vector< gs::StationReferencePointOffset >, std::optional< gs::StationReferencePointGeometry > >( ),
                   py::arg( "offsets" ),
-                  py::arg( "geometry" ) = py::none( ),
-                  py::arg( "rate_policy" ) = gs::StationReferencePointRatePolicy::rejectAtSwitch )
+                  py::arg( "geometry" ) = py::none( ) )
             .def( "position_correction", &gs::StationReferencePointOffsetHistory::getPositionCorrection, py::arg( "source_time" ) )
             .def( "state_correction", &gs::StationReferencePointOffsetHistory::getStateCorrection, py::arg( "source_time" ) )
             .def_property_readonly( "offsets", &gs::StationReferencePointOffsetHistory::getOffsets, py::return_value_policy::copy )
-            .def_property_readonly( "geometry", []( const gs::StationReferencePointOffsetHistory& h ) { return h.getGeometry( ); } )
-            .def_property_readonly( "rate_policy", &gs::StationReferencePointOffsetHistory::getRatePolicy );
+            .def_property_readonly( "geometry", []( const gs::StationReferencePointOffsetHistory& h ) { return h.getGeometry( ); } );
     py::class_< gs::StationReferencePointTrajectory, std::shared_ptr< gs::StationReferencePointTrajectory >, gs::StationHistoryTrajectory >(
             m, "StationReferencePointTrajectory" )
             .def_property_readonly( "reference_point_identity",

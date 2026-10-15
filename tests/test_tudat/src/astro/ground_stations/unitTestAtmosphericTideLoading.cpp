@@ -86,14 +86,16 @@ BOOST_AUTO_TEST_CASE( interpolationIndependentLinearCasesAndRawEndpointRetention
     BOOST_CHECK_THROW( model.interpolate( 90, 0 ), std::out_of_range );
     auto inconsistent = raw;
     inconsistent.coefficientsMetres.back( )( 0, 0 ) += 8e-7;
-    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideGridInterpolator( inconsistent ) ), std::runtime_error );
-    AtmosphericTideGridInterpolator averaged( inconsistent, AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation );
+    auto grosslyInconsistent = raw;
+    grosslyInconsistent.coefficientsMetres.back( )( 0, 0 ) += 2e-5;
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideGridInterpolator( grosslyInconsistent ) ), std::runtime_error );
+    AtmosphericTideGridInterpolator averaged( inconsistent );
     BOOST_CHECK_CLOSE( averaged.getMaximumSeamDiscrepancyMetres( ), 8e-7, 1e-6 );
     BOOST_CHECK_EQUAL( averaged.getProviderGrid( ).longitudesDegrees.size( ), 5 );
     BOOST_CHECK_EQUAL( averaged.getProviderGrid( ).coefficientsMetres.back( )( 0, 0 ), inconsistent.coefficientsMetres.back( )( 0, 0 ) );
     BOOST_CHECK_SMALL( averaged.interpolate( -45, 0 )( 0, 0 ) - 20 - 4e-7, 1e-14 );
 }
-BOOST_AUTO_TEST_CASE( polarCartesianAveragingExplicitlyChangesOnlyModelCopy )
+BOOST_AUTO_TEST_CASE( polarCartesianAveragingChangesOnlyModelCopy )
 {
     auto raw = grid( );
     raw.latitudesDegrees = { 90, 0, -90 };
@@ -112,9 +114,12 @@ BOOST_AUTO_TEST_CASE( polarCartesianAveragingExplicitlyChangesOnlyModelCopy )
         }
     }
     AtmosphericTideGridInterpolator exact( raw );
+    BOOST_CHECK_SMALL( exact.getMaximumPolarCartesianDiscrepancyMetres( ), 1e-15 );
+    auto grosslyInconsistent = raw;
+    grosslyInconsistent.coefficientsMetres[ 0 ]( 0, 0 ) += 2e-5;
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideGridInterpolator( grosslyInconsistent ) ), std::runtime_error );
     raw.coefficientsMetres[ 0 ]( 0, 0 ) += 4e-7;
-    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideGridInterpolator( raw ) ), std::runtime_error );
-    AtmosphericTideGridInterpolator averaged( raw, AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation );
+    AtmosphericTideGridInterpolator averaged( raw );
     BOOST_CHECK_GT( averaged.getMaximumPolarCartesianDiscrepancyMetres( ), 3.9e-7 );
     BOOST_CHECK_EQUAL( averaged.getProviderGrid( ).coefficientsMetres[ 0 ]( 0, 0 ), 1 + 4e-7 );
     for( double lon : { 0., 25.5, 45., 90., 180., 270. } )
@@ -134,9 +139,7 @@ BOOST_AUTO_TEST_CASE( realGridNodesAndIndependentDecimalInterpolation )
     AtmosphericTideGridInterpolator model( raw );
     BOOST_CHECK_SMALL( ( model.interpolate( -19, 47 ) - raw.coefficientsMetres.front( ) ).norm( ), 1e-18 );
     const auto polarRaw = readAtmosphericTideGrid( base + "/../../../reference_files/atmospheric_tides/rp03_ce_polar_node_extract.txt" );
-    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideGridInterpolator( polarRaw ) ), std::runtime_error );
-    AtmosphericTideGridInterpolator polarApproximation( polarRaw,
-                                                        AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation );
+    AtmosphericTideGridInterpolator polarApproximation( polarRaw );
     BOOST_CHECK_THROW( polarApproximation.interpolate( 90, 10 ), std::out_of_range );
     // Independent Decimal interpolation of four original provider rows; this is not reference-software conformance.
     Eigen::Matrix< double, 3, 4 > expected;
