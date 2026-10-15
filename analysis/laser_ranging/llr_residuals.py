@@ -36,18 +36,6 @@ REFLECTORS = {
     4: ("L2", (1339363.598, 801870.995, 756359.260)),
 }
 
-# The selected eleven rows are fixed before calculation, including all reflector IDs and quality grades.
-NP_SHA256 = "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389"
-
-KERNELS = {
-    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
-    "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
-    "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
-    "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
-    "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
-    "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
-}
-
 
 def sha256(path):
     """Identify the actual local inputs without downloading or replacing them."""
@@ -56,10 +44,10 @@ def sha256(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def read_points(path):
+def read_points(path, expected_hash):
     """Decode the provider's fixed-width UTC/RTT/weather fields, retaining every pinned row."""
 
-    if sha256(path) != NP_SHA256:
+    if sha256(path) != expected_hash:
         raise ValueError("Expected the pinned eleven APOLLO points, not another release/selection")
 
     widths = (2, 4, 2, 2, 2, 2, 9, 14, 1, 5, 3, 6, 3, 1, 6, 4, 2, 5, 1, 4, 1)
@@ -333,14 +321,22 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
 
-    points = read_points(args.data_dir / "apollo_20170309_np2.txt")
+    dataset = json.loads(Path(__file__).with_name("llr_dataset.json").read_text())
+
+    points = read_points(
+        args.data_dir / dataset["normal_points"]["file"], dataset["normal_points"]["sha256"]
+    )
 
     kernel_hashes = {}
 
     # Clear any kernels loaded by earlier work in the same interpreter, then load only the declared matched set.
     spice.clear_kernels()
 
-    for name, expected_hash in KERNELS.items():
+    for record in dataset["kernels"]:
+        name = record["file"]
+
+        expected_hash = record["sha256"]
+
         path = args.kernel_dir / name
 
         kernel_hashes[name] = sha256(path)
@@ -417,7 +413,8 @@ def main():
         "weighted_mean_m": float(np.average(residuals, weights=1 / sigmas**2)),
         "normalized_rms": float(np.sqrt(np.mean((residuals / sigmas) ** 2))),
         "chi_squared_no_fitted_parameters": float(np.sum((residuals / sigmas) ** 2)),
-        "normal_point_sha256": NP_SHA256,
+        "normal_point_sha256": dataset["normal_points"]["sha256"],
+        "dataset_manifest_sha256": sha256(Path(__file__).with_name("llr_dataset.json")),
         "kernel_sha256": kernel_hashes,
         "earth_orientation_resource_sha256": {
             path.name: sha256(path)
@@ -434,6 +431,7 @@ def main():
             "DE440-fit NP calibration version is not established to match the 2022 ACS release.",
             "Earth simultaneity omits deformation velocity over microseconds and ~1.34 micrometre acceleration terms.",
             "Existing custom position callbacks supply zero additional velocity; no Doppler/state-rate claim is made.",
+            "Unlike the DE440-fit JPL2020 reduction, this diagnostic includes the sub-mm lunar Shapiro term.",
             "No residual selection, uncertainty inflation, mean removal, trend removal or parameter estimation.",
             "Component columns are sequential re-solves, not an exactly additive fixed-event decomposition.",
         ],

@@ -1,12 +1,17 @@
 Fixed-ephemeris lunar laser ranging diagnostic
 =============================================
 
-``scripts/laser_ranging/llr_residuals.py`` compares all eleven APOLLO normal points
+``analysis/laser_ranging/llr_residuals.py`` compares all eleven APOLLO normal points
 dated 2017-03-09 with a fixed DE440 model. It estimates no parameters and does not
 remove a mean or trend, select points by residual, or inflate their uncertainties.
 The input subset is checked by SHA-256 before use. Data and kernels remain outside
-the repository; their sources and hashes are recorded in
-``laser-ranging-work/data/llr/SOURCES.json`` and ``kernels/SOURCES.json``.
+the repository. The adjacent ``analysis/laser_ranging/llr_dataset.json`` supplies
+portable provider URLs, SHA-256 values, and the exact selection recipe: retain
+all source lines beginning with the ASCII bytes ``512017 3 9`` in original order,
+including their existing newlines, from the hash-verified full Group-e release.
+The result must contain eleven rows (original lines 134–144) and match the pinned
+subset hash. The model performs no downloads; supply ``--data-dir``,
+``--kernel-dir`` and ``--output-dir`` explicitly after preparing these inputs.
 
 This is a diagnostic, not a reproduction of JPL's fitted reduction. The APOLLO
 station position comes from the 2005 WGS84 survey, whose stated accuracy is about
@@ -41,7 +46,10 @@ Model conventions
   ``LM=1.4825e-8``. Earth's TT scaling is not applied to the Moon. The newer TL
   convention is not substituted for this published DE440 reduction convention.
 * Solar, Earth and lunar first-order Shapiro corrections are evaluated inside
-  each leg's light-time solution. Mendes–Pavlis optical group delay with FCULa
+  each leg's light-time solution. This differs from the DE440-fit JPL2020 model
+  (Section 3.17), which omits the Moon's sub-millimetre term as well as Jupiter
+  and other distant planets; retaining the lunar term is a physical improvement,
+  not an exact replay of that fitted reduction. Mendes–Pavlis optical group delay with FCULa
   mapping uses the recorded wavelength and measured pressure, temperature and
   humidity. The existing Tetens utility supplies vapour pressure from humidity.
   Weather is interpolated between the measured UTC tags and held outside the
