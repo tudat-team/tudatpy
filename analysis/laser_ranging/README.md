@@ -6,10 +6,10 @@ propagate, estimate, fit an offset, remove a trend, clip residuals, or use a CPF
 prediction as truth. Orbit and station configurations are separate experiments;
 do not select one because it has a smaller residual mean.
 
-The initial source checkpoint has **not been executed**. Run only with a kernel
-containing the SP3/CRD readers, optical correction, body-deformation station
-motion factory and selected Earth-orientation converter property. A successful
-syntax check is not an observation-model validation.
+The default combined-orbit/SLRF2020 configuration has been executed; its measured
+baseline and raw results are recorded below. Run with a kernel containing the
+SP3/CRD readers, optical correction, body-deformation station motion factory and
+selected Earth-orientation converter property. No mean or offset is fitted.
 
 ## Inputs and provenance
 
