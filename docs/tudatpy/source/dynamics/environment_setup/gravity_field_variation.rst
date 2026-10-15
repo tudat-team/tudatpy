@@ -253,3 +253,27 @@ phase convention is retained. Neither interface introduces a new runtime model.
 
 .. autoclass:: Aod1bGravityFieldVariationSettings
    :members:
+
+Temporal ICGEM fields
+---------------------
+
+Temporal records use the same neutral ICGEM reader as static fields. Consuming
+them requires an explicit source time scale and an explicit definition of a year;
+neither is inferred from a filename or provider header. The response is an
+analytic, bounded anomaly relative to the nominal field snapshot at construction.
+It has no second interpolation stage. Irregular printed date tokens require
+caller-supplied source-scale overrides rather than a guessed interpretation.
+
+.. autosummary::
+
+   icgem_temporal
+   IcgemYearConvention
+   IcgemTemporalGravityFieldVariationSettings
+
+.. autofunction:: icgem_temporal
+
+.. autoclass:: IcgemYearConvention
+   :members:
+
+.. autoclass:: IcgemTemporalGravityFieldVariationSettings
+   :members:

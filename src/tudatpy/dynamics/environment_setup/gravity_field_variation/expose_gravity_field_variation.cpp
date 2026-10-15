@@ -17,6 +17,7 @@
 #include "tudat/simulation/environment_setup/createEarthGravityFieldVariations.h"
 #include "tudat/simulation/environment_setup/createAod1bGravityFieldVariations.h"
 #include "tudat/simulation/environment_setup/createTime22GravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createIcgemTemporalGravityFieldVariations.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -151,6 +152,9 @@ Variation model due to pole tides
       )doc" )
             .value( "ocean_pole_tide", tg::ocean_pole_tide, "Equilibrium ocean response to polar motion." )
             .value( "aod1b_rl07", tg::aod1b_rl07, "Selected RL07 non-tidal mass component." )
+            .value( "icgem_temporal",
+                    tg::icgem_temporal,
+                    "Analytic temporal ICGEM coefficients relative to the nominal construction snapshot." )
             .export_values( );
 }
 
@@ -419,6 +423,74 @@ Returns
 -------
 HarmonicGravityFieldVariationSettings
     Final inventory and explicit source metadata, independent of the input files.
+)doc" );
+
+    // Source date and year interpretations remain explicit consuming choices, separate from raw parsing.
+    py::enum_< tg::IcgemYearConvention >(
+            m, "IcgemYearConvention", "Explicit meaning of trend/periodic years; no convention is inferred from provider headers." )
+            .value( "julian_year", tg::IcgemYearConvention::julianYear, "Elapsed TAI SI seconds divided by 31557600." )
+            .value( "fractional_gregorian_year",
+                    tg::IcgemYearConvention::fractionalGregorianYear,
+                    "Fractional Gregorian years in the declared source calendar." );
+
+    py::class_< tss::IcgemTemporalGravityFieldVariationSettings,
+                std::shared_ptr< tss::IcgemTemporalGravityFieldVariationSettings >,
+                tss::GravityFieldVariationSettings >(
+            m,
+            "IcgemTemporalGravityFieldVariationSettings",
+            "Preloaded temporal coefficients with an explicit source clock, year convention and optional exact-token date overrides." )
+            .def_property_readonly( "source_time_scale",
+                                    &tss::IcgemTemporalGravityFieldVariationSettings::getSourceTimeScale,
+                                    "Selected physical time scale for provider date tokens." )
+            .def_property_readonly( "year_convention",
+                                    &tss::IcgemTemporalGravityFieldVariationSettings::getYearConvention,
+                                    "Selected meaning of trend/periodic years." )
+            .def_property_readonly( "date_overrides",
+                                    &tss::IcgemTemporalGravityFieldVariationSettings::getDateOverrides,
+                                    py::return_value_policy::copy,
+                                    "Copy of exact-token overrides, in source-scale seconds since J2000." )
+            .def_property_readonly( "identifier",
+                                    &tss::IcgemTemporalGravityFieldVariationSettings::getIdentifier,
+                                    "Stable provider product label used by model lookup." )
+                    TUDATPY_DEF_EQ_NE( tss::IcgemTemporalGravityFieldVariationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
+                            tss::GravityFieldVariationSettings, tss::IcgemTemporalGravityFieldVariationSettings );
+
+    m.def( "icgem_temporal",
+           &tss::icgemTemporalGravityFieldVariationSettings,
+           py::arg( "data" ),
+           py::arg( "source_time_scale" ),
+           py::arg( "year_convention" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "date_overrides" ) = std::map< std::string, double >{},
+           R"doc(
+Create analytic temporal ICGEM variations with explicit source time conventions.
+
+The response is an anomaly relative to the nominal field snapshot at construction.
+The selected Earth rotation supplies the clock conversion. Evaluation remains
+bounded by the supplied gfct pieces, without extrapolation or a second interpolation
+stage. Julian years use elapsed TAI SI seconds divided by 31557600; fractional
+Gregorian years use the declared source calendar. Later nominal-field changes do
+not rebase the adopted snapshot. Date-only tokens mean midnight; irregular suffixes
+that are not HHMM require explicit exact-token source-scale overrides.
+
+Parameters
+----------
+data : tudatpy.data_input.environment_data.gravity_field.IcgemGravityFieldData
+    Preloaded static and independent temporal provider records.
+source_time_scale : tudatpy.astro.time_representation.TimeScales
+    Required physical interpretation of printed provider dates.
+year_convention : IcgemYearConvention
+    Required interpretation of trend and periodic years.
+maximum_degree, maximum_order : int
+    Upper bounds of the retained block, which starts at degree two/order zero.
+date_overrides : dict[str, float], default={}
+    Exact printed tokens mapped to source-scale seconds since J2000.
+
+Returns
+-------
+IcgemTemporalGravityFieldVariationSettings
+    Settings retaining source records and their explicit consuming interpretation.
 )doc" );
 
     m.def( "iers_2010_solid_body_tide",

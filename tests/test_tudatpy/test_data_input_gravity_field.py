@@ -6,6 +6,7 @@ import pickle
 import numpy as np
 import pytest
 
+from tudatpy.astro.time_representation import TimeScales
 from tudatpy.data_input.environment_data import earth_orientation
 from tudatpy.data_input.environment_data import gravity_field as gravity_data
 from tudatpy.dynamics import environment_setup
@@ -55,6 +56,14 @@ def test_icgem_records_settings_and_assembled_tide_system():
     assert temporal.temporal_coefficients[0].validity_end_date
     with pytest.raises(RuntimeError):
         gravity_field.from_icgem(temporal, "ITRS")
+    temporal_settings = variation.icgem_temporal(
+        temporal, TimeScales.tt_scale, variation.IcgemYearConvention.julian_year, 2, 0
+    )
+
+    assert temporal_settings.source_time_scale == TimeScales.tt_scale
+    assert temporal_settings.year_convention == variation.IcgemYearConvention.julian_year
+    if hasattr(variation.GravityFieldVariationSettings, "__setstate__"):
+        assert pickle.loads(pickle.dumps(temporal_settings)) == temporal_settings
 
 
 # One construction exercises all native input types and the existing deferred sampler.
