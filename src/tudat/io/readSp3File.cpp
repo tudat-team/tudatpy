@@ -81,8 +81,6 @@ Sp3Data readSp3File( std::istream& stream, const std::string& source )
 
     bool timeSystemRead = false;
 
-    bool ended = false;
-
     while( std::getline( stream, line ) )
     {
         ++lineNumber;
@@ -226,7 +224,6 @@ Sp3Data readSp3File( std::istream& stream, const std::string& source )
             }
             else if( line.rfind( "EOF", 0 ) == 0 )
             {
-                ended = true;
                 break;
             }
 
@@ -238,12 +235,14 @@ Sp3Data readSp3File( std::istream& stream, const std::string& source )
         }
     }
 
-    if( !ended || output.records.empty( ) || !timeSystemRead || output.timeSystem.empty( ) ||
+    // ILRSA combined products omit the literal EOF line. Physical EOF is accepted only with the declared epoch count
+    // and a complete final set of satellite records, so an incomplete final epoch still fails.
+    if( stream.bad( ) || output.records.empty( ) || !timeSystemRead || output.timeSystem.empty( ) ||
         epochCount != static_cast< std::size_t >( output.declaredEpochCount ) || velocityRead.size( ) != output.satelliteIds.size( ) ||
         ( output.hasVelocityRecords &&
           std::any_of( velocityRead.begin( ), velocityRead.end( ), []( const auto& entry ) { return !entry.second; } ) ) )
     {
-        throw std::runtime_error( source + ": incomplete SP3 header, samples or EOF marker" );
+        throw std::runtime_error( source + ": incomplete SP3 header or samples, or stream read failure" );
     }
 
     return output;

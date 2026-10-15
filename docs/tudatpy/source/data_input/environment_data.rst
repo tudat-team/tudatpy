@@ -44,6 +44,10 @@ values are NaN. Missing positions/velocities and predicted-orbit flags remain
 explicit. The reader neither interpolates an ephemeris nor converts its frame
 or time system.
 
+Some ILRSA combined products omit the literal ``EOF`` record. A physical end of
+file is accepted when the declared epoch count and all final satellite records
+are complete; missing samples and incomplete position/velocity pairs still fail.
+
 Each record's :class:`~tudatpy.astro.time_representation.Time` represents the
 coordinate printed in the file's declared time system. In particular, an ILRS
 SP3 declaring UTC must not be treated as a GPS-time product. Frame labels and
