@@ -398,7 +398,7 @@ def load_stations(station_file, eccentricity_file, converter, require_velocity):
 
 
 def set_weather(station, session):
-    """Attach measured CRD weather in UTC, rejecting duplicate conflicting samples."""
+    """Attach supplied CRD weather in UTC, rejecting duplicate conflicting samples."""
     config = session.configuration
     start = calendar_epoch(config.start_year, config.start_month, config.start_day)
     end = calendar_epoch(config.end_year, config.end_month, config.end_day)
@@ -415,8 +415,8 @@ def set_weather(station, session):
 
     # Weather records may be unsorted. The nearest day to this short session determines midnight rollover.
     for record in session.data.meteorological_data:
-        if record.origin_of_values != 0:
-            raise ValueError("This analysis requires measured weather records")
+        if record.origin_of_values not in (0, 1):
+            raise ValueError("This analysis requires measured or station-interpolated CRD weather")
 
         local = record.second_of_day + 86400 * math.floor(
             (midpoint - record.second_of_day) / 86400 + 0.5
@@ -800,6 +800,15 @@ def main():
                 },
                 "calibration_records": len(session.data.calibration_data),
                 "range_supplement_records": len(session.data.range_supplement_data),
+                "meteorological_origin_counts": {
+                    str(origin): sum(
+                        record.origin_of_values == origin
+                        for record in session.data.meteorological_data
+                    )
+                    for origin in sorted(
+                        {record.origin_of_values for record in session.data.meteorological_data}
+                    )
+                },
             }
         )
         values, omissions = reduce_session(session, index, bodies, orbit, (com_rows, dhf_rows))

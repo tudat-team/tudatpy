@@ -105,8 +105,11 @@ reproduction of the provider's orbit determination.
   LAGEOS leg); its existing Python argument is named `absolute_tolerance`.
 - CRD pressure is converted from hPa to Pa, temperature is kelvin, and relative
   humidity is converted from percent to a fraction. Native meteorological
-  conversion supplies vapour pressure. Weather is linearly interpolated in UTC
-  only within measured coverage. Unsorted weather records are assigned to the
+  conversion supplies vapour pressure. CRD record 20 origin 0 denotes measured
+  values; origin 1 denotes station-interpolated values at the printed epoch,
+  as defined in [CRD version 2.01, section 3.4](https://ilrs.gsfc.nasa.gov/docs/2022/crd_v2.01e3.pdf).
+  Both supplied origins are retained in the session summary. Weather is linearly
+  interpolated in UTC only within supplied sample coverage. Unsorted weather records are assigned to the
   day nearest the midpoint of the short session. The C0 system's actual wavelength
   is used (Graz 532 nm; Herstmonceux 532.080 nm). Native optical CO2 is 375 ppm.
 - H4 flags must say refraction, CoM and amplitude corrections are unapplied,
