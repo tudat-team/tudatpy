@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
     using namespace simulation_setup;
     using namespace earth_orientation;
 
-    // Controlled daily observations are affine in TAI, including the 86401-second day.
+    // Controlled daily observations vary linearly with TAI, including the 86401-second day.
     EarthOrientationData data;
     const Time midnightTai = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
     const Eigen::Vector2d referencePole( 1.0e-6, 2.0e-6 ), slope( 2.0e-12, -3.0e-12 );

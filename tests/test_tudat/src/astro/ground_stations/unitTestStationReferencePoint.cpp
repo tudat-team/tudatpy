@@ -215,10 +215,10 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrameCompositionOrder )
     BOOST_CHECK_EQUAL( pointAfterFrame->getMetadata( ).frame, "ITRF2014" );
     BOOST_CHECK_EQUAL( pointAfterFrame->getOffsetHistory( )->getGeometry( )->frame, "ITRF2014" );
 
-    // Affine scale/rotation act on a pre-transform offset. A post-transform
+    // Scale and rotation act on a pre-transform offset. A post-transform
     // vector must be supplied in the declared output geometry; do not silently
     // equate those distinct composition choices.
-    reference_frames::TerrestrialFrameTransformationModel model( catalogue );
+    reference_frames::HelmertTransformationModel model( catalogue );
 
     // Preserve the source calendar coordinate and its TDB rate through ordered point/frame composition.
     const auto affine = model.getTransformation(

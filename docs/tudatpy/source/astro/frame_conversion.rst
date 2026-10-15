@@ -109,11 +109,11 @@ Classes
 
 .. autosummary::
 
-   TerrestrialFrameTransformationModel
+   HelmertTransformationModel
 
    TerrestrialFrameAffineTransformation
 
-.. autoclass:: tudatpy.astro.frame_conversion.TerrestrialFrameTransformationModel
+.. autoclass:: tudatpy.astro.frame_conversion.HelmertTransformationModel
    :members:
 
 .. autoclass:: tudatpy.astro.frame_conversion.TerrestrialFrameAffineTransformation

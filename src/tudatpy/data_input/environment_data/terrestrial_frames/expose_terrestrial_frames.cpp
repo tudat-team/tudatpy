@@ -214,7 +214,7 @@ Table of transformation parameters from a common reference frame realization to 
 
 Objects of this class are created by :func:`read_terrestrial_frame_transformation_data`,
 :func:`official_itrf2014_parameters` and :func:`official_itrf2020_parameters`, and used by
-:class:`~tudatpy.astro.frame_conversion.TerrestrialFrameTransformationModel`.
+:class:`~tudatpy.astro.frame_conversion.HelmertTransformationModel`.
 
       )doc" )
             .def( py::init<>( ) )

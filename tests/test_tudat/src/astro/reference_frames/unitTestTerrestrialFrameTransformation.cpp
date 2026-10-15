@@ -110,13 +110,13 @@ BOOST_AUTO_TEST_CASE( individualSevenParametersAndPhysicalRateChain )
     }
 }
 
-//! Check published provenance, hub composition and the full affine inverse.
+//! Check published provenance, hub composition and the full matrix inverse.
 BOOST_AUTO_TEST_CASE( modelProvenanceAndHubComposition )
 {
     // Published catalogue and explicit year/rate preserve the original composition case.
     const auto data = readOfficialItrf2020TransformationData( );
 
-    TerrestrialFrameTransformationModel model( data );
+    HelmertTransformationModel model( data );
 
     const double year = 2025.25;
 
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( modelProvenanceAndHubComposition )
            target.transformState( source.transformState( state( ) ) ) );
     BOOST_CHECK_EQUAL( model.getData( ).referenceFrame.realization, "ITRF2020" );
 
-    // The full nonorthogonal affine inverse must recover position and velocity.
+    // The full matrix inverse, including scale, must recover position and velocity.
     const auto complete = model.getTransformation( "ITRF93", "ITRF88", year, yearRate );
 
     close( complete.inverse( ).transformState( complete.transformState( state( ) ) ), state( ) );

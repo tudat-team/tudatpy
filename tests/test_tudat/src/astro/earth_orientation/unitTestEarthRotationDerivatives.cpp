@@ -130,7 +130,7 @@ Eigen::Matrix3d matrixFromSofa( const double matrix[ 3 ][ 3 ] )
     return result;
 }
 
-// Independent SOFA CIO recipe, using controlled affine EOP directly, without
+// Independent SOFA CIO recipe, using controlled EOP values linear in TAI, without
 // production orientation angles, EOP interpolation or quaternion composition.
 // https://www.iausofa.org/s/sofa_pn_c.pdf, sections 5.5/5.6.
 Eigen::Matrix3d independentSofaRotation( const Time& tai, const IAUConventions theory = iau_2006, const double ut1Slope = -2e-8 )

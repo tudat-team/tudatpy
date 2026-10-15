@@ -79,8 +79,8 @@ def test_earth_frame_and_rotation_settings_registration():
     assert parameters.translation_metres.shape == (3,)
     assert len(parameters.rotation_rate_radians_per_second) == 3
 
-    # Exercise the relocated affine bindings using an explicit decimal year and state-time rate.
-    model = frame_conversion.TerrestrialFrameTransformationModel(frames)
+    # Exercise the Helmert bindings using an explicit decimal year and state-time rate.
+    model = frame_conversion.HelmertTransformationModel(frames)
     state = np.array([1.0, 2.0, 3.0, 0.1, 0.2, 0.3])
     year, year_rate = 2025.0, 1.0 / 31557600.0
     affine = model.get_transformation("ITRF2020", "ITRF2014", year, year_rate)

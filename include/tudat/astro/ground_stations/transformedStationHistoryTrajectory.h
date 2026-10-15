@@ -8,7 +8,7 @@ namespace tudat
 {
 namespace ground_stations
 {
-//! A complete affine state transform; source coefficients and metadata remain inspectable.
+//! Transform station position and velocity between terrestrial frames; source coefficients and metadata remain inspectable.
 /*!
  * The inherited solution/PSD/seasonal records retain source coordinates and provenance.
  * getMetadata describes the evaluated output; getSourceTrajectory retains its input
@@ -26,7 +26,7 @@ public:
                                          std::string targetTideSystem,
                                          bool acknowledgeAlignedReleases = false );
 
-    //! Apply the affine position map at the source calendar decimal year.
+    //! Apply the catalogue translation, rotation and scale at the source calendar decimal year.
     Eigen::Vector3d getPosition( const StationHistoryTime& time ) const override;
 
     //! Include parameter derivatives using the source calendar-year rate with respect to TDB.
@@ -59,7 +59,7 @@ public:
 private:
     //! Model of the frame transformations, description of the output trajectory, and whether the user has declared that
     //! the source and target frame releases are aligned.
-    reference_frames::TerrestrialFrameTransformationModel model_;
+    reference_frames::HelmertTransformationModel model_;
     StationHistoryMetadata outputMetadata_;
     bool acknowledgedReleaseAlignment_;
 };

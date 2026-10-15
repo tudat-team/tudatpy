@@ -85,9 +85,10 @@ to approximately 1e-9 m/s at Earth radius, below the complete station-velocity
 closure target of 1e-7 m/s. Tests compare 8, 32 and 128 s steps and an independent
 SOFA call using split dates at 64 s, across 1962, 2000, 2017 and 2026.
 
-The independent complete SOFA matrix-sequence test uses explicit affine UT1,
-polar motion and celestial pole inputs, SOFA ``iauC2ixys``, ``iauPom00`` and
-``iauC2tcio``. It does not use the production quaternion or EOP evaluation path.
+The independent complete SOFA matrix-sequence test uses UT1, polar motion and
+celestial pole inputs that vary linearly with TAI, along with SOFA ``iauC2ixys``,
+``iauPom00`` and ``iauC2tcio``. It does not use the production quaternion or EOP
+evaluation path.
 At one Earth station the 512, 128, 32 and 8 s five-point velocity errors are
 approximately 1.97e-5, 7.67e-8, 7.42e-10 and 2.67e-9 m/s respectively. The coarse
 steps show fourth-order convergence; the smallest steps show the expected

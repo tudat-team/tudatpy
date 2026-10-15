@@ -20,7 +20,7 @@ void validateCoordinates( double decimalYear, const std::optional< double >& yea
     }
 }
 
-//! Reject nonfinite affine values and derivatives before applying, inverting or composing them.
+//! Reject nonfinite translation and matrix values or derivatives before applying, inverting or composing them.
 void validateAffine( const TerrestrialFrameAffineTransformation& affine )
 {
     if( !affine.translation.allFinite( ) || !affine.matrix.allFinite( ) || !affine.translationRate.allFinite( ) ||
@@ -30,7 +30,7 @@ void validateAffine( const TerrestrialFrameAffineTransformation& affine )
     }
 }
 
-//! Form an affine map from normalized SI parameters; absent rates remain unused by position evaluation.
+//! Form translation and rotation/scale matrix from SI parameters; absent rates remain unused by position evaluation.
 TerrestrialFrameAffineTransformation evaluateHelmertCoordinates( const input_output::TerrestrialFrameTransformationParameters& p,
                                                                  double decimalYear,
                                                                  std::optional< double > rate )
@@ -58,7 +58,7 @@ TerrestrialFrameAffineTransformation evaluateHelmertCoordinates( const input_out
 
 }  // namespace
 
-//! Apply metre-valued translation and the complete dimensionless affine matrix.
+//! Apply metre-valued translation and the complete dimensionless transformation matrix.
 Eigen::Vector3d TerrestrialFrameAffineTransformation::transformPosition( const Eigen::Vector3d& position ) const
 {
     validateAffine( *this );
@@ -91,7 +91,7 @@ TerrestrialFrameAffineTransformation TerrestrialFrameAffineTransformation::inver
 {
     validateAffine( *this );
 
-    // A general solve is required because the affine matrix includes scale.
+    // A general solve is required because the transformation matrix includes scale.
     Eigen::FullPivLU< Eigen::Matrix3d > decomposition( matrix );
 
     if( !decomposition.isInvertible( ) )
@@ -143,8 +143,7 @@ TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_outp
 }
 
 //! Store the validated catalogue and its declared rotation conventions.
-TerrestrialFrameTransformationModel::TerrestrialFrameTransformationModel( const input_output::TerrestrialFrameTransformationData& data ):
-    data_( data )
+HelmertTransformationModel::HelmertTransformationModel( const input_output::TerrestrialFrameTransformationData& data ): data_( data )
 {
     input_output::validateTerrestrialFrameTransformationData( data_ );
     for( const auto& entry : data_.records )
@@ -157,10 +156,10 @@ TerrestrialFrameTransformationModel::TerrestrialFrameTransformationModel( const 
 }
 
 //! Share the source-to-hub-to-target calculation between position and state evaluation.
-TerrestrialFrameAffineTransformation TerrestrialFrameTransformationModel::evaluateTransformation( const std::string& source,
-                                                                                                  const std::string& target,
-                                                                                                  double decimalYear,
-                                                                                                  std::optional< double > yearRate ) const
+TerrestrialFrameAffineTransformation HelmertTransformationModel::evaluateTransformation( const std::string& source,
+                                                                                         const std::string& target,
+                                                                                         double decimalYear,
+                                                                                         std::optional< double > yearRate ) const
 {
     validateCoordinates( decimalYear, yearRate );
     if( source.empty( ) || target.empty( ) )
@@ -186,31 +185,30 @@ TerrestrialFrameAffineTransformation TerrestrialFrameTransformationModel::evalua
     return fromHub.composeAfter( toHub );
 }
 
-//! Return affine values and derivatives using the explicit years-per-input-second mapping.
-TerrestrialFrameAffineTransformation TerrestrialFrameTransformationModel::getTransformation(
-        const std::string& source,
-        const std::string& target,
-        double decimalYear,
-        double decimalYearRateWithRespectToInputSeconds ) const
+//! Return translation, matrix and their derivatives using the explicit years-per-input-second mapping.
+TerrestrialFrameAffineTransformation HelmertTransformationModel::getTransformation( const std::string& source,
+                                                                                    const std::string& target,
+                                                                                    double decimalYear,
+                                                                                    double decimalYearRateWithRespectToInputSeconds ) const
 {
     return evaluateTransformation( source, target, decimalYear, decimalYearRateWithRespectToInputSeconds );
 }
 
 //! Transform metre-valued position at the supplied decimal year.
-Eigen::Vector3d TerrestrialFrameTransformationModel::transformPosition( const Eigen::Vector3d& position,
-                                                                        const std::string& source,
-                                                                        const std::string& target,
-                                                                        double decimalYear ) const
+Eigen::Vector3d HelmertTransformationModel::transformPosition( const Eigen::Vector3d& position,
+                                                               const std::string& source,
+                                                               const std::string& target,
+                                                               double decimalYear ) const
 {
     return evaluateTransformation( source, target, decimalYear, std::nullopt ).transformPosition( position );
 }
 
 //! Transform Cartesian position and velocity with the caller's explicit year rate.
-Eigen::Vector6d TerrestrialFrameTransformationModel::transformState( const Eigen::Vector6d& state,
-                                                                     const std::string& source,
-                                                                     const std::string& target,
-                                                                     double decimalYear,
-                                                                     double decimalYearRateWithRespectToInputSeconds ) const
+Eigen::Vector6d HelmertTransformationModel::transformState( const Eigen::Vector6d& state,
+                                                            const std::string& source,
+                                                            const std::string& target,
+                                                            double decimalYear,
+                                                            double decimalYearRateWithRespectToInputSeconds ) const
 {
     return getTransformation( source, target, decimalYear, decimalYearRateWithRespectToInputSeconds ).transformState( state );
 }

@@ -610,22 +610,22 @@ Eigen::Matrix3d getRotationBetweenSatelliteFrames( const Eigen::Vector6d relativ
 namespace
 {
 //! Retain the pinned IGN ITRF2014 catalogue used by the established legacy entry points.
-const TerrestrialFrameTransformationModel& legacyItrfModel( )
+const HelmertTransformationModel& legacyItrfModel( )
 {
     // Read the official neutral catalogue once; its reference year and SI units remain unchanged.
-    static const TerrestrialFrameTransformationModel model( input_output::readOfficialItrf2014TransformationData( ) );
+    static const HelmertTransformationModel model( input_output::readOfficialItrf2014TransformationData( ) );
 
     return model;
 }
 }  // namespace
 
-//! Return the complete affine matrix at the legacy 2010 reference year.
+//! Return the complete transformation matrix at the legacy 2010 reference year.
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame )
 {
     return legacyItrfModel( ).getTransformation( "ITRF2014", targetFrame, 2010, 1 / 31557600.0 ).matrix;
 }
 
-//! Return the affine matrix derivative per uniform Julian-year input second.
+//! Return the transformation matrix derivative per uniform Julian-year input second.
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::string& targetFrame )
 {
     return legacyItrfModel( ).getTransformation( "ITRF2014", targetFrame, 2010, 1 / 31557600.0 ).matrixRate;
@@ -648,7 +648,7 @@ Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::V
     return legacyItrfModel( ).transformState( state, "ITRF2014", targetFrame, 2000 + epoch / 31557600.0, 1 / 31557600.0 );
 }
 
-//! Convert to ITRF2014 with the inverse affine map at the requested legacy epoch.
+//! Convert to ITRF2014 with the inverse translation and matrix at the requested legacy epoch.
 Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& state, double epoch, const std::string& baseFrame )
 {
     return legacyItrfModel( ).transformState( state, baseFrame, "ITRF2014", 2000 + epoch / 31557600.0, 1 / 31557600.0 );

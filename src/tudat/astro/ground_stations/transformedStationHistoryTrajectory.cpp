@@ -83,7 +83,7 @@ TransformedStationHistoryTrajectory::TransformedStationHistoryTrajectory( std::s
 //! Transform available position using the trajectory's calendar year, without requesting a rate.
 Eigen::Vector3d TransformedStationHistoryTrajectory::getPosition( const StationHistoryTime& time ) const
 {
-    // Absolute Cartesian metres and the declared source frame determine the affine position map.
+    // Absolute Cartesian metres and the declared source frame determine the position transformation.
     const Eigen::Vector3d position = source_->getPosition( time );
 
     const auto& input = source_->getMetadata( );
@@ -95,7 +95,7 @@ Eigen::Vector3d TransformedStationHistoryTrajectory::getPosition( const StationH
     return model_.transformPosition( position, input.frame, outputMetadata_.frame, decimalYear( time ) );
 }
 
-//! Include the affine parameter derivatives in metres per TDB second.
+//! Include the transformation parameter derivatives in metres per TDB second.
 Eigen::Vector6d TransformedStationHistoryTrajectory::getState( const StationHistoryTime& time ) const
 {
     // Use the same source state and calendar-coordinate mapping as position evaluation.
@@ -114,7 +114,7 @@ Eigen::Vector6d TransformedStationHistoryTrajectory::getState( const StationHist
     return model_.transformState( state, input.frame, outputMetadata_.frame, decimalYear( time ), *time.decimalYearRate );
 }
 
-//! Construct the affine wrapper from the caller's explicit target frame and provenance declarations.
+//! Construct the transformed station history from the caller's target frame and provenance declarations.
 std::shared_ptr< TransformedStationHistoryTrajectory > createTransformedStationHistoryTrajectory(
         std::shared_ptr< StationHistoryTrajectory > source,
         const input_output::TerrestrialFrameTransformationData& catalogue,

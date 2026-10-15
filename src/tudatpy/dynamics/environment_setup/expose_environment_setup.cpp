@@ -1074,7 +1074,7 @@ Function to convert the Cartesian state of a ground station between two ITRF rea
 transformation parameters with ITRF2014 as reference realization. The epoch is converted to a decimal year as
 :math:`2000+t/31557600`, with :math:`t` in seconds since J2000. Both the position and the velocity are transformed,
 including the time derivative of the transformation. For transformations using the ITRF2020 table, or another
-definition of the decimal year, use :class:`~tudatpy.astro.frame_conversion.TerrestrialFrameTransformationModel`.
+definition of the decimal year, use :class:`~tudatpy.astro.frame_conversion.HelmertTransformationModel`.
 
 
 Parameters

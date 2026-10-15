@@ -65,7 +65,7 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs( const double xPolePosition, 
 
 namespace
 {
-// SOFA DAT is affine in UTC within each pre-1972 segment and constant afterwards.
+// SOFA DAT varies linearly with UTC within each pre-1972 segment and is constant afterwards.
 // Scalar UTC derivatives at an offset/rate change are undefined, including the
 // midnight following a leap second. Continuous TAI/TT derivatives remain defined.
 double taiRateWithRespectToUtc( const Time& utc )

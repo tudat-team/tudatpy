@@ -21,7 +21,7 @@ struct TerrestrialFrameAffineTransformation {
     Eigen::Vector3d translationRate = Eigen::Vector3d::Zero( );
     Eigen::Matrix3d matrixRate = Eigen::Matrix3d::Zero( );
 
-    //! Apply the affine map to a Cartesian position in metres.
+    //! Apply the translation and matrix to a Cartesian position in metres.
     Eigen::Vector3d transformPosition( const Eigen::Vector3d& position ) const;
 
     //! Include parameter derivatives when transforming position and velocity.
@@ -30,7 +30,7 @@ struct TerrestrialFrameAffineTransformation {
     //! Invert the full matrix and differentiate that inverse.
     TerrestrialFrameAffineTransformation inverse( ) const;
 
-    //! Apply the supplied map first, including both sets of affine derivatives.
+    //! Apply the supplied transformation first, including both matrix and translation derivatives.
     TerrestrialFrameAffineTransformation composeAfter( const TerrestrialFrameAffineTransformation& before ) const;
 };
 
@@ -39,14 +39,14 @@ TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_outp
                                                                 double decimalYear,
                                                                 double decimalYearRateWithRespectToInputSeconds );
 
-//! Apply a preloaded terrestrial catalogue with the caller's explicit time convention.
-class TerrestrialFrameTransformationModel
+//! Linearized Helmert transformations with parameter rates from a preloaded terrestrial catalogue.
+class HelmertTransformationModel
 {
 public:
     //! Validate and retain the original catalogue and its declared rotation convention.
-    explicit TerrestrialFrameTransformationModel( const input_output::TerrestrialFrameTransformationData& data );
+    explicit HelmertTransformationModel( const input_output::TerrestrialFrameTransformationData& data );
 
-    //! Return affine values and derivatives; equal nonempty realization labels give identity.
+    //! Return translation, matrix and their derivatives; equal nonempty realization labels give identity.
     //! The rate is years per input second. Distinct realizations require known hub records.
     TerrestrialFrameAffineTransformation getTransformation( const std::string& sourceRealization,
                                                             const std::string& targetRealization,
