@@ -3069,6 +3069,18 @@ bool
          Object for computing high-accuracy Earth orientation angles
 
      )doc" )
+            .def_property_readonly( "time_scale_converter",
+                                    &teo::EarthOrientationAnglesCalculator::getTerrestrialTimeScaleConverter,
+                                    R"doc(
+
+         **read-only**
+
+         Shared time-scale converter used by this Earth-orientation calculator. Use this object when an external
+         ephemeris must use the same time conversions as the selected Earth rotation model.
+
+         :type: tudatpy.astro.time_representation.TimeScaleConverter
+
+     )doc" )
             .def( "get_gcrs_to_itrs_rotation_angles",
                   &teo::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs< TIME_TYPE >,
                   py::arg( "epoch" ),
