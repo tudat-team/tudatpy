@@ -187,6 +187,7 @@ public:
         scaledMeanMomentOfInertia_ = std::get< 2 >( degreeTwoField );
     }
 
+    //! Return the permanent-tide convention of the nominal coefficients, without an implicit convention conversion.
     basic_astrodynamics::TideSystem getTideSystem( ) const
     {
         return tideSystem_;
@@ -339,6 +340,7 @@ protected:
 
     double scaledMeanMomentOfInertia_;
 
+    //! Permanent-tide convention explicitly declared for the nominal spherical-harmonic coefficients.
     basic_astrodynamics::TideSystem tideSystem_;
 };
 

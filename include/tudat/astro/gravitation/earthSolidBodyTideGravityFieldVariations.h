@@ -21,6 +21,7 @@ namespace gravitation
 class EarthSolidBodyTideGravityFieldVariations : public SolidBodyTideGravityFieldVariations
 {
 public:
+    //! Retain the tide-raiser callbacks and explicit source/field reference constants and permanent-tide convention.
     EarthSolidBodyTideGravityFieldVariations( const std::function< Eigen::Vector6d( double ) >& deformedBodyState,
                                               const std::function< Eigen::Quaterniond( double ) >& toBodyFixedFrame,
                                               const std::vector< std::function< Eigen::Vector6d( double ) > >& deformingBodyStates,
@@ -33,14 +34,21 @@ public:
                                               double fieldGravitationalParameter,
                                               basic_astrodynamics::TideSystem tideSystem );
 
+    //! Evaluate fully normalized degree-two through degree-four corrections at TDB seconds since J2000.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( double time ) override;
 
 protected:
+    //! Add the anelastic degree-two/three response and the degree-four response driven by degree-two forcing.
     void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cosine, Eigen::MatrixXd& sine ) override;
 
 private:
+    //! Selected Doodson arguments [rad] in tau, s, h, p, N-prime, ps order.
     std::function< Eigen::Vector6d( double ) > doodsonArguments_;
+
+    //! Consuming reference radius [m] and gravitational parameter [m^3/s^2].
     double fieldRadius_, fieldGravitationalParameter_;
+
+    //! Permanent-tide convention of the nominal field used for the degree-two zonal correction.
     basic_astrodynamics::TideSystem tideSystem_;
 };
 
@@ -53,16 +61,21 @@ private:
 class SolidPoleTideGravityFieldVariations : public GravityFieldVariations
 {
 public:
+    //! Retain the supplied wobble and the source-to-field GM/radius scaling for C21 and S21.
     SolidPoleTideGravityFieldVariations( const std::function< Eigen::Vector2d( double ) >& wobbleArcseconds,
                                          double sourceGravitationalParameter,
                                          double sourceRadius,
                                          double fieldGravitationalParameter,
                                          double fieldRadius );
 
+    //! Evaluate the normalized one-by-one degree-two/order-one correction at TDB seconds since J2000.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( double time ) override;
 
 private:
+    //! Polar wobble m1, m2 [arcsec] at each TDB epoch [s since J2000].
     std::function< Eigen::Vector2d( double ) > wobbleArcseconds_;
+
+    //! Dimensionless degree-two conversion from the source GM/radius to the consuming field.
     double coefficientScale_;
 };
 

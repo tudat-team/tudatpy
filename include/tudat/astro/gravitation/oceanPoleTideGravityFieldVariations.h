@@ -14,12 +14,25 @@ namespace gravitation
 {
 //! Explicit IERS 6.23 forcing constants. No reference constants inferred from the A/B table.
 struct OceanPoleGravityConstants {
+    //! Earth angular velocity [rad/s].
     double angularVelocity = TUDAT_NAN;
+
+    //! Gravitational constant [m^3/(kg s^2)].
     double gravitationalConstant = TUDAT_NAN;
+
+    //! Mean seawater density [kg/m^3].
     double oceanDensity = TUDAT_NAN;
+
+    //! Normal equatorial gravity [m/s^2].
     double equatorialGravity = TUDAT_NAN;
+
+    //! Source gravitational parameter [m^3/s^2].
     double gravitationalParameter = TUDAT_NAN;
+
+    //! Source reference radius [m].
     double referenceRadius = TUDAT_NAN;
+
+    //! Dimensionless complex pole-response coefficient in the IERS forcing convention.
     std::complex< double > gamma2{ TUDAT_NAN, TUDAT_NAN };
 
     //! Archive all explicit forcing and reference constants, including the complex ocean response.
@@ -48,11 +61,13 @@ public:
                                          int maximumDegree,
                                          int maximumOrder );
 
+    //! Evaluate the selected normalized correction block at TDB seconds since J2000.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( double time ) override;
 
 private:
     std::function< Eigen::Vector2d( double ) > wobbleRadians_;
     Eigen::MatrixXd aReal_, aImaginary_, bReal_, bImaginary_;
+    //! Dimensionless complex pole-response coefficient in the IERS forcing convention.
     std::complex< double > gamma2_;
 };
 

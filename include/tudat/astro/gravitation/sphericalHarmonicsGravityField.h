@@ -458,6 +458,7 @@ public:
         sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumDegree_ + 2, maximumOrder_ + 2 );
     }
 
+    //! Return the permanent-tide convention of the nominal coefficients, without an implicit convention conversion.
     basic_astrodynamics::TideSystem getTideSystem( ) const
     {
         return tideSystem_;
@@ -818,6 +819,7 @@ protected:
     //! Cache object for potential calculations.
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 
+    //! Permanent-tide convention explicitly declared for the nominal spherical-harmonic coefficients.
     basic_astrodynamics::TideSystem tideSystem_;
 };
 

@@ -9,7 +9,7 @@ namespace gravitation
 {
 namespace
 {
-// Validate before the base allocates correction matrices.
+//! Validate source coverage and output bounds before the base allocates correction matrices.
 int checkedMinimumDegree( const input_output::OceanPoleGravityData& data,
                           int minimumDegree,
                           int minimumOrder,
@@ -26,6 +26,7 @@ int checkedMinimumDegree( const input_output::OceanPoleGravityData& data,
 }
 }  // namespace
 
+//! Retain the selected IERS 6.23 equilibrium integrals with explicit load Love numbers and physical reference constants.
 OceanPoleTideGravityFieldVariations::OceanPoleTideGravityFieldVariations( const input_output::OceanPoleGravityData& data,
                                                                           const std::function< Eigen::Vector2d( double ) >& wobbleRadians,
                                                                           const std::vector< double >& loadLoveNumbers,
@@ -70,6 +71,7 @@ OceanPoleTideGravityFieldVariations::OceanPoleTideGravityFieldVariations( const 
     const double common = constants.angularVelocity * constants.angularVelocity * std::pow( constants.referenceRadius, 4 ) * 4.0 *
             mathematical_constants::PI * constants.gravitationalConstant * constants.oceanDensity /
             ( constants.gravitationalParameter * constants.equatorialGravity );
+
     for( int n = minimumDegree; n <= maximumDegree; ++n )
     {
         if( !std::isfinite( loadLoveNumbers[ n ] ) )
@@ -78,6 +80,7 @@ OceanPoleTideGravityFieldVariations::OceanPoleTideGravityFieldVariations( const 
         }
         const double factor = common * ( 1.0 + loadLoveNumbers[ n ] ) / ( 2.0 * n + 1.0 ) * constants.gravitationalParameter /
                 outputGravitationalParameter * std::pow( constants.referenceRadius / outputReferenceRadius, n );
+
         if( !std::isfinite( factor ) )
         {
             throw std::invalid_argument( "Nonfinite ocean-pole gravity scaling" );
@@ -85,11 +88,13 @@ OceanPoleTideGravityFieldVariations::OceanPoleTideGravityFieldVariations( const 
         for( int m = minimumOrder; m <= std::min( n, maximumOrder ); ++m )
         {
             const auto found = data.coefficients.find( { n, m } );
+
             if( found == data.coefficients.end( ) )
             {
                 throw std::invalid_argument( "Missing selected ocean-pole gravity coefficient" );
             }
             const int i = n - minimumDegree, j = m - minimumOrder;
+
             aReal_( i, j ) = factor * found->second.a.real( );
             aImaginary_( i, j ) = factor * found->second.a.imag( );
             bReal_( i, j ) = factor * found->second.b.real( );
@@ -98,6 +103,7 @@ OceanPoleTideGravityFieldVariations::OceanPoleTideGravityFieldVariations( const 
     }
 }
 
+//! Combine the scaled equilibrium integrals with the selected polar wobble and complex response.
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > OceanPoleTideGravityFieldVariations::calculateSphericalHarmonicsCorrections( double time )
 {
     if( !std::isfinite( time ) )
@@ -105,12 +111,15 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > OceanPoleTideGravityFieldVariation
         throw std::invalid_argument( "Nonfinite ocean-pole gravity epoch" );
     }
     const Eigen::Vector2d wobble = wobbleRadians_( time );
+
     if( !wobble.allFinite( ) )
     {
         throw std::invalid_argument( "Nonfinite ocean-pole wobble" );
     }
     const double real = wobble.x( ) * gamma2_.real( ) + wobble.y( ) * gamma2_.imag( );
+
     const double imaginary = wobble.y( ) * gamma2_.real( ) - wobble.x( ) * gamma2_.imag( );
+
     return { aReal_ * real + aImaginary_ * imaginary, bReal_ * real + bImaginary_ * imaginary };
 }
 }  // namespace gravitation

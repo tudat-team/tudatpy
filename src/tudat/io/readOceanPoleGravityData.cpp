@@ -10,6 +10,7 @@ namespace tudat
 {
 namespace input_output
 {
+//! Validate sparse source values without filling missing entries or imposing a consuming degree selection.
 void validateOceanPoleGravityData( const OceanPoleGravityData& data )
 {
     if( data.coefficients.empty( ) )
@@ -17,10 +18,13 @@ void validateOceanPoleGravityData( const OceanPoleGravityData& data )
         throw std::invalid_argument( "Empty ocean-pole gravity coefficient table" );
     }
     int maximumDegree = 0;
+
     for( const auto& item : data.coefficients )
     {
         const auto n = item.first.first, m = item.first.second;
+
         const auto& c = item.second;
+
         if( n < 1 || m < 0 || m > n || !std::isfinite( c.a.real( ) ) || !std::isfinite( c.a.imag( ) ) || !std::isfinite( c.b.real( ) ) ||
             !std::isfinite( c.b.imag( ) ) || ( m == 0 && c.b != std::complex< double >( 0.0 ) ) )
         {
@@ -35,16 +39,21 @@ void validateOceanPoleGravityData( const OceanPoleGravityData& data )
     }
 }
 
+//! Read the published six-column A/B integral table, preserving original headers and coefficient provenance.
 OceanPoleGravityData readOceanPoleGravityData( std::istream& stream, const std::string& source )
 {
     OceanPoleGravityData data;
+
     data.source = source;
     std::string line;
+
     std::size_t number = 0;
+
     while( std::getline( stream, line ) )
     {
         ++number;
         const auto start = line.find_first_not_of( " \t\r" );
+
         if( start == std::string::npos )
         {
             continue;
@@ -57,7 +66,9 @@ OceanPoleGravityData readOceanPoleGravityData( std::istream& stream, const std::
         if( data.coefficients.empty( ) )
         {
             std::istringstream header( line );
+
             std::string token, normalized;
+
             while( header >> token )
             {
                 normalized += ( normalized.empty( ) ? "" : " " ) + token;
@@ -69,9 +80,13 @@ OceanPoleGravityData readOceanPoleGravityData( std::istream& stream, const std::
             }
         }
         int n, m;
+
         double ar, br, ai, bi;
+
         std::string extra;
+
         std::istringstream row( line );
+
         if( !( row >> n >> m >> ar >> br >> ai >> bi ) || ( row >> extra ) )
         {
             throw std::invalid_argument( source + ":" + std::to_string( number ) + ": expected six ocean-pole gravity columns" );
@@ -90,9 +105,11 @@ OceanPoleGravityData readOceanPoleGravityData( std::istream& stream, const std::
     return data;
 }
 
+//! Open a coefficient table and preserve its path in read errors and returned provenance.
 OceanPoleGravityData readOceanPoleGravityData( const std::string& fileName )
 {
     std::ifstream stream( fileName );
+
     if( !stream )
     {
         throw std::runtime_error( "Cannot open ocean-pole gravity source " + fileName );

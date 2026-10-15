@@ -16,7 +16,10 @@ namespace input_output
 {
 //! Dimensionless normalized integrals in IERS 6.23, not station-displacement coefficients.
 struct OceanPoleGravityCoefficient {
+    //! Complex A and B integrals, preserving the published normalization and sign convention.
     std::complex< double > a, b;
+
+    //! One-based original line number for source tracing.
     std::size_t sourceLine = 0;
 
     //! Archive the published complex values and original source row.
@@ -29,9 +32,15 @@ struct OceanPoleGravityCoefficient {
 
 //! Sparse published values: a missing entry remains distinct from a published zero.
 struct OceanPoleGravityData {
+    //! Source identifier and original explanatory header lines.
     std::string source;
+
     std::vector< std::string > headerLines;
+
+    //! Sparse integrals keyed by degree and order, including the published degree-one records.
     std::map< std::pair< int, int >, OceanPoleGravityCoefficient > coefficients;
+
+    //! Largest degree present in the original table.
     int maximumDegree = 0;
 
     //! Archive sparse coverage and provenance without filling missing source terms.
@@ -42,10 +51,12 @@ struct OceanPoleGravityData {
     }
 };
 
+//! Check finite complex integrals, valid degree/order indices and the reported source extent.
 void validateOceanPoleGravityData( const OceanPoleGravityData& data );
 
 //! Six columns: n m A(real) B(real) A(imaginary) B(imaginary). No decompression.
 OceanPoleGravityData readOceanPoleGravityData( std::istream& stream, const std::string& source = "<stream>" );
+//! Open the supplied table and retain its path as the source identifier.
 OceanPoleGravityData readOceanPoleGravityData( const std::string& fileName );
 
 }  // namespace input_output
