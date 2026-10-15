@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE( dateOnlyOriginsAreInheritedWithoutInventingValidityLimits 
 
     const Time sourceEpoch = timeFromDecomposedDateTime< Time >( 2000, 1, 1, 0, 0, 0.0L ) + 31557600.0 / 4;
 
-    // At one quarter Julian year, the annual cosine vanishes and the sine is one:2e-6+1e-8-6e-8.
+    // At one quarter of a Julian year, cosine is zero and sine is one: 2e-6 + 1e-8 - 6e-8.
     BOOST_CHECK_SMALL(
             model->calculateSphericalHarmonicsCorrections( tdbImage( sourceEpoch, tai_scale, converter ) ).first( 0, 0 ) - 1.95e-6,
             32 * std::numeric_limits< double >::epsilon( ) * 2.1e-6 );

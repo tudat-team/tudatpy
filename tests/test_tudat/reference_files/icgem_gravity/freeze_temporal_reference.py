@@ -70,7 +70,7 @@ rows = [
     if line.startswith(("gfct", "trnd", "acos", "asin"))
 ]
 
-# Select published records explicitly. Periodic origin1950 intentionally remains independent of the active2000/2001baseline.
+# Select published records explicitly. The periodic origin remains 1950, independent of the active 2000/2001 baseline.
 eigen_cases = [
     ("2000-07-02 00:00:00", 0, "20000101.0000", "19500101.0000"),
     ("2001-07-02 00:00:00", 0, "20010101.0000", "19500101.0000"),
@@ -122,8 +122,8 @@ with localcontext() as context:
             f"EIGEN {seconds(date)} {side} 0 {value:.35e} 0 {budget:.17e} 0 {rate:.17e} 0 {printed:.17e} 0"
         )
 
-    # Analytic unnormalizedC21/S21 with one independent HHMM trend origin and annual/semiannual quadratures.
-    # N21=sqrt(5/3), so normalized coefficients multiply bysqrt(3/5), followed by source/outputGM andR^2.
+    # Analytic unnormalized C21/S21 with an independent HHMM trend origin and annual/semiannual quadratures.
+    # N21 = sqrt(5/3), so normalization multiplies by sqrt(3/5), followed by the source/output GM and squared-radius ratios.
     scale = (D(3) / D(5)).sqrt() * D(4) / D(5) * (D(8) / D(7)) ** 2
     for fractional in (False, True):
         for date in ("2000-07-02 12:34:00", "2001-07-02 12:34:00"):
@@ -155,7 +155,7 @@ with localcontext() as context:
                     phase_budget += (abs(acos) + abs(asin)) * (gamma(12) * abs(phase) + 4 * EPS)
                 value = scale * value - D.from_float(nominal)
                 values.append(value)
-                # Include normalization,GM/R and nominal-subtraction arithmetic, plus calendar-coordinate cancellation atyear~2000.
+                # Include normalization, GM/radius scaling and nominal subtraction, plus calendar-coordinate cancellation near year 2000.
                 budgets.append(
                     gamma(32) * (scale * magnitude + abs(D.from_float(nominal)))
                     + scale * phase_budget
