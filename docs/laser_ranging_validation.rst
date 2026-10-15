@@ -117,6 +117,13 @@ The summary records the executed script and all input hashes and uses the latest
 parser kernel identified above. Later precision experiments are separate
 diagnostics and do not replace this frozen baseline.
 
+A fresh run reproduced the complete 23-row residual CSV byte for byte, together
+with all station/session statistics, six exclusions, interpolation controls and
+input hashes. The residual CSV SHA-256 is
+``2a17ed360d346c2efa8dc7afd39fc576caff7762e563e62796b9094da46ace33``.
+Local repeatability evidence is recorded in
+``laser-ranging-work/logs/slr-baseline-repeatability-20261016.json``.
+
 Unresolved LLR diagnostic
 -------------------------
 
