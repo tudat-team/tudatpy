@@ -105,7 +105,7 @@ def barycentric_state(body, epoch):
     )
 
 
-def create_environment(points, spice_knot_step=0):
+def create_environment(points, spice_knot_step=30):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
     settings = setup.BodyListSettings("SSB", "J2000")
@@ -422,8 +422,8 @@ def main():
         "--spice-knot-step",
         type=int,
         choices=(0, 30, 60),
-        default=0,
-        help="0: direct SPICE baseline; 30/60: integer-TDB-knot cubic spline precision experiment",
+        default=30,
+        help="30 (default)/60: integer-TDB-knot cubic splines; 0: original direct SPICE baseline",
     )
     args = parser.parse_args()
 

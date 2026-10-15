@@ -100,9 +100,8 @@ into a fitted range bias.
 SPICE epoch precision experiment
 --------------------------------
 
-The default ``--spice-knot-step 0`` retains direct SPICE. An optional value of
-``60`` or ``30`` changes only the Sun, Earth and Moon translation ephemerides to
-the existing Time-valued ``interpolated_spice`` route, using cubic splines and
+The default ``--spice-knot-step 30`` uses the Sun, Earth and Moon translation
+ephemerides from the existing Time-valued ``interpolated_spice`` route, using cubic splines and
 integer TDB knots. Integer knot epochs are exact doubles, so sampling SPICE does
 not lose their time tags. The table extends at least approximately one hour
 outside the observations to suppress natural-spline boundary effects. Cubic
@@ -110,6 +109,9 @@ splines avoid the generic Lagrange interpolator's near-node handling. The
 analysis-local spatial-correction callbacks retain their original direct-SPICE
 queries. This experiment changes no station position, constants, measured
 weather, uncertainty, correction formula or convergence tolerance.
+The explicit option ``--spice-knot-step 0`` reproduces the original direct-SPICE
+baseline; ``60`` retains the coarser convergence control. The default is selected
+from the independent time-continuity and table-convergence controls below.
 
 ``ephemeris_controls.json`` compares each selected ephemeris against direct
 SPICE at 22 exactly representable off-knot epochs, and compares displacement
@@ -167,8 +169,8 @@ final point's fractional convergence tolerance from ``1e-13`` to ``1e-14``
 leaves its atmospheric and complete ranges bit-for-bit unchanged; this control
 does not implicate the stopping tolerance. The double-valued
 event output cannot diagnose every precise event shift. This experiment does
-not claim closure of all sub-millimetre numerical paths or change the default
-route on the strength of improved residuals.
+not claim closure of all sub-millimetre numerical paths. The change of default
+does not use residual reduction as its criterion.
 
 These runs used the actual imported native kernel SHA-256
 ``c475a3e90a39eed4332442f58c631398cd608f2195d25bc08cd59e3cfd0bd866``.
