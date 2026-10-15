@@ -1,5 +1,6 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
 #include "tudat/io/readAod1bGravityField.h"
+#include "tudat/io/textParsing.h"
 
 #include <algorithm>
 #include <cmath>
@@ -16,36 +17,22 @@ namespace input_output
 namespace
 {
 
-//! Remove header padding without changing retained source lines.
-std::string trim( const std::string& value )
-{
-    const auto first = value.find_first_not_of( " \t\r" );
-
-    return first == std::string::npos ? "" : value.substr( first, value.find_last_not_of( " \t\r" ) - first + 1 );
-}
-
 //! Report the product and one-based record location with each malformed input.
 [[noreturn]] void fail( const std::string& source, std::size_t line, const std::string& message )
 {
     throw std::runtime_error( source + ":" + std::to_string( line ) + ": " + message );
 }
 
-//! Parse one finite number, accepting Fortran exponents used by gravity products.
-double number( std::string token )
+//! Use the shared complete finite-number parser; the enclosing reader adds source and line context.
+double number( const std::string& token )
 {
-    std::replace( token.begin( ), token.end( ), 'D', 'E' );
-    std::replace( token.begin( ), token.end( ), 'd', 'e' );
+    const auto value = text_parsing::parseFiniteNumber( token );
 
-    // Require a complete finite field after translating the optional Fortran exponent.
-    std::size_t used = 0;
-
-    const double value = std::stod( token, &used );
-
-    if( used != token.size( ) || !std::isfinite( value ) )
+    if( !value )
     {
         throw std::runtime_error( "Expected a finite number: " + token );
     }
-    return value;
+    return *value;
 }
 
 //! Parse a complete header integer rather than accepting a numeric prefix with trailing text.
@@ -168,19 +155,22 @@ Aod1bGravityFieldData readAod1bGravityField( std::istream& stream, const std::st
         {
             ++lineNumber;
             result.headerLines.push_back( line );
-            if( trim( line ) == "END OF HEADER" )
+            if( text_parsing::trim( line, " \t\r" ) == "END OF HEADER" )
             {
                 break;
             }
 
             const auto colon = line.find( ':' );
 
-            if( colon != std::string::npos && !header.emplace( trim( line.substr( 0, colon ) ), trim( line.substr( colon + 1 ) ) ).second )
+            if( colon != std::string::npos &&
+                !header.emplace( text_parsing::trim( line.substr( 0, colon ), " \t\r" ),
+                                 text_parsing::trim( line.substr( colon + 1 ), " \t\r" ) )
+                         .second )
             {
                 throw std::runtime_error( "Duplicate header field" );
             }
         }
-        if( trim( line ) != "END OF HEADER" || header.at( "TIME EPOCH (GPS TIME)" ) != "2000-01-01 12:00:00" ||
+        if( text_parsing::trim( line, " \t\r" ) != "END OF HEADER" || header.at( "TIME EPOCH (GPS TIME)" ) != "2000-01-01 12:00:00" ||
             header.at( "FILE FORMAT 0=BINARY 1=ASCII" ) != "1" || header.at( "COEFFICIENTS ERRORS (YES/NO)" ) != "NO" ||
             header.at( "SOFTWARE VERSION" ).find( "atm_ocean_dealise.07_" ) != 0 ||
             header.at( "FILENAME" ).find( "_07.asc" ) == std::string::npos )
@@ -272,7 +262,7 @@ Aod1bGravityFieldData readAod1bGravityField( std::istream& stream, const std::st
         while( std::getline( stream, line ) )
         {
             ++lineNumber;
-            if( !trim( line ).empty( ) )
+            if( !text_parsing::trim( line, " \t\r" ).empty( ) )
             {
                 throw std::runtime_error( "Unexpected record after the declared DATA SET blocks" );
             }

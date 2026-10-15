@@ -1,10 +1,10 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
 #include "tudat/io/readIcgemGravityField.h"
+#include "tudat/io/textParsing.h"
 #include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <set>
-#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -21,58 +21,28 @@ namespace
     throw std::runtime_error( source + ":" + std::to_string( line ) + ": " + message );
 }
 
-//! Split the format's whitespace-separated fields while retaining the original record elsewhere.
-std::vector< std::string > tokens( const std::string& line )
+//! Add product/line context to the shared finite-number parser's failure.
+double number( const std::string& token, const std::string& source, std::size_t line )
 {
-    // The original line remains in the coefficient record; these tokens are temporary parse fields.
-    std::istringstream stream( line );
+    const auto value = text_parsing::parseFiniteNumber( token );
 
-    std::vector< std::string > result;
-
-    std::string token;
-
-    while( stream >> token )
+    if( !value )
     {
-        result.push_back( token );
+        fail( source, line, "Invalid finite number: " + token );
     }
-    return result;
+    return *value;
 }
 
-//! Parse a complete finite coefficient/error value, including Fortran D exponents.
-double number( std::string token, const std::string& source, std::size_t line )
-{
-    std::replace( token.begin( ), token.end( ), 'D', 'E' );
-    std::replace( token.begin( ), token.end( ), 'd', 'e' );
-    try
-    {
-        // Require the complete field, rather than accepting a finite numeric prefix.
-        std::size_t used = 0;
-
-        const double value = std::stod( token, &used );
-
-        if( used == token.size( ) && std::isfinite( value ) )
-        {
-            return value;
-        }
-    }
-    catch( const std::exception& )
-    {}
-    fail( source, line, "Invalid finite number: " + token );
-}
-
-//! Reject signed, fractional or truncated degree/order fields.
+//! Add product/line context while retaining ICGEM's unsigned decimal index grammar.
 int integer( const std::string& token, const std::string& source, std::size_t line )
 {
-    if( !token.empty( ) && std::all_of( token.begin( ), token.end( ), []( char c ) { return c >= '0' && c <= '9'; } ) )
+    const auto value = text_parsing::parseNonNegativeInteger( token );
+
+    if( !value )
     {
-        try
-        {
-            return std::stoi( token );
-        }
-        catch( const std::exception& )
-        {}
+        fail( source, line, "Invalid nonnegative integer: " + token );
     }
-    fail( source, line, "Invalid nonnegative integer: " + token );
+    return *value;
 }
 
 //! Locate the date/period fields after the declared uncertainty columns.
@@ -287,7 +257,7 @@ void readHeader( IcgemGravityFieldData& data )
 
     for( std::size_t i = 0; i < data.headerLines.size( ); ++i )
     {
-        const auto row = tokens( data.headerLines[ i ] );
+        const auto row = text_parsing::splitIntoTokens( data.headerLines[ i ] );
 
         if( !row.empty( ) && row.front( ) == "begin_of_head" )
         {
@@ -301,7 +271,7 @@ void readHeader( IcgemGravityFieldData& data )
     }
     for( std::size_t i = start; i < data.headerLines.size( ); ++i )
     {
-        const auto row = tokens( data.headerLines[ i ] );
+        const auto row = text_parsing::splitIntoTokens( data.headerLines[ i ] );
 
         if( row.empty( ) || !supported.count( row.front( ) ) )
         {
@@ -458,7 +428,7 @@ IcgemGravityFieldData readIcgemGravityField( std::istream& stream, const std::st
             line.pop_back( );
         }
 
-        const auto row = tokens( line );
+        const auto row = text_parsing::splitIntoTokens( line );
 
         if( !headerEnded )
         {
