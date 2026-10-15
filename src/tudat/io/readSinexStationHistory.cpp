@@ -231,18 +231,23 @@ SinexSiteRecord siteRecord( const SinexSourceRecord& record )
     const auto coordinate = [ & ]( std::size_t start, bool latitude ) {
         const std::string degrees = sinexField( record, start, 3 );
         const double deg = parseSinexNumber( degrees, record );
-        const double minutes = parseSinexNumber( sinexField( record, start + 4, 2 ), record );
-        const double seconds = parseSinexNumber( sinexField( record, start + 7, 4 ), record );
+        const double minutes = parseSinexNumber( sinexField( record, start + 3, 3 ), record );
+        const double seconds = parseSinexNumber( sinexField( record, start + 6, 5 ), record );
+        const double sign = degrees.front( ) == '-' ? -1 : 1;
+
+        // SLRF2020 repeats the southern-latitude sign in minutes/seconds, including separator columns.
+        // Accept that consistent provider convention alongside the SINEX degree-only sign.
+        const bool conventionalSigns = minutes >= 0 && seconds >= 0;
+        const bool southernSigns = latitude && sign < 0 && minutes <= 0 && seconds <= 0;
 
         // F4.1 approximate coordinates in the IGS template can round to 60.0
         // seconds (for example CEDU). Addition carries that exact value into
         // the next minute while the original fields remain in provenance.
-        if( minutes < 0 || minutes >= 60 || seconds < 0 || seconds > 60 )
+        if( !( conventionalSigns || southernSigns ) || std::fabs( minutes ) >= 60 || std::fabs( seconds ) > 60 )
         {
             failSinexRecord( record, "Invalid approximate DMS coordinate" );
         }
-        const double sign = degrees.front( ) == '-' ? -1 : 1;
-        const double value = sign * ( std::fabs( deg ) + minutes / 60 + seconds / 3600 );
+        const double value = sign * ( std::fabs( deg ) + std::fabs( minutes ) / 60 + std::fabs( seconds ) / 3600 );
         if( latitude ? std::fabs( value ) > 90 : value < 0 || value >= 360 )
         {
             failSinexRecord( record, "Approximate coordinate outside SINEX range" );
