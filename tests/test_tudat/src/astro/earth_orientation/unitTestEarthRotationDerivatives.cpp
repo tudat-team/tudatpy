@@ -384,8 +384,7 @@ BOOST_AUTO_TEST_CASE( strict_rates_retain_endpoints_knot_policy_and_missing_rate
             else
             {
                 // Four fractional-hour roundings bound the native clock round trip on binary64 long-double platforms.
-                const long double epochTolerance =
-                        2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM;
+                const long double epochTolerance = 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM;
 
                 BOOST_CHECK_SMALL( static_cast< long double >( rate.tai - tai ), epochTolerance );
             }

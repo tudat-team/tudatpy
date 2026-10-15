@@ -468,9 +468,9 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
             {
                 // Time stores seconds within an hour as long double. On binary64 long-double platforms even a node
                 // round trip can round; the EOP evaluator recognizes it before choosing the interval and its slope.
-                BOOST_REQUIRE_SMALL( static_cast< long double >( c->getTaiTime( tdb_scale, epoch ) - tai ),
-                                     ( shift == 0 ? 2.0L : 16.0L ) * std::numeric_limits< long double >::epsilon( ) *
-                                             TIME_NORMALIZATION_INTEGER_TERM );
+                BOOST_REQUIRE_SMALL(
+                        static_cast< long double >( c->getTaiTime( tdb_scale, epoch ) - tai ),
+                        ( shift == 0 ? 2.0L : 16.0L ) * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM );
             }
             const auto value = c->getEarthOrientationDataEvaluator( )->evaluate( tai );
             const double slope = slopes[ std::min( i, slopes.size( ) - 1 ) ];

@@ -636,10 +636,9 @@ BOOST_AUTO_TEST_CASE( native_geocentric_clock_rate_matches_independent_sofa_step
         const double actual = converter.getGeocentricTtRateWithRespectToTdb( tdb );
 
         // Propagate four fractional-hour roundings per recovered offset through the 32-second stencil's absolute weights.
-        const double rateTolerance = std::max(
-                2e-15,
-                static_cast< double >( 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM * 18.0L /
-                                      ( 12.0L * 32.0L ) ) );
+        const double rateTolerance = std::max( 2e-15,
+                                               static_cast< double >( 2.0L * std::numeric_limits< long double >::epsilon( ) *
+                                                                      TIME_NORMALIZATION_INTEGER_TERM * 18.0L / ( 12.0L * 32.0L ) ) );
 
         for( double h : { 16.0, 32.0, 64.0 } )
         {
@@ -715,10 +714,9 @@ BOOST_AUTO_TEST_CASE( precise_time_clock_stencil_accepts_roundoff_at_a_fractiona
     const double derivative = ( 8.0 * ( offset( 32 ) - offset( -32 ) ) - ( offset( 64 ) - offset( -64 ) ) ) / 384.0;
 
     // Use the same fractional-hour offset budget and absolute stencil weights as the clock step study above.
-    const double rateTolerance = std::max(
-            2e-15,
-            static_cast< double >( 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM * 18.0L /
-                                  ( 12.0L * 32.0L ) ) );
+    const double rateTolerance = std::max( 2e-15,
+                                           static_cast< double >( 2.0L * std::numeric_limits< long double >::epsilon( ) *
+                                                                  TIME_NORMALIZATION_INTEGER_TERM * 18.0L / ( 12.0L * 32.0L ) ) );
 
     BOOST_CHECK_SMALL( actual - 1.0 / ( 1.0 + derivative ), rateTolerance );
 }
