@@ -2912,6 +2912,31 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     ringAccelerationModel->resetUpdatePotential( true );
                     variableFunction = [ = ]( ) { return ringAccelerationModel->getCurrentPotential( ); };
                 }
+                else if( selectedAccelerationModelType == basic_astrodynamics::ellipsoidal_harmonic_gravity )
+                {
+                    std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel >
+                            ellipsoidalHarmonicsAccelerationModel =
+                                    std::dynamic_pointer_cast< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel >(
+                                            selectedAccelerationModel );
+                    ellipsoidalHarmonicsAccelerationModel->resetUpdatePotential( true );
+                    variableFunction = [ = ]( ) { return ellipsoidalHarmonicsAccelerationModel->getCurrentPotential( ); };
+                }
+                else if( selectedAccelerationModelType == basic_astrodynamics::third_body_ellipsoidal_harmonic_gravity )
+                {
+                    std::shared_ptr< gravitation::ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel >
+                            thirdBodyEllipsoidalHarmonicsAccelerationModel =
+                                    std::dynamic_pointer_cast< gravitation::ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel >(
+                                            selectedAccelerationModel );
+
+                    std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel >
+                            ellipsoidalHarmonicsAccelerationModel =
+                                    std::dynamic_pointer_cast< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel >(
+                                            thirdBodyEllipsoidalHarmonicsAccelerationModel
+                                                    ->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                    ellipsoidalHarmonicsAccelerationModel->resetUpdatePotential( true );
+                    variableFunction = [ = ]( ) { return ellipsoidalHarmonicsAccelerationModel->getCurrentPotential( ); };
+                }
                 else
                 {
                     std::string errorMessage = "Error, when setting up gravitational potential as dependent variable, for" +

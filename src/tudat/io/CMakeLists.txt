@@ -45,6 +45,7 @@ set(io_SOURCES
         "readInpopEphemerisFile.cpp"
         "readNeQuick2Data.cpp"
         "comaModelInputOutput.cpp"
+        "ellipsoidalHarmonicsFileReader.cpp"
 )
 
 # Add header files.
@@ -91,6 +92,7 @@ set(io_HEADERS
         "readVariousPdsFiles.h"
         "readInpopEphemerisFile.h"
         "comaModelInputOutput.h"
+        "ellipsoidalHarmonicsFileReader.h"
         )
 
 # Add library.
@@ -100,6 +102,7 @@ TUDAT_ADD_LIBRARY("input_output"
         PUBLIC_LINKS
         tudat_ephemerides
         tudat_interpolators
+        tudat_basic_mathematics
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

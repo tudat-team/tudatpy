@@ -44,6 +44,7 @@ Functions
 
    ring_gravity
 
+   ellipsoidal_harmonics_gravity
    relativistic_correction
 
    relativistic_from_metric
@@ -90,6 +91,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.polyhedron_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.ring_gravity
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.ellipsoidal_harmonics_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.einstein_infeld_hofmann
 

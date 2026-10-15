@@ -169,6 +169,16 @@ struct is_direct_gravity_partial< acceleration_partials::RingGravityPartial > {
     static const bool value = true;
 };
 
+namespace acceleration_partials
+{
+class EllipsoidalHarmonicsGravityPartial;
+}
+
+template<>
+struct is_direct_gravity_partial< acceleration_partials::EllipsoidalHarmonicsGravityPartial > {
+    static const bool value = true;
+};
+
 template< typename T >
 struct is_direct_gravity_acceleration {
     static const bool value = false;
@@ -232,6 +242,16 @@ class RingGravitationalAccelerationModel;
 
 template<>
 struct is_direct_gravity_acceleration< gravitation::RingGravitationalAccelerationModel > {
+    static const bool value = true;
+};
+
+namespace gravitation
+{
+class EllipsoidalHarmonicsGravitationalAccelerationModel;
+}
+
+template<>
+struct is_direct_gravity_acceleration< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > {
     static const bool value = true;
 };
 

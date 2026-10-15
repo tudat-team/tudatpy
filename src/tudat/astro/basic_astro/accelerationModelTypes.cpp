@@ -68,6 +68,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case ring_gravity:
             accelerationName = "ring gravity ";
             break;
+        case ellipsoidal_harmonic_gravity:
+            accelerationName = "ellipsoidal harmonic gravity ";
+            break;
         case third_body_point_mass_gravity:
             accelerationName = "third-body central gravity ";
             break;
@@ -85,6 +88,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             break;
         case third_body_ring_gravity:
             accelerationName = "third-body ring gravity ";
+            break;
+        case third_body_ellipsoidal_harmonic_gravity:
+            accelerationName = "third-body ellipsoidal harmonic gravity ";
             break;
         case thrust_acceleration:
             accelerationName = "thrust ";
@@ -171,6 +177,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_ring_gravity;
     }
+    else if( std::dynamic_pointer_cast< ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = third_body_ellipsoidal_harmonic_gravity;
+    }
     else if( std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = spherical_harmonic_gravity;
@@ -190,6 +200,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( std::dynamic_pointer_cast< RingGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = ring_gravity;
+    }
+    else if( std::dynamic_pointer_cast< EllipsoidalHarmonicsGravitationalAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = ellipsoidal_harmonic_gravity;
     }
     else if( std::dynamic_pointer_cast< AerodynamicAcceleration >( accelerationModel ) != nullptr )
     {
@@ -272,12 +286,14 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case full_two_body_spherical_harmonic_gravity:
         case polyhedron_gravity:
         case ring_gravity:
+        case ellipsoidal_harmonic_gravity:
         case third_body_point_mass_gravity:
         case third_body_spherical_harmonic_gravity:
         case third_body_mutual_spherical_harmonic_gravity:
         case third_body_full_two_body_spherical_harmonic_gravity:
         case third_body_polyhedron_gravity:
         case third_body_ring_gravity:
+        case third_body_ellipsoidal_harmonic_gravity:
         case thrust_acceleration:
         case relativistic_correction_acceleration:
         case empirical_acceleration:
@@ -344,7 +360,7 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
     bool accelerationIsDirectGravity = 0;
     if( accelerationType == point_mass_gravity || accelerationType == spherical_harmonic_gravity ||
         accelerationType == mutual_spherical_harmonic_gravity || accelerationType == full_two_body_spherical_harmonic_gravity ||
-        accelerationType == polyhedron_gravity || accelerationType == ring_gravity )
+        accelerationType == polyhedron_gravity || accelerationType == ring_gravity || accelerationType == ellipsoidal_harmonic_gravity )
     {
         accelerationIsDirectGravity = 1;
     }
@@ -359,7 +375,7 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
     if( accelerationType == third_body_point_mass_gravity || accelerationType == third_body_spherical_harmonic_gravity ||
         accelerationType == third_body_mutual_spherical_harmonic_gravity ||
         accelerationType == third_body_full_two_body_spherical_harmonic_gravity || accelerationType == third_body_polyhedron_gravity ||
-        accelerationType == third_body_ring_gravity )
+        accelerationType == third_body_ring_gravity || accelerationType == third_body_ellipsoidal_harmonic_gravity )
     {
         accelerationIsFromThirdBody = true;
     }
@@ -400,6 +416,10 @@ AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceler
     else if( accelerationType == ring_gravity )
     {
         thirdBodyAccelerationType = third_body_ring_gravity;
+    }
+    else if( accelerationType == ellipsoidal_harmonic_gravity )
+    {
+        thirdBodyAccelerationType = third_body_ellipsoidal_harmonic_gravity;
     }
     else
     {

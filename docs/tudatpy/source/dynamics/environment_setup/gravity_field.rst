@@ -90,6 +90,7 @@ Functions
    polyhedron_from_density
 
    ring_model
+   ellipsoidal_harmonics_from_files
 
    sbdb_wrapper.central_sbdb
 
@@ -115,6 +116,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.polyhedron_from_density
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.ring_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.ellipsoidal_harmonics_from_files
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.sbdb_wrapper.central_sbdb
 
