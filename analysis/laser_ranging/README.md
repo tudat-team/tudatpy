@@ -188,3 +188,25 @@ The custom callback's 59.605 ns half-ULP gives a 0.415 mm relative-position boun
 this is not yet an end-to-end range precision measurement. Body SPICE evaluation
 and the satellite custom callback retain their original double epoch boundaries
 in this baseline.
+
+An isolated follow-up replaced only the Earth/Sun/Moon direct-SPICE ephemerides
+with existing native cubic-spline `Time` tables on integer 60/30-second knots.
+The satellite custom callback, physical corrections, 23 accepted points and six
+exclusions stayed identical. Maximum absolute computed half-range changes were
+0.773/0.780 mm relative to the baseline; 60-to-30-second convergence was 0.0117 mm
+maximum and 0.00461 mm RMS. These are route differences, not fitted residual
+improvements. Equal-double table/direct position controls differed by at most
+0.063 mm for Earth/Moon and 0.0005 mm for the Sun. The remaining satellite and
+rotation double boundaries prevent an end-to-end submillimetre claim.
+
+The [precision summary](results/body_time_precision/summary.json) and
+[per-point half-range changes](results/body_time_precision/half_range_changes.csv)
+retain the controls and hashes. Reproduce each table spacing with the same
+baseline kernel:
+
+```
+python analysis/laser_ranging/body_time_precision.py \
+  --data-root /path/to/laser-ranging-work/data/slr \
+  --baseline analysis/laser_ranging/results/slrf2020_combined_2024-03-31_2024-04-06 \
+  --step 60 --output /path/to/new-precision-result-directory
+```

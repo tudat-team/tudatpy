@@ -1,0 +1,74 @@
+{
+  "experiment": "Replace only Earth/Sun/Moon direct SPICE with existing native cubic_spline Time tables; unchanged satellite custom double callback and physical corrections.",
+  "selection": "Identical23 accepted point keys and6 exclusions for direct,60s and30s routes; no residual-dependent selection.",
+  "table_frame": {
+    "origin": "SSB",
+    "orientation": "J2000"
+  },
+  "table_start_tdb_seconds": 765028800.0,
+  "table_end_tdb_seconds": 765806400.0,
+  "kernel_sha256": "1864ed04530210fa056e78128bdbbfe1ad536cae6a9d3ade4f23295fbeda1744",
+  "analysis_script_sha256": "f72b5fc9ee7e39911f8ca8f5732f1ff46541380e19b7bdfaf447b7da42c2173a",
+  "precision_script_sha256": "086453fea5669562602d946226aad4594d6c3982a021bcdf7ab0d296432d44ac",
+  "cubic60_maximum_absolute_half_range_change_m": 0.0007732454687356949,
+  "cubic60_rms_half_range_change_m": 0.00040134627001224516,
+  "cubic30_maximum_absolute_half_range_change_m": 0.0007796362042427063,
+  "cubic30_rms_half_range_change_m": 0.0004016485347960756,
+  "cubic30_minus60_maximum_absolute_half_range_change_m": 1.171603798866272e-05,
+  "cubic30_minus60_rms_half_range_change_m": 4.610635628176331e-06,
+  "point_count": 23,
+  "same_accepted_point_keys_and_exclusions": true,
+  "cubic60_body_controls": {
+    "Earth": {
+      "count": 69,
+      "maximum_table_vs_direct_at_equal_double_epoch_m": 6.212805738411838e-05,
+      "rms_table_vs_direct_at_equal_double_epoch_m": 2.6108865726418045e-05,
+      "maximum_table_time_vs_table_rounded_epoch_position_m": 0.0017377945400744348
+    },
+    "Sun": {
+      "count": 69,
+      "maximum_table_vs_direct_at_equal_double_epoch_m": 4.814712530792806e-07,
+      "rms_table_vs_direct_at_equal_double_epoch_m": 1.738499656940563e-07,
+      "maximum_table_time_vs_table_rounded_epoch_position_m": 9.610960183499514e-07
+    },
+    "Moon": {
+      "count": 69,
+      "maximum_table_vs_direct_at_equal_double_epoch_m": 6.162832039414791e-05,
+      "rms_table_vs_direct_at_equal_double_epoch_m": 2.6304018507528725e-05,
+      "maximum_table_time_vs_table_rounded_epoch_position_m": 0.001735620182963137
+    }
+  },
+  "cubic30_body_controls": {
+    "Earth": {
+      "count": 69,
+      "maximum_table_vs_direct_at_equal_double_epoch_m": 6.115424935104904e-05,
+      "rms_table_vs_direct_at_equal_double_epoch_m": 2.565047603414456e-05,
+      "maximum_table_time_vs_table_rounded_epoch_position_m": 0.0017363505091822723
+    },
+    "Sun": {
+      "count": 69,
+      "maximum_table_vs_direct_at_equal_double_epoch_m": 4.814712530792806e-07,
+      "rms_table_vs_direct_at_equal_double_epoch_m": 2.107036991464462e-07,
+      "maximum_table_time_vs_table_rounded_epoch_position_m": 8.920806376395086e-07
+    },
+    "Moon": {
+      "count": 69,
+      "maximum_table_vs_direct_at_equal_double_epoch_m": 6.302914292090723e-05,
+      "rms_table_vs_direct_at_equal_double_epoch_m": 2.7010119615585422e-05,
+      "maximum_table_time_vs_table_rounded_epoch_position_m": 0.001745723173534669
+    }
+  },
+  "limitations": [
+    "This measures a body-ephemeris route effect, not a fitted residual improvement.",
+    "Equal-double table/direct state controls retain tens of micrometres of interpolation/BCRS rounding.",
+    "Satellite custom epoch and Earth rotation remain double interfaces; no end-to-end submillimetre precision claim."
+  ],
+  "original_companion_output_sha256": {
+    "cubic60/residuals.csv": "06f8e4a4716befbc7fe0ff124de390aa90db2a6a68ec15f1ad2aa2f0601be2e8",
+    "cubic60/summary.json": "2f500b7c34375ce56786e6fdb6098e6b54c2652233aab49a4f963cb2839b4a71",
+    "cubic60/precision-comparison.json": "a52e0d9a3057845a1a7c47719e19f24c848b7c65623106327df1e1480a83c5af",
+    "cubic30/residuals.csv": "518faa79efa7c567236170ecd34d2ff4196934e57a6a579ea913bee5a4a51d2a",
+    "cubic30/summary.json": "08494eea5eaa3818a68875cff4e41be8929b99311772394dbe1ae55d8c107406",
+    "cubic30/precision-comparison.json": "be9e94f40cd6e99b93d8e2837d48e405afff1d0ba4e29358d20757ec6e189f80"
+  }
+}
