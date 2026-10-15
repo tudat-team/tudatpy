@@ -21,8 +21,10 @@ struct StationLoadingOriginTranslation {
 
 struct StationLoadingEvaluationSettings {
     StationLoadingSpatialSelection spatialSelection = StationLoadingSpatialSelection::explicitBindings;
+
     //! Environment station ID -> arbitrary provider label. The empty ID explicitly binds an unidentified nominal station.
     std::map< std::string, std::string > stationBindings;
+
     //! Linear interpolation only; a gap larger than this is unavailable, even if present in an irregular source grid.
     double maximumGapSeconds = 86400.0;
     std::string outputOriginDefinition;
@@ -61,6 +63,7 @@ private:
     };
     PreparedGrid prepareGrid( const input_output::StationLoadingData& data ) const;
     const input_output::StationLoadingSite& selectSite( const Eigen::Vector3d& position, const std::string& stationId ) const;
+
     //! Select one provider point and calculate displacement plus optional rate, applying its basis/origin once.
     Eigen::Vector6d evaluate( const Time& tdb, const Eigen::Vector3d& position, const std::string& stationId, bool withRate ) const;
 

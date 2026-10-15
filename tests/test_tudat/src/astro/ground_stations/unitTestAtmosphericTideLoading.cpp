@@ -99,6 +99,7 @@ BOOST_AUTO_TEST_CASE( polarCartesianAveragingChangesOnlyModelCopy )
 {
     auto raw = grid( );
     raw.latitudesDegrees = { 90, 0, -90 };
+
     // A constant radial value with zero horizontal components is Cartesian-consistent at each pole.
     for( std::size_t i = 0; i < raw.longitudesDegrees.size( ); ++i )
     {
@@ -141,6 +142,7 @@ BOOST_AUTO_TEST_CASE( realGridNodesAndIndependentDecimalInterpolation )
     const auto polarRaw = readAtmosphericTideGrid( base + "/../../../reference_files/atmospheric_tides/rp03_ce_polar_node_extract.txt" );
     AtmosphericTideGridInterpolator polarApproximation( polarRaw );
     BOOST_CHECK_THROW( polarApproximation.interpolate( 90, 10 ), std::out_of_range );
+
     // Independent Decimal interpolation of four original provider rows; this is not reference-software conformance.
     Eigen::Matrix< double, 3, 4 > expected;
     expected << -.229413396401398, -.140409687704627, 1.040762193571904, .276668845291711, .059365717547470, .059123892373735,
@@ -152,6 +154,7 @@ BOOST_AUTO_TEST_CASE( publishedGridNodeRadialQuarterDayValues )
 {
     const std::string base = std::string( __FILE__ ).substr( 0, std::string( __FILE__ ).find_last_of( "/\\" ) );
     const auto grid = readAtmosphericTideGrid( base + "/../../../reference_files/atmospheric_tides/rp03_ce_polar_node_extract.txt" );
+
     // Direct arithmetic on the published Figure24.17 four radial coefficients, not a self-generated model fixture.
     const auto& coefficients = grid.coefficientsMetres.front( );
     BOOST_CHECK_SMALL( synthesizeAtmosphericTideLoading( coefficients, -43200 ).x( ) + .0000604, 1e-18 );
@@ -192,6 +195,7 @@ BOOST_AUTO_TEST_CASE( equation18CeToCmAdditionInCartesianAndExplicitLocalFrame )
     for( const auto& reference : atmosphericOriginReferences )
     {
         const Eigen::Vector3d d = calculateIers2010Rp03AtmosphericGeocentreTranslation( reference.ut1 );
+
         // Eq.18 X_CE=X_CM-d; solving for CM gives CE+d, with d added before local projection.
         const Eigen::Vector3d cmCartesian = ceCartesian + d;
         const Eigen::Vector3d independentlyProjectedTranslation(
@@ -209,6 +213,7 @@ BOOST_AUTO_TEST_CASE( independentRp03TranslationRatesAndQuarterDaySigns )
                1e-22 );
     }
     const double omega = 2 * mathematical_constants::PI / 86400;
+
     // At midnight: omega*(sinS1+2*sinS2); at noon: omega*(-sinS1+2*sinS2).
     close( differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( -43200 ),
            omega * Eigen::Vector3d( -.00112549, -.00055338, .000066195 ),

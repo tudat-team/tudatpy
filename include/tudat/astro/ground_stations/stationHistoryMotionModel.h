@@ -21,6 +21,7 @@ public:
         if( !trajectory_ ) throw std::runtime_error( "Station history motion requires a trajectory" );
         if( !converter_ && !timeFunction_ ) converter_ = basic_astrodynamics::getGeocentricTimeConverter( );
     }
+
     //! Absolute trajectory state minus the nominal station position; velocity per TDB second.
     Eigen::Vector6d getBodyFixedStationMotion( const Time& time,
                                                const std::shared_ptr< GroundStationState > station,

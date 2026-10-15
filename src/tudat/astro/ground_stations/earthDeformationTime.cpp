@@ -43,6 +43,7 @@ void validateEarthDeformationUtcInterval( const double lowerTt, const double upp
         {
             throw std::runtime_error( "Non-finite Earth deformation TT/UTC conversion." );
         }
+
         // Bound the rounding tolerance independently of epoch magnitude, so it cannot
         // hide the historical 0.05-0.1 s steps or the modern 1 s leap-second offsets.
         const double tolerance =
@@ -75,6 +76,7 @@ void validateEarthDeformationUtcInterval( const double lowerTt, const double upp
             {
                 throw std::runtime_error( "Non-finite Earth deformation UTC offset." );
             }
+
             // Extrapolate the local smooth drift to midnight. Constancy of DAT is
             // deliberately not required: UTC drifted smoothly before 1972.
             if( std::fabs( atMidnight - ( 2.0 * beforeOne - beforeTwo ) ) > 1.0e-7 )

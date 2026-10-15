@@ -85,6 +85,7 @@ OceanPoleTideGrid readOceanPoleTideGrid( std::istream& stream, const std::string
             }
             const bool numeric = first.front( ) == '+' || first.front( ) == '-' || first.front( ) == '.' ||
                     ( first.front( ) >= '0' && first.front( ) <= '9' );
+
             // The provider separator line starts with '-', but contains no number.
             if( numeric && first.find_first_not_of( '-' ) != std::string::npos )
             {

@@ -78,6 +78,7 @@ public:
     {
         return settings_;
     }
+
     //! Scalar UTC cannot uniquely represent an inserted second; throw for it.
     static Time convertTaiToScalarUtc( const Time& tai );
 

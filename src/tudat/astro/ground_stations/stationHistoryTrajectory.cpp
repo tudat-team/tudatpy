@@ -206,6 +206,7 @@ Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::evaluate( const StationH
     requireValidStationHistory( result.allFinite( ), "nonfinite trajectory result" );
     return result;
 }
+
 //! Evaluate owned records or delegate to the retained source without requiring rates.
 Eigen::Vector3d StationHistoryTrajectory::getPosition( const StationHistoryTime& time ) const
 {
@@ -215,6 +216,7 @@ Eigen::Vector3d StationHistoryTrajectory::getPosition( const StationHistoryTime&
     }
     return evaluate( time, false ).head< 3 >( );
 }
+
 //! Evaluate analytic TDB velocity from owned records or the retained source.
 Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::getState( const StationHistoryTime& time ) const
 {
@@ -286,6 +288,7 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
                                                 *velocityIntervals[ i - 1 ].second.endTai == *interval.startTai,
                                         "V intervals overlap or contain a gap" );
     }
+
     // A selector disambiguates SITE/ID metadata only. Parameter-to-monument
     // association must be warranted by the supplied companion products.
     auto selectedSolutions = solutions;

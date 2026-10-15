@@ -96,6 +96,7 @@ BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_value
         BOOST_CHECK_SMALL( ocean.x( ) / uas - fixture.values[ 0 ], 2e-10 );
         BOOST_CHECK_SMALL( ocean.y( ) / uas - fixture.values[ 1 ], 2e-10 );
         BOOST_CHECK_SMALL( oceanUt1 / 1e-6 - fixture.values[ 2 ], 2e-11 );
+
         // Production phase function uses explicit TT/UT1, tested against the
         // independent high-precision polynomial oracle at 14 epochs (1962--2025).
         const auto physical = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( fixture.tt, fixture.tt, fixture.ut1 );
@@ -144,9 +145,11 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
     const double expectedRate =
             .99999998 + f.rates[ 2 ] * 1e-6 + calculateShortPeriodCorrectionRate( lib.ut1, Time( f.tt ), Time( f.ut1 ), .99999998 );
     BOOST_CHECK_SMALL( result.dUt1DTai - expectedRate, 4e-16 );
+
     // Independent SOFA CIO assembly with ocean fixture, retained libration,
     // daily PM and CPO; UT1-corrected phase is used for polar motion.
     const auto polarArgs = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( f.tt, f.tt, static_cast< double >( result.ut1 ) );
+
     // Ocean terms, validated against the independent fixture in the first test case.
     const Eigen::Vector2d ocean = ds.polarMotion->getCorrectionsFromFundamentalArgument( polarArgs ) -
             lib.polarMotion->getCorrectionsFromFundamentalArgument( polarArgs );

@@ -205,6 +205,7 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& r
             weight[ j ] = w;
             rate[ j ] = derivative / duration;
         }
+
         // Sum differences from the first observation to avoid cancellation of large UTC offsets.
         // The same sum is used for scalar (double) and vector (Eigen::Vector2d) quantities.
         const auto interpolate = [ &indices, &weight, &rate ]( const auto& get ) {
@@ -230,6 +231,7 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& r
 
         value.ut1MinusTai = ut1.first;
         value.ut1MinusTaiRate = ut1.second;
+
         // Polar-motion values are radians and rates are radians per TAI second.
         const auto pm = interpolate( [ &selectedRecords ]( std::size_t sample ) {
             return Eigen::Vector2d( selectedRecords[ sample ]->polarMotion[ 0 ], selectedRecords[ sample ]->polarMotion[ 1 ] );
@@ -237,6 +239,7 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& r
 
         value.polarMotion = pm.first;
         value.polarMotionRate = pm.second;
+
         // CPO interpolation requires observed corrections at every selected sample.
         const bool allCpo = std::all_of( selectedRecords.begin( ), selectedRecords.begin( ) + indices.size( ), []( const auto* record ) {
             return record->celestialPoleOffsets.has_value( );
@@ -253,6 +256,7 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& r
             value.celestialPoleOffsets = cpo.first;
             value.celestialPoleOffsetRate = cpo.second;
         }
+
         // LOD remains optional and is reported only when the complete stencil supplies it.
         const bool allLod = std::all_of( selectedRecords.begin( ), selectedRecords.begin( ) + indices.size( ), []( const auto* record ) {
             return record->lengthOfDay.has_value( );
@@ -305,6 +309,7 @@ Time EarthOrientationDataEvaluator::convertTaiToScalarUtc( const Time& tai )
     const double taiFraction = static_cast< double >( tai.secondsSinceNoon( ) / 86400.0L );
     double utc1, utc2;
     if( iauTaiutc( taiDay, taiFraction, &utc1, &utc2 ) < 0 ) throw std::runtime_error( "Cannot convert TAI to UTC" );
+
     // Identify the civil day with SOFA, then compare the inserted-second
     // interval using Time arithmetic. A rounded civil clock alone can classify
     // a sub-nanosecond instant just before midnight as the following day.

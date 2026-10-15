@@ -18,6 +18,7 @@ void close( const Eigen::Vector6d& actual, const Eigen::Vector6d& expected )
         BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], i < 3 ? 2e-9 : 2e-17 );
     }
 }
+
 //! Load the frozen Cartesian input state used by both published catalogues.
 Eigen::Vector6d state( )
 {
@@ -108,6 +109,7 @@ BOOST_AUTO_TEST_CASE( individualSevenParametersAndPhysicalRateChain )
         }
     }
 }
+
 //! Check published provenance, hub composition and the full affine inverse.
 BOOST_AUTO_TEST_CASE( modelProvenanceAndHubComposition )
 {
@@ -168,6 +170,7 @@ BOOST_AUTO_TEST_CASE( exactNonorthogonalInverseAndInvalidInputs )
     const double inverseNorm = normInf( affine.matrix.inverse( ) );
     const double condition = normInf( affine.matrix ) * inverseNorm;
     const double epsilon = std::numeric_limits< double >::epsilon( );
+
     // gamma_32 covers the small-matrix factorization and scalar products. Bound
     // cancellation using the input magnitudes, not the observed round-trip residual.
     const double gamma = 32 * epsilon / ( 1 - 32 * epsilon );

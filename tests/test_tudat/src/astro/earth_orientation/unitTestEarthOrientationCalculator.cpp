@@ -230,10 +230,12 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
     const auto historical = createStandardEarthOrientationCalculator( std::make_shared< EOPReader >( ), settings );
     const Time ut1 = historical->getTerrestrialTimeScaleConverter( )->getCurrentTime< Time >(
             basic_astrodynamics::tt_scale, basic_astrodynamics::ut1_scale, tt );
+
     // Retain the existing Julian-year coordinate TT/JULIAN_YEAR + 2000:
     // exact 1893 knot in pinned historicalDeltaT.txt gives TT - UT1 = -6.64 s.
     // This clock policy does not introduce a precise historical UTC model.
     BOOST_CHECK_SMALL( static_cast< double >( tt - ut1 ) + 6.64, 1e-12 );
+
     // Opting into a historical UT1 clock supplies neither observed PM nor CPO.
     BOOST_CHECK_THROW( historical->getRotationAnglesFromItrsToGcrs< Time >( tt, basic_astrodynamics::tt_scale ), std::runtime_error );
 }

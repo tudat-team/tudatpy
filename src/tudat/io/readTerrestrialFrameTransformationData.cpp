@@ -172,6 +172,7 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
         {
             throw error( source, count, "Unexpected table record" );
         }
+
         // Confirm the published position-vector sign convention without using file-name inference.
         if( closed )
         {
@@ -203,6 +204,7 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( const
     if( source.source.empty( ) || source.source == "<stream>" ) source.source = filePath;
     return readTerrestrialFrameTransformationData( stream, source );
 }
+
 //! Read an official IGN table from the station_locations resource directory, retaining its published source and checksum.
 TerrestrialFrameTransformationData readOfficialItrfTransformationData( const std::string& fileName,
                                                                        const TerrestrialFrameTransformationSource& source )

@@ -110,6 +110,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
     };
     OceanTideEarthDeformation fromFile( file, arguments );
     OceanTideEarthDeformation preloaded( data, arguments );
+
     // Both empty construction routes support later append while preserving provider station provenance.
     OceanTideEarthDeformation initiallyEmpty( input_output::OceanLoadingData{}, arguments );
 
@@ -185,6 +186,7 @@ BOOST_AUTO_TEST_CASE( testExpandedOceanLoadingAgainstIndependentHardisp )
             const double utc = timeFromDecomposedDateTime< double >(
                     reference.year, reference.month, reference.day, reference.hour, reference.minute, reference.second );
             const double tt = sofa_interface::convertUTCtoTT( utc );
+
             // HARDISP writes U/S/W; the public spherical result is E/N/radial.
             const Eigen::Vector3d expected( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
             checkOceanLoadingVector( enuDisplacement( model, tdbFromTt( tt ), station.identifier ), expected, 1.0E-6 );
@@ -200,6 +202,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingSphericalAndOblateGeometry )
             reference.year, reference.month, reference.day, reference.hour, reference.minute, reference.second );
     const double tt = sofa_interface::convertUTCtoTT( utc );
     OceanTideEarthDeformation model( makeHardispReferenceData( ) );
+
     // A fixed WGS84 point, independently evaluated from geodetic 48/123 degrees, height 250 m.
     const Eigen::Vector3d point( -2328813.9273189958, 3586058.9739219621, 4717062.1163217751 );
     const auto shape = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137.0, 1.0 / 298.257223563 );
@@ -251,6 +254,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
     };
     OceanTideEarthDeformation legacy( data, arguments );
     BOOST_CHECK( legacy.getSynthesis( ) == OceanTideSynthesis::legacyElevenConstituents );
+
     // Independent single-M2 fixture: 0.01*cos(0.5-0.1), with all other amplitudes zero.
     checkOceanLoadingVector( enuDisplacement( legacy, 0.0, "ONSALA" ), Eigen::Vector3d( 0.0, 0.0, 0.009210609940028852 ), 1.0E-14 );
     OceanTideEarthDeformation explicitLegacy( data, OceanTideSynthesis::legacyElevenConstituents );
@@ -267,6 +271,7 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingFactoriesConsumePreloadedData )
     const auto data = makeHardispReferenceData( );
     simulation_setup::SystemOfBodies bodies;
     bodies.createEmptyBody( "Earth" );
+
     // Empty filename settings normalize to empty provider data, allowing station records to be appended later.
     const auto emptySettings = simulation_setup::oceanTideBodyShapeDeformation( std::vector< std::string >{} );
 

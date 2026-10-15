@@ -342,6 +342,7 @@ AtmosphericTideStationData readAtmosphericTideStationData( std::istream& stream,
                 std::istringstream identity( line );
                 std::string identifier;
                 identity >> identifier;
+
                 // Numeric identifiers are legitimate (e.g. SLR7839). Distinguish an orphan FOUR-number coefficient row structurally.
                 std::istringstream fields( line );
                 std::vector< std::string > tokens;

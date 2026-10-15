@@ -32,6 +32,7 @@ Eigen::Vector3d scalarFunction( const double seconds )
              -.02 + 2e-5 * seconds - 2e-8 * seconds * seconds,
              .03 - 3e-5 * seconds + 3e-8 * seconds * seconds };
 }
+
 // Independent scalar trigonometric axes, rather than the production vector construction.
 Eigen::Matrix3d referenceBasis( )
 {
@@ -121,6 +122,7 @@ BOOST_AUTO_TEST_CASE( linear_values_rates_knot_side_and_error_convergence_use_th
                 2e-16 );
         BOOST_CHECK_SMALL( ( model.calculateDisplacement( input, station( ) ) - state.head< 3 >( ) ).norm( ), 1e-18 );
     }
+
     // A separate scalar midpoint construction verifies O(h^2) position error for
     // this explicit linear policy; it makes no claim about provider B-splines.
     const auto midpointError = [ & ]( double h ) {
@@ -166,6 +168,7 @@ BOOST_AUTO_TEST_CASE( strict_precise_coverage_singletons_gaps_and_optional_rate_
     BOOST_CHECK_THROW( singleton->calculateDisplacementState( first, station( ) ), std::out_of_range );
     std::vector< std::shared_ptr< BodyDeformationModel > > models{ singleton };
     BodyDeformationStationMotionModel optional( [ & ]( ) -> auto& { return models; }, false );
+
     // The genuine scalar adapter recognizes exactly the rounded endpoint image.
     BOOST_CHECK_GT( optional.getBodyFixedStationPositionCorrection( static_cast< double >( first ), station( ), "Earth" ).norm( ), 0.0 );
     BOOST_CHECK_THROW( optional.getBodyFixedStationMotion( static_cast< double >( first ), station( ), "Earth" ), std::out_of_range );
@@ -239,6 +242,7 @@ BOOST_AUTO_TEST_CASE( source_clocks_are_converted_before_interpolation_through_t
                         .norm( ),
                 1e-14 );
     }
+
     // Equivalent split TT/TAI decimals can differ by long-double arithmetic at a knot.
     // Native queries retain those represented epochs; position remains continuous.
     BOOST_CHECK_SMALL( ( taiModel.calculateDisplacement( tdb( converter, originTai ), station( ) ) -

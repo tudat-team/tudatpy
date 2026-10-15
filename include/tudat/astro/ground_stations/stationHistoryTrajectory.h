@@ -39,9 +39,11 @@ StationHistoryTime getIgnNominalUtcStationTimeFromTdb(
         const Time& tdb,
         std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr,
         bool requireRates = false );
+
 //! Explicit TAI input; a missing clock rate still permits position evaluation.
 StationHistoryTime getIgnNominalUtcStationTimeFromTai( const Time& tai, std::optional< double > taiRateWithRespectToTdb = std::nullopt );
 StationHistoryTime getIgnNominalUtcStationTime( const input_output::SinexCivilUtc& civil );
+
 //! Physical interval conversion also accepts a real civil inserted-second label.
 Time convertSinexCivilUtcToTai( const input_output::SinexCivilUtc& civil );
 
@@ -53,6 +55,7 @@ struct StationHistoryInterval {
 struct StationHistoryLinearSolution {
     input_output::SinexCartesianSolution source;
     StationHistoryInterval validity;
+
     //! Independent V history identifier; SSC velocities remain attached to their P solution.
     std::string velocitySolutionId;
     StationHistoryInterval velocityValidity;

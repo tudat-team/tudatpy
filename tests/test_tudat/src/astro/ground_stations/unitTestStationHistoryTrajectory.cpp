@@ -71,6 +71,7 @@ void closeVector( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected
 {
     BOOST_CHECK_SMALL( ( actual - expected ).norm( ), tolerance );
 }
+
 // Controlled zero-coordinate companions exercise actual published coefficients
 // without claiming an independent complete trajectory for AB48/ANTC/ALBH.
 std::pair< SinexStationHistory, SinexStationHistory > controlledCompanions( const SinexSiteRecord& site )
@@ -111,6 +112,7 @@ BOOST_AUTO_TEST_CASE( unchangedIgnParametricSelectorsAndSignedAmplitudes )
         if( model == 3 || model == 4 ) terms.push_back( psd( StationPostSeismicFunction::exponential, a2 * 0.001, t2 ) );
         if( model == 5 ) terms.push_back( psd( StationPostSeismicFunction::logarithmic, a2 * 0.001, t2 ) );
         StationHistoryTrajectory trajectory( { linear( ) }, terms, {}, metadata( ) );
+
         // The original LOG/EXP routine loses relative accuracy near zero. This
         // absolute bound covers its subtraction rounding, not a time-policy error.
         closeVector(
@@ -127,6 +129,7 @@ BOOST_AUTO_TEST_CASE( stableShortTimeCumulativeEventsAndAnalyticRates )
     StationHistoryTrajectory trajectory( { linear( ) }, { first, second }, {}, metadata( ) );
     closeVector( trajectory.getPosition( manufacturedTime( -0.001 ) ), Eigen::Vector3d::Zero( ), 1e-30 );
     closeVector( trajectory.getPosition( manufacturedTime( 1e-18L ) ), first.amplitudeMetres * 1e-17, 1e-32 );
+
     // Independent multiplication/division order differs by a few double ULPs.
     closeVector( trajectory.getState( manufacturedTime( 0 ) ).tail< 3 >( ), first.amplitudeMetres / ( 0.1 * 31557600.0 ), 1e-22 );
     for( const long double year : { 0.1L, 0.7L, 20.0L } )
@@ -264,6 +267,7 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionVelocityIdsAndStrictMetadata )
     BOOST_CHECK_EQUAL( last.source.key.solutionId, "6" );
     BOOST_CHECK_EQUAL( last.velocitySolutionId, "4" );
     BOOST_CHECK_EQUAL( *last.velocityValidity.startTai, convertSinexCivilUtcToTai( { 2020, 204, 22365 } ) );
+
     // There is no V identifier 6: the SSC's complete solution 6 velocity is used.
     for( int c = 0; c < 3; ++c )
         BOOST_CHECK_EQUAL( last.velocityMetresPerJulianYear[ c ], *last.source.velocityMetresPerSecond[ c ] * 31557600.0 );

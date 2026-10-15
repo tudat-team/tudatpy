@@ -20,8 +20,10 @@ enum class OceanLoadingReferenceOrigin { unspecified, solidEarthCentre, wholeEar
 //! BLQ coefficients in provider units and ordering; independent of dynamics and estimation.
 struct OceanLoadingStation {
     std::string stationIdentifier;
+
     //! Rows: up/radial, west, south. Columns: M2,S2,N2,K2,K1,O1,P1,Q1,Mf,Mm,Ssa.
     Eigen::Matrix< double, 3, 11 > amplitudesMetres = Eigen::Matrix< double, 3, 11 >::Zero( );
+
     //! Positive Greenwich phase lags in degrees, in the same row/column order as amplitudes.
     Eigen::Matrix< double, 3, 11 > phaseLagsDegrees = Eigen::Matrix< double, 3, 11 >::Zero( );
     std::string source;
@@ -29,6 +31,7 @@ struct OceanLoadingStation {
     std::string oceanTideModel;
     std::string greensFunction;
     OceanLoadingReferenceOrigin referenceOrigin = OceanLoadingReferenceOrigin::unspecified;
+
     //! Provider lon/lat in degrees and height in metres, without reinterpretation of the source values.
     Eigen::Vector3d providerLongitudeLatitudeHeight = Eigen::Vector3d::Zero( );
     bool hasProviderCoordinates = false;

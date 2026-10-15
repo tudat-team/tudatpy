@@ -99,6 +99,7 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
     BOOST_CHECK_EQUAL( record.headerTimeContext->source, context( ).source );
     const auto atSwitch = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2009, 288, 72000 } ), 1.0 );
     close( point->getPosition( atSwitch ), source->getPosition( atSwitch ) );
+
     // The state at a switch uses the new (right-hand) record, consistent with the position.
     BOOST_REQUIRE_NO_THROW( point->getState( atSwitch ) );
     close( point->getState( atSwitch ).head< 3 >( ), point->getPosition( atSwitch ) );
@@ -198,6 +199,7 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrameCompositionOrder )
     const auto& meta = point->getMetadata( );
     const auto transformedPoint =
             createTransformedStationHistoryTrajectory( point, catalogue, { "ITRF2014", "ITRF2014" }, meta.origin, meta.tideSystem );
+
     // Both ordered wrappers expose the original record containers rather than copied histories.
     BOOST_CHECK( &transformedPoint->getSolutions( ) == &point->getSourceTrajectory( )->getSolutions( ) );
     BOOST_CHECK( &transformedPoint->getPostSeismicTerms( ) == &point->getSourceTrajectory( )->getPostSeismicTerms( ) );
@@ -209,10 +211,12 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrameCompositionOrder )
     const auto pointAfterFrame = arp( transformedMarker );
     BOOST_CHECK_EQUAL( pointAfterFrame->getMetadata( ).frame, "ITRF2014" );
     BOOST_CHECK_EQUAL( pointAfterFrame->getOffsetHistory( )->getGeometry( )->frame, "ITRF2014" );
+
     // Affine scale/rotation act on a pre-transform offset. A post-transform
     // vector must be supplied in the declared output geometry; do not silently
     // equate those distinct composition choices.
     reference_frames::TerrestrialFrameTransformationModel model( catalogue );
+
     // Preserve the source calendar coordinate and its TDB rate through ordered point/frame composition.
     const auto affine = model.getTransformation(
             "ITRF2020", "ITRF2014", static_cast< double >( query.calendarYear + query.yearFraction ), *query.decimalYearRate );

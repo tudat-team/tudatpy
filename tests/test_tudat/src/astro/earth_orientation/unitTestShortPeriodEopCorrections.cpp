@@ -279,6 +279,7 @@ BOOST_AUTO_TEST_CASE( test_independent_short_period_references_across_nodal_cycl
             for( int i = 0; i < 6; ++i ) arguments( i ) = fixture.arguments[ i ];
             const Eigen::Vector2d polarExact = polarLibration.getCorrectionsFromFundamentalArgument( arguments ) / uas;
             const double ut1Exact = ut1Libration.getCorrectionsFromFundamentalArgument( arguments );
+
             // Published Table 5.1b T2 sine =0.05 us, while UTLIBR.F uses0.04.
             // This exact, independently generated phase accounts for that sole
             // UT1 coefficient difference; all other residuals remain tightly tested.
@@ -298,11 +299,13 @@ BOOST_AUTO_TEST_CASE( test_independent_short_period_references_across_nodal_cycl
             {
                 BOOST_CHECK_SMALL( polarExact( i ) - fixture.polarLibration[ i ], 1e-5 );
                 BOOST_CHECK_SMALL( oceanExact( i ) - fixture.ocean[ i ] * 1e6, 1e-3 );
+
                 // Physical production path uses TT lunisolar arguments and UTC≈UT1
                 // sidereal time. Original single-MJD routines approximate these scales.
                 BOOST_CHECK_SMALL( polarDefault( i ) - fixture.polarLibration[ i ], 0.01 );
                 BOOST_CHECK_SMALL( oceanDefault( i ) - fixture.ocean[ i ] * 1e6, 0.2 );
                 BOOST_CHECK_SMALL( summedDefault( i ) - ( fixture.ocean[ i ] * 1e6 + fixture.polarLibration[ i ] ), 0.21 );
+
                 // Alternative ortho-weight formulation has a quantified model/table
                 // difference. Tight matching-table checks above are the primary oracle.
                 BOOST_CHECK_SMALL( oceanDefault( i ) - fixture.ortho[ i ], 2.0 );
@@ -384,6 +387,7 @@ BOOST_AUTO_TEST_CASE( test_daily_pole_and_cpo_are_applied_once_without_long_peri
         const auto actual = polarModel.getPositionOfCipInItrs( fixture.ttSeconds, utc );
         for( int i = 0; i < 2; ++i )
             BOOST_CHECK_SMALL( actual( i ) - daily( i ) - uas * ( fixture.polarLibration[ i ] + fixture.ocean[ i ] * 1e6 ), 0.21 * uas );
+
         // Synthetic observed CPO includes a 430-day oscillation representing an
         // FCN signal already in observations. It must enter X/Y exactly once.
         const Eigen::Vector2d cpo( 200.0 * uas * std::sin( 2.0 * mathematical_constants::PI * fixture.mjdUtc / 430.0 ), -80.0 * uas );

@@ -124,6 +124,7 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
                                                         "lookup latitude" );
     resolvedGridMetadata_.displacementBasis =
             resolve( grid.metadata.displacementBasis, settings.displacementBasis, AtmosphericTideDisplacementBasis::unspecified, "basis" );
+
     // RP03 grids: default to the geocentric convention when neither the source nor the settings declare one.
     if( grid.metadata.modelName == "Ray-Ponte 2003" && grid.metadata.greensFunction == "Farrell elastic Green functions" )
     {
@@ -192,6 +193,7 @@ Eigen::Vector6d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
     {
         throw std::runtime_error( "Missing atmospheric loading station" );
     }
+
     // Nominal body-fixed geometry and angular coordinates in radians.
     const Eigen::Vector3d position = station->getNominalCartesianPosition( );
 
@@ -238,6 +240,7 @@ Eigen::Vector6d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
         coefficients =
                 gridInterpolator_->interpolate( latitude * 180 / mathematical_constants::PI, longitude * 180 / mathematical_constants::PI );
     }
+
     // Obtain one UT1 phase; only a state request asks for its physical derivative.
     const Time tai = timeConverter_->getTaiTime( tdb_scale, tdb );
 
@@ -254,6 +257,7 @@ Eigen::Vector6d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
     {
         ut1 = static_cast< double >( timeConverter_->getUt1FromTai( tai ) );
     }
+
     // The same nominal component basis applies to the displacement and its derivative.
     const double basisLatitude =
             metadata.displacementBasis == AtmosphericTideDisplacementBasis::geodeticUpNorthEast ? geodeticLatitude : geocentricLatitude;

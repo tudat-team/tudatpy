@@ -37,6 +37,7 @@ void failStationLoading( const std::string& source, const std::size_t line, cons
 {
     throw std::runtime_error( "Station loading " + source + ( line ? " line " + std::to_string( line ) : "" ) + ": " + detail );
 }
+
 //! Parse a space-padded fixed-width field as an integer or (long) double of the requested type.
 template< typename T >
 T parseStationLoadingField( const std::string& field, const std::string& source, const std::size_t line )
@@ -276,6 +277,7 @@ StationLoadingData readEphedispStationLoadingData( std::istream& stream, const S
                 if( *interval < 0 || ( epochCount > 1 && *interval == 0 ) || begin->secondsOfDay < 0 || begin->secondsOfDay >= 86400 ||
                     end->secondsOfDay < 0 || end->secondsOfDay >= 86400 )
                     failStationLoading( source, lineNumber, "invalid sampling or epoch" );
+
                 // Source epochs have 0.1s precision and sample days have 1e-11 day precision.
                 const long double tolerance = 0.051L + epochCount * 0.5e-11L * 86400.0L;
                 if( std::abs( separation( *begin, *end ) - ( epochCount - 1 ) * *interval ) > tolerance )

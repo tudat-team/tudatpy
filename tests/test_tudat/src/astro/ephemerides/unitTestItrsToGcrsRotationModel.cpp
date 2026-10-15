@@ -81,6 +81,7 @@ std::map< std::string, Eigen::Matrix3d > getIndependentBaseFrameRotations( )
                                             -0.3305943172740586950E-7,
                                             0.9999999999999962084 )
                                                   .finished( );
+
     // NAIF's built-in ECLIPJ2000 frame: rotation about x by 84381.448 arcsec.
     // The fixed values below are independent of the production SPICE wrapper.
     const Eigen::Matrix3d j2000ToEclipj2000 = ( Eigen::Matrix3d( ) << 1.0,
@@ -93,6 +94,7 @@ std::map< std::string, Eigen::Matrix3d > getIndependentBaseFrameRotations( )
                                                 -0.3977771559319137,
                                                 0.9174820620691818 )
                                                       .finished( );
+
     // J2000 (and its synonym EME2000) includes the frame bias; ECLIPJ2000 is defined with respect to J2000.
     return { { "GCRS", Eigen::Matrix3d::Identity( ) },
              { "ICRF", Eigen::Matrix3d::Identity( ) },

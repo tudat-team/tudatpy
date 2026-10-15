@@ -69,6 +69,7 @@ StationHistoryTime getIgnNominalUtcStationTimeFromTai( const Time& tai, std::opt
     checkSofa( iauJd2cal( utc1, utc2, &year, &month, &date, &fraction ) );
     checkSofa( iauCal2jd( year, month, date, &origin, &mjd ) );
     auto day = civilDay( static_cast< int >( mjd ) );
+
     // SOFA supplies a civil-day candidate only. Precise TAI comparisons repair
     // rounding of a sub-nanosecond sample across midnight and detect leap seconds.
     if( tai < day.midnightTai )
@@ -86,6 +87,7 @@ StationHistoryTime getIgnNominalUtcStationTimeFromTai( const Time& tai, std::opt
     result.calendarYear = day.year;
     const int daysInYear = leapYear( day.year ) ? 366 : 365;
     result.yearFraction = ( day.mjd - januaryFirstMjd( day.year ) + result.mjdFraction ) / daysInYear;
+
     // A year fraction cannot retain the full sub-femtosecond Time resolution;
     // keep a rounded pre-boundary fraction inside its genuine calendar year.
     if( result.yearFraction == 1.0L ) result.yearFraction = std::nextafter( 1.0L, 0.0L );

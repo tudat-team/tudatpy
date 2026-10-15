@@ -331,6 +331,7 @@ public:
             {
                 updated.ut1 = static_cast< TimeType >( getUt1FromTai( tai ) );
             }
+
             // Publish only after all requested conversions succeed. The default
             // NaN clears an old UT1 when this update does not request it.
             getCurrentTimeList< TimeType >( ) = updated;
@@ -493,6 +494,7 @@ public:
     {
         return continuousEopData_;
     }
+
     //! Return UT1 from the selected daily values and baseline-UT1 short-period correction, without requiring rates.
     Time getUt1FromTai( const Time& tai );
 

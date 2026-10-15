@@ -17,6 +17,7 @@ enum class AtmosphericTideLatitudeConvention { unspecified, geocentric, geodetic
 
 //! Geometric interpretation of provider component labels, separate from the grid lookup latitude convention.
 enum class AtmosphericTideDisplacementBasis { unspecified, geocentricRadialNorthEast, geodeticUpNorthEast };
+
 //! Explicitly identified conventional source profile. A model name or filename alone does not establish this profile.
 enum class AtmosphericTideSourceProfile { unspecified, iers2010Rp03NoIbFarrell };
 
@@ -28,6 +29,7 @@ struct AtmosphericTideMetadata {
     std::string greensFunction;
     AtmosphericLoadingReferenceOrigin referenceOrigin = AtmosphericLoadingReferenceOrigin::unspecified;
     AtmosphericTideLatitudeConvention latitudeConvention = AtmosphericTideLatitudeConvention::unspecified;
+
     //! Optional expected dimensions for source formats with no count header; zero means infer the provided extent.
     std::size_t expectedLongitudeCount = 0;
     std::size_t expectedLatitudeCount = 0;
@@ -42,6 +44,7 @@ struct AtmosphericTideGrid {
     AtmosphericTideMetadata metadata;
     std::vector< double > longitudesDegrees;
     std::vector< double > latitudesDegrees;
+
     //! Longitude-major, latitude-fast. Rows radial/north/east, columns cosS1/sinS1/cosS2/sinS2, METRES.
     std::vector< Eigen::Matrix< double, 3, 4 > > coefficientsMetres;
 };
@@ -67,6 +70,7 @@ void validateAtmosphericTideStationData( const AtmosphericTideStationData& data 
 //! Read Bernese 14-column RP03-format grids. Millimetres become metres; headers/model/origin/units remain metadata.
 AtmosphericTideGrid readAtmosphericTideGrid( std::istream& stream, const AtmosphericTideMetadata& metadata = {} );
 AtmosphericTideGrid readAtmosphericTideGrid( const std::string& path, const AtmosphericTideMetadata& metadata = {} );
+
 //! Read Bernese ATL station blocks: identifier then three rows of four signed millimetre coefficients.
 AtmosphericTideStationData readAtmosphericTideStationData( std::istream& stream, const AtmosphericTideMetadata& metadata = {} );
 AtmosphericTideStationData readAtmosphericTideStationData( const std::string& path, const AtmosphericTideMetadata& metadata = {} );

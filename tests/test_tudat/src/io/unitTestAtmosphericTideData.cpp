@@ -51,6 +51,7 @@ BOOST_AUTO_TEST_CASE( realProviderGridNormalizesUnitsAndRetainsMetadata )
     BOOST_CHECK_EQUAL( grid.latitudesDegrees.back( ), -20 );
     std::istringstream source( text( "rp03_ce_grid_extract.txt" ) );
     BOOST_CHECK( readAtmosphericTideGrid( source ).metadata.referenceOrigin == AtmosphericLoadingReferenceOrigin::unspecified );
+
     // Frozen provider literals in mm, independently converted to SI.
     BOOST_CHECK_SMALL( grid.coefficientsMetres[ 0 ]( 0, 0 ) + .0002344, 1e-18 );
     BOOST_CHECK_SMALL( grid.coefficientsMetres[ 0 ]( 1, 0 ) - .0000595, 1e-18 );

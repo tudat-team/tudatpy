@@ -196,6 +196,7 @@ BOOST_AUTO_TEST_CASE( optional_missing_model_does_not_hide_rate_failure )
     std::vector< std::shared_ptr< BodyDeformationModel > > models = { unavailable };
     auto station = stationWithModels( models, false );
     BOOST_CHECK_SMALL( station->getCartesianStateInTime( 0.0, "" ).tail< 3 >( ).norm( ), 1.0e-15 );
+
     // An optional model may omit absent data, but must report a failing calculation at the requested epoch.
     models[ 0 ] = std::make_shared< FunctionDeformation >(
             []( double ) -> Eigen::Vector3d { throw std::runtime_error( "Invalid displacement callback result" ); } );
@@ -292,8 +293,10 @@ BOOST_AUTO_TEST_CASE( earth_utc_interval_policy_includes_boundaries_and_allows_h
     {
         const double utc = basic_astrodynamics::timeFromDecomposedDateTime< double >( date[ 0 ], date[ 1 ], date[ 2 ], 0, 0, 0.0 );
         const double leap = sofa_interface::convertUTCtoTT( utc );
+
         // Ambiguity strictly inside the inserted second, even without straddling its end.
         BOOST_CHECK_THROW( validateEarthDeformationUtcInterval( leap - 0.8, leap - 0.2 ), std::domain_error );
+
         // No ambiguous five-point sample here: the interior midnight jump is detected separately.
         BOOST_CHECK_THROW( validateEarthDeformationUtcInterval( leap - 16.0, leap + 24.0 ), std::domain_error );
         BOOST_CHECK_THROW( validateEarthDeformationUtcInterval( leap, leap + 40.0 ), std::domain_error );

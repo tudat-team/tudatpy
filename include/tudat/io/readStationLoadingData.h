@@ -53,6 +53,7 @@ struct StationLoadingSample {
     std::array< double, 3 > displacement{};
     std::size_t sourceLine = 0;
     std::string sourceRecord;
+
     //! EPHEDISP columns 10--43: preserved as text, never used as the sample epoch.
     std::string informationalEpoch;
 };
@@ -65,6 +66,7 @@ struct StationLoadingSite {
     std::size_t sourceLine = 0;
     std::string sourceRecord;
     std::string informationalCoordinates;
+
     //! Zero-based indexes into epochs. Missing leading/trailing samples or all samples are allowed.
     std::map< std::size_t, StationLoadingSample > samples;
 };

@@ -69,4 +69,5 @@ inline const std::array<Dataset, 3> datasets = {{
   }}},
 }};
 } // namespace interpolation_reference
+
 // clang-format on

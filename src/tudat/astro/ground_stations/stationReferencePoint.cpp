@@ -241,6 +241,7 @@ StationReferencePointIdentity getStationReferencePointIdentity( const std::share
 
     return { meta.site, meta.domesId, meta.referencePointKind, meta.referencePointName };
 }
+
 //! Retain the source trajectory and bind one validated reference-point offset history.
 StationReferencePointTrajectory::StationReferencePointTrajectory( std::shared_ptr< StationHistoryTrajectory > source,
                                                                   std::shared_ptr< StationReferencePointOffsetHistory > offsets ):
@@ -297,6 +298,7 @@ StationReferencePointTrajectory::StationReferencePointTrajectory( std::shared_pt
                                                ? "marker-to-antenna reference vector"
                                                : "calibrated instrument reference vector" );
 }
+
 //! Add the active offset in the declared terrestrial frame to the source position.
 Eigen::Vector3d StationReferencePointTrajectory::getPosition( const StationHistoryTime& time ) const
 {
@@ -306,6 +308,7 @@ Eigen::Vector3d StationReferencePointTrajectory::getPosition( const StationHisto
     position += offsets_->getPositionCorrection( time );
     return position;
 }
+
 //! Add the active offset and its TDB velocity to the complete source state.
 Eigen::Vector6d StationReferencePointTrajectory::getState( const StationHistoryTime& time ) const
 {

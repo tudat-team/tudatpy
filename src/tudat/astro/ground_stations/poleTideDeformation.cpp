@@ -16,6 +16,7 @@ Eigen::Vector3d poleTideGeocentricEnu( const Eigen::Vector2d& polarMas,
                                        const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
 {
     const Eigen::Vector2d secularMas = earth_orientation::getSecularPolePositionInMas( tt );
+
     // IERS Eq. (25): wobble variables in arcseconds, as required by Eq. (26).
     const double m1 = ( polarMas( 0 ) - secularMas( 0 ) ) / 1000.0;
     const double m2 = -( polarMas( 1 ) - secularMas( 1 ) ) / 1000.0;

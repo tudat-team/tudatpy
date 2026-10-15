@@ -63,6 +63,7 @@ void validateEpoch( const SinexEpoch& value, const SinexSourceRecord& record )
     {
         if( !value.civilUtc ) failSinexRecord( record, "Specified epoch has no civil UTC fields" );
         const auto& date = *value.civilUtc;
+
         // Preserve a possible inserted-second label; physical leap-table validation belongs to a model.
         if( date.year < 1951 || date.year > 2050 || date.dayOfYear < 1 || date.dayOfYear > ( leapYear( date.year ) ? 366 : 365 ) ||
             date.secondsOfDay < 0 || date.secondsOfDay > 86400 )
@@ -126,6 +127,7 @@ void normalize( SinexParameterRecord& parameter )
 {
     const auto& unit = parameter.originalUnit;
     const auto& type = parameter.type;
+
     // IGN publishes relaxation-time extension records with the literal unit "m".
     // Only an explicitly declared provider profile may resolve that conflict.
     if( type.rfind( "TEXP", 0 ) == 0 || type.rfind( "TLOG", 0 ) == 0 )
@@ -188,6 +190,7 @@ SinexSiteRecord siteRecord( const SinexSourceRecord& record )
         const double deg = parseSinexNumber( degrees, record );
         const double minutes = parseSinexNumber( sinexField( record, start + 4, 2 ), record );
         const double seconds = parseSinexNumber( sinexField( record, start + 7, 4 ), record );
+
         // F4.1 approximate coordinates in the IGS template can round to 60.0
         // seconds (for example CEDU). Addition carries that exact value into
         // the next minute while the original fields remain in provenance.
@@ -198,6 +201,7 @@ SinexSiteRecord siteRecord( const SinexSourceRecord& record )
             failSinexRecord( record, "Approximate coordinate outside SINEX range" );
         return value * radiansPerDegree;
     };
+
     // SITE/ID may omit all approximate coordinates; partial fields are invalid.
     if( record.text.size( ) >= 75 && !text_parsing::trim( record.text.substr( 44, 31 ) ).empty( ) )
     {
@@ -453,6 +457,7 @@ void validateSinexStationHistory( const SinexStationHistory& history )
                 parameter.key.site.siteCode, parameter.key.site.pointCode, parameter.key.solutionId, parameter.type, epochIdentity );
         if( cartesianComponent( parameter.type ) >= 0 && !components.insert( identity ).second )
             failSinexRecord( parameter.provenance, "Duplicate/conflicting Cartesian parameter component" );
+
         // SITE/ID is optional in ITRF discontinuity-only products, but Cartesian parameters need an identity.
         if( cartesianComponent( parameter.type ) >= 0 && history.sites.count( parameter.key.site ) == 0 )
             failSinexRecord( parameter.provenance, "Cartesian parameter has no matching SITE/ID point identity" );

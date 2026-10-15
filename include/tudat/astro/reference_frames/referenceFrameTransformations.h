@@ -648,16 +648,19 @@ Eigen::Matrix3d getRotationBetweenSatelliteFrames( const Eigen::Vector6d relativ
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame );
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::string& targetFrame );
 Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& targetFrame );
+
 //! Transform the state at its requested epoch using y=T+A*x and vy=Tdot+Adot*x+A*vx.
 //! Epoch retains the legacy uniform Julian-year seconds since J2000 convention:
 //! parameter year=2000+epoch/31557600; this is not calendar-decimal-year or TDB conversion.
 Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::Vector6d& state,
                                                                   double epoch,
                                                                   const std::string& targetFrame );
+
 //! Exact affine inverse and inverse-state derivative at the requested legacy epoch (seconds as above).
 Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& state,
                                                                   double epoch,
                                                                   const std::string& baseFrame );
+
 //! Compose affine states through the declared ITRF2014 hub; equal realizations give identity.
 //! Epoch and velocity retain the legacy uniform-Julian-year seconds convention above.
 Eigen::Vector6d convertGroundStationStateBetweenItrfFrames( const Eigen::Vector6d& state,

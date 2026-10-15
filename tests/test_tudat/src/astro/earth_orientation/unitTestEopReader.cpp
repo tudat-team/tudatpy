@@ -239,6 +239,7 @@ BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_adapter_equivalence_and_provenance
     BOOST_REQUIRE_EQUAL( raw.records.size( ), 3 );
     BOOST_CHECK_EQUAL( raw.records.begin( )->first, 45700.5 );
     BOOST_CHECK_EQUAL( raw.records.rbegin( )->first, 45702.5 );
+
     // Compatibility maps retain the same exact raw coverage.
     BOOST_CHECK_EQUAL( fromData.getUt1MinusUtcMapRaw( ).size( ), 3 );
     BOOST_CHECK_SMALL( fromData.getUt1MinusUtcMapRaw( ).begin( )->first - 45700.5, 1e-10 );
