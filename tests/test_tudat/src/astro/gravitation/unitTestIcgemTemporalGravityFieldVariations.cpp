@@ -73,7 +73,7 @@ double tdbImage( const Time& source,
                  TimeScales scale,
                  const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter )
 {
-    return static_cast< double >( converter->getContinuousOutputTime( tdb_scale, converter->getTaiTime( scale, source ) ) );
+    return static_cast< double >( converter->getCurrentTime< Time >( tai_scale, tdb_scale, converter->getTaiTime( scale, source ) ) );
 }
 
 //! Check a frozen scalar result; adjacent TDB images use a derivative bound, never an epoch-snapping tolerance.
