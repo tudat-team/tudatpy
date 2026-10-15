@@ -131,7 +131,9 @@ BOOST_AUTO_TEST_CASE( derivative_step_and_nonfinite_validation )
         BOOST_CHECK_THROW( model.setDisplacementDerivativeTimeStep( step ), std::invalid_argument );
     }
     BOOST_CHECK_EQUAL( model.getDisplacementDerivativeTimeStep( ), 1.0 );
-    BOOST_CHECK_THROW( model.calculateDisplacementState( std::numeric_limits< double >::infinity( ),
+
+    // NaN is representable in Time; infinity cannot be normalized into its integer hour count.
+    BOOST_CHECK_THROW( model.calculateDisplacementState( std::numeric_limits< double >::quiet_NaN( ),
                                                          std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) ) )
                                .tail< 3 >( ),
                        std::invalid_argument );

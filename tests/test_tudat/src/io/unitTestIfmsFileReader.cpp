@@ -108,8 +108,11 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
             const Eigen::Vector3d earthFixedPosition =
                     bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" )->getNominalStationState( )->getNominalCartesianPosition( );
-            Time tdbTimeTest = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
+
+            // Use the EOP-backed clock selected when the observation collection is created.
+            Time tdbTimeTest = earth_orientation::createDefaultTimeConverter( )->getCurrentTime< Time >(
                     utc_scale, tdb_scale, utcTimeTest, earthFixedPosition );
+
             BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.at( 9 - linesToBeSkipped.at( i ) ) - tdbTimeTest ),
                                1.0E-12 );
         }

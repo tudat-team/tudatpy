@@ -483,8 +483,11 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
     const Eigen::Vector3d earthFixedPosition =
             bodies.getBody( "Earth" )->getGroundStation( receivingStationName )->getNominalStationState( )->getNominalCartesianPosition( );
-    Time expectedTdbObservationTime = TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
+
+    // Use the EOP-backed clock selected when the observation collection is created.
+    Time expectedTdbObservationTime = createDefaultTimeConverter( )->getCurrentTime< Time >(
             utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ), earthFixedPosition );
+
     BOOST_REQUIRE_EQUAL( observationCollectionEpochs.size( ), epochs.size( ) );
     BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.back( ) - expectedTdbObservationTime ), 1.0E-12 );
 }
