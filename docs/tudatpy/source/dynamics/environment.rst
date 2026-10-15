@@ -106,6 +106,8 @@ Classes
 
    Ephemeris
 
+   CustomEphemerisTimeObject
+
    TimeEphemeris
 
    Tle
@@ -193,6 +195,10 @@ Classes
    
 .. autoclass:: tudatpy.dynamics.environment.Ephemeris
    :members:
+
+.. autoclass:: tudatpy.dynamics.environment.CustomEphemerisTimeObject
+   :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment.TimeEphemeris
    :members:

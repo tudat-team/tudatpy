@@ -33,6 +33,7 @@
 #include <tudat/astro/electromagnetism/radiationSourceModel.h>
 #include <tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h>
 #include <tudat/astro/ephemerides/constantEphemeris.h>
+#include <tudat/astro/ephemerides/customEphemeris.h>
 #include <tudat/astro/ephemerides/ephemeris.h>
 #include <tudat/astro/ephemerides/itrsToGcrsRotationModel.h>
 #include <tudat/astro/ephemerides/keplerEphemeris.h>
@@ -230,6 +231,23 @@ void expose_environment( py::module& m )
 
 
      )doc" )
+            .def( "cartesian_state",
+                  &te::Ephemeris::getCartesianStateFromExtendedTime,
+                  py::arg( "current_time" ),
+                  R"doc(
+
+         Return the Cartesian state at a precise TDB epoch, w.r.t. ``frame_origin``.
+
+         Parameters
+         ----------
+         current_time : astro.time_representation.Time
+             Epoch in seconds since J2000 TDB. The ephemeris model determines whether its internal evaluation preserves this precision.
+
+         Returns
+         -------
+         numpy.ndarray
+             Cartesian position in metres and velocity in metres per second.
+     )doc" )
             .def( "cartesian_position",
                   &te::Ephemeris::getCartesianPosition,
                   py::arg( "current_time" ),
@@ -299,6 +317,33 @@ void expose_environment( py::module& m )
 
          :type: str
       )doc" );
+
+    // Expose the existing custom ephemeris with a Time callback for precise event evaluation.
+    py::class_< te::CustomEphemeris< tudat::Time, double >, std::shared_ptr< te::CustomEphemeris< tudat::Time, double > >, te::Ephemeris >(
+            m,
+            "CustomEphemerisTimeObject",
+            R"doc(
+
+         Custom ephemeris whose callback receives an :class:`~tudatpy.astro.time_representation.Time` epoch.
+
+         Assign an instance directly to :attr:`Body.ephemeris`. Extended-Time evaluation preserves the incoming epoch;
+         evaluation through the float overload starts from an already rounded epoch. Callback states use double components.
+     )doc" )
+            .def( py::init< const std::function< Eigen::Vector6d( const tudat::Time ) >, const std::string&, const std::string& >( ),
+                  py::arg( "custom_state_function" ),
+                  py::arg( "frame_origin" ) = "SSB",
+                  py::arg( "frame_orientation" ) = "ECLIPJ2000",
+                  R"doc(
+
+         Parameters
+         ----------
+         custom_state_function : callable[[astro.time_representation.Time], numpy.ndarray]
+             Function returning Cartesian position in metres and velocity in metres per second at the supplied J2000 TDB epoch.
+         frame_origin : str, default="SSB"
+             Origin of the returned Cartesian state.
+         frame_orientation : str, default="ECLIPJ2000"
+             Orientation of the returned Cartesian state.
+     )doc" );
 
     py::class_< tudat::TimeEphemeris, std::shared_ptr< tudat::TimeEphemeris > >( m, "TimeEphemeris", R"doc(
 
