@@ -106,7 +106,7 @@ def dual_y_axis(
     c2: str = "tab:red",
     grid: str = "",
 ):
-    """Plot two y-axis that share a common x-axis.
+    r"""Plot two y-axis that share a common x-axis.
 
     Parameters
     ----------
@@ -277,7 +277,7 @@ def trajectory_3d(
 
     """
     # Import SPICE
-    from tudatpy.interface import spice
+    from tudatpy.data_input.environment_data import spice
 
     # Save color and linestyle index
     i_c, i_ls = 0, 0

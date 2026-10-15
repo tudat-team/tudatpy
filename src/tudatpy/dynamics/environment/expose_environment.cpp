@@ -1434,7 +1434,7 @@ bool
          Parameters
          ----------
          solar_activity_data : dict[float, SolarActivityData]
-             Solar activity data for a range of epochs, as produced by :func:`~tudatpy.data.read_solar_activity_data`.
+             Solar activity data for a range of epochs, as produced by :func:`~tudatpy.data_input.environment_data.space_weather.read_solar_activity_data`.
          use_ideal_gas_law : bool, default = True
              Whether to use the ideal gas law to compute the pressure and speed of sound.
          use_storm_conditions : bool, default = False
