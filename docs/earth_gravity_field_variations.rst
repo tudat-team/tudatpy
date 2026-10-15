@@ -38,15 +38,23 @@ consumer rejection. A separate comments-only pass covers the conventional and
 ocean-pole models without changing numerical expressions.
 ``72ed3b5fc`` removes the raw ICGEM record include from the generic gravity setup
 header; only code that consumes those records now includes their complete type.
+The temporal evaluator and consuming setup are integrated at ``9202b8481``.
+At Dominic's request, merge ``53284e544`` brings in the latest published
+rotation/deformation revision ``d74af05bc``. Its shared text parser is reused by
+the ICGEM and AOD1B readers in ``4eb777328``, removing forty net lines without
+changing coefficient interpretation. The complete planned Python settings are
+also integrated, including the temporal factory and explicit time conventions.
 Gravity has not been pushed during this resumed work.
 
 The coordinator designs, reviews and handles major debugging. Three GPT-6.1 Sol
-workers at high reasoning are active in separate worktrees: rotation_impl owns
+workers at high reasoning use separate worktrees: rotation_impl owns
 dependency integration, the build and a separate Python exposure checkout;
-desai_impl has completed the TiME22 adapter and is reviewing comments and reuse;
-history_impl is extending the neutral ICGEM reader after completing AOD1B.
-rotation_impl has validated the initial targets and harmonic setup, and is building
-AOD1B and TiME22 in ``/home/dominic/Tudat/gravity-resume-build``
+desai_impl has completed the independent temporal numerical tests and evaluator
+review and now owns Dominic's separate rotation/deformation ``data.zip`` task;
+history_impl has completed the temporal evaluator, consuming factory and parser
+reuse. rotation_impl has validated the initial targets, harmonic
+setup, AOD1B and TiME22, and owns the remaining native and Python validation in
+``/home/dominic/Tudat/gravity-resume-build``
 from a consistent source tree and owns the entire eight-job allowance. Its
 configuration follows the validated PR1092 build, including serialization.
 Tests run serially. Only relevant native tests run; the Python kernel is built
@@ -56,18 +64,18 @@ recovery work or examples are included.
 .. code-block:: text
 
    [x] G01 Review primary literature, provider conventions and existing implementations.  [DONE]
-   [ ] G02 Define rotation/gravity compatibility and reuse existing Tudat functionality.  [ACTIVE]
-   [ ] G03 Preserve neutral coefficient, constituent and source-convention records.  [ACTIVE — all source records integrated; temporal/AOD1B validation pending]
+   [x] G02 Define rotation/gravity compatibility and reuse existing Tudat functionality.  [DONE — selected clocks, frames, tide systems, component overlap and temporal baseline conventions are explicit]
+   [x] G03 Preserve neutral coefficient, constituent and source-convention records.  [DONE — static/temporal ICGEM, harmonic, ocean-pole and AOD1B readers pass]
    [x] G04 Complete conventional solid Earth gravity tides, including frequency dependence.  [DONE — model and factory checkpoint validated; dependency integration is G11]
    [x] G05 Add solid Earth pole-tide gravity corrections with the shared pole convention.  [DONE — model and factory checkpoint validated]
    [x] G06 Add ocean pole-tide gravity corrections with explicit truncation and origin.  [DONE — full model and factory checkpoint validated]
-   [ ] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [ACTIVE — backend and setup pass; TiME22 integrated, validation underway]
-   [ ] G08 Support identified ocean-tide products without mixing their phase conventions.  [ACTIVE — FES2004/FES2014b/EOT11a integrated; TiME22 integrated, validation underway]
-   [ ] G09 Handle atmospheric/non-tidal coefficient products and component overlap explicitly.  [ACTIVE — AOD1B integrated through d42704f96; TiME22 atmospheric source complete; validation pending]
-   [ ] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [ACTIVE — neutral reader integrated; coefficient-interval adapter in progress with explicit clock/year/date contract]
-   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — conventional and harmonic factories pass; AOD1B/TiME22 validation underway]
-   [ ] G12 Validate individual models and assembled forces against pinned references.  [ACTIVE — initial 10 native executables pass: 52 cases, 2452 assertions; new adapters follow]
-   [ ] G13 Complete Python settings and diagnostics.  [ACTIVE — first bindings integrated; AOD1B/TiME22/temporal bindings follow; examples excluded by Dominic]
+   [x] G07 Add harmonic ocean-tide synthesis and documented minor-constituent admittance.  [DONE — harmonic setup and TiME22 published admittance pass; later zero-weight optimization check is in G12]
+   [x] G08 Support identified ocean-tide products without mixing their phase conventions.  [DONE — FES2004/FES2014b/EOT11a profiles and TiME22 1.1 pass focused native checks]
+   [x] G09 Handle atmospheric/non-tidal coefficient products and component overlap explicitly.  [DONE — AOD1B reader/model/factory and TiME22 atmosphere pass]
+   [ ] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [ACTIVE — evaluator, settings and independent tests integrated; two source reviews complete; native validation pending]
+   [ ] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [ACTIVE — all planned factories integrated; temporal assembled/serialization case pending]
+   [ ] G12 Validate individual models and assembled forces against pinned references.  [ACTIVE — retained 13-executable checkpoint passes 62 cases/2978 assertions; updated reader passes 6/50; remaining focused checks in progress]
+   [ ] G13 Complete Python settings and diagnostics.  [ACTIVE — all planned bindings integrated and reviewed; kernel/runtime/autosummary validation pending; examples excluded by Dominic]
    [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [ACTIVE — generic changes reviewed; move ownership fixed; comments and API review ongoing]
 
 Resumed verification
@@ -90,7 +98,28 @@ with numerical-library threads set to one.
 The later harmonic checkpoint also passes: harmonic reader 3 cases/30 assertions
 and Earth setup 6 cases/39 assertions, including ordered admittance, selected
 clocks, deferred sampling and exact serialization. AOD1B and TiME22 share the next
-focused four-target build; Python validation remains pending.
+focused four-target build, which now passes: AOD1B reader 2 cases/49 assertions,
+AOD1B model 2/12, updated Earth factory 7/49 and TiME22 setup 2/430. The build and
+serial runs succeeded without numerical fixes or tolerance changes. Evidence is
+in ``verification-20261015/aod-time22-build.log`` and
+``verification-20261015/aod-time22-runtime.log`` with per-case reports.
+The retained results through source ``2621e1b4e`` cover thirteen distinct native
+executables, 62 cases and 2978 assertions, all passing. This total counts the
+latest result for each executable, rather than adding repeated runs.
+
+The subsequent exact-zero admittance optimization, temporal reader and include
+cleanup require their focused integration checks. Python source and documentation
+now cover AOD1B, TiME22 and raw temporal records. Review fixed Python getters that
+could otherwise expose mutable owned harmonic metadata/constituents: these return
+copies, with assertions added to the existing provider-settings test. Kernel and
+Python runtime validation remain pending.
+The updated temporal ICGEM reader now also passes 6 cases and 50 assertions;
+``verification-20261015/icgem-temporal-reader-runtime.log`` records that run.
+The static adapter and harmonic/TiME22 checks are still in the same eight-job
+build. The temporal evaluator has separate, independently generated scalar
+references covering published multi-interval periodic terms, exact shared
+boundaries, normalization and the two explicit definitions of a year. Those
+model checks have not run yet.
 
 Literature and model decisions
 -----------------------------
