@@ -1,3 +1,6 @@
+> **15 October, later:** four further commits (policies replaced by single behaviours, C4, C5, documentation pass) are
+> described in `docs/pr1092_handover_build_test.md`, which also lists the build and test steps still to do.
+
 # PR 1092 review follow-up — implementation status (handover document)
 
 **Editing finished on 15 October 2026.** See `DONE-WITH-EDITING.md`. Final pushed head of `fix/earth_deformation_rotation`: see the
