@@ -152,7 +152,7 @@ Variation model due to pole tides
       )doc" )
             .value( "ocean_pole_tide", tg::ocean_pole_tide, "Equilibrium ocean response to polar motion." )
             .value( "aod1b_rl07", tg::aod1b_rl07, "Selected RL07 non-tidal mass component." )
-            .value( "icgem_temporal",
+            .value( "icgem_temporal_variation",
                     tg::icgem_temporal,
                     "Analytic temporal ICGEM coefficients relative to the nominal construction snapshot." )
             .export_values( );
@@ -471,8 +471,9 @@ The selected Earth rotation supplies the clock conversion. Evaluation remains
 bounded by the supplied gfct pieces, without extrapolation or a second interpolation
 stage. Julian years use elapsed TAI SI seconds divided by 31557600; fractional
 Gregorian years use the declared source calendar. Later nominal-field changes do
-not rebase the adopted snapshot. Date-only tokens mean midnight; irregular suffixes
-that are not HHMM require explicit exact-token source-scale overrides.
+not rebase the adopted snapshot. In format 1.0, date-only tokens mean midnight;
+format 2.0 requires HHMM. Irregular suffixes that are not HHMM require explicit
+exact-token source-scale overrides.
 
 Parameters
 ----------

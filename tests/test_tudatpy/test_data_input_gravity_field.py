@@ -60,6 +60,7 @@ def test_icgem_records_settings_and_assembled_tide_system():
         temporal, TimeScales.tt_scale, variation.IcgemYearConvention.julian_year, 2, 0
     )
 
+    assert isinstance(temporal_settings, variation.IcgemTemporalGravityFieldVariationSettings)
     assert temporal_settings.source_time_scale == TimeScales.tt_scale
     assert temporal_settings.year_convention == variation.IcgemYearConvention.julian_year
     if hasattr(variation.GravityFieldVariationSettings, "__setstate__"):
