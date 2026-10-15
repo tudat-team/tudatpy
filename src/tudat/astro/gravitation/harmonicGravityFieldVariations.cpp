@@ -4,6 +4,7 @@
 #include <cmath>
 #include <set>
 #include <stdexcept>
+#include <utility>
 
 namespace tudat
 {
@@ -11,6 +12,7 @@ namespace gravitation
 {
 namespace
 {
+//! Check canonical phase identities, finite matrix dimensions and the physical degree/order triangle.
 void validateConstituents( const std::vector< HarmonicGravityConstituent >& constituents )
 {
     if( constituents.empty( ) )
@@ -18,6 +20,7 @@ void validateConstituents( const std::vector< HarmonicGravityConstituent >& cons
         throw std::invalid_argument( "Empty harmonic gravity inventory" );
     }
     std::set< std::string > identifiers;
+
     for( const auto& wave : constituents )
     {
         if( wave.doodson.size( ) != 7 || input_output::parseDoodsonMultipliers( wave.doodson ) != wave.multipliers ||
@@ -56,6 +59,7 @@ void validateConstituents( const std::vector< HarmonicGravityConstituent >& cons
         }
     }
 }
+//! Validate the selected matrix block before constructing the base correction dimensions.
 int checkedMinimumDegree( const std::vector< HarmonicGravityConstituent >& waves,
                           int minimumDegree,
                           int minimumOrder,
@@ -78,6 +82,7 @@ int checkedMinimumDegree( const std::vector< HarmonicGravityConstituent >& waves
     return minimumDegree;
 }
 }  // namespace
+//! Convert the selected published Cp/Sp/Cm/Sm terms with IERS 6.15, retaining the requested constituent order.
 std::vector< HarmonicGravityConstituent > convertHarmonicPotentialData( const input_output::HarmonicPotentialData& data,
                                                                         int maximumDegree,
                                                                         int maximumOrder,
@@ -90,8 +95,11 @@ std::vector< HarmonicGravityConstituent > convertHarmonicPotentialData( const in
         throw std::invalid_argument( "Invalid harmonic potential selection" );
     }
     std::vector< HarmonicGravityConstituent > result;
+
     const bool identified = data.profile != input_output::HarmonicPotentialProfile::iersPotential;
+
     std::vector< const input_output::HarmonicPotentialConstituent* > selected;
+
     if( selectedDoodsonIds.empty( ) )
     {
         for( const auto& source : data.constituents )
@@ -102,6 +110,7 @@ std::vector< HarmonicGravityConstituent > convertHarmonicPotentialData( const in
     else
     {
         std::set< std::string > ids;
+
         for( const auto& id : selectedDoodsonIds )
         {
             const auto found = std::find_if(
@@ -116,7 +125,9 @@ std::vector< HarmonicGravityConstituent > convertHarmonicPotentialData( const in
     for( const auto* sourcePointer : selected )
     {
         const auto& source = *sourcePointer;
+
         HarmonicGravityConstituent wave;
+
         wave.doodson = source.doodson;
         wave.multipliers = source.multipliers;
         wave.cCos = wave.cSin = wave.sCos = wave.sSin = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
@@ -125,6 +136,7 @@ std::vector< HarmonicGravityConstituent > convertHarmonicPotentialData( const in
             for( int m = 0; m <= std::min( n, maximumOrder ); ++m )
             {
                 const auto found = source.coefficients.find( { n, m } );
+
                 if( found == source.coefficients.end( ) )
                 {
                     if( identified && ( n < source.minimumDegree || n > source.maximumDegree || m > source.maximumOrder ) )
@@ -138,7 +150,9 @@ std::vector< HarmonicGravityConstituent > convertHarmonicPotentialData( const in
                     throw std::invalid_argument( "Missing harmonic potential term inside selected wave extent: " + source.doodson + "/" +
                                                  std::to_string( n ) + "/" + std::to_string( m ) );
                 }
+                // IERS 6.15 fixes the sine signs; zonal sine coefficients remain identically zero.
                 const auto& c = found->second.values;
+
                 wave.cCos( n, m ) = data.stokesUnitScale * ( c[ 0 ] + c[ 2 ] );
                 wave.cSin( n, m ) = data.stokesUnitScale * ( c[ 1 ] + c[ 3 ] );
                 if( m != 0 )
@@ -153,6 +167,7 @@ std::vector< HarmonicGravityConstituent > convertHarmonicPotentialData( const in
     validateConstituents( result );
     return result;
 }
+//! Apply the explicit major-to-target map once to each canonical quadrature.
 std::vector< HarmonicGravityConstituent > applyHarmonicGravityAdmittance( const std::vector< HarmonicGravityConstituent >& majors,
                                                                           const HarmonicGravityAdmittance& admittance )
 {
@@ -172,10 +187,13 @@ std::vector< HarmonicGravityConstituent > applyHarmonicGravityAdmittance( const 
         }
     }
     std::set< std::string > identifiers;
+
     std::vector< HarmonicGravityConstituent > result;
+
     for( std::size_t i = 0; i < admittance.targetDoodsonIds.size( ); ++i )
     {
         HarmonicGravityConstituent target;
+
         target.doodson = admittance.targetDoodsonIds[ i ];
         if( target.doodson.size( ) != 7 || !identifiers.insert( target.doodson ).second )
         {
@@ -187,6 +205,12 @@ std::vector< HarmonicGravityConstituent > applyHarmonicGravityAdmittance( const 
         for( std::size_t j = 0; j < majors.size( ); ++j )
         {
             const double scale = admittance.matrix( i, j );
+
+            // Published maps are sparse; avoid dense coefficient operations for absent input weights.
+            if( scale == 0.0 )
+            {
+                continue;
+            }
             target.cCos += scale * majors[ j ].cCos;
             target.cSin += scale * majors[ j ].cSin;
             target.sCos += scale * majors[ j ].sCos;
@@ -197,6 +221,7 @@ std::vector< HarmonicGravityConstituent > applyHarmonicGravityAdmittance( const 
     validateConstituents( result );
     return result;
 }
+//! Retain the selected block and convert each degree from the source reference constants to the consuming field.
 HarmonicGravityFieldVariations::HarmonicGravityFieldVariations( const std::vector< HarmonicGravityConstituent >& constituents,
                                                                 const HarmonicGravityMetadata& metadata,
                                                                 const std::function< Eigen::Vector6d( double ) >& doodsonArguments,
@@ -249,6 +274,7 @@ HarmonicGravityFieldVariations::HarmonicGravityFieldVariations( const std::vecto
         }
     }
 }
+//! Sum the canonical quadratures at the supplied physical phase, without extra nodal or loading factors.
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > HarmonicGravityFieldVariations::calculateSphericalHarmonicsCorrections( double time )
 {
     if( !std::isfinite( time ) )
@@ -256,14 +282,17 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > HarmonicGravityFieldVariations::ca
         throw std::invalid_argument( "Nonfinite harmonic gravity epoch" );
     }
     const Eigen::Vector6d arguments = doodsonArguments_( time );
+
     if( !arguments.allFinite( ) )
     {
         throw std::invalid_argument( "Nonfinite harmonic gravity arguments" );
     }
     Eigen::MatrixXd cosine = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ), sine = cosine;
+
     for( const auto& wave : constituents_ )
     {
         double phase = 0.0;
+
         for( int i = 0; i < 6; ++i )
         {
             phase += wave.multipliers[ i ] * arguments[ i ];
@@ -273,6 +302,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > HarmonicGravityFieldVariations::ca
             throw std::invalid_argument( "Nonfinite harmonic gravity phase" );
         }
         const double c = std::cos( phase ), s = std::sin( phase );
+
         cosine += c * wave.cCos + s * wave.cSin;
         sine += c * wave.sCos + s * wave.sSin;
     }

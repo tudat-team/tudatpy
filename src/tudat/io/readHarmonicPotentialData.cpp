@@ -13,13 +13,19 @@ namespace input_output
 {
 namespace
 {
+//! Published wave identity and inclusive degree/order extent for one identified provider profile.
 struct ProfileWave {
+    //! Canonical phase identifier and provider wave name.
     const char* doodson;
+
     const char* name;
+
+    //! Inclusive extent of the published wave; zeros are permitted outside this extent.
     int minimumDegree, maximumDegree, maximumOrder;
 };
 #include "harmonicPotentialInventories.inc"
 
+//! Return the pinned source inventory; generic IERS input has no inferred provider extent.
 const std::vector< ProfileWave >& profileWaves( HarmonicPotentialProfile profile )
 {
     static const std::vector< ProfileWave > unspecified;
@@ -78,6 +84,7 @@ std::array< int, 6 > parseDoodsonMultipliers( const std::string& identifier )
     }
     return multipliers;
 }
+//! Check sparse values and phase labels without inferring unpublished zeros or physical constants.
 void validateHarmonicPotentialData( const HarmonicPotentialData& data )
 {
     if( data.constituents.empty( ) || !std::isfinite( data.stokesUnitScale ) || data.stokesUnitScale <= 0.0 )
@@ -85,7 +92,9 @@ void validateHarmonicPotentialData( const HarmonicPotentialData& data )
         throw std::invalid_argument( "Missing harmonic potential inventory or Stokes units" );
     }
     std::set< std::string > ids;
+
     const auto& declared = profileWaves( data.profile );
+
     if( !declared.empty( ) && declared.size( ) != data.constituents.size( ) )
     {
         throw std::invalid_argument( "Harmonic potential inventory does not match the identified profile" );
@@ -97,6 +106,7 @@ void validateHarmonicPotentialData( const HarmonicPotentialData& data )
     for( std::size_t i = 0; i < data.constituents.size( ); ++i )
     {
         const auto& wave = data.constituents[ i ];
+
         if( canonicalDoodson( wave.doodson ) != wave.doodson || canonicalDoodson( wave.originalDoodson ) != wave.doodson ||
             parseDoodsonMultipliers( wave.doodson ) != wave.multipliers || wave.name.empty( ) || wave.coefficients.empty( ) ||
             !ids.insert( wave.doodson ).second )
@@ -132,20 +142,28 @@ void validateHarmonicPotentialData( const HarmonicPotentialData& data )
         }
     }
 }
+//! Read declared Stokes columns, keeping source order and checking the explicit provider profile.
 HarmonicPotentialData readHarmonicPotentialData( std::istream& stream, const std::string& source, HarmonicPotentialProfile profile )
 {
     HarmonicPotentialData data;
+
     data.source = source;
     data.profile = profile;
     std::map< std::string, std::size_t > indices;
+
     std::string line;
+
     std::size_t lineNumber = 0;
+
     bool columnsSeen = false, eotHeader = false, fes2004Header = false, fes2014Header = false;
+
     while( std::getline( stream, line ) )
     {
         ++lineNumber;
         std::istringstream tokens( line );
+
         std::string first;
+
         if( !( tokens >> first ) )
         {
             continue;
@@ -179,6 +197,7 @@ HarmonicPotentialData readHarmonicPotentialData( std::istream& stream, const std
             if( first == "Doodson" )
             {
                 std::string normalized = first, token;
+
                 while( tokens >> token )
                 {
                     normalized += " " + token;
@@ -197,20 +216,27 @@ HarmonicPotentialData readHarmonicPotentialData( std::istream& stream, const std
             continue;
         }
         std::string name, extra;
+
         int n, m;
+
         std::array< double, 4 > values;
+
         if( !( tokens >> name >> n >> m >> values[ 0 ] >> values[ 1 ] >> values[ 2 ] >> values[ 3 ] ) || tokens >> extra )
         {
             throw std::invalid_argument( source + ":" + std::to_string( lineNumber ) + ": expected eight potential columns" );
         }
+        // Normalize only the identifier spelling; phase and amplitude conversions belong to the consuming model.
         const auto id = canonicalDoodson( first );
+
         auto found = indices.find( id );
+
         if( found == indices.end( ) )
         {
             found = indices.emplace( id, data.constituents.size( ) ).first;
             data.constituents.push_back( { first, id, name, parseDoodsonMultipliers( id ), {} } );
         }
         auto& wave = data.constituents[ found->second ];
+
         if( wave.name != name ||
             !wave.coefficients.emplace( std::make_pair( n, m ), HarmonicPotentialCoefficient{ values, lineNumber } ).second )
         {
@@ -229,6 +255,7 @@ HarmonicPotentialData readHarmonicPotentialData( std::istream& stream, const std
         throw std::invalid_argument( "Harmonic potential header does not match the declared profile" );
     }
     const auto& declared = profileWaves( profile );
+
     if( !declared.empty( ) )
     {
         if( declared.size( ) != data.constituents.size( ) )
@@ -245,9 +272,11 @@ HarmonicPotentialData readHarmonicPotentialData( std::istream& stream, const std
     validateHarmonicPotentialData( data );
     return data;
 }
+//! Open the named potential file and preserve its path for source diagnostics.
 HarmonicPotentialData readHarmonicPotentialData( const std::string& fileName, HarmonicPotentialProfile profile )
 {
     std::ifstream stream( fileName );
+
     if( !stream )
     {
         throw std::runtime_error( "Cannot open harmonic potential source " + fileName );
