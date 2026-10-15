@@ -266,3 +266,33 @@ shutil.copytree(Path("resources"), Path(get_resource_path()), dirs_exist_ok=True
 - The complete cached `pre-commit --all-files` check now passes for both black and clang-format. The reviewed patch and
   both formatter runs are in `verification-allpass-20261015/format-ci*`. No recompilation or numerical rerun is needed
   for these formatting-only changes.
+
+### 15 October: review-comment patch and CI without unity builds
+
+- Applied the supplied review-comment patch unchanged as `da9fbf194`, after the local test-data archive commit
+  `3613e38d3`. It documents settings, restores the historical Delta-T default, combines the angles/rates records,
+  moves short-period rates into their calculator, templates the polar-motion entry point, replaces the selected
+  lambdas and adds the requested braces. The remaining design decisions are unchanged.
+- Linux CI job `116421227351` failed when linking `test_ephemerides_CartesianStateExtractor`: a unity-generated
+  basic-astrodynamics object required unlinked polyhedron mathematics symbols. Commit `05292ca2b` explicitly sets
+  `CMAKE_UNITY_BUILD=OFF` in both CI configure steps. No other CI option changed; the workflow YAML passes validation.
+- The existing `/home/dominic/Tudat/pr1092-review-build` was reused with unity explicitly disabled and all other
+  cache options retained. Its source checkout is clean and detached at `05292ca2b`; the previous review branch reference
+  is preserved. One Sol worker used the entire eight-job allowance. The actual CMake dependency graph rebuilt callers
+  of the enlarged angles record, avoiding stale objects with its previous layout.
+- Fourteen native targets are selected: the eight Earth-orientation tests; ITRS/GCRS rotation and the CI-failing
+  Cartesian-state extractor; complete station velocity, deformation time routing, solid pole displacement and ocean pole
+  displacement. Static review found no changed control flow in the other brace-only edits, so their previous validation
+  is retained. Python bindings changed only in docstrings/formatting, so no kernel build or Python run was included
+  in this follow-up.
+- All fourteen selected executables built successfully and passed: **100 cases, 6,508 assertions, zero failures**.
+  In particular, `CartesianStateExtractor` links with unity disabled and passes seven cases/twelve assertions;
+  rotation derivatives pass thirteen cases/292 assertions. The final ITRS/GCRS rotation test passes six cases and
+  1,403 assertions. Each executable ran once, serially, with numerical-library threads limited to one.
+- No source fix or numerical/tolerance change was needed. The only CMake cache change was explicitly setting unity
+  to OFF, and Earth-orientation compiler flags were byte-identical. No unity compilation unit was built.
+- Commands, source identity, cache comparison and per-executable hashes, timestamps and test results are recorded in
+  `/home/dominic/Tudat/pr1092-review-build/verification-ci-review-20261015/native-summary.json`, with build/runtime
+  logs and XML reports alongside it. The tested source is `05292ca2b`; this later notes update changes no compiled file.
+  All changes are local: Dominic explicitly requested no push, and GitHub comments remain untouched. Remote CI has
+  not been rerun with these local commits.
