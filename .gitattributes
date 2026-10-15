@@ -6,3 +6,5 @@ tests/test_tudat/src/io/station_loading_fixtures/imls_duplicate_identifier.eph w
 resources/**/*.txt -text
 # Keep the original trailing whitespace in the official IGN tables.
 resources/station_locations/Transfo-ITRF*.txt whitespace=-blank-at-eol,-blank-at-eof
+# Keep the original trailing whitespace in the IERS EOP header.
+resources/earth_orientation/eopc04_*.txt whitespace=-blank-at-eol,-blank-at-eof
