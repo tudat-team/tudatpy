@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
     std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
             tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt", "C04", basic_astrodynamics::iau_2000_a );
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( eopReader->getRawEarthOrientationData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     const auto rawUt1 = eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( );
 
     // Define list of leap seconds

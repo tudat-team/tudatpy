@@ -389,25 +389,38 @@ BOOST_AUTO_TEST_CASE( test_daily_pole_and_cpo_are_applied_once_without_long_peri
     for( const auto& fixture : short_period_reference::fixtures )
     {
         const double utc = ( fixture.mjdUtc - 51544.5 ) * 86400.0;
+        const Time tai = sofa_interface::convertUTCtoTAI( Time( utc ) );
         const Eigen::Vector2d daily( 0.12 * 1e6 * uas, -0.34 * 1e6 * uas );
-        const auto dailyInterpolator = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                std::map< double, Eigen::Vector2d >{ { utc - 86400.0, daily }, { utc + 86400.0, daily } } );
-        PolarMotionCalculator polarModel( dailyInterpolator, shortPeriods );
-        const auto actual = polarModel.getPositionOfCipInItrs( fixture.ttSeconds, utc );
+
+        // Synthetic observed CPO includes a 430-day oscillation representing an
+        // FCN signal already in observations. It must enter X/Y exactly once.
+        const Eigen::Vector2d cpo( 200.0 * uas * std::sin( 2.0 * mathematical_constants::PI * fixture.mjdUtc / 430.0 ), -80.0 * uas );
+
+        // Daily records with constant pole and CPO, on the UTC days around the fixture epoch.
+        input_output::EarthOrientationData data;
+        for( int day = -1; day <= 2; ++day )
+        {
+            input_output::EarthOrientationRecord record;
+            record.utcModifiedJulianDate = std::floor( fixture.mjdUtc ) + day;
+            record.polarMotion = { daily.x( ), daily.y( ) };
+            record.ut1MinusUtc = 0.0;
+            record.celestialPoleOffsets = std::array< double, 2 >{ cpo.x( ), cpo.y( ) };
+            data.records.emplace( record.utcModifiedJulianDate, record );
+        }
+        const auto eopData = std::make_shared< EarthOrientationDataEvaluator >( data );
+
+        PolarMotionCalculator polarModel( eopData, shortPeriods );
+        const auto actual = polarModel.getPositionOfCipInItrsFromTai(
+                tai, sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst( fixture.ttSeconds ) );
         for( int i = 0; i < 2; ++i )
         {
             BOOST_CHECK_SMALL( actual( i ) - daily( i ) - uas * ( fixture.polarLibration[ i ] + fixture.ocean[ i ] * 1e6 ), 0.21 * uas );
         }
 
-        // Synthetic observed CPO includes a 430-day oscillation representing an
-        // FCN signal already in observations. It must enter X/Y exactly once.
-        const Eigen::Vector2d cpo( 200.0 * uas * std::sin( 2.0 * mathematical_constants::PI * fixture.mjdUtc / 430.0 ), -80.0 * uas );
-        const auto cpoInterpolator = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                std::map< double, Eigen::Vector2d >{ { utc - 86400.0, cpo }, { utc + 86400.0, cpo } } );
-        PrecessionNutationCalculator precession( iau_2006, cpoInterpolator );
+        PrecessionNutationCalculator precession( iau_2006, eopData );
         double x, y, s;
         iauXys06a( JULIAN_DAY_ON_J2000, fixture.ttSeconds / 86400.0, &x, &y, &s );
-        const auto corrected = precession.getPositionOfCipInGcrs( fixture.ttSeconds, utc );
+        const auto corrected = precession.getPositionOfCipInGcrsFromTai( fixture.ttSeconds, tai );
         BOOST_CHECK_SMALL( corrected.x( ) - x - cpo.x( ), 1e-17 );
         BOOST_CHECK_SMALL( corrected.y( ) - y - cpo.y( ), 1e-17 );
         BOOST_CHECK_SMALL( corrected.z( ) - s, 1e-17 );

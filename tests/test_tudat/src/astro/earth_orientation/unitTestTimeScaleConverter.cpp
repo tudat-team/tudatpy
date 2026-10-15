@@ -166,12 +166,9 @@ BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
     originScales.push_back( tai_scale );
     originScales.push_back( tdb_scale );
 
-    // Test conversion between time scales, single update function at each iteration
+    // Test conversion between time scales
     for( unsigned int i = 0; i < originScales.size( ); i++ )
     {
-        timeScaleConverter->resetTimes< double >( );
-        timeScaleConverter->updateTimes( originScales.at( i ), sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-
         double ut1 = timeScaleConverter->getCurrentTime(
                 originScales.at( i ), ut1_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
         BOOST_CHECK_SMALL( ut1 - sofaSecondsSinceJ2000[ ut1_scale ], std::numeric_limits< double >::epsilon( ) );
@@ -193,44 +190,9 @@ BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
         BOOST_CHECK_SMALL( tt - sofaSecondsSinceJ2000[ tt_scale ], std::numeric_limits< double >::epsilon( ) );
     }
 
-    // Test conversion between time scales, without caching of values (reset function called after each iteration).
+    // Test conversion between time scales, with Time input.
     for( unsigned int i = 0; i < originScales.size( ); i++ )
     {
-        timeScaleConverter->resetTimes< double >( );
-        timeScaleConverter->updateTimes( originScales.at( i ), sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-
-        double ut1 = timeScaleConverter->getCurrentTime(
-                originScales.at( i ), ut1_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-        BOOST_CHECK_SMALL( ut1 - sofaSecondsSinceJ2000[ ut1_scale ], std::numeric_limits< double >::epsilon( ) );
-
-        timeScaleConverter->resetTimes< double >( );
-        double utc = timeScaleConverter->getCurrentTime(
-                originScales.at( i ), utc_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-        BOOST_CHECK_SMALL( utc - sofaSecondsSinceJ2000[ utc_scale ], std::numeric_limits< double >::epsilon( ) );
-
-        timeScaleConverter->resetTimes< double >( );
-        double tdb = timeScaleConverter->getCurrentTime(
-                originScales.at( i ), tdb_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-        BOOST_CHECK_SMALL( tdb - sofaSecondsSinceJ2000[ tdb_scale ], std::numeric_limits< double >::epsilon( ) );
-
-        timeScaleConverter->resetTimes< double >( );
-        double tai = timeScaleConverter->getCurrentTime(
-                originScales.at( i ), tai_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-        BOOST_CHECK_SMALL( tai - sofaSecondsSinceJ2000[ tai_scale ], std::numeric_limits< double >::epsilon( ) );
-
-        timeScaleConverter->resetTimes< double >( );
-        double tt = timeScaleConverter->getCurrentTime(
-                originScales.at( i ), tt_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-        BOOST_CHECK_SMALL( tt - sofaSecondsSinceJ2000[ tt_scale ], std::numeric_limits< double >::epsilon( ) );
-    }
-
-    // Test conversion between time scales, single update function at each iteration, with Time input.
-    for( unsigned int i = 0; i < originScales.size( ); i++ )
-    {
-        timeScaleConverter->resetTimes< Time >( );
-        timeScaleConverter->updateTimes< Time >(
-                originScales.at( i ), sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
-
         double ut1 = timeScaleConverter->getCurrentTime< Time >(
                 originScales.at( i ), ut1_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
         BOOST_CHECK_SMALL( ut1 - sofaSecondsSinceJ2000[ ut1_scale ], std::numeric_limits< double >::epsilon( ) );
@@ -284,8 +246,6 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionPrecisionWithTimeType )
         currentTimes.clear( );
 
         // Convert time in scale( i ) to all other times.
-        timeScaleConverter->resetTimes< Time >( );
-        timeScaleConverter->updateTimes< Time >( originScales.at( i ), baseTime, stationCartesianPosition );
         for( unsigned int j = 0; j < originScales.size( ); j++ )
         {
             currentTimes[ originScales.at( j ) ] = timeScaleConverter->getCurrentTime< Time >(
@@ -334,8 +294,6 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
                 utc_scale, tai_scale, utcTimeOfLeapSeconds * physical_constants::JULIAN_DAY + 1.0E-6, Eigen::Vector3d::Zero( ) );
         BOOST_CHECK_SMALL( std::fabs( taiPostLeap - taiPreLeap - ( 1.0 + 2.0E-6 ) ), 1.0E-7 );
 
-        timeScaleConverter->resetTimes< double >( );
-
         double utcPreLeap = timeScaleConverter->getCurrentTime< double >( tai_scale, utc_scale, taiPreLeap, Eigen::Vector3d::Zero( ) );
         double utcPostLeap = timeScaleConverter->getCurrentTime< double >( tai_scale, utc_scale, taiPostLeap, Eigen::Vector3d::Zero( ) );
 
@@ -363,8 +321,6 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
         long double timeDifferenceTai = static_cast< long double >( taiPostLeap - taiPreLeap ) - ( 1.0L + 2.0E-6 );
 
         BOOST_CHECK_SMALL( std::fabs( timeDifferenceTai ), 3600.0L * std::numeric_limits< long double >::epsilon( ) );
-
-        timeScaleConverter->resetTimes< Time >( );
 
         Time utcPreLeap = timeScaleConverter->getCurrentTime< Time >( tai_scale, utc_scale, taiPreLeap, Eigen::Vector3d::Zero( ) );
         Time utcPostLeap = timeScaleConverter->getCurrentTime< Time >( tai_scale, utc_scale, taiPostLeap, Eigen::Vector3d::Zero( ) );
@@ -408,15 +364,11 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
             historical->getCurrentTime< Time >( tai_scale, ut1_scale, historical->getEarthOrientationDataEvaluator( )->getEndTai( ) + 1.0 ),
             std::runtime_error );
 
-    // Explicit custom constructors retain their historical UTC-like alias.
-    EOPReader legacyData;
-    const auto legacyDaily = std::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
-            legacyData.getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0 );
-    TerrestrialTimeScaleConverter legacy( legacyDaily, getDefaultUT1CorrectionCalculator( ) );
-    const Time legacyUt1 = legacy.getCurrentTime< Time >( tt_scale, ut1_scale, tt );
-    const Time legacyUtc = legacy.getCurrentTime< Time >( tt_scale, utc_scale, tt );
-    BOOST_CHECK_SMALL( static_cast< double >( tt - legacyUt1 ) - 33.59, 1.0E-12 );
-    BOOST_CHECK_EQUAL( legacyUtc, legacyUt1 );
+    // Without Earth orientation data, UT1 before 1962 is also computed from historical Delta T, and UTC is equal to UT1.
+    TerrestrialTimeScaleConverter withoutEop( nullptr, nullptr );
+    const Time ut1WithoutEop = withoutEop.getCurrentTime< Time >( tt_scale, ut1_scale, tt );
+    BOOST_CHECK_SMALL( static_cast< double >( tt - ut1WithoutEop ) - 33.59, 1.0E-12 );
+    BOOST_CHECK_EQUAL( withoutEop.getCurrentTime< Time >( tt_scale, utc_scale, tt ), ut1WithoutEop );
 }
 
 //! Test that replacing direct default converter construction with the factory does not change UTC/TDB conversions.
@@ -431,15 +383,11 @@ BOOST_AUTO_TEST_CASE( testDefaultConstructedAndFactoryTimeScaleConvertersAgreeFo
 
     for( const double utcEpoch : utcEpochs )
     {
-        factoryConverter->resetTimes< double >( );
-        directlyConstructedConverter.resetTimes< double >( );
         const double factoryTdb = factoryConverter->getCurrentTime( utc_scale, tdb_scale, utcEpoch, Eigen::Vector3d::Zero( ) );
         const double directlyConstructedTdb =
                 directlyConstructedConverter.getCurrentTime( utc_scale, tdb_scale, utcEpoch, Eigen::Vector3d::Zero( ) );
         BOOST_CHECK_SMALL( factoryTdb - directlyConstructedTdb, 1.0E-12 );
 
-        factoryConverter->resetTimes< double >( );
-        directlyConstructedConverter.resetTimes< double >( );
         const double factoryUtc = factoryConverter->getCurrentTime( tdb_scale, utc_scale, factoryTdb, Eigen::Vector3d::Zero( ) );
         const double directlyConstructedUtc =
                 directlyConstructedConverter.getCurrentTime( tdb_scale, utc_scale, directlyConstructedTdb, Eigen::Vector3d::Zero( ) );

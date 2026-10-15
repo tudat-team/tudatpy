@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( continuous_tai_axis_values_slopes_and_exact_coverage )
 BOOST_AUTO_TEST_CASE( leap_second_ut1_is_continuous_and_inverse_stays_in_coverage )
 {
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     const Time midnight = leapMidnightTai( );
     for( double offset : { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0 } )
     {
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( atomic_conversions_do_not_require_eop_or_missing_cpo )
         entry.second.celestialPoleOffsets.reset( );
     }
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     const Time outside = evaluator->getEndTai( ) + 1000.0 * 86400.0;
     const Time tt = converter.getCurrentTime< Time >( tai_scale, tt_scale, outside );
     BOOST_CHECK_SMALL( static_cast< double >( tt - outside ) - 32.184, 1e-12 );
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( atomic_conversions_do_not_require_eop_or_missing_cpo )
 BOOST_AUTO_TEST_CASE( strict_topocentric_tdb_uses_continuous_ut1_in_sofa )
 {
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     const Eigen::Vector3d station( 4075578.385, 931852.890, 4801570.154 );
     const Time tai = leapMidnightTai( ) - 0.5;
     const Time tt = convertTAItoTT( tai );
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( strict_topocentric_tdb_uses_continuous_ut1_in_sofa )
 BOOST_AUTO_TEST_CASE( strict_topocentric_tdb_endpoint_images_round_trip_without_extrapolation )
 {
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     const Eigen::Vector3d station( 4075578.385, 931852.890, 4801570.154 );
     for( const Time& endpoint : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )
     {
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( pre_1972_utc_drift_uses_fractional_dat_and_continuous_ut1 
             sourceFile.substr( 0, sourceFile.find_last_of( "/\\" ) + 1 ) + "../../io/earth_orientation_fixtures/legacy_c04.txt";
     const auto data = input_output::readEarthOrientationData( fixture );
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
 
     // SOFA DAT's accepted 1962 segment: 1.845858 s at January 1 midnight,
     // increasing by 0.0011232 s per UTC day (not an integer leap offset).
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( pre_1972_utc_drift_uses_fractional_dat_and_continuous_ut1 
 BOOST_AUTO_TEST_CASE( strict_scalar_utc_rejects_inserted_second )
 {
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     BOOST_CHECK_THROW( converter.getCurrentTime< Time >( tai_scale, utc_scale, leapMidnightTai( ) - 0.5 ), std::runtime_error );
     BOOST_CHECK_NO_THROW( converter.getCurrentTime< Time >( tai_scale, utc_scale, leapMidnightTai( ) - 2.0 ) );
     BOOST_CHECK_NO_THROW( converter.getCurrentTime< Time >( tai_scale, utc_scale, leapMidnightTai( ) ) );
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( strict_gap_and_optional_cpo_endpoint_policies )
     BOOST_CHECK( !model.evaluate( model.getStartTai( ) ).celestialPoleOffsetRate );
     BOOST_CHECK_THROW( model.evaluate( model.getStartTai( ) + 86400.0 ), std::runtime_error );
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     const Time valid = evaluator->getEndTai( ) - 100.0;
     const Time ut1 = converter.getCurrentTime< Time >( tai_scale, ut1_scale, valid );
     BOOST_CHECK_SMALL( static_cast< double >( converter.getCurrentTime< Time >( ut1_scale, tai_scale, ut1 ) - valid ), 2e-12 );
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE( four_point_values_and_rates_reproduce_a_known_cubic_across
         entry.second.celestialPoleOffsets = std::array< double, 2 >{ 1e-9 + 2e-11 * u * u * u, -2e-9 };
     }
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data, fourPointSettings( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     for( const Time& tai : { firstTai, firstTai + 43200.0, leapMidnightTai( ) - 0.5, leapMidnightTai( ), evaluator->getEndTai( ) } )
     {
         const double u = static_cast< double >( tai - firstTai ) / 86400.0;
@@ -486,11 +486,11 @@ BOOST_AUTO_TEST_CASE( public_rotation_factory_selects_four_point_reference_polic
 BOOST_AUTO_TEST_CASE( rounded_tt_endpoints_use_endpoint_values_and_strict_polar_coverage )
 {
     auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
-    PolarMotionCalculator pole( nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
+    PolarMotionCalculator pole( evaluator, nullptr );
 
     // The scalar TT CPO routes must use the same observation as polar motion.
-    PrecessionNutationCalculator celestial( iau_2006, nullptr, nullptr, evaluator );
+    PrecessionNutationCalculator celestial( iau_2006, evaluator, nullptr );
 
     for( const Time& boundary : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )
     {
@@ -502,15 +502,12 @@ BOOST_AUTO_TEST_CASE( rounded_tt_endpoints_use_endpoint_values_and_strict_polar_
         BOOST_CHECK_SMALL( ( pole.getPositionOfCipInItrsAtTt( preciseTt ) - evaluator->evaluate( boundary ).polarMotion ).norm( ), 1e-20 );
         BOOST_CHECK_SMALL( ( celestial.getPositionOfCipInGcrs( tt ) - celestial.getPositionOfCipInGcrsFromTai( tt, boundary ) ).norm( ),
                            1e-20 );
-        BOOST_CHECK_SMALL(
-                ( celestial.getPositionOfCipInGcrs( tt, 0.0 ) - celestial.getPositionOfCipInGcrsFromTai( tt, boundary ) ).norm( ), 1e-20 );
 
         // One millisecond outside the coverage is rejected.
         const double outside = boundary == evaluator->getStartTai( ) ? tt - 1.0E-3 : tt + 1.0E-3;
         BOOST_CHECK_THROW( evaluator->evaluate( convertTTtoTAI( Time( outside ) ) ), std::runtime_error );
         BOOST_CHECK_THROW( pole.getPositionOfCipInItrsAtTt( outside ), std::runtime_error );
         BOOST_CHECK_THROW( celestial.getPositionOfCipInGcrs( outside ), std::runtime_error );
-        BOOST_CHECK_THROW( celestial.getPositionOfCipInGcrs( outside, 0.0 ), std::runtime_error );
     }
 }
 
@@ -571,7 +568,7 @@ BOOST_AUTO_TEST_CASE( public_double_atomic_endpoints_reach_angles_rotation_and_c
     }
 }
 
-BOOST_AUTO_TEST_CASE( eop_free_geocentric_clock_converges_and_legacy_custom_ut1_stays_available )
+BOOST_AUTO_TEST_CASE( eop_free_geocentric_clock_converges_and_ut1_requires_eop_data )
 {
     TerrestrialTimeScaleConverter atomic( nullptr, nullptr );
     for( const Time& tai : { Time( 536673637.0 ), Time( 1.0e9 ), Time( 3.0e8 ) } )
@@ -579,20 +576,10 @@ BOOST_AUTO_TEST_CASE( eop_free_geocentric_clock_converges_and_legacy_custom_ut1_
         const Time tdb = atomic.getCurrentTime< Time >( tai_scale, tdb_scale, tai );
         BOOST_CHECK_SMALL( static_cast< double >( atomic.getTaiTime( tdb_scale, tdb ) - tai ), 1e-12 );
     }
-    const double epoch = 1.0e8;
-    auto daily = std::make_shared< interpolators::LinearInterpolator< double, double > >(
-            std::map< double, double >{ { epoch - 86400.0, 0.25 }, { epoch + 86400.0, 0.25 } } );
-    auto shortPeriod = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
-            1.0, 0.0, std::vector< std::string >{}, std::vector< std::string >{}, []( double ) {
-                return Eigen::Vector6d::Zero( ).eval( );
-            } );
-    TerrestrialTimeScaleConverter legacy( daily, shortPeriod );
-    const double expectedUt1 = sofa_interface::convertTTtoUTC( epoch ) + 0.25;
-    BOOST_CHECK_SMALL( legacy.getCurrentTime< double >( tt_scale, ut1_scale, epoch ) - expectedUt1, 1e-8 );
-    BOOST_CHECK_SMALL( legacy.getUt1Correction( tt_scale, epoch ) - 0.25, 1e-15 );
-    BOOST_CHECK_SMALL( legacy.getCurrentTimeDifference( tt_scale, ut1_scale, epoch ) -
-                               static_cast< double >( legacy.getCurrentTime< Time >( tt_scale, ut1_scale, Time( epoch ) ) - Time( epoch ) ),
-                       1e-15 );
+
+    // Without Earth orientation data, UT1 is only available before 1962, from historical Delta T.
+    BOOST_CHECK_THROW( atomic.getCurrentTime< double >( tt_scale, ut1_scale, 1.0e8 ), std::runtime_error );
+    BOOST_CHECK_NO_THROW( atomic.getCurrentTime< double >( tt_scale, ut1_scale, -1.5e9 ) );
 }
 
 BOOST_AUTO_TEST_CASE( interior_clock_interpolator_does_not_probe_distant_raw_eop_endpoints )
@@ -605,16 +592,18 @@ BOOST_AUTO_TEST_CASE( interior_clock_interpolator_does_not_probe_distant_raw_eop
             tt - 1000.0,
             tt + 1000.0,
             100.0 );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, interpolation, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, interpolation );
     const Time tdb = converter.getCurrentTime< Time >( tai_scale, tdb_scale, tai );
 
     // An interior epoch must not query clock values outside this intentionally narrow table.
     BOOST_CHECK_SMALL( static_cast< double >( converter.getTaiTime( tdb_scale, static_cast< double >( tdb ) ) - tai ), 1e-7 );
     BOOST_CHECK_SMALL( static_cast< double >( converter.getTaiTime( tdb_scale, tdb ) - tai ), 1e-12 );
     BOOST_CHECK_THROW( converter.getTaiTime( tdb_scale, static_cast< double >( tdb ) + 5000.0 ), std::runtime_error );
-    BOOST_CHECK_EXCEPTION( converter.getGeocentricTtRateWithRespectToTdb( tdb ), std::runtime_error, []( const std::runtime_error& error ) {
-        return std::string( error.what( ) ).find( "interpolator clock rates are unavailable" ) != std::string::npos;
-    } );
+
+    // With interpolated TDB - TT, the rate is that of the interpolated values; it differs from the rate of the SOFA model
+    // by the interpolation error only.
+    TerrestrialTimeScaleConverter direct( evaluator, nullptr );
+    BOOST_CHECK_SMALL( converter.getGeocentricTtRateWithRespectToTdb( tdb ) - direct.getGeocentricTtRateWithRespectToTdb( tdb ), 1e-12 );
 }
 
 BOOST_AUTO_TEST_CASE( native_geocentric_clock_rate_matches_independent_sofa_step_study )
@@ -643,7 +632,7 @@ BOOST_AUTO_TEST_CASE( native_geocentric_clock_rate_matches_independent_sofa_step
                            sofa_interface::getTDBminusTT( static_cast< double >( tt ), 0.999, Eigen::Vector3d::Zero( ) ) );
     }
     auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
-    TerrestrialTimeScaleConverter withEop( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter withEop( evaluator, nullptr, nullptr );
     const Time tai = evaluator->getStartTai( ) + 100000.0;
     const Time tdb = withEop.getCurrentTime< Time >( tai_scale, tdb_scale, tai );
     const double before = withEop.getGeocentricTtRateWithRespectToTdb( tdb );
@@ -660,7 +649,7 @@ BOOST_AUTO_TEST_CASE( identity_time_conversions_preserve_values_without_clock_or
             centre - 1000.0,
             centre + 1000.0,
             100.0 );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, interpolation, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, interpolation );
     const Time finalTt = convertTAItoTT( evaluator->getEndTai( ) );
     const Time finalTdb =
             TerrestrialTimeScaleConverter( nullptr, nullptr ).getCurrentTime< Time >( tai_scale, tdb_scale, evaluator->getEndTai( ) );

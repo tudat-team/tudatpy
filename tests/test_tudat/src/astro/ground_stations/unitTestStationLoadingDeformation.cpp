@@ -325,9 +325,9 @@ BOOST_AUTO_TEST_CASE( native_factory_and_full_station_state_preserve_the_loading
         daily.records.emplace( row.utcModifiedJulianDate, row );
     }
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( daily );
-    const auto converter = std::make_shared< TerrestrialTimeScaleConverter >( nullptr, nullptr, nullptr, evaluator );
-    const auto polar = std::make_shared< PolarMotionCalculator >( nullptr, nullptr, evaluator );
-    const auto celestial = std::make_shared< PrecessionNutationCalculator >( iau_2006, nullptr, nullptr, evaluator );
+    const auto converter = std::make_shared< TerrestrialTimeScaleConverter >( evaluator, nullptr, nullptr );
+    const auto polar = std::make_shared< PolarMotionCalculator >( evaluator, nullptr );
+    const auto celestial = std::make_shared< PrecessionNutationCalculator >( iau_2006, evaluator, nullptr );
     const auto rotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
             std::make_shared< EarthOrientationAnglesCalculator >( polar, celestial, converter ), tdb_scale );
     simulation_setup::SystemOfBodies bodies( "SSB", "GCRS" );

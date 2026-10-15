@@ -40,50 +40,30 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
             getDefaultPolarMotionCorrectionCalculator( );
 
     // Define test time
-    double testEphemerisTime = 1.0E8;
-    double testUtc = sofa_interface::convertTTtoUTC( testEphemerisTime );
-
-    // Compute fundamental arguments
-    Eigen::Vector6d fundamentalArguments = sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
-
-    // Compute polar motion from both interfaces (time and arguments)
-    Eigen::Vector2d totalPolarMotionFromTime = standardPolarMotionCalculator->getPositionOfCipInItrs( testEphemerisTime, testUtc );
-    Eigen::Vector2d totalPolarMotionFromArguments = standardPolarMotionCalculator->getPositionOfCipInItrs( fundamentalArguments, testUtc );
-
-    // The native time path uses the continuous TAI daily interpolant and actual
-    // modeled UT1; explicitly supplied approximate arguments remain supported.
+    const double testEphemerisTime = 1.0E8;
     const auto converter = standardEarthRotationModel->getTerrestrialTimeScaleConverter( );
     const Time tai = converter->getTaiTime( basic_astrodynamics::tt_scale, testEphemerisTime );
-    const Time ut1 = converter->getUt1FromTai( tai );
-    const auto nativeArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
-            testEphemerisTime, testEphemerisTime, static_cast< double >( ut1 ) );
-    const Eigen::Vector2d nativeExpected = converter->getEarthOrientationDataEvaluator( )->evaluate( tai ).polarMotion +
-            shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( nativeArguments );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.x( ), nativeExpected.x( ) );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.y( ), nativeExpected.y( ) );
-    BOOST_CHECK_GT( ( totalPolarMotionFromTime - totalPolarMotionFromArguments ).norm( ), 1e-14 );
+    const Eigen::Vector2d dailyPolarMotion = converter->getEarthOrientationDataEvaluator( )->evaluate( tai ).polarMotion;
 
-    BOOST_CHECK_EQUAL(
-            totalPolarMotionFromArguments.x( ),
-            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
-              shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
-                    .x( ) );
-    BOOST_CHECK_EQUAL(
-            totalPolarMotionFromArguments.y( ),
-            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
-              shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
-                    .y( ) );
+    // From TAI and given fundamental arguments: daily values plus short-period terms for these arguments.
+    const Eigen::Vector6d fundamentalArguments =
+            sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
+    const Eigen::Vector2d polarMotionFromArguments =
+            standardPolarMotionCalculator->getPositionOfCipInItrsFromTai( tai, fundamentalArguments );
+    const Eigen::Vector2d expectedFromArguments =
+            dailyPolarMotion + shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments );
+    BOOST_CHECK_EQUAL( polarMotionFromArguments.x( ), expectedFromArguments.x( ) );
+    BOOST_CHECK_EQUAL( polarMotionFromArguments.y( ), expectedFromArguments.y( ) );
 
-    BOOST_CHECK_EQUAL(
-            totalPolarMotionFromArguments.x( ),
-            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
-              shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
-                    .x( ) );
-    BOOST_CHECK_EQUAL(
-            totalPolarMotionFromArguments.y( ),
-            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
-              shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
-                    .y( ) );
+    // From TT: short-period terms use arguments computed from TT and the modelled UT1.
+    const Eigen::Vector2d polarMotionFromTime = standardPolarMotionCalculator->getPositionOfCipInItrsAtTt( testEphemerisTime );
+    const auto arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+            testEphemerisTime, testEphemerisTime, static_cast< double >( converter->getUt1FromTai( tai ) ) );
+    const Eigen::Vector2d expectedFromTime =
+            dailyPolarMotion + shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( arguments );
+    BOOST_CHECK_EQUAL( polarMotionFromTime.x( ), expectedFromTime.x( ) );
+    BOOST_CHECK_EQUAL( polarMotionFromTime.y( ), expectedFromTime.y( ) );
+    BOOST_CHECK_GT( ( polarMotionFromTime - polarMotionFromArguments ).norm( ), 1e-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

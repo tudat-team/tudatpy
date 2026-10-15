@@ -64,11 +64,11 @@ struct EarthOrientationEvaluationSettings {
 /*!
  *  These are the values from the data file only, interpolated to the requested epoch. They do not include the short-period
  *  (tidal and libration) corrections, or the IAU precession-nutation model; those are added by the PolarMotionCalculator,
- *  PrecessionNutationCalculator and TerrestrialTimeScaleConverter to give the rotation angles in EarthOrientationAngles.
+ *  PrecessionNutationCalculator and TerrestrialTimeScaleConverter to give the rotation angles in EarthOrientationEvaluatedAnglesAndRates.
  *  Each rate is the time derivative of the interpolated value, per TAI second. A rate is empty when it cannot be computed,
  *  which is the case at a data point next to a gap that is longer than the maximum interpolation gap.
  */
-struct EarthOrientationDataValue {
+struct EarthOrientationInputDataValue {
     //! Polar motion x_p and y_p (radians).
     Eigen::Vector2d polarMotion;
 
@@ -116,7 +116,7 @@ public:
 
     //! Interpolated EOP values and their rates at the given TAI epoch (seconds since J2000). If requireCelestialPole is true
     //! and the data has no celestial pole offsets at this epoch, the missingCelestialPole setting is applied.
-    EarthOrientationDataValue evaluate( const Time& tai, bool requireCelestialPole = false ) const;
+    EarthOrientationInputDataValue evaluate( const Time& tai, bool requireCelestialPole = false ) const;
 
     //! Celestial pole offsets dX and dY (radians) at the given TAI epoch, applying the missingCelestialPole setting.
     Eigen::Vector2d getCelestialPoleOffsets( const Time& tai ) const;

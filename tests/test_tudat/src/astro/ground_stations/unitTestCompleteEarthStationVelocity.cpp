@@ -36,12 +36,11 @@ struct EarthStationFixture {
             data.records.emplace( record.utcModifiedJulianDate, record );
         }
         auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
-        clock = std::make_shared< TerrestrialTimeScaleConverter >( nullptr, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
-        auto polar = std::make_shared< PolarMotionCalculator >(
-                nullptr, getDefaultPolarMotionCorrectionCalculator( ), evaluator, [ this ]( const Time& tai ) {
-                    return clock->getUt1FromTai( tai );
-                } );
-        auto precession = std::make_shared< PrecessionNutationCalculator >( iau_2006, nullptr, nullptr, evaluator );
+        clock = std::make_shared< TerrestrialTimeScaleConverter >( evaluator, getDefaultUT1CorrectionCalculator( ), nullptr );
+        auto polar = std::make_shared< PolarMotionCalculator >( evaluator,
+                                                                getDefaultPolarMotionCorrectionCalculator( ),
+                                                                [ this ]( const Time& tai ) { return clock->getUt1FromTai( tai ); } );
+        auto precession = std::make_shared< PrecessionNutationCalculator >( iau_2006, evaluator, nullptr );
         angles = std::make_shared< EarthOrientationAnglesCalculator >( polar, precession, clock );
         rotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles, tdb_scale );
         referenceTdb = static_cast< double >( clock->getCurrentTime< Time >( tai_scale, tdb_scale, reference ) );

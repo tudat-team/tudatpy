@@ -38,8 +38,8 @@ std::shared_ptr< TerrestrialTimeScaleConverter > modelClock( double shift = 0, d
     }
     EarthOrientationEvaluationSettings settings;
     settings.maximumGapSeconds = maximumGap;
-    return std::make_shared< TerrestrialTimeScaleConverter >(
-            nullptr, nullptr, nullptr, std::make_shared< EarthOrientationDataEvaluator >( data, settings ) );
+    return std::make_shared< TerrestrialTimeScaleConverter >( std::make_shared< EarthOrientationDataEvaluator >( data, settings ),
+                                                              nullptr );
 }
 AtmosphericTideEvaluationSettings explicitGeometry( )
 {
@@ -431,8 +431,8 @@ std::shared_ptr< TerrestrialTimeScaleConverter > slopedClock( const std::vector<
         data.records.emplace( row.utcModifiedJulianDate, row );
         previous = tai;
     }
-    return std::make_shared< TerrestrialTimeScaleConverter >(
-            nullptr, nullptr, nullptr, std::make_shared< EarthOrientationDataEvaluator >( data, settings ) );
+    return std::make_shared< TerrestrialTimeScaleConverter >( std::make_shared< EarthOrientationDataEvaluator >( data, settings ),
+                                                              nullptr );
 }
 Time epochAtTai( const std::shared_ptr< TerrestrialTimeScaleConverter >& c, const Time& tai )
 {

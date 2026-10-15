@@ -73,12 +73,11 @@ struct FactoryFixture {
             data.records.emplace( row.utcModifiedJulianDate, row );
         }
         auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
-        clock = std::make_shared< TerrestrialTimeScaleConverter >( nullptr, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
-        auto polar = std::make_shared< PolarMotionCalculator >(
-                nullptr, getDefaultPolarMotionCorrectionCalculator( ), evaluator, [ this ]( const Time& tai ) {
-                    return clock->getUt1FromTai( tai );
-                } );
-        auto pn = std::make_shared< PrecessionNutationCalculator >( iau_2006, nullptr, nullptr, evaluator );
+        clock = std::make_shared< TerrestrialTimeScaleConverter >( evaluator, getDefaultUT1CorrectionCalculator( ), nullptr );
+        auto polar = std::make_shared< PolarMotionCalculator >( evaluator,
+                                                                getDefaultPolarMotionCorrectionCalculator( ),
+                                                                [ this ]( const Time& tai ) { return clock->getUt1FromTai( tai ); } );
+        auto pn = std::make_shared< PrecessionNutationCalculator >( iau_2006, evaluator, nullptr );
         angles = std::make_shared< EarthOrientationAnglesCalculator >( polar, pn, clock );
         time = static_cast< double >(
                 clock->getCurrentTime< Time >( tai_scale, tdb_scale, Time( ( 57754 - 51544.5 ) * 86400 ) + 10037.0 ) );

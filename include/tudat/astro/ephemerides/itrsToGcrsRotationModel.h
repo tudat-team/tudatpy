@@ -130,15 +130,6 @@ public:
 
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrameFromExtendedTime( const Time ephemerisTime ) override
     {
-        if( !anglesCalculator_->getTerrestrialTimeScaleConverter( )->usesContinuousEop( ) )
-        {
-            // Models with custom daily interpolators only include the derivative of the Earth rotation angle.
-            return rotationFromGcrsToBaseFrame_ *
-                    earth_orientation::calculateRotationRateFromItrsToGcrs< Time >(
-                            anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime, inputTimeScale_ ),
-                            static_cast< double >( ephemerisTime ) );
-        }
-
         // Complete derivative, including the rates of the daily EOP interpolant and of all clock conversions.
         return rotationFromGcrsToBaseFrame_ *
                 earth_orientation::calculateRotationRateFromItrsToGcrs(
@@ -255,7 +246,7 @@ public:
     }
 
 private:
-    static Eigen::Quaterniond getRotationFromOrientation( const earth_orientation::EarthOrientationAngles& orientation )
+    static Eigen::Quaterniond getRotationFromOrientation( const earth_orientation::EarthOrientationEvaluatedAnglesAndRates& orientation )
     {
         return earth_orientation::calculateRotationFromItrsToGcrs< Time >( std::make_pair( orientation.angles, orientation.ut1 ),
                                                                            static_cast< double >( orientation.tt ) );

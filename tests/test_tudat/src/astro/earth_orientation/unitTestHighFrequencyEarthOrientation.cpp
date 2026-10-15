@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
     const Time tai = Time( 536500837.0 );
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( dailyData( ) );
     const auto ds = corrections( true );
-    TerrestrialTimeScaleConverter converter( nullptr, ds.ut1, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, ds.ut1, nullptr );
     const auto result = converter.getUt1FromTaiWithRate( tai );
     const auto lib = libration( );
     const auto args = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( f.tt, f.tt, f.ut1 );

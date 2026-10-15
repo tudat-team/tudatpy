@@ -81,8 +81,7 @@ input_output::EarthOrientationData routingLeapData( )
 }
 std::shared_ptr< TerrestrialTimeScaleConverter > routingConverter( const input_output::EarthOrientationData& data )
 {
-    return std::make_shared< TerrestrialTimeScaleConverter >(
-            nullptr, nullptr, nullptr, std::make_shared< EarthOrientationDataEvaluator >( data ) );
+    return std::make_shared< TerrestrialTimeScaleConverter >( std::make_shared< EarthOrientationDataEvaluator >( data ), nullptr );
 }
 Time referenceTdb( const Time& tt )
 {
@@ -103,7 +102,7 @@ std::shared_ptr< earth_orientation::PolarMotionCalculator > routingPolar(
         const std::shared_ptr< TerrestrialTimeScaleConverter >& converter )
 {
     return std::make_shared< earth_orientation::PolarMotionCalculator >(
-            nullptr, nullptr, converter->getEarthOrientationDataEvaluator( ), [ converter ]( const Time& tai ) {
+            converter->getEarthOrientationDataEvaluator( ), nullptr, [ converter ]( const Time& tai ) {
                 return converter->getUt1FromTai( tai );
             } );
 }
@@ -221,8 +220,8 @@ namespace
 std::shared_ptr< ephemerides::GcrsToItrsRotationModel > routingRotation( const std::shared_ptr< TerrestrialTimeScaleConverter >& converter,
                                                                          TimeScales scale )
 {
-    const auto cip = std::make_shared< earth_orientation::PrecessionNutationCalculator >(
-            iau_2006, nullptr, nullptr, converter->getEarthOrientationDataEvaluator( ) );
+    const auto cip =
+            std::make_shared< earth_orientation::PrecessionNutationCalculator >( iau_2006, converter->getEarthOrientationDataEvaluator( ) );
     const auto angles =
             std::make_shared< earth_orientation::EarthOrientationAnglesCalculator >( routingPolar( converter ), cip, converter );
     return std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles, scale );
@@ -410,7 +409,7 @@ BOOST_AUTO_TEST_CASE( native_mixed_and_tt_only_models_keep_positions_when_interp
         shifted.records.emplace( row.second.utcModifiedJulianDate, row.second );
     }
     const auto converter = std::make_shared< TerrestrialTimeScaleConverter >(
-            nullptr, nullptr, settings, std::make_shared< EarthOrientationDataEvaluator >( shifted ) );
+            std::make_shared< EarthOrientationDataEvaluator >( shifted ), nullptr, settings );
     const auto model = makeModel( routingRotation( converter, tt_scale ) );
     const Time epoch( 0.0 );
     BOOST_CHECK_NO_THROW( ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter ) );

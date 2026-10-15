@@ -116,20 +116,22 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
 
     // Create IAU 2006 precession/nutation calculator
     std::shared_ptr< earth_orientation::PrecessionNutationCalculator > precessionNutationCalculator =
-            std::make_shared< earth_orientation::PrecessionNutationCalculator >( gcrsToItrsRotationSettings->getNutationTheory( ),
-                                                                                 nullptr,
-                                                                                 gcrsToItrsRotationSettings->getCioInterpolatorSettings( ),
-                                                                                 evaluator );
+            std::make_shared< earth_orientation::PrecessionNutationCalculator >(
+                    gcrsToItrsRotationSettings->getNutationTheory( ),
+                    evaluator,
+                    gcrsToItrsRotationSettings->getCioInterpolatorSettings( ) );
 
     // Create default time scale converter
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
             std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >(
-                    nullptr, ut1Corrections, gcrsToItrsRotationSettings->getTdbToTtInterpolatorSettings( ), evaluator );
+                    evaluator, ut1Corrections, gcrsToItrsRotationSettings->getTdbToTtInterpolatorSettings( ) );
 
     const auto polarMotionCalculator = std::make_shared< earth_orientation::PolarMotionCalculator >(
-            nullptr, polarMotionCorrections, evaluator, [ terrestrialTimeScaleConverter ]( const Time& tai ) {
-                return terrestrialTimeScaleConverter->getUt1FromTai( tai );
-            } );
+            evaluator,
+            polarMotionCorrections,
+            std::bind( &earth_orientation::TerrestrialTimeScaleConverter::getUt1FromTai,
+                       terrestrialTimeScaleConverter,
+                       std::placeholders::_1 ) );
 
     // Create rotation model
     std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =

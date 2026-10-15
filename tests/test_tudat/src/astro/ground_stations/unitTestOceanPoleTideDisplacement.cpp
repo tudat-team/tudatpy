@@ -61,14 +61,23 @@ OceanPoleTideGrid syntheticGrid( )
 }
 std::shared_ptr< earth_orientation::PolarMotionCalculator > poleCalculator( const double tt, const Eigen::Vector2d& poleRadians )
 {
-    const double utc = sofa_interface::convertTTtoUTC( tt );
-    const std::map< double, Eigen::Vector2d > samples = { { utc - 86400, poleRadians }, { utc + 86400, poleRadians } };
-    auto daily = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( samples );
+    // Daily records with a constant pole, on the UTC days around the test epoch.
+    const double utcDay = std::floor( sofa_interface::convertTTtoUTC( tt ) / 86400.0 + 51544.5 );
+    input_output::EarthOrientationData data;
+    for( int i = -1; i <= 2; ++i )
+    {
+        input_output::EarthOrientationRecord record;
+        record.utcModifiedJulianDate = utcDay + i;
+        record.polarMotion = { poleRadians.x( ), poleRadians.y( ) };
+        record.ut1MinusUtc = 0.0;
+        data.records.emplace( record.utcModifiedJulianDate, record );
+    }
     auto shortPeriod = std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
             1.0, 0.0, std::vector< std::string >{}, std::vector< std::string >{}, []( double ) -> Eigen::Vector6d {
                 return Eigen::Vector6d::Zero( );
             } );
-    return std::make_shared< earth_orientation::PolarMotionCalculator >( daily, shortPeriod );
+    return std::make_shared< earth_orientation::PolarMotionCalculator >(
+            std::make_shared< earth_orientation::EarthOrientationDataEvaluator >( data ), shortPeriod );
 }
 }  // namespace
 

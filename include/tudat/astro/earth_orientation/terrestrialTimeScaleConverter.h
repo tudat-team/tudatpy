@@ -29,87 +29,42 @@ namespace tudat
 namespace earth_orientation
 {
 
-//! Data structure to save the current time in several time scales (TAI, TT, TDB, UTC, UT1)
-template< typename TimeType >
-struct CurrentTimes {
-    //! Default constructor
-    CurrentTimes( ): tai( TUDAT_NAN ), tt( TUDAT_NAN ), tdb( TUDAT_NAN ), utc( TUDAT_NAN ), ut1( TUDAT_NAN ) {}
-
-    //! Function to retrieve the current time in requested scale
-    /*!
-     * Function to retrieve the current time in requested scale
-     * \param requestedScale Time scale for which time is to be returned
-     * \return Current time in requested scale.
-     */
-    TimeType getTimeValue( basic_astrodynamics::TimeScales requestedScale )
-    {
-        TimeType valueToReturn = -0.0;
-        switch( requestedScale )
-        {
-            case basic_astrodynamics::tai_scale:
-                valueToReturn = tai;
-                break;
-            case basic_astrodynamics::tt_scale:
-                valueToReturn = tt;
-                break;
-            case basic_astrodynamics::tdb_scale:
-                valueToReturn = tdb;
-                break;
-            case basic_astrodynamics::utc_scale:
-                valueToReturn = utc;
-                break;
-            case basic_astrodynamics::ut1_scale:
-                valueToReturn = ut1;
-                break;
-            default:
-                std::cerr << "Error when getting time value in CurrentTimes, found time scale " << requestedScale << std::endl;
-        }
-        return valueToReturn;
-    }
-
-    //! Current time in TAI.
-    TimeType tai;
-
-    //! Current time in TT.
-    TimeType tt;
-
-    //! Current time in TDB.
-    TimeType tdb;
-
-    //! Current time in UTC.
-    TimeType utc;
-
-    //! Current time in UT1.
-    TimeType ut1;
-};
-
-//! Coherent UT1 value and derivative with respect to continuous TAI seconds.
+//! UT1 and its derivative with respect to TAI.
 struct Ut1ValueAndRate {
+    //! UT1 (seconds since J2000).
     Time ut1;
+
+    //! Derivative of UT1 with respect to TAI; NaN if it was not computed.
     double dUt1DTai = TUDAT_NAN;
 };
 
-//! Class used to convert between terrestrial time scales TAI, TT, TDB, UTC ans UT1
+//! Class used to convert between the terrestrial time scales TAI, TT, TDB, UTC and UT1.
+/*!
+ *  Every conversion is done in two steps: from the input time scale to TAI, and from TAI to the output time scale. TAI is
+ *  used as the intermediate time scale because, unlike UTC, it has no jumps at leap seconds. UT1 (and TDB at a point away
+ *  from the geocentre) is computed from the Earth orientation data given to the constructor. Without these data, conversions
+ *  to and from UT1 are only possible before 1962, using historical values of Delta T. Before 1962, UTC is taken to be equal
+ *  to UT1.
+ */
 class TerrestrialTimeScaleConverter
 {
 public:
     //! Constructor of time scale conversion object.
     /*!
-     *  Constructor of time scale conversion object. Input values are required for to/from UT1.
-     *  \param dailyUtcUt1CorrectionInterpolator Object to interpolate daily corrections between UT1 and UTC,
-     *  typically from IERS products.
-     *  \param shortPeriodUt1CorrectionCalculator Object to calculate (sub-)diurnal variations in UT1 not captured by
-     *  (typically daily) values given by interpolator.
+     *  Constructor of time scale conversion object.
+     *  \param eopData Interpolated daily Earth orientation data, used to compute UT1. If nullptr, UT1 is only available
+     *  before 1962.
+     *  \param shortPeriodUt1CorrectionCalculator Object to calculate (sub-)diurnal variations in UT1 not captured by the daily
+     *  values. If nullptr, these variations are not included.
+     *  \param tdbToTtInterpolatorSettings Settings to interpolate TDB - TT at the geocentre, instead of computing it at each
+     *  epoch. If nullptr, TDB - TT is computed at each epoch.
      */
     TerrestrialTimeScaleConverter(
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > dailyUtcUt1CorrectionInterpolator =
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >( ),
+            const std::shared_ptr< EarthOrientationDataEvaluator > eopData = nullptr,
             const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > shortPeriodUt1CorrectionCalculator =
                     getDefaultUT1CorrectionCalculator( ),
-            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings = nullptr,
-            const std::shared_ptr< EarthOrientationDataEvaluator > continuousEopData = nullptr ):
-        continuousEopData_( continuousEopData ), dailyUtcUt1CorrectionInterpolator_( dailyUtcUt1CorrectionInterpolator ),
-        shortPeriodUt1CorrectionCalculator_( shortPeriodUt1CorrectionCalculator ), previousEarthFixedPosition_( Eigen::Vector3d::Zero( ) )
+            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings = nullptr ):
+        eopData_( eopData ), shortPeriodUt1CorrectionCalculator_( shortPeriodUt1CorrectionCalculator )
     {
         if( tdbToTtInterpolatorSettings != nullptr )
         {
@@ -122,7 +77,7 @@ public:
             tdbToTtInterpolators_[ std::make_tuple( 0.0, 0.0, 0.0 ) ] = correctionInterpolator;
         }
 
-        // Definition of epoch at which UTC was introduced (with 2 hour buffer time)
+        // Definition of epoch at which UTC was introduced
         utcIntroductionEpochInTai_ = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
                 physical_constants::JULIAN_DAY;
     }
@@ -145,55 +100,23 @@ public:
     {
         if( inputScale == outputScale )
         {
-            switch( inputScale )
-            {
-                case basic_astrodynamics::tai_scale:
-                case basic_astrodynamics::tt_scale:
-                case basic_astrodynamics::tdb_scale:
-                case basic_astrodynamics::utc_scale:
-                case basic_astrodynamics::ut1_scale:
-                    return inputTimeValue;
-                default:
-                    throw std::runtime_error( "Unknown time scale in identity conversion" );
-            }
+            checkTimeScale( inputScale );
+            return inputTimeValue;
         }
-        if( continuousEopData_ != nullptr )
-        {
-            return getContinuousTime( inputScale, outputScale, inputTimeValue, earthFixedPosition );
-        }
-        const bool inputAtomic = inputScale == basic_astrodynamics::tai_scale || inputScale == basic_astrodynamics::tt_scale ||
-                inputScale == basic_astrodynamics::tdb_scale;
-
-        const bool outputAtomic = outputScale == basic_astrodynamics::tai_scale || outputScale == basic_astrodynamics::tt_scale ||
-                outputScale == basic_astrodynamics::tdb_scale;
-
-        // Atomic conversions never require daily EOP, even for legacy custom constructors.
-        if( inputAtomic && outputAtomic )
-        {
-            return getContinuousTime( inputScale, outputScale, inputTimeValue, earthFixedPosition );
-        }
-        // Check whether desired conversion is possible (conversion to/from UT1 requires interpolator)
-        if( inputScale == basic_astrodynamics::ut1_scale || outputScale == basic_astrodynamics::ut1_scale )
-        {
-            if( dailyUtcUt1CorrectionInterpolator_ == nullptr )
-            {
-                throw std::runtime_error(
-                        "Error when converting to/from UT1 time scale: UTC to UT1 interpolator "
-                        "was not provided." );
-            }
-        }
-
-        // Refresh the legacy cache only when its input, observer or requested output has changed.
-        if( !( static_cast< TimeType >( getCurrentTimeList< TimeType >( ).getTimeValue( inputScale ) ) ==
-               static_cast< TimeType >( inputTimeValue ) ) ||
-            !( getPreviousGroundStationPosition< TimeType >( ) == earthFixedPosition ) ||
-            std::isnan( static_cast< double >( getCurrentTimeList< TimeType >( ).getTimeValue( outputScale ) ) ) )
-        {
-            updateTimes< TimeType >( inputScale, inputTimeValue, earthFixedPosition, outputScale == basic_astrodynamics::ut1_scale );
-        }
-        return getCurrentTimeList< TimeType >( ).getTimeValue( outputScale );
+        return static_cast< TimeType >(
+                getTimeFromTai( outputScale, getTaiTime( inputScale, Time( inputTimeValue ), earthFixedPosition ), earthFixedPosition ) );
     }
 
+    //! Function to compute the difference between a time value in the output scale and in the input scale.
+    /*!
+     *  Function to compute the difference between a time value in the output scale and in the input scale, i.e. the converted
+     *  time value minus the input time value.
+     *  \param inputScale Time scale of inputTimeValue.
+     *  \param outputScale Time scale to which inputTimeValue is converted.
+     *  \param inputTimeValue Time value that is to be converted.
+     *  \param earthFixedPosition Earth-fixed position at which time conversions are to be evaluated
+     *  \return Converted time value minus input time value.
+     */
     template< typename TimeType >
     TimeType getCurrentTimeDifference( const basic_astrodynamics::TimeScales inputScale,
                                        const basic_astrodynamics::TimeScales outputScale,
@@ -202,17 +125,12 @@ public:
     {
         if( inputScale == outputScale )
         {
-            getCurrentTime( inputScale, outputScale, inputTimeValue, earthFixedPosition );  // Validate the scale only.
+            checkTimeScale( inputScale );
             return TimeType( 0.0 );
         }
-        const bool atomicConversion = ( inputScale == basic_astrodynamics::tai_scale || inputScale == basic_astrodynamics::tt_scale ||
-                                        inputScale == basic_astrodynamics::tdb_scale ) &&
-                ( outputScale == basic_astrodynamics::tai_scale || outputScale == basic_astrodynamics::tt_scale ||
-                  outputScale == basic_astrodynamics::tdb_scale );
-        Time convertedTime = continuousEopData_ || atomicConversion
-                ? getContinuousOutputTime( outputScale, getTaiTime( inputScale, inputTimeValue, earthFixedPosition ), earthFixedPosition )
-                : getCurrentTime< Time >( inputScale, outputScale, Time( inputTimeValue ), earthFixedPosition );
-        return static_cast< TimeType >( convertedTime - Time( inputTimeValue ) );
+        const Time input( inputTimeValue );
+        return static_cast< TimeType >(
+                getTimeFromTai( outputScale, getTaiTime( inputScale, input, earthFixedPosition ), earthFixedPosition ) - input );
     }
 
     //! Function to convert a vector of time values from the input to the output scale.
@@ -289,426 +207,86 @@ public:
         return convertedTimes;
     }
 
-    //! Function to reset all current times at given precision to NaN.
-    template< typename TimeType >
-    void resetTimes( )
-    {
-        CurrentTimes< TimeType >& timesToUpdate = getCurrentTimeList< TimeType >( );
-        timesToUpdate = CurrentTimes< TimeType >( );
-        timesToUpdate.tai = TUDAT_NAN;
-        timesToUpdate.tt = TUDAT_NAN;
-        timesToUpdate.tdb = TUDAT_NAN;
-        timesToUpdate.ut1 = TUDAT_NAN;
-        timesToUpdate.utc = TUDAT_NAN;
-    }
-
-    //! Function to recalculate time-values at all time scales from given unput values.
-    /*!
-     * Function to recalculate time-values at all time scales from given unput values.
-     *  \param inputScale Time scale of inputTimeValue.
-     *  \param inputTimeValue Time value from which there is to be converted.
-     *  \param earthFixedPosition Earth-fixed position at which time conversions are to be evaluated
-     */
-    template< typename TimeType >
-    void updateTimes( const basic_astrodynamics::TimeScales inputScale,
-                      const TimeType& inputTimeValue,
-                      const Eigen::Vector3d& earthFixedPosition,
-                      const bool requireUt1 = true )
-    {
-        if( continuousEopData_ )
-        {
-            // Convert once to TAI without rounding intermediate times to double.
-            const Time tai = getTaiTime( inputScale, inputTimeValue, earthFixedPosition );
-
-            // Keep previous cached times intact if a requested conversion fails.
-            CurrentTimes< TimeType > updated;
-
-            updated.tai = static_cast< TimeType >( tai );
-            updated.tt = static_cast< TimeType >( basic_astrodynamics::convertTAItoTT( tai ) );
-            updated.tdb = static_cast< TimeType >( getContinuousOutputTime( basic_astrodynamics::tdb_scale, tai, earthFixedPosition ) );
-            updated.utc = static_cast< TimeType >( getContinuousOutputTime( basic_astrodynamics::utc_scale, tai, earthFixedPosition ) );
-            if( requireUt1 )
-            {
-                updated.ut1 = static_cast< TimeType >( getUt1FromTai( tai ) );
-            }
-
-            // Publish only after all requested conversions succeed. The default
-            // NaN clears an old UT1 when this update does not request it.
-            getCurrentTimeList< TimeType >( ) = updated;
-            setCurrentGroundStation< TimeType >( earthFixedPosition );
-            return;
-        }
-        // Retrieve CurrentTimes object that is to be updated
-        CurrentTimes< TimeType >& timesToUpdate = getCurrentTimeList< TimeType >( );
-
-        // Convert position to SOFA input valies
-        setCurrentGroundStation< TimeType >( earthFixedPosition );
-
-        TimeType tdbMinusTt;
-
-        // Check input type, and call conversion functions accordingly
-        switch( inputScale )
-        {
-            case basic_astrodynamics::tdb_scale:
-                timesToUpdate.tdb = inputTimeValue;
-                tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( inputTimeValue, earthFixedPosition ) );
-                timesToUpdate.tt = timesToUpdate.tdb - tdbMinusTt;
-                timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
-                calculateUniversalTimes< TimeType >( requireUt1 );
-                break;
-
-            case basic_astrodynamics::tt_scale:
-                timesToUpdate.tt = inputTimeValue;
-                tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( inputTimeValue, earthFixedPosition ) );
-                timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
-                timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
-
-                calculateUniversalTimes< TimeType >( requireUt1 );
-                break;
-
-            case basic_astrodynamics::tai_scale:
-                timesToUpdate.tai = inputTimeValue;
-                timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-                tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition ) );
-                timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
-
-                calculateUniversalTimes< TimeType >( requireUt1 );
-
-                break;
-            case basic_astrodynamics::utc_scale:
-                // --- 1. Use function to calculate TAI and TT from UTC ---
-                calculateAtomicTimesFromUtc< TimeType >( inputTimeValue );
-
-                // --- 2. Calculate TDB from the newly computed TT ---
-                tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition ) );
-                timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
-
-                // --- 3. Calculate UT1 if possible (for modern era) ---
-                if( requireUt1 && dailyUtcUt1CorrectionInterpolator_ != nullptr &&
-                    timesToUpdate.tai >= static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
-                {
-                    timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
-                            timesToUpdate.utc;
-                    timesToUpdate.ut1 +=
-                            static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
-                }
-                break;
-            case basic_astrodynamics::ut1_scale:
-
-                timesToUpdate.ut1 = inputTimeValue;
-                if( timesToUpdate.ut1 < static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
-                {
-                    // Before EOP data starts, UTC is treated as UT1 and TT is obtained from historical Delta T.
-                    calculateAtomicTimesFromUtc< TimeType >( inputTimeValue );
-                    tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition ) );
-                    timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
-                    break;
-                }
-                try
-                {
-                    timesToUpdate.utc = timesToUpdate.ut1 -
-                            static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
-                }
-                catch( std::runtime_error& caughtException )
-                {
-                    throw std::runtime_error( "Error in UTC-UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
-                }
-
-                timesToUpdate.utc -= static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.utc ) );
-                timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
-                timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-                tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition ) );
-                timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
-
-                // Iterate conversion.
-                try
-                {
-                    timesToUpdate.utc = timesToUpdate.ut1 -
-                            static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) );
-                }
-                catch( std::runtime_error& caughtException )
-                {
-                    throw std::runtime_error( "Error in UTC-UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
-                }
-
-                timesToUpdate.utc -= static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tt ) );
-                timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
-                timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-                tdbMinusTt = this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition );
-                timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
-
-                break;
-
-            default:
-                throw std::runtime_error( "Error when performing Earth time scales, input time not recognized" );
-                break;
-        }
-    }
-
+    //! Function to compute UT1 - UTC (in seconds) at a given epoch, including short-period variations.
     template< typename TimeType >
     double getUt1Correction( const basic_astrodynamics::TimeScales inputScale,
                              const TimeType& inputTimeValue,
                              const Eigen::Vector3d currentPosition = Eigen::Vector3d::Zero( ) )
     {
-        if( continuousEopData_ )
-        {
-            const Time tai = getTaiTime( inputScale, inputTimeValue, currentPosition );
-            return static_cast< double >( getUt1FromTai( tai ) - EarthOrientationDataEvaluator::convertTaiToScalarUtc( tai ) );
-        }
-        TimeType currentUtc = getCurrentTime( inputScale, basic_astrodynamics::utc_scale, inputTimeValue, currentPosition );
-        TimeType currentTt = getCurrentTime( inputScale, basic_astrodynamics::tt_scale, inputTimeValue, currentPosition );
-
-        if( dailyUtcUt1CorrectionInterpolator_ == nullptr )
-        {
-            throw std::runtime_error( "Error when getting UT1 correction: UTC to UT1 interpolator was not provided." );
-        }
-
-        try
-        {
-            return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
-                    shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
-        }
-        catch( std::runtime_error& caughtException )
-        {
-            throw std::runtime_error( "Error in UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
-        }
+        const Time tai = getTaiTime( inputScale, Time( inputTimeValue ), currentPosition );
+        return static_cast< double >( getUt1FromTai( tai ) - getTimeFromTai( basic_astrodynamics::utc_scale, tai, currentPosition ) );
     }
 
-    //! Interpolator for UT1 corrections, values published daily by IERS
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > getDailyUtcUt1CorrectionInterpolator( )
-    {
-        if( continuousEopData_ )
-        {
-            throw std::runtime_error(
-                    "Models constructed from EOP data do not have a daily UTC interpolator; use "
-                    "getEarthOrientationDataEvaluator()->evaluate(tai).ut1MinusTai." );
-        }
-        return dailyUtcUt1CorrectionInterpolator_;
-    }
-
-    bool usesContinuousEop( ) const
-    {
-        return continuousEopData_ != nullptr;
-    }
+    //! Function to retrieve the interpolated daily Earth orientation data (nullptr if not provided).
     std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
     {
-        return continuousEopData_;
+        return eopData_;
     }
 
-    //! Return UT1 from the selected daily values and baseline-UT1 short-period correction, without requiring rates.
+    //! Function to retrieve the object computing the short-period variations in UT1 (nullptr if not used).
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getShortPeriodUt1CorrectionCalculator( ) const
+    {
+        return shortPeriodUt1CorrectionCalculator_;
+    }
+
+    //! UT1 (seconds since J2000) at a given TAI, from the daily data plus short-period variations.
     Time getUt1FromTai( const Time& tai );
 
-    //! Differentiate the selected daily interpolant plus its actual baseline-UT1 short-period correction.
-    //! Missing selected slopes and historical/custom clocks without supported rates throw; positions remain usable.
+    //! UT1 (seconds since J2000) at a given TAI, and its derivative with respect to TAI. The derivative is that of the
+    //! interpolated daily data plus that of the short-period variations; it is not available before the start of the data.
     Ut1ValueAndRate getUt1FromTaiWithRate( const Time& tai );
 
-    //! dTT/dTDB for the native geocentric SOFA clock, using smooth offset differences (32 s step).
-    //! Selected TT/TDB interpolators retain position conversion but currently have no supported rate.
+    //! Derivative of TT with respect to TDB at the geocentre, at a given TDB (seconds since J2000). When TDB - TT is
+    //! interpolated, this is the derivative of the interpolated value.
     double getGeocentricTtRateWithRespectToTdb( const Time& tdb );
 
-    //! Convert an epoch in the given time scale to TAI, without reducing Time precision.
-    //! Geocentric TAI/TT/TDB conversions need no EOP data; UT1 and topocentric TDB use the selected EOP model.
+    //! Convert an epoch in the given time scale to TAI (seconds since J2000).
     Time getTaiTime( const basic_astrodynamics::TimeScales inputScale,
                      const Time& input,
                      const Eigen::Vector3d& position = Eigen::Vector3d::Zero( ) );
 
 private:
-    //! Selected daily EOP observations for continuous TAI-based conversion.
-    std::shared_ptr< EarthOrientationDataEvaluator > continuousEopData_;
+    //! Throw an exception if the time scale is not one of TAI, TT, TDB, UTC and UT1.
+    void checkTimeScale( const basic_astrodynamics::TimeScales timeScale );
 
-    //! Load the existing historical Delta-T table when its fallback is first needed.
+    //! Convert TAI (seconds since J2000) to the given time scale.
+    Time getTimeFromTai( const basic_astrodynamics::TimeScales outputScale, const Time& tai, const Eigen::Vector3d& position );
+
+    //! Load the table of historical values of Delta T (TT - UT1), when it is first needed.
     void loadHistoricalDeltaTInterpolator( );
 
-    //! Evaluate UT1 and, only when requested, its derivative with respect to TAI seconds.
+    //! UT1 from historical values of Delta T, at a given TAI (before 1962).
+    Time getHistoricalUt1FromTai( const Time& tai );
+
+    //! TAI from historical values of Delta T, at a given UT1 (before 1962).
+    Time getTaiFromHistoricalUt1( const Time& ut1 );
+
+    //! Evaluate UT1 and, only when requested, its derivative with respect to TAI.
     Ut1ValueAndRate evaluateUt1FromTai( const Time& tai, bool requireRate );
 
-    //! Invert continuous UT1 or topocentric TDB within the raw TAI observation intervals.
-    Time invertContinuousTime( basic_astrodynamics::TimeScales inputScale, const Time& requested, const Eigen::Vector3d& position );
+    //! TAI at which UT1 (or TDB at a point away from the geocentre) has the requested value, within the Earth orientation data.
+    Time invertTimeFromTai( basic_astrodynamics::TimeScales inputScale, const Time& requested, const Eigen::Vector3d& position );
 
-    //! Geocentric conversion is EOP-free; a nonzero observer requires covered continuous UT1.
-    double getContinuousTdbMinusTt( const Time& tt, const Eigen::Vector3d& position );
+    //! TDB - TT (seconds) at a given TT and Earth-fixed position.
+    double getTdbMinusTt( const Time& tt, const Eigen::Vector3d& position );
 
-    template< typename TimeType >
-    TimeType getContinuousTime( const basic_astrodynamics::TimeScales inputScale,
-                                const basic_astrodynamics::TimeScales outputScale,
-                                const TimeType& input,
-                                const Eigen::Vector3d& position )
-    {
-        return static_cast< TimeType >( getContinuousOutputTime( outputScale, getTaiTime( inputScale, input, position ), position ) );
-    }
+    //! TT - TDB (seconds) at the geocentre, at a given TDB (seconds since J2000).
+    double getGeocentricTtMinusTdb( const Time& tdb );
 
-    Time getContinuousOutputTime( const basic_astrodynamics::TimeScales outputScale, const Time& tai, const Eigen::Vector3d& position )
-    {
-        const Time tt = basic_astrodynamics::convertTAItoTT( tai );
-        switch( outputScale )
-        {
-            case basic_astrodynamics::tai_scale:
-                return tai;
-            case basic_astrodynamics::tt_scale:
-                return tt;
-            case basic_astrodynamics::tdb_scale:
-                return tt + getContinuousTdbMinusTt( tt, position );
-            case basic_astrodynamics::utc_scale:
-                return EarthOrientationDataEvaluator::convertTaiToScalarUtc( tai );
-            case basic_astrodynamics::ut1_scale:
-                return getUt1FromTai( tai );
-            default:
-                throw std::runtime_error( "Unknown output time scale" );
-        }
-    }
-
-    double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d earthFixedPosition )
-    {
-        auto tupleToCheck = std::make_tuple( earthFixedPosition[ 0 ], earthFixedPosition[ 1 ], earthFixedPosition[ 2 ] );
-        if( tdbToTtInterpolators_.count( tupleToCheck ) != 0 )
-        {
-            try
-            {
-                return tdbToTtInterpolators_.at( tupleToCheck )->interpolate( ttOrTdbSinceJ2000 );
-            }
-            catch( std::runtime_error& caughtException )
-            {
-                throw std::runtime_error( "Error in TDB-TT interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
-            }
-        }
-        else
-        {
-            return sofa_interface::getTDBminusTT( ttOrTdbSinceJ2000, earthFixedPosition );
-        }
-    }
-
-    //! Function to get current time list at requested numerical precision
-    /*!
-     *  Function to get current time list at requested numerical precision
-     *  \return Current time list at requested numerical precision
-     */
-    template< typename TimeType >
-    CurrentTimes< TimeType >& getCurrentTimeList( );
-
-    //! Function to get ground station position used on last call to updateTimes function at requested numerical precision
-    /*!
-     * Function to get ground station position used on last call to updateTimes function at requested numerical precision
-     *  \return Ground station position used on last call to updateTimes function at requested numerical precision
-     */
-    template< typename TimeType >
-    Eigen::Vector3d& getPreviousGroundStationPosition( );
-
-    //! Function to reset ground station position used on last call to updateTimes function at requested numerical precision
-    /*!
-     * Function to reset ground station position used on last call to updateTimes function at requested numerical precision
-     *  \return Ground station position used on last call to updateTimes function at requested numerical precision
-     */
-    template< typename TimeType >
-    void setCurrentGroundStation( const Eigen::Vector3d& currentGroundStation );
-
-    //! Function to update the universal times (UT1 and UTC) in CurrentTimes member at requested precision
-    template< typename TimeType >
-    void calculateUniversalTimes( const bool requireUt1 = true )
-    {
-        if( getCurrentTimeList< TimeType >( ).tai < static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
-        {
-            loadHistoricalDeltaTInterpolator( );
-            double approximateYear = getCurrentTimeList< TimeType >( ).tt / physical_constants::JULIAN_YEAR + 2000.0;
-            try
-            {
-                getCurrentTimeList< TimeType >( ).ut1 =
-                        getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate( approximateYear );
-            }
-            catch( std::runtime_error& caughtException )
-            {
-                throw std::runtime_error( "Error in historical UT calculation.\nOriginal error: " +
-                                          std::string( caughtException.what( ) ) );
-            }
-
-            getCurrentTimeList< TimeType >( ).utc = getCurrentTimeList< TimeType >( ).ut1;
-        }
-        else
-        {
-            getCurrentTimeList< TimeType >( ).utc = sofa_interface::convertTAItoUTC< TimeType >( getCurrentTimeList< TimeType >( ).tai );
-
-            if( requireUt1 && dailyUtcUt1CorrectionInterpolator_ != nullptr )
-            {
-                try
-                {
-                    getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
-                                                                    getCurrentTimeList< TimeType >( ).utc ) ) +
-                            getCurrentTimeList< TimeType >( ).utc;
-                }
-                catch( std::runtime_error& caughtException )
-                {
-                    throw std::runtime_error( "Error in UT1 calculation.\nOriginal error: " + std::string( caughtException.what( ) ) );
-                }
-
-                getCurrentTimeList< TimeType >( ).ut1 += static_cast< TimeType >(
-                        shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );
-            }
-        }
-    }
-
-    template< typename TimeType >
-    void calculateAtomicTimesFromUtc( const TimeType& inputUtcTime )
-    {
-        // --- NEW LOGIC: Check for historical date FIRST ---
-        // The UTC introduction epoch is in TAI, but we can use it as an approximate
-        // threshold for the input time (which is UTC-like) to decide which path to take.
-        // This avoids calling SOFA functions with dates they cannot handle.
-        if( inputUtcTime < static_cast< TimeType >( utcIntroductionEpochInTai_ ) )
-        {
-            // --- 1. Historical Time (Pre-UTC Era) ---
-            // This path is now correctly taken for the 1893 date.
-            // In this period, the input "UTC" is effectively UT1.
-            // The conversion path is UT1 -> TT -> TAI.
-            getCurrentTimeList< TimeType >( ).ut1 = inputUtcTime;
-            getCurrentTimeList< TimeType >( ).utc = inputUtcTime;
-
-            // Approximate the year to look up the historical ΔT value.
-            loadHistoricalDeltaTInterpolator( );
-            double approximateYear = ( inputUtcTime / physical_constants::JULIAN_YEAR ) + 2000.0;
-
-            // Calculate TT from UT1 using the historical ΔT. (TT = UT1 + ΔT)
-            getCurrentTimeList< TimeType >( ).tt =
-                    getCurrentTimeList< TimeType >( ).ut1 + historicalDeltaTInterpolator_->interpolate( approximateYear );
-
-            // Convert TT to TAI using the standard constant offset.
-            getCurrentTimeList< TimeType >( ).tai = basic_astrodynamics::convertTTtoTAI< TimeType >( getCurrentTimeList< TimeType >( ).tt );
-        }
-        else
-        {
-            // --- 2. Modern Time (Post-UTC Era) ---
-            // The conversion is handled directly by the SOFA function, which correctly
-            // accounts for all leap seconds.
-            getCurrentTimeList< TimeType >( ).utc = inputUtcTime;
-            getCurrentTimeList< TimeType >( ).tai = sofa_interface::convertUTCtoTAI< TimeType >( getCurrentTimeList< TimeType >( ).utc );
-
-            // >>>>> THE FIX IS HERE <<<<<
-            // We must also convert the newly calculated TAI to TT.
-            getCurrentTimeList< TimeType >( ).tt = basic_astrodynamics::convertTAItoTT< TimeType >( getCurrentTimeList< TimeType >( ).tai );
-        }
-    }
-
-    //! Interpolator for UT1 corrections, values published daily by IERS
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > dailyUtcUt1CorrectionInterpolator_;
+    //! Interpolated daily Earth orientation data; nullptr if not provided.
+    std::shared_ptr< EarthOrientationDataEvaluator > eopData_;
 
     //! Object to compute the short-period variations in UT1
     std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > shortPeriodUt1CorrectionCalculator_;
 
-    //! Object containing current times, as set by last updateTimes< double > function.
-    CurrentTimes< double > currentTimes_;
-
-    //! Object containing current times, as set by last updateTimes< Time > function.
-    CurrentTimes< Time > currentTimesSplit_;
-
-    //! Value of ground station position used on last call to updateTimes< double > function
-    Eigen::Vector3d previousEarthFixedPosition_;
-
-    //! Value of ground station position used on last call to updateTimes< Time > function
-    Eigen::Vector3d previousEarthFixedPositionSplit_;
-
+    //! Interpolators of TDB - TT, per Earth-fixed position (only the geocentre is used).
     std::map< std::tuple< double, double, double >, std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > >
             tdbToTtInterpolators_;
 
+    //! Epoch (TAI seconds since J2000) at which UTC was introduced; before this epoch, UTC is taken to be equal to UT1.
     double utcIntroductionEpochInTai_;
 
+    //! Interpolator of historical values of Delta T (TT - UT1), as a function of the year.
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > historicalDeltaTInterpolator_;
 };
 

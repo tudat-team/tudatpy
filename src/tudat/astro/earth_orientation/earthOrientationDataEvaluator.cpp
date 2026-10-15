@@ -171,7 +171,7 @@ void EarthOrientationDataEvaluator::validateCubicUt1Monotonicity( ) const
 }
 
 // Evaluate values and selected-interpolant rates from the same two or four observations.
-EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& requestedTai, const bool requireCelestialPole ) const
+EarthOrientationInputDataValue EarthOrientationDataEvaluator::evaluate( const Time& requestedTai, const bool requireCelestialPole ) const
 {
     if( !std::isfinite( static_cast< double >( requestedTai ) ) || requestedTai < epochs_.front( ) - coverageToleranceSeconds ||
         requestedTai > epochs_.back( ) + coverageToleranceSeconds )
@@ -204,7 +204,7 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& r
     }
 
     // Exact raw values remain available across a gap, but no interpolated rates are assigned.
-    EarthOrientationDataValue value;
+    EarthOrientationInputDataValue value;
 
     if( valid )
     {

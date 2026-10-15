@@ -26,7 +26,7 @@ The matrix product, TT argument and TIO locator follow
 Clocks, knots and availability
 -----------------------------
 
-``EarthOrientationAngles`` holds TAI, TT, UT1, the five small angles and, when
+``EarthOrientationEvaluatedAnglesAndRates`` holds TAI, TT, UT1, the five small angles and, when
 requested, their derivatives with respect to the input time scale. The
 original double input is canonicalized through ``getTaiTime`` before conversion
 to ``Time``; TT and UT1 then retain extended precision throughout rotation and
@@ -93,20 +93,12 @@ approximately 1.97e-5, 7.67e-8, 7.42e-10 and 2.67e-9 m/s respectively. The coars
 steps show fourth-order convergence; the smallest steps show the expected
 roundoff floor. A separate production-position velocity closure is also checked.
 
-Legacy constructor policy
--------------------------
+Construction
+------------
 
-Legacy/custom constructors remain usable. Their rate fallback differentiates
-the actual supplied position/clock path with a 32 s five-point stencil. It
-supports the known daily linear, jump-linear, cubic, Hermite, Lagrange and
-piecewise-constant interpolator types only. It requires the entire stencil to
-lie strictly within one daily interpolation interval (and one nominal-CIO
-interval, when present). It rejects UTC jumps, interval knots and coverage
-boundaries, and pre-1972 legacy clock conversions. These restrictions are
-explicit; the fallback is not the strict evaluator's analytic daily-rate path.
-Custom argument functions remain responsible for smoothness inside their
-reported interval. The legacy orientation consumer updates all clocks together
-to prevent a previous epoch's cached UT1 from surviving a partial TT update.
+The polar motion, precession-nutation and time scale objects are always
+constructed from the same interpolated EOP data (``EarthOrientationDataEvaluator``),
+so every angle and rate is computed in one way.
 
 Native validation
 -----------------
@@ -117,5 +109,5 @@ exact celestial-matrix orthogonality; controlled spin, PM and CPO slopes;
 forward/inverse rates and the rotation tangent identity; double and ``Time``
 routing; leap-second continuity; UTC drift/discontinuities; strict endpoints,
 knot sides and missing rates; native short-period convergence; selected nominal
-interpolation; and the guarded legacy fallback. Complete deformed-station state
+interpolation. Complete deformed-station state
 closure is validated separately under task 12.
