@@ -147,3 +147,38 @@ Native/raw build logs and provider source products remain in the external
 ``/home/dominic/Tudat/laser-ranging-work`` evidence cache or resource directory.
 Selected portable derived results are committed in the repository; the SLR links
 above point to those copies. LLR artifact links currently refer to the local cache.
+
+Precise-Time binding and lunar elastic-tide audit
+------------------------------------------------
+
+The subsequent binding build used native source ``8506f9188`` and kernel SHA-256
+``bd8d893574bd29281188934ff5a62647e4c08494eb4bfb846c17cfc06a062968``
+(67,149,448 bytes, same build/import path). The two environment tests passed,
+including precise custom-ephemeris and Body dispatch for epochs 20 ns apart
+that share one double value. All 57 environment autosummary names resolved.
+`Binding provenance <../../../laser-ranging-work/logs/time-callback-kernel-provenance.json>`_
+distinguishes the native source from later script-only changes; the six-suite
+native evidence above remains retained, without unrelated rebuilds or reruns.
+
+An independent Legendre-polynomial degree-2/3 displacement calculation checked
+all eleven saved native reflection events from the INPOP station sensitivity
+run. The actual factory supplied ``R=1738000 m``, ``h2=0.0423``, ``l2=0.0107``,
+``h3=0.0234`` and ``l3=0.0030`` with loaded DE440 gravitational parameters.
+Native intrinsic reflector displacement agreed within ``1.49e-10 m``; the
+final reflector agreed with one full elastic tide plus the stated spatial
+correction within ``2.61e-10 m``. The native PA rotation and an independent
+SPICE ``J2000`` to ``MOON_PA_DE440`` rotation differed by at most ``5.56e-16``
+per matrix entry. Runtime tracing confirmed exact TDB ``Time`` routing to the
+Moon, Earth and Sun ephemerides. The saved event outputs are doubles; changing
+the input over their full ULP changed the calculated tide by at most
+``5.21e-13 m``. No elastic-tide implementation bug or duplicate/missing full
+equilibrium tide was found by this bounded audit.
+
+The `audit script <../../../laser-ranging-work/verification/audit_lunar_elastic_tides.py>`_
+and `detailed evidence <../../../laser-ranging-work/logs/lunar-elastic-tide-audit.json>`_
+retain per-event vectors, separate Earth/Sun degree contributions and source
+hashes outside the repository. This agreement does not explain the remaining
+LLR centimetre discrepancies. JPL2020 gives omitted dissipation of about 2 mm
+or less and thermal motion of 1–1.5 mm for Apollo and about 5 mm vertically for
+Lunokhod, with horizontal components; these are not uniformly submillimetre
+effects. No residual correction, fitting or tide-convention toggle was used.
