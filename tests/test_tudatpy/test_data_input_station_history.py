@@ -9,7 +9,7 @@ FIXTURES = Path(__file__).parents[1] / "test_tudat/reference_files/station_histo
 def test_station_history_namespace_keys_and_array_binding():
     history = station_history.read_sinex_station_history(str(FIXTURES / "ab07_solutions.snx"))
     key = station_history.SinexSolutionKey("AB07", "A", "1")
-    solution = station_history.get_cartesian_solution(history, key)
+    solution = station_history.get_station_coordinate_solution(history, key)
     assert isinstance(history.sites, list)
     assert isinstance(history.parameters, dict)
     assert len(solution.position_metres) == 3

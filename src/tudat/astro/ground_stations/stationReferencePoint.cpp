@@ -1,6 +1,5 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
 #include "tudat/astro/ground_stations/stationReferencePoint.h"
-#include "tudat/astro/ground_stations/transformedStationHistoryTrajectory.h"
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include <algorithm>
@@ -125,18 +124,6 @@ std::optional< Time > boundary( const SinexEpoch& epoch,
         requireValidReferencePoint( !supplied || *supplied == tai, "header-time context contradicts a specified source header" );
     }
     return tai;
-}
-std::shared_ptr< StationReferencePointTrajectory > pointSource( const std::shared_ptr< StationHistoryTrajectory >& source )
-{
-    if( const auto point = std::dynamic_pointer_cast< StationReferencePointTrajectory >( source ) )
-    {
-        return point;
-    }
-    if( const auto transformed = std::dynamic_pointer_cast< TransformedStationHistoryTrajectory >( source ) )
-    {
-        return pointSource( transformed->getSourceTrajectory( ) );
-    }
-    return nullptr;
 }
 }  // namespace
 
@@ -263,41 +250,37 @@ Eigen::Vector6d StationReferencePointOffsetHistory::getStateCorrection( const St
     return state;
 }
 
-//! Read the active reference-point identity from the trajectory's output metadata.
-StationReferencePointIdentity getStationReferencePointIdentity( const std::shared_ptr< StationHistoryTrajectory >& source )
+//! Identity of the point described by a station coordinate history.
+StationReferencePointIdentity getStationReferencePointIdentity( const StationHistoryMetadata& metadata )
 {
-    requireValidReferencePoint( source != nullptr, "a source trajectory is required" );
-
-    // Output metadata preserves point identity through frame transformations.
-    const auto& meta = source->getMetadata( );
-
-    return { meta.site, meta.domesId, meta.referencePointKind, meta.referencePointName };
+    return { metadata.site, metadata.domesId, metadata.referencePointKind, metadata.referencePointName };
 }
 
-//! Retain the source trajectory and bind one validated reference-point offset history.
-StationReferencePointTrajectory::StationReferencePointTrajectory( std::shared_ptr< StationHistoryTrajectory > source,
-                                                                  std::shared_ptr< StationReferencePointOffsetHistory > offsets ):
-    StationHistoryTrajectory( std::move( source ) ), offsets_( std::move( offsets ) ), outputMetadata_( source_->getMetadata( ) )
+//! Check that the offset histories form a chain starting at the point of the history, in the frame of the history.
+void validateStationReferencePointOffsets( const StationHistoryMetadata& history,
+                                           const std::vector< std::shared_ptr< StationReferencePointOffsetHistory > >& offsets )
 {
-    requireValidReferencePoint( offsets_ != nullptr, "an explicit reference-point offset history is required" );
-    requireValidReferencePoint( sameIdentity( getStationReferencePointIdentity( source_ ), offsets_->getOffsets( ).front( ).from ),
-                                "source point identity disagrees with offset direction; duplicate offsets are not permitted" );
-    requireValidReferencePoint( !offsets_->getGeometry( ) || offsets_->getGeometry( )->frame == outputMetadata_.frame,
-                                "offset local basis and trajectory frames differ" );
-    requireValidReferencePoint( offsets_->getOffsets( ).front( ).frame == outputMetadata_.frame,
-                                "offset and source trajectory frames differ" );
-    outputMetadata_.referencePointKind = getReferencePointIdentity( ).kind;
-    outputMetadata_.referencePointName = getReferencePointIdentity( ).name;
-    for( const auto& record : offsets_->getOffsets( ) )
+    StationReferencePointIdentity previousPoint = getStationReferencePointIdentity( history );
+    std::shared_ptr< StationReferencePointOffsetHistory > previous;
+    for( const auto& current : offsets )
     {
-        if( record.to.kind == StationReferencePointKind::calibratedInstrumentPoint )
+        requireValidReferencePoint( current != nullptr, "an explicit reference-point offset history is required" );
+        const auto& records = current->getOffsets( );
+        requireValidReferencePoint( sameIdentity( previousPoint, records.front( ).from ),
+                                    "offsets do not start at the point described by the station history (or the previous offsets)" );
+        requireValidReferencePoint(
+                records.front( ).frame == history.frame && ( !current->getGeometry( ) || current->getGeometry( )->frame == history.frame ),
+                "offset and station history frames differ" );
+        for( const auto& record : records )
         {
-            // A calibration must remain inside the parent ARP equipment coverage and use its equipment identity.
-            const auto parent = pointSource( source_ );
+            if( record.to.kind != StationReferencePointKind::calibratedInstrumentPoint )
+            {
+                continue;
+            }
 
-            requireValidReferencePoint( parent != nullptr, "calibration requires an explicitly bound ARP equipment history" );
-            const auto& parentRecords = parent->getOffsetHistory( )->getOffsets( );
-
+            // A calibration must remain inside the coverage of the antenna offsets before it, and use the same antenna.
+            requireValidReferencePoint( previous != nullptr, "calibration requires an explicitly bound ARP equipment history" );
+            const auto& parentRecords = previous->getOffsets( );
             requireValidReferencePoint(
                     ( !parentRecords.front( ).validity.startTai ||
                       ( record.validity.startTai && *record.validity.startTai >= *parentRecords.front( ).validity.startTai ) ) &&
@@ -314,51 +297,13 @@ StationReferencePointTrajectory::StationReferencePointTrajectory( std::shared_pt
                 }
             }
         }
-        for( const auto& source : { record.source,
-                                    record.provenance.source,
-                                    record.equipmentProvenance.source,
-                                    record.headerTimeContext ? record.headerTimeContext->source : std::string( ) } )
-        {
-            if( !source.empty( ) &&
-                std::find( outputMetadata_.sources.begin( ), outputMetadata_.sources.end( ), source ) == outputMetadata_.sources.end( ) )
-            {
-                outputMetadata_.sources.push_back( source );
-            }
-        }
+        previousPoint = records.front( ).to;
+        previous = current;
     }
-    outputMetadata_.signals.push_back( getReferencePointIdentity( ).kind == StationReferencePointKind::antennaReferencePoint
-                                               ? "marker-to-antenna reference vector"
-                                               : "calibrated instrument reference vector" );
 }
 
-//! Add the active offset in the declared terrestrial frame to the source position.
-Eigen::Vector3d StationReferencePointTrajectory::getPosition( const StationHistoryTime& time ) const
-{
-    // Evaluate source motion first, preserving the explicitly selected composition order.
-    Eigen::Vector3d position = source_->getPosition( time );
-
-    position += offsets_->getPositionCorrection( time );
-    return position;
-}
-
-//! Add the active offset and its TDB velocity to the complete source state.
-Eigen::Vector6d StationReferencePointTrajectory::getState( const StationHistoryTime& time ) const
-{
-    // Source and offset velocities are derivatives with respect to the same TDB seconds.
-    Eigen::Vector6d state = source_->getState( time );
-
-    state += offsets_->getStateCorrection( time );
-    return state;
-}
-std::shared_ptr< StationReferencePointTrajectory > createStationReferencePointTrajectory(
-        std::shared_ptr< StationHistoryTrajectory > source,
-        std::shared_ptr< StationReferencePointOffsetHistory > offsets )
-{
-    return std::make_shared< StationReferencePointTrajectory >( std::move( source ), std::move( offsets ) );
-}
-
-std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePointTrajectory(
-        std::shared_ptr< StationHistoryTrajectory > marker,
+std::shared_ptr< StationReferencePointOffsetHistory > createSinexAntennaReferencePointOffsets(
+        const StationHistoryMetadata& meta,
         const SinexStationHistory& equipment,
         std::string name,
         std::optional< StationReferencePointGeometry > geometry,
@@ -367,10 +312,9 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
         const std::optional< SinexSiteKey >& equipmentSite )
 {
     validateSinexStationHistory( equipment );
-    const auto from = getStationReferencePointIdentity( marker );
+    const auto from = getStationReferencePointIdentity( meta );
     requireValidReferencePoint( from.kind == StationReferencePointKind::marker && !name.empty( ),
                                 "an explicit marker and ARP name are required" );
-    const auto& meta = marker->getMetadata( );
     const auto key = equipmentSite.value_or( from.site );
     requireValidReferencePoint( equipment.frame.empty( ) || equipment.frame == meta.frame, "equipment/marker coordinate frames differ" );
     if( context )
@@ -467,9 +411,7 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
             }
         }
     }
-    auto result =
-            createStationReferencePointTrajectory( marker, std::make_shared< StationReferencePointOffsetHistory >( offsets, geometry ) );
-    return result;
+    return std::make_shared< StationReferencePointOffsetHistory >( offsets, geometry );
 }
 }  // namespace ground_stations
 }  // namespace tudat

@@ -213,7 +213,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                     converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
                 }
                 currentStationMotionModel = std::make_shared< ground_stations::StationHistoryMotionModel >(
-                        settings->trajectory_, settings->timeFunction_, converter );
+                        settings->history_, settings->referencePointOffsets_, settings->timeFunction_, converter );
                 break;
             }
             case body_deformation_station_motion: {

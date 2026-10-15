@@ -73,7 +73,7 @@ void closeVector( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected
 }
 
 // Controlled zero-coordinate companions exercise actual published coefficients
-// without claiming an independent complete trajectory for AB48/ANTC/ALBH.
+// without claiming an independent complete history for AB48/ANTC/ALBH.
 std::pair< SinexStationHistory, SinexStationHistory > controlledCompanions( const SinexSiteRecord& site )
 {
     auto coordinates = product( "ab07_solutions.snx" );
@@ -129,12 +129,12 @@ BOOST_AUTO_TEST_CASE( unchangedIgnParametricSelectorsAndSignedAmplitudes )
         {
             terms.push_back( psd( StationPostSeismicFunction::logarithmic, a2 * 0.001, t2 ) );
         }
-        StationHistoryTrajectory trajectory( { linear( ) }, terms, {}, metadata( ) );
+        StationCoordinateHistory history( { linear( ) }, terms, {}, metadata( ) );
 
         // The original LOG/EXP routine loses relative accuracy near zero. This
         // absolute bound covers its subtraction rounding, not a time-policy error.
         closeVector(
-                trajectory.getPosition( manufacturedTime( dt ) ), Eigen::Vector3d( expected, -2 * expected, 3 * expected ) * 0.001, 2e-15 );
+                history.getPosition( manufacturedTime( dt ) ), Eigen::Vector3d( expected, -2 * expected, 3 * expected ) * 0.001, 2e-15 );
         ++count;
     }
     BOOST_CHECK_EQUAL( count, 126 );
@@ -144,30 +144,30 @@ BOOST_AUTO_TEST_CASE( stableShortTimeCumulativeEventsAndAnalyticRates )
 {
     const auto first = psd( StationPostSeismicFunction::exponential, 0.04, 0.1 );
     const auto second = psd( StationPostSeismicFunction::logarithmic, -0.02, 0.03, 0.5 );
-    StationHistoryTrajectory trajectory( { linear( ) }, { first, second }, {}, metadata( ) );
-    closeVector( trajectory.getPosition( manufacturedTime( -0.001 ) ), Eigen::Vector3d::Zero( ), 1e-30 );
-    closeVector( trajectory.getPosition( manufacturedTime( 1e-18L ) ), first.amplitudeMetres * 1e-17, 1e-32 );
+    StationCoordinateHistory history( { linear( ) }, { first, second }, {}, metadata( ) );
+    closeVector( history.getPosition( manufacturedTime( -0.001 ) ), Eigen::Vector3d::Zero( ), 1e-30 );
+    closeVector( history.getPosition( manufacturedTime( 1e-18L ) ), first.amplitudeMetres * 1e-17, 1e-32 );
 
     // Independent multiplication/division order differs by a few double ULPs.
-    closeVector( trajectory.getState( manufacturedTime( 0 ) ).tail< 3 >( ), first.amplitudeMetres / ( 0.1 * 31557600.0 ), 1e-22 );
+    closeVector( history.getState( manufacturedTime( 0 ) ).tail< 3 >( ), first.amplitudeMetres / ( 0.1 * 31557600.0 ), 1e-22 );
     for( const long double year : { 0.1L, 0.7L, 20.0L } )
     {
         const double h = 20.0;
-        const Eigen::Vector3d difference = ( trajectory.getPosition( manufacturedTime( year + h / 31557600.0L ) ) -
-                                             trajectory.getPosition( manufacturedTime( year - h / 31557600.0L ) ) ) /
+        const Eigen::Vector3d difference = ( history.getPosition( manufacturedTime( year + h / 31557600.0L ) ) -
+                                             history.getPosition( manufacturedTime( year - h / 31557600.0L ) ) ) /
                 ( 2 * h );
-        closeVector( trajectory.getState( manufacturedTime( year ) ).tail< 3 >( ), difference, 1e-17 );
+        closeVector( history.getState( manufacturedTime( year ) ).tail< 3 >( ), difference, 1e-17 );
     }
-    const auto eventState = trajectory.getState( manufacturedTime( 0.5L ) );
+    const auto eventState = history.getState( manufacturedTime( 0.5L ) );
     const Eigen::Vector3d expected = first.amplitudeMetres * ( std::exp( -5.0 ) / 0.1 ) + second.amplitudeMetres / 0.03;
     closeVector( eventState.tail< 3 >( ), expected / 31557600.0, 1e-22 );
     auto noRate = manufacturedTime( 0.7L );
     noRate.mjdRate.reset( );
-    BOOST_CHECK_NO_THROW( trajectory.getPosition( noRate ) );
-    BOOST_CHECK_THROW( trajectory.getState( noRate ), std::runtime_error );
+    BOOST_CHECK_NO_THROW( history.getPosition( noRate ) );
+    BOOST_CHECK_THROW( history.getState( noRate ), std::runtime_error );
     auto bad = first;
     bad.relaxationJulianYears = 0.0;
-    BOOST_CHECK_THROW( StationHistoryTrajectory( { linear( ) }, { bad }, {}, metadata( ) ), std::runtime_error );
+    BOOST_CHECK_THROW( StationCoordinateHistory( { linear( ) }, { bad }, {}, metadata( ) ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( halfOpenValidityRightHandSolutionsAndNoExtrapolation )
@@ -180,19 +180,19 @@ BOOST_AUTO_TEST_CASE( halfOpenValidityRightHandSolutionsAndNoExtrapolation )
     second.positionMetres = Eigen::Vector3d( 0.1, -0.2, 0.3 );
     second.velocityMetresPerJulianYear *= -1;
     second.validity = { first.validity.endTai, manufacturedTime( 2 ).tai };
-    StationHistoryTrajectory trajectory( { second, first }, {}, {}, metadata( ) );
+    StationCoordinateHistory history( { second, first }, {}, {}, metadata( ) );
     closeVector(
-            trajectory.getState( manufacturedTime( 1 ) ).head< 3 >( ), second.positionMetres + second.velocityMetresPerJulianYear, 1e-16 );
-    closeVector( trajectory.getState( manufacturedTime( 1 ) ).tail< 3 >( ), second.velocityMetresPerJulianYear / 31557600.0, 1e-24 );
-    BOOST_CHECK_THROW( trajectory.getPosition( manufacturedTime( -1e-9 ) ), std::runtime_error );
-    BOOST_CHECK_THROW( trajectory.getPosition( manufacturedTime( 2 ) ), std::runtime_error );
+            history.getState( manufacturedTime( 1 ) ).head< 3 >( ), second.positionMetres + second.velocityMetresPerJulianYear, 1e-16 );
+    closeVector( history.getState( manufacturedTime( 1 ) ).tail< 3 >( ), second.velocityMetresPerJulianYear / 31557600.0, 1e-24 );
+    BOOST_CHECK_THROW( history.getPosition( manufacturedTime( -1e-9 ) ), std::runtime_error );
+    BOOST_CHECK_THROW( history.getPosition( manufacturedTime( 2 ) ), std::runtime_error );
     second.validity.startTai = manufacturedTime( 1.1 ).tai;
-    BOOST_CHECK_THROW( StationHistoryTrajectory( { first, second }, {}, {}, metadata( ) ), std::runtime_error );
+    BOOST_CHECK_THROW( StationCoordinateHistory( { first, second }, {}, {}, metadata( ) ), std::runtime_error );
     second.validity.startTai = manufacturedTime( 0.9 ).tai;
-    BOOST_CHECK_THROW( StationHistoryTrajectory( { first, second }, {}, {}, metadata( ) ), std::runtime_error );
+    BOOST_CHECK_THROW( StationCoordinateHistory( { first, second }, {}, {}, metadata( ) ), std::runtime_error );
     auto wrong = manufacturedTime( 0.2 );
     wrong.convention = "unannounced TT substitution";
-    BOOST_CHECK_THROW( trajectory.getPosition( wrong ), std::runtime_error );
+    BOOST_CHECK_THROW( history.getPosition( wrong ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
     meta.timeConvention = ref.convention;
     const StationSeasonalTerm annual{ "1", 1, { 0.01, -0.02, 0.03 }, { -0.04, 0.05, -0.06 }, {} };
     const StationSeasonalTerm semiannual{ "1", 2, { -0.002, 0.003, -0.004 }, { 0.005, -0.006, 0.007 }, {} };
-    StationHistoryTrajectory trajectory( { solution }, {}, { annual, semiannual }, meta );
+    StationCoordinateHistory history( { solution }, {}, { annual, semiannual }, meta );
     const auto tai = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
     const auto time = getIgnNominalUtcStationTimeFromTai( tai, 1.00000001 );
     BOOST_CHECK_SMALL( static_cast< double >( time.yearFraction - 59.5L / 366 ), 1e-18 );
@@ -214,11 +214,11 @@ BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
         const double phase = 2.0 * std::acos( -1.0 ) * term.cyclesPerCalendarYear * ( 59.5 / 366 );
         expected += term.cosineMetres * std::cos( phase ) + term.sineMetres * std::sin( phase );
     }
-    closeVector( trajectory.getPosition( time ), expected, 1e-16 );
-    const Eigen::Vector3d difference = ( trajectory.getPosition( getIgnNominalUtcStationTimeFromTai( tai + 10.0 ) ) -
-                                         trajectory.getPosition( getIgnNominalUtcStationTimeFromTai( tai - 10.0 ) ) ) /
+    closeVector( history.getPosition( time ), expected, 1e-16 );
+    const Eigen::Vector3d difference = ( history.getPosition( getIgnNominalUtcStationTimeFromTai( tai + 10.0 ) ) -
+                                         history.getPosition( getIgnNominalUtcStationTimeFromTai( tai - 10.0 ) ) ) /
             20.0 * 1.00000001;
-    closeVector( trajectory.getState( time ).tail< 3 >( ), difference, 2e-18 );
+    closeVector( history.getState( time ).tail< 3 >( ), difference, 2e-18 );
     const Eigen::Matrix3d rotation = Eigen::AngleAxisd( 0.73, Eigen::Vector3d( 1, 2, 3 ).normalized( ) ).toRotationMatrix( );
     auto rotatedAnnual = annual;
     auto rotatedSemiannual = semiannual;
@@ -227,17 +227,17 @@ BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
         term->cosineMetres = rotation * term->cosineMetres;
         term->sineMetres = rotation * term->sineMetres;
     }
-    StationHistoryTrajectory rotated( { solution }, {}, { rotatedAnnual, rotatedSemiannual }, meta );
-    closeVector( rotated.getPosition( time ), rotation * trajectory.getPosition( time ), 1e-16 );
-    closeVector( rotated.getState( time ).tail< 3 >( ), rotation * trajectory.getState( time ).tail< 3 >( ), 1e-23 );
+    StationCoordinateHistory rotated( { solution }, {}, { rotatedAnnual, rotatedSemiannual }, meta );
+    closeVector( rotated.getPosition( time ), rotation * history.getPosition( time ), 1e-16 );
+    closeVector( rotated.getState( time ).tail< 3 >( ), rotation * history.getState( time ).tail< 3 >( ), 1e-23 );
     const auto nextYear = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2021, 1, 0 } ), 1.0 );
     BOOST_CHECK_EQUAL( nextYear.calendarYear, 2021 );
     BOOST_CHECK_EQUAL( nextYear.yearFraction, 0.0L );
     BOOST_CHECK_EQUAL( *nextYear.decimalYearRate, 1.0 / ( 365 * 86400.0 ) );
     auto missingRate = time;
     missingRate.decimalYearRate.reset( );
-    BOOST_CHECK_NO_THROW( trajectory.getPosition( missingRate ) );
-    BOOST_CHECK_THROW( trajectory.getState( missingRate ), std::runtime_error );
+    BOOST_CHECK_NO_THROW( history.getPosition( missingRate ) );
+    BOOST_CHECK_THROW( history.getState( missingRate ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( nativeCivilUtcLeapSecondAndSofaReference )
@@ -277,11 +277,11 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionVelocityIdsAndStrictMetadata )
     auto intervals = product( "ab07_discontinuities.snx" );
     auto deformation = product( "ab07_psd.snx" );
     const Eigen::Matrix3d basis = Eigen::Matrix3d::Identity( );
-    auto trajectory = createIgnStationHistoryTrajectory( solutions, intervals, { "AB07", "A" }, &deformation, nullptr, basis );
-    BOOST_CHECK_EQUAL( trajectory->getSolutions( ).size( ), 6 );
-    BOOST_CHECK_EQUAL( trajectory->getPostSeismicTerms( ).size( ), 2 );
-    BOOST_CHECK_EQUAL( trajectory->getMetadata( ).release, "ITRF2020" );
-    const auto& last = trajectory->getSolutions( ).back( );
+    auto history = createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &deformation, nullptr, basis );
+    BOOST_CHECK_EQUAL( history->getSolutions( ).size( ), 6 );
+    BOOST_CHECK_EQUAL( history->getPostSeismicTerms( ).size( ), 2 );
+    BOOST_CHECK_EQUAL( history->getMetadata( ).release, "ITRF2020" );
+    const auto& last = history->getSolutions( ).back( );
     BOOST_CHECK_EQUAL( last.source.key.solutionId, "6" );
     BOOST_CHECK_EQUAL( last.velocitySolutionId, "4" );
     BOOST_CHECK_EQUAL( *last.velocityValidity.startTai, convertSinexCivilUtcToTai( { 2020, 204, 22365 } ) );
@@ -291,45 +291,45 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionVelocityIdsAndStrictMetadata )
     {
         BOOST_CHECK_EQUAL( last.velocityMetresPerJulianYear[ c ], *last.source.velocityMetresPerSecond[ c ] * 31557600.0 );
     }
-    const auto event = trajectory->getPostSeismicTerms( ).front( ).eventTime;
+    const auto event = history->getPostSeismicTerms( ).front( ).eventTime;
     auto query = getIgnNominalUtcStationTimeFromTai( event.tai + 100.0, 1.0 );
-    BOOST_CHECK( trajectory->getState( query ).allFinite( ) );
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( solutions, intervals, { "AB07", "A" }, &deformation ), std::runtime_error );
+    BOOST_CHECK( history->getState( query ).allFinite( ) );
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &deformation ), std::runtime_error );
     auto wrongRelease = deformation;
     wrongRelease.release = "ITRF2020-u2024";
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( solutions, intervals, { "AB07", "A" }, &wrongRelease, nullptr, basis ),
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &wrongRelease, nullptr, basis ),
                        std::runtime_error );
     auto orphan = deformation;
     orphan.parameters.erase( 2 );
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( solutions, intervals, { "AB07", "A" }, &orphan, nullptr, basis ),
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &orphan, nullptr, basis ),
                        std::runtime_error );
     auto wrongPartner = deformation;
     wrongPartner.parameters.at( 2 ).type = "TEXP_N";
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( solutions, intervals, { "AB07", "A" }, &wrongPartner, nullptr, basis ),
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &wrongPartner, nullptr, basis ),
                        std::runtime_error );
     auto ambiguous = deformation;
     auto duplicate = ambiguous.sites.begin( )->second;
     duplicate.domesId = "00000M002";
     ambiguous.sites.emplace( duplicate.key, duplicate );
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis ),
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis ),
                        std::runtime_error );
-    BOOST_CHECK_NO_THROW( createIgnStationHistoryTrajectory(
-            solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis, trajectory->getMetadata( ).domesId ) );
+    BOOST_CHECK_NO_THROW( createIgnStationCoordinateHistory(
+            solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis, history->getMetadata( ).domesId ) );
     BOOST_CHECK_THROW(
-            createIgnStationHistoryTrajectory( solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis, "absent DOMES" ),
+            createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis, "absent DOMES" ),
             std::runtime_error );
     auto contradictoryVelocity = solutions;
     *contradictoryVelocity.parameters.at( 34 ).valueSi += 0.001 / 31557600.0;
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( contradictoryVelocity, intervals, { "AB07", "A" } ), std::runtime_error );
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( contradictoryVelocity, intervals, { "AB07", "A" } ), std::runtime_error );
     auto velocityGap = intervals;
     velocityGap.discontinuities.back( ).start.civilUtc->secondsOfDay += 1;
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( solutions, velocityGap, { "AB07", "A" } ), std::runtime_error );
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, velocityGap, { "AB07", "A" } ), std::runtime_error );
     auto missingTide = solutions;
     missingTide.tideSystem.clear( );
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( missingTide, intervals, { "AB07", "A" } ), std::runtime_error );
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( missingTide, intervals, { "AB07", "A" } ), std::runtime_error );
     auto unresolved = intervals;
     unresolved.discontinuities.front( ).start.meaning = SinexEpochMeaning::unspecified;
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( solutions, unresolved, { "AB07", "A" } ), std::runtime_error );
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, unresolved, { "AB07", "A" } ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
@@ -340,8 +340,8 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
     {
         const SinexSiteKey key{ siteCode, "A" };
         const auto companions = controlledCompanions( deformation.sites.find( key )->second );
-        const auto trajectory = createIgnStationHistoryTrajectory( companions.first, companions.second, key, &deformation, nullptr, basis );
-        BOOST_CHECK_EQUAL( trajectory->getPostSeismicTerms( ).size( ), siteCode == "AB48" ? 4 : 5 );
+        const auto history = createIgnStationCoordinateHistory( companions.first, companions.second, key, &deformation, nullptr, basis );
+        BOOST_CHECK_EQUAL( history->getPostSeismicTerms( ).size( ), siteCode == "AB48" ? 4 : 5 );
         const auto time = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2019, 160, 43200 } ), 1.0 );
         Eigen::Vector3d expected = Eigen::Vector3d::Zero( );
         for( const auto& entry : deformation.parameters )
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
             const double correction = amplitude.type.substr( 1, 3 ) == "LOG" ? std::log( 1 + dt / tau ) : 1 - std::exp( -dt / tau );
             expected += basis.col( std::string( "ENU" ).find( amplitude.type.back( ) ) ) * ( amplitude.originalValue * correction );
         }
-        closeVector( trajectory->getPosition( time ), expected, 2e-15 );
+        closeVector( history->getPosition( time ), expected, 2e-15 );
 
         std::ifstream stream( fixture( "repeated_psd.snx" ) );
         std::string line, prefix, suffix;
@@ -398,9 +398,9 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
         reordered.release = deformation.release;
         reordered.origin = deformation.origin;
         reordered.tideSystem = deformation.tideSystem;
-        const auto alternate = createIgnStationHistoryTrajectory( companions.first, companions.second, key, &reordered, nullptr, basis );
-        closeVector( alternate->getPosition( time ), trajectory->getPosition( time ), 1e-30 );
-        closeVector( alternate->getState( time ).tail< 3 >( ), trajectory->getState( time ).tail< 3 >( ), 1e-30 );
+        const auto alternate = createIgnStationCoordinateHistory( companions.first, companions.second, key, &reordered, nullptr, basis );
+        closeVector( alternate->getPosition( time ), history->getPosition( time ), 1e-30 );
+        closeVector( alternate->getState( time ).tail< 3 >( ), history->getState( time ).tail< 3 >( ), 1e-30 );
     }
 }
 
@@ -410,9 +410,9 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
     const SinexSiteKey key{ "ALBH", "A" };
     const auto companions = controlledCompanions( seasons.sites.find( key )->second );
     const Eigen::Matrix3d basis = Eigen::AngleAxisd( -0.31, Eigen::Vector3d( 1, -2, 3 ).normalized( ) ).toRotationMatrix( );
-    const auto trajectory = createIgnStationHistoryTrajectory( companions.first, companions.second, key, nullptr, &seasons, basis );
-    BOOST_CHECK_EQUAL( trajectory->getSeasonalTerms( ).size( ), 12 );
-    BOOST_CHECK( trajectory->hasFittedSeasonalTerms( ) );
+    const auto history = createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &seasons, basis );
+    BOOST_CHECK_EQUAL( history->getSeasonalTerms( ).size( ), 12 );
+    BOOST_CHECK( history->hasFittedSeasonalTerms( ) );
     const auto time = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2020, 60, 43200 } ), 1.0 );
     Eigen::Vector3d expected = Eigen::Vector3d::Zero( );
     for( const auto& entry : seasons.parameters )
@@ -426,24 +426,24 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
         const double function = p.type.substr( 2, 3 ) == "COS" ? std::cos( angle ) : std::sin( angle );
         expected += basis.col( std::string( "ENU" ).find( p.type.back( ) ) ) * ( p.originalValue * function );
     }
-    closeVector( trajectory->getPosition( time ), expected, 1e-16 );
+    closeVector( history->getPosition( time ), expected, 1e-16 );
     const auto withoutBasis =
-            createIgnStationHistoryTrajectory( companions.first, companions.second, key, nullptr, &seasons, Eigen::Matrix3d::Identity( ) );
-    closeVector( trajectory->getState( time ).tail< 3 >( ), basis * withoutBasis->getState( time ).tail< 3 >( ), 1e-23 );
+            createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &seasons, Eigen::Matrix3d::Identity( ) );
+    closeVector( history->getState( time ).tail< 3 >( ), basis * withoutBasis->getState( time ).tail< 3 >( ), 1e-23 );
     auto cf = seasons;
     cf.origin = "CF";
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( companions.first, companions.second, key, nullptr, &cf, basis ),
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &cf, basis ),
                        std::runtime_error );
     auto cfCoordinates = companions.first;
     auto cfIntervals = companions.second;
     cfCoordinates.origin = cfIntervals.origin = "CF";
-    BOOST_CHECK_EQUAL( createIgnStationHistoryTrajectory( cfCoordinates, cfIntervals, key, nullptr, &cf, basis )->getMetadata( ).origin,
+    BOOST_CHECK_EQUAL( createIgnStationCoordinateHistory( cfCoordinates, cfIntervals, key, nullptr, &cf, basis )->getMetadata( ).origin,
                        "CF" );
     auto missing = seasons;
     missing.parameters.erase( 1 );
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( companions.first, companions.second, key, nullptr, &missing, basis ),
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &missing, basis ),
                        std::runtime_error );
-    BOOST_CHECK_THROW( createIgnStationHistoryTrajectory( companions.first, companions.second, key, nullptr, &seasons, 2 * basis ),
+    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &seasons, 2 * basis ),
                        std::runtime_error );
 }
 
@@ -457,28 +457,29 @@ BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMoti
     b.source.key.solutionId = "2";
     a.positionMetres = Eigen::Vector3d( 1, 2, 3 );
     b.positionMetres = Eigen::Vector3d( 4, 5, 6 );
-    auto trajectory = std::make_shared< StationHistoryTrajectory >( std::vector< StationHistoryLinearSolution >{ a, b },
-                                                                    std::vector< StationPostSeismicTerm >{},
-                                                                    std::vector< StationSeasonalTerm >{},
-                                                                    metadata( ) );
+    auto history = std::make_shared< StationCoordinateHistory >( std::vector< StationHistoryLinearSolution >{ a, b },
+                                                                 std::vector< StationPostSeismicTerm >{},
+                                                                 std::vector< StationSeasonalTerm >{},
+                                                                 metadata( ) );
     auto time = manufacturedTime( 0 );
     time.tai = boundary - 1e-12L;
-    closeVector( trajectory->getPosition( time ), a.positionMetres, 1e-30 );
+    closeVector( history->getPosition( time ), a.positionMetres, 1e-30 );
     time.tai = boundary;
-    closeVector( trajectory->getPosition( time ), b.positionMetres, 1e-30 );
-    auto motion = std::make_shared< StationHistoryMotionModel >( trajectory, [ time ]( const auto&, bool rates ) {
-        auto output = time;
-        if( rates )
-        {
-            throw std::runtime_error( "manufactured position-only source callback" );
-        }
-        return output;
-    } );
+    closeVector( history->getPosition( time ), b.positionMetres, 1e-30 );
+    auto motion = std::make_shared< StationHistoryMotionModel >(
+            history, std::vector< std::shared_ptr< StationReferencePointOffsetHistory > >( ), [ time ]( const auto&, bool rates ) {
+                auto output = time;
+                if( rates )
+                {
+                    throw std::runtime_error( "manufactured position-only source callback" );
+                }
+                return output;
+            } );
     auto station = std::make_shared< GroundStationState >(
             Eigen::Vector3d( 100, 200, 300 ), coordinate_conversions::cartesian_position, nullptr, motion );
     closeVector( station->getCartesianPositionInTime( 0.0, "Earth" ), b.positionMetres, 1e-30 );
     BOOST_CHECK_THROW( station->getCartesianStateInTime( 0.0, "Earth" ), std::runtime_error );
-    const auto settings = simulation_setup::stationHistoryGroundStationMotionSettings( trajectory, [ time ]( const auto&, bool rates ) {
+    const auto settings = simulation_setup::stationHistoryGroundStationMotionSettings( history, {}, [ time ]( const auto&, bool rates ) {
         auto output = time;
         if( !rates )
         {

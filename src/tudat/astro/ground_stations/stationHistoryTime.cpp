@@ -1,5 +1,5 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
-#include "tudat/astro/ground_stations/stationHistoryTrajectory.h"
+#include "tudat/astro/ground_stations/stationCoordinateHistory.h"
 #include "tudat/astro/ground_stations/earthDeformationTime.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"

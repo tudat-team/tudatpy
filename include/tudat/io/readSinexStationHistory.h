@@ -278,10 +278,10 @@ SinexStationHistory readSinexStationHistory( const std::string& fileName );
 void validateSinexStationHistory( const SinexStationHistory& history );
 
 //! Explicit solution selection; complete positions are required only by this consuming query.
-SinexCartesianSolution getSinexCartesianSolution( const SinexStationHistory& history,
-                                                  const SinexSolutionKey& key,
-                                                  bool requireCompleteVelocity = false );
-std::vector< SinexSolutionKey > getSinexCartesianSolutionKeys( const SinexStationHistory& history );
+SinexCartesianSolution getSinexStationCoordinateSolution( const SinexStationHistory& history,
+                                                          const SinexSolutionKey& key,
+                                                          bool requireCompleteVelocity = false );
+std::vector< SinexSolutionKey > getSinexStationCoordinateSolutionKeys( const SinexStationHistory& history );
 
 }  // namespace input_output
 }  // namespace tudat

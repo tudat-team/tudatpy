@@ -150,11 +150,7 @@ Classes
    
    GroundStationState
 
-   StationHistoryTrajectory
-
-   TransformedStationHistoryTrajectory
-
-   StationReferencePointTrajectory
+   StationCoordinateHistory
 
    StationReferencePointOffsetHistory
 
@@ -264,13 +260,7 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment.GroundStationState
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment.StationHistoryTrajectory
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment.TransformedStationHistoryTrajectory
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment.StationReferencePointTrajectory
+.. autoclass:: tudatpy.dynamics.environment.StationCoordinateHistory
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationReferencePointOffsetHistory

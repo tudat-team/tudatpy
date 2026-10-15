@@ -22,7 +22,6 @@
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 #include "tudat/simulation/environment_setup/createStationReferencePoint.h"
-#include "tudat/astro/ground_stations/transformedStationHistoryTrajectory.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -694,7 +693,7 @@ reference_epoch:
 
     // Build source-profile trajectories from neutral input products, then bind absolute station motion.
     m.def( "ign_station_history",
-           &tudat::ground_stations::createIgnStationHistoryTrajectory,
+           &tudat::ground_stations::createIgnStationCoordinateHistory,
            py::arg( "solutions" ),
            py::arg( "discontinuities" ),
            py::arg( "site" ),
@@ -751,8 +750,8 @@ reference_epoch:
 
  Returns
  -------
- StationHistoryTrajectory
-     Station history of the station marker.
+ StationCoordinateHistory
+     Station coordinate history of the station marker.
 
 
  Examples
@@ -762,17 +761,17 @@ reference_epoch:
      from tudatpy.data_input.environment_data import station_history
      from tudatpy.dynamics.environment_setup import ground_station
 
-     trajectory = ground_station.ign_station_history(
+     history = ground_station.ign_station_history(
          coordinates, discontinuities, station_history.SinexSiteKey( "AB07", "A" ),
          post_seismic=psd, enu_to_terrestrial=enu_basis )
      station_settings = ground_station.basic_station(
          "AB07", nominal_position,
-         station_motion_settings=[ ground_station.station_history_motion( trajectory ) ] )
+         station_motion_settings=[ ground_station.station_history_motion( history ) ] )
 
  )doc" );
     m.def( "transform_station_history",
-           &tudat::ground_stations::createTransformedStationHistoryTrajectory,
-           py::arg( "source" ),
+           &tudat::ground_stations::transformStationCoordinateHistory,
+           py::arg( "history" ),
            py::arg( "catalogue" ),
            py::arg( "target_frame" ),
            py::arg( "target_origin" ),
@@ -780,34 +779,37 @@ reference_epoch:
            py::arg( "acknowledge_aligned_releases" ) = false,
            R"doc(
 
- Function for transforming a station history to another terrestrial reference frame realization.
+ Function for transforming a station coordinate history to another terrestrial reference frame realization.
 
- Function for transforming a station history to another terrestrial reference frame realization, using a table of
- linearized Helmert transformation parameters. The transformation is evaluated at the calendar decimal year of each
- epoch, and is applied to both position and velocity (including the time derivative of the transformation). The
- reference origin and tide system are not converted, and must be equal to those of the source history.
+ Function for transforming a station coordinate history to another terrestrial reference frame realization, using a
+ table of linearized Helmert transformation parameters. The transformation is applied once to the coefficients, and a
+ new history is returned: each linear solution is transformed at its reference epoch (position, and velocity including
+ the rates of the transformation parameters), and the post-seismic and seasonal amplitudes are rotated and scaled.
+ Compared with evaluating the transformation at each epoch, the position differs by up to a few micrometres for the
+ oldest ITRF realizations (because the rates of the parameters are per calendar year, and those of the station per
+ Julian year). The reference origin and tide system are not converted, and must be equal to those of the input history.
 
 
  Parameters
  ----------
- source : StationHistoryTrajectory
-     Station history that is to be transformed.
+ history : StationCoordinateHistory
+     Station coordinate history that is to be transformed.
  catalogue : TerrestrialFrameTransformationData
      Table of transformation parameters (see :ref:`terrestrial_frame_data`).
  target_frame : TerrestrialFrameIdentity
      Realization and release of the target frame.
  target_origin : str
-     Reference origin of the output (must be equal to that of the source).
+     Reference origin of the output (must be equal to that of the input).
  target_tide_system : str
-     Tide system of the output (must be equal to that of the source).
+     Tide system of the output (must be equal to that of the input).
  acknowledge_aligned_releases : bool, default = False
      Whether a release that differs from that of the catalogue (for instance an update of a realization) is accepted as
      aligned with it. This does not add a transformation.
 
  Returns
  -------
- TransformedStationHistoryTrajectory
-     Station history in the target frame.
+ StationCoordinateHistory
+     Station coordinate history in the target frame.
 
 
  Examples
@@ -820,8 +822,8 @@ reference_epoch:
      target = terrestrial_frames.TerrestrialFrameIdentity( )
      target.realization = target.release = "ITRF2014"
      transformed = ground_station.transform_station_history(
-         trajectory, terrestrial_frames.official_itrf2020_parameters( ), target,
-         target_origin=trajectory.metadata.origin, target_tide_system=trajectory.metadata.tide_system )
+         history, terrestrial_frames.official_itrf2020_parameters( ), target,
+         target_origin=history.metadata.origin, target_tide_system=history.metadata.tide_system )
 
  )doc" );
     py::class_< tss::StationHistoryGroundStationMotionSettings,
@@ -836,23 +838,29 @@ reference_epoch:
       )doc" );
     m.def( "station_history_motion",
            &tss::stationHistoryGroundStationMotionSettings,
-           py::arg( "trajectory" ),
+           py::arg( "history" ),
+           py::arg( "reference_point_offsets" ) =
+                   std::vector< std::shared_ptr< tudat::ground_stations::StationReferencePointOffsetHistory > >( ),
            py::arg( "source_time_function" ) = py::none( ),
            R"doc(
 
- Function for creating settings for station motion from a station history.
+ Function for creating settings for station motion from a station coordinate history.
 
- Function for creating settings for station motion from a station history. The nominal position of the ground station
- is subtracted from the station history, so that the resulting station position is equal to the station history.
- By default, the epoch is converted to the time coordinates of the station history using the IGN conventions (see
- :func:`~tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tdb`), with the time scale converter of the
- body's rotation model when available.
+ Function for creating settings for station motion from a station coordinate history, optionally moved to another point
+ of the station by reference point offsets (for instance from the marker to the antenna reference point). The nominal
+ position of the ground station is subtracted, so that the resulting station position is equal to the position from the
+ history plus the offsets. By default, the epoch is converted to the time coordinates of the station history using the
+ IGN conventions (see :func:`~tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tdb`), with the time scale
+ converter of the body's rotation model when available.
 
 
  Parameters
  ----------
- trajectory : StationHistoryTrajectory
-     Station history (for instance from :func:`ign_station_history`).
+ history : StationCoordinateHistory
+     Station coordinate history (for instance from :func:`ign_station_history`).
+ reference_point_offsets : list[StationReferencePointOffsetHistory], default = []
+     Offset histories added to the position of the history, in order: the first starts at the point of the history, and
+     each next one at the end point of the previous one. They must be given in the frame of the history.
  source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None
      Custom conversion of the TDB epoch (first argument) to the time coordinates of the station history, setting the
      rates when the second argument is true. Its time convention must match that of the station history.
@@ -918,35 +926,8 @@ reference_epoch:
      Local basis, with the up direction normal to the reference ellipsoid.
 
  )doc" );
-    m.def( "station_reference_point_trajectory",
-           &tudat::ground_stations::createStationReferencePointTrajectory,
-           py::arg( "source" ),
-           py::arg( "offset_history" ),
-           R"doc(
-
- Function for creating the station history of a reference point of a station, by adding an offset history to the
- station history of another point (for instance, from the antenna reference point to a calibrated instrument point).
-
- The offsets must start at the point of the source history, and their validity must cover that of the source. When a
- frame transformation is also used, the order matters: an offset added before the transformation is transformed with
- the station, while an offset added after it must already be given in the target frame.
-
-
- Parameters
- ----------
- source : StationHistoryTrajectory
-     Station history of the point from which the offsets are defined.
- offset_history : StationReferencePointOffsetHistory
-     Offsets from that point to the reference point.
-
- Returns
- -------
- StationReferencePointTrajectory
-     Station history of the reference point.
-
- )doc" );
-    m.def( "sinex_antenna_reference_point",
-           &tudat::ground_stations::createSinexAntennaReferencePointTrajectory,
+    m.def( "sinex_antenna_reference_point_offsets",
+           &tudat::ground_stations::createSinexAntennaReferencePointOffsets,
            py::arg( "marker" ),
            py::arg( "equipment" ),
            py::arg( "reference_point_name" ),
@@ -956,19 +937,21 @@ reference_epoch:
            py::arg( "equipment_site" ) = py::none( ),
            R"doc(
 
- Function for creating the station history of the antenna reference point (ARP) of a GNSS station.
+ Function for creating the offsets from the marker to the antenna reference point (ARP) of a GNSS station.
 
- Function for creating the station history of the antenna reference point of a GNSS station, by adding the
- marker-to-ARP eccentricities of a SINEX file (for instance the IGS station log summary) to the station history of the
- marker. Each eccentricity is associated with the antenna that is valid on its interval; the antenna type, radome and
- serial number are retained. Eccentricities in up, north, east components are converted with the given local basis.
- The phase centre is not modelled. At an epoch where the antenna changes, the new eccentricity is used.
+ Function for creating the offsets from the marker to the antenna reference point of a GNSS station, from the
+ marker-to-ARP eccentricities of a SINEX file (for instance the IGS station log summary). The offsets are added to the
+ station coordinate history of the marker with :func:`station_history_motion` or :func:`reference_point_station`.
+ Each eccentricity is associated with the antenna that is valid on its interval; the antenna type, radome and serial
+ number are retained. Eccentricities in up, north, east components are converted with the given local basis. The phase
+ centre is not modelled. At an epoch where the antenna changes, the new eccentricity is used.
 
 
  Parameters
  ----------
- marker : StationHistoryTrajectory
-     Station history of the station marker.
+ marker : StationHistoryMetadata
+     Description of the station coordinate history of the marker (for instance ``history.metadata``); the offsets start
+     at this marker and are given in its frame.
  equipment : SinexStationHistory
      SINEX file with the antenna and eccentricity histories of the station.
  reference_point_name : str
@@ -985,28 +968,32 @@ reference_epoch:
 
  Returns
  -------
- StationReferencePointTrajectory
-     Station history of the antenna reference point.
+ StationReferencePointOffsetHistory
+     Offsets from the marker to the antenna reference point.
 
  )doc" );
     m.def( "reference_point_station",
            &tss::stationReferencePointSettings,
-           py::arg( "trajectory" ),
+           py::arg( "history" ),
+           py::arg( "reference_point_offsets" ),
            py::arg( "nominal_position" ),
            py::arg( "source_time_function" ) = py::none( ),
            R"doc(
 
  Function for creating settings for a ground station located at a reference point of a station.
 
- Function for creating settings for a ground station whose position is given by a station history (for instance of an
- antenna reference point, see :func:`sinex_antenna_reference_point`). The name of the reference point is used as
- station name, and :func:`station_history_motion` is used as station motion.
+ Function for creating settings for a ground station whose position is given by a station coordinate history plus
+ reference point offsets (for instance to the antenna reference point, see :func:`sinex_antenna_reference_point_offsets`).
+ The name of the end point of the last offsets is used as station name, and :func:`station_history_motion` is used as
+ station motion.
 
 
  Parameters
  ----------
- trajectory : StationHistoryTrajectory
-     Station history of the reference point.
+ history : StationCoordinateHistory
+     Station coordinate history (for instance of the station marker).
+ reference_point_offsets : list[StationReferencePointOffsetHistory]
+     Offset histories from the point of the history to the reference point, in order.
  nominal_position : numpy.ndarray[numpy.float64[3, 1]]
      Nominal Cartesian position of the station, in the body-fixed frame.
  source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None

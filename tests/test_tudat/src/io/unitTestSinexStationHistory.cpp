@@ -90,11 +90,11 @@ BOOST_AUTO_TEST_CASE( real_fixed_width_ssc_preserves_six_solutions_components_an
     BOOST_CHECK_EQUAL( history.parameters.size( ), 36 );
     BOOST_CHECK_EQUAL( history.observationSpans.size( ), 6 );
     BOOST_CHECK_EQUAL( history.discontinuities.size( ), 0 );
-    const auto keys = getSinexCartesianSolutionKeys( history );
+    const auto keys = getSinexStationCoordinateSolutionKeys( history );
     BOOST_REQUIRE_EQUAL( keys.size( ), 6 );
     for( const auto& key : keys )
     {
-        const auto solution = getSinexCartesianSolution( history, key, true );
+        const auto solution = getSinexStationCoordinateSolution( history, key, true );
         BOOST_CHECK_EQUAL( solution.site.domesId, "40423M002" );
         BOOST_CHECK_EQUAL( solution.key.site.siteCode, "AB07" );
         BOOST_CHECK_EQUAL( solution.key.site.pointCode, "A" );
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( real_fixed_width_ssc_preserves_six_solutions_components_an
                     *solution.velocityMetresPerSecond[ i ], history.parameters.at( index ).originalValue / 31557600.0, 1e-15 );
         }
     }
-    const auto first = getSinexCartesianSolution( history, keys.front( ) );
+    const auto first = getSinexStationCoordinateSolution( history, keys.front( ) );
     BOOST_CHECK_CLOSE_FRACTION( first.positionMetres[ 0 ], -3425750.19097981, 1e-15 );
     BOOST_CHECK_CLOSE_FRACTION( first.positionMetres[ 1 ], -1214685.85537427, 1e-15 );
     BOOST_CHECK_CLOSE_FRACTION( first.positionMetres[ 2 ], 5223662.74510764, 1e-15 );
@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_CASE( parameter_only_psd_and_seasonal_records_preserve_unresolve
     const auto seasonal = readSinexStationHistory( fixture( "albh_seasonal.snx" ) );
     BOOST_CHECK_EQUAL( psd.parameters.size( ), 4 );
     BOOST_CHECK_EQUAL( seasonal.parameters.size( ), 72 );
-    BOOST_CHECK_EQUAL( getSinexCartesianSolutionKeys( psd ).size( ), 0 );
-    BOOST_CHECK_EQUAL( getSinexCartesianSolutionKeys( seasonal ).size( ), 0 );
+    BOOST_CHECK_EQUAL( getSinexStationCoordinateSolutionKeys( psd ).size( ), 0 );
+    BOOST_CHECK_EQUAL( getSinexStationCoordinateSolutionKeys( seasonal ).size( ), 0 );
     for( const auto& row : psd.parameters )
     {
         const auto& parameter = row.second;
@@ -179,9 +179,10 @@ BOOST_AUTO_TEST_CASE( fixed_columns_and_reordered_blocks_records_are_independent
     text.insert( text.find( "%ENDSNX" ), "+SITE/ID\n" + firstSite( ) + "\n-SITE/ID\n" );
     const auto shuffled = parse( text );
     const auto original = parse( contents( "ab07_solutions.snx" ) );
-    for( const auto& key : getSinexCartesianSolutionKeys( shuffled ) )
+    for( const auto& key : getSinexStationCoordinateSolutionKeys( shuffled ) )
     {
-        const auto a = getSinexCartesianSolution( original, key, true ), b = getSinexCartesianSolution( shuffled, key, true );
+        const auto a = getSinexStationCoordinateSolution( original, key, true ),
+                   b = getSinexStationCoordinateSolution( shuffled, key, true );
         for( int i = 0; i < 3; ++i )
         {
             BOOST_CHECK_EQUAL( a.positionMetres[ i ], b.positionMetres[ i ] );
@@ -212,7 +213,7 @@ BOOST_AUTO_TEST_CASE( optional_cartesian_components_remain_missing_and_complete_
 {
     auto history = parse( document( { firstParameter( ) } ) );
     BOOST_CHECK_EQUAL( history.parameters.size( ), 1 );
-    BOOST_CHECK_THROW( getSinexCartesianSolution( history, { { "AB07", "A" }, "1" } ), std::runtime_error );
+    BOOST_CHECK_THROW( getSinexStationCoordinateSolution( history, { { "AB07", "A" }, "1" } ), std::runtime_error );
     const auto complete = readSinexStationHistory( fixture( "ab07_solutions.snx" ) );
     history.parameters.clear( );
     for( const auto& row : complete.parameters )
@@ -222,12 +223,12 @@ BOOST_AUTO_TEST_CASE( optional_cartesian_components_remain_missing_and_complete_
             history.parameters.insert( row );
         }
     }
-    const auto selected = getSinexCartesianSolution( history, { { "AB07", "A" }, "1" } );
+    const auto selected = getSinexStationCoordinateSolution( history, { { "AB07", "A" }, "1" } );
     for( int i = 0; i < 3; ++i )
     {
         BOOST_CHECK( !selected.velocityMetresPerSecond[ i ] );
     }
-    BOOST_CHECK_THROW( getSinexCartesianSolution( history, { { "AB07", "A" }, "1" }, true ), std::runtime_error );
+    BOOST_CHECK_THROW( getSinexStationCoordinateSolution( history, { { "AB07", "A" }, "1" }, true ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( exponent_variants_nonfinite_units_and_duplicate_components_are_checked )
@@ -277,7 +278,7 @@ BOOST_AUTO_TEST_CASE( preloaded_mutable_records_are_validated_before_cartesian_c
     BOOST_CHECK_THROW( validateSinexStationHistory( history ), std::runtime_error );
     history = readSinexStationHistory( fixture( "ab07_solutions.snx" ) );
     history.parameters.begin( )->second.valueSi = 0.0;
-    BOOST_CHECK_THROW( getSinexCartesianSolution( history, { { "AB07", "A" }, "1" } ), std::runtime_error );
+    BOOST_CHECK_THROW( getSinexStationCoordinateSolution( history, { { "AB07", "A" }, "1" } ), std::runtime_error );
     history = readSinexStationHistory( fixture( "ab07_solutions.snx" ) );
     history.parameters.begin( )->second.referenceEpoch.civilUtc->year = 2016;
     BOOST_CHECK_THROW( validateSinexStationHistory( history ), std::runtime_error );
@@ -335,7 +336,7 @@ BOOST_AUTO_TEST_CASE( real_combined_product_duplicate_site_codes_and_repeated_ps
     BOOST_REQUIRE_EQUAL( std::distance( gala.first, gala.second ), 2 );
     BOOST_CHECK_EQUAL( gala.first->second.domesId, "42005M001" );
     BOOST_CHECK_EQUAL( std::next( gala.first )->second.domesId, "42004S001" );
-    BOOST_CHECK_THROW( getSinexCartesianSolution( history, { { "GALA", "A" }, "1" } ), std::runtime_error );
+    BOOST_CHECK_THROW( getSinexStationCoordinateSolution( history, { { "GALA", "A" }, "1" } ), std::runtime_error );
     const auto yuma = history.sites.equal_range( { "7894", "A" } );
     BOOST_REQUIRE_EQUAL( std::distance( yuma.first, yuma.second ), 2 );
     BOOST_CHECK_EQUAL( yuma.first->second.domesId, std::next( yuma.first )->second.domesId );
@@ -356,7 +357,7 @@ BOOST_AUTO_TEST_CASE( real_combined_product_duplicate_site_codes_and_repeated_ps
     text.insert( text.find( "-SITE/ID" ), firstSite( ) + "\n" );
     const auto duplicate = parse( text );
     BOOST_CHECK_EQUAL( duplicate.sites.size( ), 2 );
-    BOOST_CHECK_NO_THROW( getSinexCartesianSolution( duplicate, { { "AB07", "A" }, "1" } ) );
+    BOOST_CHECK_NO_THROW( getSinexStationCoordinateSolution( duplicate, { { "AB07", "A" }, "1" } ) );
 }
 
 BOOST_AUTO_TEST_CASE( equipment_histories_validate_standard_columns_and_mutable_interval_roles )

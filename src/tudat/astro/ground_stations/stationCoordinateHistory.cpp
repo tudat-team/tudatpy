@@ -1,5 +1,6 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
-#include "tudat/astro/ground_stations/stationHistoryTrajectory.h"
+#include "tudat/astro/ground_stations/stationCoordinateHistory.h"
+#include "tudat/astro/reference_frames/terrestrialFrameTransformation.h"
 #include <algorithm>
 #include <cmath>
 #include <set>
@@ -112,7 +113,7 @@ double metres( const SinexParameterRecord& parameter )
 }  // namespace
 
 //! Own and validate the published solution and correction records once.
-StationHistoryTrajectory::StationHistoryTrajectory( std::vector< StationHistoryLinearSolution > solutions,
+StationCoordinateHistory::StationCoordinateHistory( std::vector< StationHistoryLinearSolution > solutions,
                                                     std::vector< StationPostSeismicTerm > postSeismicTerms,
                                                     std::vector< StationSeasonalTerm > seasonalTerms,
                                                     StationHistoryMetadata metadata ):
@@ -171,14 +172,8 @@ StationHistoryTrajectory::StationHistoryTrajectory( std::vector< StationHistoryL
     }
 }
 
-//! Retain the source lifetime without copying or revalidating its immutable coefficient records.
-StationHistoryTrajectory::StationHistoryTrajectory( std::shared_ptr< StationHistoryTrajectory > source ): source_( std::move( source ) )
-{
-    requireValidStationHistory( source_ != nullptr, "a source trajectory is required" );
-}
-
 //! Evaluate owned linear, cumulative post-seismic and fitted seasonal records.
-Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::evaluate( const StationHistoryTime& time, bool rates ) const
+Eigen::Matrix< double, 6, 1 > StationCoordinateHistory::evaluate( const StationHistoryTime& time, bool rates ) const
 {
     validateTime( time, metadata_.timeConvention );
     const StationHistoryLinearSolution* selected = nullptr;
@@ -242,31 +237,125 @@ Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::evaluate( const StationH
                     ( -term.cosineMetres * std::sin( angle ) + term.sineMetres * std::cos( angle ) ) * ( omega * *time.decimalYearRate );
         }
     }
-    requireValidStationHistory( result.allFinite( ), "nonfinite trajectory result" );
+    requireValidStationHistory( result.allFinite( ), "nonfinite station coordinate history result" );
     return result;
 }
 
-//! Evaluate owned records or delegate to the retained source without requiring rates.
-Eigen::Vector3d StationHistoryTrajectory::getPosition( const StationHistoryTime& time ) const
+//! Evaluate the position without requiring rates.
+Eigen::Vector3d StationCoordinateHistory::getPosition( const StationHistoryTime& time ) const
 {
-    if( source_ )
-    {
-        return source_->getPosition( time );
-    }
     return evaluate( time, false ).head< 3 >( );
 }
 
-//! Evaluate analytic TDB velocity from owned records or the retained source.
-Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::getState( const StationHistoryTime& time ) const
+//! Evaluate the position and its analytic TDB velocity.
+Eigen::Matrix< double, 6, 1 > StationCoordinateHistory::getState( const StationHistoryTime& time ) const
 {
-    if( source_ )
-    {
-        return source_->getState( time );
-    }
     return evaluate( time, true );
 }
 
-std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( const SinexStationHistory& solutions,
+namespace
+{
+//! Calendar decimal year of a station history epoch.
+double decimalYear( const StationHistoryTime& time )
+{
+    if( !std::isfinite( time.yearFraction ) || time.yearFraction < 0 || time.yearFraction >= 1 )
+    {
+        throw std::runtime_error( "Invalid station-history calendar coordinates for frame transformation" );
+    }
+    return static_cast< double >( time.calendarYear + time.yearFraction );
+}
+
+//! Release of a realization in the catalogue: the release of its row, or else the name of the realization.
+std::string catalogueRelease( const input_output::TerrestrialFrameTransformationData& catalogue, const std::string& realization )
+{
+    if( realization == catalogue.referenceFrame.realization )
+    {
+        return catalogue.referenceFrame.release;
+    }
+    const auto& identity = catalogue.getParameters( realization ).targetFrame;
+    return identity.release.empty( ) ? identity.realization : identity.release;
+}
+}  // namespace
+
+//! Transform the coefficients of a station coordinate history to another frame realization.
+std::shared_ptr< StationCoordinateHistory > transformStationCoordinateHistory(
+        const std::shared_ptr< StationCoordinateHistory >& history,
+        const input_output::TerrestrialFrameTransformationData& catalogue,
+        input_output::TerrestrialFrameIdentity target,
+        const std::string& targetOrigin,
+        const std::string& targetTideSystem,
+        const bool acknowledgeAlignedReleases )
+{
+    requireValidStationHistory( history != nullptr, "a station coordinate history is required" );
+    const auto& input = history->getMetadata( );
+
+    // Origin and tide system are not converted, so they must agree with the input.
+    if( target.realization.empty( ) || target.release.empty( ) || input.origin.empty( ) || input.tideSystem.empty( ) ||
+        targetOrigin != input.origin || targetTideSystem != input.tideSystem )
+    {
+        throw std::runtime_error( "Station frame transformation requires explicit matching origin/tide conventions and target identity" );
+    }
+
+    // A release that differs from that of the catalogue must be declared aligned by the user.
+    const bool sameRealization = input.frame == target.realization;
+    if( sameRealization )
+    {
+        if( input.release != target.release && !acknowledgeAlignedReleases )
+        {
+            throw std::runtime_error( "Same-frame station release change requires an explicit alignment declaration" );
+        }
+    }
+    else if( ( input.release != catalogueRelease( catalogue, input.frame ) ||
+               target.release != catalogueRelease( catalogue, target.realization ) ) &&
+             !acknowledgeAlignedReleases )
+    {
+        throw std::runtime_error( "Station releases differ from frame-catalogue identities; explicit alignment declaration required" );
+    }
+
+    std::vector< StationHistoryLinearSolution > solutions = history->getSolutions( );
+    std::vector< StationPostSeismicTerm > postSeismicTerms = history->getPostSeismicTerms( );
+    std::vector< StationSeasonalTerm > seasonalTerms = history->getSeasonalTerms( );
+    if( !sameRealization )
+    {
+        const reference_frames::HelmertTransformationModel model( catalogue );
+
+        // Each linear solution is transformed at its reference epoch; the parameter rates are per year (rate argument 1).
+        for( auto& solution : solutions )
+        {
+            const auto transformation =
+                    model.getTransformation( input.frame, target.realization, decimalYear( solution.referenceTime ), 1.0 );
+            const Eigen::Vector3d position = solution.positionMetres;
+            solution.positionMetres = transformation.translation + transformation.matrix * position;
+            solution.velocityMetresPerJulianYear = transformation.translationRate + transformation.matrixRate * position +
+                    transformation.matrix * solution.velocityMetresPerJulianYear;
+            for( auto& term : seasonalTerms )
+            {
+                if( term.solutionId == solution.source.key.solutionId )
+                {
+                    term.cosineMetres = transformation.matrix * term.cosineMetres;
+                    term.sineMetres = transformation.matrix * term.sineMetres;
+                }
+            }
+        }
+
+        // Post-seismic amplitudes are rotated and scaled with the matrix at the epoch of the earthquake.
+        for( auto& term : postSeismicTerms )
+        {
+            term.amplitudeMetres = model.getTransformation( input.frame, target.realization, decimalYear( term.eventTime ), 1.0 ).matrix *
+                    term.amplitudeMetres;
+        }
+    }
+
+    StationHistoryMetadata metadata = input;
+    metadata.frame = std::move( target.realization );
+    metadata.release = std::move( target.release );
+    metadata.sources.push_back( catalogue.provenance.source );
+    metadata.signals.push_back( sameRealization ? "declared same-frame identity" : "terrestrial frame transformation" );
+    return std::make_shared< StationCoordinateHistory >(
+            std::move( solutions ), std::move( postSeismicTerms ), std::move( seasonalTerms ), std::move( metadata ) );
+}
+
+std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory( const SinexStationHistory& solutions,
                                                                                const SinexStationHistory& discontinuities,
                                                                                const SinexSiteKey& site,
                                                                                const SinexStationHistory* postSeismic,
@@ -357,14 +446,14 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
             }
         }
     }
-    for( const auto& key : getSinexCartesianSolutionKeys( solutions ) )
+    for( const auto& key : getSinexStationCoordinateSolutionKeys( solutions ) )
     {
         if( !( key.site == site ) )
         {
             continue;
         }
         StationHistoryLinearSolution solution;
-        solution.source = getSinexCartesianSolution( selectedSolutions, key, true );
+        solution.source = getSinexStationCoordinateSolution( selectedSolutions, key, true );
         solution.referenceTime = sourceEpoch( solution.source.positionReferenceEpoch );
         for( int c = 0; c < 3; ++c )
         {
@@ -532,7 +621,7 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
                                         "missing annual/semiannual coefficients for position solution" );
         }
     }
-    return std::make_shared< StationHistoryTrajectory >(
+    return std::make_shared< StationCoordinateHistory >(
             std::move( linear ), std::move( psd ), std::move( seasons ), std::move( metadata ) );
 }
 }  // namespace ground_stations

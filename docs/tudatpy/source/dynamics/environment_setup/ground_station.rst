@@ -30,14 +30,15 @@ module.
 For Earth, we provide several options to create default stations, such as the :func:`~tudatpy.dynamics.environment_setup.ground_station.dsn_stations` and
 :func:`~tudatpy.dynamics.environment_setup.ground_station.evn_stations`.
 
-For high-accuracy station positions, a station history (linear solutions between discontinuities, post-seismic
-deformation and seasonal terms) can be created from ITRF/IGS SINEX products (see :ref:`station_history`) with
-:func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_history`, optionally transformed to another ITRF
-realization with :func:`~tudatpy.dynamics.environment_setup.ground_station.transform_station_history`, and used as
+For high-accuracy station positions, a station coordinate history (linear solutions between discontinuities,
+post-seismic deformation and seasonal terms) can be created from ITRF/IGS SINEX products (see :ref:`station_history`)
+with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_history`, optionally transformed to another
+ITRF realization with :func:`~tudatpy.dynamics.environment_setup.ground_station.transform_station_history`, and used as
 station motion with :func:`~tudatpy.dynamics.environment_setup.ground_station.station_history_motion`. The position of
-a reference point other than the monument marker (for instance a GNSS antenna reference point) can be modelled with
-:func:`~tudatpy.dynamics.environment_setup.ground_station.sinex_antenna_reference_point` and
-:func:`~tudatpy.dynamics.environment_setup.ground_station.reference_point_station`. The resulting station history
+a reference point other than the monument marker (for instance a GNSS antenna reference point) is obtained by adding
+reference point offsets, for instance from
+:func:`~tudatpy.dynamics.environment_setup.ground_station.sinex_antenna_reference_point_offsets`, to the station
+motion or with :func:`~tudatpy.dynamics.environment_setup.ground_station.reference_point_station`. The resulting
 objects are described in :ref:`environment`.
 
 
@@ -93,9 +94,7 @@ Functions
 
     geodetic_reference_point_geometry
 
-    station_reference_point_trajectory
-
-    sinex_antenna_reference_point
+    sinex_antenna_reference_point_offsets
 
     reference_point_station
 
@@ -143,9 +142,7 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.geodetic_reference_point_geometry
 
-.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.station_reference_point_trajectory
-
-.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.sinex_antenna_reference_point
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.sinex_antenna_reference_point_offsets
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.reference_point_station
 

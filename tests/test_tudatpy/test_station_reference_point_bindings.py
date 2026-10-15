@@ -86,7 +86,7 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
     trajectory.post_seismic_terms[0].amplitude_metres = np.zeros(3)
     np.testing.assert_array_equal(trajectory.position(query), expected)
 
-    # Construct and inspect both ordered wrapper types through their setup factories.
+    # The frame transformation returns a new history; offsets are added in the frame of that history.
     target_frame = terrestrial_frames.TerrestrialFrameIdentity()
     target_frame.realization = target_frame.release = "ITRF2014"
     transformed = gs.transform_station_history(
@@ -96,13 +96,12 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
         trajectory.metadata.origin,
         trajectory.metadata.tide_system,
     )
-    assert isinstance(transformed, environment.TransformedStationHistoryTrajectory)
-    assert transformed.source_trajectory is trajectory
-    assert transformed.catalogue.reference_frame.realization == "ITRF2020"
-    assert not transformed.acknowledged_release_alignment
+    assert isinstance(transformed, environment.StationCoordinateHistory)
+    assert transformed.metadata.frame == "ITRF2014"
+    assert trajectory.metadata.frame == "ITRF2020"
 
     point_offset = environment.StationReferencePointOffset()
-    point_offset.from_point = environment.station_reference_point_identity(transformed)
+    point_offset.from_point = environment.station_reference_point_identity(transformed.metadata)
     point_offset.to_point = point_offset.from_point
     point_offset.to_point.kind = environment.StationReferencePointKind.antenna_reference_point
     point_offset.to_point.name = "AB07:ARP"
@@ -112,18 +111,18 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
     point_offset.equipment_serial_number = offset.equipment_serial_number
     point_offset.source = offset.source
     point_history = environment.StationReferencePointOffsetHistory([point_offset])
-    point = gs.station_reference_point_trajectory(transformed, point_history)
-    assert isinstance(point, environment.StationReferencePointTrajectory)
-    assert point.source_trajectory is transformed
-    assert point.offset_history is point_history
-    assert point.reference_point_identity.name == point.metadata.reference_point_name == "AB07:ARP"
+    station = gs.reference_point_station(transformed, [point_history], np.zeros(3))
+    assert station.station_name == "AB07:ARP"
 
-    # State queries supply explicit source-coordinate rates; returned wrapper records remain copies.
+    # Returned coefficient and offset records remain copies.
     query = environment.ign_nominal_utc_station_time_from_tai(query.tai, 1.0)
     expected_point = transformed.position(query) + point_offset.components_metres
-    np.testing.assert_array_equal(point.position(query), expected_point)
-    np.testing.assert_array_equal(point.state(query)[:3], expected_point)
-    point.solutions[3].position_metres = np.zeros(3)
-    point.post_seismic_terms[0].amplitude_metres = np.zeros(3)
-    point.offset_history.offsets[0].components_metres = np.zeros(3)
-    np.testing.assert_array_equal(point.position(query), expected_point)
+    np.testing.assert_array_equal(
+        transformed.position(query) + point_history.position_correction(query), expected_point
+    )
+    transformed.solutions[3].position_metres = np.zeros(3)
+    transformed.post_seismic_terms[0].amplitude_metres = np.zeros(3)
+    point_history.offsets[0].components_metres = np.zeros(3)
+    np.testing.assert_array_equal(
+        transformed.position(query) + point_history.position_correction(query), expected_point
+    )

@@ -674,7 +674,7 @@ Block of a SINEX file that is not interpreted (for instance a covariance matrix)
       )doc" );
     py::class_< tio::SinexCartesianSolution >( m, "SinexCartesianSolution", R"doc(
 
-Cartesian position and (optional) velocity of a single solution of a SINEX file, as returned by :func:`get_cartesian_solution`.
+Cartesian position and (optional) velocity of a single solution of a SINEX file, as returned by :func:`get_station_coordinate_solution`.
 
       )doc" )
             .def_readonly( "key", &tio::SinexCartesianSolution::key, R"doc(
@@ -976,7 +976,7 @@ Examples
 
    history = station_history.read_sinex_station_history( "ITRF2020-IGS-TRF.SSC" )
    key = station_history.SinexSolutionKey( "AB07", "A", "1" )
-   solution = station_history.get_cartesian_solution( history, key )
+   solution = station_history.get_station_coordinate_solution( history, key )
 
       )doc" );
     m.def( "validate_sinex_station_history",
@@ -992,12 +992,13 @@ history : SinexStationHistory
     Contents of the SINEX file.
 
       )doc" );
-    m.def( "get_cartesian_solution_keys",
-           &tio::getSinexCartesianSolutionKeys,
+    m.def( "get_station_coordinate_solution_keys",
+           &tio::getSinexStationCoordinateSolutionKeys,
            py::arg( "history" ),
            R"doc(
 
-Function to retrieve the solutions of a SINEX station file that have a Cartesian position.
+Function to retrieve the identifiers of the station coordinate solutions in a SINEX station file: the solutions (one
+per station and validity interval) that have a complete Cartesian position.
 
 Parameters
 ----------
@@ -1010,14 +1011,15 @@ list[SinexSolutionKey]
     Solutions that have a complete Cartesian position.
 
       )doc" );
-    m.def( "get_cartesian_solution",
-           &tio::getSinexCartesianSolution,
+    m.def( "get_station_coordinate_solution",
+           &tio::getSinexStationCoordinateSolution,
            py::arg( "history" ),
            py::arg( "key" ),
            py::arg( "require_complete_velocity" ) = false,
            R"doc(
 
-Function to retrieve the Cartesian position and velocity of a single solution of a SINEX station file.
+Function to retrieve a single station coordinate solution of a SINEX station file: the Cartesian position and velocity
+of one station in one validity interval.
 
 The solution must have all three position components. Velocity components that are not given are ``None``, unless a
 complete velocity is required. A solution whose site is ambiguous (different monuments with the same site and point

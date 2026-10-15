@@ -679,7 +679,7 @@ void validateSinexStationHistory( const SinexStationHistory& history )
     }
 }
 
-std::vector< SinexSolutionKey > getSinexCartesianSolutionKeys( const SinexStationHistory& history )
+std::vector< SinexSolutionKey > getSinexStationCoordinateSolutionKeys( const SinexStationHistory& history )
 {
     std::set< SinexSolutionKey > keys;
     for( const auto& entry : history.parameters )
@@ -692,9 +692,9 @@ std::vector< SinexSolutionKey > getSinexCartesianSolutionKeys( const SinexStatio
     return { keys.begin( ), keys.end( ) };
 }
 
-SinexCartesianSolution getSinexCartesianSolution( const SinexStationHistory& history,
-                                                  const SinexSolutionKey& key,
-                                                  bool requireCompleteVelocity )
+SinexCartesianSolution getSinexStationCoordinateSolution( const SinexStationHistory& history,
+                                                          const SinexSolutionKey& key,
+                                                          bool requireCompleteVelocity )
 {
     validateSinexStationHistory( history );
     SinexCartesianSolution solution;

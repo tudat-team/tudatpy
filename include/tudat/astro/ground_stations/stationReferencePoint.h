@@ -1,7 +1,9 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
 #ifndef TUDAT_STATION_REFERENCE_POINT_H
 #define TUDAT_STATION_REFERENCE_POINT_H
-#include "tudat/astro/ground_stations/stationHistoryTrajectory.h"
+#include <memory>
+#include <vector>
+#include "tudat/astro/ground_stations/stationCoordinateHistory.h"
 #include "tudat/basics/basicTypedefs.h"
 
 namespace tudat
@@ -116,57 +118,28 @@ private:
     std::optional< StationReferencePointGeometry > geometry_;
 };
 
-//! Compose one declared reference-point vector once with its source trajectory.
-class StationReferencePointTrajectory : public StationHistoryTrajectory
-{
-public:
-    //! Retain the source and bind one validated reference-point offset history.
-    StationReferencePointTrajectory( std::shared_ptr< StationHistoryTrajectory > source,
-                                     std::shared_ptr< StationReferencePointOffsetHistory > offsets );
+//! Identity of the point whose position a station coordinate history describes.
+StationReferencePointIdentity getStationReferencePointIdentity( const StationHistoryMetadata& metadata );
 
-    //! Add the active reference vector to the source position.
-    Eigen::Vector3d getPosition( const StationHistoryTime& time ) const override;
-
-    //! Add the active reference vector and its TDB velocity to the source state.
-    Eigen::Vector6d getState( const StationHistoryTime& time ) const override;
-
-    //! Describe the evaluated reference point while retaining source frame and provenance.
-    const StationHistoryMetadata& getMetadata( ) const override
-    {
-        return outputMetadata_;
-    }
-
-    //! Return the directed offset's output point identity.
-    const StationReferencePointIdentity& getReferencePointIdentity( ) const
-    {
-        return offsets_->getOffsets( ).front( ).to;
-    }
-
-    //! Inspect the source retained by this ordered reference-point composition.
-    const std::shared_ptr< StationHistoryTrajectory >& getSourceTrajectory( ) const
-    {
-        return source_;
-    }
-
-    //! Inspect the validated offsets and their equipment association.
-    const std::shared_ptr< StationReferencePointOffsetHistory >& getOffsetHistory( ) const
-    {
-        return offsets_;
-    }
-
-private:
-    //! Immutable offset history and metadata describing the evaluated output point.
-    std::shared_ptr< StationReferencePointOffsetHistory > offsets_;
-    StationHistoryMetadata outputMetadata_;
-};
-StationReferencePointIdentity getStationReferencePointIdentity( const std::shared_ptr< StationHistoryTrajectory >& trajectory );
-std::shared_ptr< StationReferencePointTrajectory > createStationReferencePointTrajectory(
-        std::shared_ptr< StationHistoryTrajectory > source,
-        std::shared_ptr< StationReferencePointOffsetHistory > offsets );
+//! Check that a chain of offset histories can be added to a station coordinate history.
+/*!
+ * The first offset history must start at the point described by the history, and each next one at the end point of the
+ * previous one (for instance marker to antenna reference point, then antenna reference point to a calibrated point). All
+ * offsets must be given in the frame of the history. An offset to a calibrated point must lie within the validity of the
+ * previous (antenna) offsets, and refer to the same antenna. Throws an exception otherwise.
+ * \param history Description of the station coordinate history
+ * \param offsets Offset histories, in the order in which they are added
+ */
+void validateStationReferencePointOffsets( const StationHistoryMetadata& history,
+                                           const std::vector< std::shared_ptr< StationReferencePointOffsetHistory > >& offsets );
 
 //! GNSS marker-to-ARP interpretation of SINEX equipment/eccentricity records, never a phase centre.
-std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePointTrajectory(
-        std::shared_ptr< StationHistoryTrajectory > marker,
+/*!
+ * Each eccentricity is associated with the antenna that is valid on its interval. The offsets start at the marker
+ * described by the given metadata, and are given in its frame.
+ */
+std::shared_ptr< StationReferencePointOffsetHistory > createSinexAntennaReferencePointOffsets(
+        const StationHistoryMetadata& marker,
         const input_output::SinexStationHistory& equipment,
         std::string referencePointName,
         std::optional< StationReferencePointGeometry > geometry = std::nullopt,

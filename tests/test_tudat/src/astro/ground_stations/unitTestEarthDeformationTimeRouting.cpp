@@ -2,7 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
-#include "tudat/astro/ground_stations/stationHistoryTrajectory.h"
+#include "tudat/astro/ground_stations/stationCoordinateHistory.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/earth_orientation/precessionNutationCalculator.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"

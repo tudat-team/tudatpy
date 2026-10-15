@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsAmbiguityAndPreserve
         }
     }
     const auto adapted = input_output::readSinexStationData( selectedRaw );
-    const auto selected = input_output::getSinexCartesianSolution( raw, { { "AB07", "A" }, "1" }, true );
+    const auto selected = input_output::getSinexStationCoordinateSolution( raw, { { "AB07", "A" }, "1" }, true );
     BOOST_REQUIRE_EQUAL( adapted.size( ), 1 );
     const auto& state = adapted.at( "40423M002" );
     BOOST_CHECK_EQUAL( state.siteCode_, "AB07" );

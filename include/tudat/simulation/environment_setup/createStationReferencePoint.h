@@ -7,24 +7,33 @@ namespace tudat
 {
 namespace simulation_setup
 {
-//! Named observable point uses the selected absolute trajectory exactly once.
+//! Create settings for a ground station at a reference point of a station (for instance its antenna reference point).
+/*!
+ *  The position of the station is that of the station coordinate history plus the reference point offsets. The station
+ *  is named after the end point of the last offsets.
+ *  \param history Station coordinate history (for instance of the station marker)
+ *  \param referencePointOffsets Offset histories from the point of the history to the reference point, in order
+ *  \param nominalPosition Nominal position of the ground station
+ *  \param sourceTimeFunction Function converting a TDB epoch to the time of the history (if empty, the IGN convention is used)
+ *  \return Ground station settings
+ */
 inline std::shared_ptr< GroundStationSettings > stationReferencePointSettings(
-        std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
+        std::shared_ptr< ground_stations::StationCoordinateHistory > history,
+        std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets,
         const Eigen::Vector3d& nominalPosition,
         std::function< ground_stations::StationHistoryTime( const Time&, bool ) > sourceTimeFunction = nullptr )
 {
-    if( !trajectory || trajectory->getMetadata( ).referencePointKind == ground_stations::StationReferencePointKind::marker ||
-        trajectory->getMetadata( ).referencePointName.empty( ) )
+    if( !history || referencePointOffsets.empty( ) || !referencePointOffsets.back( ) )
     {
-        throw std::runtime_error( "Reference-point station requires an explicit instrument point trajectory" );
+        throw std::runtime_error( "Reference-point station requires a station history and reference point offsets" );
     }
-    const std::string name = trajectory->getMetadata( ).referencePointName;
+    const std::string name = referencePointOffsets.back( )->getOffsets( ).front( ).to.name;
     return std::make_shared< GroundStationSettings >(
             name,
             nominalPosition,
             coordinate_conversions::cartesian_position,
-            std::vector< std::shared_ptr< GroundStationMotionSettings > >{
-                    stationHistoryGroundStationMotionSettings( std::move( trajectory ), std::move( sourceTimeFunction ) ) } );
+            std::vector< std::shared_ptr< GroundStationMotionSettings > >{ stationHistoryGroundStationMotionSettings(
+                    std::move( history ), std::move( referencePointOffsets ), std::move( sourceTimeFunction ) ) } );
 }
 }  // namespace simulation_setup
 }  // namespace tudat

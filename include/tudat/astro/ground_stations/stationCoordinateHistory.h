@@ -1,6 +1,6 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
-#ifndef TUDAT_STATION_HISTORY_TRAJECTORY_H
-#define TUDAT_STATION_HISTORY_TRAJECTORY_H
+#ifndef TUDAT_STATION_COORDINATE_HISTORY_H
+#define TUDAT_STATION_COORDINATE_HISTORY_H
 
 #include <functional>
 #include <memory>
@@ -8,6 +8,7 @@
 #include <Eigen/Geometry>
 #include "tudat/basics/timeType.h"
 #include "tudat/io/readSinexStationHistory.h"
+#include "tudat/io/readTerrestrialFrameTransformationData.h"
 
 namespace tudat
 {
@@ -21,7 +22,7 @@ namespace ground_stations
 /*!
  * MJD and calendar year are split to avoid subtracting large floating-point epochs.
  * Rates, when supplied, are derivatives with respect to environment TDB seconds.
- * The coordinate convention must agree with that used to construct the trajectory.
+ * The coordinate convention must agree with that used to construct the station coordinate history.
  */
 struct StationHistoryTime {
     //! The epoch as TAI (seconds since J2000).
@@ -140,7 +141,8 @@ struct StationHistoryMetadata {
     std::vector< std::string > signals;
 };
 
-//! Absolute terrestrial trajectory with analytic TDB velocity and explicit source time.
+//! Catalogued coordinates of a station point over time: linear (position and velocity) solutions with consecutive
+//! validity intervals, plus post-seismic and seasonal terms.
 /*!
  * All applicable post-seismic terms accumulate. At a genuine event the correction
  * is zero and its rate is the right-hand rate. At a solution boundary the new
@@ -148,75 +150,92 @@ struct StationHistoryMetadata {
  * value asserts a two-sided derivative at a discontinuity. Position-only calls
  * never require source-coordinate rates. Gaps, overlaps and extrapolation fail.
  */
-class StationHistoryTrajectory
+class StationCoordinateHistory
 {
 public:
     //! Own and validate the published solution and correction records once.
-    StationHistoryTrajectory( std::vector< StationHistoryLinearSolution > solutions,
+    StationCoordinateHistory( std::vector< StationHistoryLinearSolution > solutions,
                               std::vector< StationPostSeismicTerm > postSeismicTerms,
                               std::vector< StationSeasonalTerm > seasonalTerms,
                               StationHistoryMetadata metadata );
 
-    //! Permit ordered trajectory wrappers to be destroyed through their base type.
-    virtual ~StationHistoryTrajectory( ) = default;
-
     //! Evaluate absolute terrestrial position without requiring source-coordinate rates.
-    virtual Eigen::Vector3d getPosition( const StationHistoryTime& time ) const;
+    Eigen::Vector3d getPosition( const StationHistoryTime& time ) const;
 
     //! Evaluate absolute terrestrial position and its analytic TDB velocity.
-    virtual Eigen::Matrix< double, 6, 1 > getState( const StationHistoryTime& time ) const;
+    Eigen::Matrix< double, 6, 1 > getState( const StationHistoryTime& time ) const;
 
-    //! Return the evaluated trajectory's frame, monument and reference-point identity.
-    virtual const StationHistoryMetadata& getMetadata( ) const
+    //! Description of the history: station, point, frame and conventions.
+    const StationHistoryMetadata& getMetadata( ) const
     {
-        return source_ ? source_->getMetadata( ) : metadata_;
+        return metadata_;
     }
 
-    //! Inspect the original published solutions through any ordered wrappers.
+    //! Linear solutions.
     const std::vector< StationHistoryLinearSolution >& getSolutions( ) const
     {
-        return source_ ? source_->getSolutions( ) : solutions_;
+        return solutions_;
     }
 
-    //! Inspect the original cumulative post-seismic coefficients without copying them.
+    //! Post-seismic terms.
     const std::vector< StationPostSeismicTerm >& getPostSeismicTerms( ) const
     {
-        return source_ ? source_->getPostSeismicTerms( ) : postSeismicTerms_;
+        return postSeismicTerms_;
     }
 
-    //! Inspect the original fitted seasonal coefficients without copying them.
+    //! Seasonal terms.
     const std::vector< StationSeasonalTerm >& getSeasonalTerms( ) const
     {
-        return source_ ? source_->getSeasonalTerms( ) : seasonalTerms_;
+        return seasonalTerms_;
     }
 
-    //! Identify fitted seasonal motion for loading-overlap decisions.
-    virtual bool hasFittedSeasonalTerms( ) const
+    //! Whether the history contains fitted seasonal terms.
+    bool hasFittedSeasonalTerms( ) const
     {
-        return source_ ? source_->hasFittedSeasonalTerms( ) : !seasonalTerms_.empty( );
+        return !seasonalTerms_.empty( );
     }
-
-protected:
-    //! Retain an already validated source for an ordered frame or reference-point wrapper.
-    explicit StationHistoryTrajectory( std::shared_ptr< StationHistoryTrajectory > source );
-
-    //! Shared source lifetime; null only for trajectories owning their published records.
-    const std::shared_ptr< StationHistoryTrajectory > source_;
 
 private:
-    //! Evaluate the owned linear, cumulative post-seismic and fitted seasonal records.
+    //! Evaluate the linear, cumulative post-seismic and fitted seasonal records.
     Eigen::Matrix< double, 6, 1 > evaluate( const StationHistoryTime& time, bool rates ) const;
 
-    //! Published coefficients retained only by the original trajectory.
+    //! Linear solutions, ordered in time.
     std::vector< StationHistoryLinearSolution > solutions_;
 
     //! Post-seismic terms (all terms whose earthquake precedes an epoch are added) and seasonal terms.
     std::vector< StationPostSeismicTerm > postSeismicTerms_;
     std::vector< StationSeasonalTerm > seasonalTerms_;
 
-    //! Source coordinate conventions and provenance for the owned records.
+    //! Description of the history.
     StationHistoryMetadata metadata_;
 };
+
+//! Transform a station coordinate history to another terrestrial reference frame realization.
+/*!
+ * The linearized Helmert transformation (translation T, rotation and scale matrix M, and their rates) of the catalogue
+ * is applied to the coefficients once, and a new history is returned. For each linear solution, with reference epoch t0,
+ * position x0 and velocity v, the new position is T(t0) + M(t0) x0 and the new velocity Tdot + Mdot x0 + M(t0) v. The
+ * post-seismic and seasonal amplitudes are multiplied by M. Compared with evaluating the transformation at each epoch,
+ * this treats the calendar decimal years of the parameter rates as Julian years (they differ by up to about 0.002 year,
+ * so the position differs by up to a few micrometres for the oldest ITRF realizations), and omits the term
+ * Mdot v (t - t0)^2 (tens of nanometres).
+ * The reference origin and tide system are not converted, and must be equal to those of the input history.
+ * \param history Station coordinate history that is to be transformed
+ * \param catalogue Table of transformation parameters
+ * \param target Realization and release of the target frame
+ * \param targetOrigin Reference origin of the output (must be equal to that of the input)
+ * \param targetTideSystem Tide system of the output (must be equal to that of the input)
+ * \param acknowledgeAlignedReleases Whether a release that differs from that of the catalogue (for instance an update of
+ * a realization) is accepted as aligned with it. This does not add a transformation.
+ * \return Station coordinate history in the target frame
+ */
+std::shared_ptr< StationCoordinateHistory > transformStationCoordinateHistory(
+        const std::shared_ptr< StationCoordinateHistory >& history,
+        const input_output::TerrestrialFrameTransformationData& catalogue,
+        input_output::TerrestrialFrameIdentity target,
+        const std::string& targetOrigin,
+        const std::string& targetTideSystem,
+        bool acknowledgeAlignedReleases = false );
 
 //! Explicit profile for IGN's source-index pairing and relaxation-unit convention.
 /*!
@@ -232,7 +251,7 @@ private:
  * A DOMES selector resolves duplicated SITE/ID metadata; the caller warrants the
  * association of parameter records to that monument using companion products.
  */
-std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory(
+std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory(
         const input_output::SinexStationHistory& solutions,
         const input_output::SinexStationHistory& discontinuities,
         const input_output::SinexSiteKey& site,
