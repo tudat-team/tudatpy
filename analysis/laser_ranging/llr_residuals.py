@@ -1,4 +1,4 @@
-"""Fixed-DE440 APOLLO diagnostic; no estimation, editing, bias removal or detrending.
+"""Fixed-DE440 laser diagnostic; no estimation, editing, bias removal or detrending.
 
 Requires the optical-troposphere, laser-signature and station-deformation bindings.
 The public 2005 APOLLO survey is only accurate to about 0.1 m. This is deliberately
@@ -126,7 +126,11 @@ def station_kinematic_displacement(epoch, converter, station_profile):
 
 
 def create_environment(
-    points, spice_knot_step=30, station_profile="survey2005", got410c_harpos=None
+    points,
+    spice_knot_step=30,
+    station_profile="survey2005",
+    got410c_harpos=None,
+    station_history=None,
 ):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
@@ -183,10 +187,15 @@ def create_environment(
     station_motion = [deformation]
     station_position = survey
     station_position_type = element_conversion.geodetic_position_type
+    station_name = points[0].get("station", "APOLLO")
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
     loading = None
 
-    if station_profile != "survey2005":
+    if station_history is not None:
+        station_position = station_history.solutions[0].position_metres
+        station_position_type = element_conversion.cartesian_position_type
+        station_motion.append(setup.ground_station.station_history_motion(station_history))
+    elif station_profile != "survey2005":
         station_position = STATION_PROFILES[station_profile]["position_m"]
         station_position_type = element_conversion.cartesian_position_type
         station_motion.append(
@@ -210,7 +219,7 @@ def create_environment(
     setup.add_ground_station(
         bodies.get("Earth"),
         setup.ground_station.basic_station(
-            "APOLLO_intrinsic",
+            station_name + "_intrinsic",
             station_position,
             station_position_type,
             station_motion_settings=station_motion,
@@ -218,7 +227,9 @@ def create_environment(
         bodies,
     )
 
-    intrinsic_earth = bodies.get("Earth").get_ground_station("APOLLO_intrinsic").station_state
+    intrinsic_earth = (
+        bodies.get("Earth").get_ground_station(station_name + "_intrinsic").station_state
+    )
 
     position = intrinsic_earth.cartesian_position_at_reference_epoch
 
@@ -243,7 +254,7 @@ def create_environment(
     setup.add_ground_station(
         bodies.get("Earth"),
         setup.ground_station.basic_station(
-            "APOLLO",
+            station_name,
             position,
             station_motion_settings=station_motion
             + [
@@ -278,7 +289,7 @@ def create_environment(
         },
     )
 
-    bodies.get("Earth").get_ground_station("APOLLO").set_station_meteo_data(meteo)
+    bodies.get("Earth").get_ground_station(station_name).set_station_meteo_data(meteo)
 
     for code in sorted({point["reflector"] for point in points}):
         name, coordinates = REFLECTORS[code]
@@ -337,12 +348,13 @@ def computed_range(point, epoch, bodies, corrections):
     """Return c times the atomic round-trip interval, using exactly one native clock transfer."""
 
     name = REFLECTORS[point["reflector"]][0]
+    station_name = point.get("station", "APOLLO")
 
     link = links.LinkDefinition(
         {
-            links.transmitter: links.body_reference_point_link_end_id("Earth", "APOLLO"),
+            links.transmitter: links.body_reference_point_link_end_id("Earth", station_name),
             links.reflector1: links.body_reference_point_link_end_id("Moon", name),
-            links.receiver: links.body_reference_point_link_end_id("Earth", "APOLLO"),
+            links.receiver: links.body_reference_point_link_end_id("Earth", station_name),
         }
     )
 
@@ -448,15 +460,18 @@ def ephemeris_controls(points, bodies):
 
 
 def main():
-    """Write all eleven O–C values and untuned statistics, with actual kernel/input identities."""
+    """Write every frozen O–C value and untuned statistics, with kernel/input identities."""
 
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--case", choices=("apollo20170309", "matera20220821"), default="apollo20170309"
+    )
 
     parser.add_argument(
         "--data-dir",
         type=Path,
         required=True,
-        help="Directory containing pinned apollo_20170309_np2.txt",
+        help="Directory containing the selected pinned normal points and station inputs",
     )
     parser.add_argument(
         "--kernel-dir",
@@ -485,18 +500,38 @@ def main():
     )
     args = parser.parse_args()
 
-    dataset = json.loads(Path(__file__).with_name("llr_dataset.json").read_text())
-
-    points = read_points(
-        args.data_dir / dataset["normal_points"]["file"], dataset["normal_points"]["sha256"]
+    kernel_manifest = Path(__file__).with_name("llr_dataset.json")
+    kernel_dataset = json.loads(kernel_manifest.read_text())
+    dataset_path = (
+        Path(__file__).with_name("matera_dataset.json")
+        if args.case == "matera20220821"
+        else kernel_manifest
     )
+    dataset = json.loads(dataset_path.read_text())
+    point_file = args.data_dir / dataset["normal_points"]["file"]
+    history, station_metadata = None, None
+    if args.case == "matera20220821":
+        from matera_case import read_points as read_matera_points, station_history
+
+        if args.station_profile != "survey2005" or args.got410c_harpos is not None:
+            parser.error(
+                "The frozen Matera case requires its SLRF2020 history and no loading option"
+            )
+        for record in [dataset["normal_points"], *dataset["station_inputs"].values()]:
+            if sha256(args.data_dir / record["file"]) != record["sha256"]:
+                raise ValueError("Matera input differs from its frozen manifest")
+        points = read_matera_points(point_file)
+        history, station_metadata = station_history(args.data_dir, dataset)
+        args.station_profile = "slrf2020-matera"
+    else:
+        points = read_points(point_file, dataset["normal_points"]["sha256"])
 
     kernel_hashes = {}
 
     # Clear any kernels loaded by earlier work in the same interpreter, then load only the declared matched set.
     spice.clear_kernels()
 
-    for record in dataset["kernels"]:
+    for record in kernel_dataset["kernels"]:
         name = record["file"]
 
         expected_hash = record["sha256"]
@@ -511,7 +546,7 @@ def main():
         spice.load_kernel(str(path))
 
     bodies, position, loading = create_environment(
-        points, args.spice_knot_step, args.station_profile, args.got410c_harpos
+        points, args.spice_knot_step, args.station_profile, args.got410c_harpos, history
     )
 
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
@@ -550,7 +585,11 @@ def main():
                 "index": point["index"],
                 "launch_tdb_time_split": epoch.__getstate__(),
                 "station_kinematic_position_at_launch_m": (
-                    position
+                    history.position(
+                        environment.ign_nominal_utc_station_time_from_tdb(epoch, converter)
+                    )
+                    if history is not None
+                    else position
                     + station_kinematic_displacement(epoch, converter, args.station_profile)
                 ).tolist(),
                 "ocean_loading_displacement_at_launch_m": (
@@ -565,7 +604,11 @@ def main():
 
         residual = 0.5 * (constants.SPEED_OF_LIGHT * point["observed_rtt_s"] - complete)
 
-        sigma = 0.5 * constants.SPEED_OF_LIGHT * point["sigma_rtt_s"]
+        sigma = (
+            0.5 * constants.SPEED_OF_LIGHT * point["sigma_rtt_s"]
+            if point["sigma_rtt_s"] is not None
+            else None
+        )
 
         rows.append(
             {
@@ -578,28 +621,48 @@ def main():
                 "computed_rtt_s": complete / constants.SPEED_OF_LIGHT,
                 "one_way_residual_m": residual,
                 "one_way_sigma_m": sigma,
-                "normalized_residual": residual / sigma,
+                "normalized_residual": residual / sigma if sigma is not None else None,
                 "geometric_atomic_half_range_m": 0.5 * geometric,
                 "shapiro_increment_m": 0.5 * (relativistic - geometric),
                 "atmosphere_increment_m": 0.5 * (atmospheric - relativistic),
                 "glass_increment_m": 0.5 * (complete - atmospheric),
             }
         )
+        if "bin_rms_ps" in point:
+            rows[-1].update(
+                {
+                    key: point[key]
+                    for key in (
+                        "bin_rms_ps",
+                        "epoch_event",
+                        "station_system_delay_applied",
+                        "system_delay_ps",
+                    )
+                }
+            )
 
     residuals = np.array([row["one_way_residual_m"] for row in rows])
 
-    sigmas = np.array([row["one_way_sigma_m"] for row in rows])
+    sigmas = np.array([row["one_way_sigma_m"] for row in rows]) if history is None else None
 
     summary = {
         "count": len(rows),
+        "case": args.case,
         "mean_m": float(np.mean(residuals)),
         "rms_about_zero_m": float(np.sqrt(np.mean(residuals**2))),
         "scatter_about_mean_m": float(np.std(residuals)),
-        "weighted_mean_m": float(np.average(residuals, weights=1 / sigmas**2)),
-        "normalized_rms": float(np.sqrt(np.mean((residuals / sigmas) ** 2))),
-        "chi_squared_no_fitted_parameters": float(np.sum((residuals / sigmas) ** 2)),
+        "weighted_mean_m": (
+            float(np.average(residuals, weights=1 / sigmas**2)) if sigmas is not None else None
+        ),
+        "normalized_rms": (
+            float(np.sqrt(np.mean((residuals / sigmas) ** 2))) if sigmas is not None else None
+        ),
+        "chi_squared_no_fitted_parameters": (
+            float(np.sum((residuals / sigmas) ** 2)) if sigmas is not None else None
+        ),
         "normal_point_sha256": dataset["normal_points"]["sha256"],
-        "dataset_manifest_sha256": sha256(Path(__file__).with_name("llr_dataset.json")),
+        "dataset_manifest_sha256": sha256(dataset_path),
+        "kernel_manifest_sha256": sha256(kernel_manifest),
         "kernel_sha256": kernel_hashes,
         "earth_orientation_resource_sha256": {
             path.name: sha256(path)
@@ -613,7 +676,10 @@ def main():
         "station_profile": args.station_profile,
         "station_profile_manifest_sha256": sha256(STATION_PROFILE_PATH),
         "station_profile_metadata": STATION_PROFILES.get(
-            args.station_profile, dataset["station_survey"]
+            args.station_profile, station_metadata or kernel_dataset["station_survey"]
+        ),
+        "matera_adapter_sha256": (
+            sha256(Path(__file__).with_name("matera_case.py")) if history is not None else None
         ),
         "ocean_loading": loading[1] if loading is not None else None,
         "ocean_loading_helper_sha256": (
@@ -625,14 +691,22 @@ def main():
             (
                 "Approximate 2005 survey (~0.1 m); no matched DE440 station solution or plate velocity."
                 if args.station_profile == "survey2005"
-                else "Published INPOP17a G+IR station-only sensitivity; see station-profile frame, tide and loading limitations."
+                else (
+                    "SLRF2020 optical-axis station history; no fitted seasonal or loading terms added."
+                    if history is not None
+                    else "Published INPOP17a G+IR station-only sensitivity; see station-profile frame, tide and loading limitations."
+                )
             ),
             (
                 "GOT4.10c 17-term Apollo loading sensitivity enabled; not a matched JPL/INPOP loading model. No atmospheric loading; lunar dissipative/thermal terms omitted."
                 if loading is not None
                 else "No Earth ocean/atmospheric loading; lunar dissipative/thermal terms omitted."
             ),
-            "DE440-fit NP calibration version is not established to match the 2022 ACS release.",
+            (
+                "Both Matera CRD points retained outside the DE440 fitting span; bin RMS is not a normal-point uncertainty, so no weighted/noise-level claim."
+                if history is not None
+                else "DE440-fit NP calibration version is not established to match the 2022 ACS release."
+            ),
             "Earth simultaneity omits deformation velocity over microseconds and ~1.34 micrometre acceleration terms.",
             "Existing custom position callbacks supply zero additional velocity; no Doppler/state-rate claim is made.",
             "Unlike the DE440-fit JPL2020 reduction, this diagnostic includes the sub-mm lunar Shapiro term.",
