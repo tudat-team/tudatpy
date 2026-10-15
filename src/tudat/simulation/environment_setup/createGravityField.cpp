@@ -170,6 +170,11 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > icgemSphericalHarmonic
         bool zeroFillMissingCoefficients )
 {
     input_output::validateIcgemGravityFieldData( data );
+    if( !data.temporalCoefficients.empty( ) )
+    {
+        throw std::runtime_error(
+                "Temporal ICGEM data require an explicit baseline-aware adapter; static consumption would discard records" );
+    }
     if( maximumDegree == -1 ) maximumDegree = data.maximumDegree;
     if( maximumOrder == -1 ) maximumOrder = maximumDegree;
     if( frame.empty( ) || maximumDegree < 0 || maximumDegree > data.maximumDegree || maximumOrder < 0 || maximumOrder > maximumDegree )

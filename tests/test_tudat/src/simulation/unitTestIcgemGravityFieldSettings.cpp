@@ -77,6 +77,13 @@ BOOST_AUTO_TEST_CASE( normalizationPresenceAndTideMetadataThroughStaticAndTimeDe
     BOOST_CHECK_EQUAL(
             simulation_setup::icgemSphericalHarmonicsGravitySettings( normalized, "ITRF2020", 2, 2 )->getCosineCoefficients( )( 2, 0 ),
             -4.841653458641e-4 );
+
+    // Even a static C00-only truncation must not silently discard a provider's temporal records.
+    const auto temporal = input_output::readIcgemGravityField( source.substr( 0, source.find_last_of( "/\\" ) ) +
+                                                               "/../../reference_files/icgem_gravity/eigen6s4_v2_c20_1950_2006.gfc" );
+
+    BOOST_REQUIRE( !temporal.temporalCoefficients.empty( ) );
+    BOOST_CHECK_THROW( simulation_setup::icgemSphericalHarmonicsGravitySettings( temporal, "ITRF2020", 0, 0 ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( numericReaderTruncatedOrderStillReadsLaterDegrees )

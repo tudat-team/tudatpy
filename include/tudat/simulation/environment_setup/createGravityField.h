@@ -786,6 +786,7 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
 
 //! Adapt static raw ICGEM coefficients into one normalized field in an explicit target frame.
 //! Missing selected records reject by default. Explicit zero-fill preserves raw presence and always requires supplied C00.
+//! Temporal data reject even when the requested static block would not include the time-variable coefficients.
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > icgemSphericalHarmonicsGravitySettings(
         const input_output::IcgemGravityFieldData& data,
         const std::string& associatedReferenceFrame,

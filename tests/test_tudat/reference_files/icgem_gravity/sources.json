@@ -29,6 +29,26 @@
       "selection": "Original metadata facts and two numeric records; negative fixture. Both C00 rows are retained without repair.",
       "license": "Scientific metadata facts and numeric coefficient records only; no provider prose/software copied.",
       "fixture_sha256": "dd3d94121bd9accacac1b36f13fb307e845bb32f1f5974aeb1afae3874bdfc5b"
+    },
+    {
+      "file": "eigen6s4_v2_c20_1950_2006.gfc",
+      "source": "https://icgem.gfz.de/getmodel/gfc/4cc119d62d3f83adce857914bcabdfa7ca2f91677ed2905934cf52698584b4c9/EIGEN-6S4%20(v2).gfc",
+      "source_sha256": "574878539bbe8310d6fe3bae25c42d18d2c4fc58010c9ecf9e82e187df56a7e2",
+      "source_bytes": 34404726,
+      "source_line_ranges": [
+        [
+          1,
+          71
+        ],
+        [
+          162,
+          221
+        ]
+      ],
+      "selection": "Entire original header and gfc C00; verbatim C20 records through the interval ending20060101.0000. Original max_degree300 unchanged; omitted coefficients remain absent.",
+      "license": "CC-BY-4.0; DataCite rights metadata for10.5880/icgem.2016.008 checked2026-10-15. Cite Foerste et al(2016),EIGEN-6S4 Version2,GFZ Data Services.",
+      "license_metadata_url": "https://api.datacite.org/dois/10.5880/icgem.2016.008",
+      "fixture_sha256": "308a3f950dab2901aaf691f5d39bb754852b00408442852f3c5e4168fd3569ed"
     }
   ]
 }
