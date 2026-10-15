@@ -1,8 +1,7 @@
 .. _light_time_corrections:
 
 ``light_time_corrections``
-===========================
-
+====================
 This module contains a set of factory functions for setting up the
 light-time corrections for observation models.
 

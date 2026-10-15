@@ -257,6 +257,40 @@ private:
     WaterVaporPartialPressureModel waterVaporPartialPressureModelType_;
 };
 
+//! Optical Mendes-Pavlis zenith delay and FCULa mapping from measured station meteorology.
+class MendesPavlisTroposphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    //! Retain the required vacuum wavelength in metres and the body carrying the atmosphere.
+    MendesPavlisTroposphericCorrectionSettings( const double wavelength, const std::string& bodyWithAtmosphere ):
+        LightTimeCorrectionSettings( mendes_pavlis_tropospheric ), wavelength_( wavelength ), bodyWithAtmosphere_( bodyWithAtmosphere )
+    {
+        if( !std::isfinite( wavelength_ ) || wavelength_ < 0.355e-6 || wavelength_ > 1.064e-6 )
+        {
+            throw std::invalid_argument( "Mendes-Pavlis requires an optical vacuum wavelength from 0.355 to 1.064 micrometres" );
+        }
+    }
+
+    //! Return the optical vacuum wavelength in metres.
+    double getWavelength( ) const
+    {
+        return wavelength_;
+    }
+
+    //! Return the body carrying the atmosphere and ground station.
+    const std::string& getBodyWithAtmosphere( ) const
+    {
+        return bodyWithAtmosphere_;
+    }
+
+private:
+    //! Vacuum wavelength in metres; the model uses optical group refractivity.
+    double wavelength_;
+
+    //! Body whose station supplies geodetic coordinates and measured meteorology.
+    std::string bodyWithAtmosphere_;
+};
+
 class VMF3TroposphericCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
@@ -602,6 +636,14 @@ inline std::shared_ptr< LightTimeCorrectionSettings > saastamoinenTroposphericCo
 {
     return std::make_shared< SaastamoinenTroposphericCorrectionSettings >(
             bodyWithAtmosphere, troposphericMappingModel, waterVaporPartialPressureModel );
+}
+
+//! Create optical zenith-delay/FCULa settings; station pressure, temperature and humidity must be supplied separately.
+inline std::shared_ptr< LightTimeCorrectionSettings > mendesPavlisTroposphericCorrectionSettings(
+        const double wavelength,
+        const std::string& bodyWithAtmosphere = "Earth" )
+{
+    return std::make_shared< MendesPavlisTroposphericCorrectionSettings >( wavelength, bodyWithAtmosphere );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedIonosphericCorrectionSettings(

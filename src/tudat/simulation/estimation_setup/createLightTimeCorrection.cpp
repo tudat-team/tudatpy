@@ -24,6 +24,7 @@
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/math/basic/coordinateConversions.h"
+#include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 
 namespace tudat
 {
@@ -334,6 +335,76 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 lightTimeCorrection = nullptr;
             }
 
+            break;
+        }
+        case mendes_pavlis_tropospheric: {
+
+            // Apply the correction only to a leg entering or leaving the atmosphere-bearing body.
+            const auto settings = std::dynamic_pointer_cast< MendesPavlisTroposphericCorrectionSettings >( correctionSettings );
+
+            if( !settings || !isRadiometricObservableType( observableType ) )
+            {
+                throw std::invalid_argument( "Invalid Mendes-Pavlis correction settings or observable" );
+            }
+            if( transmitter.bodyName_ == receiver.bodyName_ ||
+                ( transmitter.bodyName_ != settings->getBodyWithAtmosphere( ) &&
+                  receiver.bodyName_ != settings->getBodyWithAtmosphere( ) ) )
+            {
+                break;
+            }
+
+            const bool isUplink = transmitter.bodyName_ == settings->getBodyWithAtmosphere( );
+
+            const LinkEndId stationId = isUplink ? transmitter : receiver;
+
+            const auto body = bodies.at( stationId.bodyName_ );
+
+            const auto station = body->getGroundStation( stationId.getReferencePointName( ) );
+
+            // These accessors require actual station meteorology; there is no standard-atmosphere fallback.
+            const auto temperature = station->getTemperatureFunction( );
+
+            const auto pressure = station->getPressureFunction( );
+
+            const auto vaporPressure = station->getWaterVaporPartialPressureFunction( );
+
+            const auto nominal = station->getNominalStationState( );
+
+            const Eigen::Vector3d geodetic = nominal->getNominalGeodeticPosition( );
+
+            const Eigen::Vector3d cartesian = nominal->getNominalCartesianPosition( );
+
+            // Station meteorological tables use UTC; the light-time solver supplies each station event in TDB.
+            const auto earthRotation = std::dynamic_pointer_cast< GcrsToItrsRotationModel >( body->getRotationalEphemeris( ) );
+
+            const auto converter = earthRotation ? earthRotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )
+                                                 : earth_orientation::createDefaultTimeConverter( );
+
+            const auto utc = [ converter, cartesian ]( const double tdb ) {
+                return converter->getCurrentTime< double >(
+                        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, tdb, cartesian );
+            };
+
+            const auto mapping = std::make_shared< FculaTroposphericMapping >(
+                    [ station ]( const Eigen::Vector3d direction, const double time ) {
+                        return station->getPointingAnglesCalculator( )->calculateElevationAngleFromInertialVector( direction, time );
+                    },
+                    [ geodetic ]( double ) { return geodetic; },
+                    [ temperature, utc ]( const double time ) { return temperature( utc( time ) ); },
+                    isUplink );
+
+            // A single total optical mapping multiplies both zenith components; the existing mapped correction supplies 1/c.
+            lightTimeCorrection = std::make_shared< MappedTroposphericCorrection >(
+                    mendes_pavlis_tropospheric,
+                    mapping,
+                    isUplink,
+                    [ geodetic, pressure, vaporPressure, utc, wavelength = settings->getWavelength( ) ]( const double time ) {
+                        const double stationUtc = utc( time );
+
+                        return calculateMendesPavlisZenithDelay(
+                                       geodetic[ 1 ], geodetic[ 0 ], pressure( stationUtc ), vaporPressure( stationUtc ), wavelength )
+                                .sum( );
+                    } );
             break;
         }
         case vmf3_tropospheric:

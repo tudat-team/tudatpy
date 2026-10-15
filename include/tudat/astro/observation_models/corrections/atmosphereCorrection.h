@@ -639,6 +639,56 @@ protected:
     bool isUplinkCorrection_;
 };
 
+//! Return optical hydrostatic and wet zenith path delays in metres (IERS 2010, Eqs. 9.1-9.7).
+//! Inputs are geodetic latitude in radians, ellipsoidal height in metres, pressures in Pa and vacuum wavelength in metres.
+Eigen::Vector2d calculateMendesPavlisZenithDelay( double latitude,
+                                                  double height,
+                                                  double pressure,
+                                                  double waterVaporPressure,
+                                                  double wavelength );
+
+//! Return the total optical FCULa mapping factor (IERS 2010, Eqs. 9.9-9.10).
+//! Latitude/elevation are radians, height is metres, temperature is kelvin; elevation must be above 3 degrees.
+double calculateFculaMapping( double latitude, double height, double temperature, double elevation );
+
+//! Map the optical total zenith delay at the transmitting or receiving ground-station event.
+class FculaTroposphericMapping : public TroposhericElevationMapping
+{
+public:
+    //! Retain station elevation, geodetic coordinates and measured-temperature functions of TDB seconds.
+    FculaTroposphericMapping( std::function< double( Eigen::Vector3d, double ) > elevation,
+                              std::function< Eigen::Vector3d( double ) > geodeticPosition,
+                              std::function< double( double ) > temperature,
+                              bool isUplink );
+
+    //! Evaluate the common optical mapping at the ground-station event.
+    double computeDryTroposphericMapping( const Eigen::Vector6d& transmitterState,
+                                          const Eigen::Vector6d& receiverState,
+                                          double transmissionTime,
+                                          double receptionTime ) override;
+
+    //! Optical hydrostatic and wet components use the same total mapping.
+    double computeWetTroposphericMapping( const Eigen::Vector6d& transmitterState,
+                                          const Eigen::Vector6d& receiverState,
+                                          double transmissionTime,
+                                          double receptionTime ) override
+    {
+        return computeDryTroposphericMapping( transmitterState, receiverState, transmissionTime, receptionTime );
+    }
+
+private:
+    //! Station elevation in radians and nominal geodetic position (height, latitude, longitude).
+    std::function< double( Eigen::Vector3d, double ) > elevation_;
+
+    std::function< Eigen::Vector3d( double ) > geodeticPosition_;
+
+    //! Measured station temperature in kelvin, evaluated at TDB seconds by the factory's UTC adapter.
+    std::function< double( double ) > temperature_;
+
+    //! Select transmission for uplink, reception for downlink.
+    bool isUplink_;
+};
+
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.
 // Derived class from MappedTroposphericCorrection.
 class TabulatedTroposphericCorrection : public MappedTroposphericCorrection

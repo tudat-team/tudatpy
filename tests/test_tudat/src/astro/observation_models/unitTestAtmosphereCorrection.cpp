@@ -22,6 +22,9 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
+#include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/math/interpolators/linearInterpolator.h"
 
 namespace tudat
 {
@@ -971,6 +974,90 @@ BOOST_AUTO_TEST_CASE( testSeasonalPlusAdjustmentTroposphericCorrections )
     BOOST_CHECK_CLOSE_FRACTION( tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tOutside ),
                                 seasonalManager->computeMediaCorrection( tOutside ),
                                 1e-15 );
+}
+
+//! Compare optical zenith components and mapping with the official IERS FCUL reference cases.
+BOOST_AUTO_TEST_CASE( testMendesPavlisOfficialReferences )
+{
+
+    // FCUL_ZD_HPA.F's McDonald example uses hPa and micrometres; the native interface uses Pa and metres.
+    const double latitude = 30.67166667 * mathematical_constants::PI / 180.0;
+
+    const Eigen::Vector2d zenith = calculateMendesPavlisZenithDelay( latitude, 2010.344, 79841.88, 1432.2, 532e-9 );
+
+    // A nanometre bound covers decimal/single-literal rounding in the published Fortran reference, far below 1 mm.
+    BOOST_CHECK_SMALL( zenith[ 0 ] - 1.932992176591644462, 1e-9 );
+    BOOST_CHECK_SMALL( zenith[ 1 ] - 0.002233748255158703871, 1e-9 );
+    BOOST_CHECK_SMALL( zenith.sum( ) - 1.935225924846803114, 1e-9 );
+
+    // FCUL_A.F uses a different height and temperature in its independent 15-degree mapping example.
+    BOOST_CHECK_SMALL( calculateFculaMapping( latitude, 2075.0, 300.15, 15.0 * mathematical_constants::PI / 180.0 ) - 3.800243667312344087,
+                       1e-14 );
+    BOOST_CHECK_SMALL( calculateFculaMapping( latitude, 2075.0, 300.15, mathematical_constants::PI / 2 ) - 1.0, 1e-15 );
+}
+
+//! Apply measured UTC weather at the transmitting and receiving station events through the public factory.
+BOOST_AUTO_TEST_CASE( testMendesPavlisFactoryStationEvents )
+{
+    using namespace simulation_setup;
+
+    // Minimal body geometry isolates the per-leg elevation, UTC weather clock and metres-to-seconds conversion.
+    SystemOfBodies bodies( "SSB", "J2000" );
+
+    bodies.createEmptyBody( "Earth" );
+    bodies.createEmptyBody( "Moon" );
+    bodies.at( "Earth" )->setShapeModel( std::make_shared< OblateSpheroidBodyShapeModel >( 6378137.0, 1.0 / 298.257223563 ) );
+    bodies.at( "Earth" )->setRotationalEphemeris(
+            std::make_shared< ephemerides::SimpleRotationalEphemeris >( Eigen::Quaterniond::Identity( ), 0.0, 0.0, "J2000", "ITRS" ) );
+    createGroundStation( bodies.at( "Earth" ), "optical", Eigen::Vector3d( 6378137, 0, 0 ) );
+
+    const auto station = bodies.at( "Earth" )->getGroundStation( "optical" );
+
+    const std::map< double, Eigen::VectorXd > weather = { { -1000.0, Eigen::Vector3d( 290.0, 79000.0, 1000.0 ) },
+                                                          { 1000.0, Eigen::Vector3d( 310.0, 81000.0, 1400.0 ) } };
+
+    station->setMeteoData( std::make_shared< ContinuousInterpolatedMeteoData >(
+            std::make_shared< interpolators::LinearInterpolator< double, Eigen::VectorXd > >( weather ),
+            std::map< MeteoDataEntries, int >{
+                    { temperature_meteo_data, 0 }, { pressure_meteo_data, 1 }, { water_vapor_pressure_meteo_data, 2 } } ) );
+
+    const auto converter = earth_orientation::createDefaultTimeConverter( );
+
+    const Eigen::Vector3d position( 6378137, 0, 0 );
+
+    const double launch = converter->getCurrentTime< double >( utc_scale, tdb_scale, 0.0, position );
+
+    const double elevation = 15.0 * mathematical_constants::PI / 180.0;
+
+    Eigen::Vector6d stationState = Eigen::Vector6d::Zero( ), reflectorState = stationState;
+
+    stationState.head< 3 >( ) = position;
+    reflectorState.head< 3 >( ) = position + 3.8e8 * Eigen::Vector3d( std::sin( elevation ), std::cos( elevation ), 0 );
+
+    for( const bool uplink : { true, false } )
+    {
+        const LinkEnds ends{ { transmitter, uplink ? LinkEndId( "Earth", "optical" ) : LinkEndId( "Moon" ) },
+                             { receiver, uplink ? LinkEndId( "Moon" ) : LinkEndId( "Earth", "optical" ) } };
+
+        const auto correction = createLightTimeCorrections(
+                mendesPavlisTroposphericCorrectionSettings( 532e-9 ), bodies, ends, transmitter, receiver, one_way_range );
+
+        const std::vector< Eigen::Vector6d > states = uplink ? std::vector< Eigen::Vector6d >{ stationState, reflectorState }
+                                                             : std::vector< Eigen::Vector6d >{ reflectorState, stationState };
+
+        const std::vector< double > times{ launch, launch + 5.0 };
+
+        const double utc = converter->getCurrentTime< double >( tdb_scale, utc_scale, uplink ? times.front( ) : times.back( ), position );
+
+        const double temperature = 300.0 + 0.01 * utc;
+
+        const double expected = calculateMendesPavlisZenithDelay( 0, 0, 80000.0 + utc, 1200.0 + 0.2 * utc, 532e-9 ).sum( ) *
+                calculateFculaMapping( 0, 0, temperature, elevation ) / SPEED_OF_LIGHT;
+
+        // Distinct transmission/reception weather gives the correct positive optical delay on each leg.
+        BOOST_CHECK_SMALL( correction->calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, times, 0, nullptr ) - expected,
+                           1e-18 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

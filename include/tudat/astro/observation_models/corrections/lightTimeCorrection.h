@@ -34,7 +34,8 @@ enum LightTimeCorrectionType {
     inverse_power_series_solar_corona,
     ionex_vtec_ionospheric,
     nequick2_ionospheric,
-    laser_target_signature
+    laser_target_signature,
+    mendes_pavlis_tropospheric
 };
 
 bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );

@@ -354,6 +354,99 @@ double NiellTroposphericMapping::computeDryCoefficient(
     }
 }
 
+// Return the two zenith path components from the optical group-refractivity equations, in SI units.
+// Adapted from IERS FCUL_ZD_HPA.F: radians/Pa/metres replace degrees/hPa/micrometres.
+// This Tudat implementation is not distributed or endorsed by IERS; see licenses/IERS-Conventions.txt.
+Eigen::Vector2d calculateMendesPavlisZenithDelay( const double latitude,
+                                                  const double height,
+                                                  const double pressure,
+                                                  const double waterVaporPressure,
+                                                  const double wavelength )
+{
+
+    // The dispersion fit covers the optical laser-ranging wavelengths, not radio signals.
+    if( !std::isfinite( latitude ) || std::abs( latitude ) > mathematical_constants::PI / 2 || !std::isfinite( height ) ||
+        !std::isfinite( pressure ) || pressure <= 0 || !std::isfinite( waterVaporPressure ) || waterVaporPressure < 0 ||
+        waterVaporPressure > pressure || !std::isfinite( wavelength ) || wavelength < 0.355e-6 || wavelength > 1.064e-6 )
+    {
+        throw std::invalid_argument( "Invalid Mendes-Pavlis optical wavelength, station coordinates or pressures" );
+    }
+
+    // IERS 2010 Eqs. 9.1-9.7 use inverse micrometres, hPa and a fixed CO2 abundance of 375 ppm.
+    const double sigmaSquared = 1e-12 / ( wavelength * wavelength );
+
+    const double gravityFactor = 1.0 - 0.00266 * std::cos( 2 * latitude ) - 0.00000028 * height;
+
+    const double co2Correction = 1.0 + 0.534e-6 * ( 375.0 - 450.0 );
+
+    const double dryDispersion = 0.01 * co2Correction *
+            ( 19990.975 * ( 238.0185 + sigmaSquared ) / std::pow( 238.0185 - sigmaSquared, 2 ) +
+              579.55174 * ( 57.362 + sigmaSquared ) / std::pow( 57.362 - sigmaSquared, 2 ) );
+
+    const double wetDispersion = 0.003101 *
+            ( 295.235 + 3 * 2.6422 * sigmaSquared - 5 * 0.032380 * sigmaSquared * sigmaSquared +
+              7 * 0.004028 * sigmaSquared * sigmaSquared * sigmaSquared );
+
+    if( gravityFactor <= 0 )
+    {
+        throw std::invalid_argument( "Invalid Mendes-Pavlis station gravity factor" );
+    }
+
+    return Eigen::Vector2d( 2.416579e-3 * dryDispersion * ( pressure / 100.0 ) / gravityFactor,
+                            1e-4 * ( 5.316 * wetDispersion - 3.759 * dryDispersion ) * ( waterVaporPressure / 100.0 ) / gravityFactor );
+}
+
+// Evaluate the normalized continued fraction and coefficients of IERS 2010 Eqs. 9.9-9.10 and Table 9.1.
+// Adapted from IERS FCUL_A.F with angles in radians and height in metres; the IERS notice is retained in licenses/.
+double calculateFculaMapping( const double latitude, const double height, const double temperature, const double elevation )
+{
+    if( !std::isfinite( latitude ) || std::abs( latitude ) > mathematical_constants::PI / 2 || !std::isfinite( height ) ||
+        !std::isfinite( temperature ) || temperature <= 0 || !std::isfinite( elevation ) ||
+        elevation <= 3.0 * mathematical_constants::PI / 180.0 || elevation > mathematical_constants::PI / 2 )
+    {
+        throw std::invalid_argument( "FCULa requires finite station data and elevation above 3 degrees" );
+    }
+
+    // The fitted temperature term is in Celsius; the public input is kelvin.
+    const double celsius = temperature - 273.15;
+
+    const double cosineLatitude = std::cos( latitude );
+
+    const double a = 0.121008e-2 + 0.17295e-5 * celsius + 0.3191e-4 * cosineLatitude - 0.18478e-7 * height;
+
+    const double b = 0.304965e-2 + 0.2346e-5 * celsius - 0.1035e-3 * cosineLatitude - 0.1856e-7 * height;
+
+    const double c = 0.68777e-1 + 0.1972e-4 * celsius - 0.3458e-2 * cosineLatitude + 0.1060e-6 * height;
+
+    const double sineElevation = std::sin( elevation );
+
+    return ( 1.0 + a / ( 1.0 + b / ( 1.0 + c ) ) ) / ( sineElevation + a / ( sineElevation + b / ( sineElevation + c ) ) );
+}
+
+// Retain the existing station pointing/shape functions and the meteorology adapter, without a second elevation model.
+FculaTroposphericMapping::FculaTroposphericMapping( std::function< double( Eigen::Vector3d, double ) > elevation,
+                                                    std::function< Eigen::Vector3d( double ) > geodeticPosition,
+                                                    std::function< double( double ) > temperature,
+                                                    const bool isUplink ):
+    elevation_( elevation ), geodeticPosition_( geodeticPosition ), temperature_( temperature ), isUplink_( isUplink )
+{}
+
+// Evaluate the line of sight away from the station at transmission for uplink and reception for downlink.
+double FculaTroposphericMapping::computeDryTroposphericMapping( const Eigen::Vector6d& transmitterState,
+                                                                const Eigen::Vector6d& receiverState,
+                                                                const double transmissionTime,
+                                                                const double receptionTime )
+{
+    const double time = isUplink_ ? transmissionTime : receptionTime;
+
+    const Eigen::Vector3d direction = isUplink_ ? Eigen::Vector3d( receiverState.head< 3 >( ) - transmitterState.head< 3 >( ) )
+                                                : Eigen::Vector3d( transmitterState.head< 3 >( ) - receiverState.head< 3 >( ) );
+
+    const Eigen::Vector3d position = geodeticPosition_( time );
+
+    return calculateFculaMapping( position[ 1 ], position[ 0 ], temperature_( time ), elevation_( direction, time ) );
+}
+
 MappedTroposphericCorrection::MappedTroposphericCorrection( const LightTimeCorrectionType lightTimeCorrectionType,
                                                             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
                                                             bool isUplinkCorrection,

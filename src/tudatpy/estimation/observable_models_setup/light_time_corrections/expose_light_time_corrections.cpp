@@ -72,6 +72,9 @@ to select which correction contributions are saved individually.)doc" )
             .value( "vmf3o_tropospheric",
                     tom::vmf3o_tropospheric,
                     R"doc(Optical tropospheric light-time correction using VMF3o products.)doc" )
+            .value( "mendes_pavlis_tropospheric",
+                    tom::mendes_pavlis_tropospheric,
+                    R"doc(Measured-meteorology optical delay using Mendes-Pavlis zenith delay and FCULa mapping.)doc" )
             .value( "tabulated_ionospheric",
                     tom::tabulated_ionospheric,
                     R"doc(Ionospheric light-time correction from tabulated delays.)doc" )
@@ -516,6 +519,34 @@ Examples
            :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
                Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated tropospheric corrections.
 
+           )doc" );
+
+    m.def( "mendes_pavlis_tropospheric_light_time_correction",
+           &tom::mendesPavlisTroposphericCorrectionSettings,
+           py::arg( "observation_wavelength" ),
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           R"doc(
+Create an optical tropospheric delay using Mendes-Pavlis zenith delay and FCULa mapping (IERS 2010, chapter 9).
+
+The station must supply measured pressure (Pa), temperature (K) and water-vapour pressure (Pa) or relative humidity
+(fraction). Existing station meteorology converts humidity with its Tetens saturation-vapour formula. Meteorological
+epochs are UTC; the correction evaluates them at each leg's station event. Latitude and ellipsoidal height come from
+the station's nominal geodetic coordinates. No standard atmosphere is substituted when data are absent.
+
+The optical group delay uses a fixed CO2 concentration of 375 ppm. The model excludes horizontal gradients and
+requires elevation above 3 degrees. Its path delay is included inside the light-time iteration on both applicable legs.
+
+Parameters
+----------
+observation_wavelength : float
+    Required vacuum laser wavelength in metres, from 0.355e-6 to 1.064e-6.
+body_with_atmosphere_name : str, default = "Earth"
+    Body carrying the atmosphere and meteorological ground station.
+
+Returns
+-------
+LightTimeCorrectionSettings
+    Optical delay settings; existing VMF3o product-based corrections are configured separately.
            )doc" );
 
     m.def( "saastamoinen_tropospheric_light_time_correction",
