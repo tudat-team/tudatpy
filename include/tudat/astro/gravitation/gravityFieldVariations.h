@@ -35,7 +35,8 @@ enum BodyDeformationTypes {
     ocean_pole_tide,
     atmospheric_tide,
     station_loading,
-    aod1b_rl07
+    aod1b_rl07,
+    icgem_temporal
 };
 
 //! Interface class between GravityFieldVariations objects that are interpolated and

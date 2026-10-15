@@ -7,6 +7,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 #include "tudat/astro/basic_astro/tideSystem.h"
@@ -33,6 +34,13 @@ struct IcgemGravityCoefficient {
     std::size_t sourceLine = 0;
 
     std::string originalRecord;
+
+    //! Compare supplied values, uncertainty columns and source provenance exactly.
+    bool operator==( const IcgemGravityCoefficient& other ) const
+    {
+        return std::tie( cosine, sine, calibratedErrors, formalErrors, sourceLine, originalRecord ) ==
+                std::tie( other.cosine, other.sine, other.calibratedErrors, other.formalErrors, other.sourceLine, other.originalRecord );
+    }
 };
 
 //! One format-defined gfct/trnd/dot/asin/acos record, retaining its independent dates and units.
@@ -53,6 +61,19 @@ struct IcgemTemporalCoefficient {
 
     //! Supplied period in years, present only for asin/acos.
     std::optional< double > periodYears;
+
+    //! Compare the independent reference/validity tokens as well as the numerical record.
+    bool operator==( const IcgemTemporalCoefficient& other ) const
+    {
+        return std::tie( type, degree, order, coefficient, referenceDate, validityEndDate, periodYears ) ==
+                std::tie( other.type,
+                          other.degree,
+                          other.order,
+                          other.coefficient,
+                          other.referenceDate,
+                          other.validityEndDate,
+                          other.periodYears );
+    }
 };
 
 //! Neutral sparse static and temporal records. Missing entries remain distinct from published zeros.
@@ -87,6 +108,37 @@ struct IcgemGravityFieldData {
     std::map< std::pair< int, int >, IcgemGravityCoefficient > coefficients;
 
     std::vector< IcgemTemporalCoefficient > temporalCoefficients;
+
+    //! Compare complete source records so archived consuming settings retain their original data.
+    bool operator==( const IcgemGravityFieldData& other ) const
+    {
+        return std::tie( source,
+                         headerLines,
+                         productType,
+                         modelName,
+                         format,
+                         gravitationalParameter,
+                         referenceRadius,
+                         maximumDegree,
+                         errors,
+                         normalization,
+                         tideSystem,
+                         coefficients,
+                         temporalCoefficients ) ==
+                std::tie( other.source,
+                          other.headerLines,
+                          other.productType,
+                          other.modelName,
+                          other.format,
+                          other.gravitationalParameter,
+                          other.referenceRadius,
+                          other.maximumDegree,
+                          other.errors,
+                          other.normalization,
+                          other.tideSystem,
+                          other.coefficients,
+                          other.temporalCoefficients );
+    }
 };
 
 //! Validate header conventions, coefficient values and independent temporal record coverage.
