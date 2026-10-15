@@ -2,10 +2,12 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 
+#include <array>
 #include <cmath>
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readCrdFile.h"
+#include "tudat/io/readSinexStationHistory.h"
 #include "tudat/io/readSp3File.h"
 
 namespace tudat
@@ -34,6 +36,44 @@ BOOST_AUTO_TEST_CASE( published_lageos_orbit_and_normal_points )
     BOOST_CHECK( std::isnan( samples.front( ).clockCorrection ) );
     BOOST_CHECK( !samples.front( ).orbitPredicted );
     BOOST_CHECK_EQUAL( ( samples.at( 1 ).epoch - samples.front( ).epoch ).getSeconds< double >( ), 120.0 );
+
+    const auto stationHistory = input_output::readSinexStationHistory( directory + "SLRF2020_POS+VEL_2023.10.02.snx" );
+
+    const std::array< input_output::SinexCartesianSolution, 2 > stationSolutions = {
+        { input_output::getSinexStationCoordinateSolution( stationHistory, { { "7839", "A" }, "1" }, true ),
+          input_output::getSinexStationCoordinateSolution( stationHistory, { { "7840", "A" }, "1" }, true ) }
+    };
+
+    const std::array< std::string, 2 > domesIds = { { "11001S002", "13212S001" } };
+
+    const std::array< std::array< double, 3 >, 2 > positions = {
+        { { { 0.419442621299162E+07, 0.116269435703709E+07, 0.464724684303809E+07 } },
+          { { 0.403346347630212E+07, 0.236627872673329E+05, 0.492430535075408E+07 } } }
+    };
+
+    const std::array< std::array< double, 3 >, 2 > velocitiesPerYear = {
+        { { { -0.169475196163750E-01, 0.178948924955752E-01, 0.104131812643129E-01 } },
+          { { -0.131572303249976E-01, 0.170848681043556E-01, 0.981395859644500E-02 } } }
+    };
+
+    // The complete provider frame supplies explicit Graz and Herstmonceux monuments and SI station motion.
+    for( std::size_t station = 0; station < stationSolutions.size( ); ++station )
+    {
+        const auto& solution = stationSolutions[ station ];
+
+        BOOST_CHECK_EQUAL( solution.site.domesId, domesIds[ station ] );
+        BOOST_REQUIRE( solution.positionReferenceEpoch.civilUtc );
+        BOOST_CHECK_EQUAL( solution.positionReferenceEpoch.civilUtc->year, 2015 );
+        BOOST_CHECK_EQUAL( solution.positionReferenceEpoch.civilUtc->dayOfYear, 1 );
+        BOOST_CHECK_EQUAL( solution.positionReferenceEpoch.civilUtc->secondsOfDay, 0 );
+        for( std::size_t component = 0; component < 3; ++component )
+        {
+            BOOST_CHECK_SMALL( solution.positionMetres[ component ] - positions[ station ][ component ], 1.0e-9 );
+            BOOST_REQUIRE( solution.velocityMetresPerSecond[ component ] );
+            BOOST_CHECK_CLOSE_FRACTION(
+                    *solution.velocityMetresPerSecond[ component ], velocitiesPerYear[ station ][ component ] / 31557600.0, 1.0e-15 );
+        }
+    }
 
     const auto passes = input_output::readCrdFile( directory + "lageos1_20240402.np2" );
 

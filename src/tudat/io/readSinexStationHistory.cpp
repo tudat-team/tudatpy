@@ -368,7 +368,9 @@ SinexStationHistory readSinexStationHistory( std::istream& stream, const std::st
             ended = true;
             continue;
         }
-        if( stripped.front( ) == '+' )
+
+        // SINEX block delimiters occupy column one; indented INPUT/HISTORY entries are data.
+        if( line.front( ) == '+' )
         {
             if( !block.empty( ) )
             {
@@ -389,7 +391,7 @@ SinexStationHistory readSinexStationHistory( std::istream& stream, const std::st
             }
             continue;
         }
-        if( stripped.front( ) == '-' )
+        if( line.front( ) == '-' )
         {
             if( block.empty( ) || blockBase( text_parsing::trim( stripped.substr( 1 ) ) ) != blockBase( block ) )
             {
