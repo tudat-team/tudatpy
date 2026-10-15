@@ -457,9 +457,8 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
 //! Function to create an ephemeris for a reference point on a body
 /*!
  *  Function to create an ephemeris for a reference point on a body, taking into account the time-variable rotation
- *  of the body and its global ephemeris. Epochs and body-fixed velocities use TDB.
- *  Native GCRS/ITRS rotation models are evaluated in TDB through their existing
- *  angle calculator, regardless of their standalone input time scale.
+ *  of the body and its global ephemeris. Epochs and body-fixed velocities use TDB. The body's rotation model is used
+ *  as it is, so it must take TDB input.
  *  \param bodyWithReferencePoint Body on which reference point is located
  *  \param referencePointStateFunction Function returning the state of the reference point on the body (in a body-fixed
  *  frame, with velocity equal to the TDB derivative of position).
@@ -500,16 +499,6 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
             frameOrigin = bodyWithReferencePoint->getEphemeris( )->getReferenceFrameOrigin( );
         else
             throw std::invalid_argument( "Reference point ephemeris requires the explicit global frame origin after origin conversion." );
-    }
-
-    // Environment ephemerides and the complete local station state use TDB.
-    // Evaluate a native Earth rotation through that same clock, including its
-    // derivative, even if its standalone API declares TT, TAI, UTC or UT1.
-    // Sharing the angle calculator retains all EOP and interpolation policies.
-    if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyRotationModel ) )
-    {
-        bodyRotationModel = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
-                earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
     }
 
     // Create list of state/rotation functions that are to be used

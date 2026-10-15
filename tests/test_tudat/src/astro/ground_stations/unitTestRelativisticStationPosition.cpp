@@ -342,7 +342,8 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
     const Eigen::Vector3d correction = -( potential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT + 1.48082686741e-8 ) * inertial -
             .5 * fixture.hostVelocity.dot( inertial ) * fixture.hostVelocity * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     std::string stationName;
-    for( const auto scale : { tt_scale, tai_scale, utc_scale, ut1_scale, tdb_scale } )
+    // Stations use the body's rotation model as it is; inside an environment it must take TDB input.
+    for( const auto scale : { tdb_scale } )
     {
         fixture.earth->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, scale, "GCRS" ) );
         stationName = "relativistic_site_" + std::to_string( scale );

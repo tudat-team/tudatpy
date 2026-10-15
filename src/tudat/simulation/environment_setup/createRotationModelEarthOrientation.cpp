@@ -135,6 +135,15 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
     std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
             std::make_shared< earth_orientation::EarthOrientationAnglesCalculator >(
                     polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
+
+    // Inside an environment, every rotation model (and every station and deformation model that uses it) is
+    // evaluated at TDB epochs. A different input time scale is kept for compatibility, but is then misinterpreted.
+    if( gcrsToItrsRotationSettings->getInputTimeScale( ) != basic_astrodynamics::tdb_scale )
+    {
+        std::cerr << "Warning when creating GCRS-ITRS rotation model: input time scale is not TDB. Environment models evaluate "
+                     "body rotations at TDB epochs, so these epochs will be interpreted in the selected time scale instead."
+                  << std::endl;
+    }
     return std::make_shared< ephemerides::GcrsToItrsRotationModel >(
             earthOrientationCalculator, gcrsToItrsRotationSettings->getInputTimeScale( ), gcrsToItrsRotationSettings->getOriginalFrame( ) );
 }

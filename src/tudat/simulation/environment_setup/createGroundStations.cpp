@@ -288,11 +288,6 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                         throw std::invalid_argument( "Relativistic station ephemeris origin conversion has not been configured." );
                 };
                 validateStateAxes( body );
-                if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( rotation ) )
-                {
-                    rotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
-                            earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
-                }
                 std::vector< ground_stations::RelativisticStationExternalBody > externalBodies;
                 std::set< std::shared_ptr< Body > > selectedExternalBodies;
                 for( const auto& name : relativisticStationMotionSettings->externalBodyNames_ )

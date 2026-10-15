@@ -26,17 +26,6 @@ OceanTideBodyDeformationSettings::OceanTideBodyDeformationSettings( const std::v
     }
 }
 
-namespace
-{
-std::shared_ptr< ephemerides::RotationalEphemeris > deformationRotationInTdb( std::shared_ptr< ephemerides::RotationalEphemeris > rotation )
-{
-    if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( rotation ) )
-        return std::make_shared< ephemerides::GcrsToItrsRotationModel >(
-                earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
-    return rotation;
-}
-}  // namespace
-
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
         const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > lunarEphemeris,
@@ -95,11 +84,10 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock;
     if( const auto rotation = std::dynamic_pointer_cast< GcrsToItrsRotationModel >( earthRotation ) )
         contextClock = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
-    const auto nativeRotation = deformationRotationInTdb( earthRotation );
     std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >(
             std::bind( &Ephemeris::getCartesianStateFromExtendedTime, earthEphemeris, std::placeholders::_1 ),
             ephemerides,
-            [ nativeRotation ]( const Time& tdb ) { return nativeRotation->getRotationToTargetFrameFromExtendedTime( tdb ); },
+            [ earthRotation ]( const Time& tdb ) { return earthRotation->getRotationToTargetFrameFromExtendedTime( tdb ); },
             gravitionalParametersOfEarth,
             gravitationalParameters,
             equatorialRadius,
@@ -196,7 +184,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::BasicTidalBodyDeformation >(
                         std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >, bodyMap.at( body ), std::placeholders::_1 ),
                         deformingBodyEphemerides,
-                        [ rotation = deformationRotationInTdb( bodyMap.at( body )->getRotationalEphemeris( ) ) ]( const Time& tdb ) {
+                        [ rotation = bodyMap.at( body )->getRotationalEphemeris( ) ]( const Time& tdb ) {
                             return rotation->getRotationToTargetFrameFromExtendedTime( tdb );
                         },
                         gravitionalParameterOfDeformedBody,
