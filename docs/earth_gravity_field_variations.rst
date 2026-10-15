@@ -10,7 +10,11 @@ start in parallel with the remaining station validation and review. The two
 programmes have separate integration worktrees. The reviewed station fixes have
 now been merged before extending gravity setup.
 
-Status updated 15 October 2026: resumed after the rotation/deformation handover.
+Status updated 15 October 2026: the planned gravity work and validation are
+complete locally. Fourteen native executables pass 68 cases and 3069 assertions;
+the full offline Python suite passes 814 tests with the 101 established skips.
+All 283 autosummary names resolve. No examples were added.
+
 The static ICGEM adapter and solid-Earth, solid-pole and ocean-pole models are
 integrated and have passing reference checks. Their conventional Earth factories
 are also implemented locally; the earlier factory checkpoint passed 3 cases and
@@ -51,18 +55,18 @@ existing 705 archive entries are unchanged. All 121 added source files passed
 fresh-extraction byte comparisons. This separately requested change is on the
 local rotation branch and merged into gravity at ``5b2be31cd``; it was not pushed.
 
-The coordinator designs, reviews and handles major debugging. Three GPT-6.1 Sol
-workers at high reasoning use separate worktrees: rotation_impl owns
+The coordinator designed, reviewed and handled major debugging. Three GPT-6.1 Sol
+workers at high reasoning used separate worktrees: rotation_impl handled
 dependency integration, the build and a separate Python exposure checkout;
-desai_impl has completed the independent temporal numerical tests and evaluator
-review and now owns Dominic's separate rotation/deformation ``data.zip`` task;
+desai_impl has completed the independent temporal numerical tests, evaluator
+review and Dominic's separate rotation/deformation ``data.zip`` task;
 history_impl has completed the temporal evaluator, consuming factory and parser
-reuse. rotation_impl has validated the initial targets, harmonic
-setup, AOD1B and TiME22, and owns the remaining native and Python validation in
+reuse. rotation_impl has completed the selected native validation, Python
+kernel build and Python validation in
 ``/home/dominic/Tudat/gravity-resume-build``
-from a consistent source tree and owns the entire eight-job allowance. Its
+from the reviewed source, with exclusive use of the eight-job allowance. Its
 configuration follows the validated PR1092 build, including serialization.
-Tests run serially. Only relevant native tests run; the Python kernel is built
+Tests ran serially. Only relevant native tests ran; the Python kernel was built
 solely for Python-specific validation. No new estimation parameters, gravity
 recovery work or examples are included.
 
@@ -80,8 +84,8 @@ recovery work or examples are included.
    [x] G10 Connect secular/periodic/tabulated variations to their static-field baseline.  [DONE — temporal evaluator passes 3 cases/63 assertions against independent scalar references]
    [x] G11 Integrate Earth factories with the selected rotation and enforce compatibility.  [DONE — final Earth assembly/serialization passes 8 cases/57 assertions]
    [x] G12 Validate individual models and assembled forces against pinned references.  [DONE — 14 native executables, 68 cases and 3069 assertions pass, including the two narrowed links]
-   [ ] G13 Complete Python settings and diagnostics.  [ACTIVE — all planned bindings integrated and reviewed; kernel/runtime/autosummary validation pending; examples excluded by Dominic]
-   [ ] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [ACTIVE — source/API review complete; verification-driven follow-up remains]
+   [x] G13 Complete Python settings and diagnostics.  [DONE — kernel built; 25 focused/architecture checks, all 283 autosummary names and the full Python suite pass; examples excluded by Dominic]
+   [x] G14 Review the complete gravity diff for correctness, reuse, API clarity and size.  [DONE — source/API review and verification follow-up complete; no numerical tolerances weakened]
 
 Resumed verification
 --------------------
@@ -117,7 +121,7 @@ cleanup pass their focused integration checks. Python source and documentation
 now cover AOD1B, TiME22 and raw temporal records. Review fixed Python getters that
 could otherwise expose mutable owned harmonic metadata/constituents: these return
 copies, with assertions added to the existing provider-settings test. Kernel and
-Python runtime validation remain pending.
+Python runtime validation were still pending at that checkpoint.
 The updated temporal ICGEM reader now also passes 6 cases and 50 assertions;
 ``verification-20261015/icgem-temporal-reader-runtime.log`` records that run.
 That four-target build has now finished successfully at ``86c71fb1f``: ICGEM
@@ -130,13 +134,15 @@ model checks now pass: 3 cases and 63 assertions. Final Earth setup passes
 baseline, shared interval start and settings serialization. The static ICGEM
 adapter also passes 2 cases/28 assertions. No numerical fixes or tolerance
 changes were needed. The build log is ``verification-20261015/g10-final-build.log``.
-The compiler checkout has integrated the reviewed source, including the updated
-rotation dependency and shared parser reuse. One Python kernel build now precedes focused Python/architecture tests,
-autosummary-name validation and the full Python suite against the established
-offline-resource baseline. No broad native test build is planned.
+The compiler checkout integrated the reviewed source, including the updated
+rotation dependency and shared parser reuse. One successful Python kernel build
+was followed by focused Python/architecture tests, autosummary-name validation
+and the full Python suite against the established offline-resource baseline.
+No broad native test build was needed.
 At this final snapshot, the ICGEM reader (6 cases/50 assertions) and AOD1B reader
 (2/49) already pass after shared parser reuse. The autosummary inventory covers
-283 entries in 21 changed RST pages; runtime lookup still awaits the kernel.
+283 entries in 21 changed RST pages and fourteen modules; all resolve in the
+freshly built Python kernel.
 
 Source review has checked the generic changes, baseline subtraction, selected
 clocks, independent temporal origins, normalization and model overlap. The final
@@ -148,16 +154,50 @@ placement were checked against nearby Tudat code. The independent temporal
 numerical checks use three cases, with frozen arithmetic budgets established
 before running the implementation. ``eba17ab61`` also narrows the two new
 standalone AOD1B/temporal model test links so they no longer request the full
-propagation library list. This CMake-only cleanup is now applied in the compiler
-checkout; the two links are checked alongside the kernel build. The tracked
-source files match ``eba17ab61`` exactly; the compiler checkout retains the
-small patch uncommitted until its build finishes, to avoid changing generated
-Git metadata during verification. It does not change a numerical expression.
+propagation library list. This CMake-only cleanup was applied in the compiler
+checkout before linking both tests alongside the kernel. The tracked source
+files at compilation matched ``eba17ab61`` exactly. The small patch was retained
+uncommitted during the build to avoid changing generated Git metadata; it does
+not change a numerical expression.
 Both narrowed targets now link and pass: AOD1B 2 cases/12 assertions and temporal
 ICGEM 3/63. The final retained native results cover fourteen distinct executables,
 68 cases and 3069 assertions, with zero failures. The machine-readable record is
 ``verification-20261015/retained-latest-native-summary.json``. No further native
-runs are pending. The kernel build is active; Python runtime validation remains.
+runs are pending. The kernel has linked successfully with at most eight compiler
+jobs; its log is ``verification-20261015/kernel-final-build.log``.
+
+The focused checks pass 21 Python binding/serialization tests and four
+architecture tests. Their
+first run exposed one test-fixture mismatch: the degree-two GFZ extract retains
+the provider's degree-60 header, but the Python test requested the provider
+maximum. Commit ``13840ebd8`` makes the degree/order-two selection explicit,
+matching the existing native test. The corrected case passes; no production
+code or numerical tolerance changed. The original failure and corrected run
+are retained in ``python-focused.log`` and ``python-corrected.log``. Runtime
+autosummary lookup passes all 283 names in ``autosummary-runtime.json``.
+
+The full Python suite passes 814 tests, with 101 established skips and zero
+failures in 105.06 seconds. This adds the four new gravity tests to the previous
+810-pass baseline. Of the skips, 99 require remote data and two are the existing
+observation serialization placeholders. Evidence is in ``python-full.log``,
+``full.xml`` and ``full-reports.json``; ``full-failure-events.jsonl`` is empty.
+The node-by-node comparison in ``python-baseline-comparison.json`` confirms
+that no passing test was removed and no skip or skip reason changed.
+Twenty-six resource files were staged from the previously verified local cache
+with matching SHA-256 hashes. No downloads or tolerance changes were needed.
+
+The most complete build is ``/home/dominic/Tudat/gravity-resume-build``. Python
+validation asserted the imported package and kernel paths under its ``src``
+directory. The kernel SHA-256 is
+``f144e2d34aa65383cdc49da3d8c66690bec0bbb0db1695beb48e3443eca02fa7``.
+The only later test changes were the explicit Python fixture truncation above
+and comment/declaration-spacing cleanup in ``b3ace2a2e``. The latter preserves
+all 1025 C++ tokens, so no native rebuild or repeated numerical run was needed.
+The compiler checkout is clean at ``00274b776`` after committing its exact tested
+CMake patch. Its production files match the authoritative gravity branch; only
+this tracker and the comments-only native test edit differ. A compact record of
+the build, tests, baseline comparison and source provenance is in
+``verification-20261015/final-verification-summary.json``.
 
 Literature and model decisions
 -----------------------------
