@@ -30,262 +30,15 @@ module.
 For Earth, we provide several options to create default stations, such as the :func:`~tudatpy.dynamics.environment_setup.ground_station.dsn_stations` and
 :func:`~tudatpy.dynamics.environment_setup.ground_station.evn_stations`.
 
-Station histories, post-seismic deformation and seasonal motion
---------------------------------------------------------------
-
-``ign_station_history`` builds an absolute terrestrial station trajectory from
-preloaded :mod:`tudatpy.data_input.environment_data.station_history` products.
-Supply explicit and matching ``frame``, ``release``, ``origin`` (for example CM
-or CF) and ``tide_system`` metadata on each product. The reader preserves source
-records and does not infer these scientific conventions from filenames.
-``ITRF2020`` and its aligned catalogue updates have separate release identities;
-mixing solution, PSD or seasonal releases raises an error.
-
-Select a site code and point code explicitly. Every selected Cartesian solution
-requires complete position and velocity coefficients and one matching position
-discontinuity interval. Physical TAI intervals are half-open: the new solution
-applies exactly at its start. Gaps, overlaps, unresolved default endpoints and
-extrapolation raise errors. Observational spans do not define model validity.
-The independent velocity discontinuity ID is retained in
-``trajectory.solutions[i].velocity_solution_id`` and ``velocity_validity``.
-Published SSC velocities remain attached to their Cartesian/position solution;
-the velocity discontinuity ID is not an SSC solution lookup. AB07 position
-solution 6, for example, belongs to velocity interval 4. Each position interval
-must fit one velocity interval. Coefficients sharing a velocity interval must
-agree within the explicit componentwise
-``velocity_consistency_tolerance_metres_per_julian_year`` (default ``1e-8``, or
-10 nm/year). This is a numerical equivalence budget, not printed-field precision;
-the supplied coefficients are preserved. Set zero for strict equality.
-
-PSD amplitudes retain their original parameter indices. The IGN profile pairs
-an amplitude at index ``i`` with the matching relaxation parameter at ``i+1``;
-record order is irrelevant. Every applicable event and every repeated EXP/LOG
-term accumulates. It interprets the native IGN ``TEXP``/``TLOG`` numbers as Julian
-years even when the published unit field says ``m``; raw records remain unchanged.
-Relaxation times must be positive and finite. At an event the correction is zero
-and the returned velocity is the right-hand rate. At a solution change the new
-solution supplies position and right-hand velocity. Neither value asserts a
-two-sided derivative at a discontinuity.
-
-ENU coefficients require an explicit, constant, proper ``enu_to_terrestrial``
-rotation whose columns are East, North and Up. The model does not recompute that
-basis as the station moves. Duplicate SITE/ID entries with distinct DOMES
-monuments require a ``domes_selector``; the selector resolves metadata, and the
-caller must establish the parameter-to-monument association from companion
-products. Metadata-only selection cannot recover information absent from a
-parameter-only source.
-
-The named native time convention is ``IGN nominal UTC``. Linear and PSD elapsed
-time is the difference of nominal civil MJD divided by 365.25. Annual and
-semiannual phase uses the elapsed fraction of the actual calendar year,
-including February 29; it is not a fixed 365.25-day sinusoid.
-:class:`~tudatpy.dynamics.environment.StationHistoryTime`
-keeps physical TAI, split MJD and calendar-year coordinates separate and accepts
-optional derivatives with respect to environment TDB seconds. ``position`` does
-not need rates; ``state`` returns metres and metres per TDB second and requires
-the corresponding source rates. On ordinary UTC intervals these are
-``dTAI/dTDB / 86400`` and ``dTAI/dTDB / (days_in_year * 86400)``.
-
-The native conversion uses the installed SOFA leap table and supports UTC from
-1972 onward. Dubious dates, inserted-second source/reference/event labels and
-state derivatives exactly at a UTC offset step raise errors. Physical interval
-conversion can represent a real inserted-second label. At an ordinary January 1
-the seasonal phase is continuous and its rate uses the new year's length.
-Caller-supplied source coordinates or a ``source_time_function(TDB_Time,
-require_rates)`` callback may implement another explicitly named convention;
-its name must agree with the trajectory metadata.
-
-Runtime trajectories, metadata, source coordinates and offset histories are in
-:ref:`environment`; this setup module provides their construction functions and
-station-motion settings. Most workflows use ``ign_station_history`` and the
-default source-time conversion rather than assembling coordinate records.
-
-Attach the result with ``station_history_motion(trajectory)``. It subtracts the
-station's nominal position so that the resulting station position equals the
-absolute trajectory. The default callback uses the body's terrestrial time
-converter when available. For example, with matching metadata already supplied:
-
-.. code-block:: python
-
-    from tudatpy.data_input.environment_data import station_history as sh
-    from tudatpy.dynamics.environment_setup import ground_station as gs
-
-    trajectory = gs.ign_station_history(
-        coordinates, discontinuities, sh.SinexSiteKey("AB07", "A"),
-        post_seismic=psd, enu_to_terrestrial=enu_basis)
-    motion = gs.station_history_motion(trajectory)
-    station = gs.basic_station("AB07", nominal_position,
-                               station_motion_settings=[motion])
-
-``trajectory.metadata`` retains the release, origin, source inventory and signal
-inventory; ``trajectory.has_fitted_seasonal_terms`` reports whether empirical
-seasonal terms are active. When also applying physical loading, explicitly assess
-the overlap between fitted seasonal signals and the loading correction.
-
-Validation includes offline outputs from the unchanged hash-pinned IGN
-``parametric.f`` for selectors 0–5, signed amplitudes, very short and very long
-elapsed times, cumulative events, analytic rate checks, leap/year boundaries,
-physical interval selection and published repeated/seasonal coefficient inputs.
-The fixture provenance is in ``tests/test_tudat/reference_files/station_history``.
-No independent complete trajectory comparison is claimed.
-
-The direct C++ ``LinearStationMotionModel`` constructor now defaults its reference
-epoch to zero TDB seconds since J2000, matching the existing settings/factory
-default. Its previous default was the Julian day number used as seconds.
-
-Transforming a station history with a terrestrial frame catalogue
----------------------------------------------------------------
-
-``transform_station_history`` applies a preloaded conventional or supplied
-linearized Helmert catalogue to the complete absolute trajectory.
-Source solution, post-seismic and seasonal records remain shared with the
-original trajectory; wrappers retain their own evaluated output metadata.
-Its calendar decimal year and derivative come from the same
-:class:`~tudatpy.dynamics.environment.StationHistoryTime` as the marker
-coordinates. Direct affine queries accept that decimal year and, for
-states, its derivative explicitly. Parameter rates still use their declared
-Julian-year units. An IGN nominal UTC leap-year query uses the actual calendar-year
-fraction and its TDB derivative, including the documented right-hand year rate.
-
-Supply a :class:`~tudatpy.data_input.environment_data.terrestrial_frames.TerrestrialFrameIdentity`
-with both target realization and release, plus explicit target origin and tide
-system. Origin and tide conventions must match the source. This operation does
-not convert CM to CF or change a tide system. A release different from the
-catalogue's declared identity requires ``acknowledge_aligned_releases=True``;
-that declaration warrants alignment of the release to the named realization,
-not the existence of an additional transform. In particular, an aligned
-ITRF2020-u2024 catalogue can retain the ITRF2020 realization. Same-frame identity
-preserves origin/tide semantics and requires an explicit alignment declaration
-when the release label changes. Distinct realizations require actual catalogue
-records.
-
-The returned trajectory uses full affine kinematics:
-``y = T + A*x`` and ``dy/dTDB = dT/dTDB + dA/dTDB*x + A*dx/dTDB``. Inverses use
-the actual matrix inverse, including scale. Position evaluation remains available
-when source-coordinate rates are absent; state evaluation requires the rates
-needed by the source and, for a nonidentity transformation, the calendar-year
-rate. No derivative is invented to obtain a position.
-
-.. code-block:: python
-
-    from tudatpy.data_input.environment_data import terrestrial_frames as tf
-    from tudatpy.dynamics.environment_setup import ground_station as gs
-
-    target = tf.TerrestrialFrameIdentity()
-    target.realization = target.release = "ITRF2014"
-    transformed = gs.transform_station_history(
-        trajectory, tf.official_itrf2020_parameters(), target,
-        target_origin=trajectory.metadata.origin,
-        target_tide_system=trajectory.metadata.tide_system)
-    motion = gs.station_history_motion(transformed)
-
-``transformed.metadata`` describes the evaluated output. The input identity,
-release, signal inventory and original coefficients remain available through
-``transformed.source_trajectory``; inherited solution/PSD/seasonal records also
-remain source-coordinate records. ``transformed.catalogue`` retains the pinned
-parameter source and hash, and ``acknowledged_release_alignment`` records the
-explicit release declaration.
-
-Marker, antenna and calibrated instrument points
------------------------------------------------
-
-``sinex_antenna_reference_point`` composes a GNSS marker trajectory with the
-dated SINEX marker-to-antenna reference point (ARP) vector. It matches the
-selected station/point/DOMES to the antenna history and preserves the original
-equipment type, radome suffix, serial number and source records. It does not
-infer a phase centre from an antenna name. ``equipment_site`` explicitly selects
-an equipment-product key when identifiers differ, such as ITRF ``ABMF`` and IGS
-``abmf``; the selected row must identify the same DOMES. Raw identifiers remain
-unchanged and no case folding or alias registry is applied.
-
-SINEX UNE components are Up, North, East, in metres, directed from the marker
-to the ARP. The model preserves that order and converts using an explicitly
-supplied fixed ENU-to-terrestrial geometry. ``geocentric_reference_point_geometry``
-uses radial up at its anchor. ``geodetic_reference_point_geometry`` uses the
-ellipsoid normal and requires an equatorial radius and flattening. The basis
-stays frozen at that anchor; it does not imply a changing local orientation or
-invent its rate. An explicit proper fixed basis is also supported. XYZ vectors
-remain XYZ and require an explicitly matching source frame. Geometry and offset
-frame labels must agree with the evaluated source trajectory frame.
-
-Equipment and eccentricity intervals use precise physical TAI and are half-open.
-Gaps, overlaps, missing identity associations and extrapolation raise errors.
-Zero SINEX endpoints retain their header-default meaning. When the source header
-does not specify a limit, supply
-:class:`~tudatpy.dynamics.environment.SinexEquipmentHeaderTimeContext` with a
-finite confirmed bound and provenance; no infinity is guessed. A supplied
-context cannot contradict an actually specified source header. This context is
-retained with the evaluated records. The IGS master template has unspecified
-header limits, so its final equipment records require such a context.
-
-At a switch, position and state both use the new record (its one-sided rate),
-as at other station-history discontinuities. Do not use a centered finite
-difference across a hardware or offset jump.
-
-.. code-block:: python
-
-    from tudatpy.data_input.environment_data import station_history as sh
-    from tudatpy.dynamics import environment
-    from tudatpy.dynamics.environment_setup import ground_station as gs
-
-    geometry = gs.geodetic_reference_point_geometry(
-        anchor_position, marker.metadata.frame,
-        equatorial_radius_metres=6378137.0, flattening=1.0 / 298.257223563)
-    context = environment.SinexEquipmentHeaderTimeContext()
-    context.end_tai = confirmed_equipment_coverage_end_tai
-    context.source = "description of the supplied coverage evidence"
-    arp = gs.sinex_antenna_reference_point(
-        marker, equipment_product, "ABMF:ARP", geometry=geometry,
-        header_context=context, equipment_site=sh.SinexSiteKey("abmf", "A"))
-    station = gs.reference_point_station(arp, nominal_marker_position)
-
-For an explicit calibrated instrument point, construct
-:class:`~tudatpy.dynamics.environment.StationReferencePointOffset` records from
-the ARP to a named instrument point and pass a
-:class:`~tudatpy.dynamics.environment.StationReferencePointOffsetHistory` to
-``station_reference_point_trajectory``. Declare frame, component basis, validity,
-equipment type/serial, calibration ID, signal and source. Every calibration
-must match all antenna intervals it overlaps and remain inside their coverage.
-Fixed vectors have zero body-fixed rate. Optional ``position_function`` and
-``state_function`` receive ``StationHistoryTime``; the state callback must return
-the same position plus its derivative in metres per TDB second. A position-only
-callback remains usable for position queries. Direction-dependent phase-centre
-variation is not represented as a reference-point vector, and no ANTEX or other
-provider format is assumed.
-
-The existing trajectory metadata carries ``reference_point_kind`` and
-``reference_point_name`` together with station/DOMES. Frame transformations copy
-that identity. A marker-to-ARP offset cannot be applied again through a frame
-wrapper. Apply an offset before a frame transform to transform the complete
-point; apply it afterwards only when the supplied offset/geometry already belongs
-to the output frame. These are explicit composition choices, and affine scale
-and rotation can make their vectors differ. Source marker/point trajectories and
-offset histories remain inspectable; returned Python record lists are independent
-snapshots, preserving construction-time validation.
-
-``reference_point_station`` uses the declared point name as the station name and
-the selected complete absolute trajectory. Its nominal position is subtracted
-once when constructing station motion. Observable reference-point ephemerides
-then use the body's actual rotation axes and environment origin. Their inertial
-velocity includes both the rotated point velocity and ``Rdot`` times the full
-point position, including every reference-point offset.
-
-Native station/history dispatch preserves ``Time`` TDB inputs throughout physical
-interval selection and source-coordinate conversion. Two distinct precise
-epochs sharing a floating-point ``double`` image can therefore select opposite
-sides of an equipment switch. Genuine scalar input boundaries may normalize
-an exact rounded clock-boundary image; precise ``Time`` queries never snap or
-round-trip through ``double``. The default source clock is model-owned; callers
-may instead provide ``source_time_function(TDB_Time, require_rates)``.
-
-
-
-
-
-
-
-
-
+For high-accuracy station positions, a station history (linear solutions between discontinuities, post-seismic
+deformation and seasonal terms) can be created from ITRF/IGS SINEX products (see :ref:`station_history`) with
+:func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_history`, optionally transformed to another ITRF
+realization with :func:`~tudatpy.dynamics.environment_setup.ground_station.transform_station_history`, and used as
+station motion with :func:`~tudatpy.dynamics.environment_setup.ground_station.station_history_motion`. The position of
+a reference point other than the monument marker (for instance a GNSS antenna reference point) can be modelled with
+:func:`~tudatpy.dynamics.environment_setup.ground_station.sinex_antenna_reference_point` and
+:func:`~tudatpy.dynamics.environment_setup.ground_station.reference_point_station`. The resulting station history
+objects are described in :ref:`environment`.
 
 
 
@@ -328,6 +81,24 @@ Functions
 
     optical_telescope_stations
 
+    relativistic_station_motion
+
+    station_history_motion
+
+    ign_station_history
+
+    transform_station_history
+
+    geocentric_reference_point_geometry
+
+    geodetic_reference_point_geometry
+
+    station_reference_point_trajectory
+
+    sinex_antenna_reference_point
+
+    reference_point_station
+
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.basic_station
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.dsn_station
@@ -360,6 +131,24 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.optical_telescope_stations
 
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.relativistic_station_motion
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.station_history_motion
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.ign_station_history
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.transform_station_history
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.geocentric_reference_point_geometry
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.geodetic_reference_point_geometry
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.station_reference_point_trajectory
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.sinex_antenna_reference_point
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.reference_point_station
+
 
 
 
@@ -381,6 +170,8 @@ Classes
 
    CustomGroundStationMotionSettings
 
+   StationHistoryGroundStationMotionSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings
@@ -399,3 +190,17 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.CustomGroundStationMotionSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.environment_setup.ground_station.StationHistoryGroundStationMotionSettings
+   :members:
+
+
+Enumerations
+------------
+.. currentmodule:: tudatpy.dynamics.environment_setup.ground_station
+
+.. autosummary::
+
+   RelativisticStationCoordinateCompatibility
+
+.. autoclass:: tudatpy.dynamics.environment_setup.ground_station.RelativisticStationCoordinateCompatibility
+   :members:

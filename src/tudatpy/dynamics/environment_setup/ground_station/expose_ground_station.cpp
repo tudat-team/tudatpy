@@ -51,9 +51,19 @@ void expose_ground_station_setup( py::module& m )
             .value( "bodycentric_to_barycentric_station_position_motion",
                     tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion );
 
-    py::enum_< tudat::ground_stations::RelativisticStationCoordinateCompatibility >( m, "RelativisticStationCoordinateCompatibility" )
-            .value( "unscaled_tcg_to_tcb", tudat::ground_stations::unscaled_tcg_to_tcb_station_coordinates )
-            .value( "tt_to_tdb", tudat::ground_stations::tt_to_tdb_station_coordinates );
+    py::enum_< tudat::ground_stations::RelativisticStationCoordinateCompatibility >( m, "RelativisticStationCoordinateCompatibility", R"doc(
+
+Enumeration of the coordinate scalings of the relativistic station position correction (see
+:func:`relativistic_station_motion`).
+
+      )doc" )
+            .value( "unscaled_tcg_to_tcb",
+                    tudat::ground_stations::unscaled_tcg_to_tcb_station_coordinates,
+                    "Transformation between unscaled (TCG- and TCB-compatible) coordinates, Eq. (11.18) of the IERS Conventions 2010." )
+            .value( "tt_to_tdb",
+                    tudat::ground_stations::tt_to_tdb_station_coordinates,
+                    "Transformation from TT-compatible station coordinates to TDB-compatible coordinates, Eq. (11.19) of the IERS "
+                    "Conventions 2010." );
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -77,24 +87,33 @@ void expose_ground_station_setup( py::module& m )
            py::arg( "coordinate_compatibility" ) = tudat::ground_stations::tt_to_tdb_station_coordinates,
            R"doc(
 
- Function for creating settings for the IERS 2010 relativistic station position correction.
+ Function for creating settings for the relativistic correction of a ground station position.
 
- Implements the spatial approximation of Eqs. 11.18/11.19 of the IERS Conventions 2010 at the host-centre TDB epoch.
- Intrinsic station motion and deformation are included before the correction is applied. Station simultaneity and
- full-event acceleration terms are omitted. The returned velocity is the TDB derivative of this approximation.
- The ground station must be created with the bodies environment (see ``environment_setup.add_ground_station``).
+ Function for creating settings for the transformation of the station position from the geocentric to the barycentric
+ reference system, using the spatial part of Eqs. (11.18) and (11.19) of the IERS Conventions 2010, evaluated at the
+ TDB epoch of the host body's centre. The correction is applied to the station position including all other station
+ motion and deformation models. The terms due to the simultaneity of events and to the acceleration of the host body
+ are omitted. The velocity of the station is the derivative of this correction with respect to TDB.
+
+ A ground station with this motion model must be created with the other bodies of the environment (which is the case
+ when using :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`, or the ``bodies`` argument of
+ :func:`~tudatpy.dynamics.environment_setup.add_ground_station`). The global frame origin must be the solar system
+ barycenter.
+
 
  Parameters
  ----------
- external_bodies : list[str], default=["Sun"]
-     Bodies, excluding the station's host body, whose gravitational potential is included. An empty list gives zero external potential.
- coordinate_compatibility : RelativisticStationCoordinateCompatibility, default=RelativisticStationCoordinateCompatibility.tt_to_tdb
-     Whether TT-compatible station coordinates are mapped to TDB-compatible coordinates (Eq. 11.19), or unscaled coordinates are used (Eq. 11.18).
+ external_bodies : list[str], default = ["Sun"]
+     Bodies (other than the station's host body) whose gravitational potential is included in the correction. An
+     empty list gives no external potential.
+ coordinate_compatibility : RelativisticStationCoordinateCompatibility, default = RelativisticStationCoordinateCompatibility.tt_to_tdb
+     Coordinate scaling of the correction.
 
  Returns
  -------
  GroundStationMotionSettings
-     Settings for the relativistic station position correction.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` class
+     defining the relativistic station position correction.
 
  )doc" );
 
@@ -683,29 +702,73 @@ reference_epoch:
            py::arg( "enu_to_terrestrial" ) = py::none( ),
            py::arg( "domes_selector" ) = py::none( ),
            py::arg( "velocity_consistency_tolerance_metres_per_julian_year" ) = 1.0e-8,
-           R"doc(Construct an IGN station trajectory from preloaded products.
+           R"doc(
 
-Parameters
-----------
-solutions, discontinuities : SinexStationHistory
-    Coordinate and independent position/velocity history products with matching
-    explicit frame, release, origin and tide-system metadata.
-site : SinexSiteKey
-    Station and point identifier to select.
-post_seismic, seasonal : SinexStationHistory, optional
-    Cumulative post-seismic and fitted seasonal coefficients.
-enu_to_terrestrial : numpy.ndarray, optional
-    Constant proper rotation with East, North and Up as columns; required for ENU coefficients.
-domes_selector : str, optional
-    Monument identifier when source SITE/ID entries are ambiguous.
-velocity_consistency_tolerance_metres_per_julian_year : float, default=1e-8
-    Componentwise tolerance for velocities sharing a V interval; coefficients are unchanged.
+ Function for creating a station history from IGN (ITRF) station products.
 
-Returns
--------
-StationHistoryTrajectory
-    Absolute terrestrial trajectory using the named IGN nominal UTC convention.
-)doc" );
+ Function for creating the station history of a single station from the SINEX products of an ITRF solution, as
+ distributed by IGN: the station coordinate solution, the discontinuity file and, optionally, the post-seismic
+ deformation and seasonal-term files. The station position is the sum of:
+
+ * the linear (position and velocity) solution that is valid at the epoch. Each position solution must lie within a
+   single velocity interval of the discontinuity file, and solutions sharing a velocity interval must have consistent
+   velocities;
+ * all post-seismic deformation terms (logarithmic and exponential) of earthquakes before the epoch. An amplitude with
+   parameter index :math:`i` is paired with the relaxation time with index :math:`i+1`; relaxation times are
+   interpreted in Julian years (although labelled ``m`` in the IGN files);
+ * the annual and semi-annual seasonal terms of the valid position solution, with a phase given by the fraction of the
+   actual calendar year.
+
+ The time conventions of the IGN products are used: elapsed time for the linear and post-seismic terms is the
+ difference of UTC modified Julian dates divided by 365.25, without leap seconds. Solution validity intervals are
+ :math:`[t_{start}, t_{end})` in TAI, so a new solution applies from its start epoch; epochs in a gap between
+ solutions, or outside them, raise an exception.
+
+ The ``frame``, ``release``, ``origin`` and ``tide_system`` attributes of all products must be set by the user, and be
+ identical; they are not read from the files.
+
+
+ Parameters
+ ----------
+ solutions : SinexStationHistory
+     Station coordinate solution (for instance ``ITRF2020-IGS-TRF.SNX``).
+ discontinuities : SinexStationHistory
+     Discontinuity file, giving the validity intervals of the position and velocity solutions.
+ site : SinexSiteKey
+     Site code and point code of the station.
+ post_seismic : SinexStationHistory, default = None
+     Post-seismic deformation parameters.
+ seasonal : SinexStationHistory, default = None
+     Seasonal-term parameters.
+ enu_to_terrestrial : numpy.ndarray[numpy.float64[3, 3]], default = None
+     Constant rotation matrix from the local (east, north, up) basis to body-fixed Cartesian coordinates. Required if
+     the post-seismic or seasonal terms are given in east, north, up components.
+ domes_selector : str, default = None
+     DOMES number of the monument, required when several monuments share the site and point code.
+ velocity_consistency_tolerance_metres_per_julian_year : float, default = 1e-8
+     Tolerance on the difference between velocity components of solutions that share a velocity interval.
+
+ Returns
+ -------
+ StationHistoryTrajectory
+     Station history of the station marker.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+     from tudatpy.data_input.environment_data import station_history
+     from tudatpy.dynamics.environment_setup import ground_station
+
+     trajectory = ground_station.ign_station_history(
+         coordinates, discontinuities, station_history.SinexSiteKey( "AB07", "A" ),
+         post_seismic=psd, enu_to_terrestrial=enu_basis )
+     station_settings = ground_station.basic_station(
+         "AB07", nominal_position,
+         station_motion_settings=[ ground_station.station_history_motion( trajectory ) ] )
+
+ )doc" );
     m.def( "transform_station_history",
            &tudat::ground_stations::createTransformedStationHistoryTrajectory,
            py::arg( "source" ),
@@ -714,64 +777,173 @@ StationHistoryTrajectory
            py::arg( "target_origin" ),
            py::arg( "target_tide_system" ),
            py::arg( "acknowledge_aligned_releases" ) = false,
-           R"doc(Transform the complete trajectory through a preloaded affine catalogue.
+           R"doc(
 
-Parameters
-----------
-source : StationHistoryTrajectory
-    Input trajectory; its calendar year and TDB derivative supply the parameter coordinates.
-catalogue : TerrestrialFrameTransformationData
-    Preloaded Helmert parameters and source provenance.
-target_frame : TerrestrialFrameIdentity
-    Explicit target realization and release.
-target_origin, target_tide_system : str
-    Target conventions, which must match the source conventions.
-acknowledge_aligned_releases : bool, default=False
-    Declare alignment when a supplied release differs from the catalogue's identity.
+ Function for transforming a station history to another terrestrial reference frame realization.
 
-Returns
--------
-TransformedStationHistoryTrajectory
-    Trajectory in the target frame with the original monument and reference-point identity.
-)doc" );
+ Function for transforming a station history to another terrestrial reference frame realization, using a table of
+ linearized Helmert transformation parameters. The transformation is evaluated at the calendar decimal year of each
+ epoch, and is applied to both position and velocity (including the time derivative of the transformation). The
+ reference origin and tide system are not converted, and must be equal to those of the source history.
+
+
+ Parameters
+ ----------
+ source : StationHistoryTrajectory
+     Station history that is to be transformed.
+ catalogue : TerrestrialFrameTransformationData
+     Table of transformation parameters (see :ref:`terrestrial_frame_data`).
+ target_frame : TerrestrialFrameIdentity
+     Realization and release of the target frame.
+ target_origin : str
+     Reference origin of the output (must be equal to that of the source).
+ target_tide_system : str
+     Tide system of the output (must be equal to that of the source).
+ acknowledge_aligned_releases : bool, default = False
+     Whether a release that differs from that of the catalogue (for instance an update of a realization) is accepted as
+     aligned with it. This does not add a transformation.
+
+ Returns
+ -------
+ TransformedStationHistoryTrajectory
+     Station history in the target frame.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+     from tudatpy.data_input.environment_data import terrestrial_frames
+     from tudatpy.dynamics.environment_setup import ground_station
+
+     target = terrestrial_frames.TerrestrialFrameIdentity( )
+     target.realization = target.release = "ITRF2014"
+     transformed = ground_station.transform_station_history(
+         trajectory, terrestrial_frames.official_itrf2020_parameters( ), target,
+         target_origin=trajectory.metadata.origin, target_tide_system=trajectory.metadata.tide_system )
+
+ )doc" );
     py::class_< tss::StationHistoryGroundStationMotionSettings,
                 std::shared_ptr< tss::StationHistoryGroundStationMotionSettings >,
-                tss::GroundStationMotionSettings >( m, "StationHistoryGroundStationMotionSettings" );
+                tss::GroundStationMotionSettings >( m, "StationHistoryGroundStationMotionSettings", R"doc(
+
+ Class for defining settings for station motion from a station history.
+
+ `GroundStationMotionSettings` derived class for station motion from a station history. Instances of this class are
+ created by the :func:`station_history_motion` function.
+
+      )doc" );
     m.def( "station_history_motion",
            &tss::stationHistoryGroundStationMotionSettings,
            py::arg( "trajectory" ),
            py::arg( "source_time_function" ) = py::none( ),
-           R"doc(Create station-motion settings for an absolute history trajectory.
+           R"doc(
 
-Parameters
-----------
-trajectory : StationHistoryTrajectory
-    Complete terrestrial trajectory. The station's nominal position is subtracted once.
-source_time_function : callable, optional
-    Advanced conversion receiving (TDB Time, require_rates) and returning StationHistoryTime.
-    The default uses the selected terrestrial time converter and IGN nominal UTC profile.
+ Function for creating settings for station motion from a station history.
 
-Returns
--------
-StationHistoryGroundStationMotionSettings
-    Motion settings to supply to basic_station.
-)doc" );
+ Function for creating settings for station motion from a station history. The nominal position of the ground station
+ is subtracted from the station history, so that the resulting station position is equal to the station history.
+ By default, the epoch is converted to the time coordinates of the station history using the IGN conventions (see
+ :func:`~tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tdb`), with the time scale converter of the
+ body's rotation model when available.
+
+
+ Parameters
+ ----------
+ trajectory : StationHistoryTrajectory
+     Station history (for instance from :func:`ign_station_history`).
+ source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None
+     Custom conversion of the TDB epoch (first argument) to the time coordinates of the station history, setting the
+     rates when the second argument is true. Its time convention must match that of the station history.
+
+ Returns
+ -------
+ StationHistoryGroundStationMotionSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` derived
+     :class:`~tudatpy.dynamics.environment_setup.ground_station.StationHistoryGroundStationMotionSettings` class.
+
+ )doc" );
 
     // Bind reference-point geometry and ordered offset composition before constructing a named station.
     m.def( "geocentric_reference_point_geometry",
            &tudat::ground_stations::createGeocentricStationReferencePointGeometry,
            py::arg( "anchor_metres" ),
-           py::arg( "frame" ) );
+           py::arg( "frame" ),
+           R"doc(
+
+ Function for creating a local basis with a geocentric vertical, used to convert local offsets of station reference
+ points to Cartesian coordinates. The basis is fixed at the given position.
+
+
+ Parameters
+ ----------
+ anchor_metres : numpy.ndarray[numpy.float64[3, 1]]
+     Cartesian position at which the basis is defined, in metres.
+ frame : str
+     Terrestrial reference frame of the position.
+
+ Returns
+ -------
+ StationReferencePointGeometry
+     Local basis, with the up direction along the geocentric radial direction.
+
+ )doc" );
     m.def( "geodetic_reference_point_geometry",
            &tudat::ground_stations::createGeodeticStationReferencePointGeometry,
            py::arg( "anchor_metres" ),
            py::arg( "frame" ),
            py::arg( "equatorial_radius_metres" ),
-           py::arg( "flattening" ) );
+           py::arg( "flattening" ),
+           R"doc(
+
+ Function for creating a local basis with a geodetic vertical, used to convert local offsets of station reference
+ points to Cartesian coordinates. The basis is fixed at the given position.
+
+
+ Parameters
+ ----------
+ anchor_metres : numpy.ndarray[numpy.float64[3, 1]]
+     Cartesian position at which the basis is defined, in metres.
+ frame : str
+     Terrestrial reference frame of the position.
+ equatorial_radius_metres : float
+     Equatorial radius of the reference ellipsoid, in metres.
+ flattening : float
+     Flattening of the reference ellipsoid.
+
+ Returns
+ -------
+ StationReferencePointGeometry
+     Local basis, with the up direction normal to the reference ellipsoid.
+
+ )doc" );
     m.def( "station_reference_point_trajectory",
            &tudat::ground_stations::createStationReferencePointTrajectory,
            py::arg( "source" ),
-           py::arg( "offset_history" ) );
+           py::arg( "offset_history" ),
+           R"doc(
+
+ Function for creating the station history of a reference point of a station, by adding an offset history to the
+ station history of another point (for instance, from the antenna reference point to a calibrated instrument point).
+
+ The offsets must start at the point of the source history, and their validity must cover that of the source. When a
+ frame transformation is also used, the order matters: an offset added before the transformation is transformed with
+ the station, while an offset added after it must already be given in the target frame.
+
+
+ Parameters
+ ----------
+ source : StationHistoryTrajectory
+     Station history of the point from which the offsets are defined.
+ offset_history : StationReferencePointOffsetHistory
+     Offsets from that point to the reference point.
+
+ Returns
+ -------
+ StationReferencePointTrajectory
+     Station history of the reference point.
+
+ )doc" );
     m.def( "sinex_antenna_reference_point",
            &tudat::ground_stations::createSinexAntennaReferencePointTrajectory,
            py::arg( "marker" ),
@@ -780,13 +952,72 @@ StationHistoryGroundStationMotionSettings
            py::arg( "geometry" ) = py::none( ),
            py::arg( "header_context" ) = py::none( ),
            py::arg( "domes_selector" ) = py::none( ),
-           py::arg( "equipment_site" ) = py::none( ) );
+           py::arg( "equipment_site" ) = py::none( ),
+           R"doc(
+
+ Function for creating the station history of the antenna reference point (ARP) of a GNSS station.
+
+ Function for creating the station history of the antenna reference point of a GNSS station, by adding the
+ marker-to-ARP eccentricities of a SINEX file (for instance the IGS station log summary) to the station history of the
+ marker. Each eccentricity is associated with the antenna that is valid on its interval; the antenna type, radome and
+ serial number are retained. Eccentricities in up, north, east components are converted with the given local basis.
+ The phase centre is not modelled. At an epoch where the antenna changes, the new eccentricity is used.
+
+
+ Parameters
+ ----------
+ marker : StationHistoryTrajectory
+     Station history of the station marker.
+ equipment : SinexStationHistory
+     SINEX file with the antenna and eccentricity histories of the station.
+ reference_point_name : str
+     Name of the antenna reference point (also used as station name by :func:`reference_point_station`).
+ geometry : StationReferencePointGeometry, default = None
+     Local basis, required for eccentricities in up, north, east components.
+ header_context : SinexEquipmentHeaderTimeContext, default = None
+     Validity interval to use for records whose start or end refers to a file header epoch that is not given.
+ domes_selector : str, default = None
+     DOMES number of the monument, required when several monuments share the site and point code.
+ equipment_site : SinexSiteKey, default = None
+     Site and point code of the station in the equipment file, if it differs from that of the marker (for instance
+     ``abmf`` instead of ``ABMF``). It must have the same DOMES number.
+
+ Returns
+ -------
+ StationReferencePointTrajectory
+     Station history of the antenna reference point.
+
+ )doc" );
     m.def( "reference_point_station",
            &tss::stationReferencePointSettings,
            py::arg( "trajectory" ),
            py::arg( "nominal_position" ),
            py::arg( "source_time_function" ) = py::none( ),
-           "Create a named station for the selected instrument point, including complete absolute trajectory motion." );
+           R"doc(
+
+ Function for creating settings for a ground station located at a reference point of a station.
+
+ Function for creating settings for a ground station whose position is given by a station history (for instance of an
+ antenna reference point, see :func:`sinex_antenna_reference_point`). The name of the reference point is used as
+ station name, and :func:`station_history_motion` is used as station motion.
+
+
+ Parameters
+ ----------
+ trajectory : StationHistoryTrajectory
+     Station history of the reference point.
+ nominal_position : numpy.ndarray[numpy.float64[3, 1]]
+     Nominal Cartesian position of the station, in the body-fixed frame.
+ source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None
+     Custom conversion of the epoch to the time coordinates of the station history (see :func:`station_history_motion`).
+
+ Returns
+ -------
+ GroundStationSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings` defining the
+     ground station.
+
+ )doc" );
 }
 
 }  // namespace ground_station

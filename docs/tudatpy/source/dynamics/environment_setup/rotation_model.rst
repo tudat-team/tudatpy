@@ -60,39 +60,7 @@ One consequence of this is that you may get an error from the spherical harmonic
                 
     body_settings.get( "Earth" ).gravity_field_settings.associated_reference_frame = "ITRS"
     
-**High-accuracy Earth rotation model** The :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs` factory follows the IERS 2010 Conventions and accepts preloaded Earth orientation data through ``eop_data``. Load those data with :func:`~tudatpy.data_input.environment_data.earth_orientation.read_earth_orientation_data`; the model retains their original coverage and prediction flags.
-
-The model interpolates daily polar motion, celestial pole offsets, and continuous ``UT1 - TAI`` linearly on a TAI axis. Its default policy rejects epochs outside the first and last raw samples, interpolation intervals longer than 36 hours, and missing celestial pole offsets when rotation needs them. ``EarthOrientationEvaluationSettings`` allows an explicit maximum gap, a zero-CPO approximation, or historical Delta-T for UT1 before the tabulated era. Historical Delta-T does not supply missing polar motion or celestial pole offsets. At an exact raw sample the measured value remains available even beside a rejected gap; a slope across that gap is unavailable.
-
-Set ``EarthOrientationEvaluationSettings.interpolation`` to ``EarthOrientationInterpolation.lagrange_four_point`` to select the four-point Lagrange procedure independently benchmarked against the Paris Observatory IERS interpolation routine. Linear interpolation remains the default. The four-point window centers the bracketing interval and uses the first/last four samples near a coverage edge; there is no reduction of order. All three gaps in the complete window must satisfy the maximum-gap policy, and required CPO must be present at all four samples. Exact raw node values remain available beside an unusable window, with unavailable rates. At a knot the window follows the interval to its right, except at the final node where it follows the left interval. Construction rejects a cubic UT1 polynomial whose clock derivative becomes non-positive anywhere inside an interval, including an interior derivative extremum.
-
-Short-period EOP corrections use continuous UT1/TT arguments directly. The strict factory rejects non-None ``short_term_eop_interpolation_settings``; CIO and geocentric TDB interpolation settings remain supported.
-
-The ocean-tide EOP default remains ``OceanTideEopModel.iers_2010``. Explicitly
-select ``OceanTideEopModel.desai_sibois_2016`` to replace only those ocean terms
-with the 159-term `Desai and Sibois (2016) <https://doi.org/10.1002/2016JB013125>`_
-table. Conventional quasi-diurnal polar-motion libration (PMSDNUT2's short-period
-band) and semidiurnal UT1 libration (UTLIBR) remain included once. Daily EOP,
-observed celestial-pole offsets and precession/nutation retain their selected
-policies. Long-period zonal tides and extra free-core nutation are not added.
-
-.. code-block:: python
-
-   from tudatpy.dynamics.environment_setup import rotation_model
-
-   settings = rotation_model.gcrs_to_itrs(
-       eop_data=data,
-       ocean_tide_eop_model=rotation_model.OceanTideEopModel.desai_sibois_2016)
-
-The ``ocean_tide_eop_model`` settings property also permits an explicit choice.
-Custom short-period amplitude files, phase files or units cannot be combined
-automatically with this replacement: construction raises an error to prevent
-ambiguous omission or double counting. Minimum-amplitude cutoffs retain their
-original µas/µs units. Published LOD amplitudes are preserved in the source table;
-native clock and rotation derivatives differentiate the selected UT1 series.
-
-Use TT or TAI for an inserted leap second. Rotation and UT1 remain continuous there, while conversion to scalar UTC raises for ``23:59:60`` because that interface cannot identify the inserted second uniquely. Geocentric TT/TDB conversion needs no EOP coverage. A nonzero observer position requests SOFA's topocentric terms and therefore requires continuous UT1 within EOP coverage.
-
+**High-accuracy Earth rotation model** The :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs` creates a high accuracy rotation model, following the IERS 2010 Conventions. This includes small variations that are not predicted by models, but are instead measured by geodetic techniques and published as tabulated data by the IERS. These data are read from the Tudat resources by default, but can also be read by the user (see :ref:`earth_orientation_data`) and supplied to the model, together with settings for their interpolation (see :class:`~tudatpy.dynamics.environment_setup.rotation_model.EarthOrientationEvaluationSettings`).
 
 **Using the rotation model outside the propagation** In various cases, the rotation model object is useful to use independently of the propagation. Details can be found in the API entry for :class:`~tudatpy.dynamics.environment.RotationalEphemeris`, but we provide a short example here as well.
 
@@ -193,12 +161,32 @@ Enumerations
 
    IAUConventions
 
+   EarthOrientationInterpolation
+
+   MissingCelestialPolePolicy
+
+   HistoricalUt1Policy
+
+   OceanTideEopModel
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.RotationModelType
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.IAUConventions
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.EarthOrientationInterpolation
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.MissingCelestialPolePolicy
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.HistoricalUt1Policy
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.OceanTideEopModel
    :members:
 
 
@@ -212,10 +200,17 @@ Classes
 
    RotationModelSettings
 
+   GcrsToItrsRotationModelSettings
+
+   EarthOrientationEvaluationSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.GcrsToItrsRotationModelSettings
+   :members:
 
-
+.. autoclass:: tudatpy.dynamics.environment_setup.rotation_model.EarthOrientationEvaluationSettings
+   :members:
