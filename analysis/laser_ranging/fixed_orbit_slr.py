@@ -924,7 +924,7 @@ def main():
         ),
         "sp3_position_quantization_m": 0.001,
         "ocean_loading": (
-            "GOT4.10c HARPOS alternate CM/STW105 radial realization; not ASI BLQ/HARDISP"
+            "GOT4.10c HARPOS alternate CM/STW105 geodetic realization; not ASI BLQ/HARDISP"
             if args.got410c_harpos
             else (
                 "user-declared GOT4.10c BLQ"
