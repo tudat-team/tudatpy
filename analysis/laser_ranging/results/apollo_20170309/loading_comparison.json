@@ -1,0 +1,108 @@
+{
+  "description": "Optional fixed GOT4.10c Apollo loading sensitivity; no estimation, cuts, weight changes or default selection from residuals.",
+  "kernel_binary_sha256": "bd8d893574bd29281188934ff5a62647e4c08494eb4bfb846c17cfc06a062968",
+  "script_sha256": "53128ac2875e23acdef6705c22fbca61295edc16ff1d364697208c9abe22704a",
+  "ocean_loading_helper_sha256": "c1d60a69ec526496b85804a7e944681e4d1a44ca855cbb5f09fa819153904af2",
+  "source_git_objects": "provenance/git_sources.json",
+  "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+  "dataset_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+  "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+  "unchanged_kernel_and_earth_orientation_hashes": "survey_cubic30_station_control/summary.json",
+  "baseline_native_kernel_sha256": "1864ed04530210fa056e78128bdbbfe1ad536cae6a9d3ade4f23295fbeda1744",
+  "loading_product": {
+    "model": "GOT4.10c",
+    "source_url": "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps",
+    "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150",
+    "file": "toc_got410c_harmod.hps",
+    "product_release": "GOT4.10c; generated 2017-06-17; HARPOS 2005.03.28",
+    "site": "Apollo",
+    "provider_xyz_m": [
+      -1464000.0,
+      -5166632.0,
+      3435014.0
+    ],
+    "applicability_radius_m": 3000.0,
+    "constituents": [
+      "K1",
+      "K1-",
+      "K1+",
+      "K2",
+      "K2+",
+      "M2",
+      "M2-",
+      "M4",
+      "N2",
+      "N2-",
+      "O1",
+      "O1-",
+      "P1",
+      "Q1",
+      "Q1-",
+      "S1",
+      "S2"
+    ],
+    "argument_time": "TT seconds since J2000; selected Earth rotation converter at geocentre",
+    "amplitude_axes": "geocentric radial Up, East, North (HARPOS specification)",
+    "axis_wording_discrepancy": "Product narrative says ellipsoid-normal Up; HARPOS says radial Up. This analysis follows HARPOS.",
+    "uen_to_itrs": [
+      [
+        -0.22965813946335445,
+        0.9621208195878144,
+        0.14690359932249075
+      ],
+      [
+        -0.8104911833414139,
+        -0.2726234188687254,
+        0.5184404625510649
+      ],
+      [
+        0.5388517242285349,
+        0.0,
+        0.8424006287366689
+      ]
+    ],
+    "origin": "whole-Earth centre of mass",
+    "earth_response": "STW105/REAR",
+    "scope": "17 supplied gravity-tide terms including nodal sidebands; ocean-pole and equilibrium terms are not included",
+    "comparison": "Different realization from ASI 11-constituent BLQ+HARDISP and JPL FES2004; not exact provider replay"
+  },
+  "runs": {
+    "survey_got410c_cubic30": {
+      "station_profile": "survey2005",
+      "csv": "survey_got410c_cubic30/normal_points.csv",
+      "csv_sha256": "90722b730c50d84bfb59065678c80c88b1781524b14f153e47ffb9be69b0b1c2",
+      "original_summary_sha256": "48628868a098678c8c3047fa6096fde6c0c75691af88263b92e4dcea6e27036a",
+      "count": 11,
+      "mean_m": 0.2317254814234647,
+      "rms_about_zero_m": 0.23514917595218943,
+      "scatter_about_mean_m": 0.03998044784713233,
+      "weighted_mean_m": 0.2233779829824376,
+      "normalized_rms": 108.6255227425293,
+      "chi_squared_no_fitted_parameters": 129794.54610196524
+    },
+    "inpop17a_gir_got410c_cubic30": {
+      "station_profile": "inpop17a-gir",
+      "csv": "inpop17a_gir_got410c_cubic30/normal_points.csv",
+      "csv_sha256": "b79c2eeacf7d93bc2d3b93e8ec925608fefb1aa6adbff695e47f48ffd3cf6cb6",
+      "original_summary_sha256": "eb1effb454a56645ea200e431779e71a7d82fa2a67ff7a6beba17959ad6eb6ff",
+      "count": 11,
+      "mean_m": 0.0920490026473999,
+      "rms_about_zero_m": 0.10035037555963493,
+      "scatter_about_mean_m": 0.039964721775320046,
+      "weighted_mean_m": 0.07984130474037493,
+      "normalized_rms": 42.191062179623955,
+      "chi_squared_no_fitted_parameters": 19580.943006293845
+    }
+  },
+  "baseline_comparisons": {
+    "survey": {
+      "baseline": "survey_cubic30_station_control/summary.json",
+      "mean_residual_change_m": 0.012175131927837035
+    },
+    "inpop17a_gir": {
+      "baseline": "inpop17a_gir_cubic30/summary.json",
+      "mean_residual_change_m": 0.012171701951460404
+    }
+  },
+  "per_reflector_means": "loading_per_reflector.csv"
+}

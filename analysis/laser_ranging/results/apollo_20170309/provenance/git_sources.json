@@ -1,5 +1,5 @@
 {
-  "reconstruction": "Run git show BASE_COMMIT:PATH (or git show BASE_BLOB after a cherry-pick), apply the listed minimal unified patch with patch -p1 in a temporary tree, then verify SHA-256 against the source key. For manifests, git show BLOB yields the exact bytes; verify their SHA-256.",
+  "reconstruction": "Run git show BASE_COMMIT:PATH (or git show BASE_BLOB after a cherry-pick), apply any listed minimal unified patch with patch -p1 in a temporary tree, then verify SHA-256 against the source key. For manifests, git show BLOB yields the exact bytes; verify their SHA-256.",
   "executed_sources": {
     "8009d90f272c1b839422a23a69dc06276b0b647ffa45172ca58c5477e5d04b9a": {
       "base_commit": "a5883cbb841f025de35445e78e5a238c484788d1",
@@ -12,6 +12,16 @@
       "path": "analysis/laser_ranging/llr_residuals.py",
       "base_blob": "12ab13b875c19bccf467334335407198efae00c3",
       "patch": "executed_bb44adf3ea6f.patch"
+    },
+    "53128ac2875e23acdef6705c22fbca61295edc16ff1d364697208c9abe22704a": {
+      "base_commit": "9f562334455e2529040aaff0ea9d03d7ba598f1c",
+      "path": "analysis/laser_ranging/llr_residuals.py",
+      "base_blob": "08ca4322eac124a1dd4bd557f924d9e722e30403"
+    },
+    "c1d60a69ec526496b85804a7e944681e4d1a44ca855cbb5f09fa819153904af2": {
+      "base_commit": "9f562334455e2529040aaff0ea9d03d7ba598f1c",
+      "path": "analysis/laser_ranging/ocean_loading.py",
+      "base_blob": "f1476f8dc08037b03bcd173c620a89c15b66c86a"
     }
   },
   "manifests": {

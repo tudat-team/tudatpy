@@ -149,6 +149,45 @@ kinematic station shift. The station experiment and its control used native
 kernel SHA-256
 ``1864ed04530210fa056e78128bdbbfe1ad536cae6a9d3ade4f23295fbeda1744``.
 
+Optional ocean loading sensitivity
+----------------------------------
+
+``--got410c-harpos PATH`` enables the hash-pinned GOT4.10c HARPOS product from
+``https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps``.
+The existing helper selects the exact case-sensitive ``Apollo`` site. Its
+callback is included once in each Earth station's motion list, intrinsic and
+final; lunar stations are unchanged. It evaluates the 17 supplied TT harmonics
+in the HARPOS geocentric radial Up/East/North basis and returns terrestrial XYZ
+displacement. This is a whole-Earth-centre-of-mass STW105/REAR realization,
+different from JPL FES2004 and the older INPOP CSR4.0 model. It includes neither
+ocean-pole nor equilibrium terms. The helper records the source narrative's
+conflicting ellipsoid-normal wording and the explicitly selected HARPOS basis.
+Loading remains disabled by default for both station profiles.
+
+With all eleven points and 30-second cubic tables, survey plus loading gives
+mean ``+0.231725481 m``, RMS ``0.235149176 m`` and scatter ``0.039980448 m``.
+INPOP17a station plus loading gives mean ``+0.092049003 m``, RMS
+``0.100350376 m`` and scatter ``0.039964722 m``. The respective mean changes
+from the recorded unloaded controls are ``+12.175132`` and ``+12.171702 mm``.
+No station, reflector, uncertainty or correction parameter is fitted or chosen
+using these residuals. Group means retain the night's sampling:
+
+.. csv-table:: Mean one-way residual by reflector, millimetres
+   :header: "Reflector (N)", "Survey", "Survey + loading", "INPOP station", "INPOP + loading"
+
+   "A15 (4)", 196.049, 208.154, 55.557, 67.652
+   "A11 (2)", 174.437, 186.501, 27.656, 39.698
+   "A14 (3)", 251.387, 263.652, 115.450, 127.723
+   "L1 (2)", 263.910, 276.203, 127.381, 139.684
+
+The archive's ``loading_comparison.json`` records compact run summaries,
+product metadata and provenance, including the different native build from
+the unloaded controls. The input kernels and EOP resource hashes are unchanged.
+The two additional CSVs preserve every raw result; ``loading_per_reflector.csv``
+retains the unrounded group means. Launch loading changes from approximately
+``(-1.648, -12.576, +7.533) mm`` to ``(-1.275, -11.366, +8.769) mm`` over the
+night, identically for both profiles under the provider's fixed site basis.
+
 SPICE epoch precision experiment
 --------------------------------
 
