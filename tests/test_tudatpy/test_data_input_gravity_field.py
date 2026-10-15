@@ -29,7 +29,8 @@ def test_icgem_records_settings_and_assembled_tide_system():
     assert data.coefficients[(2, 0)].formal_errors is not None
     assert data.tide_system == gravity_data.TideSystem.tide_free
 
-    settings = gravity_field.from_icgem(data, "ITRS")
+    # The degree-two extract preserves the provider's original degree-60 header.
+    settings = gravity_field.from_icgem(data, "ITRS", 2, 2)
 
     original = settings.normalized_cosine_coefficients.copy()
 
