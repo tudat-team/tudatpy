@@ -18,12 +18,15 @@
 #include <numeric>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/observation_models.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
+#include "tudat/simulation/estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 
 namespace tudat
