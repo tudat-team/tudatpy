@@ -1,0 +1,29 @@
+{
+  "reconstruction": "Run git show BASE_COMMIT:PATH (or git show BASE_BLOB after a cherry-pick), apply the listed minimal unified patch with patch -p1 in a temporary tree, then verify SHA-256 against the source key. For manifests, git show BLOB yields the exact bytes; verify their SHA-256.",
+  "executed_sources": {
+    "8009d90f272c1b839422a23a69dc06276b0b647ffa45172ca58c5477e5d04b9a": {
+      "base_commit": "a5883cbb841f025de35445e78e5a238c484788d1",
+      "path": "analysis/laser_ranging/llr_residuals.py",
+      "base_blob": "0f209aa455a83da410975f129cb9a95832253163",
+      "patch": "executed_8009d90f272c.patch"
+    },
+    "bb44adf3ea6f633d4e54d2e1a5936a09f92d064aba120a94fe2cf3760191413e": {
+      "base_commit": "db6f4aabafafdf96fc27dc96cd22503f21e05f31",
+      "path": "analysis/laser_ranging/llr_residuals.py",
+      "base_blob": "12ab13b875c19bccf467334335407198efae00c3",
+      "patch": "executed_bb44adf3ea6f.patch"
+    }
+  },
+  "manifests": {
+    "llr_dataset.json": {
+      "path": "analysis/laser_ranging/llr_dataset.json",
+      "blob": "e802fe4241f11082ccaa8fc1cb5e14ca2ba9150f",
+      "sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294"
+    },
+    "llr_station_profiles.json": {
+      "path": "analysis/laser_ranging/llr_station_profiles.json",
+      "blob": "b04e0f6361549cff0c92faf758968b7c37e9c0f9",
+      "sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+--- a/analysis/laser_ranging/llr_residuals.py
++++ b/analysis/laser_ranging/llr_residuals.py
+@@ -23,8 +23,8 @@
+ from tudatpy.estimation import observations
+ from tudatpy.estimation.observable_models_setup import links, model_settings
+ from tudatpy.estimation.observable_models_setup import light_time_corrections as ltc
++from tudatpy.estimation.observations_setup import observations_simulation_settings as sim
+ from tudatpy.estimation.observations_setup import observations_dependent_variables as dep
+-from tudatpy.estimation.observations_setup import observations_simulation_settings as sim
+ from tudatpy.interface import spice
+ from tudatpy.math import interpolators
+ 
+@@ -110,8 +110,7 @@
+ 
+     settings = setup.BodyListSettings("SSB", "J2000")
+ 
+-    # Integer TDB knots are exactly representable by SPICE.
+-    # Padding isolates the observations from the spline boundaries.
++    # Integer TDB knots are exactly representable by SPICE; padding isolates the observations from spline boundaries.
+     initial_time = 60 * int(float(points[0]["utc"]) // 60) - 3600
+     final_time = 60 * int(float(points[-1]["utc"]) // 60 + 1) + 3600
+ 
+@@ -316,9 +315,7 @@
+     )
+ 
+     variables = {
+-        "link_end_epochs_tdb_s": dep.link_end_epochs_dependent_variable(
+-            model_settings.n_way_range_type
+-        ),
++        "link_end_epochs_tdb_s": dep.link_end_epochs_dependent_variable(model_settings.n_way_range_type),
+         "transmit_elevation_rad": dep.elevation_angle_dependent_variable(
+             links.transmitter, originating_link_end_type=links.reflector1
+         ),
+@@ -331,10 +328,8 @@
+         variables["uplink_corrections_s"] = dep.light_time_correction_components_dependent_variable(
+             links.transmitter, links.reflector1
+         )
+-        variables["downlink_corrections_s"] = (
+-            dep.light_time_correction_components_dependent_variable(
+-                links.reflector1, links.receiver
+-            )
++        variables["downlink_corrections_s"] = dep.light_time_correction_components_dependent_variable(
++            links.reflector1, links.receiver
+         )
+ 
+     dep.add_dependent_variables_to_all([observation_times], list(variables.values()), bodies)
+@@ -350,7 +345,7 @@
+ 
+ 
+ def ephemeris_controls(points, bodies):
+-    """Compare at representable off-knot epochs and probe motion across equal-double epochs."""
++    """Compare at representable off-knot epochs and probe motion across equal-double precise epochs."""
+ 
+     # Quarter-second offsets are exact doubles at this date and avoid the integer table knots.
+     epochs = [float(point["utc"]) // 1 + offset for point in points for offset in (0.25, 13.75)]
+@@ -391,9 +386,7 @@
+                 "dt_s": float(right - left),
+                 "displacement_m": displacement.tolist(),
+                 "velocity_dt_m": expected.tolist(),
+-                "difference_from_velocity_dt_norm_m": float(
+-                    np.linalg.norm(displacement - expected)
+-                ),
++                "difference_from_velocity_dt_norm_m": float(np.linalg.norm(displacement - expected)),
+             },
+         }
+ 

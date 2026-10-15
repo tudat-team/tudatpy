@@ -73,7 +73,7 @@
   "portable_archive": {
     "raw_summary_sha256": "7adc4f679e020ec1ac55558766224b9dad3bf80d4b8a7ad17f4fe44dff4df05c",
     "normal_points_csv_sha256": "82f953b9ce643cf91897a78d08982cabe383f3070d43efcb3faa3e6bdbe19b25",
-    "executed_source": "../provenance/llr_residuals_bb44adf3ea6f633d4e54d2e1a5936a09f92d064aba120a94fe2cf3760191413e.py.txt",
+    "executed_source": "../provenance/git_sources.json#bb44adf3ea6f633d4e54d2e1a5936a09f92d064aba120a94fe2cf3760191413e",
     "note": "Numerical fields and hashes retained; runtime import paths shortened for portability. Original outputs retained outside repository.",
     "station_profile": "Approximate 2005 WGS84 survey, zero velocity"
   }

@@ -1,0 +1,33 @@
+--- a/analysis/laser_ranging/llr_residuals.py
++++ b/analysis/laser_ranging/llr_residuals.py
+@@ -229,8 +229,7 @@
+         setup.ground_station.basic_station(
+             "APOLLO",
+             position,
+-            station_motion_settings=station_motion
+-            + [
++            station_motion_settings=station_motion + [
+                 setup.ground_station.custom_station_motion(earth_simultaneity),
+                 setup.ground_station.relativistic_station_motion(),
+             ],
+@@ -527,8 +526,7 @@
+                 "index": point["index"],
+                 "launch_tdb_time_split": epoch.__getstate__(),
+                 "station_kinematic_position_at_launch_m": (
+-                    position
+-                    + station_kinematic_displacement(epoch, converter, args.station_profile)
++                    position + station_kinematic_displacement(epoch, converter, args.station_profile)
+                 ).tolist(),
+                 "geometric": geometric_events,
+                 "relativistic": relativistic_events,
+@@ -586,9 +584,7 @@
+         "station_xyz_m": position.tolist(),
+         "station_profile": args.station_profile,
+         "station_profile_manifest_sha256": sha256(STATION_PROFILE_PATH),
+-        "station_profile_metadata": STATION_PROFILES.get(
+-            args.station_profile, dataset["station_survey"]
+-        ),
++        "station_profile_metadata": STATION_PROFILES.get(args.station_profile, dataset["station_survey"]),
+         "ephemeris_route": "cubic_spline_time" if args.spice_knot_step else "direct_spice",
+         "spice_knot_step_s": args.spice_knot_step,
+         "limitations": [

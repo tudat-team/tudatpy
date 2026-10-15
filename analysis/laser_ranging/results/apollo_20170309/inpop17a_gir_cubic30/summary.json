@@ -111,7 +111,7 @@
   "portable_archive": {
     "raw_summary_sha256": "f1b364f61acb1cc8e3968157ccc8721b6450b83afe01adea1c93c760d6b83a35",
     "normal_points_csv_sha256": "66392f70d97581ccb095a34e1ecbe0e0f068dae67f85af4a4b657b54e1ccaaa3",
-    "executed_source": "../provenance/llr_residuals_bb44adf3ea6f633d4e54d2e1a5936a09f92d064aba120a94fe2cf3760191413e.py.txt",
+    "executed_source": "../provenance/git_sources.json#bb44adf3ea6f633d4e54d2e1a5936a09f92d064aba120a94fe2cf3760191413e",
     "note": "Numerical fields and hashes retained; runtime import paths shortened for portability. Original outputs retained outside repository."
   }
 }

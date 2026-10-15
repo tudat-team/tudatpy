@@ -139,8 +139,11 @@ A survey control with the same native kernel exactly reproduces the archived
 for direct SPICE and 30-second survey baselines, this sensitivity and its
 survey control. Portable summaries retain every numeric field and provenance
 hash, shorten runtime import paths and identify the original summary hashes.
-The archive includes the exact executed source snapshots and input/profile
-manifests; large kernels and provider observations remain external.
+The archive identifies Git commits/blobs for the source and input/profile
+manifests, with minimal patches for the executed source before formatting.
+Use ``git show REV:path`` (or ``git show BLOB``), apply the listed patch and
+verify the original SHA-256; ``provenance/git_sources.json`` gives the records.
+Large kernels and provider observations remain external.
 ``station_sensitivity.csv`` records every raw residual change and launch
 kinematic station shift. The station experiment and its control used native
 kernel SHA-256
