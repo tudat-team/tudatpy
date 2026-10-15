@@ -1,0 +1,203 @@
+{
+  "status": "Failed before the first selected HARPOS observable; no complete ocean-loading residual result.",
+  "selected_point": {
+    "station": "7840",
+    "domes": "13212S001",
+    "session": "29",
+    "normal_point": "0",
+    "source": "lageos1_20240401.np2",
+    "utc_hours_since_j2000": "212575",
+    "utc_seconds_into_hour": "2984.3733733",
+    "tof_seconds": "0.048477122068",
+    "epoch_event": "2",
+    "system_configuration": "KS"
+  },
+  "epoch_routes": {
+    "bodies": "cubic-time",
+    "body_table_step_seconds": 30,
+    "satellite_epoch": "time",
+    "rotation_epoch": "double",
+    "body_table_start_tdb_seconds": 765028800.0,
+    "body_table_end_tdb_seconds": 765806400.0
+  },
+  "models": {
+    "rotation": "IERS 2010, IAU 2006, selected C04 file",
+    "observable_time_scale": "TAI",
+    "optical": "Mendes-Pavlis + FCULa; CRD measured weather; C0 wavelength; CO2 375 ppm",
+    "station_tides": "IERS2010 solid and pole; native shared mean-pole convention",
+    "range_convention": "one-way O-C = c*TOF/2 + CoM - DHF_bias - computed_two_way/2",
+    "station_retiming": "first-order rigid nominal orientation; deformation/tectonic retiming omitted",
+    "spatial": "IERS11.19 TT/TDB scale and solar potential; native station model shares this choice",
+    "relativity": "Sun and Earth light time; no fitted biases or estimation"
+  },
+  "software": {
+    "kernel_sha256": "bd8d893574bd29281188934ff5a62647e4c08494eb4bfb846c17cfc06a062968",
+    "analysis_script_sha256": "9915981f54dd75c19283b45f4a0335442ff59187298285ecc602998db977d6da",
+    "analysis_source_commit": "74c207ff30d355738a8f73b65334b1bc955bd826",
+    "loading_helper_sha256": "c1d60a69ec526496b85804a7e944681e4d1a44ca855cbb5f09fa819153904af2",
+    "diagnostic_script_sha256": "b822eff574b2fb9ebcbcadfaff6381c0de5ea7550caa3f5f6f329657a1443079",
+    "numerical_threads": 1
+  },
+  "inputs": [
+    {
+      "path": "ilrsa.orb.lageos1.240406.v81.sp3.gz",
+      "bytes": 244124,
+      "sha256": "938758fd90b502c42507f280a3455d9e1b54bd8320d29b0b078cfc5281ab69d2"
+    },
+    {
+      "path": "SLRF2020_POS+VEL_2023.10.02.snx",
+      "bytes": 172299,
+      "sha256": "aecd35c12fd1e4e0525f13610f5605d379ad2c6f7761e74cdbb9771ec6a95a3f"
+    },
+    {
+      "path": "eopc04_20_IAU2000.62-now.txt",
+      "bytes": 5176575,
+      "sha256": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181"
+    },
+    {
+      "path": "lageos1_20240331.np2",
+      "bytes": 38704,
+      "sha256": "d27a113c8627e899bca7aae2c80fd2d1e06c27b58ca28821006e42ac34407989"
+    },
+    {
+      "path": "lageos1_20240401.np2",
+      "bytes": 24520,
+      "sha256": "22285682b03c7f385ec59135ce90fd65a95c25f58f68a3987b0ffab885df9303"
+    },
+    {
+      "path": "lageos1_20240402.np2",
+      "bytes": 44744,
+      "sha256": "8496412310fd33c0d7b420b3590e09bca42aea3c23b26422072ecea55acfc579"
+    },
+    {
+      "path": "lageos1_20240403.np2",
+      "bytes": 33735,
+      "sha256": "04affe2d03d31ae62aa9f12aa6b23fc49603b927614ca0f2d94dfba9849e9a61"
+    },
+    {
+      "path": "lageos1_20240404.np2",
+      "bytes": 60149,
+      "sha256": "49c553081b9af432db230302f704d71f0e80404e1ddfa875646507045ce823fc"
+    },
+    {
+      "path": "lageos1_20240405.np2",
+      "bytes": 50115,
+      "sha256": "4197c09dbc383842b6b0d6995e5ddb5efca56747d7d9d613e8db2ccad29e207b"
+    },
+    {
+      "path": "lageos1_20240406.np2",
+      "bytes": 22669,
+      "sha256": "ebbcca47708f811ea7bd8991abe1900bd628c5e5aea6a0742dfa8f8e1263a6d8"
+    },
+    {
+      "path": "ilrsa.pos+eop.240406.v80.snx.gz",
+      "bytes": 47171,
+      "sha256": "8234d95b68bfe432f96073a13a8d01c32351f1ee837acee72977b0163ab62823"
+    },
+    {
+      "path": "com6.220915.tar.gz",
+      "bytes": 22221,
+      "sha256": "78289ea4184a508382bbd0b70f7df9189b40fa26683dec2d7cf26de58dcc9a7a"
+    },
+    {
+      "path": "ILRS_Data_Handling_File_2024.02.13.snx",
+      "bytes": 180827,
+      "sha256": "41caafc2dd63bcd91504f529b6de3c37b48156523322ade5d3154ccce8ce52a1"
+    },
+    {
+      "path": "pck00010.tpc",
+      "bytes": 126143,
+      "sha256": "59468328349aa730d18bf1f8d7e86efe6e40b75dfb921908f99321b3a7a701d2"
+    },
+    {
+      "path": "inpop19a_TDB_m100_p100_spice.tpc",
+      "bytes": 18826,
+      "sha256": "55798de268f64f43f5ccf71dae84e1d1603a99301f80251c4d74cb8f26a72eee"
+    },
+    {
+      "path": "inpop19a_TDB_m100_p100_spice.bsp",
+      "bytes": 22318080,
+      "sha256": "01f095b148ef1e5aad6f95213c188ca5b0d8a58901d19a95b0c11082b1d3a0c6"
+    },
+    {
+      "path": "naif0012.tls",
+      "bytes": 5257,
+      "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+    },
+    {
+      "path": "toc_got410c_harmod.hps",
+      "bytes": 1978239,
+      "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150"
+    }
+  ],
+  "loading_realization_at_failure": "Pinned GOT4.10c HARPOS, exact site Herstmon, original radial-Up helper. Provider clarification to geodetic Up is a separate correction and does not replace this failure record.",
+  "convergence": {
+    "maximum_iterations": 50,
+    "fractional_tolerance": 1e-12,
+    "receiver_leg_seconds": 0.024238713346272256,
+    "absolute_tolerance_seconds_at_receiver_leg": 2.4238713346272256e-14,
+    "tolerance_light_distance_m": 7.266583452836365e-06
+  },
+  "cycle": {
+    "last_10_receiver_epochs_and_states_have_exact_period_2": true,
+    "receiver_states": [
+      {
+        "tdb_whole_seconds_since_j2000": 765273053,
+        "tdb_fraction_seconds": 0.607487504043732,
+        "tdb_double_hex": "0x1.6ce91eecdc227p+29",
+        "earth_bcrs_state_m_and_m_per_s": [
+          -147245177250.93835,
+          -29571135850.80251,
+          -12783863402.236776,
+          5827.535526490812,
+          -26825.52631902298,
+          -11628.597577693054
+        ],
+        "earth_bcrs_position_hex": [
+          "-0x1.1243f8cd1781cp+37",
+          "-0x1.b8a4ee5ab35c5p+34",
+          "-0x1.7cfd23351e4ebp+33"
+        ]
+      },
+      {
+        "tdb_whole_seconds_since_j2000": 765273053,
+        "tdb_fraction_seconds": 0.6074875040437637,
+        "tdb_double_hex": "0x1.6ce91eecdc227p+29",
+        "earth_bcrs_state_m_and_m_per_s": [
+          -147245177250.9384,
+          -29571135850.802517,
+          -12783863402.236776,
+          5827.535526490812,
+          -26825.52631902298,
+          -11628.597577693054
+        ],
+        "earth_bcrs_position_hex": [
+          "-0x1.1243f8cd1781dp+37",
+          "-0x1.b8a4ee5ab35c7p+34",
+          "-0x1.7cfd23351e4ebp+33"
+        ]
+      }
+    ],
+    "epoch_separation_seconds": 3.175237850427948e-14,
+    "light_distance_step_m": 9.519123599144308e-06,
+    "earth_position_step_m": [
+      -3.0517578125e-05,
+      -7.62939453125e-06,
+      0.0
+    ],
+    "satellite_bounce_tdb_whole_seconds_since_j2000": 765273053,
+    "satellite_bounce_tdb_fraction_seconds": 0.5832487906974915,
+    "satellite_callback_count": 7,
+    "loading_callback_count": 57,
+    "last_24_loading_evaluations_identical": true,
+    "loading_change_norm_for_one_double_epoch_ulp_m": 1.0850576478815401e-13
+  },
+  "interpretation": "Finite receiver fixed-point two-cycle exceeds the requested light-time criterion. Precise epochs share a double label but yield alternating Earth BCRS double coordinates. Loading evaluations are identical; this is not divergence or a loading discontinuity. Identity wrappers preserve the original failure and callback counts.",
+  "native_error": "Error in light-time solution, computing light time with reference epoch 765273053.583249 (DateTime: 2024-04-01 19:50:53.583248790697491) at transmitter.\nOriginal error: Error, light time unconverged at level 0.000000; current light-time corrections are: 0.000000 and current time was 765273053.583249",
+  "control": "The same-script no-loading control reproduces all23 preceding precise-baseline CSV rows and every field exactly.",
+  "original_log_sha256": {
+    "slr-ocean-harpos-attempt1.log": "d09bedba6c36530b9416926b3c448678160dbe299f672a37f5d4a248f80dc3e7",
+    "slr-ocean-harpos-first-point-compact-attempt3.json": "c27909adb12d2c4ac8e193e3bc0ed3f30b726d1f25b34338c8d7bd12f6c5a53c"
+  },
+  "changes_after_failure": "No tolerance, iteration-limit, physical-selection, damping, rounding or acceptance workaround applied."
+}

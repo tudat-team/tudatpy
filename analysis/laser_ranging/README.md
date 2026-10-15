@@ -262,3 +262,16 @@ rotation rate, not a measured full-range error. Absolute BCRS state arithmetic
 also retains tens of micrometres of rounding. The measured table convergence,
 1 mm SP3 print resolution and approximately 1.48 mm source-node holdout RMS do
 not establish an end-to-end precision floor below these remaining limitations.
+
+The first separate HARPOS experiment stopped at Herstmonceux session 29, point 0.
+With the original 50-iteration, `1e-12` fractional criterion, receiver epochs
+entered an exact two-cycle 31.752 fs apart: 9.519 µm of light distance, above the
+7.267 µm criterion for that leg. The Earth BCRS coordinates alternated by
+30.518/7.629/0 µm while the bounce epoch stayed fixed and loading evaluations
+were identical. No tolerance, physical cut or acceptance rule was changed.
+The same-script no-loading control reproduced every precise-baseline CSV field.
+The [portable failure record](results/got410c_harpos_radial_failure/failure.json)
+preserves exact epoch fractions, states, selected point and input/software hashes.
+This failed run used the original radial-Up helper; the subsequent provider
+clarification to geodetic Up is a separate correction. No complete ocean-loading
+residual result is claimed from this attempt.
