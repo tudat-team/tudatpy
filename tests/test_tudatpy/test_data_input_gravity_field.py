@@ -45,6 +45,17 @@ def test_icgem_records_settings_and_assembled_tide_system():
 
     assert bodies.get("Earth").gravity_field_model.tide_system == settings.tide_system
 
+    # Temporal records retain printed dates and cannot silently pass through a static adapter.
+    temporal = gravity_data.read_icgem_gravity_field(
+        str(TEST_DATA / "reference_files/icgem_gravity/eigen6s4_v2_c20_1950_2006.gfc")
+    )
+
+    assert isinstance(temporal.temporal_coefficients[0], gravity_data.IcgemTemporalCoefficient)
+    assert temporal.temporal_coefficients[0].reference_date
+    assert temporal.temporal_coefficients[0].validity_end_date
+    with pytest.raises(RuntimeError):
+        gravity_field.from_icgem(temporal, "ITRS")
+
 
 # One construction exercises all native input types and the existing deferred sampler.
 def gravity_settings():
@@ -176,3 +187,31 @@ def test_gravity_settings_pickle_preserves_assembled_corrections():
     for original, reconstructed in zip(before, after):
         np.testing.assert_array_equal(original[0], reconstructed[0])
         np.testing.assert_array_equal(original[1], reconstructed[1])
+
+
+def test_aod1b_records_and_time22_final_inventory_settings():
+    """Specialized provider loaders must return the existing consuming settings types."""
+    data = gravity_data.read_aod1b_gravity_field(
+        str(TEST_DATA / "reference_files/aod1b_gravity/AOD1B_2026-01-01_degree2_extract_07.asc")
+    )
+
+    data.validate()
+    assert data.release == 7
+    assert len(data.samples[0].coefficients[(2, 0)].values) == 2
+    aod = variation.aod1b_from_data([data], gravity_data.Aod1bComponent.atmosphere, 2, 2)
+
+    assert isinstance(aod, variation.Aod1bGravityFieldVariationSettings)
+    assert aod.component == gravity_data.Aod1bComponent.atmosphere
+    time22 = variation.time22(
+        str(TEST_DATA / "reference_files/time22-v1_1"),
+        variation.HarmonicGravityComponent.direct_atmospheric_mass,
+        2,
+        2,
+    )
+
+    assert isinstance(time22, variation.HarmonicGravityFieldVariationSettings)
+    assert len(time22.constituents) == 16
+    assert time22.metadata.component == variation.HarmonicGravityComponent.direct_atmospheric_mass
+    if hasattr(variation.GravityFieldVariationSettings, "__setstate__"):
+        assert pickle.loads(pickle.dumps(aod)) == aod
+        assert pickle.loads(pickle.dumps(time22)) == time22

@@ -228,3 +228,28 @@ bounds; separate runtime classes are not needed.
 
 .. autoclass:: HarmonicGravityFieldVariationSettings
    :members:
+
+Specific provider products
+--------------------------
+
+``aod1b_from_data`` selects one non-tidal RL07 mass component from preloaded
+products. Its interpolation is linear in GPS with no extrapolation, using the
+selected Earth rotation converter. Do not combine GLO with ATM or OCN.
+
+``time22`` reads the TiME22 revision 1.1 ATM/OCN directory structure at settings
+construction and returns the existing canonical harmonic settings. Its explicit
+admittance option replaces the major inventory once; the published loading and
+phase convention is retained. Neither interface introduces a new runtime model.
+
+.. autosummary::
+
+   aod1b_from_data
+   time22
+   Aod1bGravityFieldVariationSettings
+
+.. autofunction:: aod1b_from_data
+
+.. autofunction:: time22
+
+.. autoclass:: Aod1bGravityFieldVariationSettings
+   :members:

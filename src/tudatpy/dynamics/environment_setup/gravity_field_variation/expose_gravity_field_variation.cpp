@@ -15,6 +15,8 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/createGravityFieldVariations.h>
 #include "tudat/simulation/environment_setup/createEarthGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createAod1bGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createTime22GravityFieldVariations.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -148,6 +150,7 @@ Variation model due to pole tides
 
       )doc" )
             .value( "ocean_pole_tide", tg::ocean_pole_tide, "Equilibrium ocean response to polar motion." )
+            .value( "aod1b_rl07", tg::aod1b_rl07, "Selected RL07 non-tidal mass component." )
             .export_values( );
 }
 
@@ -275,7 +278,7 @@ void expose_gravity_field_variation_setup( py::module& m )
             m,
             "HarmonicGravityFieldVariationSettings",
             "Settings owning the final ordered canonical wave inventory and explicit source conventions." )
-            .def( py::init< const std::vector< tg::HarmonicGravityConstituent >&,
+            .def( py::init< std::vector< tg::HarmonicGravityConstituent >,
                             const tg::HarmonicGravityMetadata&,
                             int,
                             int,
@@ -333,6 +336,86 @@ Returns
 -------
 HarmonicGravityFieldVariationSettings
     Settings retaining only the final canonical inventory and source conventions.
+)doc" );
+
+    // Preloaded RL07 settings retain source records, rather than reopening files during propagation.
+    py::class_< tss::Aod1bGravityFieldVariationSettings,
+                std::shared_ptr< tss::Aod1bGravityFieldVariationSettings >,
+                tss::GravityFieldVariationSettings >(
+            m, "Aod1bGravityFieldVariationSettings", "One RL07 component, source products and selected body-centred degree/order block." )
+            .def_property_readonly(
+                    "component", &tss::Aod1bGravityFieldVariationSettings::getComponent, "Selected non-tidal mass component." )
+            .def_property_readonly(
+                    "identifier", &tss::Aod1bGravityFieldVariationSettings::getIdentifier, "Stable RL07 component label for model lookup." )
+                    TUDATPY_DEF_EQ_NE( tss::Aod1bGravityFieldVariationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
+                            tss::GravityFieldVariationSettings, tss::Aod1bGravityFieldVariationSettings );
+
+    m.def( "aod1b_from_data",
+           &tss::aod1bGravityFieldVariationSettings,
+           py::arg( "data" ),
+           py::arg( "component" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           R"doc(
+Create non-tidal gravity variations for one RL07 AOD1B mass component.
+
+Daily records remain preloaded. The selected Earth rotation supplies the TDB-to-GPS
+conversion; coefficients are interpolated linearly in GPS, without extrapolation
+or a second interpolation stage. Anomalies are added relative to the provider's
+2007–2014 mean, with one source-to-output GM/radius conversion. Degrees zero and
+one remain in raw data but the body-centred response starts at degree two/order
+zero. GLO must not be combined with its ATM/OCN constituents.
+
+Parameters
+----------
+data : list[tudatpy.data_input.environment_data.gravity_field.Aod1bGravityFieldData]
+    Successive daily ASCII RL07 products already read from local files.
+component : tudatpy.data_input.environment_data.gravity_field.Aod1bComponent
+    One physical mass component, selected explicitly.
+maximum_degree, maximum_order : int
+    Upper bounds of the retained coefficient block.
+
+Returns
+-------
+Aod1bGravityFieldVariationSettings
+    Settings retaining the selected component and complete source products.
+)doc" );
+
+    m.def( "time22",
+           &tss::time22GravityFieldVariationSettings,
+           py::arg( "directory" ),
+           py::arg( "component" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "apply_admittance" ) = true,
+           py::arg( "interpolation_settings" ) = nullptr,
+           R"doc(
+Read TiME22 revision 1.1 paired potential files into canonical harmonic settings.
+
+The directory contains ATM and OCN subdirectories with the published 001/002/003
+metadata and paired cosine/sine ICGEM fields. Published loading and Doodson-Warburg
+phase corrections are retained, without applying them again. Ocean admittance
+replaces 57 major waves by 435 targets; the atmospheric 16-wave map is the identity.
+Only requested coefficients are retained. The result uses the existing harmonic
+evaluator and selected Earth rotation clock, without a separate runtime model.
+
+Parameters
+----------
+directory : str
+    Local TiME22 revision 1.1 root containing ATM and OCN directories.
+component : HarmonicGravityComponent
+    Ocean mass or direct atmospheric mass.
+maximum_degree, maximum_order : int
+    Retained truncation, from degree two through at most degree 360.
+apply_admittance : bool, default=True
+    Replace the major-wave inventory with the published target inventory.
+interpolation_settings : ModelInterpolationSettings, optional
+    Deferred precomputation settings, or None for direct evaluation.
+
+Returns
+-------
+HarmonicGravityFieldVariationSettings
+    Final inventory and explicit source metadata, independent of the input files.
 )doc" );
 
     m.def( "iers_2010_solid_body_tide",

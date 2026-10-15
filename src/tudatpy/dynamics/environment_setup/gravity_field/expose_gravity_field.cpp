@@ -467,6 +467,7 @@ Coefficients are converted once to Tudat's fully normalized convention. Source
 GM, radius and permanent-tide convention are retained. Missing selected records
 reject unless zero filling is explicitly requested; C00 must always be supplied.
 The associated frame must match the target frame of the body's rotation model.
+Temporal records are rejected by this static adapter rather than discarded.
 
 Parameters
 ----------

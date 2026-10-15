@@ -6,6 +6,7 @@
 #include "tudat/io/readIcgemGravityField.h"
 #include "tudat/io/readOceanPoleGravityData.h"
 #include "tudat/io/readHarmonicPotentialData.h"
+#include "tudat/io/readAod1bGravityField.h"
 
 namespace tudatpy
 {
@@ -42,18 +43,39 @@ void expose_gravity_field( pybind11::module& module )
             .value( "formal", io::IcgemCoefficientErrors::formal )
             .value( "calibrated_and_formal", io::IcgemCoefficientErrors::calibratedAndFormal );
 
-    py::class_< io::IcgemGravityCoefficient >( module, "IcgemGravityCoefficient", "One published dimensionless static Stokes coefficient." )
+    py::class_< io::IcgemGravityCoefficient >(
+            module, "IcgemGravityCoefficient", "Published coefficient values and provenance; units depend on the containing record." )
             .def( py::init<>( ) )
-            .def_readwrite( "cosine", &io::IcgemGravityCoefficient::cosine, "Cosine coefficient in the declared normalization." )
-            .def_readwrite( "sine", &io::IcgemGravityCoefficient::sine, "Sine coefficient in the declared normalization." )
+            .def_readwrite(
+                    "cosine", &io::IcgemGravityCoefficient::cosine, "Cosine value in the record's declared normalization and units." )
+            .def_readwrite( "sine", &io::IcgemGravityCoefficient::sine, "Sine value in the record's declared normalization and units." )
             .def_readwrite(
                     "calibrated_errors", &io::IcgemGravityCoefficient::calibratedErrors, "Calibrated cosine/sine uncertainties, or None." )
             .def_readwrite( "formal_errors", &io::IcgemGravityCoefficient::formalErrors, "Formal cosine/sine uncertainties, or None." )
             .def_readwrite( "source_line", &io::IcgemGravityCoefficient::sourceLine, "Line number in the provider file." )
             .def_readwrite( "original_record", &io::IcgemGravityCoefficient::originalRecord, "Unmodified provider record." );
 
+    py::class_< io::IcgemTemporalCoefficient >(
+            module, "IcgemTemporalCoefficient", "One gfct/trnd/dot/asin/acos provider record with independent printed dates and units." )
+            .def( py::init<>( ) )
+            .def_readwrite( "type", &io::IcgemTemporalCoefficient::type, "Original temporal record keyword." )
+            .def_readwrite( "degree", &io::IcgemTemporalCoefficient::degree, "Spherical-harmonic degree." )
+            .def_readwrite( "order", &io::IcgemTemporalCoefficient::order, "Spherical-harmonic order." )
+            .def_readwrite( "coefficient",
+                            &io::IcgemTemporalCoefficient::coefficient,
+                            "Supplied values, uncertainties and original source record." )
+            .def_readwrite( "reference_date",
+                            &io::IcgemTemporalCoefficient::referenceDate,
+                            "Printed reference/start date without an inferred time scale; only gfct supplies this in format 1.0." )
+            .def_readwrite( "validity_end_date",
+                            &io::IcgemTemporalCoefficient::validityEndDate,
+                            "Independent printed format-2.0 validity end, or an empty string." )
+            .def_readwrite( "period_years",
+                            &io::IcgemTemporalCoefficient::periodYears,
+                            "Supplied asin/acos period in years, or None; no year convention is inferred." );
+
     py::class_< io::IcgemGravityFieldData >(
-            module, "IcgemGravityFieldData", "Sparse static ICGEM records; missing entries remain distinct from zero." )
+            module, "IcgemGravityFieldData", "Sparse static and temporal ICGEM records; missing entries remain distinct from zero." )
             .def( py::init<>( ) )
             .def_readwrite( "source", &io::IcgemGravityFieldData::source, "Provider filename or source description." )
             .def_readwrite( "header_lines", &io::IcgemGravityFieldData::headerLines, "Unmodified header lines." )
@@ -71,6 +93,9 @@ void expose_gravity_field( pybind11::module& module )
                     "tide_system", &io::IcgemGravityFieldData::tideSystem, "Declared permanent-tide convention; unknown remains unknown." )
             .def_readwrite(
                     "coefficients", &io::IcgemGravityFieldData::coefficients, "Dictionary of (degree, order) to published coefficients." )
+            .def_readwrite( "temporal_coefficients",
+                            &io::IcgemGravityFieldData::temporalCoefficients,
+                            "Original ordered temporal records, without date conversion or evaluation." )
             .def( "validate", &io::validateIcgemGravityFieldData, "Check header declarations and finite, valid coefficient records." );
 
     py::class_< io::OceanPoleGravityCoefficient >(
@@ -132,11 +157,69 @@ void expose_gravity_field( pybind11::module& module )
             .def_readwrite( "constituents", &io::HarmonicPotentialData::constituents, "Waves in provider order." )
             .def( "validate", &io::validateHarmonicPotentialData, "Check wave identifiers, declared units and finite coefficients." );
 
+    // RL07 retains printed GPS epochs and distinct physical components before model construction.
+    py::enum_< io::Aod1bComponent >(
+            module, "Aod1bComponent", "Published non-tidal mass component; global_mass is ATM plus OCN, while OBA has a different domain." )
+            .value( "atmosphere", io::Aod1bComponent::atmosphere )
+            .value( "ocean", io::Aod1bComponent::ocean )
+            .value( "global_mass", io::Aod1bComponent::global )
+            .value( "ocean_bottom_pressure", io::Aod1bComponent::oceanBottomPressure );
+
+    py::class_< io::Aod1bGravityCoefficient >(
+            module, "Aod1bGravityCoefficient", "One supplied RL07 coefficient pair and original source line." )
+            .def( py::init<>( ) )
+            .def_readwrite(
+                    "values", &io::Aod1bGravityCoefficient::values, "Dimensionless cosine/sine pair in the declared normalization." )
+            .def_readwrite( "source_line", &io::Aod1bGravityCoefficient::sourceLine, "One-based provider line number." );
+
+    py::class_< io::Aod1bGravitySample >(
+            module, "Aod1bGravitySample", "One published component at a printed GPS epoch; missing entries remain distinct from zero." )
+            .def( py::init<>( ) )
+            .def_readwrite( "component", &io::Aod1bGravitySample::component, "Mass component declared in the DATA SET record." )
+            .def_readwrite( "gps_date", &io::Aod1bGravitySample::gpsDate, "Original provider date/time token in GPS time." )
+            .def_readwrite( "gps_seconds_since_j2000",
+                            &io::Aod1bGravitySample::gpsSecondsSinceJ2000,
+                            "Continuous GPS seconds from 2000-01-01 12:00:00 GPS." )
+            .def_readwrite( "coefficients",
+                            &io::Aod1bGravitySample::coefficients,
+                            "Dictionary of supplied (degree, order) coefficient pairs, including degrees zero and one." );
+
+    py::class_< io::Aod1bGravityFieldData >(
+            module, "Aod1bGravityFieldData", "Neutral RL07 potential anomalies relative to the provider's 2007–2014 mean." )
+            .def( py::init<>( ) )
+            .def_readwrite( "source", &io::Aod1bGravityFieldData::source, "Source filename or provider identifier." )
+            .def_readwrite( "header_lines", &io::Aod1bGravityFieldData::headerLines, "Unmodified header including END OF HEADER." )
+            .def_readwrite( "release", &io::Aod1bGravityFieldData::release, "Declared release number; this reader supports RL07." )
+            .def_readwrite( "software_version", &io::Aod1bGravityFieldData::softwareVersion, "Provider software version." )
+            .def_readwrite( "gravitational_parameter",
+                            &io::Aod1bGravityFieldData::gravitationalParameter,
+                            "Source GM in cubic metres per squared second." )
+            .def_readwrite( "reference_radius", &io::Aod1bGravityFieldData::referenceRadius, "Source reference radius in metres." )
+            .def_readwrite( "fully_normalized", &io::Aod1bGravityFieldData::fullyNormalized, "Declared coefficient normalization." )
+            .def_readwrite( "maximum_degree", &io::Aod1bGravityFieldData::maximumDegree, "Declared maximum degree." )
+            .def_readwrite( "samples",
+                            &io::Aod1bGravityFieldData::samples,
+                            "Original component/epoch records without component sums or normalization changes." )
+            .def( "validate",
+                  &io::validateAod1bGravityFieldData,
+                  "Check RL07 metadata, GPS dates, coefficient presence and finite values." );
+
+    module.def( "read_aod1b_gravity_field",
+                py::overload_cast< const std::string& >( &io::readAod1bGravityField ),
+                py::arg( "file_name" ),
+                "Read one decompressed ASCII RL07 daily product, retaining its source metadata and printed GPS epochs." );
+
+    module.def(
+            "read_aod1b_gravity_fields",
+            &io::readAod1bGravityFields,
+            py::arg( "file_names" ),
+            "Read successive local daily products without merging their raw records. Gzip decompression is the caller's responsibility." );
+
     module.def( "read_icgem_gravity_field",
                 py::overload_cast< const std::string& >( &io::readIcgemGravityField ),
                 py::arg( "file_name" ),
-                "Read static ICGEM gfc records, retaining normalization, tide convention and optional uncertainties. Temporal records "
-                "reject." );
+                "Read static and temporal ICGEM records, retaining normalization, tide convention, uncertainties and independent printed "
+                "dates. Only the static field adapter rejects temporal data." );
 
     module.def( "read_ocean_pole_gravity_data",
                 py::overload_cast< const std::string& >( &io::readOceanPoleGravityData ),

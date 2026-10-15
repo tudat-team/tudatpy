@@ -61,6 +61,7 @@ Records
 .. autosummary::
 
    IcgemGravityCoefficient
+   IcgemTemporalCoefficient
    IcgemGravityFieldData
    OceanPoleGravityCoefficient
    OceanPoleGravityData
@@ -69,6 +70,9 @@ Records
    HarmonicPotentialData
 
 .. autoclass:: IcgemGravityCoefficient
+   :members:
+
+.. autoclass:: IcgemTemporalCoefficient
    :members:
 
 .. autoclass:: IcgemGravityFieldData
@@ -88,3 +92,46 @@ Records
 
 .. autoclass:: HarmonicPotentialData
    :members:
+
+Non-tidal RL07 records
+---------------------
+
+RL07 AOD1B fields retain their printed GPS epochs and separate ATM, OCN, GLO and
+OBA components. They are potential anomalies relative to the provider's
+2007–2014 mean. The reader does not sum components or reinterpret GPS dates as
+UTC. Use ``Aod1bComponent.global_mass`` for GLO; OBA has a different physical
+domain and is not an alternative decomposition of GLO.
+
+.. autosummary::
+
+   read_aod1b_gravity_field
+   read_aod1b_gravity_fields
+   Aod1bComponent
+   Aod1bGravityCoefficient
+   Aod1bGravitySample
+   Aod1bGravityFieldData
+
+.. autofunction:: read_aod1b_gravity_field
+
+.. autofunction:: read_aod1b_gravity_fields
+
+.. autoclass:: Aod1bComponent
+   :members:
+
+.. autoclass:: Aod1bGravityCoefficient
+   :members:
+
+.. autoclass:: Aod1bGravitySample
+   :members:
+
+.. autoclass:: Aod1bGravityFieldData
+   :members:
+
+ICGEM temporal records
+----------------------
+
+``IcgemGravityFieldData.temporal_coefficients`` retains each gfct, trnd, dot,
+asin and acos record, including its original values, uncertainties, independent
+printed dates and optional period in years. The reader does not infer a physical
+time scale or a year convention, and does not evaluate these records. The static
+``from_icgem`` adapter rejects a temporal collection instead of discarding it.
