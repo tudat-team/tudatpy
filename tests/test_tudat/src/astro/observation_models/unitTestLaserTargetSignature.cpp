@@ -77,8 +77,21 @@ BOOST_AUTO_TEST_CASE( weighted_return_centroid_and_width )
     BOOST_CHECK_SMALL( pair.getMeanRangeCorrection( ), 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( pair.rangeSpread, 0.5, 2.0E-15 );
 
+    const double internalPath = 1.4555 * 0.0275;
+
+    const LaserTargetSignature withInternalPath(
+            { Eigen::Vector3d( -0.5, 0.0, 0.0 ), Eigen::Vector3d( 0.5, 0.0, 0.0 ) }, { 1.0, 1.0 }, internalPath );
+
+    const auto delayed = withInternalPath.calculateResponse( Eigen::Vector3d( 12.0, 0.0, 0.0 ), Eigen::Vector3d( 12.0, 0.0, 0.0 ), 0.0 );
+
+    // Apollo's front-face reference and explicit n*h path add 0.04002625 m to each leg, without broadening the return.
+    BOOST_CHECK_CLOSE_FRACTION( delayed.meanPathCorrections.x( ), 0.04002625, 2.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( delayed.meanPathCorrections.y( ), 0.04002625, 2.0E-15 );
+    BOOST_CHECK_EQUAL( delayed.rangeSpread, pair.rangeSpread );
+
     const LaserTargetSignature directional( { Eigen::Vector3d( 3.0, 4.0, 0.0 ), Eigen::Vector3d( 0.0, 0.0, 1.0 ) },
                                             { 1.0, 1.0 },
+                                            0.0,
                                             []( double, const Eigen::Vector3d& up, const Eigen::Vector3d& down ) {
                                                 return std::vector< double >{ 1.0, up.dot( down ) < 0.0 ? 3.0 : 1.0 };
                                             } );

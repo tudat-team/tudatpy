@@ -42,8 +42,10 @@ public:
 
     //! Optical point coordinates are metres from the nominated endpoint, in the target rotation model's fixed axes.
     //! Weights describe the selected return centroid; an optional callback replaces them for the two viewing directions.
+    //! A supplied internal optical path (metres, nonnegative) adds equally to each leg, without changing return width.
     LaserTargetSignature( std::vector< Eigen::Vector3d > opticalPointOffsets,
                           std::vector< double > returnWeights,
+                          double internalOpticalPathLength = 0.0,
                           ReturnWeightFunction returnWeightFunction = nullptr );
 
     //! Only optical arrays require a target orientation; a spherical CoM correction is direction independent.
@@ -53,7 +55,7 @@ public:
     }
 
     //! Compute both mean leg changes and one-way spread from target-to-observer vectors in target-fixed axes (metres).
-    //! There is no glass delay, incidence law, or detector response beyond the supplied points and weights.
+    //! No glass delay, incidence law, or detector response is inferred beyond the explicitly supplied optical path and weights.
     LaserTargetResponse calculateResponse( const Eigen::Vector3d& targetToTransmitter,
                                            const Eigen::Vector3d& targetToReceiver,
                                            double reflectionTime ) const;
@@ -61,6 +63,9 @@ public:
 private:
     //! Positive scalar CoM distance (metres); an empty point list selects this model.
     double centerOfMassDistance_;
+
+    //! Common internal optical path added to each array leg, in metres, relative to the supplied optical points.
+    double internalOpticalPathLength_;
 
     //! Optical points (metres) and nonnegative relative return weights in matching order.
     std::vector< Eigen::Vector3d > opticalPointOffsets_;

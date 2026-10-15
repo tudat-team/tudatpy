@@ -12,7 +12,8 @@ namespace observation_models
 {
 
 //! Store the published additive observation correction with the opposite computed-surface sign.
-LaserTargetSignature::LaserTargetSignature( const double centerOfMassDistance ): centerOfMassDistance_( centerOfMassDistance )
+LaserTargetSignature::LaserTargetSignature( const double centerOfMassDistance ):
+    centerOfMassDistance_( centerOfMassDistance ), internalOpticalPathLength_( 0.0 )
 {
     if( !std::isfinite( centerOfMassDistance_ ) || centerOfMassDistance_ < 0.0 )
     {
@@ -23,10 +24,16 @@ LaserTargetSignature::LaserTargetSignature( const double centerOfMassDistance ):
 //! Store explicit optical points and validate their fixed relative return weights.
 LaserTargetSignature::LaserTargetSignature( std::vector< Eigen::Vector3d > opticalPointOffsets,
                                             std::vector< double > returnWeights,
+                                            const double internalOpticalPathLength,
                                             ReturnWeightFunction returnWeightFunction ):
-    centerOfMassDistance_( 0.0 ), opticalPointOffsets_( std::move( opticalPointOffsets ) ), returnWeights_( std::move( returnWeights ) ),
+    centerOfMassDistance_( 0.0 ), internalOpticalPathLength_( internalOpticalPathLength ),
+    opticalPointOffsets_( std::move( opticalPointOffsets ) ), returnWeights_( std::move( returnWeights ) ),
     returnWeightFunction_( std::move( returnWeightFunction ) )
 {
+    if( !std::isfinite( internalOpticalPathLength_ ) || internalOpticalPathLength_ < 0.0 )
+    {
+        throw std::invalid_argument( "Laser internal optical path must be finite and nonnegative" );
+    }
     if( opticalPointOffsets_.empty( ) || opticalPointOffsets_.size( ) != returnWeights_.size( ) )
     {
         throw std::invalid_argument( "Laser optical points require one return weight per point" );
@@ -127,6 +134,9 @@ LaserTargetResponse LaserTargetSignature::calculateResponse( const Eigen::Vector
 
         variance += weights[ i ] * centeredRange * centeredRange;
     }
+
+    // A common internal optical path changes the centroid, while the geometric return spread stays the same.
+    weightedMean.array( ) += internalOpticalPathLength_;
     if( !weightedMean.allFinite( ) || !std::isfinite( variance ) )
     {
         throw std::runtime_error( "Non-finite laser target response" );

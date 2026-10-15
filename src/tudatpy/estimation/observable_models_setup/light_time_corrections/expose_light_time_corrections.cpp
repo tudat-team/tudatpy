@@ -206,13 +206,19 @@ normal-point estimator; do not apply an array centroid correction again to norma
             .def( py::init< double >( ), py::arg( "center_of_mass_distance" ), R"doc(
 Positive published CoM distance (metres) is added to observed equivalent one-way range; this model subtracts it from
 computed surface range. It is mutually exclusive with the optical array constructor.)doc" )
-            .def( py::init< std::vector< Eigen::Vector3d >, std::vector< double >, tom::LaserTargetSignature::ReturnWeightFunction >( ),
+            .def( py::init< std::vector< Eigen::Vector3d >,
+                            std::vector< double >,
+                            double,
+                            tom::LaserTargetSignature::ReturnWeightFunction >( ),
                   py::arg( "optical_point_offsets" ),
                   py::arg( "return_weights" ),
+                  py::arg( "internal_optical_path_length" ) = 0.0,
                   py::arg( "return_weight_function" ) = nullptr,
                   R"doc(Use nonnegative relative return weights for the optical points. An optional callback replaces the weights;
 it receives reflection TDB seconds since J2000 and both unit target-to-observer directions in target-fixed axes.
-Both retarded legs use the same returned weights. The diagnostic spread is not a bias.)doc" )
+Both retarded legs use the same returned weights. The diagnostic spread is not a bias. The optional nonnegative
+internal_optical_path_length (metres) is a user-specified per-leg optical path relative to the supplied points; it shifts
+both mean paths without changing the spread. It defaults to zero; no refractive-index or incidence law is inferred.)doc" )
             .def( "calculate_response",
                   &tom::LaserTargetSignature::calculateResponse,
                   py::arg( "target_to_transmitter" ),
