@@ -288,10 +288,6 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
-    // Ground-station motion factories consume global-frame ephemerides and may
-    // validate external-body origin conversions during construction.
-    bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
-
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
@@ -306,6 +302,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             createCamera( bodyList.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).second->cameraSettings.at( j ) );
         }
     }
+
+    bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 
     if( spaceTimePropertiesSettings != nullptr && spaceTimePropertiesSettings->getMetricSettings( ) != nullptr )
     {
