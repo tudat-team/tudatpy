@@ -318,6 +318,7 @@ BOOST_AUTO_TEST_CASE( real_combined_product_duplicate_site_codes_and_repeated_ps
         if( row.second.key.site.siteCode == "AB48" && row.second.type == "AEXP_N" ) ++northExponentialAmplitudes;
     BOOST_CHECK_EQUAL( northExponentialAmplitudes, 2 );
     BOOST_CHECK_NO_THROW( validateSinexStationHistory( repeated ) );
+
     // Identical SITE/ID records remain separate raw provenance, but do not make a Cartesian selection ambiguous.
     auto text = contents( "ab07_solutions.snx" );
     text.insert( text.find( "-SITE/ID" ), firstSite( ) + "\n" );
@@ -378,6 +379,7 @@ BOOST_AUTO_TEST_CASE( published_igs_equipment_history_preserves_identity_changes
     BOOST_CHECK_EQUAL( antenna.equipmentType, "AERAT2775_43    SPKE" );
     BOOST_CHECK_EQUAL( antenna.serialNumber, "5546" );
     BOOST_CHECK( antenna.firmwareVersion.empty( ) );
+
     // The IGS extension after the standard 68 columns is retained as raw provenance.
     BOOST_CHECK_EQUAL( antenna.provenance.text.substr( 68 ), "    0" );
     BOOST_REQUIRE_EQUAL( history.eccentricities.size( ), 3 );

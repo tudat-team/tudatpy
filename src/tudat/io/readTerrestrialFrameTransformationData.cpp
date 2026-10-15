@@ -1,4 +1,5 @@
 #include "tudat/io/readTerrestrialFrameTransformationData.h"
+#include "tudat/io/textParsing.h"
 #include "tudat/paths.hpp"
 #include <cmath>
 #include <fstream>
@@ -14,33 +15,15 @@ namespace
 {
 constexpr double julianYear = 31557600.0;
 constexpr double masToRadians = 3.141592653589793238462643383279502884 / ( 180.0 * 3600.0 * 1000.0 );
-std::vector< std::string > tokens( const std::string& line )
-{
-    std::istringstream input( line );
-    std::vector< std::string > result;
-    std::string token;
-    while( input >> token ) result.push_back( token );
-    return result;
-}
 std::runtime_error error( const std::string& source, std::size_t line, const std::string& message )
 {
     return std::runtime_error( source + ":" + std::to_string( line ) + ": " + message );
 }
-double number( std::string value, const std::string& source, std::size_t line )
+double parseTerrestrialFrameNumber( const std::string& value, const std::string& source, std::size_t line )
 {
-    for( auto& c : value )
-        if( c == 'd' || c == 'D' ) c = 'E';
-    try
-    {
-        std::size_t used = 0;
-        const double result = std::stod( value, &used );
-        if( used != value.size( ) || !std::isfinite( result ) ) throw std::invalid_argument( "nonfinite or trailing characters" );
-        return result;
-    }
-    catch( const std::exception& )
-    {
-        throw error( source, line, "Invalid finite parameter: " + value );
-    }
+    const auto result = text_parsing::parseFiniteNumber( value );
+    if( !result ) throw error( source, line, "Invalid finite parameter: " + value );
+    return *result;
 }
 }  // namespace
 const TerrestrialFrameTransformationParameters& TerrestrialFrameTransformationData::getParameters( const std::string& target ) const
@@ -95,7 +78,7 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
     {
         ++count;
         if( !line.empty( ) && line.back( ) == '\r' ) line.pop_back( );
-        const auto row = tokens( line );
+        const auto row = text_parsing::splitIntoTokens( line );
         if( row.empty( ) )
         {
             result.sourceHeaders.push_back( line );
@@ -152,11 +135,11 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
             pending.rotationConvention = HelmertRotationConvention::positionVector;
             for( int i = 0; i < 3; ++i )
             {
-                pending.translationMetres[ i ] = number( row[ i + 1 ], source, count ) * 1e-3;
-                pending.rotationRadians[ i ] = number( row[ i + 5 ], source, count ) * masToRadians;
+                pending.translationMetres[ i ] = parseTerrestrialFrameNumber( row[ i + 1 ], source, count ) * 1e-3;
+                pending.rotationRadians[ i ] = parseTerrestrialFrameNumber( row[ i + 5 ], source, count ) * masToRadians;
             }
-            pending.scale = number( row[ 4 ], source, count ) * 1e-9;
-            pending.referenceDecimalYear = number( row[ 8 ], source, count );
+            pending.scale = parseTerrestrialFrameNumber( row[ 4 ], source, count ) * 1e-9;
+            pending.referenceDecimalYear = parseTerrestrialFrameNumber( row[ 8 ], source, count );
             pending.originalParameterLine = line;
             pending.parameterSourceLine = count;
             awaitingRates = true;
@@ -167,10 +150,12 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
             if( !awaitingRates || row.size( ) != 8 ) throw error( source, count, "Orphan or malformed parameter-rate row" );
             for( int i = 0; i < 3; ++i )
             {
-                pending.translationRateMetresPerSecond[ i ] = number( row[ i + 1 ], source, count ) * 1e-3 / julianYear;
-                pending.rotationRateRadiansPerSecond[ i ] = number( row[ i + 5 ], source, count ) * masToRadians / julianYear;
+                pending.translationRateMetresPerSecond[ i ] =
+                        parseTerrestrialFrameNumber( row[ i + 1 ], source, count ) * 1e-3 / julianYear;
+                pending.rotationRateRadiansPerSecond[ i ] =
+                        parseTerrestrialFrameNumber( row[ i + 5 ], source, count ) * masToRadians / julianYear;
             }
-            pending.scaleRatePerSecond = number( row[ 4 ], source, count ) * 1e-9 / julianYear;
+            pending.scaleRatePerSecond = parseTerrestrialFrameNumber( row[ 4 ], source, count ) * 1e-9 / julianYear;
             pending.originalRateLine = line;
             pending.rateSourceLine = count;
             if( !result.records.emplace( pending.targetFrame.realization, pending ).second )
@@ -187,6 +172,7 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
         {
             throw error( source, count, "Unexpected table record" );
         }
+
         // Confirm the published position-vector sign convention without using file-name inference.
         if( closed )
         {
@@ -218,6 +204,7 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( const
     if( source.source.empty( ) || source.source == "<stream>" ) source.source = filePath;
     return readTerrestrialFrameTransformationData( stream, source );
 }
+
 //! Read an official IGN table from the station_locations resource directory, retaining its published source and checksum.
 TerrestrialFrameTransformationData readOfficialItrfTransformationData( const std::string& fileName,
                                                                        const TerrestrialFrameTransformationSource& source )

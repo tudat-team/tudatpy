@@ -1,4 +1,5 @@
 #include "tudat/io/readOceanLoadingData.h"
+#include "tudat/io/textParsing.h"
 
 #include <algorithm>
 #include <cctype>
@@ -15,29 +16,10 @@ namespace input_output
 namespace
 {
 
-std::string trimOceanLoadingText( const std::string& text )
-{
-    const auto first = text.find_first_not_of( " \t\r\n" );
-    return first == std::string::npos ? "" : text.substr( first, text.find_last_not_of( " \t\r\n" ) - first + 1 );
-}
-
 std::string uppercaseOceanLoadingText( std::string text )
 {
     std::transform( text.begin( ), text.end( ), text.begin( ), []( const unsigned char character ) { return std::toupper( character ); } );
     return text;
-}
-
-std::vector< std::string > tokenizeOceanLoadingText( const std::string& text )
-{
-    std::istringstream stream( text );
-    stream.imbue( std::locale::classic( ) );
-    std::vector< std::string > tokens;
-    std::string token;
-    while( stream >> token )
-    {
-        tokens.push_back( token );
-    }
-    return tokens;
 }
 
 [[noreturn]] void throwOceanLoadingParseError( const std::string& source, const std::size_t line, const std::string& message )
@@ -45,25 +27,14 @@ std::vector< std::string > tokenizeOceanLoadingText( const std::string& text )
     throw std::runtime_error( "Invalid BLQ data in " + source + " at line " + std::to_string( line ) + ": " + message );
 }
 
-double parseOceanLoadingNumber( std::string token, const std::string& source, const std::size_t line )
+double parseOceanLoadingNumber( const std::string& token, const std::string& source, const std::size_t line )
 {
-    std::replace( token.begin( ), token.end( ), 'D', 'E' );
-    std::replace( token.begin( ), token.end( ), 'd', 'e' );
-    std::size_t consumed = 0;
-    double value;
-    try
-    {
-        value = std::stod( token, &consumed );
-    }
-    catch( const std::exception& )
-    {
-        throwOceanLoadingParseError( source, line, "invalid numerical coefficient '" + token + "'" );
-    }
-    if( consumed != token.size( ) || !std::isfinite( value ) )
+    const auto value = text_parsing::parseFiniteNumber( token );
+    if( !value )
     {
         throwOceanLoadingParseError( source, line, "nonfinite or invalid numerical coefficient '" + token + "'" );
     }
-    return value;
+    return *value;
 }
 
 void validateOceanLoadingHeaderRowOrder( const std::vector< std::string >& headers, const std::string& source )
@@ -74,20 +45,20 @@ void validateOceanLoadingHeaderRowOrder( const std::vector< std::string >& heade
     bool inlineOrder = false;
     for( std::size_t line = 0; line < headers.size( ); ++line )
     {
-        std::string text = uppercaseOceanLoadingText( trimOceanLoadingText( headers[ line ] ) );
+        std::string text = uppercaseOceanLoadingText( text_parsing::trim( headers[ line ] ) );
         if( text.compare( 0, 2, "$$" ) == 0 )
         {
-            text = trimOceanLoadingText( text.substr( 2 ) );
+            text = text_parsing::trim( text.substr( 2 ) );
         }
         const auto order = text.find( "ROW ORDER:" );
         if( order != std::string::npos )
         {
             reading = true;
-            text = trimOceanLoadingText( text.substr( order + 10 ) );
+            text = text_parsing::trim( text.substr( order + 10 ) );
             if( !text.empty( ) )
             {
                 inlineOrder = true;
-                const auto tokens = tokenizeOceanLoadingText( text );
+                const auto tokens = text_parsing::splitIntoTokens( text );
                 for( const auto& token : tokens )
                 {
                     if( token == "U" || token == "UP" || token == "RADIAL" )
@@ -139,12 +110,12 @@ void readOceanLoadingHeaderMetadata( const std::string& header,
                                      const std::string& source,
                                      const std::size_t line )
 {
-    const std::string text = trimOceanLoadingText( header.substr( 2 ) );
+    const std::string text = text_parsing::trim( header.substr( 2 ) );
     const std::string upper = uppercaseOceanLoadingText( text );
     const auto columnOrder = upper.find( "COLUMN ORDER:" );
     if( columnOrder != std::string::npos )
     {
-        const auto names = tokenizeOceanLoadingText( upper.substr( columnOrder + 13 ) );
+        const auto names = text_parsing::splitIntoTokens( upper.substr( columnOrder + 13 ) );
         const auto& expectedNames = getOceanLoadingConstituentNames( );
         if( names.size( ) != expectedNames.size( ) )
         {
@@ -170,7 +141,7 @@ void readOceanLoadingHeaderMetadata( const std::string& header,
     const auto frame = upper.find( "FRAME:" );
     if( cmc != std::string::npos || frame != std::string::npos )
     {
-        const auto values = tokenizeOceanLoadingText( upper.substr( cmc != std::string::npos ? cmc + 4 : frame + 6 ) );
+        const auto values = text_parsing::splitIntoTokens( upper.substr( cmc != std::string::npos ? cmc + 4 : frame + 6 ) );
         if( !values.empty( ) )
         {
             if( values.front( ) == "NO" || values.front( ) == "CE" )
@@ -190,15 +161,15 @@ void readOceanLoadingHeaderMetadata( const std::string& header,
     const auto model = upper.find( "OCEAN TIDE MODEL:" );
     if( model != std::string::npos )
     {
-        metadata.oceanTideModel = trimOceanLoadingText( text.substr( model + 17 ) );
+        metadata.oceanTideModel = text_parsing::trim( text.substr( model + 17 ) );
     }
     else if( upper.find( "COMPLETE " ) == 0 )
     {
-        metadata.oceanTideModel = trimOceanLoadingText( text.substr( 9 ) );
+        metadata.oceanTideModel = text_parsing::trim( text.substr( 9 ) );
     }
     else if( upper.find( " ID:" ) != std::string::npos )
     {
-        metadata.oceanTideModel = trimOceanLoadingText( text.substr( 0, upper.find( " ID:" ) ) );
+        metadata.oceanTideModel = text_parsing::trim( text.substr( 0, upper.find( " ID:" ) ) );
     }
     if( upper.find( "GREEN" ) != std::string::npos )
     {
@@ -208,7 +179,7 @@ void readOceanLoadingHeaderMetadata( const std::string& header,
     const auto coordinates = upper.find( "LON/LAT:" );
     if( coordinates != std::string::npos )
     {
-        const auto values = tokenizeOceanLoadingText( text.substr( coordinates + 8 ) );
+        const auto values = text_parsing::splitIntoTokens( text.substr( coordinates + 8 ) );
         if( values.size( ) >= 2 )
         {
             metadata.providerLongitudeLatitudeHeight( 0 ) = parseOceanLoadingNumber( values[ 0 ], source, line );
@@ -319,7 +290,7 @@ OceanLoadingData readOceanLoadingData( std::istream& stream, const std::string& 
     while( std::getline( stream, line ) )
     {
         ++lineNumber;
-        const std::string text = trimOceanLoadingText( line );
+        const std::string text = text_parsing::trim( line );
         if( text.empty( ) )
         {
             continue;
@@ -338,7 +309,7 @@ OceanLoadingData readOceanLoadingData( std::istream& stream, const std::string& 
             }
             continue;
         }
-        const auto tokens = tokenizeOceanLoadingText( text );
+        const auto tokens = text_parsing::splitIntoTokens( text );
         if( tokens.size( ) == 1 && ( currentStation.stationIdentifier.empty( ) || row == 6 ) )
         {
             finishStation( );

@@ -275,6 +275,7 @@ BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsAmbiguityAndPreserve
         BOOST_CHECK_EQUAL( state.position_[ i ], selected.positionMetres[ i ] );
         BOOST_CHECK_EQUAL( state.velocity_[ i ], *selected.velocityMetresPerSecond[ i ] );
     }
+
     // Original tokens are provenance: valid mutable civil epochs need not fabricate a raw token.
     for( auto& parameter : selectedRaw.parameters ) parameter.second.referenceEpoch.original.clear( );
     BOOST_CHECK_EQUAL( input_output::readSinexStationData( selectedRaw ).at( "40423M002" ).referenceEpoch_, state.referenceEpoch_ );

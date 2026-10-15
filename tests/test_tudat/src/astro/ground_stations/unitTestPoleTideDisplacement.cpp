@@ -151,6 +151,7 @@ BOOST_AUTO_TEST_CASE( testPoleTideOblateStationRepresentation )
 
     const Eigen::Vector3d expectedCartesian( -0.0026080881675806561, 0.0043229283367490524, 0.0052751641594906765 );
     const Eigen::Vector3d expectedSphericalEnu( -0.00016710873300951107, -0.00019573999494750939, 0.0072973249023081761 );
+
     // Independent projection of the same reference Cartesian vector onto the
     // geodetic east/north/normal basis at 48/123 degrees.
     const Eigen::Vector3d expectedGeodeticEnu( -0.00016710873300951118, -0.00022011967763310627, 0.0072966301950275498 );

@@ -262,6 +262,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                             "Error when getting body state function for (body-centered to barycentered) ground station motion model, only "
                             "SSB global frame origin is currently supported" );
                 }
+
                 // Ephemeris origin conversions are configured when the environment's frame definitions are processed,
                 // which happens after ground stations are created. They are therefore checked on first evaluation.
                 const auto barycentricStateFunction = []( const std::shared_ptr< Body >& source ) {

@@ -380,6 +380,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
     const auto strict = createDefaultTimeConverter( );
     const std::vector< basic_astrodynamics::DateTime > utcDates = { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
                                                                     basic_astrodynamics::DateTime( 1962, 1, 1, 0, 1, 0.0 ) };
+
     // Published C04 values at UTC midnight. Querying TDB midnight instead
     // crosses the fractional 0.107758 s UTC adjustment at January 1, 1972.
     const std::vector< double > referenceUt1MinusUtc = { -0.0454859, 0.0326338 };
@@ -397,6 +398,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
     EarthOrientationEvaluationSettings historicalSettings;
     historicalSettings.historicalUt1 = HistoricalUt1Policy::delta_t;
     const auto historical = createDefaultTimeConverter( nullptr, false, historicalSettings );
+
     // Exact knot in the separately installed historical Delta-T table.
     const Time tt = Time( -39.0 * physical_constants::JULIAN_YEAR );
     const Time ut1 = historical->getCurrentTime< Time >( tt_scale, ut1_scale, tt );

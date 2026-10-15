@@ -40,6 +40,7 @@ double TerrestrialTimeScaleConverter::getContinuousTdbMinusTt( const Time& tt, c
     const auto key = std::make_tuple( position.x( ), position.y( ), position.z( ) );
     if( tdbToTtInterpolators_.count( key ) ) return tdbToTtInterpolators_.at( key )->interpolate( static_cast< double >( tt ) );
     if( !continuousEopData_ && !position.isZero( 0.0 ) ) return sofa_interface::getTDBminusTT( static_cast< double >( tt ), position );
+
     // Geocentric TT/TDB needs no EOP. The topocentric SOFA terms require
     // actual UT1 and therefore share the strict TAI-axis coverage policy.
     // The UT1 fraction is irrelevant when all observer terms vanish. Using TT

@@ -618,16 +618,19 @@ const TerrestrialFrameTransformationModel& legacyItrfModel( )
     return model;
 }
 }  // namespace
+
 //! Return the complete affine matrix at the legacy 2010 reference year.
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame )
 {
     return legacyItrfModel( ).getTransformation( "ITRF2014", targetFrame, 2010, 1 / 31557600.0 ).matrix;
 }
+
 //! Return the affine matrix derivative per uniform Julian-year input second.
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::string& targetFrame )
 {
     return legacyItrfModel( ).getTransformation( "ITRF2014", targetFrame, 2010, 1 / 31557600.0 ).matrixRate;
 }
+
 //! Return translation and its velocity at the legacy 2010 reference year.
 Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& targetFrame )
 {
@@ -636,6 +639,7 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
 
     return ( Eigen::Vector6d( ) << affine.translation, affine.translationRate ).finished( );
 }
+
 //! Convert from ITRF2014 using the established seconds-since-J2000 Julian-year coordinate.
 Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::Vector6d& state,
                                                                   double epoch,
@@ -643,11 +647,13 @@ Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::V
 {
     return legacyItrfModel( ).transformState( state, "ITRF2014", targetFrame, 2000 + epoch / 31557600.0, 1 / 31557600.0 );
 }
+
 //! Convert to ITRF2014 with the inverse affine map at the requested legacy epoch.
 Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& state, double epoch, const std::string& baseFrame )
 {
     return legacyItrfModel( ).transformState( state, baseFrame, "ITRF2014", 2000 + epoch / 31557600.0, 1 / 31557600.0 );
 }
+
 //! Compose through ITRF2014 using a uniform Julian-year coordinate and its physical rate.
 Eigen::Vector6d convertGroundStationStateBetweenItrfFrames( const Eigen::Vector6d& state,
                                                             double epoch,

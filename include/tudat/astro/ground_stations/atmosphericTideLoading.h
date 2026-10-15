@@ -10,6 +10,7 @@ namespace basic_astrodynamics
 //! The accepted RP03 convention has midnight phase origin; no further 20-minute or S1 180-degree shift.
 Eigen::Vector3d synthesizeAtmosphericTideLoading( const Eigen::Matrix< double, 3, 4 >& coefficientsMetres,
                                                   const double ut1SecondsSinceJ2000 );
+
 //! Exact analytic derivative with respect to UT1 seconds, in metres/second.
 //! A derivative with respect to an environment epoch must additionally multiply by dUT1/d(epoch).
 Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const Eigen::Matrix< double, 3, 4 >& coefficientsMetres,
@@ -32,6 +33,7 @@ public:
     static constexpr double maximumEndpointDiscrepancyMetres = 1.0e-5;
 
     AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid );
+
     //! Interpolate metre coefficients at degree coordinates; missing spatial coverage raises std::out_of_range.
     Eigen::Matrix< double, 3, 4 > interpolate( const double providerLatitudeDegrees, const double providerLongitudeDegrees ) const;
 

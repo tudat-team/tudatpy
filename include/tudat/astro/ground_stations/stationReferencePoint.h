@@ -28,6 +28,7 @@ StationReferencePointGeometry createGeodeticStationReferencePointGeometry( const
                                                                            const std::string& frame,
                                                                            double equatorialRadiusMetres,
                                                                            double flattening );
+
 //! Explicit bounded context for missing source header limits, with its own provenance.
 struct SinexEquipmentHeaderTimeContext {
     std::optional< Time > startTai;
@@ -47,11 +48,13 @@ struct StationReferencePointOffset {
     input_output::SinexSourceRecord provenance;
     input_output::SinexSourceRecord equipmentProvenance;
     std::optional< SinexEquipmentHeaderTimeContext > headerTimeContext;
+
     //! Optional time-dependent reference vectors in the declared basis; state rates are d/dTDB.
     std::function< Eigen::Vector3d( const StationHistoryTime& ) > positionFunction;
     std::function< Eigen::Vector6d( const StationHistoryTime& ) > stateFunction;
     bool directionDependent = false;
 };
+
 //! At an offset switch, position and state use the new (right-hand) record, as elsewhere at station-history discontinuities.
 class StationReferencePointOffsetHistory
 {
@@ -124,6 +127,7 @@ StationReferencePointIdentity getStationReferencePointIdentity( const std::share
 std::shared_ptr< StationReferencePointTrajectory > createStationReferencePointTrajectory(
         std::shared_ptr< StationHistoryTrajectory > source,
         std::shared_ptr< StationReferencePointOffsetHistory > offsets );
+
 //! GNSS marker-to-ARP interpretation of SINEX equipment/eccentricity records, never a phase centre.
 std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePointTrajectory(
         std::shared_ptr< StationHistoryTrajectory > marker,

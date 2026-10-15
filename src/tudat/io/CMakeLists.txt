@@ -151,6 +151,7 @@ set(environment_data_SOURCES
 
 # Installed interfaces for the observations and their file readers.
 set(environment_data_HEADERS
+        "textParsing.h"
         "readEarthOrientationData.h"
         "readOceanLoadingData.h"
         "readOceanPoleTideData.h"

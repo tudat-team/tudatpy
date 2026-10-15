@@ -153,6 +153,7 @@ BOOST_AUTO_TEST_CASE( context_geocentric_clocks_match_independent_sofa_at_2020_s
         BOOST_CHECK_SMALL( static_cast< double >( tdb - convertedTt ) - row[ 2 ], 2e-12 );
         BOOST_CHECK_THROW( converter->getCurrentTime< Time >( tdb_scale, ut1_scale, tdb ), std::runtime_error );
     }
+
     // Atomic conversion must remain independent of EOP/DAT beyond leap-table warning epochs.
     const Time future = Time( ( 62867.0 - 51544.5 ) * 86400.0 );
     BOOST_CHECK_SMALL(
@@ -289,7 +290,6 @@ BOOST_AUTO_TEST_CASE( solid_tide_factory_uses_registered_rotation_and_complete_m
 
         // A non-TDB model checks compatibility with the supplied rotation; environment epochs remain TDB.
         const auto rotation = routingRotation( converter, tt_scale );
-
         const Time tdb = referenceTdb( tt );
         double lastMoon = NAN, lastSun = NAN;
         const auto moonState = [ & ]( double time ) {
@@ -315,7 +315,6 @@ BOOST_AUTO_TEST_CASE( solid_tide_factory_uses_registered_rotation_and_complete_m
 
         // The factory passes the environment epoch to this registered model without changing its declared clock.
         const Eigen::Quaterniond q = rotation->getRotationToTargetFrameFromExtendedTime( tdb );
-
         Eigen::Vector6d moonItrs = moonState( static_cast< double >( tdb ) ), sunItrs = sunState( static_cast< double >( tdb ) );
         moonItrs.head< 3 >( ) = q * moonItrs.head< 3 >( ).eval( );
         sunItrs.head< 3 >( ) = q * sunItrs.head< 3 >( ).eval( );
@@ -462,7 +461,6 @@ BOOST_AUTO_TEST_CASE( basic_solid_factory_uses_registered_rotation )
     for( const auto scale : { tt_scale, tdb_scale } )
     {
         const auto registeredRotation = routingRotation( converter, scale );
-
         bodies.at( "Earth" )->setRotationalEphemeris( registeredRotation );
         const auto model = simulation_setup::createBodyDeformationModel( settings, "Earth", bodies );
 
@@ -474,7 +472,6 @@ BOOST_AUTO_TEST_CASE( basic_solid_factory_uses_registered_rotation )
                 6378136.6,
                 0.6078,
                 0.0847 );
-
         BOOST_CHECK_SMALL( ( model->calculateDisplacement( epoch, station ) - expected ).norm( ), 2e-12 );
     }
 }

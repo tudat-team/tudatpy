@@ -17,6 +17,7 @@ Eigen::Vector3d calculateOceanPoleTideLoading( const Eigen::Matrix< double, 3, 2
     {
         throw std::runtime_error( "Nonfinite or invalid ocean pole-tide loading input" );
     }
+
     // IERS Eq. (29), gamma = 0.6870 + 0.0036i. Coefficients are dimensionless; m1/m2 are RADIANS.
     // Chapter 1: G=6.67428e-11, a=6378136.6, GM=3.986004418e14, ge=9.7803278, Omega=7.292115e-5;
     // rho=1025 (Section 7.1.5). Hp=sqrt(8*pi/15)*Omega^2*a^4/GM; K=4*pi*G*a*rho*Hp/(3*ge).
@@ -44,6 +45,7 @@ static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficien
     {
         latitude = lastLatitude;
     }
+
     // The official grid stops half a step short of the poles; use the edge row there, but reject latitudes
     // further outside a (regional) grid.
     if( latitude < grid.firstLatitudeDegrees - grid.latitudeStepDegrees || latitude > lastLatitude + grid.latitudeStepDegrees )
@@ -52,6 +54,7 @@ static Eigen::Matrix< double, 3, 2 > interpolateValidatedOceanPoleTideCoefficien
     }
     latitude = std::clamp( latitude, grid.firstLatitudeDegrees, lastLatitude );
     double longitude = longitudeDegrees - grid.firstLongitudeDegrees;
+
     // Even a regional extract accepts equivalent east longitudes, but it never interpolates across missing longitudes.
     longitude = std::fmod( longitude, 360.0 );
     if( longitude < 0 )
@@ -118,6 +121,7 @@ Eigen::Vector3d OceanPoleTideDeformation::calculateDisplacementAtTt(
     {
         throw std::runtime_error( "Invalid ocean pole-tide epoch or station" );
     }
+
     // A station at the geocentre has no local radial/north/east basis, regardless of grid coverage.
     const Eigen::Vector3d sphericalPosition = stationState->getNominalSphericalPosition( );
 

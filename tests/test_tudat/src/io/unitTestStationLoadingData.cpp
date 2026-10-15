@@ -51,6 +51,7 @@ std::string multiEpoch( )
             std::ostringstream index;
             index << std::setw( 5 ) << epoch;
             line.replace( 2, 5, index.str( ) );
+
             // Specification says these epoch fields must be ignored, not checked against the index.
             line.replace( 9, 34, "xxxxx yyyyyyy  informational text!" );
             BOOST_REQUIRE_EQUAL( line.size( ), 80 );

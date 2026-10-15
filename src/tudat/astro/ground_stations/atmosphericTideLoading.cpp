@@ -16,6 +16,7 @@ double phase( const Eigen::Matrix< double, 3, 4 >& coefficients, const double ut
     {
         throw std::runtime_error( "Nonfinite atmospheric tide synthesis input" );
     }
+
     // RP03 Eq.2 uses Universal Time; p1905 identifies its quadrature component with06:00 local time.
     // IERS2010 Eqs.19a/b prescribe the same convention in UT1. J2000's time origin is noon, not midnight.
     // Reduce before adding half a day, preserving phase resolution for large epochs.

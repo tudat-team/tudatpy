@@ -119,6 +119,7 @@ struct FactoryFixture {
 BOOST_AUTO_TEST_CASE( iers_equation_fixtures_use_independent_70_digit_decimal_results )
 {
     const Eigen::Vector3d point( 4075578.385, 931852.890, 4801570.154 );
+
     // Decimal fixtures generated directly from IERS 2010 Ch. 11 Eq. 11.18/19.
     // Inputs, precision, equations and PDF SHA256 are in the accompanying README.
     const Eigen::Vector3d unscaled( -0.05927009731058432782438507239103079827,
@@ -149,6 +150,7 @@ BOOST_AUTO_TEST_CASE( stationary_comoving_point_matches_exact_flat_spacetime_lor
 {
     const long double c = 299792458.L, speed = 30000.L;
     const long double beta2 = speed * speed / ( c * c );
+
     // Stable exact expression for sqrt(1-beta^2)-1, at equal barycentric time.
     // The GCRS point is stationary, so its station-event time shift changes no position.
     const long double exact = -beta2 / ( 1 + std::sqrt( 1 - beta2 ) );
@@ -342,6 +344,7 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
     const Eigen::Vector3d correction = -( potential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT + 1.48082686741e-8 ) * inertial -
             .5 * fixture.hostVelocity.dot( inertial ) * fixture.hostVelocity * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     std::string stationName;
+
     // Stations use the body's rotation model as it is; inside an environment it must take TDB input.
     for( const auto scale : { tdb_scale } )
     {

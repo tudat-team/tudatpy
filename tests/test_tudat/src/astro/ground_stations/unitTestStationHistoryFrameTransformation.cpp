@@ -96,6 +96,7 @@ BOOST_AUTO_TEST_CASE( sharedNativeCalendarClockAndCompleteAffineVelocity )
     const auto transformed = transform( source );
     const Time tai = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
     const auto query = getIgnNominalUtcStationTimeFromTai( tai, 1.0 );
+
     // The station's split calendar year and TDB rate are the direct frame-operation inputs.
     BOOST_CHECK_EQUAL( static_cast< double >( query.calendarYear + query.yearFraction ), 2020 + 59.5 / 366 );
     BOOST_CHECK_EQUAL( *query.decimalYearRate, 1.0 / ( 366 * 86400.0 ) );

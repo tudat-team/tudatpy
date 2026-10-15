@@ -30,6 +30,7 @@ void close( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected, cons
         BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], tolerance );
     }
 }
+
 // Published fixtures and injected mean-pole values use TT. The model receives TDB.
 Time tdbAtTt( const double tt,
               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = getGeocentricTimeConverter( ) )
@@ -88,6 +89,7 @@ BOOST_AUTO_TEST_CASE( publishedIersSeriesOldTestParametersOnly )
         {
             continue;
         }
+
         // The independently published series specifies the old 2003 mean pole and G=6.673e-11.
         // Printed m1/m2 are rounded to seven significant digits, and the output also has seven digits, giving sub-nanometre residuals.
         close( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( m1, m2 ) * radiansPerArcsecond, 5339.4043696 ),
@@ -102,6 +104,7 @@ BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
 {
     Eigen::Matrix< double, 3, 2 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6;
+
     // Frozen via independent complex arithmetic: Re(conj(u)*(m1+i*m2)*conj(gamma))*K.
     close( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( 1e-6, -2e-6 ) ),
            Eigen::Vector3d( -0.01108352543805147, -0.01853662753949921, -0.025989729640946948 ) );
@@ -139,6 +142,7 @@ BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndPolarClamp )
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 0, NAN ), std::runtime_error );
     const auto extract = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::out_of_range );
+
     // Latitudes more than one grid step outside a regional extract are rejected rather than clamped.
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, 0, 232.5 ), std::out_of_range );
     BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( extract, -43.5, 232.5 ) -
@@ -153,6 +157,7 @@ BOOST_AUTO_TEST_CASE( modelSecularPoleAndGeocentricBasisAcrossShapeRepresentatio
 {
     const double pi = mathematical_constants::PI;
     const auto grid = syntheticGrid( );
+
     // At J2000 the 2018 secular pole is (55,320.5) mas. Inject exactly m1=1e-6,m2=-2e-6 radians.
     const auto pole = poleCalculator( 0, Eigen::Vector2d( 55, 320.5 ) * ( pi / 648000000.0 ) + Eigen::Vector2d( 1e-6, 2e-6 ) );
     OceanPoleTideDeformation model( grid, pole );
@@ -197,10 +202,12 @@ BOOST_AUTO_TEST_CASE( futureSecularPoleWithIndependentMixedWobble )
         node = coefficients;
     }
     const double tt = 20 * physical_constants::JULIAN_YEAR;
+
     // 2018 secular pole at 20 years: (88.54,389.70) mas. Here m1=-100 mas,m2=+200 mas.
     const auto pole = poleCalculator( tt, Eigen::Vector2d( -11.46, 189.70 ) * ( mathematical_constants::PI / 648000000.0 ) );
     OceanPoleTideDeformation model( grid, pole );
     const Eigen::Vector3d position( 6378137, 0, 0 );
+
     // Independent complex arithmetic yields radial,north,east. At this point Cartesian = radial,east,north.
     close( model.calculateDisplacement( tdbAtTt( tt ), stationAt( position ) ),
            Eigen::Vector3d( 0.005373444767292916, 0.012600176498269108, 0.008986810632781011 ),
@@ -217,6 +224,7 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedFileAndConfigurationErrors )
     bodies.createEmptyBody( "Earth" );
     bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
     const auto preloaded = createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Earth", bodies );
+
     // Filename settings retain preloaded coefficients and report unavailable files immediately.
     const auto fileSettings = oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) );
 
@@ -245,6 +253,7 @@ BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
 {
     using namespace simulation_setup;
     using namespace earth_orientation;
+
     // Controlled daily observations are affine in TAI, including the 86401-second day.
     EarthOrientationData data;
     const Time midnightTai = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
@@ -298,6 +307,7 @@ BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
                     std::real( std::conj( std::complex< double >( coefficients( component, 0 ), coefficients( component, 1 ) ) ) * wobble *
                                std::conj( std::complex< double >( 0.687, 0.0036 ) ) );
         }
+
         // Independent complex loading formula and equatorial radial/east/north basis.
         close( model->calculateDisplacement( tdbAtTt( tt, angles->getTerrestrialTimeScaleConverter( ) ), stationAt( position ) ),
                Eigen::Vector3d( loading.x( ), loading.z( ), loading.y( ) ),

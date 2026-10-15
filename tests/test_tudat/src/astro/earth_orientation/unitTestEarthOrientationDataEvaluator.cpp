@@ -166,6 +166,7 @@ BOOST_AUTO_TEST_CASE( pre_1972_utc_drift_uses_fractional_dat_and_continuous_ut1 
     const auto data = input_output::readEarthOrientationData( fixture );
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+
     // SOFA DAT's accepted 1962 segment: 1.845858 s at January 1 midnight,
     // increasing by 0.0011232 s per UTC day (not an integer leap offset).
     const Time utc = Time( ( 37665.5 - 51544.5 ) * 86400.0 );
@@ -248,6 +249,7 @@ BOOST_AUTO_TEST_CASE( public_rotation_factory_is_continuous_during_the_inserted_
     BOOST_CHECK_SMALL( Eigen::AngleAxisd( rb * ra.inverse( ) ).angle( ) - expectedSpin, 1e-9 );
     BOOST_CHECK_SMALL( Eigen::AngleAxisd( rc * rb.inverse( ) ).angle( ) - expectedSpin, 1e-9 );
     BOOST_CHECK_THROW( converter->getCurrentTime< Time >( tai_scale, utc_scale, middle ), std::runtime_error );
+
     // The TT-only PM accessor is also used by solid/ocean pole tide.
     const Eigen::Vector2d pm =
             angles->getPolarMotionCalculator( )->getPositionOfCipInItrsAtTt( static_cast< double >( convertTAItoTT( middle ) ) );
@@ -255,6 +257,7 @@ BOOST_AUTO_TEST_CASE( public_rotation_factory_is_continuous_during_the_inserted_
     const auto evaluator = converter->getEarthOrientationDataEvaluator( );
     BOOST_CHECK_NO_THROW( earthRotation->getRotationToTargetFrameFromExtendedTime( evaluator->getStartTai( ) ) );
     BOOST_CHECK_NO_THROW( earthRotation->getRotationToTargetFrameFromExtendedTime( evaluator->getEndTai( ) ) );
+
     // Both inverse maps include the actual production short-period UT1 terms.
     const Eigen::Vector3d station( 4075578.385, 931852.890, 4801570.154 );
     for( const Time& endpoint : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )
@@ -365,6 +368,7 @@ BOOST_AUTO_TEST_CASE( four_point_interpolation_matches_unmodified_original_lagin
             BOOST_REQUIRE( value.lengthOfDay );
             BOOST_CHECK_SMALL( *value.lengthOfDay - query.fields[ 5 ], 1e-15 );
         }
+
         // The original routine leaves its window index undefined at x==last.
         // This endpoint expectation comes directly from the raw input, not an
         // execution of that undefined original-reference branch.
@@ -435,6 +439,7 @@ BOOST_AUTO_TEST_CASE( four_point_ut1_must_be_monotonic_between_raw_nodes_includi
 {
     auto data = interpolationData( interpolation_reference::datasets.front( ) );
     data.records.erase( std::next( data.records.begin( ), 4 ), data.records.end( ) );
+
     // The middle-interval dUT1/dTAI is (u-0.5)^2 - 0.01. Both
     // endpoint slopes are +0.24, but the quadratic extremum is negative.
     // All four sampled UT1 epochs nevertheless increase strictly.
@@ -477,6 +482,7 @@ BOOST_AUTO_TEST_CASE( rounded_tt_endpoints_use_endpoint_values_and_strict_polar_
     auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( leapData( ) );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
     PolarMotionCalculator pole( nullptr, nullptr, evaluator );
+
     // The scalar TT CPO routes must use the same observation as polar motion.
     PrecessionNutationCalculator celestial( iau_2006, nullptr, nullptr, evaluator );
 
@@ -520,6 +526,7 @@ BOOST_AUTO_TEST_CASE( public_double_atomic_endpoints_reach_angles_rotation_and_c
         {
             const Time preciseInput = converter->getCurrentTime< Time >( tai_scale, scale, boundary );
             const double input = static_cast< double >( preciseInput );
+
             // The rounded double input lies within the coverage tolerance of the end point.
             BOOST_CHECK_SMALL( static_cast< double >( converter->getTaiTime( scale, input ) - boundary ), 1e-6 );
             BOOST_CHECK_SMALL( convertTimeScale( input, scale, tai_scale, converter ) - static_cast< double >( boundary ), 1e-6 );
@@ -532,10 +539,12 @@ BOOST_AUTO_TEST_CASE( public_double_atomic_endpoints_reach_angles_rotation_and_c
                     converter->getCurrentTimeDifference( scale, ut1_scale, input ) - static_cast< double >( ut1 - Time( input ) ), 1e-6 );
             BOOST_CHECK_NO_THROW( angles->getPolarMotionCalculator( )->getPositionOfCipInItrsAtTt(
                     static_cast< double >( convertTAItoTT( boundary ) ) ) );
+
             // One millisecond outside the coverage is rejected by EOP consumers.
             const double outside = boundary == evaluator->getStartTai( ) ? input - 1.0E-3 : input + 1.0E-3;
             BOOST_CHECK_THROW( angles->getRotationAnglesFromItrsToGcrs< double >( outside, scale ), std::runtime_error );
             BOOST_CHECK_THROW( converter->getUt1Correction( scale, outside ), std::runtime_error );
+
             // Geocentric clock conversion remains available; only EOP consumers reject it.
             BOOST_CHECK_NO_THROW( converter->getTaiTime( scale, outside ) );
             if( scale == tt_scale )
@@ -592,6 +601,7 @@ BOOST_AUTO_TEST_CASE( interior_clock_interpolator_does_not_probe_distant_raw_eop
             100.0 );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr, interpolation, evaluator );
     const Time tdb = converter.getCurrentTime< Time >( tai_scale, tdb_scale, tai );
+
     // An interior epoch must not query clock values outside this intentionally narrow table.
     BOOST_CHECK_SMALL( static_cast< double >( converter.getTaiTime( tdb_scale, static_cast< double >( tdb ) ) - tai ), 1e-7 );
     BOOST_CHECK_SMALL( static_cast< double >( converter.getTaiTime( tdb_scale, tdb ) - tai ), 1e-12 );
@@ -621,6 +631,7 @@ BOOST_AUTO_TEST_CASE( native_geocentric_clock_rate_matches_independent_sofa_step
             std::cout << std::setprecision( 17 ) << "SOFA clock epoch=" << static_cast< double >( tai ) << " h=" << h
                       << " dTT/dTDB=" << actual << " residual=" << actual - expected << '\n';
         }
+
         // At zero observer all fraction-of-day arguments give identical offsets.
         BOOST_CHECK_EQUAL( sofa_interface::getTDBminusTT( static_cast< double >( tt ), 0.0, Eigen::Vector3d::Zero( ) ),
                            sofa_interface::getTDBminusTT( static_cast< double >( tt ), 0.999, Eigen::Vector3d::Zero( ) ) );
@@ -669,6 +680,7 @@ BOOST_AUTO_TEST_CASE( identity_time_conversions_preserve_values_without_clock_or
 BOOST_AUTO_TEST_CASE( precise_time_clock_stencil_accepts_roundoff_at_a_fractional_binade_boundary )
 {
     const Time tdb( 0, std::nextafter( 100.0L, std::numeric_limits< long double >::infinity( ) ) );
+
     // Adding 32/64 s crosses the 128-s fractional binade and rounds by one
     // long-double ULP (~7e-18 s), far below the precision of the returned rate.
     BOOST_CHECK_NE( tdb + 32.0 - tdb, Time( 32.0 ) );

@@ -52,6 +52,7 @@ public:
     StationMotionModel( ) {}
 
     virtual ~StationMotionModel( ) {}
+
     //! Body-fixed position correction (metres) and velocity correction (m/s),
     //! evaluated at TDB seconds since J2000 without reducing Time precision.
     virtual Eigen::Vector6d getBodyFixedStationMotion( const Time& tdb,

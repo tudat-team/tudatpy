@@ -270,6 +270,7 @@ Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMat
 Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMatrixDerivative( const Time& time )
 {
     const Eigen::Matrix3d rotation = inertialToBodyFixedRotationFunction_( time ).toRotationMatrix( );
+
     // Rotation rate from its callback if available, otherwise numerically; the host acceleration is always numerical.
     const std::function< Eigen::Matrix3d( const Time& ) > rotationMatrix = [ this ]( const Time& t ) -> Eigen::Matrix3d {
         return inertialToBodyFixedRotationFunction_( t ).toRotationMatrix( );

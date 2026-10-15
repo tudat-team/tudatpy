@@ -408,6 +408,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
 
                         expectedStateDifference += getBodyFixedSpecialRelativisticDisplacementFunction(
                                 testTimes.at( j ), bodies, nominalStationState + expectedStateDifference );
+
                         // Subtracting metre-scale offsets from a ~6e6 m position
                         // has an absolute rounding floor, even when one component is tiny.
                         BOOST_CHECK_SMALL( ( stateDifference - expectedStateDifference ).norm( ), 2e-9 );

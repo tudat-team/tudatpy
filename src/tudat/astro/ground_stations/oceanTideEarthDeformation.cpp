@@ -351,6 +351,7 @@ Eigen::Vector3d synthesizeExpandedOceanLoading( const double tt, const input_out
         const int species = oceanLoadingDoodsonNumbers[ tide ][ 0 ];
         phases[ tide ] = ( phase + ( species == 0 ? 180.0 : ( species == 1 ? 90.0 : 0.0 ) ) ) * degreesToRadians;
     }
+
     // Canonical BLQ constituents, matched against the pinned reference Doodson table.
     const std::array< std::array< int, 6 >, 11 > mainDoodsonNumbers = { { { { 2, 0, 0, 0, 0, 0 } },
                                                                           { { 2, 2, -2, 0, 0, 0 } },
@@ -411,6 +412,7 @@ Eigen::Vector3d synthesizeExpandedOceanLoading( const double tt, const input_out
             const int species = oceanLoadingDoodsonNumbers[ tide ][ 0 ];
             const double real = evaluateOceanLoadingSpline( realSplines[ species ], frequencies[ tide ] );
             const double imaginary = evaluateOceanLoadingSpline( imaginarySplines[ species ], frequencies[ tide ] );
+
             // Signed Cartwright-Edden amplitude and complex admittance retain the
             // reference phase convention, without a singular atan2 at zero amplitude.
             displacement( component ) += oceanLoadingEquilibriumAmplitudes[ tide ] *

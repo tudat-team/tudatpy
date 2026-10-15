@@ -65,6 +65,7 @@ protected:
     explicit BodyDeformationModel( const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
     virtual Eigen::Vector3d evaluateDisplacement( const Time& tdb,
                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) = 0;
+
     //! Estimate velocity from four nearby positions (fourth-order central difference) when no analytic rate is supplied.
     virtual Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                        const std::shared_ptr< ground_stations::GroundStationState > station );
@@ -136,6 +137,7 @@ private:
             }
             if( ( !State || !throwExceptionWhenNotAvailable_ ) && !displacement.allFinite( ) )
                 throw std::runtime_error( "Non-finite body deformation displacement." );
+
             // A selected position does not guarantee a rate; derivative failures must propagate.
             if constexpr( State )
                 result += model->calculateDisplacementState( tdb, station );

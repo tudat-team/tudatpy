@@ -131,6 +131,7 @@ BOOST_AUTO_TEST_CASE( nativeContinuousLeapPhaseAndOwnClock )
         const double ut1 = static_cast< double >( tai - 36.4 );
         const auto local = independentLocal( g.coefficientsMetres.front( ), ut1 );
         const Eigen::Vector3d expected( local.x( ), local.z( ), local.y( ) );
+
         // The model owns the converter used by this native TDB query.
         close( model.calculateDisplacement( tdb, station( p ) ), expected, 2e-14 );
         close( model.calculateDisplacement( Time( static_cast< double >( tdb ) ), station( p ) ), expected, 3e-13 );
@@ -148,6 +149,7 @@ BOOST_AUTO_TEST_CASE( independentLookupAndBasisAndSameCartesianRepresentation )
     const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
     const auto oblate = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137, 1. / 298.257223563 );
     const auto sphere = std::make_shared< SphericalBodyShapeModel >( 6378137 );
+
     // Known ellipsoid surface coordinate 45deg,30deg; normal direction is known independently.
     const double f = 1. / 298.257223563, e2 = f * ( 2 - f ), lat = mathematical_constants::PI / 4, lon = mathematical_constants::PI / 6;
     const double n = 6378137 / std::sqrt( 1 - e2 * std::pow( std::sin( lat ), 2 ) );
@@ -225,10 +227,12 @@ BOOST_AUTO_TEST_CASE( rp03GridDefaultsToGeocentricConventions )
                                .cwiseAbs( )
                                .maxCoeff( ),
                        0.0 );
+
     // An explicit declaration still takes precedence: geodetic lookup without a body shape is rejected.
     AtmosphericTideEvaluationSettings geodetic;
     geodetic.lookupLatitudeConvention = AtmosphericTideLatitudeConvention::geodetic;
     BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c, geodetic ) ), std::runtime_error );
+
     // Without the RP03 identification, conventions remain mandatory.
     g.metadata.modelName = "Vienna APL";
     BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c ) ), std::runtime_error );
@@ -347,11 +351,8 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
         close( preloaded->calculateDisplacement( tdb, station( p ) ), file->calculateDisplacement( tdb, station( p ) ) );
         close( preloaded->calculateDisplacement( tdb, station( p ) ), defaulted->calculateDisplacement( tdb, station( p ) ) );
         const Eigen::Vector6d a = preloaded->calculateDisplacementState( tdb, station( p ) );
-
         const Eigen::Vector6d b = file->calculateDisplacementState( tdb, station( p ) );
-
         const Eigen::Vector6d defaultedState = defaulted->calculateDisplacementState( tdb, station( p ) );
-
         close( a.head< 3 >( ), b.head< 3 >( ) );
         close( a.tail< 3 >( ), b.tail< 3 >( ), 2e-20 );
         close( a.head< 3 >( ), defaultedState.head< 3 >( ) );
@@ -442,6 +443,7 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
             const Eigen::Vector3d expected =
                     Eigen::Vector3d( local.x( ), local.z( ), local.y( ) ) * ( 1 + slope ) * c->getGeocentricTtRateWithRespectToTdb( epoch );
             close( model.calculateDisplacementState( epoch, s ).tail< 3 >( ), expected, 2e-20 );
+
             // Only the ground-station scalar boundary normalizes rounded endpoint images.
             std::vector< std::shared_ptr< BodyDeformationModel > > models{ std::make_shared< AtmosphericTideDeformation >(
                     grid( ), c, explicitGeometry( ) ) };

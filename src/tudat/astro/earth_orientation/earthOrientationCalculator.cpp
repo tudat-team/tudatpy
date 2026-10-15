@@ -122,6 +122,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAngle
                     .toRotationMatrix( );
     const Eigen::Matrix3d polarX = Eigen::AngleAxisd( -orientation.angles[ 3 ], Eigen::Vector3d::UnitY( ) ).toRotationMatrix( );
     const Eigen::Matrix3d polarY = Eigen::AngleAxisd( -orientation.angles[ 4 ], Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+
     // SOFA iauSp00: -47 microarcseconds per Julian century of TT (IERS 2010, 5.13).
     const double tioRate = -47e-6 * mathematical_constants::PI / ( 180.0 * 3600.0 ) / ( 36525.0 * 86400.0 ) * orientation.dTtDInput;
     const Eigen::Matrix3d w = tio * polarX * polarY;

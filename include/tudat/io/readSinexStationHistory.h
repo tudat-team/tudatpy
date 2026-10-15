@@ -33,6 +33,7 @@ struct SinexCivilUtc {
         return std::tie( year, dayOfYear, secondsOfDay ) < std::tie( other.year, other.dayOfYear, other.secondsOfDay );
     }
 };
+
 //! Zero tokens carry their field's meaning; they are never converted to a date/infinity.
 enum class SinexEpochMeaning { specified, unspecified, headerStartDefault, headerEndDefault, openStart, openEnd };
 struct SinexEpoch {
@@ -43,6 +44,10 @@ struct SinexEpoch {
 struct SinexSiteKey {
     std::string siteCode;
     std::string pointCode;
+    bool operator==( const SinexSiteKey& other ) const
+    {
+        return siteCode == other.siteCode && pointCode == other.pointCode;
+    }
     bool operator<( const SinexSiteKey& other ) const
     {
         return std::tie( siteCode, pointCode ) < std::tie( other.siteCode, other.pointCode );
@@ -51,6 +56,10 @@ struct SinexSiteKey {
 struct SinexSolutionKey {
     SinexSiteKey site;
     std::string solutionId;
+    bool operator==( const SinexSolutionKey& other ) const
+    {
+        return site == other.site && solutionId == other.solutionId;
+    }
     bool operator<( const SinexSolutionKey& other ) const
     {
         return std::tie( site.siteCode, site.pointCode, solutionId ) <
@@ -91,6 +100,7 @@ struct SinexObservationSpan {
     SinexEpoch mean;
     SinexSourceRecord provenance;
 };
+
 //! ITRF extension: position and velocity identifiers remain independent.
 struct SinexDiscontinuityRecord {
     SinexSolutionKey key;
@@ -108,6 +118,7 @@ struct SinexEccentricityRecord {
     SinexEpoch start;
     SinexEpoch end;
     SinexEccentricityBasis basis = SinexEccentricityBasis::une;
+
     //! Metres in the declared component order; UNE is not silently reordered to ENU.
     std::array< double, 3 > componentsMetres{ { 0.0, 0.0, 0.0 } };
     SinexSourceRecord provenance;
@@ -119,6 +130,7 @@ struct SinexEquipmentRecord {
     std::string observationTechnique;
     SinexEpoch start;
     SinexEpoch end;
+
     //! Antenna model includes the source's radome suffix; no model/calibration is inferred.
     std::string equipmentType;
     std::string serialNumber;
@@ -139,12 +151,14 @@ struct SinexStationHistory {
     SinexEpoch headerEnd;
     std::string observationTechnique;
     std::size_t declaredParameterCount = 0;
+
     //! Neutral supplied metadata; absent information stays empty, never inferred from filenames.
     std::string frame;
     std::string release;
     std::string origin;
     std::string tideSystem;
     std::vector< SinexSourceRecord > comments;
+
     //! Repeated raw site/point keys can identify different techniques/monuments in combined products.
     std::multimap< SinexSiteKey, SinexSiteRecord > sites;
     std::map< std::size_t, SinexParameterRecord > parameters;
@@ -152,6 +166,7 @@ struct SinexStationHistory {
     std::vector< SinexDiscontinuityRecord > discontinuities;
     std::vector< SinexEccentricityRecord > eccentricities;
     std::vector< SinexEquipmentRecord > equipmentHistories;
+
     //! Unknown blocks and covariance declarations are retained without evaluation.
     std::vector< SinexOpaqueBlock > opaqueBlocks;
 };
@@ -171,8 +186,10 @@ struct SinexCartesianSolution {
 //! Strict SINEX 2.02 fixed-width station-product input, including parameter-only IGN extensions.
 SinexStationHistory readSinexStationHistory( std::istream& stream, const std::string& source = "<stream>" );
 SinexStationHistory readSinexStationHistory( const std::string& fileName );
+
 //! Validate mutable preloaded records without constructing any environment model.
 void validateSinexStationHistory( const SinexStationHistory& history );
+
 //! Explicit solution selection; complete positions are required only by this consuming query.
 SinexCartesianSolution getSinexCartesianSolution( const SinexStationHistory& history,
                                                   const SinexSolutionKey& key,

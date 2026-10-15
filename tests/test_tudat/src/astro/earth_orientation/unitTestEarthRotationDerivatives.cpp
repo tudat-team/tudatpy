@@ -162,9 +162,11 @@ std::map< std::string, Eigen::Matrix3d > independentBaseFrames( const IAUConvent
         iauBp06( 2451545.0, 0.0, bias, precession, combined );
     else
         iauBp00( 2451545.0, 0.0, bias, precession, combined );
+
     // NAIF built-in ECLIPJ2000 obliquity 84381.448 arcsec, explicit independent constants.
     Eigen::Matrix3d ecliptic;
     ecliptic << 1.0, 0.0, 0.0, 0.0, 0.9174820620691818, 0.3977771559319137, 0.0, -0.3977771559319137, 0.9174820620691818;
+
     // J2000 (and its synonym EME2000) includes the frame bias; ECLIPJ2000 is defined with respect to J2000.
     return { { "GCRS", Eigen::Matrix3d::Identity( ) },
              { "ICRF", Eigen::Matrix3d::Identity( ) },
@@ -354,6 +356,7 @@ BOOST_AUTO_TEST_CASE( strict_rates_retain_endpoints_knot_policy_and_missing_rate
             const auto rate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( input, scale );
             const auto doubleRate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( static_cast< double >( input ), scale );
             BOOST_CHECK_EQUAL( rate.tai, tai );
+
             // A rounded double end point lies within the EOP coverage tolerance of the exact end point.
             BOOST_CHECK_SMALL( static_cast< double >( doubleRate.tai - tai ), 1e-6 );
             BOOST_CHECK_SMALL( ( rate.angleRates - doubleRate.angleRates ).norm( ), 1e-22 );
@@ -381,6 +384,7 @@ BOOST_AUTO_TEST_CASE( nominal_cip_rate_matches_independent_sofa_and_ignores_posi
 {
     const Time tt = referenceTai( ) + 32.184 + 12345.0;
     PrecessionNutationCalculator direct( iau_2006, nullptr );
+
     // Unit-scale rotation-matrix arithmetic is allowed eight epsilon of absolute
     // error per returned coordinate. The five-point weights amplify that by
     // 3/(2h); add the two stencils' budgets, in three dimensions. Truncation
