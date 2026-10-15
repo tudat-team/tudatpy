@@ -314,6 +314,53 @@ The native reference-position and one-Julian-year history
 controls agree with the parsed solution to double-position precision. The
 shared-script APOLLO control reproduces all eleven archived CSV rows exactly.
 
+Optical input and observation-release controls
+---------------------------------------------
+
+An independent evaluation of IERS chapter 9 expressions at the archived native
+events agrees with all 48 per-leg optical delays from the survey APOLLO,
+INPOP17a APOLLO and Matera cases within ``9e-16 m``. This checks the actual
+geodetic latitude, ellipsoidal height, local elevation, 532 nm wavelength,
+UTC-interpolated pressure, temperature and humidity supplied to the model;
+it does not establish the accuracy of the measured atmosphere. Nominal heights
+are 2786.620 m, 2786.669 m and 536.982 m respectively. A 100 m height change
+changes these delays by at most 0.097 mm. The
+`Matera site log <https://ilrs.gsfc.nasa.gov/network/stations/active/MATM_sitelog.html>`_
+records a barometer 2.4 m above the station reference point. Whether the supplied
+CRD pressure was already reduced to that point remains undocumented; the
+corresponding uncorrected height sensitivity is 0.77--0.91 mm per leg. No guessed
+pressure reduction or change to the physical IERS mapping function is applied.
+
+NASA's `archive release notice
+<https://earth.gsfc.nasa.gov/geo/projects/sgp/apache-point/updates/complete-dataset-apache-point-lunar-laser-ranging-station>`_
+documents reprocessing with ACS calibration in February 2024. A separate
+data-version audit retrieved the current EDC CRDv2 files for the same four
+reflectors on 2017-03-09, created 2025-06-26 and received 2025-06-27. These files
+are served under ``quarantine/7045/2017``. Their documented
+`WGL021 warning <https://edc.dgfi.tum.de/en/oc/crd/v2/#WGL021>`_
+means that EDC lacks station XYZ coordinates for calculating an orbit fit.
+Their quarantine status is retained; they are not substituted into the frozen
+baseline or evaluated as a new accepted baseline.
+
+The directory ``analysis/laser_ranging/results/apollo_20170309_release_comparison``
+records source URLs and SHA-256 hashes, and every matched point's exact decimal
+tags, RTTs, weather, photon counts and provider uncertainty. Matching uses only
+reflector and acquisition-window overlap. Ten original points retain exactly
+the same transmit tag; their RTT revisions correspond to half-range changes
+between -3.687 and +12.052 mm. The third A15 observation moves from
+01:56:10 to 01:56:15 UTC, so its RTTs are not subtracted. The current files also
+contain an additional eight-photon A14 point at 02:05:05 UTC. It is recorded
+only as unmatched release metadata. All eleven original points remain intact.
+
+The current headers specify transmit epochs, station delay already applied,
+and no troposphere, centre-of-mass, receive-amplitude or spacecraft-delay
+correction. The legacy fixed-width rows do not expose equivalent CRD flags,
+so identical correction status cannot be asserted. Current normal-point
+uncertainties are taken from explicit provider comments, which retain a caveat
+about a possible later scale factor or RSS term; CRD bin RMS is kept separately.
+Weather and photon counts also differ. These are release differences, with no
+residual calculation, data cuts or preferred-release selection.
+
 Primary sources
 ---------------
 

@@ -1,0 +1,65 @@
+{
+  "legacy_source": {
+    "path": "apollo_20170309_np2.txt",
+    "sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+    "url": "https://tmurphy.physics.ucsd.edu/apollo/160912e_apollo_np2.txt",
+    "parent_sha256": "87495b6d72b761999b9753df6a277ebfd661448352b19cf28b2b378e4df7225d"
+  },
+  "current_sources": [
+    {
+      "path": "apollo11_20170309-current.np2",
+      "sha256": "ce510dc2ea6de9c482ad2dc32b5ff04f1e83627e867bc734ac48eb9abcb1b677",
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/quarantine/7045/2017/apollo11_20170309.np2"
+    },
+    {
+      "path": "apollo14_20170309-current.np2",
+      "sha256": "4b4daf1fc374b160dece62665d7ceb6d136566ccb794a64079c8c183d180715e",
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/quarantine/7045/2017/apollo14_20170309.np2"
+    },
+    {
+      "path": "apollo15_20170309-current.np2",
+      "sha256": "ab2022a36853691531a498ec3a95ec69c8ca68100a7e3a6dc9d564fda1950b52",
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/quarantine/7045/2017/apollo15_20170309.np2"
+    },
+    {
+      "path": "luna17_20170309-current.np2",
+      "sha256": "3a358fdafd184bc2c3a5e36a6aa59cef6224f26b6665fae11489555ae5761fe3",
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/quarantine/7045/2017/luna17_20170309.np2"
+    }
+  ],
+  "matching_rule": "Same reflector, same UTC date, unique current acquisition window containing original transmit tag. No range values used for matching.",
+  "current_points": 12,
+  "matched_legacy_points": 11,
+  "same_exact_tags": 10,
+  "retrieved_utc": "2026-10-16",
+  "current_release": {
+    "creation_utc": "2025-06-26T21:00:00",
+    "received_utc": "2025-06-27T15:29:06",
+    "incoming_file": "nasa_202506271500.np2",
+    "data_release": 1,
+    "quarantine_status": "WGL021: No XYZ station coordinates found for calculating orbit fit",
+    "validation_url": "https://edc.dgfi.tum.de/en/oc/crd/v2/#WGL021",
+    "processing_git": "3716d7ef99a20269c22c4b55eb848cc10a42a9f6",
+    "acs_git": "1d568d1eaebb3ad9b8317693fea841524d0605db"
+  },
+  "conventions": {
+    "station_id": "Legacy provider ID 70610; current ILRS APOL 7045, system 95, occupancy 1, time scale 4.",
+    "flags": "Current H4: release 1, trop 0, COM 0, receive amplitude 0, station system delay 1, spacecraft delay 0, range type 2, quality alert 0; record 11 event 2/transmit. Legacy Group e has quality B and two undocumented A fields; equivalent CRD flags cannot be recovered.",
+    "uncertainty": "Current total uncertainty is the explicit provider comment, not CRD binRMS nor binRMS/sqrtN. Provider caveat: excepting a potential scale factor or RSS value, which will follow.",
+    "comparison": "Same-tag half-range differences are c*deltaRTT/2. No RTT subtraction is reported for unequal tags."
+  },
+  "unmatched_current_point": {
+    "target": "apollo14",
+    "tag_sod": "7505.0000000",
+    "photons": 8,
+    "sigma_ps": "142.9",
+    "duration_s": "75.0",
+    "source": "apollo14_20170309-current.np2"
+  },
+  "matching_dataset_examples": [
+    "https://edc.dgfi.tum.de/en/data/npt2/885635/",
+    "https://edc.dgfi.tum.de/en/data/npt2/885636/"
+  ],
+  "nasa_release_url": "https://earth.gsfc.nasa.gov/geo/projects/sgp/apache-point/updates/complete-dataset-apache-point-lunar-laser-ranging-station",
+  "scope": "Data-version audit only. Original eleven observations remain frozen; current quarantined files were not simulated or selected using residuals."
+}
