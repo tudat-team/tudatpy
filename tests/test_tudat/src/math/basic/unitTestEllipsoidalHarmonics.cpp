@@ -11,6 +11,12 @@
  *    model, for comet 67P/Churyumov-Gerasimenko expanded to degree 15. They are given at 500
  *    points on the sphere that encloses the body.
  *
+ *    Degree 15 is used because that is what the reference data covers, not because the model is
+ *    trustworthy there; it should be truncated at degree 9 in use. Note also what this comparison
+ *    can and cannot show: the reference potentials were generated from the same transform factor
+ *    file that these tests read, so any error in those factors cancels on both sides. Agreement
+ *    here establishes that the implementation is faithful, not that the model is accurate.
+ *
  *    References:
  *          Garmier, R., Barriot, J.-P. (2001), Celestial Mechanics and Dynamical Astronomy, 79(4), 235-275.
  *          Hu, X., Jekeli, C. (2015), Journal of Geodesy, 89(2), 159-177.

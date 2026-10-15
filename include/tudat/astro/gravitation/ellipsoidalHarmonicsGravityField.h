@@ -10,6 +10,7 @@
  *    References:
  *          Garmier, R., Barriot, J.-P. (2001), Celestial Mechanics and Dynamical Astronomy, 79(4), 235-275.
  *          Hu, X., Jekeli, C. (2015), Journal of Geodesy, 89(2), 159-177.
+ *          Reimond, S., Baur, O. (2016), J. Geophys. Res. Planets, 121(5), 497-515.
  *          See tudat/math/basic/ellipsoidalHarmonics.h for the full citations.
  */
 
@@ -20,6 +21,9 @@
  *  are only valid outside the sphere enclosing the body, this expansion is valid outside the
  *  enclosing ellipsoid, so it stays usable much closer to an elongated body. See
  *  tudat/math/basic/ellipsoidalHarmonics.h for the expansion itself.
+ *
+ *  Keep the expansion at degree 9 or below. Beyond that the transform factors the model is built
+ *  from lose accuracy faster than they gain detail, for the reasons set out in that header.
  */
 
 #include <memory>

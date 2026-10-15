@@ -15,6 +15,10 @@
  *          Hu, X., Jekeli, C. (2015), "A numerical comparison of spherical, spheroidal and
  *          ellipsoidal harmonic gravitational field models for small non-spherical bodies: examples
  *          for the Martian moons", Journal of Geodesy, 89(2), 159-177.
+ *
+ *          Reimond, S., Baur, O. (2016), "Spheroidal and ellipsoidal harmonic expansions of the
+ *          gravitational potential of small Solar System bodies. Case study: Comet
+ *          67P/Churyumov-Gerasimenko", Journal of Geophysical Research: Planets, 121(5), 497-515.
  */
 
 #include "tudat/math/basic/ellipsoidalHarmonics.h"

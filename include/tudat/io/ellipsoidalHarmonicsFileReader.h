@@ -10,6 +10,7 @@
  *    References:
  *          Garmier, R., Barriot, J.-P. (2001), Celestial Mechanics and Dynamical Astronomy, 79(4), 235-275.
  *          Hu, X., Jekeli, C. (2015), Journal of Geodesy, 89(2), 159-177.
+ *          Reimond, S., Baur, O. (2016), J. Geophys. Res. Planets, 121(5), 497-515.
  *          See tudat/math/basic/ellipsoidalHarmonics.h for the full citations.
  */
 
@@ -70,6 +71,13 @@ basic_mathematics::EllipsoidalHarmonicMatrices readLameFunctionCoefficients( con
  * These mix the terms within each group, and the file has the same layout as the Lame
  * coefficient file, one line per term holding that term's row of its group's matrix.
  * Throws if any term up to the maximum degree is missing from the file.
+ *
+ * These factors are the accuracy-limiting part of the whole model. Each group's matrix should be
+ * orthogonal; in the files this holds to fourteen digits through degree 8, after which the
+ * departure grows by an order of magnitude or more per degree, because the generator works with
+ * quantities that outgrow double precision. Reading beyond degree 9 is therefore unwise unless
+ * the file was produced by a method that keeps those quantities in range; see
+ * tudat/math/basic/ellipsoidalHarmonics.h and the Reimond and Baur reference there.
  *
  * @param fileName Full path of the transform factor file.
  * @param maximumDegree Highest degree to read.
