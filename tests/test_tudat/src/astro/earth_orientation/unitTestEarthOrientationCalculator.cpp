@@ -17,6 +17,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
@@ -179,15 +180,13 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
     BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs( 1 ) ), 1.0E-15 );
     BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs( 2 ) ), 1.0E-15 );
 
-    Eigen::Vector2d tudatXYCorrection =
-            createStandardEarthOrientationCalculator( )
-                    ->getPrecessionNutationCalculator( )
-                    ->getEarthOrientationDataEvaluator( )
-                    ->getCelestialPoleOffsets( sofa_interface::convertUTCtoTAI( Time( terrestrialTimeSecondsSinceJ2000Inaccruate ) ) );
-
-    // Compute Earth rotation angles from EarthOrientationAnglesCalculator object and compare against SOFA
     std::shared_ptr< tudat::earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
             tudat::earth_orientation::createStandardEarthOrientationCalculator( );
+
+    // Evaluate the offsets at the same TT epoch after converting it to the evaluator's TAI scale.
+    Eigen::Vector2d tudatXYCorrection =
+            earthOrientationCalculator->getPrecessionNutationCalculator( )->getEarthOrientationDataEvaluator( )->getCelestialPoleOffsets(
+                    basic_astrodynamics::convertTTtoTAI( Time( terrestrialTimeSecondsSinceJ2000Inaccruate ) ) );
 
     // Compare SOFA values against EarthOrientationAnglesCalculator  with double input
     std::pair< Eigen::Vector5d, double > rotationAnglesInaccurate = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >(

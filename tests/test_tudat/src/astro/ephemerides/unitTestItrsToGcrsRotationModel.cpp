@@ -362,34 +362,31 @@ BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
     Eigen::Matrix3d expectedCirsToIcrs =
             calculateRotationFromCirsToGcrs( rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ] ).toRotationMatrix( );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel
-                    ->getRotationBetweenIntermediateFrames(
-                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::tirs, testTime )
-                    .toRotationMatrix( ),
-            expectedItrsToTirs,
-            ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel
-                    ->getRotationBetweenIntermediateFrames(
-                            EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::cirs, testTime )
-                    .toRotationMatrix( ),
-            expectedTirsToCirs,
-            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel
-                    ->getRotationBetweenIntermediateFrames(
-                            EarthOrientationIntermediateFrame::cirs, EarthOrientationIntermediateFrame::icrs, testTime )
-                    .toRotationMatrix( ),
-            expectedCirsToIcrs,
-            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel
-                    ->getRotationBetweenIntermediateFrames(
-                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::icrs, testTime )
-                    .toRotationMatrix( ),
-            earthRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
-            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    // Quaternion composition introduces absolute rounding in these unit-scale rotation matrices.
+    checkRotationMatrix( earthRotationModel
+                                 ->getRotationBetweenIntermediateFrames(
+                                         EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::tirs, testTime )
+                                 .toRotationMatrix( ),
+                         expectedItrsToTirs,
+                         ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    checkRotationMatrix( earthRotationModel
+                                 ->getRotationBetweenIntermediateFrames(
+                                         EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::cirs, testTime )
+                                 .toRotationMatrix( ),
+                         expectedTirsToCirs,
+                         ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    checkRotationMatrix( earthRotationModel
+                                 ->getRotationBetweenIntermediateFrames(
+                                         EarthOrientationIntermediateFrame::cirs, EarthOrientationIntermediateFrame::icrs, testTime )
+                                 .toRotationMatrix( ),
+                         expectedCirsToIcrs,
+                         ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    checkRotationMatrix( earthRotationModel
+                                 ->getRotationBetweenIntermediateFrames(
+                                         EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::icrs, testTime )
+                                 .toRotationMatrix( ),
+                         earthRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
+                         ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
     Eigen::Matrix3d expectedTirsToItrs = expectedItrsToTirs.transpose( );
     Eigen::Matrix3d tirsToItrs =
