@@ -92,6 +92,7 @@ def got410c_ocean_loading(file_name, site_name, nominal_station_xyz, time_conver
     coefficients = np.array([amplitudes[name] for name in CONSTITUENTS])
 
     def displacement(tdb_seconds):
+        """Evaluate the supplied TT harmonics and return terrestrial XYZ metres."""
         tt = time_converter.convert_time(
             time.tdb_scale, time.tt_scale, float(tdb_seconds), np.zeros(3)
         )
