@@ -110,7 +110,7 @@ class HarmonicGravityFieldVariationSettings : public GravityFieldVariationSettin
 {
 public:
     //! Retain canonical constituents, explicit product conventions and optional deferred interpolation.
-    HarmonicGravityFieldVariationSettings( const std::vector< gravitation::HarmonicGravityConstituent >& constituents,
+    HarmonicGravityFieldVariationSettings( std::vector< gravitation::HarmonicGravityConstituent > constituents,
                                            const gravitation::HarmonicGravityMetadata& metadata,
                                            int maximumDegree,
                                            int maximumOrder,

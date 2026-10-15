@@ -9,6 +9,7 @@
 #include <set>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 
 namespace tudat
 {
@@ -82,7 +83,7 @@ bool OceanPoleTideGravityFieldVariationSettings::equals( const GravityFieldVaria
 
 //! Preserve final coefficients and select the gravity variation type from their declared physical component.
 HarmonicGravityFieldVariationSettings::HarmonicGravityFieldVariationSettings(
-        const std::vector< gravitation::HarmonicGravityConstituent >& constituents,
+        std::vector< gravitation::HarmonicGravityConstituent > constituents,
         const gravitation::HarmonicGravityMetadata& metadata,
         int maximumDegree,
         int maximumOrder,
@@ -90,7 +91,7 @@ HarmonicGravityFieldVariationSettings::HarmonicGravityFieldVariationSettings(
     GravityFieldVariationSettings( metadata.component == gravitation::HarmonicGravityComponent::oceanMass ? gravitation::ocean_tide
                                                                                                           : gravitation::atmospheric_tide,
                                    interpolation ),
-    constituents_( constituents ), metadata_( metadata ), maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
+    constituents_( std::move( constituents ) ), metadata_( metadata ), maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
 {
     if( metadata_.component != gravitation::HarmonicGravityComponent::oceanMass &&
         metadata_.component != gravitation::HarmonicGravityComponent::directAtmosphericMass )
@@ -160,7 +161,8 @@ std::shared_ptr< GravityFieldVariationSettings > harmonicPotentialGravityFieldVa
     {
         constituents = gravitation::applyHarmonicGravityAdmittance( constituents, *admittance );
     }
-    return std::make_shared< HarmonicGravityFieldVariationSettings >( constituents, metadata, maximumDegree, maximumOrder, interpolation );
+    return std::make_shared< HarmonicGravityFieldVariationSettings >(
+            std::move( constituents ), metadata, maximumDegree, maximumOrder, interpolation );
 }
 
 //! Construct the Earth response using the selected rotation and consuming field conventions.

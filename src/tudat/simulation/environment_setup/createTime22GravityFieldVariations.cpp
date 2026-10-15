@@ -8,6 +8,7 @@
 #include <map>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace tudat
 {
@@ -236,7 +237,8 @@ std::shared_ptr< GravityFieldVariationSettings > time22GravityFieldVariationSett
                                             "TiME22 revision 1.1 (2025-03-22), CF, loading and phase included",
                                             HarmonicGravityLoading::included };
 
-    return std::make_shared< HarmonicGravityFieldVariationSettings >( constituents, metadata, maximumDegree, maximumOrder, interpolation );
+    return std::make_shared< HarmonicGravityFieldVariationSettings >(
+            std::move( constituents ), metadata, maximumDegree, maximumOrder, interpolation );
 }
 }  // namespace simulation_setup
 }  // namespace tudat
