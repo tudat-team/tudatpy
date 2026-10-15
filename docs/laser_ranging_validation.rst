@@ -182,3 +182,47 @@ LLR centimetre discrepancies. JPL2020 gives omitted dissipation of about 2 mm
 or less and thermal motion of 1–1.5 mm for Apollo and about 5 mm vertically for
 Lunokhod, with horizontal components; these are not uniformly submillimetre
 effects. No residual correction, fitting or tide-convention toggle was used.
+
+Atomic interval and cubic arithmetic controls
+--------------------------------------------
+
+An independent clock audit used all eleven saved APOLLO INPOP station-profile
+transmit/receive events, the selected rotation/converter, DE440 Earth velocity,
+external Sun/planet/Moon potentials and the station ``v_E dot r / c^2`` endpoint
+term. It used ``LC=(LB-LG)/(1-LG)`` and split ``Time`` offsets, without subtracting
+large epoch floats. The geocentric interval agreed within **0.397 micrometres**
+of equivalent one-way range; the complete station interval agreed within
+**0.094 mm**. Native atomic-minus-TDB interval corrections ranged from -63.487
+to -53.815 mm. The sign, normalization and single station clock term agreed
+with the independent physical calculation, providing no centimetre-scale clock
+explanation for the residuals.
+
+The existing topocentric inverse stops at a 1 ps forward residual per endpoint,
+which permits about 0.300 mm of interval error in one-way range. Accounting for
+those measured inverse residuals left at most 4.913 micrometres of difference
+from the leading-post-Newtonian calculation; this is a bounded diagnostic,
+not an exact DE440 time ephemeris or an adjusted production correction.
+The `clock evidence <../../../laser-ranging-work/logs/llr-atomic-interval-audit.json>`_
+and `script <../../../laser-ranging-work/verification/audit_llr_atomic_interval.py>`_
+record truncation allowances and the saved receive-event precision limit.
+
+For the archived final A14 point, the receive-event double advances one ULP
+between atmospheric and complete solves. The resulting native clock-offset
+change accounts for -96.922 micrometres of the -118.318 micrometre difference
+between the sequential glass increment and its fixed-event value. The remaining
+-21.396 micrometres involves event geometry/solve arithmetic; the registered
+per-leg glass correction remains correct. This
+`separate check <../../../laser-ranging-work/logs/llr-glass-clock-check.json>`_
+used the preceding ``bd8d8935`` kernel and changed no convergence setting.
+
+The subsequent cubic interpolation change evaluates relative to the nearer
+endpoint before adding curvature, avoiding artificial jumps from large absolute
+position offsets. At native source ``b1aa772503070347e8ac0b263c8de9278d390c17``,
+the existing cubic suite passed **6 cases / 3,033 assertions**, including its new
+precise-time regression; NWayRange passed **5 cases / 1,019 assertions**, with
+unchanged tolerances. The rebuilt kernel is 67,159,336 bytes, SHA-256
+``10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5``.
+`Build provenance <../../../laser-ranging-work/logs/stable-cubic-kernel-provenance.json>`_
+links the focused reports and preserved old kernel. The earlier six-suite
+checkpoint remains historical evidence; this rebuild did not repeat that whole
+set. Subsequent observation runs must retain their own kernel identities.
