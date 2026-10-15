@@ -416,6 +416,7 @@ enum RelativisticStationCoordinateCompatibility {
 //! Body whose gravitational potential at the centre of the station's central body is used in the relativistic station
 //! correction. The central body itself must not be included.
 struct RelativisticStationExternalBody {
+    //! Name of the body, and functions returning its barycentric state at a TDB epoch and its gravitational parameter.
     std::string name;
     std::function< Eigen::Vector6d( const Time& ) > barycentricState;
     std::function< double( ) > gravitationalParameter;
@@ -462,11 +463,19 @@ private:
     double potential( const Time& time );
     double potentialDerivative( const Time& time );
 
+    //! Functions returning the barycentric state of the central body, its rotation from the inertial to the body-fixed
+    //! frame, and the time derivative of that rotation (if empty, the derivative is computed numerically).
     std::function< Eigen::Vector6d( const Time& ) > bodyBarycentricStateFunction_;
     std::function< Eigen::Quaterniond( const Time& ) > inertialToBodyFixedRotationFunction_;
     std::function< Eigen::Matrix3d( const Time& ) > rotationDerivativeFunction_;
+
+    //! Bodies whose gravitational potential is included in the correction.
     std::vector< RelativisticStationExternalBody > externalBodies_;
+
+    //! Equation used for the correction (see RelativisticStationCoordinateCompatibility).
     RelativisticStationCoordinateCompatibility coordinateCompatibility_;
+
+    //! Time step (seconds) of the numerical derivatives used for the velocity correction.
     double derivativeStep_;
 };
 
@@ -505,6 +514,8 @@ public:
 
 private:
     void appendModel( const std::shared_ptr< StationMotionModel >& model );
+
+    //! Station motion models whose contributions are added, and the relativistic correction applied last (or nullptr).
     std::vector< std::shared_ptr< StationMotionModel > > modelList_;
     std::shared_ptr< BodyCentricToBarycentricRelativisticStationMotion > terminalModel_;
 };

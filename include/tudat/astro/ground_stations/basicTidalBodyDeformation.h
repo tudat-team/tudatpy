@@ -82,6 +82,7 @@ protected:
 
     int numberOfBodies_;
 
+    //! Epoch at which the body states below were last computed (empty if they have not been computed).
     std::optional< Time > currentTime_;
 
     std::vector< Eigen::Vector3d > relativeBodyStates_;

@@ -96,6 +96,8 @@ public:
         GroundStationMotionSettings( station_history_motion ), trajectory_( std::move( trajectory ) ),
         timeFunction_( std::move( timeFunction ) )
     {}
+
+    //! Station history, and the function converting a TDB epoch to its time (if empty, the IGN convention is used).
     std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory_;
     std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction_;
 };

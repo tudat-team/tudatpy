@@ -142,6 +142,7 @@ public:
     }
 
 private:
+    //! Contents of the EOP file, as read.
     input_output::EarthOrientationData rawData_;
 
     //! Terrestrial pole position corrections (CIP in ITRS; polar motion), read from file

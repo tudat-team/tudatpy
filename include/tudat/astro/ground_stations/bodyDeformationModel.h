@@ -98,6 +98,8 @@ protected:
 
 private:
     friend struct ground_stations::BodyDeformationStationMotionModel;
+
+    //! Time step (seconds) of the numerical derivative of the displacement.
     double displacementDerivativeTimeStep_ = 1.0;
 };
 

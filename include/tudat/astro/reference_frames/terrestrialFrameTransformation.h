@@ -10,16 +10,15 @@ namespace tudat
 namespace reference_frames
 {
 
-//! Linearized Helmert map; the matrix includes scale and need not be orthogonal.
+//! Transformation between terrestrial reference frames at one epoch: position_out = translation + matrix * position_in.
+//! The matrix combines the (linearized) rotation and the scale, so it is not exactly orthogonal.
 struct TerrestrialFrameAffineTransformation {
-    //! Metre-valued translation and dimensionless rotation/scale matrix.
+    //! Translation (metres) and combined rotation and scale matrix (dimensionless).
     Eigen::Vector3d translation = Eigen::Vector3d::Zero( );
-
     Eigen::Matrix3d matrix = Eigen::Matrix3d::Identity( );
 
-    //! Derivatives in metres per input second and inverse input seconds.
+    //! Time derivatives of the translation (metres per second) and of the matrix (per second).
     Eigen::Vector3d translationRate = Eigen::Vector3d::Zero( );
-
     Eigen::Matrix3d matrixRate = Eigen::Matrix3d::Zero( );
 
     //! Apply the affine map to a Cartesian position in metres.

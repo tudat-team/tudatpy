@@ -24,13 +24,22 @@ namespace ground_stations
  * The coordinate convention must agree with that used to construct the trajectory.
  */
 struct StationHistoryTime {
+    //! The epoch as TAI (seconds since J2000).
     Time tai;
+
+    //! The epoch as modified Julian day and fraction of that day.
     int mjdDay = 0;
     long double mjdFraction = 0.0L;
+
+    //! The epoch as calendar year and fraction of that year.
     int calendarYear = 0;
     long double yearFraction = 0.0L;
+
+    //! Derivatives of the modified Julian date and of the decimal year with respect to TDB, if computed.
     std::optional< double > mjdRate;
     std::optional< double > decimalYearRate;
+
+    //! Name of the convention used to compute the modified Julian date and year from the epoch.
     std::string convention;
 };
 
@@ -47,51 +56,86 @@ StationHistoryTime getIgnNominalUtcStationTime( const input_output::SinexCivilUt
 //! Physical interval conversion also accepts a real civil inserted-second label.
 Time convertSinexCivilUtcToTai( const input_output::SinexCivilUtc& civil );
 
+//! Validity interval of a station history record, in TAI.
 struct StationHistoryInterval {
     //! Explicit unbounded ends; finite intervals are [startTai, endTai).
     std::optional< Time > startTai;
     std::optional< Time > endTai;
 };
+
+//! Station position and velocity, valid in one time interval (one solution of the station in the source file).
 struct StationHistoryLinearSolution {
+    //! Solution as read from the source file, and the interval in which its position is valid.
     input_output::SinexCartesianSolution source;
     StationHistoryInterval validity;
 
     //! Independent V history identifier; SSC velocities remain attached to their P solution.
     std::string velocitySolutionId;
     StationHistoryInterval velocityValidity;
+
+    //! Reference epoch, and the position (metres) and velocity (metres per Julian year) at that epoch.
     StationHistoryTime referenceTime;
     Eigen::Vector3d positionMetres = Eigen::Vector3d::Zero( );
     Eigen::Vector3d velocityMetresPerJulianYear = Eigen::Vector3d::Zero( );
 };
+
+//! Function of time of a post-seismic deformation term.
 enum class StationPostSeismicFunction { logarithmic, exponential };
+
+//! Post-seismic deformation of a station after an earthquake: a logarithmic or exponential decay with time.
 struct StationPostSeismicTerm {
+    //! Logarithmic or exponential function, and the epoch of the earthquake.
     StationPostSeismicFunction function = StationPostSeismicFunction::logarithmic;
     StationHistoryTime eventTime;
+
+    //! Amplitude (metres, per Cartesian component) and relaxation time (Julian years) of the term.
     Eigen::Vector3d amplitudeMetres = Eigen::Vector3d::Zero( );
     double relaxationJulianYears = 0.0;
+
+    //! Parameter numbers of the amplitude and relaxation time in the source file, and the line from which the term was read.
     std::size_t amplitudeParameterIndex = 0;
     std::size_t relaxationParameterIndex = 0;
     input_output::SinexSourceRecord provenance;
 };
+
+//! Periodic (seasonal) motion of a station, with a given number of cycles per calendar year.
 struct StationSeasonalTerm {
     //! Coefficients belong to a position solution, never to a velocity interval ID.
     std::string solutionId;
+
+    //! Number of cycles per calendar year, and the cosine and sine amplitudes (metres, per Cartesian component).
     int cyclesPerCalendarYear = 1;
     Eigen::Vector3d cosineMetres = Eigen::Vector3d::Zero( );
     Eigen::Vector3d sineMetres = Eigen::Vector3d::Zero( );
+
+    //! Parameter numbers of the amplitudes in the source file.
     std::vector< std::size_t > parameterIndices;
 };
+
+//! Point of a station whose position is described: the monument marker, the antenna reference point, or a calibrated
+//! point of an instrument.
 enum class StationReferencePointKind { marker, antennaReferencePoint, calibratedInstrumentPoint };
+
+//! Description of a station history: which station and point it describes, and its reference frame and conventions.
 struct StationHistoryMetadata {
+    //! Station identifier and DOMES number.
     input_output::SinexSiteKey site;
     std::string domesId;
+
+    //! Reference frame and its release, origin and tide system of the positions.
     std::string frame;
     std::string release;
     std::string origin;
     std::string tideSystem;
+
+    //! Convention used to convert epochs to the time used by the history (see StationHistoryTime).
     std::string timeConvention;
+
+    //! Point of the station whose position is described, and its name.
     StationReferencePointKind referencePointKind = StationReferencePointKind::marker;
     std::string referencePointName = "marker";
+
+    //! Source files of the history, and the kinds of station motion it includes (for instance post-seismic deformation).
     std::vector< std::string > sources;
     std::vector< std::string > signals;
 };
@@ -166,8 +210,8 @@ private:
     //! Published coefficients retained only by the original trajectory.
     std::vector< StationHistoryLinearSolution > solutions_;
 
+    //! Post-seismic terms (all terms whose earthquake precedes an epoch are added) and seasonal terms.
     std::vector< StationPostSeismicTerm > postSeismicTerms_;
-
     std::vector< StationSeasonalTerm > seasonalTerms_;
 
     //! Source coordinate conventions and provenance for the owned records.

@@ -139,7 +139,11 @@ private:
     Eigen::Vector3d displacementAtArgumentTime( double time, const std::shared_ptr< ground_stations::GroundStationState > station );
     void initializeLegacyConstituents( );
     Eigen::Vector3d calculateGeocentricEnuDisplacement( const double time, const std::string& siteIdentifier );
+
+    //! Method used to compute the displacement from the coefficients.
     OceanTideSynthesis synthesis_;
+
+    //! Ocean loading coefficients of all stations.
     input_output::OceanLoadingData oceanLoadingData_;
 
     //! Map containing site displacement amplitudes per tide.
@@ -166,7 +170,10 @@ private:
      */
     Eigen::Matrix< double, 11, 4 > doodsonMultipliers_;
 
+    //! Function returning the Doodson arguments at a given epoch.
     std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction_;
+
+    //! Whether the tidal arguments are computed from UTC by this class (false if the user supplied the argument function).
     bool usesNativeUtcPhase_ = true;
 };
 

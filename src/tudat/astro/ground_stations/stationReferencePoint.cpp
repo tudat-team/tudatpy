@@ -393,11 +393,17 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
     requireValidReferencePoint( domes.count( from.domesId ) && ( domesSelector ? *domesSelector == from.domesId : domes.size( ) == 1 ),
                                 "missing or ambiguous equipment DOMES association; explicit matching selector required" );
     const StationReferencePointIdentity to{ from.site, from.domesId, StationReferencePointKind::antennaReferencePoint, std::move( name ) };
+
+    //! Eccentricity record of the station, with its validity interval in TAI.
     struct Eccentricity {
+        //! Record as read, and its validity interval.
         SinexEccentricityRecord source;
         StationHistoryInterval validity;
     };
+
+    //! Antenna record of the station, with its installation interval in TAI.
     struct Antenna {
+        //! Record as read, and its installation interval.
         SinexEquipmentRecord source;
         StationHistoryInterval validity;
     };

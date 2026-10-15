@@ -455,8 +455,12 @@ public:
     }
 
 private:
+    //! Earth orientation data set by the user (if nullptr, the data is read from the EOP file), and the settings for
+    //! interpolating it.
     std::shared_ptr< const input_output::EarthOrientationData > eopData_;
     earth_orientation::EarthOrientationEvaluationSettings eopEvaluationSettings_;
+
+    //! Model for the diurnal and semidiurnal variations of polar motion and UT1 due to ocean tides.
     earth_orientation::OceanTideEopModel oceanTideEopModel_ = earth_orientation::OceanTideEopModel::iers_2010;
 
     // Time scale in which input to the rotation model class is provided

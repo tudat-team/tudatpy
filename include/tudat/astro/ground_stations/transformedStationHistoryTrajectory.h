@@ -57,11 +57,10 @@ public:
     }
 
 private:
-    //! Validated affine catalogue, evaluated-output identity and release-alignment declaration.
+    //! Model of the frame transformations, description of the output trajectory, and whether the user has declared that
+    //! the source and target frame releases are aligned.
     reference_frames::TerrestrialFrameTransformationModel model_;
-
     StationHistoryMetadata outputMetadata_;
-
     bool acknowledgedReleaseAlignment_;
 };
 

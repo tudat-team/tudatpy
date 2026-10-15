@@ -9,6 +9,9 @@ namespace tudat
 {
 namespace ground_stations
 {
+
+//! Station motion from a station history (for instance the ITRF positions, velocities, discontinuities, post-seismic and
+//! seasonal terms of a station). The motion is the position from the history minus the nominal station position.
 class StationHistoryMotionModel : public StationMotionModel
 {
 public:
@@ -66,7 +69,11 @@ private:
         return timeFunction_ ? timeFunction_( time, rates ) : getIgnNominalUtcStationTimeFromTdb( time, converter_, rates );
     }
 
+    //! Station history from which the position is computed.
     std::shared_ptr< StationHistoryTrajectory > trajectory_;
+
+    //! Function converting a TDB epoch to the time used by the station history (with rates, if the boolean is true). If
+    //! empty, the IGN convention is used, with the time scale converter below.
     std::function< StationHistoryTime( const Time&, bool ) > timeFunction_;
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter_;
 };

@@ -234,7 +234,9 @@ const std::array< std::array< int, 6 >, 342 > oceanLoadingDoodsonNumbers = { {
 // ADMINT.F SHA256: 478e3f0c001c09dd4d9e2e9920033d29e76eb60b808238e416e6db9ffaeae6c8
 // TDFRPH.F SHA256: 24068e0cd1e2e210fab7dd8d4473bb60ff8335bfcb53a2fc12dad7e6d1cccd19
 
+//! Astronomical arguments of the HARDISP tidal synthesis at one epoch.
 struct OceanLoadingAstronomicalArguments {
+    //! Phases (degrees) and frequencies (cycles per day) of the six arguments.
     std::array< double, 6 > phasesDegrees;
     std::array< double, 6 > frequenciesCyclesPerDay;
 };
@@ -261,7 +263,10 @@ OceanLoadingAstronomicalArguments computeOceanLoadingAstronomicalArguments( cons
     return result;
 }
 
+//! Cubic spline of the ocean loading admittance as a function of tidal frequency, used to interpolate between the
+//! constituents given in the BLQ file.
 struct OceanLoadingAdmittanceSpline {
+    //! Frequencies of the nodes, values at the nodes, and second derivatives of the spline at the nodes.
     std::vector< double > frequencies;
     std::vector< double > values;
     std::vector< double > secondDerivatives;

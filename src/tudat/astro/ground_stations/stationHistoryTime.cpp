@@ -24,11 +24,16 @@ bool leapYear( int year )
 {
     return year % 4 == 0 && ( year % 100 != 0 || year % 400 == 0 );
 }
+
+//! A UTC calendar day, with its leap-second information.
 struct CivilDay {
+    //! Calendar date and modified Julian day.
     int year;
     int month;
     int day;
     int mjd;
+
+    //! TAI - UTC (seconds) at the start of the day, and the start of the day as TAI.
     double offset;
     Time midnightTai;
 };
