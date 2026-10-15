@@ -1,0 +1,21 @@
+*         --> TiME22_ATM_382.555_s3_cos
+* Converted to Stokes coefficients by R. Sulzbach (GFZ)
+* Contact: sulzbach@gfz-potsdam.de
+* Full tidal potential (includes loading potential)
+* Given in the Centre-of-figure (CF) isomorphic reference
+* Doodson-Warburg phase correction is already applied.
+begin_of_head ========================================
+modelname              TiME22_ATM
+product_type           gravity_field
+earth_gravity_constant 3.986004418000E+14
+radius                 6.378136600000E+06
+max_degree             360
+norm                   fully_normalized
+errors                 no
+end_of_head ==========================================
+gfc     0    0  0.000000000000e+00  0.000000000000e+00
+gfc     1    0 -0.123561276770e-12  0.000000000000e+00
+gfc     1    1 -0.121673341974e-11 -0.458936870711e-12
+gfc     2    0 -0.173203777167e-12  0.000000000000e+00
+gfc     2    1  0.546385094286e-12  0.379744385893e-13
+gfc     2    2  0.244050873260e-12  0.313761657714e-12

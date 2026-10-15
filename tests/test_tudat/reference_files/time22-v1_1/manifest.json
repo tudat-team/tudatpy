@@ -1,0 +1,1080 @@
+{
+  "product": "TiME22 revision 1.1, 2025-03-22",
+  "doi": "https://doi.org/10.5880/GFZ.1.3.2022.006",
+  "license": "CC-BY-4.0",
+  "authors": "Roman Sulzbach, Kyriakos Balidakis, Henryk Dobslaw, Maik Thomas",
+  "archive_url": "https://datapub.gfz-potsdam.de/download/10.5880.GFZ.1.3.2022.006-VENonf/2022-006_Sulzbach-et-al_time22.tar.gz",
+  "archive_bytes": 184944955,
+  "archive_sha256": "79c9ef695b4c15d45f5a35dd706a7ed2e1df5acc4d7e509b5f6e404a71467ab3",
+  "provider_readme_sha256": "99dda6813e171fc3b1cd537ad30dbaa22ef43c71415ea19f0f27e4eccc78f206",
+  "extraction": "GFC: retain selected original declaration/header lines and all original gfc rows with n<=2. No numeric line edits. Supplementary tables unchanged.",
+  "files": [
+    {
+      "path": "ATM/TiME22_ATM_162.556_pi1_cos.gfc",
+      "source_bytes": 3596003,
+      "source_sha256": "4bfc098b42db1fe2c13e5fd27771f202a29473a5d59b4ee5979ef11bb01e65d7",
+      "extract_sha256": "ee937a843c344df638b3ab089bbbaccc96ff89874f0468194f7ea7612ca647c2",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_162.556_pi1_sin.gfc",
+      "source_bytes": 3596003,
+      "source_sha256": "46b63bcd83e47623abf1853f66cb2f122c5ebbb2652067e2660fd35b3261c265",
+      "extract_sha256": "1b45b09496177227ede8c7536f2c0eaede7f676cecbcfceb5542bd4d8f8abbd0",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_163.555_p1_cos.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "4fafaa1dc0211785552b374de6b7002c8d692747df118201bd47e6ca7d75911a",
+      "extract_sha256": "a0025d032e4f1d8b98b33b05fc6370f9f3cfc9b3aacc244c36ed8eccbef69a3f",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_163.555_p1_sin.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "5158b8ce95415114185505223d095c101bd83553d185732317b6362cafbafc2c",
+      "extract_sha256": "2e1f06d7e44f6d4df7a87f6e1d9a58767aa550ddc7cd30fdc80b341a2ba70ace",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_164.556_s1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "a1deb9e32ae7ad5de47e386cfb4fe2185a1c1736ec4e95c18aea6ba48d9f4de6",
+      "extract_sha256": "2cb174533e9cd8c0f3765fc1ac7ff9bce69c9ad4aaea032458816f8919349026",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_164.556_s1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "ff25e3a45fe6cf5df0d9d4be16ec5efef45c18bdf0860f25dcc3145fddae8917",
+      "extract_sha256": "c17dd35bf7ab81c34fb53a4d6d89acb11e860f64c12d69f98cc97f2e241abf83",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_165.555_k1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "884a76e1d3d6d1711bb55256477b867b12a01c81889454425bbc3cc4778cf95f",
+      "extract_sha256": "41cdb5b5a61a4cb429fd9a8aa0cccfdcaa2f8007396279ad0c8769b5e7b224b5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_165.555_k1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "5be8cdd6e2e569bc1a893e432f21c48acf833cc4cb56ec081ea81ac01e726234",
+      "extract_sha256": "9ed1dd4dc442f6b457c63bf54679a3159d1d3585cfbd36898c5cf64f78e7b6ff",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_166.554_psi1_cos.gfc",
+      "source_bytes": 3596003,
+      "source_sha256": "f92e01c9ebbb7f515e3b058c2036e299b20bb4861f0a51033a3f8f7a41a84425",
+      "extract_sha256": "cb90d3cfa46e1314f1836129ade1c39d3235653eaa5de638860d9c865bfc159a",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_166.554_psi1_sin.gfc",
+      "source_bytes": 3596003,
+      "source_sha256": "a1f2aa0d146c3e1e3a0815ecbff9ae63ff0afaf422eabb03f9bd58bb533c7724",
+      "extract_sha256": "382ff48ec0e48ad8e9b14bf446c05b77c6a638e24b94e74d56fb0a25afaec6e7",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_255.555_m2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "27de0db067c7fc8da878d599d2f1c10d8efe00b1354cb61766c4918631ee8015",
+      "extract_sha256": "e09ec863ed404329953c2c59ebafa962252d519c002693037582d3769852efb1",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_255.555_m2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "32f633c4d2fe37b37a8c33c076b9cbbb3eb7b58980d2a71a0503f1744efc7281",
+      "extract_sha256": "db3a5737cb06adf3d1b93d65414421104f83a2ebf78d704c1be14ce6233fd9e5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_272.556_t2_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "7fe19649fb73acfbbc16b87f7095f6f34ede9d2b73c3dbab0c919e5538cbb2f3",
+      "extract_sha256": "62e40c68a7a8dcc1e99434bf0016f9c2ef2656ded9d5e1b0bb92d1641d6488ab",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_272.556_t2_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "ae559532e465f76baaad9caf19e05bea1e3455c64f63c32350b1171ce75b9f5e",
+      "extract_sha256": "0e02871b055f3286ae15a4789916724a85345a4872c7c19dafcae8afce5af562",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_273.555_s2_cos.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "b200f86ef6b2b4576fa77bd86027b0b8aef94f8ffe4e89b06d5c16ad6dc848aa",
+      "extract_sha256": "d49c6cc2e3c362e595c0ee53ee7bdce37b3e7c2c0986e09e8ff2aaeabe3ddcce",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_273.555_s2_sin.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "facfb5a47a3253720bd46d4a8248126275b5b48c2ed5180cfd825daf5538da50",
+      "extract_sha256": "6cd317d538ba9a2b40592f781c18014c012d563fb2638f54b0534cc9af61b64f",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_274.554_r2_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "169a4f9fb83cbe84a0ecd097e5868be01c6e3e7950ce36e296ea90ecf797daff",
+      "extract_sha256": "be22ade34fb70a959588edf92a37f053eadf7c264edc05be63fb774da85fc392",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_274.554_r2_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "60a53e12c4641695a1fba28defb59dfba8fd86687a6c25e61696f3b8266ea66b",
+      "extract_sha256": "6b02cd9297f95f7a83b939ef071717c72d493c9df3c421c06348f31134df2823",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_275.555_k2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "886c1429e38b629a9789cadb7eba1a7b8eccdd0f7a9cd4ada12d7ea893729106",
+      "extract_sha256": "aa401026fe72ca79d7df44dfa5fd80e11a7c9c4831a91213d6006c2b19e1c13a",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_275.555_k2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "1aadd21c59735020221b31dffcbdab2c2b16ce60270e789f003b908ed21aa7a3",
+      "extract_sha256": "7871f4b046f41fba247e686c29d9a7356ecc1af97ed52e6719c7863e19be61f5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_381.555_t3_cos.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "dc2cdbde6f350ad216ef09c7fb7a8d71f5f938c64cf60436a63c6d0f29a13cb3",
+      "extract_sha256": "82c6cd610a94bece1157e6d395a6f8fd5ccecc4ed7eb7ac0c71e8386c8c58d1a",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_381.555_t3_sin.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "0563539494e12c3eee5ba4cbbf861880788365dd313806c4612383357b38993e",
+      "extract_sha256": "0d32b5365b599a1601b6af55acd2e5323cc9db31463481184df6a0f7417ed713",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_382.555_s3_cos.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "ae288acb2608c9e9cdcdc26562de554dad45c8a3a8511ff3178bb3ddd1528fd7",
+      "extract_sha256": "9a4744d368bc916b990253ce7eeceae294707b3e259d476f81965ba21f1b6f1d",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_382.555_s3_sin.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "3f124f2d527aac1b4ad35c92d0b89b27f3a58e431c829c4e29bab22d5952f44a",
+      "extract_sha256": "ec65c20f12f6ad970bc5eed72c18ef58aaa8a8ff01a0adadb2d2cbc431efa6b0",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_383.555_r3_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "cbcd8eacfcbfbad0cd329bf1370bcefcfb6028323641063fca633c7b944beb24",
+      "extract_sha256": "15fad629faabef9636f29576d7678e60571cf57bc3f96d77880e0e6bce194c90",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_383.555_r3_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "ac10fec4bcd48b634cd1d26edf68cce00c93138a0843122a8694fb0cbe70f3b2",
+      "extract_sha256": "c851746532e3d02f74bb5b0da988332347b7eadb1865c55d3eb74d5ae95d7570",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_491.555_s4_cos.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "1bf23c6b02db242b69d60e4a1533aa1cd4afcb2a5cbfce45d35f86344bf81d14",
+      "extract_sha256": "3d4f5345bc1d56bcb13d219bdaa1c0394245e7f1cf3a62567702d84dcf7a5311",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_491.555_s4_sin.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "fde669e18fd1ae0d7bd79924878c2ba01de7840fb9161af8e7032945ded56629",
+      "extract_sha256": "135cf243836ce05565d209dc5809ef00d44d226073ae7790725864ee9734e4a7",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_5A0.555_s5_cos.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "6094b72b1fbdf1adbb7ed6b1c52cc6477a37cf34e9eb57f4fa2602a9f5794c44",
+      "extract_sha256": "e9ee40095d414aba29a65b181e69ee1a579a7c7ee4945bde9eef9047a6aba709",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_5A0.555_s5_sin.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "e7ae530c7b657a66f85c480ed3c6b67cd1d3f74b81aa4c6b4a928a65c7351c8b",
+      "extract_sha256": "ae60897124f0bdb215e970c7b2d09934683c54d687ff7d109d0d43f13ee89083",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_6BZ.555_s6_cos.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "60033cc71270c4060c506365f73711c210e210b5d434915912302f6a7305be4a",
+      "extract_sha256": "f7c25f3804939fb7d5a73a5129533be70f66a70225d5de7565e988bba899a5a6",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_6BZ.555_s6_sin.gfc",
+      "source_bytes": 3595997,
+      "source_sha256": "f016c872b150d85367e3823055f2a3449acb1ab33df47d62680cd87ec98be64f",
+      "extract_sha256": "6a101aba6b5e08f3299210e9539f2650b430ff31dbb5dd30e7cb3a6ef9999791",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "ATM/TiME22_ATM_001fileList.txt",
+      "source_bytes": 982,
+      "source_sha256": "21c758fff72094c1a488f3af8d39f0f68c9ded410b4a710b9e7f5d68033a9419",
+      "extract_sha256": "21c758fff72094c1a488f3af8d39f0f68c9ded410b4a710b9e7f5d68033a9419",
+      "retained_source_lines": "all; unchanged"
+    },
+    {
+      "path": "ATM/TiME22_ATM_002doodson.txt",
+      "source_bytes": 400,
+      "source_sha256": "ec2de50a07f9f69cf52061e4f19fa262368d26dcdba6bc44184fa2e67b36803b",
+      "extract_sha256": "ec2de50a07f9f69cf52061e4f19fa262368d26dcdba6bc44184fa2e67b36803b",
+      "retained_source_lines": "all; unchanged"
+    },
+    {
+      "path": "ATM/TiME22_ATM_003admittance.txt",
+      "source_bytes": 4864,
+      "source_sha256": "7749b2b416fa7df63af14a8dd4881bef157dadfd9f057685a80288312e0ff8dd",
+      "extract_sha256": "7749b2b416fa7df63af14a8dd4881bef157dadfd9f057685a80288312e0ff8dd",
+      "retained_source_lines": "all; unchanged"
+    },
+    {
+      "path": "OCN/TiME22_OCN_055.565_om1_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "de11fa3f8f82c898a1c8a1d323625383c38f65535976f0987c0d936747adf9f6",
+      "extract_sha256": "2adce1e7198045e20f144accdefffcf4901585d9da7154fd59b6aea5b18384b0",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_055.565_om1_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "d78ed3084b2db4fc1b0c7bb5c5cf05cd3453a02fbfad9f6d25aaabe221077e34",
+      "extract_sha256": "f28c5b111c3a0fce962b959ec392a710aade33e4688633a4191cc54d54185fce",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_056.554_sa_cos.gfc",
+      "source_bytes": 3595998,
+      "source_sha256": "1fc2d67676a7e2ca3f995d3c73b0f1996637bffb532fc9bf9cbeab796f77c0d8",
+      "extract_sha256": "1a8ad35049af4ee765621722b06a5ea7b7c0669acb932dc945e942de2d70aa71",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_056.554_sa_sin.gfc",
+      "source_bytes": 3595998,
+      "source_sha256": "2ed07cade884459dc8e53815db52da8cc8a0d5b8a3a8f9c4f243291781027380",
+      "extract_sha256": "4eff2559cc24d945b77bd0b79857e6a04e101c037918ee309aeeff1d5cea4dbf",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_057.555_ssa_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "d73c9c4376a8524f221a72015ddfba45f074b0d31d477b7942794d9c94211a93",
+      "extract_sha256": "1197b888458e66bf673027f76246353c271240ae710d1065959b11ad9bf976e1",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_057.555_ssa_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "72c3d9bd34aca2521f533d14f252a15bdbbcd1270c32de80cc40e0456b69d7b3",
+      "extract_sha256": "f3365e0a8fba9a2f84062cefd252f610e9b620e82e612cf1d9bf8c6150cfc116",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_058.554_sta_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "49f22f1825f733fc12c58ccc480be637d694383cf479928f5abef882ceed7ba5",
+      "extract_sha256": "cb9ecbd8512f8f9bd3dbb82d4a983c9a9de162bb2fe91862e6d542f93b3994df",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_058.554_sta_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "611ac8bcc6bdb2165cc2831358b9fefd4c634367cf2023166bd93510b0618037",
+      "extract_sha256": "08d66dd069834737fcc8bc57e33ce0646ce8152bf9285e61c17c64e84219d652",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_065.455_mm_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "89bca54b37bdfee47ead93d2f9b8c51ef86ebaa1d1c2a67ad9c2939307080b1e",
+      "extract_sha256": "6d4a640ed54c0db39215429f8fea29cb772518988da85b92f72422c9637414b5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_065.455_mm_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "0f06563d7b12725298daf092a93b0df39132cc469b83e6466e391e7a9f49d2cc",
+      "extract_sha256": "bbbda024945c425dfd10d0fe2a5bb943e5cd0db7c340d814eb5f45ac01a27310",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_065.555_d3mm_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "d60f96df5e2210d21ee0efbaf7a23346555eb4630da89d0579151e9479d65ad6",
+      "extract_sha256": "10d12974815b1707456dd26a00f5e8724d895cd64bbd9b2cf87ed1b244620904",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_065.555_d3mm_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "ea11487c1047e1efd17946c5ed47fb73afc3e80724da0856939c5fcbd023d80a",
+      "extract_sha256": "c7a3d4afa30b3010d3cb28d3f42a8f8243143df0658e28018464a4bc1195c2b4",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_073.555_msf_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "1168602aa8d154148e4e591d09f31381c9334be84787b875aa3013b7995ea3d4",
+      "extract_sha256": "399168e15f442bc2199422eabeeb658d6a44e9127ad6d3985445dce514f3cd8c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_073.555_msf_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "d64e9fe7b51c0561df2e7ec4bda943cd88eed5e602e5c5e030e1b1f01b63a758",
+      "extract_sha256": "9cb70b24b76105be96133e07421ec777cb46c92e4d1ce5137a0af41f250d4171",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_075.555_mf_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "96fa621fb9e18994c6a4f81ccc2eb7bb2231991dd52911cfe8ee625624f08d8f",
+      "extract_sha256": "00eee5a8ed510c67efcc70808c3eef67a497fd711dc209c35a370332f0644c16",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_075.555_mf_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "3d9f6df33a6068c2c1741f6791df12114dbf29efe2658a790894b76f7ef021f8",
+      "extract_sha256": "2f64c2ab6af08580afa86edd30e4004af990ea920220c7330da26309050538d3",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_085.455_mtm_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "094a8b01f2c7fd5cf13f01e8f280a28c45152dad4332de5e8bc53cfb31dd1aef",
+      "extract_sha256": "44066694d941197d46fe4dcdc7b62b33e6a507f0ae587e42ed1337baf496cf72",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_085.455_mtm_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "ec4fe4de0e9bd1e759884b4730b121163a6376101b72a914ffbce69e7414b3dc",
+      "extract_sha256": "fc1507623894b2d54a9011b7e3a21e74f3fc7df3ef6198e0ab6f85f198b7920c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_125.755_2q1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "16d34a673703b133dedd2779ed20eaffdf3cda021a8caecfd42e719881e909fa",
+      "extract_sha256": "fa3f6c16f876d081e610970fef31354fe47c2fed51fb608f9c0fecfb7db63c60",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_125.755_2q1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "4986a285987ac6fcd3200542d27614e8fb415a90f274c35d802217272f343cf4",
+      "extract_sha256": "d78d36315604097afdc93726ab835584c8db148f8e9ba0b594c96331bf807afc",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_127.555_sig1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "06a6e393e5411eb5589c09cacf0d622ac2f82cd7b51926c417d961decc1f1c7e",
+      "extract_sha256": "caabad50803013aebd2912dff40605df36f1d707a1425f87e5b0e01e5756849c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_127.555_sig1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "b8535dd2f98d69e80dc73f7399bf4f2a928560e895d16723788b137a61f0fefc",
+      "extract_sha256": "e37f52f722e219f6f2d7ee44f4d51844502caa29aac909c713d7d6db0770b4c3",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_135.555_d3q1_cos.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "0e579fcb554050f6407bb0307c397a59ff20da0a8d8148f79ae02596e545460d",
+      "extract_sha256": "36db9b38acfe23c710a184d00eac4bc2fcb9a7f5229a0612514eda4444527c71",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_135.555_d3q1_sin.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "9b1e12afd25de565586e01dc618aca3355bdab5ea5e055565a7e763fb1d07d57",
+      "extract_sha256": "75ed159a74e37110240bc9192972fc0d0941aa46802b99f6ada1321852c6ddf7",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_135.655_q1_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "133322e2dcd4c10c4072b6751d89f59d422283efa36628dee0eee40d1d34630b",
+      "extract_sha256": "7a4fe0a20445f42b5389d101d91774cb286c6f69cbac0f76ec3717b3d4269f6f",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_135.655_q1_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "d6f24760db98fad18172bb0cc69379afcb4f94d03044f90028b6354f70c74dab",
+      "extract_sha256": "a0e6530844a374f3c2f2c257f06117d00c7200bd8bc395fad2580ff656e8b15f",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_137.455_rho1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "97e83097fd0be310fbcb59c2eba42de8f669f4fd7ee6b401cec214b8a0fd2e07",
+      "extract_sha256": "8623b550dd038d299c9d903fe4f1b8df5d65d55e905af9eec945be53ff2ce257",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_137.455_rho1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "6cc29567ecf91a0a146afe1a2ce32e5db2c62c811799fab495e044221f21036f",
+      "extract_sha256": "0a4ee561fb9dddb8a7e8e75a3ef8957a7d72216f8ffe46f4cadb34f74f1e8147",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_145.555_o1_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "b334d1cba7c26f085c98ee60dbe1c36af14caa9a719145571fa5d47957e979bb",
+      "extract_sha256": "b5e2184a60824bf02d7a91f44babd7631f3ab66a5a4403a6a3ff143540996784",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_145.555_o1_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "0ea69c83c58b76a5f80970b308524df71078d531b1cb4307c6db5e2d58e9d007",
+      "extract_sha256": "7906a2a2ac623cdc93ac0180f427f8ea64b0d50307f25631c27c0c73ec7db397",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_145.655_d3o1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "5d3f462c95bb5c951b0d2f1e5e67cc8f1d6873c06dc30812ac278e28d5bb47c0",
+      "extract_sha256": "2351edff4a7e58aad44e77ac013cbf731dfa24241191a6040b8f0af4b01989d6",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_145.655_d3o1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "c53baf44d5dbb41f78b4550b655bf4bb82af53c54016cbb48e4b62683f3da8d0",
+      "extract_sha256": "ddb5b02405f9a15a70efaaf32f2997c1ad2b99ba19f89facbfac5597c57b796b",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_147.555_tau1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "3373546a7d885b1701c21b85629c287a3ea46f0e3c40742e74087eb288355c5d",
+      "extract_sha256": "34f3fc91b00316ae99d86f6aa16dd972d5ea004405b2bb822896053dd435f56b",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_147.555_tau1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "e1facb4fd79b7006a5a16f8da4475abee8f161e822fc6ccc5ab7e97198358458",
+      "extract_sha256": "7d9d9c2f6ed0d5cac7e37db3594b0f4bf94f4e3eca7bb80e0fdbe764743513d5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_155.555_d3m1_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "5944e8adf2d8879362dedd1a6eacf6e10addd1cab3e4ac8ba815c0a6054dffee",
+      "extract_sha256": "0b6fdb8ceff9acb2e17094758ae60b047e069cff058cded030c7b879eabc30c1",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_155.555_d3m1_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "ad1c6bc42bd73fba227de6158dac8efdc0daeddbde4502d8192eddd61548b309",
+      "extract_sha256": "8b8dc0743dae4a1e8ad20c171f53e20c652a6c966430aaa17e3a87b49e584e84",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_155.655_m1_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "2bd92045501bedefb138f182164b780fe8d88225bf334a7090ae9b5a0dc59631",
+      "extract_sha256": "c23841f4e2d6f999c60c3b48bf886c5531a6743da95623e9adea7ee7f8c9cd82",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_155.655_m1_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "84a67c8025cef40f78c35678eb5f14015032a052c4436f6afab19ca430c196ef",
+      "extract_sha256": "1bbb31ad96a811f1642f1531a5f3c369c36de8f3881d65b228de753a4fb5bcf8",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_157.455_chi1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "2d4ad11de611e0158ab6d9a5d3586379a0663af8c5256ef38aafdb1180706d24",
+      "extract_sha256": "356a650b7a8413174d7a674ec23b34ffa6fc3dae0dfd2903fce6c81fb944afa5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_157.455_chi1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "7650cb5a3dae03396970d4b91c466a2912a89ee4924ab945f8fc48d412c26add",
+      "extract_sha256": "4a4c86e141a9bbee9ec5efec95529925d67bc242c545e34f060dc691ca29a3fa",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_162.556_pi1_cos.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "043f4731325b5dadefc49e0aea37b6566cc5b819b74c61e86d676f4f49d3f8be",
+      "extract_sha256": "f1ce8ec20447cb19a3649d1a3474e9f4cb2e76b89e51302797d05de9693b16a9",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_162.556_pi1_sin.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "8ff134679a9de5d3d1a90006c7c6a729e0d61159fe6873aa01abe76509b58fc9",
+      "extract_sha256": "0b806e62c82a8675c8e5e65e6a72e7049dc2a4c7e2cabf8617ca4fab7161f706",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_163.555_p1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "d1397ed0be8e012b78ec36ab297e8b7b63f99cb31c33bb6bfedaeb1d97ad4685",
+      "extract_sha256": "3f7555967601aa0f0266b5e720638ba568a22ece9dfad45ff1951780f639829c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_163.555_p1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "2bed4a0f547c56b392d532420493952c8db3fb5d22d8fcfbabd56553558087f7",
+      "extract_sha256": "9367ce7c39a418ad71642add61a7bc26b9664a7889718d150b7a31c60b985098",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_164.555_s1_cos.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "8d2c8649bd45701bf9dbf53d704b415d39fd4b3729b4f37ec4bb45ac0895b0f1",
+      "extract_sha256": "e5f5085e58fbc85ab89317115067cf3c38246bdd6c091c60a5037503d421ba0f",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_164.555_s1_sin.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "bee5ec70ca1f30bba5283c9a4066c3d1e14d5acb004103336705a39da05e6661",
+      "extract_sha256": "445451a850ca04f574ecec10b887dbce17bdf047225d66672da464979bfe5444",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_165.555_k1_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "04344e0b5002d63a1a2c792bda043be01bef297d1c1703d116f488754409f25a",
+      "extract_sha256": "35b4bf0864c3c1b2b2babfbf463f3ae9c148722519c78ee1d9b9eeb0b78ccf72",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_165.555_k1_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "2afad4c8a7481232f0f1820c2556d50c7ee0980c99759125bb72df3f2195bba9",
+      "extract_sha256": "663d4d4775e58bfb7f7e8aa6a7e56dfbb839f0b326dbc651bb62312b57de2b4c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_166.554_psi1_cos.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "c78f79324e0c80ea502e70407c3fc0e7546b4dab7f3dcc54c728f4e9420b0ec6",
+      "extract_sha256": "46dea25e682323c0723ac465f2e58fc471af6957886b58e1803f58dae05f8dfc",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_166.554_psi1_sin.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "a133204ca7e0e873fa353fabf7b85d95f8167410c09787491cfd44958c667f91",
+      "extract_sha256": "25c528c9b453fe8a759831ff0df453e69c0cc8fabdc95834e62045f93d16e85d",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_167.555_phi1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "43d70131a9b2deb5ffd562993e889bc436bdd567a0353c89d922d5827b4be419",
+      "extract_sha256": "bf1886b28551e22a16a5f02f2050cfc0b874f85b551e995b192d67f1f81b81cd",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_167.555_phi1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "682a7881b9ea302220e011cc010838e3e1c9e9b250487b372b1bef9190dc9efa",
+      "extract_sha256": "44792318dee1d39f7833af2afd5e55f621c8f93901e7eb875a2986e60c550c84",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_173.655_tet1_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "ccde34bfdc08fda8238e440a3ddd4f6ecb03b24451f23cf39249857a31d1599b",
+      "extract_sha256": "dd114f574c5ed387834560e0d442986e4e5b94e373a7b2f2828fa8dc71033552",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_173.655_tet1_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "b418962a2543bd1aaaa2e643c715013417ee79f417296e80464e6f2a0bc8ca64",
+      "extract_sha256": "cc554c88385af41f1e93e20c70f4b856fd8eb1eed7d785e546f464c5c521a14f",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_175.455_j1_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "6b4f273fd11d81c42563e76bf384f1c9a15eb9c0d1ac64528d0036f9b201c758",
+      "extract_sha256": "cd4102cdf7eb963924dd60b1d268db5a9674498617881ba1e8bd6b5edc3e1127",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_175.455_j1_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "83923d575c6aa737374f5d17acc54bdcb8aa1cc124b14ea1d59d45ae39a35b1d",
+      "extract_sha256": "9f93cf3f6a03d7f8df9d8217c380225dff8af975429f7f79be1308f12be86007",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_175.555_d3j1_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "21cd6e6127700b817538c367556ffd4e843307ab618f3c844bd87c45add0ddf7",
+      "extract_sha256": "dfc7148f79044ac58724e4a68b1dfef307e90eb68562f639535cb12f913b4a49",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_175.555_d3j1_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "8e3351ccdda20d3d0a7c052f579494d700615eaf43c823aad90aa0239050e242",
+      "extract_sha256": "e2ae9c70b6d614d3861e80bdc6fdb5dc8a981f99e9f1858044174476461bb059",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_183.555_so1_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "02b0922e9fc1937a1f5860514e523876dabf78a6d4efc35c7a6542273f268e74",
+      "extract_sha256": "cba5a1ad2e48f55697fde0202ebc03286e1d07407a3a7dad588ff4afb28fff69",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_183.555_so1_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "ebee0d2a913b8e2260db38a534a60d10cad03d4717e9a9817cf030d17eccd6e7",
+      "extract_sha256": "d76f9e0051cc6b6e5e0c87f8f2a146ed10576a95062a9f3207b5491de86d79f9",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_185.555_oo1_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "fce234c05d8b576fd4402e4324529f3fcb13bc830b5696bba41f082c27454bf4",
+      "extract_sha256": "163f2476fb37abbfecfb42e2dd538617b9deb93ca1c50195972f2f31acbb878c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_185.555_oo1_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "0a983ed212ff2d2b6a1690bf8e1043d0522d97117789a85ab666ab2890a6b550",
+      "extract_sha256": "7dcd41876b81f08ceee4b058165dbb142f79f6377af75a6a6ee41e91fae9cab6",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_227.655_eps2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "04edf1472d772757aec3480807d6146661865c5cfb980a884c9a441e474185a4",
+      "extract_sha256": "42b8fea5e16f7c0bbf4be5d61436df627210913a73ff54d0d7a1ede979235907",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_227.655_eps2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "de6af8f94f99a4c14b8ae42b89d7c210037cc821a1b9acb43e0c951924100304",
+      "extract_sha256": "8a39863ab5dcf77c93f661b2421c072c098f73d2f4f1c0abdcf10b9e436dff3c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_235.655_d32n2_cos.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "a9482c4698e87d2fa28762b215840b3f7d91bdee26bdda466596d8edd174e69b",
+      "extract_sha256": "68fac78e36622babe17d19d3f48642c9ac9ec85d276cfd96db4191ef63fcc39e",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_235.655_d32n2_sin.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "b608b722290b4231c72d89c716894b194abdf8a0f4f797a92dbb1057e37b1bc4",
+      "extract_sha256": "f1e527a49a4697c1a8c1a19015f52ee53963e9be751fb706052842c213a8cb78",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_235.755_2n2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "5dfc232690b2e01245dbbc93be0dbad31534904ab2b0719e9987528472a1ac21",
+      "extract_sha256": "6d1676dbd29a2b7a0b59a7b2590dfe68b1922ed2226eba4ccb5f2442ac4d1831",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_235.755_2n2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "b623d9a5a0f74dfc739f6b41c4af8f993b537bdf182d8cd881e2a7a16eea2a1e",
+      "extract_sha256": "45b38f913973a5e2697fe71a31469ac0cb3f41a6c29747914e359c7ffe080f72",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_237.555_mu2_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "fc58cd3721b59579faf69a5e57580fd8c52604d5a51392159862ba48c3ee86b8",
+      "extract_sha256": "796cb5276370a7d18a94f17ccdcaa2d9ecb7b8092a7aefec294c5d5c42206c7c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_237.555_mu2_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "508a945aac7613333f8625f6d382765b14621124d0ce800c7c51e2e969a4376b",
+      "extract_sha256": "46758041e7dd497e9be7c673179e3d2d0a375b1592ef61f62c588505ced2b07a",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_245.555_d3n2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "a3b27fca411cec08bbacaaa783b3917d4e3aa43619788e4aea060b831a899200",
+      "extract_sha256": "8affe4a3e7d4739dbb8b64e262f4eaa0917ac2786884867a50ccde5aafce9b7a",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_245.555_d3n2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "a0dceb2d3d2cc05ccdc6118ea885be6f5ab685fe452832616896c28abaa25df8",
+      "extract_sha256": "0a2e968e5c934ae4a176cfe24236db8d73862d59e7f0b89d82e79b370b8f46d5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_245.655_n2_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "c4214c3d3e9e0e0e6621ec39c7826de4ac4be2e356ad11f59f19b3c3d204c1f5",
+      "extract_sha256": "d3adb5fc43bd71b5fed4de1ad61083ba7bf44d53a82a9dcdeb48c96a15c7e03a",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_245.655_n2_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "4afb8807288a8f62f0014b99990b0aacfd8d6faf62cdb6d20571719a07fc6887",
+      "extract_sha256": "39fc48a1f8988b0995fe8727d38d01a7521b50b45608d6a4c4448dbbdc2dd20a",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_247.455_nu2_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "490f8b44204ce066559de25e4e2641be43bf74b871457ec0124b1128da9bbb37",
+      "extract_sha256": "3152bc5978abec312d0b156c2d31975f939e819e6327dff5021d09c0d5409c8b",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_247.455_nu2_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "a7934e805951a52fa3c960ceaf98a4dae6aacb29a632c642859bff1d66d9a3bb",
+      "extract_sha256": "4daca48c4947801391e1a95464a8521e4d32a81115a1ace6b05aecffe6155093",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_255.555_m2_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "f44cc93fd7507bfbb7325f9d73e4f04b8dd8b84a49d2aacfd1857ac950bb968d",
+      "extract_sha256": "0dd095badcc2a34439fdffd5c681a56ab35ce38c7cb2e8347c6c36a34e5a8183",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_255.555_m2_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "bf6792d7e36cb9d143761e7f9122c2b9d81340e2327818a5f9d1ed0737887128",
+      "extract_sha256": "cd53be1849f1f3914f2433dab8fe62e333d1f21e82cb48cdbc9bb33a4ea045da",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_255.655_d3m2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "a43c800a2455372da6d33590e10aca7e30a627757d0b6beeb276f3be9475ca4f",
+      "extract_sha256": "adb182855411738efa792f8f8abc207a27b6f25e378f0d1c755cdac55481188d",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_255.655_d3m2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "75af714142e4fc4da9320a4df019d0eec016a104e3fddaef1b913f49d712be62",
+      "extract_sha256": "35613e1e5792299ebd0c0b34416191cfb7f84150723746abd33a682545b0a38e",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_263.655_la2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "a05e95365f7ab33002e96904e7a92832e033fa365467be2760a8328308ca477b",
+      "extract_sha256": "2b5dde2f76036b7e691700432e45d4eee22b32d15b9f4442b9897073b31b8fc5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_263.655_la2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "cbbee90c0de1c7708094e116b74537a544f362931dc45a90d95f872c82b0c49a",
+      "extract_sha256": "c808da771f0db46e5680af2ec4e0c14a055f644c300b82427c6aebd5eb9b9827",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_265.455_l2_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "0f5196404746bdf0bb405381a94583a7995581dedc8d2f833ee7d7c5ed1ec587",
+      "extract_sha256": "3295bd1a02c3023afd9a90b3dc5bf1fa066e63808b598edf935be2fb53cc78da",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_265.455_l2_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "c061865b52dbb232e932b51511e498bf1979b46f7823d40af306dc0d21156f2f",
+      "extract_sha256": "86efbeb5c6fe2db2bb6b16b131573cb2612c25915554f0cb94df4a359ee7dc45",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_265.555_d3l2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "b332ad9453bc0914966ac442b65df5dd82689559a11c3106473abc5f964cbfcc",
+      "extract_sha256": "655a592926dff4dff5b0dacf540d5623b623f4f6dc590e4ef605511cae31cfe8",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_265.555_d3l2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "87deb0cae70778d590ca155eca3d4f39d65c53bdd56ff8c96cf3d3e521409f48",
+      "extract_sha256": "2dac380c41599322854b836e5906a7213fc154685ce90083661bb376242380b9",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_272.556_t2_cos.gfc",
+      "source_bytes": 3595998,
+      "source_sha256": "f04d1bffb8482528cd311df2a94276e1a76fd7094e40b324df3e47f54f91469d",
+      "extract_sha256": "4dcfe81e804d7268bed7746ed9412ad4592c9cc07d812cc13bec39a9e305c37e",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_272.556_t2_sin.gfc",
+      "source_bytes": 3595998,
+      "source_sha256": "5e698b7736d84db99f37152dd23fdeb7138fd259308dbacb515b0f5156a2176d",
+      "extract_sha256": "7f477f327d00975e4c05fbabc943a053e8e0433af5e46a82d8ac4d9f15a2f8f7",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_273.555_s2_cos.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "74e36a015c40b312095f29a10ecc8cde9876100299a71e8c3a7499875bc1427c",
+      "extract_sha256": "ca03af9213f75f85e33d7b46b2e1eb2ab6572c591e11a5e7594d6e2422936de4",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_273.555_s2_sin.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "a066c54c3e7c7a8ea4099beff197857f9bebc9e4707a22bbb3b0ecddb1782faf",
+      "extract_sha256": "9891dab37890632ac160dcd53038df9d23a5ec0c74ab9457686b1bb11403cef0",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_274.554_r2_cos.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "a60d244bcde0b6c87e5fbff35a8c028565aef412b06595866366979faa3bf30f",
+      "extract_sha256": "cb29d6649b9c95b84471d9d9b977bd3e78b5ea3b59fde5b82822880f9b3d85b5",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_274.554_r2_sin.gfc",
+      "source_bytes": 3595999,
+      "source_sha256": "378c7ee288f5fbfd13ba1502d0193b5dbb2345d34b2d26c5931023dd31fdf32e",
+      "extract_sha256": "15772992cb6242d95c962cb4750e7320be2535c0385103b6f3aaafc03b74232d",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_275.555_k2_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "1eedec44b4b1ade7130a4fc8b1b7af742ec4afbbafe632219a83a12256ce95b1",
+      "extract_sha256": "d6cf217df19549c8733a3e233d9efe0f39571fc8fe6a84697e819a65071c3374",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_275.555_k2_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "7e156d870cc5e32e1207e54c0473bc08dc6a80af14933c4f06a0c5cb4642ee96",
+      "extract_sha256": "4ffe298e8f2a64e687811416d0528c66b611ab50d4806c4d86c4e5b63cfa9ebf",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_285.455_eta2_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "51504d5639fe1f305406487c481bc4f5498ac13ca24faff31f53944b83d69708",
+      "extract_sha256": "b3d9a7ebf3017cf76fcb07677e723bda0fa20ef1a656d5161e2d8b2d9e1d4c62",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_285.455_eta2_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "eb5fdf52901f9fca55f6fe0d103391c16d6c162bf6da4e9a54144c0c95e783bb",
+      "extract_sha256": "a6369bdf743a92b365a9494b4c335bbc63de11c696c14ab364b3d54a121181fa",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_345.655_d3mn3_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "5b049cd28f29808254745d8d6cb7d3afd6861280f8d0e82ec6d0ae4b682b7f7f",
+      "extract_sha256": "9790ef1dd5521cb35bd1a3d5f2db947fd8f565c16e1df4725a9865b658f93221",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_345.655_d3mn3_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "17a6f5027375304971a71b67be2ffd78dfe6aa44d874c7068e48bfb1af5b2552",
+      "extract_sha256": "a470cfdf1e95f1f9d53583f56b61d624d2e5391d5c10ffeb966502f5094ba9e8",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_355.555_d3m3_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "2062a724125869346773acbb311429d4d7ffaa5844940f8999376ca55ce2d913",
+      "extract_sha256": "0ebdef39789a5376a6d6da23ac56078e25ecb746ed86777dcb090947d764d1c7",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_355.555_d3m3_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "ccff016c8f98b73dc0bf6bf59729f42b8eb2b2e7606cf75efa5e69e7e9e1261b",
+      "extract_sha256": "4929dabc42e0280d2f25987c838f4bb27bde0cd0f3f3c4a00868ad1d5291e502",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_375.555_d3mk3_cos.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "420c684fd911a76b803c5df5e838ab3111ac4f314f717f38ed61e25323fb8d6c",
+      "extract_sha256": "8c71b8a7474d7889afc1637b886e04c99ef42105e051fa0947c17f2bc391f0a9",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_375.555_d3mk3_sin.gfc",
+      "source_bytes": 3596002,
+      "source_sha256": "e52da8037a0adb26c621feb99ed09ce0b4920d83545929983e0e39ad2a5d8c82",
+      "extract_sha256": "340e9818ffa9fc3dab6c37ba76e25f8cd2ad7a7a0edc479896c6efc975e748e3",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_381.555_t3_cos.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "71200f83a7246ce9888ce72830da1075be36ae337a9f4da1930788494f7b5a68",
+      "extract_sha256": "2d8c7d29df862be24b4714aa771b7bdaf5e99f7891f348177eed3c9b7751aaed",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_381.555_t3_sin.gfc",
+      "source_bytes": 3596001,
+      "source_sha256": "e720f64376d4b08026d6eb053b092680efd2ca2f8d7a3aea8f2c7723394038bb",
+      "extract_sha256": "34efa0ca1000c7afdeb2c4ef2141319d3c9fb29d6d026b41c83cb2a8ffd31eee",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_382.555_s3_cos.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "850ee7e17e4b7d33632b0f35adcb453d2bc450d18c1aaa36bc42580578e7d260",
+      "extract_sha256": "83dfbc8947d9d5e900006da96154d368af7a2c2d692746886b6ac499778277c2",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_382.555_s3_sin.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "d1779596367ee790df1235061835042ff40a0d2622929d72ed6fde57e2a8854f",
+      "extract_sha256": "bed10e9523bb3e223e3ffc3a16359c15961ead3ef30d9e5671aeb89d08a0efe0",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_383.555_r3_cos.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "dcc86c2ba7fc175c19781c950d7ac4695ea212972be9bda0bccc944265944fc7",
+      "extract_sha256": "6709005e82328fd47a1527be52bcce338f404b857adb0aac2a58e99cec7d3647",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_383.555_r3_sin.gfc",
+      "source_bytes": 3596000,
+      "source_sha256": "ac6bfe15cd1a379216fd8ac273b360018d453ebfbccda30f5c4ad29dc722b065",
+      "extract_sha256": "67ee56e3a6f1089c1496fe30bb18387fba2340db534f5e6f7a97c682e96132e2",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_491.555_s4_cos.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "61f097a8dcd7798e1a1272fa074dd4eceeb5e3a6ccc978d248a09a61b992ccc9",
+      "extract_sha256": "8be70370de2a12cca4c57edfcba08f24a475da21afd8e12b0c6882847ecdee6c",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_491.555_s4_sin.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "07d35732de1bb9a47ce3fcc16722614b155204fd738bcc078eb35367e3dbc3d7",
+      "extract_sha256": "c8351ff56515cb2b97fa454c85e4a9400c3fa5ab0925aec1c44aac2205aa3548",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_5A0.555_s5_cos.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "ce18848afa324833a043aeac7af123fdad38b26a23071b73cb9033e9a9646cb3",
+      "extract_sha256": "a3ec6de00ab76ecbe504a541f509eb2aed1f1f6f271ae34e936b528cbb70a6c6",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_5A0.555_s5_sin.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "83cfa31950bd006c0b9d87405b6da68c308a4a03dd1b32ade13b6f7f7da6a20d",
+      "extract_sha256": "50c479c49e7d9903f7edbb67ac881c4f7ffd4e7f53bc487eb6c23772f9d484ea",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_6BZ.555_s6_cos.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "f20bd41f6fa42c89bac364298e4914d50747426b095b9cf090890f5f0bbdfc52",
+      "extract_sha256": "96b0206b37ea115154e5ae10bd0189961e740f3b4adccdd43bcdb84295f30e64",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_6BZ.555_s6_sin.gfc",
+      "source_bytes": 3595996,
+      "source_sha256": "1c816764907db10e6d21bf7a6d261ce2ea69512fde4121cd0997a234eefab998",
+      "extract_sha256": "12412ef8075d03a34f0d758e37f7e562e6b6d885b7c4b26fe6ecfc23f3070f86",
+      "retained_source_lines": "3-7,9,40-47,50-56"
+    },
+    {
+      "path": "OCN/TiME22_OCN_001fileList.txt",
+      "source_bytes": 3536,
+      "source_sha256": "b4808ea57b2c98a55089d53256fc5a18ad13898139fdc7e2fb7c58d9f68da39e",
+      "extract_sha256": "b4808ea57b2c98a55089d53256fc5a18ad13898139fdc7e2fb7c58d9f68da39e",
+      "retained_source_lines": "all; unchanged"
+    },
+    {
+      "path": "OCN/TiME22_OCN_002doodson.txt",
+      "source_bytes": 10875,
+      "source_sha256": "3c743ff761b4974d23104801f7ed0b4078a854a6950702f411b13678f8650e7f",
+      "extract_sha256": "3c743ff761b4974d23104801f7ed0b4078a854a6950702f411b13678f8650e7f",
+      "retained_source_lines": "all; unchanged"
+    },
+    {
+      "path": "OCN/TiME22_OCN_003admittance.txt",
+      "source_bytes": 620229,
+      "source_sha256": "deb725cd55e374f04f460189c205edcdd5b3d49db6b46088ffbb7572ee70338e",
+      "extract_sha256": "deb725cd55e374f04f460189c205edcdd5b3d49db6b46088ffbb7572ee70338e",
+      "retained_source_lines": "all; unchanged"
+    }
+  ],
+  "angles_sha256": "236ce24d133862e7794174f9972240c663b44274c412632f54108bc8e644e62b",
+  "provider_reference_sha256": "69efccb779cd2eda34785907df051cf276b50a3bd01aa961426c89bf27032a85",
+  "inventory_sha256": "de966680a3153c73595e9a561ae86706476f8ac62ce2f42e5953706bb4a232e3"
+}

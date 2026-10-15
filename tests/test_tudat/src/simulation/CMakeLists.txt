@@ -31,3 +31,5 @@ TUDAT_ADD_TEST_CASE(IlrsStationLoader
 TUDAT_ADD_TEST_CASE(IcgemGravityFieldSettings PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} tudat_environment_data)
 
 TUDAT_ADD_TEST_CASE(EarthGravityFieldVariationSetup PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(Time22GravityFieldVariationSetup PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})

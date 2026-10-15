@@ -1,0 +1,21 @@
+*         --> TiME22_OCN_175.555_d3j1_cos
+* Converted to Stokes coefficients by R. Sulzbach (GFZ)
+* Contact: sulzbach@gfz-potsdam.de
+* Full tidal potential (includes loading potential)
+* Given in the Centre-of-figure (CF) isomorphic reference
+* Doodson-Warburg phase correction is already applied.
+begin_of_head ========================================
+modelname              TiME22_OCN
+product_type           gravity_field
+earth_gravity_constant 3.986004418000E+14
+radius                 6.378136600000E+06
+max_degree             360
+norm                   fully_normalized
+errors                 no
+end_of_head ==========================================
+gfc     0    0  0.000000000000e+00  0.000000000000e+00
+gfc     1    0 -0.235365519392e-12  0.000000000000e+00
+gfc     1    1 -0.916894164759e-12 -0.108281588448e-12
+gfc     2    0 -0.199245307752e-11  0.000000000000e+00
+gfc     2    1  0.676498408073e-12 -0.231043320326e-12
+gfc     2    2  0.542771014765e-12 -0.848437910639e-12

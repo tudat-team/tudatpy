@@ -9,3 +9,7 @@ tests/test_tudat/reference_files/harmonic_potential/eot11a-degree3-with-full-m2.
 resources/**/*.txt -text
 # Keep the original trailing whitespace in the official IGN tables.
 resources/station_locations/Transfo-ITRF*.txt whitespace=-blank-at-eol,-blank-at-eof
+
+# Keep the TiME22 source extracts and supplementary tables byte-exact.
+tests/test_tudat/reference_files/time22-v1_1/ATM/* -text whitespace=-blank-at-eol
+tests/test_tudat/reference_files/time22-v1_1/OCN/* -text whitespace=-blank-at-eol

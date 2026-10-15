@@ -1,0 +1,16 @@
+TiME22_ATM_162.556_pi1_cos.gfc TiME22_ATM_162.556_pi1_sin.gfc 
+TiME22_ATM_163.555_p1_cos.gfc TiME22_ATM_163.555_p1_sin.gfc 
+TiME22_ATM_164.556_s1_cos.gfc TiME22_ATM_164.556_s1_sin.gfc 
+TiME22_ATM_165.555_k1_cos.gfc TiME22_ATM_165.555_k1_sin.gfc 
+TiME22_ATM_166.554_psi1_cos.gfc TiME22_ATM_166.554_psi1_sin.gfc 
+TiME22_ATM_255.555_m2_cos.gfc TiME22_ATM_255.555_m2_sin.gfc 
+TiME22_ATM_272.556_t2_cos.gfc TiME22_ATM_272.556_t2_sin.gfc 
+TiME22_ATM_273.555_s2_cos.gfc TiME22_ATM_273.555_s2_sin.gfc 
+TiME22_ATM_274.554_r2_cos.gfc TiME22_ATM_274.554_r2_sin.gfc 
+TiME22_ATM_275.555_k2_cos.gfc TiME22_ATM_275.555_k2_sin.gfc 
+TiME22_ATM_381.555_t3_cos.gfc TiME22_ATM_381.555_t3_sin.gfc 
+TiME22_ATM_382.555_s3_cos.gfc TiME22_ATM_382.555_s3_sin.gfc 
+TiME22_ATM_383.555_r3_cos.gfc TiME22_ATM_383.555_r3_sin.gfc 
+TiME22_ATM_491.555_s4_cos.gfc TiME22_ATM_491.555_s4_sin.gfc 
+TiME22_ATM_5A0.555_s5_cos.gfc TiME22_ATM_5A0.555_s5_sin.gfc 
+TiME22_ATM_6BZ.555_s6_cos.gfc TiME22_ATM_6BZ.555_s6_sin.gfc 
