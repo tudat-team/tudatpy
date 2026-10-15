@@ -1,5 +1,5 @@
 Fixed-ephemeris lunar laser ranging diagnostic
-=============================================
+==============================================
 
 ``analysis/laser_ranging/llr_residuals.py`` compares all eleven APOLLO normal points
 dated 2017-03-09 with a fixed DE440 model. It estimates no parameters and does not
@@ -77,6 +77,16 @@ additive decomposition. ``summary.json`` records raw mean, RMS about zero,
 scatter about the mean, weighted mean, normalized RMS, unfitted chi-squared,
 station coordinates and hashes of every loaded kernel.
 
+``event_diagnostics.json`` records the native link-end epochs, Earth transmit
+and receive elevations and registered per-leg correction values for each of the
+four sequential solves. The event order is Earth transmit, Moon receive, Moon
+retransmit, Earth receive. These native epoch dependent variables are doubles;
+they cannot resolve all differences retained internally by ``Time``. The
+separate launch-time split preserves the precise input epoch. Per-leg correction
+values are in seconds, in registration order (Shapiro, atmosphere, glass as
+enabled). They describe the corrections at each solution's events rather than
+differences of separately solved ranges.
+
 Unresolved differences include the station reference frame/tide convention and
 velocity, ocean/atmospheric loading, lunar dissipative and thermal displacement,
 and the exact calibration version used in the DE440 fit. Earth orientation uses
@@ -86,6 +96,81 @@ Section 3.9 explicitly leaves Eq. 10's constant part unmodified, and Section 3.1
 applies that same equation to the Moon, with constant components tabulated in
 Appendix A2. These limitations must accompany the results rather than be absorbed
 into a fitted range bias.
+
+SPICE epoch precision experiment
+--------------------------------
+
+The default ``--spice-knot-step 0`` retains direct SPICE. An optional value of
+``60`` or ``30`` changes only the Sun, Earth and Moon translation ephemerides to
+the existing Time-valued ``interpolated_spice`` route, using cubic splines and
+integer TDB knots. Integer knot epochs are exact doubles, so sampling SPICE does
+not lose their time tags. The table extends at least approximately one hour
+outside the observations to suppress natural-spline boundary effects. Cubic
+splines avoid the generic Lagrange interpolator's near-node handling. The
+analysis-local spatial-correction callbacks retain their original direct-SPICE
+queries. This experiment changes no station position, constants, measured
+weather, uncertainty, correction formula or convergence tolerance.
+
+``ephemeris_controls.json`` compares each selected ephemeris against direct
+SPICE at 22 exactly representable off-knot epochs, and compares displacement
+over two precise epochs 20 ns apart that convert to the same double. At the
+2017 observation date, one double epoch spacing is about 119 ns. Direct SPICE
+therefore returns identical states for the two precise test epochs, missing
+0.600 mm of Earth motion and 0.615 mm of Moon motion. The cubic tables recover
+that motion within 24 micrometres at 60-second knots and 25 micrometres at
+30-second knots. Maximum off-knot position differences from direct SPICE are
+0.032/0.092 mm for Earth/Moon at 60 seconds and 0.063/0.062 mm at 30 seconds.
+The latter comparison is a control at representable epochs, not evidence that
+direct SPICE resolves arbitrary precise epochs.
+
+All eleven points were retained in the direct, 60-second and 30-second runs.
+Recording native dependent variables reproduced every original direct-SPICE CSV
+field exactly. The following statistics are unfitted one-way residuals in metres:
+
+.. list-table:: Unfitted one-way residual statistics
+   :header-rows: 1
+
+   * - Ephemeris
+     - Mean
+     - RMS about zero
+     - Scatter
+   * - Direct SPICE
+     - 0.219974697
+     - 0.223582017
+     - 0.040000639
+   * - Cubic, 60-second knots
+     - 0.219550593
+     - 0.223164011
+     - 0.039996411
+   * - Cubic, 30-second knots
+     - 0.219550349
+     - 0.223163915
+     - 0.039997214
+
+Changing from direct SPICE to 60-second cubic tables changes individual complete
+half-ranges by up to 1.710 mm. Halving the table spacing changes complete
+half-ranges by at most 0.0262 mm (RMS 0.0126 mm). The maximum 60-to-30-second
+changes in geometric half-range, sequential Shapiro, atmospheric and glass
+increments are respectively 0.0283, 0.0278, 0.0251 and 0.0214 mm. These are
+observed numerical sensitivities for this fixed case, not adjusted tolerances
+or a general error bound.
+
+The final A14 point illustrates why a sequential range increment should not be
+used alone to validate a correction formula. Its glass increment is
+0.041121006 m with direct SPICE and 0.039928138/0.039907932 m with the
+60/30-second tables, whereas the registered native contribution is exactly
+``n*h/c`` on each leg for all three routes, equivalent to a 0.040026250 m
+half-range contribution at fixed events. The direct-SPICE anomaly largely
+disappears after restoring smooth translation, but the remaining approximately
+0.1 mm sensitivity of the sequential solve is unresolved. The double-valued
+event output cannot diagnose every precise event shift. This experiment does
+not claim closure of all sub-millimetre numerical paths or change the default
+route on the strength of improved residuals.
+
+These runs used the actual imported native kernel SHA-256
+``c475a3e90a39eed4332442f58c631398cd608f2195d25bc08cd59e3cfd0bd866``.
+Each output summary records its own script, kernel, input and Earth-orientation
+resource identities, so later builds can be distinguished from this experiment.
 
 Primary sources
 ---------------

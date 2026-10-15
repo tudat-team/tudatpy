@@ -23,6 +23,7 @@ from tudatpy.dynamics import environment, environment_setup as setup
 from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import links, model_settings
 from tudatpy.estimation.observable_models_setup import light_time_corrections as ltc
+from tudatpy.estimation.observations_setup import observations_dependent_variables as dep
 from tudatpy.estimation.observations_setup import observations_simulation_settings as sim
 from tudatpy.interface import spice
 from tudatpy.math import interpolators
@@ -104,14 +105,32 @@ def barycentric_state(body, epoch):
     )
 
 
-def create_environment(points):
+def create_environment(points, spice_knot_step=0):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
     settings = setup.BodyListSettings("SSB", "J2000")
 
+    # Integer TDB knots are exactly representable by SPICE.
+    # Padding isolates the observations from the spline boundaries.
+    initial_time = 60 * int(float(points[0]["utc"]) // 60) - 3600
+    final_time = 60 * int(float(points[-1]["utc"]) // 60 + 1) + 3600
+
     for name in ("Sun", "Earth", "Moon"):
         settings.add_empty_settings(name)
-        settings.get(name).ephemeris_settings = setup.ephemeris.direct_spice("SSB", "J2000")
+        settings.get(name).ephemeris_settings = (
+            setup.ephemeris.interpolated_spice(
+                initial_time,
+                final_time,
+                spice_knot_step,
+                "SSB",
+                "J2000",
+                interpolators.cubic_spline_interpolation(
+                    boundary_interpolation=interpolators.throw_exception_at_boundary
+                ),
+            )
+            if spice_knot_step
+            else setup.ephemeris.direct_spice("SSB", "J2000")
+        )
         settings.get(name).gravity_field_settings = setup.gravity_field.central_spice()
 
     earth = settings.get("Earth")
@@ -296,9 +315,89 @@ def computed_range(point, epoch, bodies, corrections):
         model_settings.n_way_range_type, link, [epoch], reference_link_end_type=links.transmitter
     )
 
+    variables = {
+        "link_end_epochs_tdb_s": dep.link_end_epochs_dependent_variable(
+            model_settings.n_way_range_type
+        ),
+        "transmit_elevation_rad": dep.elevation_angle_dependent_variable(
+            links.transmitter, originating_link_end_type=links.reflector1
+        ),
+        "receive_elevation_rad": dep.elevation_angle_dependent_variable(
+            links.receiver, originating_link_end_type=links.reflector1
+        ),
+    }
+
+    if corrections:
+        variables["uplink_corrections_s"] = dep.light_time_correction_components_dependent_variable(
+            links.transmitter, links.reflector1
+        )
+        variables["downlink_corrections_s"] = (
+            dep.light_time_correction_components_dependent_variable(
+                links.reflector1, links.receiver
+            )
+        )
+
+    dep.add_dependent_variables_to_all([observation_times], list(variables.values()), bodies)
+
     result = observations.simulate_observations([observation_times], simulator, bodies)
 
-    return float(np.asarray(result.concatenated_observations).ravel()[0])
+    diagnostics = {
+        name: np.asarray(result.concatenated_dependent_variable(variable)[0]).ravel().tolist()
+        for name, variable in variables.items()
+    }
+
+    return float(np.asarray(result.concatenated_observations).ravel()[0]), diagnostics
+
+
+def ephemeris_controls(points, bodies):
+    """Compare at representable off-knot epochs and probe motion across equal-double epochs."""
+
+    # Quarter-second offsets are exact doubles at this date and avoid the integer table knots.
+    epochs = [float(point["utc"]) // 1 + offset for point in points for offset in (0.25, 13.75)]
+    controls = {}
+
+    for name in ("Sun", "Earth", "Moon"):
+        body = bodies.get(name)
+        comparisons = []
+
+        for epoch in epochs:
+            state = np.asarray(body.state_in_base_frame_from_ephemeris(time.Time(epoch))).reshape(6)
+            reference = barycentric_state(name, epoch).reshape(6)
+            difference = state - reference
+            comparisons.append(
+                {
+                    "epoch_tdb_s": epoch,
+                    "position_difference_m": difference[:3].tolist(),
+                    "velocity_difference_m_per_s": difference[3:].tolist(),
+                }
+            )
+
+        left = time.Time(int(epochs[len(epochs) // 2]))
+        right = left + 20e-9
+        first = np.asarray(body.state_in_base_frame_from_ephemeris(left)).reshape(6)
+        second = np.asarray(body.state_in_base_frame_from_ephemeris(right)).reshape(6)
+        expected = first[3:] * float(right - left)
+        displacement = second[:3] - first[:3]
+
+        controls[name] = {
+            "representable_off_knot_comparisons": comparisons,
+            "max_position_difference_norm_m": max(
+                float(np.linalg.norm(row["position_difference_m"])) for row in comparisons
+            ),
+            "same_double_motion": {
+                "left_split": left.__getstate__(),
+                "right_split": right.__getstate__(),
+                "equal_double_epochs": float(left) == float(right),
+                "dt_s": float(right - left),
+                "displacement_m": displacement.tolist(),
+                "velocity_dt_m": expected.tolist(),
+                "difference_from_velocity_dt_norm_m": float(
+                    np.linalg.norm(displacement - expected)
+                ),
+            },
+        }
+
+    return controls
 
 
 def main():
@@ -319,6 +418,13 @@ def main():
         help="Offline directory of the six named DE440/SPICE kernels",
     )
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--spice-knot-step",
+        type=int,
+        choices=(0, 30, 60),
+        default=0,
+        help="0: direct SPICE baseline; 30/60: integer-TDB-knot cubic spline precision experiment",
+    )
     args = parser.parse_args()
 
     dataset = json.loads(Path(__file__).with_name("llr_dataset.json").read_text())
@@ -346,11 +452,12 @@ def main():
 
         spice.load_kernel(str(path))
 
-    bodies, position = create_environment(points)
+    bodies, position = create_environment(points, args.spice_knot_step)
 
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
 
     rows = []
+    event_diagnostics = []
 
     for point in points:
         epoch = converter.convert_time_object(
@@ -370,13 +477,24 @@ def main():
 
         target = ltc.laser_target_light_time_correction("Moon", signature)
 
-        geometric = computed_range(point, epoch, bodies, [])
+        geometric, geometric_events = computed_range(point, epoch, bodies, [])
 
-        relativistic = computed_range(point, epoch, bodies, [shapiro])
+        relativistic, relativistic_events = computed_range(point, epoch, bodies, [shapiro])
 
-        atmospheric = computed_range(point, epoch, bodies, [shapiro, optical])
+        atmospheric, atmospheric_events = computed_range(point, epoch, bodies, [shapiro, optical])
 
-        complete = computed_range(point, epoch, bodies, [shapiro, optical, target])
+        complete, complete_events = computed_range(point, epoch, bodies, [shapiro, optical, target])
+
+        event_diagnostics.append(
+            {
+                "index": point["index"],
+                "launch_tdb_time_split": epoch.__getstate__(),
+                "geometric": geometric_events,
+                "relativistic": relativistic_events,
+                "atmospheric": atmospheric_events,
+                "complete": complete_events,
+            }
+        )
 
         residual = 0.5 * (constants.SPEED_OF_LIGHT * point["observed_rtt_s"] - complete)
 
@@ -425,6 +543,8 @@ def main():
         "kernel_path": kernel.__file__,
         "kernel_binary_sha256": sha256(Path(kernel.__file__)),
         "station_xyz_m": position.tolist(),
+        "ephemeris_route": "cubic_spline_time" if args.spice_knot_step else "direct_spice",
+        "spice_knot_step_s": args.spice_knot_step,
         "limitations": [
             "Approximate 2005 survey (~0.1 m); no matched DE440 station solution or plate velocity.",
             "No Earth ocean/atmospheric loading; lunar dissipative/thermal terms omitted.",
@@ -446,6 +566,12 @@ def main():
         writer.writerows(rows)
 
     (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (args.output_dir / "event_diagnostics.json").write_text(
+        json.dumps(event_diagnostics, indent=2) + "\n"
+    )
+    (args.output_dir / "ephemeris_controls.json").write_text(
+        json.dumps(ephemeris_controls(points, bodies), indent=2) + "\n"
+    )
     print(json.dumps(summary, indent=2))
 
 
