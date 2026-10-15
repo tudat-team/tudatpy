@@ -29,7 +29,8 @@ input hashes against that manifest, and records actual input hashes
 including the selected packaged C04 EOP file. Provider gzip files are decompressed
 unchanged into the output directory. Public availability is not an invented
 redistribution licence: retain each provider's citation and rights notes in the
-manifest and the test archive's `slr/README.md`.
+manifest and the test archive's `slr/README.md`. The manifest also pins the
+optional HARPOS product described below; its bytes are kept outside the repository.
 
 Required products are:
 
@@ -141,6 +142,20 @@ explicitly; no route is selected by its residual mean.
   match the station frame; no label/frame/origin transformation is inferred.
   Do not silently substitute another ocean model or call the default run a
   complete provider-model reconstruction.
+- `--got410c-harpos /path/to/toc_got410c_harmod.hps` selects a separate, pinned
+  GOT4.10c realization from the International Mass Loading Service. It is mutually
+  exclusive with BLQ loading and leaves the default unchanged. Exact case-sensitive
+  provider sites are `Graz` and `Herstmon`; the nearby `GRAZ` and `HERS` monuments
+  are not substituted. The summary and manifest retain product hash, provider
+  XYZ, separation from the selected station and the 3 km applicability radius.
+  The helper uses 17 supplied TT harmonic terms, geocentric radial Up/East/North,
+  whole-Earth centre-of-mass origin and STW105/REAR response. The product narrative
+  calls Up ellipsoid-normal, whereas its HARPOS definition specifies radial Up;
+  this experiment explicitly follows the latter. Ocean-pole and equilibrium
+  terms are absent. This is an alternate realization, not exact ASI 11-constituent
+  BLQ/HARDISP reproduction. One native custom station-motion callback supplies
+  the displacement; the terminal relativistic map then sees the complete loaded
+  station position. The existing nominal-only simultaneity approximation remains.
 - The provider's 20-degree elevation cutoff is applied at both ground events,
   using the observed half-flight time to locate the passive bounce for selection.
   No cut is made on a computed residual. Weather and orbit coverage exclusions

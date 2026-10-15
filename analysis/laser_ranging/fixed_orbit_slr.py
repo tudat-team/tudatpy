@@ -31,6 +31,8 @@ from tudatpy.estimation import observable_models_setup, observations, observatio
 from tudatpy.interface import spice
 from tudatpy.math import interpolators
 
+from ocean_loading import got410c_ocean_loading
+
 # Fixed selections precede any residual calculation; values are not fitted here.
 STATIONS = {"7839": "11001S002", "7840": "13212S001"}
 SPATIAL_TT_TO_TDB_SCALE = 1.48082686741e-8
@@ -661,7 +663,9 @@ def main():
     parser.add_argument(
         "--station-solution", choices=("slrf2020", "asi-weekly"), default="slrf2020"
     )
-    parser.add_argument("--got410c-blq", type=Path)
+    loading = parser.add_mutually_exclusive_group()
+    loading.add_argument("--got410c-blq", type=Path)
+    loading.add_argument("--got410c-harpos", type=Path)
     parser.add_argument("--points", choices=(8, 10), type=int, default=10)
     parser.add_argument("--body-ephemeris", choices=("cubic-time", "direct"), default="cubic-time")
     parser.add_argument("--body-step", choices=(30, 60), type=int, default=30)
@@ -699,6 +703,9 @@ def main():
 
     if args.got410c_blq:
         inputs.append(args.got410c_blq)
+
+    if args.got410c_harpos:
+        inputs.append(args.got410c_harpos)
 
     # Pin every provider input against the download manifest before reading models.
     manifest = json.loads(Path(__file__).with_name("dataset.json").read_text())
@@ -782,9 +789,26 @@ def main():
         station_file, eccentricity_file, converter, args.station_solution == "slrf2020"
     )
 
-    for station in station_settings:
+    ocean_ledger = []
+
+    for station, station_record in zip(station_settings, station_ledger):
         nominal = np.asarray(station.station_position).reshape(3)
         station.add_station_motion_settings(ground_station.body_deformation_station_motion())
+
+        # Add the alternate HARPOS realization once; the native terminal map sees the complete loaded position.
+        if args.got410c_harpos:
+            displacement, metadata = got410c_ocean_loading(
+                args.got410c_harpos,
+                {"7839": "Graz", "7840": "Herstmon"}[station_record["station"]],
+                nominal,
+                converter,
+            )
+            station.add_station_motion_settings(ground_station.custom_station_motion(displacement))
+            metadata.update(
+                {"station": station_record["station"], "domes": station_record["domes"]}
+            )
+            ocean_ledger.append(metadata)
+
         station.add_station_motion_settings(
             ground_station.custom_station_motion(station_simultaneity(earth, nominal))
         )
@@ -872,6 +896,11 @@ def main():
             "tudatpy": tudatpy.__file__,
             "kernel": file_record(kernel.__file__),
             "script": file_record(__file__),
+            "ocean_loading_helper": (
+                file_record(Path(__file__).with_name("ocean_loading.py"))
+                if args.got410c_harpos
+                else None
+            ),
         },
         "station_coordinates": station_ledger,
         "session_metadata": session_metadata,
@@ -895,10 +924,15 @@ def main():
         ),
         "sp3_position_quantization_m": 0.001,
         "ocean_loading": (
-            "user-declared GOT4.10c BLQ"
-            if args.got410c_blq
-            else "OMITTED: exact GOT4.10c unavailable"
+            "GOT4.10c HARPOS alternate CM/STW105 radial realization; not ASI BLQ/HARDISP"
+            if args.got410c_harpos
+            else (
+                "user-declared GOT4.10c BLQ"
+                if args.got410c_blq
+                else "OMITTED: exact GOT4.10c unavailable"
+            )
         ),
+        "ocean_loading_metadata": ocean_ledger,
         "models": {
             "rotation": "IERS 2010, IAU 2006, selected C04 file",
             "observable_time_scale": "TAI",

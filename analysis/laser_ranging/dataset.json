@@ -110,5 +110,36 @@
     "sha256": "ebbcca47708f811ea7bd8991abe1900bd628c5e5aea6a0742dfa8f8e1263a6d8",
     "retrieved_utc": "2026-10-15T21:15:50.885615+00:00",
     "rights": "Public ILRS scientific archive; cite ILRS normal-point dataset; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps",
+    "path": "optional/toc_got410c_harmod.hps",
+    "size": 1978239,
+    "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150",
+    "retrieved_utc": "2026-10-15T22:07:37.089338+00:00",
+    "scope": "Optional alternate GOT4.10c HARPOS experiment; default remains no ocean loading. Not exact ASI 11-constituent BLQ/HARDISP.",
+    "sites": {
+      "7839": {
+        "site": "Graz",
+        "domes": "11001S002",
+        "provider_xyz_m": [
+          4194426.703,
+          1162693.879,
+          4647246.56
+        ]
+      },
+      "7840": {
+        "site": "Herstmon",
+        "domes": "13212S001",
+        "provider_xyz_m": [
+          4033463.844,
+          23662.33,
+          4924305.061
+        ]
+      }
+    },
+    "axes": "HARPOS geocentric radial Up, East, North; product narrative says ellipsoid-normal Up, an explicitly retained discrepancy.",
+    "origin": "Whole-Earth centre of mass; STW105/REAR Earth response; 17 supplied gravity-tide terms; TT J2000 harmonic arguments.",
+    "rights": "Public International Mass Loading Service scientific product; retain provider and Ray (2013) citations. No explicit per-file redistribution licence observed; product bytes are not included here."
   }
 ]
