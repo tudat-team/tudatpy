@@ -149,22 +149,25 @@ kinematic station shift. The station experiment and its control used native
 kernel SHA-256
 ``1864ed04530210fa056e78128bdbbfe1ad536cae6a9d3ade4f23295fbeda1744``.
 
-Optional ocean loading sensitivity
-----------------------------------
+Optional ocean loading and historical radial-basis controls
+----------------------------------------------------------
 
 ``--got410c-harpos PATH`` enables the hash-pinned GOT4.10c HARPOS product from
 ``https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps``.
 The existing helper selects the exact case-sensitive ``Apollo`` site. Its
 callback is included once in each Earth station's motion list, intrinsic and
 final; lunar stations are unchanged. It evaluates the 17 supplied TT harmonics
-in the HARPOS geocentric radial Up/East/North basis and returns terrestrial XYZ
+and returns terrestrial XYZ
 displacement. This is a whole-Earth-centre-of-mass STW105/REAR realization,
 different from JPL FES2004 and the older INPOP CSR4.0 model. It includes neither
-ocean-pole nor equilibrium terms. The helper records the source narrative's
-conflicting ellipsoid-normal wording and the explicitly selected HARPOS basis.
+ocean-pole nor equilibrium terms. The current helper uses geodetic Up, following
+the product narrative and the provider's source code; the analysis README records
+the formal HARPOS specification's conflicting radial wording and provenance.
 Loading remains disabled by default for both station profiles.
 
-With all eleven points and 30-second cubic tables, survey plus loading gives
+The following archived controls used the original radial-Up interpretation.
+Their bytes and metadata are retained; they are not results from the corrected
+geodetic helper. With all eleven points and 30-second cubic tables, survey plus loading gives
 mean ``+0.231725481 m``, RMS ``0.235149176 m`` and scatter ``0.039980448 m``.
 INPOP17a station plus loading gives mean ``+0.092049003 m``, RMS
 ``0.100350376 m`` and scatter ``0.039964722 m``. The respective mean changes
