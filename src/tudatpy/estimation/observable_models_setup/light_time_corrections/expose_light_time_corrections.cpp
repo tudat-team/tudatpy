@@ -53,6 +53,9 @@ void expose_light_time_corrections( py::module& m )
 
 Used as a filter by :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.light_time_correction_components_dependent_variable`
 to select which correction contributions are saved individually.)doc" )
+            .value( "laser_target_signature",
+                    tom::laser_target_signature,
+                    R"doc(Explicit scalar CoM or weighted optical target signature.)doc" )
             .value( "first_order_relativistic", tom::first_order_relativistic, R"doc(First-order relativistic light-time correction.)doc" )
             .value( "function_wrapper_light_time_correction",
                     tom::function_wrapper_light_time_correction,
@@ -181,6 +184,61 @@ Order corresponds to the values returned by `get_current_light_time_correction_c
 
 
       )doc" );
+
+    py::class_< tom::LaserTargetResponse >( m, "LaserTargetResponse", R"doc(
+Mean optical path changes and return spread, in metres. The spread is a diagnostic width and is never added to the centroid.)doc" )
+            .def_readonly( "mean_path_corrections",
+                           &tom::LaserTargetResponse::meanPathCorrections,
+                           R"doc(Uplink and downlink mean path changes, in metres.)doc" )
+            .def_property_readonly( "mean_range_correction",
+                                    &tom::LaserTargetResponse::getMeanRangeCorrection,
+                                    R"doc(Half the sum of the two mean path changes, in metres.)doc" )
+            .def_readonly( "range_spread",
+                           &tom::LaserTargetResponse::rangeSpread,
+                           R"doc(Weighted standard deviation of the equivalent one-way returns, in metres.)doc" );
+
+    py::class_< tom::LaserTargetSignature, std::shared_ptr< tom::LaserTargetSignature > >( m, "LaserTargetSignature", R"doc(
+A scalar spherical-target CoM correction or an explicitly weighted optical array.
+
+Optical points are offsets in metres from the nominated target link endpoint, in the target rotation model's fixed axes.
+The model uses no implicit glass delay, incidence law, or detector response. Match supplied weights to the published
+normal-point estimator; do not apply an array centroid correction again to normal points already corrected for that response.)doc" )
+            .def( py::init< double >( ), py::arg( "center_of_mass_distance" ), R"doc(
+Positive published CoM distance (metres) is added to observed equivalent one-way range; this model subtracts it from
+computed surface range. It is mutually exclusive with the optical array constructor.)doc" )
+            .def( py::init< std::vector< Eigen::Vector3d >, std::vector< double >, tom::LaserTargetSignature::ReturnWeightFunction >( ),
+                  py::arg( "optical_point_offsets" ),
+                  py::arg( "return_weights" ),
+                  py::arg( "return_weight_function" ) = nullptr,
+                  R"doc(Use nonnegative relative return weights for the optical points. An optional callback replaces the weights;
+it receives reflection TDB seconds since J2000 and both unit target-to-observer directions in target-fixed axes.
+Both retarded legs use the same returned weights. The diagnostic spread is not a bias.)doc" )
+            .def( "calculate_response",
+                  &tom::LaserTargetSignature::calculateResponse,
+                  py::arg( "target_to_transmitter" ),
+                  py::arg( "target_to_receiver" ),
+                  py::arg( "reflection_time" ),
+                  R"doc(Evaluate the target response from the two target-fixed observer vectors in metres and reflection TDB seconds since J2000.)doc" );
+
+    py::class_< tom::LaserTargetLightTimeCorrectionSettings,
+                tom::LightTimeCorrectionSettings,
+                std::shared_ptr< tom::LaserTargetLightTimeCorrectionSettings > >(
+            m,
+            "LaserTargetLightTimeCorrectionSettings",
+            R"doc(Settings sharing a target response between the two legs of a monostatic laser range link.)doc" );
+
+    m.def( "laser_target_light_time_correction",
+           &tom::laserTargetLightTimeCorrection,
+           py::arg( "target_body" ),
+           py::arg( "signature" ),
+           R"doc(
+Create a target-signature correction for a station-target-same-station two-way range link.
+
+Use this same settings object on both legs (or in the common correction list). The solver's target endpoint is the optical
+reference point: an array offset is not added to the body centre unless the target endpoint is that centre. An optical array
+uses the target body's rotation model; a spherical scalar CoM model needs no attitude. Each leg receives its own mean path
+change divided by c during coupled light-time iteration. The n-way observable remains the full round-trip range, so compare
+half of it with CRD equivalent one-way range. No extra CoM or array correction may be applied to those observations.)doc" );
 
     py::enum_< tom::LightTimeFailureHandling >( m, "LightTimeFailureHandling", R"doc(
 

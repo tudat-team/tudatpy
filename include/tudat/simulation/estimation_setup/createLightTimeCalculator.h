@@ -183,6 +183,9 @@ std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > 
                                   ") are inconsistent with number of links (" + std::to_string( numberOfLinks ) + ")." );
     }
 
+    // A laser target response must participate once in both retarded legs.
+    validateLaserTargetLightTimeCorrections( lightTimeCorrections );
+
     // Define light-time calculator list
     std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
     // Boolean indicating whether any of the used light time corrections require multi-leg iterations

@@ -18,6 +18,7 @@
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
+#include "tudat/astro/observation_models/corrections/laserTargetCorrection.h"
 #include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
 #include "tudat/simulation/estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "tudat/io/solarActivityData.h"
@@ -71,6 +72,46 @@ protected:
     //! Type of light-time correction that is to be created
     LightTimeCorrectionType correctionType_;
 };
+
+//! Laser target response relative to the nominated reflector link endpoint.
+class LaserTargetLightTimeCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    //! Share one scalar CoM or optical array model for the two legs, without combining the two conventions.
+    LaserTargetLightTimeCorrectionSettings( const std::string& targetBody, const std::shared_ptr< LaserTargetSignature >& signature ):
+        LightTimeCorrectionSettings( laser_target_signature ), targetBody_( targetBody ), signature_( signature )
+    {}
+
+    //! Body whose fixed axes define the optical point coordinates.
+    const std::string& getTargetBody( ) const
+    {
+        return targetBody_;
+    }
+
+    //! Physical response shared by both leg corrections and available for diagnostics.
+    std::shared_ptr< LaserTargetSignature > getSignature( ) const
+    {
+        return signature_;
+    }
+
+private:
+    //! Target body and response measured relative to the selected reflector endpoint, not necessarily its body centre.
+    std::string targetBody_;
+
+    std::shared_ptr< LaserTargetSignature > signature_;
+};
+
+//! Create settings for a monostatic two-way laser link; put the same settings on both legs.
+inline std::shared_ptr< LaserTargetLightTimeCorrectionSettings > laserTargetLightTimeCorrection(
+        const std::string& targetBody,
+        const std::shared_ptr< LaserTargetSignature >& signature )
+{
+    return std::make_shared< LaserTargetLightTimeCorrectionSettings >( targetBody, signature );
+}
+
+//! Reject duplicate or one-sided target responses before constructing a coupled two-leg light-time calculator.
+void validateLaserTargetLightTimeCorrections(
+        const std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >& corrections );
 
 //! Typedef for a list of list time correction settings per link end
 typedef std::map< LinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;

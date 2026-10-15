@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
 #include "tudat/io/readViennaMappingFunctionData.h"
 #include "tudat/io/readSinexFile.h"
 #include "tudat/io/readIonexFile.h"
@@ -30,6 +31,37 @@ namespace tudat
 namespace observation_models
 {
 
+//! Require one identical shared response on each leg, so CoM and array corrections cannot be combined or applied twice.
+void validateLaserTargetLightTimeCorrections(
+        const std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >& corrections )
+{
+    std::vector< std::shared_ptr< LightTimeCorrectionSettings > > targets;
+
+    for( const auto& leg : corrections )
+    {
+        std::shared_ptr< LightTimeCorrectionSettings > target;
+
+        for( const auto& correction : leg )
+        {
+            if( correction->getCorrectionType( ) == laser_target_signature )
+            {
+                if( target )
+                {
+                    throw std::invalid_argument( "Apply exactly one laser target signature per leg" );
+                }
+                target = correction;
+            }
+        }
+        targets.push_back( target );
+    }
+    const bool hasTarget = std::any_of( targets.begin( ), targets.end( ), []( const auto& target ) { return target != nullptr; } );
+
+    if( hasTarget && ( targets.size( ) != 2 || !targets[ 0 ] || targets[ 0 ] != targets[ 1 ] ) )
+    {
+        throw std::invalid_argument( "The same laser target settings must be applied once to each of the two legs" );
+    }
+}
+
 //! Function to create object that computes a single (type of) correction to the light-time
 std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
                                                                    const simulation_setup::SystemOfBodies& bodies,
@@ -49,6 +81,36 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
     // Identify type of light time correction to be created.
     switch( correctionSettings->getCorrectionType( ) )
     {
+        case laser_target_signature: {
+            const auto settings = std::dynamic_pointer_cast< LaserTargetLightTimeCorrectionSettings >( correctionSettings );
+
+            if( !settings || !settings->getSignature( ) || observableType != n_way_range || linkEnds.size( ) != 3 ||
+                linkEnds.count( reflector1 ) == 0 || linkEnds.count( observation_models::transmitter ) == 0 ||
+                linkEnds.count( observation_models::receiver ) == 0 ||
+                !( linkEnds.at( observation_models::transmitter ) == linkEnds.at( observation_models::receiver ) ) ||
+                settings->getTargetBody( ) != linkEnds.at( reflector1 ).bodyName_ )
+            {
+                throw std::invalid_argument( "Laser target signature requires a monostatic station-target-station range link" );
+            }
+            const auto rotation = bodies.at( settings->getTargetBody( ) )->getRotationalEphemeris( );
+
+            std::function< Eigen::Quaterniond( double ) > rotationFunction;
+
+            if( settings->getSignature( )->requiresTargetRotation( ) )
+            {
+                if( !rotation )
+                {
+                    throw std::invalid_argument( "Laser optical array requires the target's body-fixed rotation" );
+                }
+                if( rotation->getBaseFrameOrientation( ) != bodies.getFrameOrientation( ) )
+                {
+                    throw std::invalid_argument( "Laser optical array rotation must use the link states' inertial axes" );
+                }
+                rotationFunction = std::bind( &RotationalEphemeris::getRotationToTargetFrame, rotation, std::placeholders::_1 );
+            }
+            lightTimeCorrection = std::make_shared< LaserTargetLightTimeCorrection >( settings->getSignature( ), rotationFunction );
+            break;
+        }
         case first_order_relativistic: {
             // Check input consistency
             if( std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings ) != nullptr )
