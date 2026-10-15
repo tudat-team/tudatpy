@@ -18,6 +18,24 @@ Aod1bGravityFieldVariationSettings::Aod1bGravityFieldVariationSettings( std::vec
     maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
 {}
 
+//! Identify the selected component independently of daily filenames and truncation.
+std::string Aod1bGravityFieldVariationSettings::getIdentifier( ) const
+{
+    switch( component_ )
+    {
+        case input_output::Aod1bComponent::atmosphere:
+            return "AOD1B_RL07_ATM";
+        case input_output::Aod1bComponent::ocean:
+            return "AOD1B_RL07_OCN";
+        case input_output::Aod1bComponent::global:
+            return "AOD1B_RL07_GLO";
+        case input_output::Aod1bComponent::oceanBottomPressure:
+            return "AOD1B_RL07_OBA";
+        default:
+            throw std::runtime_error( "Unknown AOD1B mass component" );
+    }
+}
+
 //! Compare value-owned source products as well as the selected physical interpretation.
 bool Aod1bGravityFieldVariationSettings::equals( const GravityFieldVariationSettings& other ) const
 {

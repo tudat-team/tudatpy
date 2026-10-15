@@ -37,6 +37,7 @@ CEREAL_REGISTER_TYPE( tudat::simulation_setup::PeriodicGravityFieldVariationsSet
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::PolynomialGravityFieldVariationsSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::HarmonicGravityFieldVariationSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::OceanPoleTideGravityFieldVariationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::Aod1bGravityFieldVariationSettings )
 
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
                                       tudat::simulation_setup::BasicSolidBodyGravityFieldVariationSettings )
@@ -52,5 +53,7 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVaria
                                       tudat::simulation_setup::HarmonicGravityFieldVariationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
                                       tudat::simulation_setup::OceanPoleTideGravityFieldVariationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::Aod1bGravityFieldVariationSettings )
 
 CEREAL_REGISTER_DYNAMIC_INIT( tudat_serialization_environment )

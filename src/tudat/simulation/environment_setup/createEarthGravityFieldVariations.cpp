@@ -2,6 +2,7 @@
 #include "tudat/simulation/environment_setup/createEarthGravityFieldVariations.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/gravitation/earthSolidBodyTideGravityFieldVariations.h"
+#include "tudat/astro/gravitation/aod1bGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
@@ -204,6 +205,22 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
     constexpr double sourceRadius = 6378136.3;
     switch( settings->getBodyDeformationType( ) )
     {
+        case gravitation::aod1b_rl07: {
+            // RL07 already interpolates in GPS seconds; another TDB interpolation stage would change that model.
+            const auto aod = std::dynamic_pointer_cast< Aod1bGravityFieldVariationSettings >( settings );
+
+            if( !aod || settings->getInterpolatorSettings( ) != nullptr )
+            {
+                throw std::runtime_error( "Expected AOD1B RL07 settings without a second interpolation stage" );
+            }
+            return gravitation::createAod1bGravityFieldVariations( aod->getData( ),
+                                                                   aod->getComponent( ),
+                                                                   aod->getMaximumDegree( ),
+                                                                   aod->getMaximumOrder( ),
+                                                                   field->getGravitationalParameter( ),
+                                                                   field->getReferenceRadius( ),
+                                                                   converter );
+        }
         case gravitation::ocean_tide:
         case gravitation::atmospheric_tide: {
             const auto harmonic = std::dynamic_pointer_cast< HarmonicGravityFieldVariationSettings >( settings );
@@ -317,6 +334,9 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
 //! Reject repeated conventional responses and duplicate final harmonic waves within one physical component.
 void validateEarthGravityFieldVariationCollection( const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& settings )
 {
+    // Enforce the published non-tidal component decomposition before the conventional-tide early return.
+    validateAod1bGravityFieldVariationCollection( settings );
+
     std::set< gravitation::BodyDeformationTypes > unique;
 
     std::set< std::pair< gravitation::HarmonicGravityComponent, std::string > > harmonicInventory;

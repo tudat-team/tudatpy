@@ -88,6 +88,10 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         {
             variationIdentifiers.push_back( harmonic->getIdentifier( ) );
         }
+        else if( const auto aod = std::dynamic_pointer_cast< Aod1bGravityFieldVariationSettings >( gravityFieldVariationSettings.at( i ) ) )
+        {
+            variationIdentifiers.push_back( aod->getIdentifier( ) );
+        }
         else
         {
             variationIdentifiers.push_back( "" );
@@ -130,6 +134,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
         case ocean_pole_tide:
         case ocean_tide:
         case atmospheric_tide:
+        case aod1b_rl07:
             gravityFieldVariationModel = createEarthGravityFieldVariationsModel( gravityFieldVariationSettings, body, bodies );
             break;
         case basic_solid_body:

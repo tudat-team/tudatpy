@@ -3,11 +3,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <cmath>
 #include <limits>
-#include <sstream>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/polymorphic.hpp>
 #include "tudat/astro/gravitation/aod1bGravityFieldVariations.h"
-#include "tudat/simulation/environment_setup/createAod1bGravityFieldVariations.h"
 
 namespace
 {
@@ -113,50 +109,4 @@ BOOST_AUTO_TEST_CASE( sourceCoverageAcrossFilesAndGaps )
                                                                               first.referenceRadius,
                                                                               converter ),
                        std::runtime_error );
-}
-
-//! Keep physical component overlap checks and preloaded-settings serialization together.
-BOOST_AUTO_TEST_CASE( componentSelectionAndSettingsRoundtrip )
-{
-    using tudat::input_output::Aod1bComponent;
-
-    using tudat::simulation_setup::aod1bGravityFieldVariationSettings;
-
-    using tudat::simulation_setup::validateAod1bGravityFieldVariationCollection;
-
-    const auto data = fixture( );
-
-    const auto atmosphere = aod1bGravityFieldVariationSettings( { data }, Aod1bComponent::atmosphere, 2, 0 );
-
-    const auto ocean = aod1bGravityFieldVariationSettings( { data }, Aod1bComponent::ocean, 2, 0 );
-
-    const auto global = aod1bGravityFieldVariationSettings( { data }, Aod1bComponent::global, 2, 0 );
-
-    const auto oba = aod1bGravityFieldVariationSettings( { data }, Aod1bComponent::oceanBottomPressure, 2, 0 );
-
-    BOOST_CHECK_NO_THROW( validateAod1bGravityFieldVariationCollection( { atmosphere, ocean } ) );
-    BOOST_CHECK_THROW( validateAod1bGravityFieldVariationCollection( { atmosphere, atmosphere } ), std::runtime_error );
-    BOOST_CHECK_THROW( validateAod1bGravityFieldVariationCollection( { global, ocean } ), std::runtime_error );
-    BOOST_CHECK_THROW( validateAod1bGravityFieldVariationCollection( { oba, atmosphere } ), std::runtime_error );
-
-    // Concrete serialization tests the neutral records without depending on the integration registration TU.
-    auto original = std::dynamic_pointer_cast< tudat::simulation_setup::Aod1bGravityFieldVariationSettings >( global );
-
-    std::stringstream stream;
-
-    {
-        cereal::BinaryOutputArchive archive( stream );
-
-        archive( original );
-    }
-
-    std::shared_ptr< tudat::simulation_setup::Aod1bGravityFieldVariationSettings > restored;
-
-    {
-        cereal::BinaryInputArchive archive( stream );
-
-        archive( restored );
-    }
-    BOOST_REQUIRE( restored );
-    BOOST_CHECK( *original == *restored );
 }

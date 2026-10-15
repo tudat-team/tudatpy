@@ -39,6 +39,16 @@ input_output::OceanPoleGravityData oceanData( )
     data.coefficients.at( { 2, 0 } ).b = 0.0;
     return data;
 }
+
+//! Read the labelled RL07 provider extract shared by the raw and interpolation tests.
+input_output::Aod1bGravityFieldData aodData( )
+{
+    const std::string source = __FILE__;
+
+    return input_output::readAod1bGravityField( source.substr( 0, source.find_last_of( "/\\" ) ) +
+                                                "/../../reference_files/aod1b_gravity/AOD1B_2026-01-01_degree2_extract_07.asc" );
+}
+
 //! Declare a controlled, fully normalized potential with its source GM and radius.
 gravitation::HarmonicGravityMetadata harmonicMetadata( )
 {
@@ -362,6 +372,84 @@ BOOST_AUTO_TEST_CASE( rawPotentialSettingsRetainFinalAdmittanceInventoryAndCompo
     BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
 }
 
+//! Exercise selected time conversion, additive field scaling and separate component retrieval through Earth setup.
+BOOST_AUTO_TEST_CASE( aodAssemblyUsesSelectedConverterScalingAndComponentIdentity )
+{
+    // A deliberately coarse selected TT/TDB table makes an accidental default converter observable.
+    const auto data = aodData( );
+
+    const double gps = data.samples.at( 4 ).gpsSecondsSinceJ2000;
+
+    auto setup = settings( );
+
+    const auto selected = std::dynamic_pointer_cast< GcrsToItrsRotationModelSettings >( setup.at( "Earth" )->rotationModelSettings );
+
+    selected->setTdbToTtInterpolatorSettings( interpolators::interpolatorGenerationSettings< double >(
+            std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ),
+            gps - 30.0 * 86400.0,
+            gps + 150.0 * 86400.0,
+            90.0 * 86400.0 ) );
+    setup.at( "Earth" )->gravityFieldVariationSettings = {
+        aod1bGravityFieldVariationSettings( { data }, input_output::Aod1bComponent::atmosphere, 2, 2 ),
+        aod1bGravityFieldVariationSettings( { data }, input_output::Aod1bComponent::ocean, 2, 2 )
+    };
+
+    const auto bodies = createSystemOfBodies( setup );
+
+    const auto rotation =
+            std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodies.at( "Earth" )->getRotationalEphemeris( ) );
+
+    const auto converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+
+    const double tdb = static_cast< double >( converter->getCurrentTime< Time >( tai_scale, tdb_scale, Time( gps ) + 19.0 ) );
+
+    const auto native = std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >( nullptr, nullptr );
+
+    BOOST_CHECK_GT( std::abs( static_cast< double >( native->getTaiTime( tdb_scale, Time( tdb ) ) -
+                                                     converter->getTaiTime( tdb_scale, Time( tdb ) ) ) ),
+                    1e-6 );
+
+    // The field receives ATM and OCN as anomalies, with each provider potential scaled exactly once.
+    const auto gravity = field( bodies );
+
+    const double scale = data.gravitationalParameter / gravity->getGravitationalParameter( ) *
+            std::pow( data.referenceRadius / gravity->getReferenceRadius( ), 2 );
+
+    gravity->update( tdb );
+    BOOST_CHECK_SMALL( gravity->getCosineCoefficients( )( 2, 0 ) -
+                               scale *
+                                       ( data.samples.at( 4 ).coefficients.at( { 2, 0 } ).values[ 0 ] +
+                                         data.samples.at( 5 ).coefficients.at( { 2, 0 } ).values[ 0 ] ),
+                       1e-25 );
+    BOOST_CHECK_SMALL( gravity->getSineCoefficients( )( 2, 1 ) -
+                               scale *
+                                       ( data.samples.at( 4 ).coefficients.at( { 2, 1 } ).values[ 1 ] +
+                                         data.samples.at( 5 ).coefficients.at( { 2, 1 } ).values[ 1 ] ),
+                       1e-25 );
+
+    const auto models = gravity->getGravityFieldVariationsSet( );
+
+    const auto atmosphere = models->getGravityFieldVariation( gravitation::aod1b_rl07, "AOD1B_RL07_ATM" );
+
+    const auto ocean = models->getGravityFieldVariation( gravitation::aod1b_rl07, "AOD1B_RL07_OCN" );
+
+    BOOST_REQUIRE( atmosphere.first && ocean.first );
+    BOOST_CHECK( atmosphere.second != ocean.second );
+    setup.at( "Earth" )->gravityFieldVariationSettings.push_back(
+            aod1bGravityFieldVariationSettings( { data }, input_output::Aod1bComponent::global, 2, 2 ) );
+    BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
+    setup.at( "Earth" )->gravityFieldVariationSettings = {
+        aod1bGravityFieldVariationSettings( { data }, input_output::Aod1bComponent::atmosphere, 2, 2 ),
+        aod1bGravityFieldVariationSettings( { data }, input_output::Aod1bComponent::atmosphere, 2, 2 )
+    };
+    BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
+    setup.at( "Earth" )->gravityFieldVariationSettings = {
+        aod1bGravityFieldVariationSettings( { data }, input_output::Aod1bComponent::oceanBottomPressure, 2, 2 ),
+        aod1bGravityFieldVariationSettings( { data }, input_output::Aod1bComponent::ocean, 2, 2 )
+    };
+    BOOST_CHECK_THROW( createSystemOfBodies( setup ), std::runtime_error );
+}
+
 #if TUDAT_BUILD_WITH_SERIALIZATION
 BOOST_AUTO_TEST_CASE( earthGravitySettingsRoundTripCompleteInputsAndFinalInventory )
 {
@@ -377,7 +465,8 @@ BOOST_AUTO_TEST_CASE( earthGravitySettingsRoundTripCompleteInputsAndFinalInvento
         solidPoleTideGravityFieldVariationSettings( ),
         oceanPoleTideGravityFieldVariationSettings( oceanData( ), { 0, 0, -0.3075 }, oceanConstants( ), 2, 2 ),
         std::make_shared< HarmonicGravityFieldVariationSettings >(
-                std::vector< gravitation::HarmonicGravityConstituent >{ harmonicWave( ) }, harmonicMetadata( ), 2, 2, interpolation )
+                std::vector< gravitation::HarmonicGravityConstituent >{ harmonicWave( ) }, harmonicMetadata( ), 2, 2, interpolation ),
+        aod1bGravityFieldVariationSettings( { aodData( ) }, input_output::Aod1bComponent::global, 2, 2 )
     };
 
     std::stringstream stream;

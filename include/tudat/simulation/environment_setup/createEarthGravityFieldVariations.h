@@ -3,6 +3,7 @@
 #define TUDAT_CREATE_EARTH_GRAVITY_FIELD_VARIATIONS_H
 
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createAod1bGravityFieldVariations.h"
 #include "tudat/astro/gravitation/oceanPoleTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/harmonicGravityFieldVariations.h"
 

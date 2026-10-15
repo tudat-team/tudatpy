@@ -70,6 +70,9 @@ public:
         return component_;
     }
 
+    //! Return the stable RL07 component label used by GravityFieldVariationsSet lookup.
+    std::string getIdentifier( ) const;
+
     //! Retrieve the highest included spherical-harmonic degree.
     int getMaximumDegree( ) const
     {
