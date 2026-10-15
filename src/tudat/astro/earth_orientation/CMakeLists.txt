@@ -24,7 +24,6 @@ set(earth_orientation_SOURCES
 set(earth_orientation_HEADERS
         "earthOrientationCalculator.h"
         "earthOrientationDataEvaluator.h"
-        "earthOrientationRates.h"
         "terrestrialTimeScaleConverter.h"
         "eopReader.h"
         "polarMotionCalculator.h"

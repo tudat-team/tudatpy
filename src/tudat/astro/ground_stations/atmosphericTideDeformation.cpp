@@ -114,7 +114,10 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
     BodyDeformationModel( converter ), settings_( settings ), bodyShape_( bodyShape )
 {
     using namespace input_output;
-    if( !converter ) throw std::runtime_error( "Atmospheric tide deformation requires its own shared Earth time converter" );
+    if( !converter )
+    {
+        throw std::runtime_error( "Atmospheric tide deformation requires its own shared Earth time converter" );
+    }
     validateCommonSettings( );
     validateAtmosphericTideGrid( grid );
     resolvedGridMetadata_ = grid.metadata;
@@ -154,7 +157,10 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
     BodyDeformationModel( converter ), stationData_( stations ), settings_( settings ), bodyShape_( bodyShape )
 {
     using namespace input_output;
-    if( !converter ) throw std::runtime_error( "Atmospheric tide deformation requires its own shared Earth time converter" );
+    if( !converter )
+    {
+        throw std::runtime_error( "Atmospheric tide deformation requires its own shared Earth time converter" );
+    }
     validateCommonSettings( );
     validateAtmosphericTideStationData( stations );
     for( const auto& entry : stations.stations )

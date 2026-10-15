@@ -114,7 +114,10 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
     {
         const auto& une = eccentricity.componentsMetres;
         const Eigen::Vector3d converted = geometry.enuToTerrestrial * Eigen::Vector3d( une[ 2 ], une[ 1 ], une[ 0 ] );
-        for( int i = 0; i < 3; ++i ) eccentricity.componentsMetres[ i ] = converted[ i ];
+        for( int i = 0; i < 3; ++i )
+        {
+            eccentricity.componentsMetres[ i ] = converted[ i ];
+        }
         eccentricity.basis = SinexEccentricityBasis::xyz;
     }
     const auto xyzPoint = createSinexAntennaReferencePointTrajectory( source, xyz, "ABMF:XYZ_ARP", std::nullopt, context( ) );

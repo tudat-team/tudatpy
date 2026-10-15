@@ -86,8 +86,14 @@ std::pair< SinexStationHistory, SinexStationHistory > controlledCompanions( cons
         entry.second.valueSi = 0.0;
         entry.second.originalValue = 0.0;
     }
-    for( auto& span : coordinates.observationSpans ) span.key.site = site.key;
-    for( auto& interval : intervals.discontinuities ) interval.key.site = site.key;
+    for( auto& span : coordinates.observationSpans )
+    {
+        span.key.site = site.key;
+    }
+    for( auto& interval : intervals.discontinuities )
+    {
+        interval.key.site = site.key;
+    }
     return { coordinates, intervals };
 }
 }  // namespace
@@ -107,10 +113,22 @@ BOOST_AUTO_TEST_CASE( unchangedIgnParametricSelectorsAndSignedAmplitudes )
         double dt, a1, t1, a2, t2, expected;
         BOOST_REQUIRE( fields >> model >> dt >> a1 >> t1 >> a2 >> t2 >> expected );
         std::vector< StationPostSeismicTerm > terms;
-        if( model == 1 || model == 3 || model == 5 ) terms.push_back( psd( StationPostSeismicFunction::logarithmic, a1 * 0.001, t1 ) );
-        if( model == 2 || model == 4 ) terms.push_back( psd( StationPostSeismicFunction::exponential, a1 * 0.001, t1 ) );
-        if( model == 3 || model == 4 ) terms.push_back( psd( StationPostSeismicFunction::exponential, a2 * 0.001, t2 ) );
-        if( model == 5 ) terms.push_back( psd( StationPostSeismicFunction::logarithmic, a2 * 0.001, t2 ) );
+        if( model == 1 || model == 3 || model == 5 )
+        {
+            terms.push_back( psd( StationPostSeismicFunction::logarithmic, a1 * 0.001, t1 ) );
+        }
+        if( model == 2 || model == 4 )
+        {
+            terms.push_back( psd( StationPostSeismicFunction::exponential, a1 * 0.001, t1 ) );
+        }
+        if( model == 3 || model == 4 )
+        {
+            terms.push_back( psd( StationPostSeismicFunction::exponential, a2 * 0.001, t2 ) );
+        }
+        if( model == 5 )
+        {
+            terms.push_back( psd( StationPostSeismicFunction::logarithmic, a2 * 0.001, t2 ) );
+        }
         StationHistoryTrajectory trajectory( { linear( ) }, terms, {}, metadata( ) );
 
         // The original LOG/EXP routine loses relative accuracy near zero. This
@@ -270,7 +288,9 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionVelocityIdsAndStrictMetadata )
 
     // There is no V identifier 6: the SSC's complete solution 6 velocity is used.
     for( int c = 0; c < 3; ++c )
+    {
         BOOST_CHECK_EQUAL( last.velocityMetresPerJulianYear[ c ], *last.source.velocityMetresPerSecond[ c ] * 31557600.0 );
+    }
     const auto event = trajectory->getPostSeismicTerms( ).front( ).eventTime;
     auto query = getIgnNominalUtcStationTimeFromTai( event.tai + 100.0, 1.0 );
     BOOST_CHECK( trajectory->getState( query ).allFinite( ) );
@@ -327,7 +347,10 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
         for( const auto& entry : deformation.parameters )
         {
             const auto& amplitude = entry.second;
-            if( amplitude.key.site.siteCode != siteCode || amplitude.type[ 0 ] != 'A' ) continue;
+            if( amplitude.key.site.siteCode != siteCode || amplitude.type[ 0 ] != 'A' )
+            {
+                continue;
+            }
             const double tau = deformation.parameters.at( entry.first + 1 ).originalValue;
             const auto event = getIgnNominalUtcStationTime( *amplitude.referenceEpoch.civilUtc );
             const double dt = static_cast< double >( ( time.mjdDay - event.mjdDay + time.mjdFraction - event.mjdFraction ) / 365.25L );
@@ -348,15 +371,27 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
                 finishedEstimates = true;
             }
             if( inEstimates )
+            {
                 estimates.push_back( line );
+            }
             else if( finishedEstimates )
+            {
                 suffix += line + "\n";
+            }
             else
+            {
                 prefix += line + "\n";
-            if( line == "+SOLUTION/ESTIMATE" ) inEstimates = true;
+            }
+            if( line == "+SOLUTION/ESTIMATE" )
+            {
+                inEstimates = true;
+            }
         }
         std::reverse( estimates.begin( ), estimates.end( ) );
-        for( const auto& estimate : estimates ) prefix += estimate + "\n";
+        for( const auto& estimate : estimates )
+        {
+            prefix += estimate + "\n";
+        }
         std::istringstream reorderedStream( prefix + suffix );
         auto reordered = readSinexStationHistory( reorderedStream, "reversed published estimates" );
         reordered.frame = deformation.frame;
@@ -383,7 +418,10 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
     for( const auto& entry : seasons.parameters )
     {
         const auto& p = entry.second;
-        if( p.key.solutionId != "4" ) continue;
+        if( p.key.solutionId != "4" )
+        {
+            continue;
+        }
         const double angle = 2 * std::acos( -1.0 ) * ( p.type[ 1 ] - '0' ) * 59.5 / 366;
         const double function = p.type.substr( 2, 3 ) == "COS" ? std::cos( angle ) : std::sin( angle );
         expected += basis.col( std::string( "ENU" ).find( p.type.back( ) ) ) * ( p.originalValue * function );
@@ -430,7 +468,10 @@ BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMoti
     closeVector( trajectory->getPosition( time ), b.positionMetres, 1e-30 );
     auto motion = std::make_shared< StationHistoryMotionModel >( trajectory, [ time ]( const auto&, bool rates ) {
         auto output = time;
-        if( rates ) throw std::runtime_error( "manufactured position-only source callback" );
+        if( rates )
+        {
+            throw std::runtime_error( "manufactured position-only source callback" );
+        }
         return output;
     } );
     auto station = std::make_shared< GroundStationState >(
@@ -439,7 +480,10 @@ BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMoti
     BOOST_CHECK_THROW( station->getCartesianStateInTime( 0.0, "Earth" ), std::runtime_error );
     const auto settings = simulation_setup::stationHistoryGroundStationMotionSettings( trajectory, [ time ]( const auto&, bool rates ) {
         auto output = time;
-        if( !rates ) output.mjdRate.reset( );
+        if( !rates )
+        {
+            output.mjdRate.reset( );
+        }
         return output;
     } );
     const auto factoryStation = simulation_setup::createGroundStationState( std::make_shared< simulation_setup::Body >( ),

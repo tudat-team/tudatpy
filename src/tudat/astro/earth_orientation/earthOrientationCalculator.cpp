@@ -12,7 +12,6 @@
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
-#include "tudat/astro/earth_orientation/earthOrientationRates.h"
 
 namespace tudat
 {
@@ -36,7 +35,10 @@ Eigen::Quaterniond calculateRotationFromCirsToGcrs( const double celestialPoleXP
     double yParameterSquared = celestialPoleYPosition * celestialPoleYPosition;
     double xyCrossTerm = celestialPoleXPosition * celestialPoleYPosition;
     const double zSquared = 1.0 - xParameterSquared - yParameterSquared;
-    if( !std::isfinite( zSquared ) || zSquared <= 0.0 ) throw std::invalid_argument( "Invalid celestial pole coordinates" );
+    if( !std::isfinite( zSquared ) || zSquared <= 0.0 )
+    {
+        throw std::invalid_argument( "Invalid celestial pole coordinates" );
+    }
     double parameterA = 1.0 / ( 1.0 + std::sqrt( zSquared ) );
 
     // Set up rotation.
@@ -77,7 +79,9 @@ double taiRateWithRespectToUtc( const Time& utc )
                    &day,
                    &fraction ) ||
         iauDat( year, month, day, 0.0, &dat0 ) != 0 || iauDat( year, month, day, 0.5, &datHalf ) != 0 )
+    {
         throw std::runtime_error( "UTC rotation rate outside supported SOFA DAT dates" );
+    }
     const double driftPerDay = 2.0 * ( datHalf - dat0 );
     if( utc.secondsSinceMidnight( ) == 0.0L )
     {
@@ -85,24 +89,30 @@ double taiRateWithRespectToUtc( const Time& utc )
         iauCal2jd( year, month, day, &origin, &mjd );
         iauJd2cal( origin, mjd - 1.0, &year, &month, &day, &fraction );
         if( iauDat( year, month, day, 0.0, &previous0 ) != 0 || iauDat( year, month, day, 0.5, &previousHalf ) != 0 )
+        {
             throw std::runtime_error( "UTC rotation rate has no supported left-hand clock" );
+        }
         const double previousDrift = 2.0 * ( previousHalf - previous0 );
         if( std::abs( dat0 - previous0 - previousDrift ) > 1e-12 || std::abs( driftPerDay - previousDrift ) > 1e-12 )
+        {
             throw std::runtime_error( "UTC rotation rate is undefined at a UTC offset or drift boundary; use TAI/TT" );
+        }
     }
     return 1.0 + driftPerDay / 86400.0;
 }
 
 }  // namespace
 
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAnglesAndRates& orientation )
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAngles& orientation )
 {
     const double x = orientation.angles[ 0 ], y = orientation.angles[ 1 ], s = orientation.angles[ 2 ];
     const double dx = orientation.angleRates[ 0 ], dy = orientation.angleRates[ 1 ], ds = orientation.angleRates[ 2 ];
     const double z = std::sqrt( 1.0 - x * x - y * y );
     if( !orientation.angles.allFinite( ) || !orientation.angleRates.allFinite( ) || !std::isfinite( z ) || z <= 0.0 ||
         !std::isfinite( orientation.dTtDInput ) || !std::isfinite( orientation.dUt1DInput ) )
+    {
         throw std::invalid_argument( "Invalid complete Earth rotation derivative inputs" );
+    }
     const double a = 1.0 / ( 1.0 + z );
     const double da = a * a * ( x * dx + y * dy ) / z;
     Eigen::Matrix3d b, db;
@@ -141,7 +151,7 @@ EarthOrientationAngles EarthOrientationAnglesCalculator::getRotationAnglesAndTim
 
     if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
     {
-        // Clock epochs are formed in Time; TT gives the celestial model and UT1 the sidereal angle.
+        // TAI, TT and UT1 are computed as Time. TT is used for precession-nutation, UT1 for the Earth rotation angle.
         result.tai = terrestrialTimeScaleConverter_->getTaiTime( scale, input );
         result.tt = basic_astrodynamics::convertTAItoTT( result.tai );
         result.ut1 = terrestrialTimeScaleConverter_->getUt1FromTai( result.tai );
@@ -155,7 +165,7 @@ EarthOrientationAngles EarthOrientationAnglesCalculator::getRotationAnglesAndTim
     }
     else
     {
-        // Models with custom daily interpolators use their own clock conversion.
+        // Models with user-supplied daily interpolators: compute the angles as in earlier versions of Tudat.
         const auto angles = getRotationAnglesFromItrsToGcrs< Time >( input, scale );
 
         result.tt = terrestrialTimeScaleConverter_->getCurrentTime< Time >( scale, basic_astrodynamics::tt_scale, input );
@@ -167,36 +177,41 @@ EarthOrientationAngles EarthOrientationAnglesCalculator::getRotationAnglesAndTim
 }
 
 // Return angles and their derivatives with respect to the input scale's seconds.
-EarthOrientationAnglesAndRates EarthOrientationAnglesCalculator::getRotationAnglesAndRatesFromItrsToGcrs(
+EarthOrientationAngles EarthOrientationAnglesCalculator::getRotationAnglesAndRatesFromItrsToGcrs(
         const Time& input,
         const basic_astrodynamics::TimeScales inputScale )
 {
     using namespace basic_astrodynamics;
 
-    // Rates differentiate the selected daily EOP interpolant, which custom-interpolator models do not provide.
+    // The rates require the derivatives of the interpolated EOP data, which user-supplied interpolators do not provide.
     if( !terrestrialTimeScaleConverter_->usesContinuousEop( ) )
     {
         throw std::runtime_error( "Earth orientation rates require a model constructed from EOP data" );
     }
 
-    EarthOrientationAnglesAndRates result;
-    static_cast< EarthOrientationAngles& >( result ) = getRotationAnglesAndTimesFromItrsToGcrs( input, inputScale );
+    EarthOrientationAngles result = getRotationAnglesAndTimesFromItrsToGcrs( input, inputScale );
     const auto ut1 = terrestrialTimeScaleConverter_->getUt1FromTaiWithRate( result.tai );
     const auto polarEvaluator = polarMotionCalculator_->getEarthOrientationDataEvaluator( );
     const auto cpoEvaluator = precessionNutationCalculator_->getEarthOrientationDataEvaluator( );
-    if( !polarEvaluator || !cpoEvaluator ) throw std::runtime_error( "Inconsistent continuous Earth orientation models" );
+    if( !polarEvaluator || !cpoEvaluator )
+    {
+        throw std::runtime_error( "Inconsistent continuous Earth orientation models" );
+    }
     const auto polar = polarEvaluator->evaluate( result.tai );
     const auto cpo = cpoEvaluator->evaluate( result.tai, true );
     if( !polar.polarMotionRate || !cpo.celestialPoleOffsetRate )
+    {
         throw std::runtime_error( "Selected polar motion or celestial pole interpolation rate is unavailable" );
+    }
     const auto nominal = precessionNutationCalculator_->getNominalPositionAndRate( result.tt );
     result.angleRates.head< 3 >( ) = nominal.second;
     result.angleRates.head< 2 >( ) += *cpo.celestialPoleOffsetRate;
     result.angleRates.tail< 2 >( ) = *polar.polarMotionRate;
     const auto shortPeriodPolar = polarMotionCalculator_->getShortPeriodPolarMotionCalculator( );
     if( shortPeriodPolar )
-        result.angleRates.tail< 2 >( ) +=
-                calculateShortPeriodCorrectionRate< Eigen::Vector2d >( shortPeriodPolar, result.tt, result.ut1, ut1.dUt1DTai );
+    {
+        result.angleRates.tail< 2 >( ) += shortPeriodPolar->getCorrectionRate( result.tt, result.ut1, ut1.dUt1DTai );
+    }
     result.dTaiDInput = 1.0;
     switch( inputScale )
     {
@@ -220,7 +235,9 @@ EarthOrientationAnglesAndRates EarthOrientationAnglesCalculator::getRotationAngl
     result.angleRates *= result.dTaiDInput;
     if( !result.angleRates.allFinite( ) || !std::isfinite( result.dTaiDInput ) || !std::isfinite( result.dUt1DInput ) ||
         result.dTaiDInput <= 0.0 || result.dUt1DInput <= 0.0 )
+    {
         throw std::runtime_error( "Invalid Earth orientation rate" );
+    }
     return result;
 }
 

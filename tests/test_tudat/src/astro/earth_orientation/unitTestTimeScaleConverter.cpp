@@ -374,10 +374,12 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
     }
 }
 
-//! Strict factories preserve raw coverage; historical UT1 is an explicit policy.
+//! UT1 before the start of the EOP data is rejected, unless historical Delta T is used (the default).
 BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
 {
-    const auto strict = createDefaultTimeConverter( );
+    EarthOrientationEvaluationSettings strictSettings;
+    strictSettings.historicalUt1 = HistoricalUt1Policy::reject;
+    const auto strict = createDefaultTimeConverter( nullptr, false, strictSettings );
     const std::vector< basic_astrodynamics::DateTime > utcDates = { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
                                                                     basic_astrodynamics::DateTime( 1962, 1, 1, 0, 1, 0.0 ) };
 
@@ -395,9 +397,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
     BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0 ), std::runtime_error );
     BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0E-3 ), std::runtime_error );
 
-    EarthOrientationEvaluationSettings historicalSettings;
-    historicalSettings.historicalUt1 = HistoricalUt1Policy::delta_t;
-    const auto historical = createDefaultTimeConverter( nullptr, false, historicalSettings );
+    const auto historical = createDefaultTimeConverter( nullptr, false );
 
     // Exact knot in the separately installed historical Delta-T table.
     const Time tt = Time( -39.0 * physical_constants::JULIAN_YEAR );

@@ -202,11 +202,16 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
             case station_history_motion: {
                 const auto settings =
                         std::dynamic_pointer_cast< StationHistoryGroundStationMotionSettings >( stationMotionSettings.at( i ) );
-                if( !settings ) throw std::runtime_error( "Incompatible station history motion settings" );
+                if( !settings )
+                {
+                    throw std::runtime_error( "Incompatible station history motion settings" );
+                }
                 std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
                 if( const auto rotation =
                             std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( body->getRotationalEphemeris( ) ) )
+                {
                     converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+                }
                 currentStationMotionModel = std::make_shared< ground_stations::StationHistoryMotionModel >(
                         settings->trajectory_, settings->timeFunction_, converter );
                 break;
@@ -286,31 +291,48 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 };
 
                 auto rotation = body->getRotationalEphemeris( );
-                if( !rotation ) throw std::invalid_argument( "Relativistic station correction requires a rotation model." );
+                if( !rotation )
+                {
+                    throw std::invalid_argument( "Relativistic station correction requires a rotation model." );
+                }
                 const auto sameAxes = []( const std::string& first, const std::string& second ) {
                     const std::set< std::string > icrfAxes{ "GCRS", "ICRF", "J2000" };
                     return first == second || ( icrfAxes.count( first ) && icrfAxes.count( second ) );
                 };
                 if( !sameAxes( rotation->getBaseFrameOrientation( ), bodies.getFrameOrientation( ) ) )
+                {
                     throw std::invalid_argument( "Relativistic station rotation base axes must match the bodies environment axes." );
+                }
                 const auto validateStateAxes = [ & ]( const std::shared_ptr< Body >& source ) {
                     if( source->getEphemeris( ) &&
                         !sameAxes( source->getEphemeris( )->getReferenceFrameOrientation( ), bodies.getFrameOrientation( ) ) )
+                    {
                         throw std::invalid_argument(
                                 "Relativistic station barycentric ephemeris axes must match the bodies environment axes." );
+                    }
                 };
                 validateStateAxes( body );
                 std::vector< ground_stations::RelativisticStationExternalBody > externalBodies;
                 std::set< std::shared_ptr< Body > > selectedExternalBodies;
                 for( const auto& name : relativisticStationMotionSettings->externalBodyNames_ )
                 {
-                    if( !bodies.count( name ) ) throw std::invalid_argument( "Relativistic station external body not found: " + name );
+                    if( !bodies.count( name ) )
+                    {
+                        throw std::invalid_argument( "Relativistic station external body not found: " + name );
+                    }
                     const auto external = bodies.at( name );
                     if( external == body )
+                    {
                         throw std::invalid_argument( "Relativistic external potential must exclude the station host: " + name );
+                    }
                     if( !selectedExternalBodies.insert( external ).second )
+                    {
                         throw std::invalid_argument( "Duplicate external body in relativistic station potential: " + name );
-                    if( !external->getGravityFieldModel( ) ) throw std::invalid_argument( "Relativistic external body lacks GM: " + name );
+                    }
+                    if( !external->getGravityFieldModel( ) )
+                    {
+                        throw std::invalid_argument( "Relativistic external body lacks GM: " + name );
+                    }
                     validateStateAxes( external );
                     externalBodies.push_back( { name,
                                                 barycentricStateFunction( external ),

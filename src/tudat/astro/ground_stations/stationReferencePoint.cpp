@@ -18,7 +18,10 @@ namespace
 using namespace input_output;
 void requireValidReferencePoint( bool condition, const std::string& message )
 {
-    if( !condition ) throw std::runtime_error( "Station reference point: " + message );
+    if( !condition )
+    {
+        throw std::runtime_error( "Station reference point: " + message );
+    }
 }
 bool sameIdentity( const StationReferencePointIdentity& a, const StationReferencePointIdentity& b )
 {
@@ -49,14 +52,18 @@ void sortAndCheck( std::vector< Record >& records )
     {
         const auto& interval = records[ i ].validity;
         for( const auto& boundary : { interval.startTai, interval.endTai } )
+        {
             requireValidReferencePoint( !boundary || std::isfinite( static_cast< long double >( *boundary ) ),
                                         "nonfinite validity endpoint" );
+        }
         requireValidReferencePoint( !interval.startTai || !interval.endTai || *interval.startTai < *interval.endTai,
                                     "empty or reversed interval" );
         if( i )
+        {
             requireValidReferencePoint(
                     records[ i - 1 ].validity.endTai && interval.startTai && *records[ i - 1 ].validity.endTai == *interval.startTai,
                     "history contains gaps or overlaps" );
+        }
     }
 }
 Eigen::Matrix3d localBasis( double latitude, double longitude )
@@ -93,7 +100,10 @@ std::optional< Time > boundary( const SinexEpoch& epoch,
                                 const SinexStationHistory& product,
                                 const std::optional< SinexEquipmentHeaderTimeContext >& context )
 {
-    if( epoch.meaning == ( start ? SinexEpochMeaning::openStart : SinexEpochMeaning::openEnd ) ) return std::nullopt;
+    if( epoch.meaning == ( start ? SinexEpochMeaning::openStart : SinexEpochMeaning::openEnd ) )
+    {
+        return std::nullopt;
+    }
     const SinexEpoch* resolved = &epoch;
     if( epoch.meaning == ( start ? SinexEpochMeaning::headerStartDefault : SinexEpochMeaning::headerEndDefault ) )
     {
@@ -118,9 +128,14 @@ std::optional< Time > boundary( const SinexEpoch& epoch,
 }
 std::shared_ptr< StationReferencePointTrajectory > pointSource( const std::shared_ptr< StationHistoryTrajectory >& source )
 {
-    if( const auto point = std::dynamic_pointer_cast< StationReferencePointTrajectory >( source ) ) return point;
+    if( const auto point = std::dynamic_pointer_cast< StationReferencePointTrajectory >( source ) )
+    {
+        return point;
+    }
     if( const auto transformed = std::dynamic_pointer_cast< TransformedStationHistoryTrajectory >( source ) )
+    {
         return pointSource( transformed->getSourceTrajectory( ) );
+    }
     return nullptr;
 }
 }  // namespace
@@ -157,13 +172,18 @@ StationReferencePointOffsetHistory::StationReferencePointOffsetHistory( std::vec
     offsets_( std::move( offsets ) ), geometry_( std::move( geometry ) )
 {
     sortAndCheck( offsets_ );
-    if( geometry_ ) checkGeometry( *geometry_ );
+    if( geometry_ )
+    {
+        checkGeometry( *geometry_ );
+    }
     for( const auto& offset : offsets_ )
     {
         for( const auto& id : { offset.from, offset.to } )
+        {
             requireValidReferencePoint(
                     !id.site.siteCode.empty( ) && !id.site.pointCode.empty( ) && !id.domesId.empty( ) && !id.name.empty( ),
                     "incomplete reference-point identity" );
+        }
         requireValidReferencePoint( sameIdentity( offset.from, offsets_.front( ).from ) &&
                                             sameIdentity( offset.to, offsets_.front( ).to ) && offset.from.site == offset.to.site &&
                                             offset.from.domesId == offset.to.domesId,
@@ -187,22 +207,32 @@ StationReferencePointOffsetHistory::StationReferencePointOffsetHistory( std::vec
         requireValidReferencePoint( !offset.stateFunction || offset.positionFunction,
                                     "time-dependent state callback also needs a position callback" );
         if( offset.to.kind == StationReferencePointKind::calibratedInstrumentPoint )
+        {
             requireValidReferencePoint( !offset.calibrationId.empty( ) && !offset.signal.empty( ),
                                         "calibrated reference point requires explicit calibration and signal" );
+        }
     }
 }
 const StationReferencePointOffset& StationReferencePointOffsetHistory::getActiveOffset( const Time& tai ) const
 {
     requireValidReferencePoint( std::isfinite( static_cast< long double >( tai ) ), "nonfinite physical query epoch" );
     for( const auto& offset : offsets_ )
-        if( contains( offset.validity, tai ) ) return offset;
+    {
+        if( contains( offset.validity, tai ) )
+        {
+            return offset;
+        }
+    }
     throw std::runtime_error( "Station reference point requested outside offset/equipment validity" );
 }
 Eigen::Vector3d StationReferencePointOffsetHistory::toTerrestrial( const Eigen::Vector3d& components,
                                                                    StationReferencePointOffsetBasis basis ) const
 {
     requireValidReferencePoint( components.allFinite( ), "nonfinite reference-point vector/rate" );
-    if( basis == StationReferencePointOffsetBasis::xyz ) return components;
+    if( basis == StationReferencePointOffsetBasis::xyz )
+    {
+        return components;
+    }
     return geometry_->enuToTerrestrial * Eigen::Vector3d( components.z( ), components.y( ), components.x( ) );
 }
 Eigen::Vector3d StationReferencePointOffsetHistory::getPositionCorrection( const StationHistoryTime& time ) const
@@ -225,7 +255,9 @@ Eigen::Vector6d StationReferencePointOffsetHistory::getStateCorrection( const St
                                     "position/state calibration callbacks disagree" );
     }
     else
+    {
         state.head< 3 >( ) = offset.componentsMetres;
+    }
     state.head< 3 >( ) = toTerrestrial( state.head< 3 >( ), offset.basis );
     state.tail< 3 >( ) = toTerrestrial( state.tail< 3 >( ), offset.basis );
     return state;
@@ -345,14 +377,19 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
     {
         requireValidReferencePoint( !context->source.empty( ), "explicit header-time context requires provenance" );
         for( const auto& value : { context->startTai, context->endTai } )
+        {
             requireValidReferencePoint( !value || std::isfinite( static_cast< long double >( *value ) ),
                                         "nonfinite equipment header context" );
+        }
         requireValidReferencePoint( !context->startTai || !context->endTai || *context->startTai < *context->endTai,
                                     "reversed equipment header context" );
     }
     std::set< std::string > domes;
     const auto sites = equipment.sites.equal_range( key );
-    for( auto it = sites.first; it != sites.second; ++it ) domes.insert( it->second.domesId );
+    for( auto it = sites.first; it != sites.second; ++it )
+    {
+        domes.insert( it->second.domesId );
+    }
     requireValidReferencePoint( domes.count( from.domesId ) && ( domesSelector ? *domesSelector == from.domesId : domes.size( ) == 1 ),
                                 "missing or ambiguous equipment DOMES association; explicit matching selector required" );
     const StationReferencePointIdentity to{ from.site, from.domesId, StationReferencePointKind::antennaReferencePoint, std::move( name ) };
@@ -367,23 +404,29 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
     std::vector< Eccentricity > eccentricities;
     std::vector< Antenna > antennas;
     for( const auto& record : equipment.eccentricities )
+    {
         if( record.key.site == key )
         {
             requireValidReferencePoint( record.observationTechnique == "P",
                                         "this factory interprets GNSS marker-to-ARP eccentricity only" );
             if( record.basis == SinexEccentricityBasis::xyz )
+            {
                 requireValidReferencePoint( equipment.frame == meta.frame,
                                             "XYZ eccentricity requires an explicitly matching coordinate frame" );
+            }
             eccentricities.push_back(
                     { record, { boundary( record.start, true, equipment, context ), boundary( record.end, false, equipment, context ) } } );
         }
+    }
     for( const auto& record : equipment.equipmentHistories )
+    {
         if( record.key.site == key && record.kind == SinexEquipmentKind::antenna )
         {
             requireValidReferencePoint( record.observationTechnique == "P", "GNSS antenna equipment association required" );
             antennas.push_back(
                     { record, { boundary( record.start, true, equipment, context ), boundary( record.end, false, equipment, context ) } } );
         }
+    }
     sortAndCheck( eccentricities );
     sortAndCheck( antennas );
     requireValidReferencePoint( eccentricities.front( ).validity.startTai == antennas.front( ).validity.startTai &&
@@ -391,7 +434,9 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
                                 "antenna/eccentricity coverage differs" );
     std::vector< StationReferencePointOffset > offsets;
     for( const auto& eccentricity : eccentricities )
+    {
         for( const auto& antenna : antennas )
+        {
             if( overlap( eccentricity.validity, antenna.validity ) )
             {
                 requireValidReferencePoint( eccentricity.source.key.solutionId == antenna.source.key.solutionId,
@@ -403,7 +448,10 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
                 record.validity = intersection( eccentricity.validity, antenna.validity );
                 record.basis = eccentricity.source.basis == SinexEccentricityBasis::une ? StationReferencePointOffsetBasis::une
                                                                                         : StationReferencePointOffsetBasis::xyz;
-                for( int i = 0; i < 3; ++i ) record.componentsMetres[ i ] = eccentricity.source.componentsMetres[ i ];
+                for( int i = 0; i < 3; ++i )
+                {
+                    record.componentsMetres[ i ] = eccentricity.source.componentsMetres[ i ];
+                }
                 record.equipmentType = antenna.source.equipmentType;
                 record.equipmentSerialNumber = antenna.source.serialNumber;
                 record.provenance = eccentricity.source.provenance;
@@ -411,6 +459,8 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
                 record.headerTimeContext = context;
                 offsets.push_back( record );
             }
+        }
+    }
     auto result =
             createStationReferencePointTrajectory( marker, std::make_shared< StationReferencePointOffsetHistory >( offsets, geometry ) );
     return result;

@@ -23,11 +23,17 @@ input_output::EarthOrientationData loadEarthOrientationFile( const std::string& 
 {
     input_output::EarthOrientationFormat inputFormat;
     if( format == "C04" )
+    {
         inputFormat = input_output::EarthOrientationFormat::c04;
+    }
     else if( format == "finals2000A" )
+    {
         inputFormat = input_output::EarthOrientationFormat::finals2000a;
+    }
     else
+    {
         throw std::runtime_error( "Unsupported Earth orientation format: " + format );
+    }
     return input_output::readEarthOrientationData( fileName, inputFormat );
 }
 }  // namespace
@@ -50,7 +56,10 @@ EOPReader::EOPReader( const input_output::EarthOrientationData& data ): rawData_
         const auto& record = entry.second;
         cipInItrs[ mjd ] = Eigen::Vector2d( record.polarMotion[ 0 ], record.polarMotion[ 1 ] );
         ut1MinusUtc[ mjd ] = record.ut1MinusUtc;
-        if( record.lengthOfDay ) lengthOfDayOffset[ mjd ] = *record.lengthOfDay;
+        if( record.lengthOfDay )
+        {
+            lengthOfDayOffset[ mjd ] = *record.lengthOfDay;
+        }
         if( record.celestialPoleOffsets )
         {
             cipInGcrsCorrection[ mjd ] = Eigen::Vector2d( ( *record.celestialPoleOffsets )[ 0 ], ( *record.celestialPoleOffsets )[ 1 ] );

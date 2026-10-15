@@ -45,13 +45,19 @@ std::shared_ptr< StationHistoryTrajectory > trajectory( const Eigen::Vector6d& s
     linear.positionMetres = state.head< 3 >( );
     linear.velocityMetresPerJulianYear = state.tail< 3 >( ) * 31557600.0;
     std::vector< StationSeasonalTerm > terms;
-    if( seasonal ) terms.push_back( { "1", 1, Eigen::Vector3d( 0.01, -0.02, 0.03 ), Eigen::Vector3d::Zero( ), {} } );
+    if( seasonal )
+    {
+        terms.push_back( { "1", 1, Eigen::Vector3d( 0.01, -0.02, 0.03 ), Eigen::Vector3d::Zero( ), {} } );
+    }
     return std::make_shared< StationHistoryTrajectory >(
             std::vector< StationHistoryLinearSolution >{ linear }, std::vector< StationPostSeismicTerm >{}, terms, meta );
 }
 void closeState( const Eigen::Vector6d& actual, const Eigen::Vector6d& expected )
 {
-    for( int i = 0; i < 6; ++i ) BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], i < 3 ? 2e-9 : 2e-17 );
+    for( int i = 0; i < 6; ++i )
+    {
+        BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], i < 3 ? 2e-9 : 2e-17 );
+    }
 }
 std::shared_ptr< TransformedStationHistoryTrajectory > transform( std::shared_ptr< StationHistoryTrajectory > source,
                                                                   const std::string& target = "ITRF93" )
@@ -68,7 +74,10 @@ BOOST_AUTO_TEST_CASE( catalogueAdapterIndependentPublishedForwardAndInverseFixtu
     int rows = 0;
     for( const auto& fixture : itrfReferenceFixtures )
     {
-        if( fixture.catalogue != 2020 || fixture.year != 2025.25 ) continue;
+        if( fixture.catalogue != 2020 || fixture.year != 2025.25 )
+        {
+            continue;
+        }
         const auto query = time( fixture.year, fixture.yearRate );
         const auto forward = transform( trajectory( input, query ), fixture.frame );
         closeState( forward->getState( query ), Eigen::Map< const Eigen::Vector6d >( fixture.forward ) );

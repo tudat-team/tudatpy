@@ -20,9 +20,17 @@ Eigen::Vector3d vector( const std::array< double, 3 >& values )
 }
 bool sameScope( const StationLoadingMetadata& first, const StationLoadingMetadata& second )
 {
-    if( first.components.empty( ) ) return false;
+    if( first.components.empty( ) )
+    {
+        return false;
+    }
     for( const auto signal : { first.diurnal, first.semidiurnal, first.annual, first.semiannual, first.mean, first.trend } )
-        if( signal == StationLoadingSignalPresence::unknown ) return false;
+    {
+        if( signal == StationLoadingSignalPresence::unknown )
+        {
+            return false;
+        }
+    }
     return std::set< StationLoadingComponent >( first.components.begin( ), first.components.end( ) ) ==
             std::set< StationLoadingComponent >( second.components.begin( ), second.components.end( ) ) &&
             first.diurnal == second.diurnal && first.semidiurnal == second.semidiurnal && first.annual == second.annual &&
@@ -41,21 +49,36 @@ StationLoadingDeformation::StationLoadingDeformation( const input_output::Statio
     using namespace input_output;
     validateStationLoadingData( data_ );
     if( !std::isfinite( settings_.maximumGapSeconds ) || settings_.maximumGapSeconds <= 0 )
+    {
         throw std::invalid_argument( "Loading maximum interpolation gap must be positive and finite" );
+    }
     if( settings_.spatialSelection != StationLoadingSpatialSelection::explicitBindings &&
         settings_.spatialSelection != StationLoadingSpatialSelection::withinProviderRadius )
+    {
         throw std::invalid_argument( "Unknown loading spatial-selection policy" );
+    }
     if( settings_.spatialSelection == StationLoadingSpatialSelection::explicitBindings && settings_.stationBindings.empty( ) )
+    {
         throw std::invalid_argument( "Loading requires explicit station/provider bindings or requested spatial selection" );
+    }
     if( settings_.spatialSelection == StationLoadingSpatialSelection::withinProviderRadius && !settings_.stationBindings.empty( ) )
+    {
         throw std::invalid_argument( "Spatial loading selection cannot silently combine with explicit bindings" );
+    }
     for( const auto& binding : settings_.stationBindings )
-        if( !data_.sites.count( binding.second ) ) throw std::invalid_argument( "Loading binding names an undeclared provider label" );
+    {
+        if( !data_.sites.count( binding.second ) )
+        {
+            throw std::invalid_argument( "Loading binding names an undeclared provider label" );
+        }
+    }
     if( data_.basis == StationLoadingBasis::unspecified || data_.metadata.referenceFrame.empty( ) ||
         data_.metadata.referenceOrigin == StationLoadingOrigin::unspecified || data_.metadata.originDefinition.empty( ) ||
         settings_.outputOriginDefinition.empty( ) )
+    {
         throw std::invalid_argument(
                 "Loading basis, Cartesian reference frame, source origin and requested output origin must be explicit" );
+    }
     grid_ = prepareGrid( data_ );
     for( const auto& entry : data_.sites )
     {
@@ -65,7 +88,9 @@ StationLoadingDeformation::StationLoadingDeformation( const input_output::Statio
             const auto position = vector( entry.second.cartesianPosition );
             const double norm = position.norm( ), horizontal = std::hypot( position.x( ), position.y( ) );
             if( norm == 0 || horizontal == 0 )
+            {
                 throw std::invalid_argument( "Provider radial/east/north axes are undefined at geocentre/pole" );
+            }
             basis.col( 0 ) = position / norm;
             basis.col( 1 ) = Eigen::Vector3d( -position.y( ), position.x( ), 0 ) / horizontal;
             basis.col( 2 ) = basis.col( 0 ).cross( basis.col( 1 ) );
@@ -86,12 +111,16 @@ StationLoadingDeformation::StationLoadingDeformation( const input_output::Statio
             translation.series.metadata.referenceFrame != data_.metadata.referenceFrame ||
             translation.series.basis != StationLoadingBasis::cartesian || translation.series.sites.size( ) != 1 ||
             !sameScope( data_.metadata, translation.series.metadata ) )
+        {
             throw std::invalid_argument(
                     "Loading origin translation must match both definitions, Cartesian axes and the complete component/signal scope" );
+        }
         translationGrid_ = prepareGrid( translation.series );
     }
     else if( settings_.outputOriginDefinition != data_.metadata.originDefinition )
+    {
         throw std::invalid_argument( "Loading origin change requires a matching explicit Cartesian translation series" );
+    }
 }
 
 StationLoadingDeformation::PreparedGrid StationLoadingDeformation::prepareGrid( const input_output::StationLoadingData& data ) const
@@ -101,7 +130,9 @@ StationLoadingDeformation::PreparedGrid StationLoadingDeformation::prepareGrid( 
     {
         const long long hours = ( static_cast< long long >( source.modifiedJulianDay ) - 51544LL ) * 24LL - 12LL;
         if( hours < std::numeric_limits< int >::min( ) || hours > std::numeric_limits< int >::max( ) )
+        {
             throw std::invalid_argument( "Loading source epoch is outside the precise Time range" );
+        }
         const Time time( static_cast< int >( hours ), source.secondsOfDay );
         Time tai;
         switch( data.timeScale )
@@ -122,12 +153,16 @@ StationLoadingDeformation::PreparedGrid StationLoadingDeformation::prepareGrid( 
                 throw std::invalid_argument( "Unsupported source loading clock" );
         }
         if( !result.tai.empty( ) && tai <= result.tai.back( ) )
+        {
             throw std::invalid_argument( "Source loading epochs are not increasing on continuous TAI" );
+        }
         const Time tdb = data.timeScale == input_output::StationLoadingTimeScale::tdb
                 ? time
                 : timeConverter_->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
         if( !result.tdb.empty( ) && tdb <= result.tdb.back( ) )
+        {
             throw std::invalid_argument( "Source loading epochs are not distinguishable on the precise TDB input axis" );
+        }
         result.tai.push_back( tai );
         result.tdb.push_back( tdb );
     }
@@ -137,7 +172,10 @@ StationLoadingDeformation::PreparedGrid StationLoadingDeformation::prepareGrid( 
 const input_output::StationLoadingSite& StationLoadingDeformation::selectSite( const Eigen::Vector3d& position,
                                                                                const std::string& stationId ) const
 {
-    if( !position.allFinite( ) ) throw std::invalid_argument( "Loading target coordinates must be finite" );
+    if( !position.allFinite( ) )
+    {
+        throw std::invalid_argument( "Loading target coordinates must be finite" );
+    }
     const input_output::StationLoadingSite* selected = nullptr;
     const auto inRadius = [ & ]( const auto& site ) {
         return ( position - vector( site.cartesianPosition ) ).norm( ) <= site.validityRadiusMetres;
@@ -146,18 +184,33 @@ const input_output::StationLoadingSite& StationLoadingDeformation::selectSite( c
     {
         const auto binding = settings_.stationBindings.find( stationId );
         if( binding == settings_.stationBindings.end( ) )
+        {
             throw std::out_of_range( "No explicit loading binding for this environment station ID" );
+        }
         selected = &data_.sites.at( binding->second );
-        if( !inRadius( *selected ) ) throw std::out_of_range( "Loading target is outside the bound provider validity radius" );
+        if( !inRadius( *selected ) )
+        {
+            throw std::out_of_range( "Loading target is outside the bound provider validity radius" );
+        }
     }
     else
+    {
         for( const auto& entry : data_.sites )
+        {
             if( inRadius( entry.second ) )
             {
-                if( selected ) throw std::invalid_argument( "Loading spatial match is ambiguous within provider validity radii" );
+                if( selected )
+                {
+                    throw std::invalid_argument( "Loading spatial match is ambiguous within provider validity radii" );
+                }
                 selected = &entry.second;
             }
-    if( !selected ) throw std::out_of_range( "No loading provider point covers this target" );
+        }
+    }
+    if( !selected )
+    {
+        throw std::out_of_range( "No loading provider point covers this target" );
+    }
     return *selected;
 }
 

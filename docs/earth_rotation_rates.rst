@@ -26,8 +26,8 @@ The matrix product, TT argument and TIO locator follow
 Clocks, knots and availability
 -----------------------------
 
-``EarthOrientationAngles`` holds the common TAI, TT, UT1 and five small angles.
-``EarthOrientationAnglesAndRates`` adds their input-clock derivatives. The
+``EarthOrientationAngles`` holds TAI, TT, UT1, the five small angles and, when
+requested, their derivatives with respect to the input time scale. The
 original double input is canonicalized through ``getTaiTime`` before conversion
 to ``Time``; TT and UT1 then retain extended precision throughout rotation and
 rate evaluation. The extended-time virtual derivative APIs are overridden.

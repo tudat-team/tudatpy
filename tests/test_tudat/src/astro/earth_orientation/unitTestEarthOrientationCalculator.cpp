@@ -218,16 +218,17 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
 
 BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
 {
-    const auto strict = createStandardEarthOrientationCalculator( );
+    EarthOrientationEvaluationSettings strictSettings;
+    strictSettings.historicalUt1 = HistoricalUt1Policy::reject;
+    const auto strict = createStandardEarthOrientationCalculator( std::make_shared< EOPReader >( ), strictSettings );
     const auto strictConverter = strict->getTerrestrialTimeScaleConverter( );
     const Time tt( ( 1893.0 - 2000.0 ) * physical_constants::JULIAN_YEAR );
     BOOST_CHECK_THROW( strictConverter->getCurrentTime< Time >( basic_astrodynamics::tt_scale, basic_astrodynamics::ut1_scale, tt ),
                        std::runtime_error );
     BOOST_CHECK_THROW( strict->getRotationAnglesFromItrsToGcrs< Time >( tt, basic_astrodynamics::tt_scale ), std::runtime_error );
 
-    EarthOrientationEvaluationSettings settings;
-    settings.historicalUt1 = HistoricalUt1Policy::delta_t;
-    const auto historical = createStandardEarthOrientationCalculator( std::make_shared< EOPReader >( ), settings );
+    // Historical UT1 from Delta T is the default.
+    const auto historical = createStandardEarthOrientationCalculator( );
     const Time ut1 = historical->getTerrestrialTimeScaleConverter( )->getCurrentTime< Time >(
             basic_astrodynamics::tt_scale, basic_astrodynamics::ut1_scale, tt );
 

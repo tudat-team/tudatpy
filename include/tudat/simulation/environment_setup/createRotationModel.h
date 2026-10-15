@@ -352,7 +352,9 @@ public:
     void setOceanTideEopModel( const earth_orientation::OceanTideEopModel model )
     {
         if( model != earth_orientation::OceanTideEopModel::iers_2010 && model != earth_orientation::OceanTideEopModel::desai_sibois_2016 )
+        {
             throw std::runtime_error( "Unknown ocean-tide EOP model" );
+        }
         oceanTideEopModel_ = model;
     }
     earth_orientation::OceanTideEopModel getOceanTideEopModel( ) const
@@ -1137,7 +1139,10 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
     rotationSettings->setTdbToTtInterpolatorSettings( tdbToTtInterpolatorSettings );
     rotationSettings->setShortTermInterpolatorSettings( shortTermInterpolatorSettings );
 
-    if( eopData ) rotationSettings->setEopData( *eopData );
+    if( eopData )
+    {
+        rotationSettings->setEopData( *eopData );
+    }
     rotationSettings->setEopEvaluationSettings( eopEvaluationSettings );
     rotationSettings->setOceanTideEopModel( oceanTideEopModel );
     return rotationSettings;

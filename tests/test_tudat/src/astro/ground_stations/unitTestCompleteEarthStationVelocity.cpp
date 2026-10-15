@@ -84,11 +84,13 @@ struct EarthStationFixture {
         input_output::OceanLoadingStation oceanStation;
         oceanStation.stationIdentifier = "COMPLETE_VELOCITY";
         for( int row = 0; row < 3; ++row )
+        {
             for( int column = 0; column < 11; ++column )
             {
                 oceanStation.amplitudesMetres( row, column ) = 0.001 + 0.0002 * row + 0.0001 * column;
                 oceanStation.phaseLagsDegrees( row, column ) = 13.0 * column + 19.0 * row;
             }
+        }
         oceanData.stations.emplace( oceanStation.stationIdentifier, oceanStation );
         ocean = std::make_shared< OceanTideEarthDeformation >( oceanData, OceanTideSynthesis::iersHardisp, clock );
         pole = std::make_shared< PoleTideDeformation >( polar, clock );

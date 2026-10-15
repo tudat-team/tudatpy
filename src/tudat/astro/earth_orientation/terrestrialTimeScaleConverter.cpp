@@ -10,7 +10,6 @@
  */
 
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
-#include "tudat/astro/earth_orientation/earthOrientationRates.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
 #include "tudat/math/basic/numericalDerivative.h"
@@ -38,8 +37,14 @@ void TerrestrialTimeScaleConverter::loadHistoricalDeltaTInterpolator( )
 double TerrestrialTimeScaleConverter::getContinuousTdbMinusTt( const Time& tt, const Eigen::Vector3d& position )
 {
     const auto key = std::make_tuple( position.x( ), position.y( ), position.z( ) );
-    if( tdbToTtInterpolators_.count( key ) ) return tdbToTtInterpolators_.at( key )->interpolate( static_cast< double >( tt ) );
-    if( !continuousEopData_ && !position.isZero( 0.0 ) ) return sofa_interface::getTDBminusTT( static_cast< double >( tt ), position );
+    if( tdbToTtInterpolators_.count( key ) )
+    {
+        return tdbToTtInterpolators_.at( key )->interpolate( static_cast< double >( tt ) );
+    }
+    if( !continuousEopData_ && !position.isZero( 0.0 ) )
+    {
+        return sofa_interface::getTDBminusTT( static_cast< double >( tt ), position );
+    }
 
     // Geocentric TT/TDB needs no EOP. The topocentric SOFA terms require
     // actual UT1 and therefore share the strict TAI-axis coverage policy.
@@ -140,8 +145,7 @@ Ut1ValueAndRate TerrestrialTimeScaleConverter::evaluateUt1FromTai( const Time& t
         if( requireRate )
         {
             // The correction's tangent uses the baseline daily rate, not the final corrected UT1 rate.
-            result.dUt1DTai +=
-                    calculateShortPeriodCorrectionRate< double >( shortPeriodUt1CorrectionCalculator_, tt, baselineUt1, result.dUt1DTai );
+            result.dUt1DTai += shortPeriodUt1CorrectionCalculator_->getCorrectionRate( tt, baselineUt1, result.dUt1DTai );
         }
     }
     if( requireRate && ( !std::isfinite( result.dUt1DTai ) || result.dUt1DTai <= 0.0 ) )

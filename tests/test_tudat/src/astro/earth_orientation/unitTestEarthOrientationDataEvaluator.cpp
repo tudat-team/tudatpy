@@ -82,7 +82,10 @@ BOOST_AUTO_TEST_CASE( leap_second_ut1_is_continuous_and_inverse_stays_in_coverag
 BOOST_AUTO_TEST_CASE( atomic_conversions_do_not_require_eop_or_missing_cpo )
 {
     auto data = leapData( );
-    for( auto& entry : data.records ) entry.second.celestialPoleOffsets.reset( );
+    for( auto& entry : data.records )
+    {
+        entry.second.celestialPoleOffsets.reset( );
+    }
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
     TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
     const Time outside = evaluator->getEndTai( ) + 1000.0 * 86400.0;
@@ -278,7 +281,10 @@ BOOST_AUTO_TEST_CASE( public_rotation_factory_is_continuous_during_the_inserted_
 BOOST_AUTO_TEST_CASE( public_factory_obeys_missing_cpo_and_gap_policies_only_when_needed )
 {
     auto data = leapData( );
-    for( auto& entry : data.records ) entry.second.celestialPoleOffsets.reset( );
+    for( auto& entry : data.records )
+    {
+        entry.second.celestialPoleOffsets.reset( );
+    }
     auto settings = std::make_shared< simulation_setup::GcrsToItrsRotationModelSettings >(
             iau_2006, "GCRS", "/must-not-read-this-file", tai_scale );
     settings->setEopData( data );

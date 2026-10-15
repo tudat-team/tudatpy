@@ -25,7 +25,10 @@ std::vector< std::string > lines( const std::string& text )
     std::istringstream stream( text );
     std::vector< std::string > result;
     std::string line;
-    while( std::getline( stream, line ) ) result.push_back( line );
+    while( std::getline( stream, line ) )
+    {
+        result.push_back( line );
+    }
     return result;
 }
 SinexStationHistory parse( const std::string& text )
@@ -40,7 +43,12 @@ std::string firstSite( )
 std::string firstParameter( )
 {
     for( const auto& line : lines( contents( "ab07_solutions.snx" ) ) )
-        if( line.size( ) == 80 && line.substr( 7, 4 ) == "STAX" ) return line;
+    {
+        if( line.size( ) == 80 && line.substr( 7, 4 ) == "STAX" )
+        {
+            return line;
+        }
+    }
     throw std::runtime_error( "Fixture has no STAX" );
 }
 std::string document( const std::vector< std::string >& records, bool addSite = true )
@@ -49,9 +57,15 @@ std::string document( const std::vector< std::string >& records, bool addSite = 
     const auto count = std::to_string( records.size( ) );
     header.replace( 60, 5, std::string( 5 - count.size( ), ' ' ) + count );
     std::string text = header + "\n";
-    if( addSite ) text += "+SITE/ID\n" + firstSite( ) + "\n-SITE/ID\n";
+    if( addSite )
+    {
+        text += "+SITE/ID\n" + firstSite( ) + "\n-SITE/ID\n";
+    }
     text += "+SOLUTION/ESTIMATE\n";
-    for( const auto& record : records ) text += record + "\n";
+    for( const auto& record : records )
+    {
+        text += record + "\n";
+    }
     return text + "-SOLUTION/ESTIMATE\n%ENDSNX\n";
 }
 void errorContains( const std::string& text, const std::string& diagnostic )
@@ -154,7 +168,12 @@ BOOST_AUTO_TEST_CASE( fixed_columns_and_reordered_blocks_records_are_independent
     const auto source = lines( contents( "ab07_solutions.snx" ) );
     std::vector< std::string > parameters;
     for( const auto& line : source )
-        if( line.size( ) == 80 ) parameters.push_back( line );
+    {
+        if( line.size( ) == 80 )
+        {
+            parameters.push_back( line );
+        }
+    }
     std::reverse( parameters.begin( ), parameters.end( ) );
     auto text = document( parameters, false );
     text.insert( text.find( "%ENDSNX" ), "+SITE/ID\n" + firstSite( ) + "\n-SITE/ID\n" );
@@ -197,9 +216,17 @@ BOOST_AUTO_TEST_CASE( optional_cartesian_components_remain_missing_and_complete_
     const auto complete = readSinexStationHistory( fixture( "ab07_solutions.snx" ) );
     history.parameters.clear( );
     for( const auto& row : complete.parameters )
-        if( row.first <= 3 ) history.parameters.insert( row );
+    {
+        if( row.first <= 3 )
+        {
+            history.parameters.insert( row );
+        }
+    }
     const auto selected = getSinexCartesianSolution( history, { { "AB07", "A" }, "1" } );
-    for( int i = 0; i < 3; ++i ) BOOST_CHECK( !selected.velocityMetresPerSecond[ i ] );
+    for( int i = 0; i < 3; ++i )
+    {
+        BOOST_CHECK( !selected.velocityMetresPerSecond[ i ] );
+    }
     BOOST_CHECK_THROW( getSinexCartesianSolution( history, { { "AB07", "A" }, "1" }, true ), std::runtime_error );
 }
 
@@ -315,7 +342,12 @@ BOOST_AUTO_TEST_CASE( real_combined_product_duplicate_site_codes_and_repeated_ps
     const auto repeated = readSinexStationHistory( fixture( "repeated_psd.snx" ) );
     std::size_t northExponentialAmplitudes = 0;
     for( const auto& row : repeated.parameters )
-        if( row.second.key.site.siteCode == "AB48" && row.second.type == "AEXP_N" ) ++northExponentialAmplitudes;
+    {
+        if( row.second.key.site.siteCode == "AB48" && row.second.type == "AEXP_N" )
+        {
+            ++northExponentialAmplitudes;
+        }
+    }
     BOOST_CHECK_EQUAL( northExponentialAmplitudes, 2 );
     BOOST_CHECK_NO_THROW( validateSinexStationHistory( repeated ) );
 

@@ -53,14 +53,32 @@ public:
 
     virtual ~StationMotionModel( ) {}
 
-    //! Body-fixed position correction (metres) and velocity correction (m/s),
-    //! evaluated at TDB seconds since J2000 without reducing Time precision.
+    //! Function to compute the change in the body-fixed position and velocity of the station due to this type of motion.
+    /*!
+     *  Function to compute the change in the body-fixed position (in metres) and velocity (in metres per second) of the
+     *  station due to this type of motion (for instance plate motion, or a type of tidal deformation). Each derived class
+     *  implements this function.
+     *  \param tdb TDB seconds since J2000 at which the motion is computed
+     *  \param station Ground station, from which the model can retrieve the nominal position of the station
+     *  \param origin Name of the origin of the frame in which the station state is used; only the relativistic correction
+     *  (BodyCentricToBarycentricRelativisticStationMotion) depends on it
+     *  \return Change in body-fixed position (first three entries) and velocity (last three entries)
+     */
     virtual Eigen::Vector6d getBodyFixedStationMotion( const Time& tdb,
                                                        const std::shared_ptr< GroundStationState > station,
                                                        const std::string& origin ) = 0;
 
-    //! Body-fixed position correction in metres at TDB seconds since J2000.
-    //! Models can override this separately so position works when rates are unavailable.
+    //! Function to compute the change in the body-fixed position of the station due to this type of motion.
+    /*!
+     *  Function to compute the change in the body-fixed position (in metres) of the station due to this type of motion. By
+     *  default, this is the position part of getBodyFixedStationMotion. A derived class overrides this function when it can
+     *  compute the position in cases where it cannot compute the velocity (for instance at a data point next to a gap in the
+     *  data), or when the position alone is much faster to compute.
+     *  \param tdb TDB seconds since J2000 at which the motion is computed
+     *  \param station Ground station, from which the model can retrieve the nominal position of the station
+     *  \param origin Name of the origin of the frame in which the station position is used (see getBodyFixedStationMotion)
+     *  \return Change in body-fixed position
+     */
     virtual Eigen::Vector3d getBodyFixedStationPositionCorrection( const Time& tdb,
                                                                    const std::shared_ptr< GroundStationState > station,
                                                                    const std::string& origin )
@@ -378,28 +396,40 @@ protected:
     std::vector< Eigen::Vector3d > displacementVectors_;
 };
 
-//! Specify whether station and global coordinates include TT/TDB rate scaling.
-//! Unscaled TCG/TCB coordinates use IERS equation 11.18; TT-compatible station
-//! coordinates converted to TDB-compatible global coordinates use equation 11.19
-//! and its additional constant scale factor. The model must know which to apply.
+//! Equation used to convert station positions from geocentric to barycentric coordinates (IERS Conventions 2010, Chapter 11).
+/*!
+ *  The conversion of a station position from geocentric to barycentric coordinates depends on the time scales with which the
+ *  coordinates are consistent. Geocentric coordinates can be consistent with TCG or with TT, which differ by a constant scale
+ *  factor; barycentric coordinates can likewise be consistent with TCB or with TDB. The ITRF uses TT-consistent coordinates.
+ */
 enum RelativisticStationCoordinateCompatibility {
+    //! No equation selected; creating the relativistic station motion model with this value throws an exception.
     unspecified_station_coordinate_compatibility,
+
+    //! TCG-consistent station coordinates to TCB-consistent coordinates (Eq. 11.18).
     unscaled_tcg_to_tcb_station_coordinates,
+
+    //! TT-consistent station coordinates to TDB-consistent coordinates (Eq. 11.19), which adds a constant scale factor.
     tt_to_tdb_station_coordinates
 };
 
-//! Explicit external potential contribution; the host must not be included.
+//! Body whose gravitational potential at the centre of the station's central body is used in the relativistic station
+//! correction. The central body itself must not be included.
 struct RelativisticStationExternalBody {
     std::string name;
     std::function< Eigen::Vector6d( const Time& ) > barycentricState;
     std::function< double( ) > gravitationalParameter;
 };
 
-//! IERS 2010 Eq. 11.18/11.19 spatial offset at the supplied geocentre TDB epoch.
-//! This approximation omits station simultaneity and acceleration terms in the
-//! full IAU event transformation. It is not a barycentric-time worldline solver.
-//! Position and velocity are SI; returned velocity differentiates this declared
-//! approximation with respect to the input TDB epoch.
+//! Relativistic correction to the station position, for station states that are used in a barycentric frame.
+/*!
+ *  Correction from Eq. 11.18 or 11.19 of the IERS Conventions 2010 (see RelativisticStationCoordinateCompatibility). The
+ *  station position relative to the centre of its central body (for instance the Earth) is scaled using the gravitational
+ *  potential of the other bodies at that centre, and corrected for the barycentric velocity of the central body. The
+ *  smaller terms of the full transformation, which depend on the acceleration of the central body, are not included. The
+ *  velocity correction is the time derivative of the position correction. The correction is only applied when the station
+ *  state is requested relative to the solar system barycentre (frame origin "SSB"); otherwise it is zero.
+ */
 struct BodyCentricToBarycentricRelativisticStationMotion : public StationMotionModel {
 public:
     BodyCentricToBarycentricRelativisticStationMotion(
@@ -417,7 +447,8 @@ public:
                                                            const std::shared_ptr< GroundStationState > groundStationState,
                                                            const std::string& targetFrameOrigin ) override;
 
-    //! Terminal corrections consume the full intrinsic state, without recursion.
+    //! Correction for a station state (or position) that already includes all other station motion. This is used by
+    //! CombinedStationMotionModel, which applies this correction after summing all other motion models.
     Eigen::Vector6d correctCompleteLocalState( const Time& time, const Eigen::Vector6d& state, const std::string& targetFrameOrigin );
     Eigen::Vector3d correctCompleteLocalPosition( const Time& time, const Eigen::Vector3d& position, const std::string& targetFrameOrigin );
     const std::vector< RelativisticStationExternalBody >& getExternalBodies( ) const
@@ -458,8 +489,9 @@ protected:
     std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
 };
 
-//! Intrinsic motion is summed first; at most one coordinate map is applied last.
-//! Relativistic correction ordering in the supplied model list is immaterial.
+//! Combination of several station motion models. The changes in station state from all models are added, except for the
+//! relativistic correction (at most one), which is applied last, to the station state that includes all other motion. The
+//! position of the relativistic correction in the list of models therefore does not matter.
 struct CombinedStationMotionModel : public StationMotionModel {
 public:
     CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList );

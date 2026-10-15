@@ -183,10 +183,11 @@ Enumeration of options for epochs at which the Earth orientation data gives no c
 Enumeration of options for UT1 at epochs before the start of the Earth orientation data.
 
       )doc" )
-            .value( "reject", tudat::earth_orientation::HistoricalUt1Policy::reject, "Raise an exception (default)." )
+            .value( "reject", tudat::earth_orientation::HistoricalUt1Policy::reject, "Raise an exception." )
             .value( "delta_t",
                     tudat::earth_orientation::HistoricalUt1Policy::delta_t,
-                    "Compute UT1 from historical values of Delta T. Polar motion and celestial pole offsets are not extrapolated." );
+                    "Compute UT1 from historical values of Delta T, before 1962 (default). Polar motion and celestial pole offsets are "
+                    "not extrapolated." );
     py::class_< tudat::earth_orientation::EarthOrientationEvaluationSettings >( m, "EarthOrientationEvaluationSettings", R"doc(
 
 Settings for the interpolation of daily Earth orientation parameters (see
@@ -194,7 +195,7 @@ Settings for the interpolation of daily Earth orientation parameters (see
 
 By default, the parameters are interpolated linearly in TAI (using UT1-TAI, which is continuous at leap seconds), and
 epochs outside the data, epochs in an interval between samples that is longer than 36 hours, and epochs without
-celestial pole offsets raise an exception.
+celestial pole offsets raise an exception. Before 1962, UT1 is computed from historical values of Delta T.
 
       )doc" )
             .def( py::init<>( ) )

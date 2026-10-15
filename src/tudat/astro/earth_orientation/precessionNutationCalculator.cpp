@@ -14,6 +14,7 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/precessionNutationCalculator.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
+#include "tudat/math/basic/numericalDerivative.h"
 #include <cmath>
 
 namespace tudat
@@ -55,21 +56,20 @@ PrecessionNutationCalculator::PrecessionNutationCalculator(
     }
 }
 
-// Differentiate the direct SOFA model, also when nominal positions are interpolated.
+// X, Y and s from the SOFA implementation of the IAU model.
+Eigen::Vector3d PrecessionNutationCalculator::getNominalPositionFromSofa( const Time& tt )
+{
+    return sofa_interface::getPositionOfCipInGcrs(
+            static_cast< double >( tt ), basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory_ );
+}
+
+// Differentiate the SOFA model numerically, also when the nominal positions are interpolated.
 std::pair< Eigen::Vector3d, Eigen::Vector3d > PrecessionNutationCalculator::getNominalPositionAndRate( const Time& tt )
 {
-    // Nominal X, Y and s in radians at a TT offset in seconds; the epoch offset is formed in Time.
-    const auto directPosition = [ this, &tt ]( const double offset ) -> Eigen::Vector3d {
-        return sofa_interface::getPositionOfCipInGcrs(
-                static_cast< double >( tt + offset ), basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory_ );
-    };
-
-    // Fourth-order central difference over 32 s, pairing opposite samples before weighting.
-    const double step = 32.0;
-
-    const Eigen::Vector3d rate = ( 8.0 * ( directPosition( step ) - directPosition( -step ) ) -
-                                   ( directPosition( 2.0 * step ) - directPosition( -2.0 * step ) ) ) /
-            ( 12.0 * step );
+    // Fourth-order central difference over 32 s.
+    const std::function< Eigen::Vector3d( const Time& ) > nominalPositionFunction =
+            std::bind( &PrecessionNutationCalculator::getNominalPositionFromSofa, this, std::placeholders::_1 );
+    const Eigen::Vector3d rate = numerical_derivatives::computeFourthOrderCentralDifference( nominalPositionFunction, tt, 32.0 );
 
     if( !rate.allFinite( ) )
     {

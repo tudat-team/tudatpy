@@ -227,11 +227,17 @@ BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_adapter_equivalence_and_provenance
     const auto filePolarMotion = fromFile.getCipInItrsMapRaw( );
     const auto dataPolarMotion = fromData.getCipInItrsMapRaw( );
     BOOST_REQUIRE_EQUAL( filePolarMotion.size( ), dataPolarMotion.size( ) );
-    for( const auto& entry : filePolarMotion ) BOOST_CHECK_SMALL( ( entry.second - dataPolarMotion.at( entry.first ) ).norm( ), 1e-30 );
+    for( const auto& entry : filePolarMotion )
+    {
+        BOOST_CHECK_SMALL( ( entry.second - dataPolarMotion.at( entry.first ) ).norm( ), 1e-30 );
+    }
     const auto fileCpo = fromFile.getCipInGcrsCorrectionMapRaw( );
     const auto dataCpo = fromData.getCipInGcrsCorrectionMapRaw( );
     BOOST_REQUIRE_EQUAL( fileCpo.size( ), dataCpo.size( ) );
-    for( const auto& entry : fileCpo ) BOOST_CHECK_SMALL( ( entry.second - dataCpo.at( entry.first ) ).norm( ), 1e-30 );
+    for( const auto& entry : fileCpo )
+    {
+        BOOST_CHECK_SMALL( ( entry.second - dataCpo.at( entry.first ) ).norm( ), 1e-30 );
+    }
     const auto& raw = fromData.getRawEarthOrientationData( );
     BOOST_CHECK_EQUAL( raw.source, data.source );
     BOOST_CHECK( raw.header == data.header );

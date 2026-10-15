@@ -17,7 +17,10 @@ namespace
 {
 void close( const Eigen::Vector3d& a, const Eigen::Vector3d& b, double tolerance = 1e-13 )
 {
-    for( int i = 0; i < 3; ++i ) BOOST_CHECK_SMALL( a[ i ] - b[ i ], tolerance );
+    for( int i = 0; i < 3; ++i )
+    {
+        BOOST_CHECK_SMALL( a[ i ] - b[ i ], tolerance );
+    }
 }
 std::shared_ptr< TerrestrialTimeScaleConverter > modelClock( double shift = 0, double maximumGap = 129600 )
 {
@@ -51,6 +54,7 @@ AtmosphericTideGrid grid( bool latitudeDependent = false )
     g.longitudesDegrees = { 0, 90 };
     g.latitudesDegrees = { 60, 0 };
     for( int longitude = 0; longitude < 2; ++longitude )
+    {
         for( double latitude : g.latitudesDegrees )
         {
             Eigen::Matrix< double, 3, 4 > c = Eigen::Matrix< double, 3, 4 >::Zero( );
@@ -60,6 +64,7 @@ AtmosphericTideGrid grid( bool latitudeDependent = false )
             c.col( 3 ) << 10e-3, 11e-3, 12e-3;
             g.coefficientsMetres.push_back( c );
         }
+    }
     return g;
 }
 Time tdbAtUt1( const std::shared_ptr< TerrestrialTimeScaleConverter >& c, const Time& ut1 )
@@ -72,8 +77,10 @@ Eigen::Vector3d independentLocal( const Eigen::Matrix< double, 3, 4 >& c, double
     const double phase = 2 * mathematical_constants::PI * ( ( ut1 - 86400.0 * std::floor( ut1 / 86400.0 ) ) / 86400.0 + .5 );
     Eigen::Vector3d result;
     for( int i = 0; i < 3; ++i )
+    {
         result[ i ] = std::real( std::complex< double >( c( i, 0 ), -c( i, 1 ) ) * std::exp( std::complex< double >( 0, phase ) ) +
                                  std::complex< double >( c( i, 2 ), -c( i, 3 ) ) * std::exp( std::complex< double >( 0, 2 * phase ) ) );
+    }
     return result;
 }
 Eigen::Vector3d independentLocalRate( const Eigen::Matrix< double, 3, 4 >& c, double ut1 )
@@ -82,10 +89,12 @@ Eigen::Vector3d independentLocalRate( const Eigen::Matrix< double, 3, 4 >& c, do
     const std::complex< double > iOmega( 0, 2 * mathematical_constants::PI / 86400 );
     Eigen::Vector3d result;
     for( int i = 0; i < 3; ++i )
+    {
         result[ i ] =
                 std::real( iOmega *
                            ( std::complex< double >( c( i, 0 ), -c( i, 1 ) ) * std::exp( std::complex< double >( 0, phase ) ) +
                              2. * std::complex< double >( c( i, 2 ), -c( i, 3 ) ) * std::exp( std::complex< double >( 0, 2 * phase ) ) ) );
+    }
     return result;
 }
 Eigen::Matrix3d basis( const Eigen::Vector3d& p )
@@ -163,11 +172,18 @@ BOOST_AUTO_TEST_CASE( independentLookupAndBasisAndSameCartesianRepresentation )
     const auto g = grid( true );
     const double gc = std::asin( p.normalized( ).z( ) ) * 180 / mathematical_constants::PI;
     for( bool geodeticLookup : { false, true } )
+    {
         for( bool geodeticBasis : { false, true } )
         {
             auto settings = explicitGeometry( );
-            if( geodeticLookup ) settings.lookupLatitudeConvention = AtmosphericTideLatitudeConvention::geodetic;
-            if( geodeticBasis ) settings.displacementBasis = AtmosphericTideDisplacementBasis::geodeticUpNorthEast;
+            if( geodeticLookup )
+            {
+                settings.lookupLatitudeConvention = AtmosphericTideLatitudeConvention::geodetic;
+            }
+            if( geodeticBasis )
+            {
+                settings.displacementBasis = AtmosphericTideDisplacementBasis::geodeticUpNorthEast;
+            }
             AtmosphericTideDeformation model( g, c, settings, oblate );
             auto coeff = g.coefficientsMetres.front( );
             coeff( 0, 0 ) = 1e-3 * ( 1 + ( geodeticLookup ? 45 : gc ) );
@@ -193,6 +209,7 @@ BOOST_AUTO_TEST_CASE( independentLookupAndBasisAndSameCartesianRepresentation )
                            model.calculateDisplacement( epoch, s ),
                    s->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch ) ) * expected );
         }
+    }
 }
 BOOST_AUTO_TEST_CASE( requiredGeometryAndSourceConflicts )
 {
@@ -259,10 +276,22 @@ BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
     for( int wrong = 0; wrong < 4; ++wrong )
     {
         auto bad = g;
-        if( wrong == 0 ) bad.metadata.sourceProfile = AtmosphericTideSourceProfile::unspecified;
-        if( wrong == 1 ) bad.metadata.modelName = "Vienna APL";
-        if( wrong == 2 ) bad.metadata.greensFunction = "other";
-        if( wrong == 3 ) bad.metadata.referenceOrigin = AtmosphericLoadingReferenceOrigin::unspecified;
+        if( wrong == 0 )
+        {
+            bad.metadata.sourceProfile = AtmosphericTideSourceProfile::unspecified;
+        }
+        if( wrong == 1 )
+        {
+            bad.metadata.modelName = "Vienna APL";
+        }
+        if( wrong == 2 )
+        {
+            bad.metadata.greensFunction = "other";
+        }
+        if( wrong == 3 )
+        {
+            bad.metadata.referenceOrigin = AtmosphericLoadingReferenceOrigin::unspecified;
+        }
         BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( bad, c, settings ) ), std::runtime_error );
     }
 }
@@ -392,7 +421,10 @@ std::shared_ptr< TerrestrialTimeScaleConverter > slopedClock( const std::vector<
         row.utcModifiedJulianDate = 57752 + i;
         const Time utc( ( row.utcModifiedJulianDate - 51544.5 ) * 86400 );
         const Time tai = sofa_interface::convertUTCtoTAI( utc );
-        if( i ) baseline += slopes[ i - 1 ] * static_cast< double >( tai - previous );
+        if( i )
+        {
+            baseline += slopes[ i - 1 ] * static_cast< double >( tai - previous );
+        }
         row.polarMotion = { 0, 0 };
         row.ut1MinusUtc = baseline + static_cast< double >( tai - utc );
         row.celestialPoleOffsets = std::array< double, 2 >{ 0, 0 };
@@ -416,9 +448,13 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
     const auto s = station( p );
     const auto& epochs = c->getEarthOrientationDataEvaluator( )->getEpochsTai( );
     for( std::size_t i = 0; i < epochs.size( ); ++i )
+    {
         for( double shift : { 0., 1000. } )
         {
-            if( i + 1 == epochs.size( ) && shift > 0 ) continue;
+            if( i + 1 == epochs.size( ) && shift > 0 )
+            {
+                continue;
+            }
             const Time tai = epochs[ i ] + shift;
             const auto epoch = epochAtTai( c, tai );
             if( shift == 0 )
@@ -450,12 +486,17 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
             ground_stations::BodyDeformationStationMotionModel adapter( [ & ]( ) -> auto& { return models; }, true );
             const auto scalarState = adapter.getBodyFixedStationMotion( static_cast< double >( epoch ), s );
             if( shift == 0 && ( i == 0 || i + 1 == epochs.size( ) ) )
+            {
                 close( scalarState.tail< 3 >( ), expected, 2e-20 );
+            }
             else
+            {
                 close( scalarState.tail< 3 >( ),
                        model.calculateDisplacementState( Time( static_cast< double >( epoch ) ), s ).tail< 3 >( ),
                        2e-20 );
+            }
         }
+    }
 }
 BOOST_AUTO_TEST_CASE( unavailableSelectedRatePreservesNodePositionAndRejectsState )
 {

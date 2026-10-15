@@ -12,6 +12,8 @@
 #ifndef TUDAT_SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
 #define TUDAT_SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
 
+#include <cmath>
+#include <stdexcept>
 #include <string>
 
 #include <functional>
@@ -26,7 +28,9 @@
 
 #include "tudat/interface/sofa/fundamentalArguments.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/basics/timeType.h"
 
 namespace tudat
 {
@@ -134,7 +138,53 @@ public:
         return sumCorrectionTerms( fundamentalArguments );
     }
 
+    //! Function to obtain the time derivative of the short period corrections.
+    /*!
+     *  Function to obtain the time derivative of the short period corrections, per TT second. The corrections are
+     *  differentiated numerically, with a fourth-order central difference in TT. At each of the nearby TT epochs, UT1 is
+     *  shifted from the given UT1 by dUt1DTt times the TT shift, so that the daily Earth orientation data does not need to be
+     *  evaluated at these epochs.
+     *  \param tt TT (seconds since J2000) at which the rate is to be determined
+     *  \param ut1 UT1 (seconds since J2000) at the same instant
+     *  \param dUt1DTt Derivative of UT1 with respect to TT at this instant
+     *  \param stepSeconds Step size (in seconds of TT) of the central difference
+     *  eturn Time derivative of the short period corrections (radians per second for polar motion, seconds per second for UT1)
+     */
+    OutputType getCorrectionRate( const Time& tt, const Time& ut1, const double dUt1DTt, const double stepSeconds = 32.0 )
+    {
+        if( !std::isfinite( stepSeconds ) || stepSeconds <= 0.0 || !std::isfinite( dUt1DTt ) )
+        {
+            throw std::invalid_argument( "Invalid input for the rate of the short period Earth orientation corrections" );
+        }
+        const std::function< OutputType( const Time& ) > correctionFunction =
+                std::bind( &ShortPeriodEarthOrientationCorrectionCalculator< OutputType >::getCorrectionsAtShiftedEpoch,
+                           this,
+                           tt,
+                           ut1,
+                           dUt1DTt,
+                           std::placeholders::_1 );
+        return numerical_derivatives::computeFourthOrderCentralDifference( correctionFunction, tt, stepSeconds );
+    }
+
 private:
+    //! Function to obtain the short period corrections at a TT epoch close to a reference epoch.
+    /*!
+     *  Function to obtain the short period corrections at a TT epoch close to a reference epoch, with UT1 shifted from its
+     *  value at the reference epoch by dUt1DTt times the difference between the two TT epochs.
+     *  \param tt Reference TT (seconds since J2000)
+     *  \param ut1 UT1 (seconds since J2000) at the reference epoch
+     *  \param dUt1DTt Derivative of UT1 with respect to TT at the reference epoch
+     *  \param shiftedTt TT (seconds since J2000) at which the corrections are to be determined
+     *  eturn Short period corrections
+     */
+    OutputType getCorrectionsAtShiftedEpoch( const Time& tt, const Time& ut1, const double dUt1DTt, const Time& shiftedTt )
+    {
+        const Time shiftedUt1 = ut1 + static_cast< double >( shiftedTt - tt ) * dUt1DTt;
+        const Eigen::Vector6d arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+                static_cast< double >( shiftedTt ), static_cast< double >( shiftedTt ), static_cast< double >( shiftedUt1 ) );
+        return sumCorrectionTerms( arguments );
+    }
+
     //! Function to sum all the corrcetion terms.
     /*!
      *  Function to sum all the corrcetion terms.

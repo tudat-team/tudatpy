@@ -18,8 +18,14 @@ public:
                                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr ):
         trajectory_( std::move( trajectory ) ), timeFunction_( std::move( timeFunction ) ), converter_( std::move( converter ) )
     {
-        if( !trajectory_ ) throw std::runtime_error( "Station history motion requires a trajectory" );
-        if( !converter_ && !timeFunction_ ) converter_ = basic_astrodynamics::getGeocentricTimeConverter( );
+        if( !trajectory_ )
+        {
+            throw std::runtime_error( "Station history motion requires a trajectory" );
+        }
+        if( !converter_ && !timeFunction_ )
+        {
+            converter_ = basic_astrodynamics::getGeocentricTimeConverter( );
+        }
     }
 
     //! Absolute trajectory state minus the nominal station position; velocity per TDB second.

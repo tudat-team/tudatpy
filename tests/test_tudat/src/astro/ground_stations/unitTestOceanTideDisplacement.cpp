@@ -242,7 +242,10 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingSphericalAndOblateGeometry )
 BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
 {
     auto data = makeHardispReferenceData( );
-    for( auto& station : data.stations ) station.second.amplitudesMetres.setZero( );
+    for( auto& station : data.stations )
+    {
+        station.second.amplitudesMetres.setZero( );
+    }
     OceanTideEarthDeformation zero( data );
     checkOceanLoadingVector( enuDisplacement( zero, 1.0E8, "ONSALA" ), Eigen::Vector3d::Zero( ), 1.0E-15 );
     data.stations.at( "ONSALA" ).amplitudesMetres( 0, 0 ) = 0.01;

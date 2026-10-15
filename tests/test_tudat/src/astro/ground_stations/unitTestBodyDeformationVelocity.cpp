@@ -175,7 +175,10 @@ BOOST_AUTO_TEST_CASE( errors_preserve_exception_type_and_central_cache )
                  return ( Eigen::Vector6d( ) << 3.8e8 + static_cast< double >( t ) * 1e6, 1e8, 2e7, 0, 0, 0 ).finished( );
              },
               [ & ]( const Time& t ) {
-                  if( fail ) throw CoverageError( );
+                  if( fail )
+                  {
+                      throw CoverageError( );
+                  }
                   return ( Eigen::Vector6d( ) << 1.5e11, 5e10, 1e10, 0, 0, 0 ).finished( );
               } },
             []( const Time& ) { return Eigen::Quaterniond::Identity( ); },

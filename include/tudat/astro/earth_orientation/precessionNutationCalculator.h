@@ -48,12 +48,15 @@ public:
             const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings = nullptr,
             const std::shared_ptr< EarthOrientationDataEvaluator > evaluator = nullptr );
 
-    //! Return nominal TT X/Y/s in radians with observed dX/dY evaluated at precise TAI.
+    //! Position of the CIP in the GCRS (X and Y) and CIO locator (s), in radians: the IAU model at the given TT, plus the
+    //! celestial pole offsets dX and dY from the EOP data at the given TAI. Only available for models constructed from EOP data.
     Eigen::Vector3d getPositionOfCipInGcrsFromTai( const double terrestrialTime, const Time& tai );
 
-    //! Nominal X/Y/s and d(X,Y,s)/dTT, before observed CPO. The rate is that of the direct SOFA model.
+    //! X, Y and s from the IAU model (without celestial pole offsets) at the given TT, and their derivatives per TT second.
+    //! The derivatives are computed numerically from the SOFA model, also when the values themselves are interpolated.
     std::pair< Eigen::Vector3d, Eigen::Vector3d > getNominalPositionAndRate( const Time& tt );
 
+    //! Function to retrieve the interpolated EOP data (nullptr for models constructed from a daily interpolator)
     std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
     {
         return evaluator_;
@@ -107,7 +110,12 @@ public:
     }
 
 private:
+    //! X, Y and s (radians) from the SOFA implementation of the IAU model at the given TT (seconds since J2000).
+    Eigen::Vector3d getNominalPositionFromSofa( const Time& tt );
+
+    //! Interpolated EOP data; nullptr for models constructed from a user-supplied daily interpolator.
     std::shared_ptr< EarthOrientationDataEvaluator > evaluator_;
+
     //! IAU precession-nutation theory that is to be used.
     basic_astrodynamics::IAUConventions precessionNutationTheory_;
 

@@ -54,8 +54,14 @@ public:
         shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
     {}
 
-    //! Polar motion at a TT epoch. Models constructed from EOP data use TAI without converting through UTC.
-    Eigen::Vector2d getPositionOfCipInItrsAtTt( const Time& tt )
+    //! Calculate the position of the Celestial Intermediate Pole in the ITRS at a TT epoch
+    /*!
+     *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}, at a TT epoch.
+     *  Models constructed from EOP data evaluate the daily values at TAI, which is computed from TT without using UTC.
+     *  \param tt Terrestrial time since J2000
+     */
+    template< typename TimeType >
+    Eigen::Vector2d getPositionOfCipInItrsAtTt( const TimeType& tt )
     {
         // SOFA evaluates its harmonic arguments using scalar TT seconds.
         const double ttDouble = static_cast< double >( tt );
@@ -64,7 +70,7 @@ public:
         {
             return getPositionOfCipInItrs( ttDouble, sofa_interface::convertTTtoUTC( ttDouble ) );
         }
-        const Time tai = basic_astrodynamics::convertTTtoTAI( tt );
+        const Time tai = basic_astrodynamics::convertTTtoTAI( Time( tt ) );
 
         // Use the selected UT1 model when forming the short-period arguments.
         const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + evaluator_->evaluate( tai ).ut1MinusTai;
@@ -76,7 +82,17 @@ public:
         return getPositionOfCipInItrsFromTai( tai, arguments );
     }
 
+    //! Calculate the position of the Celestial Intermediate Pole in the ITRS from TAI
+    /*!
+     *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}: the daily values from the
+     *  EOP data at the given TAI, plus the short-period corrections for the given fundamental arguments. Only available for
+     *  models constructed from EOP data.
+     *  \param tai TAI since J2000
+     *  \param arguments Fundamental arguments used for short-period polar motion corrections
+     */
     Eigen::Vector2d getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments );
+
+    //! Function to retrieve the interpolated EOP data (nullptr for models constructed from a daily interpolator)
     std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
     {
         return evaluator_;
@@ -129,8 +145,13 @@ public:
     }
 
 private:
+    //! Interpolated EOP data; nullptr for models constructed from a user-supplied daily interpolator.
     std::shared_ptr< EarthOrientationDataEvaluator > evaluator_;
+
+    //! Function returning UT1 at a given TAI, used for the fundamental arguments of the short-period corrections. If empty,
+    //! UT1 is computed from the daily EOP data only.
     std::function< Time( const Time& ) > ut1FromTai_;
+
     //! Interpolator for daily IERS-measured pole offsets.
     /*!
      *  Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output.

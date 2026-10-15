@@ -42,11 +42,18 @@ std::string multiEpoch( )
     std::string text = signature + "\nP T 3 S          3 E      4 D          6\n";
     text += "T begin   58849     0.0  2020.01.01-00:00:00\nT end     58849 64800.0  2020.01.01-18:00:00\n";
     text += "T sample     0.25000000000\nA    3000.000000\n";
-    for( const auto name : { "00NA", "weuc", "yela" } ) text += record( original, std::string( "S  " ) + name ) + "\n";
+    for( const auto name : { "00NA", "weuc", "yela" } )
+    {
+        text += record( original, std::string( "S  " ) + name ) + "\n";
+    }
     for( int epoch = 1; epoch <= 4; ++epoch )
+    {
         for( const auto name : { "00NA", "weuc" } )
         {
-            if( ( std::string( name ) == "00NA" && epoch == 4 ) || ( std::string( name ) == "weuc" && epoch == 1 ) ) continue;
+            if( ( std::string( name ) == "00NA" && epoch == 4 ) || ( std::string( name ) == "weuc" && epoch == 1 ) )
+            {
+                continue;
+            }
             auto line = record( original, "D     1  58849     0.0  2020.01.01-00:00:00  " + std::string( name ) );
             std::ostringstream index;
             index << std::setw( 5 ) << epoch;
@@ -57,6 +64,7 @@ std::string multiEpoch( )
             BOOST_REQUIRE_EQUAL( line.size( ), 80 );
             text += line + "\n";
         }
+    }
     return text + signature + "\n";
 }
 }  // namespace
@@ -116,7 +124,12 @@ BOOST_AUTO_TEST_CASE( indexes_define_epochs_and_site_coverage_without_informatio
     BOOST_CHECK_EQUAL( parse( crlf ).sites.size( ), 3 );
     auto cr = fixture( );
     for( auto& character : cr )
-        if( character == '\n' ) character = '\r';
+    {
+        if( character == '\n' )
+        {
+            character = '\r';
+        }
+    }
     BOOST_CHECK_EQUAL( parse( cr ).sites.size( ), 3 );
 }
 
@@ -141,7 +154,9 @@ BOOST_AUTO_TEST_CASE( counted_sections_trailers_duplicates_and_internal_gaps_are
                               "# before signature\n" + original,
                               replace( original, " -0.00104", "      nan" ),
                               replace( original, " -0.00104", "    1e999" ) } )
+    {
         BOOST_CHECK_THROW( parse( text ), std::runtime_error );
+    }
     const auto multi = multiEpoch( );
     const auto internal = record( multi, "D     2" );
     auto gap = replace( multi, internal + "\n", "" );

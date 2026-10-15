@@ -16,7 +16,10 @@ constexpr double daysPerJulianYear = 365.25;
 constexpr double secondsPerJulianYear = 31557600.0;
 void requireValidStationHistory( bool condition, const std::string& message )
 {
-    if( !condition ) throw std::runtime_error( "Station history: " + message );
+    if( !condition )
+    {
+        throw std::runtime_error( "Station history: " + message );
+    }
 }
 void validateTime( const StationHistoryTime& time, const std::string& convention )
 {
@@ -26,8 +29,10 @@ void validateTime( const StationHistoryTime& time, const std::string& convention
                                 "invalid split source coordinates" );
     requireValidStationHistory( !convention.empty( ) && time.convention == convention, "source time conventions differ" );
     for( const auto& rate : { time.mjdRate, time.decimalYearRate } )
+    {
         requireValidStationHistory( !rate || ( std::isfinite( *rate ) && *rate > 0.0 ),
                                     "source coordinate rate must be finite and positive" );
+    }
 }
 double elapsedYears( const StationHistoryTime& time, const StationHistoryTime& reference )
 {
@@ -41,7 +46,10 @@ std::string uniqueDomes( const SinexStationHistory& history,
 {
     const auto range = history.sites.equal_range( site );
     std::set< std::string > identifiers;
-    for( auto it = range.first; it != range.second; ++it ) identifiers.insert( it->second.domesId );
+    for( auto it = range.first; it != range.second; ++it )
+    {
+        identifiers.insert( it->second.domesId );
+    }
     if( selector )
     {
         requireValidStationHistory( !selector->empty( ) && identifiers.count( *selector ), history.source + ": selected DOMES is absent" );
@@ -63,10 +71,15 @@ void checkMetadata( const SinexStationHistory& product, const StationHistoryMeta
 }
 std::optional< Time > intervalEnd( const SinexEpoch& epoch, bool start, const SinexStationHistory& history )
 {
-    if( epoch.meaning == ( start ? SinexEpochMeaning::openStart : SinexEpochMeaning::openEnd ) ) return std::nullopt;
+    if( epoch.meaning == ( start ? SinexEpochMeaning::openStart : SinexEpochMeaning::openEnd ) )
+    {
+        return std::nullopt;
+    }
     const SinexEpoch* resolved = &epoch;
     if( epoch.meaning == ( start ? SinexEpochMeaning::headerStartDefault : SinexEpochMeaning::headerEndDefault ) )
+    {
         resolved = start ? &history.headerStart : &history.headerEnd;
+    }
     requireValidStationHistory( resolved->meaning == SinexEpochMeaning::specified && resolved->civilUtc.has_value( ),
                                 history.source + ": unresolved station validity endpoint" );
     return convertSinexCivilUtcToTai( *resolved->civilUtc );
@@ -80,7 +93,10 @@ StationHistoryTime sourceEpoch( const SinexEpoch& epoch )
 Eigen::Vector3d componentVector( char component, const std::optional< Eigen::Matrix3d >& enuToTerrestrial )
 {
     const auto xyz = std::string( "XYZ" ).find( component );
-    if( xyz != std::string::npos ) return Eigen::Vector3d::Unit( xyz );
+    if( xyz != std::string::npos )
+    {
+        return Eigen::Vector3d::Unit( xyz );
+    }
     const auto enu = std::string( "ENU" ).find( component );
     requireValidStationHistory( enu != std::string::npos && enuToTerrestrial.has_value( ),
                                 "ENU coefficients require an explicit constant local basis" );
@@ -121,8 +137,10 @@ StationHistoryTrajectory::StationHistoryTrajectory( std::vector< StationHistoryL
                                             identifiers.insert( solution.source.key.solutionId ).second,
                                     "inconsistent or repeated position solution identity" );
         for( const auto& boundary : { interval.startTai, interval.endTai } )
+        {
             requireValidStationHistory( !boundary || std::isfinite( static_cast< long double >( *boundary ) ),
                                         "nonfinite validity endpoint" );
+        }
         requireValidStationHistory( !interval.startTai || !interval.endTai || *interval.startTai < *interval.endTai,
                                     "empty or reversed validity interval" );
         if( i > 0 )
@@ -165,43 +183,64 @@ Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::evaluate( const StationH
     validateTime( time, metadata_.timeConvention );
     const StationHistoryLinearSolution* selected = nullptr;
     for( const auto& solution : solutions_ )
+    {
         if( ( !solution.validity.startTai || time.tai >= *solution.validity.startTai ) &&
             ( !solution.validity.endTai || time.tai < *solution.validity.endTai ) )
+        {
             selected = &solution;
+        }
+    }
     requireValidStationHistory( selected != nullptr, "requested epoch outside physical station validity" );
     requireValidStationHistory( !rates || time.mjdRate.has_value( ), "MJD derivative with respect to TDB is unavailable" );
     const double yearsRate = rates ? *time.mjdRate / daysPerJulianYear : 0.0;
     Eigen::Matrix< double, 6, 1 > result = Eigen::Matrix< double, 6, 1 >::Zero( );
     result.head< 3 >( ) = selected->positionMetres + selected->velocityMetresPerJulianYear * elapsedYears( time, selected->referenceTime );
-    if( rates ) result.tail< 3 >( ) = selected->velocityMetresPerJulianYear * yearsRate;
+    if( rates )
+    {
+        result.tail< 3 >( ) = selected->velocityMetresPerJulianYear * yearsRate;
+    }
     for( const auto& term : postSeismicTerms_ )
     {
-        if( time.tai < term.eventTime.tai ) continue;
+        if( time.tai < term.eventTime.tai )
+        {
+            continue;
+        }
         const double dt = elapsedYears( time, term.eventTime );
         requireValidStationHistory( dt >= 0.0, "physical and source event ordering disagree" );
         const double x = dt / term.relaxationJulianYears;
         if( term.function == StationPostSeismicFunction::logarithmic )
         {
             result.head< 3 >( ) += term.amplitudeMetres * std::log1p( x );
-            if( rates ) result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / ( term.relaxationJulianYears + dt ) );
+            if( rates )
+            {
+                result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / ( term.relaxationJulianYears + dt ) );
+            }
         }
         else
         {
             result.head< 3 >( ) -= term.amplitudeMetres * std::expm1( -x );
-            if( rates ) result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / term.relaxationJulianYears * std::exp( -x ) );
+            if( rates )
+            {
+                result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / term.relaxationJulianYears * std::exp( -x ) );
+            }
         }
     }
     for( const auto& term : seasonalTerms_ )
     {
-        if( term.solutionId != selected->source.key.solutionId ) continue;
+        if( term.solutionId != selected->source.key.solutionId )
+        {
+            continue;
+        }
         requireValidStationHistory( !rates || time.decimalYearRate.has_value( ),
                                     "calendar decimal-year derivative with respect to TDB is unavailable" );
         const double omega = 2.0 * std::acos( -1.0 ) * term.cyclesPerCalendarYear;
         const double angle = static_cast< double >( omega * time.yearFraction );
         result.head< 3 >( ) += term.cosineMetres * std::cos( angle ) + term.sineMetres * std::sin( angle );
         if( rates )
+        {
             result.tail< 3 >( ) +=
                     ( -term.cosineMetres * std::sin( angle ) + term.sineMetres * std::cos( angle ) ) * ( omega * *time.decimalYearRate );
+        }
     }
     requireValidStationHistory( result.allFinite( ), "nonfinite trajectory result" );
     return result;
@@ -250,24 +289,32 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
     metadata.signals = { "piecewise linear station coordinates" };
     for( const auto* product : { &solutions, &discontinuities, postSeismic, seasonal } )
     {
-        if( !product ) continue;
+        if( !product )
+        {
+            continue;
+        }
         checkMetadata( *product, metadata );
         metadata.sources.push_back( product->source );
         if( product == postSeismic || product == seasonal )
+        {
             requireValidStationHistory( uniqueDomes( *product, site, domesSelector ) == metadata.domesId,
                                         product->source + ": station monument association differs" );
+        }
     }
     if( enuToTerrestrial )
+    {
         requireValidStationHistory(
                 enuToTerrestrial->allFinite( ) &&
                         ( enuToTerrestrial->transpose( ) * *enuToTerrestrial - Eigen::Matrix3d::Identity( ) ).norm( ) < 1e-12 &&
                         std::abs( enuToTerrestrial->determinant( ) - 1.0 ) < 1e-12,
                 "local basis must be a constant proper rotation" );
+    }
     std::vector< StationHistoryLinearSolution > linear;
     std::set< std::string > identifiers;
     std::vector< std::pair< std::string, StationHistoryInterval > > velocityIntervals;
     std::set< std::string > velocityIdentifiers;
     for( const auto& record : discontinuities.discontinuities )
+    {
         if( record.kind == "V" && record.key.site == site )
         {
             requireValidStationHistory( velocityIdentifiers.insert( record.key.solutionId ).second, "repeated V interval identity" );
@@ -275,6 +322,7 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
                                             StationHistoryInterval{ intervalEnd( record.start, true, discontinuities ),
                                                                     intervalEnd( record.end, false, discontinuities ) } );
         }
+    }
     std::sort( velocityIntervals.begin( ), velocityIntervals.end( ), []( const auto& a, const auto& b ) {
         return !a.second.startTai ? b.second.startTai.has_value( ) : ( b.second.startTai && *a.second.startTai < *b.second.startTai );
     } );
@@ -284,9 +332,11 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
         requireValidStationHistory( !interval.startTai || !interval.endTai || *interval.startTai < *interval.endTai,
                                     "empty or reversed V interval" );
         if( i )
+        {
             requireValidStationHistory( velocityIntervals[ i - 1 ].second.endTai && interval.startTai &&
                                                 *velocityIntervals[ i - 1 ].second.endTai == *interval.startTai,
                                         "V intervals overlap or contain a gap" );
+        }
     }
 
     // A selector disambiguates SITE/ID metadata only. Parameter-to-monument
@@ -296,14 +346,23 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
     {
         const auto range = selectedSolutions.sites.equal_range( site );
         for( auto it = range.first; it != range.second; )
+        {
             if( it->second.domesId != *domesSelector )
+            {
                 it = selectedSolutions.sites.erase( it );
+            }
             else
+            {
                 ++it;
+            }
+        }
     }
     for( const auto& key : getSinexCartesianSolutionKeys( solutions ) )
     {
-        if( !( key.site == site ) ) continue;
+        if( !( key.site == site ) )
+        {
+            continue;
+        }
         StationHistoryLinearSolution solution;
         solution.source = getSinexCartesianSolution( selectedSolutions, key, true );
         solution.referenceTime = sourceEpoch( solution.source.positionReferenceEpoch );
@@ -314,12 +373,14 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
         }
         std::size_t count = 0;
         for( const auto& record : discontinuities.discontinuities )
+        {
             if( record.kind == "P" && record.key == key )
             {
                 ++count;
                 solution.validity = { intervalEnd( record.start, true, discontinuities ),
                                       intervalEnd( record.end, false, discontinuities ) };
             }
+        }
         requireValidStationHistory( count == 1, "each Cartesian solution requires exactly one matching P validity interval" );
         count = 0;
         for( const auto& entry : velocityIntervals )
@@ -338,22 +399,32 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
         }
         requireValidStationHistory( count == 1, "each P interval requires exactly one independent containing V interval" );
         for( const auto& previous : linear )
+        {
             if( previous.velocitySolutionId == solution.velocitySolutionId )
+            {
                 requireValidStationHistory(
                         ( previous.velocityMetresPerJulianYear - solution.velocityMetresPerJulianYear ).cwiseAbs( ).maxCoeff( ) <=
                                 velocityConsistencyToleranceMetresPerJulianYear,
                         "attached SSC velocities contradict their shared V interval" );
+            }
+        }
         identifiers.insert( key.solutionId );
         linear.push_back( std::move( solution ) );
     }
     for( const auto& velocityId : velocityIdentifiers )
+    {
         requireValidStationHistory(
                 std::any_of( linear.begin( ), linear.end( ), [ & ]( const auto& s ) { return s.velocitySolutionId == velocityId; } ),
                 "V interval has no associated P solution" );
+    }
     for( const auto& record : discontinuities.discontinuities )
+    {
         if( record.key.site == site && record.kind == "P" )
+        {
             requireValidStationHistory( identifiers.count( record.key.solutionId ),
                                         "position interval has no matching Cartesian solution" );
+        }
+    }
 
     std::vector< StationPostSeismicTerm > psd;
     if( postSeismic )
@@ -363,9 +434,14 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
         for( const auto& entry : postSeismic->parameters )
         {
             const auto& amplitude = entry.second;
-            if( !( amplitude.key.site == site ) ) continue;
-            if( amplitude.type.size( ) == 6 && ( amplitude.type.substr( 0, 5 ) == "TLOG_" || amplitude.type.substr( 0, 5 ) == "TEXP_" ) )
+            if( !( amplitude.key.site == site ) )
+            {
                 continue;
+            }
+            if( amplitude.type.size( ) == 6 && ( amplitude.type.substr( 0, 5 ) == "TLOG_" || amplitude.type.substr( 0, 5 ) == "TEXP_" ) )
+            {
+                continue;
+            }
             requireValidStationHistory(
                     amplitude.type.size( ) == 6 && ( amplitude.type.substr( 0, 5 ) == "ALOG_" || amplitude.type.substr( 0, 5 ) == "AEXP_" ),
                     "unsupported PSD parameter" );
@@ -392,8 +468,12 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
                                         "PSD parameter used twice" );
         }
         for( const auto& entry : postSeismic->parameters )
+        {
             if( entry.second.key.site == site )
+            {
                 requireValidStationHistory( paired.count( entry.first ), "orphan PSD relaxation parameter" );
+            }
+        }
     }
     std::vector< StationSeasonalTerm > seasons;
     if( seasonal )
@@ -406,7 +486,10 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
         for( const auto& entry : seasonal->parameters )
         {
             const auto& p = entry.second;
-            if( !( p.key.site == site ) ) continue;
+            if( !( p.key.site == site ) )
+            {
+                continue;
+            }
             requireValidStationHistory( p.type.size( ) == 6 && p.type[ 0 ] == 'A' && ( p.type[ 1 ] == '1' || p.type[ 1 ] == '2' ) &&
                                                 ( p.type.substr( 2, 3 ) == "COS" || p.type.substr( 2, 3 ) == "SIN" ),
                                         "unsupported seasonal parameter" );
@@ -418,9 +501,13 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
             term.cyclesPerCalendarYear = key.second;
             const Eigen::Vector3d component = metres( p ) * componentVector( p.type.back( ), enuToTerrestrial );
             if( p.type.substr( 2, 3 ) == "COS" )
+            {
                 term.cosineMetres += component;
+            }
             else
+            {
                 term.sineMetres += component;
+            }
             term.parameterIndices.push_back( p.index );
         }
         for( const auto& entry : grouped )
@@ -430,14 +517,20 @@ std::shared_ptr< StationHistoryTrajectory > createIgnStationHistoryTrajectory( c
             const char family = fields.begin( )->back( );
             const std::string components = std::string( "XYZ" ).find( family ) != std::string::npos ? "XYZ" : "ENU";
             for( const char c : components )
+            {
                 for( const std::string function : { "COS", "SIN" } )
+                {
                     requireValidStationHistory( fields.count( "A" + std::to_string( entry.first.second ) + function + c ),
                                                 "mixed seasonal component bases" );
+                }
+            }
             seasons.push_back( entry.second );
         }
         for( const auto& id : identifiers )
+        {
             requireValidStationHistory( grouped.count( { id, 1 } ) && grouped.count( { id, 2 } ),
                                         "missing annual/semiannual coefficients for position solution" );
+        }
     }
     return std::make_shared< StationHistoryTrajectory >(
             std::move( linear ), std::move( psd ), std::move( seasons ), std::move( metadata ) );

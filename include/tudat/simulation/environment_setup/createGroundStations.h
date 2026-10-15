@@ -493,12 +493,18 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
     if( frameOrigin.empty( ) )
     {
         if( bodyWithReferencePoint->getIsBodyGlobalFrameOrigin( ) == 1 )
+        {
             frameOrigin = bodyWithReferencePoint->getBodyName( );
+        }
         else if( bodyWithReferencePoint->getEphemeris( ) &&
                  bodyWithReferencePoint->getEphemerisFrameToBaseFrame( )->getBaseFrameId( ).empty( ) )
+        {
             frameOrigin = bodyWithReferencePoint->getEphemeris( )->getReferenceFrameOrigin( );
+        }
         else
+        {
             throw std::invalid_argument( "Reference point ephemeris requires the explicit global frame origin after origin conversion." );
+        }
     }
 
     // Create list of state/rotation functions that are to be used

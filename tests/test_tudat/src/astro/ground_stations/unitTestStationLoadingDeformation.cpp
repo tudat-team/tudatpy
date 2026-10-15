@@ -232,7 +232,10 @@ BOOST_AUTO_TEST_CASE( source_clocks_are_converted_before_interpolation_through_t
     auto source = data( );
     auto terrestrial = source;
     terrestrial.timeScale = StationLoadingTimeScale::tt;
-    for( auto& epoch : terrestrial.epochs ) epoch.secondsOfDay += 32.184L;
+    for( auto& epoch : terrestrial.epochs )
+    {
+        epoch.secondsOfDay += 32.184L;
+    }
     StationLoadingDeformation taiModel( source, settings( source ), converter ), ttModel( terrestrial, settings( terrestrial ), converter );
     for( double offset : { -.5, .5, 1.0 } )
     {

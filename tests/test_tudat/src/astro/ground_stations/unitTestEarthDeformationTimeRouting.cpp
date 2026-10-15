@@ -115,11 +115,13 @@ input_output::OceanLoadingData routingOceanData( )
         input_output::OceanLoadingStation row;
         row.stationIdentifier = fixture.identifier;
         for( int i = 0; i < 3; ++i )
+        {
             for( int j = 0; j < 11; ++j )
             {
                 row.amplitudesMetres( i, j ) = fixture.coefficients[ i ][ j ];
                 row.phaseLagsDegrees( i, j ) = fixture.coefficients[ i + 3 ][ j ];
             }
+        }
         data.stations.emplace( row.stationIdentifier, row );
     }
     return data;
@@ -133,7 +135,10 @@ input_output::OceanPoleTideGrid routingGrid( )
     grid.longitudeStepDegrees = 90;
     grid.firstLatitudeDegrees = -89.75;
     grid.latitudeStepDegrees = 89.75;
-    for( int i = 0; i < 12; ++i ) grid.coefficients.push_back( Eigen::Matrix< double, 3, 2 >::Constant( 1.0 + i ) );
+    for( int i = 0; i < 12; ++i )
+    {
+        grid.coefficients.push_back( Eigen::Matrix< double, 3, 2 >::Constant( 1.0 + i ) );
+    }
     return grid;
 }
 }  // namespace

@@ -146,9 +146,13 @@ BOOST_AUTO_TEST_CASE( legacyTranscriptionDefectsAndMovingStateAtRequestedEpoch )
     BOOST_CHECK_SMALL( getItrf2014ToArbitraryItrfTranslation( "ITRF2005" )[ 3 ] * year - .0003, 1e-18 );
     BOOST_CHECK_SMALL( getItrf2014ToArbitraryItrfTranslation( "ITRF90" )[ 1 ] - .0115, 1e-18 );
     for( const auto frame : { "ITRF90", "ITRF89", "ITRF88" } )
+    {
         BOOST_CHECK_SMALL( getItrf2014ToArbitraryItrfTranslation( frame )[ 4 ] * year + .0005, 1e-18 );
+    }
     for( const auto frame : { "ITRF97", "ITRF96", "ITRF94" } )
+    {
         BOOST_CHECK_SMALL( getItrf2014ToArbitraryItrfRotationMatrixDerivative( frame )( 1, 0 ) * year - .02 * mas, 1e-24 );
+    }
     close( convertGroundStationStateBetweenItrfFrames( state( ), 20 * year, "ITRF2014", "ITRF2014" ), state( ) );
     const double scale = -.02e-9 + .03e-9 * 10;
     Eigen::Vector6d expected;

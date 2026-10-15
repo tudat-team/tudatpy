@@ -924,7 +924,10 @@ The records are stored as read, without combining the different blocks or applyi
                     []( const tio::SinexStationHistory& history ) {
                         // A Python dict would silently erase duplicate site/point records.
                         std::vector< tio::SinexSiteRecord > records;
-                        for( const auto& row : history.sites ) records.push_back( row.second );
+                        for( const auto& row : history.sites )
+                        {
+                            records.push_back( row.second );
+                        }
                         return records;
                     },
                     R"doc(

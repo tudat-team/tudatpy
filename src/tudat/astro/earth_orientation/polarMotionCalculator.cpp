@@ -27,16 +27,25 @@ Eigen::Vector2d getSecularPolePositionInMas( const double time )
 
 Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments )
 {
-    if( !evaluator_ ) throw std::runtime_error( "TAI polar motion requires a continuous EOP model" );
+    if( !evaluator_ )
+    {
+        throw std::runtime_error( "TAI polar motion requires a continuous EOP model" );
+    }
     Eigen::Vector2d value = evaluator_->evaluate( tai ).polarMotion;
-    if( shortPeriodPolarMotionCalculator_ ) value += shortPeriodPolarMotionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
+    if( shortPeriodPolarMotionCalculator_ )
+    {
+        value += shortPeriodPolarMotionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
+    }
     return value;
 }
 
 //! Calculate the position of the Celestial Intermediate Pole in the ITRS
 Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( const double ttSinceEpoch, const double utcSinceEpoch )
 {
-    if( evaluator_ ) return getPositionOfCipInItrsAtTt( ttSinceEpoch );
+    if( evaluator_ )
+    {
+        return getPositionOfCipInItrsAtTt( ttSinceEpoch );
+    }
     // Initialize offset to zero.
     Eigen::Vector2d poleOffsetsInItrs = Eigen::Vector2d::Zero( );
 
@@ -59,7 +68,10 @@ Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( const double ttSi
 //! Calculate the position of the Celestial Intermediate Pole in the ITRS
 Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( Eigen::Vector6d fundamentalArguments, const double utcSinceEpoch )
 {
-    if( evaluator_ ) return getPositionOfCipInItrsFromTai( sofa_interface::convertUTCtoTAI( Time( utcSinceEpoch ) ), fundamentalArguments );
+    if( evaluator_ )
+    {
+        return getPositionOfCipInItrsFromTai( sofa_interface::convertUTCtoTAI( Time( utcSinceEpoch ) ), fundamentalArguments );
+    }
     // Initialize offset to zero.
     Eigen::Vector2d poleOffsetsInItrs = Eigen::Vector2d::Zero( );
 

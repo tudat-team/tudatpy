@@ -261,10 +261,16 @@ BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsAmbiguityAndPreserve
     BOOST_CHECK_THROW( input_output::readSinexStationData( raw ), std::runtime_error );
     auto selectedRaw = raw;
     for( auto it = selectedRaw.parameters.begin( ); it != selectedRaw.parameters.end( ); )
+    {
         if( it->second.key.solutionId != "1" )
+        {
             it = selectedRaw.parameters.erase( it );
+        }
         else
+        {
             ++it;
+        }
+    }
     const auto adapted = input_output::readSinexStationData( selectedRaw );
     const auto selected = input_output::getSinexCartesianSolution( raw, { { "AB07", "A" }, "1" }, true );
     BOOST_REQUIRE_EQUAL( adapted.size( ), 1 );
@@ -277,15 +283,27 @@ BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsAmbiguityAndPreserve
     }
 
     // Original tokens are provenance: valid mutable civil epochs need not fabricate a raw token.
-    for( auto& parameter : selectedRaw.parameters ) parameter.second.referenceEpoch.original.clear( );
+    for( auto& parameter : selectedRaw.parameters )
+    {
+        parameter.second.referenceEpoch.original.clear( );
+    }
     BOOST_CHECK_EQUAL( input_output::readSinexStationData( selectedRaw ).at( "40423M002" ).referenceEpoch_, state.referenceEpoch_ );
     for( auto it = selectedRaw.parameters.begin( ); it != selectedRaw.parameters.end( ); )
+    {
         if( it->second.type.rfind( "VEL", 0 ) == 0 )
+        {
             it = selectedRaw.parameters.erase( it );
+        }
         else
+        {
             ++it;
+        }
+    }
     const auto absent = input_output::readSinexStationData( selectedRaw );
-    for( int i = 0; i < 3; ++i ) BOOST_CHECK( std::isnan( absent.at( "40423M002" ).velocity_[ i ] ) );
+    for( int i = 0; i < 3; ++i )
+    {
+        BOOST_CHECK( std::isnan( absent.at( "40423M002" ).velocity_[ i ] ) );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

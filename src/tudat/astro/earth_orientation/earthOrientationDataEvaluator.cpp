@@ -5,12 +5,44 @@
 #include <array>
 #include <cmath>
 #include <stdexcept>
-#include <type_traits>
+#include <utility>
 
 namespace tudat
 {
 namespace earth_orientation
 {
+
+namespace
+{
+
+//! Interpolated value and its time derivative, from the values at the selected data points and the interpolation weights.
+/*!
+ *  The differences of the values from the value at the first data point are interpolated, and added to that first value. This
+ *  avoids losing precision when the values are large compared to their variation.
+ *  \param values Values at the selected data points (only the first numberOfPoints entries are used)
+ *  \param numberOfPoints Number of selected data points (two or four)
+ *  \param weight Interpolation weight of each data point
+ *  \param rate Derivative (per TAI second) of the interpolation weight of each data point
+ *  \return Interpolated value (first) and its derivative per TAI second (second)
+ */
+template< typename ValueType >
+std::pair< ValueType, ValueType > interpolateWithDerivative( const std::array< ValueType, 4 >& values,
+                                                             const std::size_t numberOfPoints,
+                                                             const std::array< double, 4 >& weight,
+                                                             const std::array< double, 4 >& rate )
+{
+    ValueType result = values[ 0 ];
+    ValueType derivative = values[ 0 ] * 0.0;
+    for( std::size_t j = 1; j < numberOfPoints; ++j )
+    {
+        const ValueType difference = values[ j ] - values[ 0 ];
+        result += weight[ j ] * difference;
+        derivative += rate[ j ] * difference;
+    }
+    return std::make_pair( result, derivative );
+}
+
+}  // namespace
 
 // Own the raw observations once and prepare scalar indexes without borrowed map iterators.
 EarthOrientationDataEvaluator::EarthOrientationDataEvaluator( const input_output::EarthOrientationData& data,
@@ -62,7 +94,10 @@ EarthOrientationDataEvaluator::EarthOrientationDataEvaluator( const input_output
 
 std::vector< std::size_t > EarthOrientationDataEvaluator::stencil( const std::size_t left ) const
 {
-    if( settings_.interpolation == EarthOrientationInterpolation::linear ) return { left, left + 1 };
+    if( settings_.interpolation == EarthOrientationInterpolation::linear )
+    {
+        return { left, left + 1 };
+    }
     const std::size_t first = std::min( left == 0 ? 0 : left - 1, epochs_.size( ) - 4 );
     return { first, first + 1, first + 2, first + 3 };
 }
@@ -70,7 +105,12 @@ std::vector< std::size_t > EarthOrientationDataEvaluator::stencil( const std::si
 bool EarthOrientationDataEvaluator::validStencil( const std::vector< std::size_t >& indices ) const
 {
     for( std::size_t i = 1; i < indices.size( ); ++i )
-        if( static_cast< double >( epochs_[ indices[ i ] ] - epochs_[ indices[ i - 1 ] ] ) > settings_.maximumGapSeconds ) return false;
+    {
+        if( static_cast< double >( epochs_[ indices[ i ] ] - epochs_[ indices[ i - 1 ] ] ) > settings_.maximumGapSeconds )
+        {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -79,7 +119,10 @@ void EarthOrientationDataEvaluator::validateCubicUt1Monotonicity( ) const
     for( std::size_t left = 0; left + 1 < epochs_.size( ); ++left )
     {
         const auto indices = stencil( left );
-        if( !validStencil( indices ) ) continue;  // Interior evaluation is rejected for this complete stencil.
+        if( !validStencil( indices ) )
+        {
+            continue;  // Interior evaluation is rejected for this complete stencil.
+        }
         const double duration = static_cast< double >( epochs_[ left + 1 ] - epochs_[ left ] );
         std::array< double, 4 > coefficient{ 0.0, 0.0, 0.0, 0.0 };
         for( const std::size_t node : indices )
@@ -89,7 +132,10 @@ void EarthOrientationDataEvaluator::validateCubicUt1Monotonicity( ) const
             int degree = 0;
             for( const std::size_t other : indices )
             {
-                if( other == node ) continue;
+                if( other == node )
+                {
+                    continue;
+                }
                 const double y = static_cast< double >( epochs_[ other ] - epochs_[ left ] ) / duration;
                 std::array< double, 4 > next{ 0.0, 0.0, 0.0, 0.0 };
                 for( int k = 0; k <= degree; ++k )
@@ -100,7 +146,10 @@ void EarthOrientationDataEvaluator::validateCubicUt1Monotonicity( ) const
                 basis = next;
                 ++degree;
             }
-            for( int k = 0; k < 4; ++k ) coefficient[ k ] += ( ut1MinusTai_[ node ] - ut1MinusTai_[ left ] ) * basis[ k ];
+            for( int k = 0; k < 4; ++k )
+            {
+                coefficient[ k ] += ( ut1MinusTai_[ node ] - ut1MinusTai_[ left ] ) * basis[ k ];
+            }
         }
         const auto derivative = [ &coefficient, duration ]( const double u ) {
             return 1.0 + ( coefficient[ 1 ] + 2.0 * coefficient[ 2 ] * u + 3.0 * coefficient[ 3 ] * u * u ) / duration;
@@ -109,10 +158,15 @@ void EarthOrientationDataEvaluator::validateCubicUt1Monotonicity( ) const
         if( coefficient[ 3 ] != 0.0 )
         {
             const double extremum = -coefficient[ 2 ] / ( 3.0 * coefficient[ 3 ] );
-            if( extremum > 0.0 && extremum < 1.0 ) minimum = std::min( minimum, derivative( extremum ) );
+            if( extremum > 0.0 && extremum < 1.0 )
+            {
+                minimum = std::min( minimum, derivative( extremum ) );
+            }
         }
         if( !std::isfinite( minimum ) || minimum <= 0.0 )
+        {
             throw std::runtime_error( data_.source + ": four-point interpolation gives non-positive dUT1/dTAI inside an interval" );
+        }
     }
 }
 
@@ -206,66 +260,62 @@ EarthOrientationDataValue EarthOrientationDataEvaluator::evaluate( const Time& r
             rate[ j ] = derivative / duration;
         }
 
-        // Sum differences from the first observation to avoid cancellation of large UTC offsets.
-        // The same sum is used for scalar (double) and vector (Eigen::Vector2d) quantities.
-        const auto interpolate = [ &indices, &weight, &rate ]( const auto& get ) {
-            using Value = std::decay_t< decltype( get( 0 ) ) >;
+        // Values of each quantity at the selected data points.
+        std::array< double, 4 > ut1Values{}, lengthOfDayValues{};
+        std::array< Eigen::Vector2d, 4 > polarMotionValues, celestialPoleOffsetValues;
 
-            const Value anchor = get( 0 );
+        // Celestial pole offsets and length of day are only interpolated if they are given at all selected data points.
+        bool allCpo = true, allLod = true;
 
-            Value result = anchor;
+        for( std::size_t j = 0; j < indices.size( ); ++j )
+        {
+            const input_output::EarthOrientationRecord& record = *selectedRecords[ j ];
 
-            Value derivative = anchor * 0.0;
+            ut1Values[ j ] = ut1MinusTai_[ indices[ j ] ];
 
-            for( std::size_t j = 1; j < indices.size( ); ++j )
+            // Polar-motion values are radians and rates are radians per TAI second.
+            polarMotionValues[ j ] = Eigen::Vector2d( record.polarMotion[ 0 ], record.polarMotion[ 1 ] );
+            if( record.celestialPoleOffsets.has_value( ) )
             {
-                const Value difference = get( j ) - anchor;
-
-                result += weight[ j ] * difference;
-                derivative += rate[ j ] * difference;
+                celestialPoleOffsetValues[ j ] =
+                        Eigen::Vector2d( ( *record.celestialPoleOffsets )[ 0 ], ( *record.celestialPoleOffsets )[ 1 ] );
             }
-            return std::make_pair( result, derivative );
-        };
+            else
+            {
+                allCpo = false;
+            }
+            if( record.lengthOfDay.has_value( ) )
+            {
+                lengthOfDayValues[ j ] = *record.lengthOfDay;
+            }
+            else
+            {
+                allLod = false;
+            }
+        }
 
-        const auto ut1 = interpolate( [ this, &indices ]( std::size_t sample ) { return ut1MinusTai_[ indices[ sample ] ]; } );
+        const std::pair< double, double > ut1 = interpolateWithDerivative( ut1Values, indices.size( ), weight, rate );
 
         value.ut1MinusTai = ut1.first;
         value.ut1MinusTaiRate = ut1.second;
 
-        // Polar-motion values are radians and rates are radians per TAI second.
-        const auto pm = interpolate( [ &selectedRecords ]( std::size_t sample ) {
-            return Eigen::Vector2d( selectedRecords[ sample ]->polarMotion[ 0 ], selectedRecords[ sample ]->polarMotion[ 1 ] );
-        } );
+        const std::pair< Eigen::Vector2d, Eigen::Vector2d > polarMotion =
+                interpolateWithDerivative( polarMotionValues, indices.size( ), weight, rate );
 
-        value.polarMotion = pm.first;
-        value.polarMotionRate = pm.second;
-
-        // CPO interpolation requires observed corrections at every selected sample.
-        const bool allCpo = std::all_of( selectedRecords.begin( ), selectedRecords.begin( ) + indices.size( ), []( const auto* record ) {
-            return record->celestialPoleOffsets.has_value( );
-        } );
+        value.polarMotion = polarMotion.first;
+        value.polarMotionRate = polarMotion.second;
 
         if( allCpo )
         {
-            // Interpolate the measured celestial-pole offsets and their TAI rates together.
-            const auto cpo = interpolate( [ &selectedRecords ]( std::size_t sample ) {
-                return Eigen::Vector2d( ( *selectedRecords[ sample ]->celestialPoleOffsets )[ 0 ],
-                                        ( *selectedRecords[ sample ]->celestialPoleOffsets )[ 1 ] );
-            } );
+            const std::pair< Eigen::Vector2d, Eigen::Vector2d > celestialPoleOffsets =
+                    interpolateWithDerivative( celestialPoleOffsetValues, indices.size( ), weight, rate );
 
-            value.celestialPoleOffsets = cpo.first;
-            value.celestialPoleOffsetRate = cpo.second;
+            value.celestialPoleOffsets = celestialPoleOffsets.first;
+            value.celestialPoleOffsetRate = celestialPoleOffsets.second;
         }
-
-        // LOD remains optional and is reported only when the complete stencil supplies it.
-        const bool allLod = std::all_of( selectedRecords.begin( ), selectedRecords.begin( ) + indices.size( ), []( const auto* record ) {
-            return record->lengthOfDay.has_value( );
-        } );
-
         if( allLod )
         {
-            value.lengthOfDay =
-                    interpolate( [ &selectedRecords ]( std::size_t sample ) { return *selectedRecords[ sample ]->lengthOfDay; } ).first;
+            value.lengthOfDay = interpolateWithDerivative( lengthOfDayValues, indices.size( ), weight, rate ).first;
         }
     }
     if( exactNode )
@@ -308,7 +358,10 @@ Time EarthOrientationDataEvaluator::convertTaiToScalarUtc( const Time& tai )
     const double taiDay = 2451545.0 + tai.fullDaysSinceEpoch( );
     const double taiFraction = static_cast< double >( tai.secondsSinceNoon( ) / 86400.0L );
     double utc1, utc2;
-    if( iauTaiutc( taiDay, taiFraction, &utc1, &utc2 ) < 0 ) throw std::runtime_error( "Cannot convert TAI to UTC" );
+    if( iauTaiutc( taiDay, taiFraction, &utc1, &utc2 ) < 0 )
+    {
+        throw std::runtime_error( "Cannot convert TAI to UTC" );
+    }
 
     // Identify the civil day with SOFA, then compare the inserted-second
     // interval using Time arithmetic. A rounded civil clock alone can classify
@@ -316,20 +369,30 @@ Time EarthOrientationDataEvaluator::convertTaiToScalarUtc( const Time& tai )
     int year, month, day;
     double fraction, mjdOrigin, utcDay;
     if( iauJd2cal( utc1, utc2, &year, &month, &day, &fraction ) != 0 || iauCal2jd( year, month, day, &mjdOrigin, &utcDay ) != 0 )
+    {
         throw std::runtime_error( "Cannot determine UTC civil day" );
+    }
     for( int dayOffset : { 0, 1 } )
     {
         int y, m, d;
         double f, datBefore, datAfter;
         iauJd2cal( mjdOrigin, utcDay + dayOffset - 1.0, &y, &m, &d, &f );
-        if( iauDat( y, m, d, 0.0, &datBefore ) < 0 ) throw std::runtime_error( "Cannot determine UTC offset" );
+        if( iauDat( y, m, d, 0.0, &datBefore ) < 0 )
+        {
+            throw std::runtime_error( "Cannot determine UTC offset" );
+        }
         iauJd2cal( mjdOrigin, utcDay + dayOffset, &y, &m, &d, &f );
-        if( iauDat( y, m, d, 0.0, &datAfter ) < 0 ) throw std::runtime_error( "Cannot determine UTC offset" );
+        if( iauDat( y, m, d, 0.0, &datAfter ) < 0 )
+        {
+            throw std::runtime_error( "Cannot determine UTC offset" );
+        }
         if( y >= 1972 && datAfter - datBefore > 0.5 )
         {
             const Time midnightTai = Time( ( utcDay + dayOffset - 51544.5 ) * 86400.0 ) + datAfter;
             if( tai >= midnightTai - ( datAfter - datBefore ) && tai < midnightTai )
+            {
                 throw std::runtime_error( "Scalar UTC cannot uniquely represent 23:59:60; use TAI/TT for this instant" );
+            }
         }
     }
     return sofa_interface::convertTAItoUTC( tai );

@@ -26,12 +26,14 @@ std::shared_ptr< BodyCentricToBarycentricRelativisticStationMotion > constantMod
 {
     std::vector< RelativisticStationExternalBody > bodies;
     if( potential )
+    {
         bodies = { { "Sun",
                      []( double ) { return state( Eigen::Vector3d( 149597870700.0, 0, 0 ), Eigen::Vector3d::Zero( ) ); },
                      []( ) { return 1.32712440018e20; } },
                    { "Moon",
                      []( double ) { return state( Eigen::Vector3d( 0, 384400000.0, 0 ), Eigen::Vector3d::Zero( ) ); },
                      []( ) { return 4.9028e12; } } };
+    }
     return std::make_shared< BodyCentricToBarycentricRelativisticStationMotion >(
             []( double t ) {
                 return state( ( t - 1234 ) * Eigen::Vector3d( 27000, -14000, 6200 ), Eigen::Vector3d( 27000, -14000, 6200 ) );
@@ -275,7 +277,10 @@ BOOST_AUTO_TEST_CASE( invalid_external_potential_and_unavailable_fallback_rates_
     BodyCentricToBarycentricRelativisticStationMotion covered(
             [ & ]( double t ) {
                 lastEpoch = t;
-                if( t != 0 ) throw std::out_of_range( "host coverage" );
+                if( t != 0 )
+                {
+                    throw std::out_of_range( "host coverage" );
+                }
                 return host( t );
             },
             identity,

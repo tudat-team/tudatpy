@@ -15,7 +15,9 @@ inline std::shared_ptr< GroundStationSettings > stationReferencePointSettings(
 {
     if( !trajectory || trajectory->getMetadata( ).referencePointKind == ground_stations::StationReferencePointKind::marker ||
         trajectory->getMetadata( ).referencePointName.empty( ) )
+    {
         throw std::runtime_error( "Reference-point station requires an explicit instrument point trajectory" );
+    }
     const std::string name = trajectory->getMetadata( ).referencePointName;
     return std::make_shared< GroundStationSettings >(
             name,

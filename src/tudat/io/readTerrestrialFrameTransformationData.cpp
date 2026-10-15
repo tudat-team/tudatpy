@@ -22,14 +22,20 @@ std::runtime_error error( const std::string& source, std::size_t line, const std
 double parseTerrestrialFrameNumber( const std::string& value, const std::string& source, std::size_t line )
 {
     const auto result = text_parsing::parseFiniteNumber( value );
-    if( !result ) throw error( source, line, "Invalid finite parameter: " + value );
+    if( !result )
+    {
+        throw error( source, line, "Invalid finite parameter: " + value );
+    }
     return *result;
 }
 }  // namespace
 const TerrestrialFrameTransformationParameters& TerrestrialFrameTransformationData::getParameters( const std::string& target ) const
 {
     const auto found = records.find( target );
-    if( found == records.end( ) ) throw std::runtime_error( "No terrestrial-frame parameters for " + target );
+    if( found == records.end( ) )
+    {
+        throw std::runtime_error( "No terrestrial-frame parameters for " + target );
+    }
     return found->second;
 }
 void validateTerrestrialFrameTransformationParameters( const TerrestrialFrameTransformationParameters& p )
@@ -38,27 +44,39 @@ void validateTerrestrialFrameTransformationParameters( const TerrestrialFrameTra
         !p.translationMetres.allFinite( ) || !p.rotationRadians.allFinite( ) || !std::isfinite( p.scale ) ||
         !p.translationRateMetresPerSecond.allFinite( ) || !p.rotationRateRadiansPerSecond.allFinite( ) ||
         !std::isfinite( p.scaleRatePerSecond ) || !std::isfinite( p.parameterRateYearSeconds ) || p.parameterRateYearSeconds <= 0 )
+    {
         throw std::runtime_error( "Invalid terrestrial-frame identities or finite SI parameters" );
+    }
     if( !p.provenance.sourceRelease.empty( ) && p.provenance.sourceRelease != p.sourceFrame.release )
+    {
         throw std::runtime_error( "Conflicting terrestrial-frame record release provenance" );
+    }
     if( p.rotationConvention != HelmertRotationConvention::unspecified &&
         p.rotationConvention != HelmertRotationConvention::positionVector &&
         p.rotationConvention != HelmertRotationConvention::coordinateFrame )
+    {
         throw std::runtime_error( "Unknown Helmert rotation convention" );
+    }
 }
 void validateTerrestrialFrameTransformationData( const TerrestrialFrameTransformationData& data )
 {
     if( data.referenceFrame.realization.empty( ) || data.records.empty( ) )
+    {
         throw std::runtime_error( "Empty terrestrial-frame parameter catalogue" );
+    }
     if( !data.provenance.sourceRelease.empty( ) && data.provenance.sourceRelease != data.referenceFrame.release )
+    {
         throw std::runtime_error( "Conflicting terrestrial-frame catalogue release provenance" );
+    }
     for( const auto& entry : data.records )
     {
         validateTerrestrialFrameTransformationParameters( entry.second );
         if( entry.first != entry.second.targetFrame.realization ||
             entry.second.sourceFrame.realization != data.referenceFrame.realization ||
             entry.second.sourceFrame.release != data.referenceFrame.release )
+        {
             throw std::runtime_error( "Conflicting terrestrial-frame catalogue hub/identity" );
+        }
     }
 }
 TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::istream& stream,
@@ -77,7 +95,10 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
     while( std::getline( stream, line ) )
     {
         ++count;
-        if( !line.empty( ) && line.back( ) == '\r' ) line.pop_back( );
+        if( !line.empty( ) && line.back( ) == '\r' )
+        {
+            line.pop_back( );
+        }
         const auto row = text_parsing::splitIntoTokens( line );
         if( row.empty( ) )
         {
@@ -88,7 +109,9 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
         {
             std::smatch match;
             if( !std::regex_match( line, match, std::regex( "\\s*Transformation parameters from (ITRF[0-9]+) to past ITRFs\\.\\s*" ) ) )
+            {
                 throw error( source, count, "Expected IGN transformation-table identity header" );
+            }
             result.referenceFrame = { match[ 1 ], supplied.sourceRelease.empty( ) ? match[ 1 ].str( ) : supplied.sourceRelease };
             headline = true;
             result.sourceHeaders.push_back( line );
@@ -97,13 +120,17 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
         if( row[ 0 ] == "SOLUTION" )
         {
             if( columns || row != std::vector< std::string >{ "SOLUTION", "Tx", "Ty", "Tz", "D", "Rx", "Ry", "Rz", "EPOCH" } )
+            {
                 throw error( source, count, "Conflicting or unsupported parameter column order" );
+            }
             columns = true;
         }
         else if( row[ 0 ] == "RATES" )
         {
             if( rateColumns || row != std::vector< std::string >{ "RATES", "Tx", "Ty", "Tz", "D", "Rx", "Ry", "Rz" } )
+            {
                 throw error( source, count, "Conflicting or unsupported rate column order" );
+            }
             rateColumns = true;
         }
         else if( row[ 0 ] == "UNITS---------->" )
@@ -111,7 +138,9 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
             if( !units )
             {
                 if( row != std::vector< std::string >{ "UNITS---------->", "mm", "mm", "mm", "ppb", ".001\"", ".001\"", ".001\"" } )
+                {
                     throw error( source, count, "Expected mm, ppb and mas parameter units" );
+                }
                 units = true;
             }
             else
@@ -120,14 +149,18 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
                     row !=
                             std::vector< std::string >{
                                     "UNITS---------->", "mm/y", "mm/y", "mm/y", "ppb/y", ".001\"/y", ".001\"/y", ".001\"/y" } )
+                {
                     throw error( source, count, "Expected published per-year parameter-rate units" );
+                }
                 rateUnits = true;
             }
         }
         else if( row[ 0 ].rfind( "ITRF", 0 ) == 0 && !closed )
         {
             if( !columns || !rateColumns || !units || !rateUnits || awaitingRates || row.size( ) != 9 )
+            {
                 throw error( source, count, "Incomplete declarations, malformed parameter row or missing paired rates" );
+            }
             pending = TerrestrialFrameTransformationParameters( );
             pending.sourceFrame = result.referenceFrame;
             pending.targetFrame.realization = row[ 0 ];
@@ -147,7 +180,10 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
         }
         else if( row[ 0 ] == "rates" && !closed )
         {
-            if( !awaitingRates || row.size( ) != 8 ) throw error( source, count, "Orphan or malformed parameter-rate row" );
+            if( !awaitingRates || row.size( ) != 8 )
+            {
+                throw error( source, count, "Orphan or malformed parameter-rate row" );
+            }
             for( int i = 0; i < 3; ++i )
             {
                 pending.translationRateMetresPerSecond[ i ] =
@@ -159,13 +195,18 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
             pending.originalRateLine = line;
             pending.rateSourceLine = count;
             if( !result.records.emplace( pending.targetFrame.realization, pending ).second )
+            {
                 throw error( source, count, "Duplicate target realization " + pending.targetFrame.realization );
+            }
             awaitingRates = false;
             continue;
         }
         else if( row[ 0 ][ 0 ] == '_' )
         {
-            if( awaitingRates ) throw error( source, count, "Missing paired parameter rates" );
+            if( awaitingRates )
+            {
+                throw error( source, count, "Missing paired parameter rates" );
+            }
             closed = true;
         }
         else if( !closed && row[ 0 ][ 0 ] != '-' && row[ 0 ] != "." )
@@ -182,9 +223,14 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
         }
         result.sourceHeaders.push_back( line );
     }
-    if( stream.fail( ) && !stream.eof( ) ) throw error( source, count, "Input stream read failure" );
+    if( stream.fail( ) && !stream.eof( ) )
+    {
+        throw error( source, count, "Input stream read failure" );
+    }
     if( !headline || !closed || awaitingRates || !xEquation || !yEquation || !zEquation )
+    {
         throw error( source, count, "Truncated table or missing explicit position-vector equation" );
+    }
     try
     {
         validateTerrestrialFrameTransformationData( result );
@@ -199,9 +245,15 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( const
                                                                            const TerrestrialFrameTransformationSource& supplied )
 {
     std::ifstream stream( filePath );
-    if( !stream ) throw std::runtime_error( filePath + ": Cannot open terrestrial-frame parameter table" );
+    if( !stream )
+    {
+        throw std::runtime_error( filePath + ": Cannot open terrestrial-frame parameter table" );
+    }
     auto source = supplied;
-    if( source.source.empty( ) || source.source == "<stream>" ) source.source = filePath;
+    if( source.source.empty( ) || source.source == "<stream>" )
+    {
+        source.source = filePath;
+    }
     return readTerrestrialFrameTransformationData( stream, source );
 }
 

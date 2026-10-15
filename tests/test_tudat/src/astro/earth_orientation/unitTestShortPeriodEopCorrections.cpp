@@ -276,7 +276,10 @@ BOOST_AUTO_TEST_CASE( test_independent_short_period_references_across_nodal_cycl
         BOOST_TEST_CONTEXT( "UTC MJD " << fixture.mjdUtc )
         {
             Eigen::Vector6d arguments;
-            for( int i = 0; i < 6; ++i ) arguments( i ) = fixture.arguments[ i ];
+            for( int i = 0; i < 6; ++i )
+            {
+                arguments( i ) = fixture.arguments[ i ];
+            }
             const Eigen::Vector2d polarExact = polarLibration.getCorrectionsFromFundamentalArgument( arguments ) / uas;
             const double ut1Exact = ut1Libration.getCorrectionsFromFundamentalArgument( arguments );
 
@@ -370,11 +373,17 @@ BOOST_AUTO_TEST_CASE( test_daily_pole_and_cpo_are_applied_once_without_long_peri
             data + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
             0.0 );
     BOOST_REQUIRE_EQUAL( libration.second.rows( ), 10 );  // PMSDNUT2 IBAND=1, no long periods/secular drift.
-    for( int i = 0; i < libration.second.rows( ); ++i ) BOOST_CHECK_EQUAL( libration.second( i, 0 ), 1.0 );
+    for( int i = 0; i < libration.second.rows( ); ++i )
+    {
+        BOOST_CHECK_EQUAL( libration.second( i, 0 ), 1.0 );
+    }
     const auto ocean = readAmplitudesAndFundamentalArgumentMultipliers(
             data + "polarMotionOceanTidesAmplitudes.txt", data + "polarMotionOceanTidesFundamentalArgumentMultipliers.txt", 0.0 );
     BOOST_REQUIRE_EQUAL( ocean.second.rows( ), 71 );
-    for( int i = 0; i < ocean.second.rows( ); ++i ) BOOST_CHECK( ocean.second( i, 0 ) == 1.0 || ocean.second( i, 0 ) == 2.0 );
+    for( int i = 0; i < ocean.second.rows( ); ++i )
+    {
+        BOOST_CHECK( ocean.second( i, 0 ) == 1.0 || ocean.second( i, 0 ) == 2.0 );
+    }
     const auto shortPeriods = getDefaultPolarMotionCorrectionCalculator( );
     const double uas = convertArcSecondsToRadians< double >( 1e-6 );
     for( const auto& fixture : short_period_reference::fixtures )
@@ -386,7 +395,9 @@ BOOST_AUTO_TEST_CASE( test_daily_pole_and_cpo_are_applied_once_without_long_peri
         PolarMotionCalculator polarModel( dailyInterpolator, shortPeriods );
         const auto actual = polarModel.getPositionOfCipInItrs( fixture.ttSeconds, utc );
         for( int i = 0; i < 2; ++i )
+        {
             BOOST_CHECK_SMALL( actual( i ) - daily( i ) - uas * ( fixture.polarLibration[ i ] + fixture.ocean[ i ] * 1e6 ), 0.21 * uas );
+        }
 
         // Synthetic observed CPO includes a 430-day oscillation representing an
         // FCN signal already in observations. It must enter X/Y exactly once.

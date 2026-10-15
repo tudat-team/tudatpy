@@ -406,7 +406,10 @@ Eigen::Vector3d Iers2010EarthDeformation::evaluateDisplacement( const Time& tdb,
             ? static_cast< double >( timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb ) )
             : static_cast< double >( tdb );
     Eigen::Vector6d arguments = doodsonArgumentFunction_( argumentTime );
-    for( int i = 0; i < 6; ++i ) arguments[ i ] = std::fmod( arguments[ i ], 2 * mathematical_constants::PI );
+    for( int i = 0; i < 6; ++i )
+    {
+        arguments[ i ] = std::fmod( arguments[ i ], 2 * mathematical_constants::PI );
+    }
     return displacementFromArguments( station, arguments );
 }
 
@@ -427,9 +430,11 @@ Eigen::Vector6d Iers2010EarthDeformation::evaluateDisplacementState( const Time&
 void Iers2010EarthDeformation::validateDisplacementDerivativeInterval( const Time& lower, const Time& upper ) const
 {
     if( usesNativeUtcPhase_ )
+    {
         validateEarthDeformationUtcInterval(
                 static_cast< double >( timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, lower ) ),
                 static_cast< double >( timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, upper ) ) );
+    }
 }
 
 Eigen::Vector3d Iers2010EarthDeformation::displacementFromArguments(
