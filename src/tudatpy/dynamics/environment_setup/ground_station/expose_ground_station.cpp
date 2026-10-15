@@ -626,6 +626,17 @@ reference_epoch:
 
      )doc" );
 
+    m.def( "body_deformation_station_motion",
+           &tss::bodyDeformationStationMotionSettings,
+           py::arg( "throw_exception_when_not_available" ) = true,
+           R"doc(
+Apply the body's configured shape-deformation models to this station or surface reference point.
+
+The displacement is evaluated at the station epoch in TDB and added in body-fixed axes. Configure the physical models
+through the body's shape_deformation_settings; this function connects those existing models to the station.
+Keep throw_exception_when_not_available true when every configured contribution is required by the analysis.
+           )doc" );
+
     m.def( "custom_station_motion",
            &tss::customGroundStationMotionSettings,
            py::arg( "custom_displacement_function" ),

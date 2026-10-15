@@ -72,6 +72,8 @@ Functions
 
     custom_station_motion
 
+    body_deformation_station_motion
+
     get_approximate_dsn_ground_station_positions
 
     get_vlbi_station_positions
@@ -119,6 +121,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.piecewise_constant_station_motion
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.custom_station_motion
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.body_deformation_station_motion
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions
 
