@@ -1,0 +1,455 @@
+"""Fixed-DE440 APOLLO diagnostic; no estimation, editing, bias removal or detrending.
+
+Requires the optical-troposphere, laser-signature and station-deformation bindings.
+The public 2005 APOLLO survey is only accurate to about 0.1 m. This is deliberately
+not labelled a reproduction of JPL's fitted station solution or a mm accuracy test.
+See docs/llr_fixed_ephemeris_diagnostic.rst for conventions and omissions.
+"""
+
+import argparse
+import csv
+import hashlib
+import json
+from decimal import Decimal
+from pathlib import Path
+
+import numpy as np
+
+import tudatpy
+from tudatpy import constants, kernel
+from tudatpy.astro import element_conversion, time_representation as time
+from tudatpy.data_input import resource_paths
+from tudatpy.dynamics import environment, environment_setup as setup
+from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import links, model_settings
+from tudatpy.estimation.observable_models_setup import light_time_corrections as ltc
+from tudatpy.estimation.observations_setup import observations_simulation_settings as sim
+from tudatpy.interface import spice
+from tudatpy.math import interpolators
+
+# Park et al. (2021), Table 1: metres in the DE440 principal-axis frame, front-face centres.
+REFLECTORS = {
+    0: ("A11", (1591967.049, 690698.573, 21004.461)),
+    1: ("L1", (1114291.452, -781299.273, 1076059.049)),
+    2: ("A14", (1652689.369, -520998.431, -109729.869)),
+    3: ("A15", (1554678.104, 98094.498, 765005.863)),
+    4: ("L2", (1339363.598, 801870.995, 756359.260)),
+}
+
+# The selected eleven rows are fixed before calculation, including all reflector IDs and quality grades.
+NP_SHA256 = "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389"
+
+KERNELS = {
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+    "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+    "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+    "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+    "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+    "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+}
+
+
+def sha256(path):
+    """Identify the actual local inputs without downloading or replacing them."""
+
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def read_points(path):
+    """Decode the provider's fixed-width UTC/RTT/weather fields, retaining every pinned row."""
+
+    if sha256(path) != NP_SHA256:
+        raise ValueError("Expected the pinned eleven APOLLO points, not another release/selection")
+
+    widths = (2, 4, 2, 2, 2, 2, 9, 14, 1, 5, 3, 6, 3, 1, 6, 4, 2, 5, 1, 4, 1)
+
+    points = []
+
+    for index, line in enumerate(path.read_text().splitlines()):
+        fields = []
+
+        offset = 0
+
+        for width in widths:
+            fields.append(line[offset : offset + width])
+            offset += width
+
+        year, month, day, hour, minute = map(int, fields[1:6])
+
+        seconds = Decimal(fields[6]) * Decimal("1e-7")
+
+        utc = time.DateTime(year, month, day, hour, minute, float(seconds)).to_epoch_time_object()
+
+        if (year, month, day) != (2017, 3, 9) or fields[9] != "70610":
+            raise ValueError("Unexpected date/station in fixed APOLLO case")
+
+        points.append(
+            dict(
+                index=index,
+                utc=utc,
+                utc_label=f"{year:04}-{month:02}-{day:02}T{hour:02}:{minute:02}:{seconds:010.7f}",
+                observed_rtt_s=float(Decimal(fields[7]) * Decimal("1e-13")),
+                reflector=int(fields[8]),
+                photons=int(fields[10]),
+                sigma_rtt_s=float(Decimal(fields[11]) * Decimal("1e-13")),
+                quality=fields[13],
+                pressure_pa=float(fields[14]),  # 0.01 mbar equals 1 Pa.
+                temperature_k=float(fields[15]) * 0.1 + 273.15,
+                humidity=float(fields[16]) * 0.01,
+                wavelength_m=float(fields[17]) * 1e-10,
+                duration_s=int(fields[19]),
+            )
+        )
+
+    if len(points) != 11:
+        raise ValueError("The fixed case must contain all eleven normal points")
+
+    return points
+
+
+def barycentric_state(body, epoch):
+    """Use geometric DE440 states; the n-way solver performs both light-time iterations."""
+
+    return np.asarray(
+        spice.get_body_cartesian_state_at_epoch(body, "SSB", "J2000", "NONE", float(epoch))
+    )
+
+
+def create_environment(points):
+    """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
+
+    settings = setup.BodyListSettings("SSB", "J2000")
+
+    for name in ("Sun", "Earth", "Moon"):
+        settings.add_empty_settings(name)
+        settings.get(name).ephemeris_settings = setup.ephemeris.direct_spice("SSB", "J2000")
+        settings.get(name).gravity_field_settings = setup.gravity_field.central_spice()
+
+    earth = settings.get("Earth")
+
+    earth.rotation_model_settings = setup.rotation_model.gcrs_to_itrs(base_frame="J2000")
+    earth.shape_settings = setup.shape.oblate_spherical(6378137.0, 1 / 298.257223563)
+    earth.shape_deformation_settings = [
+        setup.shape_deformation.iers_2010_solid_body_tidal(),
+        setup.shape_deformation.pole_tidal(),
+    ]
+
+    moon = settings.get("Moon")
+
+    moon.rotation_model_settings = setup.rotation_model.spice("J2000", "MOON_PA_DE440")
+    moon.shape_settings = setup.shape.spherical(1738000.0)
+    moon.shape_deformation_settings = [
+        setup.shape_deformation.basic_solid_body_tidal(
+            ["Earth", "Sun"], {2: (0.0423, 0.0107), 3: (0.0234, 0.0030)}, 1738000.0
+        )
+    ]
+
+    bodies = setup.create_system_of_bodies(settings)
+
+    # The 2005 WGS84 survey is approximate (~0.1 m); use Tudat's shape conversion, with no guessed velocity.
+    survey = [2786.62, np.deg2rad(32.78035394), np.deg2rad(254.1795786)]
+
+    deformation = setup.ground_station.body_deformation_station_motion()
+
+    # Auxiliary points expose the full intrinsic displacement before applying each spatial conversion once.
+    setup.add_ground_station(
+        bodies.get("Earth"),
+        setup.ground_station.basic_station(
+            "APOLLO_intrinsic",
+            survey,
+            element_conversion.geodetic_position_type,
+            station_motion_settings=[deformation],
+        ),
+        bodies,
+    )
+
+    intrinsic_earth = bodies.get("Earth").get_ground_station("APOLLO_intrinsic").station_state
+
+    position = intrinsic_earth.cartesian_position_at_reference_epoch
+
+    rotation = bodies.get("Earth").rotation_model
+
+    def earth_simultaneity(epoch):
+        """Retard Earth rotation by v_E dot r/c²; deformation velocity over ~2 microseconds is omitted."""
+
+        body_fixed = intrinsic_earth.get_cartesian_position(epoch, "Earth")
+
+        to_inertial = rotation.body_fixed_to_inertial_rotation(epoch)
+
+        velocity = rotation.time_derivative_body_fixed_to_inertial_rotation(epoch) @ body_fixed
+
+        delta_time = (
+            np.dot(barycentric_state("Earth", epoch)[3:], to_inertial @ body_fixed)
+            / constants.SPEED_OF_LIGHT**2
+        )
+
+        return to_inertial.T @ (-delta_time * velocity)
+
+    setup.add_ground_station(
+        bodies.get("Earth"),
+        setup.ground_station.basic_station(
+            "APOLLO",
+            position,
+            station_motion_settings=[
+                deformation,
+                setup.ground_station.custom_station_motion(earth_simultaneity),
+                setup.ground_station.relativistic_station_motion(),
+            ],
+        ),
+        bodies,
+    )
+
+    # Weather is supplied at every measured UTC tag and held at the end tags for the short light-time window.
+    weather = {
+        float(point["utc"]): np.array(
+            [point["temperature_k"], point["pressure_pa"], point["humidity"]]
+        )
+        for point in points
+    }
+
+    utc_tags = sorted(weather)
+
+    weather[utc_tags[0] - 1000.0] = weather[utc_tags[0]]
+    weather[utc_tags[-1] + 1000.0] = weather[utc_tags[-1]]
+
+    meteo = environment.ContinuousInterpolatedMeteoData(
+        interpolators.create_one_dimensional_vector_interpolator(
+            weather, interpolators.linear_interpolation()
+        ),
+        {
+            environment.temperature_meteo_data: 0,
+            environment.pressure_meteo_data: 1,
+            environment.relative_humidity_meteo_data: 2,
+        },
+    )
+
+    bodies.get("Earth").get_ground_station("APOLLO").set_station_meteo_data(meteo)
+
+    for code in sorted({point["reflector"] for point in points}):
+        name, coordinates = REFLECTORS[code]
+
+        setup.add_ground_station(
+            bodies.get("Moon"),
+            setup.ground_station.basic_station(
+                name + "_intrinsic", coordinates, station_motion_settings=[deformation]
+            ),
+            bodies,
+        )
+
+        intrinsic_moon = bodies.get("Moon").get_ground_station(name + "_intrinsic").station_state
+
+        def lunar_spatial(epoch, intrinsic=intrinsic_moon):
+            """JPL2020 Eqs.16–17 use LM=1.4825e-8, solar potential and DE440 TDB lunar orientation."""
+
+            to_inertial = bodies.get("Moon").rotation_model.body_fixed_to_inertial_rotation(epoch)
+
+            lunar_vector = to_inertial @ intrinsic.get_cartesian_position(epoch, "Moon")
+
+            lunar_state = barycentric_state("Moon", epoch)
+
+            solar_potential = bodies.get("Sun").gravitational_parameter / np.linalg.norm(
+                barycentric_state("Sun", epoch)[:3] - lunar_state[:3]
+            )
+
+            correction = -(1.4825e-8 + solar_potential / constants.SPEED_OF_LIGHT**2) * lunar_vector
+
+            correction -= (
+                0.5
+                * np.dot(lunar_state[3:], lunar_vector)
+                * lunar_state[3:]
+                / constants.SPEED_OF_LIGHT**2
+            )
+
+            return to_inertial.T @ correction
+
+        setup.add_ground_station(
+            bodies.get("Moon"),
+            setup.ground_station.basic_station(
+                name,
+                coordinates,
+                station_motion_settings=[
+                    deformation,
+                    setup.ground_station.custom_station_motion(lunar_spatial),
+                ],
+            ),
+            bodies,
+        )
+
+    return bodies, position
+
+
+def computed_range(point, epoch, bodies, corrections):
+    """Return c times the atomic round-trip interval, using exactly one native clock transfer."""
+
+    name = REFLECTORS[point["reflector"]][0]
+
+    link = links.LinkDefinition(
+        {
+            links.transmitter: links.body_reference_point_link_end_id("Earth", "APOLLO"),
+            links.reflector1: links.body_reference_point_link_end_id("Moon", name),
+            links.receiver: links.body_reference_point_link_end_id("Earth", "APOLLO"),
+        }
+    )
+
+    # The third positional argument is a fractional light-time tolerance despite the legacy Python keyword name.
+    convergence = ltc.light_time_convergence_settings(True, 50, 1e-13, ltc.throw_exception)
+
+    model = model_settings.n_way_range(
+        link,
+        corrections,
+        light_time_convergence_settings=convergence,
+        time_scale_for_observable=time.tai_scale,
+    )
+
+    simulator = sim.create_observation_simulators([model], bodies)
+
+    observation_times = sim.tabulated_simulation_settings(
+        model_settings.n_way_range_type, link, [epoch], reference_link_end_type=links.transmitter
+    )
+
+    result = observations.simulate_observations([observation_times], simulator, bodies)
+
+    return float(np.asarray(result.concatenated_observations).ravel()[0])
+
+
+def main():
+    """Write all eleven O–C values and untuned statistics, with actual kernel/input identities."""
+
+    parser = argparse.ArgumentParser(description=__doc__)
+
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        required=True,
+        help="Directory containing pinned apollo_20170309_np2.txt",
+    )
+    parser.add_argument(
+        "--kernel-dir",
+        type=Path,
+        required=True,
+        help="Offline directory of the six named DE440/SPICE kernels",
+    )
+    parser.add_argument("--output-dir", type=Path, required=True)
+    args = parser.parse_args()
+
+    points = read_points(args.data_dir / "apollo_20170309_np2.txt")
+
+    kernel_hashes = {}
+
+    # Clear any kernels loaded by earlier work in the same interpreter, then load only the declared matched set.
+    spice.clear_kernels()
+
+    for name, expected_hash in KERNELS.items():
+        path = args.kernel_dir / name
+
+        kernel_hashes[name] = sha256(path)
+
+        if kernel_hashes[name] != expected_hash:
+            raise ValueError(f"Kernel differs from pinned matched DE440 set: {name}")
+
+        spice.load_kernel(str(path))
+
+    bodies, position = create_environment(points)
+
+    converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
+
+    rows = []
+
+    for point in points:
+        epoch = converter.convert_time_object(
+            time.utc_scale, time.tdb_scale, point["utc"], position
+        )
+
+        # The zero-offset signature adds only the documented glass path, not another profile-centroid adjustment.
+        thickness = 0.0435 if point["reflector"] in (1, 4) else 0.0275
+
+        signature = ltc.LaserTargetSignature(
+            [np.zeros(3)], [1.0], internal_optical_path_length=1.4555 * thickness
+        )
+
+        shapiro = ltc.first_order_relativistic_light_time_correction(["Sun", "Earth", "Moon"])
+
+        optical = ltc.mendes_pavlis_tropospheric_light_time_correction(point["wavelength_m"])
+
+        target = ltc.laser_target_light_time_correction("Moon", signature)
+
+        geometric = computed_range(point, epoch, bodies, [])
+
+        relativistic = computed_range(point, epoch, bodies, [shapiro])
+
+        atmospheric = computed_range(point, epoch, bodies, [shapiro, optical])
+
+        complete = computed_range(point, epoch, bodies, [shapiro, optical, target])
+
+        residual = 0.5 * (constants.SPEED_OF_LIGHT * point["observed_rtt_s"] - complete)
+
+        sigma = 0.5 * constants.SPEED_OF_LIGHT * point["sigma_rtt_s"]
+
+        rows.append(
+            {
+                "index": point["index"],
+                "utc_launch": point["utc_label"],
+                "reflector": REFLECTORS[point["reflector"]][0],
+                "quality": point["quality"],
+                "photons": point["photons"],
+                "observed_rtt_s": point["observed_rtt_s"],
+                "computed_rtt_s": complete / constants.SPEED_OF_LIGHT,
+                "one_way_residual_m": residual,
+                "one_way_sigma_m": sigma,
+                "normalized_residual": residual / sigma,
+                "geometric_atomic_half_range_m": 0.5 * geometric,
+                "shapiro_increment_m": 0.5 * (relativistic - geometric),
+                "atmosphere_increment_m": 0.5 * (atmospheric - relativistic),
+                "glass_increment_m": 0.5 * (complete - atmospheric),
+            }
+        )
+
+    residuals = np.array([row["one_way_residual_m"] for row in rows])
+
+    sigmas = np.array([row["one_way_sigma_m"] for row in rows])
+
+    summary = {
+        "count": len(rows),
+        "mean_m": float(np.mean(residuals)),
+        "rms_about_zero_m": float(np.sqrt(np.mean(residuals**2))),
+        "scatter_about_mean_m": float(np.std(residuals)),
+        "weighted_mean_m": float(np.average(residuals, weights=1 / sigmas**2)),
+        "normalized_rms": float(np.sqrt(np.mean((residuals / sigmas) ** 2))),
+        "chi_squared_no_fitted_parameters": float(np.sum((residuals / sigmas) ** 2)),
+        "normal_point_sha256": NP_SHA256,
+        "kernel_sha256": kernel_hashes,
+        "earth_orientation_resource_sha256": {
+            path.name: sha256(path)
+            for path in sorted(Path(resource_paths.get_earth_orientation_path()).glob("*.txt"))
+        },
+        "script_sha256": sha256(Path(__file__)),
+        "tudatpy_path": tudatpy.__file__,
+        "kernel_path": kernel.__file__,
+        "kernel_binary_sha256": sha256(Path(kernel.__file__)),
+        "station_xyz_m": position.tolist(),
+        "limitations": [
+            "Approximate 2005 survey (~0.1 m); no matched DE440 station solution or plate velocity.",
+            "No Earth ocean/atmospheric loading; lunar dissipative/thermal terms omitted.",
+            "DE440-fit NP calibration version is not established to match the 2022 ACS release.",
+            "Earth simultaneity omits deformation velocity over microseconds and ~1.34 micrometre acceleration terms.",
+            "Existing custom position callbacks supply zero additional velocity; no Doppler/state-rate claim is made.",
+            "No residual selection, uncertainty inflation, mean removal, trend removal or parameter estimation.",
+            "Component columns are sequential re-solves, not an exactly additive fixed-event decomposition.",
+        ],
+    }
+
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+
+    with (args.output_dir / "normal_points.csv").open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
+
+        writer.writeheader()
+        writer.writerows(rows)
+
+    (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    print(json.dumps(summary, indent=2))
+
+
+if __name__ == "__main__":
+    main()
