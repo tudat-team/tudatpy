@@ -59,7 +59,6 @@ struct AtmosphericTideStationData {
 
     //! Return the exact provider identifier; absent stations raise std::out_of_range.
     const AtmosphericTideStation& getStation( const std::string& identifier ) const;
-
 };
 
 void validateAtmosphericTideGrid( const AtmosphericTideGrid& grid );

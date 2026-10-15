@@ -189,9 +189,8 @@ BOOST_AUTO_TEST_CASE( exactNonorthogonalInverseAndInvalidInputs )
     auto p = readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" );
     p.rotationConvention = HelmertRotationConvention::unspecified;
     BOOST_CHECK_THROW( evaluateLinearizedHelmert( p, 2020, 1 / 31557600. ), std::runtime_error );
-    BOOST_CHECK_THROW(
-            evaluateLinearizedHelmert( readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" ), NAN, 1 / 31557600. ),
-            std::runtime_error );
+    BOOST_CHECK_THROW( evaluateLinearizedHelmert( readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" ), NAN, 1 / 31557600. ),
+                       std::runtime_error );
     BOOST_CHECK_THROW( evaluateLinearizedHelmert( readOfficialItrf2020TransformationData( ).getParameters( "ITRF93" ), 2020, 0 ),
                        std::runtime_error );
     BOOST_CHECK_THROW( convertGroundStationStateBetweenItrfFrames( state( ), NAN, "ITRF2014", "ITRF2014" ), std::runtime_error );

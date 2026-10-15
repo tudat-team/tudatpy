@@ -150,8 +150,7 @@ StationHistoryTrajectory::StationHistoryTrajectory( std::vector< StationHistoryL
 }
 
 //! Retain the source lifetime without copying or revalidating its immutable coefficient records.
-StationHistoryTrajectory::StationHistoryTrajectory( std::shared_ptr< StationHistoryTrajectory > source ):
-    source_( std::move( source ) )
+StationHistoryTrajectory::StationHistoryTrajectory( std::shared_ptr< StationHistoryTrajectory > source ): source_( std::move( source ) )
 {
     require( source_ != nullptr, "a source trajectory is required" );
 }

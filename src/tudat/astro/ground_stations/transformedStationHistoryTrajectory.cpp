@@ -43,8 +43,7 @@ TransformedStationHistoryTrajectory::TransformedStationHistoryTrajectory( std::s
                                                                           std::string targetOrigin,
                                                                           std::string targetTideSystem,
                                                                           bool acknowledgeAlignedReleases ):
-    StationHistoryTrajectory( std::move( source ) ),
-    model_( catalogue ), outputMetadata_( source_->getMetadata( ) ),
+    StationHistoryTrajectory( std::move( source ) ), model_( catalogue ), outputMetadata_( source_->getMetadata( ) ),
     acknowledgedReleaseAlignment_( acknowledgeAlignedReleases )
 {
     // Origin and tide-system declarations must agree before any frame map is applied.

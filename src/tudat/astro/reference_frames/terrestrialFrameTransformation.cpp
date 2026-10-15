@@ -157,11 +157,10 @@ TerrestrialFrameTransformationModel::TerrestrialFrameTransformationModel( const 
 }
 
 //! Share the source-to-hub-to-target calculation between position and state evaluation.
-TerrestrialFrameAffineTransformation TerrestrialFrameTransformationModel::evaluateTransformation(
-        const std::string& source,
-        const std::string& target,
-        double decimalYear,
-        std::optional< double > yearRate ) const
+TerrestrialFrameAffineTransformation TerrestrialFrameTransformationModel::evaluateTransformation( const std::string& source,
+                                                                                                  const std::string& target,
+                                                                                                  double decimalYear,
+                                                                                                  std::optional< double > yearRate ) const
 {
     validateCoordinates( decimalYear, yearRate );
     if( source.empty( ) || target.empty( ) )

@@ -33,14 +33,12 @@ struct TerrestrialFrameAffineTransformation {
 
     //! Apply the supplied map first, including both sets of affine derivatives.
     TerrestrialFrameAffineTransformation composeAfter( const TerrestrialFrameAffineTransformation& before ) const;
-
 };
 
 //! Evaluate published Helmert parameters with an explicit year and years-per-input-second rate.
-TerrestrialFrameAffineTransformation evaluateLinearizedHelmert(
-        const input_output::TerrestrialFrameTransformationParameters& parameters,
-        double decimalYear,
-        double decimalYearRateWithRespectToInputSeconds );
+TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_output::TerrestrialFrameTransformationParameters& parameters,
+                                                                double decimalYear,
+                                                                double decimalYearRateWithRespectToInputSeconds );
 
 //! Apply a preloaded terrestrial catalogue with the caller's explicit time convention.
 class TerrestrialFrameTransformationModel
@@ -84,7 +82,6 @@ private:
 
     //! Published catalogue identities and SI-normalized parameters.
     input_output::TerrestrialFrameTransformationData data_;
-
 };
 
 }  // namespace reference_frames

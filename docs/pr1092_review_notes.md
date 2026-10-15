@@ -257,3 +257,12 @@ shutil.copytree(Path("resources"), Path(get_resource_path()), dirs_exist_ok=True
 - Evidence: `verification-allpass-20261015/vendored-resource-validation.json`, `vendored-resource-ci.patch` and
   `vendored-resource-untracked-files.txt`. No recompilation or broad test rerun followed this data/workflow-only change,
   as explicitly requested. A separate tudat-resources publication is no longer needed for this CI setup.
+
+### 15 October: whole-repository CI formatting
+
+- The first push passed its local commit hooks, but CI's `pre-commit --all-files` found formatting left in nine earlier
+  PR files. Applied only whitespace/wrapping changes and one namespace-closing comment. The executable tokens, strings,
+  numerical values, assertions and resource bytes are unchanged.
+- The complete cached `pre-commit --all-files` check now passes for both black and clang-format. The reviewed patch and
+  both formatter runs are in `verification-allpass-20261015/format-ci*`. No recompilation or numerical rerun is needed
+  for these formatting-only changes.

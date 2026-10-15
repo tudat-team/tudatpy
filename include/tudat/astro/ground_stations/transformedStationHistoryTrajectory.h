@@ -63,7 +63,6 @@ private:
     StationHistoryMetadata outputMetadata_;
 
     bool acknowledgedReleaseAlignment_;
-
 };
 
 std::shared_ptr< TransformedStationHistoryTrajectory > createTransformedStationHistoryTrajectory(
