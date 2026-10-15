@@ -1,0 +1,20 @@
+# Controlled analytic field; not a provider product.
+product_type gravity_field
+modelname controlled_temporal_c21
+format icgem2.0
+earth_gravity_constant 4e14
+radius 8e6
+max_degree 2
+norm unnormalized
+errors no
+tide_system tide_free
+end_of_head
+gfc 0 0 1 0
+gfc 2 0 -0.001 0
+gfc 2 2 1.1e-8 -1.2e-8
+gfct 2 1 2e-6 -3e-6 20000101.0000 20020101.0000
+trnd 2 1 4e-8 7e-8 20000101.1234 20020101.0000
+acos 2 1 5e-8 -2e-8 20000101.0000 20020101.0000 1.0
+asin 2 1 -6e-8 3e-8 20000101.0000 20020101.0000 1.0
+acos 2 1 2e-8 4e-8 20000101.0000 20020101.0000 0.5
+asin 2 1 1e-8 -5e-8 20000101.0000 20020101.0000 0.5
