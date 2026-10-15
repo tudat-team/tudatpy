@@ -1,0 +1,79 @@
+{
+  "source_url": "https://isdc-data.gfz.de/grace-fo/Level-1B/GFZ/AOD/RL07/2026/AOD1B_2026-01-01_X_07.asc.gz",
+  "source_sha256": "bdb32469e4f9e9408886ebe2d4ccef9c9f56e90d27a8cd56a9ad5c6ba35d1b37",
+  "source_bytes": 8860900,
+  "dataset_doi": "10.5880/GFZ.1.3.2022.003",
+  "license": "CC-BY-4.0",
+  "license_metadata_url": "https://api.datacite.org/dois/10.5880/GFZ.1.3.2022.003",
+  "changed_header_fields": [
+    "FILENAME",
+    "FILESIZE (BYTES)",
+    "MAXIMUM DEGREE",
+    "NUMBER OF DATA RECORDS",
+    "NUMBER OF DATA SETS",
+    "TIME LAST OBS(SEC PAST EPOCH)"
+  ],
+  "coefficient_line_ranges": [
+    {
+      "source_first_line": 32,
+      "extract_first_line": 32,
+      "count": 6
+    },
+    {
+      "source_first_line": 16504,
+      "extract_first_line": 39,
+      "count": 6
+    },
+    {
+      "source_first_line": 32976,
+      "extract_first_line": 46,
+      "count": 6
+    },
+    {
+      "source_first_line": 49448,
+      "extract_first_line": 53,
+      "count": 6
+    },
+    {
+      "source_first_line": 65920,
+      "extract_first_line": 60,
+      "count": 6
+    },
+    {
+      "source_first_line": 82392,
+      "extract_first_line": 67,
+      "count": 6
+    },
+    {
+      "source_first_line": 98864,
+      "extract_first_line": 74,
+      "count": 6
+    },
+    {
+      "source_first_line": 115336,
+      "extract_first_line": 81,
+      "count": 6
+    },
+    {
+      "source_first_line": 131808,
+      "extract_first_line": 88,
+      "count": 6
+    },
+    {
+      "source_first_line": 148280,
+      "extract_first_line": 95,
+      "count": 6
+    },
+    {
+      "source_first_line": 164752,
+      "extract_first_line": 102,
+      "count": 6
+    },
+    {
+      "source_first_line": 181224,
+      "extract_first_line": 109,
+      "count": 6
+    }
+  ],
+  "fixture_sha256": "fae772b2cd76d0aeb50649b5b9b15cba746b8d4925c3b8021b86b62228fa13c1"
+}

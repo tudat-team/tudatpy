@@ -196,3 +196,5 @@ TUDAT_ADD_TEST_CASE(IcgemGravityFieldData PRIVATE_LINKS tudat_environment_data)
 TUDAT_ADD_TEST_CASE(OceanPoleGravityData PRIVATE_LINKS tudat_environment_data)
 
 TUDAT_ADD_TEST_CASE(HarmonicPotentialData PRIVATE_LINKS tudat_environment_data)
+
+TUDAT_ADD_TEST_CASE(Aod1bGravityFieldData PRIVATE_LINKS tudat_environment_data)

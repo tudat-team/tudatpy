@@ -146,7 +146,8 @@ set(environment_data_SOURCES
         "readStationLoadingData.cpp"
         "readIcgemGravityField.cpp"
         "readOceanPoleGravityData.cpp"
-        "readHarmonicPotentialData.cpp")
+        "readHarmonicPotentialData.cpp"
+        "readAod1bGravityField.cpp")
 
 # Installed interfaces for the observations and their file readers.
 set(environment_data_HEADERS
@@ -159,7 +160,8 @@ set(environment_data_HEADERS
         "readStationLoadingData.h"
         "readIcgemGravityField.h"
         "readOceanPoleGravityData.h"
-        "readHarmonicPotentialData.h")
+        "readHarmonicPotentialData.h"
+        "readAod1bGravityField.h")
 
 TUDAT_ADD_LIBRARY("environment_data"
         "${environment_data_SOURCES}"

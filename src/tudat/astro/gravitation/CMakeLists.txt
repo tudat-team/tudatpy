@@ -18,6 +18,7 @@ set(gravitation_SOURCES
         "gravityFieldVariations.cpp"
         "oceanPoleTideGravityFieldVariations.cpp"
         "harmonicGravityFieldVariations.cpp"
+        "aod1bGravityFieldVariations.cpp"
         "centralGravityModel.cpp"
 #        "centralJ2GravityModel.cpp"
 #        "centralJ2J3GravityModel.cpp"
@@ -55,6 +56,7 @@ set(gravitation_HEADERS
         "gravityFieldVariations.h"
         "oceanPoleTideGravityFieldVariations.h"
         "harmonicGravityFieldVariations.h"
+        "aod1bGravityFieldVariations.h"
         "centralGravityModel.h"
 #        "centralJ2GravityModel.h"
 #        "centralJ2J3GravityModel.h"
@@ -90,4 +92,4 @@ TUDAT_ADD_LIBRARY("gravitation"
         "${gravitation_SOURCES}"
         "${gravitation_HEADERS}")
 
-target_link_libraries(tudat_gravitation PUBLIC tudat_environment_data)
+target_link_libraries(tudat_gravitation PUBLIC tudat_environment_data tudat_earth_orientation)
