@@ -152,6 +152,10 @@ kernel SHA-256
 Optional ocean loading and historical radial-basis controls
 ----------------------------------------------------------
 
+The following results are retained as historical radial-Up controls, with
+their original source/helper hashes. A different basis requires a separately
+labelled run; these numerical outputs are not replaced.
+
 ``--got410c-harpos PATH`` enables the hash-pinned GOT4.10c HARPOS product from
 ``https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps``.
 The existing helper selects the exact case-sensitive ``Apollo`` site. Its
@@ -273,6 +277,45 @@ resource identities, so later builds can be distinguished from this experiment.
 The separate stricter-convergence control used kernel SHA-256
 ``029f3ea61f723093697a8b055e304189d3906ffb541d6fae929008890625deff``;
 its same-process ``1e-13`` result also exactly matches the original 30-second run.
+
+Frozen Matera prediction case
+-----------------------------
+
+``--case matera20220821`` retains both Matera 7941/Apollo15 CRD normal points
+from 2022-08-21, outside the DE440 fitting span. The same solver, corrections,
+30-second cubic ephemerides and convergence tolerance are reused. The native
+CRD reader supplies the original transmit-tagged UTC seconds of day, RTT,
+measured 532 nm weather and calibration metadata. Station delay and receive
+amplitude corrections are already applied according to the pinned headers;
+the recorded ``108680.1 ps`` calibration is not subtracted again. No second
+array-profile or centre-of-mass adjustment is introduced.
+
+``matera_dataset.json`` pins the observations and station products. The native
+SINEX reader selects SLRF2020 release 250205, 7941/A/solution 1, DOMES 12734S008.
+The documented optical-axis intersection has zero XYZ eccentricity over the
+whole day. Native station-history motion is attached to both intrinsic and
+final Earth stations, with the parsed 2015-01-01 reference vector and velocity.
+Its declared nominal-civil-UTC convention uses native reference/event time
+conversion and MJD differences divided by 365.25 for linear terms; no station
+position is manually propagated. The frozen history conservatively uses the
+open-ended ``SOLUTION/EPOCHS`` observation span rather than claiming it is a
+discontinuity record. The pinned official ITRF2020 SLR PSD and discontinuity
+products contain no Matera entries. No post-seismic term is assumed merely
+from the presence of a station vector. Fitted seasonal terms and loading are
+not added in this initial case.
+
+The two one-way residuals are ``+0.177724421`` and ``+0.122627497 m``; mean
+``+0.150175959 m``, RMS about zero ``0.152681814 m`` and scatter
+``0.027548462 m``. CRD bin RMS values ``318`` and ``363 ps`` describe return
+spread, not normal-point standard error. The CSV leaves uncertainty and
+normalized residual blank; weighted statistics are null. No division by the
+square root of return count or noise-level claim is made.
+
+``analysis/laser_ranging/results/matera_20220821`` retains the exact raw CSV,
+portable summary and direct references to its executed source Git blobs.
+The native reference-position and one-Julian-year history
+controls agree with the parsed solution to double-position precision. The
+shared-script APOLLO control reproduces all eleven archived CSV rows exactly.
 
 Primary sources
 ---------------

@@ -1,0 +1,34 @@
+{
+  "reconstruction": "git show REV:path (or git show BLOB after a cherry-pick) yields each exact executed source/manifest. Verify its original SHA-256.",
+  "executed_sources": {
+    "3c7c981f10da211b3fbb2996a316d9c58a52f9177f9a39442c550248a8107847": {
+      "commit": "468b29890e1cc6b72e3c8a1c5ee260cd45ac4068",
+      "path": "analysis/laser_ranging/llr_residuals.py",
+      "blob": "cb559028bb2fc76886ffc455abad9016998223f8"
+    },
+    "aa3a6b55567a41a3d287572f1b5910fbf2de7fe99d473bfcf2252b5a8f68fdc3": {
+      "commit": "468b29890e1cc6b72e3c8a1c5ee260cd45ac4068",
+      "path": "analysis/laser_ranging/matera_case.py",
+      "blob": "6050e3f799cf67978b27eb57385cfdf07d631568"
+    }
+  },
+  "manifests": {
+    "matera_dataset.json": {
+      "path": "analysis/laser_ranging/matera_dataset.json",
+      "blob": "a16191bdb520d3872afb6e0d404868b777dd1611",
+      "sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f"
+    },
+    "llr_dataset.json": {
+      "path": "analysis/laser_ranging/llr_dataset.json",
+      "blob": "e802fe4241f11082ccaa8fc1cb5e14ca2ba9150f",
+      "sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294"
+    },
+    "llr_station_profiles.json": {
+      "path": "analysis/laser_ranging/llr_station_profiles.json",
+      "blob": "b04e0f6361549cff0c92faf758968b7c37e9c0f9",
+      "sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6"
+    }
+  },
+  "apollo_regression": "The shared-script default survey control CSV exactly equals ../apollo_20170309/survey_cubic30/normal_points.csv; no APOLLO numerical results changed.",
+  "apollo_regression_csv_sha256": "82f953b9ce643cf91897a78d08982cabe383f3070d43efcb3faa3e6bdbe19b25"
+}
