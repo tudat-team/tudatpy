@@ -13,9 +13,11 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <array>
 #include <vector>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/basics/timeType.h"
 #include "tudat/io/matrixTextFileReader.h"
 
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
@@ -34,6 +36,45 @@ namespace unit_tests
 // In addition, the code has been used rather extensively and has been checked for basic
 // characteristics such as continuity.
 BOOST_AUTO_TEST_SUITE( test_cubic_spline_interpolator )
+
+//! Preserve smooth high-offset motion at precise epochs sharing the same double label.
+BOOST_AUTO_TEST_CASE( test_cubic_spline_precise_time_large_position_offset )
+{
+    const Time origin( 765273000 );
+    const Eigen::Vector3d offset( -147245177250.0, -29571135850.0, -12783863402.0 );
+    const Eigen::Vector3d velocity( 6000.0, -27000.0, -11000.0 );
+    std::vector< Time > epochs;
+    std::vector< Eigen::Vector3d > positions;
+
+    // Linear source motion has zero natural-spline curvature and exactly represented source nodes.
+    for( int index = 0; index < 5; ++index )
+    {
+        epochs.push_back( origin + 30.0L * index );
+        positions.push_back( offset + velocity * ( 30.0 * index ) );
+    }
+    interpolators::CubicSplineInterpolator< Time, Eigen::Vector3d > spline( epochs, positions );
+    const Time left = origin + 23.607487504043732;
+    const Time right = left + 20.0e-9;
+
+    // Compare both distinct physical states to the long-double analytic trajectory, rounded once to output precision.
+    BOOST_CHECK_EQUAL( static_cast< double >( left ), static_cast< double >( right ) );
+    for( const auto& epoch : std::array< Time, 2 >{ { left, right } } )
+    {
+        const auto actual = spline.interpolate( epoch );
+        const long double elapsed = ( epoch - origin ).getSeconds< long double >( );
+
+        for( int component = 0; component < 3; ++component )
+        {
+            const double expected = static_cast< double >( static_cast< long double >( offset[ component ] ) +
+                                                           static_cast< long double >( velocity[ component ] ) * elapsed );
+            BOOST_CHECK_EQUAL( actual[ component ], expected );
+        }
+    }
+
+    // Both source endpoints remain exact under the same interpolation path.
+    BOOST_CHECK_EQUAL( ( spline.interpolate( epochs.front( ) ) - positions.front( ) ).norm( ), 0.0 );
+    BOOST_CHECK_EQUAL( ( spline.interpolate( epochs.back( ) ) - positions.back( ) ).norm( ), 0.0 );
+}
 
 // Test implementation of cubic spline class.
 BOOST_AUTO_TEST_CASE( testCubicSplineInterpolator )

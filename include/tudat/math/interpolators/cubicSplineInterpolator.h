@@ -319,9 +319,17 @@ public:
         ScalarType coefficientD_ = ( coefficientB_ * coefficientB_ * coefficientB_ - coefficientB_ ) /
                 mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
 
-        // The interpolated dependent variable value.
-        return coefficientA_ * dependentValues_[ lowerEntry_ ] + coefficientB_ * dependentValues_[ lowerEntry_ + 1 ] +
+        const DependentVariableType curvature =
                 coefficientC_ * secondDerivativeOfCurve_[ lowerEntry_ ] + coefficientD_ * secondDerivativeOfCurve_[ lowerEntry_ + 1 ];
+
+        // Anchor at the nearer endpoint to avoid weighting a large common offset and retain exact endpoint values.
+        if( coefficientA_ >= coefficientB_ )
+        {
+            return dependentValues_[ lowerEntry_ ] +
+                    ( coefficientB_ * ( dependentValues_[ lowerEntry_ + 1 ] - dependentValues_[ lowerEntry_ ] ) + curvature );
+        }
+        return dependentValues_[ lowerEntry_ + 1 ] +
+                ( coefficientA_ * ( dependentValues_[ lowerEntry_ ] - dependentValues_[ lowerEntry_ + 1 ] ) + curvature );
     }
 
     InterpolatorTypes getInterpolatorType( )

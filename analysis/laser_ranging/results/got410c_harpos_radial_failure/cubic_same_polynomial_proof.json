@@ -1,0 +1,230 @@
+{
+  "kind": "Same natural spline, numerically stable evaluation; linked failure is preserved unchanged.",
+  "original_failure": "failure.json",
+  "kernel_sha256": "bd8d893574bd29281188934ff5a62647e4c08494eb4bfb846c17cfc06a062968",
+  "high_precision_method": "80-digit Decimal natural-spline Thomas solve over25921 exact native SPICE nodes, each binary64 value imported exactly; zero endpoint curvatures.",
+  "native_knot_values_sha256_float64_native_bytes": "19779538b3ca4837a8ec7a5d2f08c19dad3aa263d36c62adb898f7d46f8055ff",
+  "source_diagnostic_sha256": "3b932c84c27a1ad186dbcf1f4e859b5e8fade318f7ef97159ebd5318afb5b393",
+  "source_full_proof_sha256": "8f560ec42132d47a923ee735f2a936d13635159f86f379f950b3e8de228c1208",
+  "natural_spline": {
+    "start": 765028800,
+    "end": 765806400,
+    "step": 30,
+    "node_count": 25921,
+    "interval_lower": 765273030,
+    "interval_upper": 765273060,
+    "left_knot": [
+      -147245314822.79254,
+      -29570502567.211628,
+      -12783588880.129822,
+      5827.398453177065,
+      -26825.552879818475,
+      -11628.609010357472
+    ],
+    "right_knot": [
+      -147245139998.22607,
+      -29571307333.29173,
+      -12783937738.182205,
+      5827.57264363094,
+      -26825.519126702828,
+      -11628.594481875181
+    ],
+    "left_curvature_reproduced_double": [
+      0.005806404965500649,
+      0.0011250780492857624,
+      0.00048428038446393776,
+      -1.9845922000027516e-10,
+      1.0563007053326332e-09,
+      4.557128332963961e-10
+    ],
+    "right_curvature_reproduced_double": [
+      0.005806344762467602,
+      0.0011251322236018285,
+      0.00048428652822012406,
+      -1.9845731787301177e-10,
+      1.0562416783644746e-09,
+      4.557312231423725e-10
+    ],
+    "exact_native_knots_match_direct_spice_selected_nodes": true
+  },
+  "evaluations": [
+    {
+      "tdb_whole_seconds_since_j2000": 765273053,
+      "tdb_fraction_seconds": 0.607487504043732,
+      "native_original_state": [
+        -147245177250.93835,
+        -29571135850.80251,
+        -12783863402.236776,
+        5827.535526490812,
+        -26825.52631902298,
+        -11628.597577693054
+      ],
+      "reconstructed_original_matches_native_all_6_components": true,
+      "nearest_endpoint_state": [
+        -147245177250.9384,
+        -29571135850.802513,
+        -12783863402.236774,
+        5827.535526490812,
+        -26825.52631902298,
+        -11628.597577693055
+      ],
+      "nearest_endpoint_hex": [
+        "-0x1.1243f8cd1781dp+37",
+        "-0x1.b8a4ee5ab35c6p+34",
+        "-0x1.7cfd23351e4eap+33",
+        "0x1.6c38918439c2ep+12",
+        "-0x1.a3261af35fbbep+14",
+        "-0x1.6b64c7d6d043fp+13"
+      ],
+      "nearest_endpoint_matches_correctly_rounded_position": true
+    },
+    {
+      "tdb_whole_seconds_since_j2000": 765273053,
+      "tdb_fraction_seconds": 0.6074875040437637,
+      "native_original_state": [
+        -147245177250.9384,
+        -29571135850.802517,
+        -12783863402.236776,
+        5827.535526490812,
+        -26825.52631902298,
+        -11628.597577693054
+      ],
+      "reconstructed_original_matches_native_all_6_components": true,
+      "nearest_endpoint_state": [
+        -147245177250.9384,
+        -29571135850.802513,
+        -12783863402.236774,
+        5827.535526490812,
+        -26825.52631902298,
+        -11628.597577693055
+      ],
+      "nearest_endpoint_hex": [
+        "-0x1.1243f8cd1781dp+37",
+        "-0x1.b8a4ee5ab35c6p+34",
+        "-0x1.7cfd23351e4eap+33",
+        "0x1.6c38918439c2ep+12",
+        "-0x1.a3261af35fbbep+14",
+        "-0x1.6b64c7d6d043fp+13"
+      ],
+      "nearest_endpoint_matches_correctly_rounded_position": true
+    }
+  ],
+  "high_precision_position_reference": [
+    {
+      "component": 0,
+      "left_curvature_80_digits": "0.0058064049655037659185947420137050740046692194657109893577773257887270058789078575",
+      "right_curvature_80_digits": "0.0058063447624448623510545115086213087033794141574343610452049424079473643059221814",
+      "evaluations": [
+        {
+          "value_80_digits": "-147245177250.93838857265117689344694359040176213776376685583129470388239502118805",
+          "correctly_rounded_double": -147245177250.9384,
+          "correctly_rounded_hex": "-0x1.1243f8cd1781dp+37",
+          "distance_to_nearest_double_rounding_midpoint": "0.00001169590351060655305640959823786223623314416870529611760497881195"
+        },
+        {
+          "value_80_digits": "-147245177250.93838857246613877963985153732662952887536119519699567562395932887336",
+          "correctly_rounded_double": -147245177250.9384,
+          "correctly_rounded_hex": "-0x1.1243f8cd1781dp+37",
+          "distance_to_nearest_double_rounding_midpoint": "0.00001169608854872036014846267337047112463880480300432437604067112664"
+        }
+      ],
+      "high_precision_delta": "1.8503811380709205307513260888840566063429902825843569231469E-10"
+    },
+    {
+      "component": 1,
+      "left_curvature_80_digits": "0.0011250780491539562687379091669379430068808024722368901675191115740016347479392802",
+      "right_curvature_80_digits": "0.0011251322236905992224214513584969296348534283299862748587207486127411680881663037",
+      "evaluations": [
+        {
+          "value_80_digits": "-29571135850.802512575340443468421405953294197505476222559747447867525211296002680",
+          "correctly_rounded_double": -29571135850.802513,
+          "correctly_rounded_hex": "-0x1.b8a4ee5ab35c6p+34",
+          "distance_to_nearest_double_rounding_midpoint": "0.000001360130482530921405953294197505476222559747447867525211296002680"
+        },
+        {
+          "value_80_digits": "-29571135850.802512576192217733680059973966254913426364345784509042805726006691176",
+          "correctly_rounded_double": -29571135850.802513,
+          "correctly_rounded_hex": "-0x1.b8a4ee5ab35c6p+34",
+          "distance_to_nearest_double_rounding_midpoint": "0.000001360982256796180059973966254913426364345784509042805726006691176"
+        }
+      ],
+      "high_precision_delta": "-8.51774265258654020672057407950141786037061175280514710688496E-10"
+    },
+    {
+      "component": 2,
+      "left_curvature_80_digits": "0.00048428038440302008074455456819596874563250021526923579031208785860914800957183256",
+      "right_curvature_80_digits": "0.00048428652825882963812309169031634798872624843259234057483788652733833248363494953",
+      "evaluations": [
+        {
+          "value_80_digits": "-12783863402.236774600109640330091552709234149549138639493754753935245097005140892",
+          "correctly_rounded_double": -12783863402.236774,
+          "correctly_rounded_hex": "-0x1.7cfd23351e4eap+33",
+          "distance_to_nearest_double_rounding_midpoint": "7.98144754201158447290765850450861360506245246064754902994859108E-7"
+        },
+        {
+          "value_80_digits": "-12783863402.236774600478875961851055336030164384901640059114023317901975024860211",
+          "correctly_rounded_double": -12783863402.236774,
+          "correctly_rounded_hex": "-0x1.7cfd23351e4eap+33",
+          "distance_to_nearest_double_rounding_midpoint": "7.97775518569398944663969835615098359940885976682098024975139789E-7"
+        }
+      ],
+      "high_precision_delta": "-3.69235631759502626796014835763000565359269382656878019719319E-10"
+    }
+  ],
+  "conclusion": "Both exact polynomial positions round to the same binary64 XYZ. The nearest-endpoint form returns those correctly rounded positions at both epochs. The old evaluation creates artificial ULP changes; true positions do not straddle any rounding midpoint.",
+  "manufactured_regression": {
+    "source_node_count": 5,
+    "source_step_seconds": 30,
+    "offset_m": [
+      -147245177250.0,
+      -29571135850.0,
+      -12783863402.0
+    ],
+    "velocity_m_per_s": [
+      6000.0,
+      -27000.0,
+      -11000.0
+    ],
+    "left_local_seconds_literal": 23.607487504043732,
+    "requested_epoch_separation_seconds": 2e-08,
+    "actual_epoch_separation_seconds": 2.0000000100495186e-08,
+    "equal_double_absolute_epoch_labels": true,
+    "old_native_fails_analytic_equality": true,
+    "evaluations": [
+      {
+        "original_native_position": [
+          -147245035605.07498,
+          -29571773252.16261,
+          -12784123084.362543
+        ],
+        "rounded_analytic_position": [
+          -147245035605.07498,
+          -29571773252.16261,
+          -12784123084.362545
+        ],
+        "original_error_m": [
+          0.0,
+          0.0,
+          1.9073486328125e-06
+        ]
+      },
+      {
+        "original_native_position": [
+          -147245035605.07486,
+          -29571773252.16315,
+          -12784123084.362764
+        ],
+        "rounded_analytic_position": [
+          -147245035605.07486,
+          -29571773252.16315,
+          -12784123084.362764
+        ],
+        "original_error_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  }
+}

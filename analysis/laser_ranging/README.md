@@ -276,6 +276,16 @@ This failed run used the original radial-Up helper; the subsequent provider
 clarification to geodetic Up is a separate correction. No complete ocean-loading
 residual result is claimed from this attempt.
 
+The [same-polynomial proof](results/got410c_harpos_radial_failure/cubic_same_polynomial_proof.json)
+reconstructs the original cubic output exactly and independently solves the
+natural spline at 80-digit precision. Both failed receiver epochs round to the
+same reference position; their actual separation is below 1 nm in each component
+and does not cross a double rounding midpoint. Evaluating the same polynomial
+from the nearer endpoint removes the artificial large-offset weighted-sum jitter
+while retaining both exact endpoints. A five-node analytic-motion regression in
+the existing cubic suite exercises this numerical issue without changing any
+light-time tolerance or physical model.
+
 ## GOT4.10c loading basis
 
 `ocean_loading.py` evaluates the pinned 17-constituent GOT4.10c HARPOS product,
