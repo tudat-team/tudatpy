@@ -13,6 +13,7 @@
 #include <limits>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include <string>
 
 #include <boost/test/included/unit_test.hpp>
