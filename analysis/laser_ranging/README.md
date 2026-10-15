@@ -226,3 +226,24 @@ python analysis/laser_ranging/body_time_precision.py \
 The comparison requires identical input, script and kernel hashes, physical
 configuration, accepted point keys and exclusions. It reports computed half-range
 changes without fitting or comparing residual improvement.
+
+The subsequent precise-callback experiment used one fresh kernel and script for
+all four explicit routes. The legacy route reproduced every original frozen CSV
+field exactly. Body-only and satellite-callback changes reached 0.780 and
+1.118 mm in computed half-range respectively; their combined effect reached
+1.647 mm. With the Time callback, cubic 60-to-30-second convergence was 0.00959 mm
+maximum and 0.00344 mm RMS. All routes retained the same 23 points and six
+exclusions. The precise 30-second no-loading result had one-way O−C mean
+−0.215 mm and RMS 8.768 mm; no mean or offset was fitted.
+
+The [precise raw CSV](results/precise_time_slrf2020_combined_2024-03-31_2024-04-06/residuals.csv),
+[run summary](results/precise_time_slrf2020_combined_2024-03-31_2024-04-06/summary.json),
+[route changes](results/precise_time_slrf2020_combined_2024-03-31_2024-04-06/route_changes.csv)
+and [precision controls](results/precise_time_slrf2020_combined_2024-03-31_2024-04-06/precision_summary.json)
+retain the numerical evidence and hashes. Callback epoch truncation is zero in
+the Time route. Rotation still rounds to double: its 59.605 ns half-ULP gives a
+0.0537 mm satellite-position bound using the maximum source radius and Earth
+rotation rate, not a measured full-range error. Absolute BCRS state arithmetic
+also retains tens of micrometres of rounding. The measured table convergence,
+1 mm SP3 print resolution and approximately 1.48 mm source-node holdout RMS do
+not establish an end-to-end precision floor below these remaining limitations.

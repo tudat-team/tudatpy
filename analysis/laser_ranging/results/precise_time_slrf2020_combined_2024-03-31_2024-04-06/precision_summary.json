@@ -1,0 +1,119 @@
+{
+  "point_count": 23,
+  "same_accepted_point_keys_and_exclusions": true,
+  "legacy_reproduces_original_frozen_csv_every_field": true,
+  "kernel_sha256": "bd8d893574bd29281188934ff5a62647e4c08494eb4bfb846c17cfc06a062968",
+  "analysis_script_sha256": "92c4a3d0ad3b54f9f36fc8dadeb295bc744cb13e8f328ac25ab09205dcc7c6e9",
+  "metrics": {
+    "body_half_range_change_m": {
+      "maximum_absolute_m": 0.0007796362042427063,
+      "rms_m": 0.0004016485347960756
+    },
+    "satellite_half_range_change_m": {
+      "maximum_absolute_m": 0.0011183302849531174,
+      "rms_m": 0.0005453418915099501
+    },
+    "total_half_range_change_m": {
+      "maximum_absolute_m": 0.0016466081142425537,
+      "rms_m": 0.0006633748851377801
+    },
+    "cubic30_minus60_half_range_change_m": {
+      "maximum_absolute_m": 9.585171937942505e-06,
+      "rms_m": 3.440455800138463e-06
+    }
+  },
+  "routes": {
+    "legacy": {
+      "ephemeris_routes": {
+        "bodies": "direct",
+        "body_table_step_seconds": null,
+        "satellite_epoch": "double",
+        "rotation_epoch": "double",
+        "body_table_start_tdb_seconds": null,
+        "body_table_end_tdb_seconds": null
+      },
+      "all": {
+        "count": 23,
+        "mean_m": -0.0004737426972259646,
+        "rms_m": 0.008842990368407522,
+        "std_m": 0.008830291417194184,
+        "median_m": -0.0012403642758727074
+      },
+      "maximum_custom_callback_half_ulp_seconds": 5.960464477539063e-08
+    },
+    "cubic30-double": {
+      "ephemeris_routes": {
+        "bodies": "cubic-time",
+        "body_table_step_seconds": 30,
+        "satellite_epoch": "double",
+        "rotation_epoch": "double",
+        "body_table_start_tdb_seconds": 765028800.0,
+        "body_table_end_tdb_seconds": 765806400.0
+      },
+      "all": {
+        "count": 23,
+        "mean_m": -0.00031421284960663837,
+        "rms_m": 0.00875325877652802,
+        "std_m": 0.00874761736097361,
+        "median_m": -0.001151002012193203
+      },
+      "maximum_custom_callback_half_ulp_seconds": 5.960464477539063e-08
+    },
+    "cubic30-time": {
+      "ephemeris_routes": {
+        "bodies": "cubic-time",
+        "body_table_step_seconds": 30,
+        "satellite_epoch": "time",
+        "rotation_epoch": "double",
+        "body_table_start_tdb_seconds": 765028800.0,
+        "body_table_end_tdb_seconds": 765806400.0
+      },
+      "all": {
+        "count": 23,
+        "mean_m": -0.00021479031799928,
+        "rms_m": 0.00876840719740579,
+        "std_m": 0.008765776057988901,
+        "median_m": -0.001379222609102726
+      },
+      "maximum_custom_callback_half_ulp_seconds": 0.0
+    },
+    "cubic60-time": {
+      "ephemeris_routes": {
+        "bodies": "cubic-time",
+        "body_table_step_seconds": 60,
+        "satellite_epoch": "time",
+        "rotation_epoch": "double",
+        "body_table_start_tdb_seconds": 765028800.0,
+        "body_table_end_tdb_seconds": 765806400.0
+      },
+      "all": {
+        "count": 23,
+        "mean_m": -0.00021404918769131535,
+        "rms_m": 0.008768109745724312,
+        "std_m": 0.008765496646415098,
+        "median_m": -0.0013770917430520058
+      },
+      "maximum_custom_callback_half_ulp_seconds": 0.0
+    }
+  },
+  "remaining_precision_limits": {
+    "rotation_epoch_half_ulp_seconds": 5.960464477539063e-08,
+    "maximum_source_geocentric_radius_m": 12332215.836757783,
+    "rotation_position_half_ulp_bound_m": 5.365918612976778e-05,
+    "rotation_bound_interpretation": "Satellite position scale from 7.3e-5 rad/s times maximum source radius and epoch half-ULP; not a measured full-range error bound.",
+    "absolute_bcrs_double_rounding": "Cartesian state components remain double; subtraction near 1 AU has tens of micrometres of rounding.",
+    "sp3_position_print_quantization_m": 0.001,
+    "sp3_order10_holdout_rms_m": 0.0014807854337020336,
+    "end_to_end_floor": "Not established; zero callback epoch truncation does not remove rotation/state arithmetic or source-orbit limitations."
+  },
+  "original_route_output_sha256": {
+    "legacy/residuals.csv": "2a17ed360d346c2efa8dc7afd39fc576caff7762e563e62796b9094da46ace33",
+    "legacy/summary.json": "c36f9ae88340a6a08a4e2e18f0b5730bff16cefd5a3d1ca6b57e7a702c87764c",
+    "cubic30-double/residuals.csv": "518faa79efa7c567236170ecd34d2ff4196934e57a6a579ea913bee5a4a51d2a",
+    "cubic30-double/summary.json": "55d9a466870e13a73570c58af8bd085868487847140bc606a978e5dd4c8ff723",
+    "cubic30-time/residuals.csv": "f610bbe917b3460d84cb12a61516d271377860c7e399230b1a463dee6c650a27",
+    "cubic30-time/summary.json": "847210cc6e0bcad53a287c1e0826c07a9904d188f2d8fad432ecd5acf6f6b419",
+    "cubic60-time/residuals.csv": "c2b8ebb54d5571d24b700675a4738a8717913aef3c67dee63ad94605056358b8",
+    "cubic60-time/summary.json": "e2e9448ab7837fd60d36a21bc1b278346a1e16f0edfad2dc5f885da8a4eed10a"
+  }
+}
