@@ -11,19 +11,37 @@
 #ifndef TUDAT_CREATE_INVERSE_APRIORI_COVARIANCE_H
 #define TUDAT_CREATE_INVERSE_APRIORI_COVARIANCE_H
 
+#include <map>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include <Eigen/Core>
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/io/trackingSupplementaryData.h"
 
 namespace tudat
 {
 namespace simulation_setup
 {
+
+//! Extract per-camera pointing inverse variances from tracking supplementary data of any source format.
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getCameraPointingInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
+//! Extract per-reference-point position inverse variances from tracking supplementary data of any source format.
+/*!
+ *  Each reference point with a position uncertainty gives one entry for its ground_station_position parameter. The
+ *  uncertainty is per body-fixed component, so the entry is a plain diagonal.
+ */
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
 //! Validate/initialize a covariance-like matrix input.
 /*!
  * If the input matrix is 0x0, a zero matrix with the required dimensions is created.
@@ -140,6 +158,73 @@ Eigen::MatrixXd createCovarianceFromDiagonalEntries(
 {
     return addCovarianceDiagonalEntries< InitialStateParameterType >(
             Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, covarianceDiagonalEntriesPerParameter, requireAllEntriesToMatch );
+}
+
+//! Formal position uncertainties of estimated reference points, along each reference point's own local frame axes.
+/*!
+ *  The positions are estimated in the body-fixed frame. Each 3x3 covariance block is rotated into the local frame given
+ *  in the supplementary data, and the square roots of its diagonal are returned. Reference points without a local frame,
+ *  or that are not estimated, are left out.
+ *  \param supplementaryData Tracking supplementary data holding the reference point local frames.
+ *  \param parameterSet Estimated parameter set the covariance belongs to.
+ *  \param covariance Covariance of the estimated parameters.
+ *  \return Uncertainties along the local x, y and z axes [m], keyed by (body name, reference point name).
+ */
+template< typename InitialStateParameterType = double >
+std::map< std::pair< std::string, std::string >, Eigen::Vector3d > getReferencePointLocalFrameUncertainties(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
+        const Eigen::MatrixXd& covariance )
+{
+    if( parameterSet == nullptr )
+    {
+        throw std::runtime_error( "Error when computing reference point local frame uncertainties: parameter set is null." );
+    }
+    const int numberOfParameters = parameterSet->getEstimatedParameterSetSize( );
+    if( covariance.rows( ) != numberOfParameters || covariance.cols( ) != numberOfParameters )
+    {
+        throw std::runtime_error( "Error when computing reference point local frame uncertainties: covariance is " +
+                                  std::to_string( covariance.rows( ) ) + "x" + std::to_string( covariance.cols( ) ) +
+                                  ", but the estimated parameter set has size " + std::to_string( numberOfParameters ) + "." );
+    }
+
+    std::map< std::pair< std::string, std::string >, Eigen::Vector3d > localFrameUncertainties;
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
+    {
+        const std::shared_ptr< data::ReferencePointSupplementaryData >& referencePoint = currentData->getReferencePointSupplementaryData( );
+        if( referencePoint == nullptr || !referencePoint->getRotationFromLocalToBodyFixedFrame( ).array( ).isFinite( ).all( ) )
+        {
+            continue;
+        }
+
+        const std::pair< std::string, std::string > bodyAndReferencePoint =
+                std::make_pair( currentData->getBodyName( ), currentData->getReferencePointName( ) );
+        const std::vector< std::pair< int, int > > parameterIndices =
+                parameterSet->getIndicesForParameterType( estimatable_parameters::EstimatebleParameterIdentifier(
+                        estimatable_parameters::ground_station_position, bodyAndReferencePoint ) );
+        if( parameterIndices.empty( ) )
+        {
+            continue;
+        }
+        if( parameterIndices.size( ) > 1 || parameterIndices.at( 0 ).second != 3 )
+        {
+            throw std::runtime_error( "Error when computing reference point local frame uncertainties: reference point " +
+                                      bodyAndReferencePoint.second + " on " + bodyAndReferencePoint.first +
+                                      " must match exactly one 3-element position parameter." );
+        }
+
+        const Eigen::Matrix3d& rotationToBodyFixed = referencePoint->getRotationFromLocalToBodyFixedFrame( );
+        const int startIndex = parameterIndices.at( 0 ).first;
+        const Eigen::Matrix3d localFrameCovariance =
+                rotationToBodyFixed.transpose( ) * covariance.block( startIndex, startIndex, 3, 3 ) * rotationToBodyFixed;
+        if( ( localFrameCovariance.diagonal( ).array( ) < 0.0 ).any( ) )
+        {
+            throw std::runtime_error( "Error when computing reference point local frame uncertainties: reference point " +
+                                      bodyAndReferencePoint.second + " on " + bodyAndReferencePoint.first + " has a negative variance." );
+        }
+        localFrameUncertainties[ bodyAndReferencePoint ] = localFrameCovariance.diagonal( ).cwiseSqrt( );
+    }
+    return localFrameUncertainties;
 }
 
 }  // namespace simulation_setup

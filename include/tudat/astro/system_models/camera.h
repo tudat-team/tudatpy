@@ -327,24 +327,18 @@ public:
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             std::pair< double, double > focal_lengths = std::make_pair( 1.0, 1.0 ),
             std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ),
-            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr,
-            std::shared_ptr< Eigen::Vector3d > pointingCorrection = nullptr ):
+            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
         projectionModel_( std::make_shared< PinholeCameraProjectionModel >( focal_lengths, optical_center ) ),
-        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
-        pointingCorrection_( pointingCorrection == nullptr ? std::make_shared< Eigen::Vector3d >( Eigen::Vector3d::Zero( ) )
-                                                           : pointingCorrection )
+        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
     {}
 
     Camera( const std::string& cameraId,
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             const std::shared_ptr< CameraProjectionModel > projectionModel,
-            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr,
-            std::shared_ptr< Eigen::Vector3d > pointingCorrection = nullptr ):
+            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
-        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
-        pointingCorrection_( pointingCorrection == nullptr ? std::make_shared< Eigen::Vector3d >( Eigen::Vector3d::Zero( ) )
-                                                           : pointingCorrection )
+        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
     {
         if( projectionModel_ == nullptr )
         {
@@ -378,6 +372,17 @@ public:
     bool hasRotationFromInertialToCameraFrameFunction( ) const
     {
         return static_cast< bool >( rotationFromInertialToCameraFrameFunction_ );
+    }
+
+    //! Body whose rotation is composed into the direct pointing function; empty for inertial pointing.
+    const std::string& getPointingReferenceBodyName( ) const
+    {
+        return pointingReferenceBodyName_;
+    }
+
+    void setPointingReferenceBodyName( const std::string& pointingReferenceBodyName )
+    {
+        pointingReferenceBodyName_ = pointingReferenceBodyName;
     }
 
     /*! \brief Get quaternion representing active rotation from body-fixed to camera frame, including the
@@ -470,17 +475,12 @@ public:
 
     Eigen::Vector3d getPointingCorrection( ) const
     {
-        return *pointingCorrection_;
-    }
-
-    std::shared_ptr< Eigen::Vector3d > getPointingCorrectionPointer( ) const
-    {
         return pointingCorrection_;
     }
 
     void setPointingCorrection( const Eigen::Vector3d& pointingCorrection )
     {
-        *pointingCorrection_ = pointingCorrection;
+        pointingCorrection_ = pointingCorrection;
     }
 
 private:
@@ -496,17 +496,17 @@ private:
     /*! \brief Apply the current pointing correction to a nominal rotation to the camera frame.
      *  The correction is a small rotation expressed in the camera frame, and is therefore applied on the left:
      *  a direction that nominally maps to r_cam maps to Exp(theta) * r_cam once the correction is applied. This
-     *  convention is the one differentiated by PixelCoordinatesPointingPartial, and must be kept consistent with it.
+     *  convention is the one differentiated by PixelCoordinatesScaling, and must be kept consistent with it.
      *  \param nominalRotationToCameraFrame Rotation to the camera frame without pointing correction.
      *  \return The rotation to the camera frame including the pointing correction.
      */
     Eigen::Quaterniond applyPointingCorrection_( const Eigen::Quaterniond& nominalRotationToCameraFrame ) const
     {
-        if( pointingCorrection_->isZero( 0.0 ) )
+        if( pointingCorrection_.isZero( 0.0 ) )
         {
             return nominalRotationToCameraFrame;
         }
-        return Eigen::Quaterniond( basic_mathematics::getQuaternionFromRotationVector( *pointingCorrection_ ) *
+        return Eigen::Quaterniond( basic_mathematics::getQuaternionFromRotationVector( pointingCorrection_ ) *
                                    nominalRotationToCameraFrame )
                 .normalized( );
     }
@@ -523,8 +523,11 @@ private:
     //! Optional direct rotation from inertial to camera frame, used for picture-specific camera pointing data.
     std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction_;
 
+    //! Reference body used by a body-relative direct pointing function.
+    std::string pointingReferenceBodyName_;
+
     //! Small rotation-vector correction applied by camera-specific pointing estimation.
-    std::shared_ptr< Eigen::Vector3d > pointingCorrection_;
+    Eigen::Vector3d pointingCorrection_ = Eigen::Vector3d::Zero( );
 };
 }  // namespace system_models
 }  // namespace tudat

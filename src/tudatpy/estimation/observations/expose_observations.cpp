@@ -20,46 +20,20 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/basics/deprecationWarnings.h"
 #include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
+#include "expose_observations_bindings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace te = tudat::ephemerides;
-
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSetWithoutDependentVariables(
-        const tom::ObservableType observableType,
-        const tom::LinkDefinition& linkEnds,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-        const std::vector< TimeType > observationTimes,
-        const tom::LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
-{
-    std::cerr << "Function single_observation_set is deprecated. Use create_single_observation_set instead" << std::endl;
-    return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
-                                                                                             linkEnds,
-                                                                                             observations,
-                                                                                             observationTimes,
-                                                                                             referenceLinkEnd,
-                                                                                             std::vector< Eigen::VectorXd >( ),
-                                                                                             nullptr,
-                                                                                             ancillarySettings );
-}
-
-}  // namespace simulation_setup
-
-}  // namespace tudat
+namespace tdat = tudat::data;
 
 namespace tudatpy
 {
@@ -552,20 +526,6 @@ numpy.ndarray
                     TUDATPY_DEF_EQ_NE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_BINARY_IO( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > );
 
-    m.def( "single_observation_set",
-           &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "observable_type" ),
-           py::arg( "link_definition" ),
-           py::arg( "observations" ),
-           py::arg( "observation_times" ),
-           py::arg( "reference_link_end" ),
-           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
-           R"doc(
-
-        Deprecated. Use :func:`~tudatpy.estimation.observations.create_single_observation_set` instead.
-
-        )doc" );
-
     m.def( "create_single_observation_set",
            py::overload_cast< const tom::ObservableType,
                               const tom::LinkEnds&,
@@ -617,7 +577,7 @@ numpy.ndarray
          Class collecting all observations and associated data for use in an estimation.
 
          Class containing the full set of observations and associated data, typically for input into the estimation. When using simulated data,
-         this class is instantiated via a call to the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. More information is provided
+         this class is instantiated via a call to the :func:`~tudatpy.estimation.observations.simulate_observations` function. More information is provided
          on the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__
 
 
@@ -1625,8 +1585,6 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to add.
-         bodies : tudatpy.dynamics.environment.SystemOfBodies
-             System of bodies containing the environment.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets to which the variable should be added.
          
@@ -1808,6 +1766,86 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                     TUDATPY_DEF_EQ_NE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_BINARY_IO( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > );
 
+    tudatpy::estimation::observations::expose_observations_io_bindings( m );
+    tudatpy::estimation::observations::expose_observations_simulation_bindings( m );
+
+    m.def( "get_observed_reference_point_position_parameter_settings",
+           &tom::getObservedReferencePointPositionParameterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observation_collection" ),
+           py::arg( "body_name" ),
+           py::arg( "reference_point_names" ) = std::vector< std::string >( ),
+           R"doc(
+
+        Function to create position parameter settings for the observed reference points on a body.
+
+        Gives one ``ground_station_position`` parameter per reference point (for example a ground station or a
+        SUM/LMK landmark) on ``body_name`` that still has observations in ``observation_collection``. Reference
+        points whose observations were all filtered out get no parameter. The settings are ordered by name.
+        Each parameter is shared by all arcs that observe the reference point.
+
+        Parameters
+        ----------
+        observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
+            Observations that will be used in the estimation.
+        body_name : str
+            Body the reference points are fixed to.
+        reference_point_names : list[str], optional
+            Only create settings for these reference points. A name without observations raises an error.
+            By default, all observed reference points are used.
+
+        Returns
+        -------
+        list[:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`]
+            One position parameter setting per reference point.
+        )doc" );
+
+    m.def( "create_observation_collection_from_tracking_data",
+           &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "tracking_data" ),
+           py::arg( "bodies" ),
+           py::arg( "apply_corrections" ) = false,
+           R"doc(
+
+        Factory function to create an `ObservationCollection` from a list of `TrackingData` objects.
+
+        This function converts each entry of `tracking_data` (as produced e.g. by
+        :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`, :func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`, or a custom
+        reader) into a `SingleObservationSet`, and collects the results into an `ObservationCollection`.
+
+        Parameters
+        ----------
+        tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
+            List of tracking data objects to convert.
+        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+            System of bodies, used to resolve ground station positions for time scale conversions.
+        apply_corrections : bool, optional
+            Whether corrections stored in the tracking data should be applied to
+            the observation values during conversion. Default is False.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            An `ObservationCollection` containing one observation set per input `TrackingData` object.
+        )doc" );
+
+    m.def( "set_tracking_supplementary_data_in_bodies",
+           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
+                   &tom::setTrackingSupplementaryDataInBodies ),
+           py::arg( "bodies" ),
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+        Sets tracking supplementary data (e.g. ground station frequency ramps) in the bodies.
+
+        Parameters
+        ----------
+        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+            System of bodies in which the supplementary data is set.
+        supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+            List of tracking supplementary data objects, as produced e.g. by
+            :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data` or a custom reader.
+        )doc" );
+
     m.def( "compute_residuals_and_dependent_variables",
            &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection" ),
@@ -1830,20 +1868,6 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             List of observation simulators to be used for computing the observations.
         bodies : tudatpy.dynamics.environment.SystemOfBodies
             The system of bodies required for the observation simulation.
-        )doc" );
-
-    m.def( "filter_observations",
-           py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::shared_ptr< tom::ObservationFilterBase >,
-                              const bool >( &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_set" ),
-           py::arg( "observation_filter" ),
-           py::arg( "save_filtered_observations" ) = false,
-           R"doc(
-
-Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observation_set` instead.
-
-
         )doc" );
 
     m.def( "create_filtered_observation_set",
@@ -1874,6 +1898,22 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         tudatpy.estimation.observations.SingleObservationSet
             A new observation set containing only the observations that passed the filter.
         )doc" );
+
+    m.def(
+            "filter_observations",
+            []( const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationSet,
+                const std::shared_ptr< tom::ObservationFilterBase > observationFilter,
+                const bool saveFilteredObservations ) {
+                tudat::utilities::printDeprecationWarning( "tudatpy.estimation.observations.filter_observations",
+                                                           "tudatpy.estimation.observations.create_filtered_observation_set",
+                                                           "Deprecated as of v1.1." );
+                return tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        originalObservationSet, observationFilter, saveFilteredObservations );
+            },
+            py::arg( "original_observation_set" ),
+            py::arg( "observation_filter" ),
+            py::arg( "save_filtered_observations" ) = false,
+            R"doc(Deprecated as of v1.1. Use :func:`~create_filtered_observation_set` instead.)doc" );
 
     m.def( "split_observation_set",
            py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,

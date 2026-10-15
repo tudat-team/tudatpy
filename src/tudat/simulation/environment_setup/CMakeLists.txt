@@ -26,7 +26,6 @@ set(environment_HEADERS
         baseStateInterface.h
         rigidBodyProperties.h
         body.h
-        createRadiationPressureInterface.h
         createGravityFieldVariations.h
         createAtmosphereModel.h
         createFlightConditions.h
@@ -45,7 +44,6 @@ set(environment_HEADERS
 
 # Add header files.
 set(environment_SOURCES
-        createRadiationPressureInterface.cpp
         createEphemeris.cpp
         createRotationModel.cpp
         createRotationModelEarthOrientation.cpp
@@ -97,7 +95,7 @@ if(TUDAT_BUILD_WITH_MCD_INTERFACE)
         ${NetCDF_Fortran_LIBRARIES}
         ${NetCDF_C_LIBRARIES}
     )
-    target_include_directories(tudat_environment_setup SYSTEM PRIVATE 
+    target_include_directories(tudat_environment_setup SYSTEM PRIVATE
         "${NetCDF_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/third_parties/mcd")
 endif()

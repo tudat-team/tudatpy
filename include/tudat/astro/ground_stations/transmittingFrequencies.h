@@ -201,7 +201,7 @@ public:
     {
         TimeType lookupTime = lookupTimeOriginal;
         int lowerNearestNeighbour = -1;
-        if( lookupTimeOriginal < startTimes_.at( 0 ) )
+        if( startTimes_.size( ) == 1 || lookupTimeOriginal < startTimes_.at( 0 ) )
         {
             lowerNearestNeighbour = 0;
         }
@@ -279,7 +279,7 @@ public:
         int currentRamp = -1;
         try
         {
-            if( quadratureStartTime < startTimes_.at( 0 ) )
+            if( startTimes_.size( ) == 1 || quadratureStartTime < startTimes_.at( 0 ) )
             {
                 currentRamp = 0;
             }

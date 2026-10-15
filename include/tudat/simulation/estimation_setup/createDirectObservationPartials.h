@@ -27,7 +27,6 @@
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
-#include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPointingPartial.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/simulation/estimation_setup/createClockPartials.h"
@@ -116,7 +115,9 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     // Create observation partials if any position partials are created (i.e. if any dependency
     // exists).
     std::shared_ptr< DirectObservationPartial< ObservationSize > > observationPartial;
-    if( positionPartials.size( ) > 0 )
+    if( positionPartials.size( ) > 0 ||
+        positionPartialScaler->hasLinkIndependentPartial(
+                std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ) ) )
     {
         observationPartial = std::make_shared< DirectObservationPartial< ObservationSize > >(
                 positionPartialScaler,
@@ -156,12 +157,14 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     // Create observation partials if any position partials are created (i.e. if any dependency
     // exists).
     std::shared_ptr< DirectObservationPartial< ObservationSize > > observationPartial;
-    if( positionPartials.size( ) > 0 )
+    if( positionPartials.size( ) > 0 ||
+        positionPartialScaler->hasLinkIndependentPartial(
+                std::make_pair( estimatable_parameters::initial_rotational_body_state, std::make_pair( bodyToEstimate, "" ) ) ) )
     {
         observationPartial = std::make_shared< DirectObservationPartial< ObservationSize > >(
                 positionPartialScaler,
                 positionPartials,
-                std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
+                std::make_pair( estimatable_parameters::initial_rotational_body_state, std::make_pair( bodyToEstimate, "" ) ),
                 lightTimeCorrectionPartialObjects );
     }
 
@@ -229,6 +232,40 @@ createSingleLinkObservationPartials(
     std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionScaling =
             ObservationPartialScalingCreator< ObservationSize >::createPositionScalingObject(
                     oneWayLinkEnds, observableType, bodies, observationModel );
+
+    if constexpr( ObservationSize == 2 )
+    {
+        if( observableType == observation_models::pixel_coordinates )
+        {
+            const observation_models::LinkEndId receiverLinkEnd = oneWayLinkEnds.at( observation_models::receiver );
+            const auto camera =
+                    bodies.at( receiverLinkEnd.bodyName_ )->getVehicleSystems( )->getCamera( receiverLinkEnd.getReferencePointName( ) );
+            const std::string& referenceBodyName = camera->getPointingReferenceBodyName( );
+            if( camera->hasRotationFromInertialToCameraFrameFunction( ) && !referenceBodyName.empty( ) )
+            {
+                const auto rotationModel = bodies.at( referenceBodyName )->getRotationalEphemeris( );
+                if( rotationModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating pixel-coordinate reference-frame partials: body " + referenceBodyName +
+                                              " has no rotation model." );
+                }
+                const std::function< Eigen::Quaterniond( const double ) > rotationToInertialFunction =
+                        [ rotationModel ]( const double time ) { return rotationModel->getRotationToBaseFrame( time ); };
+                RotationMatrixPartialNamedList rotationPartials =
+                        createRotationMatrixPartials( parametersToEstimate, referenceBodyName, bodies );
+                const auto rotationalStatePartial =
+                        rotationPartials.find( std::make_pair( estimatable_parameters::initial_rotational_body_state, "" ) );
+                if( rotationalStatePartial != rotationPartials.end( ) )
+                {
+                    // Observation state partials have seven columns and must be evaluated at the receiver epoch.
+                    rotationalStatePartial->second =
+                            std::make_shared< RotationMatrixPartialWrtRotationalState >( rotationToInertialFunction );
+                }
+                std::dynamic_pointer_cast< PixelCoordinatesScaling >( positionScaling )
+                        ->setRotationMatrixPartials( referenceBodyName, rotationToInertialFunction, rotationPartials );
+            }
+        }
+    }
 
     // Initialize vector index variables.
     int currentIndex = 0;
@@ -328,33 +365,7 @@ createSingleLinkObservationPartials(
         // Create observation partial for current parameter
         std::shared_ptr< ObservationPartial< ObservationSize > > currentObservationPartial;
 
-        if( parameterIterator->second->getParameterName( ).first == estimatable_parameters::camera_pointing_correction )
-        {
-            if( observableType == observation_models::pixel_coordinates )
-            {
-                if constexpr( ObservationSize == 2 )
-                {
-                    const observation_models::LinkEndId receiverLinkEnd = oneWayLinkEnds.at( observation_models::receiver );
-                    const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier =
-                            parameterIterator->second->getParameterName( );
-                    if( parameterIdentifier.second.first == receiverLinkEnd.bodyName_ &&
-                        parameterIdentifier.second.second == receiverLinkEnd.getReferencePointName( ) )
-                    {
-                        std::shared_ptr< PixelCoordinatesScaling > pixelCoordinatesScaling =
-                                std::dynamic_pointer_cast< PixelCoordinatesScaling >( positionScaling );
-                        if( pixelCoordinatesScaling == nullptr )
-                        {
-                            throw std::runtime_error(
-                                    "Error when creating pixel-coordinate pointing partial: position scaling is not "
-                                    "PixelCoordinatesScaling." );
-                        }
-                        currentObservationPartial =
-                                std::make_shared< PixelCoordinatesPointingPartial >( pixelCoordinatesScaling, parameterIterator->second );
-                    }
-                }
-            }
-        }
-        else if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
+        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             currentObservationPartial = createObservationPartialWrtParameter< Eigen::VectorXd, ObservationSize >(
                     oneWayLinkEnds, bodies, parameterIterator->second, positionScaling, lightTimeCorrectionPartialObjects );

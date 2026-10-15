@@ -61,8 +61,9 @@ set(estimation_HEADERS
         createClockPartials.h
         processOdfFile.h
         processPsfFile.h
-        processSumLmkFiles.h
         processTrackingTxtFile.h
+        trackingDataWeighting.h
+        createObservationCollection.h
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h
         compressDopplerObservationCollection.h
@@ -85,6 +86,8 @@ set(estimation_SOURCES
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
+        createObservationCollection.cpp
+        trackingDataWeighting.cpp
         createInverseAprioriCovariance.cpp
         createObservationViability.cpp
         observationSimulationSettings.cpp

@@ -27,11 +27,14 @@ set(io_SOURCES
         "parseSolarActivityData.cpp"
         "extractSolarActivityData.cpp"
         "solarActivityData.cpp"
+        "preProcessFdetsFile.cpp"
+        "preProcessIfmsFile.cpp"
         "multiDimensionalArrayReader.cpp"
         "aerodynamicCoefficientReader.cpp"
         "tabulatedAtmosphereReader.cpp"
         "util.cpp"
         "readOdfFile.cpp"
+        "preProcessOdfFile.cpp"
         "readPsfFile.cpp"
         "readSumLmkFiles.cpp"
         "readCrdFile.cpp"
@@ -81,7 +84,10 @@ set(io_HEADERS
         "readHistoryFromFile.h"
         "tabulatedAtmosphereReader.h"
         "util.h"
+        "preProcessFdetsFile.h"
+        "preProcessIfmsFile.h"
         "readOdfFile.h"
+        "preProcessOdfFile.h"
         "readPsfFile.h"
         "readSumLmkFiles.h"
         "readCrdFile.h"
@@ -93,6 +99,7 @@ set(io_HEADERS
         "readVariousPdsFiles.h"
         "readInpopEphemerisFile.h"
         "comaModelInputOutput.h"
+        "trackingData.h"
         )
 
 # Add library.

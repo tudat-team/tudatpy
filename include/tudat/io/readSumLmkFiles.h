@@ -12,11 +12,17 @@
 #define TUDAT_READ_SUM_LMK_FILES_H
 
 #include <map>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
+#include "tudat/basics/timeType.h"
+#include "tudat/io/trackingData.h"
+#include "tudat/io/trackingSupplementaryData.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -115,9 +121,6 @@ struct SumImageData {
 
     //! [CERTAIN] UTC exposure time, second line of the file. [GIANT] "UTC exposure time".
     std::string utcEpochString_;
-
-    //! Not an SPC field: utcEpochString_ converted to TDB seconds since J2000 by this codebase.
-    double tdbSecondsSinceJ2000_ = TUDAT_NAN;
 
     //! [CERTAIN] NPX, NLN from the "NPX, NLN, THRSH" row: (number of columns, number of rows), pixels.
     Eigen::Vector2i imageSize_ = Eigen::Vector2i::Zero( );
@@ -324,6 +327,118 @@ std::vector< SumImageData > readSumFiles( const std::vector< std::string >& sumF
 LmkLandmarkData readLmkFile( const std::string& lmkFile );
 
 std::map< std::string, LmkLandmarkData > readLmkFiles( const std::vector< std::string >& lmkFiles );
+
+//! Name of the camera created for one SUM image: "Camera_" followed by the image ID.
+std::string getSumImageCameraName( const std::string& imageId );
+
+//! Observation epoch of a SUM image, in seconds since J2000 in the UTC time scale.
+double getSumImageObservationTime( const SumImageData& image );
+
+//! Rotation from the target body-fixed frame to the camera frame, given by the SUM CX/CY/CZ rows.
+Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImageData& image );
+
+//! Check SUM/LMK data before conversion and return the images to convert.
+/*!
+ *  Throws if an image has unusable camera data, or if two image IDs give the same camera name. If
+ *  skipObservationsWithMissingLandmarks is true, landmarks without an LMK file are dropped from the images (and images
+ *  left without landmarks are dropped). Otherwise a missing landmark is an error. If validateSpacecraftObjectGeometry
+ *  is true, every landmark must lie in front of the camera when placed with the SUM SCOBJ vector.
+ *  Repeated images and image/landmark measurements are merged; conflicting metadata or pixels are rejected.
+ */
+std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageData >& sumImages,
+                                                   const std::map< std::string, LmkLandmarkData >& landmarks,
+                                                   const bool skipObservationsWithMissingLandmarks = false,
+                                                   const bool validateSpacecraftObjectGeometry = true );
+
+//! Rotation from a landmark's UX/UY/UZ local frame to the target body-fixed frame.
+/*!
+ *  UX/UY/UZ are the columns of this rotation, and UZ is the maplet surface normal. Throws if the axes are not finite or
+ *  do not form a rotation within lmkLandmarkFrameTolerance. The result is snapped to the nearest exact rotation.
+ */
+Eigen::Matrix3d getLmkLandmarkRotationFromLocalToBodyFixedFrame( const LmkLandmarkData& landmark );
+
+//! Create the supplementary data for SUM/LMK observations.
+/*!
+ *  Each landmark becomes a reference point on the target body, carrying its SIGMA_LMK position uncertainty and its
+ *  UX/UY/UZ local frame when the LMK file gives them. Each image becomes a camera on the receiver body,
+ *  pointed relative to the target body-fixed frame and carrying the SUM SIGMA_PTG pointing uncertainty.
+ */
+std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrackingSupplementaryData(
+        const std::vector< SumImageData >& sumImages,
+        const std::map< std::string, LmkLandmarkData >& landmarks,
+        const std::string& targetBodyName,
+        const std::string& receiverBodyName );
+
+inline data::PlainLinkDefinition getSumLmkLinkEnds( const std::string& targetBodyName,
+                                                    const std::string& landmarkId,
+                                                    const std::string& receiverBodyName,
+                                                    const std::string& cameraName )
+{
+    return data::PlainLinkDefinition( { std::make_pair( std::make_pair( targetBodyName, landmarkId ), "transmitter" ),
+                                        std::make_pair( std::make_pair( receiverBodyName, cameraName ), "receiver" ) } );
+}
+
+//! Convert parsed SUM/LMK data to pixel-coordinate tracking data and supplementary data.
+/*!
+ *  Every (image, landmark) pair becomes one pixel-coordinate observation, sent by the landmark on the target body and
+ *  received by the image's camera on the receiver body. Epochs are kept in UTC.
+ */
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > >,
+           std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
+convertSumLmkData( const std::vector< SumImageData >& sumImages,
+                   const std::map< std::string, LmkLandmarkData >& landmarks,
+                   const std::string& targetBodyName,
+                   const std::string& receiverBodyName,
+                   const bool skipObservationsWithMissingLandmarks = false,
+                   const bool validateSpacecraftObjectGeometry = true )
+{
+    const std::vector< SumImageData > imagesToConvert =
+            getSumImagesToConvert( sumImages, landmarks, skipObservationsWithMissingLandmarks, validateSpacecraftObjectGeometry );
+
+    std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataSets;
+    for( const SumImageData& image : imagesToConvert )
+    {
+        const TimeType observationTime = static_cast< TimeType >( getSumImageObservationTime( image ) );
+        const std::string cameraName = getSumImageCameraName( image.imageId_ );
+        for( const SumLandmarkObservation& observation : image.landmarkObservations_ )
+        {
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observable( 2 );
+            observable( 0 ) = static_cast< ObservationScalarType >( observation.pixelCoordinates_( 0 ) );
+            observable( 1 ) = static_cast< ObservationScalarType >( observation.pixelCoordinates_( 1 ) );
+
+            trackingDataSets.push_back( std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >(
+                    "PixelCoordinates",
+                    getSumLmkLinkEnds( targetBodyName, observation.landmarkId_, receiverBodyName, cameraName ),
+                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( 1, observable ),
+                    std::vector< TimeType >( 1, observationTime ),
+                    "receiver",
+                    "UTC" ) );
+        }
+    }
+
+    return std::make_pair( trackingDataSets,
+                           getSumLmkTrackingSupplementaryData( imagesToConvert, landmarks, targetBodyName, receiverBodyName ) );
+}
+
+//! Read SUM and LMK files and convert them to pixel-coordinate tracking data and supplementary data.
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > >,
+           std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
+readSumLmkData( const std::vector< std::string >& sumFiles,
+                const std::vector< std::string >& lmkFiles,
+                const std::string& targetBodyName,
+                const std::string& receiverBodyName,
+                const bool skipObservationsWithMissingLandmarks = false,
+                const bool validateSpacecraftObjectGeometry = true )
+{
+    return convertSumLmkData< ObservationScalarType, TimeType >( readSumFiles( sumFiles ),
+                                                                 readLmkFiles( lmkFiles ),
+                                                                 targetBodyName,
+                                                                 receiverBodyName,
+                                                                 skipObservationsWithMissingLandmarks,
+                                                                 validateSpacecraftObjectGeometry );
+}
 
 }  // namespace sum_lmk
 

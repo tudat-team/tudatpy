@@ -18,6 +18,61 @@ namespace tudat
 namespace simulation_setup
 {
 
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getCameraPointingInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries;
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
+    {
+        for( const std::shared_ptr< data::InstrumentSupplementaryData >& instrument : currentData->getInstrumentSupplementaryData( ) )
+        {
+            const auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
+            if( camera == nullptr || camera->getPointingUncertainty( ).array( ).isNaN( ).all( ) )
+            {
+                continue;
+            }
+            const Eigen::Vector3d& uncertainty = camera->getPointingUncertainty( );
+            if( !uncertainty.array( ).isFinite( ).all( ) || ( uncertainty.array( ) <= 0.0 ).any( ) )
+            {
+                throw std::runtime_error( "Error when creating pointing a-priori for camera " + camera->getCameraId( ) +
+                                          ": uncertainties must be finite and positive." );
+            }
+            entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
+                                                       estimatable_parameters::camera_pointing_correction,
+                                                       std::make_pair( currentData->getBodyName( ), camera->getCameraId( ) ) ),
+                                               Eigen::VectorXd( uncertainty.array( ).square( ).inverse( ) ) ) );
+        }
+    }
+    return entries;
+}
+
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries;
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
+    {
+        const std::shared_ptr< data::ReferencePointSupplementaryData >& referencePoint = currentData->getReferencePointSupplementaryData( );
+        if( referencePoint == nullptr || referencePoint->getPositionUncertainty( ).array( ).isNaN( ).all( ) )
+        {
+            continue;
+        }
+        const Eigen::Vector3d& uncertainty = referencePoint->getPositionUncertainty( );
+        if( !uncertainty.array( ).isFinite( ).all( ) || ( uncertainty.array( ) <= 0.0 ).any( ) )
+        {
+            throw std::runtime_error( "Error when creating position a-priori for reference point " + currentData->getReferencePointName( ) +
+                                      " on " + currentData->getBodyName( ) + ": uncertainties must be finite and positive." );
+        }
+        entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
+                                                   estimatable_parameters::ground_station_position,
+                                                   std::make_pair( currentData->getBodyName( ), currentData->getReferencePointName( ) ) ),
+                                           Eigen::VectorXd( uncertainty.array( ).square( ).inverse( ) ) ) );
+    }
+    return entries;
+}
+
 //! Validate matrix dimensions or create a correctly sized zero matrix from a 0x0 input.
 Eigen::MatrixXd getValidatedCovarianceInput( const Eigen::MatrixXd& covarianceMatrix, const int numberOfEstimatedParameters )
 {

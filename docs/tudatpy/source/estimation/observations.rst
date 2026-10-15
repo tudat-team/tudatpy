@@ -10,6 +10,36 @@ In addition to the top-level classes, this module contains functionality to mani
 
 
 
+Selecting observations of one type
+----------------------------------
+
+Use an observation parser with the collection methods to retrieve, weight or
+filter a subset of a mixed observation collection. For example, given a
+collection named ``collection`` whose residuals have already been computed:
+
+.. code-block:: python
+
+   from tudatpy.estimation.observable_models_setup import model_settings
+   from tudatpy.estimation.observations import observations_processing
+
+   pixels = observations_processing.observation_parser(
+       model_settings.pixel_coordinates_type
+   )
+   pixel_residuals = collection.get_concatenated_residuals(pixels)
+
+   sigma_pixels = 2.0
+   collection.set_constant_weight(1.0 / sigma_pixels**2, pixels)
+
+   residual_filter = observations_processing.observation_filter(
+       observations_processing.ObservationFilterType.residual_filtering, 10.0
+   )
+   collection.filter_observations(residual_filter, pixels)
+
+The same parser can be passed to ``get_concatenated_observations`` and
+``get_concatenated_weights``. Component-wise uncertainties can be supplied by
+passing a vector of inverse variances to ``set_constant_weight``.
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Modules
@@ -26,11 +56,7 @@ Functions
 
    compute_residuals_and_dependent_variables
 
-   single_observation_set
-
    create_single_observation_set
-
-   filter_observations
 
    create_filtered_observation_set
 
@@ -44,14 +70,24 @@ Functions
 
    create_new_observation_collection
 
+   create_observation_collection_from_tracking_data
+
+   create_observation_collection_from_arrays
+
+   create_single_type_observation_collection_from_arrays
+
+   simulate_observations
+
+   simulate_pseudo_observations
+
+   set_tracking_supplementary_data_in_bodies
+
+   get_observed_reference_point_position_parameter_settings
+
 
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 
-.. autofunction:: tudatpy.estimation.observations.single_observation_set
-
 .. autofunction:: tudatpy.estimation.observations.create_single_observation_set
-
-.. autofunction:: tudatpy.estimation.observations.filter_observations
 
 .. autofunction:: tudatpy.estimation.observations.create_filtered_observation_set
 
@@ -64,6 +100,20 @@ Functions
 .. autofunction:: tudatpy.estimation.observations.split_observation_collection
 
 .. autofunction:: tudatpy.estimation.observations.create_new_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_tracking_data
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.create_single_type_observation_collection_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.simulate_observations
+
+.. autofunction:: tudatpy.estimation.observations.simulate_pseudo_observations
+
+.. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
+
+.. autofunction:: tudatpy.estimation.observations.get_observed_reference_point_position_parameter_settings
 
 
 Classes

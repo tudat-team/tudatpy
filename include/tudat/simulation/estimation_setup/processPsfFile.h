@@ -31,9 +31,9 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/io/readPsfFile.h"
+#include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createCameras.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 
@@ -79,12 +79,6 @@ public:
 
     //! USE flag retained when filterByUseFlag_ is true.
     int requiredUseFlag_ = 0;
-
-    //! Body-fixed camera reference point position used when adding PSF cameras to the receiver body.
-    Eigen::Vector3d bodyFixedCameraPosition_ = Eigen::Vector3d::Zero( );
-
-    //! Use picture-specific RA/DEC/TWIST as a direct inertial-to-camera pointing source.
-    bool usePicturePointing_ = true;
 };
 
 inline std::string convertStringToUpperCase( const std::string& input )
@@ -96,50 +90,13 @@ inline std::string convertStringToUpperCase( const std::string& input )
     return output;
 }
 
-inline int getPsfMonthNumber( const std::string& monthString )
-{
-    static const std::map< std::string, int > monthNumbers = { { "JAN", 1 }, { "FEB", 2 },  { "MAR", 3 },  { "APR", 4 },
-                                                               { "MAY", 5 }, { "JUN", 6 },  { "JUL", 7 },  { "AUG", 8 },
-                                                               { "SEP", 9 }, { "OCT", 10 }, { "NOV", 11 }, { "DEC", 12 } };
-
-    const std::string upperMonthString = convertStringToUpperCase( monthString );
-    if( monthNumbers.count( upperMonthString ) == 0 )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: unsupported month string '" + monthString + "'." );
-    }
-    return monthNumbers.at( upperMonthString );
-}
-
 namespace detail
 {
 
 template< typename TimeType = double >
 TimeType convertPsfUtcStringToSecondsSinceJ2000( const std::string& utcString, const bool convertUtcToTdb = true )
 {
-    std::stringstream stream( utcString );
-    int year = 0;
-    std::string monthString;
-    int day = 0;
-    std::string timeString;
-    stream >> year >> monthString >> day >> timeString;
-    if( stream.fail( ) || timeString.empty( ) )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: malformed UTC string '" + utcString + "'." );
-    }
-
-    std::replace( timeString.begin( ), timeString.end( ), ':', ' ' );
-    std::stringstream timeStream( timeString );
-    int hour = 0;
-    int minute = 0;
-    double seconds = 0.0;
-    timeStream >> hour >> minute >> seconds;
-    if( timeStream.fail( ) )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: malformed time field in '" + utcString + "'." );
-    }
-
-    const TimeType utcSecondsSinceJ2000 =
-            basic_astrodynamics::DateTime( year, getPsfMonthNumber( monthString ), day, hour, minute, seconds ).epoch< TimeType >( );
+    const TimeType utcSecondsSinceJ2000 = input_output::parseTrackingDateTime( utcString ).epoch< TimeType >( );
     if( convertUtcToTdb )
     {
         return earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< TimeType >(
@@ -204,7 +161,7 @@ std::function< Eigen::Quaterniond( const double ) > createNearestPsfPicturePoint
         {
             picturePointing[ static_cast< double >(
                     getPsfPictureObservationTime< TimeType >( imageContents, useMidExposureTime, convertUtcToTdb ) ) ] =
-                    getPsfPictureRotationFromInertialToCameraFrame( imageContents );
+                    detail::getPsfPictureRotationFromInertialToCameraFrame( imageContents );
         }
     }
 
@@ -261,42 +218,6 @@ std::function< Eigen::Quaterniond( const double ) > createNearestPsfPicturePoint
         const bool useMidExposureTime = true )
 {
     return detail::createNearestPsfPicturePointingFunction< TimeType >( psfFileContents, cameraId, useMidExposureTime, true );
-}
-
-inline void addPsfCamerasToBody( const input_output::psf::RawPsfFileContents& psfFileContents,
-                                 const std::shared_ptr< simulation_setup::Body >& receiverBody,
-                                 const PsfFileObservationConversionSettings& conversionSettings )
-{
-    if( receiverBody == nullptr )
-    {
-        throw std::runtime_error( "Error when adding PSF cameras to body: receiver body is nullptr." );
-    }
-
-    for( const auto& cameraEntry : psfFileContents.cameraProperties_ )
-    {
-        const std::string& cameraId = cameraEntry.first;
-        std::function< Eigen::Quaterniond( const double ) > pointingFunction = nullptr;
-        if( conversionSettings.usePicturePointing_ )
-        {
-            pointingFunction =
-                    createNearestPsfPicturePointingFunction< double >( psfFileContents, cameraId, conversionSettings.useMidExposureTime_ );
-        }
-
-        std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
-                cameraId,
-                Eigen::Vector3d::Zero( ),
-                input_output::psf::createPsfCameraProjectionModel( cameraEntry.second ),
-                conversionSettings.bodyFixedCameraPosition_,
-                pointingFunction );
-        simulation_setup::createCamera( receiverBody, cameraSettings );
-    }
-}
-
-inline void addPsfCamerasToBodies( const input_output::psf::RawPsfFileContents& psfFileContents,
-                                   const simulation_setup::SystemOfBodies& bodies,
-                                   const PsfFileObservationConversionSettings& conversionSettings )
-{
-    addPsfCamerasToBody( psfFileContents, bodies.at( conversionSettings.receiverBodyName_ ), conversionSettings );
 }
 
 inline bool shouldConvertPsfMeasurement( const input_output::psf::RawPsfMeasurement& measurement,
@@ -426,15 +347,8 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
         const std::string& psfFile,
         const PsfFileObservationConversionSettings& conversionSettings )
 {
-    return createPsfFileObservationCollection< ObservationScalarType, TimeType >( input_output::psf::readPsfFile( psfFile ),
+    return createPsfFileObservationCollection< ObservationScalarType, TimeType >( input_output::psf::readRawPsfFile( psfFile ),
                                                                                   conversionSettings );
-}
-
-inline void addPsfCamerasToBodies( const std::string& psfFile,
-                                   const simulation_setup::SystemOfBodies& bodies,
-                                   const PsfFileObservationConversionSettings& conversionSettings )
-{
-    addPsfCamerasToBodies( input_output::psf::readPsfFile( psfFile ), bodies, conversionSettings );
 }
 
 }  // namespace observation_models

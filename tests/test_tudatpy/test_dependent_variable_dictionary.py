@@ -4,7 +4,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 
 # Load tudatpy modules
-from tudatpy.interface import spice
+from tudatpy.data_input.environment_data import spice
 from tudatpy.dynamics import environment_setup, propagation_setup, simulator
 from tudatpy.astro import element_conversion
 from tudatpy import constants
@@ -150,7 +150,10 @@ def test_dependent_variable_dictionary():
 
     # Create numerical integrator settings
     fixed_step_size = 10.0
-    integrator_settings = propagation_setup.integrator.runge_kutta_4(fixed_step_size)
+    integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step(
+        fixed_step_size,
+        propagation_setup.integrator.CoefficientSets.rk_4,
+    )
 
     # Create propagation settings
     propagator_settings = propagation_setup.propagator.translational(

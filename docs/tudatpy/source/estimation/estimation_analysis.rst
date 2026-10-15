@@ -25,6 +25,10 @@ Functions
 
    create_covariance_from_diagonal_entries
 
+   get_reference_point_position_inverse_apriori_covariance_entries
+
+   get_reference_point_local_frame_uncertainties
+
    add_covariance_diagonal_entries
 
    create_best_fit_to_ephemeris
@@ -49,6 +53,10 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_position_inverse_apriori_covariance_entries
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_local_frame_uncertainties
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.add_covariance_diagonal_entries
 
@@ -86,12 +94,14 @@ Classes
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 

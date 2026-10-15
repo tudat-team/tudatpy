@@ -22,6 +22,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/azimuthElevationPartial.h"
 #include "tudat/astro/observation_models/azimuthElevationObservationModel.h"
+#include "tudat/astro/observation_models/pixelCoordinatesObservationModel.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
@@ -379,6 +380,13 @@ public:
                 break;
             }
             case observation_models::pixel_coordinates: {
+                const auto pixelCoordinatesModel =
+                        std::dynamic_pointer_cast< observation_models::PixelCoordinatesObservationModel< ParameterType, TimeType > >(
+                                observationModel );
+                if( observationModel != nullptr && pixelCoordinatesModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when making pixel coordinates partial scaling: observation model not recognized." );
+                }
                 std::shared_ptr< simulation_setup::Body > receiverBody = bodies.at( linkEnds.at( observation_models::receiver ).bodyName_ );
                 if( receiverBody->getRotationalEphemeris( ) == nullptr )
                 {
@@ -406,7 +414,11 @@ public:
                         },
                         [ camera ]( const Eigen::Vector3d& cameraFramePosition ) {
                             return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
-                        } );
+                        },
+                        pixelCoordinatesModel != nullptr && pixelCoordinatesModel->getCorrectForStellarAberration( ) );
+                std::static_pointer_cast< PixelCoordinatesScaling >( positionPartialScaler )
+                        ->setPointingCorrectionFunction( linkEnds.at( observation_models::receiver ),
+                                                         [ camera ]( ) { return camera->getPointingCorrection( ); } );
                 break;
             }
             case observation_models::azimuth_elevation_angle: {
