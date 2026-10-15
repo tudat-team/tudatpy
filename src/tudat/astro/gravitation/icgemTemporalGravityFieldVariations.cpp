@@ -190,7 +190,7 @@ public:
         }
     }
 
-    //! Evaluate 2.0 half-open TAI intervals or unbounded 1.0 terms, retaining exact scalar boundary ownership.
+    //! Evaluate half-open 2.0 intervals or unbounded 1.0 terms; an exact converted start selects the interval beginning there.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) override
     {
         if( !std::isfinite( time ) )
@@ -212,7 +212,7 @@ public:
 
         for( const auto& coefficient : coefficients_ )
         {
-            // upper_bound selects the piece on the right at a shared epoch, without a tolerance clamp.
+            // At a shared start and end, upper_bound selects the interval beginning at that epoch.
             auto base = std::upper_bound(
                     coefficient.bases.begin( ), coefficient.bases.end( ), tai, []( const Time& query, const TemporalTerm& term ) {
                         return query < term.origin;
@@ -264,7 +264,7 @@ public:
     }
 
 private:
-    //! Resolve and scale one record while reusing dates and retaining exact TDB images of physical interval edges.
+    //! Resolve dates and scale one record, retaining precise TAI epochs for exact converted interval starts and ends.
     TemporalTerm prepareTerm( const input_output::IcgemTemporalCoefficient& record,
                               const std::string& reference,
                               const std::string& format,
@@ -315,6 +315,7 @@ private:
                 const double image = static_cast< double >(
                         converter_->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, edge ) );
 
+                // Distinct starts or ends that round to the same double TDB cannot be distinguished.
                 const auto inserted = boundaries_.emplace( image, edge );
 
                 if( !std::isfinite( image ) || ( !inserted.second && inserted.first->second != edge ) )
@@ -381,7 +382,7 @@ private:
     //! Use the same converter as the selected Earth rotation, with no separate default time model.
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter_;
 
-    //! Exact scalar images preserve interval ownership; other TDB inputs are converted normally.
+    //! Retain TAI starts and ends for their exact converted double TDB values; convert other query times normally.
     std::map< double, Time > boundaries_;
 };
 

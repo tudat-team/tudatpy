@@ -17,15 +17,18 @@ namespace simulation_setup
 {
 namespace
 {
-//! Build Doodson phases from the selected rotation clock, with TT and UT1 kept distinct.
+//! Build Doodson phases using the selected rotation time conversion, with TT and UT1 kept distinct.
 Eigen::Vector6d earthGravityDoodsonArguments( double time,
                                               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter )
 {
     const Time tai = converter->getTaiTime( basic_astrodynamics::tdb_scale, time );
+
     const Time tt = basic_astrodynamics::convertTAItoTT( tai );
+
     return sofa_interface::calculateDoodsonFundamentalArguments(
             static_cast< double >( tt ), static_cast< double >( tt ), static_cast< double >( converter->getUt1FromTai( tai ) ) );
 }
+
 //! Subtract the 2018 secular pole and convert m1/m2 from radians to the requested units.
 Eigen::Vector2d earthGravityWobble( double time,
                                     const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter,
@@ -33,9 +36,12 @@ Eigen::Vector2d earthGravityWobble( double time,
                                     double radiansToOutputUnits )
 {
     const Time tt = basic_astrodynamics::convertTAItoTT( converter->getTaiTime( basic_astrodynamics::tdb_scale, time ) );
+
     const double radiansPerMas = mathematical_constants::PI / ( 180.0 * 3600000.0 );
+
     Eigen::Vector2d wobble = polar->getPositionOfCipInItrsAtTt( tt ) -
             earth_orientation::getSecularPolePositionInMas( static_cast< double >( tt ) ) * radiansPerMas;
+
     wobble.y( ) = -wobble.y( );
     return wobble * radiansToOutputUnits;
 }
@@ -176,10 +182,14 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
     {
         throw std::runtime_error( "Conventional Earth gravity variations require body Earth" );
     }
+    // The actual field and rotation determine the coefficient units, axes and time conversion.
     const auto earth = bodies.at( body );
+
     const auto field =
             std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( earth->getGravityFieldModel( ) );
+
     const auto rotation = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( earth->getRotationalEphemeris( ) );
+
     if( !field || !rotation )
     {
         throw std::runtime_error( "Earth gravity tides require a time-dependent spherical field and GCRS/ITRS rotation" );
@@ -193,22 +203,28 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
         throw std::runtime_error( "Earth gravity tides require ITRS coefficients and identical global/rotation base axes labels" );
     }
     const auto angles = rotation->getAnglesCalculator( );
+
     if( !angles )
     {
         throw std::runtime_error( "Earth gravity tides require the selected Earth orientation calculator" );
     }
     const auto converter = angles->getTerrestrialTimeScaleConverter( );
+
     const auto polar = angles->getPolarMotionCalculator( );
+
     if( !converter || !polar )
     {
         throw std::runtime_error( "Earth gravity tides require the selected rotation clock and pole" );
     }
+    // Conventional IERS source constants are scaled to the actual field by the response models.
     constexpr double sourceMu = 3.986004415e14;
+
     constexpr double sourceRadius = 6378136.3;
+
     switch( settings->getBodyDeformationType( ) )
     {
         case gravitation::icgem_temporal: {
-            // Preserve analytic interval ownership; interpolating again could bridge a jump or missing base piece.
+            // Evaluate published intervals directly; interpolating again could bridge a jump or a gap.
             const auto temporal = std::dynamic_pointer_cast< IcgemTemporalGravityFieldVariationSettings >( settings );
 
             if( !temporal || settings->getInterpolatorSettings( ) != nullptr )
@@ -271,11 +287,17 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
             {
                 throw std::runtime_error( "Complete IERS Earth solid tide requires an explicit tide-free or zero-tide nominal field" );
             }
+            // Direct evaluation uses cached body states; sampled evaluation uses ephemerides at each requested epoch.
             std::function< Eigen::Vector6d( double ) > earthState;
+
             std::function< Eigen::Quaterniond( double ) > orientation;
+
             std::vector< std::function< Eigen::Vector6d( double ) > > raiserStates;
+
             std::vector< std::function< double( ) > > raiserMus;
+
             const bool interpolated = settings->getInterpolatorSettings( ) != nullptr;
+
             if( interpolated )
             {
                 if( !earth->getEphemeris( ) )
@@ -290,7 +312,9 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
                 earthState = std::bind( &Body::getState, earth );
                 orientation = std::bind( &Body::getCurrentRotationToLocalFrame, earth );
             }
+            // The complete IERS preset includes both standard tide-raising bodies.
             const std::vector< std::string > raisers{ "Moon", "Sun" };
+
             for( const auto& name : raisers )
             {
                 if( !bodies.count( name ) || !bodies.at( name )->getGravityFieldModel( ) )
@@ -298,6 +322,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
                     throw std::runtime_error( "Complete IERS Earth solid tide requires Moon and Sun gravity models" );
                 }
                 const auto raiser = bodies.at( name );
+
                 if( interpolated )
                 {
                     if( !raiser->getEphemeris( ) )
@@ -336,6 +361,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createEarthGravityFieldVa
         }
         case gravitation::ocean_pole_tide: {
             const auto ocean = std::dynamic_pointer_cast< OceanPoleTideGravityFieldVariationSettings >( settings );
+
             if( !ocean )
             {
                 throw std::runtime_error( "Expected ocean pole gravity settings" );
@@ -402,6 +428,7 @@ void validateEarthGravityFieldVariationCollection( const std::vector< std::share
     for( const auto& entry : settings )
     {
         std::vector< std::string > raisers;
+
         if( const auto basic = std::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( entry ) )
         {
             raisers = basic->getDeformingBodies( );

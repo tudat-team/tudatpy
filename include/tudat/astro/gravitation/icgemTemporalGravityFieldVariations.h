@@ -18,7 +18,8 @@ enum class IcgemYearConvention { julianYear, fractionalGregorianYear };
 //! Julian years use elapsed TAI SI seconds/31557600; fractional years use the declared source calendar.
 //! Format 1.0 date-only tokens mean midnight; format 2.0 requires HHMM or explicit source-scale overrides.
 //! Format 2.0 uses half-open gfct validity intervals; format 1.0 has no artificial validity bounds.
-//! Exact scalar TDB boundary images retain their original TAI boundary; distinct collapsed boundaries are rejected.
+//! An exact converted interval start selects the interval beginning there.
+//! Distinct starts or ends that round to the same double TDB cannot be distinguished and are rejected.
 //! Later nominal-field updates add an ordinary offset to this adopted baseline; they do not rebase the model.
 std::shared_ptr< GravityFieldVariations > createIcgemTemporalGravityFieldVariations(
         const input_output::IcgemGravityFieldData& data,
