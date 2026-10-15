@@ -17,7 +17,7 @@
 #include <memory>
 
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
-#include "tudat/io/readIcgemGravityField.h"
+#include "tudat/astro/basic_astro/tideSystem.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
@@ -26,6 +26,12 @@
 
 namespace tudat
 {
+namespace input_output
+{
+//! Neutral ICGEM data used by the from-data factory declaration.
+struct IcgemGravityFieldData;
+
+}  // namespace input_output
 
 namespace simulation_setup
 {

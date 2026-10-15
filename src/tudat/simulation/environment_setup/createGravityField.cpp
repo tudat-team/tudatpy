@@ -13,6 +13,7 @@
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/io/readIcgemGravityField.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 

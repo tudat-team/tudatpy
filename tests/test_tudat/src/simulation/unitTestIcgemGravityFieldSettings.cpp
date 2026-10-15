@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/io/readIcgemGravityField.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/support/testFileUtilities.h"

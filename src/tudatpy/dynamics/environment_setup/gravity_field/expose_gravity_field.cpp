@@ -12,6 +12,7 @@
 #endif
 #include "expose_gravity_field.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/io/readIcgemGravityField.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/rigidBodyProperties.h>
