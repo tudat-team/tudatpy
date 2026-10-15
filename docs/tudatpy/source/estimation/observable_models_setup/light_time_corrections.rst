@@ -15,7 +15,7 @@ the speed of light :math:`c`. The light-time corrections defined through this mo
 
 .. math::
 
-   \frac{||\mathbf{r}_{1}(t_{1}) - \mathbf{r}_{0}(t_{0})||}{c}=\left(t_{1}-t_{0}\right)+\Delta t(t_{0},t_{1};\mathbf{r}_{1}(t_{1}),\mathbf{r}_{0}(t_{0}))
+   \left(t_{1}-t_{0}\right)=\frac{||\mathbf{r}_{1}(t_{1}) - \mathbf{r}_{0}(t_{0})||}{c}+\Delta t(t_{0},t_{1};\mathbf{r}_{1}(t_{1}),\mathbf{r}_{0}(t_{0}))
 
 for a signal transmitted from link end :math:`0` at :math:`t_{0}` and received by link end :math:`1` at :math:`t_{1}`. More details on the
 link with the observation model, and the manner in which this equation is solved, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html>`_ .
