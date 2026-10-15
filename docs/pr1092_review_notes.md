@@ -296,3 +296,47 @@ shutil.copytree(Path("resources"), Path(get_resource_path()), dirs_exist_ok=True
   logs and XML reports alongside it. The tested source is `05292ca2b`; this later notes update changes no compiled file.
   All changes are local: Dominic explicitly requested no push, and GitHub comments remain untouched. Remote CI has
   not been rerun with these local commits.
+
+### 15 October: second review patch and CI follow-up
+
+- Applied `PR1092-REVIEW-COMMENT-FIXES-2.patch` unchanged as `8cfd4532d`. The C++ calculations now share one EOP-based
+  route; the input-data and evaluated-angle structures have their requested names. Python signatures are retained.
+  The removed C++ entry points and constructor arguments were checked for stale callers. Unity remains disabled.
+- EOP node recognition now allows `2 * epsilon(long double) * 3600` seconds of fractional-hour rounding before selecting
+  an interval. The existing outer coverage margin is unchanged. Both-sided node/gap and right-interval rate checks were
+  added to existing cases; requests beyond the rounding margin still have to fail across an unavailable stencil.
+- Only the five precision-sensitive test files were adjusted. Offset bounds use the fractional-hour resolution; clock
+  derivative bounds propagate it through the existing 32-second stencil; differenced-arrival bounds account for both
+  receiver clocks. Existing tolerance floors and exact node checks remain on wider-long-double platforms. Boost requires
+  matching residual/tolerance types, so bounds are evaluated in long double and converted to double for double residuals.
+- The deformation nonfinite-input case uses NaN, which `Time` can represent, instead of an infinity that triggers undefined
+  integer conversion before model validation. Scalar step infinity checks remain. No generic `Time` change was made.
+- Tracking TXT and IFMS expected values now use the same default EOP-backed clock as collection creation, with their
+  original tolerances. The live MPC case selects the established 2022–2023 interval and explicitly requires nonempty data.
+  Its existing remote-data marker remains; the observed failure was EOP coverage, not a connection failure.
+- Dominic authorized increasing only the older MGS first-block upper residual bound from 0.12 to 0.15 Hz. In CI run
+  `38752589589`, both operating-system logs execute all three DSN cases and attribute their only two failures to that
+  MGS bound. The MRO case's 59-observation, 2 mHz mean and 3 mHz RMS checks passed there and remain unchanged.
+- The rate documentation now describes the single conversion route, the available interpolated TT/TDB clock rate and
+  the fixed 32-second nominal SOFA derivative. Stale descriptions of removed APIs and interpolation derivatives were removed.
+- Source changes through `4cfe1decf` were first committed without executing code, as instructed. Dominic subsequently
+  authorized affected builds and tests. All 22 selected native executables and the Python kernel built successfully in
+  `/home/dominic/Tudat/pr1092-review-build`, using a separate detached source checkout and at most eight compiler jobs
+  total. Release, serialization ON and unity OFF were retained. Tests ran serially with numerical-library threads set to one.
+- Compilation required two explicit observation-factory includes in the DSN test/helper (`711f47037`). The routing suite
+  needed three old exception expectations replaced with checks of supported finite clock rates/deformation states
+  (`39aff926a`). Both corrections are test-only. Missing local fixtures were extracted from the existing `data.zip`
+  without replacing existing files. Only the affected/blocked executables were rerun; initial logs were preserved.
+- **All 22 native executables passed: 170 cases and 24,872 assertions.** MRO residual mean was
+  **0.0012364529657288123 Hz**, RMS **0.001906654846884383 Hz**, within its unchanged 0.002/0.003 Hz limits.
+- **All 64 focused Python checks passed**, with no failures/errors/skips or reported pytest warnings: the live MPC
+  integration case with remote data enabled, plus 63 time/EOP/rotation/converter-binding and architecture checks.
+  MPC retained its original numerical assertions and passed the nonempty-data check; no connection fallback was needed.
+- Tested clean source: `d867b1619238563bf85eac763bc7dbbc4a607085`. Its production source is identical to authoritative
+  `39aff926a`; three formatting-only test differences do not change the tested expressions. Python verified the interpreter,
+  build package and kernel paths. Kernel SHA-256: `2988970ddfe1fee2fb9ad20d85d07167ffc6639a2c98e861303b38e42ab902bf`.
+- Evidence is in `/home/dominic/Tudat/pr1092-review-build/verification-review2-20261015/`: `native-final-summary.json`,
+  `python-review2-summary.json`, exact commands, per-attempt logs/XML and source/kernel provenance. Black, clang-format
+  and `git diff --check` pass. The full unrelated suite was not rerun; macOS/ARM64 execution remains a CI check.
+- No changes have been pushed or GitHub comments modified. The separate reviewer report is
+  `/home/dominic/Tudat/tudat-monorepo/PR1092-REVIEW-FIXES-2-REPORT.md`.
