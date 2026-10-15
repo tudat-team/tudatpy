@@ -14,6 +14,7 @@
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/createGravityFieldVariations.h>
+#include "tudat/simulation/environment_setup/createEarthGravityFieldVariations.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -146,11 +147,31 @@ Variation model due to ocean tides
 Variation model due to pole tides
 
       )doc" )
+            .value( "ocean_pole_tide", tg::ocean_pole_tide, "Equilibrium ocean response to polar motion." )
             .export_values( );
 }
 
 void expose_gravity_field_variation_setup( py::module& m )
 {
+    // Existing model interpolation settings describe deferred sampling at environment epochs.
+    py::class_< tss::ModelInterpolationSettings, std::shared_ptr< tss::ModelInterpolationSettings > >(
+            m,
+            "ModelInterpolationSettings",
+            "Interval, sample step and interpolator for precomputed gravity variations. Times are TDB seconds since J2000." )
+            .def( py::init< double, double, double, std::shared_ptr< tudat::interpolators::InterpolatorSettings > >( ),
+                  py::arg( "initial_time" ),
+                  py::arg( "final_time" ),
+                  py::arg( "time_step" ),
+                  py::arg( "interpolator_settings" ) )
+            .def_readwrite(
+                    "initial_time", &tss::ModelInterpolationSettings::initialTime_, "First sample epoch, in TDB seconds since J2000." )
+            .def_readwrite( "final_time", &tss::ModelInterpolationSettings::finalTime_, "Last sample epoch, in TDB seconds since J2000." )
+            .def_readwrite( "time_step", &tss::ModelInterpolationSettings::timeStep_, "Sampling interval in seconds." )
+            .def_readwrite( "interpolator_settings",
+                            &tss::ModelInterpolationSettings::interpolatorSettings_,
+                            "Interpolation type and boundary settings." ) TUDATPY_DEF_EQ_NE( tss::ModelInterpolationSettings )
+                    TUDATPY_DEF_PICKLE( tss::ModelInterpolationSettings );
+
     py::class_< tss::GravityFieldVariationSettings, std::shared_ptr< tss::GravityFieldVariationSettings > >(
             m,
             "GravityFieldVariationSettings",
@@ -160,6 +181,238 @@ void expose_gravity_field_variation_setup( py::module& m )
 
 
       )doc" ) TUDATPY_DEF_EQ_NE( tss::GravityFieldVariationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::GravityFieldVariationSettings );
+
+    // Ocean-pole forcing constants remain explicit, independently of the consuming field GM/radius.
+    py::class_< tg::OceanPoleGravityConstants >(
+            m,
+            "OceanPoleGravityConstants",
+            "Explicit IERS equation 6.23 forcing constants; no defaults are inferred from the coefficient file." )
+            .def( py::init<>( ) )
+            .def_readwrite( "angular_velocity", &tg::OceanPoleGravityConstants::angularVelocity, "Earth spin rate in radians per second." )
+            .def_readwrite( "gravitational_constant",
+                            &tg::OceanPoleGravityConstants::gravitationalConstant,
+                            "Newtonian constant in cubic metres per kilogram per squared second." )
+            .def_readwrite( "ocean_density", &tg::OceanPoleGravityConstants::oceanDensity, "Ocean density in kilograms per cubic metre." )
+            .def_readwrite( "equatorial_gravity",
+                            &tg::OceanPoleGravityConstants::equatorialGravity,
+                            "Equatorial gravity in metres per squared second." )
+            .def_readwrite( "gravitational_parameter",
+                            &tg::OceanPoleGravityConstants::gravitationalParameter,
+                            "Forcing GM in cubic metres per squared second." )
+            .def_readwrite( "reference_radius", &tg::OceanPoleGravityConstants::referenceRadius, "Forcing reference radius in metres." )
+            .def_readwrite( "gamma2", &tg::OceanPoleGravityConstants::gamma2, "Complex dimensionless degree-two rotational response." );
+
+    py::class_< tss::OceanPoleTideGravityFieldVariationSettings,
+                std::shared_ptr< tss::OceanPoleTideGravityFieldVariationSettings >,
+                tss::GravityFieldVariationSettings >(
+            m,
+            "OceanPoleTideGravityFieldVariationSettings",
+            "Settings owning ocean-pole gravity integrals, load Love numbers and explicit forcing constants." )
+            TUDATPY_DEF_EQ_NE( tss::OceanPoleTideGravityFieldVariationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
+                    tss::GravityFieldVariationSettings, tss::OceanPoleTideGravityFieldVariationSettings );
+
+    // Harmonic metadata describes the forcing product, independently of the nominal field.
+    py::enum_< tg::HarmonicGravityComponent >( m, "HarmonicGravityComponent", "Physical mass component represented by a harmonic product." )
+            .value( "unspecified", tg::HarmonicGravityComponent::unspecified )
+            .value( "ocean_mass", tg::HarmonicGravityComponent::oceanMass )
+            .value( "direct_atmospheric_mass", tg::HarmonicGravityComponent::directAtmosphericMass );
+
+    py::enum_< tg::HarmonicGravityLoading >(
+            m, "HarmonicGravityLoading", "Whether the product already contains the elastic load response." )
+            .value( "unspecified", tg::HarmonicGravityLoading::unspecified )
+            .value( "included", tg::HarmonicGravityLoading::included )
+            .value( "excluded", tg::HarmonicGravityLoading::excluded );
+
+    py::class_< tg::HarmonicGravityMetadata >(
+            m, "HarmonicGravityMetadata", "Explicit source GM/radius, normalization, physical component and loading convention." )
+            .def( py::init<>( ) )
+            .def_readwrite( "component", &tg::HarmonicGravityMetadata::component, "Mass component represented by the coefficients." )
+            .def_readwrite( "gravitational_parameter",
+                            &tg::HarmonicGravityMetadata::gravitationalParameter,
+                            "Source GM in cubic metres per squared second." )
+            .def_readwrite( "reference_radius", &tg::HarmonicGravityMetadata::referenceRadius, "Source radius in metres." )
+            .def_readwrite( "fully_normalized",
+                            &tg::HarmonicGravityMetadata::fullyNormalized,
+                            "Whether the source coefficients use geodetic full normalization." )
+            .def_readwrite( "revision", &tg::HarmonicGravityMetadata::revision, "Explicit provider/product revision." )
+            .def_readwrite(
+                    "loading", &tg::HarmonicGravityMetadata::loading, "Declared elastic loading convention; no response factor is added." );
+
+    py::class_< tg::HarmonicGravityConstituent >(
+            m,
+            "HarmonicGravityConstituent",
+            "One canonical wave with dimensionless fully normalized C/S cosine/sine amplitude matrices indexed by degree/order." )
+            .def( py::init<>( ) )
+            .def_readwrite( "doodson", &tg::HarmonicGravityConstituent::doodson, "Canonical Doodson identifier." )
+            .def_readwrite( "multipliers", &tg::HarmonicGravityConstituent::multipliers, "Six Doodson integer multipliers." )
+            .def_readwrite( "cosine_coefficients_cosine",
+                            &tg::HarmonicGravityConstituent::cCos,
+                            "Cosine-coefficient amplitudes multiplying cosine of phase." )
+            .def_readwrite( "cosine_coefficients_sine",
+                            &tg::HarmonicGravityConstituent::cSin,
+                            "Cosine-coefficient amplitudes multiplying sine of phase." )
+            .def_readwrite( "sine_coefficients_cosine",
+                            &tg::HarmonicGravityConstituent::sCos,
+                            "Sine-coefficient amplitudes multiplying cosine of phase." )
+            .def_readwrite( "sine_coefficients_sine",
+                            &tg::HarmonicGravityConstituent::sSin,
+                            "Sine-coefficient amplitudes multiplying sine of phase." );
+
+    py::class_< tg::HarmonicGravityAdmittance >(
+            m, "HarmonicGravityAdmittance", "Explicit ordered major-to-target map; target waves replace the major inventory." )
+            .def( py::init<>( ) )
+            .def_readwrite(
+                    "major_doodson_ids", &tg::HarmonicGravityAdmittance::majorDoodsonIds, "Input major waves in matrix-column order." )
+            .def_readwrite(
+                    "target_doodson_ids", &tg::HarmonicGravityAdmittance::targetDoodsonIds, "Final target waves in matrix-row order." )
+            .def_readwrite( "matrix",
+                            &tg::HarmonicGravityAdmittance::matrix,
+                            "Dimensionless admittance matrix, rows target waves and columns major waves." );
+
+    py::class_< tss::HarmonicGravityFieldVariationSettings,
+                std::shared_ptr< tss::HarmonicGravityFieldVariationSettings >,
+                tss::GravityFieldVariationSettings >(
+            m,
+            "HarmonicGravityFieldVariationSettings",
+            "Settings owning the final ordered canonical wave inventory and explicit source conventions." )
+            .def( py::init< const std::vector< tg::HarmonicGravityConstituent >&,
+                            const tg::HarmonicGravityMetadata&,
+                            int,
+                            int,
+                            const std::shared_ptr< tss::ModelInterpolationSettings >& >( ),
+                  py::arg( "constituents" ),
+                  py::arg( "metadata" ),
+                  py::arg( "maximum_degree" ),
+                  py::arg( "maximum_order" ),
+                  py::arg( "interpolation_settings" ) = nullptr )
+            .def_property_readonly( "constituents",
+                                    &tss::HarmonicGravityFieldVariationSettings::getConstituents,
+                                    "Final ordered wave inventory; no admittance remains to apply." )
+            .def_property_readonly(
+                    "metadata", &tss::HarmonicGravityFieldVariationSettings::getMetadata, "Retained source and physical conventions." )
+            .def_property_readonly( "identifier",
+                                    &tss::HarmonicGravityFieldVariationSettings::getIdentifier,
+                                    "Component, product revision and final inventory label used for model lookup." )
+                    TUDATPY_DEF_EQ_NE( tss::HarmonicGravityFieldVariationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
+                            tss::GravityFieldVariationSettings, tss::HarmonicGravityFieldVariationSettings );
+
+    m.def( "harmonic_potential_from_data",
+           &tss::harmonicPotentialGravityFieldVariationSettings,
+           py::arg( "data" ),
+           py::arg( "metadata" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "selected_doodson_ids" ) = std::vector< std::string >{},
+           py::arg( "admittance" ) = std::nullopt,
+           py::arg( "interpolation_settings" ) = nullptr,
+           R"doc(
+Create harmonic gravity settings from explicit provider potential records.
+
+IERS potential columns are converted once to dimensionless, fully normalized
+cosine/sine amplitudes. Optional ordered admittance replaces the input inventory
+with its target waves exactly once. No loading, nodal or extra phase factors are
+added. Evaluation uses distinct TT and UT1 arguments from the selected TDB-input
+Earth rotation. Source GM/radius are rescaled once to the consuming field.
+
+Parameters
+----------
+data : tudatpy.data_input.environment_data.gravity_field.HarmonicPotentialData
+    Ordered provider wave records and units.
+metadata : HarmonicGravityMetadata
+    Explicit source constants, revision, normalization, component and loading.
+maximum_degree, maximum_order : int
+    Retained body-centred coefficient block, starting at degree two/order zero.
+selected_doodson_ids : list[str], default=[]
+    Ordered selected waves; empty retains the provider order.
+admittance : HarmonicGravityAdmittance, optional
+    Explicit ordered major-to-target map, or None.
+interpolation_settings : ModelInterpolationSettings, optional
+    Deferred precomputation settings, or None for direct evaluation.
+
+Returns
+-------
+HarmonicGravityFieldVariationSettings
+    Settings retaining only the final canonical inventory and source conventions.
+)doc" );
+
+    m.def( "iers_2010_solid_body_tide",
+           &tss::iers2010SolidBodyTideGravityFieldVariationSettings,
+           py::arg( "interpolation_settings" ) = nullptr,
+           R"doc(
+Select the conventional anelastic Earth gravity tide due to the Moon and Sun.
+
+The response includes degree-two and degree-three forcing, the induced degree-four
+terms and the IERS frequency corrections. The nominal field must declare tide-free
+or zero-tide coefficients in ITRS. Earth must use a TDB-input GCRS/ITRS rotation.
+TT and UT1 phases use that rotation's selected converter. Optional interpolation
+is initialized after the body ephemeris frame callbacks are installed.
+
+Parameters
+----------
+interpolation_settings : ModelInterpolationSettings, optional
+    Precomputation interval, step and interpolation method, or None for direct evaluation.
+
+Returns
+-------
+GravityFieldVariationSettings
+    Complete conventional solid Earth gravity tide settings.
+)doc" );
+
+    m.def( "solid_pole_tide",
+           &tss::solidPoleTideGravityFieldVariationSettings,
+           py::arg( "interpolation_settings" ) = nullptr,
+           R"doc(
+Select the conventional solid Earth pole gravity tide.
+
+Polar motion is obtained from the selected TDB-input Earth rotation, relative to
+the shared IERS 2018 secular pole. The resulting degree-two, order-one coefficient
+changes are rescaled once to the consuming gravity field's GM and radius.
+
+Parameters
+----------
+interpolation_settings : ModelInterpolationSettings, optional
+    Precomputation interval, step and interpolation method, or None for direct evaluation.
+
+Returns
+-------
+GravityFieldVariationSettings
+    Conventional solid pole gravity tide settings.
+)doc" );
+
+    m.def( "ocean_pole_tide_from_data",
+           &tss::oceanPoleTideGravityFieldVariationSettings,
+           py::arg( "data" ),
+           py::arg( "load_love_numbers" ),
+           py::arg( "constants" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "interpolation_settings" ) = nullptr,
+           R"doc(
+Select the IERS equation 6.23 ocean-pole gravity response from preloaded integrals.
+
+This consumes gravity A/B integrals, not ocean-pole station-displacement grids.
+The body-centred block starts at degree two, order zero. Polar motion uses the
+selected Earth rotation and IERS 2018 secular pole; GM/radius conversion is applied
+once. Every retained degree needs an explicitly supplied load Love number.
+
+Parameters
+----------
+data : tudatpy.data_input.environment_data.gravity_field.OceanPoleGravityData
+    Published normalized equilibrium integrals.
+load_love_numbers : list[float]
+    Load Love numbers indexed by degree, including unused indices zero and one.
+constants : OceanPoleGravityConstants
+    Explicit physical constants for the forcing potential.
+maximum_degree, maximum_order : int
+    Truncation of the body-centred response.
+interpolation_settings : ModelInterpolationSettings, optional
+    Precomputation interval, step and interpolation method, or None for direct evaluation.
+
+Returns
+-------
+OceanPoleTideGravityFieldVariationSettings
+    Ocean-pole gravity response settings with owned provider data.
+)doc" );
 
     py::class_< tss::BasicSolidBodyGravityFieldVariationSettings,
                 std::shared_ptr< tss::BasicSolidBodyGravityFieldVariationSettings >,

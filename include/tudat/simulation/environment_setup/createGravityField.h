@@ -192,6 +192,12 @@ public:
         return tideSystem_;
     }
 
+    //! Set the declared permanent-tide convention without changing coefficients.
+    void resetTideSystem( const basic_astrodynamics::TideSystem tideSystem )
+    {
+        tideSystem_ = tideSystem;
+    }
+
     virtual ~SphericalHarmonicsGravityFieldSettings( ) {}
 
     // Function to return gravitational parameter for gravity field.

@@ -292,6 +292,10 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
          :type: float
       )doc" )
+            .def_property( "tide_system",
+                           &tss::SphericalHarmonicsGravityFieldSettings::getTideSystem,
+                           &tss::SphericalHarmonicsGravityFieldSettings::resetTideSystem,
+                           "Declared permanent-tide convention. Setting it does not convert the coefficients." )
             .def_property_readonly( "reference_radius",
                                     &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius,
                                     R"doc(
@@ -447,6 +451,38 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
 
      )doc" );
+
+    m.def( "from_icgem",
+           &tss::icgemSphericalHarmonicsGravitySettings,
+           py::arg( "data" ),
+           py::arg( "associated_reference_frame" ),
+           py::arg( "maximum_degree" ) = -1,
+           py::arg( "maximum_order" ) = -1,
+           py::arg( "zero_fill_missing_coefficients" ) = false,
+           R"doc(
+Create a static spherical harmonic field from preloaded ICGEM records.
+
+Coefficients are converted once to Tudat's fully normalized convention. Source
+GM, radius and permanent-tide convention are retained. Missing selected records
+reject unless zero filling is explicitly requested; C00 must always be supplied.
+The associated frame must match the target frame of the body's rotation model.
+
+Parameters
+----------
+data : tudatpy.data_input.environment_data.gravity_field.IcgemGravityFieldData
+    Parsed static field and provider declarations.
+associated_reference_frame : str
+    Body-fixed axes for the coefficients.
+maximum_degree, maximum_order : int, default=-1
+    Requested truncation; -1 selects the provider maximum.
+zero_fill_missing_coefficients : bool, default=False
+    Whether missing selected coefficients may be supplied as zeros.
+
+Returns
+-------
+SphericalHarmonicsGravityFieldSettings
+    Normalized coefficients with the provider's declared tide convention.
+)doc" );
 
     m.def( "spherical_harmonic",
            py::overload_cast< const double, const double, const Eigen::MatrixXd, const Eigen::MatrixXd, const std::string& >(

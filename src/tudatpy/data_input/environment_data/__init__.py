@@ -13,6 +13,7 @@ from . import (
     coma,
     discos,
     earth_orientation,
+    gravity_field,
     horizons,
     ilrs,
     missions,

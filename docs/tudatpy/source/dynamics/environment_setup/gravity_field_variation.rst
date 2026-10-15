@@ -161,3 +161,70 @@ Classes
 
 
 
+
+Conventional Earth gravity and provider harmonic products
+--------------------------------------------------------
+
+These factories consume a time-dependent ITRS field and the selected TDB-input
+Earth rotation. Conventional solid tides require an explicit tide-free or
+zero-tide nominal field. Input GM/radius and physical loading conventions remain
+explicit; the consuming field supplies the output GM/radius. No phase or loading
+factor is silently added to a harmonic product.
+
+Read provider records in :ref:`gravity_field_data`. Optional
+:class:`ModelInterpolationSettings` defers sampling until the environment's
+reference-frame callbacks are installed. Through
+:attr:`~tudatpy.dynamics.environment.TimeDependentSphericalHarmonicsGravityField.gravity_field_variation_models`,
+the existing runtime base exposes correction blocks and their degree/order
+bounds; separate runtime classes are not needed.
+
+.. autosummary::
+
+   iers_2010_solid_body_tide
+   solid_pole_tide
+   ocean_pole_tide_from_data
+   harmonic_potential_from_data
+   ModelInterpolationSettings
+   OceanPoleGravityConstants
+   OceanPoleTideGravityFieldVariationSettings
+   HarmonicGravityComponent
+   HarmonicGravityLoading
+   HarmonicGravityMetadata
+   HarmonicGravityConstituent
+   HarmonicGravityAdmittance
+   HarmonicGravityFieldVariationSettings
+
+.. autofunction:: iers_2010_solid_body_tide
+
+.. autofunction:: solid_pole_tide
+
+.. autofunction:: ocean_pole_tide_from_data
+
+.. autofunction:: harmonic_potential_from_data
+
+.. autoclass:: ModelInterpolationSettings
+   :members:
+
+.. autoclass:: OceanPoleGravityConstants
+   :members:
+
+.. autoclass:: OceanPoleTideGravityFieldVariationSettings
+   :members:
+
+.. autoclass:: HarmonicGravityComponent
+   :members:
+
+.. autoclass:: HarmonicGravityLoading
+   :members:
+
+.. autoclass:: HarmonicGravityMetadata
+   :members:
+
+.. autoclass:: HarmonicGravityConstituent
+   :members:
+
+.. autoclass:: HarmonicGravityAdmittance
+   :members:
+
+.. autoclass:: HarmonicGravityFieldVariationSettings
+   :members:

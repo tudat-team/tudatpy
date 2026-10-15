@@ -21,6 +21,7 @@ functions in :ref:`environment_setup`.
    environment_data/coma
    environment_data/discos
    environment_data/earth_orientation
+   environment_data/gravity_field
    environment_data/horizons
    environment_data/missions
    environment_data/sbdb

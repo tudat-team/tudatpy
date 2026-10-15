@@ -2639,6 +2639,9 @@ bool
          settings function. If any time variations of the gravity field are provided, an object of the derived class :class:`~TimeVariableSphericalHarmonicsGravityField` is created.
 
      )doc" )
+            .def_property_readonly( "tide_system",
+                                    &tg::SphericalHarmonicsGravityField::getTideSystem,
+                                    "Declared permanent-tide convention of the assembled nominal field." )
             .def_property_readonly( "reference_radius",
                                     &tg::SphericalHarmonicsGravityField::getReferenceRadius,
                                     R"doc(
@@ -2737,6 +2740,18 @@ bool
             .def_property_readonly( "volume", &tg::PolyhedronGravityField::getVolume )
             .def_property_readonly( "vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
             .def_property_readonly( "vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
+
+    // Expose rectangular correction blocks through the existing model retrieval path.
+    gravity_field_variations
+            .def( "calculate_spherical_harmonics_corrections",
+                  &tg::GravityFieldVariations::calculateSphericalHarmonicsCorrections,
+                  py::arg( "time" ),
+                  "Return dimensionless cosine/sine correction blocks at TDB seconds since J2000. Rows/columns start at "
+                  "minimum_degree/minimum_order." )
+            .def_property_readonly( "minimum_degree", &tg::GravityFieldVariations::getMinimumDegree, "First degree of the returned block." )
+            .def_property_readonly( "minimum_order", &tg::GravityFieldVariations::getMinimumOrder, "First order of the returned block." )
+            .def_property_readonly( "maximum_degree", &tg::GravityFieldVariations::getMaximumDegree, "Last degree of the returned block." )
+            .def_property_readonly( "maximum_order", &tg::GravityFieldVariations::getMaximumOrder, "Last order of the returned block." );
 
     gravity_field_variations.doc( ) = R"doc(
 

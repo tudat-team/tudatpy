@@ -171,3 +171,16 @@ Classes
    :members:
 
 
+
+Static ICGEM input
+------------------
+
+.. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.from_icgem
+
+The provider's permanent-tide convention is retained in
+:attr:`SphericalHarmonicsGravityFieldSettings.tide_system` and the assembled
+:attr:`~tudatpy.dynamics.environment.SphericalHarmonicsGravityField.tide_system`.
+For coefficients supplied through other factories, set the settings property
+explicitly when the convention is known. Setting the property declares a
+convention; it does not alter the coefficients or perform a permanent-tide
+conversion.

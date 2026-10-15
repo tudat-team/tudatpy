@@ -14,6 +14,7 @@
 
 #include "coma/expose_coma.h"
 #include "earth_orientation/expose_earth_orientation.h"
+#include "gravity_field/expose_gravity_field.h"
 #include "atmospheric_loading/expose_atmospheric_loading.h"
 #include "station_history/expose_station_history.h"
 #include "station_loading/expose_station_loading.h"
@@ -35,6 +36,11 @@ namespace environment_data
 
 void expose_environment_data( py::module& m )
 {
+    // Register provider gravity conventions before consuming dynamics settings.
+    auto gravity_field_submodule = m.def_submodule( "gravity_field" );
+
+    gravity_field::expose_gravity_field( gravity_field_submodule );
+
     auto station_loading_submodule = m.def_submodule( "station_loading" );
     station_loading::expose_station_loading( station_loading_submodule );
     auto terrestrial_frames_submodule = m.def_submodule( "terrestrial_frames" );
