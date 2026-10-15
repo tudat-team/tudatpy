@@ -286,10 +286,8 @@ BOOST_AUTO_TEST_CASE( solid_tide_factory_uses_registered_rotation_and_complete_m
             }
         }
         const auto converter = routingConverter( data );
-
         // A non-TDB model checks compatibility with the supplied rotation; environment epochs remain TDB.
         const auto rotation = routingRotation( converter, tt_scale );
-
         const Time tdb = referenceTdb( tt );
         double lastMoon = NAN, lastSun = NAN;
         const auto moonState = [ & ]( double time ) {
@@ -312,10 +310,8 @@ BOOST_AUTO_TEST_CASE( solid_tide_factory_uses_registered_rotation_and_complete_m
         } );
         const auto model = simulation_setup::createDefaultEarthIers2010DeformationModel(
                 zero, moon, sun, rotation, []( ) { return 1.0; }, []( ) { return 0.0123000371; }, []( ) { return 332946.0482; } );
-
         // The factory passes the environment epoch to this registered model without changing its declared clock.
         const Eigen::Quaterniond q = rotation->getRotationToTargetFrameFromExtendedTime( tdb );
-
         Eigen::Vector6d moonItrs = moonState( static_cast< double >( tdb ) ), sunItrs = sunState( static_cast< double >( tdb ) );
         moonItrs.head< 3 >( ) = q * moonItrs.head< 3 >( ).eval( );
         sunItrs.head< 3 >( ) = q * sunItrs.head< 3 >( ).eval( );
@@ -457,15 +453,12 @@ BOOST_AUTO_TEST_CASE( basic_solid_factory_uses_registered_rotation )
             std::vector< std::string >{ "Moon" }, std::map< int, std::pair< double, double > >{ { 2, { 0.6078, 0.0847 } } }, 6378136.6 );
     const auto station = std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ) );
     const Time epoch( tdb );
-
     // TDB is the environment convention; the TT case verifies the existing supplied-rotation behavior.
     for( const auto scale : { tt_scale, tdb_scale } )
     {
         const auto registeredRotation = routingRotation( converter, scale );
-
         bodies.at( "Earth" )->setRotationalEphemeris( registeredRotation );
         const auto model = simulation_setup::createBodyDeformationModel( settings, "Earth", bodies );
-
         // The degree-two equation provides a direct reference for the factory's rotated lunar geometry.
         const Eigen::Vector3d expected = calculateDegreeTwoBasicTidalDisplacement(
                 0.0123000371,
@@ -474,7 +467,6 @@ BOOST_AUTO_TEST_CASE( basic_solid_factory_uses_registered_rotation )
                 6378136.6,
                 0.6078,
                 0.0847 );
-
         BOOST_CHECK_SMALL( ( model->calculateDisplacement( epoch, station ) - expected ).norm( ), 2e-12 );
     }
 }
