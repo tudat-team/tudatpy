@@ -1,6 +1,9 @@
 """SLR CRD tracking-data loading."""
 
 from tudatpy.kernel.data_input.tracking_data.slr import (
+    CrdCalibrationRecord,
+    CrdRangeSupplementRecord,
+    CrdSystemConfigurationRecord,
     CrdFullRateRecord,
     CrdMeteoRecord,
     CrdNormalPointRecord,
@@ -20,6 +23,9 @@ from tudatpy.kernel.data_input.tracking_data.slr import (
 
 __all__ = [
     "read_slr_data",
+    "CrdCalibrationRecord",
+    "CrdRangeSupplementRecord",
+    "CrdSystemConfigurationRecord",
     "CrdFullRateRecord",
     "CrdMeteoRecord",
     "CrdNormalPointRecord",

@@ -22,6 +22,7 @@ namespace data_input
 namespace environment_data
 {
 
+//! Register neutral environment products, including raw SP3 ephemerides.
 void expose_environment_data( py::module& m );
 
 }  // namespace environment_data

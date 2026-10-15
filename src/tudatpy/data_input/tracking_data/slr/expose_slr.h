@@ -17,6 +17,7 @@ namespace tracking_data
 namespace slr
 {
 
+//! Register CRD records and precise ordered measurement extraction.
 void expose_slr( py::module& m );
 
 }  // namespace slr

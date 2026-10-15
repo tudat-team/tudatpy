@@ -83,14 +83,17 @@ void writeSyntheticSinexSiteIdOnlyFile( const std::string& fileName )
 void writeSyntheticCrdFile( const std::string& fileName )
 {
     std::ofstream file( fileName );
+    file << "H1 CRD 2 2025 5 31 0\n";
     file << "H2 ARECIBO 7110 0 0 7\n";
     file << "H3 LAGEOS2 0 0 0 0 0\n";
-    file << "H4 0 2025 5 30 23 59 0 2025 5 31 0 1 0 0 0 0 0 0 0 0 0\n";
+    file << "H4 0 2025 5 30 23 59 0 2025 5 31 0 1 0 0 0 0 0 1 0 2 0\n";
     file << "C0 0 532.0 SYS1\n";
     file << "20 86398.0 1013.2 293.0 55.0\n";
     file << "10 86398.5 0.001 SYS1 2 0 0 0\n";
     file << "11 86399.0 0.002 SYS1 2 5.0 12 39.0\n";
     file << "11 1.0 0.004 SYS1 2 5.0 11 41.0\n";
+    file << "11 1.000000001 0.0041 SYS1 2 5.0 11 41.0\n";
+    file << "11 1.000000001 0.0042 SYS1 2 5.0 11 41.0\n";
     file << "H8\n";
     file << "H9\n";
 }
@@ -126,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testCrdParsingAndConversion )
     BOOST_CHECK_EQUAL( crdPasses.size( ), 1 );
     BOOST_CHECK_EQUAL( crdPasses.at( 0 ).configuration_.cdpPadId_, 7110 );
     BOOST_CHECK_EQUAL( crdPasses.at( 0 ).data_.fullRateData_.size( ), 1 );
-    BOOST_CHECK_EQUAL( crdPasses.at( 0 ).data_.normalPointData_.size( ), 2 );
+    BOOST_CHECK_EQUAL( crdPasses.at( 0 ).data_.normalPointData_.size( ), 4 );
     BOOST_CHECK_EQUAL( crdPasses.at( 0 ).data_.meteorologicalData_.size( ), 1 );
     BOOST_CHECK_CLOSE_FRACTION( crdPasses.at( 0 ).data_.normalPointData_.at( 0 ).normalPointWindowLength_, 5.0, 1.0E-15 );
     BOOST_CHECK_EQUAL( crdPasses.at( 0 ).data_.normalPointData_.at( 0 ).numberOfReturns_, 12 );
@@ -138,12 +141,22 @@ BOOST_AUTO_TEST_CASE( testCrdParsingAndConversion )
     BOOST_CHECK_CLOSE_FRACTION( crdPasses.at( 0 ).data_.meteorologicalData_.at( 0 ).temperature_, 293.0, 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( crdPasses.at( 0 ).data_.meteorologicalData_.at( 0 ).humidity_, 55.0, 1.0E-15 );
 
-    std::map< double, double > parsedNormalPoints = input_output::extractNormalPointMeasurements( crdPasses.at( 0 ) );
-    BOOST_CHECK_EQUAL( parsedNormalPoints.size( ), 2 );
+    const auto parsedNormalPoints = input_output::extractNormalPointMeasurements( crdPasses.at( 0 ) );
+    BOOST_CHECK_EQUAL( parsedNormalPoints.size( ), 4 );
     BOOST_CHECK_CLOSE_FRACTION(
             parsedNormalPoints.begin( )->second, input_output::convertCrdTwoWayTimeOfFlightToSlrRange( 0.002 ), 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( std::next( parsedNormalPoints.begin( ) )->first - parsedNormalPoints.begin( )->first, 2.0, 1.0E-15 );
-    std::map< double, double > parsedFullRate = input_output::extractFullRateMeasurements( crdPasses.at( 0 ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            ( std::next( parsedNormalPoints.begin( ) )->first - parsedNormalPoints.begin( )->first ).getSeconds< double >( ),
+            2.0,
+            1.0E-15 );
+
+    // Sub-float epoch differences and repeated points survive extraction unchanged.
+    BOOST_CHECK( parsedNormalPoints.at( 2 ).first > parsedNormalPoints.at( 1 ).first );
+    BOOST_CHECK_EQUAL( parsedNormalPoints.at( 2 ).first.getSeconds< double >( ), parsedNormalPoints.at( 1 ).first.getSeconds< double >( ) );
+    BOOST_CHECK( parsedNormalPoints.at( 2 ).first == parsedNormalPoints.at( 3 ).first );
+    BOOST_CHECK_NE( parsedNormalPoints.at( 2 ).second, parsedNormalPoints.at( 3 ).second );
+
+    const auto parsedFullRate = input_output::extractFullRateMeasurements( crdPasses.at( 0 ) );
     BOOST_CHECK_EQUAL( parsedFullRate.size( ), 1 );
 
     std::map< int, std::string > monumentToStationMap = input_output::readMonumentNumbers( stationInfoFile );

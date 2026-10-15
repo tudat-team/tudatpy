@@ -12,7 +12,7 @@ namespace tss = tudat::simulation_setup;
 
 void add_data_to_kernel( py::module_& m )
 {
-    m.def( "read_crd_file", &tio::readCrdFile, py::arg( "file_name" ) );
+    m.def( "read_crd_file", py::overload_cast< const std::string& >( &tio::readCrdFile ), py::arg( "file_name" ) );
 
     m.def( "read_tracking_txt_file",
            &tio::createTrackingTxtFileContents,

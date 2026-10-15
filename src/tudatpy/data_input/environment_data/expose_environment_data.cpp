@@ -12,6 +12,10 @@
 #endif
 #include "expose_environment_data.h"
 
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include "tudat/io/readSp3File.h"
+
 #include "coma/expose_coma.h"
 #include "earth_orientation/expose_earth_orientation.h"
 #include "gravity_field/expose_gravity_field.h"
@@ -34,8 +38,54 @@ namespace data_input
 namespace environment_data
 {
 
+//! Register neutral environmental products and their existing provider modules.
 void expose_environment_data( py::module& m )
 {
+
+    // SP3 is a raw ephemeris product; its epochs remain in the declared file time system.
+    py::class_< tudat::input_output::Sp3Record >(
+            m,
+            "Sp3Record",
+            "One raw SP3 sample. Position and velocity use metres and metres/second; epoch is a Time in the file time coordinate." )
+            .def( py::init<>( ) )
+            .def_readwrite( "epoch", &tudat::input_output::Sp3Record::epoch )
+            .def_readwrite( "source_line", &tudat::input_output::Sp3Record::sourceLine )
+            .def_readwrite( "position", &tudat::input_output::Sp3Record::position )
+            .def_readwrite( "velocity", &tudat::input_output::Sp3Record::velocity )
+            .def_readwrite( "position_available", &tudat::input_output::Sp3Record::positionAvailable )
+            .def_readwrite( "velocity_available", &tudat::input_output::Sp3Record::velocityAvailable )
+            .def_readwrite( "clock_correction", &tudat::input_output::Sp3Record::clockCorrection )
+            .def_readwrite( "clock_rate", &tudat::input_output::Sp3Record::clockRate )
+            .def_readwrite( "clock_event", &tudat::input_output::Sp3Record::clockEvent )
+            .def_readwrite( "clock_predicted", &tudat::input_output::Sp3Record::clockPredicted )
+            .def_readwrite( "maneuver", &tudat::input_output::Sp3Record::maneuver )
+            .def_readwrite( "orbit_predicted", &tudat::input_output::Sp3Record::orbitPredicted );
+
+    py::class_< tudat::input_output::Sp3Data >( m,
+                                                "Sp3Data",
+                                                "SP3c/d source header and ordered satellite records. Frame/time labels and provider "
+                                                "comments are retained; no physical conversion or interpolation is inferred." )
+            .def( py::init<>( ) )
+            .def_readwrite( "source", &tudat::input_output::Sp3Data::source )
+            .def_readwrite( "version", &tudat::input_output::Sp3Data::version )
+            .def_readwrite( "has_velocity_records", &tudat::input_output::Sp3Data::hasVelocityRecords )
+            .def_readwrite( "declared_epoch_count", &tudat::input_output::Sp3Data::declaredEpochCount )
+            .def_readwrite( "epoch_interval", &tudat::input_output::Sp3Data::epochInterval )
+            .def_readwrite( "data_used", &tudat::input_output::Sp3Data::dataUsed )
+            .def_readwrite( "coordinate_system", &tudat::input_output::Sp3Data::coordinateSystem )
+            .def_readwrite( "orbit_type", &tudat::input_output::Sp3Data::orbitType )
+            .def_readwrite( "agency", &tudat::input_output::Sp3Data::agency )
+            .def_readwrite( "time_system", &tudat::input_output::Sp3Data::timeSystem )
+            .def_readwrite( "comments", &tudat::input_output::Sp3Data::comments )
+            .def_readwrite( "satellite_ids", &tudat::input_output::Sp3Data::satelliteIds )
+            .def_readwrite( "records", &tudat::input_output::Sp3Data::records );
+
+    m.def( "read_sp3_file",
+           py::overload_cast< const std::string& >( &tudat::input_output::readSp3File ),
+           py::arg( "file_name" ),
+           "Read an uncompressed SP3c/d ephemeris, preserving frame/time metadata and missing/predicted flags. Units are converted to SI "
+           "once; no orbit interpolation or time conversion is performed." );
+
     // Register provider gravity conventions before consuming dynamics settings.
     auto gravity_field_submodule = m.def_submodule( "gravity_field" );
 

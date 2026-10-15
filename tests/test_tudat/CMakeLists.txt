@@ -35,6 +35,7 @@ foreach(test_target IN ITEMS
         test_ground_stations_StationReferencePoint
         test_reference_frames_TerrestrialFrameTransformation
         test_io_CrdAndSinexReaders
+        test_io_LaserRangingData
         test_io_SinexStationHistory
         test_io_StationLoadingData)
     add_dependencies(${test_target} unpack_test_data)
