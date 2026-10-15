@@ -107,6 +107,8 @@ def station_history(data_dir, dataset):
     key = selected[0]
 
     def matches(candidate):
+        """Identify the frozen Matera A/1 solution without relying on object identity."""
+
         return (candidate.site.site_code, candidate.site.point_code, candidate.solution_id) == (
             "7941",
             "A",
@@ -131,6 +133,8 @@ def station_history(data_dir, dataset):
         raise ValueError("Expected one source observation span for the frozen station solution")
 
     def tai(epoch):
+        """Convert a finite SINEX civil UTC epoch to TAI, preserving open ends."""
+
         civil = epoch.civil_utc
         return (
             None
