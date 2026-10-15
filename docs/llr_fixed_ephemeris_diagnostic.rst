@@ -162,7 +162,10 @@ used alone to validate a correction formula. Its glass increment is
 ``n*h/c`` on each leg for all three routes, equivalent to a 0.040026250 m
 half-range contribution at fixed events. The direct-SPICE anomaly largely
 disappears after restoring smooth translation, but the remaining approximately
-0.1 mm sensitivity of the sequential solve is unresolved. The double-valued
+0.1 mm sensitivity of the sequential solve is unresolved. Tightening only the
+final point's fractional convergence tolerance from ``1e-13`` to ``1e-14``
+leaves its atmospheric and complete ranges bit-for-bit unchanged; this control
+does not implicate the stopping tolerance. The double-valued
 event output cannot diagnose every precise event shift. This experiment does
 not claim closure of all sub-millimetre numerical paths or change the default
 route on the strength of improved residuals.
@@ -171,6 +174,9 @@ These runs used the actual imported native kernel SHA-256
 ``c475a3e90a39eed4332442f58c631398cd608f2195d25bc08cd59e3cfd0bd866``.
 Each output summary records its own script, kernel, input and Earth-orientation
 resource identities, so later builds can be distinguished from this experiment.
+The separate stricter-convergence control used kernel SHA-256
+``029f3ea61f723093697a8b055e304189d3906ffb541d6fae929008890625deff``;
+its same-process ``1e-13`` result also exactly matches the original 30-second run.
 
 Primary sources
 ---------------
