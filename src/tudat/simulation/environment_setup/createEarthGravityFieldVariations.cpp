@@ -131,8 +131,11 @@ bool HarmonicGravityFieldVariationSettings::equals( const GravityFieldVariationS
 
         const auto& right = rhs->constituents_[ i ];
 
-        if( left.doodson != right.doodson || left.multipliers != right.multipliers || left.cCos != right.cCos || left.cSin != right.cSin ||
-            left.sCos != right.sCos || left.sSin != right.sSin )
+        if( left.doodson != right.doodson || left.multipliers != right.multipliers || left.cCos.rows( ) != right.cCos.rows( ) ||
+            left.cCos.cols( ) != right.cCos.cols( ) || left.cSin.rows( ) != right.cSin.rows( ) || left.cSin.cols( ) != right.cSin.cols( ) ||
+            left.sCos.rows( ) != right.sCos.rows( ) || left.sCos.cols( ) != right.sCos.cols( ) || left.sSin.rows( ) != right.sSin.rows( ) ||
+            left.sSin.cols( ) != right.sSin.cols( ) || left.cCos != right.cCos || left.cSin != right.cSin || left.sCos != right.sCos ||
+            left.sSin != right.sSin )
         {
             return false;
         }
