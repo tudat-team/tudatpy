@@ -1,14 +1,14 @@
 """Pinned GOT4.10c loading for analysis station callbacks, without BLQ/HARDISP.
 
-HARPOS arguments use TT (TDT) seconds from J2000 and geocentric radial Up,
-East, North amplitudes in metres: https://massloading.net/harpos_format.txt.
+HARPOS arguments use TT (TDT) seconds from J2000, with amplitudes in metres.
 The service realization (https://massloading.net/toc/) uses STW105/REAR and
 the whole-Earth centre of mass. It differs from ASI's 11-constituent BLQ plus
 HARDISP and JPL FES2004; using it does not reproduce either provider exactly.
 Only the 17 supplied gravity-tide terms are included, without ocean-pole or
 equilibrium terms. Do not duplicate this realization with a BLQ ocean-loading
-model. The product narrative calls Up ellipsoid-normal, conflicting with the
-HARPOS radial definition; this analysis explicitly follows the latter.
+model. Up is ellipsoid-normal, following the product narrative and the pinned
+NASA consumer, despite the formal HARPOS specification's radial wording.
+The exact 2017 generator basis is not independently established; see README.md.
 """
 
 from pathlib import Path
@@ -16,10 +16,11 @@ import hashlib
 
 import numpy as np
 
-from tudatpy.astro import time_representation as time
+from tudatpy.astro import element_conversion, time_representation as time
 
 PRODUCT_URL = "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps"
 PRODUCT_SHA256 = "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150"
+BASIS_SOURCE_REVISION = "aca77c2e11d6241c4b51c25a9815ab8130ee611b"
 CONSTITUENTS = (
     "K1",
     "K1-",
@@ -83,10 +84,16 @@ def got410c_ocean_loading(file_name, site_name, nominal_station_xyz, time_conver
     if not np.all(np.isfinite(xyz)) or separation > radius:
         raise ValueError(f"Station lies outside {site_name}'s {radius:g} m applicability radius")
 
-    up = provider_xyz / np.linalg.norm(provider_xyz)
-    east = np.array([-up[1], up[0], 0.0])
-    east /= np.linalg.norm(east)
-    north = np.cross(up, east)
+    # Match the provider consumer's REF_ELL constants, which differ from exact WGS84.
+    equatorial_radius, flattening = 6378137.0, 1.0 / 298.257
+    _, latitude, longitude = element_conversion.convert_cartesian_to_geodetic_coordinates(
+        provider_xyz, equatorial_radius, flattening, 1.0e-8
+    ).reshape(3)
+    cosine, sine = np.cos(latitude), np.sin(latitude)
+    cl, sl = np.cos(longitude), np.sin(longitude)
+    up = np.array([cosine * cl, cosine * sl, sine])
+    east = np.array([-sl, cl, 0.0])
+    north = np.array([-sine * cl, -sine * sl, cosine])
     basis = np.column_stack((up, east, north))
     phase, omega, acceleration = np.array([harmonics[name] for name in CONSTITUENTS]).T
     coefficients = np.array([amplitudes[name] for name in CONSTITUENTS])
@@ -113,8 +120,12 @@ def got410c_ocean_loading(file_name, site_name, nominal_station_xyz, time_conver
         "applicability_radius_m": radius,
         "constituents": list(CONSTITUENTS),
         "argument_time": "TT seconds since J2000; selected Earth rotation converter at geocentre",
-        "amplitude_axes": "geocentric radial Up, East, North (HARPOS specification)",
-        "axis_wording_discrepancy": "Product narrative says ellipsoid-normal Up; HARPOS says radial Up. This analysis follows HARPOS.",
+        "amplitude_axes": "geodetic ellipsoid-normal Up, East, North at provider XYZ",
+        "basis_ellipsoid": {"equatorial_radius_m": equatorial_radius, "flattening": flattening},
+        "basis_source_revision": BASIS_SOURCE_REVISION,
+        "basis_source_url": f"https://github.com/nasa/sgdass/blob/{BASIS_SOURCE_REVISION}/petools/pet_util/make_uen_to_xyz.f",
+        "axis_wording_discrepancy": "Formal HARPOS says radial Up; this analysis follows the product narrative and pinned NASA consumer's geodetic basis.",
+        "historical_basis_uncertainty": "The exact 2017 generator binary/source was not recovered; current consumer evidence does not prove its historical basis.",
         "uen_to_itrs": basis.tolist(),
         "origin": "whole-Earth centre of mass",
         "earth_response": "STW105/REAR",

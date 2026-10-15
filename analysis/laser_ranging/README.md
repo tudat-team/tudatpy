@@ -275,3 +275,35 @@ preserves exact epoch fractions, states, selected point and input/software hashe
 This failed run used the original radial-Up helper; the subsequent provider
 clarification to geodetic Up is a separate correction. No complete ocean-loading
 residual result is claimed from this attempt.
+
+## GOT4.10c loading basis
+
+`ocean_loading.py` evaluates the pinned 17-constituent GOT4.10c HARPOS product,
+including its supplied nodal sidebands, in TT seconds since J2000. Its callback
+uses the selected Earth-rotation converter at the geocentre and returns terrestrial
+XYZ metres. Exact case-sensitive sites are `Graz`, `Herstmon` and `Apollo`;
+`GRAZ` and `HERS` are different nearby monuments. The nominal station must lie
+within the provider's 3000 m applicability radius.
+
+Up follows the product narrative and NASA's actual HARPOS consumer: it is normal
+to the reference ellipsoid. Tudat's existing Cartesian-to-geodetic conversion
+uses the consumer's `REF_ELL` constants, `a = 6378137 m`, `f = 1/298.257`, at
+the provider XYZ. This is not the exact WGS84 flattening. The pinned consumer
+`MAKE_UEN_TO_XYZ` disables its radial branch and constructs Up/East/North from
+geodetic latitude; `VTD_SET_HARPOS` applies that matrix to the amplitudes.
+The [basis provenance](ocean_loading_basis.json) links the primary source files
+at the audited NASA revision.
+
+The formal HARPOS specification instead describes radial Up. The exact 2017
+generator binary/source has not been recovered, so the current consumer supports
+this choice without proving the historical generator's basis. This change follows
+source evidence, without selecting a basis by residual size. Existing radial
+result files remain unchanged as historical controls; their metadata identifies
+the former radial basis. They must not be relabelled as geodetic results.
+
+Only the 17 supplied gravity-tide terms are included; ocean-pole and equilibrium
+terms are absent. Do not duplicate these gravity tides with a BLQ realization.
+The STW105/REAR whole-Earth-centre-of-mass realization differs from ASI's
+11-constituent BLQ plus HARDISP and JPL's FES2004 loading, so it is not an exact
+replay of either provider's fitted reduction. The frozen baseline above still
+omits ocean loading.
