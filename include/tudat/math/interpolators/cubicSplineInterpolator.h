@@ -319,6 +319,7 @@ public:
         ScalarType coefficientD_ = ( coefficientB_ * coefficientB_ * coefficientB_ - coefficientB_ ) /
                 mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
 
+        // Collect the small curvature contributions before adding the large endpoint offset.
         const DependentVariableType curvature =
                 coefficientC_ * secondDerivativeOfCurve_[ lowerEntry_ ] + coefficientD_ * secondDerivativeOfCurve_[ lowerEntry_ + 1 ];
 
