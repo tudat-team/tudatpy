@@ -55,7 +55,7 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( std::
                                                                            const TerrestrialFrameTransformationSource& source = {} );
 TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( const std::string& filePath,
                                                                            const TerrestrialFrameTransformationSource& source = {} );
-//! Pinned raw official input, parsed by the same neutral reader. Model selection belongs to the consuming layer.
+//! Official IGN tables from the station_locations resource directory, parsed by the same reader.
 TerrestrialFrameTransformationData readOfficialItrf2014TransformationData( );
 TerrestrialFrameTransformationData readOfficialItrf2020TransformationData( );
 }  // namespace input_output

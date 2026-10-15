@@ -53,7 +53,7 @@ AtmosphericTideGrid grid( bool latitudeDependent = false )
     for( int longitude = 0; longitude < 2; ++longitude )
         for( double latitude : g.latitudesDegrees )
         {
-            AtmosphericTideCoefficients c = AtmosphericTideCoefficients::Zero( );
+            Eigen::Matrix< double, 3, 4 > c = Eigen::Matrix< double, 3, 4 >::Zero( );
             c.col( 0 ) << 1e-3 * ( latitudeDependent ? 1 + latitude : 1 ), 2e-3, 3e-3;
             c.col( 1 ) << 4e-3, 5e-3, 6e-3;
             c.col( 2 ) << 7e-3, 8e-3, 9e-3;
@@ -66,7 +66,7 @@ Time tdbAtUt1( const std::shared_ptr< TerrestrialTimeScaleConverter >& c, const 
 {
     return c->getCurrentTime< Time >( ut1_scale, tdb_scale, ut1 );
 }
-Eigen::Vector3d independentLocal( const AtmosphericTideCoefficients& c, double ut1 )
+Eigen::Vector3d independentLocal( const Eigen::Matrix< double, 3, 4 >& c, double ut1 )
 {
     // Complex Fourier synthesis is independent of the production real sine/cosine expression.
     const double phase = 2 * mathematical_constants::PI * ( ( ut1 - 86400.0 * std::floor( ut1 / 86400.0 ) ) / 86400.0 + .5 );
@@ -76,7 +76,7 @@ Eigen::Vector3d independentLocal( const AtmosphericTideCoefficients& c, double u
                                  std::complex< double >( c( i, 2 ), -c( i, 3 ) ) * std::exp( std::complex< double >( 0, 2 * phase ) ) );
     return result;
 }
-Eigen::Vector3d independentLocalRate( const AtmosphericTideCoefficients& c, double ut1 )
+Eigen::Vector3d independentLocalRate( const Eigen::Matrix< double, 3, 4 >& c, double ut1 )
 {
     const double phase = 2 * mathematical_constants::PI * ( ( ut1 - 86400 * std::floor( ut1 / 86400 ) ) / 86400 + .5 );
     const std::complex< double > iOmega( 0, 2 * mathematical_constants::PI / 86400 );
@@ -211,6 +211,28 @@ BOOST_AUTO_TEST_CASE( requiredGeometryAndSourceConflicts )
     g.metadata.displacementBasis = AtmosphericTideDisplacementBasis::geodeticUpNorthEast;
     BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c, settings ) ), std::runtime_error );
 }
+BOOST_AUTO_TEST_CASE( rp03GridDefaultsToGeocentricConventions )
+{
+    const auto c = modelClock( );
+    auto g = grid( );
+    g.metadata = rp03( );
+    AtmosphericTideDeformation defaulted( g, c );
+    AtmosphericTideDeformation declared( g, c, explicitGeometry( ) );
+    const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
+    const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
+    const Eigen::Vector3d p( 4000000, 3000000, 3500000 );
+    BOOST_CHECK_EQUAL( ( defaulted.calculateDisplacement( epoch, station( p ) ) - declared.calculateDisplacement( epoch, station( p ) ) )
+                               .cwiseAbs( )
+                               .maxCoeff( ),
+                       0.0 );
+    // An explicit declaration still takes precedence: geodetic lookup without a body shape is rejected.
+    AtmosphericTideEvaluationSettings geodetic;
+    geodetic.lookupLatitudeConvention = AtmosphericTideLatitudeConvention::geodetic;
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c, geodetic ) ), std::runtime_error );
+    // Without the RP03 identification, conventions remain mandatory.
+    g.metadata.modelName = "Vienna APL";
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c ) ), std::runtime_error );
+}
 BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
 {
     const auto c = modelClock( );
@@ -218,7 +240,7 @@ BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
     g.metadata = rp03( );
     auto settings = explicitGeometry( );
     AtmosphericTideDeformation ce( g, c, settings );
-    settings.originPolicy = AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm;
+    settings.convertToCentreOfMass = true;
     AtmosphericTideDeformation cm( g, c, settings );
     const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
     const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
@@ -257,7 +279,7 @@ BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRate )
            basis( p ) *
                    independentLocal( row.coefficientsMetres,
                                      static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) );
-    BOOST_CHECK_THROW( model.calculateDisplacement( epoch, station( p, nullptr, "783" ) ), std::runtime_error );
+    BOOST_CHECK_THROW( model.calculateDisplacement( epoch, station( p, nullptr, "783" ) ), std::out_of_range );
     const std::shared_ptr< BodyDeformationModel > base = std::make_shared< AtmosphericTideDeformation >( data, c, explicitGeometry( ) );
     const double ut1 = static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) );
     const Eigen::Vector3d expected =
@@ -266,25 +288,26 @@ BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRate )
     close( base->calculateDisplacementState( Time( static_cast< double >( epoch ) ), s ).tail< 3 >( ), expected, 2e-18 );
     close( base->calculateDisplacementState( epoch, s ).head< 3 >( ), model.calculateDisplacement( epoch, s ) );
 }
-BOOST_AUTO_TEST_CASE( modelEndpointPoliciesAndRegionalCoverage )
+BOOST_AUTO_TEST_CASE( modelSeamAveragingAndRegionalCoverage )
 {
     auto g = grid( );
     g.longitudesDegrees = { 0, 180, 360 };
     g.coefficientsMetres = { g.coefficientsMetres[ 0 ], g.coefficientsMetres[ 1 ], g.coefficientsMetres[ 0 ],
                              g.coefficientsMetres[ 1 ], g.coefficientsMetres[ 0 ], g.coefficientsMetres[ 1 ] };
-    g.coefficientsMetres.back( )( 0, 0 ) += 8e-7;
     const auto c = modelClock( );
-    auto settings = explicitGeometry( );
-    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( g, c, settings ) ), std::runtime_error );
-    settings.endpointPolicy = AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation;
+    const auto settings = explicitGeometry( );
+    auto grosslyInconsistent = g;
+    grosslyInconsistent.coefficientsMetres.back( )( 0, 0 ) += 2e-5;
+    BOOST_CHECK_THROW( static_cast< void >( AtmosphericTideDeformation( grosslyInconsistent, c, settings ) ), std::runtime_error );
+    g.coefficientsMetres.back( )( 0, 0 ) += 8e-7;
     AtmosphericTideDeformation approximate( g, c, settings );
     BOOST_CHECK_SMALL( approximate.getGridInterpolator( )->getMaximumSeamDiscrepancyMetres( ) - 8e-7, 1e-18 );
     BOOST_CHECK_EQUAL( approximate.getGridInterpolator( )->getProviderGrid( ).coefficientsMetres.back( )( 0, 0 ),
                        g.coefficientsMetres.back( )( 0, 0 ) );
     const Time epoch( tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. ) ) );
-    BOOST_CHECK_THROW( approximate.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, 0, 6378137 ) ) ), std::runtime_error );
+    BOOST_CHECK_THROW( approximate.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, 0, 6378137 ) ) ), std::out_of_range );
     AtmosphericTideDeformation regional( grid( ), c, explicitGeometry( ) );
-    BOOST_CHECK_THROW( regional.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, -6378137, 0 ) ) ), std::runtime_error );
+    BOOST_CHECK_THROW( regional.calculateDisplacement( epoch, station( Eigen::Vector3d( 0, -6378137, 0 ) ) ), std::out_of_range );
 }
 BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
 {
@@ -301,7 +324,19 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     const auto g = readAtmosphericTideGrid( path );
     const auto settings = explicitGeometry( );
     const auto preloaded = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g, settings ), "Earth", bodies );
-    const auto file = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGridFile( path, {}, settings ), "Earth", bodies );
+
+    // The factory applies the RP03 geocentric defaults when no conventions are supplied.
+    const auto defaulted = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g ), "Earth", bodies );
+
+    // File settings already own the provider grid before an environment model is constructed.
+    const auto fileSettings = atmosphericTideBodyShapeDeformationFromGridFile( path, {}, settings );
+
+    BOOST_CHECK_EQUAL( fileSettings->getGrid( ).metadata.source, g.metadata.source );
+    BOOST_CHECK_EQUAL( fileSettings->getGrid( ).coefficientsMetres.size( ), g.coefficientsMetres.size( ) );
+    BOOST_CHECK_THROW( atmosphericTideBodyShapeDeformationFromGridFile( path + ".missing" ), std::runtime_error );
+
+    const auto file = createBodyDeformationModel( fileSettings, "Earth", bodies );
+
     const double lat = -19.5 * mathematical_constants::PI / 180, lon = 47.5 * mathematical_constants::PI / 180;
     const Eigen::Vector3d p =
             6378137 * Eigen::Vector3d( std::cos( lat ) * std::cos( lon ), std::cos( lat ) * std::sin( lon ), std::sin( lat ) );
@@ -310,10 +345,17 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     {
         const auto tdb = c->getCurrentTime< Time >( tai_scale, tdb_scale, midnightTai + offset );
         close( preloaded->calculateDisplacement( tdb, station( p ) ), file->calculateDisplacement( tdb, station( p ) ) );
+        close( preloaded->calculateDisplacement( tdb, station( p ) ), defaulted->calculateDisplacement( tdb, station( p ) ) );
         const Eigen::Vector6d a = preloaded->calculateDisplacementState( tdb, station( p ) );
+
         const Eigen::Vector6d b = file->calculateDisplacementState( tdb, station( p ) );
+
+        const Eigen::Vector6d defaultedState = defaulted->calculateDisplacementState( tdb, station( p ) );
+
         close( a.head< 3 >( ), b.head< 3 >( ) );
         close( a.tail< 3 >( ), b.tail< 3 >( ), 2e-20 );
+        close( a.head< 3 >( ), defaultedState.head< 3 >( ) );
+        close( a.tail< 3 >( ), defaultedState.tail< 3 >( ), 2e-20 );
     }
     const auto stations = readAtmosphericTideStationData( base + "bernese_manual_stations.atl" );
     const auto stationPreloaded =
@@ -326,8 +368,6 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedGridStationFileParityAndRejections )
     close( stationPreloaded->calculateDisplacementState( epoch, namedStation ).tail< 3 >( ),
            stationFile->calculateDisplacementState( epoch, namedStation ).tail< 3 >( ),
            2e-20 );
-    BOOST_CHECK_THROW( createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g ), "Earth", bodies ),
-                       std::runtime_error );
     BOOST_CHECK_THROW( createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g, settings ), "Mars", bodies ),
                        std::runtime_error );
     BOOST_CHECK_THROW(
@@ -437,7 +477,7 @@ BOOST_AUTO_TEST_CASE( analyticRatesSmoothConvergenceLeapContinuityAndOriginOnce 
     g.metadata = rp03( );
     auto options = explicitGeometry( );
     AtmosphericTideDeformation ce( g, c, options );
-    options.originPolicy = AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm;
+    options.convertToCentreOfMass = true;
     AtmosphericTideDeformation cm( g, c, options );
     const Eigen::Vector3d p( 4000000, 3000000, 3500000 );
     const Time midnightTai( ( 57754. - 51544.5 ) * 86400. + 37 );

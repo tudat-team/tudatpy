@@ -15,7 +15,6 @@ namespace
 {
 constexpr double arcsecondToRadian = 3.141592653589793238462643383279502884 / ( 180.0 * 3600.0 );
 constexpr double secondsPerDay = 86400.0;
-using Pair = std::array< double, 2 >;
 
 std::string trim( const std::string& text )
 {
@@ -94,25 +93,26 @@ EarthOrientationRecord c04Record( const std::vector< std::string >& tokens )
     record.ut1MinusUtc = v[ 6 + offset ];
     if( modern )
     {
-        record.celestialPoleOffsets = Pair{ v[ 8 ] * arcsecondToRadian, v[ 9 ] * arcsecondToRadian };
-        record.polarMotionRates = Pair{ v[ 10 ] * arcsecondToRadian / secondsPerDay, v[ 11 ] * arcsecondToRadian / secondsPerDay };
+        record.celestialPoleOffsets = std::array< double, 2 >{ v[ 8 ] * arcsecondToRadian, v[ 9 ] * arcsecondToRadian };
+        record.polarMotionRates =
+                std::array< double, 2 >{ v[ 10 ] * arcsecondToRadian / secondsPerDay, v[ 11 ] * arcsecondToRadian / secondsPerDay };
         record.lengthOfDay = v[ 12 ];
-        record.polarMotionUncertainty = Pair{ v[ 13 ] * arcsecondToRadian, v[ 14 ] * arcsecondToRadian };
+        record.polarMotionUncertainty = std::array< double, 2 >{ v[ 13 ] * arcsecondToRadian, v[ 14 ] * arcsecondToRadian };
         record.ut1MinusUtcUncertainty = v[ 15 ];
-        record.celestialPoleOffsetUncertainty = Pair{ v[ 16 ] * arcsecondToRadian, v[ 17 ] * arcsecondToRadian };
+        record.celestialPoleOffsetUncertainty = std::array< double, 2 >{ v[ 16 ] * arcsecondToRadian, v[ 17 ] * arcsecondToRadian };
         record.polarMotionRateUncertainty =
-                Pair{ v[ 18 ] * arcsecondToRadian / secondsPerDay, v[ 19 ] * arcsecondToRadian / secondsPerDay };
+                std::array< double, 2 >{ v[ 18 ] * arcsecondToRadian / secondsPerDay, v[ 19 ] * arcsecondToRadian / secondsPerDay };
         record.lengthOfDayUncertainty = v[ 20 ];
         for( int i = 13; i < 21; ++i ) nonnegative( v[ i ] );
     }
     else
     {
         record.lengthOfDay = v[ 7 ];
-        record.celestialPoleOffsets = Pair{ v[ 8 ] * arcsecondToRadian, v[ 9 ] * arcsecondToRadian };
-        record.polarMotionUncertainty = Pair{ v[ 10 ] * arcsecondToRadian, v[ 11 ] * arcsecondToRadian };
+        record.celestialPoleOffsets = std::array< double, 2 >{ v[ 8 ] * arcsecondToRadian, v[ 9 ] * arcsecondToRadian };
+        record.polarMotionUncertainty = std::array< double, 2 >{ v[ 10 ] * arcsecondToRadian, v[ 11 ] * arcsecondToRadian };
         record.ut1MinusUtcUncertainty = v[ 12 ];
         record.lengthOfDayUncertainty = v[ 13 ];
-        record.celestialPoleOffsetUncertainty = Pair{ v[ 14 ] * arcsecondToRadian, v[ 15 ] * arcsecondToRadian };
+        record.celestialPoleOffsetUncertainty = std::array< double, 2 >{ v[ 14 ] * arcsecondToRadian, v[ 15 ] * arcsecondToRadian };
         for( int i = 10; i < 16; ++i ) nonnegative( v[ i ] );
     }
     return record;
@@ -130,10 +130,10 @@ std::optional< double > optionalNumber( const std::string& line, const int first
     return number( text ) * scale;
 }
 
-std::optional< Pair > optionalPair( const std::optional< double >& x, const std::optional< double >& y )
+std::optional< std::array< double, 2 > > optionalPair( const std::optional< double >& x, const std::optional< double >& y )
 {
     if( x.has_value( ) != y.has_value( ) ) throw std::runtime_error( "incomplete optional coordinate pair" );
-    return x ? std::optional< Pair >( Pair{ *x, *y } ) : std::nullopt;
+    return x ? std::optional< std::array< double, 2 > >( std::array< double, 2 >{ *x, *y } ) : std::nullopt;
 }
 
 std::string statusFlag( const std::string& line, const int column, const bool required )
@@ -203,7 +203,7 @@ void validateEarthOrientationData( const EarthOrientationData& data )
     const auto finite = []( const double value ) {
         if( !std::isfinite( value ) ) throw std::runtime_error( "non-finite Earth orientation value" );
     };
-    const auto pair = [ &finite ]( const std::optional< Pair >& values, const bool uncertainty ) {
+    const auto pair = [ &finite ]( const std::optional< std::array< double, 2 > >& values, const bool uncertainty ) {
         if( values )
             for( const double value : *values )
             {

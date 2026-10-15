@@ -12,13 +12,9 @@ class TerrestrialTimeScaleConverter;
 }
 namespace basic_astrodynamics
 {
-//! Shared EOP-free geocentric converter for models needing only atomic/TT/TDB clocks.
+//! Convenience default for geocentric TAI/TT/TDB conversion without loading EOP
+//! or short-period correction files. Sharing this converter is not required for precision.
 std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > getGeocentricTimeConverter( );
-
-//! Original-double boundary only. Exact rounded owned-EOP endpoint images map to
-//! their precise TDB image. Native Time queries must never call this adapter.
-//! Ambiguous collapsed endpoint images are rejected.
-Time normalizeScalarTdb( double tdb, const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter );
 
 //! Validate a closed TT interval for the current Earth models' scalar-UTC phase convention.
 /*!

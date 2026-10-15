@@ -1,0 +1,61 @@
+Transformation parameters from ITRF2014 to past ITRFs.
+----------------------------------------------------------------------------------------
+SOLUTION         Tx       Ty       Tz        D        Rx        Ry        Rz      EPOCH
+UNITS----------> mm       mm       mm       ppb       .001"     .001"     .001"
+                 .        .        .         .        .         .         .
+       RATES     Tx       Ty       Tz        D        Rx        Ry        Rz
+UNITS----------> mm/y     mm/y     mm/y     ppb/y    .001"/y   .001"/y   .001"/y
+-----------------------------------------------------------------------------------------
+  ITRF2008        1.6      1.9      2.4     -0.02      0.00      0.00      0.00    2010.0
+       rates      0.0      0.0     -0.1      0.03      0.00      0.00      0.00
+  ITRF2005        2.6      1.0     -2.3      0.92      0.00      0.00      0.00    2010.0
+       rates      0.3      0.0     -0.1      0.03      0.00      0.00      0.00
+  ITRF2000        0.7      1.2    -26.1      2.12      0.00      0.00      0.00    2010.0
+       rates      0.1      0.1     -1.9      0.11      0.00      0.00      0.00
+  ITRF97          7.4     -0.5    -62.8      3.80      0.00      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+  ITRF96          7.4     -0.5    -62.8      3.80      0.00      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+  ITRF94          7.4     -0.5    -62.8      3.80      0.00      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+  ITRF93        -50.4      3.3    -60.2      4.29     -2.81     -3.38      0.40    2010.0
+       rates     -2.8     -0.1     -2.5      0.12     -0.11     -0.19      0.07
+  ITRF92         15.4      1.5    -70.8      3.09      0.00      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+  ITRF91         27.4     15.5    -76.8      4.49      0.00      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+  ITRF90         25.4     11.5    -92.8      4.79      0.00      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+  ITRF89         30.4     35.5   -130.8      8.19      0.00      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+  ITRF88         25.4     -0.5   -154.8     11.29      0.10      0.00      0.26    2010.0
+       rates      0.1     -0.5     -3.3      0.12      0.00      0.00      0.02
+_________________________________________________________________________________________
+
+Note : These parameters are derived from those already published in the IERS
+Technical Notes and Annual Reports. The transformation parameters should be
+used with the standard model (1) given below and are valid at the indicated
+epoch.
+
+
+: XS :    : X :   : Tx :   :  D   -Rz   Ry : : X :
+:    :    :   :   :    :   :               : :   :
+: YS :  = : Y : + : Ty : + :  Rz   D   -Rx : : Y :                       (1)
+:    :    :   :   :    :   :               : :   :
+: ZS :    : Z :   : Tz :   : -Ry   Rx   D  : : Z :
+
+
+Where X,Y,Z are the coordinates in ITRF2014 and XS,YS,ZS are the coordinates in
+the other frames.
+
+On the other hand, for a given parameter P, its value at any epoch t
+is obtained by using equation (2).
+
+                  .
+P(t) = P(EPOCH) + P * (t - EPOCH)                                        (2)
+
+
+where EPOCH is the epoch indicated in the above table (currently 2010.0)
+    .
+and P is the rate of that parameter.
+

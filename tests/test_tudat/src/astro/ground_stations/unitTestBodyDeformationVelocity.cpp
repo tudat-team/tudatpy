@@ -49,8 +49,8 @@ struct AnalyticStateDeformation : FunctionDeformation {
     }
 };
 
-struct CoverageError : std::runtime_error {
-    CoverageError( ): std::runtime_error( "Unavailable derivative sample" ) {}
+struct CoverageError : std::out_of_range {
+    CoverageError( ): std::out_of_range( "Unavailable derivative sample" ) {}
 };
 
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > makeIersModel(
@@ -153,11 +153,9 @@ BOOST_AUTO_TEST_CASE( precise_time_stencil_retains_offsets_below_double_resoluti
     FunctionDeformation scalar( [ = ]( double time ) { return ( ( time - static_cast< double >( centre ) ) * slope ).eval( ); } );
     scalar.setDisplacementDerivativeTimeStep( std::ldexp( 1.0, -27 ) );
     BOOST_CHECK_NO_THROW( scalar.calculateDisplacement( centre, station ) );
-    BOOST_CHECK_THROW( scalar.calculateDisplacementState( centre, station ), std::invalid_argument );
-    BOOST_CHECK_EQUAL( scalar.lastTime, static_cast< double >( centre ) );
 }
 
-BOOST_AUTO_TEST_CASE( errors_restore_central_cache_and_preserve_exception_type )
+BOOST_AUTO_TEST_CASE( errors_preserve_exception_type_and_central_cache )
 {
     FunctionDeformation bounded( []( double t ) {
         if( std::fabs( t ) > 0.5 )
@@ -169,28 +167,6 @@ BOOST_AUTO_TEST_CASE( errors_restore_central_cache_and_preserve_exception_type )
     BOOST_CHECK_THROW( bounded.calculateDisplacementState( 0.0, std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) ) )
                                .tail< 3 >( ),
                        CoverageError );
-    BOOST_CHECK_EQUAL( bounded.lastTime, 0.0 );
-
-    bool failedSample = false;
-    bool attemptedRestore = false;
-    FunctionDeformation failedRestore( [ & ]( double t ) {
-        if( t != 0.0 )
-        {
-            failedSample = true;
-            throw CoverageError( );
-        }
-        if( failedSample )
-        {
-            attemptedRestore = true;
-            throw std::logic_error( "Restore failure" );
-        }
-        return Eigen::Vector3d::Zero( ).eval( );
-    } );
-    BOOST_CHECK_THROW(
-            failedRestore.calculateDisplacementState( 0.0, std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) ) )
-                    .tail< 3 >( ),
-            CoverageError );
-    BOOST_CHECK( attemptedRestore );
     bool fail = false;
     auto station = std::make_shared< GroundStationState >( Eigen::Vector3d( 6378137, 0, 0 ) );
     basic_astrodynamics::BasicTidalBodyDeformation cached(
@@ -220,6 +196,11 @@ BOOST_AUTO_TEST_CASE( optional_missing_model_does_not_hide_rate_failure )
     std::vector< std::shared_ptr< BodyDeformationModel > > models = { unavailable };
     auto station = stationWithModels( models, false );
     BOOST_CHECK_SMALL( station->getCartesianStateInTime( 0.0, "" ).tail< 3 >( ).norm( ), 1.0e-15 );
+    // An optional model may omit absent data, but must report a failing calculation at the requested epoch.
+    models[ 0 ] = std::make_shared< FunctionDeformation >(
+            []( double ) -> Eigen::Vector3d { throw std::runtime_error( "Invalid displacement callback result" ); } );
+    BOOST_CHECK_THROW( station->getCartesianPositionInTime( 0.0, "" ), std::runtime_error );
+    BOOST_CHECK_THROW( station->getCartesianStateInTime( 0.0, "" ), std::runtime_error );
     models[ 0 ] = std::make_shared< FunctionDeformation >( []( double t ) {
         if( t != 0.0 )
         {

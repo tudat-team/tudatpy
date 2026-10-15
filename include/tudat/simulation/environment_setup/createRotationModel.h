@@ -17,7 +17,7 @@
 #include <functional>
 #include <optional>
 #include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
-#include "tudat/astro/earth_orientation/highFrequencyEarthOrientationModel.h"
+#include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -289,7 +289,9 @@ public:
     // Constructor
     /*
      * \param baseFrameName Name of base frame (typically GCRS, which is default)
-     * \param timeScale Time scale in which input to the rotation model class is provided, default TDB
+     * \param timeScale Time scale in which input to the rotation model class is provided, default TDB. Inside an
+     * environment, body rotations (and the station and deformation models using them) are evaluated at TDB epochs,
+     * so any other value is only meaningful for standalone use; a warning is printed when it is selected.
      * \param nutationTheory IAU precession-nutation theory that is to be used.
      * \param eopFile Name of EOP file that is to be used
      * \param eopFileFormat Identifier for file format that is provided

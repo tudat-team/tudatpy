@@ -41,7 +41,6 @@
 #include "rotation_model/expose_rotation_model.h"
 #include "scalarTypes.h"
 #include "shape/expose_shape.h"
-#include "terrestrial_frame_transformations/expose_terrestrial_frame_transformations.h"
 #include "shape_deformation/expose_shape_deformation.h"
 #include "space_time/expose_space_time.h"
 #include "vehicle_systems/expose_vehicle_systems.h"
@@ -100,9 +99,6 @@ void setRelativisticTimeConverters(
 
 void expose_environment_setup( py::module& m )
 {
-    auto terrestrial_frame_transformations_submodule = m.def_submodule( "terrestrial_frame_transformations" );
-    terrestrial_frame_transformations::expose_terrestrial_frame_transformations( terrestrial_frame_transformations_submodule );
-
     auto aerodynamic_coefficient_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients" );
     aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
 
@@ -1070,26 +1066,89 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "epoch" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           R"doc(Transform a moving state through the explicitly pinned IGN ITRF2014 hub table. Epoch is the existing uniform Julian-year seconds since J2000 (year=2000+epoch/31557600), not a calendar-decimal-year or TDB conversion. Position and velocity use the requested-epoch affine matrix and exact derivative; inverse uses the actual matrix inverse. Equal realizations return identity. Use terrestrial_frame_transformations for explicitly selected current ITRF2020 parameters and a declared physical-time mapping.)doc" );
+           R"doc(
 
-    m.def( "add_ground_station",
-           py::overload_cast< const std::shared_ptr< tss::Body >,
-                              const std::string,
-                              const Eigen::Vector3d,
-                              const tcc::PositionElementTypes,
-                              const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >( &tss::createGroundStation ),
-           py::arg( "body" ),
-           py::arg( "ground_station_name" ),
-           py::arg( "ground_station_position" ),
-           py::arg( "position_type" ) = tcc::cartesian_position,
-           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
+Function to convert the state of a ground station between two ITRF realizations.
 
-    m.def( "add_ground_station",
-           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::GroundStationSettings > >(
-                   &tss::createGroundStation ),
-           py::arg( "body" ),
-           py::arg( "ground_station_settings" ),
-           R"doc(No documentation found.)doc" );
+Function to convert the Cartesian state of a ground station between two ITRF realizations, using the IGN table of
+transformation parameters with ITRF2014 as reference realization. The epoch is converted to a decimal year as
+:math:`2000+t/31557600`, with :math:`t` in seconds since J2000. Both the position and the velocity are transformed,
+including the time derivative of the transformation. For transformations using the ITRF2020 table, or another
+definition of the decimal year, use :class:`~tudatpy.astro.frame_conversion.TerrestrialFrameTransformationModel`.
+
+
+Parameters
+----------
+ground_station_state : numpy.ndarray[numpy.float64[6, 1]]
+    Cartesian state of the ground station in the base frame, in metres and metres per second.
+epoch : float
+    Epoch of the transformation, in seconds since J2000.
+base_frame : str
+    Name of the realization of the input state (for instance ``ITRF2014``).
+target_frame : str
+    Name of the realization of the output state.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[6, 1]]
+    Cartesian state of the ground station in the target frame, in metres and metres per second.
+
+      )doc" );
+
+    m.def(
+            "add_ground_station",
+            []( const std::shared_ptr< tss::Body > body,
+                const std::string& groundStationName,
+                const Eigen::Vector3d& groundStationPosition,
+                const tcc::PositionElementTypes positionType,
+                const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >& stationMotionSettings ) {
+                tss::createGroundStation( body, groundStationName, groundStationPosition, positionType, stationMotionSettings );
+            },
+            py::arg( "body" ),
+            py::arg( "ground_station_name" ),
+            py::arg( "ground_station_position" ),
+            py::arg( "position_type" ) = tcc::cartesian_position,
+            py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+            R"doc(
+
+Function to add a ground station to an existing body.
+
+Parameters
+----------
+body : Body
+    Body to which the ground station is added.
+ground_station_name : str
+    Name of the ground station.
+ground_station_position : numpy.ndarray[numpy.float64[3, 1]]
+    Nominal position of the ground station, in the body-fixed frame.
+position_type : PositionElementTypes, default = cartesian_position
+    Type of the position elements.
+station_motion_settings : list[GroundStationMotionSettings], default = []
+    Settings for the motion of the ground station (see :ref:`ground_station`). Motion models that need other bodies
+    (for instance :func:`~tudatpy.dynamics.environment_setup.ground_station.relativistic_station_motion`) require the
+    overload with a ``bodies`` argument.
+
+      )doc" );
+
+    m.def(
+            "add_ground_station",
+            []( const std::shared_ptr< tss::Body > body, const std::shared_ptr< tss::GroundStationSettings > groundStationSettings ) {
+                tss::createGroundStation( body, groundStationSettings );
+            },
+            py::arg( "body" ),
+            py::arg( "ground_station_settings" ),
+            R"doc(
+
+Function to add a ground station, defined by its settings, to an existing body.
+
+Parameters
+----------
+body : Body
+    Body to which the ground station is added.
+ground_station_settings : GroundStationSettings
+    Settings of the ground station (see :ref:`ground_station`).
+
+      )doc" );
 
     m.def( "add_ground_station",
            py::overload_cast< const std::shared_ptr< tss::Body >,
@@ -1098,9 +1157,22 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "body" ),
            py::arg( "ground_station_settings" ),
            py::arg( "bodies" ),
-           R"doc(Create a station with its bodies environment. Required when a motion model
-uses external ephemerides or gravitational parameters, including the IERS
-relativistic spatial approximation.)doc" );
+           R"doc(
+
+Function to add a ground station, defined by its settings, to an existing body, using the other bodies of the
+environment. This overload is required when a station motion model uses the ephemerides or gravitational parameters of
+other bodies (for instance :func:`~tudatpy.dynamics.environment_setup.ground_station.relativistic_station_motion`).
+
+Parameters
+----------
+body : Body
+    Body to which the ground station is added.
+ground_station_settings : GroundStationSettings
+    Settings of the ground station (see :ref:`ground_station`).
+bodies : SystemOfBodies
+    System of bodies that contains the body.
+
+      )doc" );
     //
     //
     //    .. code-block:: python

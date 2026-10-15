@@ -25,14 +25,12 @@ struct StationLoadingEvaluationSettings {
     std::map< std::string, std::string > stationBindings;
     //! Linear interpolation only; a gap larger than this is unavailable, even if present in an irregular source grid.
     double maximumGapSeconds = 86400.0;
-    bool allowUnknownInventory = false;
-    bool allowDeclaredOverlap = false;
     std::string outputOriginDefinition;
     std::shared_ptr< const StationLoadingOriginTranslation > originTranslation;
 };
 
 //! Precomputed loading, evaluated on continuous TAI and returned in provider Cartesian axes.
-//! Scalar input is environment TDB. Rates differentiate the same linear interpolant,
+//! Native input is precise TDB Time. Rates differentiate the same linear interpolant,
 //! taking the interval to the right of a knot, and to the left of the final endpoint.
 class StationLoadingDeformation : public BodyDeformationModel
 {
@@ -50,10 +48,12 @@ public:
     }
 
 protected:
+    //! Return Cartesian displacement in metres, including valid singleton source positions.
     Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+
+    //! Return displacement and the derivative of its linear TAI interpolant per TDB second.
     Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    Time normalizeScalarTdb( double tdb ) const override;
 
 private:
     struct PreparedGrid {
@@ -61,18 +61,21 @@ private:
     };
     PreparedGrid prepareGrid( const input_output::StationLoadingData& data ) const;
     const input_output::StationLoadingSite& selectSite( const Eigen::Vector3d& position, const std::string& stationId ) const;
-    Eigen::Vector3d evaluate( const Time& tdb, const Eigen::Vector3d& position, const std::string& stationId, bool rate ) const;
-    Eigen::Vector3d interpolate( const input_output::StationLoadingSite& site, const PreparedGrid& grid, const Time& tdb, bool rate ) const;
+    //! Select one provider point and calculate displacement plus optional rate, applying its basis/origin once.
+    Eigen::Vector6d evaluate( const Time& tdb, const Eigen::Vector3d& position, const std::string& stationId, bool withRate ) const;
+
+    //! Evaluate one physical TAI interval; the optional velocity is returned per TAI second.
+    Eigen::Vector6d interpolate( const input_output::StationLoadingSite& site,
+                                 const PreparedGrid& grid,
+                                 const Time& tdb,
+                                 bool withRate ) const;
+
     input_output::StationLoadingData data_;
     StationLoadingEvaluationSettings settings_;
     PreparedGrid grid_, translationGrid_;
     std::map< std::string, Eigen::Matrix3d > sourceBases_;
 };
 
-//! Validate only centrally selected contributions. Optional coverage cannot suppress overlap errors.
-void validateStationLoadingComposition( const std::vector< std::shared_ptr< BodyDeformationModel > >& models,
-                                        const std::vector< bool >& selected,
-                                        const std::shared_ptr< ground_stations::GroundStationState >& station );
 }  // namespace basic_astrodynamics
 }  // namespace tudat
 #endif

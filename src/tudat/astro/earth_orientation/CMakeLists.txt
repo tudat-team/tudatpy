@@ -9,7 +9,6 @@
 
 # Set the source files.
 set(earth_orientation_SOURCES
-        "highFrequencyEarthOrientationModel.cpp"
         "earthOrientationCalculator.cpp"
         "earthOrientationDataEvaluator.cpp"
         "terrestrialTimeScaleConverter.cpp"
@@ -23,7 +22,6 @@ set(earth_orientation_SOURCES
 
 # Set the header files.
 set(earth_orientation_HEADERS
-        "highFrequencyEarthOrientationModel.h"
         "earthOrientationCalculator.h"
         "earthOrientationDataEvaluator.h"
         "earthOrientationRates.h"
@@ -39,7 +37,7 @@ set(earth_orientation_HEADERS
 TUDAT_ADD_LIBRARY("earth_orientation"
         "${earth_orientation_SOURCES}"
         "${earth_orientation_HEADERS}"
-        PUBLIC_LINKS tudat_earth_orientation_data
+        PUBLIC_LINKS tudat_environment_data
 #        PRIVATE_LINKS "${Sofa_LIBRARIES}" "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )

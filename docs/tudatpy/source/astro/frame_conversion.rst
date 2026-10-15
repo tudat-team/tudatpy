@@ -81,6 +81,8 @@ Functions
 
    body_fixed_to_inertial_rotation_matrix
 
+   evaluate_linearized_helmert
+
 
 .. autofunction:: rotate_state_to_frame
 
@@ -95,6 +97,29 @@ Functions
 .. autofunction:: tudatpy.astro.frame_conversion.inertial_to_body_fixed_rotation_matrix
 
 .. autofunction:: tudatpy.astro.frame_conversion.body_fixed_to_inertial_rotation_matrix
+
+.. autofunction:: tudatpy.astro.frame_conversion.evaluate_linearized_helmert
+
+
+.. _terrestrial_frame_transformations:
+
+Classes
+-------
+.. currentmodule:: tudatpy.astro.frame_conversion
+
+.. autosummary::
+
+   TerrestrialFrameTransformationModel
+
+   TerrestrialFrameAffineTransformation
+
+.. autoclass:: tudatpy.astro.frame_conversion.TerrestrialFrameTransformationModel
+   :members:
+
+.. autoclass:: tudatpy.astro.frame_conversion.TerrestrialFrameAffineTransformation
+   :members:
+
+
 
 
 

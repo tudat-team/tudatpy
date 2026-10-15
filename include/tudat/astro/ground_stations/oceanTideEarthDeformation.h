@@ -62,7 +62,7 @@ public:
         OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, synthesis, converter )
     {}
 
-    //! Construct from validated, preloaded provider coefficients with no file access.
+    //! Construct from preloaded provider coefficients with no file access; empty data permits later append.
     OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
                                const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp,
                                const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
@@ -75,6 +75,7 @@ public:
         OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, doodsonArgumentFunction )
     {}
 
+    //! Use an explicit legacy argument callback with preloaded coefficients or an initial empty station set.
     OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
                                const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction );
 

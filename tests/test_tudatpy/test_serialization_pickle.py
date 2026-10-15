@@ -478,9 +478,6 @@ class TestGravityFieldVariationSettingsPickle:
             )
         )
 
-    @pytest.mark.xfail(
-        reason="Love numbers nested dict with tuple keys does not survive pickle roundtrip"
-    )
     def test_mode_coupled_solid_body_tide(self):
         """ModeCoupledSolidBodyGravityFieldVariationSettings."""
         love_numbers = {(2, 0): {(2, 0): 0.3}}
@@ -711,7 +708,7 @@ class TestSimulationBasedPickle:
         bodies = environment_setup.create_system_of_bodies(
             environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
         )
-        bodies.add_empty_settings("Delfi-C3")
+        bodies.create_empty_body("Delfi-C3")
         bodies.get("Delfi-C3").mass = 2.2
 
         start = DateTime(2008, 4, 28).to_epoch()
@@ -744,21 +741,18 @@ class TestSimulationBasedPickle:
 
     def test_propagation_termination_details(self):
         """Pickle roundtrip for PropagationTerminationDetails."""
-        pytest.importorskip("spice")
         sim = self._run_propagation()
         obj = sim.propagation_results.termination_details
         assert_roundtrip(obj)
 
     def test_single_arc_simulation_results(self):
         """Pickle roundtrip for SingleArcSimulationResults."""
-        pytest.importorskip("spice")
         sim = self._run_propagation()
         obj = sim.propagation_results
         assert_roundtrip(obj)
 
     def test_propagation_termination_details_from_hybrid(self):
         """Pickle roundtrip for PropagationTerminationDetailsFromHybridCondition."""
-        pytest.importorskip("spice")
         from tudatpy.interface import spice
         from tudatpy.astro import element_conversion
         from tudatpy.astro.time_representation import DateTime
@@ -768,7 +762,7 @@ class TestSimulationBasedPickle:
         bodies = environment_setup.create_system_of_bodies(
             environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
         )
-        bodies.add_empty_settings("Delfi-C3")
+        bodies.create_empty_body("Delfi-C3")
         bodies.get("Delfi-C3").mass = 2.2
 
         start = DateTime(2008, 4, 28).to_epoch()
@@ -792,6 +786,9 @@ class TestSimulationBasedPickle:
             ["Delfi-C3"],
             initial_state,
             start,
+            propagation_setup.integrator.runge_kutta_fixed_step(
+                30.0, coefficient_set=propagation_setup.integrator.CoefficientSets.rk_4
+            ),
             propagation_setup.propagator.hybrid_termination(
                 [
                     propagation_setup.propagator.time_termination(start + 600.0),
@@ -806,17 +803,17 @@ class TestSimulationBasedPickle:
 
     def test_single_arc_variational_simulation_results(self):
         """Pickle roundtrip for SingleArcVariationalSimulationResults."""
-        pytest.importorskip("spice")
         from tudatpy.interface import spice
         from tudatpy.astro import element_conversion
         from tudatpy.astro.time_representation import DateTime
         from tudatpy.dynamics import environment_setup, propagation_setup, simulator
+        from tudatpy.dynamics import parameters_setup
 
         spice.load_standard_kernels()
         bodies = environment_setup.create_system_of_bodies(
             environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
         )
-        bodies.add_empty_settings("Delfi-C3")
+        bodies.create_empty_body("Delfi-C3")
         bodies.get("Delfi-C3").mass = 2.2
 
         start = DateTime(2008, 4, 28).to_epoch()
@@ -845,16 +842,10 @@ class TestSimulationBasedPickle:
             ),
             propagation_setup.propagator.time_termination(start + 600.0),
         )
-        variational_equations = propagation_setup.variational_equations(
-            bodies,
-            ["Delfi-C3"],
-            [propagation_setup.variation.estimated_bodies_settings(["Delfi-C3"])],
-            propagate_on_creation=True,
-        )
-        sim = simulator.create_dynamics_simulator(
-            bodies, propagator_settings, variational_equations
-        )
-        obj = sim.propagation_results
+        parameter_settings = parameters_setup.initial_states(propagator_settings, bodies)
+        parameters = parameters_setup.create_parameter_set(parameter_settings, bodies)
+        sim = simulator.create_variational_equations_solver(bodies, propagator_settings, parameters)
+        obj = sim.variational_propagation_results
         assert_roundtrip(obj)
 
 

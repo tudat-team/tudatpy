@@ -53,7 +53,7 @@ OceanPoleTideGrid syntheticGrid( )
     {
         for( int col = 0; col < 4; ++col )
         {
-            grid.coefficients.push_back( OceanPoleTideCoefficients::Constant( 10 * row + col ) );
+            grid.coefficients.push_back( Eigen::Matrix< double, 3, 2 >::Constant( 10 * row + col ) );
         }
     }
     return grid;
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( publishedIersSeriesOldTestParametersOnly )
 
 BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
 {
-    OceanPoleTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 2 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6;
     // Frozen via independent complex arithmetic: Re(conj(u)*(m1+i*m2)*conj(gamma))*K.
     close( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( 1e-6, -2e-6 ) ),
@@ -114,40 +114,37 @@ BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
     BOOST_CHECK_THROW( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d::Zero( ), -1 ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndExplicitClamp )
+BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndPolarClamp )
 {
     const auto grid = syntheticGrid( );
-    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, -44.875, 90 ) - OceanPoleTideCoefficients::Constant( 5.5 ) ).norm( ),
-                       1e-14 );
-    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 0, 0 ) - OceanPoleTideCoefficients::Constant( 11.5 ) ).norm( ),
+    BOOST_CHECK_SMALL(
+            ( interpolateOceanPoleTideCoefficients( grid, -44.875, 90 ) - Eigen::Matrix< double, 3, 2 >::Constant( 5.5 ) ).norm( ), 1e-14 );
+    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 0, 0 ) - Eigen::Matrix< double, 3, 2 >::Constant( 11.5 ) ).norm( ),
                        1e-14 );
     for( double lon : { -720.0, -360.0, 0.0, 360.0, 720.0 } )
     {
-        BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 0, lon ) - OceanPoleTideCoefficients::Constant( 11.5 ) ).norm( ),
-                           1e-14 );
+        BOOST_CHECK_SMALL(
+                ( interpolateOceanPoleTideCoefficients( grid, 0, lon ) - Eigen::Matrix< double, 3, 2 >::Constant( 11.5 ) ).norm( ), 1e-14 );
     }
-    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 89.75, 315 ) - OceanPoleTideCoefficients::Constant( 23 ) ).norm( ),
+    BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 89.75, 315 ) - Eigen::Matrix< double, 3, 2 >::Constant( 23 ) ).norm( ),
                        1e-14 );
     for( double lat : { -90.0, 90.0 } )
     {
-        BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, lat, 45 ), std::runtime_error );
         const double edge = lat < 0 ? -89.75 : 89.75;
-        BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients(
-                                     grid, lat, 45, OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation ) -
-                             interpolateOceanPoleTideCoefficients( grid, edge, 45 ) )
-                                   .norm( ),
-                           1e-14 );
+        BOOST_CHECK_SMALL(
+                ( interpolateOceanPoleTideCoefficients( grid, lat, 45 ) - interpolateOceanPoleTideCoefficients( grid, edge, 45 ) ).norm( ),
+                1e-14 );
     }
-    BOOST_CHECK_THROW(
-            interpolateOceanPoleTideCoefficients( grid, 91, 45, OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation ),
-            std::runtime_error );
+    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 91, 45 ), std::runtime_error );
     BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 0, NAN ), std::runtime_error );
     const auto extract = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
-    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::runtime_error );
+    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::out_of_range );
+    // Latitudes more than one grid step outside a regional extract are rejected rather than clamped.
+    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, 0, 232.5 ), std::out_of_range );
     BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( extract, -43.5, 232.5 ) -
-                         OceanPoleTideCoefficients( ( extract.coefficients[ 0 ] + extract.coefficients[ 1 ] + extract.coefficients[ 2 ] +
-                                                      extract.coefficients[ 3 ] ) /
-                                                    4 ) )
+                         Eigen::Matrix< double, 3, 2 >( ( extract.coefficients[ 0 ] + extract.coefficients[ 1 ] +
+                                                          extract.coefficients[ 2 ] + extract.coefficients[ 3 ] ) /
+                                                        4 ) )
                                .norm( ),
                        1e-14 );
 }
@@ -193,7 +190,7 @@ BOOST_AUTO_TEST_CASE( modelSecularPoleAndGeocentricBasisAcrossShapeRepresentatio
 BOOST_AUTO_TEST_CASE( futureSecularPoleWithIndependentMixedWobble )
 {
     auto grid = syntheticGrid( );
-    OceanPoleTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 2 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6;
     for( auto& node : grid.coefficients )
     {
@@ -220,21 +217,20 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedFileAndConfigurationErrors )
     bodies.createEmptyBody( "Earth" );
     bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
     const auto preloaded = createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Earth", bodies );
-    const auto file =
-            createBodyDeformationModel( oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) ), "Earth", bodies );
+    // Filename settings retain preloaded coefficients and report unavailable files immediately.
+    const auto fileSettings = oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) );
+
+    BOOST_CHECK_EQUAL( fileSettings->getGrid( ).coefficients.size( ), grid.coefficients.size( ) );
+    BOOST_CHECK_THROW( oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt.missing" ) ), std::runtime_error );
+
+    const auto file = createBodyDeformationModel( fileSettings, "Earth", bodies );
+
     const Eigen::Vector3d spherical( 6378137, -43.75 * mathematical_constants::PI / 180, 232.25 * mathematical_constants::PI / 180 );
     const auto station = std::make_shared< ground_stations::GroundStationState >( spherical, coordinate_conversions::spherical_position );
     close( preloaded->calculateDisplacement( tdbAtTt( 0 ), station ), file->calculateDisplacement( tdbAtTt( 0 ), station ) );
     const auto typed = std::dynamic_pointer_cast< OceanPoleTideDeformation >( preloaded );
     BOOST_REQUIRE( typed );
     BOOST_CHECK( typed->getGrid( ).referenceOrigin == OceanLoadingReferenceOrigin::wholeEarthCentreOfMass );
-    BOOST_CHECK( typed->getLatitudePolicy( ) == OceanPoleTideLatitudePolicy::requireGridCoverage );
-    const auto clamped = std::dynamic_pointer_cast< OceanPoleTideDeformation >( createBodyDeformationModel(
-            oceanPoleTideBodyShapeDeformationFromData( grid, OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation ),
-            "Earth",
-            bodies ) );
-    BOOST_REQUIRE( clamped );
-    BOOST_CHECK( clamped->getLatitudePolicy( ) == OceanPoleTideLatitudePolicy::clampToNearestGridLatitudeApproximation );
     BOOST_CHECK_THROW( createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Mars", bodies ),
                        std::runtime_error );
     BOOST_CHECK_THROW(
@@ -267,12 +263,11 @@ BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
         data.records.emplace( record.utcModifiedJulianDate, record );
     }
     const auto angles = createStandardEarthOrientationCalculator( std::make_shared< EOPReader >( data ) );
-    BOOST_REQUIRE( angles->getPolarMotionCalculator( )->usesContinuousEop( ) );
     SystemOfBodies bodies;
     bodies.createEmptyBody( "Earth" );
     bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
     auto grid = syntheticGrid( );
-    OceanPoleTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 2 > coefficients;
     coefficients << 1, 2, 3, 4, 5, 6;
     for( auto& node : grid.coefficients )
     {

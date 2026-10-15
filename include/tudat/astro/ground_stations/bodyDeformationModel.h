@@ -46,6 +46,11 @@ public:
 
     //! Body-fixed Cartesian displacement in metres at the supplied precise TDB epoch.
     Eigen::Vector3d calculateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station );
+
+    //! Displacement in metres of a site given only by its body-fixed Cartesian position (existing interface).
+    //! Models that need a station identifier, such as ocean tide loading, cannot evaluate this.
+    Eigen::Vector3d calculateDisplacement( const Time& tdb, const Eigen::Vector3d& bodyFixedPosition );
+
     //! Displacement and its d/dTDB velocity, in metres and metres per second.
     //! Position evaluation remains independent of rate availability.
     Eigen::Vector6d calculateDisplacementState( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station );
@@ -60,10 +65,7 @@ protected:
     explicit BodyDeformationModel( const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
     virtual Eigen::Vector3d evaluateDisplacement( const Time& tdb,
                                                   const std::shared_ptr< ground_stations::GroundStationState > station ) = 0;
-    //! Guarded five-point precise-Time fallback; analytic models override this hook.
-    //! Sub-scalar-resolution steps additionally require agreement with a four-ULP
-    //! stencil to 1e-12 m/s plus 1e-6 relative. This is a resolution guard, not an
-    //! ordinary coarse/fine convergence check. Both intervals must be available.
+    //! Estimate velocity from four nearby positions (fourth-order central difference) when no analytic rate is supplied.
     virtual Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                        const std::shared_ptr< ground_stations::GroundStationState > station );
     Eigen::Vector3d differentiateDisplacement( const Time& time,
@@ -73,8 +75,6 @@ protected:
                                                const std::function< Eigen::Vector3d( const double& ) >& displacement,
                                                const std::function< void( const double&, const double& ) >& validateInterval ) const;
     virtual void validateDisplacementDerivativeInterval( const Time&, const Time& ) const {}
-    //! Only the original-double station boundary invokes this adapter.
-    virtual Time normalizeScalarTdb( double tdb ) const;
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter_;
 
@@ -82,10 +82,6 @@ private:
     friend struct ground_stations::BodyDeformationStationMotionModel;
     double displacementDerivativeTimeStep_ = 1.0;
 };
-
-void validateStationLoadingComposition( const std::vector< std::shared_ptr< BodyDeformationModel > >& models,
-                                        const std::vector< bool >& selected,
-                                        const std::shared_ptr< ground_stations::GroundStationState >& station );
 
 }  // namespace basic_astrodynamics
 
@@ -106,19 +102,7 @@ public:
     {
         return evaluateMotion< true >( tdb, station );
     }
-    Eigen::Vector6d getBodyFixedStationMotion( double tdb,
-                                               const std::shared_ptr< GroundStationState > station,
-                                               const std::string& origin = "" ) override
-    {
-        return evaluateMotion< true >( tdb, station );
-    }
     Eigen::Vector3d getBodyFixedStationPositionCorrection( const Time& tdb,
-                                                           const std::shared_ptr< GroundStationState > station,
-                                                           const std::string& origin = "" ) override
-    {
-        return evaluateMotion< false >( tdb, station );
-    }
-    Eigen::Vector3d getBodyFixedStationPositionCorrection( double tdb,
                                                            const std::shared_ptr< GroundStationState > station,
                                                            const std::string& origin = "" ) override
     {
@@ -126,46 +110,38 @@ public:
     }
 
 private:
-    template< bool State, typename Epoch >
-    Eigen::Matrix< double, State ? 6 : 3, 1 > evaluateMotion( const Epoch& input, const std::shared_ptr< GroundStationState > station )
+    //! Sum selected models, omitting only unavailable position coverage when permitted.
+    template< bool State >
+    Eigen::Matrix< double, State ? 6 : 3, 1 > evaluateMotion( const Time& tdb, const std::shared_ptr< GroundStationState > station )
     {
         Eigen::Matrix< double, State ? 6 : 3, 1 > result = Eigen::Matrix < double, State ? 6 : 3, 1 > ::Zero( );
-        if( !std::isfinite( static_cast< double >( input ) ) )
-            throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
+        if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
         if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
         const auto& models = modelList_( );
-        std::vector< bool > selected( models.size( ), false );
         for( std::size_t i = 0; i < models.size( ); ++i )
         {
             const auto& model = models[ i ];
-            Time tdb;
             Eigen::Vector3d displacement;
             try
             {
-                if constexpr( std::is_same< Epoch, double >::value )
-                    tdb = model->normalizeScalarTdb( input );
-                else
-                    tdb = input;
                 if( !State || !throwExceptionWhenNotAvailable_ ) displacement = model->evaluateDisplacement( tdb, station );
             }
-            catch( const std::invalid_argument& )
+            catch( const std::out_of_range& )
             {
-                throw;
-            }
-            catch( const std::exception& )
-            {
-                if( throwExceptionWhenNotAvailable_ ) throw;
+                if( throwExceptionWhenNotAvailable_ )
+                {
+                    throw;
+                }
                 continue;
             }
             if( ( !State || !throwExceptionWhenNotAvailable_ ) && !displacement.allFinite( ) )
                 throw std::runtime_error( "Non-finite body deformation displacement." );
+            // A selected position does not guarantee a rate; derivative failures must propagate.
             if constexpr( State )
                 result += model->calculateDisplacementState( tdb, station );
             else
                 result += displacement;
-            selected[ i ] = true;
         }
-        basic_astrodynamics::validateStationLoadingComposition( models, selected, station );
         return result;
     }
 

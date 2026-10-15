@@ -2,6 +2,9 @@
 
 from pathlib import Path
 
+import numpy as np
+
+from tudatpy.astro import frame_conversion
 from tudatpy.data_input.environment_data import (
     atmospheric_loading,
     ocean_loading,
@@ -66,6 +69,7 @@ def test_tidal_loading_records_cross_into_environment_settings():
     )
 
 
+# Raw frame records must cross into numerical frame operations and rotation settings.
 def test_earth_frame_and_rotation_settings_registration():
     frames = terrestrial_frames.official_itrf2020_parameters()
     assert isinstance(frames, terrestrial_frames.TerrestrialFrameTransformationData)
@@ -74,6 +78,21 @@ def test_earth_frame_and_rotation_settings_registration():
     assert parameters.source_frame.realization == "ITRF2020"
     assert parameters.translation_metres.shape == (3,)
     assert len(parameters.rotation_rate_radians_per_second) == 3
+
+    # Exercise the relocated affine bindings using an explicit decimal year and state-time rate.
+    model = frame_conversion.TerrestrialFrameTransformationModel(frames)
+    state = np.array([1.0, 2.0, 3.0, 0.1, 0.2, 0.3])
+    year, year_rate = 2025.0, 1.0 / 31557600.0
+    affine = model.get_transformation("ITRF2020", "ITRF2014", year, year_rate)
+    direct = frame_conversion.evaluate_linearized_helmert(parameters, year, year_rate)
+    transformed = model.transform_state(state, "ITRF2020", "ITRF2014", year, year_rate)
+    np.testing.assert_array_equal(transformed, direct.transform_state(state))
+    np.testing.assert_array_equal(
+        model.transform_position(state[:3], "ITRF2020", "ITRF2014", year),
+        transformed[:3],
+    )
+    np.testing.assert_array_equal(affine.matrix, direct.matrix)
+    assert affine.inverse().compose_after(affine).transform_position(state[:3]).shape == (3,)
 
     conventional = rotation_model.gcrs_to_itrs()
     assert conventional.ocean_tide_eop_model == rotation_model.OceanTideEopModel.iers_2010

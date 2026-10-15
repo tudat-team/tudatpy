@@ -59,21 +59,18 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
 
     // Create interpolator for x_{p} and y_{p} (polar motion) and retrieve current value
     std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
-            tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )
-                    ->getPolarMotionCalculator( )
-                    ->getDailyIersValueInterpolator( );
+            std::make_shared< LinearInterpolator< double, Eigen::Vector2d > >( eopReader->getCipInItrsMapInSecondsSinceJ2000( ) );
     Eigen::Vector2d cipInItrs = cipInItrsInterpolator->interpolate( utcSecondsSinceJ2000 );
 
     // Create interpolator for dX and dY (nutation correction) and retrieve current value
     std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
-            tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )
-                    ->getPrecessionNutationCalculator( )
-                    ->getDailyCorrectionInterpolator( );
+            std::make_shared< LinearInterpolator< double, Eigen::Vector2d > >( eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ) );
     Eigen::Vector2d cipInGcrs = cipInGcrsCorrectionInterpolator->interpolate( utcSecondsSinceJ2000 );
 
     // Create interpolator for d(UT1-UTC) correction  and retrieve current value
     std::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
-            createDefaultTimeConverter( eopReader )->getDailyUtcUt1CorrectionInterpolator( );
+            std::make_shared< JumpDataLinearInterpolator< double, double > >(
+                    eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0 );
     double utcMinusUt1 = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 );
 
     // Check interpolated values against test data.
@@ -153,11 +150,12 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
 //! Check whether UT1-UTC interpolator correctly handles leap secons
 BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 {
-    // Read EOP file and get UT1-UTC interpolator
+    // Read EOP observations and construct a continuous TAI/UT1 clock.
     std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
             tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt", "C04", basic_astrodynamics::iau_2000_a );
-    std::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
-            createDefaultTimeConverter( eopReader )->getDailyUtcUt1CorrectionInterpolator( );
+    const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( eopReader->getRawEarthOrientationData( ) );
+    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    const auto rawUt1 = eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( );
 
     // Define list of leap seconds
     Eigen::Matrix< int, Eigen::Dynamic, 3 > leapSecondDays;
@@ -187,10 +185,14 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
                 physical_constants::JULIAN_DAY;
 
         // Define test times
-        differenceMinusOneDay = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 - physical_constants::JULIAN_DAY );
-        differenceMinusOneMilliSecond = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 - 1.0E-3 );
-        differenceAtEpochPlusOneMilliSecond = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 + 1.0E-3 );
-        differencePlusOneDay = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 + physical_constants::JULIAN_DAY );
+        differenceMinusOneDay = rawUt1.at( utcSecondsSinceJ2000 - physical_constants::JULIAN_DAY );
+        const Time beforeTai = sofa_interface::convertUTCtoTAI( Time( utcSecondsSinceJ2000 - 1.0E-3 ) );
+        const Time afterTai = sofa_interface::convertUTCtoTAI( Time( utcSecondsSinceJ2000 + 1.0E-3 ) );
+        const auto before = evaluator->evaluate( beforeTai );
+        const auto after = evaluator->evaluate( afterTai );
+        differenceMinusOneMilliSecond = before.ut1MinusTai + static_cast< double >( beforeTai - Time( utcSecondsSinceJ2000 - 1.0E-3 ) );
+        differenceAtEpochPlusOneMilliSecond = after.ut1MinusTai + static_cast< double >( afterTai - Time( utcSecondsSinceJ2000 + 1.0E-3 ) );
+        differencePlusOneDay = rawUt1.at( utcSecondsSinceJ2000 + physical_constants::JULIAN_DAY );
 
         // Check if leap second is properly handled
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differenceMinusOneMilliSecond ), 0.005 );
@@ -199,12 +201,15 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
         // Scalar UTC jumps over the inserted second. The two samples are
         // 1.002 TAI seconds apart, so continuous UT1-TAI also evolves between
         // them. Account for its independently specified daily linear slopes.
-        const double atMidnight = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 );
+        const double atMidnight = rawUt1.at( utcSecondsSinceJ2000 );
         const double beforeDuration = 1.0 + ( utcSecondsSinceJ2000 - ( utcSecondsSinceJ2000 - 1.0E-3 ) );
         const double afterDuration = ( utcSecondsSinceJ2000 + 1.0E-3 ) - utcSecondsSinceJ2000;
         const double expectedEvolution = -beforeDuration * ( atMidnight - differenceMinusOneDay - 1.0 ) / 86401.0 -
                 afterDuration * ( differencePlusOneDay - atMidnight ) / 86400.0;
-        BOOST_CHECK_SMALL( differenceMinusOneMilliSecond - differenceAtEpochPlusOneMilliSecond + 1.0 - expectedEvolution, 1.0E-14 );
+        const Time beforeUt1 = converter.getUt1FromTai( beforeTai );
+        const Time afterUt1 = converter.getUt1FromTai( afterTai );
+        const double evolution = static_cast< double >( ( beforeUt1 - afterUt1 ) - ( beforeTai - afterTai ) );
+        BOOST_CHECK_SMALL( evolution - expectedEvolution, 1.0E-14 );
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differencePlusOneDay + 1.0 ), 0.01 );
     }
 }

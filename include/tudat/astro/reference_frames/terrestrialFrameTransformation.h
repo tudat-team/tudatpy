@@ -1,82 +1,89 @@
 #ifndef TUDAT_TERRESTRIAL_FRAME_TRANSFORMATION_H
 #define TUDAT_TERRESTRIAL_FRAME_TRANSFORMATION_H
-#include <functional>
+
+#include <optional>
 #include "tudat/io/readTerrestrialFrameTransformationData.h"
-#include "tudat/basics/timeType.h"
 #include "tudat/basics/basicTypedefs.h"
+
 namespace tudat
 {
 namespace reference_frames
 {
-//! Published parameter coordinate and its derivative relative to the input state's seconds.
-//! Unit-normalizing a per-year rate does not define this physical time mapping.
-struct TerrestrialFrameEvaluationEpoch {
-    double decimalYear;
-    double decimalYearRateWithRespectToInputSeconds;
-};
-//! Linearized Helmert affine transformation; its matrix includes scale and is not an orthogonal rotation.
+
+//! Linearized Helmert map; the matrix includes scale and need not be orthogonal.
 struct TerrestrialFrameAffineTransformation {
+    //! Metre-valued translation and dimensionless rotation/scale matrix.
     Eigen::Vector3d translation = Eigen::Vector3d::Zero( );
+
     Eigen::Matrix3d matrix = Eigen::Matrix3d::Identity( );
+
+    //! Derivatives in metres per input second and inverse input seconds.
     Eigen::Vector3d translationRate = Eigen::Vector3d::Zero( );
+
     Eigen::Matrix3d matrixRate = Eigen::Matrix3d::Zero( );
+
+    //! Apply the affine map to a Cartesian position in metres.
     Eigen::Vector3d transformPosition( const Eigen::Vector3d& position ) const;
+
+    //! Include parameter derivatives when transforming position and velocity.
     Eigen::Vector6d transformState( const Eigen::Vector6d& state ) const;
+
+    //! Invert the full matrix and differentiate that inverse.
     TerrestrialFrameAffineTransformation inverse( ) const;
-    //! Apply this transformation after the supplied transformation, including all affine derivative terms.
+
+    //! Apply the supplied map first, including both sets of affine derivatives.
     TerrestrialFrameAffineTransformation composeAfter( const TerrestrialFrameAffineTransformation& before ) const;
 };
+
+//! Evaluate published Helmert parameters with an explicit year and years-per-input-second rate.
 TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_output::TerrestrialFrameTransformationParameters& parameters,
-                                                                const TerrestrialFrameEvaluationEpoch& epoch );
-enum class ItrfTransformationCatalogue { ignItrf2014, ignItrf2020 };
-//! Select pinned conventional input through its neutral reader, without redefining the table's identity.
-input_output::TerrestrialFrameTransformationData getConventionalItrfTransformationData( ItrfTransformationCatalogue catalogue );
-//! Native model owns an explicitly supplied physical-time mapping; evaluation never opens files.
+                                                                double decimalYear,
+                                                                double decimalYearRateWithRespectToInputSeconds );
+
+//! Apply a preloaded terrestrial catalogue with the caller's explicit time convention.
 class TerrestrialFrameTransformationModel
 {
 public:
-    using Clock = std::function< TerrestrialFrameEvaluationEpoch( const Time& ) >;
-    explicit TerrestrialFrameTransformationModel( const input_output::TerrestrialFrameTransformationData& data, Clock clock = {} );
-    //! Equal nonempty realization labels give identity before catalogue lookup, including unknown labels.
-    //! This identity behavior does not validate catalogue membership; distinct labels require known hub records.
+    //! Validate and retain the original catalogue and its declared rotation convention.
+    explicit TerrestrialFrameTransformationModel( const input_output::TerrestrialFrameTransformationData& data );
+
+    //! Return affine values and derivatives; equal nonempty realization labels give identity.
+    //! The rate is years per input second. Distinct realizations require known hub records.
     TerrestrialFrameAffineTransformation getTransformation( const std::string& sourceRealization,
                                                             const std::string& targetRealization,
-                                                            const TerrestrialFrameEvaluationEpoch& epoch ) const;
-    TerrestrialFrameAffineTransformation getTransformationAtTime( const std::string& sourceRealization,
-                                                                  const std::string& targetRealization,
-                                                                  const Time& inputTime ) const;
+                                                            double decimalYear,
+                                                            double decimalYearRateWithRespectToInputSeconds ) const;
+
+    //! Transform position at the supplied decimal year; no time derivative is needed.
     Eigen::Vector3d transformPosition( const Eigen::Vector3d& position,
                                        const std::string& sourceRealization,
                                        const std::string& targetRealization,
-                                       const TerrestrialFrameEvaluationEpoch& epoch ) const;
-    //! Value-only calendar/declared coordinate evaluation; no physical rate is needed or invented.
-    Eigen::Vector3d transformPositionAtDecimalYear( const Eigen::Vector3d& position,
-                                                    const std::string& sourceRealization,
-                                                    const std::string& targetRealization,
-                                                    double decimalYear ) const;
+                                       double decimalYear ) const;
+
+    //! Transform position and velocity using an explicit year rate in the state's input seconds.
     Eigen::Vector6d transformState( const Eigen::Vector6d& state,
                                     const std::string& sourceRealization,
                                     const std::string& targetRealization,
-                                    const TerrestrialFrameEvaluationEpoch& epoch ) const;
-    Eigen::Vector3d transformPositionAtTime( const Eigen::Vector3d& position,
-                                             const std::string& sourceRealization,
-                                             const std::string& targetRealization,
-                                             const Time& inputTime ) const;
-    Eigen::Vector6d transformStateAtTime( const Eigen::Vector6d& state,
-                                          const std::string& sourceRealization,
-                                          const std::string& targetRealization,
-                                          const Time& inputTime ) const;
+                                    double decimalYear,
+                                    double decimalYearRateWithRespectToInputSeconds ) const;
+
+    //! Expose the retained neutral catalogue and its original provenance.
     const input_output::TerrestrialFrameTransformationData& getData( ) const
     {
         return data_;
     }
 
 private:
+    //! Share source-to-hub-to-target evaluation; absent rates are used only for position.
+    TerrestrialFrameAffineTransformation evaluateTransformation( const std::string& sourceRealization,
+                                                                 const std::string& targetRealization,
+                                                                 double decimalYear,
+                                                                 std::optional< double > yearRate ) const;
+
+    //! Published catalogue identities and SI-normalized parameters.
     input_output::TerrestrialFrameTransformationData data_;
-    Clock clock_;
 };
-//! Compatibility coordinate: uniform Julian-year seconds since J2000; not calendar decimal year or TDB conversion.
-TerrestrialFrameEvaluationEpoch getLegacyItrfEvaluationEpoch( double secondsSinceJ2000 );
+
 }  // namespace reference_frames
 }  // namespace tudat
 #endif

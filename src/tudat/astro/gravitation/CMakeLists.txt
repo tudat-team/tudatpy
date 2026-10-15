@@ -88,4 +88,4 @@ TUDAT_ADD_LIBRARY("gravitation"
         "${gravitation_SOURCES}"
         "${gravitation_HEADERS}")
 
-target_link_libraries(tudat_gravitation PUBLIC tudat_ocean_pole_gravity_data)
+target_link_libraries(tudat_gravitation PUBLIC tudat_environment_data)

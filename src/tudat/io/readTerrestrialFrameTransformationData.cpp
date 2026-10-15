@@ -1,5 +1,5 @@
 #include "tudat/io/readTerrestrialFrameTransformationData.h"
-#include "pinnedItrfTransformationTables.h"
+#include "tudat/paths.hpp"
 #include <cmath>
 #include <fstream>
 #include <regex>
@@ -218,21 +218,33 @@ TerrestrialFrameTransformationData readTerrestrialFrameTransformationData( const
     if( source.source.empty( ) || source.source == "<stream>" ) source.source = filePath;
     return readTerrestrialFrameTransformationData( stream, source );
 }
+//! Read an official IGN table from the station_locations resource directory, retaining its published source and checksum.
+TerrestrialFrameTransformationData readOfficialItrfTransformationData( const std::string& fileName,
+                                                                       const TerrestrialFrameTransformationSource& source )
+{
+    const std::string filePath = paths::get_resources_path( ) + "/station_locations/" + fileName;
+    std::ifstream stream( filePath );
+    if( !stream )
+    {
+        throw std::runtime_error( filePath + ": Cannot open official terrestrial-frame parameter table (tudat resources)" );
+    }
+    return readTerrestrialFrameTransformationData( stream, source );
+}
+
 TerrestrialFrameTransformationData readOfficialItrf2014TransformationData( )
 {
-    std::istringstream stream( pinnedItrf2014Table );
-    return readTerrestrialFrameTransformationData( stream,
-                                                   { "https://itrf.ign.fr/docs/solutions/itrf2014/Transfo-ITRF2014_ITRFs.txt",
-                                                     "ITRF2014",
-                                                     "6cc1c068d0d7e9ce53277752795dc2ef3ea5f8890c4b5d1878e1e9ccc05a0543" } );
+    return readOfficialItrfTransformationData( "Transfo-ITRF2014_ITRFs.txt",
+                                               { "https://itrf.ign.fr/docs/solutions/itrf2014/Transfo-ITRF2014_ITRFs.txt",
+                                                 "ITRF2014",
+                                                 "6cc1c068d0d7e9ce53277752795dc2ef3ea5f8890c4b5d1878e1e9ccc05a0543" } );
 }
+
 TerrestrialFrameTransformationData readOfficialItrf2020TransformationData( )
 {
-    std::istringstream stream( pinnedItrf2020Table );
-    return readTerrestrialFrameTransformationData( stream,
-                                                   { "https://itrf.ign.fr/docs/solutions/itrf2020/Transfo-ITRF2020_TRFs.txt",
-                                                     "ITRF2020",
-                                                     "0d8dc872e7ef994966063e614adb5b1b0fe20582359c6e77f1d83259d1ff1a68" } );
+    return readOfficialItrfTransformationData( "Transfo-ITRF2020_TRFs.txt",
+                                               { "https://itrf.ign.fr/docs/solutions/itrf2020/Transfo-ITRF2020_TRFs.txt",
+                                                 "ITRF2020",
+                                                 "0d8dc872e7ef994966063e614adb5b1b0fe20582359c6e77f1d83259d1ff1a68" } );
 }
 }  // namespace input_output
 }  // namespace tudat

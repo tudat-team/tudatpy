@@ -35,7 +35,6 @@ struct SinexEquipmentHeaderTimeContext {
     std::string source;
 };
 enum class StationReferencePointOffsetBasis { une, xyz };
-enum class StationReferencePointRatePolicy { rejectAtSwitch, rightHandAtSwitch };
 struct StationReferencePointOffset {
     StationReferencePointIdentity from, to;
     StationHistoryInterval validity;
@@ -53,12 +52,12 @@ struct StationReferencePointOffset {
     std::function< Eigen::Vector6d( const StationHistoryTime& ) > stateFunction;
     bool directionDependent = false;
 };
+//! At an offset switch, position and state use the new (right-hand) record, as elsewhere at station-history discontinuities.
 class StationReferencePointOffsetHistory
 {
 public:
     StationReferencePointOffsetHistory( std::vector< StationReferencePointOffset > offsets,
-                                        std::optional< StationReferencePointGeometry > geometry = std::nullopt,
-                                        StationReferencePointRatePolicy ratePolicy = StationReferencePointRatePolicy::rejectAtSwitch );
+                                        std::optional< StationReferencePointGeometry > geometry = std::nullopt );
     Eigen::Vector3d getPositionCorrection( const StationHistoryTime& time ) const;
     Eigen::Vector6d getStateCorrection( const StationHistoryTime& time ) const;
     const StationReferencePointOffset& getActiveOffset( const Time& tai ) const;
@@ -70,50 +69,55 @@ public:
     {
         return geometry_;
     }
-    StationReferencePointRatePolicy getRatePolicy( ) const
-    {
-        return ratePolicy_;
-    }
 
 private:
     Eigen::Vector3d toTerrestrial( const Eigen::Vector3d& components, StationReferencePointOffsetBasis basis ) const;
     std::vector< StationReferencePointOffset > offsets_;
     std::optional< StationReferencePointGeometry > geometry_;
-    StationReferencePointRatePolicy ratePolicy_;
 };
 
 //! Compose one declared reference-point vector once with its source trajectory.
 class StationReferencePointTrajectory : public StationHistoryTrajectory
 {
 public:
+    //! Retain the source and bind one validated reference-point offset history.
     StationReferencePointTrajectory( std::shared_ptr< StationHistoryTrajectory > source,
                                      std::shared_ptr< StationReferencePointOffsetHistory > offsets );
+
+    //! Add the active reference vector to the source position.
     Eigen::Vector3d getPosition( const StationHistoryTime& time ) const override;
+
+    //! Add the active reference vector and its TDB velocity to the source state.
     Eigen::Vector6d getState( const StationHistoryTime& time ) const override;
+
+    //! Describe the evaluated reference point while retaining source frame and provenance.
     const StationHistoryMetadata& getMetadata( ) const override
     {
         return outputMetadata_;
     }
-    bool hasFittedSeasonalTerms( ) const override
-    {
-        return source_->hasFittedSeasonalTerms( );
-    }
+
+    //! Return the directed offset's output point identity.
     const StationReferencePointIdentity& getReferencePointIdentity( ) const
     {
         return offsets_->getOffsets( ).front( ).to;
     }
+
+    //! Inspect the source retained by this ordered reference-point composition.
     const std::shared_ptr< StationHistoryTrajectory >& getSourceTrajectory( ) const
     {
         return source_;
     }
+
+    //! Inspect the validated offsets and their equipment association.
     const std::shared_ptr< StationReferencePointOffsetHistory >& getOffsetHistory( ) const
     {
         return offsets_;
     }
 
 private:
-    std::shared_ptr< StationHistoryTrajectory > source_;
+    //! Immutable offset history and metadata describing the evaluated output point.
     std::shared_ptr< StationReferencePointOffsetHistory > offsets_;
+
     StationHistoryMetadata outputMetadata_;
 };
 StationReferencePointIdentity getStationReferencePointIdentity( const std::shared_ptr< StationHistoryTrajectory >& trajectory );
@@ -127,7 +131,6 @@ std::shared_ptr< StationReferencePointTrajectory > createSinexAntennaReferencePo
         std::string referencePointName,
         std::optional< StationReferencePointGeometry > geometry = std::nullopt,
         std::optional< SinexEquipmentHeaderTimeContext > headerContext = std::nullopt,
-        StationReferencePointRatePolicy ratePolicy = StationReferencePointRatePolicy::rejectAtSwitch,
         const std::optional< std::string >& domesSelector = std::nullopt,
         const std::optional< input_output::SinexSiteKey >& equipmentSite = std::nullopt );
 }  // namespace ground_stations

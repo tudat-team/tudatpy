@@ -97,6 +97,7 @@ double metres( const SinexParameterRecord& parameter )
 }
 }  // namespace
 
+//! Own and validate the published solution and correction records once.
 StationHistoryTrajectory::StationHistoryTrajectory( std::vector< StationHistoryLinearSolution > solutions,
                                                     std::vector< StationPostSeismicTerm > postSeismicTerms,
                                                     std::vector< StationSeasonalTerm > seasonalTerms,
@@ -148,6 +149,13 @@ StationHistoryTrajectory::StationHistoryTrajectory( std::vector< StationHistoryL
     }
 }
 
+//! Retain the source lifetime without copying or revalidating its immutable coefficient records.
+StationHistoryTrajectory::StationHistoryTrajectory( std::shared_ptr< StationHistoryTrajectory > source ): source_( std::move( source ) )
+{
+    require( source_ != nullptr, "a source trajectory is required" );
+}
+
+//! Evaluate owned linear, cumulative post-seismic and fitted seasonal records.
 Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::evaluate( const StationHistoryTime& time, bool rates ) const
 {
     validateTime( time, metadata_.timeConvention );
@@ -193,12 +201,22 @@ Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::evaluate( const StationH
     require( result.allFinite( ), "nonfinite trajectory result" );
     return result;
 }
+//! Evaluate owned records or delegate to the retained source without requiring rates.
 Eigen::Vector3d StationHistoryTrajectory::getPosition( const StationHistoryTime& time ) const
 {
+    if( source_ )
+    {
+        return source_->getPosition( time );
+    }
     return evaluate( time, false ).head< 3 >( );
 }
+//! Evaluate analytic TDB velocity from owned records or the retained source.
 Eigen::Matrix< double, 6, 1 > StationHistoryTrajectory::getState( const StationHistoryTime& time ) const
 {
+    if( source_ )
+    {
+        return source_->getState( time );
+    }
     return evaluate( time, true );
 }
 

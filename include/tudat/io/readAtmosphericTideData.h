@@ -12,7 +12,6 @@ namespace tudat
 {
 namespace input_output
 {
-using AtmosphericTideCoefficients = Eigen::Matrix< double, 3, 4 >;
 enum class AtmosphericLoadingReferenceOrigin { unspecified, solidEarthCentre, wholeEarthCentreOfMass };
 enum class AtmosphericTideLatitudeConvention { unspecified, geocentric, geodetic };
 
@@ -44,12 +43,12 @@ struct AtmosphericTideGrid {
     std::vector< double > longitudesDegrees;
     std::vector< double > latitudesDegrees;
     //! Longitude-major, latitude-fast. Rows radial/north/east, columns cosS1/sinS1/cosS2/sinS2, METRES.
-    std::vector< AtmosphericTideCoefficients > coefficientsMetres;
+    std::vector< Eigen::Matrix< double, 3, 4 > > coefficientsMetres;
 };
 struct AtmosphericTideStation {
     std::string stationIdentifier;
     std::string providerStationIdentifierLine;
-    AtmosphericTideCoefficients coefficientsMetres = AtmosphericTideCoefficients::Zero( );
+    Eigen::Matrix< double, 3, 4 > coefficientsMetres = Eigen::Matrix< double, 3, 4 >::Zero( );
     AtmosphericTideMetadata metadata;
     bool hasProviderCoordinates = false;
     Eigen::Vector2d providerLongitudeLatitudeDegrees = Eigen::Vector2d::Zero( );
@@ -57,6 +56,8 @@ struct AtmosphericTideStation {
 struct AtmosphericTideStationData {
     AtmosphericTideMetadata metadata;
     std::map< std::string, AtmosphericTideStation > stations;
+
+    //! Return the exact provider identifier; absent stations raise std::out_of_range.
     const AtmosphericTideStation& getStation( const std::string& identifier ) const;
 };
 

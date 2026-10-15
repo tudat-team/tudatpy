@@ -2,6 +2,7 @@
 #include <exception>
 #include <set>
 #include "tudat/math/basic/coordinateConversions.h"
+#include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 /*    Copyright (c) 2010-2019, Delft University of Technology
@@ -66,12 +67,7 @@ Eigen::Vector6d GroundStationState::getCartesianStateInTime( const Time& seconds
 
 Eigen::Vector6d GroundStationState::getCartesianStateInTime( const double secondsSinceEpoch, const std::string& targetFrameOrigin )
 {
-    Eigen::Vector6d currentStationState = ( stationMotionModel_ != nullptr )
-            ? ( nominalCartesianState_ +
-                stationMotionModel_->getBodyFixedStationMotion( secondsSinceEpoch, shared_from_this( ), targetFrameOrigin ) )
-            : nominalCartesianState_;
-
-    return currentStationState;
+    return getCartesianStateInTime( Time( secondsSinceEpoch ), targetFrameOrigin );
 }
 
 //! Function to (re)set the nominal state of the station
@@ -195,67 +191,6 @@ Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
 
 namespace
 {
-template< typename Value >
-Value guardedStationRate( const Time& time,
-                          const double requestedStep,
-                          const std::function< Value( const Time& ) >& evaluate,
-                          const std::function< void( ) >& restore,
-                          const double absoluteTolerance )
-{
-    const auto derivative = [ & ]( const double requested ) -> Value {
-        const double h = static_cast< double >( ( time + requested ) - time );
-        const std::array< Time, 4 > epochs{ time - 2 * h, time - h, time + h, time + 2 * h };
-        if( !std::isfinite( static_cast< double >( time ) ) || !std::isfinite( h ) || h <= 0 ||
-            !( epochs[ 0 ] < epochs[ 1 ] && epochs[ 1 ] < time && time < epochs[ 2 ] && epochs[ 2 ] < epochs[ 3 ] ) )
-            throw std::invalid_argument( "Relativistic station rate requires finite distinct stencil epochs." );
-        std::array< Value, 4 > values;
-        for( std::size_t i = 0; i < epochs.size( ); ++i )
-        {
-            const double offset = ( i < 2 ? static_cast< double >( i ) - 2 : static_cast< double >( i ) - 1 ) * h;
-            if( !std::isfinite( static_cast< double >( epochs[ i ] ) ) ||
-                std::fabs( static_cast< double >( epochs[ i ] - time ) - offset ) > 16 * std::numeric_limits< double >::epsilon( ) * h )
-                throw std::invalid_argument( "Relativistic station rate stencil is not representably uniform." );
-            values[ i ] = evaluate( epochs[ i ] );
-            if( !values[ i ].allFinite( ) ) throw std::runtime_error( "Non-finite relativistic station rate sample." );
-        }
-        return ( 8 * ( values[ 2 ] - values[ 1 ] ) - ( values[ 3 ] - values[ 0 ] ) ) / ( 12 * h );
-    };
-    try
-    {
-        const Value coarse = derivative( requestedStep ), fine = derivative( requestedStep / 2 );
-        if( !coarse.allFinite( ) || !fine.allFinite( ) ||
-            ( coarse - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( coarse.norm( ), fine.norm( ) ) )
-            throw std::runtime_error( "Relativistic station rate fallback did not converge; supply smooth callbacks and available rates." );
-        // A callback may narrow its Time input internally. Tiny stencils can
-        // then agree at a false zero. Check at a representable scalar epoch
-        // spacing without narrowing any callback sample or the central epoch.
-        const double scalarCentre = static_cast< double >( time );
-        const double resolutionStep = 4 *
-                std::max( std::nextafter( scalarCentre, INFINITY ) - scalarCentre,
-                          scalarCentre - std::nextafter( scalarCentre, -INFINITY ) );
-        if( resolutionStep > requestedStep / 2 )
-        {
-            const Value resolved = derivative( resolutionStep );
-            if( !resolved.allFinite( ) ||
-                ( resolved - fine ).norm( ) > absoluteTolerance + 1e-6 * std::max( resolved.norm( ), fine.norm( ) ) )
-                throw std::invalid_argument( "Relativistic station derivative step cannot resolve the supplied callback." );
-        }
-        restore( );
-        return fine;
-    }
-    catch( ... )
-    {
-        const auto original = std::current_exception( );
-        try
-        {
-            restore( );
-        }
-        catch( ... )
-        {}
-        std::rethrow_exception( original );
-    }
-}
-
 constexpr double iersTtToTdbSpatialScale = 1.48082686741e-8;
 }  // namespace
 
@@ -265,12 +200,10 @@ BodyCentricToBarycentricRelativisticStationMotion::BodyCentricToBarycentricRelat
         const std::function< Eigen::Matrix3d( const Time& ) >& rotationDerivativeFunction,
         const std::vector< RelativisticStationExternalBody >& externalBodies,
         const RelativisticStationCoordinateCompatibility coordinateCompatibility,
-        const double derivativeStep,
-        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter ):
+        const double derivativeStep ):
     bodyBarycentricStateFunction_( bodyBarycentricStateFunction ),
     inertialToBodyFixedRotationFunction_( inertialToBodyFixedRotationFunction ), rotationDerivativeFunction_( rotationDerivativeFunction ),
-    externalBodies_( externalBodies ), coordinateCompatibility_( coordinateCompatibility ), derivativeStep_( derivativeStep ),
-    timeConverter_( converter )
+    externalBodies_( externalBodies ), coordinateCompatibility_( coordinateCompatibility ), derivativeStep_( derivativeStep )
 {
     if( !bodyBarycentricStateFunction_ || !inertialToBodyFixedRotationFunction_ )
         throw std::invalid_argument( "Relativistic station transformation requires host state and rotation callbacks." );
@@ -284,26 +217,9 @@ BodyCentricToBarycentricRelativisticStationMotion::BodyCentricToBarycentricRelat
             throw std::invalid_argument( "Relativistic external bodies require unique names, state and GM callbacks." );
 }
 
-BodyCentricToBarycentricRelativisticStationMotion::BodyCentricToBarycentricRelativisticStationMotion(
-        const std::function< Eigen::Vector6d( const Time& ) > host,
-        const std::function< Eigen::Vector3d( const Time& ) > external,
-        const std::function< Eigen::Quaterniond( const Time& ) > rotation,
-        const std::function< double( ) > gm,
-        const bool useGeneralRelativity,
-        const RelativisticStationCoordinateCompatibility compatibility ):
-    BodyCentricToBarycentricRelativisticStationMotion( host, rotation, nullptr, {}, compatibility )
-{
-    if( useGeneralRelativity )
-    {
-        if( !external || !gm ) throw std::invalid_argument( "External position and GM are required for the potential." );
-        legacyExternalPosition_ = external;
-        legacyExternalGm_ = gm;
-    }
-}
-
 double BodyCentricToBarycentricRelativisticStationMotion::potential( const Time& time )
 {
-    if( externalBodies_.empty( ) && !legacyExternalPosition_ ) return 0;
+    if( externalBodies_.empty( ) ) return 0;
     const Eigen::Vector6d host = bodyBarycentricStateFunction_( time );
     if( !host.head< 3 >( ).allFinite( ) ) throw std::runtime_error( "Non-finite host position in relativistic station potential." );
     double value = 0;
@@ -315,21 +231,13 @@ double BodyCentricToBarycentricRelativisticStationMotion::potential( const Time&
     };
     for( const auto& body : externalBodies_ )
         value += contribution( body.barycentricState( time ).head< 3 >( ), body.gravitationalParameter( ) );
-    if( legacyExternalPosition_ ) value += contribution( legacyExternalPosition_( time ), legacyExternalGm_( ) );
     if( !std::isfinite( value ) ) throw std::runtime_error( "Non-finite relativistic station potential." );
     return value;
 }
 
 double BodyCentricToBarycentricRelativisticStationMotion::potentialDerivative( const Time& time )
 {
-    if( externalBodies_.empty( ) && !legacyExternalPosition_ ) return 0;
-    if( legacyExternalPosition_ )
-        return guardedStationRate< Eigen::Vector3d >(
-                time,
-                derivativeStep_,
-                [ this ]( const Time& t ) { return Eigen::Vector3d( potential( t ), 0, 0 ); },
-                [ & ]( ) { restoreCentralEpoch( time ); },
-                1e-4 )( 0 );
+    if( externalBodies_.empty( ) ) return 0;
     const Eigen::Vector6d host = bodyBarycentricStateFunction_( time );
     if( !host.allFinite( ) ) throw std::runtime_error( "Non-finite host state in relativistic station potential rate." );
     double rate = 0;
@@ -347,22 +255,6 @@ double BodyCentricToBarycentricRelativisticStationMotion::potentialDerivative( c
     return rate;
 }
 
-void BodyCentricToBarycentricRelativisticStationMotion::restoreCentralEpoch( const Time& time )
-{
-    bodyBarycentricStateFunction_( time );
-    inertialToBodyFixedRotationFunction_( time );
-    for( const auto& body : externalBodies_ )
-    {
-        body.barycentricState( time );
-        body.gravitationalParameter( );
-    }
-    if( legacyExternalPosition_ )
-    {
-        legacyExternalPosition_( time );
-        legacyExternalGm_( );
-    }
-}
-
 Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMatrix( const Time& time )
 {
     const Eigen::Vector6d host = bodyBarycentricStateFunction_( time );
@@ -378,22 +270,17 @@ Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMat
 Eigen::Matrix3d BodyCentricToBarycentricRelativisticStationMotion::correctionMatrixDerivative( const Time& time )
 {
     const Eigen::Matrix3d rotation = inertialToBodyFixedRotationFunction_( time ).toRotationMatrix( );
+    // Rotation rate from its callback if available, otherwise numerically; the host acceleration is always numerical.
+    const std::function< Eigen::Matrix3d( const Time& ) > rotationMatrix = [ this ]( const Time& t ) -> Eigen::Matrix3d {
+        return inertialToBodyFixedRotationFunction_( t ).toRotationMatrix( );
+    };
+    const std::function< Eigen::Vector3d( const Time& ) > hostVelocity = [ this ]( const Time& t ) -> Eigen::Vector3d {
+        return bodyBarycentricStateFunction_( t ).tail< 3 >( );
+    };
     const Eigen::Matrix3d rotationRate = rotationDerivativeFunction_
             ? rotationDerivativeFunction_( time )
-            : guardedStationRate< Eigen::Matrix3d >(
-                      time,
-                      derivativeStep_,
-                      [ this ]( const Time& t ) -> Eigen::Matrix3d {
-                          return inertialToBodyFixedRotationFunction_( t ).toRotationMatrix( );
-                      },
-                      [ & ]( ) { restoreCentralEpoch( time ); },
-                      1e-12 );
-    const Eigen::Vector3d acceleration = guardedStationRate< Eigen::Vector3d >(
-            time,
-            derivativeStep_,
-            [ this ]( const Time& t ) -> Eigen::Vector3d { return bodyBarycentricStateFunction_( t ).tail< 3 >( ); },
-            [ & ]( ) { restoreCentralEpoch( time ); },
-            1e-10 );
+            : numerical_derivatives::computeFourthOrderCentralDifference( rotationMatrix, time, derivativeStep_ );
+    const Eigen::Vector3d acceleration = numerical_derivatives::computeFourthOrderCentralDifference( hostVelocity, time, derivativeStep_ );
     const Eigen::Vector3d velocity = bodyBarycentricStateFunction_( time ).tail< 3 >( );
     const Eigen::Vector3d localVelocity = rotation * velocity, localRate = rotationRate * velocity + rotation * acceleration;
     const Eigen::Matrix3d rate =
@@ -444,21 +331,6 @@ Eigen::Vector3d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedS
     return correctCompleteLocalPosition( time, station->getNominalCartesianPosition( ), origin );
 }
 
-Eigen::Vector6d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedStationMotion(
-        const double time,
-        const std::shared_ptr< GroundStationState > station,
-        const std::string& origin )
-{
-    return getBodyFixedStationMotion( basic_astrodynamics::normalizeScalarTdb( time, timeConverter_ ), station, origin );
-}
-Eigen::Vector3d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedStationPositionCorrection(
-        const double time,
-        const std::shared_ptr< GroundStationState > station,
-        const std::string& origin )
-{
-    return getBodyFixedStationPositionCorrection( basic_astrodynamics::normalizeScalarTdb( time, timeConverter_ ), station, origin );
-}
-
 CombinedStationMotionModel::CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& models )
 {
     for( const auto& model : models ) appendModel( model );
@@ -481,72 +353,41 @@ void CombinedStationMotionModel::appendModel( const std::shared_ptr< StationMoti
         modelList_.push_back( model );
 }
 
-template< typename Epoch >
-Eigen::Vector6d CombinedStationMotionModel::evaluateMotion( const Epoch& time,
-                                                            const std::shared_ptr< GroundStationState > station,
-                                                            const std::string& origin )
-{
-    Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
-    for( const auto& model : modelList_ ) motion += model->getBodyFixedStationMotion( time, station, origin );
-    if( terminalModel_ )
-    {
-        Eigen::Vector6d full = motion;
-        full.head< 3 >( ) += station->getNominalCartesianPosition( );
-        const Time terminalTime = [ & ]( ) {
-            if constexpr( std::is_same< Epoch, double >::value )
-                return basic_astrodynamics::normalizeScalarTdb( time, terminalModel_->timeConverter_ );
-            else
-                return time;
-        }( );
-        motion += terminalModel_->correctCompleteLocalState( terminalTime, full, origin );
-    }
-    return motion;
-}
-
-template< typename Epoch >
-Eigen::Vector3d CombinedStationMotionModel::evaluatePosition( const Epoch& time,
-                                                              const std::shared_ptr< GroundStationState > station,
-                                                              const std::string& origin )
-{
-    Eigen::Vector3d displacement = Eigen::Vector3d::Zero( );
-    for( const auto& model : modelList_ ) displacement += model->getBodyFixedStationPositionCorrection( time, station, origin );
-    if( terminalModel_ )
-    {
-        const Time terminalTime = [ & ]( ) {
-            if constexpr( std::is_same< Epoch, double >::value )
-                return basic_astrodynamics::normalizeScalarTdb( time, terminalModel_->timeConverter_ );
-            else
-                return time;
-        }( );
-        displacement += terminalModel_->correctCompleteLocalPosition(
-                terminalTime, station->getNominalCartesianPosition( ) + displacement, origin );
-    }
-    return displacement;
-}
-
+//! Sum intrinsic motion, then apply the terminal relativistic map to the complete intrinsic state.
 Eigen::Vector6d CombinedStationMotionModel::getBodyFixedStationMotion( const Time& time,
                                                                        const std::shared_ptr< GroundStationState > station,
                                                                        const std::string& origin )
 {
-    return evaluateMotion( time, station, origin );
+    Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
+    for( const auto& model : modelList_ )
+    {
+        motion += model->getBodyFixedStationMotion( time, station, origin );
+    }
+    if( terminalModel_ )
+    {
+        Eigen::Vector6d intrinsicState = motion;
+        intrinsicState.head< 3 >( ) += station->getNominalCartesianPosition( );
+        motion += terminalModel_->correctCompleteLocalState( time, intrinsicState, origin );
+    }
+    return motion;
 }
-Eigen::Vector6d CombinedStationMotionModel::getBodyFixedStationMotion( const double time,
-                                                                       const std::shared_ptr< GroundStationState > station,
-                                                                       const std::string& origin )
-{
-    return evaluateMotion( time, station, origin );
-}
+
+//! Sum intrinsic position corrections, then apply the terminal relativistic map to the complete intrinsic position.
 Eigen::Vector3d CombinedStationMotionModel::getBodyFixedStationPositionCorrection( const Time& time,
                                                                                    const std::shared_ptr< GroundStationState > station,
                                                                                    const std::string& origin )
 {
-    return evaluatePosition( time, station, origin );
-}
-Eigen::Vector3d CombinedStationMotionModel::getBodyFixedStationPositionCorrection( const double time,
-                                                                                   const std::shared_ptr< GroundStationState > station,
-                                                                                   const std::string& origin )
-{
-    return evaluatePosition( time, station, origin );
+    Eigen::Vector3d displacement = Eigen::Vector3d::Zero( );
+    for( const auto& model : modelList_ )
+    {
+        displacement += model->getBodyFixedStationPositionCorrection( time, station, origin );
+    }
+    if( terminalModel_ )
+    {
+        displacement +=
+                terminalModel_->correctCompleteLocalPosition( time, station->getNominalCartesianPosition( ) + displacement, origin );
+    }
+    return displacement;
 }
 
 }  // namespace ground_stations

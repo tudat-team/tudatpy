@@ -288,10 +288,6 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
-    // Install global-frame ephemeris callbacks before initializing deferred
-    // gravity-variation interpolators and constructing ground-station motion.
-    bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
-
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
@@ -306,6 +302,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             createCamera( bodyList.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).second->cameraSettings.at( j ) );
         }
     }
+
+    bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 
     if( spaceTimePropertiesSettings != nullptr && spaceTimePropertiesSettings->getMetricSettings( ) != nullptr )
     {

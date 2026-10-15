@@ -48,23 +48,12 @@ public:
             const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings = nullptr,
             const std::shared_ptr< EarthOrientationDataEvaluator > evaluator = nullptr );
 
+    //! Return nominal TT X/Y/s in radians with observed dX/dY evaluated at precise TAI.
     Eigen::Vector3d getPositionOfCipInGcrsFromTai( const double terrestrialTime, const Time& tai );
-    //! Nominal X/Y/s and d(X,Y,s)/dTT, before observed CPO. Selected interpolation branches are differentiated locally.
-    std::pair< Eigen::Vector3d, Eigen::Vector3d > getNominalPositionAndRate( const Time& tt );
-    void setNominalDerivativeTimeStep( const double step );
-    double getNominalDerivativeTimeStep( ) const
-    {
-        return nominalDerivativeTimeStep_;
-    }
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > getNominalCipInterpolator( ) const
-    {
-        return nominalCipInterpolator_;
-    }
 
-    bool usesContinuousEop( ) const
-    {
-        return evaluator_ != nullptr;
-    }
+    //! Nominal X/Y/s and d(X,Y,s)/dTT, before observed CPO. The rate is that of the direct SOFA model.
+    std::pair< Eigen::Vector3d, Eigen::Vector3d > getNominalPositionAndRate( const Time& tt );
+
     std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
     {
         return evaluator_;
@@ -73,8 +62,8 @@ public:
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
     /*!
      *  Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
-     *  Only TT is taken as input, UTC is calculated internally by using the SOFA wrappers. If UTC is
-     *  known when calling this function, use the overloaded version, instead.
+     *  Models constructed from EOP data use continuous TAI. Custom-interpolator models calculate UTC internally;
+     *  use the other overload when their UTC time is already known.
      *  \param terrestrialTime TT at which calculation is to be performed.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
      */
@@ -83,7 +72,8 @@ public:
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
     /*!
      *  Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
-     *  TT and UTC is taken as input,If UTC is not known when calling this function, use the overloaded version, instead.
+     *  Custom-interpolator models use the supplied TT and UTC. Models constructed from EOP data
+     *  derive continuous TAI from TT and do not use UTC.
      *  \param terrestrialTime TT at which calculation is to be performed.
      *  \param utc UTC at which calculation is to be performed.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
@@ -97,6 +87,12 @@ public:
      */
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > getDailyCorrectionInterpolator( )
     {
+        if( evaluator_ )
+        {
+            throw std::runtime_error(
+                    "Models constructed from EOP data do not have a daily UTC interpolator; use "
+                    "getEarthOrientationDataEvaluator()->getCelestialPoleOffsets(tai)." );
+        }
         return dailyCorrectionInterpolator_;
     }
 
@@ -128,8 +124,6 @@ private:
      *  first pair argument, and CIO locator (s, see IERS Conventions 2010), second pair argument.
      */
     std::function< Eigen::Vector3d( const double ) > nominalCipPositionFunction_;
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > nominalCipInterpolator_;
-    double nominalDerivativeTimeStep_ = 32.0;
 };
 
 }  // namespace earth_orientation

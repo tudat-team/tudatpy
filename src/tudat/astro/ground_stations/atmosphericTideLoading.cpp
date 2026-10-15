@@ -10,7 +10,7 @@ namespace basic_astrodynamics
 {
 namespace
 {
-double phase( const input_output::AtmosphericTideCoefficients& coefficients, const double ut1 )
+double phase( const Eigen::Matrix< double, 3, 4 >& coefficients, const double ut1 )
 {
     if( !coefficients.allFinite( ) || !std::isfinite( ut1 ) )
     {
@@ -32,13 +32,13 @@ Eigen::Matrix3d radialNorthEastBasis( double latitude, double longitude )
     return result;
 }
 }  // namespace
-Eigen::Vector3d synthesizeAtmosphericTideLoading( const input_output::AtmosphericTideCoefficients& coefficients, const double ut1 )
+Eigen::Vector3d synthesizeAtmosphericTideLoading( const Eigen::Matrix< double, 3, 4 >& coefficients, const double ut1 )
 {
     const double angle = phase( coefficients, ut1 );
     return coefficients.col( 0 ) * std::cos( angle ) + coefficients.col( 1 ) * std::sin( angle ) +
             coefficients.col( 2 ) * std::cos( 2 * angle ) + coefficients.col( 3 ) * std::sin( 2 * angle );
 }
-Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const input_output::AtmosphericTideCoefficients& coefficients, const double ut1 )
+Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const Eigen::Matrix< double, 3, 4 >& coefficients, const double ut1 )
 {
     const double angle = phase( coefficients, ut1 );
     return ( 2 * mathematical_constants::PI / 86400.0 ) *
@@ -48,10 +48,10 @@ Eigen::Vector3d differentiateAtmosphericTideLoadingWrtUt1( const input_output::A
 
 namespace
 {
-input_output::AtmosphericTideCoefficients rp03GeocentreCoefficients( )
+Eigen::Matrix< double, 3, 4 > rp03GeocentreCoefficients( )
 {
     // IERS2010 Chapter7 Eq.20/Table7.6: Cartesian X/Y/Z coefficients in metres.
-    input_output::AtmosphericTideCoefficients coefficients;
+    Eigen::Matrix< double, 3, 4 > coefficients;
     coefficients << 2.1188e-4, -7.6861e-4, 1.4472e-4, -1.7844e-4, -7.2766e-4, -2.3582e-4, -3.2691e-4, -1.5878e-4, -1.2176e-5, 3.2243e-5,
             -9.6271e-5, 1.6976e-5;
     return coefficients;
@@ -67,16 +67,10 @@ Eigen::Vector3d differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( 
     return differentiateAtmosphericTideLoadingWrtUt1( rp03GeocentreCoefficients( ), ut1SecondsSinceJ2000 );
 }
 
-AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid,
-                                                                  const AtmosphericTideEndpointPolicy endpointPolicy ):
-    providerGrid_( grid ), modelCoefficients_( grid.coefficientsMetres ), policy_( endpointPolicy )
+AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid ):
+    providerGrid_( grid ), modelCoefficients_( grid.coefficientsMetres )
 {
     input_output::validateAtmosphericTideGrid( grid );
-    if( policy_ != AtmosphericTideEndpointPolicy::requireConsistency &&
-        policy_ != AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
-    {
-        throw std::runtime_error( "Unknown atmospheric tide endpoint policy" );
-    }
     const auto& lon = grid.longitudesDegrees;
     const auto& lat = grid.latitudesDegrees;
     const std::size_t nlon = lon.size( ), nlat = lat.size( );
@@ -91,12 +85,9 @@ AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_ou
             auto& first = modelCoefficients_[ j ];
             auto& last = modelCoefficients_[ ( nlon - 1 ) * nlat + j ];
             seamDiscrepancy_ = std::max( seamDiscrepancy_, ( first - last ).cwiseAbs( ).maxCoeff( ) );
-            if( policy_ == AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
-            {
-                const input_output::AtmosphericTideCoefficients mean = ( first + last ) / 2;
-                first = mean;
-                last = mean;
-            }
+            const Eigen::Matrix< double, 3, 4 > mean = ( first + last ) / 2;
+            first = mean;
+            last = mean;
         }
     }
     for( std::size_t j = 0; j < nlat; ++j )
@@ -105,11 +96,11 @@ AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_ou
         {
             continue;
         }
-        input_output::AtmosphericTideCoefficients mean = input_output::AtmosphericTideCoefficients::Zero( );
-        input_output::AtmosphericTideCoefficients minimum, maximum;
+        Eigen::Matrix< double, 3, 4 > mean = Eigen::Matrix< double, 3, 4 >::Zero( );
+        Eigen::Matrix< double, 3, 4 > minimum, maximum;
         for( std::size_t i = 0; i < uniqueLongitudes; ++i )
         {
-            const input_output::AtmosphericTideCoefficients cartesian =
+            const Eigen::Matrix< double, 3, 4 > cartesian =
                     radialNorthEastBasis( lat[ j ], lon[ i ] ) * grid.coefficientsMetres[ i * nlat + j ];
             if( i == 0 )
             {
@@ -124,25 +115,20 @@ AtmosphericTideGridInterpolator::AtmosphericTideGridInterpolator( const input_ou
             mean += radialNorthEastBasis( lat[ j ], lon[ i ] ) * modelCoefficients_[ i * nlat + j ];
         }
         polarDiscrepancy_ = std::max( polarDiscrepancy_, ( maximum - minimum ).cwiseAbs( ).maxCoeff( ) );
-        if( policy_ == AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
+        mean /= uniqueLongitudes;
+        for( std::size_t i = 0; i < nlon; ++i )
         {
-            mean /= uniqueLongitudes;
-            for( std::size_t i = 0; i < nlon; ++i )
-            {
-                modelCoefficients_[ i * nlat + j ] = radialNorthEastBasis( lat[ j ], lon[ i ] ).transpose( ) * mean;
-            }
+            modelCoefficients_[ i * nlat + j ] = radialNorthEastBasis( lat[ j ], lon[ i ] ).transpose( ) * mean;
         }
     }
-    // Only floating-point rotation noise is accepted by the strict policy, not inconsistent rounded provider values.
-    if( policy_ == AtmosphericTideEndpointPolicy::requireConsistency && ( seamDiscrepancy_ > 1e-15 || polarDiscrepancy_ > 1e-15 ) )
+    if( seamDiscrepancy_ > maximumEndpointDiscrepancyMetres || polarDiscrepancy_ > maximumEndpointDiscrepancyMetres )
     {
-        throw std::runtime_error(
-                "Atmospheric grid seam/polar coefficients are inconsistent; select the explicit averaging approximation to use this grid" );
+        throw std::runtime_error( "Atmospheric grid seam/polar coefficients differ by more than provider rounding" );
     }
 }
 
-input_output::AtmosphericTideCoefficients AtmosphericTideGridInterpolator::interpolate( const double latitude,
-                                                                                        const double longitude ) const
+//! Interpolate provider metre coefficients, distinguishing invalid coordinates from absent grid coverage.
+Eigen::Matrix< double, 3, 4 > AtmosphericTideGridInterpolator::interpolate( const double latitude, const double longitude ) const
 {
     if( !std::isfinite( latitude ) || !std::isfinite( longitude ) || std::abs( latitude ) > 90 )
     {
@@ -154,7 +140,7 @@ input_output::AtmosphericTideCoefficients AtmosphericTideGridInterpolator::inter
     double y = ( latitude - lat.front( ) ) / latStep;
     if( y < -1e-10 || y > lat.size( ) - 1 + 1e-10 )
     {
-        throw std::runtime_error( "Latitude outside atmospheric grid coverage" );
+        throw std::out_of_range( "Latitude outside atmospheric grid coverage" );
     }
     y = std::clamp( y, 0.0, static_cast< double >( lat.size( ) - 1 ) );
     double degrees = std::fmod( ( longitude - lon.front( ) ) * ( lonStep > 0 ? 1 : -1 ), 360.0 );
@@ -170,7 +156,7 @@ input_output::AtmosphericTideCoefficients AtmosphericTideGridInterpolator::inter
     const std::size_t uniqueLongitudes = lon.size( ) - ( duplicatedSeam_ ? 1 : 0 );
     if( !periodic_ && x > lon.size( ) - 1 + 1e-10 )
     {
-        throw std::runtime_error( "Longitude outside atmospheric grid coverage" );
+        throw std::out_of_range( "Longitude outside atmospheric grid coverage" );
     }
     if( !periodic_ )
     {
@@ -181,8 +167,7 @@ input_output::AtmosphericTideCoefficients AtmosphericTideGridInterpolator::inter
         // At a pole the averaged/consistent Cartesian coefficient is unique. Interpolating local N/E components
         // between different longitude bases would reintroduce artificial longitude dependence.
         const std::size_t row = std::abs( latitude - lat.front( ) ) < 1e-10 ? 0 : lat.size( ) - 1;
-        const input_output::AtmosphericTideCoefficients cartesian =
-                radialNorthEastBasis( lat[ row ], lon.front( ) ) * modelCoefficients_[ row ];
+        const Eigen::Matrix< double, 3, 4 > cartesian = radialNorthEastBasis( lat[ row ], lon.front( ) ) * modelCoefficients_[ row ];
         return radialNorthEastBasis( latitude, longitude ).transpose( ) * cartesian;
     }
     const std::size_t i = periodic_ ? std::min( static_cast< std::size_t >( std::floor( x ) ), uniqueLongitudes - 1 )

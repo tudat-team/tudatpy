@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
+#include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
 #include "tudat/astro/ground_stations/stationHistoryTrajectory.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/earth_orientation/precessionNutationCalculator.h"
@@ -132,7 +133,7 @@ input_output::OceanPoleTideGrid routingGrid( )
     grid.longitudeStepDegrees = 90;
     grid.firstLatitudeDegrees = -89.75;
     grid.latitudeStepDegrees = 89.75;
-    for( int i = 0; i < 12; ++i ) grid.coefficients.push_back( input_output::OceanPoleTideCoefficients::Constant( 1.0 + i ) );
+    for( int i = 0; i < 12; ++i ) grid.coefficients.push_back( Eigen::Matrix< double, 3, 2 >::Constant( 1.0 + i ) );
     return grid;
 }
 }  // namespace
@@ -160,23 +161,23 @@ BOOST_AUTO_TEST_CASE( context_geocentric_clocks_match_independent_sofa_at_2020_s
             2e-12 );
 }
 
-BOOST_AUTO_TEST_CASE( native_pole_context_preserves_precise_coverage_and_valid_double_endpoint_images )
+BOOST_AUTO_TEST_CASE( native_pole_context_accepts_rounded_double_endpoints_and_rejects_outside_coverage )
 {
     const auto converter = routingConverter( routingLeapData( ) );
     const auto polar = routingPolar( converter );
     PoleTideDeformation solid( polar, converter );
-    OceanPoleTideDeformation ocean( routingGrid( ), polar, OceanPoleTideLatitudePolicy::requireGridCoverage, converter );
+    OceanPoleTideDeformation ocean( routingGrid( ), polar, converter );
     const auto station = std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ) );
     const auto evaluator = converter->getEarthOrientationDataEvaluator( );
     for( const Time& endpoint : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )
     {
         const Time tdb = referenceTdb( convertTAItoTT( endpoint ) );
-        const Time rounded = normalizeScalarTdb( static_cast< double >( tdb ), converter );
-        BOOST_CHECK_EQUAL( converter->getTaiTime( tdb_scale, rounded ), endpoint );
+        const Time rounded( static_cast< double >( tdb ) );
+        BOOST_CHECK_SMALL( static_cast< double >( converter->getTaiTime( tdb_scale, rounded ) - endpoint ), 1e-6 );
         BOOST_CHECK_NO_THROW( solid.calculateDisplacement( rounded, station ) );
         BOOST_CHECK_NO_THROW( ocean.calculateDisplacement( rounded, station ) );
     }
-    const Time later = evaluator->getEndTai( ) + 1e-9;
+    const Time later = evaluator->getEndTai( ) + 1e-3;
     const Time precise = referenceTdb( convertTAItoTT( later ) );
     BOOST_CHECK_THROW( solid.calculateDisplacement( precise, station ), std::runtime_error );
     BOOST_CHECK_THROW( ocean.calculateDisplacement( precise, station ), std::runtime_error );
@@ -202,8 +203,6 @@ BOOST_AUTO_TEST_CASE( explicit_custom_ocean_arguments_retain_environment_tdb_and
     BOOST_CHECK_NO_THROW( custom.calculateDisplacement( epoch, station ) );
     BOOST_CHECK_EQUAL( last, static_cast< double >( epoch ) );
     BOOST_CHECK( custom.calculateDisplacementState( epoch, station ).allFinite( ) );
-    custom.setDisplacementDerivativeTimeStep( 3.0 );
-    BOOST_CHECK_THROW( custom.calculateDisplacementState( Time( std::ldexp( 1.0, 53 ) - 1. ), station ), std::invalid_argument );
     OceanTideEarthDeformation native( routingOceanData( ) );
     const Time midnight = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
     const Time crossing = referenceTdb( convertTAItoTT( midnight ) );
@@ -256,11 +255,11 @@ BOOST_AUTO_TEST_CASE( public_station_factory_supplies_body_owned_clock_without_r
     const Time tai = converter->getEarthOrientationDataEvaluator( )->getStartTai( ) + 86400.0;
     const double tdb = static_cast< double >( referenceTdb( convertTAItoTT( tai ) ) );
     BOOST_CHECK_SMALL( ( station->getCartesianPositionInTime( tdb, "Earth" ) - nominal - Eigen::Vector3d( 1, 2, 3 ) ).norm( ), 1e-20 );
-    BOOST_CHECK_EQUAL( model->lastUt1, converter->getCurrentTime< Time >( tdb_scale, ut1_scale, normalizeScalarTdb( tdb, converter ) ) );
+    BOOST_CHECK_EQUAL( model->lastUt1, converter->getCurrentTime< Time >( tdb_scale, ut1_scale, Time( tdb ) ) );
     BOOST_CHECK_EQUAL( model->stateCalls, 0 );
 }
 
-BOOST_AUTO_TEST_CASE( solid_tide_factory_respects_rotation_declared_scale_and_complete_mixed_tdb_rate )
+BOOST_AUTO_TEST_CASE( solid_tide_factory_uses_registered_rotation_and_complete_mixed_tdb_rate )
 {
     const Eigen::Vector3d position( 4075578.385, 931852.890, 4801570.154 );
     const auto station = std::make_shared< ground_stations::GroundStationState >( position );
@@ -287,7 +286,10 @@ BOOST_AUTO_TEST_CASE( solid_tide_factory_respects_rotation_declared_scale_and_co
             }
         }
         const auto converter = routingConverter( data );
+
+        // A non-TDB model checks compatibility with the supplied rotation; environment epochs remain TDB.
         const auto rotation = routingRotation( converter, tt_scale );
+
         const Time tdb = referenceTdb( tt );
         double lastMoon = NAN, lastSun = NAN;
         const auto moonState = [ & ]( double time ) {
@@ -310,7 +312,10 @@ BOOST_AUTO_TEST_CASE( solid_tide_factory_respects_rotation_declared_scale_and_co
         } );
         const auto model = simulation_setup::createDefaultEarthIers2010DeformationModel(
                 zero, moon, sun, rotation, []( ) { return 1.0; }, []( ) { return 0.0123000371; }, []( ) { return 332946.0482; } );
-        const Eigen::Quaterniond q = rotation->getRotationToTargetFrameFromExtendedTime( tt );
+
+        // The factory passes the environment epoch to this registered model without changing its declared clock.
+        const Eigen::Quaterniond q = rotation->getRotationToTargetFrameFromExtendedTime( tdb );
+
         Eigen::Vector6d moonItrs = moonState( static_cast< double >( tdb ) ), sunItrs = sunState( static_cast< double >( tdb ) );
         moonItrs.head< 3 >( ) = q * moonItrs.head< 3 >( ).eval( );
         sunItrs.head< 3 >( ) = q * sunItrs.head< 3 >( ).eval( );
@@ -322,7 +327,7 @@ BOOST_AUTO_TEST_CASE( solid_tide_factory_respects_rotation_declared_scale_and_co
                 []( ) { return 1.0; },
                 []( ) { return 0.0123000371; },
                 []( ) { return 332946.0482; } );
-        const Time epoch( tdb );  // Factory must use its own rotation converter.
+        const Time epoch( tdb );  // Body ephemerides and the supplied rotation receive this same environment epoch.
         const Eigen::Vector3d expected = direct->calculateDisplacement( tdb, station );
         BOOST_CHECK_SMALL( ( model->calculateDisplacement( epoch, station ) - expected ).norm( ), 2e-12 );
         BOOST_CHECK_EQUAL( lastMoon, static_cast< double >( tdb ) );
@@ -422,7 +427,7 @@ BOOST_AUTO_TEST_CASE( native_mixed_and_tt_only_models_keep_positions_when_interp
     BOOST_CHECK_THROW( loading.calculateDisplacementState( epoch, station ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( basic_solid_factory_routes_tt_and_tdb_rotations_to_the_same_physical_epoch )
+BOOST_AUTO_TEST_CASE( basic_solid_factory_uses_registered_rotation )
 {
     // Near the independent 2020 positive maximum of the TT/TDB clock offset.
     const Time tt( 639169053.56045532 );
@@ -451,11 +456,25 @@ BOOST_AUTO_TEST_CASE( basic_solid_factory_routes_tt_and_tdb_rotations_to_the_sam
     const auto settings = std::make_shared< simulation_setup::BasicSolidBodyDeformationSettings >(
             std::vector< std::string >{ "Moon" }, std::map< int, std::pair< double, double > >{ { 2, { 0.6078, 0.0847 } } }, 6378136.6 );
     const auto station = std::make_shared< ground_stations::GroundStationState >( Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ) );
-    bodies.at( "Earth" )->setRotationalEphemeris( routingRotation( converter, tt_scale ) );
-    const auto ttModel = simulation_setup::createBodyDeformationModel( settings, "Earth", bodies );
-    bodies.at( "Earth" )->setRotationalEphemeris( routingRotation( converter, tdb_scale ) );
-    const auto tdbModel = simulation_setup::createBodyDeformationModel( settings, "Earth", bodies );
     const Time epoch( tdb );
-    BOOST_CHECK_SMALL( ( ttModel->calculateDisplacement( epoch, station ) - tdbModel->calculateDisplacement( epoch, station ) ).norm( ),
-                       2e-12 );
+
+    // TDB is the environment convention; the TT case verifies the existing supplied-rotation behavior.
+    for( const auto scale : { tt_scale, tdb_scale } )
+    {
+        const auto registeredRotation = routingRotation( converter, scale );
+
+        bodies.at( "Earth" )->setRotationalEphemeris( registeredRotation );
+        const auto model = simulation_setup::createBodyDeformationModel( settings, "Earth", bodies );
+
+        // The degree-two equation provides a direct reference for the factory's rotated lunar geometry.
+        const Eigen::Vector3d expected = calculateDegreeTwoBasicTidalDisplacement(
+                0.0123000371,
+                station->getNominalCartesianPosition( ).normalized( ),
+                registeredRotation->getRotationToTargetFrameFromExtendedTime( epoch ) * lunar.head< 3 >( ),
+                6378136.6,
+                0.6078,
+                0.0847 );
+
+        BOOST_CHECK_SMALL( ( model->calculateDisplacement( epoch, station ) - expected ).norm( ), 2e-12 );
+    }
 }

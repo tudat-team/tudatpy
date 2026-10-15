@@ -161,43 +161,125 @@ void expose_rotation_model_setup( py::module& m )
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
             m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
 
-    py::enum_< tudat::earth_orientation::EarthOrientationInterpolation >( m, "EarthOrientationInterpolation" )
-            .value( "linear", tudat::earth_orientation::EarthOrientationInterpolation::linear )
-            .value( "lagrange_four_point", tudat::earth_orientation::EarthOrientationInterpolation::lagrange_four_point );
-    py::enum_< tudat::earth_orientation::MissingCelestialPolePolicy >( m, "MissingCelestialPolePolicy" )
-            .value( "reject", tudat::earth_orientation::MissingCelestialPolePolicy::reject )
-            .value( "zero", tudat::earth_orientation::MissingCelestialPolePolicy::zero );
-    py::enum_< tudat::earth_orientation::HistoricalUt1Policy >( m, "HistoricalUt1Policy" )
-            .value( "reject", tudat::earth_orientation::HistoricalUt1Policy::reject )
-            .value( "delta_t", tudat::earth_orientation::HistoricalUt1Policy::delta_t );
-    py::class_< tudat::earth_orientation::EarthOrientationEvaluationSettings >(
-            m,
-            "EarthOrientationEvaluationSettings",
-            "Strict raw EOP coverage, a maximum interpolation gap, and explicit missing-CPO/historical-UT1 policies." )
-            .def( py::init<>( ) )
-            .def_readwrite( "maximum_gap_seconds", &tudat::earth_orientation::EarthOrientationEvaluationSettings::maximumGapSeconds )
-            .def_readwrite( "missing_celestial_pole", &tudat::earth_orientation::EarthOrientationEvaluationSettings::missingCelestialPole )
-            .def_readwrite( "historical_ut1", &tudat::earth_orientation::EarthOrientationEvaluationSettings::historicalUt1 )
-            .def_readwrite( "interpolation", &tudat::earth_orientation::EarthOrientationEvaluationSettings::interpolation );
+    py::enum_< tudat::earth_orientation::EarthOrientationInterpolation >( m, "EarthOrientationInterpolation", R"doc(
 
-    py::enum_< tudat::earth_orientation::OceanTideEopModel >(
-            m, "OceanTideEopModel", "Ocean-tide EOP model; independent IERS libration remains included." )
-            .value( "iers_2010", tudat::earth_orientation::OceanTideEopModel::iers_2010 )
-            .value( "desai_sibois_2016", tudat::earth_orientation::OceanTideEopModel::desai_sibois_2016 );
+Enumeration of interpolation methods for daily Earth orientation parameters.
+
+      )doc" )
+            .value( "linear", tudat::earth_orientation::EarthOrientationInterpolation::linear, "Linear interpolation (default)." )
+            .value( "lagrange_four_point",
+                    tudat::earth_orientation::EarthOrientationInterpolation::lagrange_four_point,
+                    "Four-point Lagrange interpolation, as in the IERS interpolation routine of the Paris Observatory. Near the "
+                    "edges of the data, the first or last four points are used." );
+    py::enum_< tudat::earth_orientation::MissingCelestialPolePolicy >( m, "MissingCelestialPolePolicy", R"doc(
+
+Enumeration of options for epochs at which the Earth orientation data gives no celestial pole offsets.
+
+      )doc" )
+            .value( "reject", tudat::earth_orientation::MissingCelestialPolePolicy::reject, "Raise an exception (default)." )
+            .value( "zero", tudat::earth_orientation::MissingCelestialPolePolicy::zero, "Use zero celestial pole offsets." );
+    py::enum_< tudat::earth_orientation::HistoricalUt1Policy >( m, "HistoricalUt1Policy", R"doc(
+
+Enumeration of options for UT1 at epochs before the start of the Earth orientation data.
+
+      )doc" )
+            .value( "reject", tudat::earth_orientation::HistoricalUt1Policy::reject, "Raise an exception (default)." )
+            .value( "delta_t",
+                    tudat::earth_orientation::HistoricalUt1Policy::delta_t,
+                    "Compute UT1 from historical values of Delta T. Polar motion and celestial pole offsets are not extrapolated." );
+    py::class_< tudat::earth_orientation::EarthOrientationEvaluationSettings >( m, "EarthOrientationEvaluationSettings", R"doc(
+
+Settings for the interpolation of daily Earth orientation parameters (see
+:func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs`).
+
+By default, the parameters are interpolated linearly in TAI (using UT1-TAI, which is continuous at leap seconds), and
+epochs outside the data, epochs in an interval between samples that is longer than 36 hours, and epochs without
+celestial pole offsets raise an exception.
+
+      )doc" )
+            .def( py::init<>( ) )
+            .def_readwrite( "maximum_gap_seconds", &tudat::earth_orientation::EarthOrientationEvaluationSettings::maximumGapSeconds, R"doc(
+
+         Maximum interval between two samples over which the data is interpolated, in seconds (default 36 hours).
+
+         :type: float
+      )doc" )
+            .def_readwrite(
+                    "missing_celestial_pole", &tudat::earth_orientation::EarthOrientationEvaluationSettings::missingCelestialPole, R"doc(
+
+         Option for epochs without celestial pole offsets.
+
+         :type: MissingCelestialPolePolicy
+      )doc" )
+            .def_readwrite( "historical_ut1", &tudat::earth_orientation::EarthOrientationEvaluationSettings::historicalUt1, R"doc(
+
+         Option for UT1 before the start of the data.
+
+         :type: HistoricalUt1Policy
+      )doc" )
+            .def_readwrite( "interpolation", &tudat::earth_orientation::EarthOrientationEvaluationSettings::interpolation, R"doc(
+
+         Interpolation method.
+
+         :type: EarthOrientationInterpolation
+      )doc" );
+
+    py::enum_< tudat::earth_orientation::OceanTideEopModel >( m, "OceanTideEopModel", R"doc(
+
+Enumeration of models for the diurnal and semi-diurnal variations of polar motion and UT1 due to ocean tides. The
+libration terms of the IERS Conventions 2010 are included with either model.
+
+      )doc" )
+            .value( "iers_2010",
+                    tudat::earth_orientation::OceanTideEopModel::iers_2010,
+                    "Model of Tables 8.2 and 8.3 of the IERS Conventions 2010 (default)." )
+            .value( "desai_sibois_2016",
+                    tudat::earth_orientation::OceanTideEopModel::desai_sibois_2016,
+                    "Model of `Desai and Sibois (2016) <https://doi.org/10.1002/2016JB013125>`_ (159 terms), read from the "
+                    "``earth_orientation`` directory of the Tudat resources." );
 
     py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
-            m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
+            m, "GcrsToItrsRotationModelSettings", R"doc(
+
+         Class for defining settings of the high-accuracy Earth rotation model.
+
+         `RotationModelSettings` derived class for the high-accuracy Earth rotation model. Instances of this class are
+         created by the :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs` function.
+
+      )doc" )
             .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile )
             .def_property( "ocean_tide_eop_model",
                            &tss::GcrsToItrsRotationModelSettings::getOceanTideEopModel,
-                           &tss::GcrsToItrsRotationModelSettings::setOceanTideEopModel )
+                           &tss::GcrsToItrsRotationModelSettings::setOceanTideEopModel,
+                           R"doc(
+
+         Model for the diurnal and semi-diurnal variations of polar motion and UT1 due to ocean tides.
+
+         :type: OceanTideEopModel
+      )doc" )
             .def( "set_eop_data",
                   &tss::GcrsToItrsRotationModelSettings::setEopData,
-                  "Use validated data loaded with data_input.environment_data.earth_orientation; copy its records and provenance." )
+                  py::arg( "eop_data" ),
+                  R"doc(
+
+         Function to set the Earth orientation data used by the model, instead of the default file.
+
+         Parameters
+         ----------
+         eop_data : ~tudatpy.data_input.environment_data.earth_orientation.EarthOrientationData
+             Earth orientation data (see :func:`~tudatpy.data_input.environment_data.earth_orientation.read_earth_orientation_data`).
+
+      )doc" )
             .def_property( "eop_evaluation_settings",
                            &tss::GcrsToItrsRotationModelSettings::getEopEvaluationSettings,
                            &tss::GcrsToItrsRotationModelSettings::setEopEvaluationSettings,
-                           py::return_value_policy::copy );
+                           py::return_value_policy::copy,
+                           R"doc(
+
+         Settings for the interpolation of the Earth orientation data.
+
+         :type: EarthOrientationEvaluationSettings
+      )doc" );
 
     m.def( "simple",
            py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d&, const double, const double >(
@@ -451,40 +533,6 @@ void expose_rotation_model_setup( py::module& m )
 
  Function for creating high-accuracy Earth rotation model settings.
 
- ``ocean_tide_eop_model=OceanTideEopModel.iers_2010`` is the unchanged default.
- Explicitly select ``OceanTideEopModel.desai_sibois_2016`` to replace the conventional
- diurnal/semidiurnal ocean terms by the 159-term Desai--Sibois (2016) model
- (DOI 10.1002/2016JB013125). Quasi-diurnal polar-motion and semidiurnal UT1
- libration remain included exactly once. Daily EOP and celestial-pole offsets
- retain their selected input/interpolation policies. Custom short-period files
- cannot be combined automatically with this replacement and raise an error.
- Published LOD coefficients are retained as input metadata; clock derivatives
- differentiate the selected UT1 series without adding LOD a second time.
-
- Preloaded ``eop_data`` comes from :mod:`tudatpy.data_input.environment_data.earth_orientation`.
- Daily parameters are interpolated on continuous TAI using UT1-TAI. Raw coverage
- includes available prediction records and retains their flags. Evaluation raises
- outside the first/last raw epoch, across gaps longer than 36 hours by default,
- or when CPO is missing. Explicit ``eop_evaluation_settings`` can select a zero-CPO
- approximation or historical Delta T for UT1 before the EOP era. These choices
- do not enable extrapolation of measured pole parameters.
-
- Linear interpolation is the default. ``interpolation=lagrange_four_point``
- explicitly selects a centered four-sample window, clamped to the first/last four
- records at coverage edges. Its complete stencil must satisfy the gap and CPO
- policies; no order reduction is applied. Exact raw samples retain their values
- even beside an unusable stencil, with absent rates. The interval to the right
- sets the derivative window at knots (left at the last record). Nonmonotonic
- cubic UT1 interpolation is rejected before constructing an inverse map.
-
- TT/TAI inputs remain valid during an inserted leap second. A scalar UTC request
- for 23:59:60 raises because the scalar UTC interface cannot identify that instant
- uniquely; use continuous atomic time for rotations and UT1.
-
- ``short_term_eop_interpolation_settings`` must be None: short-period corrections
- use continuous UT1/TT arguments directly. CIO and geocentric TDB interpolation
- settings remain supported.
-
  Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010.  The model
  computes the rotation from ITRS to GCRS (with rotation matrix :math:`\mathbf{R}^{(\text{GCRS}/\text{ITRS})}`) and its inverse from:
 
@@ -513,21 +561,38 @@ void expose_rotation_model_setup( py::module& m )
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
  * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory (for epoch 01-01-1962 and later, zero otherwise)
 
- The supported base frames are ``GCRS``, ``J2000``, ``ICRF``, ``ECLIPJ2000`` and ``EME2000``. The target frame is ``ITRS``.
- ``J2000`` follows the SPICE convention for modern ephemerides, whose axes are already aligned with ICRF. ``GCRS``, ``J2000`` and ``ICRF`` therefore use the same axis orientation in this rotation model.
- ``ECLIPJ2000`` applies only the fixed SPICE rotation from J2000 to its ecliptic axes. ``EME2000`` applies the SOFA frame bias to the dynamical mean equator and equinox at J2000.
+ The ocean tide corrections of polar motion and UT1 can instead be taken from the model of Desai and Sibois (2016), using
+ the ``ocean_tide_eop_model`` argument. The daily Earth orientation data can be supplied by the user (``eop_data``,
+ read with :func:`~tudatpy.data_input.environment_data.earth_orientation.read_earth_orientation_data`), and its
+ interpolation can be modified (``eop_evaluation_settings``). By default, the daily data is interpolated linearly in TAI,
+ and epochs outside the data, epochs in an interval between samples longer than 36 hours, and epochs without celestial
+ pole offsets raise an exception.
 
- This changes the earlier ``J2000`` and ``ECLIPJ2000`` behavior, which applied an additional SOFA frame bias. Use ``EME2000`` when the earlier dynamical mean-J2000 convention is required.
+ The supported base frames are ``GCRS``, ``ICRF``, ``J2000``, ``EME2000`` and ``ECLIPJ2000``. The target frame is ``ITRS``.
+ ``GCRS`` and ``ICRF`` use the GCRS axes. ``J2000`` (and its synonym ``EME2000``) applies the SOFA frame bias between the GCRS and
+ the dynamical mean equator and equinox of J2000. ``ECLIPJ2000`` applies the frame bias followed by the SPICE rotation from J2000 to its ecliptic axes.
  Equal axis orientation does not imply equal origins, time scales or relativistic coordinate scaling; those transformations are outside this rotation model.
-
- Alternative options to modify the input (not exposed here) include the EOP correction file, input time scale, short period UT1 and polar motion variations.
 
  Parameters
  ----------
  precession_nutation_theory : IAUConventions, default=tba::iau_2006
      Setting theory for modelling Earth nutation.
  base_frame : str, default='GCRS'
-     Base axes: ``GCRS``, SPICE ``J2000``, ``ICRF``, SPICE ``ECLIPJ2000``, or dynamical ``EME2000``.
+     Base axes: ``GCRS``, ``ICRF``, ``J2000``, ``EME2000`` or ``ECLIPJ2000``.
+ cio_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings for the interpolation of :math:`X,Y,s`, which are then computed on a grid and interpolated instead of
+     being computed at each epoch. If ``None``, no interpolation is used.
+ tdb_to_tt_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings for the interpolation of the TDB-TT difference. If ``None``, no interpolation is used.
+ short_term_eop_interpolation_settings : InterpolatorGenerationSettings, default = None
+     No longer used: the short-period corrections are evaluated at each epoch. Accepted for compatibility.
+ eop_data : ~tudatpy.data_input.environment_data.earth_orientation.EarthOrientationData, default = None
+     Daily Earth orientation data. If ``None``, the default file from the Tudat resources is used.
+ eop_evaluation_settings : EarthOrientationEvaluationSettings, default = EarthOrientationEvaluationSettings()
+     Settings for the interpolation of the daily Earth orientation data.
+ ocean_tide_eop_model : OceanTideEopModel, default = OceanTideEopModel.iers_2010
+     Model for the diurnal and semi-diurnal variations of polar motion and UT1 due to ocean tides. The Desai and Sibois
+     (2016) model cannot be combined with custom short-period correction files.
  Returns
  -------
  GcrsToItrsRotationModelSettings

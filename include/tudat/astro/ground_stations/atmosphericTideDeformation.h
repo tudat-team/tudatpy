@@ -10,12 +10,15 @@ namespace tudat
 {
 namespace basic_astrodynamics
 {
-enum class AtmosphericLoadingOriginPolicy { preserveSourceOrigin, convertIdentifiedRp03CeToCm };
+//! Unspecified conventions are taken from the source metadata. For a grid identified as Ray-Ponte 2003 with Farrell
+//! Green functions (RP03), unspecified conventions default to geocentric lookup latitude and geocentric radial/north/east
+//! components. The provider does not document this choice; geodetic and geocentric latitude differ by at most 0.19 degrees
+//! on the 1-degree grid, which changes the displacement by micrometres.
+//! convertToCentreOfMass adds the IERS 2010 Table 7.6 CE-to-CM translation; it requires the identified RP03 product.
 struct AtmosphericTideEvaluationSettings {
     input_output::AtmosphericTideLatitudeConvention lookupLatitudeConvention = input_output::AtmosphericTideLatitudeConvention::unspecified;
     input_output::AtmosphericTideDisplacementBasis displacementBasis = input_output::AtmosphericTideDisplacementBasis::unspecified;
-    AtmosphericTideEndpointPolicy endpointPolicy = AtmosphericTideEndpointPolicy::requireConsistency;
-    AtmosphericLoadingOriginPolicy originPolicy = AtmosphericLoadingOriginPolicy::preserveSourceOrigin;
+    bool convertToCentreOfMass = false;
 };
 
 //! Native conventional atmospheric loading with explicit geometry and source-origin conventions.
@@ -52,14 +55,19 @@ public:
     input_output::AtmosphericLoadingReferenceOrigin getOutputReferenceOrigin( const std::string& identifier = "" ) const;
 
 protected:
+    //! Return Cartesian atmospheric displacement in metres without requesting a clock rate.
     Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
+
+    //! Return displacement and its analytic derivative in metres per TDB second.
     Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
 private:
-    Eigen::Vector3d evaluateCartesianLoading( const Time& tdb,
+    //! Select coefficients/geometry once and optionally evaluate the rate with the same UT1 phase and basis.
+    Eigen::Vector6d evaluateCartesianLoading( const Time& tdb,
                                               const std::shared_ptr< ground_stations::GroundStationState >& station,
-                                              bool derivativeWrtTdb );
+                                              bool withRate );
+
     void validateCommonSettings( ) const;
     void validateShapeForBasis( input_output::AtmosphericTideDisplacementBasis basis, bool geodeticLookup = false ) const;
     void validateOriginConversion( const input_output::AtmosphericTideMetadata& metadata ) const;

@@ -78,9 +78,10 @@ Unchecked items remain open even when a prerequisite or an initial subset has
 been committed.  Larger items may have several focused commits.  The
 validation ledger below records completed changes and remaining limitations.
 
-Status: all 25 retained tasks and the required full-PR review are complete.
-Reviewed 14 October 2026. This list is updated as relevant work is implemented,
-validated and integrated.
+Status: all 25 retained implementation tasks and the initial full-PR review are
+complete. Dominic requested a further personal static review of complexity and
+exposure on 14 October 2026; its findings and outstanding cleanup are recorded
+below. Completion of the physical models does not close those review findings.
 
 .. code-block:: text
 
@@ -124,11 +125,148 @@ independent effects outside its scope remain explicitly selected.
 Active work
 -----------
 
-All 25 retained tasks and the additional full-PR review are complete.
+All 25 retained tasks and the initial full-PR review are complete. Dominic's
+comments on `draft PR 1092 <https://github.com/tudat-team/tudatpy/pull/1092>`_
+are now being addressed.
 Implementation workers use **GPT-6.1 Sol, high reasoning** in isolated worktrees.
 The coordinator owns design, literature analysis, review and integration.
-Current compiler allocations: gravity solid/pole four, gravity ocean two,
-gravity input/setup two; total maximum eight. Numerical runtimes use one thread.
+The three workers' unfinished documentation/formatting edits are preserved in
+their original worktrees. Following the coordinator's personal review, the
+workers completed structural cleanup in three fresh worktrees:
+``tudatpy-pr1092-simplify-rotation``, ``tudatpy-pr1092-simplify-history`` and
+``tudatpy-pr1092-simplify-loading``. They cover EOP/rotation, frame/history APIs,
+and loading construction/evaluation respectively. The coordinator designs the
+shared changes and reviews integration. Gravity work remains paused at its
+checkpoints. After the static cleanup, Dominic explicitly required compilation
+and relevant tests before handover. One worker owned compilation, with at most
+eight compiler jobs in total; the other workers ran native and Python validation.
+All 33 selected native executables (224 Boost cases) and seven Python cases pass.
+The workers are now idle pending the external review. The handover records the
+remaining optional recommendations, unfinished style work and exact build state.
+
+.. code-block:: text
+
+   [x] Remove the EOP adapter that derives from a mathematical interpolator.  [DONE — pushed e2be54597]
+   [x] Remove the additional CMake dependency-check file and its registration.  [DONE]
+   [x] Simplify duplicate polar-motion overloads and the short-period rate helper.  [DONE]
+   [ ] Rewrite the reviewed comments and explain the remaining EOP/clock responsibilities.  [PAUSED — structural review first]
+   [x] Remove the type aliases introduced by this PR.  [DONE]
+   [ ] Add braces on separate lines around single-statement control flow introduced by the PR.  [PAUSED — edits preserved]
+   [ ] Describe functions in headers and implementations, variable groups and computation steps.  [PAUSED — edits preserved]
+   [ ] Add blank lines after variable definitions and function declarations.  [PAUSED — edits preserved]
+   [x] Validate the affected native EOP and rotation paths; review and push the fixes.  [DONE]
+   [x] Personally review complexity, reuse, numerical contracts and C++/Python exposure.  [DONE — static analysis of 5a69997a6]
+   [x] Integrate the bounded structural cleanup described below.  [IMPLEMENTED — production b8a8b8b33; further optional recommendations remain listed]
+   [x] Compile and run the relevant native and Python tests for the integrated cleanup.  [DONE — 33 native executables / 224 Boost cases and 7 Python cases pass]
+   [x] Prepare the validated cleanup checkpoint and MODIFICATIONS-DONE.md handover.  [DONE — final native correction e31affe85; handover published after this ledger is pushed]
+   [ ] Check every ten minutes for REVIEW-DONE.md and assess its recommendations.  [AWAITING EXTERNAL REVIEW]
+   [ ] Implement accepted external-review changes, validate relevant paths and push the PR branch.  [QUEUED — follows external review]
+
+The detailed personal review is saved locally at
+``/home/dominic/Tudat/earth-station-model-work/pr1092-personal-static-review.rst``.
+It identifies source locations, specific removals/consolidations, numerical
+constraints, exposure placement, code to retain, and test reductions. These
+findings are tracked below. The cleanup was first reviewed from source, then
+compiled and checked with the focused tests listed in the validation record.
+The tests exposed one library dependency omission and one invalid-geometry
+error classification; both are corrected and the affected checks pass.
+
+.. code-block:: text
+
+   [x] R01 Consolidate modern time inversion and UT1 evaluation; retain distinct custom-clock policies.  [VALIDATED — ac834198b]
+   [x] R02 Route scalar CPO and free clock conversion through existing precise endpoint handling.  [VALIDATED — 59a84fe9e]
+   [x] R03 Remove duplicate daily-EOP records and the rotation factory's legacy-reader detour.  [VALIDATED — 59a84fe9e]
+   [x] R04 Make orientation wrappers delegate to one precise calculation.  [VALIDATED — 59a84fe9e]
+   [x] R05 Remove copied histories from transformation/reference-point wrappers.  [VALIDATED — 5b2781949]
+   [x] R06 Remove the frame epoch wrapper and redundant clock-forwarding API.  [VALIDATED — 39bb213f0]
+   [x] R07 Move runtime bindings into existing frame_conversion/environment modules.  [IMPLEMENTED — 39bb213f0 and 47f99f0c7; targeted Python validation passes]
+   [ ] R08 Further simplify advanced Python construction.  [DEFERRED FOR REVIEW — normal factory workflows documented; custom records and wrapper inspection retained]
+   [x] R09 Normalize file input into data-based settings at construction.  [VALIDATED — 639d2fb6a; eager file loading documented]
+   [x] R10 Consolidate repeated value/rate loading work while retaining required input precision.  [IMPLEMENTED — f4608a039; generic thin adapters retained]
+   [ ] R11 Normalize relativistic callbacks and share guarded sampling locally.  [DEFERRED FOR REVIEW — preserve independent position availability and distinct derivative guards]
+   [x] R12 Distinguish unavailable deformation data from failed calculations.  [VALIDATED — b8a8b8b33 and local geometry correction e31affe85]
+   [ ] R13 Reduce loading-specific coupling and repeated compatibility work.  [DEFERRED FOR REVIEW — mutable model lists make cached checks require invalidation machinery]
+   [ ] R14 Reuse existing basis utilities and hide model-specific helpers.  [DEFERRED FOR REVIEW — calendar reuse rejected because the existing utility adds Eigen/Boost to a standard-library-only reader]
+   [x] R15 Simplify neutral-reader target registration.  [VALIDATED — d95fd7db8; one standard environment_data target; reference-frame dependency fixed at 4aaf566b6]
+
+The review retains independent reference fixtures, precise continuous clocks,
+selected-interpolant derivatives, HARDISP-specific spline behavior, explicit
+frame/origin identities and separate position/state availability. The earlier
+handover estimate no longer applies. The unfinished earlier comment/style
+edits remain preserved in their original worktrees. The structural commits
+listed above were integrated after the personal review. Comments and spacing
+currently increase the line count despite the removed APIs and duplicated
+logic; a net line reduction has not yet been achieved.
+
+The coherent validation build is
+``/home/dominic/Tudat/earth-station-python-build``. Its source checkout is
+``/home/dominic/Tudat/tudat-monorepo/tudatpy-earth-desai-sibois``, temporarily
+detached for validation; its original branch is preserved. The initial production
+snapshot was ``b8a8b8b33``. The native reference-frame link check exposed a missing
+public dependency on ``tudat_basic_mathematics``, corrected at ``4aaf566b6``. The
+validation then built all 33 selected targets. The ocean pole-tide zero-position
+case exposed invalid geometry being treated as absent grid coverage. The local
+guard at ``e31affe85`` rejects this before grid lookup without changing the test
+expectation or physical formulas. The final validation source is clean and
+detached at that commit. Only that failed suite was rebuilt/rerun, and it passes.
+The build retains Release, GNU 15.2, static libraries and the existing feature
+options, with native tests enabled. It includes the Python kernel because the
+exposure moves require Python validation. Thirty-three relevant native test
+executables and seven Python cases are selected; unrelated tests are excluded.
+The Python case extensions at ``90c7a79cb`` change no production code. The kernel
+build and all seven selected Python cases pass. The run verified the exact
+staged package/kernel paths and completed offline in 4.05 seconds. The native
+selection contains 33 executables and 224 Boost cases, all passing. The first
+32 passing executables were retained, and the corrected ocean pole-tide suite
+passes all seven cases. Passing checks were retained where these fixes do not
+affect their covered behavior. The kernel
+was built at ``b8a8b8b33``; its Python exposure is unchanged by the later native
+geometry guard, which does not justify another Python-kernel build.
+Detailed commands and results are recorded in
+``earth-station-model-work/logs/pr1092-cleanup-*``.
+The evidence index is ``pr1092-cleanup-build-result.txt``; native execution is
+summarized in ``pr1092-cleanup-native-plan.rst``. Original failure logs are
+preserved beside the corrected build and focused rerun logs. Numerical
+expectations and tolerances are unchanged.
+
+The EOP review preserves continuous TAI sample times, UT1-TAI interpolation,
+rates of the selected interpolating function, and the existing coverage and
+missing-data checks. The standard factories already use this data directly;
+they do not need an additional interpolator adapter. Existing constructors
+accepting user-supplied interpolators remain supported.
+
+The first follow-up removes the CMake check and clarifies the existing custom
+interpolator path, station position/state methods, derivative fallback, fitted
+seasonal terms and relativistic coordinate conventions. These are comments and
+build-check removal; they do not change numerical evaluation. The adapter removal
+is a separate change and is not included in that first checkpoint.
+
+The six added type aliases are removed at ``206ae7d45``. Their uses now spell
+out the existing underlying types; affected native sources and tests compile.
+Numerical tests and the Python kernel were not rerun for this spelling change.
+
+``e2be54597`` removes ``EarthOrientationDataInterpolator`` and its factory
+allocations. Models created from EOP records use the shared evaluator directly;
+the old interpolator getters remain available for constructors supplied with
+actual interpolators. The public clock-update method also uses the continuous
+conversion functions, avoiding a null interpolator after this removal. Focused
+checks pass: direct clocks 3 cases/110 assertions, reader/leap behavior 2/128,
+factory/coverage 5/95 and polar motion 1/7. Original numerical tolerances remain.
+
+``658bef7fa`` replaces the duplicate TT polar-motion methods with one template
+and writes the short-period rate calculation as an explicit four-sample loop.
+The paired-difference arithmetic and precise-time handling are retained. The
+existing short-period rate and precise TT-boundary checks pass 2 cases/24 assertions.
+
+The requested ``MODIFICATIONS-DONE.md`` review trigger will be written in the
+monorepo parent after the current cleanup is validated and pushed. The
+source ownership manifest is recorded locally in
+``earth-station-model-work/logs/pr1092-style-ownership.json``.
+Another local AI will write ``REVIEW-DONE.md`` beside the trigger. After writing
+the trigger, check for the review every ten minutes. Assess its suggestions
+seriously against Tudat's existing code and numerical requirements; do not copy
+them without review. Sol agents implement accepted changes and run all relevant
+tests. Fix failures before the final reviewed checkpoint is committed and pushed.
 
 The station-history/parser/frame/reference-point, atmosphere/ocean/build,
 rotation/core and cross-component reviews are complete. Their fixes are
@@ -360,13 +498,14 @@ Parallel gravity-field programme
 --------------------------------
 
 Dominic explicitly authorized gravity work in parallel on a separate branch.
-The full station review is complete. ``fix/gravity_field_variations`` and
+The initial station review is complete; the additional personal review and
+cleanup status is recorded above. ``fix/gravity_field_variations`` and
 ``tudatpy-earth-gravity-variations`` contain the integration branch/worktree;
 ``docs/earth_gravity_field_variations.rst`` is its separate checklist, also open
 in gedit. Primary-literature review and the existing-model inventory are complete.
 Compatibility design continues; the static ICGEM/tide-system foundation is
-integrated and validated. Three Sol-high workers now cover gravity solid/pole,
-ocean and input/setup work in separate worktrees. Implementations
+integrated and validated. Gravity work is currently paused, with separate
+worktrees and checkpoints preserved. Implementations
 must share compatible rotation/EOP, clocks, frame axes, static tide conventions
 and physical component inventories. Desai--Sibois ocean EOP corrections do not
 replace ocean gravity tides or either pole tide. Gravity estimation is excluded.

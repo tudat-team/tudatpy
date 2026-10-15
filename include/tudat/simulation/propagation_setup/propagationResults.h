@@ -564,6 +564,7 @@ private:
     // --- Cereal serialization support ---
     friend class cereal::access;
 
+    //! Compare stored propagation data exactly and owned settings and interfaces by value.
     bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
     {
         const auto* rhsDerived = dynamic_cast< const SingleArcSimulationResults* >( &rhs );
@@ -573,6 +574,15 @@ private:
         }
         else
         {
+            // Compare owned settings and interfaces by value after deserialization creates new objects.
+            const bool outputSettingsAreEqual = ( outputSettings_ == rhsDerived->outputSettings_ ) ||
+                    ( outputSettings_ != nullptr && rhsDerived->outputSettings_ != nullptr &&
+                      ( *outputSettings_ == *rhsDerived->outputSettings_ ) );
+
+            const bool dependentVariableInterfacesAreEqual = ( dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ ) ||
+                    ( dependentVariableInterface_ != nullptr && rhsDerived->dependentVariableInterface_ != nullptr &&
+                      ( *dependentVariableInterface_ == *rhsDerived->dependentVariableInterface_ ) );
+
             return is_variational == rhsDerived->is_variational && number_of_columns == rhsDerived->number_of_columns &&
                     equationsOfMotionNumericalSolution_ == rhsDerived->equationsOfMotionNumericalSolution_ &&
                     equationsOfMotionNumericalSolutionRaw_ == rhsDerived->equationsOfMotionNumericalSolutionRaw_ &&
@@ -580,10 +590,8 @@ private:
                     cumulativeComputationTimeHistory_ == rhsDerived->cumulativeComputationTimeHistory_ &&
                     cumulativeNumberOfFunctionEvaluations_ == rhsDerived->cumulativeNumberOfFunctionEvaluations_ &&
                     processedStateIds_ == rhsDerived->processedStateIds_ && propagatedStateIds_ == rhsDerived->propagatedStateIds_ &&
-                    integratedStateAndBodyList_ == rhsDerived->integratedStateAndBodyList_ &&
-                    outputSettings_ == rhsDerived->outputSettings_ &&
-                    dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ &&
-                    sequentialPropagation_ == rhsDerived->sequentialPropagation_ &&
+                    integratedStateAndBodyList_ == rhsDerived->integratedStateAndBodyList_ && outputSettingsAreEqual &&
+                    dependentVariableInterfacesAreEqual && sequentialPropagation_ == rhsDerived->sequentialPropagation_ &&
                     //    rawSolutionConversionFunction_ == rhsDerived->rawSolutionConversionFunction_ && Cannot evaluate std::function for
                     //    equality
                     propagationIsPerformed_ == rhsDerived->propagationIsPerformed_ &&

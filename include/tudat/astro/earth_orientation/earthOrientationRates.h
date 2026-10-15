@@ -2,45 +2,39 @@
 #define TUDAT_EARTHORIENTATIONRATES_H
 
 #include <cmath>
-#include <limits>
-#include <type_traits>
+#include <functional>
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
+#include "tudat/math/basic/numericalDerivative.h"
 
 namespace tudat
 {
 namespace earth_orientation
 {
 
-//! Differentiate small harmonic sums along the local TT/UT1 argument tangent.
-//! No EOP samples are queried outside the central selected interpolation stencil.
+//! Time derivative of short-period corrections with respect to TT seconds.
+//! The harmonic model is differentiated with a fourth-order central difference in TT. UT1 is shifted by dUT1/dTT
+//! times the TT shift, using the daily interpolation slope at the requested time, so that no daily EOP
+//! observations are queried at the nearby sample times.
 template< typename Output >
 Output calculateShortPeriodCorrectionRate( const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Output > >& calculator,
                                            const Time& tt,
                                            const Time& ut1,
                                            const double dUt1DTt,
-                                           const double h = 32.0 )
+                                           const double stepSeconds = 32.0 )
 {
-    if( !calculator || !std::isfinite( h ) || h <= 0.0 || !std::isfinite( dUt1DTt ) )
+    if( !calculator || !std::isfinite( stepSeconds ) || stepSeconds <= 0.0 || !std::isfinite( dUt1DTt ) )
+    {
         throw std::invalid_argument( "Invalid short-period orientation rate inputs" );
-    const auto sample = [ & ]( const double delta ) -> Output {
-        const Time shiftedTt = tt + delta;
-        const long double separation = static_cast< long double >( shiftedTt - tt );
-        if( !std::isfinite( separation ) ||
-            std::abs( separation - delta ) > 16.0L * std::numeric_limits< double >::epsilon( ) * std::abs( delta ) )
-            throw std::invalid_argument( "Unrepresentable short-period orientation rate stencil" );
-        const Time shiftedUt1 = ut1 + delta * dUt1DTt;
-        const auto arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+    }
+
+    // Corrections (radians or UT1 seconds) at a shifted TT, with UT1 shifted at the local daily rate.
+    const std::function< Output( const Time& ) > corrections = [ & ]( const Time& shiftedTt ) {
+        const Time shiftedUt1 = ut1 + static_cast< double >( shiftedTt - tt ) * dUt1DTt;
+        const Eigen::Vector6d arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
                 static_cast< double >( shiftedTt ), static_cast< double >( shiftedTt ), static_cast< double >( shiftedUt1 ) );
-        const Output result = calculator->getCorrectionsFromFundamentalArgument( arguments );
-        if constexpr( std::is_arithmetic< Output >::value )
-        {
-            if( !std::isfinite( result ) ) throw std::runtime_error( "Non-finite short-period orientation correction" );
-        }
-        else if( !result.allFinite( ) )
-            throw std::runtime_error( "Non-finite short-period orientation correction" );
-        return result;
+        return calculator->getCorrectionsFromFundamentalArgument( arguments );
     };
-    return ( 8.0 * ( sample( h ) - sample( -h ) ) - ( sample( 2.0 * h ) - sample( -2.0 * h ) ) ) / ( 12.0 * h );
+    return numerical_derivatives::computeFourthOrderCentralDifference( corrections, tt, stepSeconds );
 }
 
 }  // namespace earth_orientation

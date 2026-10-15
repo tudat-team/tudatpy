@@ -21,6 +21,7 @@ but are instead created by the functionality in the :ref:`environment_setup` mod
 
 
 
+
 Functions
 ---------
 .. currentmodule:: tudatpy.dynamics.environment
@@ -33,6 +34,16 @@ Functions
 
    fit_tle_to_cartesian_state_history
 
+   ign_nominal_utc_station_time_from_tdb
+
+   ign_nominal_utc_station_time_from_tai
+
+   ign_nominal_utc_station_time
+
+   sinex_civil_utc_to_tai
+
+   station_reference_point_identity
+
 
 
 .. autofunction:: tudatpy.dynamics.environment.save_vehicle_mesh_to_file
@@ -40,6 +51,16 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment.transform_to_inertial_orientation
 
 .. autofunction:: tudatpy.dynamics.environment.fit_tle_to_cartesian_state_history
+
+.. autofunction:: tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tdb
+
+.. autofunction:: tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tai
+
+.. autofunction:: tudatpy.dynamics.environment.ign_nominal_utc_station_time
+
+.. autofunction:: tudatpy.dynamics.environment.sinex_civil_utc_to_tai
+
+.. autofunction:: tudatpy.dynamics.environment.station_reference_point_identity
 
 
 Enums
@@ -51,8 +72,28 @@ Enums
 
    FrequencyGapHandling
 
+   StationReferencePointKind
+
+   StationPostSeismicFunction
+
+   StationLocalVertical
+
+   StationReferencePointOffsetBasis
+
 
 .. autoclass:: tudatpy.dynamics.environment.FrequencyGapHandling
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationReferencePointKind
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationPostSeismicFunction
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationLocalVertical
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationReferencePointOffsetBasis
    :members:
 
 
@@ -108,6 +149,34 @@ Classes
    GroundStation
    
    GroundStationState
+
+   StationHistoryTrajectory
+
+   TransformedStationHistoryTrajectory
+
+   StationReferencePointTrajectory
+
+   StationReferencePointOffsetHistory
+
+   StationReferencePointOffset
+
+   StationReferencePointIdentity
+
+   StationReferencePointGeometry
+
+   StationHistoryMetadata
+
+   StationHistoryTime
+
+   StationHistoryInterval
+
+   StationHistoryLinearSolution
+
+   StationPostSeismicTerm
+
+   StationSeasonalTerm
+
+   SinexEquipmentHeaderTimeContext
 
    FlightConditions
 
@@ -193,6 +262,48 @@ Classes
    :members:
       
 .. autoclass:: tudatpy.dynamics.environment.GroundStationState
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationHistoryTrajectory
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.TransformedStationHistoryTrajectory
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationReferencePointTrajectory
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationReferencePointOffsetHistory
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationReferencePointOffset
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationReferencePointIdentity
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationReferencePointGeometry
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationHistoryMetadata
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationHistoryTime
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationHistoryInterval
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationHistoryLinearSolution
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationPostSeismicTerm
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.StationSeasonalTerm
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.SinexEquipmentHeaderTimeContext
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.FlightConditions

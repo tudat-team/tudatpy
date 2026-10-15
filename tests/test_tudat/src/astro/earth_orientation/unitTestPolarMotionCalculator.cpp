@@ -36,8 +36,6 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
     std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator = standardEarthRotationModel->getPolarMotionCalculator( );
 
     // Get constituent polar motion calculation objects.
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyPolarMotionValueInterpolator =
-            standardPolarMotionCalculator->getDailyIersValueInterpolator( );
     std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
             getDefaultPolarMotionCorrectionCalculator( );
 
@@ -65,23 +63,27 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
     BOOST_CHECK_EQUAL( totalPolarMotionFromTime.y( ), nativeExpected.y( ) );
     BOOST_CHECK_GT( ( totalPolarMotionFromTime - totalPolarMotionFromArguments ).norm( ), 1e-14 );
 
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ),
-                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
-                               .x( ) );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ),
-                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
-                               .y( ) );
+    BOOST_CHECK_EQUAL(
+            totalPolarMotionFromArguments.x( ),
+            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
+              shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
+                    .x( ) );
+    BOOST_CHECK_EQUAL(
+            totalPolarMotionFromArguments.y( ),
+            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
+              shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
+                    .y( ) );
 
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ),
-                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                         shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
-                               .x( ) );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ),
-                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                         shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
-                               .y( ) );
+    BOOST_CHECK_EQUAL(
+            totalPolarMotionFromArguments.x( ),
+            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
+              shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
+                    .x( ) );
+    BOOST_CHECK_EQUAL(
+            totalPolarMotionFromArguments.y( ),
+            ( converter->getEarthOrientationDataEvaluator( )->evaluate( sofa_interface::convertUTCtoTAI( Time( testUtc ) ) ).polarMotion +
+              shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
+                    .y( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

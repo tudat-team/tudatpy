@@ -447,6 +447,6 @@ BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMoti
     const auto nominalFactoryStation = simulation_setup::createGroundStationState(
             std::make_shared< simulation_setup::Body >( ), Eigen::Vector3d( 100, 200, 300 ), coordinate_conversions::cartesian_position );
     closeVector( nominalFactoryStation->getCartesianPositionInTime( 0.0, "Earth" ), Eigen::Vector3d( 100, 200, 300 ), 1e-30 );
-    LinearStationMotionModel legacyLinear( Eigen::Vector3d( 1, 2, 3 ) );
+    LinearStationMotionModel legacyLinear( Eigen::Vector3d( 1, 2, 3 ), 0.0 );
     closeVector( legacyLinear.getBodyFixedStationMotion( 0.0 ).head< 3 >( ), Eigen::Vector3d::Zero( ), 1e-30 );
 }

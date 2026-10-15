@@ -180,8 +180,10 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
     BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs( 2 ) ), 1.0E-15 );
 
     Eigen::Vector2d tudatXYCorrection =
-            createStandardEarthOrientationCalculator( )->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
-                    terrestrialTimeSecondsSinceJ2000Inaccruate );
+            createStandardEarthOrientationCalculator( )
+                    ->getPrecessionNutationCalculator( )
+                    ->getEarthOrientationDataEvaluator( )
+                    ->getCelestialPoleOffsets( sofa_interface::convertUTCtoTAI( Time( terrestrialTimeSecondsSinceJ2000Inaccruate ) ) );
 
     // Compute Earth rotation angles from EarthOrientationAnglesCalculator object and compare against SOFA
     std::shared_ptr< tudat::earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
@@ -218,13 +220,6 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
 {
     const auto strict = createStandardEarthOrientationCalculator( );
     const auto strictConverter = strict->getTerrestrialTimeScaleConverter( );
-    const double preUtcEpoch = basic_astrodynamics::DateTime( 1958, 12, 30, 12, 0.0, 0.0 ).epoch< double >( );
-    // Raw data adapters and complete rotations no longer invent zero historical observations.
-    BOOST_CHECK_THROW( strict->getPolarMotionCalculator( )->getDailyIersValueInterpolator( )->interpolate( preUtcEpoch ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW( strict->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate( preUtcEpoch ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW( strictConverter->getDailyUtcUt1CorrectionInterpolator( )->interpolate( preUtcEpoch ), std::runtime_error );
     const Time tt( ( 1893.0 - 2000.0 ) * physical_constants::JULIAN_YEAR );
     BOOST_CHECK_THROW( strictConverter->getCurrentTime< Time >( basic_astrodynamics::tt_scale, basic_astrodynamics::ut1_scale, tt ),
                        std::runtime_error );

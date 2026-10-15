@@ -1,5 +1,9 @@
 # Preserve the original bytes of these pinned primary-source payloads.
-src/tudat/io/desaiSibois2016EopData.inc whitespace=-blank-at-eol
 tests/test_tudat/src/io/station_loading_fixtures/imls_merra2_extract.eph whitespace=-blank-at-eol
 tests/test_tudat/src/io/station_loading_fixtures/imls_duplicate_identifier.eph whitespace=-blank-at-eol
 tests/test_tudat/reference_files/ocean_pole_gravity/desaiscopole2004.txt whitespace=-blank-at-eol
+
+# Preserve provider checksums across Windows and Unix checkouts.
+resources/**/*.txt -text
+# Keep the original trailing whitespace in the official IGN tables.
+resources/station_locations/Transfo-ITRF*.txt whitespace=-blank-at-eol,-blank-at-eof

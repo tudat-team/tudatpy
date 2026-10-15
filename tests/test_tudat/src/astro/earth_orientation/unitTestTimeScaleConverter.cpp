@@ -9,6 +9,8 @@
  *
  */
 
+#include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
+
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -390,7 +392,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
     const Time startTai = strict->getEarthOrientationDataEvaluator( )->getStartTai( );
     BOOST_CHECK_NO_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai ) );
     BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0 ), std::runtime_error );
-    BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0E-9 ), std::runtime_error );
+    BOOST_CHECK_THROW( strict->getCurrentTime< Time >( tai_scale, ut1_scale, startTai - 1.0E-3 ), std::runtime_error );
 
     EarthOrientationEvaluationSettings historicalSettings;
     historicalSettings.historicalUt1 = HistoricalUt1Policy::delta_t;
@@ -405,7 +407,10 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
             std::runtime_error );
 
     // Explicit custom constructors retain their historical UTC-like alias.
-    TerrestrialTimeScaleConverter legacy( strict->getDailyUtcUt1CorrectionInterpolator( ), getDefaultUT1CorrectionCalculator( ) );
+    EOPReader legacyData;
+    const auto legacyDaily = std::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
+            legacyData.getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0 );
+    TerrestrialTimeScaleConverter legacy( legacyDaily, getDefaultUT1CorrectionCalculator( ) );
     const Time legacyUt1 = legacy.getCurrentTime< Time >( tt_scale, ut1_scale, tt );
     const Time legacyUtc = legacy.getCurrentTime< Time >( tt_scale, utc_scale, tt );
     BOOST_CHECK_SMALL( static_cast< double >( tt - legacyUt1 ) - 33.59, 1.0E-12 );

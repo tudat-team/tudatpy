@@ -255,23 +255,34 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                             "Error when making relativistic (body-centered to barycentered) ground station motion model, settings type is "
                             "incompatible" );
                 }
-                if( relativisticStationMotionSettings->requireEarthHost_ && body->getBodyName( ) != "Earth" )
-                    throw std::invalid_argument(
-                            "Earth relativistic station convenience requires the Earth host; use explicit generic compatibility "
-                            "otherwise." );
 
-                std::function< Eigen::Vector6d( const Time& ) > bodyBarycentricStateFunction;
-                if( bodies.getFrameOrigin( ) == "SSB" )
-                {
-                    bodyBarycentricStateFunction =
-                            std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >, body, std::placeholders::_1 );
-                }
-                else
+                if( bodies.getFrameOrigin( ) != "SSB" )
                 {
                     throw std::runtime_error(
                             "Error when getting body state function for (body-centered to barycentered) ground station motion model, only "
                             "SSB global frame origin is currently supported" );
                 }
+                // Ephemeris origin conversions are configured when the environment's frame definitions are processed,
+                // which happens after ground stations are created. They are therefore checked on first evaluation.
+                const auto barycentricStateFunction = []( const std::shared_ptr< Body >& source ) {
+                    auto originChecked = std::make_shared< bool >( false );
+                    return std::function< Eigen::Vector6d( const Time& ) >( [ source, originChecked ]( const Time& time ) {
+                        if( !*originChecked )
+                        {
+                            if( source->getIsBodyGlobalFrameOrigin( ) != 1 && source->getEphemeris( ) &&
+                                source->getEphemeris( )->getReferenceFrameOrigin( ) != "SSB" &&
+                                ( !source->getEphemerisFrameToBaseFrame( ) ||
+                                  source->getEphemerisFrameToBaseFrame( )->getBaseFrameId( ).empty( ) ) )
+                            {
+                                throw std::invalid_argument(
+                                        "Relativistic station ephemeris origin conversion has not been configured for " +
+                                        source->getBodyName( ) + "." );
+                            }
+                            *originChecked = true;
+                        }
+                        return source->getStateInBaseFrameFromEphemeris< double, Time >( time );
+                    } );
+                };
 
                 auto rotation = body->getRotationalEphemeris( );
                 if( !rotation ) throw std::invalid_argument( "Relativistic station correction requires a rotation model." );
@@ -286,19 +297,8 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                         !sameAxes( source->getEphemeris( )->getReferenceFrameOrientation( ), bodies.getFrameOrientation( ) ) )
                         throw std::invalid_argument(
                                 "Relativistic station barycentric ephemeris axes must match the bodies environment axes." );
-                    if( source->getIsBodyGlobalFrameOrigin( ) != 1 && source->getEphemeris( ) &&
-                        source->getEphemeris( )->getReferenceFrameOrigin( ) != bodies.getFrameOrigin( ) &&
-                        source->getEphemerisFrameToBaseFrame( )->getBaseFrameId( ).empty( ) )
-                        throw std::invalid_argument( "Relativistic station ephemeris origin conversion has not been configured." );
                 };
                 validateStateAxes( body );
-                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
-                if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( rotation ) )
-                {
-                    converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
-                    rotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
-                            earth->getAnglesCalculator( ), basic_astrodynamics::tdb_scale, earth->getBaseFrameOrientation( ) );
-                }
                 std::vector< ground_stations::RelativisticStationExternalBody > externalBodies;
                 std::set< std::shared_ptr< Body > > selectedExternalBodies;
                 for( const auto& name : relativisticStationMotionSettings->externalBodyNames_ )
@@ -311,14 +311,13 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                         throw std::invalid_argument( "Duplicate external body in relativistic station potential: " + name );
                     if( !external->getGravityFieldModel( ) ) throw std::invalid_argument( "Relativistic external body lacks GM: " + name );
                     validateStateAxes( external );
-                    externalBodies.push_back(
-                            { name,
-                              std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >, external, std::placeholders::_1 ),
-                              std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                         external->getGravityFieldModel( ) ) } );
+                    externalBodies.push_back( { name,
+                                                barycentricStateFunction( external ),
+                                                std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                           external->getGravityFieldModel( ) ) } );
                 }
                 currentStationMotionModel = std::make_shared< ground_stations::BodyCentricToBarycentricRelativisticStationMotion >(
-                        bodyBarycentricStateFunction,
+                        barycentricStateFunction( body ),
                         std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrameFromExtendedTime,
                                    rotation,
                                    std::placeholders::_1 ),
@@ -326,9 +325,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                                    rotation,
                                    std::placeholders::_1 ),
                         externalBodies,
-                        relativisticStationMotionSettings->coordinateCompatibility_,
-                        32.0,
-                        converter );
+                        relativisticStationMotionSettings->coordinateCompatibility_ );
                 break;
             }
             case custom_station_motion: {
@@ -378,15 +375,6 @@ void createGroundStation( const std::shared_ptr< Body > body,
                           const std::string groundStationName,
                           const Eigen::Vector3d groundStationPosition,
                           const coordinate_conversions::PositionElementTypes positionElementType,
-                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings )
-{
-    createGroundStation( body, groundStationName, groundStationPosition, positionElementType, stationMotionSettings, SystemOfBodies( ) );
-}
-
-void createGroundStation( const std::shared_ptr< Body > body,
-                          const std::string groundStationName,
-                          const Eigen::Vector3d groundStationPosition,
-                          const coordinate_conversions::PositionElementTypes positionElementType,
                           const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
                           const SystemOfBodies& bodies )
 {
@@ -413,11 +401,6 @@ void createGroundStations( const SystemOfBodies& bodies,
                                  positionElementType );
         }
     }
-}
-
-void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings )
-{
-    createGroundStation( body, groundStationSettings, SystemOfBodies( ) );
 }
 
 void createGroundStation( const std::shared_ptr< Body > body,

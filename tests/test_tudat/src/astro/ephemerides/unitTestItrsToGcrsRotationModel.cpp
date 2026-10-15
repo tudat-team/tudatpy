@@ -93,11 +93,12 @@ std::map< std::string, Eigen::Matrix3d > getIndependentBaseFrameRotations( )
                                                 -0.3977771559319137,
                                                 0.9174820620691818 )
                                                       .finished( );
+    // J2000 (and its synonym EME2000) includes the frame bias; ECLIPJ2000 is defined with respect to J2000.
     return { { "GCRS", Eigen::Matrix3d::Identity( ) },
-             { "J2000", Eigen::Matrix3d::Identity( ) },
              { "ICRF", Eigen::Matrix3d::Identity( ) },
+             { "J2000", gcrsToEme2000 },
              { "EME2000", gcrsToEme2000 },
-             { "ECLIPJ2000", j2000ToEclipj2000 } };
+             { "ECLIPJ2000", j2000ToEclipj2000 * gcrsToEme2000 } };
 }
 
 void checkRotationMatrix( const Eigen::Matrix3d& actual, const Eigen::Matrix3d& expected, const double tolerance )
@@ -123,8 +124,9 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
     spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/earth_fixed.tf" );
 
     // Create rotation model
-    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel = std::make_shared< GcrsToItrsRotationModel >(
-            earth_orientation::createStandardEarthOrientationCalculator( ), tdb_scale, "J2000" );
+    // SPICE J2000 has ICRF axes, which are the GCRS axes of this model.
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
+            std::make_shared< GcrsToItrsRotationModel >( earth_orientation::createStandardEarthOrientationCalculator( ) );
 
     // Compare spice vs. Tudat for list of evaluation times
     std::vector< double > testTimes;
@@ -195,16 +197,10 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
                 utc_scale, tt_scale, interpolationUtc );
 
         // Get EOP corrections
-        double Xcorrection = earthRotationModelFromUtc->getAnglesCalculator( )
-                                     ->getPrecessionNutationCalculator( )
-                                     ->getDailyCorrectionInterpolator( )
-                                     ->interpolate( interpolationUtc )
-                                     .x( );
-        double Ycorrection = earthRotationModelFromUtc->getAnglesCalculator( )
-                                     ->getPrecessionNutationCalculator( )
-                                     ->getDailyCorrectionInterpolator( )
-                                     ->interpolate( interpolationUtc )
-                                     .y( );
+        const auto eop =
+                earthRotationModelFromUtc->getAnglesCalculator( )->getPrecessionNutationCalculator( )->getEarthOrientationDataEvaluator( );
+        const Eigen::Vector2d cpo = eop->getCelestialPoleOffsets( sofa_interface::convertUTCtoTAI( Time( interpolationUtc ) ) );
+        const double Xcorrection = cpo.x( ), Ycorrection = cpo.y( );
         double xPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )
                                       ->getPolarMotionCalculator( )
                                       ->getPositionOfCipInItrs( interpolationTt, interpolationUtc )
@@ -344,15 +340,17 @@ BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
     std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
             std::make_shared< GcrsToItrsRotationModel >( createStandardEarthOrientationCalculator( ) );
 
-    std::pair< Eigen::Vector5d, double > rotationAnglesAndUt1 =
-            earthRotationModel->getAnglesCalculator( )->getRotationAnglesFromItrsToGcrs< double >( testTime, tdb_scale );
-    Eigen::Vector5d rotationAngles = rotationAnglesAndUt1.first;
+    // The model evaluates the TIO locator at TT and the Earth rotation angle at the precise (Time) UT1.
+    const EarthOrientationAngles orientation =
+            earthRotationModel->getAnglesCalculator( )->getRotationAnglesAndTimesFromItrsToGcrs( testTime, tdb_scale );
+    Eigen::Vector5d rotationAngles = orientation.angles;
 
     Eigen::Matrix3d expectedItrsToTirs =
-            calculateRotationFromItrsToTirs( rotationAngles[ 3 ], rotationAngles[ 4 ], getApproximateTioLocator( testTime ) )
+            calculateRotationFromItrsToTirs(
+                    rotationAngles[ 3 ], rotationAngles[ 4 ], getApproximateTioLocator( static_cast< double >( orientation.tt ) ) )
                     .toRotationMatrix( );
     Eigen::Matrix3d expectedTirsToCirs =
-            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) )
+            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< Time >( orientation.ut1 ) )
                     .toRotationMatrix( );
     Eigen::Matrix3d expectedCirsToIcrs =
             calculateRotationFromCirsToGcrs( rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ] ).toRotationMatrix( );

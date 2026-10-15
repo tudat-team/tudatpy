@@ -287,6 +287,18 @@ jobs:
       run: |
         python install.py -e
 
+    - name: Install vendored resource additions
+      shell: bash -l {0}
+      run: |
+        python - <<'PY'
+        from pathlib import Path
+        import shutil
+        from tudatpy.data_input.resource_paths import get_resource_path
+
+        # Merge these additions with the standard resource installation.
+        shutil.copytree(Path('resources'), Path(get_resource_path()), dirs_exist_ok=True)
+        PY
+
     - name: Test Python
       shell: bash -l {0}
       run: |

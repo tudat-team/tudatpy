@@ -25,6 +25,7 @@
 #include <Eigen/Core>
 
 #include "tudat/basics/identityElements.h"
+#include "tudat/basics/timeType.h"
 
 namespace tudat
 {
@@ -170,6 +171,29 @@ DependentVariableType computeCentralDifferenceFromFunction(
     }
 
     return numericalDerivative;
+}
+
+//! Fourth-order central difference of a function of time, at an epoch given as Time or double.
+/*!
+ * The derivative is ( 8 ( f( t + h ) - f( t - h ) ) - ( f( t + 2h ) - f( t - 2h ) ) ) / ( 12 h ). The epochs are formed in the type
+ * of the nominal epoch, so that Time input retains its full precision, and opposite samples are subtracted before weighting.
+ * \param function Function of time to differentiate.
+ * \param epoch Epoch at which the derivative is computed.
+ * \param step Step size h of the stencil, in seconds.
+ * \return Derivative of the function with respect to time, per second.
+ */
+template< typename ValueType, typename EpochType >
+ValueType computeFourthOrderCentralDifference( const std::function< ValueType( const EpochType& ) >& function,
+                                               const EpochType& epoch,
+                                               const double step )
+{
+    // Function values at the four stencil epochs.
+    const ValueType minusTwo = function( epoch - 2.0 * step );
+    const ValueType minusOne = function( epoch - step );
+    const ValueType plusOne = function( epoch + step );
+    const ValueType plusTwo = function( epoch + 2.0 * step );
+
+    return ( 8.0 * ( plusOne - minusOne ) - ( plusTwo - minusTwo ) ) / ( 12.0 * step );
 }
 
 }  // namespace numerical_derivatives

@@ -54,14 +54,29 @@ public:
         shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
     {}
 
-    //! TT-aware path used by strict rotation and pole tide, without scalar UTC.
-    Eigen::Vector2d getPositionOfCipInItrsAtTt( const double ttSinceEpoch );
-    Eigen::Vector2d getPositionOfCipInItrsAtTt( const Time& ttSinceEpoch );
-    Eigen::Vector2d getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments );
-    bool usesContinuousEop( ) const
+    //! Polar motion at a TT epoch. Models constructed from EOP data use TAI without converting through UTC.
+    Eigen::Vector2d getPositionOfCipInItrsAtTt( const Time& tt )
     {
-        return evaluator_ != nullptr;
+        // SOFA evaluates its harmonic arguments using scalar TT seconds.
+        const double ttDouble = static_cast< double >( tt );
+
+        if( !evaluator_ )
+        {
+            return getPositionOfCipInItrs( ttDouble, sofa_interface::convertTTtoUTC( ttDouble ) );
+        }
+        const Time tai = basic_astrodynamics::convertTTtoTAI( tt );
+
+        // Use the selected UT1 model when forming the short-period arguments.
+        const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + evaluator_->evaluate( tai ).ut1MinusTai;
+
+        // Delaunay arguments include GMST formed from UT1, with TT for precession.
+        const Eigen::Vector6d arguments =
+                sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( ttDouble, ttDouble, static_cast< double >( ut1 ) );
+
+        return getPositionOfCipInItrsFromTai( tai, arguments );
     }
+
+    Eigen::Vector2d getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments );
     std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
     {
         return evaluator_;
@@ -94,6 +109,12 @@ public:
      */
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > getDailyIersValueInterpolator( )
     {
+        if( evaluator_ )
+        {
+            throw std::runtime_error(
+                    "Models constructed from EOP data do not have a daily UTC interpolator; use "
+                    "getEarthOrientationDataEvaluator()->evaluate(tai).polarMotion." );
+        }
         return dailyIersValueInterpolator_;
     }
 

@@ -1,10 +1,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
-#include "tudat/astro/earth_orientation/highFrequencyEarthOrientationModel.h"
+#include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/earth_orientation/earthOrientationRates.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
-#include "tudat/io/readHighFrequencyEopData.h"
 #include "desai_sibois_reference/expected.h"
 
 // The Earth-specific factory is kept in its own translation unit.
@@ -21,19 +20,38 @@ using namespace tudat::earth_orientation;
 namespace
 {
 const double uas = unit_conversions::convertArcSecondsToRadians< double >( 1e-6 );
-HighFrequencyEopCorrectionCalculators libration( )
+
+//! Short-period polar motion and UT1 corrections.
+struct ShortPeriodCorrections {
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > polarMotion;
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > ut1;
+};
+
+//! Conventional libration terms, optionally followed by the Desai and Sibois (2016) ocean-tide resource tables.
+ShortPeriodCorrections corrections( const bool includeDesaiSibois,
+                                    const double minimumPolarMotionAmplitude = 0.0,
+                                    const double minimumUt1Amplitude = 0.0 )
 {
     const std::string p = paths::getEarthOrientationDataFilesPath( ) + "/";
+    std::vector< std::string > polarAmplitudes{ p + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" };
+    std::vector< std::string > polarMultipliers{ p + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" };
+    std::vector< std::string > ut1Amplitudes{ p + "utcLibrationAmplitudes.txt" };
+    std::vector< std::string > ut1Multipliers{ p + "utcLibrationFundamentalArgumentMultipliers.txt" };
+    if( includeDesaiSibois )
+    {
+        polarAmplitudes.push_back( p + "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt" );
+        polarMultipliers.push_back( p + "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt" );
+        ut1Amplitudes.push_back( p + "desaiSibois2016Ut1OceanTidesAmplitudes.txt" );
+        ut1Multipliers.push_back( p + "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt" );
+    }
     return { std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
-                     uas,
-                     0.0,
-                     std::vector< std::string >{ p + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
-                     std::vector< std::string >{ p + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } ),
+                     uas, minimumPolarMotionAmplitude, polarAmplitudes, polarMultipliers ),
              std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
-                     1e-6,
-                     0.0,
-                     std::vector< std::string >{ p + "utcLibrationAmplitudes.txt" },
-                     std::vector< std::string >{ p + "utcLibrationFundamentalArgumentMultipliers.txt" } ) };
+                     1e-6, minimumUt1Amplitude, ut1Amplitudes, ut1Multipliers ) };
+}
+ShortPeriodCorrections libration( )
+{
+    return corrections( false );
 }
 input_output::EarthOrientationData dailyData( )
 {
@@ -66,7 +84,7 @@ std::shared_ptr< simulation_setup::GcrsToItrsRotationModelSettings > settings( )
 
 BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_values_and_analytic_rates )
 {
-    const auto ds = createHighFrequencyEopCorrectionCalculators( OceanTideEopModel::desai_sibois_2016 );
+    const auto ds = corrections( true );
     const auto lib = libration( );
     for( const auto& fixture : desai_sibois_reference::fixtures )
     {
@@ -93,21 +111,14 @@ BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_value
     }
 }
 
-BOOST_AUTO_TEST_CASE( default_is_unchanged_and_amplitude_cutoffs_remain_explicit )
+BOOST_AUTO_TEST_CASE( amplitude_cutoffs_remove_ocean_and_libration_terms )
 {
-    const auto defaultModel = createHighFrequencyEopCorrectionCalculators( );
-    const auto oldPolar = getDefaultPolarMotionCorrectionCalculator( );
-    const auto oldUt1 = getDefaultUT1CorrectionCalculator( );
-    const auto none = createHighFrequencyEopCorrectionCalculators( OceanTideEopModel::desai_sibois_2016, 1e6, 1e6 );
+    const auto none = corrections( true, 1e6, 1e6 );
     for( const auto& f : desai_sibois_reference::fixtures )
     {
-        BOOST_CHECK_EQUAL( defaultModel.ut1->getCorrections( f.tt ), oldUt1->getCorrections( f.tt ) );
-        BOOST_CHECK_EQUAL( ( defaultModel.polarMotion->getCorrections( f.tt ) - oldPolar->getCorrections( f.tt ) ).norm( ), 0.0 );
         BOOST_CHECK_EQUAL( none.ut1->getCorrections( f.tt ), 0.0 );
         BOOST_CHECK_EQUAL( none.polarMotion->getCorrections( f.tt ).norm( ), 0.0 );
     }
-    BOOST_CHECK_THROW( createHighFrequencyEopCorrectionCalculators( OceanTideEopModel::desai_sibois_2016, -1 ), std::runtime_error );
-    BOOST_CHECK_THROW( createHighFrequencyEopCorrectionCalculators( static_cast< OceanTideEopModel >( 42 ) ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_native_ut1_rate )
@@ -122,7 +133,7 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
     BOOST_CHECK_SMALL( f.tt - 536500869.184, 1e-8 );
     const Time tai = Time( 536500837.0 );
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( dailyData( ) );
-    const auto ds = createHighFrequencyEopCorrectionCalculators( OceanTideEopModel::desai_sibois_2016 );
+    const auto ds = corrections( true );
     TerrestrialTimeScaleConverter converter( nullptr, ds.ut1, nullptr, evaluator );
     const auto result = converter.getUt1FromTaiWithRate( tai );
     const auto lib = libration( );
@@ -136,15 +147,9 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
     // Independent SOFA CIO assembly with ocean fixture, retained libration,
     // daily PM and CPO; UT1-corrected phase is used for polar motion.
     const auto polarArgs = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( f.tt, f.tt, static_cast< double >( result.ut1 ) );
-    const auto oceanData = input_output::getDesaiSibois2016EopData( );
-    Eigen::Vector2d ocean = Eigen::Vector2d::Zero( );
-    for( const auto& term : oceanData.terms )
-    {
-        double phase = 0;
-        for( int i = 0; i < 6; ++i ) phase += term.argumentMultipliers[ i ] * polarArgs( i );
-        for( int i = 0; i < 2; ++i )
-            ocean( i ) += term.sineAmplitudes[ i ] * std::sin( phase ) + term.cosineAmplitudes[ i ] * std::cos( phase );
-    }
+    // Ocean terms, validated against the independent fixture in the first test case.
+    const Eigen::Vector2d ocean = ds.polarMotion->getCorrectionsFromFundamentalArgument( polarArgs ) -
+            lib.polarMotion->getCorrectionsFromFundamentalArgument( polarArgs );
     const Eigen::Vector2d pm = Eigen::Vector2d( 1e-6, 2e-6 ) + ocean + lib.polarMotion->getCorrectionsFromFundamentalArgument( polarArgs );
     double x, y, s, q[ 3 ][ 3 ], w[ 3 ][ 3 ], reference[ 3 ][ 3 ];
     iauXys06a( 2451545.0, f.tt / 86400.0, &x, &y, &s );

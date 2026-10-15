@@ -67,16 +67,6 @@ void AtmosphericTideDeformation::validateCommonSettings( ) const
     {
         throw std::runtime_error( "Unknown atmospheric displacement basis" );
     }
-    if( settings_.endpointPolicy != AtmosphericTideEndpointPolicy::requireConsistency &&
-        settings_.endpointPolicy != AtmosphericTideEndpointPolicy::averageSeamAndPolarCartesianApproximation )
-    {
-        throw std::runtime_error( "Unknown atmospheric endpoint policy" );
-    }
-    if( settings_.originPolicy != AtmosphericLoadingOriginPolicy::preserveSourceOrigin &&
-        settings_.originPolicy != AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm )
-    {
-        throw std::runtime_error( "Unknown atmospheric origin policy" );
-    }
 }
 void AtmosphericTideDeformation::validateShapeForBasis( input_output::AtmosphericTideDisplacementBasis basis, bool geodeticLookup ) const
 {
@@ -100,7 +90,7 @@ void AtmosphericTideDeformation::validateShapeForBasis( input_output::Atmospheri
 void AtmosphericTideDeformation::validateOriginConversion( const input_output::AtmosphericTideMetadata& metadata ) const
 {
     using namespace input_output;
-    if( settings_.originPolicy == AtmosphericLoadingOriginPolicy::preserveSourceOrigin )
+    if( !settings_.convertToCentreOfMass )
     {
         return;
     }
@@ -134,6 +124,18 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
                                                         "lookup latitude" );
     resolvedGridMetadata_.displacementBasis =
             resolve( grid.metadata.displacementBasis, settings.displacementBasis, AtmosphericTideDisplacementBasis::unspecified, "basis" );
+    // RP03 grids: default to the geocentric convention when neither the source nor the settings declare one.
+    if( grid.metadata.modelName == "Ray-Ponte 2003" && grid.metadata.greensFunction == "Farrell elastic Green functions" )
+    {
+        if( resolvedGridMetadata_.latitudeConvention == AtmosphericTideLatitudeConvention::unspecified )
+        {
+            resolvedGridMetadata_.latitudeConvention = AtmosphericTideLatitudeConvention::geocentric;
+        }
+        if( resolvedGridMetadata_.displacementBasis == AtmosphericTideDisplacementBasis::unspecified )
+        {
+            resolvedGridMetadata_.displacementBasis = AtmosphericTideDisplacementBasis::geocentricRadialNorthEast;
+        }
+    }
     if( resolvedGridMetadata_.latitudeConvention == AtmosphericTideLatitudeConvention::unspecified )
     {
         throw std::runtime_error( "Automatic atmospheric grid lookup requires an explicit latitude convention" );
@@ -141,7 +143,7 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
     validateShapeForBasis( resolvedGridMetadata_.displacementBasis,
                            resolvedGridMetadata_.latitudeConvention == AtmosphericTideLatitudeConvention::geodetic );
     validateOriginConversion( resolvedGridMetadata_ );
-    gridInterpolator_ = std::make_shared< AtmosphericTideGridInterpolator >( grid, settings.endpointPolicy );
+    gridInterpolator_ = std::make_shared< AtmosphericTideGridInterpolator >( grid );
 }
 AtmosphericTideDeformation::AtmosphericTideDeformation(
         const input_output::AtmosphericTideStationData& stations,
@@ -165,41 +167,51 @@ AtmosphericTideDeformation::AtmosphericTideDeformation(
     }
 }
 
+//! Evaluate displacement alone so valid positions do not require an available UT1 rate.
 Eigen::Vector3d AtmosphericTideDeformation::evaluateDisplacement( const Time& tdb,
                                                                   const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return evaluateCartesianLoading( tdb, station, false );
+    return evaluateCartesianLoading( tdb, station, false ).head< 3 >( );
 }
+
+//! Evaluate Cartesian position and analytic rate with one coefficient, geometry and clock calculation.
 Eigen::Vector6d AtmosphericTideDeformation::evaluateDisplacementState(
         const Time& tdb,
         const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    Eigen::Vector6d state;
-    state.head< 3 >( ) = evaluateCartesianLoading( tdb, station, false );
-    state.tail< 3 >( ) = evaluateCartesianLoading( tdb, station, true );
-    return state;
+    return evaluateCartesianLoading( tdb, station, true );
 }
-Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time& tdb,
+
+//! Synthesize metre displacements and optional UT1 derivatives, then rotate and apply the requested origin correction.
+Eigen::Vector6d AtmosphericTideDeformation::evaluateCartesianLoading( const Time& tdb,
                                                                       const std::shared_ptr< ground_stations::GroundStationState >& station,
-                                                                      bool derivativeWrtTdb )
+                                                                      bool withRate )
 {
     using namespace input_output;
     if( !station )
     {
         throw std::runtime_error( "Missing atmospheric loading station" );
     }
+    // Nominal body-fixed geometry and angular coordinates in radians.
     const Eigen::Vector3d position = station->getNominalCartesianPosition( );
+
     if( !position.allFinite( ) || position.norm( ) == 0 )
     {
         throw std::runtime_error( "Invalid atmospheric station position" );
     }
     const double longitude = std::atan2( position.y( ), position.x( ) );
+
     const double geocentricLatitude = std::atan2( position.z( ), std::hypot( position.x( ), position.y( ) ) );
+
+    // Provider declarations and metre coefficients, resolved for the selected station or grid.
     AtmosphericTideMetadata metadata;
-    AtmosphericTideCoefficients coefficients;
+
+    Eigen::Matrix< double, 3, 4 > coefficients;
+
     if( usesStationCoefficients( ) )
     {
         const auto& record = stationData_.getStation( station->getSiteId( ) );
+
         metadata = resolvedStationMetadata_.at( station->getSiteId( ) );
         coefficients = record.coefficientsMetres;
     }
@@ -208,6 +220,7 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
         metadata = resolvedGridMetadata_;
     }
     double geodeticLatitude = geocentricLatitude;
+
     if( metadata.displacementBasis == AtmosphericTideDisplacementBasis::geodeticUpNorthEast ||
         ( !usesStationCoefficients( ) && metadata.latitudeConvention == AtmosphericTideLatitudeConvention::geodetic ) )
     {
@@ -221,14 +234,19 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
     {
         const double latitude =
                 metadata.latitudeConvention == AtmosphericTideLatitudeConvention::geodetic ? geodeticLatitude : geocentricLatitude;
+
         coefficients =
                 gridInterpolator_->interpolate( latitude * 180 / mathematical_constants::PI, longitude * 180 / mathematical_constants::PI );
     }
+    // Obtain one UT1 phase; only a state request asks for its physical derivative.
     const Time tai = timeConverter_->getTaiTime( tdb_scale, tdb );
+
     double ut1, ut1RateWrtTdb = 1;
-    if( derivativeWrtTdb )
+
+    if( withRate )
     {
         const auto ut1WithRate = timeConverter_->getUt1FromTaiWithRate( tai );
+
         ut1 = static_cast< double >( ut1WithRate.ut1 );
         ut1RateWrtTdb = ut1WithRate.dUt1DTai * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     }
@@ -236,29 +254,51 @@ Eigen::Vector3d AtmosphericTideDeformation::evaluateCartesianLoading( const Time
     {
         ut1 = static_cast< double >( timeConverter_->getUt1FromTai( tai ) );
     }
-    const Eigen::Vector3d local = derivativeWrtTdb ? differentiateAtmosphericTideLoadingWrtUt1( coefficients, ut1 )
-                                                   : synthesizeAtmosphericTideLoading( coefficients, ut1 );
+    // The same nominal component basis applies to the displacement and its derivative.
     const double basisLatitude =
             metadata.displacementBasis == AtmosphericTideDisplacementBasis::geodeticUpNorthEast ? geodeticLatitude : geocentricLatitude;
+
+    const auto rotation =
+            reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( longitude, basisLatitude );
+
+    const Eigen::Vector3d local = synthesizeAtmosphericTideLoading( coefficients, ut1 );
+
     // Source R/N/E (or U/N/E) components become the existing helper's E/N/U axes.
     const Eigen::Vector3d enu( local.z( ), local.y( ), local.x( ) );
-    Eigen::Vector3d cartesian =
-            reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( longitude, basisLatitude ) * enu;
-    if( settings_.originPolicy == AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm &&
-        metadata.referenceOrigin == AtmosphericLoadingReferenceOrigin::solidEarthCentre )
+
+    Eigen::Vector6d state = Eigen::Vector6d::Zero( );
+
+    state.head< 3 >( ) = rotation * enu;
+    if( withRate )
     {
-        cartesian += derivativeWrtTdb ? differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( ut1 )
-                                      : calculateIers2010Rp03AtmosphericGeocentreTranslation( ut1 );
+        // Local analytic velocity in metres per UT1 second, before the clock derivative is applied.
+        const Eigen::Vector3d localRate = differentiateAtmosphericTideLoadingWrtUt1( coefficients, ut1 );
+
+        state.tail< 3 >( ) = rotation * Eigen::Vector3d( localRate.z( ), localRate.y( ), localRate.x( ) );
     }
-    return ut1RateWrtTdb * cartesian;
+    if( settings_.convertToCentreOfMass && metadata.referenceOrigin == AtmosphericLoadingReferenceOrigin::solidEarthCentre )
+    {
+        state.head< 3 >( ) += calculateIers2010Rp03AtmosphericGeocentreTranslation( ut1 );
+        if( withRate )
+        {
+            state.tail< 3 >( ) += differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( ut1 );
+        }
+    }
+    if( withRate )
+    {
+        // Convert the full local-plus-origin velocity to metres per TDB second exactly once.
+        state.tail< 3 >( ) *= ut1RateWrtTdb;
+    }
+    return state;
 }
+
 input_output::AtmosphericLoadingReferenceOrigin AtmosphericTideDeformation::getOutputReferenceOrigin( const std::string& identifier ) const
 {
     if( usesStationCoefficients( ) )
     {
         stationData_.getStation( identifier );
     }
-    if( settings_.originPolicy == AtmosphericLoadingOriginPolicy::convertIdentifiedRp03CeToCm )
+    if( settings_.convertToCentreOfMass )
     {
         return input_output::AtmosphericLoadingReferenceOrigin::wholeEarthCentreOfMass;
     }

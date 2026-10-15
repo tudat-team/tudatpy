@@ -231,19 +231,22 @@ const std::array< std::string, 11 >& getOceanLoadingConstituentNames( )
     return names;
 }
 
+//! Select a provider station, reporting explicit absence separately from malformed data.
 const OceanLoadingStation& OceanLoadingData::getStation( const std::string& stationIdentifier ) const
 {
     const auto station = stations.find( stationIdentifier );
+
     if( station == stations.end( ) )
     {
-        throw std::runtime_error( "Ocean loading station '" + stationIdentifier + "' is absent from " + source );
+        throw std::out_of_range( "Ocean loading station '" + stationIdentifier + "' is absent from " + source );
     }
     return station->second;
 }
 
-void validateOceanLoadingData( const OceanLoadingData& data )
+//! Check provider metadata and station coefficients, optionally permitting an initial empty station set.
+void validateOceanLoadingData( const OceanLoadingData& data, const bool allowEmpty )
 {
-    if( data.stations.empty( ) )
+    if( data.stations.empty( ) && !allowEmpty )
     {
         throw std::runtime_error( "Ocean loading data contains no stations: " + data.source );
     }
@@ -267,6 +270,24 @@ void validateOceanLoadingData( const OceanLoadingData& data )
             throw std::runtime_error( "Ocean loading station '" + item.first + "' has invalid provider coordinates" );
         }
     }
+}
+
+//! Combine neutral BLQ records without changing station provenance or accepting duplicate site identities.
+void appendOceanLoadingData( OceanLoadingData& destination, const OceanLoadingData& source )
+{
+    validateOceanLoadingData( source );
+    for( const auto& item : source.stations )
+    {
+        if( destination.stations.count( item.first ) != 0 )
+        {
+            throw std::runtime_error( "Duplicate ocean loading station: " + item.first );
+        }
+    }
+
+    // Preserve the existing model-append convention and every provider station's original source/header records.
+    destination.source = destination.source.empty( ) ? source.source : "multiple BLQ inputs";
+    destination.sourceHeaders.insert( destination.sourceHeaders.end( ), source.sourceHeaders.begin( ), source.sourceHeaders.end( ) );
+    destination.stations.insert( source.stations.begin( ), source.stations.end( ) );
 }
 
 OceanLoadingData readOceanLoadingData( std::istream& stream, const std::string& source )

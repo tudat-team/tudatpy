@@ -24,6 +24,9 @@ namespace environment
 
 void expose_environment( py::module& m );
 
+//! Register runtime station trajectories, source coordinates and reference-point histories.
+void expose_station_models( py::module& m );
+
 }  // namespace environment
 }  // namespace dynamics
 }  // namespace tudatpy
