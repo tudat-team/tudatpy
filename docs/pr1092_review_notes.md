@@ -340,3 +340,27 @@ shutil.copytree(Path("resources"), Path(get_resource_path()), dirs_exist_ok=True
   and `git diff --check` pass. The full unrelated suite was not rerun; macOS/ARM64 execution remains a CI check.
 - No changes have been pushed or GitHub comments modified. The separate reviewer report is
   `/home/dominic/Tudat/tudat-monorepo/PR1092-REVIEW-FIXES-2-REPORT.md`.
+
+### 15 October: shorter tests and complete archived fixtures
+
+- Moved the remaining 39 loose C++ fixture assets into `tests/test_tudat/data.zip`; 37 were missing
+  from the archive and two licences were already present. All 111 PR fixture/provenance files now
+  have manifest hashes. Published data, generated reference values and existing archive payloads
+  retain their exact bytes. The source-tree copies are removed.
+- C++ and Python tests use the existing build-tree test-data path. Test targets consuming archived
+  headers or files depend on `unpack_test_data`, and their include path contains the extracted data.
+- Removed both architecture tests, their standalone CMake companions and five separate reader suites.
+  Their useful published-format checks run in the retained model tests. SINEX loading now has three
+  focused cases, IMLS loading one and the three GRAIL mass formats share one case.
+- The reviewed test sources contain 290 cases instead of 382, and 35 exception checks instead of 321.
+  Their source length falls from 16,027 to 13,223 lines, excluding the relocated fixture files.
+  Removed cases are repetitive validation, endpoint/leap-second or interface checks. Independent
+  IERS/SOFA/HARDISP/Desai/IGN/ITRF references, numerical tolerances, state/velocity checks and the
+  actual Mac near-node precision regression remain. No production calculation changed.
+- Added purpose and assertion-group comments to the new or substantially changed tests.
+  `KeepEmptyLinesAtTheStartOfBlocks` makes clang-format preserve the requested separation before comments.
+- Static verification checked archive CRCs, unique names, original bytes, manifest hashes, extracted
+  fixture paths, test registration, Python syntax and formatting. No local builds or tests were run,
+  following the current instruction. CI is the compile/runtime validation for this cleanup.
+- Dominic explicitly authorized committing and pushing this cleanup, followed by CI checks every
+  ten minutes. CI outcomes are recorded in the local `REVIEW-IMPLEMENTATION-STATUS.md`.

@@ -216,6 +216,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
     BOOST_CHECK_SMALL( std::fabs( era - eraTime ), 1.0E-12 );
 }
 
+//! Compare the default historical UT1 clock with the published Delta-T value.
 BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
 {
     EarthOrientationEvaluationSettings strictSettings;

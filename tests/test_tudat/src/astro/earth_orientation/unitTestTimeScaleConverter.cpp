@@ -79,7 +79,8 @@ SofaTimeOutput getSofaDirectTimes( )
 
     /* UT1-UTC (s, from IERS). */
     dut = 0.3340960443019867;  // Value modified to coincide with value in code (difference is of order microsecond, only influences
-                               // utc<->ut1).
+
+    // utc<->ut1).
 
     /* UTC -> UT1. */
 
@@ -133,6 +134,7 @@ BOOST_AUTO_TEST_SUITE( test_time_scale_converters )
 //! value used here
 BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
 {
+
     // Get times from SOFA cookbook
     SofaTimeOutput sofaTimes = getSofaDirectTimes( );
 
@@ -218,6 +220,7 @@ BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
 //! Test if converting back and forth is done correctly
 BOOST_AUTO_TEST_CASE( testTimeScaleConversionPrecisionWithTimeType )
 {
+
     // Create time scale converters
     std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter =
             createStandardEarthOrientationCalculator( )->getTerrestrialTimeScaleConverter( );

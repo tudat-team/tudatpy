@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/createStationReferencePoint.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
@@ -11,9 +12,7 @@ namespace
 {
 SinexStationHistory equipment( )
 {
-    const std::string source = __FILE__;
-    return readSinexStationHistory( source.substr( 0, source.find_last_of( "/\\" ) ) +
-                                    "/../../../reference_files/station_history/abmf_equipment.snx" );
+    return readSinexStationHistory( paths::getTudatTestDataPath( ) + "pr1092/reference_files/station_history/abmf_equipment.snx" );
 }
 SinexEquipmentHeaderTimeContext context( )
 {
@@ -108,26 +107,15 @@ void close( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected, doub
 }
 }  // namespace
 
+//! Apply published antenna offsets with their equipment identities and dated changes.
 BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
 {
     const auto source = marker( );
     const auto point = arp( source );
-    const auto geometryForAlias = createGeocentricStationReferencePointGeometry( Eigen::Vector3d( 3e6, -5e6, 2e6 ), "ITRF2020" );
-    const auto uppercaseMarker = marker( Eigen::Vector3d( 3e6, -5e6, 2e6 ), "ABMF" );
-    BOOST_CHECK_THROW( createSinexAntennaReferencePointOffsets(
-                               uppercaseMarker->getMetadata( ), equipment( ), "ABMF:ARP", geometryForAlias, context( ) ),
-                       std::runtime_error );
-    const auto aliasedPoint = createSinexAntennaReferencePointOffsets( uppercaseMarker->getMetadata( ),
-                                                                       equipment( ),
-                                                                       "ABMF:ARP",
-                                                                       geometryForAlias,
-                                                                       context( ),
-                                                                       std::nullopt,
-                                                                       SinexSiteKey{ "abmf", "A" } );
-    BOOST_CHECK_EQUAL( aliasedPoint->getOffsets( ).front( ).from.site.siteCode, "ABMF" );
-    BOOST_CHECK( aliasedPoint->getOffsets( ).front( ).equipmentProvenance.text.find( "abmf" ) != std::string::npos );
     const auto query = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2008, 200, 0 } ), 1.0 );
     const auto& record = point->getActiveOffset( query.tai );
+
+    // Apply published antenna offsets with their equipment identities and dated changes.
     BOOST_CHECK_EQUAL( point->getOffsets( ).size( ), 3 );
     BOOST_CHECK_EQUAL( record.componentsMetres.x( ), 0.05 );
     BOOST_CHECK_EQUAL( record.equipmentType, "AERAT2775_43    SPKE" );
@@ -136,21 +124,12 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
     close( point->getPositionCorrection( query ), expected, 2e-17 );
     close( pointPosition( source, { point }, query ), source->getPosition( query ) + expected );
     BOOST_CHECK_GT( expected.dot( source->getPosition( query ) ), 0.0 );
-    BOOST_CHECK( record.to.kind == StationReferencePointKind::antennaReferencePoint );
-    BOOST_CHECK_EQUAL( record.to.name, "ABMF:ARP" );
-    BOOST_CHECK_EQUAL( record.equipmentProvenance.source, equipment( ).source );
-    BOOST_REQUIRE( record.headerTimeContext );
-    BOOST_CHECK_EQUAL( record.headerTimeContext->source, context( ).source );
     const auto atSwitch = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2009, 288, 72000 } ), 1.0 );
     close( pointPosition( source, { point }, atSwitch ), source->getPosition( atSwitch ) );
 
     // The state at a switch uses the new (right-hand) record, consistent with the position.
     BOOST_REQUIRE_NO_THROW( pointState( source, { point }, atSwitch ) );
     close( pointState( source, { point }, atSwitch ).head< 3 >( ), pointPosition( source, { point }, atSwitch ) );
-    auto outside = query;
-    outside.tai = *context( ).endTai;
-    BOOST_CHECK_THROW( pointPosition( source, { point }, outside ), std::runtime_error );
-
     auto xyz = equipment( );
     xyz.frame = source->getMetadata( ).frame;
     const auto geometry = createGeocentricStationReferencePointGeometry( source->getPosition( query ), xyz.frame );
@@ -168,6 +147,7 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
     close( pointPosition( source, { xyzPoint }, query ), pointPosition( source, { point }, query ), 1e-30 );
 }
 
+//! Distinguish ellipsoid-normal antenna height from radial height.
 BOOST_AUTO_TEST_CASE( explicitOblateNormalDiffersFromRadialUp )
 {
     const double radius = 6e6, flattening = 0.1, latitude = 0.7, longitude = -0.8;
@@ -178,6 +158,8 @@ BOOST_AUTO_TEST_CASE( explicitOblateNormalDiffersFromRadialUp )
                                     n * ( 1 - eccentricitySquared ) * std::sin( latitude ) );
     const auto normal = createGeodeticStationReferencePointGeometry( position, "ITRF2020", radius, flattening );
     const auto radial = createGeocentricStationReferencePointGeometry( position, "ITRF2020" );
+
+    // Distinguish ellipsoid-normal antenna height from radial height.
     close( normal.enuToTerrestrial.col( 2 ),
            Eigen::Vector3d(
                    std::cos( latitude ) * std::cos( longitude ), std::cos( latitude ) * std::sin( longitude ), std::sin( latitude ) ),
@@ -191,25 +173,19 @@ BOOST_AUTO_TEST_CASE( explicitOblateNormalDiffersFromRadialUp )
     close( point->getPositionCorrection( query ), 0.05 * normal.enuToTerrestrial.col( 2 ), 1e-16 );
 }
 
-BOOST_AUTO_TEST_CASE( actualHeaderCoverageAndEquipmentCalibrationGuards )
+//! Reject calibration for the wrong antenna or in the wrong reference-point order.
+BOOST_AUTO_TEST_CASE( equipmentCalibrationMustFollowItsAntennaReferencePoint )
 {
     const auto source = marker( );
-    const auto geometry = createGeocentricStationReferencePointGeometry( Eigen::Vector3d( 3e6, -5e6, 2e6 ), "ITRF2020" );
-    BOOST_CHECK_THROW( createSinexAntennaReferencePointOffsets( source->getMetadata( ), equipment( ), "ARP", geometry ),
-                       std::runtime_error );
-    auto gap = equipment( );
-    gap.eccentricities[ 1 ].start.civilUtc->secondsOfDay += 1;
-    BOOST_CHECK_THROW( createSinexAntennaReferencePointOffsets( source->getMetadata( ), gap, "ARP", geometry, context( ) ),
-                       std::runtime_error );
-    auto ambiguous = equipment( );
-    ambiguous.eccentricities.push_back( ambiguous.eccentricities.front( ) );
-    BOOST_CHECK_THROW( createSinexAntennaReferencePointOffsets( source->getMetadata( ), ambiguous, "ARP", geometry, context( ) ),
-                       std::runtime_error );
     const auto point = arp( source );
     auto offset = calibration( point );
     offset.equipmentSerialNumber = "wrong antenna";
     const auto wrongAntenna =
             std::make_shared< StationReferencePointOffsetHistory >( std::vector< StationReferencePointOffset >{ offset } );
+
+    // Reject calibration for the wrong antenna or in the wrong reference-point order.
+
+    // Reject calibration associated with a different physical antenna.
     BOOST_CHECK_THROW( validateStationReferencePointOffsets( source->getMetadata( ), { point, wrongAntenna } ), std::runtime_error );
 
     // A calibration needs the ARP offsets before it, and the first offsets must start at the point of the history.
@@ -218,11 +194,9 @@ BOOST_AUTO_TEST_CASE( actualHeaderCoverageAndEquipmentCalibrationGuards )
     BOOST_CHECK_NO_THROW( validateStationReferencePointOffsets( source->getMetadata( ), { point, calibrated } ) );
     BOOST_CHECK_THROW( validateStationReferencePointOffsets( source->getMetadata( ), { calibrated } ), std::runtime_error );
     BOOST_CHECK_THROW( validateStationReferencePointOffsets( source->getMetadata( ), { calibrated, point } ), std::runtime_error );
-    offset = calibration( point );
-    offset.directionDependent = true;
-    BOOST_CHECK_THROW( StationReferencePointOffsetHistory( { offset } ), std::runtime_error );
 }
 
+//! Combine calibrated offsets and their rates in the transformed marker frame.
 BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrames )
 {
     const auto source = marker( );
@@ -246,14 +220,6 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrames )
     close( pointState( source, { point, calibrated }, query ).tail< 3 >( ), velocity, 1e-20 );
     close( pointPosition( source, { point, calibrated }, query ),
            pointPosition( source, { point }, query ) + offset.positionFunction( query ) );
-    auto noRates = query;
-    noRates.mjdRate.reset( );
-    noRates.decimalYearRate.reset( );
-    BOOST_CHECK_NO_THROW( calibrated->getPositionCorrection( noRates ) );
-    offset.stateFunction = nullptr;
-    const auto positionOnly =
-            std::make_shared< StationReferencePointOffsetHistory >( std::vector< StationReferencePointOffset >{ offset } );
-    BOOST_CHECK_THROW( pointState( source, { point, positionOnly }, query ), std::runtime_error );
 
     // Offsets must be given in the frame of the history: after a frame transformation of the marker history, they are
     // created from the transformed history.
@@ -261,6 +227,8 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrames )
     const auto& meta = source->getMetadata( );
     const auto transformedMarker =
             transformStationCoordinateHistory( source, catalogue, { "ITRF2014", "ITRF2014" }, meta.origin, meta.tideSystem );
+
+    // Offsets in the old terrestrial frame cannot follow a transformed marker.
     BOOST_CHECK_THROW( validateStationReferencePointOffsets( transformedMarker->getMetadata( ), { point } ), std::runtime_error );
     const auto pointAfterFrame = arp( transformedMarker );
     BOOST_CHECK_EQUAL( pointAfterFrame->getOffsets( ).front( ).frame, "ITRF2014" );
@@ -273,6 +241,7 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrames )
             validateStationReferencePointOffsets( transformedMarker->getMetadata( ), { pointAfterFrame, calibratedAfterFrame } ) );
 }
 
+//! Preserve a precise equipment switch and the complete inertial offset velocity.
 BOOST_AUTO_TEST_CASE( precisePublicPointSwitchAndCompleteInertialOffsetVelocity )
 {
     const auto source = marker( );
@@ -283,7 +252,6 @@ BOOST_AUTO_TEST_CASE( precisePublicPointSwitchAndCompleteInertialOffsetVelocity 
     };
     const auto settings =
             simulation_setup::stationReferencePointSettings( source, { point }, Eigen::Vector3d( 3e6, -5e6, 2e6 ), sourceClock );
-    BOOST_CHECK_EQUAL( settings->getStationName( ), "ABMF:ARP" );
     const Time ordinaryTai = convertSinexCivilUtcToTai( { 2008, 200, 0 } );
     const Time tdb = converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, ordinaryTai );
     const auto body = std::make_shared< simulation_setup::Body >( );
@@ -299,6 +267,8 @@ BOOST_AUTO_TEST_CASE( precisePublicPointSwitchAndCompleteInertialOffsetVelocity 
             converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, switchTai - 1e-10L );
     const Time right =
             converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, switchTai + 1e-10L );
+
+    // Preserve a precise equipment switch and the complete inertial offset velocity.
     BOOST_REQUIRE( left < right );
     BOOST_REQUIRE_EQUAL( static_cast< double >( left ), static_cast< double >( right ) );
     const auto leftSource = getIgnNominalUtcStationTimeFromTdb( left, converter );

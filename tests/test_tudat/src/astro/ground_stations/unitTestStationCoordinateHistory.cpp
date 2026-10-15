@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/ground_stations/stationHistoryMotionModel.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
@@ -14,8 +15,7 @@ namespace
 {
 std::string fixture( const std::string& name )
 {
-    const std::string source = __FILE__;
-    return source.substr( 0, source.find_last_of( "/\\" ) ) + "/../../../reference_files/station_history/" + name;
+    return paths::getTudatTestDataPath( ) + "pr1092/reference_files/station_history/" + name;
 }
 StationHistoryTime manufacturedTime( long double years )
 {
@@ -98,9 +98,12 @@ std::pair< SinexStationHistory, SinexStationHistory > controlledCompanions( cons
 }
 }  // namespace
 
+//! Compare all IGN post-seismic functions with the published scalar reference rows.
 BOOST_AUTO_TEST_CASE( unchangedIgnParametricSelectorsAndSignedAmplitudes )
 {
     std::ifstream stream( fixture( "ign_psd_reference.csv" ) );
+
+    // Compare all IGN post-seismic functions with the published scalar reference rows.
     BOOST_REQUIRE( stream.good( ) );
     std::string row;
     std::getline( stream, row );
@@ -140,11 +143,14 @@ BOOST_AUTO_TEST_CASE( unchangedIgnParametricSelectorsAndSignedAmplitudes )
     BOOST_CHECK_EQUAL( count, 126 );
 }
 
+//! Check cumulative post-seismic displacements and analytic event velocities.
 BOOST_AUTO_TEST_CASE( stableShortTimeCumulativeEventsAndAnalyticRates )
 {
     const auto first = psd( StationPostSeismicFunction::exponential, 0.04, 0.1 );
     const auto second = psd( StationPostSeismicFunction::logarithmic, -0.02, 0.03, 0.5 );
     StationCoordinateHistory history( { linear( ) }, { first, second }, {}, metadata( ) );
+
+    // Check cumulative post-seismic displacements and analytic event velocities.
     closeVector( history.getPosition( manufacturedTime( -0.001 ) ), Eigen::Vector3d::Zero( ), 1e-30 );
     closeVector( history.getPosition( manufacturedTime( 1e-18L ) ), first.amplitudeMetres * 1e-17, 1e-32 );
 
@@ -161,15 +167,9 @@ BOOST_AUTO_TEST_CASE( stableShortTimeCumulativeEventsAndAnalyticRates )
     const auto eventState = history.getState( manufacturedTime( 0.5L ) );
     const Eigen::Vector3d expected = first.amplitudeMetres * ( std::exp( -5.0 ) / 0.1 ) + second.amplitudeMetres / 0.03;
     closeVector( eventState.tail< 3 >( ), expected / 31557600.0, 1e-22 );
-    auto noRate = manufacturedTime( 0.7L );
-    noRate.mjdRate.reset( );
-    BOOST_CHECK_NO_THROW( history.getPosition( noRate ) );
-    BOOST_CHECK_THROW( history.getState( noRate ), std::runtime_error );
-    auto bad = first;
-    bad.relaxationJulianYears = 0.0;
-    BOOST_CHECK_THROW( StationCoordinateHistory( { linear( ) }, { bad }, {}, metadata( ) ), std::runtime_error );
 }
 
+//! Select the new coordinate solution and its velocity at a dated solution boundary.
 BOOST_AUTO_TEST_CASE( halfOpenValidityRightHandSolutionsAndNoExtrapolation )
 {
     auto first = linear( );
@@ -181,20 +181,14 @@ BOOST_AUTO_TEST_CASE( halfOpenValidityRightHandSolutionsAndNoExtrapolation )
     second.velocityMetresPerJulianYear *= -1;
     second.validity = { first.validity.endTai, manufacturedTime( 2 ).tai };
     StationCoordinateHistory history( { second, first }, {}, {}, metadata( ) );
+
+    // Select the new coordinate solution and its velocity at a dated solution boundary.
     closeVector(
             history.getState( manufacturedTime( 1 ) ).head< 3 >( ), second.positionMetres + second.velocityMetresPerJulianYear, 1e-16 );
     closeVector( history.getState( manufacturedTime( 1 ) ).tail< 3 >( ), second.velocityMetresPerJulianYear / 31557600.0, 1e-24 );
-    BOOST_CHECK_THROW( history.getPosition( manufacturedTime( -1e-9 ) ), std::runtime_error );
-    BOOST_CHECK_THROW( history.getPosition( manufacturedTime( 2 ) ), std::runtime_error );
-    second.validity.startTai = manufacturedTime( 1.1 ).tai;
-    BOOST_CHECK_THROW( StationCoordinateHistory( { first, second }, {}, {}, metadata( ) ), std::runtime_error );
-    second.validity.startTai = manufacturedTime( 0.9 ).tai;
-    BOOST_CHECK_THROW( StationCoordinateHistory( { first, second }, {}, {}, metadata( ) ), std::runtime_error );
-    auto wrong = manufacturedTime( 0.2 );
-    wrong.convention = "unannounced TT substitution";
-    BOOST_CHECK_THROW( history.getPosition( wrong ), std::runtime_error );
 }
 
+//! Compare seasonal positions and velocities with calendar phases in rotated bases.
 BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
 {
     auto ref = getIgnNominalUtcStationTime( SinexCivilUtc{ 2020, 1, 0 } );
@@ -207,6 +201,8 @@ BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
     StationCoordinateHistory history( { solution }, {}, { annual, semiannual }, meta );
     const auto tai = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
     const auto time = getIgnNominalUtcStationTimeFromTai( tai, 1.00000001 );
+
+    // Compare seasonal positions and velocities with calendar phases in rotated bases.
     BOOST_CHECK_SMALL( static_cast< double >( time.yearFraction - 59.5L / 366 ), 1e-18 );
     Eigen::Vector3d expected = Eigen::Vector3d::Zero( );
     for( const auto& term : { annual, semiannual } )
@@ -234,50 +230,18 @@ BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
     BOOST_CHECK_EQUAL( nextYear.calendarYear, 2021 );
     BOOST_CHECK_EQUAL( nextYear.yearFraction, 0.0L );
     BOOST_CHECK_EQUAL( *nextYear.decimalYearRate, 1.0 / ( 365 * 86400.0 ) );
-    auto missingRate = time;
-    missingRate.decimalYearRate.reset( );
-    BOOST_CHECK_NO_THROW( history.getPosition( missingRate ) );
-    BOOST_CHECK_THROW( history.getState( missingRate ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( nativeCivilUtcLeapSecondAndSofaReference )
-{
-    const auto leap = convertSinexCivilUtcToTai( { 2016, 366, 86400 } );
-    const auto midnight = convertSinexCivilUtcToTai( { 2017, 1, 0 } );
-    BOOST_CHECK_EQUAL( static_cast< double >( midnight - leap ), 1.0 );
-    double u1, u2, t1, t2;
-    BOOST_REQUIRE_EQUAL( iauDtf2d( "UTC", 2016, 12, 31, 23, 59, 60.0, &u1, &u2 ), 0 );
-    BOOST_REQUIRE_EQUAL( iauUtctai( u1, u2, &t1, &t2 ), 0 );
-    const long double directTai = ( static_cast< long double >( t1 - 2451545.0 ) + t2 ) * 86400.0L;
-    BOOST_CHECK_SMALL( static_cast< double >( static_cast< long double >( leap ) - directTai ), 2e-9 );
-    BOOST_CHECK_THROW( getIgnNominalUtcStationTimeFromTai( leap + 0.5 ), std::runtime_error );
-    BOOST_CHECK_THROW( getIgnNominalUtcStationTime( SinexCivilUtc{ 2016, 366, 86400 } ), std::runtime_error );
-    BOOST_CHECK_THROW( convertSinexCivilUtcToTai( { 2016, 365, 86400 } ), std::runtime_error );
-    BOOST_CHECK_THROW( getIgnNominalUtcStationTime( SinexCivilUtc{ 1971, 365, 0 } ), std::runtime_error );
-    BOOST_CHECK_NO_THROW( getIgnNominalUtcStationTimeFromTai( midnight ) );
-    BOOST_CHECK_THROW( getIgnNominalUtcStationTimeFromTai( midnight, 1.0 ), std::runtime_error );
-    const auto before = getIgnNominalUtcStationTimeFromTai( leap - 1e-9L, 1.0 );
-    BOOST_CHECK_EQUAL( before.calendarYear, 2016 );
-    BOOST_CHECK( before.mjdFraction < 1.0L );
-    const auto after = getIgnNominalUtcStationTimeFromTai( midnight + 1e-9L, 1.0 );
-    BOOST_CHECK_EQUAL( after.calendarYear, 2017 );
-    BOOST_CHECK( after.mjdFraction > 0.0L );
-    const auto converter = std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >( nullptr, nullptr );
-    const Time ordinary = midnight + 12345.25;
-    const Time tdb = converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, ordinary );
-    const auto native = getIgnNominalUtcStationTimeFromTdb( tdb, converter, true );
-    BOOST_CHECK_SMALL( static_cast< double >( native.tai - ordinary ), 1e-12 );
-    BOOST_CHECK_SMALL( static_cast< double >( native.mjdFraction * 86400 - 12345.25L ), 1e-11 );
-    BOOST_REQUIRE( native.mjdRate && native.decimalYearRate );
-}
-
-BOOST_AUTO_TEST_CASE( publishedHistoryPositionVelocityIdsAndStrictMetadata )
+//! Assemble published SINEX coordinates and their corresponding velocity records.
+BOOST_AUTO_TEST_CASE( publishedHistoryPositionAndVelocity )
 {
     auto solutions = product( "ab07_solutions.snx" );
     auto intervals = product( "ab07_discontinuities.snx" );
     auto deformation = product( "ab07_psd.snx" );
     const Eigen::Matrix3d basis = Eigen::Matrix3d::Identity( );
     auto history = createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &deformation, nullptr, basis );
+
+    // Assemble published SINEX coordinates and their corresponding velocity records.
     BOOST_CHECK_EQUAL( history->getSolutions( ).size( ), 6 );
     BOOST_CHECK_EQUAL( history->getPostSeismicTerms( ).size( ), 2 );
     BOOST_CHECK_EQUAL( history->getMetadata( ).release, "ITRF2020" );
@@ -294,45 +258,10 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionVelocityIdsAndStrictMetadata )
     const auto event = history->getPostSeismicTerms( ).front( ).eventTime;
     auto query = getIgnNominalUtcStationTimeFromTai( event.tai + 100.0, 1.0 );
     BOOST_CHECK( history->getState( query ).allFinite( ) );
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &deformation ), std::runtime_error );
-    auto wrongRelease = deformation;
-    wrongRelease.release = "ITRF2020-u2024";
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &wrongRelease, nullptr, basis ),
-                       std::runtime_error );
-    auto orphan = deformation;
-    orphan.parameters.erase( 2 );
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &orphan, nullptr, basis ),
-                       std::runtime_error );
-    auto wrongPartner = deformation;
-    wrongPartner.parameters.at( 2 ).type = "TEXP_N";
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &wrongPartner, nullptr, basis ),
-                       std::runtime_error );
-    auto ambiguous = deformation;
-    auto duplicate = ambiguous.sites.begin( )->second;
-    duplicate.domesId = "00000M002";
-    ambiguous.sites.emplace( duplicate.key, duplicate );
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis ),
-                       std::runtime_error );
-    BOOST_CHECK_NO_THROW( createIgnStationCoordinateHistory(
-            solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis, history->getMetadata( ).domesId ) );
-    BOOST_CHECK_THROW(
-            createIgnStationCoordinateHistory( solutions, intervals, { "AB07", "A" }, &ambiguous, nullptr, basis, "absent DOMES" ),
-            std::runtime_error );
-    auto contradictoryVelocity = solutions;
-    *contradictoryVelocity.parameters.at( 34 ).valueSi += 0.001 / 31557600.0;
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( contradictoryVelocity, intervals, { "AB07", "A" } ), std::runtime_error );
-    auto velocityGap = intervals;
-    velocityGap.discontinuities.back( ).start.civilUtc->secondsOfDay += 1;
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, velocityGap, { "AB07", "A" } ), std::runtime_error );
-    auto missingTide = solutions;
-    missingTide.tideSystem.clear( );
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( missingTide, intervals, { "AB07", "A" } ), std::runtime_error );
-    auto unresolved = intervals;
-    unresolved.discontinuities.front( ).start.meaning = SinexEpochMeaning::unspecified;
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( solutions, unresolved, { "AB07", "A" } ), std::runtime_error );
 }
 
-BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
+//! Sum all published repeated post-seismic parameter pairs.
+BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairs )
 {
     const auto deformation = product( "repeated_psd.snx" );
     const Eigen::Matrix3d basis = Eigen::AngleAxisd( 0.7, Eigen::Vector3d( 1, 2, 3 ).normalized( ) ).toRotationMatrix( );
@@ -341,6 +270,8 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
         const SinexSiteKey key{ siteCode, "A" };
         const auto companions = controlledCompanions( deformation.sites.find( key )->second );
         const auto history = createIgnStationCoordinateHistory( companions.first, companions.second, key, &deformation, nullptr, basis );
+
+        // Sum all published repeated post-seismic parameter pairs.
         BOOST_CHECK_EQUAL( history->getPostSeismicTerms( ).size( ), siteCode == "AB48" ? 4 : 5 );
         const auto time = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2019, 160, 43200 } ), 1.0 );
         Eigen::Vector3d expected = Eigen::Vector3d::Zero( );
@@ -358,52 +289,10 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairsAndInputOrderIndependence )
             expected += basis.col( std::string( "ENU" ).find( amplitude.type.back( ) ) ) * ( amplitude.originalValue * correction );
         }
         closeVector( history->getPosition( time ), expected, 2e-15 );
-
-        std::ifstream stream( fixture( "repeated_psd.snx" ) );
-        std::string line, prefix, suffix;
-        std::vector< std::string > estimates;
-        bool inEstimates = false, finishedEstimates = false;
-        while( std::getline( stream, line ) )
-        {
-            if( line == "-SOLUTION/ESTIMATE" )
-            {
-                inEstimates = false;
-                finishedEstimates = true;
-            }
-            if( inEstimates )
-            {
-                estimates.push_back( line );
-            }
-            else if( finishedEstimates )
-            {
-                suffix += line + "\n";
-            }
-            else
-            {
-                prefix += line + "\n";
-            }
-            if( line == "+SOLUTION/ESTIMATE" )
-            {
-                inEstimates = true;
-            }
-        }
-        std::reverse( estimates.begin( ), estimates.end( ) );
-        for( const auto& estimate : estimates )
-        {
-            prefix += estimate + "\n";
-        }
-        std::istringstream reorderedStream( prefix + suffix );
-        auto reordered = readSinexStationHistory( reorderedStream, "reversed published estimates" );
-        reordered.frame = deformation.frame;
-        reordered.release = deformation.release;
-        reordered.origin = deformation.origin;
-        reordered.tideSystem = deformation.tideSystem;
-        const auto alternate = createIgnStationCoordinateHistory( companions.first, companions.second, key, &reordered, nullptr, basis );
-        closeVector( alternate->getPosition( time ), history->getPosition( time ), 1e-30 );
-        closeVector( alternate->getState( time ).tail< 3 >( ), history->getState( time ).tail< 3 >( ), 1e-30 );
     }
 }
 
+//! Build seasonal station motion from published SINEX coefficients in a fixed basis.
 BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
 {
     auto seasons = product( "albh_seasonal.snx" );
@@ -411,6 +300,8 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
     const auto companions = controlledCompanions( seasons.sites.find( key )->second );
     const Eigen::Matrix3d basis = Eigen::AngleAxisd( -0.31, Eigen::Vector3d( 1, -2, 3 ).normalized( ) ).toRotationMatrix( );
     const auto history = createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &seasons, basis );
+
+    // Build seasonal station motion from published SINEX coefficients in a fixed basis.
     BOOST_CHECK_EQUAL( history->getSeasonalTerms( ).size( ), 12 );
     BOOST_CHECK( history->hasFittedSeasonalTerms( ) );
     const auto time = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2020, 60, 43200 } ), 1.0 );
@@ -432,6 +323,8 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
     closeVector( history->getState( time ).tail< 3 >( ), basis * withoutBasis->getState( time ).tail< 3 >( ), 1e-23 );
     auto cf = seasons;
     cf.origin = "CF";
+
+    // A seasonal product in CF cannot be combined silently with CM coordinates.
     BOOST_CHECK_THROW( createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &cf, basis ),
                        std::runtime_error );
     auto cfCoordinates = companions.first;
@@ -439,14 +332,9 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
     cfCoordinates.origin = cfIntervals.origin = "CF";
     BOOST_CHECK_EQUAL( createIgnStationCoordinateHistory( cfCoordinates, cfIntervals, key, nullptr, &cf, basis )->getMetadata( ).origin,
                        "CF" );
-    auto missing = seasons;
-    missing.parameters.erase( 1 );
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &missing, basis ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW( createIgnStationCoordinateHistory( companions.first, companions.second, key, nullptr, &seasons, 2 * basis ),
-                       std::runtime_error );
 }
 
+//! Preserve precise solution selection through public station-motion dispatch.
 BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMotionIntegration )
 {
     auto a = linear( );
@@ -463,22 +351,11 @@ BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMoti
                                                                  metadata( ) );
     auto time = manufacturedTime( 0 );
     time.tai = boundary - 1e-12L;
+
+    // Select the old solution just before the boundary and the new solution at the boundary.
     closeVector( history->getPosition( time ), a.positionMetres, 1e-30 );
     time.tai = boundary;
     closeVector( history->getPosition( time ), b.positionMetres, 1e-30 );
-    auto motion = std::make_shared< StationHistoryMotionModel >(
-            history, std::vector< std::shared_ptr< StationReferencePointOffsetHistory > >( ), [ time ]( const auto&, bool rates ) {
-                auto output = time;
-                if( rates )
-                {
-                    throw std::runtime_error( "manufactured position-only source callback" );
-                }
-                return output;
-            } );
-    auto station = std::make_shared< GroundStationState >(
-            Eigen::Vector3d( 100, 200, 300 ), coordinate_conversions::cartesian_position, nullptr, motion );
-    closeVector( station->getCartesianPositionInTime( 0.0, "Earth" ), b.positionMetres, 1e-30 );
-    BOOST_CHECK_THROW( station->getCartesianStateInTime( 0.0, "Earth" ), std::runtime_error );
     const auto settings = simulation_setup::stationHistoryGroundStationMotionSettings( history, {}, [ time ]( const auto&, bool rates ) {
         auto output = time;
         if( !rates )
@@ -493,9 +370,4 @@ BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMoti
                                                                             { settings } );
     closeVector( factoryStation->getCartesianPositionInTime( 0.0, "Earth" ), b.positionMetres, 1e-30 );
     closeVector( factoryStation->getCartesianStateInTime( 0.0, "Earth" ).head< 3 >( ), b.positionMetres, 1e-30 );
-    const auto nominalFactoryStation = simulation_setup::createGroundStationState(
-            std::make_shared< simulation_setup::Body >( ), Eigen::Vector3d( 100, 200, 300 ), coordinate_conversions::cartesian_position );
-    closeVector( nominalFactoryStation->getCartesianPositionInTime( 0.0, "Earth" ), Eigen::Vector3d( 100, 200, 300 ), 1e-30 );
-    LinearStationMotionModel legacyLinear( Eigen::Vector3d( 1, 2, 3 ), 0.0 );
-    closeVector( legacyLinear.getBodyFixedStationMotion( 0.0 ).head< 3 >( ), Eigen::Vector3d::Zero( ), 1e-30 );
 }

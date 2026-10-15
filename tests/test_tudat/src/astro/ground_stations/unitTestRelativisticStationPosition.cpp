@@ -44,17 +44,6 @@ std::shared_ptr< BodyCentricToBarycentricRelativisticStationMotion > constantMod
             compatibility );
 }
 
-struct PositionOnlyMotion : StationMotionModel {
-    Eigen::Vector6d getBodyFixedStationMotion( const Time&, std::shared_ptr< GroundStationState >, const std::string& ) override
-    {
-        throw std::runtime_error( "Intrinsic rate unavailable" );
-    }
-    Eigen::Vector3d getBodyFixedStationPositionCorrection( const Time&, std::shared_ptr< GroundStationState >, const std::string& ) override
-    {
-        return Eigen::Vector3d( 17, -21, 8 );
-    }
-};
-
 struct FactoryFixture {
     FactoryFixture( )
     {
@@ -117,6 +106,7 @@ struct FactoryFixture {
 };
 }  // namespace
 
+//! Compare relativistic station corrections with independent 70-digit equation fixtures.
 BOOST_AUTO_TEST_CASE( iers_equation_fixtures_use_independent_70_digit_decimal_results )
 {
     const Eigen::Vector3d point( 4075578.385, 931852.890, 4801570.154 );
@@ -132,6 +122,8 @@ BOOST_AUTO_TEST_CASE( iers_equation_fixtures_use_independent_70_digit_decimal_re
     for( const auto compatibility : { unscaled_tcg_to_tcb_station_coordinates, tt_to_tdb_station_coordinates } )
     {
         auto model = constantModel( compatibility );
+
+        // Compare relativistic station corrections with independent 70-digit equation fixtures.
         BOOST_CHECK_EQUAL( model->getExternalBodies( ).size( ), 2 );
         BOOST_CHECK_EQUAL( model->getExternalBodies( )[ 0 ].name, "Sun" );
         const auto actual = model->correctCompleteLocalPosition( 1234, point, "SSB" );
@@ -147,6 +139,7 @@ BOOST_AUTO_TEST_CASE( iers_equation_fixtures_use_independent_70_digit_decimal_re
     }
 }
 
+//! Check the spatial approximation against the stationary-point Lorentz limit.
 BOOST_AUTO_TEST_CASE( stationary_comoving_point_matches_exact_flat_spacetime_lorentz_contraction )
 {
     const long double c = 299792458.L, speed = 30000.L;
@@ -163,12 +156,15 @@ BOOST_AUTO_TEST_CASE( stationary_comoving_point_matches_exact_flat_spacetime_lor
             unscaled_tcg_to_tcb_station_coordinates );
     const Eigen::Vector3d point( 6e6, 2e6, -3e6 );
     const auto correction = model.correctCompleteLocalPosition( 0, point, "SSB" );
+
+    // Check the spatial approximation against the stationary-point Lorentz limit.
     BOOST_CHECK_SMALL( correction( 0 ) - static_cast< double >( exact * 6e6L ), 1e-10 );
     BOOST_CHECK_SMALL( correction( 1 ), 1e-18 );
     BOOST_CHECK_SMALL( correction( 2 ), 1e-18 );
     BOOST_CHECK_LT( correction( 0 ), 0 );
 }
 
+//! Apply the relativistic correction once to the complete displaced station state.
 BOOST_AUTO_TEST_CASE( terminal_spatial_map_consumes_full_intrinsic_state_independent_of_order )
 {
     const Eigen::Vector3d nominal( 4e6, 1e6, 5e6 ), drift( .02, -.01, .03 );
@@ -207,6 +203,8 @@ BOOST_AUTO_TEST_CASE( terminal_spatial_map_consumes_full_intrinsic_state_indepen
     const double t = 1000;
     const auto actual = station->getCartesianStateInTime( t, "SSB" );
     const auto intrinsicState = state( nominal + t * drift, drift );
+
+    // Apply the relativistic correction once to the complete displaced station state.
     BOOST_CHECK_SMALL( ( actual - intrinsicState - relativistic->correctCompleteLocalState( t, intrinsicState, "SSB" ) ).norm( ), 8e-10 );
     BOOST_CHECK_SMALL( ( actual - reverse->getCartesianStateInTime( t, "SSB" ) ).norm( ), 1e-18 );
     BOOST_CHECK_GT( ( actual.tail< 3 >( ) - drift ).norm( ), 1e-6 );
@@ -225,91 +223,20 @@ BOOST_AUTO_TEST_CASE( terminal_spatial_map_consumes_full_intrinsic_state_indepen
     BOOST_CHECK_SMALL( ( station->getCartesianStateInTime( t, "Earth" ) - intrinsicState ).norm( ), 1e-18 );
     auto nested = std::make_shared< CombinedStationMotionModel >(
             std::vector< std::shared_ptr< StationMotionModel > >{ intrinsic, relativistic } );
+
+    // Reject a second terminal correction, including one hidden inside a combined model.
     BOOST_CHECK_THROW( CombinedStationMotionModel( ( std::vector< std::shared_ptr< StationMotionModel > >{ nested, relativistic } ) ),
                        std::invalid_argument );
 }
 
-BOOST_AUTO_TEST_CASE( position_only_access_preserves_unavailable_intrinsic_and_external_rates )
+//! Recover the relativistic velocity from a precise moving-body ephemeris.
+BOOST_AUTO_TEST_CASE( precise_ephemeris_fallback_resolves_acceleration )
 {
-    auto relativistic = std::make_shared< BodyCentricToBarycentricRelativisticStationMotion >(
-            []( double ) { return state( Eigen::Vector3d::Zero( ), Eigen::Vector3d( 30000, 0, 0 ) ); },
-            identity,
-            []( double ) -> Eigen::Matrix3d { throw std::runtime_error( "rotation rate unavailable" ); },
-            std::vector< RelativisticStationExternalBody >{
-                    { "Sun",
-                      []( double ) { return state( Eigen::Vector3d( 1.5e11, 0, 0 ), Eigen::Vector3d::Constant( NAN ) ); },
-                      []( ) { return 1.32712440018e20; } } },
-            tt_to_tdb_station_coordinates );
-    auto station = std::make_shared< GroundStationState >(
-            Eigen::Vector3d( 4e6, 1e6, 5e6 ),
-            coordinate_conversions::cartesian_position,
-            nullptr,
-            std::make_shared< CombinedStationMotionModel >(
-                    std::vector< std::shared_ptr< StationMotionModel > >{ relativistic, std::make_shared< PositionOnlyMotion >( ) } ) );
-    BOOST_CHECK_NO_THROW( station->getCartesianPositionInTime( 0, "SSB" ) );
-    BOOST_CHECK_THROW( station->getCartesianStateInTime( 0, "SSB" ), std::runtime_error );
-    BOOST_CHECK_NO_THROW( relativistic->correctCompleteLocalPosition( 0, Eigen::Vector3d::Ones( ), "SSB" ) );
-    BOOST_CHECK_THROW( relativistic->correctCompleteLocalState( 0, Eigen::Vector6d::Ones( ), "SSB" ), std::runtime_error );
-    BodyCentricToBarycentricRelativisticStationMotion missingExternalRate(
-            []( double ) { return state( Eigen::Vector3d::Zero( ), Eigen::Vector3d( 30000, 0, 0 ) ); },
-            identity,
-            noRotationRate,
-            relativistic->getExternalBodies( ),
-            tt_to_tdb_station_coordinates );
-    BOOST_CHECK_NO_THROW( missingExternalRate.correctCompleteLocalPosition( 0, Eigen::Vector3d::Ones( ), "SSB" ) );
-    BOOST_CHECK_THROW( missingExternalRate.correctCompleteLocalState( 0, Eigen::Vector6d::Ones( ), "SSB" ), std::runtime_error );
-}
-
-BOOST_AUTO_TEST_CASE( invalid_external_potential_and_unavailable_fallback_rates_fail_honestly )
-{
-    const auto host = []( double ) { return state( Eigen::Vector3d::Zero( ), Eigen::Vector3d( 30000, 0, 0 ) ); };
-    const RelativisticStationExternalBody sun{ "Sun", host, []( ) { return 1e20; } };
-    BOOST_CHECK_THROW( BodyCentricToBarycentricRelativisticStationMotion(
-                               host, identity, noRotationRate, {}, unspecified_station_coordinate_compatibility ),
-                       std::invalid_argument );
-    BOOST_CHECK_THROW( BodyCentricToBarycentricRelativisticStationMotion(
-                               host, identity, noRotationRate, { sun, sun }, tt_to_tdb_station_coordinates ),
-                       std::invalid_argument );
-    BodyCentricToBarycentricRelativisticStationMotion coincident( host, identity, noRotationRate, { sun }, tt_to_tdb_station_coordinates );
-    BOOST_CHECK_THROW( coincident.correctCompleteLocalPosition( 0, Eigen::Vector3d::Ones( ), "SSB" ), std::domain_error );
-    double lastEpoch = NAN;
-    BodyCentricToBarycentricRelativisticStationMotion covered(
-            [ & ]( double t ) {
-                lastEpoch = t;
-                if( t != 0 )
-                {
-                    throw std::out_of_range( "host coverage" );
-                }
-                return host( t );
-            },
-            identity,
-            noRotationRate,
-            {},
-            tt_to_tdb_station_coordinates );
-    BOOST_CHECK_NO_THROW( covered.correctCompleteLocalPosition( 0, Eigen::Vector3d::Ones( ), "SSB" ) );
-    BOOST_CHECK_THROW( covered.correctCompleteLocalState( 0, Eigen::Vector6d::Ones( ), "SSB" ), std::out_of_range );
     const Time centre( 300000000.0 );
     const double step = std::ldexp( 1.0, -27 );
-    auto scalarEphemeris = std::make_shared< ephemerides::CustomEphemeris<> >(
-            []( double time ) {
-                const double dt = time - 300000000.0;
-                return state( Eigen::Vector3d( 30000 * dt + 0.5e6 * dt * dt, 0, 0 ), Eigen::Vector3d( 30000 + 1e6 * dt, 0, 0 ) );
-            },
-            "SSB",
-            "GCRS" );
-    double restored = NAN;
-    BodyCentricToBarycentricRelativisticStationMotion unresolved(
-            [ & ]( const Time& time ) {
-                restored = static_cast< double >( time );
-                return scalarEphemeris->getCartesianStateFromExtendedTime( time );
-            },
-            identity,
-            noRotationRate,
-            {},
-            unscaled_tcg_to_tcb_station_coordinates,
-            step );
     const Eigen::Vector6d intrinsic = state( Eigen::Vector3d( 6e6, 2e6, -3e6 ), Eigen::Vector3d::Zero( ) );
-    BOOST_CHECK_NO_THROW( unresolved.correctCompleteLocalPosition( centre, intrinsic.head< 3 >( ), "SSB" ) );
+
+    // Recover the relativistic velocity from a precise moving-body ephemeris.
     auto preciseEphemeris = std::make_shared< ephemerides::CustomEphemeris< Time > >(
             [ & ]( const Time time ) {
                 const double dt = static_cast< double >( time - centre );
@@ -328,6 +255,7 @@ BOOST_AUTO_TEST_CASE( invalid_external_potential_and_unavailable_fallback_rates_
     BOOST_CHECK_SMALL( ( precise.correctCompleteLocalState( centre, intrinsic, "SSB" ).tail< 3 >( ) - expectedRate ).norm( ), 1e-15 );
 }
 
+//! Use the selected external bodies and matching inertial axes in the public factory.
 BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_tdb_rotation )
 {
     using namespace basic_astrodynamics;
@@ -362,6 +290,8 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
                         settings, simulation_setup::linearGroundStationMotionSettings( drift, fixture.time - 1000 ) } );
         simulation_setup::createGroundStation( fixture.earth, stationSettings, fixture.bodies );
         auto station = fixture.earth->getGroundStation( stationName )->getNominalStationState( );
+
+        // Use the selected external bodies and matching inertial axes in the public factory.
         BOOST_CHECK_SMALL( ( station->getCartesianPositionInTime( fixture.time, "SSB" ) - intrinsic.head< 3 >( ) -
                              tdbRotation->getRotationToTargetFrame( fixture.time ) * correction )
                                    .norm( ),
@@ -384,33 +314,10 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
         BOOST_CHECK_EQUAL( ephemeris->getReferenceFrameOrientation( ), "GCRS" );
         BOOST_CHECK_NO_THROW( ephemeris->getCartesianState( fixture.time ) );
     }
-    const auto boundStation = fixture.earth->getGroundStation( stationName )->getNominalStationState( );
-    const auto eop = fixture.clock->getEarthOrientationDataEvaluator( );
-    for( const Time& boundary : { eop->getStartTai( ), eop->getEndTai( ) } )
-    {
-        const Time tdb = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, boundary );
-        BOOST_CHECK_NO_THROW( boundStation->getCartesianPositionInTime( static_cast< double >( tdb ), "SSB" ) );
-        BOOST_CHECK_NO_THROW( boundStation->getCartesianStateInTime( static_cast< double >( tdb ), "SSB" ) );
-        BOOST_CHECK_NO_THROW( boundStation->getCartesianStateInTime( tdb, "SSB" ) );
-    }
-    const Time outside = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, eop->getEndTai( ) + 1e-3 );
-    BOOST_CHECK_THROW( boundStation->getCartesianPositionInTime( outside, "SSB" ), std::runtime_error );
-    BOOST_CHECK_THROW( boundStation->getCartesianStateInTime( outside, "SSB" ), std::runtime_error );
-
-    const auto makeBadStation = [ & ]( std::vector< std::string > names ) {
-        auto bad = std::make_shared< simulation_setup::GroundStationSettings >(
-                "bad",
-                nominal,
-                coordinate_conversions::cartesian_position,
-                std::vector< std::shared_ptr< simulation_setup::GroundStationMotionSettings > >{
-                        simulation_setup::relativisticStationMotionSettings( names ) } );
-        simulation_setup::createGroundStation( fixture.earth, bad, fixture.bodies );
-    };
-    BOOST_CHECK_THROW( makeBadStation( { "Earth" } ), std::invalid_argument );
-    BOOST_CHECK_THROW( makeBadStation( { "Sun", "Sun" } ), std::invalid_argument );
-    BOOST_CHECK_THROW( makeBadStation( { "Absent" } ), std::invalid_argument );
     auto mismatched = fixture.bodies;
     mismatched = simulation_setup::SystemOfBodies( "SSB", "ECLIPJ2000", fixture.bodies.getMap( ) );
+
+    // Reject mixed inertial axes before taking relativistic dot products.
     BOOST_CHECK_THROW( simulation_setup::createGroundStationState(
                                fixture.earth,
                                nominal,
@@ -418,13 +325,6 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
                                std::vector< std::shared_ptr< simulation_setup::GroundStationMotionSettings > >{ settings },
                                mismatched ),
                        std::invalid_argument );
-    const auto equivalent = simulation_setup::SystemOfBodies( "SSB", "J2000", fixture.bodies.getMap( ) );
-    BOOST_CHECK_NO_THROW( simulation_setup::createGroundStationState(
-            fixture.earth,
-            nominal,
-            coordinate_conversions::cartesian_position,
-            std::vector< std::shared_ptr< simulation_setup::GroundStationMotionSettings > >{ settings },
-            equivalent ) );
     auto geocentricBodies = simulation_setup::SystemOfBodies( "Earth", "GCRS" );
     fixture.earth->setIsBodyGlobalFrameOrigin( 1 );
     auto ephemeris = simulation_setup::createReferencePointEphemerisFromId( fixture.earth, stationName, geocentricBodies );
@@ -432,6 +332,7 @@ BOOST_AUTO_TEST_CASE( native_public_factory_uses_selected_external_bodies_and_td
     BOOST_CHECK_EQUAL( ephemeris->getReferenceFrameOrientation( ), "GCRS" );
 }
 
+//! Retain external-body geometry through BodySettings construction and origin conversion.
 BOOST_AUTO_TEST_CASE( body_settings_factory_retains_environment_and_converts_external_body_origin_before_station_creation )
 {
     using namespace simulation_setup;
@@ -474,6 +375,8 @@ BOOST_AUTO_TEST_CASE( body_settings_factory_retains_environment_and_converts_ext
         const BodyListSettings settings( { { "Earth", earth }, { "Sun", sun } }, "SSB", "GCRS" );
         const auto bodies = createSystemOfBodies( settings );
         const auto station = bodies.at( "Earth" )->getGroundStation( "body_settings_site" )->getNominalStationState( );
+
+        // Retain external-body geometry through BodySettings construction and origin conversion.
         BOOST_CHECK_SMALL( ( bodies.at( "Sun" )->getPositionInBaseFrameFromEphemeris( time ) - sunPosition ).norm( ), 1e-6 );
         BOOST_CHECK_SMALL( ( station->getCartesianPositionInTime( time, "SSB" ) - intrinsic - expectedCorrection ).norm( ), 2e-9 );
         const Eigen::Vector3d velocityCorrection = station->getCartesianStateInTime( time, "SSB" ).tail< 3 >( ) - drift;

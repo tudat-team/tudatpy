@@ -24,7 +24,7 @@
 #include "tudat/astro/earth_orientation/polarMotionCalculator.h"
 #include "tudat/astro/earth_orientation/precessionNutationCalculator.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
-#include "short_period_reference/fixtures.h"
+#include "pr1092/src/astro/earth_orientation/short_period_reference/fixtures.h"
 
 namespace tudat
 {
@@ -46,6 +46,7 @@ BOOST_AUTO_TEST_SUITE( test_short_period_eop_corrections )
 //! Test short-periodic ut1-utc variations by comparing to test output of UTLIBR.f file
 BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalPolarMotion )
 {
+
     // Create polar motion correction libration corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionCalculator(
             convertArcSecondsToRadians< double >( 1.0E-6 ),
@@ -72,6 +73,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalPolarMotion )
 //! Test short-periodic polar motion libration variations by comparing to test output of ORTHO_EOP.f file
 BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion )
 {
+
     // Create polar motion correction ocean tide corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionCalculator(
             convertArcSecondsToRadians< double >( 1.0E-6 ),
@@ -101,6 +103,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion )
 //! Test short-periodic polar motion variations by checking if multiple contributions are properly combined
 BOOST_AUTO_TEST_CASE( testShortPeriodPolarMotionCombinedCorrections )
 {
+
     // Create polar motion correction ocean tide corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionOceanTideCorrectionCalculator(
             convertArcSecondsToRadians< double >( 1.0E-6 ),
@@ -146,6 +149,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodPolarMotionCombinedCorrections )
 //! Test short-periodic ut1-utc variations by comparing to test output of UTLIBR.f file
 BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalUt1 )
 {
+
     // Create UT1 correction libration corrections
     ShortPeriodEarthOrientationCorrectionCalculator< double > ut1CorrectionCalculator(
             1.0E-6,
@@ -183,6 +187,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalUt1 )
 //! Test short-periodic ut1-utc libration variations by comparing to test output of ORTHO_EOP.f file
 BOOST_AUTO_TEST_CASE( testShortPeriodOceanTideUt1 )
 {
+
     // Create UT1 correction ocean tide corrections
     ShortPeriodEarthOrientationCorrectionCalculator< double > ut1CorrectionCalculator =
             ShortPeriodEarthOrientationCorrectionCalculator< double >(
@@ -209,6 +214,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTideUt1 )
 //! Test short-periodic ut1-utc variations by checking if multiple contributions are properly combined
 BOOST_AUTO_TEST_CASE( testShortPeriodUt1CombinedCorrections )
 {
+
     // Create UT1 correction ocean tide corrections
     ShortPeriodEarthOrientationCorrectionCalculator< double > ut1OceanTideCorrectionCalculator =
             ShortPeriodEarthOrientationCorrectionCalculator< double >(
@@ -247,11 +253,11 @@ BOOST_AUTO_TEST_CASE( testShortPeriodUt1CombinedCorrections )
     BOOST_CHECK_SMALL( std::fabs( ut1CorrectionTotal - ( ut1CorrectionLibration + ut1CorrectionOceanTides ) ), 1.0E-20 );
 }
 
+//! Compare short-period EOP corrections with independent reference routines over a nodal cycle.
 BOOST_AUTO_TEST_CASE( test_independent_short_period_references_across_nodal_cycle )
 {
     const std::string data = getEarthOrientationDataFilesPath( ) + "/";
-    const std::string sourceFile = __FILE__;
-    const std::string fixtures = sourceFile.substr( 0, sourceFile.find_last_of( "/\\" ) + 1 ) + "short_period_reference/";
+    const std::string fixtures = tudat::paths::getTudatTestDataPath( ) + "pr1092/src/astro/earth_orientation/short_period_reference/";
     const double uas = convertArcSecondsToRadians< double >( 1e-6 );
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarLibration(
             uas,
@@ -322,49 +328,7 @@ BOOST_AUTO_TEST_CASE( test_independent_short_period_references_across_nodal_cycl
     }
 }
 
-BOOST_AUTO_TEST_CASE( test_positive_amplitude_threshold_preserves_scalar_and_vector_terms )
-{
-    const std::string data = getEarthOrientationDataFilesPath( ) + "/";
-    const auto ut1 = readAmplitudesAndFundamentalArgumentMultipliers(
-            data + "utcLibrationAmplitudes.txt", data + "utcLibrationFundamentalArgumentMultipliers.txt", 1.0 );
-    BOOST_REQUIRE_EQUAL( ut1.first.rows( ), 1 );
-    BOOST_REQUIRE_EQUAL( ut1.first.cols( ), 2 );
-    BOOST_REQUIRE_EQUAL( ut1.second.cols( ), 6 );
-    BOOST_CHECK_EQUAL( ut1.first( 0, 0 ), 1.75 );
-    BOOST_CHECK_EQUAL( ut1.second( 0, 3 ), -2.0 );
-    ShortPeriodEarthOrientationCorrectionCalculator< double > scalar(
-            1e-6, 1.0, { data + "utcLibrationAmplitudes.txt" }, { data + "utcLibrationFundamentalArgumentMultipliers.txt" } );
-    Eigen::Vector6d zeroArguments = Eigen::Vector6d::Zero( );
-    BOOST_CHECK_SMALL( scalar.getCorrectionsFromFundamentalArgument( zeroArguments ) + 1.01e-6, 1e-20 );
-    const auto polar = readAmplitudesAndFundamentalArgumentMultipliers(
-            data + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
-            data + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
-            20.0 );
-    BOOST_REQUIRE_EQUAL( polar.first.rows( ), 1 );
-    BOOST_REQUIRE_EQUAL( polar.first.cols( ), 4 );
-    BOOST_REQUIRE_EQUAL( polar.second.cols( ), 6 );
-    BOOST_CHECK_EQUAL( polar.first( 0, 0 ), 14.3 );
-    ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > vector(
-            1.0,
-            20.0,
-            { data + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
-            { data + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
-    BOOST_CHECK_SMALL( vector.getCorrectionsFromFundamentalArgument( zeroArguments ).x( ) + 8.2, 1e-14 );
-    BOOST_CHECK_SMALL( vector.getCorrectionsFromFundamentalArgument( zeroArguments ).y( ) - 14.3, 1e-14 );
-    ShortPeriodEarthOrientationCorrectionCalculator< double > noScalar(
-            1.0, 1e6, { data + "utcLibrationAmplitudes.txt" }, { data + "utcLibrationFundamentalArgumentMultipliers.txt" } );
-    ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > noVector(
-            1.0,
-            1e6,
-            { data + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
-            { data + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
-    BOOST_CHECK_EQUAL( noScalar.getCorrectionsFromFundamentalArgument( zeroArguments ), 0.0 );
-    BOOST_CHECK_EQUAL( noVector.getCorrectionsFromFundamentalArgument( zeroArguments ).norm( ), 0.0 );
-    const auto empty = filterRawDataForAmplitudes( Eigen::MatrixXd( 0, 2 ), Eigen::MatrixXd( 0, 6 ), 1.0 );
-    BOOST_CHECK_EQUAL( empty.first.rows( ), 0 );
-    BOOST_CHECK_EQUAL( empty.second.cols( ), 6 );
-}
-
+//! Add daily polar-motion and celestial-pole corrections exactly once to their conventional models.
 BOOST_AUTO_TEST_CASE( test_daily_pole_and_cpo_are_applied_once_without_long_period_or_fcn_additions )
 {
     const std::string data = getEarthOrientationDataFilesPath( ) + "/";

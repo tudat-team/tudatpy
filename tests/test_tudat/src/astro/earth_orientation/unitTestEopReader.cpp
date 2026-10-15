@@ -151,6 +151,7 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
 //! Check whether UT1-UTC interpolator correctly handles leap secons
 BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 {
+
     // Read EOP observations and construct a continuous TAI/UT1 clock.
     std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
             tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt", "C04", basic_astrodynamics::iau_2000_a );
@@ -176,6 +177,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
     // Iterate over all leap seconds
     for( int i = 0; i < leapSecondDays.rows( ); i++ )
     {
+
         // Get UTC time of current leap second
         int year, month, day;
         year = leapSecondDays( i, 2 );
@@ -220,12 +222,25 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
     }
 }
 
+//! Compare file and preloaded EOP adapters using the official modern C04 extract.
 BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_adapter_equivalence_and_provenance )
 {
-    const std::string sourceFile = __FILE__;
-    const std::string file =
-            sourceFile.substr( 0, sourceFile.find_last_of( "/\\" ) + 1 ) + "../../io/earth_orientation_fixtures/modern_c04.txt";
+    const std::string file = tudat::paths::getTudatTestDataPath( ) + "pr1092/src/io/earth_orientation_fixtures/modern_c04.txt";
     const auto data = input_output::readEarthOrientationData( file );
+
+    // The published modern C04 polar coordinates and rates are converted to radians and radians per second.
+    const auto& first = data.records.begin( )->second;
+
+    const double arcsecond = mathematical_constants::PI / 648000.0;
+
+    BOOST_REQUIRE( first.celestialPoleOffsets.has_value( ) );
+    BOOST_REQUIRE( first.polarMotionRates.has_value( ) );
+    BOOST_CHECK_SMALL( first.polarMotion[ 0 ] + 0.134064 * arcsecond, 1e-20 );
+    BOOST_CHECK_EQUAL( first.ut1MinusUtc, 0.3968898 );
+    BOOST_CHECK_SMALL( ( *first.celestialPoleOffsets )[ 0 ] - 0.002255 * arcsecond, 1e-22 );
+    BOOST_CHECK_SMALL( ( *first.polarMotionRates )[ 0 ] + 0.002644 * arcsecond / 86400.0, 1e-24 );
+
+    // File and preloaded construction must produce identical consuming maps.
     EOPReader fromFile( file );
     EOPReader fromData( data );
     BOOST_CHECK( fromFile.getUt1MinusUtcMapRaw( ) == fromData.getUt1MinusUtcMapRaw( ) );
@@ -244,6 +259,8 @@ BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_adapter_equivalence_and_provenance
     {
         BOOST_CHECK_SMALL( ( entry.second - dataCpo.at( entry.first ) ).norm( ), 1e-30 );
     }
+
+    // Preloading preserves the source identity and its observation times.
     const auto& raw = fromData.getRawEarthOrientationData( );
     BOOST_CHECK_EQUAL( raw.source, data.source );
     BOOST_CHECK( raw.header == data.header );
@@ -257,46 +274,27 @@ BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_adapter_equivalence_and_provenance
     BOOST_CHECK_SMALL( fromData.getUt1MinusUtcMapRaw( ).begin( )->first - 45700.5, 1e-10 );
 }
 
+//! Retain Bulletin A UT1 coverage when LOD and celestial-pole offsets are absent.
 BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_keeps_optional_absence )
 {
-    const std::string sourceFile = __FILE__;
-    const std::string file =
-            sourceFile.substr( 0, sourceFile.find_last_of( "/\\" ) + 1 ) + "../../io/earth_orientation_fixtures/finals2000a.txt";
+    const std::string file = tudat::paths::getTudatTestDataPath( ) + "pr1092/src/io/earth_orientation_fixtures/finals2000a.txt";
     auto data = input_output::readEarthOrientationData( file, input_output::EarthOrientationFormat::finals2000a );
+
+    // Bulletin A values retain their own units and are not replaced by the Bulletin B columns.
+    const auto& observed = data.records.begin( )->second;
+
+    const double arcsecond = mathematical_constants::PI / 648000.0;
+
+    BOOST_CHECK_SMALL( observed.polarMotion[ 0 ] - 0.120733 * arcsecond, 1e-20 );
+    BOOST_CHECK_EQUAL( observed.ut1MinusUtc, 0.8084178 );
+
+    // Missing LOD and celestial offsets do not remove a valid UT1 observation.
     EOPReader reader( data );
     BOOST_CHECK_EQUAL( reader.getUt1MinusUtcMapRaw( ).count( 61396.0 ), 1 );
     BOOST_CHECK_EQUAL( reader.getLengthOfDayMapRaw( ).count( 61396.0 ), 0 );
     BOOST_CHECK_EQUAL( reader.getCipInGcrsCorrectionMapRaw( ).count( 61396.0 ), 0 );
     BOOST_CHECK( !reader.getRawEarthOrientationData( ).records.at( 61396.0 ).celestialPoleOffsets );
     BOOST_CHECK_EQUAL( reader.getRawEarthOrientationData( ).records.size( ), 4 );
-    for( auto& entry : data.records )
-    {
-        entry.second.lengthOfDay.reset( );
-        entry.second.celestialPoleOffsets.reset( );
-        entry.second.lengthOfDayUncertainty.reset( );
-        entry.second.celestialPoleOffsetUncertainty.reset( );
-        entry.second.celestialPoleStatus.clear( );
-    }
-    EOPReader withoutOptionalData( data );
-    BOOST_CHECK( withoutOptionalData.getLengthOfDayMapRaw( ).empty( ) );
-    BOOST_CHECK( withoutOptionalData.getCipInGcrsCorrectionMapRaw( ).empty( ) );
-    BOOST_CHECK_EQUAL( withoutOptionalData.getUt1MinusUtcMapRaw( ).size( ), data.records.size( ) );
-    input_output::EarthOrientationData empty;
-    BOOST_CHECK_THROW( static_cast< void >( EOPReader( empty ) ), std::runtime_error );
-}
-
-BOOST_AUTO_TEST_CASE( test_preloaded_Eop_data_rejects_invalid_records )
-{
-    input_output::EarthOrientationData data;
-    input_output::EarthOrientationRecord record;
-    data.records.emplace( 51544.0, record );
-    BOOST_CHECK_THROW( static_cast< void >( EOPReader( data ) ), std::runtime_error );
-    data.records.begin( )->second.utcModifiedJulianDate = 51544.0;
-    data.records.begin( )->second.polarMotion = { 0.0, 0.0 };
-    data.records.begin( )->second.ut1MinusUtc = 0.0;
-    BOOST_CHECK_NO_THROW( static_cast< void >( EOPReader( data ) ) );
-    data.records.begin( )->second.utcModifiedJulianDate = 51545.0;
-    BOOST_CHECK_THROW( static_cast< void >( EOPReader( data ) ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -39,6 +39,7 @@ using namespace tudat::earth_orientation;
 
 BOOST_AUTO_TEST_SUITE( test_differenced_time_of_arrival )
 
+//! Compare the two-station arrival-time observable with independent one-way ranges.
 BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
 {
     spice_interface::loadStandardSpiceKernels( );

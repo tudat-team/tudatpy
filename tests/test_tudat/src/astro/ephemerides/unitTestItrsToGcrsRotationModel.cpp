@@ -75,6 +75,7 @@ std::shared_ptr< EarthOrientationAnglesCalculator > createCookbookAnglesCalculat
 
 std::map< std::string, Eigen::Matrix3d > getIndependentBaseFrameRotations( )
 {
+
     // Time-independent rb fixture from the IAU SOFA 2023-10-11 validation
     // program t_sofa_c.c, t_bp06. Do not obtain the oracle from getFrameBias.
     const Eigen::Matrix3d gcrsToEme2000 = ( Eigen::Matrix3d( ) << 0.9999999999999942497,
@@ -168,6 +169,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
 //! Test ITRS <-> GCRS rotation by compariong against Sofa
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
 {
+
     // Get UTC time for evaluation
     int year = 2007;
     int month = 4;
@@ -199,6 +201,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
 
     // Test Tudat vs. Sofa implementations with identical EOP corrections.
     {
+
         // Set current time in UTC and TT
         double interpolationUtc = sofaCookbookTime;
         double interpolationTt = earthRotationModelFromUtc->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )->getCurrentTime(
@@ -406,6 +409,7 @@ BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
 //! Test ITRS <-> GCRS rotation by comparing results from different base frames.
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
 {
+
     // 1. Load SPICE kernels
     spice_interface::loadStandardSpiceKernels( );
 
@@ -415,6 +419,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
     // 3. Scenario 1: J2000 as global frame
     Eigen::Vector3d marsPositionInItrsFromJ2000;
     {
+
         // Define bodies to be created
         std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
 
@@ -443,6 +448,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
     // 4. Scenario 2: ECLIPJ2000 as global frame
     Eigen::Vector3d marsPositionInItrsFromEclipj2000;
     {
+
         // Define bodies to be created
         std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
 
@@ -491,6 +497,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationDerivativeAgainstNumerical )
         {
             double testTime = initialTime + 3600.0 * hour;
             auto rotation = [ & ]( const double time ) { return earthRotationModel->getRotationToBaseFrame( time ).toRotationMatrix( ); };
+
             // Fourth-order central difference
             Eigen::Matrix3d numericalDerivative = ( 4.0 * ( rotation( testTime + 5.0 ) - rotation( testTime - 5.0 ) ) / 10.0 -
                                                     ( rotation( testTime + 10.0 ) - rotation( testTime - 10.0 ) ) / 20.0 ) /

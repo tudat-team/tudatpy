@@ -79,8 +79,10 @@ struct PoleTideReferenceCase {
 
 BOOST_AUTO_TEST_SUITE( test_pole_tide_site_displacement )
 
+//! Compare solid-pole displacement with independent IERS equation fixtures.
 BOOST_AUTO_TEST_CASE( testPoleTideIndependentIersReferenceCases )
 {
+
     // Frozen fixtures evaluated independently from the accepted IERS chapter 7
     // Exact PDF hash and offline scalar reproduction: reference_files/solid_pole_tide/README.md.
     // (1 February 2018), https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf.
@@ -139,6 +141,7 @@ BOOST_AUTO_TEST_CASE( testPoleTideIndependentIersReferenceCases )
     }
 }
 
+//! Preserve solid-pole displacement across equivalent oblate station representations.
 BOOST_AUTO_TEST_CASE( testPoleTideOblateStationRepresentation )
 {
     const double time = 26.0 * physical_constants::JULIAN_YEAR;
@@ -175,8 +178,10 @@ BOOST_AUTO_TEST_CASE( testPoleTideOblateStationRepresentation )
     }
 }
 
+//! Check zero wobble and the 2018 secular-pole position against their equations.
 BOOST_AUTO_TEST_CASE( testPoleTideZeroWobbleAnd2018SecularPole )
 {
+
     // Secular pole values from IERS Eq. (21), frozen at J2000, 2018 and 2026.
     const double secularPoleCases[][ 3 ] = { { 0.0, 55.0, 320.5 }, { 18.0, 85.186, 382.78 }, { 26.0, 98.602, 410.46 } };
     const auto shape = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137.0, 1.0 / 298.257223563 );

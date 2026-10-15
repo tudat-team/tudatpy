@@ -51,9 +51,11 @@ using namespace tudat::simulation_setup;
 
 static const double mroTransponderDelay = 1.4149e-6;
 static const std::string mroDsnDataDirectory = tudat::paths::getTudatTestDataPath( ) + "mro_dsn_observation_model/";
+
 // These CSVs are generated from mromagr2012_076_0840xmmmv1.tnf at the Tudat trk234 converter boundary:
 // each row is data passed to SingleObservationSet creation after selecting a one-hour MRO tracking interval.
 static const std::string trk234InputsDirectory = mroDsnDataDirectory + "trk234_single_observation_set_inputs/";
+
 // These CSVs replace large MRO SPICE spacecraft kernels in the unit tests. They contain Tudat-generated
 // SPICE samples of the MRO state, RotationalEphemeris::getRotationStateVector, and HGA offset over the test interval.
 static const std::string tabulatedEphemeridesDirectory = mroDsnDataDirectory + "tabulated_ephemerides/";
@@ -133,6 +135,7 @@ inline std::map< double, Eigen::Vector7d > readRotationalStateHistoryFromCsv( co
         {
             rotationalState( i ) = std::stod( row.at( i + 1 ) );
         }
+
         // The stored seven-vector is Tudat's own rotational state format: target-to-base quaternion
         // followed by target-frame angular velocity, as consumed by TabulatedRotationalEphemeris.
         stateHistory[ std::stod( row.at( 0 ) ) ] = rotationalState;

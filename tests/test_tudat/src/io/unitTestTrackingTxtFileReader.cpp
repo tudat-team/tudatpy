@@ -380,6 +380,7 @@ BOOST_AUTO_TEST_CASE( marinerSimpleReading )
 //! Test observation collection and time conversions with Viking Data
 BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationCollection )
 {
+
     // Load the observations from the Viking file
     std::shared_ptr< tio::TrackingTxtFileContents > rawVikingFile = readVikingRangeFile( vikingRangePath );
     auto observationCollection = observation_models::createTrackingTxtFileObservationCollection< double, double >(
@@ -492,6 +493,7 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.back( ) - expectedTdbObservationTime ), 1.0E-12 );
 }
 
+//! Preserve FDETS calendar times and identify separate observation scans.
 BOOST_AUTO_TEST_CASE( TestFdetsFileReaderDateFormatAndScanDetection )
 {
     std::shared_ptr< tio::TrackingTxtFileContents > rawFdetsDopplerFile = tio::readFdetsFile( juiceFdetsDopplerPath );
@@ -561,6 +563,7 @@ BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
     BOOST_CHECK_THROW( createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 20.0, 50.0 } ), std::runtime_error );
 }
 
+//! Determine IFMS cadence before observation filtering removes intermediate samples.
 BOOST_AUTO_TEST_CASE( TestIfmsCadenceInferredBeforeFiltering )
 {
     const std::string filePath = createTempPath( ".TAB" );
@@ -607,6 +610,7 @@ BOOST_AUTO_TEST_CASE( GroundStationLocations )
             utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationVelFile, '$', " \t" );
     std::map< std::string, std::string > stationCodeMap =
             utilities::getMapFromFile< std::string, std::string >( pysctrackGroundStationCodesFile, '*', " \t" );
+
     //  std::map<std::string, Eigen::Vector3d> stationPosMap = simulation_setup::getApproximateGroundStationPositionsFromFile();
     //  std::map<std::string, std::string> stationCodeMap = simulation_setup::getGroundStationCodesFromFile();
 
@@ -614,6 +618,7 @@ BOOST_AUTO_TEST_CASE( GroundStationLocations )
     std::cout << stationPositionMap.at( "HOBART12" );
     std::map< std::string, Eigen::Vector3d > stationPositionMap2 = getVlbiStationPositions( );
     std::cout << stationPositionMap2.at( "HOBART12" );
+
     //  Eigen::Vector3d hobartPos = stationPosMap.at("HOBART12");
     //  Eigen::Vector3d hobartVel = stationVelMap.at("HOBART12");
     //  Eigen::Vector3d hobartPos = simulation_setup::getApproximateGroundStationPositionFromFile("HOBART12");
@@ -678,8 +683,10 @@ BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
                                                                  "TDB" );
     simulation_setup::SystemOfBodies bodies;
     const std::vector< std::shared_ptr< data::TrackingData<> > > input = { corrected, uncorrected };
+
     // Requesting corrections must accept the mixed input without an error.
     BOOST_CHECK_NO_THROW( createObservationCollection( input, bodies, true ) );
+
     // The two angles must decrease as requested, the distance must stay at 1,000,
     // and the original angle values must remain available for later reuse.
     auto correctedSet = createSingleObservationSetFromTrackingData( corrected, bodies, true );
@@ -725,6 +732,7 @@ BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRat
         {
             BOOST_REQUIRE( body->getVehicleSystems( ) != nullptr );
         }
+
         // Both the station and the spacecraft must receive a usable frequency schedule.
         auto calculator = std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >( getCalculator( ) );
         BOOST_REQUIRE( calculator != nullptr );

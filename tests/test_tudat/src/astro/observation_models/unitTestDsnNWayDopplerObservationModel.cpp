@@ -52,6 +52,7 @@ BOOST_AUTO_TEST_SUITE( test_dsn_n_way_averaged_doppler_observation_model )
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
     spice_interface::loadStandardSpiceKernels( );
+
     // Verma (2022) uses DE438, but here we use the standard Tudat SPICE kernels as the difference produced by the kernels
     // is way below the level of the current residuals.
     // spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/planet-spice/de438.bsp" );
@@ -113,6 +114,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             observedObservationCollection->removeSingleObservationSets(
                     std::make_shared< ObservationCollectionObservableTypeParser >( dsn_n_way_range ) );
         }
+
         // Create computed observation collection
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 
@@ -205,6 +207,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
             for( unsigned int j = 0; j < simulatedTimes.size( ); ++j )
             {
+
                 // Ignore a few observations potentially associated with invalid cycle counts. These are observations which
                 // have significantly higher residuals than the previous/subsequent observations, and that in the ODF file are
                 // presented directly before/after invalid observations; the value of the (wrong?) observed observation in the ODF
@@ -291,6 +294,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     }
 }
 
+//! Compare reconstructed MRO DSN Doppler residuals with the frozen tracking-data result.
 BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
 {
     using namespace tudat::unit_tests::mro_dsn_test;
@@ -318,10 +322,13 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
     BOOST_TEST_MESSAGE( "MRO DSN Doppler residual mean: " << meanResidual << " Hz" );
     BOOST_TEST_MESSAGE( "MRO DSN Doppler residual RMS: " << rmsResidual << " Hz" );
 
+    // The reconstructed tracking interval retains the expected compressed sample count and Doppler residuals.
+
     BOOST_TEST( std::fabs( meanResidual ) < 2.0e-3 );
     BOOST_TEST( rmsResidual < 3.0e-3 );
 }
 
+//! Include the spacecraft transponder delay in the simulated DSN Doppler observable.
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -411,6 +418,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
             linkEndStates,
             getDsnNWayAveragedDopplerAncillarySettings(
                     frequencyBands, receptionReferenceFrequencyBand, referenceFrequency, integrationTime, { ancillaryDelay } ) );
+
     // Both spacecraft responses must use the stored spacecraft delay instead of the different supplied delay.
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ), 1.0E-8 );
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - vehicleSystemDelay ), 1.0E-8 );

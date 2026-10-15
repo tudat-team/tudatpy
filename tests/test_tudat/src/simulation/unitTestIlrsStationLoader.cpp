@@ -34,6 +34,7 @@ std::string createTempPath( const std::string& suffix )
     return createTemporaryFilePath( "tudat-ilrs", suffix );
 }
 
+//! Write a complete fixed-width solution for the ILRS loader integration cases.
 void writeSyntheticSinexFile( const std::string& fileName )
 {
     std::ofstream file( fileName );
@@ -144,6 +145,7 @@ std::shared_ptr< simulation_setup::LinearGroundStationMotionSettings > getLinear
 
 BOOST_AUTO_TEST_SUITE( test_ilrs_station_loader )
 
+//! Build an ILRS station from its registry identity, Cartesian state and eccentricity.
 BOOST_AUTO_TEST_CASE( testLoadIlrsStationFromDomesAndSinex )
 {
     const std::string sinexFile = createTempPath( ".snx" );
@@ -201,6 +203,7 @@ BOOST_AUTO_TEST_CASE( testLoadIlrsStationFromDomesAndSinex )
     std::remove( eccentricityFile.c_str( ) );
 }
 
+//! Select each eccentricity vector in its declared validity interval.
 BOOST_AUTO_TEST_CASE( testEccentricitySelectionByEpoch )
 {
     const std::string sinexFile = createTempPath( ".snx" );
@@ -233,6 +236,7 @@ BOOST_AUTO_TEST_CASE( testEccentricitySelectionByEpoch )
     std::remove( eccentricityFile.c_str( ) );
 }
 
+//! Apply an initially unbounded eccentricity before the first dated change.
 BOOST_AUTO_TEST_CASE( testFirstOpenEndedEccentricityUsesMinimumEpoch )
 {
     const std::vector< SyntheticEccentricityArc > arcs = { { "24:001:00000", "00:000:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) },
@@ -260,6 +264,7 @@ BOOST_AUTO_TEST_CASE( testFirstOpenEndedEccentricityUsesMinimumEpoch )
     BOOST_CHECK_SMALL( displacementList.at( secondArcEndEpoch ).norm( ), 1.0E-15 );
 }
 
+//! Leave eccentricity corrections zero between disjoint closed intervals.
 BOOST_AUTO_TEST_CASE( testClosedEccentricityArcsCreateZeroGaps )
 {
     const std::vector< SyntheticEccentricityArc > arcs = { { "24:001:00000", "24:100:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) },
@@ -287,6 +292,7 @@ BOOST_AUTO_TEST_CASE( testClosedEccentricityArcsCreateZeroGaps )
     BOOST_CHECK_SMALL( displacementList.at( secondArcEndEpoch ).norm( ), 1.0E-15 );
 }
 
+//! Apply chronological eccentricity changes even when source records are unordered.
 BOOST_AUTO_TEST_CASE( testUnsortedEccentricityArcsAreSorted )
 {
     const std::vector< SyntheticEccentricityArc > arcs = { { "24:200:00000", "24:300:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) },
@@ -310,6 +316,7 @@ BOOST_AUTO_TEST_CASE( testUnsortedEccentricityArcsAreSorted )
     BOOST_CHECK_CLOSE_FRACTION( displacementList.at( secondArcEpoch )( 0 ), 0.4, 1.0E-15 );
 }
 
+//! Respect both finite and unbounded validity for a single eccentricity record.
 BOOST_AUTO_TEST_CASE( testSingleEntryClosedAndOpenEndedEccentricity )
 {
     {
@@ -354,6 +361,7 @@ BOOST_AUTO_TEST_CASE( testSingleEntryClosedAndOpenEndedEccentricity )
     }
 }
 
+//! Load the Cartesian station without adding a missing eccentricity correction.
 BOOST_AUTO_TEST_CASE( testNoEccentricityDataSkipsPiecewiseMotion )
 {
     const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =

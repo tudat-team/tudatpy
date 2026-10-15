@@ -31,6 +31,7 @@ BOOST_AUTO_TEST_SUITE( test_polar_motion_calculator )
 //! Check correct combination of data from the two contributions of polar motion: short-period terms and IERS daily values.
 BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
 {
+
     // Retrieve polar motion calculator
     std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel = createStandardEarthOrientationCalculator( );
     std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator = standardEarthRotationModel->getPolarMotionCalculator( );

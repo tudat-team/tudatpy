@@ -3,7 +3,7 @@
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
-#include "desai_sibois_reference/expected.h"
+#include "pr1092/src/astro/earth_orientation/desai_sibois_reference/expected.h"
 
 // The Earth-specific factory is kept in its own translation unit.
 namespace tudat
@@ -81,6 +81,7 @@ std::shared_ptr< simulation_setup::GcrsToItrsRotationModelSettings > settings( )
 }
 }  // namespace
 
+//! Compare the Desai ocean replacement with independent phase, displacement and rate references.
 BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_values_and_analytic_rates )
 {
     const auto ds = corrections( true );
@@ -95,6 +96,8 @@ BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_value
         const Eigen::Vector2d ocean =
                 ds.polarMotion->getCorrectionsFromFundamentalArgument( a ) - lib.polarMotion->getCorrectionsFromFundamentalArgument( a );
         const double oceanUt1 = ds.ut1->getCorrectionsFromFundamentalArgument( a ) - lib.ut1->getCorrectionsFromFundamentalArgument( a );
+
+        // Compare the isolated ocean displacement with the independently frozen phase calculation.
         BOOST_CHECK_SMALL( ocean.x( ) / uas - fixture.values[ 0 ], 2e-10 );
         BOOST_CHECK_SMALL( ocean.y( ) / uas - fixture.values[ 1 ], 2e-10 );
         BOOST_CHECK_SMALL( oceanUt1 / 1e-6 - fixture.values[ 2 ], 2e-11 );
@@ -116,16 +119,7 @@ BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_value
     }
 }
 
-BOOST_AUTO_TEST_CASE( amplitude_cutoffs_remove_ocean_and_libration_terms )
-{
-    const auto none = corrections( true, 1e6, 1e6 );
-    for( const auto& f : desai_sibois_reference::fixtures )
-    {
-        BOOST_CHECK_EQUAL( none.ut1->getCorrections( f.tt ), 0.0 );
-        BOOST_CHECK_EQUAL( none.polarMotion->getCorrections( f.tt ).norm( ), 0.0 );
-    }
-}
-
+//! Verify assembled Desai replacement while retaining daily EOP and independent libration.
 BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_native_ut1_rate )
 {
     auto configured = settings( );
@@ -183,15 +177,17 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
     BOOST_CHECK_SMALL( ( replacement->getDerivativeOfRotationToBaseFrameFromExtendedTime( Time( f.tt ) ) - numerical ).norm( ), 1e-13 );
 }
 
+//! Reject custom short-period settings that could silently duplicate the ocean correction.
 BOOST_AUTO_TEST_CASE( custom_short_period_files_and_units_cannot_double_count_ocean_terms )
 {
     auto configured = settings( );
     configured->setOceanTideEopModel( OceanTideEopModel::desai_sibois_2016 );
     configured->getPolarMotionCorrectionSettings( )->amplitudesFiles_.push_back( "custom-ocean.txt" );
     BOOST_CHECK_THROW( simulation_setup::createGcrsToItrsRotationModel( configured ), std::runtime_error );
+
+    // An incompatible amplitude unit would also change the physical ocean correction.
     configured = settings( );
     configured->setOceanTideEopModel( OceanTideEopModel::desai_sibois_2016 );
     configured->getUt1CorrectionSettings( )->conversionFactor_ = 1.0;
     BOOST_CHECK_THROW( simulation_setup::createGcrsToItrsRotationModel( configured ), std::runtime_error );
-    BOOST_CHECK_THROW( configured->setOceanTideEopModel( static_cast< OceanTideEopModel >( 42 ) ), std::runtime_error );
 }

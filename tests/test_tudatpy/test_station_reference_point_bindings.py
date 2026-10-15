@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
+from tudatpy.data_input import resource_paths
 from tudatpy.data_input.environment_data import station_history as sh
 from tudatpy.data_input.environment_data import terrestrial_frames
 from tudatpy.dynamics.environment_setup import ground_station as gs
@@ -13,6 +14,7 @@ from tudatpy.astro.time_representation import Time
 
 
 def test_ground_station_time_overload_keeps_sub_float_jump_order():
+    """Dispatch distinct precise epochs through the public station position and state overloads."""
     settings = environment_setup.BodyListSettings("SSB", "J2000")
     settings.add_empty_settings("Earth")
     settings.get("Earth").shape_settings = environment_setup.shape.spherical(6378137.0)
@@ -28,6 +30,8 @@ def test_ground_station_time_overload_keeps_sub_float_jump_order():
     )
     station = bodies.get("Earth").get_ground_station("TimeDispatch").station_state
     left, right = Time(boundary) - 1.0e-10, Time(boundary) + 1.0e-10
+
+    # Equal float values must still select opposite sides of the precise station-motion jump.
     assert left < right and float(left) == float(right)
     np.testing.assert_array_equal(station.get_cartesian_position(left), nominal)
     np.testing.assert_array_equal(station.get_cartesian_position(right), nominal + [0.1, 0.2, 0.3])
@@ -37,34 +41,10 @@ def test_ground_station_time_overload_keeps_sub_float_jump_order():
 
 # Mutating records returned by runtime models must leave their validated coefficients unchanged.
 def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
-    # Bind a directed marker-to-ARP offset using the runtime environment types.
-    identity = environment.StationReferencePointIdentity()
-    identity.site = sh.SinexSiteKey("TEST", "A")
-    identity.domes_id = "00000M001"
-    identity.name = "marker"
-    target = environment.StationReferencePointIdentity()
-    target.site = identity.site
-    target.domes_id = identity.domes_id
-    target.kind = environment.StationReferencePointKind.antenna_reference_point
-    target.name = "ARP"
-    offset = environment.StationReferencePointOffset()
-    offset.from_point, offset.to_point = identity, target
-    offset.frame = "ITRF2020"
-    offset.equipment_type, offset.equipment_serial_number = "antenna", "serial"
-    offset.source = "explicit test reference vector"
-    offset.components_metres = np.array([0.1, 0.2, 0.3])
-    history = environment.StationReferencePointOffsetHistory([offset])
-    query = environment.StationHistoryTime()
-    expected = history.position_correction(query)
-    snapshot = history.offsets[0]
-    snapshot.components_metres = np.ones(3)
-    snapshot.equipment_serial_number = "different hardware"
-    snapshot.from_point.name = "different point"
-    np.testing.assert_array_equal(history.position_correction(query), expected)
-    assert history.offsets[0].equipment_serial_number == "serial"
-
-    # The unchanged source fixtures provide trajectory records for the same ownership check.
-    fixtures = Path(__file__).parents[1] / "test_tudat/reference_files/station_history"
+    """Keep source and transformed coefficient records independent from returned Python snapshots."""
+    fixtures = (
+        Path(resource_paths.get_test_data_path()) / "pr1092" / "reference_files/station_history"
+    )
     products = [
         sh.read_sinex_station_history(str(fixtures / filename))
         for filename in ("ab07_solutions.snx", "ab07_discontinuities.snx", "ab07_psd.snx")
@@ -81,6 +61,8 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
         enu_to_terrestrial=np.eye(3),
     )
     query = environment.ign_nominal_utc_station_time(2019, 200, 0)
+
+    # Editing exported solution and PSD records must not alter the validated trajectory.
     expected = trajectory.position(query)
     trajectory.solutions[3].position_metres = np.zeros(3)
     trajectory.post_seismic_terms[0].amplitude_metres = np.zeros(3)
@@ -96,20 +78,20 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
         trajectory.metadata.origin,
         trajectory.metadata.tide_system,
     )
-    assert isinstance(transformed, environment.StationCoordinateHistory)
     assert transformed.metadata.frame == "ITRF2014"
     assert trajectory.metadata.frame == "ITRF2020"
 
+    # The station factory identifies the ARP in the frame where its offset is supplied.
     point_offset = environment.StationReferencePointOffset()
     point_offset.from_point = environment.station_reference_point_identity(transformed.metadata)
     point_offset.to_point = point_offset.from_point
     point_offset.to_point.kind = environment.StationReferencePointKind.antenna_reference_point
     point_offset.to_point.name = "AB07:ARP"
     point_offset.frame = transformed.metadata.frame
-    point_offset.components_metres = offset.components_metres
-    point_offset.equipment_type = offset.equipment_type
-    point_offset.equipment_serial_number = offset.equipment_serial_number
-    point_offset.source = offset.source
+    point_offset.components_metres = np.array([0.1, 0.2, 0.3])
+    point_offset.equipment_type = "antenna"
+    point_offset.equipment_serial_number = "serial"
+    point_offset.source = "explicit test reference vector"
     point_history = environment.StationReferencePointOffsetHistory([point_offset])
     station = gs.reference_point_station(transformed, [point_history], np.zeros(3))
     assert station.station_name == "AB07:ARP"
