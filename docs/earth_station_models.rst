@@ -398,7 +398,7 @@ eccentricities and station/point/solution identity. Motion supports cumulative
 post-seismic and seasonal terms with physical TAI validity and an explicit IGN
 nominal-UTC source clock. Julian-year velocity units and calendar seasonal phases
 remain distinct. ITRF catalogue selection retains release/origin/tide conventions;
-complete affine inverses and state derivatives reuse one transformation model.
+complete matrix inverses and state derivatives reuse one transformation model.
 
 Dated marker/ARP/calibrated reference points reuse retained equipment histories and
 fixed local-axis conventions. The Python record getters return copies so callers

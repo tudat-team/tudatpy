@@ -33,7 +33,7 @@ namespace astro
 namespace frame_conversion
 {
 
-// Register Cartesian frame conversions and terrestrial affine transformations.
+// Register Cartesian frame conversions and terrestrial frame transformations.
 void expose_frame_conversion( py::module& m )
 {
     m.def( "inertial_to_rsw_rotation_matrix",
@@ -335,13 +335,13 @@ void expose_frame_conversion( py::module& m )
     // Terrestrial catalogue operations are numerical frame conversions, independent of environment settings.
     py::class_< trf::TerrestrialFrameAffineTransformation >( m, "TerrestrialFrameAffineTransformation", R"doc(
 
-Affine transformation between two terrestrial frame realizations at a given epoch, with its time derivative.
+Transformation between terrestrial frame realizations described by a translation, a matrix and their time derivatives.
 
 A position :math:`\mathbf{x}` is transformed as :math:`\mathbf{y}=\mathbf{T}+\mathbf{A}\mathbf{x}`, and a state as
 :math:`\dot{\mathbf{y}}=\dot{\mathbf{T}}+\dot{\mathbf{A}}\mathbf{x}+\mathbf{A}\dot{\mathbf{x}}`. For a Helmert
 transformation, the matrix :math:`\mathbf{A}` contains the scale and the linearized rotation, and is therefore not
 orthogonal. Objects of this class are created by :func:`evaluate_linearized_helmert` and
-:meth:`TerrestrialFrameTransformationModel.get_transformation`.
+:meth:`HelmertTransformationModel.get_transformation`.
 
       )doc" )
             .def( py::init<>( ) )
@@ -465,10 +465,9 @@ TerrestrialFrameAffineTransformation
 
       )doc" );
 
-    py::class_< trf::TerrestrialFrameTransformationModel >( m, "TerrestrialFrameTransformationModel", R"doc(
+    py::class_< trf::HelmertTransformationModel >( m, "HelmertTransformationModel", R"doc(
 
-Model to transform positions and states between the terrestrial frame realizations of a table of transformation
-parameters.
+Model for linearized Helmert transformations with parameter rates between terrestrial frame realizations.
 
 The model combines the transformations of the table through its reference realization, so that any two realizations
 in the table can be transformed into each other. A transformation between two identical realization names is the
@@ -488,7 +487,7 @@ identity. No time scale or calendar conversion is performed: epochs are given di
 
       )doc" )
             .def( "get_transformation",
-                  &trf::TerrestrialFrameTransformationModel::getTransformation,
+                  &trf::HelmertTransformationModel::getTransformation,
                   py::arg( "source_realization" ),
                   py::arg( "target_realization" ),
                   py::arg( "decimal_year" ),
@@ -515,7 +514,7 @@ identity. No time scale or calendar conversion is performed: epochs are given di
 
       )doc" )
             .def( "transform_position",
-                  &trf::TerrestrialFrameTransformationModel::transformPosition,
+                  &trf::HelmertTransformationModel::transformPosition,
                   py::arg( "position" ),
                   py::arg( "source_realization" ),
                   py::arg( "target_realization" ),
@@ -542,7 +541,7 @@ identity. No time scale or calendar conversion is performed: epochs are given di
 
       )doc" )
             .def( "transform_state",
-                  &trf::TerrestrialFrameTransformationModel::transformState,
+                  &trf::HelmertTransformationModel::transformState,
                   py::arg( "state" ),
                   py::arg( "source_realization" ),
                   py::arg( "target_realization" ),
@@ -578,7 +577,7 @@ identity. No time scale or calendar conversion is performed: epochs are given di
             from tudatpy.data_input.environment_data import terrestrial_frames
             from tudatpy.astro import frame_conversion
 
-            model = frame_conversion.TerrestrialFrameTransformationModel(
+            model = frame_conversion.HelmertTransformationModel(
                 terrestrial_frames.official_itrf2020_parameters( ) )
             target_state = model.transform_state(
                 source_state, "ITRF2020", "ITRF2014", 2025.0, 1.0 / 31557600.0 )
@@ -586,7 +585,7 @@ identity. No time scale or calendar conversion is performed: epochs are given di
       )doc" )
             .def_property_readonly(
                     "data",
-                    []( const trf::TerrestrialFrameTransformationModel& model ) { return model.getData( ); },
+                    []( const trf::HelmertTransformationModel& model ) { return model.getData( ); },
                     R"doc(
 
          **read-only**

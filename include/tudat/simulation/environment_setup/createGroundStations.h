@@ -86,25 +86,35 @@ public:
     double referenceEpoch_;
 };
 
-//! Absolute station history; its motion correction subtracts the nominal station position.
+//! Settings for station motion from a station coordinate history, optionally with reference point offsets (see
+//! ground_stations::StationHistoryMotionModel). The nominal station position is subtracted.
 class StationHistoryGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     StationHistoryGroundStationMotionSettings(
-            std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
+            std::shared_ptr< ground_stations::StationCoordinateHistory > history,
+            std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets = {},
             std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction = nullptr ):
-        GroundStationMotionSettings( station_history_motion ), trajectory_( std::move( trajectory ) ),
-        timeFunction_( std::move( timeFunction ) )
+        GroundStationMotionSettings( station_history_motion ), history_( std::move( history ) ),
+        referencePointOffsets_( std::move( referencePointOffsets ) ), timeFunction_( std::move( timeFunction ) )
     {}
-    std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory_;
+
+    //! Station coordinate history, and the reference point offsets added to it (in order).
+    std::shared_ptr< ground_stations::StationCoordinateHistory > history_;
+    std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets_;
+
+    //! Function converting a TDB epoch to the time of the history (if empty, the IGN convention is used).
     std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction_;
 };
 
+//! Create settings for station motion from a station coordinate history, optionally with reference point offsets.
 inline std::shared_ptr< StationHistoryGroundStationMotionSettings > stationHistoryGroundStationMotionSettings(
-        std::shared_ptr< ground_stations::StationHistoryTrajectory > trajectory,
+        std::shared_ptr< ground_stations::StationCoordinateHistory > history,
+        std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets = {},
         std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction = nullptr )
 {
-    return std::make_shared< StationHistoryGroundStationMotionSettings >( std::move( trajectory ), std::move( timeFunction ) );
+    return std::make_shared< StationHistoryGroundStationMotionSettings >(
+            std::move( history ), std::move( referencePointOffsets ), std::move( timeFunction ) );
 }
 
 class PiecewiseConstantGroundStationMotionSettings : public GroundStationMotionSettings
@@ -493,12 +503,18 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
     if( frameOrigin.empty( ) )
     {
         if( bodyWithReferencePoint->getIsBodyGlobalFrameOrigin( ) == 1 )
+        {
             frameOrigin = bodyWithReferencePoint->getBodyName( );
+        }
         else if( bodyWithReferencePoint->getEphemeris( ) &&
                  bodyWithReferencePoint->getEphemerisFrameToBaseFrame( )->getBaseFrameId( ).empty( ) )
+        {
             frameOrigin = bodyWithReferencePoint->getEphemeris( )->getReferenceFrameOrigin( );
+        }
         else
+        {
             throw std::invalid_argument( "Reference point ephemeris requires the explicit global frame origin after origin conversion." );
+        }
     }
 
     // Create list of state/rotation functions that are to be used

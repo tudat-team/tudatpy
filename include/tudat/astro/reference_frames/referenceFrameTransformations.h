@@ -656,12 +656,12 @@ Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::V
                                                                   double epoch,
                                                                   const std::string& targetFrame );
 
-//! Exact affine inverse and inverse-state derivative at the requested legacy epoch (seconds as above).
+//! Full matrix inverse and inverse-state derivative at the requested legacy epoch (seconds as above).
 Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& state,
                                                                   double epoch,
                                                                   const std::string& baseFrame );
 
-//! Compose affine states through the declared ITRF2014 hub; equal realizations give identity.
+//! Compose translations and matrices through the declared ITRF2014 hub; equal realizations give identity.
 //! Epoch and velocity retain the legacy uniform-Julian-year seconds convention above.
 Eigen::Vector6d convertGroundStationStateBetweenItrfFrames( const Eigen::Vector6d& state,
                                                             double epoch,

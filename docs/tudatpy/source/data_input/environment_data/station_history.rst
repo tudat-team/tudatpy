@@ -13,16 +13,16 @@ Functions
 
    read_sinex_station_history
    validate_sinex_station_history
-   get_cartesian_solution_keys
-   get_cartesian_solution
+   get_station_coordinate_solution_keys
+   get_station_coordinate_solution
 
 .. autofunction:: read_sinex_station_history
 
 .. autofunction:: validate_sinex_station_history
 
-.. autofunction:: get_cartesian_solution_keys
+.. autofunction:: get_station_coordinate_solution_keys
 
-.. autofunction:: get_cartesian_solution
+.. autofunction:: get_station_coordinate_solution
 
 Enumerations
 ------------

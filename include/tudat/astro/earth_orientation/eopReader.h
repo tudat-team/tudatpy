@@ -44,7 +44,7 @@ public:
      * \param format File format: C04 (legacy or modern) or finals2000A
      * \param nutationTheory Nutation theory w.r.t. which the EOP data is given.
      */
-    EOPReader( const std::string& eopFile = tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
+    EOPReader( const std::string& eopFile = tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_20_IAU2000.62-now.txt",
                const std::string& format = "C04",
                const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006 );
 
@@ -142,6 +142,7 @@ public:
     }
 
 private:
+    //! Contents of the EOP file, as read.
     input_output::EarthOrientationData rawData_;
 
     //! Terrestrial pole position corrections (CIP in ITRS; polar motion), read from file

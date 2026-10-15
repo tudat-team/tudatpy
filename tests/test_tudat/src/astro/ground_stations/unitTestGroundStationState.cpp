@@ -42,9 +42,10 @@ using namespace tudat::spice_interface;
 
 BOOST_AUTO_TEST_SUITE( test_ground_station_state )
 
-//! Test if ground stations are correctly created.
+//! Compare Cartesian, spherical and geodetic station positions and local rotations.
 BOOST_AUTO_TEST_CASE( test_GroundStationState )
 {
+
     // Create Earth object
     std::shared_ptr< Body > earth = std::make_shared< Body >( );
     SystemOfBodies bodies;
@@ -87,6 +88,8 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
 
         for( unsigned int i = 0; i < 3; i++ )
         {
+
+            // Compare Cartesian, spherical and geodetic station positions and local rotations.
             BOOST_CHECK_SMALL( position1( i ) - position2( i ), 1.0E-3 );
         }
 
@@ -154,9 +157,10 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
     }
 }
 
-//! Test if global state function for ground station is correctly created.
+//! Compare station states after transformation to the global frame.
 BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
 {
+
     // Load Spice kernels
     spice_interface::loadStandardSpiceKernels( );
 
@@ -197,6 +201,8 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
         currentGlobalStateFromFunction = stateFunction( testTime );
         for( unsigned int i = 0; i < 6; i++ )
         {
+
+            // Compare station states after transformation to the global frame.
             BOOST_CHECK_EQUAL( currentGlobalState( i ), currentGlobalStateFromFunction( i ) );
         }
     }
@@ -241,9 +247,10 @@ Eigen::Vector3d getExpectedPiecewiseConstantDisplacement( const int j )
     return expectedStateDifference;
 }
 
-//! Test if global state function for ground station is correctly created.
+//! Check the Cartesian state of stations with time-dependent motion.
 BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
 {
+
     // Load spice kernels.
     std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );

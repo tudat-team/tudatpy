@@ -30,6 +30,7 @@ Eigen::Vector3d differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( 
 class AtmosphericTideGridInterpolator
 {
 public:
+    //! Largest difference (metres) between duplicated seam or pole values for which the grid is accepted.
     static constexpr double maximumEndpointDiscrepancyMetres = 1.0e-5;
 
     AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid );
@@ -52,10 +53,15 @@ public:
     }
 
 private:
+    //! Grid as read from the file, and the coefficients used for interpolation (with averaged seam and pole values).
     input_output::AtmosphericTideGrid providerGrid_;
     std::vector< Eigen::Matrix< double, 3, 4 > > modelCoefficients_;
+
+    //! Whether the grid covers all longitudes, and whether its first and last longitude columns are the same meridian.
     bool periodic_ = false;
     bool duplicatedSeam_ = false;
+
+    //! Largest difference (metres) between the duplicated seam values, and between the values at each pole.
     double seamDiscrepancy_ = 0;
     double polarDiscrepancy_ = 0;
 };

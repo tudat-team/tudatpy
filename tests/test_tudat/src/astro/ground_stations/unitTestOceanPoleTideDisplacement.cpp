@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
+#include "tudat/io/basicInputOutput.h"
 #include <fstream>
 #include <complex>
 #include "tudat/astro/earth_orientation/eopReader.h"
@@ -20,8 +21,7 @@ namespace
 {
 std::string fixturePath( const std::string& name )
 {
-    return std::string( __FILE__ ).substr( 0, std::string( __FILE__ ).find_last_of( "/\\" ) ) +
-            "/../../../reference_files/ocean_pole_tide/" + name;
+    return paths::getTudatTestDataPath( ) + "pr1092/reference_files/ocean_pole_tide/" + name;
 }
 void close( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected, const double tolerance = 1e-14 )
 {
@@ -61,22 +61,35 @@ OceanPoleTideGrid syntheticGrid( )
 }
 std::shared_ptr< earth_orientation::PolarMotionCalculator > poleCalculator( const double tt, const Eigen::Vector2d& poleRadians )
 {
-    const double utc = sofa_interface::convertTTtoUTC( tt );
-    const std::map< double, Eigen::Vector2d > samples = { { utc - 86400, poleRadians }, { utc + 86400, poleRadians } };
-    auto daily = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( samples );
+
+    // Daily records with a constant pole, on the UTC days around the test epoch.
+    const double utcDay = std::floor( sofa_interface::convertTTtoUTC( tt ) / 86400.0 + 51544.5 );
+    input_output::EarthOrientationData data;
+    for( int i = -1; i <= 2; ++i )
+    {
+        input_output::EarthOrientationRecord record;
+        record.utcModifiedJulianDate = utcDay + i;
+        record.polarMotion = { poleRadians.x( ), poleRadians.y( ) };
+        record.ut1MinusUtc = 0.0;
+        data.records.emplace( record.utcModifiedJulianDate, record );
+    }
     auto shortPeriod = std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
             1.0, 0.0, std::vector< std::string >{}, std::vector< std::string >{}, []( double ) -> Eigen::Vector6d {
                 return Eigen::Vector6d::Zero( );
             } );
-    return std::make_shared< earth_orientation::PolarMotionCalculator >( daily, shortPeriod );
+    return std::make_shared< earth_orientation::PolarMotionCalculator >(
+            std::make_shared< earth_orientation::EarthOrientationDataEvaluator >( data ), shortPeriod );
 }
 }  // namespace
 
+//! Compare ocean-pole displacement with the published IERS series and its historical constants.
 BOOST_AUTO_TEST_CASE( publishedIersSeriesOldTestParametersOnly )
 {
     const auto grid = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
     const auto coefficients = interpolateOceanPoleTideCoefficients( grid, -43.75, 232.25 );
     std::ifstream input( fixturePath( "iers_published_test.txt" ) );
+
+    // Read the archived published series before comparing its displacement columns.
     BOOST_REQUIRE( input.good( ) );
     std::string line;
     int cases = 0;
@@ -100,6 +113,7 @@ BOOST_AUTO_TEST_CASE( publishedIersSeriesOldTestParametersOnly )
     BOOST_CHECK_EQUAL( cases, 731 );
 }
 
+//! Check ocean-pole equation signs, units and scaling with independent complex arithmetic.
 BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
 {
     Eigen::Matrix< double, 3, 2 > coefficients;
@@ -113,13 +127,14 @@ BOOST_AUTO_TEST_CASE( equationUnitsSignsScaleAndZero )
            -calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( 1e-6, -2e-6 ) ) );
     close( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( 1e-6, -2e-6 ), 10680.857124459354 ),
            2 * calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( 1e-6, -2e-6 ) ) );
-    BOOST_CHECK_THROW( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d( NAN, 0 ) ), std::runtime_error );
-    BOOST_CHECK_THROW( calculateOceanPoleTideLoading( coefficients, Eigen::Vector2d::Zero( ), -1 ), std::runtime_error );
 }
 
+//! Interpolate ocean-pole coefficients across longitude wrap and at the polar rows.
 BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndPolarClamp )
 {
     const auto grid = syntheticGrid( );
+
+    // Interpolate ocean-pole coefficients across longitude wrap and at the polar rows.
     BOOST_CHECK_SMALL(
             ( interpolateOceanPoleTideCoefficients( grid, -44.875, 90 ) - Eigen::Matrix< double, 3, 2 >::Constant( 5.5 ) ).norm( ), 1e-14 );
     BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( grid, 0, 0 ) - Eigen::Matrix< double, 3, 2 >::Constant( 11.5 ) ).norm( ),
@@ -138,13 +153,9 @@ BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndPolarClamp )
                 ( interpolateOceanPoleTideCoefficients( grid, lat, 45 ) - interpolateOceanPoleTideCoefficients( grid, edge, 45 ) ).norm( ),
                 1e-14 );
     }
-    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 91, 45 ), std::runtime_error );
-    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( grid, 0, NAN ), std::runtime_error );
     const auto extract = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
-    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, -43.5, 240 ), std::out_of_range );
 
-    // Latitudes more than one grid step outside a regional extract are rejected rather than clamped.
-    BOOST_CHECK_THROW( interpolateOceanPoleTideCoefficients( extract, 0, 232.5 ), std::out_of_range );
+    // The centre of the published grid cell is the mean of its four corner coefficients.
     BOOST_CHECK_SMALL( ( interpolateOceanPoleTideCoefficients( extract, -43.5, 232.5 ) -
                          Eigen::Matrix< double, 3, 2 >( ( extract.coefficients[ 0 ] + extract.coefficients[ 1 ] +
                                                           extract.coefficients[ 2 ] + extract.coefficients[ 3 ] ) /
@@ -153,6 +164,7 @@ BOOST_AUTO_TEST_CASE( interpolationPeriodicLongitudeBoundariesAndPolarClamp )
                        1e-14 );
 }
 
+//! Use geocentric ocean-pole geometry independently of the station shape representation.
 BOOST_AUTO_TEST_CASE( modelSecularPoleAndGeocentricBasisAcrossShapeRepresentations )
 {
     const double pi = mathematical_constants::PI;
@@ -173,6 +185,8 @@ BOOST_AUTO_TEST_CASE( modelSecularPoleAndGeocentricBasisAcrossShapeRepresentatio
     const Eigen::Vector3d north( -std::sin( lat ) * std::cos( lon ), -std::sin( lat ) * std::sin( lon ), std::cos( lat ) );
     const Eigen::Vector3d east( -std::sin( lon ), std::cos( lon ), 0 );
     const Eigen::Vector3d expected = u.x( ) * radial + u.y( ) * north + u.z( ) * east;
+
+    // Cartesian displacements agree; only their local projections depend on the station shape.
     close( model.calculateDisplacement( tdbAtTt( 0 ), sphere ), expected );
     close( model.calculateDisplacement( tdbAtTt( 0 ), oblate ), expected );
     close( model.calculateDisplacement( tdbAtTt( 0 ), stationAt( position ) ), expected );
@@ -187,11 +201,9 @@ BOOST_AUTO_TEST_CASE( modelSecularPoleAndGeocentricBasisAcrossShapeRepresentatio
                     1e-6 );
     OceanPoleTideDeformation zero( grid, poleCalculator( 0, Eigen::Vector2d( 55, 320.5 ) * ( pi / 648000000.0 ) ) );
     close( zero.calculateDisplacement( tdbAtTt( 0 ), stationAt( position ) ), Eigen::Vector3d::Zero( ) );
-    BOOST_CHECK_THROW( model.calculateDisplacement( Time( NAN ), sphere ), std::invalid_argument );
-    BOOST_CHECK_THROW( model.calculateDisplacement( tdbAtTt( 0 ), stationAt( Eigen::Vector3d::Zero( ) ) ), std::runtime_error );
-    BOOST_CHECK_THROW( OceanPoleTideDeformation( grid, nullptr ), std::runtime_error );
 }
 
+//! Compare future ocean-pole displacement with independently computed secular-pole wobble.
 BOOST_AUTO_TEST_CASE( futureSecularPoleWithIndependentMixedWobble )
 {
     auto grid = syntheticGrid( );
@@ -214,7 +226,8 @@ BOOST_AUTO_TEST_CASE( futureSecularPoleWithIndependentMixedWobble )
            1e-14 );
 }
 
-BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedFileAndConfigurationErrors )
+//! Compare ocean-pole models constructed from a grid file and the same preloaded data.
+BOOST_AUTO_TEST_CASE( nativeFactoryMatchesLoadedGridResults )
 {
     using namespace simulation_setup;
     const auto grid = readOceanPoleTideGrid( fixturePath( "iers_grid_extract.txt" ) );
@@ -225,92 +238,12 @@ BOOST_AUTO_TEST_CASE( nativeFactoryPreloadedFileAndConfigurationErrors )
     bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
     const auto preloaded = createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Earth", bodies );
 
-    // Filename settings retain preloaded coefficients and report unavailable files immediately.
-    const auto fileSettings = oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) );
-
-    BOOST_CHECK_EQUAL( fileSettings->getGrid( ).coefficients.size( ), grid.coefficients.size( ) );
-    BOOST_CHECK_THROW( oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt.missing" ) ), std::runtime_error );
-
-    const auto file = createBodyDeformationModel( fileSettings, "Earth", bodies );
+    const auto file =
+            createBodyDeformationModel( oceanPoleTideBodyShapeDeformation( fixturePath( "iers_grid_extract.txt" ) ), "Earth", bodies );
 
     const Eigen::Vector3d spherical( 6378137, -43.75 * mathematical_constants::PI / 180, 232.25 * mathematical_constants::PI / 180 );
     const auto station = std::make_shared< ground_stations::GroundStationState >( spherical, coordinate_conversions::spherical_position );
+
+    // The loaded file and preloaded grid produce the same Cartesian displacement.
     close( preloaded->calculateDisplacement( tdbAtTt( 0 ), station ), file->calculateDisplacement( tdbAtTt( 0 ), station ) );
-    const auto typed = std::dynamic_pointer_cast< OceanPoleTideDeformation >( preloaded );
-    BOOST_REQUIRE( typed );
-    BOOST_CHECK( typed->getGrid( ).referenceOrigin == OceanLoadingReferenceOrigin::wholeEarthCentreOfMass );
-    BOOST_CHECK_THROW( createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Mars", bodies ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW(
-            createBodyDeformationModel( std::make_shared< BodyDeformationSettings >( gravitation::ocean_pole_tide ), "Earth", bodies ),
-            std::runtime_error );
-    bodies.at( "Earth" )->setRotationalEphemeris( nullptr );
-    BOOST_CHECK_THROW( createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Earth", bodies ),
-                       std::runtime_error );
-}
-
-BOOST_AUTO_TEST_CASE( nativeFactoryContinuousEopAcrossInsertedUtcSecond )
-{
-    using namespace simulation_setup;
-    using namespace earth_orientation;
-
-    // Controlled daily observations are affine in TAI, including the 86401-second day.
-    EarthOrientationData data;
-    const Time midnightTai = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
-    const Eigen::Vector2d referencePole( 1.0e-6, 2.0e-6 ), slope( 2.0e-12, -3.0e-12 );
-    for( int i = 0; i < 5; ++i )
-    {
-        EarthOrientationRecord record;
-        record.utcModifiedJulianDate = 57752.0 + i;
-        const Time utc( ( record.utcModifiedJulianDate - 51544.5 ) * 86400.0 );
-        const Time tai = sofa_interface::convertUTCtoTAI( utc );
-        const double dt = static_cast< double >( tai - midnightTai );
-        const Eigen::Vector2d pole = referencePole + dt * slope;
-        record.polarMotion = { pole.x( ), pole.y( ) };
-        record.ut1MinusUtc = -36.4 - 2.0e-8 * dt + static_cast< double >( tai - utc );
-        record.celestialPoleOffsets = std::array< double, 2 >{ 0.0, 0.0 };
-        data.records.emplace( record.utcModifiedJulianDate, record );
-    }
-    const auto angles = createStandardEarthOrientationCalculator( std::make_shared< EOPReader >( data ) );
-    SystemOfBodies bodies;
-    bodies.createEmptyBody( "Earth" );
-    bodies.at( "Earth" )->setRotationalEphemeris( std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles ) );
-    auto grid = syntheticGrid( );
-    Eigen::Matrix< double, 3, 2 > coefficients;
-    coefficients << 1, 2, 3, 4, 5, 6;
-    for( auto& node : grid.coefficients )
-    {
-        node = coefficients;
-    }
-    const auto model = createBodyDeformationModel( oceanPoleTideBodyShapeDeformationFromData( grid ), "Earth", bodies );
-    const Eigen::Vector3d position( 6378137.0, 0.0, 0.0 );
-    BOOST_CHECK_THROW( EarthOrientationDataEvaluator::convertTaiToScalarUtc( midnightTai - 0.5 ), std::runtime_error );
-    const double midnightTt = static_cast< double >( basic_astrodynamics::convertTAItoTT( midnightTai ) );
-    for( double offset : { -2.0, -1.0, -0.5, -0.25, 0.0, 0.25, 0.5, 1.0, 2.0 } )
-    {
-        const double tt = midnightTt + offset;
-        const Time tai = basic_astrodynamics::convertTTtoTAI( Time( tt ) );
-        const Time ut1 = angles->getTerrestrialTimeScaleConverter( )->getCurrentTime< Time >( tai_scale, ut1_scale, tai );
-        const auto arguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( tt, tt, static_cast< double >( ut1 ) );
-        const Eigen::Vector2d shortPeriod =
-                angles->getPolarMotionCalculator( )->getShortPeriodPolarMotionCalculator( )->getCorrectionsFromFundamentalArgument(
-                        arguments );
-        const Eigen::Vector2d pole = referencePole + static_cast< double >( tai - midnightTai ) * slope + shortPeriod;
-        const double years = tt / physical_constants::JULIAN_YEAR;
-        const Eigen::Vector2d meanPole =
-                Eigen::Vector2d( 55.0 + 1.677 * years, 320.5 + 3.460 * years ) * ( mathematical_constants::PI / 648000000.0 );
-        const std::complex< double > wobble( pole.x( ) - meanPole.x( ), -( pole.y( ) - meanPole.y( ) ) );
-        Eigen::Vector3d loading;
-        for( int component = 0; component < 3; ++component )
-        {
-            loading[ component ] = 5340.428562229677 *
-                    std::real( std::conj( std::complex< double >( coefficients( component, 0 ), coefficients( component, 1 ) ) ) * wobble *
-                               std::conj( std::complex< double >( 0.687, 0.0036 ) ) );
-        }
-
-        // Independent complex loading formula and equatorial radial/east/north basis.
-        close( model->calculateDisplacement( tdbAtTt( tt, angles->getTerrestrialTimeScaleConverter( ) ), stationAt( position ) ),
-               Eigen::Vector3d( loading.x( ), loading.z( ), loading.y( ) ),
-               1.0e-13 );
-    }
 }

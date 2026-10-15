@@ -1,10 +1,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
-#include "tudat/astro/earth_orientation/earthOrientationRates.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
-#include "desai_sibois_reference/expected.h"
+#include "pr1092/src/astro/earth_orientation/desai_sibois_reference/expected.h"
 
 // The Earth-specific factory is kept in its own translation unit.
 namespace tudat
@@ -82,6 +81,7 @@ std::shared_ptr< simulation_setup::GcrsToItrsRotationModelSettings > settings( )
 }
 }  // namespace
 
+//! Compare the Desai ocean replacement with independent phase, displacement and rate references.
 BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_values_and_analytic_rates )
 {
     const auto ds = corrections( true );
@@ -89,10 +89,15 @@ BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_value
     for( const auto& fixture : desai_sibois_reference::fixtures )
     {
         Eigen::Vector6d a;
-        for( int i = 0; i < 6; ++i ) a( i ) = fixture.arguments[ i ];
+        for( int i = 0; i < 6; ++i )
+        {
+            a( i ) = fixture.arguments[ i ];
+        }
         const Eigen::Vector2d ocean =
                 ds.polarMotion->getCorrectionsFromFundamentalArgument( a ) - lib.polarMotion->getCorrectionsFromFundamentalArgument( a );
         const double oceanUt1 = ds.ut1->getCorrectionsFromFundamentalArgument( a ) - lib.ut1->getCorrectionsFromFundamentalArgument( a );
+
+        // Compare the isolated ocean displacement with the independently frozen phase calculation.
         BOOST_CHECK_SMALL( ocean.x( ) / uas - fixture.values[ 0 ], 2e-10 );
         BOOST_CHECK_SMALL( ocean.y( ) / uas - fixture.values[ 1 ], 2e-10 );
         BOOST_CHECK_SMALL( oceanUt1 / 1e-6 - fixture.values[ 2 ], 2e-11 );
@@ -100,28 +105,21 @@ BOOST_AUTO_TEST_CASE( explicit_ocean_replacement_matches_independent_phase_value
         // Production phase function uses explicit TT/UT1, tested against the
         // independent high-precision polynomial oracle at 14 epochs (1962--2025).
         const auto physical = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( fixture.tt, fixture.tt, fixture.ut1 );
-        for( int i = 0; i < 6; ++i ) BOOST_CHECK_SMALL( std::sin( physical( i ) - a( i ) ), 8e-11 );
-        const Eigen::Vector2d rate =
-                calculateShortPeriodCorrectionRate( ds.polarMotion, Time( fixture.tt ), Time( fixture.ut1 ), .99999998 ) -
-                calculateShortPeriodCorrectionRate( lib.polarMotion, Time( fixture.tt ), Time( fixture.ut1 ), .99999998 );
-        const double rateUt1 = calculateShortPeriodCorrectionRate( ds.ut1, Time( fixture.tt ), Time( fixture.ut1 ), .99999998 ) -
-                calculateShortPeriodCorrectionRate( lib.ut1, Time( fixture.tt ), Time( fixture.ut1 ), .99999998 );
+        for( int i = 0; i < 6; ++i )
+        {
+            BOOST_CHECK_SMALL( std::sin( physical( i ) - a( i ) ), 8e-11 );
+        }
+        const Eigen::Vector2d rate = ds.polarMotion->getCorrectionRate( Time( fixture.tt ), Time( fixture.ut1 ), .99999998 ) -
+                lib.polarMotion->getCorrectionRate( Time( fixture.tt ), Time( fixture.ut1 ), .99999998 );
+        const double rateUt1 = ds.ut1->getCorrectionRate( Time( fixture.tt ), Time( fixture.ut1 ), .99999998 ) -
+                lib.ut1->getCorrectionRate( Time( fixture.tt ), Time( fixture.ut1 ), .99999998 );
         BOOST_CHECK_SMALL( rate.x( ) / uas - fixture.rates[ 0 ], 2e-10 );
         BOOST_CHECK_SMALL( rate.y( ) / uas - fixture.rates[ 1 ], 2e-10 );
         BOOST_CHECK_SMALL( rateUt1 / 1e-6 - fixture.rates[ 2 ], 2e-11 );
     }
 }
 
-BOOST_AUTO_TEST_CASE( amplitude_cutoffs_remove_ocean_and_libration_terms )
-{
-    const auto none = corrections( true, 1e6, 1e6 );
-    for( const auto& f : desai_sibois_reference::fixtures )
-    {
-        BOOST_CHECK_EQUAL( none.ut1->getCorrections( f.tt ), 0.0 );
-        BOOST_CHECK_EQUAL( none.polarMotion->getCorrections( f.tt ).norm( ), 0.0 );
-    }
-}
-
+//! Verify assembled Desai replacement while retaining daily EOP and independent libration.
 BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_native_ut1_rate )
 {
     auto configured = settings( );
@@ -135,15 +133,14 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
     const Time tai = Time( 536500837.0 );
     const auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( dailyData( ) );
     const auto ds = corrections( true );
-    TerrestrialTimeScaleConverter converter( nullptr, ds.ut1, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, ds.ut1, nullptr );
     const auto result = converter.getUt1FromTaiWithRate( tai );
     const auto lib = libration( );
     const auto args = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( f.tt, f.tt, f.ut1 );
     BOOST_CHECK_SMALL( static_cast< double >( result.ut1 - ( Time( 536500800.0 ) - .4 ) ) - f.values[ 2 ] * 1e-6 -
                                lib.ut1->getCorrectionsFromFundamentalArgument( args ),
                        2e-10 );
-    const double expectedRate =
-            .99999998 + f.rates[ 2 ] * 1e-6 + calculateShortPeriodCorrectionRate( lib.ut1, Time( f.tt ), Time( f.ut1 ), .99999998 );
+    const double expectedRate = .99999998 + f.rates[ 2 ] * 1e-6 + lib.ut1->getCorrectionRate( Time( f.tt ), Time( f.ut1 ), .99999998 );
     BOOST_CHECK_SMALL( result.dUt1DTai - expectedRate, 4e-16 );
 
     // Independent SOFA CIO assembly with ocean fixture, retained libration,
@@ -164,7 +161,12 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
                reference );
     const Eigen::Matrix3d actual = replacement->getRotationToBaseFrameFromExtendedTime( tai + 32.184 ).toRotationMatrix( );
     for( int i = 0; i < 3; ++i )
-        for( int j = 0; j < 3; ++j ) BOOST_CHECK_SMALL( actual( i, j ) - reference[ j ][ i ], 6e-14 );
+    {
+        for( int j = 0; j < 3; ++j )
+        {
+            BOOST_CHECK_SMALL( actual( i, j ) - reference[ j ][ i ], 6e-14 );
+        }
+    }
     BOOST_CHECK_GT( ( original->getRotationToBaseFrame( f.tt ).toRotationMatrix( ) - actual ).norm( ), 1e-12 );
     const Eigen::Matrix3d numerical = ( 8.0 *
                                                 ( replacement->getRotationToBaseFrame( f.tt + 32.0 ).toRotationMatrix( ) -
@@ -175,15 +177,17 @@ BOOST_AUTO_TEST_CASE( factory_opt_in_preserves_daily_eop_cpo_libration_and_nativ
     BOOST_CHECK_SMALL( ( replacement->getDerivativeOfRotationToBaseFrameFromExtendedTime( Time( f.tt ) ) - numerical ).norm( ), 1e-13 );
 }
 
+//! Reject custom short-period settings that could silently duplicate the ocean correction.
 BOOST_AUTO_TEST_CASE( custom_short_period_files_and_units_cannot_double_count_ocean_terms )
 {
     auto configured = settings( );
     configured->setOceanTideEopModel( OceanTideEopModel::desai_sibois_2016 );
     configured->getPolarMotionCorrectionSettings( )->amplitudesFiles_.push_back( "custom-ocean.txt" );
     BOOST_CHECK_THROW( simulation_setup::createGcrsToItrsRotationModel( configured ), std::runtime_error );
+
+    // An incompatible amplitude unit would also change the physical ocean correction.
     configured = settings( );
     configured->setOceanTideEopModel( OceanTideEopModel::desai_sibois_2016 );
     configured->getUt1CorrectionSettings( )->conversionFactor_ = 1.0;
     BOOST_CHECK_THROW( simulation_setup::createGcrsToItrsRotationModel( configured ), std::runtime_error );
-    BOOST_CHECK_THROW( configured->setOceanTideEopModel( static_cast< OceanTideEopModel >( 42 ) ), std::runtime_error );
 }

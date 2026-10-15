@@ -62,46 +62,77 @@ void validateOceanLoadingHeaderRowOrder( const std::vector< std::string >& heade
                 for( const auto& token : tokens )
                 {
                     if( token == "U" || token == "UP" || token == "RADIAL" )
+                    {
                         declared.push_back( 'U' );
+                    }
                     else if( token == "W" || token == "WEST" )
+                    {
                         declared.push_back( 'W' );
+                    }
                     else if( token == "S" || token == "SOUTH" )
+                    {
                         declared.push_back( 'S' );
+                    }
                     else
+                    {
                         throwOceanLoadingParseError( source, line + 1, "unsupported declared BLQ row order" );
+                    }
                 }
             }
             continue;
         }
-        if( !reading || inlineOrder || declared.size( ) >= 6 ) continue;
+        if( !reading || inlineOrder || declared.size( ) >= 6 )
+        {
+            continue;
+        }
         if( text.find( "AMPLITUDES" ) == 0 )
+        {
             sections.push_back( 'A' );
+        }
         else if( text.find( "PHASES" ) == 0 )
+        {
             sections.push_back( 'P' );
+        }
         else if( text == "U" || text == "UP" || text == "VERTICAL" || text == "RADIAL" )
+        {
             declared.push_back( 'U' );
+        }
         else if( text == "W" || text == "WEST" || text.find( "TANGENTL" ) == 0 || text.find( "TANGENTIAL" ) == 0 )
         {
             if( text == "W" || text == "WEST" || text.find( "EW" ) != std::string::npos || text.find( "E-W" ) != std::string::npos )
+            {
                 declared.push_back( 'W' );
+            }
             else if( text.find( "NS" ) != std::string::npos || text.find( "N-S" ) != std::string::npos )
+            {
                 declared.push_back( 'S' );
+            }
             else
+            {
                 throwOceanLoadingParseError( source, line + 1, "unsupported declared BLQ tangent row" );
+            }
         }
         else if( text == "S" || text == "SOUTH" )
+        {
             declared.push_back( 'S' );
+        }
         else if( text == "E" || text == "EAST" || text == "N" || text == "NORTH" )
+        {
             throwOceanLoadingParseError( source, line + 1, "BLQ rows must use up, west and south directions" );
+        }
     }
     if( reading )
     {
         const std::vector< char > full = { 'U', 'W', 'S', 'U', 'W', 'S' };
         const std::vector< char > shortOrder = { 'U', 'W', 'S' };
         if( declared != full && !( inlineOrder && declared == shortOrder ) )
+        {
             throwOceanLoadingParseError( source, 1, "BLQ row order must be up/west/south amplitudes followed by phases" );
+        }
         if( !sections.empty( ) && sections != std::vector< char >{ 'A', 'P' } )
+        {
             throwOceanLoadingParseError( source, 1, "BLQ amplitude rows must precede phase rows" );
+        }
     }
 }
 

@@ -200,23 +200,34 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs( const std::pair< Eigen::Vect
                                             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
-//! Earth orientation angles and the corresponding TAI, TT and UT1 epochs.
-//! All three epochs use Time, including when the caller supplies double.
-struct EarthOrientationAngles {
+//! Earth orientation angles at a single epoch, with the corresponding TAI, TT and UT1, and optionally their rates.
+/*!
+ *  The rates are only computed by EarthOrientationAnglesCalculator::getRotationAnglesAndRatesFromItrsToGcrs; otherwise they
+ *  are NaN. They are derivatives with respect to the time scale in which the epoch was given (the input time scale).
+ */
+struct EarthOrientationEvaluatedAnglesAndRates {
+    //! TAI, TT and UT1 (seconds since J2000) at the requested epoch.
     Time tai, tt, ut1;
-    Eigen::Vector5d angles = Eigen::Vector5d::Constant( TUDAT_NAN );
-};
 
-//! Derivatives of the angles and time conversions with respect to the input scale's seconds.
-struct EarthOrientationAnglesAndRates : EarthOrientationAngles {
+    //! Position of the CIP in the GCRS (X and Y), CIO locator (s) and polar motion (x_p and y_p), in radians.
+    Eigen::Vector5d angles = Eigen::Vector5d::Constant( TUDAT_NAN );
+
+    //! Derivatives of the angles with respect to the input time scale (radians per second).
     Eigen::Vector5d angleRates = Eigen::Vector5d::Constant( TUDAT_NAN );
+
+    //! Derivative of TAI with respect to the input time scale.
     double dTaiDInput = TUDAT_NAN;
+
+    //! Derivative of TT with respect to the input time scale.
     double dTtDInput = TUDAT_NAN;
+
+    //! Derivative of UT1 with respect to the input time scale.
     double dUt1DInput = TUDAT_NAN;
 };
 
-//! Complete product derivative of Q(X,Y,s) A(ERA) W(xp,yp,s'), including clock rates.
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationAnglesAndRates& orientation );
+//! Time derivative of the rotation matrix from ITRS to GCRS, with respect to the input time scale of the given angles.
+//! The angles must have been computed with their rates (see EarthOrientationAnglesCalculator::getRotationAnglesAndRatesFromItrsToGcrs).
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const EarthOrientationEvaluatedAnglesAndRates& orientation );
 
 //! Class to calculate earth orientation angles, i.e. those used for transforming from ITRS to GCRS
 class EarthOrientationAnglesCalculator
@@ -251,78 +262,20 @@ public:
             const TimeType timeValue,
             basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
     {
-        if( terrestrialTimeScaleConverter_->usesContinuousEop( ) )
-        {
-            // The precise calculation owns modern clock conversion and angle evaluation.
-            const EarthOrientationAngles result = getRotationAnglesAndTimesFromItrsToGcrs( timeValue, timeScale );
-
-            return std::make_pair( result.angles, static_cast< TimeType >( result.ut1 ) );
-        }
-
-        // Retain the supplied-interpolator calculation at the caller's original precision.
-        TimeType terrestrialTime, ut1;
-
-        Eigen::Vector3d positionOfCipInGcrs;
-
-        Eigen::Vector2d positionOfCipInItrs;
-
-        // Existing constructors with user-supplied UTC interpolators remain supported.
-        // Refresh all cached clocks for this epoch; updating TT alone can leave an old UT1 value.
-        terrestrialTimeScaleConverter_->updateTimes< TimeType >( timeScale, timeValue, Eigen::Vector3d::Zero( ), true );
-        terrestrialTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::tt_scale, timeValue );
-        ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >( timeScale, basic_astrodynamics::ut1_scale, timeValue );
-        TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
-
-        // Compute the celestial pole and CIO locator using the selected TT and UTC clocks.
-        positionOfCipInGcrs = precessionNutationCalculator_->getPositionOfCipInGcrs( terrestrialTime, utc );
-
-        // Before EOP introduction, use the historical UT1 already calculated above instead of converting TT to UTC through SOFA.
-        const double eopIntroductionEpochInTai =
-                ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-                physical_constants::JULIAN_DAY;
-
-        const TimeType atomicTime = basic_astrodynamics::convertTTtoTAI( terrestrialTime );
-
-        if( atomicTime < static_cast< TimeType >( eopIntroductionEpochInTai ) )
-        {
-            // Fundamental arguments use the custom TDB clock and the historical UT1 value.
-            TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                    timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );
-
-            Eigen::Vector6d fundamentalArguments =
-                    sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( static_cast< double >( barycentricDynamicalTime ),
-                                                                                   static_cast< double >( terrestrialTime ),
-                                                                                   static_cast< double >( ut1 ) );
-
-            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
-        }
-        else
-        {
-            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
-        }
-
-        // Return vector of angles.
-        Eigen::Vector5d rotationAngles;
-
-        rotationAngles[ 0 ] = positionOfCipInGcrs( 0 );
-        rotationAngles[ 1 ] = positionOfCipInGcrs( 1 );
-        rotationAngles[ 2 ] = positionOfCipInGcrs( 2 );
-        rotationAngles[ 3 ] = positionOfCipInItrs.x( );
-        rotationAngles[ 4 ] = positionOfCipInItrs.y( );
-        return std::make_pair( rotationAngles, ut1 );
+        const EarthOrientationEvaluatedAnglesAndRates result = getRotationAnglesAndTimesFromItrsToGcrs( Time( timeValue ), timeScale );
+        return std::make_pair( result.angles, static_cast< TimeType >( result.ut1 ) );
     }
 
-    //! Return angles and Time-valued TAI/TT/UT1 epochs for the requested input time.
-    EarthOrientationAngles getRotationAnglesAndTimesFromItrsToGcrs(
+    //! Earth orientation angles, with the corresponding TAI, TT and UT1, at the given epoch (in the given time scale). The
+    //! rates in the returned object are not computed (NaN).
+    EarthOrientationEvaluatedAnglesAndRates getRotationAnglesAndTimesFromItrsToGcrs(
             const Time& timeValue,
             const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
 
-    //! Return angles and their derivatives with respect to the input scale's seconds.
-    //! Models constructed from EOP data differentiate the selected daily interpolant, using the
-    //! right-hand interval at a sample and the left-hand interval at the final sample.
-    //! Models constructed from custom daily interpolators provide positions only.
-    EarthOrientationAnglesAndRates getRotationAnglesAndRatesFromItrsToGcrs(
+    //! Earth orientation angles, with the corresponding TAI, TT and UT1, and their derivatives with respect to the given time
+    //! scale. The rates of the daily EOP values are the derivatives of their interpolating function (see
+    //! EarthOrientationDataEvaluator).
+    EarthOrientationEvaluatedAnglesAndRates getRotationAnglesAndRatesFromItrsToGcrs(
             const Time& timeValue,
             const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
 

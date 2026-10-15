@@ -23,7 +23,7 @@ namespace astro
 namespace frame_conversion
 {
 
-// Register Cartesian frame conversions and terrestrial affine transformations.
+// Register Cartesian frame conversions and terrestrial frame transformations.
 void expose_frame_conversion( py::module& m );
 
 }  // namespace frame_conversion

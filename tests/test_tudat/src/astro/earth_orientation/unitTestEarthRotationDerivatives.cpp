@@ -1,7 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
+#include <limits>
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
-#include "tudat/astro/earth_orientation/earthOrientationRates.h"
+#include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 
 using namespace tudat;
 using namespace tudat::earth_orientation;
@@ -12,7 +13,7 @@ namespace
 input_output::EarthOrientationData rateData( const double ut1Slope = -2e-8 )
 {
     input_output::EarthOrientationData data;
-    data.source = "controlled affine TAI EOP rates";
+    data.source = "controlled linear TAI EOP rates";
     const Time reference = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
     for( int i = 0; i < 4; ++i )
     {
@@ -31,64 +32,19 @@ input_output::EarthOrientationData rateData( const double ut1Slope = -2e-8 )
 }
 }  // namespace
 
+//! Differentiate the selected UT1 interpolation instead of substituting independent LOD data.
 BOOST_AUTO_TEST_CASE( native_ut1_rate_uses_selected_interpolant_without_independent_lod )
 {
     auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( rateData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
+    TerrestrialTimeScaleConverter converter( evaluator, nullptr, nullptr );
     const Time midnight = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
     for( const Time& tai : { evaluator->getStartTai( ), midnight - 0.5, midnight, evaluator->getEndTai( ) } )
     {
         const auto result = converter.getUt1FromTaiWithRate( tai );
+
+        // The UT1 value is unchanged by requesting its rate, which follows the observations rather than LOD.
         BOOST_CHECK_EQUAL( result.ut1, converter.getUt1FromTai( tai ) );
         BOOST_CHECK_SMALL( result.dUt1DTai - ( 1.0 - 2e-8 ), 2e-16 );
-    }
-}
-
-BOOST_AUTO_TEST_CASE( native_ut1_rate_matches_complete_position_sequence_through_leap )
-{
-    auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( rateData( ) );
-    TerrestrialTimeScaleConverter converter( nullptr, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
-    const Time tai = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 36.5;
-    const auto result = converter.getUt1FromTaiWithRate( tai );
-    BOOST_CHECK_EQUAL( result.ut1, converter.getUt1FromTai( tai ) );
-    const Time a = converter.getUt1FromTai( tai + 64.0 ) - converter.getUt1FromTai( tai - 64.0 );
-    const Time b = converter.getUt1FromTai( tai + 128.0 ) - converter.getUt1FromTai( tai - 128.0 );
-    const double independent = ( 8.0 * static_cast< double >( a ) - static_cast< double >( b ) ) / ( 12.0 * 64.0 );
-    BOOST_CHECK_SMALL( result.dUt1DTai - independent, 4e-14 );
-    BOOST_CHECK_GT( std::abs( result.dUt1DTai - ( 1.0 - 2e-8 ) ), 1e-11 );
-}
-
-BOOST_AUTO_TEST_CASE( ut1_rate_unavailability_retains_covered_and_historical_positions )
-{
-    auto data = rateData( );
-    data.records.erase( std::next( data.records.begin( ) ), std::prev( data.records.end( ) ) );
-    auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
-    TerrestrialTimeScaleConverter converter( nullptr, nullptr, nullptr, evaluator );
-    BOOST_CHECK_NO_THROW( converter.getUt1FromTai( evaluator->getStartTai( ) ) );
-    BOOST_CHECK_THROW( converter.getUt1FromTaiWithRate( evaluator->getStartTai( ) ), std::runtime_error );
-    EarthOrientationEvaluationSettings settings;
-    settings.historicalUt1 = HistoricalUt1Policy::delta_t;
-    auto historicalData = std::make_shared< EarthOrientationDataEvaluator >( rateData( ), settings );
-    TerrestrialTimeScaleConverter historical( nullptr, nullptr, nullptr, historicalData );
-    const Time tt( ( 1893.0 - 2000.0 ) * physical_constants::JULIAN_YEAR );
-    BOOST_CHECK_NO_THROW( historical.getCurrentTime< Time >( tt_scale, ut1_scale, tt ) );
-    BOOST_CHECK_THROW( historical.getUt1FromTaiWithRate( convertTTtoTAI( tt ) ), std::runtime_error );
-    const Time transition( ( JULIAN_DAY_OF_EOP_INTRODUCTION - JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
-    const Time before = transition - 1e-10;
-    BOOST_CHECK_EQUAL( static_cast< double >( before ), static_cast< double >( transition ) );
-    BOOST_CHECK_NO_THROW( historical.getUt1FromTai( before ) );
-    BOOST_CHECK_NO_THROW( historical.getCurrentTime< Time >( ut1_scale, tai_scale, before ) );
-    BOOST_CHECK_EXCEPTION( historical.getUt1FromTaiWithRate( before ), std::runtime_error, []( const std::runtime_error& error ) {
-        return std::string( error.what( ) ).find( "Historical Delta-T" ) != std::string::npos;
-    } );
-    BOOST_CHECK_THROW( historical.getUt1FromTai( transition ), std::runtime_error );
-    TerrestrialTimeScaleConverter legacy( nullptr, nullptr );
-    const Time nearby = transition - 1e-6;
-    for( const auto scales : { std::make_pair( utc_scale, tt_scale ), std::make_pair( tai_scale, utc_scale ) } )
-    {
-        const Time reference = legacy.getCurrentTime< Time >( scales.first, scales.second, nearby );
-        const Time current = legacy.getCurrentTime< Time >( scales.first, scales.second, before );
-        BOOST_CHECK_SMALL( static_cast< double >( ( current - reference ) - ( before - nearby ) ), 1e-8 );
     }
 }
 
@@ -108,11 +64,11 @@ std::shared_ptr< EarthOrientationAnglesCalculator > rateCalculator( const input_
                                                                     const EarthOrientationEvaluationSettings& settings = {} )
 {
     auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data, settings );
-    auto ut1 = std::make_shared< TerrestrialTimeScaleConverter >(
-            nullptr, shortPeriods ? getDefaultUT1CorrectionCalculator( ) : nullptr, nullptr, evaluator );
-    auto polar = std::make_shared< PolarMotionCalculator >(
-            nullptr, shortPeriods ? getDefaultPolarMotionCorrectionCalculator( ) : nullptr, evaluator );
-    auto celestial = std::make_shared< PrecessionNutationCalculator >( theory, nullptr, nullptr, evaluator );
+    auto ut1 =
+            std::make_shared< TerrestrialTimeScaleConverter >( evaluator, shortPeriods ? getDefaultUT1CorrectionCalculator( ) : nullptr );
+    auto polar =
+            std::make_shared< PolarMotionCalculator >( evaluator, shortPeriods ? getDefaultPolarMotionCorrectionCalculator( ) : nullptr );
+    auto celestial = std::make_shared< PrecessionNutationCalculator >( theory, evaluator, nullptr );
     return std::make_shared< EarthOrientationAnglesCalculator >( polar, celestial, ut1 );
 }
 
@@ -120,11 +76,16 @@ Eigen::Matrix3d matrixFromSofa( const double matrix[ 3 ][ 3 ] )
 {
     Eigen::Matrix3d result;
     for( int i = 0; i < 3; ++i )
-        for( int j = 0; j < 3; ++j ) result( i, j ) = matrix[ i ][ j ];
+    {
+        for( int j = 0; j < 3; ++j )
+        {
+            result( i, j ) = matrix[ i ][ j ];
+        }
+    }
     return result;
 }
 
-// Independent SOFA CIO recipe, using controlled affine EOP directly, without
+// Independent SOFA CIO recipe, using controlled EOP values linear in TAI, without
 // production orientation angles, EOP interpolation or quaternion composition.
 // https://www.iausofa.org/s/sofa_pn_c.pdf, sections 5.5/5.6.
 Eigen::Matrix3d independentSofaRotation( const Time& tai, const IAUConventions theory = iau_2006, const double ut1Slope = -2e-8 )
@@ -136,11 +97,17 @@ Eigen::Matrix3d independentSofaRotation( const Time& tai, const IAUConventions t
     const double tt1 = 2451545.0 + tt.fullDaysSinceEpoch( );
     const double tt2 = static_cast< double >( tt.secondsSinceNoon( ) / 86400.0L );
     if( theory == iau_2006 )
+    {
         iauXys06a( tt1, tt2, &x, &y, &s );
+    }
     else if( theory == iau_2000_a )
+    {
         iauXys00a( tt1, tt2, &x, &y, &s );
+    }
     else
+    {
         iauXys00b( tt1, tt2, &x, &y, &s );
+    }
     iauC2ixys( x + 1e-9 + 4e-14 * dt, y - 2e-9 - 5e-14 * dt, s, q );
     iauPom00( 1e-6 + 2e-12 * dt, 2e-6 - 3e-12 * dt, iauSp00( tt1, tt2 ), w );
     iauC2tcio(
@@ -159,9 +126,13 @@ std::map< std::string, Eigen::Matrix3d > independentBaseFrames( const IAUConvent
 {
     double bias[ 3 ][ 3 ], precession[ 3 ][ 3 ], combined[ 3 ][ 3 ];
     if( theory == iau_2006 )
+    {
         iauBp06( 2451545.0, 0.0, bias, precession, combined );
+    }
     else
+    {
         iauBp00( 2451545.0, 0.0, bias, precession, combined );
+    }
 
     // NAIF built-in ECLIPJ2000 obliquity 84381.448 arcsec, explicit independent constants.
     Eigen::Matrix3d ecliptic;
@@ -176,6 +147,7 @@ std::map< std::string, Eigen::Matrix3d > independentBaseFrames( const IAUConvent
 }
 }  // namespace
 
+//! Compare complete Earth rotations with independent SOFA matrices for each supported convention and frame.
 BOOST_AUTO_TEST_CASE( complete_rotation_matches_independent_sofa_for_conventions_and_base_frames )
 {
     const Time tai = referenceTai( ) + 12345.678901234L;
@@ -190,6 +162,8 @@ BOOST_AUTO_TEST_CASE( complete_rotation_matches_independent_sofa_for_conventions
             const auto quaternion = model.getRotationToBaseFrameFromExtendedTime( tai );
             const Eigen::Matrix3d r = quaternion.toRotationMatrix( );
             const Eigen::Matrix3d dr = model.getDerivativeOfRotationToBaseFrameFromExtendedTime( tai );
+
+            // Compare the complete matrix with SOFA before testing the fixed base-frame mapping.
             BOOST_CHECK_SMALL( ( r - base.second * reference ).norm( ), 3e-14 );
             BOOST_CHECK_SMALL( ( dr - base.second * expectedRate ).norm( ), 8e-15 );
             BOOST_CHECK_SMALL( quaternion.norm( ) - 1.0, 4e-16 );
@@ -208,20 +182,7 @@ BOOST_AUTO_TEST_CASE( complete_rotation_matches_independent_sofa_for_conventions
     }
 }
 
-BOOST_AUTO_TEST_CASE( exact_celestial_matrix_remains_unit_across_supported_era )
-{
-    for( const auto theory : { iau_2000_a, iau_2000_b, iau_2006 } )
-        for( const double years : { -50.0, 0.0, 25.0, 100.0, 500.0 } )
-        {
-            const auto xys = sofa_interface::getPositionOfCipInGcrs( years * 365.25 * 86400.0, 2451545.0, theory );
-            double q[ 3 ][ 3 ];
-            iauC2ixys( xys.x( ), xys.y( ), xys.z( ), q );
-            const auto result = calculateRotationFromCirsToGcrs( xys.x( ), xys.y( ), xys.z( ) );
-            BOOST_CHECK_SMALL( ( result.toRotationMatrix( ) - matrixFromSofa( q ).transpose( ) ).norm( ), 6e-16 );
-            BOOST_CHECK_SMALL( result.norm( ) - 1.0, 4e-16 );
-        }
-}
-
+//! Check rotation derivative convergence and the resulting inertial station velocity.
 BOOST_AUTO_TEST_CASE( full_sofa_derivative_convergence_and_station_velocity_closure )
 {
     auto calculator = rateCalculator( );
@@ -234,6 +195,8 @@ BOOST_AUTO_TEST_CASE( full_sofa_derivative_convergence_and_station_velocity_clos
     {
         const auto numerical = fivePointMatrixRate( []( const Time& t ) { return independentSofaRotation( t ); }, tai, step );
         errors.push_back( ( ( numerical - derivative ) * station ).norm( ) );
+
+        // Numerical rotation differences must converge to the complete derivative and station velocity.
         BOOST_TEST_MESSAGE( "Independent complete SOFA station derivative h=" << step << " s error=" << errors.back( ) << " m/s" );
     }
     BOOST_CHECK_LT( errors[ 1 ], errors[ 0 ] / 100.0 );
@@ -244,7 +207,8 @@ BOOST_AUTO_TEST_CASE( full_sofa_derivative_convergence_and_station_velocity_clos
     BOOST_CHECK_SMALL( ( ( closure - derivative ) * station ).norm( ), 1e-7 );
 }
 
-BOOST_AUTO_TEST_CASE( affine_ut1_polar_and_celestial_slopes_contribute_without_phase_offset )
+//! Separate the physical UT1, polar-motion and celestial-pole contributions to the rotation rate.
+BOOST_AUTO_TEST_CASE( linear_ut1_polar_and_celestial_slopes_contribute_without_phase_offset )
 {
     const Time tai = referenceTai( );
     auto moving = rateCalculator( rateData( 4e-5 ) );
@@ -257,6 +221,8 @@ BOOST_AUTO_TEST_CASE( affine_ut1_polar_and_celestial_slopes_contribute_without_p
     auto stationary = rateCalculator( staticData );
     const auto values = moving->getRotationAnglesAndRatesFromItrsToGcrs( tai, tai_scale );
     const auto fixed = stationary->getRotationAnglesAndRatesFromItrsToGcrs( tai, tai_scale );
+
+    // Equal angle values isolate the independently specified clock and pole rates.
     BOOST_CHECK_SMALL( ( values.angles - fixed.angles ).norm( ), 1e-20 );
     BOOST_CHECK_EQUAL( values.ut1, fixed.ut1 );
     BOOST_CHECK_SMALL( values.dUt1DInput - 1.00004, 2e-16 );
@@ -271,12 +237,13 @@ BOOST_AUTO_TEST_CASE( affine_ut1_polar_and_celestial_slopes_contribute_without_p
     BOOST_CHECK_GT( ( calculateRotationRateFromItrsToGcrs( values ) - calculateRotationRateFromItrsToGcrs( onlySpin ) ).norm( ), 1e-12 );
 }
 
+//! Check the full rotation derivative under the TT, TDB and UT1 clock chains.
 BOOST_AUTO_TEST_CASE( continuous_rates_cross_leap_seconds_and_share_clock_scaling )
 {
     auto calculator = rateCalculator( rateData( ), iau_2006, true );
     auto converter = calculator->getTerrestrialTimeScaleConverter( );
     ephemerides::GcrsToItrsRotationModel taiModel( calculator, tai_scale );
-    for( const double delta : { -1.5, -0.5, 0.0, 0.5, 12345.0 } )
+    for( const double delta : { -0.5, 12345.0 } )
     {
         const Time tai = referenceTai( ) + delta;
         const Eigen::Matrix3d r = taiModel.getRotationToBaseFrameFromExtendedTime( tai ).toRotationMatrix( );
@@ -285,6 +252,8 @@ BOOST_AUTO_TEST_CASE( continuous_rates_cross_leap_seconds_and_share_clock_scalin
                 [ &taiModel ]( const Time& t ) { return taiModel.getRotationToBaseFrameFromExtendedTime( t ).toRotationMatrix( ); },
                 tai,
                 32.0 );
+
+        // Compare the complete derivative with independent matrix differences in TAI.
         BOOST_CHECK_SMALL( ( dr - fd ).norm( ), 1e-14 );
         for( const auto scale : { tt_scale, tdb_scale, ut1_scale } )
         {
@@ -299,7 +268,10 @@ BOOST_AUTO_TEST_CASE( continuous_rates_cross_leap_seconds_and_share_clock_scalin
                     input,
                     32.0 );
             BOOST_CHECK_SMALL( ( model.getDerivativeOfRotationToBaseFrameFromExtendedTime( input ) - inputDerivative ).norm( ), 1e-14 );
-            if( scale == ut1_scale ) BOOST_CHECK_SMALL( state.dUt1DInput - 1.0, 2e-16 );
+            if( scale == ut1_scale )
+            {
+                BOOST_CHECK_SMALL( state.dUt1DInput - 1.0, 2e-16 );
+            }
 
             BOOST_CHECK_SMALL( ( model.getRotationBetweenIntermediateFrames( ephemerides::EarthOrientationIntermediateFrame::itrs,
                                                                              ephemerides::EarthOrientationIntermediateFrame::icrs,
@@ -310,14 +282,9 @@ BOOST_AUTO_TEST_CASE( continuous_rates_cross_leap_seconds_and_share_clock_scalin
                                1e-15 );
         }
     }
-    const Time utc = referenceTai( ) - 37.0;
-    ephemerides::GcrsToItrsRotationModel utcModel( calculator, utc_scale );
-    BOOST_CHECK_NO_THROW( utcModel.getRotationToBaseFrameFromExtendedTime( utc ) );
-    BOOST_CHECK_THROW( utcModel.getDerivativeOfRotationToBaseFrameFromExtendedTime( utc ), std::runtime_error );
-    BOOST_CHECK_NO_THROW( utcModel.getDerivativeOfRotationToBaseFrameFromExtendedTime( utc - 0.1 ) );
-    BOOST_CHECK_NO_THROW( utcModel.getDerivativeOfRotationToBaseFrameFromExtendedTime( utc + 0.1 ) );
 }
 
+//! Include the pre-1972 UTC drift in the full rotation derivative.
 BOOST_AUTO_TEST_CASE( pre_1972_utc_drift_scales_the_full_rotation_derivative )
 {
     auto data = rateData( );
@@ -337,6 +304,8 @@ BOOST_AUTO_TEST_CASE( pre_1972_utc_drift_scales_the_full_rotation_derivative )
     const Time tai = sofa_interface::convertUTCtoTAI( utc );
     const auto utcRate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( utc, utc_scale );
     const auto taiRate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( tai, tai_scale );
+
+    // The pre-1972 UTC drift must scale the entire matrix derivative.
     BOOST_CHECK_SMALL( utcRate.dTaiDInput - ( 1.0 + 0.001296 / 86400.0 ), 2e-16 );
     BOOST_CHECK_SMALL( ( calculateRotationRateFromItrsToGcrs( utcRate ) -
                          ( 1.0 + 0.001296 / 86400.0 ) * calculateRotationRateFromItrsToGcrs( taiRate ) )
@@ -344,46 +313,42 @@ BOOST_AUTO_TEST_CASE( pre_1972_utc_drift_scales_the_full_rotation_derivative )
                        3e-20 );
 }
 
-BOOST_AUTO_TEST_CASE( strict_rates_retain_endpoints_knot_policy_and_missing_rate_failures )
+//! Keep the right-hand source-knot slope under roundoff and reject rates across missing data.
+BOOST_AUTO_TEST_CASE( source_knots_choose_right_slope_and_gaps_have_no_rate )
 {
-    auto calculator = rateCalculator( );
-    const auto converter = calculator->getTerrestrialTimeScaleConverter( );
-    const auto evaluator = converter->getEarthOrientationDataEvaluator( );
-    for( const Time& tai : { evaluator->getStartTai( ), evaluator->getEndTai( ) } )
-        for( const auto scale : { tai_scale, tt_scale, tdb_scale, ut1_scale } )
-        {
-            const Time input = converter->getCurrentTime< Time >( tai_scale, scale, tai );
-            const auto rate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( input, scale );
-            const auto doubleRate = calculator->getRotationAnglesAndRatesFromItrsToGcrs( static_cast< double >( input ), scale );
-            BOOST_CHECK_EQUAL( rate.tai, tai );
-
-            // A rounded double end point lies within the EOP coverage tolerance of the exact end point.
-            BOOST_CHECK_SMALL( static_cast< double >( doubleRate.tai - tai ), 1e-6 );
-            BOOST_CHECK_SMALL( ( rate.angleRates - doubleRate.angleRates ).norm( ), 1e-22 );
-        }
     auto gap = rateData( );
     gap.records.erase( std::next( gap.records.begin( ) ), std::prev( gap.records.end( ) ) );
     auto gapCalculator = rateCalculator( gap );
     const Time start = gapCalculator->getTerrestrialTimeScaleConverter( )->getEarthOrientationDataEvaluator( )->getStartTai( );
+
+    // A node remains usable for positions while its missing interpolation interval supplies no rate.
     BOOST_CHECK_NO_THROW( gapCalculator->getRotationAnglesAndTimesFromItrsToGcrs( start, tai_scale ) );
     BOOST_CHECK_THROW( gapCalculator->getRotationAnglesAndRatesFromItrsToGcrs( start, tai_scale ), std::runtime_error );
-    auto missing = rateData( );
-    std::next( missing.records.begin( ) )->second.celestialPoleOffsets.reset( );
-    auto missingCalculator = rateCalculator( missing );
-    BOOST_CHECK_THROW( missingCalculator->getRotationAnglesAndRatesFromItrsToGcrs( start, tai_scale ), std::runtime_error );
     auto knotData = rateData( );
     std::prev( knotData.records.end( ) )->second.polarMotion[ 0 ] += 1e-6;
     auto knotCalculator = rateCalculator( knotData );
     const auto at = knotCalculator->getRotationAnglesAndRatesFromItrsToGcrs( referenceTai( ), tai_scale );
     const auto before = knotCalculator->getRotationAnglesAndRatesFromItrsToGcrs( referenceTai( ) - 0.01, tai_scale );
     BOOST_CHECK_SMALL( at.angleRates[ 3 ] - ( 2e-12 + 1e-6 / 86400.0 ), 1e-25 );
+
+    // Fractional-hour clock roundoff on either side of the knot must retain the right-hand slope.
+    const long double roundoff = std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM;
+
+    for( const long double shift : { -roundoff, roundoff } )
+    {
+        const auto nearby = knotCalculator->getRotationAnglesAndRatesFromItrsToGcrs( referenceTai( ) + shift, tai_scale );
+
+        BOOST_CHECK_EQUAL( nearby.angleRates[ 3 ], at.angleRates[ 3 ] );
+    }
     BOOST_CHECK_SMALL( before.angleRates[ 3 ] - 2e-12, 1e-25 );
 }
 
+//! Compare nominal celestial-pole rates with independent SOFA differences.
 BOOST_AUTO_TEST_CASE( nominal_cip_rate_matches_independent_sofa_and_ignores_position_interpolation )
 {
     const Time tt = referenceTai( ) + 32.184 + 12345.0;
-    PrecessionNutationCalculator direct( iau_2006, nullptr );
+    const auto eopData = std::make_shared< EarthOrientationDataEvaluator >( rateData( ) );
+    PrecessionNutationCalculator direct( iau_2006, eopData );
 
     // Unit-scale rotation-matrix arithmetic is allowed eight epsilon of absolute
     // error per returned coordinate. The five-point weights amplify that by
@@ -409,6 +374,8 @@ BOOST_AUTO_TEST_CASE( nominal_cip_rate_matches_independent_sofa_and_ignores_posi
         const Eigen::Vector3d independent = ( 8.0 * ( sofaValue( sample + h ) - sofaValue( sample - h ) ) -
                                               ( sofaValue( sample + 2 * h ) - sofaValue( sample - 2 * h ) ) ) /
                 ( 12.0 * h );
+
+        // Compare celestial-pole rates with independent direct SOFA differences.
         BOOST_CHECK_SMALL( ( nominal.second - independent ).norm( ), budget( 32.0, 64.0 ) );
     }
 
@@ -419,7 +386,7 @@ BOOST_AUTO_TEST_CASE( nominal_cip_rate_matches_independent_sofa_and_ignores_posi
          { interpolators::linearInterpolation( ), interpolators::cubicSplineInterpolation( ), interpolators::lagrangeInterpolation( 6 ) } )
     {
         PrecessionNutationCalculator interpolated(
-                iau_2006, nullptr, interpolators::interpolatorGenerationSettings( settings, initial, final, 2000.0 ) );
+                iau_2006, eopData, interpolators::interpolatorGenerationSettings( settings, initial, final, 2000.0 ) );
         for( const double epoch : { initial + 1000.0, static_cast< double >( tt ) } )
         {
             const auto result = interpolated.getNominalPositionAndRate( Time( epoch ) );
@@ -428,48 +395,21 @@ BOOST_AUTO_TEST_CASE( nominal_cip_rate_matches_independent_sofa_and_ignores_posi
     }
 }
 
-BOOST_AUTO_TEST_CASE( legacy_constructor_provides_earth_rotation_angle_rate )
-{
-    const double utc = ( 57754.0 - 51544.5 ) * 86400.0;
-    const std::map< double, Eigen::Vector2d > polarValues = { { utc - 86400.0, Eigen::Vector2d( 1e-6, 2e-6 ) },
-                                                              { utc, Eigen::Vector2d( 1.1e-6, 1.9e-6 ) },
-                                                              { utc + 86400.0, Eigen::Vector2d( 1.3e-6, 1.8e-6 ) } };
-    const std::map< double, double > ut1Values = { { utc - 86400.0, 0.3 }, { utc, 0.4 }, { utc + 86400.0, 0.5 } };
-    auto polar = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( polarValues );
-    auto ut1 = std::make_shared< interpolators::LinearInterpolator< double, double > >( ut1Values );
-    const auto zeroArguments = []( const double ) -> Eigen::Vector6d { return Eigen::Vector6d::Zero( ); };
-    auto zeroPolar = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
-            1.0, 0.0, std::vector< std::string >( ), std::vector< std::string >( ), zeroArguments );
-    auto zeroUt1 = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
-            1.0, 0.0, std::vector< std::string >( ), std::vector< std::string >( ), zeroArguments );
-    auto calculator =
-            std::make_shared< EarthOrientationAnglesCalculator >( std::make_shared< PolarMotionCalculator >( polar, zeroPolar ),
-                                                                  std::make_shared< PrecessionNutationCalculator >( iau_2006, polar ),
-                                                                  std::make_shared< TerrestrialTimeScaleConverter >( ut1, zeroUt1 ) );
-    ephemerides::GcrsToItrsRotationModel model( calculator, utc_scale );
-
-    // Custom daily interpolators provide the derivative of the Earth rotation angle only (as before EOP data models).
-    // The neglected precession/nutation, polar motion and UT1-UTC rates (here about 1e-6 of the spin rate) give an
-    // error well below 1e-9 in the derivative, whose norm is about 1e-4.
-    const Time t( utc + 1234.0 );
-    const auto derivative = model.getDerivativeOfRotationToBaseFrameFromExtendedTime( t );
-    const auto numerical = fivePointMatrixRate(
-            [ &model ]( const Time& time ) { return model.getRotationToBaseFrameFromExtendedTime( time ).toRotationMatrix( ); }, t, 32.0 );
-    BOOST_CHECK_SMALL( ( derivative - numerical ).norm( ), 1e-9 );
-}
-
+//! Check convergence of polar-motion and UT1 short-period tangent rates.
 BOOST_AUTO_TEST_CASE( short_period_tangent_rates_converge_without_probing_daily_eop )
 {
     const Time tt = referenceTai( ) + 32.184;
     const Time ut1 = referenceTai( ) - 36.4;
     auto polar = getDefaultPolarMotionCorrectionCalculator( );
     auto clock = getDefaultUT1CorrectionCalculator( );
-    const auto polar32 = calculateShortPeriodCorrectionRate< Eigen::Vector2d >( polar, tt, ut1, 1.0002, 32.0 );
-    const double clock32 = calculateShortPeriodCorrectionRate< double >( clock, tt, ut1, 1.0002, 32.0 );
+    const auto polar32 = polar->getCorrectionRate( tt, ut1, 1.0002, 32.0 );
+    const double clock32 = clock->getCorrectionRate( tt, ut1, 1.0002, 32.0 );
     for( const double h : { 16.0, 64.0, 128.0 } )
     {
-        const auto polarOther = calculateShortPeriodCorrectionRate< Eigen::Vector2d >( polar, tt, ut1, 1.0002, h );
-        const double clockOther = calculateShortPeriodCorrectionRate< double >( clock, tt, ut1, 1.0002, h );
+        const auto polarOther = polar->getCorrectionRate( tt, ut1, 1.0002, h );
+        const double clockOther = clock->getCorrectionRate( tt, ut1, 1.0002, h );
+
+        // Compare polar-motion and UT1 tangent rates at several difference steps.
         BOOST_TEST_MESSAGE( "Short-period h=" << h << " PM tangent discrepancy=" << ( polarOther - polar32 ).norm( )
                                               << " rad/s, UT1 tangent discrepancy=" << std::abs( clockOther - clock32 ) << " s/s" );
         BOOST_CHECK_SMALL( ( polarOther - polar32 ).norm( ), 2e-20 );

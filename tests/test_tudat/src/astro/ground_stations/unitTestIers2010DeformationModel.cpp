@@ -12,7 +12,7 @@
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
-#include "iers2010_reference/fixtures.h"
+#include "pr1092/src/astro/ground_stations/iers2010_reference/fixtures.h"
 
 namespace tudat
 {
@@ -70,6 +70,7 @@ Eigen::Vector6d calculateFundamentalArgumentsIersCode( const double timeSinceJ20
 
 BOOST_AUTO_TEST_SUITE( test_iers_2010_solid_earth_tide_deformation )
 
+//! Compare the IERS deformation components with the original independent reference values.
 BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
 {
     double lunarMassRatio = 0.0123000371;
@@ -456,8 +457,10 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
     }
 }
 
+//! Compare complete IERS displacements with global non-midnight reference fixtures.
 BOOST_AUTO_TEST_CASE( test_corrected_Iers_reference_global_non_midnight )
 {
+
     // Independent DEHANTTIDEINEL outputs: all coordinates are ECEF metres;
     // TT epochs and UTC hours come from reference SOFA CAL2JD/DAT, not Tudat.
     // Frozen controlled vectors isolate station geometry and argument/time handling.
@@ -500,6 +503,8 @@ BOOST_AUTO_TEST_CASE( test_corrected_Iers_reference_global_non_midnight )
                     std::make_shared< ground_stations::GroundStationState >( station ) );
             for( int i = 0; i < 3; ++i )
             {
+
+                // The reference-clock calculation agrees with every frozen displacement component.
                 BOOST_CHECK_SMALL( exactDisplacement( i ) - expected( i ), 1.0e-9 );
             }
 

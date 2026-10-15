@@ -120,7 +120,7 @@ Nothing of the above has been compiled. Expect some compile errors in the bindin
    ```sh
    cd /home/dominic/Tudat/pr1092-review-build
    make -j8 $(cat /tmp/claude-1000/-home-dominic/da490dc0-d594-4ff0-aa23-705088333291/scratchpad/selected.txt) \
-       test_reference_frames_ReferenceFrameTransformations test_io_TerrestrialFrameTransformationData \
+       test_reference_frames_ReferenceFrameTransformations \
        test_simulation_EnvironmentModelSetup
    ```
    If the scratchpad file is gone, the 26 targets are: `test_earth_orientation_{EarthOrientationCalculator,
@@ -129,7 +129,7 @@ Nothing of the above has been compiled. Expect some compile errors in the bindin
    `test_ground_stations_{AtmosphericTideDeformation, AtmosphericTideLoading, BodyDeformationVelocity,
    CompleteEarthStationVelocity, DefaultGroundStationSettings, EarthDeformationTimeRouting, GroundStationState,
    Iers2010DeformationModel, OceanPoleTideDisplacement, OceanTideDisplacement, PoleTideDisplacement,
-   RelativisticStationPosition, StationHistoryFrameTransformation, StationHistoryTrajectory, StationLoadingDeformation,
+   RelativisticStationPosition, StationHistoryFrameTransformation, StationCoordinateHistory, StationLoadingDeformation,
    StationReferencePoint}`, `test_reference_frames_TerrestrialFrameTransformation`. Verify the exact target names with
    `make help | grep test_` if a name is not found.
 2. Run each test executable serially; they are built as `/home/dominic/Tudat/pr1092-review-build/tests/<target name>`
@@ -152,8 +152,8 @@ Nothing of the above has been compiled. Expect some compile errors in the bindin
    PYTHONPATH=/home/dominic/Tudat/pr1092-review-build/src python -c "import tudatpy.dynamics.environment_setup, tudatpy.data_input.environment_data"
    PYTHONPATH=/home/dominic/Tudat/pr1092-review-build/src python -m pytest -q -p no:cacheprovider \
        tests/test_tudatpy/test_data_input_loading_settings.py tests/test_tudatpy/test_station_reference_point_bindings.py \
-       tests/test_tudatpy/test_data_input_station_history.py tests/test_tudatpy/test_data_input_earth_orientation.py \
-       tests/test_tudatpy/test_data_input_resource_paths.py tests/architecture --no-remote-data
+       tests/test_tudatpy/test_data_input_earth_orientation.py \
+       tests/test_tudatpy/test_data_input_resource_paths.py --no-remote-data
    ```
    Then the full suite: `... python -m pytest -q -p no:cacheprovider tests/test_tudatpy --no-remote-data`. Before these
    commits it had 214 failures/19 errors, all environmental (serialization OFF; missing tracking-data files). Compare

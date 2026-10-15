@@ -301,7 +301,7 @@ public:
     GcrsToItrsRotationModelSettings(
             const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
             const std::string baseFrameName = "GCRS",
-            const std::string& eopFile = paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
+            const std::string& eopFile = paths::getEarthOrientationDataFilesPath( ) + "/eopc04_20_IAU2000.62-now.txt",
             const basic_astrodynamics::TimeScales inputTimeScale = basic_astrodynamics::tdb_scale,
             const std::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings = std::make_shared< EopCorrectionSettings >(
                     1.0E-6,
@@ -352,7 +352,9 @@ public:
     void setOceanTideEopModel( const earth_orientation::OceanTideEopModel model )
     {
         if( model != earth_orientation::OceanTideEopModel::iers_2010 && model != earth_orientation::OceanTideEopModel::desai_sibois_2016 )
+        {
             throw std::runtime_error( "Unknown ocean-tide EOP model" );
+        }
         oceanTideEopModel_ = model;
     }
     earth_orientation::OceanTideEopModel getOceanTideEopModel( ) const
@@ -453,8 +455,12 @@ public:
     }
 
 private:
+    //! Earth orientation data set by the user (if nullptr, the data is read from the EOP file), and the settings for
+    //! interpolating it.
     std::shared_ptr< const input_output::EarthOrientationData > eopData_;
     earth_orientation::EarthOrientationEvaluationSettings eopEvaluationSettings_;
+
+    //! Model for the diurnal and semidiurnal variations of polar motion and UT1 due to ocean tides.
     earth_orientation::OceanTideEopModel oceanTideEopModel_ = earth_orientation::OceanTideEopModel::iers_2010;
 
     // Time scale in which input to the rotation model class is provided
@@ -1137,7 +1143,10 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
     rotationSettings->setTdbToTtInterpolatorSettings( tdbToTtInterpolatorSettings );
     rotationSettings->setShortTermInterpolatorSettings( shortTermInterpolatorSettings );
 
-    if( eopData ) rotationSettings->setEopData( *eopData );
+    if( eopData )
+    {
+        rotationSettings->setEopData( *eopData );
+    }
     rotationSettings->setEopEvaluationSettings( eopEvaluationSettings );
     rotationSettings->setOceanTideEopModel( oceanTideEopModel );
     return rotationSettings;

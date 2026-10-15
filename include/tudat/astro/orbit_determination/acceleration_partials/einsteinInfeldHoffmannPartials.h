@@ -275,6 +275,11 @@ public:
         }
     }
 
+    bool isAccelerationPartialWrtAdditionalBodyNonnullptr( const std::string& bodyName ) override
+    {
+        return bodyName != acceleratedBody_ && bodyIndices_.count( bodyName ) > 0;
+    }
+
     bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
                                                                      const propagators::IntegratedStateType integratedStateType )
     {

@@ -16,8 +16,11 @@ namespace basic_astrodynamics
 //! on the 1-degree grid, which changes the displacement by micrometres.
 //! convertToCentreOfMass adds the IERS 2010 Table 7.6 CE-to-CM translation; it requires the identified RP03 product.
 struct AtmosphericTideEvaluationSettings {
+    //! Latitude used to look up a station in the grid, and directions of the displacement components.
     input_output::AtmosphericTideLatitudeConvention lookupLatitudeConvention = input_output::AtmosphericTideLatitudeConvention::unspecified;
     input_output::AtmosphericTideDisplacementBasis displacementBasis = input_output::AtmosphericTideDisplacementBasis::unspecified;
+
+    //! Whether to convert the displacement from the centre of the solid Earth to the centre of mass of the whole Earth.
     bool convertToCentreOfMass = false;
 };
 
@@ -71,11 +74,19 @@ private:
     void validateCommonSettings( ) const;
     void validateShapeForBasis( input_output::AtmosphericTideDisplacementBasis basis, bool geodeticLookup = false ) const;
     void validateOriginConversion( const input_output::AtmosphericTideMetadata& metadata ) const;
+
+    //! Interpolator of the grid coefficients (nullptr if the model uses station coefficients), and the station coefficients.
     std::shared_ptr< AtmosphericTideGridInterpolator > gridInterpolator_;
     input_output::AtmosphericTideStationData stationData_;
+
+    //! Metadata of the grid and of each station, with unspecified conventions completed from the settings.
     input_output::AtmosphericTideMetadata resolvedGridMetadata_;
     std::map< std::string, input_output::AtmosphericTideMetadata > resolvedStationMetadata_;
+
+    //! Settings for the evaluation of the displacements.
     AtmosphericTideEvaluationSettings settings_;
+
+    //! Shape of the Earth, used to compute geodetic latitudes and directions (may be nullptr if these are not needed).
     std::shared_ptr< BodyShapeModel > bodyShape_;
 };
 }  // namespace basic_astrodynamics

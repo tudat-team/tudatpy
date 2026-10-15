@@ -610,32 +610,72 @@ Eigen::Matrix3d getRotationBetweenSatelliteFrames( const Eigen::Vector6d relativ
 namespace
 {
 //! Retain the pinned IGN ITRF2014 catalogue used by the established legacy entry points.
-const TerrestrialFrameTransformationModel& legacyItrfModel( )
+const HelmertTransformationModel& legacyItrfModel( )
 {
     // Read the official neutral catalogue once; its reference year and SI units remain unchanged.
-    static const TerrestrialFrameTransformationModel model( input_output::readOfficialItrf2014TransformationData( ) );
+    static const HelmertTransformationModel model( input_output::readOfficialItrf2014TransformationData( ) );
 
     return model;
 }
-}  // namespace
 
-//! Return the complete affine matrix at the legacy 2010 reference year.
-Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame )
+//! Retain the official IGN ITRF2020 catalogue, used for transformations between ITRF2014 and ITRF2020.
+const HelmertTransformationModel& itrf2020Model( )
 {
-    return legacyItrfModel( ).getTransformation( "ITRF2014", targetFrame, 2010, 1 / 31557600.0 ).matrix;
+    static const HelmertTransformationModel model( input_output::readOfficialItrf2020TransformationData( ) );
+
+    return model;
 }
 
-//! Return the affine matrix derivative per uniform Julian-year input second.
+//! Transformation from ITRF2014 to the target realization. ITRF2020 is not in the ITRF2014 catalogue, so it uses the
+//! inverse of the ITRF2020-to-ITRF2014 parameters of the ITRF2020 catalogue; other realizations use the ITRF2014 catalogue.
+TerrestrialFrameAffineTransformation getItrf2014ToFrameTransformation( const std::string& targetFrame,
+                                                                       const double decimalYear,
+                                                                       const double decimalYearRate )
+{
+    const HelmertTransformationModel& model = targetFrame == "ITRF2020" ? itrf2020Model( ) : legacyItrfModel( );
+    return model.getTransformation( "ITRF2014", targetFrame, decimalYear, decimalYearRate );
+}
+
+//! Transform a state between ITRF realizations. When ITRF2020 is involved, the state is transformed through ITRF2014,
+//! with the ITRF2020 catalogue for the ITRF2020 step and the ITRF2014 catalogue for the other step.
+Eigen::Vector6d transformItrfState( const Eigen::Vector6d& state,
+                                    const std::string& baseFrame,
+                                    const std::string& targetFrame,
+                                    const double decimalYear,
+                                    const double decimalYearRate )
+{
+    if( baseFrame != "ITRF2020" && targetFrame != "ITRF2020" )
+    {
+        return legacyItrfModel( ).transformState( state, baseFrame, targetFrame, decimalYear, decimalYearRate );
+    }
+    if( baseFrame == targetFrame )
+    {
+        return state;
+    }
+    const HelmertTransformationModel& baseModel = baseFrame == "ITRF2020" ? itrf2020Model( ) : legacyItrfModel( );
+    const HelmertTransformationModel& targetModel = targetFrame == "ITRF2020" ? itrf2020Model( ) : legacyItrfModel( );
+    const Eigen::Vector6d itrf2014State = baseModel.transformState( state, baseFrame, "ITRF2014", decimalYear, decimalYearRate );
+    return targetModel.transformState( itrf2014State, "ITRF2014", targetFrame, decimalYear, decimalYearRate );
+}
+}  // namespace
+
+//! Return the complete transformation matrix at the legacy 2010 reference year.
+Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame )
+{
+    return getItrf2014ToFrameTransformation( targetFrame, 2010, 1 / 31557600.0 ).matrix;
+}
+
+//! Return the transformation matrix derivative per uniform Julian-year input second.
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::string& targetFrame )
 {
-    return legacyItrfModel( ).getTransformation( "ITRF2014", targetFrame, 2010, 1 / 31557600.0 ).matrixRate;
+    return getItrf2014ToFrameTransformation( targetFrame, 2010, 1 / 31557600.0 ).matrixRate;
 }
 
 //! Return translation and its velocity at the legacy 2010 reference year.
 Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& targetFrame )
 {
     // Translation and velocity retain the legacy reference year and uniform Julian-year rate.
-    const auto affine = legacyItrfModel( ).getTransformation( "ITRF2014", targetFrame, 2010, 1 / 31557600.0 );
+    const auto affine = getItrf2014ToFrameTransformation( targetFrame, 2010, 1 / 31557600.0 );
 
     return ( Eigen::Vector6d( ) << affine.translation, affine.translationRate ).finished( );
 }
@@ -645,13 +685,13 @@ Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::V
                                                                   double epoch,
                                                                   const std::string& targetFrame )
 {
-    return legacyItrfModel( ).transformState( state, "ITRF2014", targetFrame, 2000 + epoch / 31557600.0, 1 / 31557600.0 );
+    return transformItrfState( state, "ITRF2014", targetFrame, 2000 + epoch / 31557600.0, 1 / 31557600.0 );
 }
 
-//! Convert to ITRF2014 with the inverse affine map at the requested legacy epoch.
+//! Convert to ITRF2014 with the inverse translation and matrix at the requested legacy epoch.
 Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& state, double epoch, const std::string& baseFrame )
 {
-    return legacyItrfModel( ).transformState( state, baseFrame, "ITRF2014", 2000 + epoch / 31557600.0, 1 / 31557600.0 );
+    return transformItrfState( state, baseFrame, "ITRF2014", 2000 + epoch / 31557600.0, 1 / 31557600.0 );
 }
 
 //! Compose through ITRF2014 using a uniform Julian-year coordinate and its physical rate.
@@ -660,7 +700,7 @@ Eigen::Vector6d convertGroundStationStateBetweenItrfFrames( const Eigen::Vector6
                                                             const std::string& baseFrame,
                                                             const std::string& targetFrame )
 {
-    return legacyItrfModel( ).transformState( state, baseFrame, targetFrame, 2000 + epoch / 31557600.0, 1 / 31557600.0 );
+    return transformItrfState( state, baseFrame, targetFrame, 2000 + epoch / 31557600.0, 1 / 31557600.0 );
 }
 
 }  // namespace reference_frames

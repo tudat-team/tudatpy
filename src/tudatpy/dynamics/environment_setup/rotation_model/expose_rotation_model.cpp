@@ -56,7 +56,7 @@ void expose_rotation_model_setup( py::module& m )
 
 
       )doc" )
-            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(No documentation found.)doc" )
+            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model )
             .value( "spice_rotation_model",
                     tss::RotationModelType::spice_rotation_model,
                     R"doc(
@@ -153,13 +153,28 @@ void expose_rotation_model_setup( py::module& m )
       )doc" );
 
     py::class_< tss::SimpleRotationModelSettings, std::shared_ptr< tss::SimpleRotationModelSettings >, tss::RotationModelSettings >(
-            m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "SimpleRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice`.
+
+      )doc" );
 
     py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
-            m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "PlanetaryRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_custom_angles`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_full_custom`.
+
+      )doc" );
 
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
-            m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "IAURotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model`.
+
+      )doc" );
 
     py::enum_< tudat::earth_orientation::EarthOrientationInterpolation >( m, "EarthOrientationInterpolation", R"doc(
 
@@ -183,10 +198,11 @@ Enumeration of options for epochs at which the Earth orientation data gives no c
 Enumeration of options for UT1 at epochs before the start of the Earth orientation data.
 
       )doc" )
-            .value( "reject", tudat::earth_orientation::HistoricalUt1Policy::reject, "Raise an exception (default)." )
+            .value( "reject", tudat::earth_orientation::HistoricalUt1Policy::reject, "Raise an exception." )
             .value( "delta_t",
                     tudat::earth_orientation::HistoricalUt1Policy::delta_t,
-                    "Compute UT1 from historical values of Delta T. Polar motion and celestial pole offsets are not extrapolated." );
+                    "Compute UT1 from historical values of Delta T, before 1962 (default). Polar motion and celestial pole offsets are "
+                    "not extrapolated." );
     py::class_< tudat::earth_orientation::EarthOrientationEvaluationSettings >( m, "EarthOrientationEvaluationSettings", R"doc(
 
 Settings for the interpolation of daily Earth orientation parameters (see
@@ -194,7 +210,7 @@ Settings for the interpolation of daily Earth orientation parameters (see
 
 By default, the parameters are interpolated linearly in TAI (using UT1-TAI, which is continuous at leap seconds), and
 epochs outside the data, epochs in an interval between samples that is longer than 36 hours, and epochs without
-celestial pole offsets raise an exception.
+celestial pole offsets raise an exception. Before 1962, UT1 is computed from historical values of Delta T.
 
       )doc" )
             .def( py::init<>( ) )
@@ -247,7 +263,14 @@ libration terms of the IERS Conventions 2010 are included with either model.
          created by the :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs` function.
 
       )doc" )
-            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile )
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile, R"doc(
+
+         **read-only**
+
+         Path to the Earth orientation parameter file used by the GCRS to ITRS rotation model.
+
+         :type: str
+      )doc" )
             .def_property( "ocean_tide_eop_model",
                            &tss::GcrsToItrsRotationModelSettings::getOceanTideEopModel,
                            &tss::GcrsToItrsRotationModelSettings::setOceanTideEopModel,
@@ -430,6 +453,18 @@ libration terms of the IERS Conventions 2010 are included with either model.
 
  Such a model can be useful for, for instance, approximate rotation of tidally locked natural satellites or nadir-pointing spacecraft.
 
+ Direct longitudinal libration can be added to the resulting
+ :class:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris` by assigning a
+ :class:`~tudatpy.dynamics.environment.DirectLongitudeLibrationCalculator` to its
+ :attr:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris.libration_calculator` property.
+ In this case, the angle relative to fully synchronous rotation is
+ :math:`\theta=A(\mathbf{r}\cdot\mathbf{v})/\lVert\mathbf{r}\times\mathbf{v}\rVert`,
+ where :math:`A` is the calculator's ``scaled_libration_amplitude``, and :math:`\mathbf{r}` and
+ :math:`\mathbf{v}` are the body's position and velocity relative to its central body. The angle is in radians.
+
+ .. note::
+
+     A dedicated API documentation page deriving this mathematical libration model remains to be written.
 
  Parameters
  ----------
@@ -443,10 +478,6 @@ libration terms of the IERS Conventions 2010 are included with either model.
  -------
  SynchronousRotationModelSettings
      Settings for a synchronous rotation model.
-
-
-
-
 
  Examples
  --------
@@ -463,7 +494,6 @@ libration terms of the IERS Conventions 2010 are included with either model.
     # create rotation model settings for target frame and assign to body settings of "Phobos"
     body_settings.get( "Phobos" ).rotation_model_settings = environment_setup.rotation_model.synchronous(
     central_body_name, original_frame, target_frame)
-
 
      )doc" );
 
@@ -550,7 +580,7 @@ libration terms of the IERS Conventions 2010 are included with either model.
 
  Depending on the selected ``precession_nutation_theory`` input, the SOFA function ``iauXys00a``, ``iauXys00b`` or ``iauXys06a`` is used to compute :math:`X,Y,s`, when selecting
  :class:`~tudatpy.dynamics.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. For epoch 01-01-1962 and later, corrections to the nominal values of :math:`X,Y`
- are applied using linear interpolation of daily corrections for :math:`X,Y` from the eopc04_14_IAU2000.62-now.txt file. The quantity :math:`s'` is computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function).
+ are applied using linear interpolation of daily corrections for :math:`X,Y` from the eopc04_20_IAU2000.62-now.txt file. The quantity :math:`s'` is computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function).
 
  The value of :math:`\theta_{E}` is computed directly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_representation.default_time_scale_converter`, the computation of
  :math:`\theta_{E}` from this quantity follows from Eq. (5.15), implemented by SOFA's ``iauEra00`` function.
@@ -559,7 +589,7 @@ libration terms of the IERS Conventions 2010 are included with either model.
 
  * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1a (with :math:`n=2`) of IERS Conventions 2010
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
- * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory (for epoch 01-01-1962 and later, zero otherwise)
+ * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_20_IAU2000.62-now.txt file in the tudat-resources directory (for epoch 01-01-1962 and later, zero otherwise)
 
  The ocean tide corrections of polar motion and UT1 can instead be taken from the model of Desai and Sibois (2016), using
  the ``ocean_tide_eop_model`` argument. The daily Earth orientation data can be supplied by the user (``eop_data``,

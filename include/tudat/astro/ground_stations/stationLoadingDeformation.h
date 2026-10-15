@@ -8,18 +8,28 @@ namespace tudat
 {
 namespace basic_astrodynamics
 {
+//! How a ground station is matched to a site of a station loading series: by an explicit list of pairs, or by finding the
+//! site within whose validity radius the station lies.
 enum class StationLoadingSpatialSelection { explicitBindings, withinProviderRadius };
 
-//! Cartesian correction r_sourceOrigin-r_targetOrigin; its inventory declares its physical component/band scope.
+//! Time series of the translation between two origins (r_sourceOrigin - r_targetOrigin), used to convert station loading
+//! displacements to another origin.
 struct StationLoadingOriginTranslation {
+    //! Name of the translation series.
     std::string identifier;
+
+    //! Descriptions of the origin of the displacements and of the origin to which they are converted, and the latter origin.
     std::string sourceOriginDefinition;
     std::string targetOriginDefinition;
     input_output::StationLoadingOrigin targetOrigin = input_output::StationLoadingOrigin::unspecified;
+
+    //! Translation, as a station loading series with a single site.
     input_output::StationLoadingData series;
 };
 
+//! Settings for computing station displacements from a station loading series.
 struct StationLoadingEvaluationSettings {
+    //! How ground stations are matched to sites of the series.
     StationLoadingSpatialSelection spatialSelection = StationLoadingSpatialSelection::explicitBindings;
 
     //! Environment station ID -> arbitrary provider label. The empty ID explicitly binds an unidentified nominal station.
@@ -27,6 +37,9 @@ struct StationLoadingEvaluationSettings {
 
     //! Linear interpolation only; a gap larger than this is unavailable, even if present in an irregular source grid.
     double maximumGapSeconds = 86400.0;
+
+    //! Description of the origin of the output displacements, and the translation used to convert them to that origin
+    //! (nullptr if the origin of the series is used).
     std::string outputOriginDefinition;
     std::shared_ptr< const StationLoadingOriginTranslation > originTranslation;
 };
@@ -58,7 +71,9 @@ protected:
                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
 private:
+    //! Epochs of a station loading series, converted to TAI and TDB.
     struct PreparedGrid {
+        //! TAI and TDB of each epoch.
         std::vector< Time > tai, tdb;
     };
     PreparedGrid prepareGrid( const input_output::StationLoadingData& data ) const;
@@ -73,9 +88,14 @@ private:
                                  const Time& tdb,
                                  bool withRate ) const;
 
+    //! Station loading series, and the settings for evaluating it.
     input_output::StationLoadingData data_;
     StationLoadingEvaluationSettings settings_;
+
+    //! Epochs of the series and of the origin translation, in TAI and TDB.
     PreparedGrid grid_, translationGrid_;
+
+    //! Rotation from the component directions of each site to body-fixed Cartesian axes, with the site identifier as key.
     std::map< std::string, Eigen::Matrix3d > sourceBases_;
 };
 

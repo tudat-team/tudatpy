@@ -83,7 +83,9 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > contextClock;
     if( const auto rotation = std::dynamic_pointer_cast< GcrsToItrsRotationModel >( earthRotation ) )
+    {
         contextClock = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+    }
     std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >(
             std::bind( &Ephemeris::getCartesianStateFromExtendedTime, earthEphemeris, std::placeholders::_1 ),
             ephemerides,
@@ -180,7 +182,9 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter;
                 if( const auto earth = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >(
                             bodyMap.at( body )->getRotationalEphemeris( ) ) )
+                {
                     converter = earth->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+                }
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::BasicTidalBodyDeformation >(
                         std::bind( &Body::getStateInBaseFrameFromEphemeris< double, Time >, bodyMap.at( body ), std::placeholders::_1 ),
                         deformingBodyEphemerides,
@@ -253,14 +257,20 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
         case station_loading: {
             const auto settings = std::dynamic_pointer_cast< StationLoadingBodyDeformationSettings >( bodyDeformationSettings );
             if( !settings || body != "Earth" || bodyMap.count( body ) == 0 )
+            {
                 throw std::invalid_argument( "Station-loading deformation requires preloaded settings and Earth" );
+            }
             const auto rotation =
                     std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) );
             if( !rotation || !rotation->getAnglesCalculator( ) )
+            {
                 throw std::invalid_argument( "Station loading requires Earth's model-owned GCRS/ITRS time converter" );
+            }
             if( settings->getData( ).metadata.referenceFrame != rotation->getTargetFrameOrientation( ) )
+            {
                 throw std::invalid_argument(
                         "Loading source Cartesian frame must explicitly match the body's fixed frame; no frame identity is inferred" );
+            }
             bodyDeformationModel = std::make_shared< basic_astrodynamics::StationLoadingDeformation >(
                     settings->getData( ),
                     settings->getEvaluationSettings( ),

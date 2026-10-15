@@ -582,6 +582,7 @@ class TestSimulationResultsFileIO:
 
     @staticmethod
     def _single_arc_results():
+        """Create a short point-mass propagation for concrete result roundtrips."""
         from tudatpy.interface import spice
         from tudatpy.astro import element_conversion
         from tudatpy.astro.time_representation import DateTime
@@ -633,6 +634,7 @@ class TestSimulationResultsFileIO:
             assert type(loaded) is type(
                 obj
             ), f"Expected {type(obj).__name__}, got {type(loaded).__name__}"
+
             # Compare state dictionaries
             np.testing.assert_allclose(
                 list(loaded.state_history.values()),

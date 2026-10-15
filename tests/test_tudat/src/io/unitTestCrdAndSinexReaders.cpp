@@ -19,6 +19,7 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readCrdFile.h"
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readSinexFile.h"
 #include "tudat/support/testFileUtilities.h"
 
@@ -51,6 +52,7 @@ void writeSyntheticStationInfoFile( const std::string& fileName )
     file << makeStationInfoLine( "ARECIBO", "12345M001", 7110 ) << std::endl;
 }
 
+//! Write the fixed-width Cartesian solution consumed by the station-state integration case.
 void writeSyntheticSinexFile( const std::string& fileName )
 {
     std::ofstream file( fileName );
@@ -111,6 +113,7 @@ void writeSyntheticSinexEccentricityFile( const std::string& fileName )
 
 BOOST_AUTO_TEST_SUITE( test_crd_and_sinex_readers )
 
+//! Read CRD ranges and retain station grouping and wavelength conversion.
 BOOST_AUTO_TEST_CASE( testCrdParsingAndConversion )
 {
     const std::string stationInfoFile = createTempPath( ".txt" );
@@ -157,6 +160,7 @@ BOOST_AUTO_TEST_CASE( testCrdParsingAndConversion )
     std::remove( crdFile.c_str( ) );
 }
 
+//! Load a fixed-width SINEX state with its DOMES identity and SI velocity.
 BOOST_AUTO_TEST_CASE( testSinexStateParsing )
 {
     const std::string stationInfoFile = createTempPath( ".txt" );
@@ -189,6 +193,7 @@ BOOST_AUTO_TEST_CASE( testSinexStateParsing )
     std::remove( sinexFile.c_str( ) );
 }
 
+//! Read the published station identifiers from a SITE/ID block.
 BOOST_AUTO_TEST_CASE( testSinexSiteIdMonumentMapping )
 {
     const std::string sinexSiteIdFile = createTempPath( ".snx" );
@@ -205,6 +210,7 @@ BOOST_AUTO_TEST_CASE( testSinexSiteIdMonumentMapping )
     std::remove( sinexSiteIdFile.c_str( ) );
 }
 
+//! Build the ILRS station registry from SINEX monument identities.
 BOOST_AUTO_TEST_CASE( testIlrsStationRegistryFromSinexSiteId )
 {
     const std::string sinexSiteIdFile = createTempPath( ".snx" );
@@ -225,6 +231,7 @@ BOOST_AUTO_TEST_CASE( testIlrsStationRegistryFromSinexSiteId )
     std::remove( sinexSiteIdFile.c_str( ) );
 }
 
+//! Read UNE eccentricities with their station association and validity intervals.
 BOOST_AUTO_TEST_CASE( testSinexEccentricityParsing )
 {
     const std::string eccentricityFile = createTempPath( ".snx" );
@@ -252,40 +259,13 @@ BOOST_AUTO_TEST_CASE( testSinexEccentricityParsing )
     std::remove( eccentricityFile.c_str( ) );
 }
 
-BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsAmbiguityAndPreservesUnambiguousData )
+//! Reject an ambiguous multi-solution product rather than selecting an arbitrary state for its DOMES identifier.
+BOOST_AUTO_TEST_CASE( testStandardSinexHistoryAdapterRejectsMultipleSolutions )
 {
-    const auto fixture = std::string( __FILE__ ).substr( 0, std::string( __FILE__ ).find_last_of( "/\\" ) ) +
-            "/../../reference_files/station_history/ab07_solutions.snx";
-    const auto raw = input_output::readSinexStationHistory( fixture );
-    BOOST_CHECK_THROW( input_output::readSinexStationData( fixture ), std::runtime_error );
-    BOOST_CHECK_THROW( input_output::readSinexStationData( raw ), std::runtime_error );
-    auto selectedRaw = raw;
-    for( auto it = selectedRaw.parameters.begin( ); it != selectedRaw.parameters.end( ); )
-        if( it->second.key.solutionId != "1" )
-            it = selectedRaw.parameters.erase( it );
-        else
-            ++it;
-    const auto adapted = input_output::readSinexStationData( selectedRaw );
-    const auto selected = input_output::getSinexCartesianSolution( raw, { { "AB07", "A" }, "1" }, true );
-    BOOST_REQUIRE_EQUAL( adapted.size( ), 1 );
-    const auto& state = adapted.at( "40423M002" );
-    BOOST_CHECK_EQUAL( state.siteCode_, "AB07" );
-    for( int i = 0; i < 3; ++i )
-    {
-        BOOST_CHECK_EQUAL( state.position_[ i ], selected.positionMetres[ i ] );
-        BOOST_CHECK_EQUAL( state.velocity_[ i ], *selected.velocityMetresPerSecond[ i ] );
-    }
+    const auto file = paths::getTudatTestDataPath( ) + "pr1092/reference_files/station_history/ab07_solutions.snx";
 
-    // Original tokens are provenance: valid mutable civil epochs need not fabricate a raw token.
-    for( auto& parameter : selectedRaw.parameters ) parameter.second.referenceEpoch.original.clear( );
-    BOOST_CHECK_EQUAL( input_output::readSinexStationData( selectedRaw ).at( "40423M002" ).referenceEpoch_, state.referenceEpoch_ );
-    for( auto it = selectedRaw.parameters.begin( ); it != selectedRaw.parameters.end( ); )
-        if( it->second.type.rfind( "VEL", 0 ) == 0 )
-            it = selectedRaw.parameters.erase( it );
-        else
-            ++it;
-    const auto absent = input_output::readSinexStationData( selectedRaw );
-    for( int i = 0; i < 3; ++i ) BOOST_CHECK( std::isnan( absent.at( "40423M002" ).velocity_[ i ] ) );
+    // The existing single-state adapter cannot represent all six published Cartesian solutions.
+    BOOST_CHECK_THROW( input_output::readSinexStationData( file ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

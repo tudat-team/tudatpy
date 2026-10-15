@@ -12,7 +12,7 @@ TUDAT_ADD_TEST_CASE(GroundStationState
     PRIVATE_LINKS
     ${Tudat_PROPAGATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(StationHistoryTrajectory
+TUDAT_ADD_TEST_CASE(StationCoordinateHistory
     PRIVATE_LINKS
     ${Tudat_PROPAGATION_LIBRARIES})
 

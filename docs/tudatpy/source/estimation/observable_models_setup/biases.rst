@@ -90,3 +90,14 @@ Classes
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings
    :members:
+
+All bias model types are available through ``ObservationBiasTypes``, for example
+``ObservationBiasTypes.constant_absolute_bias``. Enum values are not exported as
+module-level names, so they remain distinct from the bias factory functions.
+The :func:`~tudatpy.dynamics.parameters_setup.shared_observation_bias` factory
+supports only ``constant_absolute_bias``, ``constant_relative_bias``,
+``arc_wise_constant_absolute_bias``, ``constant_time_bias``, and
+``arc_wise_time_bias``.
+
+.. autoclass:: tudatpy.estimation.observable_models_setup.biases.ObservationBiasTypes
+   :members:

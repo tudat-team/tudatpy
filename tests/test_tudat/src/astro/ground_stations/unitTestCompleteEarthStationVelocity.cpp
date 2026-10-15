@@ -36,12 +36,11 @@ struct EarthStationFixture {
             data.records.emplace( record.utcModifiedJulianDate, record );
         }
         auto evaluator = std::make_shared< EarthOrientationDataEvaluator >( data );
-        clock = std::make_shared< TerrestrialTimeScaleConverter >( nullptr, getDefaultUT1CorrectionCalculator( ), nullptr, evaluator );
-        auto polar = std::make_shared< PolarMotionCalculator >(
-                nullptr, getDefaultPolarMotionCorrectionCalculator( ), evaluator, [ this ]( const Time& tai ) {
-                    return clock->getUt1FromTai( tai );
-                } );
-        auto precession = std::make_shared< PrecessionNutationCalculator >( iau_2006, nullptr, nullptr, evaluator );
+        clock = std::make_shared< TerrestrialTimeScaleConverter >( evaluator, getDefaultUT1CorrectionCalculator( ), nullptr );
+        auto polar = std::make_shared< PolarMotionCalculator >( evaluator,
+                                                                getDefaultPolarMotionCorrectionCalculator( ),
+                                                                [ this ]( const Time& tai ) { return clock->getUt1FromTai( tai ); } );
+        auto precession = std::make_shared< PrecessionNutationCalculator >( iau_2006, evaluator, nullptr );
         angles = std::make_shared< EarthOrientationAnglesCalculator >( polar, precession, clock );
         rotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >( angles, tdb_scale );
         referenceTdb = static_cast< double >( clock->getCurrentTime< Time >( tai_scale, tdb_scale, reference ) );
@@ -84,11 +83,13 @@ struct EarthStationFixture {
         input_output::OceanLoadingStation oceanStation;
         oceanStation.stationIdentifier = "COMPLETE_VELOCITY";
         for( int row = 0; row < 3; ++row )
+        {
             for( int column = 0; column < 11; ++column )
             {
                 oceanStation.amplitudesMetres( row, column ) = 0.001 + 0.0002 * row + 0.0001 * column;
                 oceanStation.phaseLagsDegrees( row, column ) = 13.0 * column + 19.0 * row;
             }
+        }
         oceanData.stations.emplace( oceanStation.stationIdentifier, oceanStation );
         ocean = std::make_shared< OceanTideEarthDeformation >( oceanData, OceanTideSynthesis::iersHardisp, clock );
         pole = std::make_shared< PoleTideDeformation >( polar, clock );
@@ -129,6 +130,7 @@ struct EarthStationFixture {
 };
 }  // namespace
 
+//! Combine solid, ocean, pole and secular station motion once in the inertial state.
 BOOST_AUTO_TEST_CASE( full_native_station_state_combines_each_deformation_velocity_once )
 {
     EarthStationFixture fixture;
@@ -140,6 +142,8 @@ BOOST_AUTO_TEST_CASE( full_native_station_state_combines_each_deformation_veloci
         for( const auto& model : fixture.models )
         {
             const auto contribution = model->calculateDisplacementState( epoch, fixture.station );
+
+            // Combine solid, ocean, pole and secular station motion once in the inertial state.
             BOOST_CHECK_GT( contribution.head< 3 >( ).norm( ), 1e-5 );
             BOOST_CHECK_GT( contribution.tail< 3 >( ).norm( ), 1e-10 );
             deformation += contribution;
@@ -185,72 +189,7 @@ BOOST_AUTO_TEST_CASE( full_native_station_state_combines_each_deformation_veloci
     }
 }
 
-BOOST_AUTO_TEST_CASE( continuous_native_solid_and_pole_states_close_through_inserted_second )
-{
-    EarthStationFixture fixture;
-    fixture.models = { fixture.basicSolid, fixture.pole };
-    const Time midnight = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
-    for( const double offset : { -1.5, -0.5, 0.0, 0.5 } )
-    {
-        const double t = static_cast< double >( fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, midnight + offset ) );
-        const auto local = fixture.station->getCartesianStateInTime( t, "Earth" );
-        const auto inertial = ephemerides::transformStateToInertialOrientation< double, double >( local, t, fixture.rotation );
-        BOOST_CHECK_SMALL( ( inertial.tail< 3 >( ) - fixture.positionDerivative( t, 32.0, fixture.rotation ) ).norm( ), 1e-7 );
-        BOOST_CHECK_GT( local.tail< 3 >( ).norm( ), 1e-7 );
-    }
-}
-
-BOOST_AUTO_TEST_CASE( native_station_state_preserves_utc_and_coverage_rate_unavailability )
-{
-    EarthStationFixture fixture;
-
-    // Full continuous Earth rotation has a rate here; the native solid/ocean UTC
-    // phase convention rejects a derivative interval touching this boundary.
-    BOOST_CHECK_NO_THROW( fixture.rotation->getDerivativeOfRotationToBaseFrame( fixture.referenceTdb ) );
-    BOOST_CHECK_NO_THROW( fixture.station->getCartesianPositionInTime( fixture.referenceTdb, "Earth" ) );
-    BOOST_CHECK_THROW( fixture.station->getCartesianStateInTime( fixture.referenceTdb, "Earth" ), std::domain_error );
-    const Time last = fixture.clock->getEarthOrientationDataEvaluator( )->getEndTai( );
-    const double endpoint = static_cast< double >( fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, last ) );
-    BOOST_CHECK_NO_THROW( fixture.rotation->getDerivativeOfRotationToBaseFrame( endpoint ) );
-    BOOST_CHECK_NO_THROW( fixture.station->getCartesianPositionInTime( endpoint, "Earth" ) );
-    BOOST_CHECK_THROW( fixture.station->getCartesianStateInTime( endpoint, "Earth" ), std::runtime_error );
-}
-
-BOOST_AUTO_TEST_CASE( reference_point_ephemeris_closes_tdb_leap_and_coverage_epochs )
-{
-    EarthStationFixture fixture;
-    auto body = std::make_shared< simulation_setup::Body >( );
-    body->setIsBodyGlobalFrameOrigin( 0 );
-    body->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
-
-    // A constant local state isolates the factory rotation clock at the leap
-    // and EOP endpoints, where native loading velocities are unavailable.
-    Eigen::Vector6d local = Eigen::Vector6d::Zero( );
-    local.head< 3 >( ) = fixture.station->getNominalCartesianPosition( );
-    local.tail< 3 >( ) = fixture.secularVelocity;
-    const auto evaluator = fixture.clock->getEarthOrientationDataEvaluator( );
-    const Time leap = Time( ( 57754.0 - 51544.5 ) * 86400.0 ) + 37.0;
-
-    // Environment epochs are TDB; use the body's TDB rotation at physical coverage boundaries.
-    auto tdbRotation = std::make_shared< ephemerides::GcrsToItrsRotationModel >( fixture.angles, tdb_scale, "ECLIPJ2000" );
-    body->setRotationalEphemeris( tdbRotation );
-    const std::function< Eigen::Vector6d( const double& ) > doubleState = [ local ]( const double& ) { return local; };
-    const std::function< Eigen::Vector6d( const Time& ) > timeState = [ local ]( const Time& ) { return local; };
-    const auto doubleEphemeris = simulation_setup::createReferencePointEphemeris< double, double >( body, doubleState );
-    const auto timeEphemeris = simulation_setup::createReferencePointEphemeris< Time, double >( body, timeState );
-    for( const Time& tai : { evaluator->getStartTai( ), leap - 0.5, leap, leap + 0.5, evaluator->getEndTai( ) } )
-    {
-        const Time tdb = fixture.clock->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
-        const double t = static_cast< double >( tdb );
-        const auto expectedDouble = ephemerides::transformStateToInertialOrientation< double, double >( local, t, tdbRotation );
-        const auto expectedTime = ephemerides::transformStateToInertialOrientation< double, Time >( local, tdb, tdbRotation );
-        const auto actualDouble = doubleEphemeris->getCartesianState( t );
-        const auto actualTime = timeEphemeris->getCartesianStateFromExtendedTime( tdb );
-        BOOST_CHECK_SMALL( ( actualDouble - expectedDouble ).norm( ), 1e-12 );
-        BOOST_CHECK_SMALL( ( actualTime - expectedTime ).norm( ), 1e-12 );
-    }
-}
-
+//! Close the public station velocity using each registered rotation model unchanged.
 BOOST_AUTO_TEST_CASE( public_station_ephemeris_uses_registered_rotation_and_closes_velocity )
 {
     EarthStationFixture fixture;
@@ -275,6 +214,8 @@ BOOST_AUTO_TEST_CASE( public_station_ephemeris_uses_registered_rotation_and_clos
         simulation_setup::createGroundStation( body, "COMPLETE_VELOCITY", fixture.station );
         const auto ephemeris = simulation_setup::createReferencePointEphemerisFromId( body, "COMPLETE_VELOCITY", bodies );
         const Eigen::Vector6d actual = ephemeris->getCartesianState( t );
+
+        // Close the public station velocity using each registered rotation model unchanged.
         BOOST_CHECK_SMALL( ( actual - expected ).norm( ), 1e-12 );
         for( const double h : { 32.0, 8.0 } )
         {

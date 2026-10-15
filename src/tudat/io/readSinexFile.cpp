@@ -304,21 +304,25 @@ std::map< std::string, SinexStationState > readSinexStationData( const SinexStat
 {
     validateSinexStationHistory( history );
     std::map< std::string, SinexStationState > result;
-    for( const auto& key : getSinexCartesianSolutionKeys( history ) )
+    for( const auto& key : getSinexStationCoordinateSolutionKeys( history ) )
     {
-        const auto solution = getSinexCartesianSolution( history, key );
+        const auto solution = getSinexStationCoordinateSolution( history, key );
         const auto& domes = solution.site.domesId;
         if( result.count( domes ) )
+        {
             throw std::runtime_error( history.source + ": DOMES " + domes +
                                       " has multiple site/point/solution identities. Use readSinexStationHistory and "
-                                      "getSinexCartesianSolution with an explicit SinexSolutionKey." );
+                                      "getSinexStationCoordinateSolution with an explicit SinexSolutionKey." );
+        }
         SinexStationState state;
         state.siteCode_ = key.site.siteCode;
         state.domesId_ = domes;
         const auto& civil = *solution.positionReferenceEpoch.civilUtc;
         if( civil.secondsOfDay == 86400 )
+        {
             throw std::runtime_error( history.source +
                                       ": DOMES-indexed SINEX map cannot represent an inserted-second UTC label; use the neutral history" );
+        }
         const auto date = basic_astrodynamics::convertYearAndDaysInYearToDate( civil.year, civil.dayOfYear - 1 );
         state.referenceEpoch_ = basic_astrodynamics::calculateJulianDaySinceEpoch(
                                         date, civil.secondsOfDay / physical_constants::JULIAN_DAY, referenceJulianDay ) *
@@ -329,9 +333,11 @@ std::map< std::string, SinexStationState > readSinexStationData( const SinexStat
             if( solution.velocityMetresPerSecond[ i ] )
             {
                 if( !( *solution.velocityReferenceEpochs[ i ]->civilUtc == *solution.positionReferenceEpoch.civilUtc ) )
+                {
                     throw std::runtime_error( history.source +
                                               ": DOMES-indexed SINEX map cannot represent distinct position/velocity reference epochs; use "
-                                              "getSinexCartesianSolution" );
+                                              "getSinexStationCoordinateSolution" );
+                }
                 state.velocity_[ i ] = *solution.velocityMetresPerSecond[ i ];
             }
         }

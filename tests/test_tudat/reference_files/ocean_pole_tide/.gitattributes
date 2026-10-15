@@ -1,2 +1,0 @@
-# Preserve published fixture bytes and their source checksums.
-iers_*.txt whitespace=-blank-at-eol

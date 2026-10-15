@@ -43,7 +43,11 @@ protected:
 
 private:
     Eigen::Vector3d calculateDisplacementAtTt( const Time& tt, const std::shared_ptr< ground_stations::GroundStationState > station );
+
+    //! Grid of ocean pole tide coefficients.
     input_output::OceanPoleTideGrid grid_;
+
+    //! Object computing the position of the pole, from which the pole tide is computed.
     std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator_;
 };
 }  // namespace basic_astrodynamics

@@ -90,6 +90,7 @@ protected:
     double bodyReferenceRadius_;
 };
 
+//! Settings for a body deformation model computed from a station loading series (for instance atmospheric loading).
 class StationLoadingBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
@@ -109,6 +110,7 @@ public:
     }
 
 private:
+    //! Station loading series, and the settings for evaluating it.
     input_output::StationLoadingData data_;
     basic_astrodynamics::StationLoadingEvaluationSettings settings_;
 };
@@ -206,6 +208,7 @@ inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTide
     return atmosphericTideBodyShapeDeformationFromStations( input_output::readAtmosphericTideStationData( path, metadata ), settings );
 }
 
+//! Settings for the ocean pole tide loading deformation model (IERS 2010 Conventions, Section 7.1.5).
 class OceanPoleTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
@@ -238,6 +241,7 @@ inline std::shared_ptr< OceanPoleTideBodyDeformationSettings > oceanPoleTideBody
     return std::make_shared< OceanPoleTideBodyDeformationSettings >( grid );
 }
 
+//! Settings for the ocean tide loading deformation model, from ocean loading coefficients per station (BLQ format).
 class OceanTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:

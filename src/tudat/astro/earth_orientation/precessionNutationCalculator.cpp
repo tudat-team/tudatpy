@@ -14,6 +14,7 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/precessionNutationCalculator.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
+#include "tudat/math/basic/numericalDerivative.h"
 #include <cmath>
 
 namespace tudat
@@ -24,13 +25,15 @@ namespace earth_orientation
 
 //! Constructor for (CIO-based) precession-nutation calculation object.
 PrecessionNutationCalculator::PrecessionNutationCalculator(
-        basic_astrodynamics::IAUConventions precessionNutationTheory,
-        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyCorrectionInterpolator,
-        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings,
-        const std::shared_ptr< EarthOrientationDataEvaluator > evaluator ):
-    evaluator_( evaluator ), precessionNutationTheory_( precessionNutationTheory ),
-    dailyCorrectionInterpolator_( dailyCorrectionInterpolator )
+        const basic_astrodynamics::IAUConventions precessionNutationTheory,
+        const std::shared_ptr< EarthOrientationDataEvaluator > eopData,
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings ):
+    eopData_( eopData ), precessionNutationTheory_( precessionNutationTheory )
 {
+    if( eopData_ == nullptr )
+    {
+        throw std::invalid_argument( "Precession-nutation calculator requires Earth orientation data" );
+    }
     if( angleInterpolatorSettings != nullptr )
     {
         std::function< Eigen::Vector3d( const double ) > angleFunction = std::bind( &sofa_interface::getPositionOfCipInGcrs,
@@ -55,21 +58,20 @@ PrecessionNutationCalculator::PrecessionNutationCalculator(
     }
 }
 
-// Differentiate the direct SOFA model, also when nominal positions are interpolated.
+// X, Y and s from the SOFA implementation of the IAU model.
+Eigen::Vector3d PrecessionNutationCalculator::getNominalPositionFromSofa( const Time& tt )
+{
+    return sofa_interface::getPositionOfCipInGcrs(
+            static_cast< double >( tt ), basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory_ );
+}
+
+// Differentiate the SOFA model numerically, also when the nominal positions are interpolated.
 std::pair< Eigen::Vector3d, Eigen::Vector3d > PrecessionNutationCalculator::getNominalPositionAndRate( const Time& tt )
 {
-    // Nominal X, Y and s in radians at a TT offset in seconds; the epoch offset is formed in Time.
-    const auto directPosition = [ this, &tt ]( const double offset ) -> Eigen::Vector3d {
-        return sofa_interface::getPositionOfCipInGcrs(
-                static_cast< double >( tt + offset ), basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory_ );
-    };
-
-    // Fourth-order central difference over 32 s, pairing opposite samples before weighting.
-    const double step = 32.0;
-
-    const Eigen::Vector3d rate = ( 8.0 * ( directPosition( step ) - directPosition( -step ) ) -
-                                   ( directPosition( 2.0 * step ) - directPosition( -2.0 * step ) ) ) /
-            ( 12.0 * step );
+    // Fourth-order central difference over 32 s.
+    const std::function< Eigen::Vector3d( const Time& ) > nominalPositionFunction =
+            std::bind( &PrecessionNutationCalculator::getNominalPositionFromSofa, this, std::placeholders::_1 );
+    const Eigen::Vector3d rate = numerical_derivatives::computeFourthOrderCentralDifference( nominalPositionFunction, tt, 32.0 );
 
     if( !rate.allFinite( ) )
     {
@@ -78,60 +80,20 @@ std::pair< Eigen::Vector3d, Eigen::Vector3d > PrecessionNutationCalculator::getN
     return { nominalCipPositionFunction_( static_cast< double >( tt ) ), rate };
 }
 
-// Add the selected measured celestial-pole corrections to the nominal TT model.
+// IAU model at TT, plus the measured celestial pole offsets at TAI.
 Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrsFromTai( const double terrestrialTime, const Time& tai )
 {
-    if( !evaluator_ )
-    {
-        throw std::runtime_error( "TAI CPO evaluation requires a continuous EOP model" );
-    }
-
     // Nominal X, Y and s in radians; measured dX/dY affect the first two components.
     Eigen::Vector3d value = nominalCipPositionFunction_( terrestrialTime );
 
-    value.segment< 2 >( 0 ) += evaluator_->getCelestialPoleOffsets( tai );
+    value.segment< 2 >( 0 ) += eopData_->getCelestialPoleOffsets( tai );
     return value;
 }
 
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
 Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const double terrestrialTime )
 {
-    if( evaluator_ )
-    {
-        return getPositionOfCipInGcrsFromTai( terrestrialTime, basic_astrodynamics::convertTTtoTAI( Time( terrestrialTime ) ) );
-    }
-
-    // Calculate current UTC from SOFA.
-    double utc = sofa_interface::convertTTtoUTC( terrestrialTime );
-
-    // Call function to compte precession-nutation from UTC and TT.
-    return getPositionOfCipInGcrs( terrestrialTime, utc );
-}
-
-//! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
-Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const double terrestrialTime, const double utc )
-{
-    if( evaluator_ )
-    {
-        return getPositionOfCipInGcrsFromTai( terrestrialTime, basic_astrodynamics::convertTTtoTAI( Time( terrestrialTime ) ) );
-    }
-
-    // Calculate nominal precession-nutation values.
-    Eigen::Vector3d nominalCipPosition = nominalCipPositionFunction_( terrestrialTime );
-
-    // Retrieve measured corrections to model.
-    try
-    {
-        nominalCipPosition.segment( 0, 2 ) += dailyCorrectionInterpolator_->interpolate( utc );
-    }
-    catch( std::runtime_error& caughtException )
-    {
-        throw std::runtime_error( "Error in precession-nutation interpolation.\nOriginal error: " +
-                                  std::string( caughtException.what( ) ) );
-    }
-
-    // Add nominal values and corrections and return.
-    return nominalCipPosition;
+    return getPositionOfCipInGcrsFromTai( terrestrialTime, basic_astrodynamics::convertTTtoTAI( Time( terrestrialTime ) ) );
 }
 
 }  // namespace earth_orientation

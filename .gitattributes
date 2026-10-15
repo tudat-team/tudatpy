@@ -13,3 +13,5 @@ resources/station_locations/Transfo-ITRF*.txt whitespace=-blank-at-eol,-blank-at
 # Keep the TiME22 source extracts and supplementary tables byte-exact.
 tests/test_tudat/reference_files/time22-v1_1/ATM/* -text whitespace=-blank-at-eol
 tests/test_tudat/reference_files/time22-v1_1/OCN/* -text whitespace=-blank-at-eol
+# Keep the original trailing whitespace in the IERS EOP header.
+resources/earth_orientation/eopc04_*.txt whitespace=-blank-at-eol,-blank-at-eof

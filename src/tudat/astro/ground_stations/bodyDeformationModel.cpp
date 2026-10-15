@@ -48,10 +48,19 @@ BodyDeformationModel::BodyDeformationModel( const std::shared_ptr< earth_orienta
 Eigen::Vector3d BodyDeformationModel::calculateDisplacement( const Time& tdb,
                                                              const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
-    if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
+    if( !std::isfinite( static_cast< double >( tdb ) ) )
+    {
+        throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
+    }
+    if( !station )
+    {
+        throw std::invalid_argument( "Body deformation requires a station." );
+    }
     const Eigen::Vector3d displacement = evaluateDisplacement( tdb, station );
-    if( !displacement.allFinite( ) ) throw std::runtime_error( "Non-finite body deformation displacement." );
+    if( !displacement.allFinite( ) )
+    {
+        throw std::runtime_error( "Non-finite body deformation displacement." );
+    }
     return displacement;
 }
 
@@ -64,10 +73,19 @@ Eigen::Vector3d BodyDeformationModel::calculateDisplacement( const Time& tdb, co
 Eigen::Vector6d BodyDeformationModel::calculateDisplacementState( const Time& tdb,
                                                                   const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    if( !std::isfinite( static_cast< double >( tdb ) ) ) throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
-    if( !station ) throw std::invalid_argument( "Body deformation requires a station." );
+    if( !std::isfinite( static_cast< double >( tdb ) ) )
+    {
+        throw std::invalid_argument( "Body deformation requires a finite TDB epoch." );
+    }
+    if( !station )
+    {
+        throw std::invalid_argument( "Body deformation requires a station." );
+    }
     const Eigen::Vector6d state = evaluateDisplacementState( tdb, station );
-    if( !state.allFinite( ) ) throw std::runtime_error( "Non-finite body deformation state." );
+    if( !state.allFinite( ) )
+    {
+        throw std::runtime_error( "Non-finite body deformation state." );
+    }
     return state;
 }
 
@@ -102,7 +120,9 @@ Eigen::Vector3d BodyDeformationModel::differentiateDisplacement(
 void BodyDeformationModel::setDisplacementDerivativeTimeStep( const double timeStep )
 {
     if( !std::isfinite( timeStep ) || timeStep <= 0 )
+    {
         throw std::invalid_argument( "Displacement derivative time step must be finite and positive." );
+    }
     displacementDerivativeTimeStep_ = timeStep;
 }
 

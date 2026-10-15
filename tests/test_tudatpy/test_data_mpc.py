@@ -172,6 +172,7 @@ def test_to_tracking_dataset_preserves_full_mpc_table(mpc_code):
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_mpc_custom_name_metadata(mpc_code):
     batch = BatchMPC()
+
     # Use a real MPC code but provide a custom name
     custom_name = "Death_Star"
     batch.get_observations([mpc_code], custom_name=custom_name)
@@ -214,8 +215,14 @@ def test_tracking_dataset_can_create_observation_collection_from_tracking_data()
     query = BatchMPC()
     query.get_observations([222])
     query = _batch_from_augmented_table(
-        filter_augmented_optical_table(query.table, observatories=["T05"])
+        filter_augmented_optical_table(
+            query.table,
+            observatories=["T05"],
+        )
     )
+
+    # A live request must supply observations before the collection assertions can be meaningful.
+    assert not query.table.empty
     query._table = _sorted_table(query)
 
     observation_collection = _create_observation_collection_from_batch(
@@ -234,6 +241,7 @@ def test_tracking_dataset_can_create_observation_collection_from_tracking_data()
     )
     actual_times = np.array(observation_collection.concatenated_times).reshape(2, -1, order="F")
 
+    # Collection construction preserves the measured angles and their converted epochs.
     assert np.max(np.abs(actual_observations - expected_observations)) == pytest.approx(0.0)
     assert np.max(np.abs(actual_times - expected_times)) < 1.0e-5
 

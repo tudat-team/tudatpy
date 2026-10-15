@@ -37,15 +37,24 @@ Eigen::Vector3d enuDisplacement( PoleTideDeformation& model, double tt, const st
 // Inject measured pole coordinates without external EOP files or short-period terms.
 std::shared_ptr< PolarMotionCalculator > createConstantPolarMotionCalculator( const double tt, const double xpMas, const double ypMas )
 {
-    const double utc = sofa_interface::convertTTtoUTC( tt );
     const Eigen::Vector2d polarMotion = unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( xpMas / 1000.0, ypMas / 1000.0 ) );
-    const std::map< double, Eigen::Vector2d > measuredPole = { { utc - 86400.0, polarMotion }, { utc + 86400.0, polarMotion } };
-    const auto dailyInterpolator = std::make_shared< LinearInterpolator< double, Eigen::Vector2d > >( measuredPole );
+
+    // Daily records with a constant pole, on the UTC days around the test epoch.
+    const double utcDay = std::floor( sofa_interface::convertTTtoUTC( tt ) / 86400.0 + 51544.5 );
+    input_output::EarthOrientationData data;
+    for( int i = -1; i <= 2; ++i )
+    {
+        input_output::EarthOrientationRecord record;
+        record.utcModifiedJulianDate = utcDay + i;
+        record.polarMotion = { polarMotion.x( ), polarMotion.y( ) };
+        record.ut1MinusUtc = 0.0;
+        data.records.emplace( record.utcModifiedJulianDate, record );
+    }
     const auto zeroShortPeriod = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
             1.0, 0.0, std::vector< std::string >( ), std::vector< std::string >( ), []( const double ) -> Eigen::Vector6d {
                 return Eigen::Vector6d::Zero( );
             } );
-    return std::make_shared< PolarMotionCalculator >( dailyInterpolator, zeroShortPeriod );
+    return std::make_shared< PolarMotionCalculator >( std::make_shared< EarthOrientationDataEvaluator >( data ), zeroShortPeriod );
 }
 
 void checkDisplacement( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected )
@@ -70,8 +79,10 @@ struct PoleTideReferenceCase {
 
 BOOST_AUTO_TEST_SUITE( test_pole_tide_site_displacement )
 
+//! Compare solid-pole displacement with independent IERS equation fixtures.
 BOOST_AUTO_TEST_CASE( testPoleTideIndependentIersReferenceCases )
 {
+
     // Frozen fixtures evaluated independently from the accepted IERS chapter 7
     // Exact PDF hash and offline scalar reproduction: reference_files/solid_pole_tide/README.md.
     // (1 February 2018), https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf.
@@ -130,6 +141,7 @@ BOOST_AUTO_TEST_CASE( testPoleTideIndependentIersReferenceCases )
     }
 }
 
+//! Preserve solid-pole displacement across equivalent oblate station representations.
 BOOST_AUTO_TEST_CASE( testPoleTideOblateStationRepresentation )
 {
     const double time = 26.0 * physical_constants::JULIAN_YEAR;
@@ -166,8 +178,10 @@ BOOST_AUTO_TEST_CASE( testPoleTideOblateStationRepresentation )
     }
 }
 
+//! Check zero wobble and the 2018 secular-pole position against their equations.
 BOOST_AUTO_TEST_CASE( testPoleTideZeroWobbleAnd2018SecularPole )
 {
+
     // Secular pole values from IERS Eq. (21), frozen at J2000, 2018 and 2026.
     const double secularPoleCases[][ 3 ] = { { 0.0, 55.0, 320.5 }, { 18.0, 85.186, 382.78 }, { 26.0, 98.602, 410.46 } };
     const auto shape = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137.0, 1.0 / 298.257223563 );

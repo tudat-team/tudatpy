@@ -19,6 +19,7 @@ enum class OceanLoadingReferenceOrigin { unspecified, solidEarthCentre, wholeEar
 
 //! BLQ coefficients in provider units and ordering; independent of dynamics and estimation.
 struct OceanLoadingStation {
+    //! Station name, as in the file.
     std::string stationIdentifier;
 
     //! Rows: up/radial, west, south. Columns: M2,S2,N2,K2,K1,O1,P1,Q1,Mf,Mm,Ssa.
@@ -26,8 +27,12 @@ struct OceanLoadingStation {
 
     //! Positive Greenwich phase lags in degrees, in the same row/column order as amplitudes.
     Eigen::Matrix< double, 3, 11 > phaseLagsDegrees = Eigen::Matrix< double, 3, 11 >::Zero( );
+
+    //! Name of the file (or other source) and its header lines.
     std::string source;
     std::vector< std::string > sourceHeaders;
+
+    //! Ocean tide model and Green's functions used to compute the coefficients, and the origin of their reference frame.
     std::string oceanTideModel;
     std::string greensFunction;
     OceanLoadingReferenceOrigin referenceOrigin = OceanLoadingReferenceOrigin::unspecified;
@@ -39,8 +44,11 @@ struct OceanLoadingStation {
 
 //! A BLQ data set with source provenance and validated station records.
 struct OceanLoadingData {
+    //! Name of the file (or other source) and its header lines.
     std::string source;
     std::vector< std::string > sourceHeaders;
+
+    //! Stations, with their name as key.
     std::map< std::string, OceanLoadingStation > stations;
 
     //! Exact identifier lookup; throws std::out_of_range if the requested station is absent.

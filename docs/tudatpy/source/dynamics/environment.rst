@@ -131,6 +131,8 @@ Classes
    RigidBodyProperties
       
    AtmosphereModel
+
+   NRLMSISE00Atmosphere
    
    RadiationSourceModel
 
@@ -150,11 +152,7 @@ Classes
    
    GroundStationState
 
-   StationHistoryTrajectory
-
-   TransformedStationHistoryTrajectory
-
-   StationReferencePointTrajectory
+   StationCoordinateHistory
 
    StationReferencePointOffsetHistory
 
@@ -236,6 +234,11 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment.AtmosphereModel
    :members:     
 
+.. autoclass:: tudatpy.dynamics.environment.NRLMSISE00Atmosphere
+   :members:
+   :special-members: __init__
+   :show-inheritance:
+
 .. autoclass:: tudatpy.dynamics.environment.RadiationSourceModel
    :members:   
 
@@ -264,13 +267,7 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment.GroundStationState
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment.StationHistoryTrajectory
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment.TransformedStationHistoryTrajectory
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment.StationReferencePointTrajectory
+.. autoclass:: tudatpy.dynamics.environment.StationCoordinateHistory
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationReferencePointOffsetHistory

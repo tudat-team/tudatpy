@@ -13,10 +13,10 @@
 #define TUDAT_POLARMOTIONCALCULATOR_H
 
 #include <functional>
+#include <stdexcept>
 
 #include <Eigen/Core>
 
-#include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/earth_orientation/earthOrientationDataEvaluator.h"
@@ -32,8 +32,9 @@ Eigen::Vector2d getSecularPolePositionInMas( const double time );
 //! Object to compute polar motion variables x_{p} and y_{p}
 /*!
  * Object to compute polar motion variables x_{p} and y_{p}, describing the motion of the Earth pole in ITRS.
- * This class combines the  measured daily data as published by the IERS with the short-period variation models due to libration
- * and ocean tides as described in Sections 5.5.1 and 8.2 of IERS 2010 Conventions.
+ * This class combines the measured daily data as published by the IERS (interpolated by an EarthOrientationDataEvaluator)
+ * with the short-period variation models due to libration and ocean tides as described in Sections 5.5.1 and 8.2 of IERS
+ * 2010 Conventions.
  */
 class PolarMotionCalculator
 {
@@ -41,33 +42,39 @@ public:
     //! Constructor
     /*!
      *  Constructor
-     *  \param dailyIersValueInterpolator Interpolator, with time in UTC since J2000 as input and
-     *  interpolated measured daily pole offset values as output.
-     *  \param shortPeriodPolarMotionCalculator Object calculating short period polar motion variations.
+     *  \param eopData Interpolated daily Earth orientation data, from which the measured pole position is taken.
+     *  \param shortPeriodPolarMotionCalculator Object calculating short period polar motion variations (none if nullptr).
+     *  \param ut1FromTai Function returning UT1 at a given TAI, used for the fundamental arguments of the short-period
+     *  variations. If empty, UT1 is computed from the daily data only.
      */
     PolarMotionCalculator(
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyIersValueInterpolator,
+            const std::shared_ptr< EarthOrientationDataEvaluator > eopData,
             const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator,
-            const std::shared_ptr< EarthOrientationDataEvaluator > evaluator = nullptr,
             const std::function< Time( const Time& ) > ut1FromTai = {} ):
-        evaluator_( evaluator ), ut1FromTai_( ut1FromTai ), dailyIersValueInterpolator_( dailyIersValueInterpolator ),
-        shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
-    {}
+        eopData_( eopData ), ut1FromTai_( ut1FromTai ), shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
+    {
+        if( eopData_ == nullptr )
+        {
+            throw std::invalid_argument( "Polar motion calculator requires Earth orientation data" );
+        }
+    }
 
-    //! Polar motion at a TT epoch. Models constructed from EOP data use TAI without converting through UTC.
-    Eigen::Vector2d getPositionOfCipInItrsAtTt( const Time& tt )
+    //! Calculate the position of the Celestial Intermediate Pole in the ITRS at a TT epoch
+    /*!
+     *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}, at a TT epoch.
+     *  \param tt Terrestrial time since J2000
+     *  \return Position of the Celestial Intermediate Pole in the ITRS (radians)
+     */
+    template< typename TimeType >
+    Eigen::Vector2d getPositionOfCipInItrsAtTt( const TimeType& tt )
     {
         // SOFA evaluates its harmonic arguments using scalar TT seconds.
         const double ttDouble = static_cast< double >( tt );
 
-        if( !evaluator_ )
-        {
-            return getPositionOfCipInItrs( ttDouble, sofa_interface::convertTTtoUTC( ttDouble ) );
-        }
-        const Time tai = basic_astrodynamics::convertTTtoTAI( tt );
+        const Time tai = basic_astrodynamics::convertTTtoTAI( Time( tt ) );
 
-        // Use the selected UT1 model when forming the short-period arguments.
-        const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + evaluator_->evaluate( tai ).ut1MinusTai;
+        // UT1 for the short-period arguments.
+        const Time ut1 = ut1FromTai_ ? ut1FromTai_( tai ) : tai + eopData_->evaluate( tai ).ut1MinusTai;
 
         // Delaunay arguments include GMST formed from UT1, with TT for precession.
         const Eigen::Vector6d arguments =
@@ -76,46 +83,20 @@ public:
         return getPositionOfCipInItrsFromTai( tai, arguments );
     }
 
+    //! Calculate the position of the Celestial Intermediate Pole in the ITRS from TAI
+    /*!
+     *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}: the daily values from the
+     *  Earth orientation data at the given TAI, plus the short-period variations for the given fundamental arguments.
+     *  \param tai TAI since J2000
+     *  \param arguments Fundamental arguments used for short-period polar motion variations
+     *  \return Position of the Celestial Intermediate Pole in the ITRS (radians)
+     */
     Eigen::Vector2d getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments );
+
+    //! Function to retrieve the interpolated daily Earth orientation data
     std::shared_ptr< EarthOrientationDataEvaluator > getEarthOrientationDataEvaluator( ) const
     {
-        return evaluator_;
-    }
-
-    //! Calculate the position of the Celestial Intermediate Pole in the ITRS
-    /*!
-     *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}.
-     *  The fundamental arguments are calculated internally in this function. If these are available to
-     *  the user from a more computationally efficient solution (such as an interpolator), the
-     *  overloaded version of this function is adviced for use.
-     *  \param ttSinceEpoch Terrestrial time since J2000
-     *  \param utcSinceEpoch UTC since the J2000
-     */
-    Eigen::Vector2d getPositionOfCipInItrs( const double ttSinceEpoch, const double utcSinceEpoch );
-
-    //! Calculate the position of the Celestial Intermediate Pole in the ITRS
-    /*!
-     *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}.
-     *  The fundamental arguments are provided as input to this function for computation of short-period variations.
-     *  \param fundamentalArguments Fundamental arguments used for short-period polar motion corrections
-     *  \param utcSinceEpoch UTC since the J2000
-     */
-    Eigen::Vector2d getPositionOfCipInItrs( Eigen::Vector6d fundamentalArguments, const double utcSinceEpoch );
-
-    //! Function to retrieve interpolator for daily IERS-measured pole offsets
-    /*!
-     * Function to retrieve interpolator for daily IERS-measured pole offsets
-     * \return Interpolator for daily IERS-measured pole offsets
-     */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > getDailyIersValueInterpolator( )
-    {
-        if( evaluator_ )
-        {
-            throw std::runtime_error(
-                    "Models constructed from EOP data do not have a daily UTC interpolator; use "
-                    "getEarthOrientationDataEvaluator()->evaluate(tai).polarMotion." );
-        }
-        return dailyIersValueInterpolator_;
+        return eopData_;
     }
 
     //! Function to retrieve object calculating short period polar motion variations.
@@ -129,13 +110,12 @@ public:
     }
 
 private:
-    std::shared_ptr< EarthOrientationDataEvaluator > evaluator_;
+    //! Interpolated daily Earth orientation data.
+    std::shared_ptr< EarthOrientationDataEvaluator > eopData_;
+
+    //! Function returning UT1 at a given TAI, used for the fundamental arguments of the short-period variations. If empty,
+    //! UT1 is computed from the daily Earth orientation data only.
     std::function< Time( const Time& ) > ut1FromTai_;
-    //! Interpolator for daily IERS-measured pole offsets.
-    /*!
-     *  Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output.
-     */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyIersValueInterpolator_;
 
     //! Object calculating short period polar motion variations.
     std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator_;

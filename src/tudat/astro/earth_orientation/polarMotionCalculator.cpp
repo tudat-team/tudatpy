@@ -25,58 +25,15 @@ Eigen::Vector2d getSecularPolePositionInMas( const double time )
     return ( Eigen::Vector2d( ) << 55.0 + 1.677 * timeInYears, 320.5 + 3.460 * timeInYears ).finished( );
 }
 
+// Daily values from the Earth orientation data, plus short-period variations.
 Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrsFromTai( const Time& tai, const Eigen::Vector6d& arguments )
 {
-    if( !evaluator_ ) throw std::runtime_error( "TAI polar motion requires a continuous EOP model" );
-    Eigen::Vector2d value = evaluator_->evaluate( tai ).polarMotion;
-    if( shortPeriodPolarMotionCalculator_ ) value += shortPeriodPolarMotionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
+    Eigen::Vector2d value = eopData_->evaluate( tai ).polarMotion;
+    if( shortPeriodPolarMotionCalculator_ )
+    {
+        value += shortPeriodPolarMotionCalculator_->getCorrectionsFromFundamentalArgument( arguments );
+    }
     return value;
-}
-
-//! Calculate the position of the Celestial Intermediate Pole in the ITRS
-Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( const double ttSinceEpoch, const double utcSinceEpoch )
-{
-    if( evaluator_ ) return getPositionOfCipInItrsAtTt( ttSinceEpoch );
-    // Initialize offset to zero.
-    Eigen::Vector2d poleOffsetsInItrs = Eigen::Vector2d::Zero( );
-
-    // Add interpolated measured offsets.
-    try
-    {
-        poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
-    }
-    catch( std::runtime_error& caughtException )
-    {
-        throw std::runtime_error( "Error in pole offset interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
-    }
-
-    // Add short period motion
-    poleOffsetsInItrs += shortPeriodPolarMotionCalculator_->getCorrections( ttSinceEpoch );
-
-    return poleOffsetsInItrs;
-}
-
-//! Calculate the position of the Celestial Intermediate Pole in the ITRS
-Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( Eigen::Vector6d fundamentalArguments, const double utcSinceEpoch )
-{
-    if( evaluator_ ) return getPositionOfCipInItrsFromTai( sofa_interface::convertUTCtoTAI( Time( utcSinceEpoch ) ), fundamentalArguments );
-    // Initialize offset to zero.
-    Eigen::Vector2d poleOffsetsInItrs = Eigen::Vector2d::Zero( );
-
-    // Add interpolated measured offsets.
-    try
-    {
-        poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
-    }
-    catch( std::runtime_error& caughtException )
-    {
-        throw std::runtime_error( "Error in pole offset interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
-    }
-
-    // Add short period motion
-    poleOffsetsInItrs += shortPeriodPolarMotionCalculator_->getCorrectionsFromFundamentalArgument( fundamentalArguments );
-
-    return poleOffsetsInItrs;
 }
 
 }  // namespace earth_orientation

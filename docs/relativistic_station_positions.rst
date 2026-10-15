@@ -101,7 +101,8 @@ station with changing host motion/potential/orientation, position-only access
 with unavailable rates, coverage/representability failures, and native public
 factory wiring for five Earth clocks with distinct Earth/Sun/Moon states.
 Fixture inputs, source hashes and simultaneity conventions are recorded in
-``tests/test_tudat/reference_files/relativistic_station/README.md``.
+``data/pr1092/reference_files/relativistic_station/README.md`` of the C++ test data
+archive (``tests/test_tudat/data.zip``).
 
 Primary sources:
 

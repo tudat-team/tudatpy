@@ -41,6 +41,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_ifms_file_reader );
 
 //! Test reading of mars express IFMS files.
+//! Read IFMS Doppler values and convert their station-based observation epochs.
 BOOST_AUTO_TEST_CASE( testIfmsFileReader )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -108,8 +109,11 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
             const Eigen::Vector3d earthFixedPosition =
                     bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" )->getNominalStationState( )->getNominalCartesianPosition( );
-            Time tdbTimeTest = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
+
+            // Use the EOP-backed clock selected when the observation collection is created.
+            Time tdbTimeTest = earth_orientation::createDefaultTimeConverter( )->getCurrentTime< Time >(
                     utc_scale, tdb_scale, utcTimeTest, earthFixedPosition );
+
             BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.at( 9 - linesToBeSkipped.at( i ) ) - tdbTimeTest ),
                                1.0E-12 );
         }
@@ -191,8 +195,10 @@ std::map< Time, double > loadIfmsFilesSeparate( const std::vector< std::string >
     return uplinkFrequencies;
 }
 
+//! Combine IFMS files while retaining their observation values and time order.
 BOOST_AUTO_TEST_CASE( testMultipleIfmsFileReader )
 {
+
     // Adjust this to point to the directory containing your IFMS files
     const std::string SOURCE_DIR = paths::getTudatTestDataPath( ) + "/estrack_n_way_doppler_observation_model/";
 
@@ -210,6 +216,7 @@ BOOST_AUTO_TEST_CASE( testMultipleIfmsFileReader )
     std::vector< std::map< Time, double > > transmittedFrequencies;
     for( int test = 0; test < 4; test++ )
     {
+
         // Load files separately or one by one
         if( test == 0 )
         {

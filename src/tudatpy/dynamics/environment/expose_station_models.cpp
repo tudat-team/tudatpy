@@ -5,7 +5,6 @@
 #include <pybind11/stl.h>
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/ground_stations/stationReferencePoint.h"
-#include "tudat/astro/ground_stations/transformedStationHistoryTrajectory.h"
 
 namespace tudatpy
 {
@@ -86,7 +85,7 @@ directly only for custom trajectories.
       )doc" )
             .def_readwrite( "convention", &gs::StationHistoryTime::convention, R"doc(
 
-         Name of the time convention (must match that of the trajectory).
+         Name of the time convention (must match that of the station coordinate history).
 
          :type: str
       )doc" );
@@ -330,16 +329,17 @@ the number of cycles per year.
          :type: list[int]
       )doc" );
 
-    // Trajectories expose copied coefficient records so Python mutation cannot invalidate the native model.
-    py::class_< gs::StationHistoryTrajectory, std::shared_ptr< gs::StationHistoryTrajectory > >( m, "StationHistoryTrajectory", R"doc(
+    // Station coordinate histories expose copied coefficient records so Python mutation cannot invalidate the native model.
+    py::class_< gs::StationCoordinateHistory, std::shared_ptr< gs::StationCoordinateHistory > >( m, "StationCoordinateHistory", R"doc(
 
-Station history: the position and velocity of a station as a function of time, from linear solutions between
-discontinuities, post-seismic deformation and seasonal terms.
+Station coordinate history: the catalogued position and velocity of a station point as a function of time, from linear
+solutions between discontinuities, post-seismic deformation and seasonal terms.
 
 At an epoch where a new solution starts, the new solution is used for both position and velocity. Epochs outside the
 validity of the solutions, or in a gap between them, raise an exception. Objects of this class are normally created
-with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_history`, and added to a ground station with
-:func:`~tudatpy.dynamics.environment_setup.ground_station.station_history_motion`.
+with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_history` (and transformed to another frame
+with :func:`~tudatpy.dynamics.environment_setup.ground_station.transform_station_history`), and added to a ground
+station with :func:`~tudatpy.dynamics.environment_setup.ground_station.station_history_motion`.
 
       )doc" )
             .def( py::init< std::vector< gs::StationHistoryLinearSolution >,
@@ -367,7 +367,7 @@ with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_histo
 
       )doc" )
             .def( "position",
-                  &gs::StationHistoryTrajectory::getPosition,
+                  &gs::StationCoordinateHistory::getPosition,
                   py::arg( "source_time" ),
                   R"doc(
 
@@ -385,7 +385,7 @@ with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_histo
 
       )doc" )
             .def( "state",
-                  &gs::StationHistoryTrajectory::getState,
+                  &gs::StationCoordinateHistory::getState,
                   py::arg( "source_time" ),
                   R"doc(
 
@@ -403,15 +403,15 @@ with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_histo
 
       )doc" )
             .def_property_readonly(
-                    "metadata", []( const gs::StationHistoryTrajectory& trajectory ) { return trajectory.getMetadata( ); }, R"doc(
+                    "metadata", []( const gs::StationCoordinateHistory& history ) { return history.getMetadata( ); }, R"doc(
 
          **read-only**
 
-         Description of the history (for a derived trajectory, of its output).
+         Description of the history.
 
          :type: StationHistoryMetadata
       )doc" )
-            .def_property_readonly( "solutions", &gs::StationHistoryTrajectory::getSolutions, py::return_value_policy::copy, R"doc(
+            .def_property_readonly( "solutions", &gs::StationCoordinateHistory::getSolutions, py::return_value_policy::copy, R"doc(
 
          **read-only**
 
@@ -420,7 +420,7 @@ with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_histo
          :type: list[StationHistoryLinearSolution]
       )doc" )
             .def_property_readonly(
-                    "post_seismic_terms", &gs::StationHistoryTrajectory::getPostSeismicTerms, py::return_value_policy::copy, R"doc(
+                    "post_seismic_terms", &gs::StationCoordinateHistory::getPostSeismicTerms, py::return_value_policy::copy, R"doc(
 
          **read-only**
 
@@ -428,7 +428,7 @@ with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_histo
 
          :type: list[StationPostSeismicTerm]
       )doc" )
-            .def_property_readonly( "seasonal_terms", &gs::StationHistoryTrajectory::getSeasonalTerms, py::return_value_policy::copy, R"doc(
+            .def_property_readonly( "seasonal_terms", &gs::StationCoordinateHistory::getSeasonalTerms, py::return_value_policy::copy, R"doc(
 
          **read-only**
 
@@ -436,7 +436,7 @@ with :func:`~tudatpy.dynamics.environment_setup.ground_station.ign_station_histo
 
          :type: list[StationSeasonalTerm]
       )doc" )
-            .def_property_readonly( "has_fitted_seasonal_terms", &gs::StationHistoryTrajectory::hasFittedSeasonalTerms, R"doc(
+            .def_property_readonly( "has_fitted_seasonal_terms", &gs::StationCoordinateHistory::hasFittedSeasonalTerms, R"doc(
 
          **read-only**
 
@@ -549,44 +549,6 @@ Returns
 astro.time_representation.Time
     Epoch in TAI.
 
-      )doc" );
-
-    py::class_< gs::TransformedStationHistoryTrajectory,
-                std::shared_ptr< gs::TransformedStationHistoryTrajectory >,
-                gs::StationHistoryTrajectory >( m, "TransformedStationHistoryTrajectory", R"doc(
-
-Station history transformed to another terrestrial reference frame realization, as created by
-:func:`~tudatpy.dynamics.environment_setup.ground_station.transform_station_history`. The transformation is evaluated
-at the calendar decimal year of the epoch.
-
-      )doc" )
-            .def_property_readonly( "source_trajectory", &gs::TransformedStationHistoryTrajectory::getSourceTrajectory, R"doc(
-
-         **read-only**
-
-         Station history before the transformation.
-
-         :type: StationHistoryTrajectory
-      )doc" )
-            .def_property_readonly(
-                    "catalogue",
-                    []( const gs::TransformedStationHistoryTrajectory& trajectory ) { return trajectory.getCatalogue( ); },
-                    R"doc(
-
-         **read-only**
-
-         Table of transformation parameters.
-
-         :type: ~tudatpy.data_input.environment_data.terrestrial_frames.TerrestrialFrameTransformationData
-      )doc" )
-            .def_property_readonly(
-                    "acknowledged_release_alignment", &gs::TransformedStationHistoryTrajectory::getAcknowledgedReleaseAlignment, R"doc(
-
-         **read-only**
-
-         Whether a difference between the release of the source and that of the catalogue was accepted as aligned.
-
-         :type: bool
       )doc" );
 
     py::class_< gs::StationReferencePointIdentity >( m, "StationReferencePointIdentity", R"doc(
@@ -894,53 +856,17 @@ new offset starts, the new offset is used for both position and velocity.
 
          :type: StationReferencePointGeometry | None
       )doc" );
-    py::class_< gs::StationReferencePointTrajectory, std::shared_ptr< gs::StationReferencePointTrajectory >, gs::StationHistoryTrajectory >(
-            m, "StationReferencePointTrajectory", R"doc(
-
-Station history of a reference point of a station (for instance the antenna reference point), obtained by adding an
-offset history to the station history of another point. Objects of this class are created with
-:func:`~tudatpy.dynamics.environment_setup.ground_station.station_reference_point_trajectory` or
-:func:`~tudatpy.dynamics.environment_setup.ground_station.sinex_antenna_reference_point`.
-
-      )doc" )
-            .def_property_readonly(
-                    "reference_point_identity",
-                    []( const gs::StationReferencePointTrajectory& p ) { return p.getReferencePointIdentity( ); },
-                    R"doc(
-
-         **read-only**
-
-         Identification of the reference point.
-
-         :type: StationReferencePointIdentity
-      )doc" )
-            .def_property_readonly( "source_trajectory", &gs::StationReferencePointTrajectory::getSourceTrajectory, R"doc(
-
-         **read-only**
-
-         Station history to which the offsets are added.
-
-         :type: StationHistoryTrajectory
-      )doc" )
-            .def_property_readonly( "offset_history", &gs::StationReferencePointTrajectory::getOffsetHistory, R"doc(
-
-         **read-only**
-
-         Offset history.
-
-         :type: StationReferencePointOffsetHistory
-      )doc" );
     m.def( "station_reference_point_identity",
            &gs::getStationReferencePointIdentity,
-           py::arg( "trajectory" ),
+           py::arg( "metadata" ),
            R"doc(
 
-Function to retrieve the identification of the point of which a station history gives the position.
+Function to retrieve the identification of the point whose position a station coordinate history describes.
 
 Parameters
 ----------
-trajectory : StationHistoryTrajectory
-    Station history.
+metadata : StationHistoryMetadata
+    Description of the station coordinate history.
 
 Returns
 -------

@@ -43,32 +43,39 @@ namespace
 // SOFA Tools for Earth Attitude, C edition, revision 1.64, section 5.5:
 // 2007-04-05 12:00:00 UTC, xp=0.0349282 arcsec, yp=0.4833163 arcsec,
 // UT1-UTC=-0.072073685 s, dX=0.1750 mas, dY=-0.2259 mas.
-// The calculator receives these inputs directly, without daily EOP or
-// short-period correction files. The existing time converter retains its
-// historical Delta T resource, which is not used at this modern epoch.
+// The calculator receives these values as constant daily EOP data, without
+// short-period correction files.
 std::shared_ptr< EarthOrientationAnglesCalculator > createCookbookAnglesCalculator( )
 {
     const Eigen::Vector2d pole = unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( 0.0349282, 0.4833163 ) );
     const Eigen::Vector2d correction = unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( 0.0001750, -0.0002259 ) );
-    const std::map< double, Eigen::Vector2d > poleData = { { -1.0E9, pole }, { 1.0E9, pole } };
-    const std::map< double, Eigen::Vector2d > correctionData = { { -1.0E9, correction }, { 1.0E9, correction } };
-    const std::map< double, double > ut1Data = { { -1.0E9, -0.072073685 }, { 1.0E9, -0.072073685 } };
-    const auto poleInterpolator = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( poleData );
-    const auto correctionInterpolator = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( correctionData );
-    const auto ut1Interpolator = std::make_shared< interpolators::LinearInterpolator< double, double > >( ut1Data );
+
+    // Daily records with these constant values, from 1996 to 2009, which covers all test epochs.
+    input_output::EarthOrientationData data;
+    for( double mjd = 50300.0; mjd <= 55100.0; mjd += 1.0 )
+    {
+        input_output::EarthOrientationRecord record;
+        record.utcModifiedJulianDate = mjd;
+        record.polarMotion = { pole.x( ), pole.y( ) };
+        record.ut1MinusUtc = -0.072073685;
+        record.celestialPoleOffsets = std::array< double, 2 >{ correction.x( ), correction.y( ) };
+        data.records.emplace( mjd, record );
+    }
+    const auto eopData = std::make_shared< EarthOrientationDataEvaluator >( data );
     const auto zeroArguments = []( const double ) -> Eigen::Vector6d { return Eigen::Vector6d::Zero( ); };
     const auto zeroPolarCorrections = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
             1.0, 0.0, std::vector< std::string >( ), std::vector< std::string >( ), zeroArguments );
     const auto zeroUt1Corrections = std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
             1.0, 0.0, std::vector< std::string >( ), std::vector< std::string >( ), zeroArguments );
     return std::make_shared< EarthOrientationAnglesCalculator >(
-            std::make_shared< PolarMotionCalculator >( poleInterpolator, zeroPolarCorrections ),
-            std::make_shared< PrecessionNutationCalculator >( iau_2006, correctionInterpolator ),
-            std::make_shared< TerrestrialTimeScaleConverter >( ut1Interpolator, zeroUt1Corrections ) );
+            std::make_shared< PolarMotionCalculator >( eopData, zeroPolarCorrections ),
+            std::make_shared< PrecessionNutationCalculator >( iau_2006, eopData ),
+            std::make_shared< TerrestrialTimeScaleConverter >( eopData, zeroUt1Corrections ) );
 }
 
 std::map< std::string, Eigen::Matrix3d > getIndependentBaseFrameRotations( )
 {
+
     // Time-independent rb fixture from the IAU SOFA 2023-10-11 validation
     // program t_sofa_c.c, t_bp06. Do not obtain the oracle from getFrameBias.
     const Eigen::Matrix3d gcrsToEme2000 = ( Eigen::Matrix3d( ) << 0.9999999999999942497,
@@ -162,6 +169,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
 //! Test ITRS <-> GCRS rotation by compariong against Sofa
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
 {
+
     // Get UTC time for evaluation
     int year = 2007;
     int month = 4;
@@ -193,6 +201,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
 
     // Test Tudat vs. Sofa implementations with identical EOP corrections.
     {
+
         // Set current time in UTC and TT
         double interpolationUtc = sofaCookbookTime;
         double interpolationTt = earthRotationModelFromUtc->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )->getCurrentTime(
@@ -203,14 +212,10 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
                 earthRotationModelFromUtc->getAnglesCalculator( )->getPrecessionNutationCalculator( )->getEarthOrientationDataEvaluator( );
         const Eigen::Vector2d cpo = eop->getCelestialPoleOffsets( sofa_interface::convertUTCtoTAI( Time( interpolationUtc ) ) );
         const double Xcorrection = cpo.x( ), Ycorrection = cpo.y( );
-        double xPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )
-                                      ->getPolarMotionCalculator( )
-                                      ->getPositionOfCipInItrs( interpolationTt, interpolationUtc )
-                                      .x( );
-        double yPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )
-                                      ->getPolarMotionCalculator( )
-                                      ->getPositionOfCipInItrs( interpolationTt, interpolationUtc )
-                                      .y( );
+        const Eigen::Vector2d polarMotion =
+                earthRotationModelFromUtc->getAnglesCalculator( )->getPolarMotionCalculator( )->getPositionOfCipInItrsAtTt(
+                        interpolationTt );
+        const double xPolarMotion = polarMotion.x( ), yPolarMotion = polarMotion.y( );
         double ut1Correction = earthRotationModelFromUtc->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )->getUt1Correction(
                 utc_scale, Time( sofaCookbookTime ) );
 
@@ -343,7 +348,7 @@ BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
             std::make_shared< GcrsToItrsRotationModel >( createStandardEarthOrientationCalculator( ) );
 
     // The model evaluates the TIO locator at TT and the Earth rotation angle at the precise (Time) UT1.
-    const EarthOrientationAngles orientation =
+    const EarthOrientationEvaluatedAnglesAndRates orientation =
             earthRotationModel->getAnglesCalculator( )->getRotationAnglesAndTimesFromItrsToGcrs( testTime, tdb_scale );
     Eigen::Vector5d rotationAngles = orientation.angles;
 
@@ -404,6 +409,7 @@ BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
 //! Test ITRS <-> GCRS rotation by comparing results from different base frames.
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
 {
+
     // 1. Load SPICE kernels
     spice_interface::loadStandardSpiceKernels( );
 
@@ -413,6 +419,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
     // 3. Scenario 1: J2000 as global frame
     Eigen::Vector3d marsPositionInItrsFromJ2000;
     {
+
         // Define bodies to be created
         std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
 
@@ -441,6 +448,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
     // 4. Scenario 2: ECLIPJ2000 as global frame
     Eigen::Vector3d marsPositionInItrsFromEclipj2000;
     {
+
         // Define bodies to be created
         std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
 
@@ -471,6 +479,38 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_CLOSE_FRACTION( marsPositionInItrsFromJ2000( i ), marsPositionInItrsFromEclipj2000( i ), 1.0E-15 );
+    }
+}
+
+//! Test ITRS -> GCRS rotation derivative against a numerical derivative of the same model's rotation matrix.
+BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationDerivativeAgainstNumerical )
+{
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
+            std::make_shared< GcrsToItrsRotationModel >( earth_orientation::createStandardEarthOrientationCalculator( ) );
+
+    // The derivative omits the precession-nutation and UT1 rates (up to ~4E-12 /s elementwise); evaluating the Earth
+    // rotation angle 1.42 ms early (as the derivative used to) adds ~7.6E-12 /s.
+    double tolerance = 6.0E-12;
+    for( double initialTime : { 0.0, 1.0E7, 1.0E8, 4.0E8, 7.0E8 } )
+    {
+        for( int hour = 0; hour < 24; hour++ )
+        {
+            double testTime = initialTime + 3600.0 * hour;
+            auto rotation = [ & ]( const double time ) { return earthRotationModel->getRotationToBaseFrame( time ).toRotationMatrix( ); };
+
+            // Fourth-order central difference
+            Eigen::Matrix3d numericalDerivative = ( 4.0 * ( rotation( testTime + 5.0 ) - rotation( testTime - 5.0 ) ) / 10.0 -
+                                                    ( rotation( testTime + 10.0 ) - rotation( testTime - 10.0 ) ) / 20.0 ) /
+                    3.0;
+            Eigen::Matrix3d analyticalDerivative = earthRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL( analyticalDerivative( i, j ) - numericalDerivative( i, j ), tolerance );
+                }
+            }
+        }
     }
 }
 
