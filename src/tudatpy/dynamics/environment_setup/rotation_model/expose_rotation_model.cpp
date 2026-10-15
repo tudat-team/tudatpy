@@ -56,7 +56,7 @@ void expose_rotation_model_setup( py::module& m )
 
 
       )doc" )
-            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(No documentation found.)doc" )
+            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model )
             .value( "spice_rotation_model",
                     tss::RotationModelType::spice_rotation_model,
                     R"doc(
@@ -153,13 +153,28 @@ void expose_rotation_model_setup( py::module& m )
       )doc" );
 
     py::class_< tss::SimpleRotationModelSettings, std::shared_ptr< tss::SimpleRotationModelSettings >, tss::RotationModelSettings >(
-            m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "SimpleRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice`.
+
+      )doc" );
 
     py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
-            m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "PlanetaryRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_custom_angles`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_full_custom`.
+
+      )doc" );
 
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
-            m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "IAURotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model`.
+
+      )doc" );
 
     py::enum_< tudat::earth_orientation::EarthOrientationInterpolation >( m, "EarthOrientationInterpolation", R"doc(
 
@@ -248,7 +263,14 @@ libration terms of the IERS Conventions 2010 are included with either model.
          created by the :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs` function.
 
       )doc" )
-            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile )
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile, R"doc(
+
+         **read-only**
+
+         Path to the Earth orientation parameter file used by the GCRS to ITRS rotation model.
+
+         :type: str
+      )doc" )
             .def_property( "ocean_tide_eop_model",
                            &tss::GcrsToItrsRotationModelSettings::getOceanTideEopModel,
                            &tss::GcrsToItrsRotationModelSettings::setOceanTideEopModel,
@@ -431,6 +453,18 @@ libration terms of the IERS Conventions 2010 are included with either model.
 
  Such a model can be useful for, for instance, approximate rotation of tidally locked natural satellites or nadir-pointing spacecraft.
 
+ Direct longitudinal libration can be added to the resulting
+ :class:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris` by assigning a
+ :class:`~tudatpy.dynamics.environment.DirectLongitudeLibrationCalculator` to its
+ :attr:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris.libration_calculator` property.
+ In this case, the angle relative to fully synchronous rotation is
+ :math:`\theta=A(\mathbf{r}\cdot\mathbf{v})/\lVert\mathbf{r}\times\mathbf{v}\rVert`,
+ where :math:`A` is the calculator's ``scaled_libration_amplitude``, and :math:`\mathbf{r}` and
+ :math:`\mathbf{v}` are the body's position and velocity relative to its central body. The angle is in radians.
+
+ .. note::
+
+     A dedicated API documentation page deriving this mathematical libration model remains to be written.
 
  Parameters
  ----------
@@ -444,10 +478,6 @@ libration terms of the IERS Conventions 2010 are included with either model.
  -------
  SynchronousRotationModelSettings
      Settings for a synchronous rotation model.
-
-
-
-
 
  Examples
  --------
@@ -464,7 +494,6 @@ libration terms of the IERS Conventions 2010 are included with either model.
     # create rotation model settings for target frame and assign to body settings of "Phobos"
     body_settings.get( "Phobos" ).rotation_model_settings = environment_setup.rotation_model.synchronous(
     central_body_name, original_frame, target_frame)
-
 
      )doc" );
 

@@ -249,8 +249,24 @@ The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in squa
 source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 )doc" )
-            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ )
-            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ );
+            .def_readwrite( "coefficients",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_,
+                            R"doc(
+
+         Three coefficients controlling the three-coefficient radiation pressure acceleration model.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
+            .def_readwrite( "reference_body",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_,
+                            R"doc(
+
+         Name of the reference body used by the three-coefficient radiation pressure model.
+
+         :type: str
+
+      )doc" );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,
@@ -1081,7 +1097,7 @@ It implements the model of 2010 Conventions (chapter 10, section 3).
 For the Schwarzschild correction, we have:
 
 .. math::
-   
+
    \mathbf{a}=\frac{\mu_{B}}{c^{2}r^{3}}\left(\left(2(\beta+\gamma)\frac{\mu_{B}}{r}-\gamma(\mathbf{v}\cdot\mathbf{v}) \right)\mathbf{r} +2(1+\gamma)(\mathbf{r}\cdot\mathbf{v})\mathbf{v}\right)
 
 For the Lense-Thirring correction, we have:
@@ -1101,7 +1117,6 @@ of the body undergoing the acceleration w.r.t. the body exerting the acceleratio
 acceleration, :math:`h`_{B}` is the angular momentum vector per unit mass of the body exerting the acceleration (in the global frame orientation), and :math:`\mu_{S}` and
 :math:`\mathbf{R}_{S}` are the gravitational parameter of the 'de Sitter central body' and the position of the body exerting the acceleration w.r.t. the 'de Sitter central body'.
 For normal applications, the 'de Sitter central body' should be set as the Sun, if the body exerting the acceleration is a natural solar system body (except the Sun itself)
-
 
 Parameters
 ----------
@@ -1144,7 +1159,6 @@ In this example, we define the relativistic correction acceleration for a Mars o
        use_de_sitter,
        de_sitter_central_body,
        lense_thirring_angular_momentum)]
-
 
      )doc" );
 
