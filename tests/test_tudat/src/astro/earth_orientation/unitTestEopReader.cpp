@@ -212,8 +212,8 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
         const double evolution = static_cast< double >( ( beforeUt1 - afterUt1 ) - ( beforeTai - afterTai ) );
 
         // Four fractional-hour roundings can enter the two UT1 epochs and their differenced evolution.
-        const long double evolutionTolerance = std::max(
-                1.0E-14L, 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM );
+        const double evolutionTolerance = std::max(
+                1.0E-14, static_cast< double >( 2.0L * std::numeric_limits< long double >::epsilon( ) * TIME_NORMALIZATION_INTEGER_TERM ) );
 
         BOOST_CHECK_SMALL( evolution - expectedEvolution, evolutionTolerance );
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differencePlusOneDay + 1.0 ), 0.01 );
