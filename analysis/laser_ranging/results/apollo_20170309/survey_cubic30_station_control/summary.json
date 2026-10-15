@@ -1,0 +1,80 @@
+{
+  "count": 11,
+  "mean_m": 0.21955034949562766,
+  "rms_about_zero_m": 0.22316391521490908,
+  "scatter_about_mean_m": 0.039997213532881035,
+  "weighted_mean_m": 0.2112729004527113,
+  "normalized_rms": 102.89873763414225,
+  "chi_squared_no_fitted_parameters": 116469.65227370049,
+  "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+  "dataset_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+  "kernel_sha256": {
+    "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+    "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+    "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+    "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+    "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+  },
+  "earth_orientation_resource_sha256": {
+    "README_desaiSibois2016.txt": "7c402db01984d0f561b77758c9b6cb290f746694b9e52c6735c19a9de8e9041f",
+    "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d",
+    "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "desaiSibois2016Ut1OceanTidesAmplitudes.txt": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88",
+    "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "eopc04_08_IAU2000.62-now.txt": "60c35925a5289c618a6054d0a6b2b313afa4dabeef08e348a7cac6a2682e0ea3",
+    "eopc04_14_IAU2000.62-now.txt": "cc838b27572e89ff6d36ee7cbeb6a8f104f1f8e59ddf769e8c93e6515276cd32",
+    "eopc04_20_IAU2000.62-now.txt": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181",
+    "historicalDeltaT.txt": "4a2d068df1cdb5f39ac0e7efa04aafeea5be585afd1c9e2e4380cf8872e1f78e",
+    "polarMotionLibrationAmplitudes.txt": "09bf92da2470901a69b3f3e4a17568ab09fba3df6021e72323b9c83a933a5fb0",
+    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf",
+    "polarMotionLibrationFundamentalArgumentMultipliers.txt": "3e1b8e99338e6713a244a1afc0e821a900bb67b6951fb76a0df5571b1d2b0206",
+    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3",
+    "polarMotionOceanTidesAmplitudes.txt": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076",
+    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+    "utcLibrationAmplitudes.txt": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7",
+    "utcLibrationFundamentalArgumentMultipliers.txt": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5",
+    "utcOceanTidesAmplitudes.txt": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829",
+    "utcOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+  },
+  "script_sha256": "bb44adf3ea6f633d4e54d2e1a5936a09f92d064aba120a94fe2cf3760191413e",
+  "tudatpy_path": "tudatpy/__init__.py",
+  "kernel_path": "tudatpy/kernel.so",
+  "kernel_binary_sha256": "1864ed04530210fa056e78128bdbbfe1ad536cae6a9d3ade4f23295fbeda1744",
+  "station_xyz_m": [
+    -1463998.8970758026,
+    -5166632.9137291815,
+    3435012.566612493
+  ],
+  "station_profile": "survey2005",
+  "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+  "station_profile_metadata": {
+    "source": "https://tmurphy.physics.ucsd.edu/apollo/doc/APO_coords.pdf",
+    "date": "2005-08-23",
+    "frame": "WGS84",
+    "height_m": 2786.62,
+    "geodetic_latitude_deg": 32.78035394,
+    "east_longitude_deg": 254.1795786,
+    "stated_accuracy_m": 0.1,
+    "warning": "Approximate survey, not the fitted DE440 station solution. No guessed velocity or residual fit."
+  },
+  "ephemeris_route": "cubic_spline_time",
+  "spice_knot_step_s": 30,
+  "limitations": [
+    "Approximate 2005 survey (~0.1 m); no matched DE440 station solution or plate velocity.",
+    "No Earth ocean/atmospheric loading; lunar dissipative/thermal terms omitted.",
+    "DE440-fit NP calibration version is not established to match the 2022 ACS release.",
+    "Earth simultaneity omits deformation velocity over microseconds and ~1.34 micrometre acceleration terms.",
+    "Existing custom position callbacks supply zero additional velocity; no Doppler/state-rate claim is made.",
+    "Unlike the DE440-fit JPL2020 reduction, this diagnostic includes the sub-mm lunar Shapiro term.",
+    "No residual selection, uncertainty inflation, mean removal, trend removal or parameter estimation.",
+    "Component columns are sequential re-solves, not an exactly additive fixed-event decomposition."
+  ],
+  "portable_archive": {
+    "raw_summary_sha256": "7adc4f679e020ec1ac55558766224b9dad3bf80d4b8a7ad17f4fe44dff4df05c",
+    "normal_points_csv_sha256": "82f953b9ce643cf91897a78d08982cabe383f3070d43efcb3faa3e6bdbe19b25",
+    "executed_source": "../provenance/llr_residuals_bb44adf3ea6f633d4e54d2e1a5936a09f92d064aba120a94fe2cf3760191413e.py.txt",
+    "note": "Numerical fields and hashes retained; runtime import paths shortened for portability. Original outputs retained outside repository.",
+    "station_profile": "Approximate 2005 WGS84 survey, zero velocity"
+  }
+}

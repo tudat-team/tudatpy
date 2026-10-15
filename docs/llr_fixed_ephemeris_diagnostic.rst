@@ -97,6 +97,55 @@ applies that same equation to the Moon, with constant components tabulated in
 Appendix A2. These limitations must accompany the results rather than be absorbed
 into a fitted range bias.
 
+Published station-only sensitivity
+----------------------------------
+
+The default ``--station-profile survey2005`` retains the approximate survey and
+zero velocity. The explicit ``--station-profile inpop17a-gir`` uses the
+independently preselected INPOP17a G+IR solution from Table 8, printed page 21:
+``(-1463998.9155, -5166632.7690, 3435012.8659) m`` at J2000 and
+``(-0.0130, +0.0001, 0.0) m/year``. The row expressions are algebraic offsets,
+not unsigned coordinates. The caption specifies J2000 and ITRF2005 reference
+values. The cited Manche reduction specifies TT for station drift; this
+experiment explicitly interprets the epoch as JD 2451545.0 TT and the year as
+365.25 days. The displacement is applied to both the intrinsic and transformed
+Earth station. DE440 body states, lunar orientation and reflector coordinates
+remain fixed. The report's APOLLO fit ends on 2016-11-25, before this selected
+night; neither a station fit nor a choice between published solutions uses
+these eleven residuals.
+
+``llr_station_profiles.json`` pins the source URLs, PDF hashes, row algebra and
+published component uncertainties. Those uncertainties are metadata, with no
+change to normal-point weights. This is a station-only sensitivity, not a
+matched INPOP or DE440 reduction. Fitted station coordinates are not guaranteed
+to realize canonical ITRF2005 or the selected EOP frame, so no speculative frame
+transformation is applied. A tide-free interpretation is supported by the
+cited regularized station coordinates and IERS routines, but not explicitly
+flagged in the 2017 report. The older reduction includes atmospheric and CSR4.0
+ocean loading, whose precise 2017 choices are not restated; this experiment
+adds neither. These limitations prevent treating the formal coordinate errors
+as an accuracy claim for the mixed model.
+
+With 30-second cubic tables, the published station changes the first launch's
+kinematic position relative to the survey by
+``(-0.241819751, +0.146447608, +0.299287507) m``. All eleven residuals remain
+unfitted: mean ``+0.079877301 m``, RMS about zero ``0.089294128 m``, scatter
+``0.039913133 m``, weighted mean ``+0.067742052 m``, normalized RMS ``36.989336``.
+The residual changes range from ``-0.154586852`` to ``-0.122534931 m``.
+A survey control with the same native kernel exactly reproduces the archived
+30-second survey CSV, isolating the station change from intervening builds.
+
+``analysis/laser_ranging/results/apollo_20170309`` retains exact raw CSV outputs
+for direct SPICE and 30-second survey baselines, this sensitivity and its
+survey control. Portable summaries retain every numeric field and provenance
+hash, shorten runtime import paths and identify the original summary hashes.
+The archive includes the exact executed source snapshots and input/profile
+manifests; large kernels and provider observations remain external.
+``station_sensitivity.csv`` records every raw residual change and launch
+kinematic station shift. The station experiment and its control used native
+kernel SHA-256
+``1864ed04530210fa056e78128bdbbfe1ad536cae6a9d3ade4f23295fbeda1744``.
+
 SPICE epoch precision experiment
 --------------------------------
 
@@ -188,6 +237,10 @@ Primary sources
   Sections 3.11–3.18 and Appendix A.
 * `APOLLO normal-point format and release <https://tmurphy.physics.ucsd.edu/apollo/norm_pts.html>`_
 * `APOLLO survey note <https://tmurphy.physics.ucsd.edu/apollo/doc/APO_coords.pdf>`_
+* `INPOP17a report <https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf>`_,
+  Tables 4 and 8; source hashes and interpretation in ``llr_station_profiles.json``.
+* `Manche (2011) reduction model <https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf>`_,
+  Sections 9.1.1–9.1.5.
 * `APOLLO data characterization (2023) <https://arxiv.org/pdf/2304.11128>`_ and
   `calibration (2023) <https://arxiv.org/pdf/2304.11174>`_
 * `IERS chapter 9 and official FCUL routines <https://iers-conventions.obspm.fr/chapter9.php>`_

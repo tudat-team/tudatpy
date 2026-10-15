@@ -37,6 +37,9 @@ REFLECTORS = {
     4: ("L2", (1339363.598, 801870.995, 756359.260)),
 }
 
+STATION_PROFILE_PATH = Path(__file__).with_name("llr_station_profiles.json")
+STATION_PROFILES = json.loads(STATION_PROFILE_PATH.read_text())
+
 
 def sha256(path):
     """Identify the actual local inputs without downloading or replacing them."""
@@ -105,7 +108,22 @@ def barycentric_state(body, epoch):
     )
 
 
-def create_environment(points, spice_knot_step=30):
+def station_kinematic_displacement(epoch, converter, station_profile):
+    """Apply the published velocity using the explicitly interpreted TT Julian year."""
+
+    if station_profile == "survey2005":
+        return np.zeros(3)
+
+    profile = STATION_PROFILES[station_profile]
+    tt_epoch = converter.convert_time(
+        time.tdb_scale, time.tt_scale, float(epoch), np.asarray(profile["position_m"])
+    )
+    elapsed_years = (tt_epoch - profile["reference_epoch_tt_s"]) / profile["julian_year_s"]
+
+    return np.asarray(profile["velocity_m_per_julian_year"]) * elapsed_years
+
+
+def create_environment(points, spice_knot_step=30, station_profile="survey2005"):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
     settings = setup.BodyListSettings("SSB", "J2000")
@@ -158,15 +176,28 @@ def create_environment(points, spice_knot_step=30):
     survey = [2786.62, np.deg2rad(32.78035394), np.deg2rad(254.1795786)]
 
     deformation = setup.ground_station.body_deformation_station_motion()
+    station_motion = [deformation]
+    station_position = survey
+    station_position_type = element_conversion.geodetic_position_type
+
+    if station_profile != "survey2005":
+        station_position = STATION_PROFILES[station_profile]["position_m"]
+        station_position_type = element_conversion.cartesian_position_type
+        converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
+        station_motion.append(
+            setup.ground_station.custom_station_motion(
+                lambda epoch: station_kinematic_displacement(epoch, converter, station_profile)
+            )
+        )
 
     # Auxiliary points expose the full intrinsic displacement before applying each spatial conversion once.
     setup.add_ground_station(
         bodies.get("Earth"),
         setup.ground_station.basic_station(
             "APOLLO_intrinsic",
-            survey,
-            element_conversion.geodetic_position_type,
-            station_motion_settings=[deformation],
+            station_position,
+            station_position_type,
+            station_motion_settings=station_motion,
         ),
         bodies,
     )
@@ -198,8 +229,8 @@ def create_environment(points, spice_knot_step=30):
         setup.ground_station.basic_station(
             "APOLLO",
             position,
-            station_motion_settings=[
-                deformation,
+            station_motion_settings=station_motion
+            + [
                 setup.ground_station.custom_station_motion(earth_simultaneity),
                 setup.ground_station.relativistic_station_motion(),
             ],
@@ -425,6 +456,12 @@ def main():
         default=30,
         help="30 (default)/60: integer-TDB-knot cubic splines; 0: original direct SPICE baseline",
     )
+    parser.add_argument(
+        "--station-profile",
+        choices=("survey2005", "inpop17a-gir"),
+        default="survey2005",
+        help="Approximate survey (default) or published station-only INPOP17a G+IR sensitivity",
+    )
     args = parser.parse_args()
 
     dataset = json.loads(Path(__file__).with_name("llr_dataset.json").read_text())
@@ -452,7 +489,7 @@ def main():
 
         spice.load_kernel(str(path))
 
-    bodies, position = create_environment(points, args.spice_knot_step)
+    bodies, position = create_environment(points, args.spice_knot_step, args.station_profile)
 
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
 
@@ -489,6 +526,10 @@ def main():
             {
                 "index": point["index"],
                 "launch_tdb_time_split": epoch.__getstate__(),
+                "station_kinematic_position_at_launch_m": (
+                    position
+                    + station_kinematic_displacement(epoch, converter, args.station_profile)
+                ).tolist(),
                 "geometric": geometric_events,
                 "relativistic": relativistic_events,
                 "atmospheric": atmospheric_events,
@@ -543,10 +584,19 @@ def main():
         "kernel_path": kernel.__file__,
         "kernel_binary_sha256": sha256(Path(kernel.__file__)),
         "station_xyz_m": position.tolist(),
+        "station_profile": args.station_profile,
+        "station_profile_manifest_sha256": sha256(STATION_PROFILE_PATH),
+        "station_profile_metadata": STATION_PROFILES.get(
+            args.station_profile, dataset["station_survey"]
+        ),
         "ephemeris_route": "cubic_spline_time" if args.spice_knot_step else "direct_spice",
         "spice_knot_step_s": args.spice_knot_step,
         "limitations": [
-            "Approximate 2005 survey (~0.1 m); no matched DE440 station solution or plate velocity.",
+            (
+                "Approximate 2005 survey (~0.1 m); no matched DE440 station solution or plate velocity."
+                if args.station_profile == "survey2005"
+                else "Published INPOP17a G+IR station-only sensitivity; see station-profile frame, tide and loading limitations."
+            ),
             "No Earth ocean/atmospheric loading; lunar dissipative/thermal terms omitted.",
             "DE440-fit NP calibration version is not established to match the 2022 ACS release.",
             "Earth simultaneity omits deformation velocity over microseconds and ~1.34 micrometre acceleration terms.",
