@@ -375,11 +375,11 @@ def _check_possible_failures(df, obs_kind):
                     raise ValueError(f"Column '{column}' must be convertible to floats")
 
         # check that obsTime is in the right format
-        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,4})?Z"
+        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z"
 
         df["obsTime"] = df["obsTime"].astype("string").str.strip()
         if not df["obsTime"].str.fullmatch(pattern).fillna(False).all():
-            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssss]Z")
+            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssssss]Z")
 
         # check that both tranbsmitter and receiver stations are part of the MPC list (a recognized station code)
         observatories_table = MPC.get_observatory_codes().to_pandas()
@@ -397,9 +397,116 @@ def _check_possible_failures(df, obs_kind):
         # if all tests are passed then return df
         return df
 
-    # elif obs_kind == "offset":
+    elif obs_kind == "occultation":
+        """
+        Required fields include:
+        - one between permID, provID, artSat, trkSub
+        - mode
+        - stn
+        - obsTime
+        - raStar
+        - decStar
+        - deltaRa, deltaDec OR dist, pa
+        - astCat
 
-    # elif obs_kind == "occultation":
+
+        If the location group is present then the required elements include:
+        - sys
+        - ctr
+        - pos1
+        - pos2
+        - pos3
+        """
+        # check that all required columns are present
+        for column in ("mode", "stn", "obsTime", "astCat", "raStar", "decStar"):
+            if column not in df.columns:
+                raise ValueError(f"Missing required column: {column}")
+            if df[column].isna().any():
+                raise ValueError(f"Column '{column}' contains missing values")
+
+        # check that at least one identifier is present
+        id_columns = ["permID", "provID", "artSat", "trkSub"]
+        if not df.reindex(columns=id_columns).notna().any(axis=1).all():
+            raise ValueError("Each row must have at least one non-missing identifier")
+
+        # check that at least one between the combinations deltaRa, deltaDec and dist, pa is present in each row
+        o = (
+            df.reindex(columns=["deltaRA", "deltaDec", "dist", "pa"])
+            .apply(pd.to_numeric, errors="coerce")
+            .notna()
+        )
+        bad = ~((o["deltaRA"] & o["deltaDec"]) | (o["dist"] & o["pa"]))
+        if bad.any():
+            raise ValueError(
+                "Each row must have at least one between the combinations deltaRa/deltaDec or dist/pa"
+            )
+
+        # check that if the location group is present that the required fields are there
+        columns = ["sys", "ctr", "pos1", "pos2", "pos3"]
+        present = df.reindex(columns=columns).notna()
+        if (present.any(axis=1) & ~present.all(axis=1)).any():
+            raise ValueError(
+                "If any of sys, ctr, pos1, pos2, pos3 is provided, all must be provided"
+            )
+
+        # check that if present pos1, pos2 and pos3 are convertible to floats
+        position_columns = ["pos1", "pos2", "pos3"]
+        if (
+            all(col in df.columns for col in position_columns)
+            and not df.loc[present.all(axis=1), position_columns]
+            .apply(pd.to_numeric, errors="coerce")
+            .notna()
+            .all()
+            .all()
+        ):
+            raise ValueError("pos1, pos2, and pos3 must be convertible to floats")
+
+        # check that raStar and decStar are convertible to floats
+        for column in ("raStar", "decStar"):
+            try:
+                df[column] = pd.to_numeric(df[column]).astype(float)
+            except:
+                raise ValueError(f"Column '{column}' must contain values convertible to floats")
+
+        # check that if presnt, "deltaRA", "deltaDec", "dist", "pa", rmsRA, rmsDec, rmsCorr and rmsTime are also convertible to floats
+        rms_columns = [
+            "deltaRA",
+            "deltaDec",
+            "dist",
+            "pa",
+            "rmsRA",
+            "rmsDec",
+            "rmsDist",
+            "rmsPA",
+            "rmsCorr",
+            "rmsTime",
+        ]
+        for column in rms_columns:
+            if column in df.columns:
+                values = df[column].dropna()
+                if not pd.to_numeric(values, errors="coerce").notna().all():
+                    raise ValueError(f"Column '{column}' must be convertible to floats")
+
+        # check that obsTime is in the right format
+        pattern = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z"
+
+        df["obsTime"] = df["obsTime"].astype("string").str.strip()
+        if not df["obsTime"].str.fullmatch(pattern).fillna(False).all():
+            raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssssss]Z")
+
+        # check that the station is part of the MPC list (a recognized station code)
+        observatories_table = MPC.get_observatory_codes().to_pandas()
+        stn_codes = observatories_table["Code"].astype("string").tolist()
+        # extract the stations from the input file to check them
+        stn = df["stn"].astype("string").str.strip()
+        invalid = stn.notna() & ~stn.isin(stn_codes)
+        if invalid.any():
+            raise ValueError(f"Unknown MPC observatory codes: {stn[invalid].unique().tolist()}")
+
+        # if all tests are passed then return df
+        return df
+
+    # elif obs_kind == "offset":
 
     else:
         raise ValueError("The input observation kind is invalid")
@@ -442,6 +549,86 @@ def _numeric(df, column, scale=1.0):
     if column not in df.columns:
         return pd.Series(np.nan, index=df.index)
     return pd.to_numeric(df[column], errors="coerce") * scale
+
+
+def _transform_delta_to_radec(df):
+    # from the coordinates of the star and the prvided offset define
+    # the coordinates in Ra/Dec of the small body
+    # return ra and Dec in degrees and save them in the dataframe
+    df["ra"] = (
+        ((pd.to_numeric(df["raStar"]).to_numpy() * u.deg))
+        + (pd.to_numeric(df["deltaRA"]).to_numpy() * u.arcsec).to(u.deg)
+        / np.cos((pd.to_numeric(df["decStar"]).to_numpy() * u.deg).to(u.rad))
+    ).value
+    df["dec"] = (
+        ((pd.to_numeric(df["decStar"]).to_numpy() * u.deg))
+        + (pd.to_numeric(df["deltaDec"]).to_numpy() * u.arcsec).to(u.deg)
+    ).value
+
+    # in this case the uncertainties are already correclty reported in Ra and Dec so there is no need for a transformation
+
+    return df
+
+
+def _transform_distpa_to_radec(df):
+    dist = (
+        ((pd.to_numeric(df["dist"]).to_numpy() * u.arcsec)).to(u.deg).value
+    )  # transform in degrees
+    pa = np.deg2rad(pd.to_numeric(df["pa"]).to_numpy())  # transform in radians
+    d_ra = dist * np.sin(pa)
+    d_dec = dist * np.cos(pa)
+    # return ra and dec in degrees and save them in the dataframe
+    df["ra"] = pd.to_numeric(df["raStar"]).to_numpy() + d_ra / np.cos(
+        (pd.to_numeric(df["decStar"]).to_numpy() * u.deg).to(u.rad).value
+    )
+    df["dec"] = pd.to_numeric(df["decStar"]).to_numpy() + d_dec
+
+    # transform the dist and pa uncertainties in uncertainties in RA and Dec
+    # identify is the 3 uncertainties columns are present (correlation included)
+    if not all(col in df.columns for col in ["rmsDist", "rmsPA"]):
+        return df  # no uncertainties reported
+
+    dist = pd.to_numeric(
+        df["dist"]
+    ).to_numpy()  # here in arcsec to be consistent with units of rmsDist
+    rms_dist = pd.to_numeric(df["rmsDist"], errors="coerce").to_numpy()  # in arcsec
+    pa = np.deg2rad(pd.to_numeric(df["pa"]).to_numpy())  # transform in radians
+    rms_pa = np.deg2rad(pd.to_numeric(df["rmsPA"]).to_numpy())
+
+    if "rmsCorr" in df.columns:
+        rho = np.nan_to_num(pd.to_numeric(df["rmsCorr"], errors="coerce").to_numpy(), nan=0.0)
+    else:
+        rho = np.zeros(len(df))
+
+    n = len(df)
+    # build covariance amtrix of dist, pa taking correlation into account when present
+    C = np.zeros((n, 2, 2))
+    C[:, 0, 0] = rms_dist**2
+    C[:, 1, 1] = rms_pa**2
+    C[:, 0, 1] = C[:, 1, 0] = rho * rms_dist * rms_pa
+
+    # build the jacobian matrix to perform the transformation to the covariance in RA and Dec
+    # pa has been previously already transfroemd in radians
+    J = np.zeros((n, 2, 2))
+    J[:, 0, 0] = np.sin(pa)
+    J[:, 0, 1] = dist * np.cos(pa)
+    J[:, 1, 0] = np.cos(pa)
+    J[:, 1, 1] = -dist * np.sin(pa)
+
+    # define the covariabce matrix in RA and Dec and extract the uncertainties (in arcsec)
+    C_radec = J @ C @ np.swapaxes(J, 1, 2)
+    var_ra = C_radec[:, 0, 0]
+    var_dec = C_radec[:, 1, 1]
+    cov_radec = C_radec[:, 0, 1]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        corr = cov_radec / np.sqrt(var_ra * var_dec)
+    df["rmsCorr"] = np.clip(
+        corr, -1.0, 1.0
+    )  # define the correlation (in this case is almost always different than 0 cause the rotation introduces correlation)
+    df["rmsRA"] = np.sqrt(np.clip(var_ra, 0, None))  # on-sky (RA*cos(dec))
+    df["rmsDec"] = np.sqrt(np.clip(var_dec, 0, None))
+
+    return df
 
 
 def parse_ades_file(file_path: str):  # -> Table:
@@ -566,12 +753,6 @@ def parse_ades_file(file_path: str):  # -> Table:
             # are created, if the value is missing for some rows then insert None
             result_data_optical = _roving_obs_columns(df, result_data_optical)
 
-            # transform all missing values or empty values to None in the final table
-            result_data_optical = result_data_optical.replace(r"^\s*$", None, regex=True)
-            result_data_optical = result_data_optical.astype(object).where(
-                pd.notna(result_data_optical), None
-            )
-
         elif obs_kind == "radar":
             # this is an outdated entry only present in 80 cols file, added here for consistency
             df["target_point"] = "C"
@@ -595,13 +776,73 @@ def parse_ades_file(file_path: str):  # -> Table:
 
             result_data_radar = radar_data_from_raw(result_data_radar, source="MPC")
 
+        elif obs_kind == "occultation":
+            # create the 'note2' and 'catalog' columns to allow application of the VCFF17 weighing scheme
+            df = _mode_to_note2(df)
+            df = _astCat_to_catalog(df)
+
+            # transform the entries in the occultation table to standard RA, Dec and rmsRa, rmsDec
+            required_1 = {"deltaRA", "deltaDec"}
+            required_2 = {"dist", "pa"}
+
+            if required_1.issubset(df.columns):
+                df = _transform_delta_to_radec(df)
+            elif required_2.issubset(df.columns):
+                df = _transform_distpa_to_radec(df)
+
+            result_data_occultation = pd.DataFrame(
+                {
+                    "number": _first_present_column(df, "permID", "provID", "artSat", "trkSub"),
+                    "provisional_designation": df.get(
+                        "provID"
+                    ),  # this is not a required field so it could be None
+                    "epoch": df["obsTime"],
+                    "epoch_seconds_UTC": df["epoch_seconds_UTC"],
+                    "RA": ((pd.to_numeric(df["ra"]).to_numpy() * u.deg).to(u.rad).value + np.pi)
+                    % (2 * np.pi)
+                    - np.pi,
+                    "DEC": (pd.to_numeric(df["dec"]).to_numpy() * u.deg).to(u.rad).value,
+                    "observatory": df["stn"],
+                    "magnitude": pd.to_numeric(
+                        df.get("mag"), errors="coerce"
+                    ),  # this is not a required field so it could be None
+                    "band": df.get("band"),  # this is not a required field so it could be None
+                    "astCat": df["astCat"],
+                    "mode": df["mode"],
+                    "note2": df["note2"],
+                    "catalog": df["catalog"],
+                }
+            )
+
+            # add the rmsRA, rmsDec, rmsTime if available
+            # for the rows where the info is not available it puts Nan
+            for column in ("rmsRA", "rmsDec", "rmsCorr", "rmsTime"):
+                if column in df.columns:
+                    result_data_occultation[column] = pd.to_numeric(df[column])
+
+            # add the info about roving observatories if needed - new corresponding columns
+            # are created, if the value is missing for some rows then insert None
+            result_data_occultation = _roving_obs_columns(df, result_data_occultation)
+
         else:
             warnings.warn(f"Skipping unsupported observation kind: {obs_kind}")
             continue
 
-    if result_data_optical.empty and result_data_radar.empty:
+    if result_data_optical.empty and result_data_radar.empty and result_data_occultation.empty:
         # return an empty table
         return Table()
+
+    if not result_data_occultation.empty:
+        # append the occultation table to the optical table (they have the same format and are all treated as optical observations)
+        result_data_optical = pd.concat(
+            [result_data_optical, result_data_occultation], ignore_index=True
+        )
+
+    # transform all missing values or empty values to None in the final table
+    result_data_optical = result_data_optical.replace(r"^\s*$", None, regex=True)
+    result_data_optical = result_data_optical.astype(object).where(
+        pd.notna(result_data_optical), None
+    )
 
     optical_table = Table.from_pandas(result_data_optical)
 
