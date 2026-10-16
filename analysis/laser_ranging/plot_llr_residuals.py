@@ -120,7 +120,7 @@ def describe(points):
     return result
 
 
-def plot(points, output, title, connect_means):
+def plot(points, output, title, connect_means, zoom_mm=None):
     """Save full-range reflector panels with raw points, optional provider sigmas and nightly means."""
 
     fig, axes = plt.subplots(5, 1, sharex=True, figsize=(11, 12), constrained_layout=True)
@@ -195,6 +195,23 @@ def plot(points, output, title, connect_means):
                     label=f"{station} nightly raw mean (unweighted{', both wavelengths' if mixed_wavelengths else ''})",
                 )
 
+        if zoom_mm is not None:
+            ax.set_ylim(*zoom_mm)
+            outside = sum(
+                p["reflector"] == reflector and not zoom_mm[0] <= p["residual"] * 1000 <= zoom_mm[1]
+                for p in points
+            )
+
+            if outside:
+                ax.text(
+                    0.99,
+                    0.02,
+                    f"{outside} raw point(s) outside this detail window",
+                    transform=ax.transAxes,
+                    ha="right",
+                    fontsize=8,
+                )
+
         ax.set_ylabel(f"{reflector}\nO−C (mm)")
         ax.grid(alpha=0.2)
         handles, labels = ax.get_legend_handles_labels()
@@ -233,6 +250,13 @@ def main():
     parser.add_argument("--title", default="Fixed-ephemeris LLR residuals")
     parser.add_argument("--nightly-means", action="store_true")
     parser.add_argument(
+        "--zoom-mm",
+        nargs=2,
+        type=float,
+        metavar=("LOW", "HIGH"),
+        help="Additional y-detail view; full-span view and statistics always retained",
+    )
+    parser.add_argument(
         "--station-details",
         action="store_true",
         help="Also retain labeled per-station time detail figures",
@@ -241,6 +265,11 @@ def main():
 
     if args.station and len(args.station) != len(args.csv):
         parser.error("Supply exactly one --station per CSV, or use the station column")
+
+    if args.zoom_mm is not None and (
+        not np.all(np.isfinite(args.zoom_mm)) or args.zoom_mm[0] >= args.zoom_mm[1]
+    ):
+        parser.error("--zoom-mm requires two finite, increasing limits")
 
     points, inputs = [], []
 
@@ -259,6 +288,15 @@ def main():
     args.output.mkdir(parents=True, exist_ok=False)
     plot(points, args.output / "residuals_full_span", args.title, args.nightly_means)
 
+    if args.zoom_mm is not None:
+        plot(
+            points,
+            args.output / "residuals_y_detail",
+            args.title + f" — additional y detail [{args.zoom_mm[0]:g}, {args.zoom_mm[1]:g}] mm",
+            args.nightly_means,
+            args.zoom_mm,
+        )
+
     if args.station_details:
         for station in sorted({p["station"] for p in points}):
             plot(
@@ -271,6 +309,7 @@ def main():
     summary = dict(
         inputs=inputs,
         points_plotted=len(points),
+        additional_y_detail_mm=args.zoom_mm,
         statistics=describe(points),
         plot_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         wavelength_markers="For stations with mixed wavelengths: triangles >=800nm, circles <800nm; raw nightly means/statistics retain all wavelengths unchanged",
