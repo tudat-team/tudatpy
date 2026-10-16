@@ -132,11 +132,10 @@ def create_environment(
     station_profile="survey2005",
     got410c_harpos=None,
     station_history=None,
-    inertial_axes="ICRF",
 ):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
-    settings = setup.BodyListSettings("SSB", inertial_axes)
+    settings = setup.BodyListSettings("SSB", "ICRF")
 
     # Integer TDB knots are exactly representable by SPICE.
     # Padding isolates the observations from the spline boundaries.
@@ -151,19 +150,19 @@ def create_environment(
                 final_time,
                 spice_knot_step,
                 "SSB",
-                inertial_axes,
+                "ICRF",
                 interpolators.cubic_spline_interpolation(
                     boundary_interpolation=interpolators.throw_exception_at_boundary
                 ),
             )
             if spice_knot_step
-            else setup.ephemeris.direct_spice("SSB", inertial_axes)
+            else setup.ephemeris.direct_spice("SSB", "ICRF")
         )
         settings.get(name).gravity_field_settings = setup.gravity_field.central_spice()
 
     earth = settings.get("Earth")
 
-    earth.rotation_model_settings = setup.rotation_model.gcrs_to_itrs(base_frame=inertial_axes)
+    earth.rotation_model_settings = setup.rotation_model.gcrs_to_itrs(base_frame="ICRF")
     earth.shape_settings = setup.shape.oblate_spherical(6378137.0, 1 / 298.257223563)
     earth.shape_deformation_settings = [
         setup.shape_deformation.iers_2010_solid_body_tidal(),
@@ -172,7 +171,7 @@ def create_environment(
 
     moon = settings.get("Moon")
 
-    moon.rotation_model_settings = setup.rotation_model.spice(inertial_axes, "MOON_PA_DE440")
+    moon.rotation_model_settings = setup.rotation_model.spice("ICRF", "MOON_PA_DE440")
     moon.shape_settings = setup.shape.spherical(1738000.0)
     moon.shape_deformation_settings = [
         setup.shape_deformation.basic_solid_body_tidal(
@@ -483,12 +482,6 @@ def main():
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
-        "--inertial-axes",
-        choices=("icrf", "legacy-j2000-bias"),
-        default="icrf",
-        help="ICRF axes for matched DE440 products; legacy retains the historical Earth frame bias",
-    )
-    parser.add_argument(
         "--spice-knot-step",
         type=int,
         choices=(0, 30, 60),
@@ -554,17 +547,14 @@ def main():
         spice.load_kernel(str(path))
 
     # The identity alias lets all environment labels use the actual axes of modern SPICE J2000 products.
-    inertial_axes = "ICRF" if args.inertial_axes == "icrf" else "J2000"
+    alias = kernel_dataset["analysis_frame_alias"]
 
-    if inertial_axes == "ICRF":
-        alias = kernel_dataset["analysis_frame_alias"]
+    alias_path = Path(__file__).with_name(alias["file"])
 
-        alias_path = Path(__file__).with_name(alias["file"])
-
-        kernel_hashes[alias["file"]] = sha256(alias_path)
-        if kernel_hashes[alias["file"]] != alias["sha256"]:
-            raise ValueError("Analysis ICRF alias differs from its pinned identity definition")
-        spice.load_kernel(str(alias_path))
+    kernel_hashes[alias["file"]] = sha256(alias_path)
+    if kernel_hashes[alias["file"]] != alias["sha256"]:
+        raise ValueError("Analysis ICRF alias differs from its pinned identity definition")
+    spice.load_kernel(str(alias_path))
 
     bodies, position, loading = create_environment(
         points,
@@ -572,7 +562,6 @@ def main():
         args.station_profile,
         args.got410c_harpos,
         history,
-        inertial_axes,
     )
 
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
@@ -691,10 +680,9 @@ def main():
         "kernel_manifest_sha256": sha256(kernel_manifest),
         "kernel_sha256": kernel_hashes,
         "inertial_axes": {
-            "profile": args.inertial_axes,
-            "environment_frame": inertial_axes,
+            "environment_frame": "ICRF",
             "spice_j2000_product_axes": "ICRF",
-            "earth_sofa_frame_bias_applied": inertial_axes == "J2000",
+            "earth_sofa_frame_bias_applied": False,
             "moon_frame": "MOON_PA_DE440",
         },
         "earth_orientation_resource_sha256": {

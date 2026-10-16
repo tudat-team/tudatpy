@@ -23,7 +23,7 @@ allowance for modelling error.
 Model conventions
 -----------------
 
-* The default ``--inertial-axes icrf`` uses ICRF axes throughout the environment.
+* The model uses ICRF axes throughout the environment.
   A hash-pinned analysis text frame, ``icrf_spice_alias.tf``, is an exact identity
   alias to SPICE's ``J2000``. Modern DE440 products labelled J2000 use ICRF axes,
   as documented in `NAIF's ICRF versus J2000 discussion
@@ -31,7 +31,7 @@ Model conventions
   The native Earth rotation model interprets its J2000 option as the dynamical
   mean equator/equinox and applies a SOFA frame bias. The historical diagnostic
   combined that biased Earth rotation with ICRF translation and lunar rotation.
-  ``--inertial-axes legacy-j2000-bias`` preserves that historical calculation.
+  Historical committed sources and the recorded source patch preserve that calculation.
   No native frame semantics or provider products are changed by the correction.
 
 * The input UTC epoch is laser launch, constructed as a precise ``Time``. The
