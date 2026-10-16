@@ -1,0 +1,466 @@
+{
+  "experiment": "Two frozen LAGEOS1 weeks, all original23/131 accepted points; fixed combined postfit SP3 and SLRF2020 stations, no fitting, cuts on residuals, demeaning or uncertainty changes.",
+  "portable_csv": "All raw numerical field strings preserved; source paths reduced to basenames. Exact external raw CSV and summary hashes retained below.",
+  "native_source_revision": "7d52716f6723c704b20ca5f833570acd0f0cc0ba",
+  "kernel_sha256": "80b924287707124a8efea66455b26233b5511b7856983d35c05d21f82734f215",
+  "runtime": {
+    "interpreter_environment": "tudatpy-dev",
+    "package_relative_to_build": "src/tudatpy/__init__.py",
+    "kernel_relative_to_build": "src/tudatpy/kernel.so",
+    "numerical_threads": 1
+  },
+  "common": {
+    "orbit": "combined",
+    "station_solution": "slrf2020",
+    "body_ephemeris": "cubic-time",
+    "body_knot_step_seconds": 30,
+    "satellite_and_rotation_epoch": "Time",
+    "base_frame": "ICRF; identity SPICE alias and consistent Earth rotation label",
+    "ocean_loading": "GOT4.10c17-term geodetic HARPOS, CM/STW105, exact Graz/Herstmon sites",
+    "fractional_light_time_tolerance": 1e-12,
+    "maximum_iterations": 50,
+    "non_tidal_loading": "excluded: provider basis and anomaly reference compatibility unresolved"
+  },
+  "profiles": {
+    "standard": "IERS ocean EOP / linear C04; IERS solid Earth + pole + GOT",
+    "ds": "DS159 / four-point C04; same station deformation",
+    "high": "DS159 / four-point C04; same deformation + official CM ocean pole + RP03 S1/S2 CE-to-CM once"
+  },
+  "provider_manifest": "../../dataset.json",
+  "source_reconstruction": "git show COMMIT:PATH or git show BLOB; verify SHA256. No full source snapshots.",
+  "sources": {
+    "fixed_orbit_slr.py@baseline": {
+      "commit": "bcff23c4d",
+      "path": "analysis/laser_ranging/fixed_orbit_slr.py",
+      "blob": "925c1ffcfec31cdf06b153008ce79765c5a4217e",
+      "sha256": "e15a3ccc3f618a89c882e5c4cc1e4c385aee4c9d41c4db3d3ae6fcfcb1a6f9e7"
+    },
+    "ocean_loading.py": {
+      "commit": "e9dfa8bd6",
+      "path": "analysis/laser_ranging/ocean_loading.py",
+      "blob": "fd983251e1474123e7ccbba5af9401661ab6718e",
+      "sha256": "073e1534c7619c53c8756381d2e117325e95c5f3ff10edd82d62c1459260843d"
+    },
+    "ocean_loading_basis.json": {
+      "commit": "e9dfa8bd6",
+      "path": "analysis/laser_ranging/ocean_loading_basis.json",
+      "blob": "0c20f21ebb79882ada16288e101fc098cf153b94",
+      "sha256": "96b87ed6e6e14626314afa4d8014ffbc7eba8c940b548a76d35f7e7c41d06721"
+    },
+    "dataset.json": {
+      "commit": "e9dfa8bd6",
+      "path": "analysis/laser_ranging/dataset.json",
+      "blob": "0ff46fec44aaa5461257ad2dfdb81eed22cf4926",
+      "sha256": "3138e1ad2f280b2e6eeed3a86988f96f9268a4c888ec1824836dadd569f5fb3b"
+    },
+    "icrf_spice_alias.tf": {
+      "commit": "e9dfa8bd6",
+      "path": "analysis/laser_ranging/icrf_spice_alias.tf",
+      "blob": "3c0d31d7ebd5efa16f08126353658ae35e8aafd8",
+      "sha256": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+    },
+    "fixed_orbit_slr.py": {
+      "commit": "e9dfa8bd6",
+      "path": "analysis/laser_ranging/fixed_orbit_slr.py",
+      "blob": "a6b4aecdf12a0bda5f27dfd46d6e49deae00e209",
+      "sha256": "1eddcc04a3bec0fd6cfcf08fd569de22e001ec7aedd3124e4c89884c934e5e73"
+    }
+  },
+  "inputs": {
+    "ilrsa.orb.lageos1.240406.v81.sp3.gz": {
+      "bytes": 244124,
+      "sha256": "938758fd90b502c42507f280a3455d9e1b54bd8320d29b0b078cfc5281ab69d2"
+    },
+    "SLRF2020_POS+VEL_2023.10.02.snx": {
+      "bytes": 172299,
+      "sha256": "aecd35c12fd1e4e0525f13610f5605d379ad2c6f7761e74cdbb9771ec6a95a3f"
+    },
+    "eopc04_20_IAU2000.62-now.txt": {
+      "bytes": 5176575,
+      "sha256": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181"
+    },
+    "lageos1_20240331.np2": {
+      "bytes": 38704,
+      "sha256": "d27a113c8627e899bca7aae2c80fd2d1e06c27b58ca28821006e42ac34407989"
+    },
+    "lageos1_20240401.np2": {
+      "bytes": 24520,
+      "sha256": "22285682b03c7f385ec59135ce90fd65a95c25f58f68a3987b0ffab885df9303"
+    },
+    "lageos1_20240402.np2": {
+      "bytes": 44744,
+      "sha256": "8496412310fd33c0d7b420b3590e09bca42aea3c23b26422072ecea55acfc579"
+    },
+    "lageos1_20240403.np2": {
+      "bytes": 33735,
+      "sha256": "04affe2d03d31ae62aa9f12aa6b23fc49603b927614ca0f2d94dfba9849e9a61"
+    },
+    "lageos1_20240404.np2": {
+      "bytes": 60149,
+      "sha256": "49c553081b9af432db230302f704d71f0e80404e1ddfa875646507045ce823fc"
+    },
+    "lageos1_20240405.np2": {
+      "bytes": 50115,
+      "sha256": "4197c09dbc383842b6b0d6995e5ddb5efca56747d7d9d613e8db2ccad29e207b"
+    },
+    "lageos1_20240406.np2": {
+      "bytes": 22669,
+      "sha256": "ebbcca47708f811ea7bd8991abe1900bd628c5e5aea6a0742dfa8f8e1263a6d8"
+    },
+    "ilrsa.pos+eop.240406.v80.snx.gz": {
+      "bytes": 47171,
+      "sha256": "8234d95b68bfe432f96073a13a8d01c32351f1ee837acee72977b0163ab62823"
+    },
+    "com6.220915.tar.gz": {
+      "bytes": 22221,
+      "sha256": "78289ea4184a508382bbd0b70f7df9189b40fa26683dec2d7cf26de58dcc9a7a"
+    },
+    "ILRS_Data_Handling_File_2024.02.13.snx": {
+      "bytes": 180827,
+      "sha256": "41caafc2dd63bcd91504f529b6de3c37b48156523322ade5d3154ccce8ce52a1"
+    },
+    "utcLibrationAmplitudes.txt": {
+      "bytes": 120,
+      "sha256": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7"
+    },
+    "utcLibrationFundamentalArgumentMultipliers.txt": {
+      "bytes": 319,
+      "sha256": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5"
+    },
+    "utcOceanTidesAmplitudes.txt": {
+      "bytes": 1136,
+      "sha256": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829"
+    },
+    "utcOceanTidesFundamentalArgumentMultipliers.txt": {
+      "bytes": 1633,
+      "sha256": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+    },
+    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt": {
+      "bytes": 260,
+      "sha256": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf"
+    },
+    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt": {
+      "bytes": 160,
+      "sha256": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3"
+    },
+    "polarMotionOceanTidesAmplitudes.txt": {
+      "bytes": 2272,
+      "sha256": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076"
+    },
+    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt": {
+      "bytes": 1633,
+      "sha256": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+    },
+    "toc_got410c_harmod.hps": {
+      "bytes": 1978239,
+      "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150"
+    },
+    "pck00010.tpc": {
+      "bytes": 126143,
+      "sha256": "59468328349aa730d18bf1f8d7e86efe6e40b75dfb921908f99321b3a7a701d2"
+    },
+    "inpop19a_TDB_m100_p100_spice.tpc": {
+      "bytes": 18826,
+      "sha256": "55798de268f64f43f5ccf71dae84e1d1603a99301f80251c4d74cb8f26a72eee"
+    },
+    "inpop19a_TDB_m100_p100_spice.bsp": {
+      "bytes": 22318080,
+      "sha256": "01f095b148ef1e5aad6f95213c188ca5b0d8a58901d19a95b0c11082b1d3a0c6"
+    },
+    "naif0012.tls": {
+      "bytes": 5257,
+      "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+    },
+    "icrf_spice_alias.tf": {
+      "bytes": 481,
+      "sha256": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+    },
+    "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt": {
+      "bytes": 6201,
+      "sha256": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d"
+    },
+    "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt": {
+      "bytes": 4611,
+      "sha256": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149"
+    },
+    "desaiSibois2016Ut1OceanTidesAmplitudes.txt": {
+      "bytes": 3021,
+      "sha256": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88"
+    },
+    "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt": {
+      "bytes": 4611,
+      "sha256": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149"
+    },
+    "opoleloadcoefcmcor.txt": {
+      "bytes": 24106409,
+      "sha256": "3b1d099df46af0c4a7b5d3fd58db609e1b59579fc4329d29f1150b8cf1375e64"
+    },
+    "s1_s2_def_ce.dat": {
+      "bytes": 7514370,
+      "sha256": "b4f63531f1e565a37c664884fc708e5c85ce6dee1a2fbcdfcaf118be75062a6a"
+    },
+    "ilrsa.orb.lageos1.240413.v81.sp3.gz": {
+      "bytes": 244097,
+      "sha256": "d87d2ab14b89ec46e61ba3be0c82b8aa6c79806d66da6b36a2d195a1fcb5fc66"
+    },
+    "lageos1_20240407.np2": {
+      "bytes": 53483,
+      "sha256": "e4c30ca7c76a5e3b0689534e899568190a5ab01b44e0bf1f471a13d8cbbde889"
+    },
+    "lageos1_20240408.np2": {
+      "bytes": 34306,
+      "sha256": "d7d19b80fbec1b36200fb9bf0e56338aed692438642c98a86c772236ef64b41a"
+    },
+    "lageos1_20240409.np2": {
+      "bytes": 58027,
+      "sha256": "237481c12ab35edd8213d05581a4a7f05f08139a07a75862fb4347e8071ce030"
+    },
+    "lageos1_20240410.np2": {
+      "bytes": 36340,
+      "sha256": "9aa2002b73a3e493e5199fc9b804fb5388ed429497bc2e33c220ea6315b8ca6a"
+    },
+    "lageos1_20240411.np2": {
+      "bytes": 74987,
+      "sha256": "606036c561cc2a2b48727795713b37f9dce4a76a79184d8228435a8ff7c7b9d7"
+    },
+    "lageos1_20240412.np2": {
+      "bytes": 49321,
+      "sha256": "dce7d59af2de05a5ba67e6e9173fb804757d384c3de6c3a1bd87402c863057eb"
+    },
+    "lageos1_20240413.np2": {
+      "bytes": 60026,
+      "sha256": "51d334b5d6f77d9353d7115ef74fc166316987bede765554aa5e8d26621b14b5"
+    },
+    "ilrsa.pos+eop.240413.v80.snx.gz": {
+      "bytes": 49908,
+      "sha256": "3f78eb24c7ec3817a1def44d0d29d4879fcf87770b08f4f60022c5be4842c500"
+    }
+  },
+  "cases": {
+    "week1_standard": {
+      "all": {
+        "count": 23,
+        "mean_m": -6.026147014420965e-05,
+        "rms_m": 0.007221020519771053,
+        "std_m": 0.007220769065838533,
+        "median_m": -0.0017515607178211212
+      },
+      "stations": {
+        "7839": {
+          "count": 13,
+          "mean_m": 0.00024254842159839778,
+          "rms_m": 0.009334394844438541,
+          "std_m": 0.009331243077696613,
+          "median_m": -0.003781666047871113
+        },
+        "7840": {
+          "count": 10,
+          "mean_m": -0.0004539143294095993,
+          "rms_m": 0.0025805058908188036,
+          "std_m": 0.0025402701498280027,
+          "median_m": -0.0003424631431698799
+        }
+      },
+      "excluded_count": 6,
+      "raw_csv_sha256": "0608d83b5551f27e53ac43a6f019957ac5ba1e604e7c161fb8b9e02206b0c584",
+      "portable_csv_sha256": "d0c6ce0b1beb441c6804c13354ebe27179aae90516cc0bf2baee4b7b4f179a79",
+      "external_summary_sha256": "8c8c3a22ce2f8f2bc1d0672d8d4bf89227a45231c1867608b5ff8b1f7ab82a1a",
+      "analysis_source_commit": "bcff23c4d"
+    },
+    "week1_ds": {
+      "all": {
+        "count": 23,
+        "mean_m": -6.0354076001955114e-05,
+        "rms_m": 0.007221589196015595,
+        "std_m": 0.007221336988502829,
+        "median_m": -0.0017483653500676155
+      },
+      "stations": {
+        "7839": {
+          "count": 13,
+          "mean_m": 0.00024181102903989644,
+          "rms_m": 0.009335308472502064,
+          "std_m": 0.009332176150448698,
+          "median_m": -0.003781666047871113
+        },
+        "7840": {
+          "count": 10,
+          "mean_m": -0.00045316871255636216,
+          "rms_m": 0.0025798694980602413,
+          "std_m": 0.0025397568279230225,
+          "median_m": -0.00033980049192905426
+        }
+      },
+      "excluded_count": 6,
+      "raw_csv_sha256": "e3647e360bb2933213f5110c9bc115195d06acdaca014915f8e60e3cbd390c86",
+      "portable_csv_sha256": "24a21f22c51ab4ef6fa2e91223e9475f030b74bfb82a348cc654af84d414369a",
+      "external_summary_sha256": "8a00fb53bd6b3b4065ffa0173347feaf6c6ff0a0298772cbe638656d1fd26e1f",
+      "analysis_source_commit": "e9dfa8bd6"
+    },
+    "week1_high": {
+      "all": {
+        "count": 23,
+        "mean_m": -0.0004051611961229988,
+        "rms_m": 0.007141566381812386,
+        "std_m": 0.007130064150552155,
+        "median_m": -0.002089190296828747
+      },
+      "stations": {
+        "7839": {
+          "count": 13,
+          "mean_m": -0.0001693905975956183,
+          "rms_m": 0.009211239235999029,
+          "std_m": 0.009209681595378539,
+          "median_m": -0.004195980727672577
+        },
+        "7840": {
+          "count": 10,
+          "mean_m": -0.0007116629742085934,
+          "rms_m": 0.0026464174171443927,
+          "std_m": 0.0025489332978533936,
+          "median_m": -0.0006625191308557987
+        }
+      },
+      "excluded_count": 6,
+      "raw_csv_sha256": "d17546817a62b3a935b31277c0a38234b5b61bf0ab4c5fd81a2dc54be61ad5db",
+      "portable_csv_sha256": "d7c8fd4fe5cda46e82e8df6ccc28d360a33faed51986669a2e0f253142f34cb7",
+      "external_summary_sha256": "90509de67b461e5725f20dd11f167a84ce93f0c9cc34906af494efcf94a52664",
+      "analysis_source_commit": "e9dfa8bd6"
+    },
+    "week2_standard": {
+      "all": {
+        "count": 131,
+        "mean_m": 0.007658892083657152,
+        "rms_m": 0.017434913333372257,
+        "std_m": 0.015662617118256308,
+        "median_m": 0.005284787155687809
+      },
+      "stations": {
+        "7839": {
+          "count": 55,
+          "mean_m": 0.009031105007637631,
+          "rms_m": 0.021192745447891986,
+          "std_m": 0.01917215694595079,
+          "median_m": 0.004934147000312805
+        },
+        "7840": {
+          "count": 76,
+          "mean_m": 0.006665843257092331,
+          "rms_m": 0.014104216104626012,
+          "std_m": 0.012429619688384212,
+          "median_m": 0.006146290805190802
+        }
+      },
+      "excluded_count": 3,
+      "raw_csv_sha256": "c760a586d999da774ff1f0aaeee9cfc06f8f411ff6927502c327afd6db9aa9c6",
+      "portable_csv_sha256": "de4bc3831c959b8e419d70e8437a6268ae46c65e8bcab661794f9632e07c0520",
+      "external_summary_sha256": "0348f1259047c92f95369fc80c4d6b89807e7f96a7d40f769d1e22608f4fc2e1",
+      "analysis_source_commit": "bcff23c4d"
+    },
+    "week2_ds": {
+      "all": {
+        "count": 131,
+        "mean_m": 0.007658591245137553,
+        "rms_m": 0.017434883205891667,
+        "std_m": 0.015662730686026166,
+        "median_m": 0.005295437760651112
+      },
+      "stations": {
+        "7839": {
+          "count": 55,
+          "mean_m": 0.009031511623073708,
+          "rms_m": 0.0211933730848888,
+          "std_m": 0.019172659192651747,
+          "median_m": 0.004934147000312805
+        },
+        "7840": {
+          "count": 76,
+          "mean_m": 0.0066650304453153356,
+          "rms_m": 0.01410346939187912,
+          "std_m": 0.012429208263227827,
+          "median_m": 0.0061399005353450775
+        }
+      },
+      "excluded_count": 3,
+      "raw_csv_sha256": "820311ce5da5e6c5276a03fefa297db86ee788e3c396de9152eb0260c6cca1fd",
+      "portable_csv_sha256": "da823f429c260ffa88d4cf83755cb0ba76f7de1d49abf3b9f8ef20d8d33544b8",
+      "external_summary_sha256": "7fc8f08f584faa126d7457322465685e7a9675b156e024df6e5bec4bcae62bb0",
+      "analysis_source_commit": "e9dfa8bd6"
+    },
+    "week2_high": {
+      "all": {
+        "count": 131,
+        "mean_m": 0.007535538358884004,
+        "rms_m": 0.017456424760748553,
+        "std_m": 0.015746187699550104,
+        "median_m": 0.005658628419041634
+      },
+      "stations": {
+        "7839": {
+          "count": 55,
+          "mean_m": 0.008937997946685011,
+          "rms_m": 0.021247273359709693,
+          "std_m": 0.019275861016496355,
+          "median_m": 0.005237693898379803
+        },
+        "7840": {
+          "count": 76,
+          "mean_m": 0.006520600499291169,
+          "rms_m": 0.014090703301245172,
+          "std_m": 0.012491184437528946,
+          "median_m": 0.006231546401977539
+        }
+      },
+      "excluded_count": 3,
+      "raw_csv_sha256": "c21c2ada0723744fd5de461382ff69e6cda242059c5d404156f9dcf3fc1fb3fa",
+      "portable_csv_sha256": "6634b1ad7e2e3a231992650c669fd30b965564e72086d9d23b5a14ae7d5f99e5",
+      "external_summary_sha256": "08f6fce4b59cf282d4c58c644b49f69393600c892ddb96d5cbb759fce474a04c",
+      "analysis_source_commit": "e9dfa8bd6"
+    }
+  },
+  "comparisons": {
+    "week1_historical_to_standard": {
+      "count": 23,
+      "mean_change_m": -3.0100345611572266e-06,
+      "rms_change_m": 4.970906453982744e-06,
+      "maximum_absolute_change_m": 1.171603798866272e-05
+    },
+    "week1_standard_to_ds": {
+      "count": 23,
+      "mean_change_m": -9.260585774546085e-08,
+      "rms_change_m": 2.1759828682337774e-06,
+      "maximum_absolute_change_m": 5.325302481651306e-06
+    },
+    "week1_ds_to_high": {
+      "count": 23,
+      "mean_change_m": -0.0003448071201210437,
+      "rms_change_m": 0.0004388149275341474,
+      "maximum_absolute_change_m": 0.000991586595773697
+    },
+    "week2_historical_to_standard": {
+      "count": 131,
+      "mean_change_m": 4.0672491979963e-08,
+      "rms_change_m": 6.761177615473537e-06,
+      "maximum_absolute_change_m": 2.130214124917984e-05
+    },
+    "week2_standard_to_ds": {
+      "count": 131,
+      "mean_change_m": -3.0083851959869153e-07,
+      "rms_change_m": 5.178661761170797e-06,
+      "maximum_absolute_change_m": 2.7691945433616638e-05
+    },
+    "week2_ds_to_high": {
+      "count": 131,
+      "mean_change_m": -0.00012305288625354986,
+      "rms_change_m": 0.00047164608256207094,
+      "maximum_absolute_change_m": 0.001009693369269371
+    }
+  },
+  "historical_reference": {
+    "summary": "../stable_cubic_two_weeks/summary.json",
+    "kernel_sha256": "10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5",
+    "source_commit": "9a912e85ee38d07e235f93bffcf8578a395b91d5",
+    "scope": "Historical geodetic HARPOS / J2000-labelled / double rotation route; preserve unchanged. Old-to-standard combines frame, Time and native-kernel changes."
+  },
+  "metadata_note": "All six use the native rotation-owned converter. Original standard summaries retain stale default-object wording, whose IERS/linear parameters coincide with the selected baseline. Metadata/docs-only e9dfa8bd6 corrects ownership wording before DS/high runs; exact external outputs are preserved."
+}
