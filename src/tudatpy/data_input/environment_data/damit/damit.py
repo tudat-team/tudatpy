@@ -2,8 +2,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from tudatpy.dynamics.environment_setup.rotation_model import RotationModelSettings
 from tudatpy.astro.time_representation import julian_day_to_seconds_since_epoch
-from tudatpy.dynamics.environment_setup.shape import polyhedron
+from tudatpy.dynamics.environment_setup.shape import (
+    polyhedron,
+    triaxial_ellipsoid,
+    PolyhedronBodyShapeSettings,
+    TriAxialEllipsoidBodyShapeSettings,
+)
 from tudatpy.dynamics.environment_setup import rotation_model
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000
 from tudatpy.resource_installer import download_extra_file, DEFAULT_DEST, DEFAULT_CACHE
@@ -11,6 +17,13 @@ import tarfile
 import sys
 from functools import cache
 import matplotlib.pyplot as plt
+
+try:
+    import trimesh
+
+    TRIMESH_AVAILABLE = True
+except ModuleNotFoundError:
+    TRIMESH_AVAILABLE = False
 
 # Location of DAMIT archive files under tudat/resources
 _DAMIT_RESOURCES = DEFAULT_DEST / "damit"
@@ -169,12 +182,8 @@ class DamitModel:
         return self._data.copy(deep=True)
 
     @staticmethod
-    def _load_shape_model(
-        model_metadata: pd.Series, diameter: float | None
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Locates and loads the polyhedron shape model"""
-
-        # Load shape model from DAMIT data
+    def _shape_file_path(model_metadata: pd.Series) -> Path:
+        """Get the path of a DAMIT shape model"""
         shape_model_file = (
             _damit_files_path()
             / "files"
@@ -184,6 +193,17 @@ class DamitModel:
         )
         if not shape_model_file.exists():
             raise FileNotFoundError("Shape model file for this asteroid model could not be found")
+
+        return shape_model_file
+
+    @staticmethod
+    def _load_shape_model(
+        model_metadata: pd.Series, diameter: float | None
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Locates and loads the polyhedron shape model"""
+
+        # Load shape model from DAMIT data
+        shape_model_file = DamitModel._shape_file_path(model_metadata)
 
         with open(shape_model_file, "r") as f:
             number_of_vertices, number_of_facets = [
@@ -214,20 +234,34 @@ class DamitModel:
 
         return vertices * scale_factor, facets
 
-    def polyhedron_rotational_ephemeris_settings(self, base_frame: str) -> rotation_model.simple:
-        """
-        Create rotational ephemeris settings of the polyhedron shape model
+    def _approximate_best_fitting_ellipsoid(self):
+        """Approximate the best fitting ellipsoid from the moment of inertia"""
+        mesh = trimesh.Trimesh(vertices=self._vertices, faces=self._facets)
+        # Principal axes of the equatorial block only
+        # -> it is assumed that the shape model z-axis is a principal axis itself to preserve the correct
+        # axis of rotation.
 
-        Parameters
-        ----------
-        base_frame : str, optional
-            Base frame used in the environment. Options: "J2000", "ECLIPJ2000"
+        inertia_matrix = mesh.moment_inertia
+        eigenvalues, eigenvectors = np.linalg.eigh(inertia_matrix[:2, :2])
+        ixx, iyy, izz = eigenvalues[0], eigenvalues[1], inertia_matrix[2, 2]
 
-        Returns
-        -------
-        RotationModelSettings
-            Simple rotation model settings for this DAMIT shape model
-        """
+        # Convert moments of inertia to ellipsoid axes
+        mass = mesh.volume  # Model has unit density
+        a = np.sqrt((5.0 / (2.0 * mass)) * (iyy + izz - ixx))
+        b = np.sqrt((5.0 / (2.0 * mass)) * (ixx + izz - iyy))
+        c = np.sqrt((5.0 / (2.0 * mass)) * (ixx + iyy - izz))
+
+        # Principal axis offset required to account for the difference in the ellipsoid x-axis and DAMIT model x-axis
+        principal_axis_offset = (
+            np.arctan2(eigenvectors[1, 0], eigenvectors[0, 0]) + np.pi / 2
+        ) % np.pi - np.pi / 2
+
+        return [a, b, c], principal_axis_offset
+
+    def _get_rotational_ephemeris_settings(
+        self, base_frame: str, extra_rotation: float = 0.0
+    ) -> RotationModelSettings:
+        """Get the Simple rotation model settings, with an optional extra offset around the z-axis"""
         if base_frame not in ("J2000", "ECLIPJ2000"):
             raise ValueError("`base_frame` must be J2000 or ECLIPJ2000")
 
@@ -241,7 +275,7 @@ class DamitModel:
 
         # Initial orientation ecliptic to body-fixed
         rotation_to_body_fixed = (
-            rotation_z(self._data["phi0"]).T
+            rotation_z(self._data["phi0"] + extra_rotation).T
             @ rotation_y(np.pi / 2 - self._data["beta"]).T
             @ rotation_z(self._data["lambda"]).T
         )
@@ -256,7 +290,23 @@ class DamitModel:
             rotation_rate=2 * np.pi / self._data["period"],
         )
 
-    def polyhedron_shape_model(self, *args, **kwargs) -> polyhedron:
+    def polyhedron_rotational_ephemeris_settings(self, base_frame: str) -> RotationModelSettings:
+        """
+        Create rotational ephemeris settings of the polyhedron shape model
+
+        Parameters
+        ----------
+        base_frame : str
+            Base frame used in the environment. Options: "J2000", "ECLIPJ2000"
+
+        Returns
+        -------
+        RotationModelSettings
+            Simple rotation model settings for this DAMIT shape model
+        """
+        return self._get_rotational_ephemeris_settings(base_frame)
+
+    def polyhedron_shape_model(self, *args, **kwargs) -> PolyhedronBodyShapeSettings:
         """
         Convert the shape model into Tudat polyhedron shape model settings
 
@@ -267,7 +317,8 @@ class DamitModel:
 
         Returns
         -------
-
+        PolyhedronBodyShapeSettings
+            Shape settings objects for the DAMIT model
         """
         return polyhedron(
             vertices_coordinates=self._vertices,
@@ -278,6 +329,7 @@ class DamitModel:
 
     def plot_shape_model(
         self,
+        hide_axes: bool = True,
         show: bool = True,
     ) -> plt.Axes:
         """
@@ -285,6 +337,8 @@ class DamitModel:
 
         Parameters
         ----------
+        hide_axes: bool, optional
+            Hides the axes and gridlines
         show : bool, optional
             If true, calls ``matplotlib.pyplot.show``
 
@@ -300,22 +354,74 @@ class DamitModel:
                 self._vertices[self._facets],
                 facecolors="lightgrey",
                 shade=True,
-                label="Shape model",
             )
         )
 
         ax.set_aspect("equal")
         ax.set(xlabel="x (m)", ylabel="y (m)", zlabel="z (m)")
         ax.set_title(f"Shape model MPC {self._data['mpc_number']} (model ID {self._data['id']})")
-        ax.legend()
+
+        if hide_axes:
+            ax.set_axis_off()
 
         if show:
             plt.show()
 
         return ax
 
-    def best_fitting_ellipsoid_shape_model(self):
-        pass
+    def best_fitting_ellipsoid_shape_model(self) -> TriAxialEllipsoidBodyShapeSettings:
+        """
+        Create the best fitting triaxial ellipsoid shape model based on the polyhedron DAMIT shape model.
 
-    def best_fitting_ellipsoid_rotational_ephemeris_settings(self):
-        pass
+        Creates a triaxial ellipsoid shape model for an ellipsoid with equivalent moment of inertia to the DAMIT
+        polyhedron shape model.
+
+        NOTE: this functionality requires the optional dependency ``trimesh`` to be installed, at this time.
+        This can be installed into the conda environment using ``conda install trimesh``.
+
+        Returns
+        -------
+        TriaxialEllipsoidBodyShapeSettings
+            Shape settings for the best-fitting triaxial ellipsoid shape model
+        """
+        if not TRIMESH_AVAILABLE:
+            raise ModuleNotFoundError(
+                "`trimesh` is required to approximate the best-fitting ellipsoids at this time. "
+                "Install it with `conda install trimesh` in the conda environment"
+            )
+        semi_axes, _ = self._approximate_best_fitting_ellipsoid()
+        return triaxial_ellipsoid(*semi_axes)
+
+    def best_fitting_ellipsoid_rotational_ephemeris_settings(
+        self, base_frame: str
+    ) -> RotationModelSettings:
+        """
+        Create rotational ephemeris settings of the best fitting ellipsoid shape model
+
+        Creates the rotational ephemeris settings of the best fitting ellipsoid with equivalent moment of inertia
+        to the DAMIT polyhedron shape model.
+
+        NOTE 1: this rotational model is *not* the same as computed by:
+        :meth:~`tudatpy.data_input.environment_data.damit.DamitModel.polyhedron_rotational_ephemeris_settings`,
+        because an extra offset to the initial phase of rotation is necessary for the ellipsoid model.
+
+        NOTE 2: this functionality requires the optional dependency ``trimesh`` to be installed, at this time.
+        This can be installed into the conda environment using ``conda install trimesh``.
+
+        Parameters
+        ----------
+        base_frame : str
+            Base frame used in the environment. Options: "J2000", "ECLIPJ2000
+
+        Returns
+        -------
+        RotationModelSettings
+            Simple rotation model settings for the best fitting ellipsoid
+        """
+        if not TRIMESH_AVAILABLE:
+            raise ModuleNotFoundError(
+                "`trimesh` is required to approximate the best-fitting ellipsoids at this time. "
+                "Install it with `conda install trimesh` in the conda environment"
+            )
+        _, principal_axis_offset = self._approximate_best_fitting_ellipsoid()
+        return self._get_rotational_ephemeris_settings(base_frame, principal_axis_offset)
