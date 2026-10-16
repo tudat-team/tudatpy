@@ -1,0 +1,80 @@
+{
+  "manifest_sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+  "cases": {
+    "de440": {
+      "annual_csv_sha256": "d169c8cda2f04f5a1eef3aa59be26c7b8ae448d2d16d68d2130eeea2186c2c48",
+      "baseline_csv_sha256": "5644a9220b333381ad88eb2727da76b2eb45fd7cdb205fdf60bbdafd042ee9b4",
+      "row_count": 1579,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1268
+      },
+      "march_april_count": 305,
+      "march_april_identity_exact_match": true,
+      "long_weather_exact_match": true,
+      "coverage_matches_frozen_sources": true,
+      "all_computed_ranges_and_residuals_finite": true,
+      "all_epoch_events_transmit": true,
+      "pass": true,
+      "changed_computed_range_count": 0
+    },
+    "inpop17a_jpl_nh": {
+      "annual_csv_sha256": "378bc8d63f111bd387395babd0796b40b3d1a26fee2147e0774f43d31adcca95",
+      "baseline_csv_sha256": "9c44241901ee2ece854222974d9b0edb81d472dd326496a0fb873f61e906cdf8",
+      "row_count": 1579,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1268
+      },
+      "march_april_count": 305,
+      "march_april_identity_exact_match": true,
+      "long_weather_exact_match": true,
+      "coverage_matches_frozen_sources": true,
+      "all_computed_ranges_and_residuals_finite": true,
+      "all_epoch_events_transmit": true,
+      "pass": true,
+      "changed_computed_range_count": 0
+    },
+    "inpop17a_no_separate_glass": {
+      "annual_csv_sha256": "7b9701cb97ea980d5cdc467aebbf231b2fc8dc0a5bbe2a3b18834edcde34ad9c",
+      "baseline_csv_sha256": "d11af3bdf13088905872dbb00991824752ea76392bbdfde345ac6917bd617799",
+      "row_count": 1579,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1268
+      },
+      "march_april_count": 305,
+      "march_april_identity_exact_match": true,
+      "long_weather_exact_match": true,
+      "coverage_matches_frozen_sources": true,
+      "all_computed_ranges_and_residuals_finite": true,
+      "all_epoch_events_transmit": true,
+      "pass": true,
+      "changed_computed_range_count": 0
+    }
+  },
+  "all_915_overlapping_computed_ranges_bit_identical": true,
+  "source_identity_multisets_exact": true,
+  "declared_exclusions_absent": true,
+  "source_repetition_lines_102_and_105_present": true,
+  "only_exact_three_long_weather_flags": true,
+  "actual_retained_coverage": {
+    "APOLLO": {
+      "first_utc": "2017-01-06T00:31:05.0000000",
+      "last_utc": "2017-12-31T07:59:25.0000000",
+      "utc_nights": 42
+    },
+    "GRASSE": {
+      "first_utc": "2017-01-06T17:42:22.773276553200",
+      "last_utc": "2017-12-21T16:33:43.111399259700",
+      "utc_nights": 113
+    }
+  },
+  "raw_source_nights": {
+    "APOLLO": 42,
+    "GRASSE": 114
+  },
+  "grasse_night_count_note": "Raw114 dates become113 eligible dates because February20 contains only the two impossible lunar RTT records.",
+  "comparison_rule": "Use originalsourcefile+line+UTC; normalize APOLLOsubsetfilename only. Compare binary64computedrange.hex() exactly; no numerical tolerance.",
+  "method": "Read/postprocess saved provider inventory and residualCSVs only; no native imports or new solves."
+}
