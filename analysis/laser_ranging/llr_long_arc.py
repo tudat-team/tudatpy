@@ -111,6 +111,10 @@ def read_groups(root, manifest):
         for session in slr.read_slr_data([str(path)]):
             config = session.configuration
 
+            # Monthly lunar products also contain stations outside this declared Grasse dataset.
+            if config.cdp_pad_id != required["cdp_pad_id"]:
+                continue
+
             if any(getattr(config, key) != value for key, value in required.items()):
                 raise ValueError("Grasse header differs from the frozen metadata audit")
             night = date(config.start_year, config.start_month, config.start_day).isoformat()
