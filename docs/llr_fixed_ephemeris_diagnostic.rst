@@ -1,6 +1,44 @@
 Fixed-ephemeris lunar laser ranging diagnostic
 ==============================================
 
+Current primary: paired March--April 2017 arc
+--------------------------------------------
+
+The current primary result uses fixed DE440/ICRF and the independently
+preselected INPOP17a G+IR APOLLO/Grasse station pair. All **306 points** remain:
+69 APOLLO points on nine UTC nights and 237 Grasse points on 24 nights, across
+all five reflectors. Raw one-way RMS about zero is **58.488 mm** for APOLLO and
+**359.583 mm** for Grasse. A retained **+5.43 m** A15 observation dominates the
+Grasse RMS; its origin remains unexplained. These discrepancies do not measure
+intrinsic observation noise. No offset, trend, uncertainty inflation or
+residual-based cut is applied.
+
+The `raw package <../analysis/laser_ranging/results/paired_long_arc_20170301_20170430/README.md>`_
+retains every CSV row, source audit and provenance. The
+`time plots <../analysis/laser_ranging/results/paired_long_arc_time_plots/README.rst>`_
+retain the full range plus labeled central detail, wavelength markers and raw
+nightly means. Two months do not establish a robust monthly period.
+
+Prepare the hash-pinned inputs in
+`llr_long_arc_dataset.json <../analysis/laser_ranging/llr_long_arc_dataset.json>`_
+and the declared kernels, then run from the repository root::
+
+    python analysis/laser_ranging/llr_long_arc.py \
+      --data-root /path/to/longarc-20170304 \
+      --kernel-dir /path/to/llr/kernels \
+      --output /path/to/new-output
+
+Native source ``a366f436c`` passed AtmosphereCorrection **15 cases / 9,880
+assertions** and the Python settings check at actual 532.1/1064.2 nm wavelengths,
+without rounding observed wavelengths or changing formulas/tolerances. Kernel
+SHA-256 is
+``cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef``.
+The recorded driver runtime is **26.6935 s**. Runtime improvements remain
+proposals only; this run contains no optimization implementation.
+
+Historical single-night setup
+-----------------------------
+
 ``analysis/laser_ranging/llr_residuals.py`` compares all eleven APOLLO normal points
 dated 2017-03-09 with a fixed DE440 model. It estimates no parameters and does not
 remove a mean or trend, select points by residual, or inflate their uncertainties.
