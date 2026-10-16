@@ -1,0 +1,64 @@
+{
+  "full_cases": {
+    "jpl_nh": {
+      "count": 306,
+      "source_fields_compared": [
+        "utc_launch",
+        "station",
+        "reflector",
+        "one_way_sigma_m",
+        "source_file",
+        "source_line",
+        "source_session",
+        "source_station_id",
+        "station_cdp",
+        "station_domes",
+        "station_profile",
+        "quality",
+        "epoch_event",
+        "system_configuration",
+        "wavelength_nm",
+        "observed_rtt_s",
+        "photons",
+        "bin_rms_ps_metadata_only",
+        "nearest_measured_weather_s",
+        "weather_mode",
+        "station_system_delay_applied",
+        "calibration_reapplied_m"
+      ],
+      "all_source_fields_exact": true
+    },
+    "zero_explicit_glass": {
+      "count": 306,
+      "source_fields_compared": [
+        "utc_launch",
+        "station",
+        "reflector",
+        "one_way_sigma_m",
+        "source_file",
+        "source_line",
+        "source_session",
+        "source_station_id",
+        "station_cdp",
+        "station_domes",
+        "station_profile",
+        "quality",
+        "epoch_event",
+        "system_configuration",
+        "wavelength_nm",
+        "observed_rtt_s",
+        "photons",
+        "bin_rms_ps_metadata_only",
+        "nearest_measured_weather_s",
+        "weather_mode",
+        "station_system_delay_applied",
+        "calibration_reapplied_m"
+      ],
+      "all_source_fields_exact": true
+    }
+  },
+  "twelve_each_count": 12,
+  "default_equivalence": "controls/default_equivalence.json",
+  "independent_radius_check": "controls/tide_radius_control.json",
+  "rejection": "No points removed, source fields changed or residual correction fitted"
+}

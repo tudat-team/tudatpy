@@ -1,5 +1,6 @@
 {
   "purpose": "Optional coherent INPOP17a G+IR sensitivity; incomplete prism convention, no fitted biases",
+  "fit_release_limit": "The archive is labelled INPOP17a without an explicit G+IR identifier. Its CMR2M, TAUM, KCMB/CMR2M and C32M constants match the published G+IR Table7 values within printed precision; the exact release-to-fit association remains inferred.",
   "lunar_model": "inpop17a",
   "kernels": [
     {

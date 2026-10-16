@@ -1,0 +1,210 @@
+{
+  "analysis_source_revision": "e26fa744306173551e98385684457aa477a1dbb4",
+  "native_source_revision": "a366f436c6f6ff03aa57f8b1610075784196bdf8",
+  "retrieve_source": "git show REV:analysis/laser_ranging/PATH",
+  "source_blobs": {
+    "llr_residuals.py": {
+      "git_blob": "36745f5658817f60f9fbe1aae8dc061a6c5155c7",
+      "sha256": "cd3bf8bb023eda6b32880c92424930ac3e27f54df5ce719129fd992b8d235576"
+    },
+    "llr_long_arc.py": {
+      "git_blob": "30a1497a22d710679b629286a644c989b5c6e39c",
+      "sha256": "d4f084fc4fca9174d81e16dd8864bfe6ed674ae5697e48ee3d850c5f6bfffadb"
+    },
+    "inpop17a_dataset.json": {
+      "git_blob": "0b38810b1b0e8b1d2c1db360de3de72dcd9686b4",
+      "sha256": "8d30f46e071142e97fa0873ed1dee6fc8b986f05b965a96495a48adc4b15ff6a"
+    },
+    "llr_long_arc_dataset.json": {
+      "git_blob": "39eb9d21781e63342eff13e957f5c9e3649a0e0c",
+      "sha256": "10906a8e5ebbf349b7d684844d968690cc500640aae0a634f6f82e722e72c86f"
+    },
+    "llr_station_profiles.json": {
+      "git_blob": "89b7073ab201e95f3c8fd1bae78e5bba9b94a1bb",
+      "sha256": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+    },
+    "plot_llr_residuals.py": {
+      "git_blob": "1a10c5c4c27a01bcf81bbfd9be112cbd392a9954",
+      "sha256": "848673b4b23ba85938fc870e1c7710d639683fe32fac88bbe34404cc891393e7"
+    }
+  },
+  "numerical_threads": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "numpy_version": "1.26.4",
+  "cases": {
+    "twelve/jpl_nh": {
+      "external_directory": "results/llr-inpop17a-twelve-jpl-nh-attempt1",
+      "external_summary_sha256": "44cec913069a8b529cc3f0bd68b2cd5e5cedb64b48637312466362a404ea75f5",
+      "residual_csv_sha256": "d3c96a21e362b15bd9e7aeb4872f87d15ad649c49fb6c3077d3a2574b70ed30d",
+      "source_sha256": {
+        "llr_long_arc.py": "d4f084fc4fca9174d81e16dd8864bfe6ed674ae5697e48ee3d850c5f6bfffadb",
+        "llr_residuals.py": "cd3bf8bb023eda6b32880c92424930ac3e27f54df5ce719129fd992b8d235576",
+        "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+      },
+      "saved_events": {
+        "event_diagnostics_sha256": "af39d86c85ed0d269bed1f6d482533dc8a7179352a3542a8685523289a3bd1b2",
+        "vectors": "Reconstructed at native diagnostic double epochs; not exact solver Time endpoints",
+        "earth_station_motion_origin": "Earth: before the native relativistic_station_motion BCRS spatial map",
+        "moon_station_motion_origin": "Moon: custom lunar spatial map is already included",
+        "future_export": "Source after the executed revision requests SSB and records origin_for_station_motion; ranges are unchanged"
+      }
+    },
+    "twelve/zero_explicit_glass": {
+      "external_directory": "results/llr-inpop17a-twelve-none-attempt1",
+      "external_summary_sha256": "051b4f3ecd6a50de784183b2f1fdea557055f5837ae090e119ae6eb215488121",
+      "residual_csv_sha256": "d1fe5d083e3380fd11bd075ed86a52dddaec63b9aecb13ce2d8dbacb1ce3b193",
+      "source_sha256": {
+        "llr_long_arc.py": "d4f084fc4fca9174d81e16dd8864bfe6ed674ae5697e48ee3d850c5f6bfffadb",
+        "llr_residuals.py": "cd3bf8bb023eda6b32880c92424930ac3e27f54df5ce719129fd992b8d235576",
+        "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+      },
+      "saved_events": {
+        "event_diagnostics_sha256": "05c5818d193abfad94cfcccc520db57d97868c3e635c2c909b0f1f7735f7386a",
+        "vectors": "Reconstructed at native diagnostic double epochs; not exact solver Time endpoints",
+        "earth_station_motion_origin": "Earth: before the native relativistic_station_motion BCRS spatial map",
+        "moon_station_motion_origin": "Moon: custom lunar spatial map is already included",
+        "future_export": "Source after the executed revision requests SSB and records origin_for_station_motion; ranges are unchanged"
+      }
+    },
+    "full/jpl_nh": {
+      "external_directory": "results/llr-inpop17a-full-jpl-nh-attempt1",
+      "external_summary_sha256": "27f383b1d09552d1a4fc79587b559acabd175547bb19bf0295ba41d77bb9ce31",
+      "residual_csv_sha256": "d7303418ca0cb0560ee7a904f3b7d3bd30ad09a09eade2ac713fe6035727e86b",
+      "source_sha256": {
+        "llr_long_arc.py": "d4f084fc4fca9174d81e16dd8864bfe6ed674ae5697e48ee3d850c5f6bfffadb",
+        "llr_residuals.py": "cd3bf8bb023eda6b32880c92424930ac3e27f54df5ce719129fd992b8d235576",
+        "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+      }
+    },
+    "full/zero_explicit_glass": {
+      "external_directory": "results/llr-inpop17a-full-none-attempt1",
+      "external_summary_sha256": "9413f19eecb4da1f3ff0d24b09e4e4ce5637e9a8193cdd9432030091667943fe",
+      "residual_csv_sha256": "e8d6afb4fa4f214efb19035762a09f818423080bb1786fbe51dc470e51cbaaed",
+      "source_sha256": {
+        "llr_long_arc.py": "d4f084fc4fca9174d81e16dd8864bfe6ed674ae5697e48ee3d850c5f6bfffadb",
+        "llr_residuals.py": "cd3bf8bb023eda6b32880c92424930ac3e27f54df5ce719129fd992b8d235576",
+        "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+      }
+    }
+  },
+  "manifest_sha256": "10906a8e5ebbf349b7d684844d968690cc500640aae0a634f6f82e722e72c86f",
+  "ephemeris_manifest_sha256": "8d30f46e071142e97fa0873ed1dee6fc8b986f05b965a96495a48adc4b15ff6a",
+  "kernel_binary_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "kernel_sha256": {
+    "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+    "inpop17a_TDB_m100_p100_spice.tf": "bca00099d09f454ee77f3a0151a9121db0b1ba8e6ca7d62a3bd43b24f6ca6374",
+    "inpop17a_TDB_m100_p100_spice.tpc": "454ab171ada461a342b04585f2397f621719b76e94912c0348f8b0364affc958",
+    "inpop17a_TDB_m100_p100_spice.bpc": "cfedd5548080d1ba51825032bee467f0995686ce9cf45d4c6a14628fffe7d444",
+    "inpop17a_TDB_m100_p100_spice_time.bsp": "82cfdddc859309c1d0821c8814906546e94e629534afbcd4201bd405c9f5f91e",
+    "inpop17a_TDB_m100_p100_spice.bsp": "149588753081f9a9d888e36b87072f60f8f2800971ea291768b4ee6b55787567",
+    "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+  },
+  "kernel_pool": {
+    "load_order": [
+      "pck00011.tpc",
+      "naif0012.tls",
+      "inpop17a_TDB_m100_p100_spice.tf",
+      "inpop17a_TDB_m100_p100_spice.tpc",
+      "inpop17a_TDB_m100_p100_spice.bpc",
+      "inpop17a_TDB_m100_p100_spice_time.bsp",
+      "inpop17a_TDB_m100_p100_spice.bsp",
+      "icrf_spice_alias.tf"
+    ],
+    "actual_native_count": 8
+  },
+  "earth_orientation_resource_sha256": {
+    "README_desaiSibois2016.txt": "7c402db01984d0f561b77758c9b6cb290f746694b9e52c6735c19a9de8e9041f",
+    "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d",
+    "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "desaiSibois2016Ut1OceanTidesAmplitudes.txt": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88",
+    "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "eopc04_08_IAU2000.62-now.txt": "60c35925a5289c618a6054d0a6b2b313afa4dabeef08e348a7cac6a2682e0ea3",
+    "eopc04_14_IAU2000.62-now.txt": "cc838b27572e89ff6d36ee7cbeb6a8f104f1f8e59ddf769e8c93e6515276cd32",
+    "eopc04_20_IAU2000.62-now.txt": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181",
+    "historicalDeltaT.txt": "4a2d068df1cdb5f39ac0e7efa04aafeea5be585afd1c9e2e4380cf8872e1f78e",
+    "polarMotionLibrationAmplitudes.txt": "09bf92da2470901a69b3f3e4a17568ab09fba3df6021e72323b9c83a933a5fb0",
+    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf",
+    "polarMotionLibrationFundamentalArgumentMultipliers.txt": "3e1b8e99338e6713a244a1afc0e821a900bb67b6951fb76a0df5571b1d2b0206",
+    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3",
+    "polarMotionOceanTidesAmplitudes.txt": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076",
+    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+    "utcLibrationAmplitudes.txt": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7",
+    "utcLibrationFundamentalArgumentMultipliers.txt": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5",
+    "utcOceanTidesAmplitudes.txt": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829",
+    "utcOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+  },
+  "command": [
+    "python",
+    "analysis/laser_ranging/llr_long_arc.py",
+    "--data-root",
+    "$DATA_ROOT",
+    "--kernel-dir",
+    "$INPOP_KERNEL_DIR",
+    "--ephemeris",
+    "inpop17a",
+    "--glass-convention",
+    "$CONVENTION",
+    "--output",
+    "$NEW_OUTPUT"
+  ],
+  "twelve_command_addition": [
+    "--control-twelve"
+  ],
+  "current_source_note": "Only docstrings, diagnostic SSB export and release-to-fit caveat changed after this executed revision; the source blob and executed ephemeris manifest remain recoverable in Git.",
+  "provider_archive": {
+    "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop17a/inpop17a_TDB_m100_p100_spice.tar.gz",
+    "sha256": "52afaf265f3d1dd4d03b8e2239574af3d3d8c65c0b57e5a8c56fed0b137b98b2"
+  },
+  "original_de440_comparison": {
+    "csv": "../paired_long_arc_20170301_20170430/residuals.csv",
+    "sha256": "e9b3e9da081d5e12f8d10f7cf9579e250a9fe8c3ef2400722b1c36792816e908",
+    "limit": "Original full DE440 run predates scalar-clock-only lineardrift optimization; one complete11-point default night is bit-exact against the pre-INPOP current core."
+  },
+  "default_equivalence.json_external_sha256": "9e9c2a758c346cae793c37a37eb081ffd268d692d77acf13f6193e2e1e48e820",
+  "tide_radius_control.json_external_sha256": "902f26e51bccc79cb42cf2b96a29dcbe84e77d17f143704e656dbaf5252a43e1",
+  "package_generator_sha256": "4155e0e50069550cc396bbcceb0afaf4d58664e6830a0c533567542a14e3f044",
+  "output_sha256": {
+    "README.md": "a5d53c56b0395c10016f8f1a3e0dec7194d5ee06d77267942b2cd2a14ea0a605",
+    "controls/default_equivalence.json": "9e9c2a758c346cae793c37a37eb081ffd268d692d77acf13f6193e2e1e48e820",
+    "controls/tide_radius_control.json": "902f26e51bccc79cb42cf2b96a29dcbe84e77d17f143704e656dbaf5252a43e1",
+    "full/jpl_nh/figures/plot_summary.json": "be81a871f7ac17df4bc03ea0c5e0d0c8c30ad456a1531b48dbc732b1f3d1d833",
+    "full/jpl_nh/figures/residuals_apollo_time_detail.pdf": "d97ac5fc032c6a1c0af93e801d725b8f87d7716dbc0c9b1a699f5ad4a218ddcf",
+    "full/jpl_nh/figures/residuals_apollo_time_detail.png": "a5b7d46ccc974eb922ee767beec0179ff5e56312d1767456deb05d373f90f98d",
+    "full/jpl_nh/figures/residuals_full_span.pdf": "433e18bc36102d90acd666b1593ea9b5bfb15f135f30fc4507248ac3eb84dcd2",
+    "full/jpl_nh/figures/residuals_full_span.png": "e841f3b86143d7a21bdc4307d21982543effc5255665cf985733cf172a1673fe",
+    "full/jpl_nh/figures/residuals_grasse_time_detail.pdf": "8d623c9fd8f476ff352b370df86d02ce0e8627ca2c5b5e6a06343891ed0dfb76",
+    "full/jpl_nh/figures/residuals_grasse_time_detail.png": "0ee3f36bfb2d665730b56e3e89905a1a4cb87992fa6e81907a4b60ee044d163e",
+    "full/jpl_nh/figures/residuals_y_detail.pdf": "ba9263c8dd5bb772cb96bc3434a5029bbcb7555c32a8055233346aa57683cd5c",
+    "full/jpl_nh/figures/residuals_y_detail.png": "d7af814bcc2cd1ddbc6d1bb0c31a7f8ad603081058e980aced5a42b1c3a6fa1e",
+    "full/jpl_nh/residuals.csv": "d7303418ca0cb0560ee7a904f3b7d3bd30ad09a09eade2ac713fe6035727e86b",
+    "full/zero_explicit_glass/figures/plot_summary.json": "136171c6e12523b73c54420b45002a215c8d49714962331e7327b922297e1192",
+    "full/zero_explicit_glass/figures/residuals_apollo_time_detail.pdf": "af2ddcc0e7090210e453c40aabeb0489388875c93a498fac25da24d5af8c62f8",
+    "full/zero_explicit_glass/figures/residuals_apollo_time_detail.png": "8b3fa4c58c1ff0f9c5a01a58ef87ea13b39ccd5495951a8088c85d0f7d2779c8",
+    "full/zero_explicit_glass/figures/residuals_full_span.pdf": "0916aed72e916cf20b355e3650a7ac68a45a97ad5bb73a71d117321663f261ba",
+    "full/zero_explicit_glass/figures/residuals_full_span.png": "cb9414076c01ca21a4a17b35739301e63f69c2bd2494e9c2b52531c466d097f2",
+    "full/zero_explicit_glass/figures/residuals_grasse_time_detail.pdf": "81ce2edfcba69c40e15346b4764ff327de14e48787949c3074f4c40ec0dce696",
+    "full/zero_explicit_glass/figures/residuals_grasse_time_detail.png": "98c63a082fbf349b8b7d26db4d72eb91e059b66440e334de32e4f21b8df733a2",
+    "full/zero_explicit_glass/figures/residuals_y_detail.pdf": "00e8e2b4ca168073b9285431674d240bd38f426bc2a0a33e2a576cf847c69f44",
+    "full/zero_explicit_glass/figures/residuals_y_detail.png": "6e13a89e8594462bd225c8db87cc4e2c486cb7d3b7c8d05d91939e7882154440",
+    "full/zero_explicit_glass/residuals.csv": "e8d6afb4fa4f214efb19035762a09f818423080bb1786fbe51dc470e51cbaaed",
+    "nightly_model_comparison.csv": "0c3f875932fbab3399c9133b6ddbae17c33188b54473a2268b0353e71d37217c",
+    "summary.json": "ea14f5d61719874586f9181511ba7745d22d75484763175fd096f24b09aebca7",
+    "twelve/jpl_nh/figures/plot_summary.json": "18bf6ac6b3f8623af5d90837b4a6ad8c041551a83849d9ab5ce82046ea2c1954",
+    "twelve/jpl_nh/figures/residuals_full_span.pdf": "1e117c1469c2c80a93730d457817a7d3e1a4becfa0605ace046269ad54a12f02",
+    "twelve/jpl_nh/figures/residuals_full_span.png": "f2cf531ebeaa5b2e5aa31abb563a26c7ef67c932b8cc2f4476ffeca4dadce9f7",
+    "twelve/jpl_nh/figures/residuals_y_detail.pdf": "278306d6b131144ebcd45f4e47eb0ffe4464e25982b12c9e1c8bbb3d3a11d2f4",
+    "twelve/jpl_nh/figures/residuals_y_detail.png": "9ba09543ba6d94fe5638634eb1a720e98c3dbad569b4c4152a4af8d86b818c0f",
+    "twelve/jpl_nh/residuals.csv": "d3c96a21e362b15bd9e7aeb4872f87d15ad649c49fb6c3077d3a2574b70ed30d",
+    "twelve/zero_explicit_glass/figures/plot_summary.json": "38fe68ecafa29f91631e3c70d47bd93bc2ddc6c6913366c1ecfecfa664a59d93",
+    "twelve/zero_explicit_glass/figures/residuals_full_span.pdf": "6a4c8450390cd39d7221bfa7a0c6321294077cc911f22f230281c6a0737fd46a",
+    "twelve/zero_explicit_glass/figures/residuals_full_span.png": "f0714981deb5520dd308ce04b8495f420a8ab4664e7b9c4d02df1198d64a5e4a",
+    "twelve/zero_explicit_glass/figures/residuals_y_detail.pdf": "0ae3464d7cb2a877703d57e3d433246bd43c5b789e2b6dcdfb5458e53647f5dd",
+    "twelve/zero_explicit_glass/figures/residuals_y_detail.png": "614c59060bef3a0337765b880c5e849e736fd04fa967af4d588a49700ab53ffa",
+    "twelve/zero_explicit_glass/residuals.csv": "d1fe5d083e3380fd11bd075ed86a52dddaec63b9aecb13ce2d8dbacb1ce3b193",
+    "verification.json": "a52f9004911132f847727450a40b1490fd942bff18e67009d44de2949feac52e"
+  }
+}

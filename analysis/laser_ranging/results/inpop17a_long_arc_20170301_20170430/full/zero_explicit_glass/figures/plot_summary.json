@@ -1,0 +1,150 @@
+{
+  "inputs": [
+    {
+      "path": "../residuals.csv",
+      "sha256": "e8d6afb4fa4f214efb19035762a09f818423080bb1786fbe51dc470e51cbaaed",
+      "rows": 306,
+      "station_override": null
+    }
+  ],
+  "points_plotted": 306,
+  "additional_y_detail_mm": [
+    -200.0,
+    200.0
+  ],
+  "statistics": [
+    {
+      "station": "APOLLO",
+      "reflector": "A11",
+      "points": 12,
+      "utc_nights": 7,
+      "first_utc": "2017-03-09T01:30:30+00:00",
+      "last_utc": "2017-04-15T10:11:10+00:00",
+      "raw_mean_mm": -9.27737851937612,
+      "raw_rms_mm": 15.807171543507428,
+      "raw_peak_to_peak_mm": 40.76850414276123,
+      "descriptive_nightly_mean_slope_mm_per_day": 0.11934115539535428,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "points": 15,
+      "utc_nights": 8,
+      "first_utc": "2017-03-02T01:53:10+00:00",
+      "last_utc": "2017-04-15T09:54:00+00:00",
+      "raw_mean_mm": -1.3473272323608398,
+      "raw_rms_mm": 10.881414660734324,
+      "raw_peak_to_peak_mm": 35.75313091278076,
+      "descriptive_nightly_mean_slope_mm_per_day": 0.32639577283412896,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "points": 30,
+      "utc_nights": 9,
+      "first_utc": "2017-03-02T01:22:55+00:00",
+      "last_utc": "2017-04-21T12:14:15+00:00",
+      "raw_mean_mm": -3.401823838551839,
+      "raw_rms_mm": 10.508311719241037,
+      "raw_peak_to_peak_mm": 38.95282745361328,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.00421987281215604,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L1",
+      "points": 7,
+      "utc_nights": 5,
+      "first_utc": "2017-03-02T02:01:05+00:00",
+      "last_utc": "2017-04-03T02:14:30+00:00",
+      "raw_mean_mm": 0.9693333080836705,
+      "raw_rms_mm": 11.077049117484863,
+      "raw_peak_to_peak_mm": 35.89129447937012,
+      "descriptive_nightly_mean_slope_mm_per_day": 0.0929717343983337,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L2",
+      "points": 5,
+      "utc_nights": 4,
+      "first_utc": "2017-03-02T01:42:35+00:00",
+      "last_utc": "2017-04-03T02:29:20+00:00",
+      "raw_mean_mm": -1.0468721389770508,
+      "raw_rms_mm": 17.67961722257011,
+      "raw_peak_to_peak_mm": 45.62646150588989,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.43028526386279875,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "points": 17,
+      "utc_nights": 10,
+      "first_utc": "2017-03-22T07:11:54.234447+00:00",
+      "last_utc": "2017-04-21T07:07:44.859617+00:00",
+      "raw_mean_mm": -19.359876127804025,
+      "raw_rms_mm": 23.67857140490538,
+      "raw_peak_to_peak_mm": 44.45880651473999,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.46768488588996576,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "points": 22,
+      "utc_nights": 11,
+      "first_utc": "2017-03-07T17:14:10.773567+00:00",
+      "last_utc": "2017-04-21T07:20:39.755150+00:00",
+      "raw_mean_mm": -10.663525624708697,
+      "raw_rms_mm": 39.75285824489242,
+      "raw_peak_to_peak_mm": 194.2782998085022,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.035918999824213156,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "points": 117,
+      "utc_nights": 24,
+      "first_utc": "2017-03-01T14:05:45.063187+00:00",
+      "last_utc": "2017-04-21T06:34:47.167247+00:00",
+      "raw_mean_mm": 32.03128290991498,
+      "raw_rms_mm": 506.5440296626554,
+      "raw_peak_to_peak_mm": 5547.212719917297,
+      "descriptive_nightly_mean_slope_mm_per_day": -1.157447319725032,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "points": 44,
+      "utc_nights": 11,
+      "first_utc": "2017-03-02T13:20:11.337811+00:00",
+      "last_utc": "2017-04-21T07:33:16.503831+00:00",
+      "raw_mean_mm": -1.2568655339154329,
+      "raw_rms_mm": 10.848963678673808,
+      "raw_peak_to_peak_mm": 51.31828784942627,
+      "descriptive_nightly_mean_slope_mm_per_day": 0.08514973387032093,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "points": 37,
+      "utc_nights": 10,
+      "first_utc": "2017-03-02T13:04:33.811882+00:00",
+      "last_utc": "2017-04-21T07:53:53.202817+00:00",
+      "raw_mean_mm": -18.274091385506296,
+      "raw_rms_mm": 23.043106966512678,
+      "raw_peak_to_peak_mm": 54.71694469451904,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.6364641646876212,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    }
+  ],
+  "plot_script_sha256": "848673b4b23ba85938fc870e1c7710d639683fe32fac88bbe34404cc891393e7",
+  "wavelength_markers": "For stations with mixed wavelengths: triangles >=800nm, circles <800nm; raw nightly means/statistics retain all wavelengths unchanged",
+  "interpretation": "Every raw point retained; no offset, trend or outlier removed. Slopes describe unweighted nightly means separately by station and reflector. Two months do not establish a robust monthly period. Plot timestamps use datetime display precision; source CSV bytes are unchanged."
+}

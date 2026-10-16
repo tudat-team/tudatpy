@@ -292,7 +292,7 @@ def write_csv(path, rows):
 
 
 def event_vectors(point, bodies, diagnostic):
-    """Retain reconstructed surface and body vectors at the native diagnostic event doubles."""
+    """Reconstruct station vectors with BCRS spatial terms at the diagnostic event doubles."""
 
     rows = []
     reflector = model.REFLECTORS[point["reflector"]][0]
@@ -303,13 +303,14 @@ def event_vectors(point, bodies, diagnostic):
         diagnostic["link_end_epochs_tdb_s"],
     ):
         body = bodies.get(body_name)
-        local = body.get_ground_station(name).station_state.get_cartesian_position(epoch, body_name)
+        local = body.get_ground_station(name).station_state.get_cartesian_position(epoch, "SSB")
         rotation = body.rotation_model.body_fixed_to_inertial_rotation(epoch)
         rows.append(
             dict(
                 body=body_name,
                 station=name,
                 epoch_tdb_s=epoch,
+                origin_for_station_motion="SSB",
                 body_fixed_position_m=np.asarray(local).ravel().tolist(),
                 rotation_to_icrf=np.asarray(rotation).tolist(),
                 body_states={

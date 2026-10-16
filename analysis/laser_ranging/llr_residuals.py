@@ -162,7 +162,7 @@ def create_environment(
     meteorological_history=None,
     lunar_model="de440",
 ):
-    """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
+    """Assemble native tides and the selected published terrestrial/lunar spatial maps."""
 
     settings = setup.BodyListSettings("SSB", "ICRF")
 

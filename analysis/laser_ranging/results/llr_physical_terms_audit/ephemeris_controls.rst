@@ -8,6 +8,10 @@ of the misprinted Lunokhod rows. This is a proposed fixed published solution,
 not a new fit or an exact replay of its historical reduction. No implementation
 or residual calculation was performed for this audit.
 
+The subsequently reviewed implementation and both predeclared optical
+sensitivities are retained in the `306-point results <../inpop17a_long_arc_20170301_20170430/README.md>`_.
+They preserve the source limitations below and do not change the DE440 default.
+
 INPOP17a reflector table repair for review
 ----------------------------------------
 

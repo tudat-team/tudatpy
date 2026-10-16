@@ -1,0 +1,98 @@
+{
+  "inputs": [
+    {
+      "path": "../residuals.csv",
+      "sha256": "d3c96a21e362b15bd9e7aeb4872f87d15ad649c49fb6c3077d3a2574b70ed30d",
+      "rows": 12,
+      "station_override": null
+    }
+  ],
+  "points_plotted": 12,
+  "additional_y_detail_mm": [
+    -200.0,
+    200.0
+  ],
+  "statistics": [
+    {
+      "station": "APOLLO",
+      "reflector": "A11",
+      "points": 2,
+      "utc_nights": 2,
+      "first_utc": "2017-03-22T12:22:35+00:00",
+      "last_utc": "2017-04-07T02:19:05+00:00",
+      "raw_mean_mm": -53.31912636756897,
+      "raw_rms_mm": 56.80026159313375,
+      "raw_peak_to_peak_mm": 39.1581654548645,
+      "descriptive_nightly_mean_slope_mm_per_day": null,
+      "trend_scope": "Fewer than three UTC nights; no multi-night trend assessment, including any two-point sequence"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "points": 2,
+      "utc_nights": 2,
+      "first_utc": "2017-03-22T12:31:25+00:00",
+      "last_utc": "2017-04-07T02:27:10+00:00",
+      "raw_mean_mm": -42.9796576499939,
+      "raw_rms_mm": 46.54872937503611,
+      "raw_peak_to_peak_mm": 35.75098514556885,
+      "descriptive_nightly_mean_slope_mm_per_day": null,
+      "trend_scope": "Fewer than three UTC nights; no multi-night trend assessment, including any two-point sequence"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "points": 2,
+      "utc_nights": 2,
+      "first_utc": "2017-03-22T12:06:05+00:00",
+      "last_utc": "2017-04-07T02:06:40+00:00",
+      "raw_mean_mm": -54.5898973941803,
+      "raw_rms_mm": 55.516622162817605,
+      "raw_peak_to_peak_mm": 20.202815532684326,
+      "descriptive_nightly_mean_slope_mm_per_day": null,
+      "trend_scope": "Fewer than three UTC nights; no multi-night trend assessment, including any two-point sequence"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "points": 2,
+      "utc_nights": 2,
+      "first_utc": "2017-03-22T07:11:54.234447+00:00",
+      "last_utc": "2017-04-06T18:30:51.634879+00:00",
+      "raw_mean_mm": -66.21545553207397,
+      "raw_rms_mm": 66.32857713321836,
+      "raw_peak_to_peak_mm": 7.744312286376953,
+      "descriptive_nightly_mean_slope_mm_per_day": null,
+      "trend_scope": "Fewer than three UTC nights; no multi-night trend assessment, including any two-point sequence"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "points": 2,
+      "utc_nights": 2,
+      "first_utc": "2017-03-22T06:59:40.541099+00:00",
+      "last_utc": "2017-04-06T18:17:32.876838+00:00",
+      "raw_mean_mm": -49.42485690116882,
+      "raw_rms_mm": 49.814587997829975,
+      "raw_peak_to_peak_mm": 12.43811845779419,
+      "descriptive_nightly_mean_slope_mm_per_day": null,
+      "trend_scope": "Fewer than three UTC nights; no multi-night trend assessment, including any two-point sequence"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "points": 2,
+      "utc_nights": 2,
+      "first_utc": "2017-03-22T05:41:42.191936+00:00",
+      "last_utc": "2017-04-06T17:53:13.868308+00:00",
+      "raw_mean_mm": -72.42262363433838,
+      "raw_rms_mm": 72.58420083939383,
+      "raw_peak_to_peak_mm": 9.680867195129395,
+      "descriptive_nightly_mean_slope_mm_per_day": null,
+      "trend_scope": "Fewer than three UTC nights; no multi-night trend assessment, including any two-point sequence"
+    }
+  ],
+  "plot_script_sha256": "848673b4b23ba85938fc870e1c7710d639683fe32fac88bbe34404cc891393e7",
+  "wavelength_markers": "For stations with mixed wavelengths: triangles >=800nm, circles <800nm; raw nightly means/statistics retain all wavelengths unchanged",
+  "interpretation": "Every raw point retained; no offset, trend or outlier removed. Slopes describe unweighted nightly means separately by station and reflector. Two months do not establish a robust monthly period. Plot timestamps use datetime display precision; source CSV bytes are unchanged."
+}

@@ -1,0 +1,749 @@
+{
+  "cases": {
+    "twelve/jpl_nh": {
+      "count": 12,
+      "station_statistics": {
+        "APOLLO": {
+          "count": 6,
+          "mean_m": -0.05029622713724772,
+          "rms_about_zero_m": 0.05315119710112472,
+          "scatter_about_mean_m": 0.017185438284809448,
+          "median_absolute_residual_m": 0.05267181992530823,
+          "percentile95_absolute_residual_m": 0.07084648311138153,
+          "minimum_m": -0.07289820909500122,
+          "maximum_m": -0.025104165077209473
+        },
+        "GRASSE": {
+          "count": 6,
+          "mean_m": -0.0626876453558604,
+          "rms_about_zero_m": 0.06363814247604525,
+          "scatter_about_mean_m": 0.010957750569314393,
+          "median_absolute_residual_m": 0.06496274471282959,
+          "percentile95_absolute_residual_m": 0.07546919584274292,
+          "minimum_m": -0.07726305723190308,
+          "maximum_m": -0.04320579767227173
+        }
+      },
+      "station_reflector_statistics": {
+        "APOLLO/A11": {
+          "count": 2,
+          "mean_m": -0.05331912636756897,
+          "rms_about_zero_m": 0.05680026159313375,
+          "scatter_about_mean_m": 0.01957908272743225,
+          "median_absolute_residual_m": 0.05331912636756897,
+          "percentile95_absolute_residual_m": 0.070940300822258,
+          "minimum_m": -0.07289820909500122,
+          "maximum_m": -0.03374004364013672
+        },
+        "APOLLO/A14": {
+          "count": 2,
+          "mean_m": -0.042979657649993896,
+          "rms_about_zero_m": 0.04654872937503611,
+          "scatter_about_mean_m": 0.017875492572784424,
+          "median_absolute_residual_m": 0.042979657649993896,
+          "percentile95_absolute_residual_m": 0.05906760096549988,
+          "minimum_m": -0.06085515022277832,
+          "maximum_m": -0.025104165077209473
+        },
+        "APOLLO/A15": {
+          "count": 2,
+          "mean_m": -0.0545898973941803,
+          "rms_about_zero_m": 0.0555166221628176,
+          "scatter_about_mean_m": 0.010101407766342163,
+          "median_absolute_residual_m": 0.0545898973941803,
+          "percentile95_absolute_residual_m": 0.06368116438388824,
+          "minimum_m": -0.06469130516052246,
+          "maximum_m": -0.044488489627838135
+        },
+        "GRASSE/A11": {
+          "count": 2,
+          "mean_m": -0.06621545553207397,
+          "rms_about_zero_m": 0.06632857713321837,
+          "scatter_about_mean_m": 0.0038721561431884766,
+          "median_absolute_residual_m": 0.06621545553207397,
+          "percentile95_absolute_residual_m": 0.06970039606094361,
+          "minimum_m": -0.07008761167526245,
+          "maximum_m": -0.0623432993888855
+        },
+        "GRASSE/A14": {
+          "count": 2,
+          "mean_m": -0.04942485690116882,
+          "rms_about_zero_m": 0.04981458799782997,
+          "scatter_about_mean_m": 0.006219059228897095,
+          "median_absolute_residual_m": 0.04942485690116882,
+          "percentile95_absolute_residual_m": 0.05502201020717621,
+          "minimum_m": -0.05564391613006592,
+          "maximum_m": -0.04320579767227173
+        },
+        "GRASSE/A15": {
+          "count": 2,
+          "mean_m": -0.07242262363433838,
+          "rms_about_zero_m": 0.07258420083939383,
+          "scatter_about_mean_m": 0.004840433597564697,
+          "median_absolute_residual_m": 0.07242262363433838,
+          "percentile95_absolute_residual_m": 0.07677901387214661,
+          "minimum_m": -0.07726305723190308,
+          "maximum_m": -0.06758219003677368
+        }
+      },
+      "station_wavelength_statistics": {
+        "APOLLO/532.0": {
+          "count": 6,
+          "mean_m": -0.05029622713724772,
+          "rms_about_zero_m": 0.05315119710112472,
+          "scatter_about_mean_m": 0.017185438284809448,
+          "median_absolute_residual_m": 0.05267181992530823,
+          "percentile95_absolute_residual_m": 0.07084648311138153,
+          "minimum_m": -0.07289820909500122,
+          "maximum_m": -0.025104165077209473
+        },
+        "GRASSE/1064.2": {
+          "count": 6,
+          "mean_m": -0.0626876453558604,
+          "rms_about_zero_m": 0.06363814247604525,
+          "scatter_about_mean_m": 0.010957750569314393,
+          "median_absolute_residual_m": 0.06496274471282959,
+          "percentile95_absolute_residual_m": 0.07546919584274292,
+          "minimum_m": -0.07726305723190308,
+          "maximum_m": -0.04320579767227173
+        }
+      },
+      "extreme": {
+        "utc_launch": "2017-03-22T05:41:42.191936249600",
+        "station": "GRASSE",
+        "reflector": "A15",
+        "one_way_residual_m": "-0.07726305723190308",
+        "one_way_sigma_m": "",
+        "source_file": "apollo15_201703.npt",
+        "source_line": "301",
+        "source_session": "34",
+        "source_station_id": "GRSM",
+        "station_cdp": "7845",
+        "station_domes": "10002S002",
+        "station_profile": "inpop17a-grasse-gir",
+        "quality": "0",
+        "epoch_event": "2",
+        "system_configuration": "me09",
+        "wavelength_nm": "1064.2",
+        "observed_rtt_s": "2.620108066359",
+        "computed_full_two_way_range_m": "785488637.5939178",
+        "photons": "26",
+        "bin_rms_ps_metadata_only": "204.8",
+        "nearest_measured_weather_s": "555.1919362545013",
+        "weather_mode": "interpolated",
+        "station_system_delay_applied": "1",
+        "calibration_reapplied_m": "0.0",
+        "lunar_phase_angle_deg": "107.29064102623774",
+        "transmit_elevation_deg": "24.917767390025087",
+        "receive_elevation_deg": "24.92050239028158",
+        "earth_direction_pa_x": "0.9927205691981462",
+        "earth_direction_pa_y": "-0.08856988403839652",
+        "earth_direction_pa_z": "-0.08161646361080492",
+        "sun_direction_pa_x": "-0.38292110158302484",
+        "sun_direction_pa_y": "-0.9236819514842447",
+        "sun_direction_pa_z": "-0.013530796898201304",
+        "transmit_los_pa_x": "0.9937084528389353",
+        "transmit_los_pa_y": "-0.08792659604278913",
+        "transmit_los_pa_z": "-0.0693716402053332",
+        "receive_los_pa_x": "0.9937132654642927",
+        "receive_los_pa_y": "-0.08786550286456728",
+        "receive_los_pa_z": "-0.06938010843641855"
+      },
+      "timing_seconds": {
+        "setup_seconds": 1.3594073909334838,
+        "solver_seconds": 1.311790267995093,
+        "total_seconds": 3.0198334159795195
+      }
+    },
+    "twelve/zero_explicit_glass": {
+      "count": 12,
+      "station_statistics": {
+        "APOLLO": {
+          "count": 6,
+          "mean_m": -0.010267704725265503,
+          "rms_about_zero_m": 0.020020108594723536,
+          "scatter_about_mean_m": 0.017186593258097533,
+          "median_absolute_residual_m": 0.01787629723548889,
+          "percentile95_absolute_residual_m": 0.030819863080978394,
+          "minimum_m": -0.03287160396575928,
+          "maximum_m": 0.014923572540283203
+        },
+        "GRASSE": {
+          "count": 6,
+          "mean_m": -0.02265665928522746,
+          "rms_about_zero_m": 0.025165990781286764,
+          "scatter_about_mean_m": 0.010954582695699856,
+          "median_absolute_residual_m": 0.024928659200668335,
+          "percentile95_absolute_residual_m": 0.035439521074295044,
+          "minimum_m": -0.03723698854446411,
+          "maximum_m": -0.003181278705596924
+        }
+      },
+      "station_reflector_statistics": {
+        "APOLLO/A11": {
+          "count": 2,
+          "mean_m": -0.013291418552398682,
+          "rms_about_zero_m": 0.02366527979882399,
+          "scatter_about_mean_m": 0.019580185413360596,
+          "median_absolute_residual_m": 0.019580185413360596,
+          "percentile95_absolute_residual_m": 0.031542462110519406,
+          "minimum_m": -0.03287160396575928,
+          "maximum_m": 0.006288766860961914
+        },
+        "APOLLO/A14": {
+          "count": 2,
+          "mean_m": -0.0029527246952056885,
+          "rms_about_zero_m": 0.018118515004746535,
+          "scatter_about_mean_m": 0.01787629723548889,
+          "median_absolute_residual_m": 0.01787629723548889,
+          "percentile95_absolute_residual_m": 0.020533749461174013,
+          "minimum_m": -0.02082902193069458,
+          "maximum_m": 0.014923572540283203
+        },
+        "APOLLO/A15": {
+          "count": 2,
+          "mean_m": -0.014558970928192139,
+          "rms_about_zero_m": 0.017722533410878854,
+          "scatter_about_mean_m": 0.010105669498443604,
+          "median_absolute_residual_m": 0.014558970928192139,
+          "percentile95_absolute_residual_m": 0.023654073476791382,
+          "minimum_m": -0.024664640426635742,
+          "maximum_m": -0.004453301429748535
+        },
+        "GRASSE/A11": {
+          "count": 2,
+          "mean_m": -0.026181906461715698,
+          "rms_about_zero_m": 0.02646567760963391,
+          "scatter_about_mean_m": 0.0038652122020721436,
+          "median_absolute_residual_m": 0.026181906461715698,
+          "percentile95_absolute_residual_m": 0.029660597443580627,
+          "minimum_m": -0.030047118663787842,
+          "maximum_m": -0.022316694259643555
+        },
+        "GRASSE/A14": {
+          "count": 2,
+          "mean_m": -0.009399265050888062,
+          "rms_about_zero_m": 0.011269850828075445,
+          "scatter_about_mean_m": 0.006217986345291138,
+          "median_absolute_residual_m": 0.009399265050888062,
+          "percentile95_absolute_residual_m": 0.014995452761650084,
+          "minimum_m": -0.0156172513961792,
+          "maximum_m": -0.003181278705596924
+        },
+        "GRASSE/A15": {
+          "count": 2,
+          "mean_m": -0.03238880634307861,
+          "rms_about_zero_m": 0.03274965109718393,
+          "scatter_about_mean_m": 0.004848182201385498,
+          "median_absolute_residual_m": 0.03238880634307861,
+          "percentile95_absolute_residual_m": 0.03675217032432556,
+          "minimum_m": -0.03723698854446411,
+          "maximum_m": -0.027540624141693115
+        }
+      },
+      "station_wavelength_statistics": {
+        "APOLLO/532.0": {
+          "count": 6,
+          "mean_m": -0.010267704725265503,
+          "rms_about_zero_m": 0.020020108594723536,
+          "scatter_about_mean_m": 0.017186593258097533,
+          "median_absolute_residual_m": 0.01787629723548889,
+          "percentile95_absolute_residual_m": 0.030819863080978394,
+          "minimum_m": -0.03287160396575928,
+          "maximum_m": 0.014923572540283203
+        },
+        "GRASSE/1064.2": {
+          "count": 6,
+          "mean_m": -0.02265665928522746,
+          "rms_about_zero_m": 0.025165990781286764,
+          "scatter_about_mean_m": 0.010954582695699856,
+          "median_absolute_residual_m": 0.024928659200668335,
+          "percentile95_absolute_residual_m": 0.035439521074295044,
+          "minimum_m": -0.03723698854446411,
+          "maximum_m": -0.003181278705596924
+        }
+      },
+      "extreme": {
+        "utc_launch": "2017-03-22T05:41:42.191936249600",
+        "station": "GRASSE",
+        "reflector": "A15",
+        "one_way_residual_m": "-0.03723698854446411",
+        "one_way_sigma_m": "",
+        "source_file": "apollo15_201703.npt",
+        "source_line": "301",
+        "source_session": "34",
+        "source_station_id": "GRSM",
+        "station_cdp": "7845",
+        "station_domes": "10002S002",
+        "station_profile": "inpop17a-grasse-gir",
+        "quality": "0",
+        "epoch_event": "2",
+        "system_configuration": "me09",
+        "wavelength_nm": "1064.2",
+        "observed_rtt_s": "2.620108066359",
+        "computed_full_two_way_range_m": "785488637.5138657",
+        "photons": "26",
+        "bin_rms_ps_metadata_only": "204.8",
+        "nearest_measured_weather_s": "555.1919362545013",
+        "weather_mode": "interpolated",
+        "station_system_delay_applied": "1",
+        "calibration_reapplied_m": "0.0",
+        "lunar_phase_angle_deg": "107.29064102623774",
+        "transmit_elevation_deg": "24.917767390025073",
+        "receive_elevation_deg": "24.92050239028158",
+        "earth_direction_pa_x": "0.9927205691981462",
+        "earth_direction_pa_y": "-0.08856988403839652",
+        "earth_direction_pa_z": "-0.08161646361080492",
+        "sun_direction_pa_x": "-0.38292110158302484",
+        "sun_direction_pa_y": "-0.9236819514842447",
+        "sun_direction_pa_z": "-0.013530796898201304",
+        "transmit_los_pa_x": "0.9937084528389353",
+        "transmit_los_pa_y": "-0.08792659604278913",
+        "transmit_los_pa_z": "-0.0693716402053332",
+        "receive_los_pa_x": "0.9937132654642927",
+        "receive_los_pa_y": "-0.08786550286456728",
+        "receive_los_pa_z": "-0.06938010843641855"
+      },
+      "timing_seconds": {
+        "setup_seconds": 1.6423880259972066,
+        "solver_seconds": 1.207837663940154,
+        "total_seconds": 3.243894647981506
+      }
+    },
+    "full/jpl_nh": {
+      "count": 306,
+      "station_statistics": {
+        "APOLLO": {
+          "count": 69,
+          "mean_m": -0.047439327274543655,
+          "rms_about_zero_m": 0.04940762369657839,
+          "scatter_about_mean_m": 0.013806647206379726,
+          "median_absolute_residual_m": 0.04562997817993164,
+          "percentile95_absolute_residual_m": 0.07124962806701658,
+          "minimum_m": -0.09192860126495361,
+          "maximum_m": -0.025104165077209473
+        },
+        "GRASSE": {
+          "count": 237,
+          "mean_m": -0.037637090381187725,
+          "rms_about_zero_m": 0.35874943429370587,
+          "scatter_about_mean_m": 0.3567696820550932,
+          "median_absolute_residual_m": 0.058571040630340576,
+          "percentile95_absolute_residual_m": 0.09722847938537596,
+          "minimum_m": -0.2223333716392517,
+          "maximum_m": 5.434879779815674
+        }
+      },
+      "station_reflector_statistics": {
+        "APOLLO/A11": {
+          "count": 12,
+          "mean_m": -0.04930326839288076,
+          "rms_about_zero_m": 0.050937269428461635,
+          "scatter_about_mean_m": 0.012798169502208424,
+          "median_absolute_residual_m": 0.0498751699924469,
+          "percentile95_absolute_residual_m": 0.06806108951568603,
+          "minimum_m": -0.0728987455368042,
+          "maximum_m": -0.032129764556884766
+        },
+        "APOLLO/A14": {
+          "count": 15,
+          "mean_m": -0.0413732369740804,
+          "rms_about_zero_m": 0.04275895126137707,
+          "scatter_about_mean_m": 0.010797368904478799,
+          "median_absolute_residual_m": 0.04105955362319946,
+          "percentile95_absolute_residual_m": 0.05950331091880798,
+          "minimum_m": -0.0608556866645813,
+          "maximum_m": -0.025104165077209473
+        },
+        "APOLLO/A15": {
+          "count": 30,
+          "mean_m": -0.04342840512593587,
+          "rms_about_zero_m": 0.04455191231025168,
+          "scatter_about_mean_m": 0.009942158654836598,
+          "median_absolute_residual_m": 0.043939948081970215,
+          "percentile95_absolute_residual_m": 0.06100814938545227,
+          "minimum_m": -0.06469076871871948,
+          "maximum_m": -0.025736868381500244
+        },
+        "APOLLO/L1": {
+          "count": 7,
+          "mean_m": -0.062344763960157125,
+          "rms_about_zero_m": 0.06331369420984798,
+          "scatter_about_mean_m": 0.011034232245626838,
+          "median_absolute_residual_m": 0.06486707925796509,
+          "percentile95_absolute_residual_m": 0.07729667425155638,
+          "minimum_m": -0.08094841241836548,
+          "maximum_m": -0.0450587272644043
+        },
+        "APOLLO/L2": {
+          "count": 5,
+          "mean_m": -0.06436206102371216,
+          "rms_about_zero_m": 0.06673841283941907,
+          "scatter_about_mean_m": 0.0176505197970113,
+          "median_absolute_residual_m": 0.053652822971343994,
+          "percentile95_absolute_residual_m": 0.08920440673828124,
+          "minimum_m": -0.09192860126495361,
+          "maximum_m": -0.04629462957382202
+        },
+        "GRASSE/A11": {
+          "count": 17,
+          "mean_m": -0.059388690135058236,
+          "rms_about_zero_m": 0.060933687708503693,
+          "scatter_about_mean_m": 0.013634433680923137,
+          "median_absolute_residual_m": 0.06002235412597656,
+          "percentile95_absolute_residual_m": 0.08379158973693848,
+          "minimum_m": -0.08396029472351074,
+          "maximum_m": -0.03950148820877075
+        },
+        "GRASSE/A14": {
+          "count": 22,
+          "mean_m": -0.05068947510285811,
+          "rms_about_zero_m": 0.06353013482325369,
+          "scatter_about_mean_m": 0.038296933878021085,
+          "median_absolute_residual_m": 0.042022258043289185,
+          "percentile95_absolute_residual_m": 0.05557079613208771,
+          "minimum_m": -0.2223333716392517,
+          "maximum_m": -0.028047561645507812
+        },
+        "GRASSE/A15": {
+          "count": 117,
+          "mean_m": -0.00799487645809467,
+          "rms_about_zero_m": 0.5055936647138711,
+          "scatter_about_mean_m": 0.5055304498734197,
+          "median_absolute_residual_m": 0.05469101667404175,
+          "percentile95_absolute_residual_m": 0.07743668556213378,
+          "minimum_m": -0.11233502626419067,
+          "maximum_m": 5.434879779815674
+        },
+        "GRASSE/L1": {
+          "count": 44,
+          "mean_m": -0.06456866995854811,
+          "rms_about_zero_m": 0.06546148110297768,
+          "scatter_about_mean_m": 0.01077461683678781,
+          "median_absolute_residual_m": 0.06479868292808533,
+          "percentile95_absolute_residual_m": 0.07931345105171204,
+          "minimum_m": -0.09860807657241821,
+          "maximum_m": -0.04727381467819214
+        },
+        "GRASSE/L2": {
+          "count": 37,
+          "mean_m": -0.08158897870295756,
+          "rms_about_zero_m": 0.0827879445261344,
+          "scatter_about_mean_m": 0.014038600823110727,
+          "median_absolute_residual_m": 0.07988154888153076,
+          "percentile95_absolute_residual_m": 0.10507819652557374,
+          "minimum_m": -0.11166751384735107,
+          "maximum_m": -0.056952714920043945
+        }
+      },
+      "station_wavelength_statistics": {
+        "APOLLO/532.0": {
+          "count": 69,
+          "mean_m": -0.047439327274543655,
+          "rms_about_zero_m": 0.04940762369657839,
+          "scatter_about_mean_m": 0.013806647206379726,
+          "median_absolute_residual_m": 0.04562997817993164,
+          "percentile95_absolute_residual_m": 0.07124962806701658,
+          "minimum_m": -0.09192860126495361,
+          "maximum_m": -0.025104165077209473
+        },
+        "GRASSE/1064.2": {
+          "count": 224,
+          "mean_m": -0.036387206454362185,
+          "rms_about_zero_m": 0.36855871628863046,
+          "scatter_about_mean_m": 0.36675809269704035,
+          "median_absolute_residual_m": 0.05878522992134094,
+          "percentile95_absolute_residual_m": 0.09681421220302582,
+          "minimum_m": -0.11233502626419067,
+          "maximum_m": 5.434879779815674
+        },
+        "GRASSE/532.1": {
+          "count": 13,
+          "mean_m": -0.05917355188956627,
+          "rms_about_zero_m": 0.07596354830007634,
+          "scatter_about_mean_m": 0.047633511597517546,
+          "median_absolute_residual_m": 0.04822665452957153,
+          "percentile95_absolute_residual_m": 0.12674587965011574,
+          "minimum_m": -0.2223333716392517,
+          "maximum_m": -0.03605377674102783
+        }
+      },
+      "extreme": {
+        "utc_launch": "2017-03-09T18:34:15.297622200200",
+        "station": "GRASSE",
+        "reflector": "A15",
+        "one_way_residual_m": "5.434879779815674",
+        "one_way_sigma_m": "",
+        "source_file": "apollo15_201703.npt",
+        "source_line": "171",
+        "source_session": "29",
+        "source_station_id": "GRSM",
+        "station_cdp": "7845",
+        "station_domes": "10002S002",
+        "station_profile": "inpop17a-grasse-gir",
+        "quality": "0",
+        "epoch_event": "2",
+        "system_configuration": "me09",
+        "wavelength_nm": "1064.2",
+        "observed_rtt_s": "2.490835100745",
+        "computed_full_two_way_range_m": "746733566.4552616",
+        "photons": "26",
+        "bin_rms_ps_metadata_only": "361.9",
+        "nearest_measured_weather_s": "365.2976222038269",
+        "weather_mode": "interpolated",
+        "station_system_delay_applied": "1",
+        "calibration_reapplied_m": "0.0",
+        "lunar_phase_angle_deg": "34.70100380499058",
+        "transmit_elevation_deg": "42.46305396846103",
+        "receive_elevation_deg": "42.47837940040123",
+        "earth_direction_pa_x": "0.9962515992377409",
+        "earth_direction_pa_y": "0.07787255198929408",
+        "earth_direction_pa_z": "0.03766452791311949",
+        "sun_direction_pa_x": "0.7762490695096818",
+        "sun_direction_pa_y": "0.6303778773757641",
+        "sun_direction_pa_z": "-0.007817531616773236",
+        "transmit_los_pa_x": "0.9951678178240345",
+        "transmit_los_pa_y": "0.08888547059496246",
+        "transmit_los_pa_z": "0.041717951585149564",
+        "receive_los_pa_x": "0.9951828013749039",
+        "receive_los_pa_y": "0.08871722612912979",
+        "receive_los_pa_z": "0.041718648534575076"
+      },
+      "timing_seconds": {
+        "setup_seconds": 13.13035475218203,
+        "solver_seconds": 31.242166383890435,
+        "total_seconds": 45.72775544098113
+      }
+    },
+    "full/zero_explicit_glass": {
+      "count": 306,
+      "station_statistics": {
+        "APOLLO": {
+          "count": 69,
+          "mean_m": -0.0033629303393156633,
+          "rms_about_zero_m": 0.012341145827499199,
+          "scatter_about_mean_m": 0.01187411385613727,
+          "median_absolute_residual_m": 0.008211672306060791,
+          "percentile95_absolute_residual_m": 0.022849881649017318,
+          "minimum_m": -0.032872140407562256,
+          "maximum_m": 0.01825690269470215
+        },
+        "GRASSE": {
+          "count": 237,
+          "mean_m": 0.01034810623539148,
+          "rms_about_zero_m": 0.35631603688037145,
+          "scatter_about_mean_m": 0.3561657406818843,
+          "median_absolute_residual_m": 0.012529373168945312,
+          "percentile95_absolute_residual_m": 0.03777664899826049,
+          "minimum_m": -0.18230348825454712,
+          "maximum_m": 5.474904298782349
+        }
+      },
+      "station_reflector_statistics": {
+        "APOLLO/A11": {
+          "count": 12,
+          "mean_m": -0.00927737851937612,
+          "rms_about_zero_m": 0.01580717154350743,
+          "scatter_about_mean_m": 0.012798317077416452,
+          "median_absolute_residual_m": 0.009851962327957153,
+          "percentile95_absolute_residual_m": 0.028034746646881097,
+          "minimum_m": -0.032872140407562256,
+          "maximum_m": 0.007896363735198975
+        },
+        "APOLLO/A14": {
+          "count": 15,
+          "mean_m": -0.00134732723236084,
+          "rms_about_zero_m": 0.010881414660734324,
+          "scatter_about_mean_m": 0.010797680044703249,
+          "median_absolute_residual_m": 0.009051740169525146,
+          "percentile95_absolute_residual_m": 0.019476807117462157,
+          "minimum_m": -0.02082955837249756,
+          "maximum_m": 0.014923572540283203
+        },
+        "APOLLO/A15": {
+          "count": 30,
+          "mean_m": -0.003401823838551839,
+          "rms_about_zero_m": 0.010508311719241038,
+          "scatter_about_mean_m": 0.009942444858293105,
+          "median_absolute_residual_m": 0.007153242826461792,
+          "percentile95_absolute_residual_m": 0.02098154425621033,
+          "minimum_m": -0.024664640426635742,
+          "maximum_m": 0.014288187026977539
+        },
+        "APOLLO/L1": {
+          "count": 7,
+          "mean_m": 0.0009693333080836705,
+          "rms_about_zero_m": 0.011077049117484864,
+          "scatter_about_mean_m": 0.011034555273730418,
+          "median_absolute_residual_m": 0.005634129047393799,
+          "percentile95_absolute_residual_m": 0.018070149421691894,
+          "minimum_m": -0.01763439178466797,
+          "maximum_m": 0.01825690269470215
+        },
+        "APOLLO/L2": {
+          "count": 5,
+          "mean_m": -0.0010468721389770507,
+          "rms_about_zero_m": 0.01767961722257011,
+          "scatter_about_mean_m": 0.01764859552092549,
+          "median_absolute_residual_m": 0.014993607997894287,
+          "percentile95_absolute_residual_m": 0.02629050016403198,
+          "minimum_m": -0.02860867977142334,
+          "maximum_m": 0.017017781734466553
+        },
+        "GRASSE/A11": {
+          "count": 17,
+          "mean_m": -0.019359876127804026,
+          "rms_about_zero_m": 0.02367857140490538,
+          "scatter_about_mean_m": 0.013633412635627461,
+          "median_absolute_residual_m": 0.0199887752532959,
+          "percentile95_absolute_residual_m": 0.043764495849609376,
+          "minimum_m": -0.04393362998962402,
+          "maximum_m": 0.0005251765251159668
+        },
+        "GRASSE/A14": {
+          "count": 22,
+          "mean_m": -0.010663525624708696,
+          "rms_about_zero_m": 0.03975285824489242,
+          "scatter_about_mean_m": 0.03829593920887295,
+          "median_absolute_residual_m": 0.006854116916656494,
+          "percentile95_absolute_residual_m": 0.015544158220291137,
+          "minimum_m": -0.18230348825454712,
+          "maximum_m": 0.011974811553955078
+        },
+        "GRASSE/A15": {
+          "count": 117,
+          "mean_m": 0.03203128290991498,
+          "rms_about_zero_m": 0.5065440296626554,
+          "scatter_about_mean_m": 0.5055302670483995,
+          "median_absolute_residual_m": 0.014684915542602539,
+          "percentile95_absolute_residual_m": 0.037411248683929435,
+          "minimum_m": -0.07230842113494873,
+          "maximum_m": 5.474904298782349
+        },
+        "GRASSE/L1": {
+          "count": 44,
+          "mean_m": -0.001256865533915433,
+          "rms_about_zero_m": 0.010848963678673808,
+          "scatter_about_mean_m": 0.01077591304395312,
+          "median_absolute_residual_m": 0.007797867059707642,
+          "percentile95_absolute_residual_m": 0.01617433726787567,
+          "minimum_m": -0.03528130054473877,
+          "maximum_m": 0.0160369873046875
+        },
+        "GRASSE/L2": {
+          "count": 37,
+          "mean_m": -0.018274091385506296,
+          "rms_about_zero_m": 0.023043106966512676,
+          "scatter_about_mean_m": 0.01403717787535335,
+          "median_absolute_residual_m": 0.016565382480621338,
+          "percentile95_absolute_residual_m": 0.04176502227783203,
+          "minimum_m": -0.048353493213653564,
+          "maximum_m": 0.0063634514808654785
+        }
+      },
+      "station_wavelength_statistics": {
+        "APOLLO/532.0": {
+          "count": 69,
+          "mean_m": -0.0033629303393156633,
+          "rms_about_zero_m": 0.012341145827499199,
+          "scatter_about_mean_m": 0.01187411385613727,
+          "median_absolute_residual_m": 0.008211672306060791,
+          "percentile95_absolute_residual_m": 0.022849881649017318,
+          "minimum_m": -0.032872140407562256,
+          "maximum_m": 0.01825690269470215
+        },
+        "GRASSE/1064.2": {
+          "count": 224,
+          "mean_m": 0.011644059792160988,
+          "rms_about_zero_m": 0.3662988494659676,
+          "scatter_about_mean_m": 0.3661137295863789,
+          "median_absolute_residual_m": 0.01268652081489563,
+          "percentile95_absolute_residual_m": 0.03762522637844085,
+          "minimum_m": -0.07230842113494873,
+          "maximum_m": 5.474904298782349
+        },
+        "GRASSE/532.1": {
+          "count": 13,
+          "mean_m": -0.011982170435098501,
+          "rms_about_zero_m": 0.051604445125540924,
+          "scatter_about_mean_m": 0.05019408678698334,
+          "median_absolute_residual_m": 0.008197903633117676,
+          "percentile95_absolute_residual_m": 0.08671631813049294,
+          "minimum_m": -0.18230348825454712,
+          "maximum_m": 0.01461702585220337
+        }
+      },
+      "extreme": {
+        "utc_launch": "2017-03-09T18:34:15.297622200200",
+        "station": "GRASSE",
+        "reflector": "A15",
+        "one_way_residual_m": "5.474904298782349",
+        "one_way_sigma_m": "",
+        "source_file": "apollo15_201703.npt",
+        "source_line": "171",
+        "source_session": "29",
+        "source_station_id": "GRSM",
+        "station_cdp": "7845",
+        "station_domes": "10002S002",
+        "station_profile": "inpop17a-grasse-gir",
+        "quality": "0",
+        "epoch_event": "2",
+        "system_configuration": "me09",
+        "wavelength_nm": "1064.2",
+        "observed_rtt_s": "2.490835100745",
+        "computed_full_two_way_range_m": "746733566.3752126",
+        "photons": "26",
+        "bin_rms_ps_metadata_only": "361.9",
+        "nearest_measured_weather_s": "365.2976222038269",
+        "weather_mode": "interpolated",
+        "station_system_delay_applied": "1",
+        "calibration_reapplied_m": "0.0",
+        "lunar_phase_angle_deg": "34.70100380499058",
+        "transmit_elevation_deg": "42.46305396846146",
+        "receive_elevation_deg": "42.47837940040123",
+        "earth_direction_pa_x": "0.9962515992377409",
+        "earth_direction_pa_y": "0.07787255198929408",
+        "earth_direction_pa_z": "0.03766452791311949",
+        "sun_direction_pa_x": "0.7762490695096818",
+        "sun_direction_pa_y": "0.6303778773757641",
+        "sun_direction_pa_z": "-0.007817531616773236",
+        "transmit_los_pa_x": "0.9951678178240345",
+        "transmit_los_pa_y": "0.08888547059496246",
+        "transmit_los_pa_z": "0.041717951585149564",
+        "receive_los_pa_x": "0.9951828013749039",
+        "receive_los_pa_y": "0.08871722612912979",
+        "receive_los_pa_z": "0.041718648534575076"
+      },
+      "timing_seconds": {
+        "setup_seconds": 23.548235476133414,
+        "solver_seconds": 45.438178693992086,
+        "total_seconds": 71.62909148703329
+      }
+    }
+  },
+  "de440_reference_station_statistics": {
+    "APOLLO": {
+      "count": 69,
+      "mean_m": 0.0018295913502789926,
+      "rms_about_zero_m": 0.05848847969089653,
+      "scatter_about_mean_m": 0.058459856756952464,
+      "median_absolute_residual_m": 0.05028104782104492,
+      "percentile95_absolute_residual_m": 0.10419722795486447,
+      "minimum_m": -0.09385025501251221,
+      "maximum_m": 0.12460833787918091
+    },
+    "GRASSE": {
+      "count": 237,
+      "mean_m": 0.01000662820751657,
+      "rms_about_zero_m": 0.3595828051136746,
+      "scatter_about_mean_m": 0.3594435437246514,
+      "median_absolute_residual_m": 0.048863768577575684,
+      "percentile95_absolute_residual_m": 0.14207153320312496,
+      "minimum_m": -0.16075271368026733,
+      "maximum_m": 5.429946839809418
+    }
+  },
+  "absolute_order_statistics": "Raw |O-C| from every station point, no centering/rejection. NumPy percentile95 uses the default linear order-statistic interpolation.",
+  "optical_interpretation": "Both settings were predeclared before the12-point controls. Neither establishes the published prism reference convention.",
+  "time_interpretation": "Nightly means are unweighted descriptions of unchanged residuals; no fitted/detrended correction or period inferred."
+}

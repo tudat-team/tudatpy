@@ -1,0 +1,125 @@
+{
+  "reference_revision": "39f3c7b8c",
+  "reference_source_sha256": "655f1a14a0a966c41f9f05b68052d22d0be8ccefb9e0e6020d8e8c506384f5fb",
+  "modified_source_sha256": "cd3bf8bb023eda6b32880c92424930ac3e27f54df5ce719129fd992b8d235576",
+  "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "count": 11,
+  "all_rows_exact": true,
+  "maximum_range_difference_m": 0.0,
+  "rows": {
+    "reference": [
+      {
+        "utc": "2017-03-09T01:19:15.0000000",
+        "reflector": 3,
+        "computed_range_m": 742328585.5548918
+      },
+      {
+        "utc": "2017-03-09T01:24:35.0000000",
+        "reflector": 3,
+        "computed_range_m": 742183337.8836795
+      },
+      {
+        "utc": "2017-03-09T01:30:30.0000000",
+        "reflector": 0,
+        "computed_range_m": 741940121.0869551
+      },
+      {
+        "utc": "2017-03-09T01:36:00.0000000",
+        "reflector": 0,
+        "computed_range_m": 741798673.964762
+      },
+      {
+        "utc": "2017-03-09T01:39:55.0000000",
+        "reflector": 2,
+        "computed_range_m": 741798622.9758126
+      },
+      {
+        "utc": "2017-03-09T01:43:00.0000000",
+        "reflector": 2,
+        "computed_range_m": 741722479.9481851
+      },
+      {
+        "utc": "2017-03-09T01:47:15.0000000",
+        "reflector": 1,
+        "computed_range_m": 742598393.1192074
+      },
+      {
+        "utc": "2017-03-09T01:51:50.0000000",
+        "reflector": 1,
+        "computed_range_m": 742490535.8479238
+      },
+      {
+        "utc": "2017-03-09T01:56:10.0000000",
+        "reflector": 3,
+        "computed_range_m": 741401860.7221491
+      },
+      {
+        "utc": "2017-03-09T02:06:55.0000000",
+        "reflector": 3,
+        "computed_range_m": 741168452.1717497
+      },
+      {
+        "utc": "2017-03-09T02:10:30.0000000",
+        "reflector": 2,
+        "computed_range_m": 741104002.2494377
+      }
+    ],
+    "modified_default": [
+      {
+        "utc": "2017-03-09T01:19:15.0000000",
+        "reflector": 3,
+        "computed_range_m": 742328585.5548918
+      },
+      {
+        "utc": "2017-03-09T01:24:35.0000000",
+        "reflector": 3,
+        "computed_range_m": 742183337.8836795
+      },
+      {
+        "utc": "2017-03-09T01:30:30.0000000",
+        "reflector": 0,
+        "computed_range_m": 741940121.0869551
+      },
+      {
+        "utc": "2017-03-09T01:36:00.0000000",
+        "reflector": 0,
+        "computed_range_m": 741798673.964762
+      },
+      {
+        "utc": "2017-03-09T01:39:55.0000000",
+        "reflector": 2,
+        "computed_range_m": 741798622.9758126
+      },
+      {
+        "utc": "2017-03-09T01:43:00.0000000",
+        "reflector": 2,
+        "computed_range_m": 741722479.9481851
+      },
+      {
+        "utc": "2017-03-09T01:47:15.0000000",
+        "reflector": 1,
+        "computed_range_m": 742598393.1192074
+      },
+      {
+        "utc": "2017-03-09T01:51:50.0000000",
+        "reflector": 1,
+        "computed_range_m": 742490535.8479238
+      },
+      {
+        "utc": "2017-03-09T01:56:10.0000000",
+        "reflector": 3,
+        "computed_range_m": 741401860.7221491
+      },
+      {
+        "utc": "2017-03-09T02:06:55.0000000",
+        "reflector": 3,
+        "computed_range_m": 741168452.1717497
+      },
+      {
+        "utc": "2017-03-09T02:10:30.0000000",
+        "reflector": 2,
+        "computed_range_m": 741104002.2494377
+      }
+    ]
+  }
+}
