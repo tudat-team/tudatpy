@@ -1,0 +1,132 @@
+{
+  "scope": "Three frozen NPs, six existing solved legs, no new observation solve/model correction.",
+  "source_revision": "b226a42b78bf530fcb0e17c51d034e4e95f35a09",
+  "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "probe_sha256": "c45ce3bf7c6e43116267c5a4ea37c956de81016c49467258628142486c1e4757",
+  "environment_script_sha256": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
+  "event_inputs": {
+    "results/llr-six-de440-inpop17a-attempt1/event_diagnostics.json": "d8e5b82ceb5616ec2c3be6d41a5e2cd98b2ff30f66f6b17c9766ed2581cb1d69",
+    "results/llr-longarc-20170301-20170430-attempt2/extreme_precision_control.json": "a0f82c0f2cf3ee37b0998ba1a7336104ebfb92c29ee5d0dde82ebd1fc70df0b4"
+  },
+  "primary_paper": {
+    "url": "https://arxiv.org/pdf/1406.6600",
+    "sha256": "96259562e84c6b782da3e87ce49816f7b2f345bb30f2124a34216afc893812a8",
+    "equations": [
+      22,
+      23,
+      26,
+      30,
+      34,
+      44,
+      45
+    ]
+  },
+  "arithmetic_decimal_digits": 80,
+  "speed_of_light_m_s": 299792458.0,
+  "ppn_gamma": 1,
+  "body_motion": "Constant velocity tangent to native body ephemeris at original native static-evaluation epoch (Earth endpoint, Moon reflection, Sun leg midpoint).",
+  "assumptions": "First post-Minkowskian monopole in GR, all velocity orders, spin/multipoles/acceleration/higherG omitted. Null reference segment z0=ctB-lambdaR and z=xB-lambda(xB-xA); actual saved eventdt not imposed inside the Lorentz transform. Delta is a length, delayseconds=Delta/c. This is a fixed-endpoint diagnostic, not an iterated two-way observable change.",
+  "native_source_revision": "a366f436c6f6ff03aa57f8b1610075784196bdf8",
+  "legs": [
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "leg": "uplink",
+      "static_delay_length_m": 7.411102897653341,
+      "moving_minus_static_length_m": 2.2803241345119095e-06,
+      "reconstructed_minus_saved_native_length_m": -2.9313493854488115e-09,
+      "source_file": "160912e_apollo_np2.txt",
+      "source_line": 134
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "leg": "downlink",
+      "static_delay_length_m": 7.412080280422707,
+      "moving_minus_static_length_m": -2.280473109461622e-06,
+      "reconstructed_minus_saved_native_length_m": -2.9066100637464842e-09,
+      "source_file": "160912e_apollo_np2.txt",
+      "source_line": 134
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "leg": "uplink",
+      "static_delay_length_m": 7.3982252846580625,
+      "moving_minus_static_length_m": 2.2818103049629545e-06,
+      "reconstructed_minus_saved_native_length_m": -3.224095657117232e-09,
+      "source_file": "160912e_apollo_np2.txt",
+      "source_line": 144
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "leg": "downlink",
+      "static_delay_length_m": 7.399196558901915,
+      "moving_minus_static_length_m": -2.28195461279604e-06,
+      "reconstructed_minus_saved_native_length_m": -3.2224587442897246e-09,
+      "source_file": "160912e_apollo_np2.txt",
+      "source_line": 144
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "leg": "uplink",
+      "static_delay_length_m": 7.452795101844097,
+      "moving_minus_static_length_m": 1.7091923620202686e-06,
+      "reconstructed_minus_saved_native_length_m": null,
+      "source_file": "apollo15_201703.npt",
+      "source_line": 171
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "leg": "downlink",
+      "static_delay_length_m": 7.453596311803878,
+      "moving_minus_static_length_m": -1.709468110222165e-06,
+      "reconstructed_minus_saved_native_length_m": null,
+      "source_file": "apollo15_201703.npt",
+      "source_line": 171
+    }
+  ],
+  "fixed_endpoint_half_sum_m": [
+    {
+      "station": "APOLLO",
+      "source_file": "160912e_apollo_np2.txt",
+      "source_line": 134,
+      "value_m": -7.448747485630285e-11
+    },
+    {
+      "station": "APOLLO",
+      "source_file": "160912e_apollo_np2.txt",
+      "source_line": 144,
+      "value_m": -7.215391654269574e-11
+    },
+    {
+      "station": "GRASSE",
+      "source_file": "apollo15_201703.npt",
+      "source_line": 171,
+      "value_m": -1.378741009481861e-10
+    }
+  ],
+  "max_abs_native_static_reconstruction_error_m": 3.224095657117232e-09,
+  "max_quadrature_error_m": 6.139776082137457e-78,
+  "max_50_vs80_error_m": 6.190337396860276e-48,
+  "zero_velocity_error_m": 0.0,
+  "recorded_vs_null_dt_range_s": [
+    1.1961055037791746e-08,
+    9.746393349461724e-08
+  ],
+  "endpoint_reconstruction": "Existing native body state plus native rotation times full station_state.get_cartesian_position at saved event doubles. Not a new observable solve. Four APOLLO leg static totals close against saved native correction components; Grasse has saved solved epochs but no separately saved static component.",
+  "output_sha256": {
+    "reproduce.py": "50af83df710d97f46c0e2ca0d276ebcdb44f528f8f3504b898a2bc4e6d9ef3f6",
+    "README.md": "1e47a561d31a70ca4dae724cf5db2b83b5f6b797fe79c515f999a08d0257a69e",
+    "endpoint_inputs.json": "f98afb351f0d8867ed2f4d4cd2870da7a34aa83aa0d7c86ef604cd1d6fdb40f4",
+    "body_delay_comparison.csv": "441dea7b4a81cc8658ebbc5f63a0883e04fc641458cb723c950254cff64e4fd4"
+  },
+  "production_input_sha256": {
+    "llr_dataset.json": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+    "llr_long_arc_dataset.json": "10906a8e5ebbf349b7d684844d968690cc500640aae0a634f6f82e722e72c86f",
+    "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+  }
+}
