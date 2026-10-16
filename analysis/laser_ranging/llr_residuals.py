@@ -42,6 +42,21 @@ REFLECTORS = {
 STATION_PROFILE_PATH = Path(__file__).with_name("llr_station_profiles.json")
 STATION_PROFILES = json.loads(STATION_PROFILE_PATH.read_text())
 
+# Keep the independently audited Hofmann solution and its common conventions together.
+HOFMANN_PROFILE_PATH = Path(__file__).with_name("hofmann2017_station_profiles.json")
+
+HOFMANN_PROFILES = json.loads(HOFMANN_PROFILE_PATH.read_text())
+
+STATION_PROFILES.update(
+    {
+        name: {
+            **{key: value for key, value in HOFMANN_PROFILES.items() if key != "profiles"},
+            **profile,
+        }
+        for name, profile in HOFMANN_PROFILES["profiles"].items()
+    }
+)
+
 
 def sha256(path):
     """Identify the actual local inputs without downloading or replacing them."""
@@ -490,9 +505,9 @@ def main():
     )
     parser.add_argument(
         "--station-profile",
-        choices=("survey2005", "inpop17a-gir"),
+        choices=("survey2005", "inpop17a-gir", *HOFMANN_PROFILES["profiles"]),
         default="survey2005",
-        help="Approximate survey (default) or published station-only INPOP17a G+IR sensitivity",
+        help="Approximate survey (default) or an explicitly selected published station sensitivity",
     )
     parser.add_argument(
         "--got410c-harpos",
@@ -514,17 +529,25 @@ def main():
     if args.case == "matera20220821":
         from matera_case import read_points as read_matera_points, station_history
 
-        if args.station_profile != "survey2005" or args.got410c_harpos is not None:
+        if (
+            args.station_profile not in ("survey2005", "hofmann2017-matera-standard")
+            or args.got410c_harpos is not None
+        ):
             parser.error(
-                "The frozen Matera case requires its SLRF2020 history and no loading option"
+                "Matera requires SLRF2020 history or its published Hofmann profile, with no loading option"
             )
         for record in [dataset["normal_points"], *dataset["station_inputs"].values()]:
             if sha256(args.data_dir / record["file"]) != record["sha256"]:
                 raise ValueError("Matera input differs from its frozen manifest")
         points = read_matera_points(point_file)
         history, station_metadata = station_history(args.data_dir, dataset)
-        args.station_profile = "slrf2020-matera"
+        if args.station_profile == "hofmann2017-matera-standard":
+            history = None
+        else:
+            args.station_profile = "slrf2020-matera"
     else:
+        if args.station_profile == "hofmann2017-matera-standard":
+            parser.error("The selected Hofmann profile belongs to Matera")
         points = read_points(point_file, dataset["normal_points"]["sha256"])
 
     kernel_hashes = {}
@@ -658,7 +681,11 @@ def main():
 
     residuals = np.array([row["one_way_residual_m"] for row in rows])
 
-    sigmas = np.array([row["one_way_sigma_m"] for row in rows]) if history is None else None
+    sigmas = (
+        np.array([row["one_way_sigma_m"] for row in rows])
+        if args.case == "apollo20170309"
+        else None
+    )
 
     summary = {
         "count": len(rows),
@@ -696,11 +723,18 @@ def main():
         "station_xyz_m": position.tolist(),
         "station_profile": args.station_profile,
         "station_profile_manifest_sha256": sha256(STATION_PROFILE_PATH),
+        "hofmann_station_profile_manifest_sha256": (
+            sha256(HOFMANN_PROFILE_PATH)
+            if args.station_profile.startswith("hofmann2017-")
+            else None
+        ),
         "station_profile_metadata": STATION_PROFILES.get(
             args.station_profile, station_metadata or kernel_dataset["station_survey"]
         ),
         "matera_adapter_sha256": (
-            sha256(Path(__file__).with_name("matera_case.py")) if history is not None else None
+            sha256(Path(__file__).with_name("matera_case.py"))
+            if args.case == "matera20220821"
+            else None
         ),
         "ocean_loading": loading[1] if loading is not None else None,
         "ocean_loading_helper_sha256": (
@@ -715,7 +749,7 @@ def main():
                 else (
                     "SLRF2020 optical-axis station history; no fitted seasonal or loading terms added."
                     if history is not None
-                    else "Published INPOP17a G+IR station-only sensitivity; see station-profile frame, tide and loading limitations."
+                    else "Published station-only sensitivity; see station-profile source, frame, tide and loading limitations."
                 )
             ),
             (
@@ -725,7 +759,7 @@ def main():
             ),
             (
                 "Both Matera CRD points retained outside the DE440 fitting span; bin RMS is not a normal-point uncertainty, so no weighted/noise-level claim."
-                if history is not None
+                if args.case == "matera20220821"
                 else "DE440-fit NP calibration version is not established to match the 2022 ACS release."
             ),
             "Earth simultaneity omits deformation velocity over microseconds and ~1.34 micrometre acceleration terms.",

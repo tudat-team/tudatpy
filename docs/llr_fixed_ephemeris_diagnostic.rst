@@ -111,6 +111,14 @@ into a fitted range bias.
 Published station-only sensitivity
 ----------------------------------
 
+The independent Hofmann (2017) standard station solution is selected explicitly
+with ``--station-profile hofmann2017-apollo-standard`` or, for the Matera case,
+``--station-profile hofmann2017-matera-standard``. The separate
+``hofmann2017_station_profiles.json`` pins the source tables, SRP/tide convention,
+reference epoch and velocity interpretation. These options change station
+coordinates and their published linear velocities only; they do not import
+fitted biases, reflector coordinates or the source's other reduction models.
+
 An independently justified axes correction was evaluated with the same frozen
 observations, station parameters, tides, no loading, 30-second Time splines and
 ``1e-13`` fractional tolerance. All eleven APOLLO and both Matera points remain.
