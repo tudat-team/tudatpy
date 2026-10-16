@@ -291,6 +291,58 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
+def event_vectors(point, bodies, diagnostic):
+    """Retain reconstructed surface and body vectors at the native diagnostic event doubles."""
+
+    rows = []
+    reflector = model.REFLECTORS[point["reflector"]][0]
+
+    for body_name, name, epoch in zip(
+        ("Earth", "Moon", "Moon", "Earth"),
+        (point["station"], reflector, reflector, point["station"]),
+        diagnostic["link_end_epochs_tdb_s"],
+    ):
+        body = bodies.get(body_name)
+        local = body.get_ground_station(name).station_state.get_cartesian_position(epoch, body_name)
+        rotation = body.rotation_model.body_fixed_to_inertial_rotation(epoch)
+        rows.append(
+            dict(
+                body=body_name,
+                station=name,
+                epoch_tdb_s=epoch,
+                body_fixed_position_m=np.asarray(local).ravel().tolist(),
+                rotation_to_icrf=np.asarray(rotation).tolist(),
+                body_states={
+                    name: np.asarray(
+                        bodies.get(name).state_in_base_frame_from_ephemeris(time.Time(epoch))
+                    )
+                    .ravel()
+                    .tolist()
+                    for name in ("Earth", "Moon", "Sun")
+                },
+            )
+        )
+        if body_name == "Moon":
+            rows[-1]["intrinsic_reference_radius_position_m"] = (
+                np.asarray(
+                    body.get_ground_station(
+                        name + "_intrinsic"
+                    ).station_state.get_cartesian_position(epoch, "Moon")
+                )
+                .ravel()
+                .tolist()
+            )
+
+    return dict(
+        utc_launch=point["utc_label"],
+        station=point["station"],
+        reflector=reflector,
+        launch_utc_split=point["utc"].__getstate__(),
+        diagnostic=diagnostic,
+        vectors=rows,
+    )
+
+
 def main():
     """Run only the frozen primary station pair, preserving all inputs and raw results."""
 
@@ -300,7 +352,15 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--station", choices=["APOLLO", "GRASSE"])
     parser.add_argument("--march9-control", action="store_true")
+    parser.add_argument("--ephemeris", choices=("de440", "inpop17a"), default="de440")
+    parser.add_argument("--glass-convention", choices=("jpl-nh", "none"))
+    parser.add_argument("--control-twelve", action="store_true")
     args = parser.parse_args()
+
+    if args.ephemeris == "inpop17a" and args.glass_convention is None:
+        parser.error("INPOP prism convention is unresolved: explicitly declare jpl-nh or none")
+    if args.control_twelve and (args.march9_control or args.station is not None):
+        parser.error("The predeclared twelve-point control requires both stations")
 
     started = perf_counter()
 
@@ -309,10 +369,17 @@ def main():
     ephemeris_path = Path(model.__file__).with_name("llr_dataset.json")
 
     ephemeris = json.loads(ephemeris_path.read_text())
+    frame_alias = ephemeris["analysis_frame_alias"]
 
-    kernel_hashes, _ = model.load_ephemeris_kernels(
-        args.kernel_dir, ephemeris, ephemeris["analysis_frame_alias"]
-    )
+    if args.ephemeris == "inpop17a":
+        ephemeris_path = Path(model.__file__).with_name("inpop17a_dataset.json")
+        ephemeris = json.loads(ephemeris_path.read_text())
+
+    kernel_hashes, _ = model.load_ephemeris_kernels(args.kernel_dir, ephemeris, frame_alias)
+    pool_count = model.spice.get_total_count_of_kernels_loaded()
+
+    if pool_count != len(kernel_hashes):
+        raise RuntimeError("The cleared kernel pool differs from the declared load inventory")
 
     groups = read_groups(args.data_root, manifest)
 
@@ -333,14 +400,49 @@ def main():
             if group[3]["station"] == "APOLLO" and group[3]["group"] == "2017-03-09"
         ]
         expected_count = 11
+
+    if args.control_twelve:
+        selected = []
+
+        for points, weather, profile, ledger in groups:
+            days = (
+                ("2017-03-22", "2017-04-07")
+                if ledger["station"] == "APOLLO"
+                else ("2017-03-22", "2017-04-06")
+            )
+            if points[0]["utc_label"][:10] not in days:
+                continue
+            values = [
+                next(point for point in points if point["reflector"] == code)
+                for code in (0, 2, 3)
+                if any(point["reflector"] == code for point in points)
+            ]
+            if values:
+                selected.append(
+                    (
+                        sorted(values, key=lambda point: float(point["utc"])),
+                        weather,
+                        profile,
+                        ledger,
+                    )
+                )
+        groups = selected
+        expected_count = 12
+
     args.output.mkdir(parents=True, exist_ok=False)
-    rows, group_ledger = [], []
+    rows, group_ledger, events = [], [], []
 
     for points, weather, profile, ledger in groups:
         setup_start = perf_counter()
 
         bodies, position, _ = model.create_environment(
-            points, station_profile=profile, meteorological_history=weather
+            points,
+            station_profile=profile,
+            meteorological_history=weather,
+            lunar_frame=ephemeris["reflector_coordinates"]["frame"],
+            reflector_coordinates=ephemeris["reflector_coordinates"].get("coordinates_m"),
+            gravitational_parameters=ephemeris.get("gravitational_parameters_m3_s2"),
+            lunar_model=ephemeris.get("lunar_model", "de440"),
         )
 
         ledger["setup_seconds"] = perf_counter() - setup_start
@@ -353,13 +455,18 @@ def main():
                 time.utc_scale, time.tdb_scale, point["utc"], position
             )
 
-            correction = model.complete_light_time_corrections(point)
+            correction = model.complete_light_time_corrections(
+                point, explicit_glass=args.glass_convention != "none"
+            )
 
             solver_start = perf_counter()
 
             computed, diagnostic = model.computed_range(point, epoch, bodies, correction)
             solver_seconds += perf_counter() - solver_start
             residual = 0.5 * (constants.SPEED_OF_LIGHT * point["observed_rtt_s"] - computed)
+
+            if args.control_twelve:
+                events.append(event_vectors(point, bodies, diagnostic))
 
             rows.append(
                 dict(
@@ -419,6 +526,8 @@ def main():
     ]
 
     write_csv(args.output / "nightly_raw_statistics.csv", nightly)
+    if args.control_twelve:
+        (args.output / "event_diagnostics.json").write_text(json.dumps(events, indent=2) + "\n")
     summary = dict(
         count=len(rows),
         station_selection=args.station or "APOLLO and GRASSE",
@@ -437,6 +546,7 @@ def main():
         ephemeris_manifest_sha256=model.sha256(ephemeris_path),
         kernel_binary_sha256=model.sha256(Path(kernel.__file__)),
         kernel_sha256=kernel_hashes,
+        kernel_pool=dict(load_order=list(kernel_hashes), actual_native_count=pool_count),
         source_sha256={
             path.name: model.sha256(path)
             for path in [Path(__file__), Path(model.__file__), model.STATION_PROFILE_PATH]
@@ -452,7 +562,14 @@ def main():
         setup_seconds=sum(g["setup_seconds"] for g in group_ledger),
         solver_seconds=sum(g["solver_seconds"] for g in group_ledger),
         total_seconds=perf_counter() - started,
-        physics="Same complete DE440/ICRF model, 30 s Time cubic tables, no loading, 50 iterations and fractional tolerance 1e-13",
+        physics=f"{args.ephemeris}/ICRF, 30 s Time cubic tables, no loading, 50 iterations and fractional tolerance 1e-13",
+        explicit_glass_convention=args.glass_convention or "jpl-nh",
+        reduction_limit=ephemeris.get("optical_limit", "Published JPL front-face n*h convention"),
+        control_selection=(
+            "First chronological A11/A14/A15 on March22 and APOLLOApr7/GrasseApr6"
+            if args.control_twelve
+            else None
+        ),
         fitting="No fitted bias, demeaning, clipping, wavelength correction or empirical libration term",
         geometry_precision="Geometry uses native diagnostic event doubles; solver retains Time internally",
         uncertainty="APOLLO supplied NP RTT uncertainty only; Grasse bin RMS remains metadata",

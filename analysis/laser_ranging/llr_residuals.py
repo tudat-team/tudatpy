@@ -160,6 +160,7 @@ def create_environment(
     reflector_coordinates=None,
     gravitational_parameters=None,
     meteorological_history=None,
+    lunar_model="de440",
 ):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
@@ -207,7 +208,13 @@ def create_environment(
     moon.shape_settings = setup.shape.spherical(1738000.0)
     moon.shape_deformation_settings = [
         setup.shape_deformation.basic_solid_body_tidal(
-            ["Earth", "Sun"], {2: (0.0423, 0.0107), 3: (0.0234, 0.0030)}, 1738000.0
+            ["Earth", "Sun"],
+            (
+                {2: (0.0439, 0.0107)}
+                if lunar_model == "inpop17a"
+                else {2: (0.0423, 0.0107), 3: (0.0234, 0.0030)}
+            ),
+            1738000.0,
         )
     ]
 
@@ -343,19 +350,49 @@ def create_environment(
         )
 
         intrinsic_moon = bodies.get("Moon").get_ground_station(name + "_intrinsic").station_state
+        radius_factor = (np.linalg.norm(coordinates) / 1738000.0) ** 4 - 1
 
-        def lunar_spatial(epoch, intrinsic=intrinsic_moon):
-            """Use JPL2020 Eqs.16–17 with LM=1.4825e-8 and the selected TDB lunar orientation."""
+        def lunar_spatial(
+            epoch,
+            intrinsic=intrinsic_moon,
+            nominal=np.asarray(coordinates),
+            radius_delta=radius_factor,
+        ):
+            """Apply the selected published lunar spatial map and INPOP's actual-radius tide once."""
 
             to_inertial = bodies.get("Moon").rotation_model.body_fixed_to_inertial_rotation(epoch)
 
-            lunar_vector = to_inertial @ intrinsic.get_cartesian_position(epoch, "Moon")
+            if lunar_model == "inpop17a":
+
+                # The intrinsic auxiliary contains the native degree-2 tide at reference radius 1738 km.
+                intrinsic_position = intrinsic.get_cartesian_position(epoch, "Moon")
+                extra_tide = radius_delta * (intrinsic_position - nominal)
+                lunar_vector = to_inertial @ (intrinsic_position + extra_tide)
+            else:
+                lunar_vector = to_inertial @ intrinsic.get_cartesian_position(epoch, "Moon")
 
             lunar_state = barycentric_state("Moon", epoch)
 
             solar_potential = bodies.get("Sun").gravitational_parameter / np.linalg.norm(
                 barycentric_state("Sun", epoch)[:3] - lunar_state[:3]
             )
+
+            if lunar_model == "inpop17a":
+
+                # Manche Eq.9.32 uses LB, including its common multiplier on the Lorentz term.
+                lb = 1.550519768e-8
+                correction = (
+                    -(lb + (1 - lb) * solar_potential / constants.SPEED_OF_LIGHT**2) * lunar_vector
+                )
+                correction -= (
+                    (1 - lb)
+                    * 0.5
+                    * np.dot(lunar_state[3:], lunar_vector)
+                    * lunar_state[3:]
+                    / constants.SPEED_OF_LIGHT**2
+                )
+
+                return extra_tide + to_inertial.T @ correction
 
             correction = -(1.4825e-8 + solar_potential / constants.SPEED_OF_LIGHT**2) * lunar_vector
 
@@ -384,7 +421,7 @@ def create_environment(
     return bodies, position, loading
 
 
-def complete_light_time_corrections(point):
+def complete_light_time_corrections(point, explicit_glass=True):
     """Use the existing complete model without adding a second array-profile correction."""
 
     thickness = 0.0435 if point["reflector"] in (1, 4) else 0.0275
@@ -393,11 +430,15 @@ def complete_light_time_corrections(point):
         [np.zeros(3)], [1.0], internal_optical_path_length=1.4555 * thickness
     )
 
-    return [
+    corrections = [
         ltc.first_order_relativistic_light_time_correction(["Sun", "Earth", "Moon"]),
         ltc.mendes_pavlis_tropospheric_light_time_correction(point["wavelength_m"]),
-        ltc.laser_target_light_time_correction("Moon", signature),
     ]
+
+    if explicit_glass:
+        corrections.append(ltc.laser_target_light_time_correction("Moon", signature))
+
+    return corrections
 
 
 def computed_range(point, epoch, bodies, corrections):
