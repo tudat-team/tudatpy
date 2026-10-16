@@ -59,6 +59,8 @@ Functions
 
    oblate_spherical_spice
 
+   triaxial_ellipsoid
+
    polyhedron
 
    hybrid
@@ -72,6 +74,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.oblate_spherical
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.oblate_spherical_spice
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape.triaxial_ellipsoid
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.polyhedron
 
@@ -94,6 +98,8 @@ Classes
 
    OblateSphericalBodyShapeSettings
 
+   TriAxialEllipsoidBodyShapeSettings
+
    PolyhedronBodyShapeSettings
 
    HybridBodyShapeSettings
@@ -107,6 +113,9 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape.OblateSphericalBodyShapeSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.shape.TriAxialEllipsoidBodyShapeSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape.PolyhedronBodyShapeSettings
