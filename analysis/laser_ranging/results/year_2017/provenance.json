@@ -1,0 +1,252 @@
+{
+  "executed_source_revision": "9082ce261",
+  "integration_source_revision": "5e4934584",
+  "native_source_revision": "a366f436c6f6ff03aa57f8b1610075784196bdf8",
+  "kernel_binary_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "numerical_threads": 1,
+  "launch_mode": "Three independent concurrent native interpreters; no shared mutable kernel pool",
+  "source_blobs": {
+    "llr_long_arc.py": {
+      "sha256": "dff542cea0bb49175799606221488245dede51477e0e906bc608cdc3ceff800a",
+      "git_blob": "a1376868d869582349dc23dbe6345ec8ba185ce1"
+    },
+    "llr_residuals.py": {
+      "sha256": "02905cc49099c3c7d1587d1d7214317db55b935c8e0e673949b251c0809ea550",
+      "git_blob": "f101a27b9485db8621058f4e4b29b74f8367e8cf"
+    },
+    "llr_year_2017_dataset.json": {
+      "sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+      "git_blob": "72e44ccc67c201243056ac7f13b355c8413cff5c"
+    },
+    "llr_dataset.json": {
+      "sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "git_blob": "463fa6df29d11bec3a7b0a5de9af99280d755183"
+    },
+    "inpop17a_dataset.json": {
+      "sha256": "03d3eed9ae0e5879d3c4b35ed52c828418704010eb8745c0309d6642a3efcc41",
+      "git_blob": "342c4f04ae192504fa236dbf99be78dd7da348b7"
+    },
+    "llr_station_profiles.json": {
+      "sha256": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6",
+      "git_blob": "89b7073ab201e95f3c8fd1bae78e5bba9b94a1bb"
+    },
+    "icrf_spice_alias.tf": {
+      "sha256": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7",
+      "git_blob": "3c0d31d7ebd5efa16f08126353658ae35e8aafd8"
+    },
+    "plot_llr_residuals.py": {
+      "sha256": "03250f0cf053efee9d0841b7620f2585725c46f06f358a2add48992941c63a92",
+      "git_blob": "0c5f8492829be2c20a1436496383bcf65e17b853"
+    }
+  },
+  "cases": {
+    "de440": {
+      "case": "de440",
+      "phase": "full",
+      "command": [
+        "/home/dominic/miniconda3/envs/tudatpy-dev/bin/python",
+        "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_long_arc.py",
+        "--dataset-manifest",
+        "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_year_2017_dataset.json",
+        "--data-root",
+        "/home/dominic/Tudat/laser-ranging-work/research/llr-year-2017",
+        "--kernel-dir",
+        "/home/dominic/Tudat/laser-ranging-work/data/llr/kernels",
+        "--ephemeris",
+        "de440",
+        "--glass-convention",
+        "jpl-nh",
+        "--output",
+        "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/de440"
+      ],
+      "source_revision": "9082ce2610ee04ef255f400f474a507ea3a173ed",
+      "integration_source_revision": "5e4934584",
+      "started_utc": "2026-10-16T11:31:55.340917+00:00",
+      "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+      "manifest_sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+      "source_sha256": {
+        "llr_long_arc.py": "dff542cea0bb49175799606221488245dede51477e0e906bc608cdc3ceff800a",
+        "llr_residuals.py": "02905cc49099c3c7d1587d1d7214317db55b935c8e0e673949b251c0809ea550"
+      },
+      "numerical_threads": 1,
+      "process_id": 641012,
+      "output": "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/de440",
+      "log": "/home/dominic/Tudat/laser-ranging-work/logs/llr-year-2017-attempt2-full-de440.log",
+      "returncode": 0,
+      "external_wall_seconds": 236.59275147900917,
+      "ended_utc": "2026-10-16T11:35:51.933317+00:00",
+      "csv_sha256": "d169c8cda2f04f5a1eef3aa59be26c7b8ae448d2d16d68d2130eeea2186c2c48",
+      "summary_sha256": "72d3bbeb4e9e4ef2b3f9bd7338af43a09d0559e3687df387eac97383c9c4eec1",
+      "count": 1579,
+      "setup_seconds": 75.3663105351734,
+      "solver_seconds": 154.0859729423537,
+      "total_seconds": 235.26553965103813,
+      "root_equivalence": "All listed model, driver, manifest, station and plotting source blobs verified against root integration revision after execution.",
+      "external_summary": "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/de440/summary.json",
+      "external_summary_sha256": "72d3bbeb4e9e4ef2b3f9bd7338af43a09d0559e3687df387eac97383c9c4eec1",
+      "partial_csv_sha256": "af5c7a33d89efb3d7ee609fb75b6c09dd0bc3b83eeee3672771f8ebc1449bd07",
+      "first_last_control": {
+        "csv_sha256": "2eee91a2d526e6a2eec132b9b478ab98d4b4c7e76a8969aa7aa708b17155cdcf",
+        "count": 4,
+        "all_fields_exact_against_full": true,
+        "columns": 39,
+        "source_note": "Before the two source-invalid February records were identified; these unchanged four boundary observations are reproduced by the final eligible arc."
+      }
+    },
+    "inpop17a_jpl_nh": {
+      "case": "inpop17a_jpl_nh",
+      "phase": "full",
+      "command": [
+        "/home/dominic/miniconda3/envs/tudatpy-dev/bin/python",
+        "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_long_arc.py",
+        "--dataset-manifest",
+        "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_year_2017_dataset.json",
+        "--data-root",
+        "/home/dominic/Tudat/laser-ranging-work/research/llr-year-2017",
+        "--kernel-dir",
+        "/home/dominic/Tudat/laser-ranging-work/data/llr/inpop17a-kernels",
+        "--ephemeris",
+        "inpop17a",
+        "--glass-convention",
+        "jpl-nh",
+        "--output",
+        "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/inpop17a_jpl_nh"
+      ],
+      "source_revision": "9082ce2610ee04ef255f400f474a507ea3a173ed",
+      "integration_source_revision": "5e4934584",
+      "started_utc": "2026-10-16T11:31:55.340981+00:00",
+      "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+      "manifest_sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+      "source_sha256": {
+        "llr_long_arc.py": "dff542cea0bb49175799606221488245dede51477e0e906bc608cdc3ceff800a",
+        "llr_residuals.py": "02905cc49099c3c7d1587d1d7214317db55b935c8e0e673949b251c0809ea550"
+      },
+      "numerical_threads": 1,
+      "process_id": 641011,
+      "output": "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/inpop17a_jpl_nh",
+      "log": "/home/dominic/Tudat/laser-ranging-work/logs/llr-year-2017-attempt2-full-inpop17a_jpl_nh.log",
+      "returncode": 0,
+      "external_wall_seconds": 236.32062133797444,
+      "ended_utc": "2026-10-16T11:35:51.661167+00:00",
+      "csv_sha256": "378bc8d63f111bd387395babd0796b40b3d1a26fee2147e0774f43d31adcca95",
+      "summary_sha256": "119ed4ffeb610e2b035fb386d75a73f221ff88e2e0e1f3cd3a92ec0de3c7ef5a",
+      "count": 1579,
+      "setup_seconds": 75.1893283490208,
+      "solver_seconds": 154.02511488180608,
+      "total_seconds": 235.00821132701822,
+      "root_equivalence": "All listed model, driver, manifest, station and plotting source blobs verified against root integration revision after execution.",
+      "external_summary": "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/inpop17a_jpl_nh/summary.json",
+      "external_summary_sha256": "119ed4ffeb610e2b035fb386d75a73f221ff88e2e0e1f3cd3a92ec0de3c7ef5a",
+      "partial_csv_sha256": "ff9cb0b44628e5f68999333b800b4afb955aaf929b430e32614571d38cf50733",
+      "first_last_control": {
+        "csv_sha256": "4534738a0100fac5dc21ec9209e74ccd59702e54252cc16976305de82b83a497",
+        "count": 4,
+        "all_fields_exact_against_full": true,
+        "columns": 39,
+        "source_note": "Before the two source-invalid February records were identified; these unchanged four boundary observations are reproduced by the final eligible arc."
+      }
+    },
+    "inpop17a_no_separate_glass": {
+      "case": "inpop17a_no_separate_glass",
+      "phase": "full",
+      "command": [
+        "/home/dominic/miniconda3/envs/tudatpy-dev/bin/python",
+        "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_long_arc.py",
+        "--dataset-manifest",
+        "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_year_2017_dataset.json",
+        "--data-root",
+        "/home/dominic/Tudat/laser-ranging-work/research/llr-year-2017",
+        "--kernel-dir",
+        "/home/dominic/Tudat/laser-ranging-work/data/llr/inpop17a-kernels",
+        "--ephemeris",
+        "inpop17a",
+        "--glass-convention",
+        "none",
+        "--output",
+        "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/inpop17a_no_separate_glass"
+      ],
+      "source_revision": "9082ce2610ee04ef255f400f474a507ea3a173ed",
+      "integration_source_revision": "5e4934584",
+      "started_utc": "2026-10-16T11:31:55.342495+00:00",
+      "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+      "manifest_sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+      "source_sha256": {
+        "llr_long_arc.py": "dff542cea0bb49175799606221488245dede51477e0e906bc608cdc3ceff800a",
+        "llr_residuals.py": "02905cc49099c3c7d1587d1d7214317db55b935c8e0e673949b251c0809ea550"
+      },
+      "numerical_threads": 1,
+      "process_id": 641013,
+      "output": "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/inpop17a_no_separate_glass",
+      "log": "/home/dominic/Tudat/laser-ranging-work/logs/llr-year-2017-attempt2-full-inpop17a_no_separate_glass.log",
+      "returncode": 0,
+      "external_wall_seconds": 201.3101454929565,
+      "ended_utc": "2026-10-16T11:35:16.652294+00:00",
+      "csv_sha256": "7b9701cb97ea980d5cdc467aebbf231b2fc8dc0a5bbe2a3b18834edcde34ad9c",
+      "summary_sha256": "7df5fdfc81aa9b0f416789321a28f59e9258d1044a3d7c72c2bf622e3255d1be",
+      "count": 1579,
+      "setup_seconds": 77.15926938352641,
+      "solver_seconds": 116.79957575828303,
+      "total_seconds": 199.8988026260049,
+      "root_equivalence": "All listed model, driver, manifest, station and plotting source blobs verified against root integration revision after execution.",
+      "external_summary": "/home/dominic/Tudat/laser-ranging-work/results/llr-year-2017-attempt2/full/inpop17a_no_separate_glass/summary.json",
+      "external_summary_sha256": "7df5fdfc81aa9b0f416789321a28f59e9258d1044a3d7c72c2bf622e3255d1be",
+      "partial_csv_sha256": "34384b789d5ae5cee24a804d34aa2801524963795c951a670d27feaabb0ac090",
+      "first_last_control": {
+        "csv_sha256": "20146b9b9c4068e16138cc131db9474cd6c4b5ce38b770efec34eb0ecce74b37",
+        "count": 4,
+        "all_fields_exact_against_full": true,
+        "columns": 39,
+        "source_note": "Before the two source-invalid February records were identified; these unchanged four boundary observations are reproduced by the final eligible arc."
+      }
+    }
+  },
+  "kernel_binary_path": "/home/dominic/Tudat/laser-ranging-build/src/tudatpy/kernel.so",
+  "build_directory": "/home/dominic/Tudat/laser-ranging-build",
+  "execution_environment": {
+    "interpreter": "/home/dominic/miniconda3/envs/tudatpy-dev/bin/python",
+    "PYTHONPATH": "/home/dominic/Tudat/laser-ranging-build/src",
+    "LD_LIBRARY_PATH": "/home/dominic/miniconda3/envs/tudatpy-dev/lib",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1"
+  },
+  "independent_verification": {
+    "source_commit": "5c226e25e7c06a3d8da94751b6a592964c2cdb17",
+    "report": "../../llr_year_2017_sources/annual_output_verification.md",
+    "computed_range_overlap_rows": 915,
+    "all_overlaps_bit_identical": true
+  },
+  "plotting": {
+    "script": "../../plot_llr_residuals.py",
+    "display": "Unconnected raw points, wavelength markers, provider APOLLO sigma only; full span plus labelled +/-200 mm detail",
+    "numerical_recomputation": false,
+    "title_subtitle": "N=1579; excluded: 1 user / 2 invalid source",
+    "draft_figures_preserved_external": "/home/dominic/Tudat/laser-ranging-work/verification/year-2017-initial-title-plots"
+  },
+  "artifacts_sha256": {
+    "README.md": "bd2ffb870c17b5978c5fd066ecd25abfec5e291bcfc488980981e50eb8089ad5",
+    "de440/figures/plot_summary.json": "44ef254acb4543f77995b03eda15177b2746368bfb2bb70a0f7df4d420506542",
+    "de440/figures/residuals_full_span.pdf": "51b26fd974ec7ca2c95fb2b3429bcc129a297619a736438843bf7775c2c981bf",
+    "de440/figures/residuals_full_span.png": "cad4df23d29fdf31adec0a88d6533e1e7cb59c76c3205339fbf0c0a769fd2357",
+    "de440/figures/residuals_y_detail.pdf": "a84a34748a9556b011b480ab406b4140b353d6a19202bc35c26c4974a5b007e6",
+    "de440/figures/residuals_y_detail.png": "adc1bb4afdfe6019de64c6d2fdb98a8a5e3c3f2a66d8eeb9a570dac6f86a0a00",
+    "de440/residuals.csv": "d169c8cda2f04f5a1eef3aa59be26c7b8ae448d2d16d68d2130eeea2186c2c48",
+    "inpop17a_jpl_nh/figures/plot_summary.json": "06fdffb7dbc531ceb170624b7e7558c61bcccb5c7d6005d4ae8de6eb0a4e5b9c",
+    "inpop17a_jpl_nh/figures/residuals_full_span.pdf": "e277fa9f158c26d164574feeb19ebefc31911277bc2ae170728c9ce5a6950efe",
+    "inpop17a_jpl_nh/figures/residuals_full_span.png": "0cd1c70aaf4b085c22a46b6924a30b4a97828a3e9c924d3ef4477d1039a6973e",
+    "inpop17a_jpl_nh/figures/residuals_y_detail.pdf": "36b0dccb1af24f443f4a6acc0badb7a7e7934244e34c0bd56a0e3cb2ac6e51bd",
+    "inpop17a_jpl_nh/figures/residuals_y_detail.png": "37bad57ed7d48c33c3eeca7d85738534b0e2c4724f8aaa5a2c5d2afaf880d7b7",
+    "inpop17a_jpl_nh/residuals.csv": "378bc8d63f111bd387395babd0796b40b3d1a26fee2147e0774f43d31adcca95",
+    "inpop17a_no_separate_glass/figures/plot_summary.json": "5087412b52c092321d297bc8a6b2a3f57087c56fe3c9bf5dc0515f025e7ebdba",
+    "inpop17a_no_separate_glass/figures/residuals_full_span.pdf": "b214f8d4c73556f3cb933f3b117f483470d0eb07aeb5f07df49b74cb43f0dd20",
+    "inpop17a_no_separate_glass/figures/residuals_full_span.png": "2f2eacd49cd5b76edfcece05494466822724dd670fa2f5c71566b18ec0e5e272",
+    "inpop17a_no_separate_glass/figures/residuals_y_detail.pdf": "79aea55661d6b20d44acb1c9f5dfb74efb2a9b2971c3d846e548264d67f69ef2",
+    "inpop17a_no_separate_glass/figures/residuals_y_detail.png": "765edd810920e7c0ba4ef2a932c6bdf610fc01283590e0182c2df7a1222ecece",
+    "inpop17a_no_separate_glass/residuals.csv": "7b9701cb97ea980d5cdc467aebbf231b2fc8dc0a5bbe2a3b18834edcde34ad9c",
+    "raw_statistics.csv": "0f33a86fd31c409b17f6649c32750646011664cdc4dae98aaced3c7e729fd6aa",
+    "summary.json": "eb02e1bd7de90fc9f08742265e4f018fc934a47456bd2e6664fbf9e2ad625e2b"
+  }
+}

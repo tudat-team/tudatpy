@@ -1,0 +1,150 @@
+{
+  "inputs": [
+    {
+      "path": "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/results/year_2017/inpop17a_no_separate_glass/residuals.csv",
+      "sha256": "7b9701cb97ea980d5cdc467aebbf231b2fc8dc0a5bbe2a3b18834edcde34ad9c",
+      "rows": 1579,
+      "station_override": null
+    }
+  ],
+  "points_plotted": 1579,
+  "additional_y_detail_mm": [
+    -200.0,
+    200.0
+  ],
+  "statistics": [
+    {
+      "station": "APOLLO",
+      "reflector": "A11",
+      "points": 61,
+      "utc_nights": 39,
+      "first_utc": "2017-01-06T00:44:30+00:00",
+      "last_utc": "2017-12-31T07:52:45+00:00",
+      "raw_mean_mm": -20.416772756420198,
+      "raw_rms_mm": 31.86542062877385,
+      "raw_peak_to_peak_mm": 93.9408540725708,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.06789224996045592,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "points": 57,
+      "utc_nights": 38,
+      "first_utc": "2017-01-06T00:48:30+00:00",
+      "last_utc": "2017-12-31T07:56:20+00:00",
+      "raw_mean_mm": 1.297295093536377,
+      "raw_rms_mm": 18.143185432728338,
+      "raw_peak_to_peak_mm": 92.20302104949951,
+      "descriptive_nightly_mean_slope_mm_per_day": 0.065459753275638,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "points": 145,
+      "utc_nights": 42,
+      "first_utc": "2017-01-06T00:31:05+00:00",
+      "last_utc": "2017-12-31T07:59:25+00:00",
+      "raw_mean_mm": -9.343525870092984,
+      "raw_rms_mm": 18.43395876117886,
+      "raw_peak_to_peak_mm": 89.68019485473633,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.000132051187519969,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L1",
+      "points": 28,
+      "utc_nights": 22,
+      "first_utc": "2017-02-05T01:22:30+00:00",
+      "last_utc": "2017-12-28T01:04:20+00:00",
+      "raw_mean_mm": 14.06375425202506,
+      "raw_rms_mm": 24.360379315312464,
+      "raw_peak_to_peak_mm": 76.68989896774292,
+      "descriptive_nightly_mean_slope_mm_per_day": 0.10839682540766453,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L2",
+      "points": 20,
+      "utc_nights": 17,
+      "first_utc": "2017-02-05T01:37:55+00:00",
+      "last_utc": "2017-10-25T00:49:15+00:00",
+      "raw_mean_mm": -21.198567748069763,
+      "raw_rms_mm": 29.766713071148754,
+      "raw_peak_to_peak_mm": 67.20590591430664,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.13559490695310392,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "points": 151,
+      "utc_nights": 60,
+      "first_utc": "2017-01-06T18:19:34.879543+00:00",
+      "last_utc": "2017-12-21T15:42:16.278345+00:00",
+      "raw_mean_mm": -25.855277942505893,
+      "raw_rms_mm": 32.269485923546235,
+      "raw_peak_to_peak_mm": 106.57280683517456,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.06990397175229567,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "points": 138,
+      "utc_nights": 62,
+      "first_utc": "2017-01-06T18:37:41.308391+00:00",
+      "last_utc": "2017-12-21T15:50:43.367656+00:00",
+      "raw_mean_mm": 1.376971818398738,
+      "raw_rms_mm": 24.042813035183585,
+      "raw_peak_to_peak_mm": 225.73351860046387,
+      "descriptive_nightly_mean_slope_mm_per_day": 0.051405426274777,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "points": 485,
+      "utc_nights": 111,
+      "first_utc": "2017-01-06T18:06:51.136319+00:00",
+      "last_utc": "2017-12-21T16:33:43.111399+00:00",
+      "raw_mean_mm": -15.56719013096131,
+      "raw_rms_mm": 22.175213629619527,
+      "raw_peak_to_peak_mm": 218.336284160614,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.010003481722504853,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "points": 234,
+      "utc_nights": 72,
+      "first_utc": "2017-01-06T17:54:51.716155+00:00",
+      "last_utc": "2017-12-21T16:08:59.233077+00:00",
+      "raw_mean_mm": 481.7414235355508,
+      "raw_rms_mm": 7212.416705056279,
+      "raw_peak_to_peak_mm": 110369.085252285,
+      "descriptive_nightly_mean_slope_mm_per_day": -1.6103974231055198,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "points": 260,
+      "utc_nights": 78,
+      "first_utc": "2017-01-06T17:42:22.773276+00:00",
+      "last_utc": "2017-12-21T16:18:47.285372+00:00",
+      "raw_mean_mm": -30.16676513048319,
+      "raw_rms_mm": 35.06584229180106,
+      "raw_peak_to_peak_mm": 102.8827428817749,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.08875008262986182,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    }
+  ],
+  "plot_script_sha256": "03250f0cf053efee9d0841b7620f2585725c46f06f358a2add48992941c63a92",
+  "wavelength_markers": "For stations with mixed wavelengths: triangles >=800nm, circles <800nm; raw nightly means/statistics retain all wavelengths unchanged",
+  "interpretation": "Every supplied point retained; no offset or trend removed. Slopes describe unweighted nightly means separately by station and reflector; they do not establish a physical cause or periodic signal. Plot timestamps use datetime display precision; source CSV bytes are unchanged."
+}
