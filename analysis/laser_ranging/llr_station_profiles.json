@@ -73,7 +73,7 @@
     "reference_epoch_tt_s": 0.0,
     "julian_year_s": 31557600.0,
     "frame": "Published fitted coordinates relative to ITRF2005 references; not guaranteed canonical ITRF2005 or matched to the selected EOP frame",
-    "selection": "Preselected published final G+IR solution; no choice based on the eleven residuals",
+    "selection": "Published final G+IR station solution independently preselected before long-arc evaluation; no residual-based choice",
     "row_algebra": "Published final Grasse G+IR values, visually checked in Table 8; no fitted range bias imported.",
     "sources": [
       {
