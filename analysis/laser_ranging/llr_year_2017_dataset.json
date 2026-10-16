@@ -1272,6 +1272,23 @@
     "monthly_coverage_file": "llr_year_2017_sources/monthly_coverage.csv",
     "monthly_coverage_sha256": "e1ea0800a89c0ed6626b3e1be5e8de68e4144952421193b741d815d126a84a0e",
     "native_reader_validation_file": "llr_year_2017_sources/native_reader_validation.json",
-    "native_reader_validation_sha256": "dc6252c725da7566adfd71a4837a8791855baddbec45452e2024dd6b0189b21c"
+    "native_reader_validation_sha256": "dc6252c725da7566adfd71a4837a8791855baddbec45452e2024dd6b0189b21c",
+    "repeated_source_records": [
+      {
+        "station": "GRASSE",
+        "source_file": "luna21_201708.npt",
+        "source_lines": [
+          102,
+          105
+        ],
+        "utc_launch": "2017-08-28T19:50:52.466626381600",
+        "two_way_time_of_flight_s": "2.663180684343",
+        "reflector": "L2",
+        "same_session": true,
+        "complete_normal_point_lines_byte_identical": true,
+        "preceding_calibration_and_meteorology_also_repeated": true,
+        "treatment": "Retain both original source-line identities and count both printed records; no deduplication or additional exclusion."
+      }
+    ]
   }
 }

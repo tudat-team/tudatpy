@@ -6,6 +6,13 @@ observation is excluded at Dominic's request: `apollo15_201703.npt:171`,
 2017-03-09T18:34:15.297622200200 UTC. Thus 311 + 1,270 observations remain.
 No quality, uncertainty, weather, or residual selection is applied.
 
+The provider repeats the complete calibration/weather/NP block at
+`luna21_201708.npt:100–102` and `103–105` within one session. The two NP
+lines are byte-identical: L2, 2017-08-28T19:50:52.466626381600 UTC,
+RTT 2.663180684343 s. Both original source-line identities remain in the
+1,271 source / 1,270 retained counts. This is a provider-record repetition,
+not an independently repeated measurement; no deduplication is applied.
+
 All 60 official EDC monthly files are available. The ten March/April inputs
 are byte-identical to the previous frozen two-month inputs. These products
 also contain 33 Matera 7941 observations, outside the declared station scope.
