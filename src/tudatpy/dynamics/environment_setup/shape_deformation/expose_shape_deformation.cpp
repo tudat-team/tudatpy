@@ -384,7 +384,7 @@ must be set in one of the two.
  displacement_love_numbers : dict[int, tuple[float, float]]
      Dictionary of pairs. The dictionary key the spherical harmonic degree :math:`l` of the tidal deformation (2 or 3 are currently supported). The dictionary value is comprised of a pair of floats representing the :math:`h_{2}` and :math:`l_{2}` deformation Love numbers
  reference_radius : float, default = NaN
-     Spherical harmonic reference radius of the deformed body. If this value is left undefined (e.g at NaN), the reference radius of the existing spherical harmonic gravity field of the deformed body is used.
+     Reference radius for tidal deformation of the body, in metres. A supplied finite value is used directly; if left at NaN, the average radius of the body's shape model is used.
  Returns
  -------
  BasicSolidBodyDeformationSettings
@@ -437,7 +437,7 @@ must be set in one of the two.
  shida_number : float
      Value of :math:`l_{2}` deformation Shida number`
  reference_radius : float, default = NaN
-     Spherical harmonic reference radius of the deformed body. If this value is left undefined (e.g at NaN), the reference radius of the existing spherical harmonic gravity field of the deformed body is used.
+     Reference radius for tidal deformation of the body, in metres. A supplied finite value is used directly; if left at NaN, the average radius of the body's shape model is used.
  Returns
  -------
  BasicSolidBodyDeformationSettings
