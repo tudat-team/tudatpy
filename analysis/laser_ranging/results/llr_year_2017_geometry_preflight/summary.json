@@ -1,0 +1,73 @@
+{
+  "source_count": 1582,
+  "station_source_counts": {
+    "APOLLO": 311,
+    "GRASSE": 1271
+  },
+  "candidate_threshold_deg": 4,
+  "fcul_domain_minimum_deg": 3,
+  "candidate_count": 2,
+  "candidates": [
+    {
+      "station": "GRASSE",
+      "source_file": "apollo15_201702.npt",
+      "source_line": 168,
+      "utc_launch": "2017-02-20T13:23:08.387557778100",
+      "reflector": "A15",
+      "observed_rtt_s": 2.4976e-08,
+      "transmit_tdb_s": 540869057.5728039,
+      "approximate_bounce_tdb_s": 540869057.5728039,
+      "approximate_transmit_center_elevation_deg": -18.741654114234105,
+      "approximate_receive_center_elevation_deg": -18.741654114234105,
+      "minimum_center_elevation_deg": -18.741654114234105,
+      "candidate_at_or_below4deg": true
+    },
+    {
+      "station": "GRASSE",
+      "source_file": "apollo15_201702.npt",
+      "source_line": 211,
+      "utc_launch": "2017-02-20T13:23:20.476420038600",
+      "reflector": "A15",
+      "observed_rtt_s": 1.7271e-08,
+      "transmit_tdb_s": 540869069.661666,
+      "approximate_bounce_tdb_s": 540869069.661666,
+      "approximate_transmit_center_elevation_deg": -18.77643561462598,
+      "approximate_receive_center_elevation_deg": -18.77643561462598,
+      "minimum_center_elevation_deg": -18.77643561462598,
+      "candidate_at_or_below4deg": true
+    }
+  ],
+  "minimum_other_source_row": {
+    "station": "GRASSE",
+    "source_file": "luna21_201705.npt",
+    "source_line": 69,
+    "utc_launch": "2017-05-02T23:25:02.961114373500",
+    "reflector": "L2",
+    "observed_rtt_s": 2.498599508216,
+    "transmit_tdb_s": 547039572.14656,
+    "approximate_bounce_tdb_s": 547039573.3958597,
+    "approximate_transmit_center_elevation_deg": 12.567662260811296,
+    "approximate_receive_center_elevation_deg": 12.560756473674912,
+    "minimum_center_elevation_deg": 12.560756473674912,
+    "candidate_at_or_below4deg": false
+  },
+  "minimum_other_source_center_margin_above3deg": 9.560756473674912,
+  "source_rows_csv_external": "results/llr-year-2017-geometry-preflight/all_source_geometry.csv",
+  "source_rows_csv_sha256": "4680de0485ae8abf4ddd90956ce95c2a482a50d258dda14e9add83cb2a3a6d7a",
+  "external_summary_sha256": "525a6ff8cb28034ea551d251cdcaa962ee92649f34974c4caaf7213271f412c3",
+  "script_sha256": "ed73426b06a3c513d62348ee095554cc45f9d6da14b0f73a98fdd92d7e7fa1bc",
+  "kernel_binary_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "kernel_sha256": {
+    "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+    "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+    "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+    "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+    "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+    "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+  },
+  "source_apollo_file_sha256": "76ab2a5a75580fbb5495251126b2681f80477732ce573e9b31c9734681f8ac93",
+  "source_grasse_inventory_sha256": "de2f04dd423b94307d93139943cbe689bcc3f2c4b76f8ef18067a0e5933820a1",
+  "station_profile_file_sha256": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6",
+  "observation_solves": 0
+}
