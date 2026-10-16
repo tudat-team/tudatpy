@@ -1,26 +1,27 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from tudatpy.astro.time_representation import julian_day_to_seconds_since_epoch
 from tudatpy.dynamics.environment_setup.shape import polyhedron
 from tudatpy.dynamics.environment_setup import rotation_model
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000
-from warnings import warn
 from tudatpy.resource_installer import download_extra_file, DEFAULT_DEST, DEFAULT_CACHE
 import tarfile
 import sys
 from functools import cache
+import matplotlib.pyplot as plt
 
 # Location of DAMIT archive files under tudat/resources
-DAMIT_RESOURCES = DEFAULT_DEST / "damit"
+_DAMIT_RESOURCES = DEFAULT_DEST / "damit"
 
 
 @cache
 def _damit_files_path() -> Path:
     """Find the path to the DAMIT catalog"""
     # Lookup files in damit resources
-    if DAMIT_RESOURCES.is_dir():
-        for path in DAMIT_RESOURCES.iterdir():
+    if _DAMIT_RESOURCES.is_dir():
+        for path in _DAMIT_RESOURCES.iterdir():
             if path.is_dir() and path.name.startswith("damit-"):
                 return path
 
@@ -44,19 +45,20 @@ def _download_latest_damit_models() -> None:
         if user_query.lower() == "y":
             break
 
-    DAMIT_RESOURCES.mkdir(parents=True, exist_ok=True)
+    _DAMIT_RESOURCES.mkdir(parents=True, exist_ok=True)
     url = "https://damit.cuni.cz/projects/damit/exports/complete/latest"
 
     tar_path = download_extra_file(
-        url=url, dest_path=DAMIT_RESOURCES / "damit.tar.gz", cache_dir=DEFAULT_CACHE, force=False
+        url=url, dest_path=_DAMIT_RESOURCES / "damit.tar.gz", cache_dir=DEFAULT_CACHE, force=False
     )
 
+    print("Extracting files...")
     with tarfile.open(tar_path, "r:*") as tar:
-        tar.extractall(DAMIT_RESOURCES, filter="data")
+        tar.extractall(_DAMIT_RESOURCES, filter="data")
 
     tar_path.unlink()  # Remove compressed file
 
-    print(f"DAMIT files saved to {str(DAMIT_RESOURCES)}")
+    print(f"DAMIT files saved to {str(_DAMIT_RESOURCES)}")
 
 
 def _load_table() -> pd.DataFrame:
@@ -65,6 +67,7 @@ def _load_table() -> pd.DataFrame:
     asteroid_data = pd.read_csv(
         _damit_files_path() / "tables" / "asteroids.csv", dtype={"number": "Int64"}
     ).rename(columns={"number": "mpc_number", "id": "asteroid_id"})
+
     # Model data containing actual models
     asteroid_models = pd.read_csv(
         _damit_files_path() / "tables" / "asteroid_models.csv",
@@ -84,8 +87,8 @@ def _load_table() -> pd.DataFrame:
     )
     asteroid_models["period"] = asteroid_models["period"] * 3600
     asteroid_models["epoch"] = asteroid_models["jd0"].transform(julian_day_to_seconds_since_epoch)
-    asteroid_models[["equiv_diameter", "diameter_err"]] = (
-        1e3 * asteroid_models[["equiv_diameter", "diameter_err"]]
+    asteroid_models[["equiv_diameter", "equiv_diameter_err"]] = (
+        1e3 * asteroid_models[["equiv_diameter", "equiv_diameter_err"]]
     )
     return asteroid_models
 
@@ -121,6 +124,7 @@ class DamitModel:
         self,
         mpc_number: int | None = None,
         damit_model_id: int | None = None,
+        diameter: float | None = None,
     ):
         """
         Initialize a DamitModel object
@@ -131,7 +135,10 @@ class DamitModel:
             If given, queries a DamitModel by small-body MPC number. The model with the highest quality flag is selected.
             If there is no highest flag, selection is arbitrary
         damit_model_id : int, optional
-            If given, queries a DamitModel by the Damit model Id
+            If given, queries a DamitModel by the Damit model ID
+        diameter : float, optional
+            Volume-equivalent diameter to scale the shape model to. This is used as a fall-back option, in case the
+            model has no shape information available.
         """
         # Query by mpc number and choose best model
         if mpc_number and not damit_model_id:
@@ -153,25 +160,73 @@ class DamitModel:
             self._data = None
             raise ValueError("Must specify either a valid MPC number or Damit Model ID")
 
+        # Load the shape model
+        self._vertices, self._facets = self._load_shape_model(self._data, diameter)
+
     @property
-    def _path_to_shape_model(self) -> Path:
-        """Returns the path to the shape model file"""
+    def metadata(self) -> pd.Series:
+        """Returns a read-only copy of the model metadata"""
+        return self._data.copy(deep=True)
+
+    @staticmethod
+    def _load_shape_model(
+        model_metadata: pd.Series, diameter: float | None
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Locates and loads the polyhedron shape model"""
+
+        # Load shape model from DAMIT data
         shape_model_file = (
             _damit_files_path()
             / "files"
-            / f'asteroid_{self._data["asteroid_id"]}'
-            / f"model_{self._data.name}"
+            / f'asteroid_{model_metadata["asteroid_id"]}'
+            / f"model_{model_metadata["id"]}"
             / "shape.txt"
         )
-        return shape_model_file
+        if not shape_model_file.exists():
+            raise FileNotFoundError("Shape model file for this asteroid model could not be found")
 
-    def polyhedron_rotational_ephemeris_settings(self, base_frame: str):
+        with open(shape_model_file, "r") as f:
+            number_of_vertices, number_of_facets = [
+                int(num) for num in f.readline().strip().split()
+            ]
+
+        vertices_and_facets = np.loadtxt(shape_model_file, skiprows=1)
+        vertices = vertices_and_facets[:number_of_vertices]
+        facets = vertices_and_facets[number_of_vertices:].astype(int) - 1  # Apply zero-indexing
+
+        # Scale model for size
+        if model_metadata["calibrated_size"] == 1:
+            # Shape model size is in KM3, resize to m3
+            scale_factor = 1e3
+        elif pd.notna(model_metadata["equiv_diameter"]) or diameter:
+            used_diameter = (
+                model_metadata["equiv_diameter"]
+                if pd.notna(model_metadata["equiv_diameter"])
+                else diameter
+            )
+            required_volume = (4 / 3) * np.pi * (used_diameter / 2) ** 3
+            scale_factor = np.cbrt(required_volume)  # Assumes DAMIT model is unit volume
+        else:
+            raise RuntimeError(
+                "This asteroid shape model has no size information and no diameter was given. "
+                "It cannot be converted into a shape model"
+            )
+
+        return vertices * scale_factor, facets
+
+    def polyhedron_rotational_ephemeris_settings(self, base_frame: str) -> rotation_model.simple:
         """
         Create rotational ephemeris settings of the polyhedron shape model
 
+        Parameters
+        ----------
+        base_frame : str, optional
+            Base frame used in the environment. Options: "J2000", "ECLIPJ2000"
+
         Returns
         -------
-
+        RotationModelSettings
+            Simple rotation model settings for this DAMIT shape model
         """
         if base_frame not in ("J2000", "ECLIPJ2000"):
             raise ValueError("`base_frame` must be J2000 or ECLIPJ2000")
@@ -201,63 +256,63 @@ class DamitModel:
             rotation_rate=2 * np.pi / self._data["period"],
         )
 
-    def polyhedron_shape_model(
-        self,
-        diameter: float | None = None,
-        compute_altitude_with_sign: bool = True,
-        just_compute_distance_to_vertices: bool = False,
-    ):
+    def polyhedron_shape_model(self, *args, **kwargs) -> polyhedron:
         """
         Convert the shape model into Tudat polyhedron shape model settings
 
         Parameters
         ----------
-        diameter : float, optional
-            A volume equivalent diameter can be provided, which is used when the shape model has no size information.
-            It is used as a fall-back option, meaning the DAMIT sizes are always used when possible
-        compute_altitude_with_sign : bool, optional
-            See ...
-        just_compute_distance_to_vertices : bool, optional
-            See ...
+        args, kwargs
+            Remaining inputs are passed to shape.polyhedron()
 
         Returns
         -------
 
         """
-        with open(self._path_to_shape_model, "r") as f:
-            number_of_vertices, number_of_facets = [
-                int(num) for num in f.readline().strip().split()
-            ]
-
-        vertices_and_facets = np.loadtxt(self._path_to_shape_model, skiprows=1)
-        vertices = vertices_and_facets[:number_of_vertices]
-        facets = vertices_and_facets[number_of_vertices:].astype(int)
-
-        # Scale model for size
-        if self._data["calibrated_size"] == 1:
-            # Shape model size is in KM3, resize to m3
-            scale_factor = 1e3
-        elif self._data["equiv_diameter"] or diameter:
-            used_diameter = (
-                self._data["equiv_diameter"] if self._data["equiv_diameter"] else diameter
-            )
-            required_volume = (4 / 3) * np.pi * (used_diameter / 2) ** 3
-            scale_factor = np.cbrt(required_volume)  # Assumes DAMIT model is unit volume
-        else:
-            scale_factor = 1
-            warn(
-                "This asteroid shape model has no size information and no diameter was given. "
-                "The size of the polyhedron shape model will be unit volume"
-            )
-
-        vertices *= scale_factor
-
         return polyhedron(
-            vertices_coordinates=vertices,
-            vertices_defining_each_facet=facets - 1,  # Convert to zero based indexing
-            compute_altitude_with_sign=compute_altitude_with_sign,
-            just_compute_distance_to_vertices=just_compute_distance_to_vertices,
+            vertices_coordinates=self._vertices,
+            vertices_defining_each_facet=self._facets,
+            *args,
+            **kwargs,
         )
+
+    def plot_shape_model(
+        self,
+        show: bool = True,
+    ) -> plt.Axes:
+        """
+        Plots the polyhedron using Matplotlib's 3D plotting interface
+
+        Parameters
+        ----------
+        show : bool, optional
+            If true, calls ``matplotlib.pyplot.show``
+
+        Returns
+        -------
+        plt.Axes
+            Matplotlib Axes object
+        """
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        ax.add_collection3d(
+            Poly3DCollection(
+                self._vertices[self._facets],
+                facecolors="lightgrey",
+                shade=True,
+                label="Shape model",
+            )
+        )
+
+        ax.set_aspect("equal")
+        ax.set(xlabel="x (m)", ylabel="y (m)", zlabel="z (m)")
+        ax.set_title(f"Shape model MPC {self._data['mpc_number']} (model ID {self._data['id']})")
+        ax.legend()
+
+        if show:
+            plt.show()
+
+        return ax
 
     def best_fitting_ellipsoid_shape_model(self):
         pass
