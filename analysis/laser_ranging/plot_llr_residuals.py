@@ -35,12 +35,16 @@ def read_points(path, station=None):
             name = row.get("station") or station
             residual = float(row["one_way_residual_m"])
             sigma = float(row["one_way_sigma_m"]) if row.get("one_way_sigma_m") else None
+            wavelength = float(row["wavelength_nm"]) if row.get("wavelength_nm") else None
 
             if not name or row["reflector"] not in REFLECTORS or not np.isfinite(residual):
                 raise ValueError(f"Invalid station, reflector or residual: {path}:{line}")
 
             if sigma is not None and (not np.isfinite(sigma) or sigma <= 0):
                 raise ValueError(f"Invalid provider normal-point sigma: {path}:{line}")
+
+            if wavelength is not None and (not np.isfinite(wavelength) or wavelength <= 0):
+                raise ValueError(f"Invalid wavelength: {path}:{line}")
 
             points.append(
                 dict(
@@ -49,6 +53,7 @@ def read_points(path, station=None):
                     reflector=row["reflector"],
                     residual=residual,
                     sigma=sigma,
+                    wavelength_nm=wavelength,
                 )
             )
 
@@ -121,6 +126,13 @@ def plot(points, output, title, connect_means):
     fig, axes = plt.subplots(5, 1, sharex=True, figsize=(11, 12), constrained_layout=True)
     stations = sorted({p["station"] for p in points})
     first, last = min(p["epoch"] for p in points), max(p["epoch"] for p in points)
+    station_wavelengths = {
+        station: sorted(
+            {p["wavelength_nm"] for p in points if p["station"] == station},
+            key=lambda value: value or -1,
+        )
+        for station in stations
+    }
 
     for reflector, ax in zip(REFLECTORS, axes):
         ax.axhline(0, color="0.65", linewidth=0.7)
@@ -135,16 +147,28 @@ def plot(points, output, title, connect_means):
                 continue
 
             color = COLORS.get(station, f"C{index}")
-            dates = [p["epoch"] for p in group]
-            residuals = [p["residual"] * 1000 for p in group]
-            ax.scatter(
-                dates,
-                residuals,
-                s=25,
-                color=color,
-                label=f"{station} raw (n={len(group)})",
-                zorder=3,
-            )
+            # Preserve station colors while distinguishing its optical wavelengths across all panels.
+            mixed_wavelengths = len(station_wavelengths[station]) > 1
+
+            for wavelength in station_wavelengths[station]:
+                optical_group = [p for p in group if p["wavelength_nm"] == wavelength]
+
+                if not optical_group:
+                    continue
+
+                wavelength_label = (
+                    f" {wavelength:g} nm" if wavelength is not None else " unspecified wavelength"
+                )
+                marker = "^" if wavelength is not None and wavelength >= 800 else "o"
+                ax.scatter(
+                    [p["epoch"] for p in optical_group],
+                    [p["residual"] * 1000 for p in optical_group],
+                    s=25,
+                    color=color,
+                    marker=marker if mixed_wavelengths else "o",
+                    label=f"{station}{wavelength_label if mixed_wavelengths else ''} raw (n={len(optical_group)})",
+                    zorder=3,
+                )
             supplied = [p for p in group if p["sigma"] is not None]
 
             if supplied:
@@ -168,7 +192,7 @@ def plot(points, output, title, connect_means):
                     color=color,
                     markersize=4,
                     linewidth=1,
-                    label=f"{station} nightly raw mean (unweighted)",
+                    label=f"{station} nightly raw mean (unweighted{', both wavelengths' if mixed_wavelengths else ''})",
                 )
 
         ax.set_ylabel(f"{reflector}\nO−C (mm)")
@@ -249,6 +273,7 @@ def main():
         points_plotted=len(points),
         statistics=describe(points),
         plot_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        wavelength_markers="For stations with mixed wavelengths: triangles >=800nm, circles <800nm; raw nightly means/statistics retain all wavelengths unchanged",
         interpretation="Every raw point retained; no offset, trend or outlier removed. Slopes describe unweighted nightly means separately by station and reflector. Two months do not establish a robust monthly period. Plot timestamps use datetime display precision; source CSV bytes are unchanged.",
     )
     (args.output / "plot_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
