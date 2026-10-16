@@ -215,6 +215,7 @@
   },
   "independent_verification": {
     "source_commit": "5c226e25e7c06a3d8da94751b6a592964c2cdb17",
+    "integration_source_commit": "e2eed896b",
     "report": "../../llr_year_2017_sources/annual_output_verification.md",
     "computed_range_overlap_rows": 915,
     "all_overlaps_bit_identical": true

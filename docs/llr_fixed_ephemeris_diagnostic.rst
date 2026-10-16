@@ -1,10 +1,93 @@
 Fixed-ephemeris lunar laser ranging diagnostic
 ==============================================
 
-Current primary: paired March--April 2017 arc
---------------------------------------------
+Current primary: calendar 2017
+------------------------------
 
-The current primary result uses fixed DE440/ICRF and the independently
+The annual comparison uses the same fixed ephemeris profiles and published
+station coordinates as the March--April control. No orbit, station coordinate,
+bias or trend is estimated. The declared interval is January 1, 2017 through
+January 1, 2018, exclusive. Actual eligible coverage is January 6--December 31
+for APOLLO (311 points on 42 UTC dates), and January 6--December 21 for Grasse
+(1,268 points on 113 dates).
+
+.. csv-table:: Annual raw one-way residuals, millimetres
+   :header: "Model / separate glass", "Station", "N", "Mean", "RMS about zero", "95th percentile absolute"
+
+   "DE440 / JPL n*h", "APOLLO", "311", "+15.626", "72.395", "146.130"
+   "DE440 / JPL n*h", "Grasse", "1268", "+77.172", "3102.942", "151.711"
+   "INPOP17a / JPL n*h", "APOLLO", "311", "-51.842", "56.255", "89.357"
+   "INPOP17a / JPL n*h", "Grasse", "1268", "+24.734", "3097.276", "107.421"
+   "INPOP17a / none", "APOLLO", "311", "-8.220", "22.986", "46.205"
+   "INPOP17a / none", "Grasse", "1268", "+73.833", "3098.441", "50.259"
+
+Both INPOP optical conventions remain explicit sensitivities: the fitted
+reflector optical reference point is not established by the retrieved sources.
+The smaller residuals alone do not identify the correct convention.
+
+The `annual result package <../analysis/laser_ranging/results/year_2017/README.md>`_
+contains all three raw time series, the full-precision statistics table,
+unconnected PNG/PDF figures, commands and source/binary provenance. Each case
+has a full-range figure and a separate +/-200 mm detail view.
+
+The year reveals an additional retained Grasse L1 discrepancy of **+110.328 m**
+on June 22 at 09:47:06.763983741400 UTC, ``luna17_201706.npt`` line 154, in the
+no-separate-glass case. It dominates the Grasse RMS. Its cause is unresolved;
+it is not removed or recentered. Full-range figures show every eligible point,
+while separate, explicitly labelled +/-200 mm detail views show the central
+structure. Residuals and optional nightly means use unconnected markers.
+
+Temporal structure remains at the centimetre level. In the no-separate-glass
+case, A11 monthly medians fall together at both stations during June--July:
+APOLLO -42.8/-38.4 mm and Grasse -48.5/-48.6 mm. L1 becomes positive at both
+stations in May (+18.8/+22.8 mm). Multiple rises and falls remain; no physical
+period is fitted or established. Pooled monthly statistics mix different
+reflectors and viewing geometries, so their changes do not measure station
+drift. The 64 same-reflector nearest-night comparisons have gaps of 2.13--11.46
+hours and are not simultaneous station-bias measurements.
+
+The source selection and its limitations are explicit:
+
+* The original requested Grasse A15 exclusion on March 9 is retained.
+* Two February 20 records report round-trip times of 24.976 and 17.271 ns,
+  corresponding to 3.74 and 2.59 m half-ranges. They are separately classified
+  as invalid lunar paths by exact source identity, without using residuals.
+  Official daily products repeat the same records; their cause is unknown.
+* Three June 22 points retain the last measured weather beyond the ordinary
+  endpoint allowance. Their meteorological error is unquantified. The large
+  L1 discrepancy is one of these points, but this does not attribute it to
+  weather. No later meteorology is invented.
+* An identical August 28 source record occurs twice. Both source lines remain;
+  they are not independent observations.
+
+The `source audit <../analysis/laser_ranging/llr_year_2017_sources/README.md>`_
+preserves all 1,582 original source identities and all provider-file hashes.
+The `independent output verification
+<../analysis/laser_ranging/llr_year_2017_sources/annual_output_verification.md>`_
+confirms every eligible identity, the exact exclusions, weather flags and
+coverage. All **915 overlapping computed ranges** (305 per model) are
+bit-identical to the March--April controls. The three annual runs took
+**236.6 seconds total wall time** as independent single-thread processes using
+the unchanged native binary. No numerical tolerance or physical formula changed.
+
+Use the existing driver with the annual manifest::
+
+    python analysis/laser_ranging/llr_long_arc.py \
+      --dataset-manifest analysis/laser_ranging/llr_year_2017_dataset.json \
+      --data-root /path/to/llr-year-2017 \
+      --kernel-dir /path/to/llr/kernels \
+      --ephemeris de440 --glass-convention jpl-nh \
+      --output /path/to/new-output
+
+For INPOP, select ``--ephemeris inpop17a``, its matched kernel directory, and
+explicitly choose ``--glass-convention jpl-nh`` or ``--glass-convention none``.
+The raw source files and preparation instructions are pinned in
+`llr_year_2017_dataset.json <../analysis/laser_ranging/llr_year_2017_dataset.json>`_.
+
+March--April control after the requested exclusion
+-------------------------------------------------
+
+The March--April control uses fixed DE440/ICRF and the independently
 preselected INPOP17a G+IR APOLLO/Grasse station pair. The current selection has
 **305 points**: 69 APOLLO points on nine UTC nights and 236 Grasse points on 24 nights, across
 all five reflectors. Raw one-way RMS about zero is **58.488 mm** for APOLLO and

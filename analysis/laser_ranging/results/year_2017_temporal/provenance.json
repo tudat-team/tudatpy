@@ -16,7 +16,7 @@
     "inpop17a_jpl_nh": "../year_2017/inpop17a_jpl_nh/residuals.csv",
     "inpop17a_no_separate_glass": "../year_2017/inpop17a_no_separate_glass/residuals.csv"
   },
-  "verification": "Monthly values/N and complete paired-night CSVs exactly reproduce the independent external analysis; raw CSVs never modified; all three cases share identical413unmatched-night rows.",
+  "verification": "Monthly values and counts and complete paired-night CSVs exactly reproduce the independent external analysis; raw CSVs are unchanged; all three cases share the same 413 unmatched-night rows.",
   "output_sha256": {
     "README.md": "27c6f8ad3eb0bc87aec42a0299b8001aa78c37349d4e1e578b9ad25a97c3b27a",
     "de440/dated_nightly_extrema.csv": "b4dcabf66a9772c88aa7799767004cdddefc7bb13907868f62bd79612dd23864",
