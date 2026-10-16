@@ -1,0 +1,206 @@
+{
+  "scope": "Read-only absolute epoch audit; three original observations, no changed clock/tolerance or full arc rerun.",
+  "source_revision": "55ce9392037ebad1321b488df31422a1087ff3e3",
+  "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "erfa_version": "2.0.1.5",
+  "model_source_sha256": "655f1a14a0a966c41f9f05b68052d22d0be8ccefb9e0e6020d8e8c506384f5fb",
+  "driver_source_sha256": "723e80ea26a5b3d72bb8602edeedfa70a9f36291043b4f93ab3c4e5e86de02ff",
+  "audit_source_sha256": "89ec7667d84fa6c8a07e32247faae7be4c1eb9d0149915042de739cd40d117da",
+  "independent_reference": "ERFA2.0.1.5 SOFA-derived dtf2d/utctai/taitt/dtdb; independent Python route and calendar parser. Native selected UT1 supplied only for topocentric term.",
+  "primary_reference": "https://www.iausofa.org/s/sofa_ts_c.pdf sections4.3.4/4.4; localSOFA dtdb.c notes1,6,7.",
+  "sofa_source": "/home/dominic/Tudat/sofa-cmake/src/dtdb.c",
+  "sofa_source_sha256": "a33cea5d9f0dfad9629fe758537e6f99e8f9bc02cf4d578e021c2ecfc0ea607c",
+  "de440_header_sha256": "0f4636b663e6f00af9efa2b605ef23635489f56b23dd1a5e3821d3acc6ac3359",
+  "de440_group1050": [
+    [
+      3,
+      171,
+      231,
+      309,
+      342,
+      366,
+      387,
+      405,
+      423,
+      441,
+      753,
+      819,
+      899,
+      1019,
+      1019
+    ],
+    [
+      14,
+      10,
+      13,
+      11,
+      8,
+      7,
+      6,
+      6,
+      6,
+      13,
+      11,
+      10,
+      10,
+      0,
+      0
+    ],
+    [
+      4,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      8,
+      2,
+      4,
+      4,
+      0,
+      0
+    ]
+  ],
+  "de440_tt_minus_tdb_available": false,
+  "de440_time_ephemeris_note": "Column15 TT\u2212TDB has zero coefficients/subintervals in original cached DE440 ASCII; no independent DE440 time-ephemeris comparison is possible with this file. Fairhead/SOFA is not claimed exactDE440.",
+  "implementation_trace": [
+    "llr_long_arc.py converts UTC\u2192TDB once with convert_time_object and selected station/converter.",
+    "computed_range passes this Time into tabulated_simulation_settings with reference transmitter.",
+    "simulateObservationWithCheck passes observationTime directly into computeObservationsWithLinkEndData.",
+    "NWayRange forwards input Time directly to full-link light-time calculator; TAI selection adjusts only final RX\u2212TX interval."
+  ],
+  "numerical_limit": "Independent ERFA uses splitJD, native splitTime comparisons avoid subtracting large epoch floats. Diagnostic link-end epochs are double, explicitly measured separately; native solver input and retained collection epoch preserve Time exactly. SOFA dtdb note7 specifies better than\u00b13ns over1950\u20132050 relative to DE405 numerical time ephemerides, not a verified bound versusDE440. At100m/s even10ns is1\u00b5m; independent analytic agreement rules out missing~1.6ms but is not an independent DE440 time integration.",
+  "rows": [
+    {
+      "station": "APOLLO",
+      "utc": "2017-03-02T01:22:55.0000000",
+      "source_file": "apollo_group_e_20170301_20170430.txt",
+      "source_line": 124,
+      "station_profile": "inpop17a-gir",
+      "nominal_xyz_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "utc_time_split": [
+        150469,
+        1375.0
+      ],
+      "launch_tdb_time_split": [
+        150469,
+        1444.1854101453862
+      ],
+      "selected_ut1_time_split": [
+        150469,
+        1375.51522088508
+      ],
+      "utc_parser_minus_independent_label_s": 0.0,
+      "native_tt_minus_utc_s": 69.184,
+      "erfa_tt_minus_utc_s": 69.184,
+      "native_topocentric_tdb_minus_tt_s": 0.0014101453862565005,
+      "erfa_topocentric_tdb_minus_tt_s": 0.0014101453862565194,
+      "native_geocentric_tdb_minus_tt_s": 0.0014122328390658856,
+      "erfa_geocentric_tdb_minus_tt_s": 0.0014122328390659385,
+      "absolute_native_minus_independent_tdb_s": 0.0,
+      "absolute_geocentric_minus_independent_tdb_s": 0.0,
+      "simulation_epoch_minus_launch_s": 0.0,
+      "retained_result_epoch_minus_launch_s": 0.0,
+      "dependent_transmit_double_equals_launch_double": true,
+      "dependent_transmit_double_roundoff_s": -3.441368745527029e-09,
+      "native_computed_atomic_range_m": 728413363.094847,
+      "geocentric_range_rate_m_per_s": -11.261185015957102,
+      "hypothetical_range_change_from_one_extra_geocentric_tdb_minus_tt_m": -0.015903415286331903
+    },
+    {
+      "station": "GRASSE",
+      "utc": "2017-03-09T18:34:15.297622200200",
+      "source_file": "apollo15_201703.npt",
+      "source_line": 171,
+      "station_profile": "inpop17a-grasse-gir",
+      "nominal_xyz_m": [
+        4581692.1349,
+        556196.078,
+        4389355.104
+      ],
+      "utc_time_split": [
+        150654,
+        2055.2976222002035
+      ],
+      "launch_tdb_time_split": [
+        150654,
+        2124.4831359051973
+      ],
+      "selected_ut1_time_split": [
+        150654,
+        2055.80226788987
+      ],
+      "utc_parser_minus_independent_label_s": 3.4774405577309153e-12,
+      "native_tt_minus_utc_s": 69.184,
+      "erfa_tt_minus_utc_s": 69.1840000000024,
+      "native_topocentric_tdb_minus_tt_s": 0.001513704993684195,
+      "erfa_topocentric_tdb_minus_tt_s": 0.0015137049936842569,
+      "native_geocentric_tdb_minus_tt_s": 0.0015156411938255232,
+      "erfa_geocentric_tdb_minus_tt_s": 0.0015156411938254096,
+      "absolute_native_minus_independent_tdb_s": 1.0758061108617767e-12,
+      "absolute_geocentric_minus_independent_tdb_s": 1.0760281554667017e-12,
+      "simulation_epoch_minus_launch_s": 0.0,
+      "retained_result_epoch_minus_launch_s": 0.0,
+      "dependent_transmit_double_equals_launch_double": true,
+      "dependent_transmit_double_roundoff_s": 3.3447250080698154e-08,
+      "native_computed_atomic_range_m": 746733566.4651275,
+      "geocentric_range_rate_m_per_s": 33.39109027433368,
+      "hypothetical_range_change_from_one_extra_geocentric_tdb_minus_tt_m": 0.05060891192652312
+    },
+    {
+      "station": "APOLLO",
+      "utc": "2017-04-21T12:14:15.0000000",
+      "source_file": "apollo_group_e_20170301_20170430.txt",
+      "source_line": 192,
+      "station_profile": "inpop17a-gir",
+      "nominal_xyz_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "utc_time_split": [
+        151680,
+        855.0
+      ],
+      "launch_tdb_time_split": [
+        151680,
+        924.1855754846048
+      ],
+      "selected_ut1_time_split": [
+        151680,
+        855.439461960199
+      ],
+      "utc_parser_minus_independent_label_s": 0.0,
+      "native_tt_minus_utc_s": 69.184,
+      "erfa_tt_minus_utc_s": 69.1840000000024,
+      "native_topocentric_tdb_minus_tt_s": 0.0015754846048069981,
+      "erfa_topocentric_tdb_minus_tt_s": 0.0015754846048070068,
+      "native_geocentric_tdb_minus_tt_s": 0.0015742682907159966,
+      "erfa_geocentric_tdb_minus_tt_s": 0.0015742682907159908,
+      "absolute_native_minus_independent_tdb_s": -2.4016344468691386e-12,
+      "absolute_geocentric_minus_independent_tdb_s": -2.4016344468691386e-12,
+      "simulation_epoch_minus_launch_s": 0.0,
+      "retained_result_epoch_minus_launch_s": 0.0,
+      "dependent_transmit_double_equals_launch_double": true,
+      "dependent_transmit_double_roundoff_s": 6.246876904647536e-10,
+      "native_computed_atomic_range_m": 761367801.9026171,
+      "geocentric_range_rate_m_per_s": -69.35563999103687,
+      "hypothetical_range_change_from_one_extra_geocentric_tdb_minus_tt_m": -0.10918438482020322
+    }
+  ],
+  "max_abs_absolute_epoch_difference_s": 2.4016344468691386e-12,
+  "conclusion": "No missed/doubled absolute TT\u2194TDB conversion found. Positive~1.6ms periodic correction is present exactlyonce before the native solver; atomic output clock does not remap the launch.",
+  "audit_packaging_note": "After execution, clarify SOFA note7 published accuracy is relativeDE405, not a verified bound versusDE440; computations unchanged.",
+  "kernel_native_source_revision": "a366f436c6f6ff03aa57f8b1610075784196bdf8",
+  "kernel_path": "/home/dominic/Tudat/laser-ranging-build/src/tudatpy/kernel.so",
+  "raw_source_label_precision": "UTC strings copied verbatim from frozen source identity ledger. Grasse label retains12decimal places; native CRD double seconds parser differs from decimal-label Time by3.477ps for this point. Native Time deltas are compared before any serialization to Python float.",
+  "portable_script_packaging": "Local paths replaced by CLI arguments and repository-relative model imports; formatting only otherwise. No further observation runs during packaging.",
+  "portable_script_sha256": "d102af19f0826c21400a75937e7f725216697231a3d087a50c25464a31b23248"
+}
