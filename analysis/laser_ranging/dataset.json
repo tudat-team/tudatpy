@@ -342,5 +342,25 @@
     "sha256": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
     "source": "Installed Tudat resources; Desai and Sibois (2016), doi:10.1002/2016JB013125, supporting information ds01; SI conversion is native.",
     "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "optional/opoleloadcoefcmcor.txt",
+    "url": "https://iers-conventions.obspm.fr/content/chapter7/additional_info/opoleloadcoefcmcor.txt.gz",
+    "size": 24106409,
+    "sha256": "3b1d099df46af0c4a7b5d3fd58db609e1b59579fc4329d29f1150b8cf1375e64",
+    "retrieved_on": "2026-10-14",
+    "scope": "Explicit high-tidal deformation profile; original baseline unchanged",
+    "conventions": "Official Desai (2002) ocean-pole grid, generated 2006-03-28; 720 by 360, 0.5 degree cell-centred geographic grid; whole-Earth CM correction already applied. Native ocean_pole_tidal uses the selected Earth rotation converter and 2018 secular pole; no additional CM translation.",
+    "rights": "Public scientific model from the stated provider; retain model citation. Data bytes are kept outside the repository."
+  },
+  {
+    "path": "optional/s1_s2_def_ce.dat",
+    "url": "https://www.aiub.unibe.ch/download/BSWUSER54/MODEL/s1_s2_def_ce.dat",
+    "size": 7514370,
+    "sha256": "b4f63531f1e565a37c664884fc708e5c85ce6dee1a2fbcdfcaf118be75062a6a",
+    "retrieved_on": "2026-10-14",
+    "scope": "Explicit high-tidal deformation profile; original baseline unchanged",
+    "conventions": "RP03 Ray and Ponte (2003), no inverted barometer, Farrell elastic Green functions; 361 by 181, one degree CE coefficients in millimetres, geocentric latitude and radial/north/east basis. Native reader converts to metres; continuous UT1 synthesis includes IERS Table 7.6 CE-to-CM translation once. No extra phase correction or harmonic set.",
+    "rights": "Public scientific model from the stated provider; retain model citation. Data bytes are kept outside the repository."
   }
 ]

@@ -80,7 +80,7 @@ changing cadence and gaps are rejected. A common interior margin is used for all
 iteration and the velocity difference stencil. This deliberately excludes usable
 source endpoints rather than extrapolating a high-order polynomial there.
 
-The observation model operates in BCRS with J2000 axes and an SSB origin. The SP3
+The observation model operates in BCRS with ICRF axes and an SSB origin. The SP3
 callback evaluates
 
 `TT_site = TT_geocentre(TDB) - v_E dot r_GCRS / c^2`,
@@ -93,6 +93,12 @@ analysis-local custom station displacement supplies `-delta_t * v_rot`, expresse
 in terrestrial axes. It uses the nominal rigid station; retiming of tectonic and
 tidal displacements, acceleration terms and higher relativistic orders are not
 included. This is a documented approximation, not a relabelling of TT as TDB.
+The analysis loads `icrf_spice_alias.tf`, an identity alias for the axes of these
+modern NAIF products, and consistently requests ICRF ephemerides and Earth
+rotation. Earlier results labelled J2000 used Tudat's additional frame bias and
+remain historical controls. New baseline and high-tidal comparisons share the
+corrected axes. The SP3 callback now passes `Time` directly to Earth rotation;
+the small custom station-retiming callback retains its existing double epoch.
 The native custom station factory accepts a position correction and pads its
 velocity with zeros; that velocity is not used by the range observable.
 
@@ -166,7 +172,8 @@ explicitly; no route is selected by its residual mean.
   stops this bounded analysis rather than being silently ignored.
 - Native IERS2010 solid and pole tides act on conventional tide-free station
   coordinates. The current native shared mean-pole convention is retained.
-  No atmospheric-pressure loading is applied, matching the dated ASI description.
+  The default deformation profile adds no atmospheric-pressure loading, matching
+  the dated ASI description.
 - **Exact GOT4.10c ocean loading is absent by default.** The summary labels this
   omission. `--got410c-blq /path/to/product.blq` accepts a user-declared compatible
   product, records its hash, and uses native HARDISP synthesis. Its station labels
@@ -192,6 +199,67 @@ explicitly; no route is selected by its residual mean.
   using the observed half-flight time to locate the passive bounce for selection.
   No cut is made on a computed residual. Weather and orbit coverage exclusions
   are listed separately. The final Graz session crosses the weekly orbit end.
+
+### Explicit high-tidal deformation profile
+
+`--deformation-profile high-tidal` retains solid/pole tides and requires the
+pinned geodetic GOT4.10c HARPOS realization plus both real provider grids:
+
+```
+python analysis/laser_ranging/fixed_orbit_slr.py \
+  --data-root /path/to/frozen-week-data --output /path/to/new-result-directory \
+  --earth-orientation desai-sibois-four-point \
+  --deformation-profile high-tidal \
+  --got410c-harpos /path/to/toc_got410c_harmod.hps \
+  --ocean-pole-grid /path/to/opoleloadcoefcmcor.txt \
+  --atmospheric-tide-grid /path/to/s1_s2_def_ce.dat
+```
+
+Select `--week-ending 2024-04-13` and its frozen data root for the second week.
+The paired baseline uses the same Earth-orientation option, HARPOS file, ICRF
+axes, kernel and time routes, omitting only the deformation profile and two grids.
+Both grids are checked against pinned hashes even if their local files are
+renamed. The manifest gives download URLs; provider bytes stay outside the repo.
+
+The official Desai ocean-pole grid already includes its whole-Earth CM
+correction. Native `ocean_pole_tidal` applies no second origin translation and
+uses the rotation-owned converter and 2018 secular pole. RP03 is the original
+CE Ray-Ponte 2003/no-IB/Farrell grid: 361 by 181 coefficients in millimetres,
+geocentric latitude and radial/north/east axes. The native reader converts units;
+synthesis uses continuous UT1 and adds the identified IERS Table 7.6 CE-to-CM
+translation once. No additional phase shift is applied. Direct atmospheric
+S1/S2 displacement and GOT's S1/S2 ocean response are distinct components;
+no second HARPOS/BLQ or atmospheric harmonic set is added. Existing station
+body-deformation motion evaluates the complete Earth model once at each station.
+This profile is a declared physical comparison, not exact reproduction of the
+provider's orbit determination or a profile chosen by its residual mean.
+
+The possible non-tidal extension remains excluded. Real IMLS `Grzl`/`Herl`
+CM/STW105 histories are cached for March 30 through April 15, 2024: atmosphere
+has all 65 six-hour samples; hydrology has 126 of 129 three-hour samples, missing
+April 12 18h/21h and April 13 03h TAI. No gap is filled. The atmospheric product
+removes the 1979–2015 mean and eight diurnal/semidiurnal harmonics, retaining
+annual/semiannual variations and drift. Hydrology removes the 1980–2017-02-28
+mean and 18 shorter-period harmonics, retaining annual/semiannual variations;
+its header does not establish trend removal. These anomaly origins are not
+zero displacement at the station reference epoch, and no local mean, trend or
+2015 displacement may be silently subtracted.
+
+The formal EPHEDISP specification says radial Up, but the current provider
+consumer `NASA/sgdass` revision `aca77c2e11d6241c4b51c25a9815ab8130ee611b`
+uses [`MAKE_UEN_TO_XYZ` with geodetic Up](https://github.com/nasa/sgdass/blob/aca77c2e11d6241c4b51c25a9815ab8130ee611b/malo/src/ephedisp_to_bin.f#L439) (lines 439/709;
+`a=6378137`, `f=1/298.257`). The native reader's radial interpretation therefore
+needs an explicit provider-consistent Cartesian conversion before use. Together
+with the unresolved relationship between the removed climatological means,
+retained drift and the fitted SLRF2020 linear coordinates, this prevents treating
+the cached histories as a compatible complete loading profile. No usable April
+2024 non-tidal ocean history was retrieved. The external
+`research/slr-loading-202404/history_sources.json` preserves every downloaded
+file URL/hash and exact site records (manifest SHA256
+`6c4bc3dc620329ead397ad376f88ab52d743a4f1426a261cd925e7bc219b7e96`);
+the data audit does not modify station
+coordinates or the frozen orbit. See also the [IERS chapter 7 guidance on
+consistent non-tidal loading treatment](https://iers-conventions.obspm.fr/content/chapter7/icc7.pdf).
 
 ## Outputs and precision assessment
 

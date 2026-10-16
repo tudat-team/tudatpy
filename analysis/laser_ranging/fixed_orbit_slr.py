@@ -23,7 +23,12 @@ from tudatpy import kernel
 from tudatpy import constants
 from tudatpy.astro import time_representation as time
 from tudatpy.data_input import environment_data, resource_paths
-from tudatpy.data_input.environment_data import earth_orientation, ilrs, station_history
+from tudatpy.data_input.environment_data import (
+    atmospheric_loading,
+    earth_orientation,
+    ilrs,
+    station_history,
+)
 from tudatpy.data_input.tracking_data import slr
 from tudatpy.dynamics import environment, environment_setup
 from tudatpy.dynamics.environment_setup import ephemeris, ground_station
@@ -238,13 +243,13 @@ class FixedOrbit:
             rotation_time = self.converter.convert_time_object(
                 time.tt_scale, time.tdb_scale, tt_site
             )
-            rotation = self.rotation.body_fixed_to_inertial_rotation(float(rotation_time))
+            rotation = self.rotation.body_fixed_to_inertial_rotation(rotation_time)
             position = rotation @ self.terrestrial_state(tt_site)[:3]
             tt_site = tt_geocentre - float(np.dot(earth_state[3:], position) / C**2)
 
         rotation_time = self.converter.convert_time_object(time.tt_scale, time.tdb_scale, tt_site)
         position = (
-            self.rotation.body_fixed_to_inertial_rotation(float(rotation_time))
+            self.rotation.body_fixed_to_inertial_rotation(rotation_time)
             @ self.terrestrial_state(tt_site)[:3]
         )
         potential = self.sun.gravity_field_model.gravitational_parameter / np.linalg.norm(
@@ -315,6 +320,32 @@ def station_simultaneity(earth, nominal_position):
         return -offset * (matrix.T @ derivative @ nominal_position)
 
     return position
+
+
+def additional_tidal_deformations(ocean_pole_grid, atmospheric_tide_grid):
+    """Read the pinned CM ocean-pole and RP03 CE grids, adding the RP03 CM translation once."""
+    ocean_pole = shape_deformation.ocean_pole_tidal(str(ocean_pole_grid))
+    metadata = atmospheric_loading.AtmosphericTideMetadata()
+    metadata.reference_origin = (
+        atmospheric_loading.AtmosphericLoadingReferenceOrigin.solid_earth_centre
+    )
+    metadata.source_profile = (
+        atmospheric_loading.AtmosphericTideSourceProfile.iers2010_rp03_no_ib_farrell
+    )
+    metadata.latitude_convention = atmospheric_loading.AtmosphericTideLatitudeConvention.geocentric
+    metadata.displacement_basis = (
+        atmospheric_loading.AtmosphericTideDisplacementBasis.geocentric_radial_north_east
+    )
+    metadata.expected_longitude_count, metadata.expected_latitude_count = 361, 181
+    grid = atmospheric_loading.read_atmospheric_tide_grid(str(atmospheric_tide_grid), metadata)
+    evaluation = shape_deformation.AtmosphericTideEvaluationSettings()
+    evaluation.lookup_latitude_convention = metadata.latitude_convention
+    evaluation.displacement_basis = metadata.displacement_basis
+
+    # The ocean grid is already CM; only RP03 needs the identified IERS Table 7.6 translation.
+    evaluation.convert_to_centre_of_mass = True
+
+    return [ocean_pole, shape_deformation.atmospheric_tide_from_grid(grid, evaluation)]
 
 
 def load_stations(
@@ -670,6 +701,11 @@ def main():
     loading = parser.add_mutually_exclusive_group()
     loading.add_argument("--got410c-blq", type=Path)
     loading.add_argument("--got410c-harpos", type=Path)
+    parser.add_argument(
+        "--deformation-profile", choices=("baseline", "high-tidal"), default="baseline"
+    )
+    parser.add_argument("--ocean-pole-grid", type=Path)
+    parser.add_argument("--atmospheric-tide-grid", type=Path)
     parser.add_argument("--points", choices=(8, 10), type=int, default=10)
     parser.add_argument("--week-ending", choices=("2024-04-06", "2024-04-13"), default="2024-04-06")
     parser.add_argument("--body-ephemeris", choices=("cubic-time", "direct"), default="cubic-time")
@@ -682,6 +718,12 @@ def main():
         help="Select the ocean EOP series and daily interpolation; retain the frozen C04 input",
     )
     args = parser.parse_args()
+
+    if args.deformation_profile == "high-tidal":
+        if not (args.ocean_pole_grid and args.atmospheric_tide_grid and args.got410c_harpos):
+            raise ValueError("High-tidal requires both pinned grids and GOT4.10c HARPOS loading")
+    elif args.ocean_pole_grid or args.atmospheric_tide_grid:
+        raise ValueError("Loading grids require the explicit high-tidal deformation profile")
 
     if args.week_ending != "2024-04-06" and (
         args.orbit != "combined" or args.station_solution != "slrf2020"
@@ -765,13 +807,24 @@ def main():
     if args.got410c_harpos:
         inputs.append(args.got410c_harpos)
 
+    if args.deformation_profile == "high-tidal":
+        inputs.extend([args.ocean_pole_grid, args.atmospheric_tide_grid])
+
     # Pin every provider input against the download manifest before reading models.
     manifest = json.loads(Path(__file__).with_name("dataset.json").read_text())
     known = {Path(item["path"]).name: item["sha256"] for item in manifest}
     provenance = [file_record(path) for path in inputs]
+    grid_hashes = (
+        {
+            str(args.ocean_pole_grid.resolve()): known["opoleloadcoefcmcor.txt"],
+            str(args.atmospheric_tide_grid.resolve()): known["s1_s2_def_ce.dat"],
+        }
+        if args.deformation_profile == "high-tidal"
+        else {}
+    )
 
     for record in provenance:
-        expected = known.get(Path(record["path"]).name)
+        expected = grid_hashes.get(record["path"], known.get(Path(record["path"]).name))
 
         if expected and record["sha256"] != expected:
             raise ValueError(f"Downloaded input changed: {record['path']}")
@@ -787,13 +840,14 @@ def main():
             "naif0012.tls",
         )
     ]
+    spice_inputs.append(Path(__file__).with_name("icrf_spice_alias.tf"))
     spice.clear_kernels()
 
     for path in spice_inputs:
         spice.load_kernel(str(path))
 
     provenance.extend(file_record(path) for path in spice_inputs)
-    settings = environment_setup.get_default_body_settings(["Earth", "Sun", "Moon"], "SSB", "J2000")
+    settings = environment_setup.get_default_body_settings(["Earth", "Sun", "Moon"], "SSB", "ICRF")
 
     # Integer SPICE knots and native Time interpolation preserve sub-double event offsets.
     if args.body_ephemeris == "cubic-time":
@@ -806,7 +860,7 @@ def main():
 
         for name in ("Earth", "Sun", "Moon"):
             settings.get(name).ephemeris_settings = ephemeris.interpolated_spice(
-                table_start, table_end, args.body_step, "SSB", "J2000", spline, name
+                table_start, table_end, args.body_step, "SSB", "ICRF", spline, name
             )
     daily_eop = rotation_model.EarthOrientationEvaluationSettings()
 
@@ -816,7 +870,7 @@ def main():
         daily_eop.interpolation = rotation_model.EarthOrientationInterpolation.lagrange_four_point
         ocean_eop = rotation_model.OceanTideEopModel.desai_sibois_2016
     settings.get("Earth").rotation_model_settings = rotation_model.gcrs_to_itrs(
-        base_frame="J2000",
+        base_frame="ICRF",
         eop_data=earth_orientation.read_earth_orientation_data(str(eop_path)),
         eop_evaluation_settings=daily_eop,
         ocean_tide_eop_model=ocean_eop,
@@ -825,6 +879,11 @@ def main():
 
     if args.got410c_blq:
         deformations.append(shape_deformation.ocean_tidal([str(args.got410c_blq)]))
+
+    if args.deformation_profile == "high-tidal":
+        deformations.extend(
+            additional_tidal_deformations(args.ocean_pole_grid, args.atmospheric_tide_grid)
+        )
 
     settings.get("Earth").shape_deformation_settings = deformations
     bodies = environment_setup.create_system_of_bodies(settings)
@@ -839,10 +898,10 @@ def main():
     )
     bodies.create_empty_body("LAGEOS1")
     bodies.get("LAGEOS1").ephemeris = (
-        environment.CustomEphemerisTimeObject(orbit.state, "SSB", "J2000")
+        environment.CustomEphemerisTimeObject(orbit.state, "SSB", "ICRF")
         if args.satellite_epoch == "time"
         else environment_setup.create_body_ephemeris(
-            ephemeris.custom_ephemeris(orbit.state, "SSB", "J2000"), "LAGEOS1"
+            ephemeris.custom_ephemeris(orbit.state, "SSB", "ICRF"), "LAGEOS1"
         )
     )
 
@@ -952,6 +1011,7 @@ def main():
         "week_start_utc": week_start.isoformat(),
         "week_stop_exclusive_utc": week_stop.isoformat(),
         "station_solution": args.station_solution,
+        "deformation_profile": args.deformation_profile,
         "earth_orientation": {
             "profile": args.earth_orientation,
             "daily_interpolation": (
@@ -976,7 +1036,8 @@ def main():
                 args.body_step if args.body_ephemeris == "cubic-time" else None
             ),
             "satellite_epoch": args.satellite_epoch,
-            "rotation_epoch": "double",
+            "rotation_epoch": "time",
+            "base_frame": "ICRF; analysis identity SPICE alias, no extra native frame bias",
             "body_table_start_tdb_seconds": (
                 table_start if args.body_ephemeris == "cubic-time" else None
             ),
@@ -1031,7 +1092,11 @@ def main():
             "rotation": "IERS 2010 chain, IAU 2006, selected C04 file and Earth-orientation profile",
             "observable_time_scale": "TAI",
             "optical": "Mendes-Pavlis + FCULa; CRD measured weather; C0 wavelength; CO2 375 ppm",
-            "station_tides": "IERS2010 solid and pole; native shared mean-pole convention",
+            "station_tides": (
+                "IERS2010 solid and pole, official CM ocean pole, RP03 S1/S2 CE-to-CM once; geocentric lookup/basis, UT1 phases"
+                if args.deformation_profile == "high-tidal"
+                else "IERS2010 solid and pole; native shared mean-pole convention"
+            ),
             "range_convention": "one-way O-C = c*TOF/2 + CoM - DHF_bias - computed_two_way/2",
             "station_retiming": "first-order rigid nominal orientation; deformation/tectonic retiming omitted",
             "spatial": "IERS11.19 TT/TDB scale and solar potential; native station model shares this choice",
