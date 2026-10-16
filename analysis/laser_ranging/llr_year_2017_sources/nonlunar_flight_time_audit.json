@@ -1,0 +1,82 @@
+{
+  "daily_source": {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2017/apollo15_20170220.npt",
+    "file": "flight-time-source-check/apollo15_20170220.npt",
+    "status": 200,
+    "sha256": "d70d27ea2c7a77be91ac9aaad512331b5dfd5da42356541babcadd9190ffa785"
+  },
+  "records": [
+    {
+      "source_file": "apollo15_201702.npt",
+      "source_line": 168,
+      "daily_lines": [
+        12
+      ],
+      "raw": "11 48188.387557778100    0.000000024976 me09 2   32.9     2      20.3   -.100     -2.000       0.0  99.9 0",
+      "utc_launch": "2017-02-20T13:23:08.387557778100",
+      "epoch_event": "2",
+      "wavelength_nm": "1064.2",
+      "two_way_time_of_flight_s": "0.000000024976",
+      "half_range_m": "3.743808215504",
+      "native_monthly_line_matches_daily_byte_exactly": true,
+      "reported_return_count": 2,
+      "classification": "Cannot represent lunar time of flight; physical cause unestablished; local/calibration contamination is only a possible explanation."
+    },
+    {
+      "source_file": "apollo15_201702.npt",
+      "source_line": 211,
+      "daily_lines": [
+        26
+      ],
+      "raw": "11 48200.476420038600    0.000000017271 me09 2    3.2     2      24.2     .000     -2.000       0.0  86.8 0",
+      "utc_launch": "2017-02-20T13:23:20.476420038600",
+      "epoch_event": "2",
+      "wavelength_nm": "532.1",
+      "two_way_time_of_flight_s": "0.000000017271",
+      "half_range_m": "2.588857771059",
+      "native_monthly_line_matches_daily_byte_exactly": true,
+      "reported_return_count": 2,
+      "classification": "Cannot represent lunar time of flight; physical cause unestablished; local/calibration contamination is only a possible explanation."
+    }
+  ],
+  "all_crd_record11_count": 1304,
+  "all_crd_outside1_to4seconds": [
+    {
+      "file": "apollo15_201702.npt",
+      "line": 168,
+      "station": "7845",
+      "rtt_s": "2.4976E-8"
+    },
+    {
+      "file": "apollo15_201702.npt",
+      "line": 211,
+      "station": "7845",
+      "rtt_s": "1.7271E-8"
+    }
+  ],
+  "apollo_count": 311,
+  "apollo_min_rtt_s": "2.3492204584470",
+  "apollo_max_rtt_s": "2.6770120814302",
+  "apollo_outside1_to4seconds": 0,
+  "monthly_source": {
+    "file": "crd/apollo15_201702.npt",
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2017/apollo15_201702.npt",
+    "sha256": "e3ae9be9c3ec4a52f4c79b228d7ef38e66d386382f11bb05e4a7d466695536ad"
+  },
+  "frozen_raw_manifest_sha256": "a89c441278f84a29d0c6e972c771d145482866204fd717924724170f6b78654d",
+  "remaining_grasse_source_rtt_range_s": [
+    "2.338143316423",
+    "2.687189638736"
+  ],
+  "selection_proposal_only": {
+    "raw_apollo_count": 311,
+    "raw_grasse_count": 1271,
+    "prior_user_requested_grasse_exclusion_count": 1,
+    "additional_source_invalid_lunar_rtt_count": 2,
+    "proposed_solver_eligible_apollo_count": 311,
+    "proposed_solver_eligible_grasse_count": 1268,
+    "proposed_solver_eligible_total": 1579,
+    "raw_manifest_counts_and_provider_bytes_changed": false,
+    "basis": "Direct printed RTT cannot cover an Earth-Moon-Earth path; no residual or elevation selection and no inferred replacement RTT."
+  }
+}
