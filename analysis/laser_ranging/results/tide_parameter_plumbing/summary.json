@@ -1,0 +1,238 @@
+{
+  "analysis_source_revision": "3dc1574d9cf29cf247efb040585e2e561cb4bf21",
+  "native_kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "probe_sha256": "28d06bf74e740a09e529a23d0e90310edcba9ae10bb33a0c2a9543ab7d464784",
+  "header_sha256": "0f4636b663e6f00af9efa2b605ef23635489f56b23dd1a5e3821d3acc6ac3359",
+  "production_script_sha256": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
+  "event_source_sha256": "d8e5b82ceb5616ec2c3be6d41a5e2cd98b2ff30f66f6b17c9766ed2581cb1d69",
+  "selected_event_indices": [
+    0,
+    5,
+    10
+  ],
+  "original_header_constants": {
+    "GMS": "0.000295912208284119561",
+    "GMB": "8.99701139294734660E-10",
+    "EMRAT": "81.3005682214972154",
+    "AU": "149597870.699999988",
+    "AM": "1738.00000000000000",
+    "RE": "6378.13659999999982"
+  },
+  "original_gm_si": {
+    "Sun": 1.3271244004127942e+20,
+    "Earth": 398600435507022.6,
+    "Moon": 4902800118457.549
+  },
+  "original_AM_radius_m": 1738000.0,
+  "checks": {
+    "degree2_radius2": {
+      "expected_displacement_factor": 16,
+      "max_scaling_error_m": 1.9927093256990996e-09
+    },
+    "degree3_radius2": {
+      "expected_displacement_factor": 32,
+      "max_scaling_error_m": 4.092789215791725e-09
+    },
+    "shape2_explicit": {
+      "expected_displacement_factor": 1,
+      "max_scaling_error_m": 0.0
+    },
+    "shape2_fallback": {
+      "expected_displacement_factor": 16,
+      "max_scaling_error_m": 1.9927093256990996e-09
+    },
+    "actual_degree_sum_max_error_m": 2.6031257322754127e-10,
+    "actual_independent_max_error_m": 1.4460659606324711e-10,
+    "actual_probe_intrinsic_max_error_m": 0.0,
+    "actual_once_only_max_error_m": 2.1395000980112866e-10,
+    "native_source_parameter_match": "Header AM1738000m and RE6378136.6m match explicit lunar deformation radius and default IERS Earth radius; body GMs differ from independently derived original-header decimal values only at floating representation roundoff."
+  },
+  "variants": {
+    "actual": {
+      "factory_calls": [
+        {
+          "bodies": [
+            "Earth",
+            "Sun"
+          ],
+          "love_numbers": {
+            "2": [
+              0.0423,
+              0.0107
+            ],
+            "3": [
+              0.0234,
+              0.003
+            ]
+          },
+          "reference_radius_m": 1738000.0
+        }
+      ],
+      "actual_moon_shape_radius_m": 1738000.0,
+      "gm_si": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      }
+    },
+    "degree2": {
+      "factory_calls": [
+        {
+          "bodies": [
+            "Earth",
+            "Sun"
+          ],
+          "love_numbers": {
+            "2": [
+              0.0423,
+              0.0107
+            ]
+          },
+          "reference_radius_m": 1738000.0
+        }
+      ],
+      "actual_moon_shape_radius_m": 1738000.0,
+      "gm_si": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      }
+    },
+    "degree3": {
+      "factory_calls": [
+        {
+          "bodies": [
+            "Earth",
+            "Sun"
+          ],
+          "love_numbers": {
+            "3": [
+              0.0234,
+              0.003
+            ]
+          },
+          "reference_radius_m": 1738000.0
+        }
+      ],
+      "actual_moon_shape_radius_m": 1738000.0,
+      "gm_si": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      }
+    },
+    "degree2_radius2": {
+      "factory_calls": [
+        {
+          "bodies": [
+            "Earth",
+            "Sun"
+          ],
+          "love_numbers": {
+            "2": [
+              0.0423,
+              0.0107
+            ]
+          },
+          "reference_radius_m": 3476000.0
+        }
+      ],
+      "actual_moon_shape_radius_m": 1738000.0,
+      "gm_si": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      }
+    },
+    "degree3_radius2": {
+      "factory_calls": [
+        {
+          "bodies": [
+            "Earth",
+            "Sun"
+          ],
+          "love_numbers": {
+            "3": [
+              0.0234,
+              0.003
+            ]
+          },
+          "reference_radius_m": 3476000.0
+        }
+      ],
+      "actual_moon_shape_radius_m": 1738000.0,
+      "gm_si": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      }
+    },
+    "shape2_explicit": {
+      "factory_calls": [
+        {
+          "bodies": [
+            "Earth",
+            "Sun"
+          ],
+          "love_numbers": {
+            "2": [
+              0.0423,
+              0.0107
+            ]
+          },
+          "reference_radius_m": 1738000.0
+        }
+      ],
+      "actual_moon_shape_radius_m": 3476000.0,
+      "gm_si": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      }
+    },
+    "shape2_fallback": {
+      "factory_calls": [
+        {
+          "bodies": [
+            "Earth",
+            "Sun"
+          ],
+          "love_numbers": {
+            "2": [
+              0.0423,
+              0.0107
+            ]
+          },
+          "reference_radius_m": null
+        }
+      ],
+      "actual_moon_shape_radius_m": 3476000.0,
+      "gm_si": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      }
+    }
+  },
+  "compiled_native_source_revision": "a366f436c6f6ff03aa57f8b1610075784196bdf8",
+  "native_source_sha256": {
+    "src/tudatpy/dynamics/environment_setup/shape_deformation/expose_shape_deformation.cpp": "a2c51f31c93b0e2379ce9429b2cde59fea422a019ff5b8e7f1da683544deb19a",
+    "src/tudat/simulation/environment_setup/createBodyDeformationModel.cpp": "b5f3b80ea3572a879de8aff27bc40065d4b73babc642a7e0a1002eff173f5ad5",
+    "src/tudat/astro/ground_stations/basicTidalBodyDeformation.cpp": "be3721c130052461da31c101cd572db0f433ce3a000a3b25b9119ff954531e7e",
+    "include/tudat/astro/ground_stations/bodyDeformationModel.h": "72b8e2364709b87eb18811561831c6593a8bb6499b818ed136d4961781d7c022",
+    "include/tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h": "5d6a3c6eb1eab5a52eae931908c1db30c2b0464e873f31906428edf9d8b6e3b1"
+  },
+  "production_model_factories": "No production code altered. Diagnostic wrappers temporarily vary only the existing factory settings during environment construction, then restore original functions.",
+  "scope": "Three saved reflection epochs, five native probe stations and seven bounded parameter environments; no residual solve or time average.",
+  "reference_epoch_indices": [
+    0,
+    5,
+    10
+  ],
+  "primary_JPL_reference": {
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/LLR_Model_2020_DR.pdf",
+    "sha256": "68947c087e0f6b8192c56d53d4b9026ff4d1c88621d1f8bd00e9b6a400ee709a",
+    "locations": "Sections3.9Eq10,3.12 andAppendixA2"
+  },
+  "displacement_csv_sha256": "d899967d4d610374a75f3a50b3ab3493bc8e1eb92a12ba39c298552bf6bde6a7"
+}
