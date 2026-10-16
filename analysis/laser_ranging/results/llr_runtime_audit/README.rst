@@ -18,6 +18,12 @@ solves 3.925 s, then stopped on the Grasse 1064.2 nm input guard. This is partia
 arc timing, not a completed 306-point run. A subsequent complete APOLLO-only
 69-point run (source ``8d06418de``) took 0.6326 s setup, 4.2439 s solver and
 5.3316 s total. These measurements indicate about 57--62 ms per point.
+The completed 306-point two-station run (source ``6e7d4b807``, kernel SHA256
+``cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef``)
+subsequently took 26.6935 s total: 5.8127 s setup and 19.3589 s
+solver across 79 groups. This is the unoptimized complete model, with the
+separately reviewed actual-wavelength guard fix. Group count/setup contributes
+materially on Grasse's smaller sessions; no additional timing probe was run.
 The long-arc driver already evaluates the complete model once per point; the
 four sequential component solves in the short diagnostic are not its cost.
 

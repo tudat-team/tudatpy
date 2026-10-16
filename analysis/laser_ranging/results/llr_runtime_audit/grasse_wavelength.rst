@@ -15,6 +15,11 @@ engineering interpretation of the nominal 1064 nm limit, not a published
 extension of its accuracy validation. An explicit vacuum-versus-air wavelength
 definition was not recovered from these records.
 
+The `EDC CRDv1 validation rules <https://edc.dgfi.tum.de/en/oc/crd/v1/>`_
+do explicitly compare the C0 wavelength to nominal lines by rounded integer
+(WC0031: 1064, 532 or 266). This documents an operational rounding convention;
+it does not establish a wider IERS atmospheric-model accuracy domain.
+
 `IERS chapter 9 <https://iers-conventions.obspm.fr/chapter9.php>`_ gives the
 nominal 0.355--1.064 micrometre range. Its original
 `FCUL_ZD_HPA.F <https://iers-conventions.obspm.fr/content/chapter9/software/FCUL_ZD_HPA.F>`_
