@@ -1,0 +1,24 @@
+{
+  "source_revision": "a8d22d03a362d95820204fca1f9f6463c94f4400",
+  "kernel_sha256": "10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5",
+  "audit_script_sha256": "d7890ec55ed7cdf9ae7c446726bbd09561b088c7b0dd48809227cbc34e4db071",
+  "environment_script_sha256": "3c7c981f10da211b3fbb2996a316d9c58a52f9177f9a39442c550248a8107847",
+  "saved_events_sha256": "2bb3bc831cfc3dc7adb1be8390e5edf0ba61bbb81ea80c686f4d2f8f2457a2f4",
+  "primary_sources": [
+    "https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/LLR_Model_2020_DR.pdf section3.17 Eq19",
+    "https://iers-conventions.obspm.fr/content/chapter11/tn36_c11.pdf section11.2 Eq11.17"
+  ],
+  "native_route": "Each leg gets actual deformed station and reflector positions at its separate events. Sun frozen at leg midpoint; Earth frozen at Earth endpoint; Moon frozen at reflection event. GM from loaded DE440. No moving-body velocity/retarded correction. Bending disabled.",
+  "interpretation": "Selected body epochs are the physically closest endpoints for Earth/Moon. Midpoint is suitable for distant Sun on this short segment. Endpoint-epoch alternatives and v/c scales are diagnostics, not a claimed exact moving-monopole solution or proposed correction. IERS closest-approach VLBI prescription11.3 is for an incoming infinite ray and cannot be substituted blindly for finite LLR. JPL2020 does not specify body epochs in Eq19. Omitted planets and leading moving-body scales are below centimetres here.",
+  "max_abs_double_minus_80digit_m": 9.006724728594951e-13,
+  "max_abs_saved_reconstruction_m": 3.2510367731219958e-09,
+  "max_alternative_epoch_change_m": 4.954232289942692e-05,
+  "max_sum_velocity_over_c_scale_m": 4.1306813664429665e-06,
+  "max_sum_omitted_planets_one_way_m": 0.0018152554858712007,
+  "full_external_evidence": {
+    "file": "/home/dominic/Tudat/laser-ranging-work/logs/llr-shapiro-fixed-event-audit.json",
+    "sha256": "79441cc76a2143792c75c15e3e0f44b7b31e5f6dbda66c8c3a4918f4fc19bbe0"
+  },
+  "executed_source_archive": "audit_executed.py.txt",
+  "scope": "Historical fixed events and environment: kernel10f830; no residual solve, new clock/frame configuration, fitted correction or production change."
+}
