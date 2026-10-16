@@ -1,0 +1,205 @@
+{
+  "kernel_binary_sha256": "80b924287707124a8efea66455b26233b5511b7856983d35c05d21f82734f215",
+  "coefficient_reference": "Independent80digit evaluation of the exact pinned DE440 SPK coefficients, not original decimal ASCII",
+  "sample_selection": "Every frozen precise launch and original baseline bounce/reception diagnostic double; no residual calculation or selection",
+  "cases": {
+    "apollo": {
+      "sample_count": 33,
+      "table_bounds_tdb_seconds": [
+        542290740,
+        542301060
+      ],
+      "configurations_by_step_seconds_zero_is_direct": {
+        "0": {
+          "Earth": {
+            "maximum_position_error_m": 0.0016984282950601353,
+            "rms_position_error_m": 0.0006274388838801106
+          },
+          "Moon": {
+            "maximum_position_error_m": 0.00174656105939632,
+            "rms_position_error_m": 0.0006428183601328227
+          },
+          "Sun": {
+            "maximum_position_error_m": 6.843387706622462e-07,
+            "rms_position_error_m": 2.8641483766853447e-07
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 5.9336955293511426e-05,
+            "rms_position_error_m": 2.182619694349736e-05
+          }
+        },
+        "60": {
+          "Earth": {
+            "maximum_position_error_m": 2.9981257107660252e-05,
+            "rms_position_error_m": 1.5967033033550577e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 3.698964953877653e-05,
+            "rms_position_error_m": 1.7899681707334384e-05
+          },
+          "Sun": {
+            "maximum_position_error_m": 1.026802303240552e-07,
+            "rms_position_error_m": 6.197747970370805e-08
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 5.97290435076691e-08,
+            "rms_position_error_m": 3.3798777783610524e-08
+          }
+        },
+        "30": {
+          "Earth": {
+            "maximum_position_error_m": 2.9397833798979056e-05,
+            "rms_position_error_m": 1.5216799231878166e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 4.670952805880812e-05,
+            "rms_position_error_m": 2.103409639090683e-05
+          },
+          "Sun": {
+            "maximum_position_error_m": 1.2234438693245288e-07,
+            "rms_position_error_m": 6.603531713685449e-08
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 1.0269819387097663e-07,
+            "rms_position_error_m": 4.437597771400332e-08
+          }
+        },
+        "15": {
+          "Earth": {
+            "maximum_position_error_m": 3.680402697060758e-05,
+            "rms_position_error_m": 1.6025286927177615e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 4.7714652662141065e-05,
+            "rms_position_error_m": 2.203330077454748e-05
+          },
+          "Sun": {
+            "maximum_position_error_m": 1.026802303240552e-07,
+            "rms_position_error_m": 6.310838913806208e-08
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 7.38617703409366e-08,
+            "rms_position_error_m": 4.187265290033423e-08
+          }
+        },
+        "10": {
+          "Earth": {
+            "maximum_position_error_m": 4.293031404250964e-05,
+            "rms_position_error_m": 1.953014594438649e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 4.122524234340023e-05,
+            "rms_position_error_m": 1.832326983105608e-05
+          },
+          "Sun": {
+            "maximum_position_error_m": 1.2664614296612323e-07,
+            "rms_position_error_m": 7.231599822544363e-08
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 9.78459334745059e-08,
+            "rms_position_error_m": 4.506656793433478e-08
+          }
+        }
+      }
+    },
+    "matera": {
+      "sample_count": 6,
+      "table_bounds_tdb_seconds": [
+        714318360,
+        714329340
+      ],
+      "configurations_by_step_seconds_zero_is_direct": {
+        "0": {
+          "Earth": {
+            "maximum_position_error_m": 0.0009202221267533379,
+            "rms_position_error_m": 0.0003886634782165219
+          },
+          "Moon": {
+            "maximum_position_error_m": 0.000916214698876529,
+            "rms_position_error_m": 0.0003887522590595522
+          },
+          "Sun": {
+            "maximum_position_error_m": 5.061209496574629e-07,
+            "rms_position_error_m": 2.2382953941346292e-07
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 3.0639120680886985e-05,
+            "rms_position_error_m": 1.2928970445141263e-05
+          }
+        },
+        "60": {
+          "Earth": {
+            "maximum_position_error_m": 1.8479072608992576e-05,
+            "rms_position_error_m": 1.3358097649675777e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 1.4061951387010983e-05,
+            "rms_position_error_m": 8.799611731743564e-06
+          },
+          "Sun": {
+            "maximum_position_error_m": 9.633431952834682e-08,
+            "rms_position_error_m": 5.676851842274906e-08
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 7.881770585460582e-08,
+            "rms_position_error_m": 4.640540029792724e-08
+          }
+        },
+        "30": {
+          "Earth": {
+            "maximum_position_error_m": 1.8479072608992576e-05,
+            "rms_position_error_m": 1.4064823540167545e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 1.1577806729922708e-05,
+            "rms_position_error_m": 8.220479207707206e-06
+          },
+          "Sun": {
+            "maximum_position_error_m": 9.633431952834682e-08,
+            "rms_position_error_m": 5.712438229420925e-08
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 7.881770585460582e-08,
+            "rms_position_error_m": 5.187081423542269e-08
+          }
+        },
+        "15": {
+          "Earth": {
+            "maximum_position_error_m": 1.856407607568139e-05,
+            "rms_position_error_m": 1.420541253638204e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 1.9003277077189996e-05,
+            "rms_position_error_m": 1.1844222408037466e-05
+          },
+          "Sun": {
+            "maximum_position_error_m": 9.584480068329306e-08,
+            "rms_position_error_m": 5.585008373213157e-08
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 4.780240349681433e-08,
+            "rms_position_error_m": 3.832123840347963e-08
+          }
+        },
+        "10": {
+          "Earth": {
+            "maximum_position_error_m": 1.8479072608992576e-05,
+            "rms_position_error_m": 1.021576217437979e-05
+          },
+          "Moon": {
+            "maximum_position_error_m": 1.5874911023030934e-05,
+            "rms_position_error_m": 1.0862764732231455e-05
+          },
+          "Sun": {
+            "maximum_position_error_m": 2.0640289693451223e-07,
+            "rms_position_error_m": 1.2424860208933657e-07
+          },
+          "Moon-Earth": {
+            "maximum_position_error_m": 5.199911618089793e-08,
+            "rms_position_error_m": 3.607131686430278e-08
+          }
+        }
+      }
+    }
+  }
+}

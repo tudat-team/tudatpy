@@ -1,0 +1,777 @@
+{
+  "native_source_revision": "7d52716f6723c704b20ca5f833570acd0f0cc0ba",
+  "kernel_binary_sha256": "80b924287707124a8efea66455b26233b5511b7856983d35c05d21f82734f215",
+  "analysis_source_revision": "cb39aa79dfa6dca77da305968851fa11526a03fa",
+  "numerical_threads": 1,
+  "fractional_light_time_tolerance": 1e-13,
+  "maximum_iterations": 50,
+  "no_fitting_or_point_selection": true,
+  "sources": {
+    "llr_residuals.py": {
+      "path": "analysis/laser_ranging/llr_residuals.py",
+      "sha256": "52755854a269edade6fcc653b8ff36ef083a74d71c60729460b76920cc10b755",
+      "blob": "26cf25423aa33b6e4823a698f95c6edb9b12bc77"
+    },
+    "matera_case.py": {
+      "path": "analysis/laser_ranging/matera_case.py",
+      "sha256": "6292d83a4900af31439fcd6eda73a2079b9b5e7fc109b6d5e3f23a889ab5c1b4",
+      "blob": "ed155b032f5148ff120114103c5612509b5dac8b"
+    },
+    "llr_dataset.json": {
+      "path": "analysis/laser_ranging/llr_dataset.json",
+      "sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "blob": "463fa6df29d11bec3a7b0a5de9af99280d755183"
+    },
+    "matera_dataset.json": {
+      "path": "analysis/laser_ranging/matera_dataset.json",
+      "sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f",
+      "blob": "a16191bdb520d3872afb6e0d404868b777dd1611"
+    },
+    "llr_station_profiles.json": {
+      "path": "analysis/laser_ranging/llr_station_profiles.json",
+      "sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "blob": "b04e0f6361549cff0c92faf758968b7c37e9c0f9"
+    },
+    "hofmann2017_station_profiles.json": {
+      "path": "analysis/laser_ranging/hofmann2017_station_profiles.json",
+      "sha256": "31c7598fd7e64bd7ea12338e6df9339256d2958596990bf2c51cdc63bac714a7",
+      "blob": "6661db6099766802c072acf36c14b5740d3e6911"
+    },
+    "de421_dataset.json": {
+      "path": "analysis/laser_ranging/de421_dataset.json",
+      "sha256": "496e9b217f6b852f273c6bf4a1dae8b1a0e8d63b1f7e7ba69889a088c7531011",
+      "blob": "36ab995be34558d114122350073c051a3763db01"
+    },
+    "icrf_spice_alias.tf": {
+      "path": "analysis/laser_ranging/icrf_spice_alias.tf",
+      "sha256": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7",
+      "blob": "3c0d31d7ebd5efa16f08126353658ae35e8aafd8"
+    }
+  },
+  "cases": {
+    "de440-inpop17a": {
+      "case": "apollo20170309",
+      "ephemeris": "de440",
+      "count": 11,
+      "mean_m": -0.02549965273250233,
+      "rms_about_zero_m": 0.049899912255340524,
+      "scatter_about_mean_m": 0.04289252794616412,
+      "weighted_mean_m": -0.041850904174751964,
+      "normalized_rms": 27.501162102871625,
+      "chi_squared_no_fitted_parameters": 8319.453087092648,
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "kernel_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "ephemeris_constants_source": null,
+      "gravitational_parameters_m3_s2": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      },
+      "reflector_coordinate_metadata": {
+        "source": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+        "table": "1",
+        "frame": "MOON_PA_DE440",
+        "units": "metres",
+        "reference_point": "Array front-face centre, per JPL2020 section 3.18"
+      },
+      "kernel_sha256": {
+        "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+        "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+        "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+        "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+        "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+        "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+        "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+      },
+      "inertial_axes": {
+        "environment_frame": "ICRF",
+        "spice_j2000_product_axes": "ICRF",
+        "earth_sofa_frame_bias_applied": false,
+        "moon_frame": "MOON_PA_DE440"
+      },
+      "station_profile": "inpop17a-gir",
+      "station_xyz_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "hofmann_station_profile_manifest_sha256": null,
+      "station_profile_metadata": {
+        "name": "INPOP17a G+IR station-only sensitivity",
+        "position_m": [
+          -1463998.9155,
+          -5166632.769,
+          3435012.8659
+        ],
+        "velocity_m_per_julian_year": [
+          -0.013,
+          0.0001,
+          0.0
+        ],
+        "position_sigma_m": [
+          0.0004,
+          0.0004,
+          0.0014
+        ],
+        "velocity_sigma_m_per_year": [
+          0.0001,
+          0.0001,
+          0.0016
+        ],
+        "reference_epoch": "J2000, interpreted as JD 2451545.0 TT",
+        "reference_epoch_tt_s": 0.0,
+        "julian_year_s": 31557600.0,
+        "frame": "Published fitted coordinates relative to ITRF2005 references; not guaranteed canonical ITRF2005 or matched to the selected EOP frame",
+        "selection": "Preselected published final G+IR solution; no choice based on the eleven residuals",
+        "row_algebra": "x=-1463998.7870-.1285; y=-5166632.8080+.0390; z=3435012.8560+.0099; vx=-.0141+.0011; vy=-.0015+.0016; vz=-.0064+.0064",
+        "sources": [
+          {
+            "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+            "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a",
+            "location": "Table 8, printed page 21; J2000 position and velocity, metres and metres/year; APOLLO data end 2016-11-25 in Table 4"
+          },
+          {
+            "url": "https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf",
+            "sha256": "f36cf9602a79d4de0d98e1136e9cf5d45db3f9e319bfa0933b8f7a856cec1cb6",
+            "location": "Section 9.1.2 specifies TT for linear station velocity; using a Julian year is an explicit interpretation, not restated in the 2017 table"
+          }
+        ],
+        "limitations": [
+          "Station-only sensitivity with DE440 translation, orientation and reflector constants retained; not a matched INPOP or DE440 reduction.",
+          "No speculative frame transform; fitted station coordinates need not realize canonical ITRF2005, ITRF2020 or the selected EOP frame.",
+          "Tide-free interpretation is supported by regularized coordinates and cited IERS routines, but not explicitly flagged in the 2017 report.",
+          "The older cited reduction includes atmospheric and CSR4.0 ocean loading; precise 2017 choices are not restated and are not reproduced here.",
+          "Published component uncertainties are retained as metadata only; no full covariance or reference-point metrology recovered."
+        ]
+      },
+      "matera_adapter_sha256": null,
+      "spice_knot_step_s": 30,
+      "ocean_loading": null,
+      "mean_by_reflector_m": {
+        "A11": -0.08568993210792542,
+        "A14": 0.014504551887512207,
+        "A15": -0.051002174615859985,
+        "L1": 0.025689363479614258
+      },
+      "csv_sha256": "5f6c5f83d16cddb1f662d9c7682a3da1b7f4af490fe634f2e9748ab9b8055aa1",
+      "original_summary_sha256": "5d7293884e146c8a3ea9da868a1940fa4c52adf929cc224fdf753d994c3d3572",
+      "event_diagnostics_sha256": "d8e5b82ceb5616ec2c3be6d41a5e2cd98b2ff30f66f6b17c9766ed2581cb1d69",
+      "ephemeris_controls_sha256": "f256d426be15f0a4ae45a0257d6355e258e7096467f8cb7454a230782fe42781"
+    },
+    "de440-matera": {
+      "case": "matera20220821",
+      "ephemeris": "de440",
+      "count": 2,
+      "mean_m": -0.06520041823387146,
+      "rms_about_zero_m": 0.0652277272923013,
+      "scatter_about_mean_m": 0.001887291669845581,
+      "weighted_mean_m": null,
+      "normalized_rms": null,
+      "chi_squared_no_fitted_parameters": null,
+      "normal_point_sha256": "a28bd21b005e2978c618a5103bf5fd0d5c8b4bcb6a6bb1e449239e8b14dbe7ef",
+      "dataset_manifest_sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f",
+      "kernel_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "ephemeris_constants_source": null,
+      "gravitational_parameters_m3_s2": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      },
+      "reflector_coordinate_metadata": {
+        "source": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+        "table": "1",
+        "frame": "MOON_PA_DE440",
+        "units": "metres",
+        "reference_point": "Array front-face centre, per JPL2020 section 3.18"
+      },
+      "kernel_sha256": {
+        "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+        "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+        "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+        "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+        "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+        "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+        "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+      },
+      "inertial_axes": {
+        "environment_frame": "ICRF",
+        "spice_j2000_product_axes": "ICRF",
+        "earth_sofa_frame_bias_applied": false,
+        "moon_frame": "MOON_PA_DE440"
+      },
+      "station_profile": "slrf2020-matera",
+      "station_xyz_m": [
+        4641978.52389715,
+        1393067.81970112,
+        4133249.69590866
+      ],
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "hofmann_station_profile_manifest_sha256": null,
+      "station_profile_metadata": {
+        "cdp": "7941",
+        "point": "A",
+        "solution": "1",
+        "domes": "12734S008",
+        "system_number": 77,
+        "occupancy": 1,
+        "reference_point": "Azimuth/elevation axis intersection, calibrated instrument point; documented zero XYZ eccentricity",
+        "frame": "SLRF2020 in ITRF2020; no speculative frame transform",
+        "origin": "whole-Earth centre of mass",
+        "tide_system": "tide-free",
+        "time_convention": "IGN nominal UTC: native civil UTC/MJD difference divided by365.25; leap seconds excluded from linear terms, TAI validity intervals",
+        "validity_interpretation": "Conservatively use the single SLRF SOLUTION/EPOCHS span for this frozen case; it is an observation span, not a published discontinuity record. Official ITRF2020 SLR discontinuities have no7941 entry.",
+        "reference_utc": "15:001:00000",
+        "position_m": [
+          4641978.52389715,
+          1393067.81970112,
+          4133249.69590866
+        ],
+        "velocity_m_per_s": [
+          -5.902955231706941e-10,
+          6.038771789154434e-10,
+          4.6334606211313594e-10
+        ],
+        "zero_eccentricity_start": "00:001:00000",
+        "zero_eccentricity_end": "00:000:00000",
+        "post_seismic": "No Matera terms in pinned official ITRF2020 SLR PSD product"
+      },
+      "matera_adapter_sha256": "6292d83a4900af31439fcd6eda73a2079b9b5e7fc109b6d5e3f23a889ab5c1b4",
+      "spice_knot_step_s": 30,
+      "ocean_loading": null,
+      "mean_by_reflector_m": {
+        "A15": -0.06520041823387146
+      },
+      "csv_sha256": "93803328651ca6a19b870e7cc8538377caa11478b8389d0bc5022e468ca97192",
+      "original_summary_sha256": "ae046e875b23df50d2a1e16deff18a9ee7e03a06615e07263d882eb397419601",
+      "event_diagnostics_sha256": "c3c905b5d423f0cff8d622385625029da0e636545382681e72c3aa9cfdfcdddc",
+      "ephemeris_controls_sha256": "51e2a43944a138dd3f58bca891af893a324a78634e60ec620315129689d6aa8c"
+    },
+    "de440-hofmann-apollo": {
+      "case": "apollo20170309",
+      "ephemeris": "de440",
+      "count": 11,
+      "mean_m": -0.0031187046657909045,
+      "rms_about_zero_m": 0.04208257909035158,
+      "scatter_about_mean_m": 0.04196685768678982,
+      "weighted_mean_m": -0.018468373650213588,
+      "normalized_rms": 20.465507567104908,
+      "chi_squared_no_fitted_parameters": 4607.206999771511,
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "kernel_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "ephemeris_constants_source": null,
+      "gravitational_parameters_m3_s2": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      },
+      "reflector_coordinate_metadata": {
+        "source": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+        "table": "1",
+        "frame": "MOON_PA_DE440",
+        "units": "metres",
+        "reference_point": "Array front-face centre, per JPL2020 section 3.18"
+      },
+      "kernel_sha256": {
+        "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+        "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+        "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+        "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+        "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+        "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+        "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+      },
+      "inertial_axes": {
+        "environment_frame": "ICRF",
+        "spice_j2000_product_axes": "ICRF",
+        "earth_sofa_frame_bias_applied": false,
+        "moon_frame": "MOON_PA_DE440"
+      },
+      "station_profile": "hofmann2017-apollo-standard",
+      "station_xyz_m": [
+        -1463998.894,
+        -5166632.781,
+        3435012.92
+      ],
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "hofmann_station_profile_manifest_sha256": "31c7598fd7e64bd7ea12338e6df9339256d2958596990bf2c51cdc63bac714a7",
+      "station_profile_metadata": {
+        "purpose": "Independently preselected station-only sensitivity; retain DE440 body, orientation and reflector data, all frozen points and original tolerances",
+        "reference_epoch": "J2000.0, interpreted as JD 2451545.0 TT",
+        "reference_epoch_tt_s": 0.0,
+        "julian_year_s": 31557600.0,
+        "time_interpretation": "The source specifies J2000.0 and metres/year, but does not explicitly restate the time scale of station propagation. TT Julian years are an explicit diagnostic interpretation; not a recovered software setting.",
+        "frame": "Jointly fitted LUNAR ITRS station solution; compared with ITRF2008, not guaranteed canonical ITRF2008 or matched to DE440/ICRF EOP",
+        "origin": "Geocentric ITRS; no additional fitted translation or Helmert transform",
+        "tide_system": "Conventional tide-free, following the inherited station model described by Biskupek 2015 section 4.2.3",
+        "reference_point": "System reference point (SRP), intersection of telescope axes; no extra instrument eccentricity inferred",
+        "sources": {
+          "hofmann2017": {
+            "title": "Lunar Laser Ranging: Verbesserte Modellierung der Monddynamik und Sch\u00e4tzung relativistischer Parameter",
+            "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-797.pdf",
+            "sha256": "cf83f70c456fed3ca5bcabccd9496a9818ba82d30b1a79ff9d4796faa8db6cbe",
+            "location": "Section 5.3 and Tables 5.4-5.5, printed pp.65-67 (tables PDF page69); fixed Matera velocity in Table A.3, printed p.118; SRP identifiers in Table A.1, printed p.117"
+          },
+          "biskupek2015": {
+            "title": "Bestimmung der Erdorientierung mit Lunar Laser Ranging",
+            "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-742.pdf",
+            "sha256": "f2af9449e6fcccfce099cf3a0d6c64404a2e67d2d0689c7f3a8ca20543001178",
+            "location": "Sections 4.2.2-4.2.3, printed pp.34-36: SRP, J2000.0, conventional tide-free coordinates and linear station velocities; APOLLO approximate White Sands GPS a priori velocity"
+          }
+        },
+        "limitations": [
+          "Use Tables 5.4-5.5 standard solution only. Tables 5.6 and A.5 describe a separate constrained-velocity solution and are not combined here.",
+          "Internal component uncertainties are metadata only; full covariance and a propagated station uncertainty are unavailable.",
+          "The source jointly fits an independently integrated lunar ephemeris, lunar rotation, reflector coordinates and other parameters; its updates use DE430/GRAIL information. This is not a matched fixed-DE440 station solution.",
+          "Earth displacement models include solid Earth tides, ocean loading, atmospheric loading, pole and ocean pole tides. Their original realizations are not reproduced by changing station coordinates alone.",
+          "Source measurements extend through early 2015. Both frozen observations postdate that fitting interval; station discontinuities and later local metrology are not established by this source.",
+          "No source range biases, empirical lunar librations, reflector positions, or frame transformations are imported. No choice based on residuals."
+        ],
+        "station": "APOLLO",
+        "cdp": "7045",
+        "domes": "49447S001",
+        "position_m": [
+          -1463998.894,
+          -5166632.781,
+          3435012.92
+        ],
+        "velocity_m_per_julian_year": [
+          -0.0112,
+          0.0,
+          -0.0053
+        ],
+        "position_sigma_m": [
+          0.0019,
+          0.0018,
+          0.0094
+        ],
+        "velocity_sigma_m_per_year": [
+          0.0002,
+          0.0001,
+          0.0009
+        ],
+        "velocity_status": "Estimated in the standard joint solution",
+        "reference_frame_limitation": "APOLLO had no official ITRF coordinate: Murphy private communication 2008 provided the a priori position, with the nearby White Sands GPS velocity. The fitted output is not an official ITRF2008 realization."
+      },
+      "matera_adapter_sha256": null,
+      "spice_knot_step_s": 30,
+      "ocean_loading": null,
+      "mean_by_reflector_m": {
+        "A11": -0.06147700548171997,
+        "A14": 0.035805205504099526,
+        "A15": -0.028315097093582153,
+        "L1": 0.04724651575088501
+      },
+      "csv_sha256": "a94b9051fa5f4ad381144c6577f0d05d183b33d4c0274a6385c6a344c2ea054c",
+      "original_summary_sha256": "72600bc476ab706433de8427f2bf3b0e234f7752163c17f73b9176908724f323",
+      "event_diagnostics_sha256": "efa38bced7c78435dffb45f658c0e5f565574a87a24213191e650ef0f47c9e8c",
+      "ephemeris_controls_sha256": "f256d426be15f0a4ae45a0257d6355e258e7096467f8cb7454a230782fe42781"
+    },
+    "de440-hofmann-matera": {
+      "case": "matera20220821",
+      "ephemeris": "de440",
+      "count": 2,
+      "mean_m": -0.024634569883346558,
+      "rms_about_zero_m": 0.02531833655719198,
+      "scatter_about_mean_m": 0.005844324827194214,
+      "weighted_mean_m": null,
+      "normalized_rms": null,
+      "chi_squared_no_fitted_parameters": null,
+      "normal_point_sha256": "a28bd21b005e2978c618a5103bf5fd0d5c8b4bcb6a6bb1e449239e8b14dbe7ef",
+      "dataset_manifest_sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f",
+      "kernel_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "ephemeris_constants_source": null,
+      "gravitational_parameters_m3_s2": {
+        "Sun": 1.3271244004127939e+20,
+        "Earth": 398600435507022.6,
+        "Moon": 4902800118457.548
+      },
+      "reflector_coordinate_metadata": {
+        "source": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+        "table": "1",
+        "frame": "MOON_PA_DE440",
+        "units": "metres",
+        "reference_point": "Array front-face centre, per JPL2020 section 3.18"
+      },
+      "kernel_sha256": {
+        "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+        "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+        "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+        "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+        "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+        "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+        "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+      },
+      "inertial_axes": {
+        "environment_frame": "ICRF",
+        "spice_j2000_product_axes": "ICRF",
+        "earth_sofa_frame_bias_applied": false,
+        "moon_frame": "MOON_PA_DE440"
+      },
+      "station_profile": "hofmann2017-matera-standard",
+      "station_xyz_m": [
+        4641978.797,
+        1393067.604,
+        4133249.427
+      ],
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "hofmann_station_profile_manifest_sha256": "31c7598fd7e64bd7ea12338e6df9339256d2958596990bf2c51cdc63bac714a7",
+      "station_profile_metadata": {
+        "purpose": "Independently preselected station-only sensitivity; retain DE440 body, orientation and reflector data, all frozen points and original tolerances",
+        "reference_epoch": "J2000.0, interpreted as JD 2451545.0 TT",
+        "reference_epoch_tt_s": 0.0,
+        "julian_year_s": 31557600.0,
+        "time_interpretation": "The source specifies J2000.0 and metres/year, but does not explicitly restate the time scale of station propagation. TT Julian years are an explicit diagnostic interpretation; not a recovered software setting.",
+        "frame": "Jointly fitted LUNAR ITRS station solution; compared with ITRF2008, not guaranteed canonical ITRF2008 or matched to DE440/ICRF EOP",
+        "origin": "Geocentric ITRS; no additional fitted translation or Helmert transform",
+        "tide_system": "Conventional tide-free, following the inherited station model described by Biskupek 2015 section 4.2.3",
+        "reference_point": "System reference point (SRP), intersection of telescope axes; no extra instrument eccentricity inferred",
+        "sources": {
+          "hofmann2017": {
+            "title": "Lunar Laser Ranging: Verbesserte Modellierung der Monddynamik und Sch\u00e4tzung relativistischer Parameter",
+            "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-797.pdf",
+            "sha256": "cf83f70c456fed3ca5bcabccd9496a9818ba82d30b1a79ff9d4796faa8db6cbe",
+            "location": "Section 5.3 and Tables 5.4-5.5, printed pp.65-67 (tables PDF page69); fixed Matera velocity in Table A.3, printed p.118; SRP identifiers in Table A.1, printed p.117"
+          },
+          "biskupek2015": {
+            "title": "Bestimmung der Erdorientierung mit Lunar Laser Ranging",
+            "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-742.pdf",
+            "sha256": "f2af9449e6fcccfce099cf3a0d6c64404a2e67d2d0689c7f3a8ca20543001178",
+            "location": "Sections 4.2.2-4.2.3, printed pp.34-36: SRP, J2000.0, conventional tide-free coordinates and linear station velocities; APOLLO approximate White Sands GPS a priori velocity"
+          }
+        },
+        "limitations": [
+          "Use Tables 5.4-5.5 standard solution only. Tables 5.6 and A.5 describe a separate constrained-velocity solution and are not combined here.",
+          "Internal component uncertainties are metadata only; full covariance and a propagated station uncertainty are unavailable.",
+          "The source jointly fits an independently integrated lunar ephemeris, lunar rotation, reflector coordinates and other parameters; its updates use DE430/GRAIL information. This is not a matched fixed-DE440 station solution.",
+          "Earth displacement models include solid Earth tides, ocean loading, atmospheric loading, pole and ocean pole tides. Their original realizations are not reproduced by changing station coordinates alone.",
+          "Source measurements extend through early 2015. Both frozen observations postdate that fitting interval; station discontinuities and later local metrology are not established by this source.",
+          "No source range biases, empirical lunar librations, reflector positions, or frame transformations are imported. No choice based on residuals."
+        ],
+        "station": "MLRO",
+        "cdp": "7941",
+        "domes": "12734S008",
+        "position_m": [
+          4641978.797,
+          1393067.604,
+          4133249.427
+        ],
+        "velocity_m_per_julian_year": [
+          -0.0181,
+          0.0193,
+          0.0147
+        ],
+        "position_sigma_m": [
+          0.0135,
+          0.0154,
+          0.0227
+        ],
+        "velocity_sigma_m_per_year": null,
+        "velocity_status": "Fixed to the ITRF2008 a priori velocity in Table A.3; no fitted velocity uncertainty"
+      },
+      "matera_adapter_sha256": "6292d83a4900af31439fcd6eda73a2079b9b5e7fc109b6d5e3f23a889ab5c1b4",
+      "spice_knot_step_s": 30,
+      "ocean_loading": null,
+      "mean_by_reflector_m": {
+        "A15": -0.024634569883346558
+      },
+      "csv_sha256": "e028f15b4d728a7bf36bf23441904681e3b08f7bee0ab076bd0fc00778d01089",
+      "original_summary_sha256": "6aec96d568fa32d1f4f8f07281b7a802b0060ad28696a71cb2131e2cbe96e67c",
+      "event_diagnostics_sha256": "d595c6e13dba7fbe62682ade1af75937f29921a6d124bfa26bb562727d8ee5cb",
+      "ephemeris_controls_sha256": "51e2a43944a138dd3f58bca891af893a324a78634e60ec620315129689d6aa8c"
+    },
+    "de421-inpop17a": {
+      "case": "apollo20170309",
+      "ephemeris": "de421-mer",
+      "count": 11,
+      "mean_m": -0.2671971862966364,
+      "rms_about_zero_m": 0.2824275975279038,
+      "scatter_about_mean_m": 0.0914932318838076,
+      "weighted_mean_m": -0.24134768758581826,
+      "normalized_rms": 121.97959637455234,
+      "chi_squared_no_fitted_parameters": 163669.24124868572,
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+      "kernel_manifest_sha256": "496e9b217f6b852f273c6bf4a1dae8b1a0e8d63b1f7e7ba69889a088c7531011",
+      "ephemeris_constants_source": {
+        "file": "header.421",
+        "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de421/header.421",
+        "size": 8422,
+        "sha256": "0fe9e0d60df4b33772e7332d87eb883eaf4cf3219b5a4cd2d5bc2356e98b2d16",
+        "retrieved_utc": "2026-10-16T06:37:58.659318+00:00"
+      },
+      "gravitational_parameters_m3_s2": {
+        "Sun": 1.3271244004094458e+20,
+        "Earth": 398600436233339.6,
+        "Moon": 4902800076227.743
+      },
+      "reflector_coordinate_metadata": {
+        "source": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+        "table": "1, DE421 MER column",
+        "frame": "MOON_ME_DE421",
+        "units": "metres",
+        "reference_point": "Array front-face centre, same physical reference as DE440 Table1/JPL2020 reduction; no extra fitted range offset",
+        "coordinates_m": {
+          "0": [
+            1591747.649,
+            691222.2,
+            20398.11
+          ],
+          "1": [
+            1114958.865,
+            -780934.127,
+            1075632.692
+          ],
+          "2": [
+            1652818.682,
+            -520454.587,
+            -110361.165
+          ],
+          "3": [
+            1554937.504,
+            98604.886,
+            764412.81
+          ],
+          "4": [
+            1339388.213,
+            802310.527,
+            755849.393
+          ]
+        },
+        "limitation": "These published MER coordinates agree with the Eq19-transformed DE440 PA coordinates within0.758mm printed precision. They provide frame-compatible positions, not independently recovered original DE421-fit reflector parameters."
+      },
+      "kernel_sha256": {
+        "de421.bsp": "08b20db2ae22488650641c5a9033e5bfda4b1c4b440cfeaf20f621cfa18ecdb3",
+        "moon_pa_de421_1900-2050.bpc": "656f90616403d75a75f0cd6c8830fc5b44f8cb4facb5ccb8915e752b397520cf",
+        "moon_080317.tf": "78732477b96f9863e7b0d65bcee3c22b8707ca5ed0db56d1173319cb2e8c7993",
+        "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+        "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+        "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+      },
+      "inertial_axes": {
+        "environment_frame": "ICRF",
+        "spice_j2000_product_axes": "ICRF",
+        "earth_sofa_frame_bias_applied": false,
+        "moon_frame": "MOON_ME_DE421"
+      },
+      "station_profile": "inpop17a-gir",
+      "station_xyz_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "hofmann_station_profile_manifest_sha256": null,
+      "station_profile_metadata": {
+        "name": "INPOP17a G+IR station-only sensitivity",
+        "position_m": [
+          -1463998.9155,
+          -5166632.769,
+          3435012.8659
+        ],
+        "velocity_m_per_julian_year": [
+          -0.013,
+          0.0001,
+          0.0
+        ],
+        "position_sigma_m": [
+          0.0004,
+          0.0004,
+          0.0014
+        ],
+        "velocity_sigma_m_per_year": [
+          0.0001,
+          0.0001,
+          0.0016
+        ],
+        "reference_epoch": "J2000, interpreted as JD 2451545.0 TT",
+        "reference_epoch_tt_s": 0.0,
+        "julian_year_s": 31557600.0,
+        "frame": "Published fitted coordinates relative to ITRF2005 references; not guaranteed canonical ITRF2005 or matched to the selected EOP frame",
+        "selection": "Preselected published final G+IR solution; no choice based on the eleven residuals",
+        "row_algebra": "x=-1463998.7870-.1285; y=-5166632.8080+.0390; z=3435012.8560+.0099; vx=-.0141+.0011; vy=-.0015+.0016; vz=-.0064+.0064",
+        "sources": [
+          {
+            "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+            "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a",
+            "location": "Table 8, printed page 21; J2000 position and velocity, metres and metres/year; APOLLO data end 2016-11-25 in Table 4"
+          },
+          {
+            "url": "https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf",
+            "sha256": "f36cf9602a79d4de0d98e1136e9cf5d45db3f9e319bfa0933b8f7a856cec1cb6",
+            "location": "Section 9.1.2 specifies TT for linear station velocity; using a Julian year is an explicit interpretation, not restated in the 2017 table"
+          }
+        ],
+        "limitations": [
+          "Station-only sensitivity with DE440 translation, orientation and reflector constants retained; not a matched INPOP or DE440 reduction.",
+          "No speculative frame transform; fitted station coordinates need not realize canonical ITRF2005, ITRF2020 or the selected EOP frame.",
+          "Tide-free interpretation is supported by regularized coordinates and cited IERS routines, but not explicitly flagged in the 2017 report.",
+          "The older cited reduction includes atmospheric and CSR4.0 ocean loading; precise 2017 choices are not restated and are not reproduced here.",
+          "Published component uncertainties are retained as metadata only; no full covariance or reference-point metrology recovered."
+        ]
+      },
+      "matera_adapter_sha256": null,
+      "spice_knot_step_s": 30,
+      "ocean_loading": null,
+      "mean_by_reflector_m": {
+        "A11": -0.1778416931629181,
+        "A14": -0.16461489597956339,
+        "A15": -0.3283935785293579,
+        "L1": -0.38803333044052124
+      },
+      "csv_sha256": "7178385eac373d708e05e5b3691e644bda5a03ebade3fdf990ecb6fa1bd45715",
+      "original_summary_sha256": "d9ade1e94f15dae2f2a11f35aebf1eda9e11c503ad576846d75a77193ad96660",
+      "event_diagnostics_sha256": "95c7e519fffd0bfe10098904823e59a8a4106a69078a12e101b39a12cfa434c2",
+      "ephemeris_controls_sha256": "9228b24f702da058ff225a02ffc4df72d369ba47df91b22beea69fbe4a5bbc24"
+    },
+    "de421-matera": {
+      "case": "matera20220821",
+      "ephemeris": "de421-mer",
+      "count": 2,
+      "mean_m": -0.3059714138507843,
+      "rms_about_zero_m": 0.3060310512666365,
+      "scatter_about_mean_m": 0.006041377782821655,
+      "weighted_mean_m": null,
+      "normalized_rms": null,
+      "chi_squared_no_fitted_parameters": null,
+      "normal_point_sha256": "a28bd21b005e2978c618a5103bf5fd0d5c8b4bcb6a6bb1e449239e8b14dbe7ef",
+      "dataset_manifest_sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f",
+      "kernel_manifest_sha256": "496e9b217f6b852f273c6bf4a1dae8b1a0e8d63b1f7e7ba69889a088c7531011",
+      "ephemeris_constants_source": {
+        "file": "header.421",
+        "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de421/header.421",
+        "size": 8422,
+        "sha256": "0fe9e0d60df4b33772e7332d87eb883eaf4cf3219b5a4cd2d5bc2356e98b2d16",
+        "retrieved_utc": "2026-10-16T06:37:58.659318+00:00"
+      },
+      "gravitational_parameters_m3_s2": {
+        "Sun": 1.3271244004094458e+20,
+        "Earth": 398600436233339.6,
+        "Moon": 4902800076227.743
+      },
+      "reflector_coordinate_metadata": {
+        "source": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+        "table": "1, DE421 MER column",
+        "frame": "MOON_ME_DE421",
+        "units": "metres",
+        "reference_point": "Array front-face centre, same physical reference as DE440 Table1/JPL2020 reduction; no extra fitted range offset",
+        "coordinates_m": {
+          "0": [
+            1591747.649,
+            691222.2,
+            20398.11
+          ],
+          "1": [
+            1114958.865,
+            -780934.127,
+            1075632.692
+          ],
+          "2": [
+            1652818.682,
+            -520454.587,
+            -110361.165
+          ],
+          "3": [
+            1554937.504,
+            98604.886,
+            764412.81
+          ],
+          "4": [
+            1339388.213,
+            802310.527,
+            755849.393
+          ]
+        },
+        "limitation": "These published MER coordinates agree with the Eq19-transformed DE440 PA coordinates within0.758mm printed precision. They provide frame-compatible positions, not independently recovered original DE421-fit reflector parameters."
+      },
+      "kernel_sha256": {
+        "de421.bsp": "08b20db2ae22488650641c5a9033e5bfda4b1c4b440cfeaf20f621cfa18ecdb3",
+        "moon_pa_de421_1900-2050.bpc": "656f90616403d75a75f0cd6c8830fc5b44f8cb4facb5ccb8915e752b397520cf",
+        "moon_080317.tf": "78732477b96f9863e7b0d65bcee3c22b8707ca5ed0db56d1173319cb2e8c7993",
+        "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+        "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+        "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+      },
+      "inertial_axes": {
+        "environment_frame": "ICRF",
+        "spice_j2000_product_axes": "ICRF",
+        "earth_sofa_frame_bias_applied": false,
+        "moon_frame": "MOON_ME_DE421"
+      },
+      "station_profile": "slrf2020-matera",
+      "station_xyz_m": [
+        4641978.52389715,
+        1393067.81970112,
+        4133249.69590866
+      ],
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "hofmann_station_profile_manifest_sha256": null,
+      "station_profile_metadata": {
+        "cdp": "7941",
+        "point": "A",
+        "solution": "1",
+        "domes": "12734S008",
+        "system_number": 77,
+        "occupancy": 1,
+        "reference_point": "Azimuth/elevation axis intersection, calibrated instrument point; documented zero XYZ eccentricity",
+        "frame": "SLRF2020 in ITRF2020; no speculative frame transform",
+        "origin": "whole-Earth centre of mass",
+        "tide_system": "tide-free",
+        "time_convention": "IGN nominal UTC: native civil UTC/MJD difference divided by365.25; leap seconds excluded from linear terms, TAI validity intervals",
+        "validity_interpretation": "Conservatively use the single SLRF SOLUTION/EPOCHS span for this frozen case; it is an observation span, not a published discontinuity record. Official ITRF2020 SLR discontinuities have no7941 entry.",
+        "reference_utc": "15:001:00000",
+        "position_m": [
+          4641978.52389715,
+          1393067.81970112,
+          4133249.69590866
+        ],
+        "velocity_m_per_s": [
+          -5.902955231706941e-10,
+          6.038771789154434e-10,
+          4.6334606211313594e-10
+        ],
+        "zero_eccentricity_start": "00:001:00000",
+        "zero_eccentricity_end": "00:000:00000",
+        "post_seismic": "No Matera terms in pinned official ITRF2020 SLR PSD product"
+      },
+      "matera_adapter_sha256": "6292d83a4900af31439fcd6eda73a2079b9b5e7fc109b6d5e3f23a889ab5c1b4",
+      "spice_knot_step_s": 30,
+      "ocean_loading": null,
+      "mean_by_reflector_m": {
+        "A15": -0.3059714138507843
+      },
+      "csv_sha256": "debe94070ac9c1edd36b7d91646bfce768b60241831faf1070c387f480aca7c2",
+      "original_summary_sha256": "a52f675ee4b845d1dfcb5f2bd9695ba312a088decaf9da54237a27f9a67d343f",
+      "event_diagnostics_sha256": "91c59fa1382a4d630403994668879b53ff720f7acfad207f8fa015e833eea488",
+      "ephemeris_controls_sha256": "e9f0745cb045d3527cf5659de8a82e0153869df85212037d55b18314f23fd480"
+    }
+  },
+  "earth_orientation_resource_sha256": {
+    "README_desaiSibois2016.txt": "7c402db01984d0f561b77758c9b6cb290f746694b9e52c6735c19a9de8e9041f",
+    "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d",
+    "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "desaiSibois2016Ut1OceanTidesAmplitudes.txt": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88",
+    "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "eopc04_08_IAU2000.62-now.txt": "60c35925a5289c618a6054d0a6b2b313afa4dabeef08e348a7cac6a2682e0ea3",
+    "eopc04_14_IAU2000.62-now.txt": "cc838b27572e89ff6d36ee7cbeb6a8f104f1f8e59ddf769e8c93e6515276cd32",
+    "eopc04_20_IAU2000.62-now.txt": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181",
+    "historicalDeltaT.txt": "4a2d068df1cdb5f39ac0e7efa04aafeea5be585afd1c9e2e4380cf8872e1f78e",
+    "polarMotionLibrationAmplitudes.txt": "09bf92da2470901a69b3f3e4a17568ab09fba3df6021e72323b9c83a933a5fb0",
+    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf",
+    "polarMotionLibrationFundamentalArgumentMultipliers.txt": "3e1b8e99338e6713a244a1afc0e821a900bb67b6951fb76a0df5571b1d2b0206",
+    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3",
+    "polarMotionOceanTidesAmplitudes.txt": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076",
+    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+    "utcLibrationAmplitudes.txt": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7",
+    "utcLibrationFundamentalArgumentMultipliers.txt": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5",
+    "utcOceanTidesAmplitudes.txt": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829",
+    "utcOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+  },
+  "native_interpolation_audit_sha256": "130c0e2e136fd48e39bc5e4a1fcb215a19d9a7c40e17d9032a8302cbe5b1ffe3",
+  "interpolation_interpretation": "At all frozen launches and recorded bounce/reception epochs, existing native Time cubic tables at 60/30/15/10 s leave absolute BCRS rounding at tens of micrometres; smaller knots do not monotonically reduce that floor. Direct SPICE absolute body states retain up to 1.75 mm epoch-rounding error. Existing Moon-relative-Earth Time tables stay below 0.103 micrometres against independent stored coefficients, but simultaneous relative states do not replace retarded two-epoch BCRS light time.",
+  "same_frozen_point_keys_within_each_case": true,
+  "de440_controls_exactly_reproduce_original_icrf_csvs": true,
+  "station_metadata_scope": "The source-audit metadata retains its original reference-model description. Each case explicitly records the actual selected ephemeris, constants, lunar frame and station parameters; no claim of a matched original DE421, INPOP or Hofmann fitted reduction is made."
+}
