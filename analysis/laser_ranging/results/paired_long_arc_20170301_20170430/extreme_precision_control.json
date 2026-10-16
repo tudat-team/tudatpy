@@ -1,0 +1,112 @@
+{
+  "analysis_source_revision": "6e7d4b8077963bda9a5c99604a8d57c111086ce4",
+  "native_source_revision": "a366f436c6f6ff03aa57f8b1610075784196bdf8",
+  "kernel_binary_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "control_script_sha256": "637d3f99d60784b527535bfa81f0fefb9368505d1694d16c1da50f07c05aedb5",
+  "source_sha256": {
+    "llr_residuals.py": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
+    "llr_long_arc.py": "723e80ea26a5b3d72bb8602edeedfa70a9f36291043b4f93ab3c4e5e86de02ff",
+    "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+  },
+  "manifest_sha256": "10906a8e5ebbf349b7d684844d968690cc500640aae0a634f6f82e722e72c86f",
+  "control": "Full original fourteen-NP session and fourteen measured weather records determine both environments; solve only the selected three NPs, unchanged50 iterations/fractional1e-13 tolerance, no loading/fits/cuts.",
+  "profile": "inpop17a-grasse-gir",
+  "source_session": "apollo15_201703.npt:29",
+  "source_file_sha256": "cd546e1d1f0947962366ab8441091a639233fae77ccd6dcb98e8053bf0963eb6",
+  "full_session_np_count": 14,
+  "measured_weather_count": 14,
+  "rows": [
+    {
+      "source_line": 168,
+      "utc_launch": "2017-03-09T18:15:50.133923794200",
+      "spice_knot_step_s": 30,
+      "observed_rtt_s": 2.492242625867,
+      "computed_two_way_range_m": 747155542.8355349,
+      "one_way_residual_m": -0.04724627733230591,
+      "half_range_delta_from_frozen30_m": 0.0,
+      "native_event_epochs_tdb_s": [
+        542355419.3194374,
+        542355420.5654912,
+        542355420.5654912,
+        542355421.81168
+      ]
+    },
+    {
+      "source_line": 171,
+      "utc_launch": "2017-03-09T18:34:15.297622200200",
+      "spice_knot_step_s": 30,
+      "observed_rtt_s": 2.490835100745,
+      "computed_two_way_range_m": 746733566.4651275,
+      "one_way_residual_m": 5.429946839809418,
+      "half_range_delta_from_frozen30_m": 0.0,
+      "native_event_epochs_tdb_s": [
+        542356524.4831359,
+        542356525.7284862,
+        542356525.7284862,
+        542356526.973971
+      ]
+    },
+    {
+      "source_line": 174,
+      "utc_launch": "2017-03-09T19:01:06.177901377600",
+      "spice_knot_step_s": 30,
+      "observed_rtt_s": 2.489019024979,
+      "computed_two_way_range_m": 746189131.642944,
+      "one_way_residual_m": -0.06786304712295532,
+      "half_range_delta_from_frozen30_m": 0.0,
+      "native_event_epochs_tdb_s": [
+        542358135.3634154,
+        542358136.6078578,
+        542358136.6078578,
+        542358137.8524344
+      ]
+    },
+    {
+      "source_line": 168,
+      "utc_launch": "2017-03-09T18:15:50.133923794200",
+      "spice_knot_step_s": 15,
+      "observed_rtt_s": 2.492242625867,
+      "computed_two_way_range_m": 747155542.8355349,
+      "one_way_residual_m": -0.04724627733230591,
+      "half_range_delta_from_frozen30_m": 0.0,
+      "native_event_epochs_tdb_s": [
+        542355419.3194374,
+        542355420.5654912,
+        542355420.5654912,
+        542355421.81168
+      ]
+    },
+    {
+      "source_line": 171,
+      "utc_launch": "2017-03-09T18:34:15.297622200200",
+      "spice_knot_step_s": 15,
+      "observed_rtt_s": 2.490835100745,
+      "computed_two_way_range_m": 746733566.4651083,
+      "one_way_residual_m": 5.429956436157227,
+      "half_range_delta_from_frozen30_m": -9.59634780883789e-06,
+      "native_event_epochs_tdb_s": [
+        542356524.4831359,
+        542356525.7284862,
+        542356525.7284862,
+        542356526.973971
+      ]
+    },
+    {
+      "source_line": 174,
+      "utc_launch": "2017-03-09T19:01:06.177901377600",
+      "spice_knot_step_s": 15,
+      "observed_rtt_s": 2.489019024979,
+      "computed_two_way_range_m": 746189131.6429642,
+      "one_way_residual_m": -0.06787317991256714,
+      "half_range_delta_from_frozen30_m": 1.0132789611816406e-05,
+      "native_event_epochs_tdb_s": [
+        542358135.3634154,
+        542358136.6078578,
+        542358136.6078578,
+        542358137.8524344
+      ]
+    }
+  ],
+  "execution_checkout_revision": "5e8fd35039070554224a9e7985a651a00d3f8f6f",
+  "source_history_note": "Execution checkout adds results only to the analysis source revision; source file hashes above identify the exact production code."
+}

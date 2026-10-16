@@ -33,6 +33,16 @@ source audits, including the negative green extreme, are in
 `extreme_source_audit.json`. Some provider H4 end times precede later printed
 NPs in the same block; each NP retains its own printed epoch without an H4 cut.
 
+A bounded numerical control reconstructs the original full 14-NP/14-weather
+session environment and solves only the extreme and its immediate neighbours.
+The 30 s tables reproduce all three original computed ranges exactly. With
+15 s native `Time` cubic tables and every other input unchanged, computed
+half-ranges change by 0, −9.596 and +10.133 micrometres in source order. The
+extreme remains +5.429956436 m. This excludes a 30 s interpolation discontinuity
+as the explanation for its metre-scale discrepancy, without classifying or
+removing the record. Exact values, epochs and hashes are in
+`extreme_precision_control.json`.
+
 The [time figures](../paired_long_arc_time_plots/README.md) show both stations
 by reflector with actual UTC gaps and wavelength markers. Their full-range view
 contains every point; a separately labeled ±200 mm detail reports the single
