@@ -70,3 +70,47 @@ def test_custom_ephemeris_time_object_preserves_sub_double_epochs():
     # The retained float route deliberately receives the already rounded epoch.
     np.testing.assert_allclose(custom.cartesian_state(float(right)).reshape(6)[:3], 0.0, atol=0.0)
     assert any(epoch == right for epoch in received)
+
+
+def test_earth_rotation_time_object_preserves_sub_double_epochs():
+    """Resolve Earth rotation over an interval lost when both epochs become doubles."""
+
+    # Use the native Earth model with epochs separated below the double time resolution.
+    settings = environment_setup.BodyListSettings("SSB", "GCRS")
+    settings.add_empty_settings("Earth")
+    settings.get("Earth").rotation_model_settings = environment_setup.rotation_model.gcrs_to_itrs()
+    rotation = environment_setup.create_system_of_bodies(settings).get("Earth").rotation_model
+    left = time_representation.Time(765201600)
+    right = left + 20e-9
+    assert float(left) == float(right)
+
+    # Compare resolved station motion with the rotation derivative over the same interval.
+    station = np.array([6378137.0, 0.0, 0.0])
+    left_matrix = rotation.body_fixed_to_inertial_rotation(left)
+    right_matrix = rotation.body_fixed_to_inertial_rotation(right)
+    derivative = rotation.time_derivative_body_fixed_to_inertial_rotation(left)
+    displacement = (right_matrix - left_matrix) @ station
+    assert np.linalg.norm(displacement) > 8e-6
+    np.testing.assert_allclose(
+        displacement, derivative @ station * float(right - left), rtol=0, atol=2e-8
+    )
+
+    # Retain float behavior and verify both inverse rotation and derivative overloads.
+    np.testing.assert_array_equal(
+        rotation.body_fixed_to_inertial_rotation(float(left)),
+        rotation.body_fixed_to_inertial_rotation(float(right)),
+    )
+    for epoch, matrix in [(left, left_matrix), (right, right_matrix)]:
+        np.testing.assert_allclose(
+            rotation.inertial_to_body_fixed_rotation(epoch), matrix.T, rtol=0, atol=1e-15
+        )
+        np.testing.assert_allclose(
+            rotation.time_derivative_inertial_to_body_fixed_rotation(epoch),
+            rotation.time_derivative_body_fixed_to_inertial_rotation(epoch).T,
+            rtol=0,
+            atol=1e-18,
+        )
+    assert (
+        np.linalg.norm(rotation.time_derivative_body_fixed_to_inertial_rotation(right) - derivative)
+        > 0.0
+    )

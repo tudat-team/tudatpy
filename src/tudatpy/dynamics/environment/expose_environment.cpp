@@ -2812,6 +2812,14 @@ bool
 
 
       )doc" )
+            .def(
+                    "body_fixed_to_inertial_rotation",
+                    []( te::RotationalEphemeris& self, const tudat::Time time ) {
+                        return self.getRotationToBaseFrameFromExtendedTime( time ).toRotationMatrix( );
+                    },
+                    py::arg( "time" ),
+                    "Evaluate the rotation at a precise Time epoch in TDB seconds since J2000. "
+                    "Time precision is retained by rotation models with extended-Time support." )
             .def( "body_fixed_to_inertial_rotation",
                   &te::RotationalEphemeris::getRotationMatrixToBaseFrame,
                   py::arg( "time" ),
@@ -2842,6 +2850,11 @@ bool
 
      )doc" )
             .def( "time_derivative_body_fixed_to_inertial_rotation",
+                  &te::RotationalEphemeris::getDerivativeOfRotationToBaseFrameFromExtendedTime,
+                  py::arg( "time" ),
+                  "Evaluate the rotation derivative at a precise Time epoch in TDB seconds since J2000. "
+                  "Time precision is retained by rotation models with extended-Time support." )
+            .def( "time_derivative_body_fixed_to_inertial_rotation",
                   &te::RotationalEphemeris::getDerivativeOfRotationToBaseFrame,
                   py::arg( "time" ),
                   R"doc(
@@ -2868,6 +2881,14 @@ bool
 
 
      )doc" )
+            .def(
+                    "inertial_to_body_fixed_rotation",
+                    []( te::RotationalEphemeris& self, const tudat::Time time ) {
+                        return self.getRotationToTargetFrameFromExtendedTime( time ).toRotationMatrix( );
+                    },
+                    py::arg( "time" ),
+                    "Evaluate the rotation at a precise Time epoch in TDB seconds since J2000. "
+                    "Time precision is retained by rotation models with extended-Time support." )
             .def( "inertial_to_body_fixed_rotation",
                   &te::RotationalEphemeris::getRotationMatrixToTargetFrame,
                   py::arg( "time" ),
@@ -2889,6 +2910,11 @@ bool
 
 
      )doc" )
+            .def( "time_derivative_inertial_to_body_fixed_rotation",
+                  &te::RotationalEphemeris::getDerivativeOfRotationToTargetFrameFromExtendedTime,
+                  py::arg( "time" ),
+                  "Evaluate the rotation derivative at a precise Time epoch in TDB seconds since J2000. "
+                  "Time precision is retained by rotation models with extended-Time support." )
             .def( "time_derivative_inertial_to_body_fixed_rotation",
                   &te::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
                   py::arg( "time" ),
