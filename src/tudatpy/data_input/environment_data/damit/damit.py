@@ -110,7 +110,7 @@ def damit_model_query(
     mpc_number: int,
 ) -> pd.DataFrame:
     """
-    Returns a table asteroid model data for the queried MPC number. An asteroid may have one or more models,
+    Returns a table with asteroid models for the queried MPC number. An asteroid may have one or more models,
     or none, in which case the table is returned empty.
 
     Parameters
@@ -131,6 +131,17 @@ def damit_model_query(
 class DamitModel:
     """
     Interface with DAMIT database for asteroid shape models and rotational parameters
+
+    Parameters
+    ----------
+    mpc_number : int, optional
+        If given, queries a DamitModel by small-body MPC number. The model with the highest quality flag is selected.
+        If there is no highest flag, selection is arbitrary
+    damit_model_id : int, optional
+        If given, queries a DamitModel by the Damit model ID
+    diameter : float, optional
+        Volume-equivalent diameter to scale the shape model to. This is used as a fall-back option, in case the
+        model has no shape information available.
     """
 
     def __init__(
@@ -141,17 +152,6 @@ class DamitModel:
     ):
         """
         Initialize a DamitModel object
-
-        Parameters
-        ----------
-        mpc_number : int, optional
-            If given, queries a DamitModel by small-body MPC number. The model with the highest quality flag is selected.
-            If there is no highest flag, selection is arbitrary
-        damit_model_id : int, optional
-            If given, queries a DamitModel by the Damit model ID
-        diameter : float, optional
-            Volume-equivalent diameter to scale the shape model to. This is used as a fall-back option, in case the
-            model has no shape information available.
         """
         # Query by mpc number and choose best model
         if mpc_number and not damit_model_id:
