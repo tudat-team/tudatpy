@@ -226,3 +226,39 @@ unchanged tolerances. The rebuilt kernel is 67,159,336 bytes, SHA-256
 links the focused reports and preserved old kernel. The earlier six-suite
 checkpoint remains historical evidence; this rebuild did not repeat that whole
 set. Subsequent observation runs must retain their own kernel identities.
+
+Selected range clock and precise rotation bindings
+-------------------------------------------------
+
+Native source ``7d52716f6723c704b20ca5f833570acd0f0cc0ba`` shares the selected
+Earth-station rotation clock with non-TDB one-way/n-way range normalization,
+and exposes the four existing precise-``Time`` rotation/derivative methods in
+Python while retaining the float methods. The incremental build at
+``/home/dominic/Tudat/laser-ranging-build`` produced kernel SHA-256
+``80b924287707124a8efea66455b26233b5511b7856983d35c05d21f82734f215``
+(67,172,672 bytes), imported from ``src/tudatpy/kernel.so`` in that build.
+NWayRange passed **5 cases / 1,023 assertions** with the selected Desai--Sibois
+and four-point EOP context; all **3 environment Python tests passed**. The native
+test-only frame alignment is ``a17e7bb44``; the final Python test is ``26ed42495``.
+The preceding unrelated native evidence remains retained.
+
+The new binding test resolves station motion at epochs 20 ns apart that share
+one double value, exercises all four Time methods and their inverse identities,
+and retains the float route. Its additional 20 ns finite-difference comparison
+with the analytic derivative was removed after an independent probe traced its
+0.12 micrometre discrepancy to inherited SOFA Earth-rotation-angle double
+arithmetic. UT1 retained the 20 ns interval; the ERA increment had a 267 ps
+equivalent quantization error at this epoch. No production accuracy setting or
+existing numerical tolerance was weakened.
+
+`Kernel provenance <../../../laser-ranging-work/logs/selected-clock-time-rotation-kernel-provenance.json>`_
+records the actual interpreter/import origins, source and focused Python result.
+The `build log <../../../laser-ranging-work/logs/selected-clock-time-rotation-build.log>`_,
+`native result <../../../laser-ranging-work/logs/selected-clock-nway-native-framefix-result.json>`_
+and `Python log <../../../laser-ranging-work/logs/selected-clock-environment-python.log>`_
+retain the focused checks. The
+`SOFA probe <../../../laser-ranging-work/verification/probe_earth_rotation_20ns.py>`_
+and `quantization evidence <../../../laser-ranging-work/logs/earth-rotation-20ns-probe.json>`_
+retain the measured floor and the original failed assertion separately. The
+preceding kernel and its provenance are preserved externally under
+``laser-ranging-work/binaries/10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5/``.
