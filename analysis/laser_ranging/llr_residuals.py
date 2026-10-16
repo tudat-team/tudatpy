@@ -11,6 +11,7 @@ import csv
 import hashlib
 import json
 from decimal import Decimal
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -65,11 +66,16 @@ def sha256(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def read_points(path, expected_hash):
+def read_points(
+    path,
+    expected_hash,
+    observation_interval=(date(2017, 3, 9), date(2017, 3, 10)),
+    expected_count=11,
+):
     """Decode the provider's fixed-width UTC/RTT/weather fields, retaining every pinned row."""
 
     if sha256(path) != expected_hash:
-        raise ValueError("Expected the pinned eleven APOLLO points, not another release/selection")
+        raise ValueError("APOLLO input differs from its pinned release and selection")
 
     widths = (2, 4, 2, 2, 2, 2, 9, 14, 1, 5, 3, 6, 3, 1, 6, 4, 2, 5, 1, 4, 1)
 
@@ -90,7 +96,10 @@ def read_points(path, expected_hash):
 
         utc = time.DateTime(year, month, day, hour, minute, float(seconds)).to_epoch_time_object()
 
-        if (year, month, day) != (2017, 3, 9) or fields[9] != "70610":
+        if (
+            not observation_interval[0] <= date(year, month, day) < observation_interval[1]
+            or fields[9] != "70610"
+        ):
             raise ValueError("Unexpected date/station in fixed APOLLO case")
 
         points.append(
@@ -111,8 +120,8 @@ def read_points(path, expected_hash):
             )
         )
 
-    if len(points) != 11:
-        raise ValueError("The fixed case must contain all eleven normal points")
+    if len(points) != expected_count:
+        raise ValueError("The fixed case must retain its declared normal-point count")
 
     return points
 
@@ -150,6 +159,7 @@ def create_environment(
     lunar_frame="MOON_PA_DE440",
     reflector_coordinates=None,
     gravitational_parameters=None,
+    meteorological_history=None,
 ):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
@@ -289,12 +299,16 @@ def create_environment(
     )
 
     # Weather is supplied at every measured UTC tag and held at the end tags for the short light-time window.
-    weather = {
-        float(point["utc"]): np.array(
-            [point["temperature_k"], point["pressure_pa"], point["humidity"]]
-        )
-        for point in points
-    }
+    weather = (
+        {
+            float(point["utc"]): np.array(
+                [point["temperature_k"], point["pressure_pa"], point["humidity"]]
+            )
+            for point in points
+        }
+        if meteorological_history is None
+        else {epoch: np.asarray(values) for epoch, values in meteorological_history.items()}
+    )
 
     utc_tags = sorted(weather)
 
@@ -368,6 +382,22 @@ def create_environment(
         )
 
     return bodies, position, loading
+
+
+def complete_light_time_corrections(point):
+    """Use the existing complete model without adding a second array-profile correction."""
+
+    thickness = 0.0435 if point["reflector"] in (1, 4) else 0.0275
+
+    signature = ltc.LaserTargetSignature(
+        [np.zeros(3)], [1.0], internal_optical_path_length=1.4555 * thickness
+    )
+
+    return [
+        ltc.first_order_relativistic_light_time_correction(["Sun", "Earth", "Moon"]),
+        ltc.mendes_pavlis_tropospheric_light_time_correction(point["wavelength_m"]),
+        ltc.laser_target_light_time_correction("Moon", signature),
+    ]
 
 
 def computed_range(point, epoch, bodies, corrections):
@@ -485,6 +515,48 @@ def ephemeris_controls(points, bodies):
     return controls
 
 
+def load_ephemeris_kernels(kernel_directory, ephemeris_dataset, frame_alias):
+    """Validate and load one matched product set and its explicit ICRF alias."""
+
+    kernel_hashes = {}
+
+    # Clear any kernels loaded by earlier work in the same interpreter, then load only the declared matched set.
+    spice.clear_kernels()
+
+    for record in ephemeris_dataset["kernels"]:
+        name = record["file"]
+
+        expected_hash = record["sha256"]
+
+        path = kernel_directory / name
+
+        kernel_hashes[name] = sha256(path)
+
+        if kernel_hashes[name] != expected_hash:
+            raise ValueError(f"Kernel differs from the pinned matched ephemeris set: {name}")
+
+        spice.load_kernel(str(path))
+
+    # The DE421 constants are derived from its source header, not the DE440 GM kernel.
+    constants_source = ephemeris_dataset.get("constants_source")
+
+    if constants_source is not None:
+        if sha256(kernel_directory / constants_source["file"]) != constants_source["sha256"]:
+            raise ValueError("Ephemeris constants header differs from its pinned source")
+
+    # The identity alias lets all environment labels use the actual axes of modern SPICE J2000 products.
+    alias = frame_alias
+
+    alias_path = Path(__file__).with_name(alias["file"])
+
+    kernel_hashes[alias["file"]] = sha256(alias_path)
+    if kernel_hashes[alias["file"]] != alias["sha256"]:
+        raise ValueError("Analysis ICRF alias differs from its pinned identity definition")
+    spice.load_kernel(str(alias_path))
+
+    return kernel_hashes, constants_source
+
+
 def main():
     """Write every frozen O–C value and untuned statistics, with kernel/input identities."""
 
@@ -580,41 +652,9 @@ def main():
             parser.error("The selected Hofmann profile belongs to Matera")
         points = read_points(point_file, dataset["normal_points"]["sha256"])
 
-    kernel_hashes = {}
-
-    # Clear any kernels loaded by earlier work in the same interpreter, then load only the declared matched set.
-    spice.clear_kernels()
-
-    for record in ephemeris_dataset["kernels"]:
-        name = record["file"]
-
-        expected_hash = record["sha256"]
-
-        path = args.kernel_dir / name
-
-        kernel_hashes[name] = sha256(path)
-
-        if kernel_hashes[name] != expected_hash:
-            raise ValueError(f"Kernel differs from the pinned matched ephemeris set: {name}")
-
-        spice.load_kernel(str(path))
-
-    # The DE421 constants are derived from its source header, not the DE440 GM kernel.
-    constants_source = ephemeris_dataset.get("constants_source")
-
-    if constants_source is not None:
-        if sha256(args.kernel_dir / constants_source["file"]) != constants_source["sha256"]:
-            raise ValueError("Ephemeris constants header differs from its pinned source")
-
-    # The identity alias lets all environment labels use the actual axes of modern SPICE J2000 products.
-    alias = kernel_dataset["analysis_frame_alias"]
-
-    alias_path = Path(__file__).with_name(alias["file"])
-
-    kernel_hashes[alias["file"]] = sha256(alias_path)
-    if kernel_hashes[alias["file"]] != alias["sha256"]:
-        raise ValueError("Analysis ICRF alias differs from its pinned identity definition")
-    spice.load_kernel(str(alias_path))
+    kernel_hashes, constants_source = load_ephemeris_kernels(
+        args.kernel_dir, ephemeris_dataset, kernel_dataset["analysis_frame_alias"]
+    )
 
     bodies, position, loading = create_environment(
         points,
@@ -637,18 +677,7 @@ def main():
             time.utc_scale, time.tdb_scale, point["utc"], position
         )
 
-        # The zero-offset signature adds only the documented glass path, not another profile-centroid adjustment.
-        thickness = 0.0435 if point["reflector"] in (1, 4) else 0.0275
-
-        signature = ltc.LaserTargetSignature(
-            [np.zeros(3)], [1.0], internal_optical_path_length=1.4555 * thickness
-        )
-
-        shapiro = ltc.first_order_relativistic_light_time_correction(["Sun", "Earth", "Moon"])
-
-        optical = ltc.mendes_pavlis_tropospheric_light_time_correction(point["wavelength_m"])
-
-        target = ltc.laser_target_light_time_correction("Moon", signature)
+        shapiro, optical, target = complete_light_time_corrections(point)
 
         geometric, geometric_events = computed_range(point, epoch, bodies, [])
 
