@@ -120,10 +120,9 @@ def describe(points):
     return result
 
 
-def plot(points, output, title, show_means, zoom_mm=None):
-    """Save unconnected reflector points, optional provider sigmas and nightly-mean markers."""
+def plot(points, output, title, show_means, zoom_mm=None, separate_series=False):
+    """Save unconnected reflector points, optionally in separate station/wavelength columns."""
 
-    fig, axes = plt.subplots(5, 1, sharex=True, figsize=(11, 12), constrained_layout=True)
     stations = sorted({p["station"] for p in points})
     first, last = min(p["epoch"] for p in points), max(p["epoch"] for p in points)
     station_wavelengths = {
@@ -133,13 +132,49 @@ def plot(points, output, title, show_means, zoom_mm=None):
         )
         for station in stations
     }
+    series = (
+        [
+            (station, wavelength)
+            for station in stations
+            for wavelength in station_wavelengths[station]
+        ]
+        if separate_series
+        else [None]
+    )
+    fig, axes = plt.subplots(
+        5,
+        len(series),
+        sharex=True,
+        sharey=separate_series,
+        squeeze=False,
+        figsize=(18, 11) if separate_series else (11, 12),
+        constrained_layout=True,
+    )
+    # Each panel combines one reflector with an optical series, or overlays all series.
+    panels = [
+        (reflector, column, optical_series, axes[row, column])
+        for row, reflector in enumerate(REFLECTORS)
+        for column, optical_series in enumerate(series)
+    ]
 
-    for reflector, ax in zip(REFLECTORS, axes):
+    for reflector, column, optical_series, ax in panels:
+        panel_points = [
+            p
+            for p in points
+            if p["reflector"] == reflector
+            and (optical_series is None or (p["station"], p["wavelength_nm"]) == optical_series)
+        ]
+        if separate_series and reflector == REFLECTORS[0]:
+            station, wavelength = optical_series
+            wavelength_label = (
+                f"{wavelength:g} nm" if wavelength is not None else "unspecified wavelength"
+            )
+            ax.set_title(f"{station} {wavelength_label}", fontsize=11)
         ax.axhline(0, color="0.65", linewidth=0.7)
 
         for index, station in enumerate(stations):
             group = sorted(
-                (p for p in points if p["station"] == station and p["reflector"] == reflector),
+                (p for p in panel_points if p["station"] == station),
                 key=lambda p: p["epoch"],
             )
 
@@ -166,7 +201,11 @@ def plot(points, output, title, show_means, zoom_mm=None):
                     s=25,
                     color=color,
                     marker=marker if mixed_wavelengths else "o",
-                    label=f"{station}{wavelength_label if mixed_wavelengths else ''} raw (n={len(optical_group)})",
+                    label=(
+                        f"Raw (n={len(optical_group)})"
+                        if separate_series
+                        else f"{station}{wavelength_label if mixed_wavelengths else ''} raw (n={len(optical_group)})"
+                    ),
                     zorder=3,
                 )
             supplied = [p for p in group if p["sigma"] is not None]
@@ -180,7 +219,7 @@ def plot(points, output, title, show_means, zoom_mm=None):
                     ecolor=color,
                     alpha=0.6,
                     capsize=2,
-                    label=f"{station} provider NP ±1σ",
+                    label="Provider NP ±1σ" if separate_series else f"{station} provider NP ±1σ",
                 )
 
             if show_means:
@@ -191,42 +230,51 @@ def plot(points, output, title, show_means, zoom_mm=None):
                     marker="D",
                     color=color,
                     s=16,
-                    label=f"{station} nightly raw mean (unweighted{', both wavelengths' if mixed_wavelengths else ''})",
+                    label=f"{station} nightly raw mean (unweighted{', both wavelengths' if mixed_wavelengths and not separate_series else ''})",
                 )
 
         if zoom_mm is not None:
             ax.set_ylim(*zoom_mm)
             outside = sum(
-                p["reflector"] == reflector and not zoom_mm[0] <= p["residual"] * 1000 <= zoom_mm[1]
-                for p in points
+                not zoom_mm[0] <= p["residual"] * 1000 <= zoom_mm[1] for p in panel_points
             )
 
             if outside:
                 ax.text(
                     0.99,
                     0.02,
-                    f"{outside} raw point(s) outside this detail window",
+                    (
+                        f"{outside} outside window"
+                        if separate_series
+                        else f"{outside} raw point(s) outside this detail window"
+                    ),
                     transform=ax.transAxes,
                     ha="right",
                     fontsize=8,
                 )
 
-        ax.set_ylabel(f"{reflector}\nO−C (mm)")
+        if column == 0:
+            ax.set_ylabel(f"{reflector}\nO−C (mm)")
         ax.grid(alpha=0.2)
         handles, labels = ax.get_legend_handles_labels()
 
         if handles:
-            ax.legend(handles, labels, fontsize=7, loc="best")
+            ax.legend(handles, labels, fontsize=7, loc="upper right" if separate_series else "best")
         else:
             ax.text(0.5, 0.5, "No observations", transform=ax.transAxes, ha="center", color="0.4")
 
     # Include all epochs honestly; optional station detail figures preserve this full-span figure.
     span = max(mdates.date2num(last) - mdates.date2num(first), 1 / 1440)
-    axes[-1].set_xlim(mdates.date2num(first) - span * 0.04, mdates.date2num(last) + span * 0.04)
-    locator = mdates.AutoDateLocator(minticks=4, maxticks=9)
-    axes[-1].xaxis.set_major_locator(locator)
-    axes[-1].xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator, tz=timezone.utc))
-    axes[-1].set_xlabel("UTC launch time — gaps retain their full duration")
+    axes[-1, 0].set_xlim(mdates.date2num(first) - span * 0.04, mdates.date2num(last) + span * 0.04)
+    locator = mdates.AutoDateLocator(
+        minticks=3 if separate_series else 4, maxticks=5 if separate_series else 9
+    )
+    axes[-1, 0].xaxis.set_major_locator(locator)
+    axes[-1, 0].xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator, tz=timezone.utc))
+    if separate_series:
+        fig.supxlabel("UTC launch time — gaps retain their full duration")
+    else:
+        axes[-1, 0].set_xlabel("UTC launch time — gaps retain their full duration")
     fig.suptitle(title + "\nRaw one-way O−C; no offset or trend removed", fontsize=12)
 
     for extension in ("png", "pdf"):

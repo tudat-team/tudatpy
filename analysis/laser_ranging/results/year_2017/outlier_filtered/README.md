@@ -68,11 +68,14 @@ PYTHON
 ```
 
 The figures below reuse `plot_llr_residuals.py` with unconnected points,
-provider ±1σ bars, station/wavelength markers, and five reflector panels.
+provider ±1σ bars and station/wavelength markers. Five reflector rows share
+three optical-series columns: APOLLO 532 nm, GRASSE 532.1 nm, and GRASSE
+1064.2 nm. These are two physical stations; the two Grasse wavelengths have
+separate columns. All panels share the same date and residual axes.
 Both views retain the complete observation-time span. The full view uses
 ±250 mm and includes every retained point and error bar (largest
 |residual| + σ: 241.915 mm). The ±100 mm detail view labels points outside
-its window; these points remain in the dataset and full view.
+each panel's window; these points remain in the dataset and full view.
 
 | Model | Full view (±250 mm) | Detail (±100 mm) | Points outside detail |
 | --- | --- | --- | ---: |
@@ -122,7 +125,7 @@ for case, label, outside in (
     destination = Path(case)
     destination.mkdir(parents=True, exist_ok=True)
     title = f"Calendar 2017 — {label}; two Grasse outliers excluded"
-    helper.plot(points, destination / "residuals_full_span", title, False, zoom_mm=(-250, 250))
-    helper.plot(points, destination / "residuals_y_detail", title, False, zoom_mm=(-100, 100))
+    helper.plot(points, destination / "residuals_full_span", title, False, zoom_mm=(-250, 250), separate_series=True)
+    helper.plot(points, destination / "residuals_y_detail", title, False, zoom_mm=(-100, 100), separate_series=True)
 PYTHON
 ```
