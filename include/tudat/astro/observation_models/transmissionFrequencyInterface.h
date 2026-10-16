@@ -19,8 +19,10 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 
 namespace tudat
 {
@@ -53,8 +55,8 @@ void setTransmissionFrequency( const std::shared_ptr< LightTimeCalculator< Obser
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTransmissionTime );
 
-    double approximateTransmissionFrequency =
-            transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
+    double approximateTransmissionFrequency = transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >(
+            approximateUtcTransmissionTime, getTransmitterFrequencyBand( ancillarySettings ) );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmissionFrequency );
     ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmissionFrequency );
 }
@@ -79,8 +81,8 @@ void setTransmissionReceptionFrequencies(
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
 
-    double approximateTransmissionFrequency =
-            transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
+    double approximateTransmissionFrequency = transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >(
+            approximateUtcTransmissionTime, getTransmitterFrequencyBand( ancillarySettings ) );
     ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmissionFrequency * turnAroundratio );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmissionFrequency );
 }

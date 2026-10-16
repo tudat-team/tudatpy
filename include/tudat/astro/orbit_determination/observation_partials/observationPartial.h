@@ -60,6 +60,17 @@ public:
                          const std::vector< double >& times,
                          const observation_models::LinkEndType fixedLinkEnd,
                          const Eigen::VectorXd currentObservation ) = 0;
+
+    //! Function to set the ancillary settings of the observation for which the scaling is to be updated.
+    /*!
+     *  Function to set the ancillary settings of the observation for which the scaling is to be updated. Called before
+     *  each call to update( ). Does nothing by default; to be overridden by derived classes whose scaling depends on the
+     *  ancillary settings (e.g. on the frequency bands of the observation).
+     *  \param ancillarySettings Ancillary settings of the current observation (may be null).
+     */
+    virtual void setAncillarySettings(
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
+    {}
 };
 
 template< int ObservationSize >

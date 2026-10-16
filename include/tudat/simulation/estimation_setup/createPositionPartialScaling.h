@@ -220,14 +220,18 @@ public:
                 auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );
                 auto timeScaleConverter = owdmfObservationModel->getTimeScaleConverter( );
 
-                // Create a function that returns the transmitted frequency at a given transmission time and state.
+                // Create a function that returns the transmitted frequency at a given transmission time, state and band.
                 // The frequency interpolator is queried in UTC to match the observation model.
-                std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction =
-                        [ frequencyInterpolator, timeScaleConverter ]( const double time,
-                                                                       const Eigen::Vector6d& transmitterState ) -> double {
+                std::function< double( const double, const Eigen::Vector6d&, const std::optional< basic_astrodynamics::FrequencyBands >& ) >
+                        transmittedFrequencyFunction =
+                                [ frequencyInterpolator, timeScaleConverter ](
+                                        const double time,
+                                        const Eigen::Vector6d& transmitterState,
+                                        const std::optional< basic_astrodynamics::FrequencyBands >& transmitterBand ) -> double {
                     const double transmitterUtcTime = timeScaleConverter->template getCurrentTime< double >(
                             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, transmitterState.segment< 3 >( 0 ) );
-                    return frequencyInterpolator->template getTemplatedCurrentFrequency< double, double >( transmitterUtcTime );
+                    return frequencyInterpolator->template getTemplatedCurrentFrequency< double, double >( transmitterUtcTime,
+                                                                                                           transmitterBand );
                 };
 
                 // Create the OWDMF scaling that wraps the one-way Doppler scaling and multiplies by f_tx

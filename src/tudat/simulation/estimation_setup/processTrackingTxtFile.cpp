@@ -99,21 +99,7 @@ void setStationFrequenciesFromTrackingData( const StationRampInformation& rampIn
             throw std::runtime_error( "Error when setting frequencies for station " + stationName + ", station not found." );
         }
 
-        auto groundStation = stationReferenceBody->getGroundStation( stationName );
-        if( !groundStation->hasFrequencyCalculator( ) )
-        {
-            groundStation->setTransmittingFrequencyCalculator( frequencyInterpolator );
-        }
-        else if( auto existingFrequencyInterpolator = std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                         groundStation->getTransmittingFrequencyCalculator( ) ) )
-        {
-            existingFrequencyInterpolator->addFrequencyInterpolator( frequencyInterpolator );
-        }
-        else
-        {
-            throw std::runtime_error( "Error when adding ramp tables for station " + stationName +
-                                      ", existing frequency calculator implemented, but not of correct type" );
-        }
+        stationReferenceBody->getGroundStation( stationName )->addTransmittingFrequencyCalculator( frequencyInterpolator );
     }
 }
 

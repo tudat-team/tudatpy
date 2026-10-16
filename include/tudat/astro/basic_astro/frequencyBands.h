@@ -66,6 +66,33 @@ inline FrequencyBands convertDoubleToFrequencyBand( const double frequencyBand )
     return convertDoubleVectorToFrequencyBands( { frequencyBand } ).front( );
 }
 
+/*!
+ * Returns the name of the DSN uplink frequency band that contains a given (sky-level) uplink frequency, according to the
+ * DSN Earth-to-space frequency allocations for deep space (Category B) and near-Earth (Category A) missions (DSN
+ * Telecommunications Link Design Handbook 810-005, module 201): S-band (2025-2120 MHz), X-band (7145-7235 MHz) and
+ * Ka-band (34200-34700 MHz).
+ *
+ * @param uplinkFrequency Uplink frequency in Hz
+ * @return Name of the frequency band (as used by getFrequencyBandFromString), or an empty string if the frequency is not
+ * in any of the DSN uplink allocations.
+ */
+inline std::string getDsnUplinkFrequencyBandName( const double uplinkFrequency )
+{
+    if( uplinkFrequency >= 2025.0E6 && uplinkFrequency <= 2120.0E6 )
+    {
+        return "S-band";
+    }
+    else if( uplinkFrequency >= 7145.0E6 && uplinkFrequency <= 7235.0E6 )
+    {
+        return "X-band";
+    }
+    else if( uplinkFrequency >= 34200.0E6 && uplinkFrequency <= 34700.0E6 )
+    {
+        return "Ka-band";
+    }
+    return "";
+}
+
 }  // namespace basic_astrodynamics
 
 }  // namespace tudat

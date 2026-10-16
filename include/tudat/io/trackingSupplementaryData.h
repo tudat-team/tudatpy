@@ -31,8 +31,8 @@ namespace data
 class FrequencySupplementaryData
 {
 public:
-    FrequencySupplementaryData( const std::string& frequencySupplementaryDataKind ):
-        frequencySupplementaryDataKind_( frequencySupplementaryDataKind )
+    FrequencySupplementaryData( const std::string& frequencySupplementaryDataKind, const std::string& frequencyBand = "" ):
+        frequencySupplementaryDataKind_( frequencySupplementaryDataKind ), frequencyBand_( frequencyBand )
     {}
 
     virtual ~FrequencySupplementaryData( ) = default;
@@ -42,8 +42,21 @@ public:
         return frequencySupplementaryDataKind_;
     }
 
+    //! Frequency band in which the frequency history is transmitted (e.g. "X-band"; empty if not band-specific)
+    const std::string& getFrequencyBand( ) const
+    {
+        return frequencyBand_;
+    }
+
+    void setFrequencyBand( const std::string& frequencyBand )
+    {
+        frequencyBand_ = frequencyBand;
+    }
+
 private:
     std::string frequencySupplementaryDataKind_;
+
+    std::string frequencyBand_;
 };
 
 class RampedFrequencySupplementaryData : public FrequencySupplementaryData
@@ -64,8 +77,8 @@ public:
 
     RampedFrequencySupplementaryData( ): FrequencySupplementaryData( "ramped_frequency" ) {}
 
-    RampedFrequencySupplementaryData( const std::vector< FrequencyRamp >& frequencyRamps ):
-        FrequencySupplementaryData( "ramped_frequency" ), frequencyRamps_( frequencyRamps )
+    RampedFrequencySupplementaryData( const std::vector< FrequencyRamp >& frequencyRamps, const std::string& frequencyBand = "" ):
+        FrequencySupplementaryData( "ramped_frequency", frequencyBand ), frequencyRamps_( frequencyRamps )
     {}
 
     void addFrequencyRamp( const Time startTime, const Time endTime, const double startFrequency, const double frequencyRate )
@@ -87,8 +100,9 @@ class PiecewiseConstantFrequencySupplementaryData : public FrequencySupplementar
 public:
     PiecewiseConstantFrequencySupplementaryData( ): FrequencySupplementaryData( "piecewise_constant_frequency" ) {}
 
-    PiecewiseConstantFrequencySupplementaryData( const std::map< double, double >& frequencyHistory ):
-        FrequencySupplementaryData( "piecewise_constant_frequency" ), frequencyHistory_( frequencyHistory )
+    PiecewiseConstantFrequencySupplementaryData( const std::map< double, double >& frequencyHistory,
+                                                 const std::string& frequencyBand = "" ):
+        FrequencySupplementaryData( "piecewise_constant_frequency", frequencyBand ), frequencyHistory_( frequencyHistory )
     {}
 
     void setFrequency( const double time, const double frequency )

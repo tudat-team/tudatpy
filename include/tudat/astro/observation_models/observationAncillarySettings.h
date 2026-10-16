@@ -15,6 +15,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -330,6 +331,29 @@ private:
         ar( CEREAL_NVP( doubleIntermediateData_ ) );
     }
 };
+
+/*!
+ * Function to retrieve the frequency band of the transmitter of an observation, i.e. the band of the first leg of the
+ * link (uplink band for two-way and n-way observables, downlink band for one-way observables).
+ *
+ * @param ancillarySettings Ancillary settings of the observation (may be null).
+ * @return Frequency band of the transmitter, or no value if the frequency bands are not defined in the ancillary settings.
+ */
+inline std::optional< basic_astrodynamics::FrequencyBands > getTransmitterFrequencyBand(
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    if( ancillarySettings == nullptr )
+    {
+        return std::nullopt;
+    }
+
+    std::vector< double > frequencyBands = ancillarySettings->getAncillaryDoubleVectorData( frequency_bands, false );
+    if( frequencyBands.empty( ) )
+    {
+        return std::nullopt;
+    }
+    return basic_astrodynamics::convertDoubleToFrequencyBand( frequencyBands.at( 0 ) );
+}
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings( const double integrationTime = 60.0 )
 {

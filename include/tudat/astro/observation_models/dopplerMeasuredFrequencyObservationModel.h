@@ -206,7 +206,8 @@ public:
 
         // Get the frequency of the transmitter
         ObservationScalarType transmittedFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterUtcTime );
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterUtcTime,
+                                                                                                                  uplinkBand );
 
         // Calculate the Doppler observable
         ObservationScalarType dopplerMultiplicationTerm = twoWayDopplerModel_->getMultiplicationTerm( );

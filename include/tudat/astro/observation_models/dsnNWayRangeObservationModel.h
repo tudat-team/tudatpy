@@ -210,13 +210,14 @@ public:
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time - lightTime, nominalReceivingStationState );
 
         ObservationScalarType uplinkFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( utcTransmissionTime );
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( utcTransmissionTime,
+                                                                                                                  uplinkBand );
         ancillarySettings->setAncillaryDoubleData( observation_models::range_conversion_factor,
                                                    physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
 
         ObservationScalarType transmitterFrequencyIntegral =
-                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( utcTransmissionTime,
-                                                                                                                   utcReceptionTime );
+                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
+                        utcTransmissionTime, utcReceptionTime, uplinkBand );
         ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral;
 
         // Moyer (2000), eq. 13-54

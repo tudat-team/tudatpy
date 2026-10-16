@@ -24,7 +24,7 @@ class TnfTrackingDataProcessor:
     :class:`~tudatpy.data_input.tracking_data.TrackingData` objects. Ramp data
     are always extracted and merged into
     :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects
-    (one per ground station), holding the stations' frequency ramps.
+    (one per ground station), holding the stations' frequency ramps, with one ramp table per uplink band.
 
     Parameters
     ----------
@@ -152,7 +152,8 @@ class TnfTrackingDataProcessor:
     ) -> list[TrackingSupplementaryData]:
         """
         Merge the per-file ramp data and build one ``TrackingSupplementaryData`` object per station,
-        holding a ``RampedFrequencySupplementaryData`` container with that station's merged ramps.
+        holding one ``RampedFrequencySupplementaryData`` container per uplink band with that station's merged ramps
+        in that band. Ramps in bands that are not supported by Tudat are ignored.
         """
         all_ramps = pd_concat(ramp_data_list, ignore_index=True)
         if all_ramps.empty:
@@ -171,20 +172,33 @@ class TnfTrackingDataProcessor:
             lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
         )
 
+        unsupported_bands = set(ramp_df["band"].unique()) - set(cnv.RadioBase.frequencyBandsDict)
+        if unsupported_bands:
+            print(
+                "Warning: ignoring TNF ramps in frequency bands not supported by Tudat: "
+                + ", ".join(sorted(str(band) for band in unsupported_bands))
+            )
+            ramp_df = ramp_df[~ramp_df["band"].isin(unsupported_bands)]
+
         supplementary_data_list = []
         for station in ramp_df["station"].unique():
             station_df = ramp_df[ramp_df["station"] == station]
-            frequency_data = RampedFrequencySupplementaryData()
-            for _, row in station_df.iterrows():
-                frequency_data.add_frequency_ramp(
-                    row["start_time_seconds"],
-                    row["end_time_seconds"],
-                    row["freq"],
-                    row["rate"],
-                )
+            frequency_data_per_band = []
+            for band in station_df["band"].unique():
+                band_df = station_df[station_df["band"] == band]
+                frequency_data = RampedFrequencySupplementaryData()
+                frequency_data.frequency_band = cnv.RadioBase.frequencyBandsDict[band]
+                for _, row in band_df.iterrows():
+                    frequency_data.add_frequency_ramp(
+                        row["start_time_seconds"],
+                        row["end_time_seconds"],
+                        row["freq"],
+                        row["rate"],
+                    )
+                frequency_data_per_band.append(frequency_data)
 
             supplementary_data = TrackingSupplementaryData("Earth", station)
-            supplementary_data.set_frequency_supplementary_data([frequency_data])
+            supplementary_data.set_frequency_supplementary_data(frequency_data_per_band)
             supplementary_data_list.append(supplementary_data)
 
         return supplementary_data_list

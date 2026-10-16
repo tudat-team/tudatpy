@@ -71,7 +71,7 @@ class RampConverter:
 
     def process(self, ramp_df: DataFrame) -> DataFrame:
         """
-        Concatenate ramp records and merge them per station following these rules:
+        Concatenate ramp records and merge them per station and uplink band following these rules:
 
         1. Each ramp DataFrame has an 'epoch' column and a 'type' column.
            A row with type==1 indicates the start of a new ramp;
@@ -86,23 +86,26 @@ class RampConverter:
            the new ramp takes priority and the previous ramp's end time is updated
            to the new ramp's start time.
 
-        Ramp merging is done separately per station.
+        Ramp merging is done separately per station and, if a "band" column is present, per uplink band. This allows
+        a station to transmit in multiple bands simultaneously (e.g. X- and Ka-band uplink), without the ramps of
+        one band truncating those of another.
         A default tolerance of 1e-6 Hz is used when comparing frequency and rate values, which corresponds to the precision from TNF data.
 
         Parameters
         ----------
         ramp_df : pandas.DataFrame
             Ramp DataFrame to process. Each DataFrame must have at least the columns:
-            "station", "epoch" (datetime-like), "type" (int), "freq" (float), "rate" (float).
+            "station", "epoch" (datetime-like), "type" (int), "freq" (float), "rate" (float), and optionally "band".
 
         Returns
         -------
         pandas.DataFrame
-            A merged ramp DataFrame with ramp intervals merged per station.
+            A merged ramp DataFrame with ramp intervals merged per station (and band).
         """
         tolerance = 1e-6  # Precision from TNF data
         merged_dfs = []
-        for station, group in ramp_df.groupby("station"):
+        group_columns = ["station", "band"] if "band" in ramp_df.columns else ["station"]
+        for _, group in ramp_df.groupby(group_columns, dropna=False):
             group = group.sort_values("epoch").reset_index(drop=True)
             merged_intervals = []
             current_interval = None

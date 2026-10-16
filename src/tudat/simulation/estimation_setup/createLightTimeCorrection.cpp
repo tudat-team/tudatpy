@@ -1235,7 +1235,11 @@ std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, doubl
 
     std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > linkFrequencyFunction =
             [ = ]( const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands, const double time ) {
-                double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time );
+                // Transmitter band is the band of the first leg of the link
+                const std::optional< basic_astrodynamics::FrequencyBands > transmitterBand = frequencyBands.empty( )
+                        ? std::nullopt
+                        : std::optional< basic_astrodynamics::FrequencyBands >( frequencyBands.at( 0 ) );
+                double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time, transmitterBand );
 
                 if( frequencyBands.size( ) + 1 < turnaroundRatioFunctions.size( ) )
                 {

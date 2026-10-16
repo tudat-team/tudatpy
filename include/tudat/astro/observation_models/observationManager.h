@@ -353,15 +353,19 @@ protected:
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
      *  \param currentObservation Value of observation for which partial scaling is to be computed
+     *  \param ancillarySettings Ancillary settings of the observation for which partial scaling is to be computed
      */
-    virtual void updatePartials( const std::vector< Eigen::Vector6d >& states,
-                                 const std::vector< double >& times,
-                                 const LinkEnds& linkEnds,
-                                 const LinkEndType linkEndAssociatedWithTime,
-                                 const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation )
+    virtual void updatePartials(
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const LinkEnds& linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         if( observationPartialScalers_.at( linkEnds ) != nullptr )
         {
+            observationPartialScalers_.at( linkEnds )->setAncillarySettings( ancillarySettings );
             observationPartialScalers_.at( linkEnds )
                     ->update( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
         }
@@ -399,7 +403,7 @@ protected:
         std::map< double, Eigen::MatrixXd > combinedStateTransitionMatrices;
 
         // Perform updates of dependent variables used by (subset of) observation partials.
-        updatePartials( states, times, linkEnds, linkEndAssociatedWithTime, currentObservation );
+        updatePartials( states, times, linkEnds, linkEndAssociatedWithTime, currentObservation, ancillarySettings );
 
         currentLinkEndPartials = observationPartials_[ linkEnds ];
 

@@ -77,6 +77,12 @@ public:
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation );
 
+    void setAncillarySettings( const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
+    {
+        firstPartialScaling_->setAncillarySettings( ancillarySettings );
+        secondPartialScaling_->setAncillarySettings( ancillarySettings );
+    }
+
     std::shared_ptr< PositionPartialScaling > firstPartialScaling_;
 
     std::shared_ptr< PositionPartialScaling > secondPartialScaling_;

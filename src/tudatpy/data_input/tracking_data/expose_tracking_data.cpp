@@ -381,6 +381,22 @@ void expose_tracking_data( py::module& m )
          Ground-station creation is described in :ref:`ground_station` and by
          :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings`;
          vehicle-system setup is described in :ref:`vehicle_systems`.
+
+         If a frequency band is set (e.g. ``"X-band"``), the frequency history is applied to that band only, which
+         allows a transmitter to transmit in multiple bands simultaneously (see
+         :class:`~tudatpy.dynamics.environment.MultiBandFrequencyInterpolator`). Frequency data with and without
+         frequency band cannot be combined for the same transmitter.
+      )doc" )
+            .def_property( "frequency_band",
+                           &tdat::FrequencySupplementaryData::getFrequencyBand,
+                           &tdat::FrequencySupplementaryData::setFrequencyBand,
+                           R"doc(
+         Frequency band in which the frequency history is transmitted (``"S-band"``, ``"X-band"``, ``"Ka-band"`` or
+         ``"Ku-band"``), or an empty string if the frequency history is not band-specific. The band is converted to a
+         :class:`~tudatpy.dynamics.environment.FrequencyBands` value when the data are
+         applied to the bodies.
+
+         :type: str
       )doc" );
 
     py::class_< tdat::RampedFrequencySupplementaryData::FrequencyRamp >( m, "FrequencyRamp", R"doc(
@@ -444,7 +460,9 @@ void expose_tracking_data( py::module& m )
          for the environment model to which this data is attached.
       )doc" )
             .def( py::init<>( ) )
-            .def( py::init< const std::vector< tdat::RampedFrequencySupplementaryData::FrequencyRamp >& >( ), py::arg( "frequency_ramps" ) )
+            .def( py::init< const std::vector< tdat::RampedFrequencySupplementaryData::FrequencyRamp >&, const std::string& >( ),
+                  py::arg( "frequency_ramps" ),
+                  py::arg( "frequency_band" ) = "" )
             .def_property_readonly( "frequency_ramps",
                                     &tdat::RampedFrequencySupplementaryData::getFrequencyRamps,
                                     py::return_value_policy::copy,
@@ -502,7 +520,9 @@ void expose_tracking_data( py::module& m )
          for the environment model to which this data is attached.
       )doc" )
             .def( py::init<>( ) )
-            .def( py::init< const std::map< double, double >& >( ), py::arg( "frequency_history" ) )
+            .def( py::init< const std::map< double, double >&, const std::string& >( ),
+                  py::arg( "frequency_history" ),
+                  py::arg( "frequency_band" ) = "" )
             .def_property_readonly( "frequency_history",
                                     &tdat::PiecewiseConstantFrequencySupplementaryData::getFrequencyHistory,
                                     R"doc(

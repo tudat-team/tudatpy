@@ -12,6 +12,7 @@
 #define TUDAT_ONEWAYDOPPLERPARTIAL_H
 
 #include <functional>
+#include <optional>
 
 #include <Eigen/Core>
 
@@ -454,13 +455,15 @@ public:
     /*!
      * Constructor
      * \param oneWayDopplerScaling The underlying one-way Doppler scaling object
-     * \param transmittedFrequencyFunction Function returning the transmitted frequency at a given transmission time and
-     *        transmitter state. The time argument is the TDB transmission time; the function is responsible for converting
-     *        it to the time scale required by the frequency interpolator.
+     * \param transmittedFrequencyFunction Function returning the transmitted frequency at a given transmission time,
+     *        transmitter state and (optional) transmitter frequency band. The time argument is the TDB transmission time;
+     *        the function is responsible for converting it to the time scale required by the frequency interpolator.
      */
     OneWayDopplerMeasuredFrequencyScaling(
             const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling,
-            const std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction ):
+            const std::function< double( const double,
+                                         const Eigen::Vector6d&,
+                                         const std::optional< basic_astrodynamics::FrequencyBands >& ) > transmittedFrequencyFunction ):
         DirectPositionPartialScaling< 1 >( observation_models::one_way_doppler_measured_frequency ),
         oneWayDopplerScaling_( oneWayDopplerScaling ), transmittedFrequencyFunction_( transmittedFrequencyFunction ),
         currentTransmittedFrequency_( 0.0 )
@@ -488,7 +491,13 @@ public:
         oneWayDopplerScaling_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
 
         // Get the transmitted frequency at transmission time (index 0) using the transmitter state for TDB->UTC conversion.
-        currentTransmittedFrequency_ = transmittedFrequencyFunction_( times.at( 0 ), linkEndStates.at( 0 ) );
+        currentTransmittedFrequency_ = transmittedFrequencyFunction_( times.at( 0 ), linkEndStates.at( 0 ), currentTransmitterBand_ );
+    }
+
+    //! Function to set the ancillary settings of the current observation, from which the transmitter frequency band is retrieved
+    void setAncillarySettings( const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
+    {
+        currentTransmitterBand_ = observation_models::getTransmitterFrequencyBand( ancillarySettings );
     }
 
     //! Function to retrieve the position scaling factor for specific link end
@@ -598,11 +607,15 @@ private:
     //! The underlying one-way Doppler scaling object
     std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling_;
 
-    //! Function returning the transmitted frequency at a given transmission time and transmitter state
-    std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction_;
+    //! Function returning the transmitted frequency at a given transmission time, transmitter state and transmitter band
+    std::function< double( const double, const Eigen::Vector6d&, const std::optional< basic_astrodynamics::FrequencyBands >& ) >
+            transmittedFrequencyFunction_;
 
     //! Current transmitted frequency (updated in update() method)
     double currentTransmittedFrequency_;
+
+    //! Frequency band of the transmitter of the current observation (updated in setAncillarySettings() method)
+    std::optional< basic_astrodynamics::FrequencyBands > currentTransmitterBand_;
 };
 
 }  // namespace observation_partials

@@ -307,8 +307,8 @@ public:
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
 
         ObservationScalarType transmitterFrequencyIntegral =
-                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( transmissionUtcStartTime,
-                                                                                                                   transmissionUtcEndTime );
+                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
+                        transmissionUtcStartTime, transmissionUtcEndTime, uplinkBand );
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =

@@ -116,15 +116,62 @@ public:
         return transmittingFrequencyCalculator_;
     }
 
+    //! Function to return the object used to compute the ground station's transmitting frequency in a given band.
+    /*!
+     *  Function to return the object used to compute the ground station's transmitting frequency in a given band. If the
+     *  station's frequency calculator is not band-specific, it is returned for any band.
+     *  \param frequencyBand Frequency band for which the calculator is to be retrieved
+     *  \return Frequency calculator for the requested band
+     */
+    std::shared_ptr< StationFrequencyInterpolator > getTransmittingFrequencyCalculator(
+            const basic_astrodynamics::FrequencyBands frequencyBand )
+    {
+        std::shared_ptr< StationFrequencyInterpolator > transmittingFrequencyCalculator = getTransmittingFrequencyCalculator( );
+        if( auto multiBandCalculator = std::dynamic_pointer_cast< MultiBandFrequencyInterpolator >( transmittingFrequencyCalculator ) )
+        {
+            return multiBandCalculator->getBandInterpolator( frequencyBand );
+        }
+        return transmittingFrequencyCalculator;
+    }
+
     bool hasFrequencyCalculator( )
     {
         return ( !( transmittingFrequencyCalculator_ == nullptr ) );
+    }
+
+    //! Function to check whether the ground station can compute its transmitting frequency in a given band.
+    bool hasFrequencyCalculator( const basic_astrodynamics::FrequencyBands frequencyBand )
+    {
+        if( transmittingFrequencyCalculator_ == nullptr )
+        {
+            return false;
+        }
+        else if( auto multiBandCalculator =
+                         std::dynamic_pointer_cast< MultiBandFrequencyInterpolator >( transmittingFrequencyCalculator_ ) )
+        {
+            return multiBandCalculator->hasBand( frequencyBand );
+        }
+        return true;
     }
 
     //! Function to set the object used to compute the ground station's transmitting frequency at a given time
     void setTransmittingFrequencyCalculator( std::shared_ptr< StationFrequencyInterpolator > transmittingFrequencyCalculator )
     {
         transmittingFrequencyCalculator_ = transmittingFrequencyCalculator;
+    }
+
+    //! Function to add an object used to compute the ground station's transmitting frequency.
+    /*!
+     *  Function to add an object used to compute the ground station's transmitting frequency, combining it with any
+     *  existing calculator (see combineTransmittingFrequencyCalculators).
+     *  \param transmittingFrequencyCalculator Frequency calculator to add
+     *  \param frequencyBand Frequency band of the calculator to add (if any)
+     */
+    void addTransmittingFrequencyCalculator( const std::shared_ptr< StationFrequencyInterpolator > transmittingFrequencyCalculator,
+                                             const std::optional< basic_astrodynamics::FrequencyBands >& frequencyBand = std::nullopt )
+    {
+        transmittingFrequencyCalculator_ = combineTransmittingFrequencyCalculators(
+                transmittingFrequencyCalculator_, transmittingFrequencyCalculator, frequencyBand, stationId_ );
     }
 
     std::function< double( const double time ) > getTemperatureFunction( )

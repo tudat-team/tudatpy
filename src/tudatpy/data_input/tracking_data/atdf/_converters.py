@@ -283,6 +283,7 @@ class AtdfRampConverter:
             "start_time": df["Start-Time (DT)"].to_list(),
             "end_time": df["End-Time (DT)"].to_list(),
             "station": df["Station"].apply(AtdfConverter.atdf_station_to_tudat).to_list(),
+            "band": df["Band"].astype(str).str.strip().to_list(),
             "freq": df["Frequency (Hz)"].to_list(),
             "rate": df["Rate (Hz/sec)"].to_list(),
         }
@@ -292,8 +293,24 @@ class AtdfRampConverter:
     def process(
         self, df: pd.DataFrame, earth_name: str = "Earth"
     ) -> list[TrackingSupplementaryData]:
+        """
+        Build one ``TrackingSupplementaryData`` object per station, holding one ``RampedFrequencySupplementaryData``
+        container per uplink band with that station's ramps in that band. Ramps in bands that are not supported by
+        Tudat are ignored.
+        """
 
         ramp_df = df.copy()
+
+        unsupported_bands = set(ramp_df["band"].unique()) - set(
+            AtdfConverter.frequency_bands_mapping
+        )
+        if unsupported_bands:
+            print(
+                "Warning: ignoring ATDF ramps in frequency bands not supported by Tudat: "
+                + ", ".join(sorted(str(band) for band in unsupported_bands))
+            )
+            ramp_df = ramp_df[~ramp_df["band"].isin(unsupported_bands)]
+
         ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
             lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
         )
@@ -304,18 +321,22 @@ class AtdfRampConverter:
         supplementary_data_list = []
         for station in ramp_df["station"].unique():
             station_df = ramp_df[ramp_df["station"] == station]
-
-            frequency_data = RampedFrequencySupplementaryData()
-            for _, row in station_df.iterrows():
-                frequency_data.add_frequency_ramp(
-                    row["start_time_seconds"],
-                    row["end_time_seconds"],
-                    row["freq"],
-                    row["rate"],
-                )
+            frequency_data_per_band = []
+            for band in station_df["band"].unique():
+                band_df = station_df[station_df["band"] == band]
+                frequency_data = RampedFrequencySupplementaryData()
+                frequency_data.frequency_band = AtdfConverter.frequency_bands_mapping[band]
+                for _, row in band_df.iterrows():
+                    frequency_data.add_frequency_ramp(
+                        row["start_time_seconds"],
+                        row["end_time_seconds"],
+                        row["freq"],
+                        row["rate"],
+                    )
+                frequency_data_per_band.append(frequency_data)
 
             supplementary_data = TrackingSupplementaryData(earth_name, station)
-            supplementary_data.set_frequency_supplementary_data([frequency_data])
+            supplementary_data.set_frequency_supplementary_data(frequency_data_per_band)
             supplementary_data_list.append(supplementary_data)
 
         return supplementary_data_list

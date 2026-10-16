@@ -453,6 +453,16 @@ public:
         transmittedFrequencyCalculator_ = transmittedFrequencyCalculator;
     }
 
+    //! Function to add an object used to compute the transmitted frequency, combining it with any existing calculator
+    //! (see ground_stations::combineTransmittingFrequencyCalculators).
+    void addTransmittedFrequencyCalculator(
+            const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator,
+            const std::optional< basic_astrodynamics::FrequencyBands >& frequencyBand = std::nullopt )
+    {
+        transmittedFrequencyCalculator_ = ground_stations::combineTransmittingFrequencyCalculators(
+                transmittedFrequencyCalculator_, transmittedFrequencyCalculator, frequencyBand, "vehicle systems" );
+    }
+
     //! Function to add a camera to the vehicle systems
     /*!
      * Function to add a camera to the vehicle systems
