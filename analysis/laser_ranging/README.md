@@ -108,8 +108,8 @@ normal points. Only the selected transmit-epoch event 2 is supported. UTC tags
 are converted to TDB with the nominal station position for the local clock term.
 Native `two_way_range` uses `time_scale_for_observable=tai_scale`, transferring
 the full two-leg interval to station TAI once. Do not add a second time-scale
-range bias. The native observable's default converter uses the same default C04
-profile; orbit and external tag conversions use the actual rotation-owned object.
+range bias. The current native station-range factory shares the actual
+Earth rotation-owned converter with orbit and external tag conversions.
 
 The script selects the packaged `eopc04_20_IAU2000.62-now.txt`, IAU 2006 rotation,
 and the standard INPOP19a SPICE ephemeris with its constants, PCK and leap-second
@@ -130,11 +130,10 @@ The manifest pins the installed coefficient tables and the unchanged C04 bytes;
 the output records the selected profile and actual hashes. This option changes
 Earth orientation only; it does not select extra station deformations.
 
-The rotation-owned converter supplies external time tags, the SP3 callback and
-native station deformations. The native observable's TAI interval correction
-still uses its default IERS 2010 / linear C04 converter. That distinction is
-recorded explicitly for the alternative profile. These settings are available in
-the current kernel; no high-fidelity residual result is claimed here yet.
+The rotation-owned converter supplies external time tags, the SP3 callback,
+native station deformations and the native observable's TAI interval correction.
+Historical runs before native revision `7d52716f6` used the default IERS 2010 /
+linear C04 interval converter; the new controlled runs use the shared converter.
 
 The current default uses existing native cubic-spline `Time` ephemerides for
 Earth, Sun and Moon on integer 30-second SPICE knots, padded one day beyond the

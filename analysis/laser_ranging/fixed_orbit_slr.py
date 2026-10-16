@@ -1025,7 +1025,7 @@ def main():
                 else "IERS 2010 ocean terms"
             ),
             "libration": "IERS 2010 retained",
-            "observable_interval_converter": "native default IERS 2010 / linear C04",
+            "observable_interval_converter": "native selected Earth rotation-owned converter",
             "cio_interpolation": "none",
             "tdb_tt_interpolation": "none",
         },
