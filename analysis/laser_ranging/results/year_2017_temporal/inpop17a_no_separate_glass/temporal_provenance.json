@@ -1,0 +1,13 @@
+{
+  "source_csv_sha256": "7b9701cb97ea980d5cdc467aebbf231b2fc8dc0a5bbe2a3b18834edcde34ad9c",
+  "source_count": 1579,
+  "source_sha256": {
+    "llr_temporal_summary.py": "f5578cd5f4e1ad5dd13c27417eb5158cf4d1f3adf4eaa8a8e27a32efa3b5f9c6",
+    "plot_llr_residuals.py": "03250f0cf053efee9d0841b7620f2585725c46f06f358a2add48992941c63a92"
+  },
+  "matched_pairs": 64,
+  "adjacent_date_pairs": 18,
+  "method": "Raw monthly NP median/N/P10/P90; unweighted nightly means; nearest same-reflector Grasse night within12h of each APOLLO one. No fitting, centering, temporal alignment or residual adjustment.",
+  "caution": "ALL pools reflector composition; sampling changes can move monthly medians. Paired epochs differ and are not simultaneous station biases. Empty months remain empty.",
+  "observation_solves": 0
+}

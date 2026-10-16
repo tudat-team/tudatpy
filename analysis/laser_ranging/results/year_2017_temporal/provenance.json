@@ -1,0 +1,39 @@
+{
+  "generator": "../../llr_temporal_summary.py",
+  "source_blobs": {
+    "llr_temporal_summary.py": {
+      "sha256": "f5578cd5f4e1ad5dd13c27417eb5158cf4d1f3adf4eaa8a8e27a32efa3b5f9c6",
+      "git_blob": "cec94f1d1035e701f7e954eb0e4a1204d1689a39"
+    },
+    "plot_llr_residuals.py": {
+      "sha256": "03250f0cf053efee9d0841b7620f2585725c46f06f358a2add48992941c63a92",
+      "git_blob": "0c5f8492829be2c20a1436496383bcf65e17b853"
+    }
+  },
+  "core_result_revision": "c02afb82856737b52df8f6891ee5ac0e5b220af7",
+  "case_raw_csv_paths": {
+    "de440": "../year_2017/de440/residuals.csv",
+    "inpop17a_jpl_nh": "../year_2017/inpop17a_jpl_nh/residuals.csv",
+    "inpop17a_no_separate_glass": "../year_2017/inpop17a_no_separate_glass/residuals.csv"
+  },
+  "verification": "Monthly values/N and complete paired-night CSVs exactly reproduce the independent external analysis; raw CSVs never modified; all three cases share identical413unmatched-night rows.",
+  "output_sha256": {
+    "README.md": "27c6f8ad3eb0bc87aec42a0299b8001aa78c37349d4e1e578b9ad25a97c3b27a",
+    "de440/dated_nightly_extrema.csv": "b4dcabf66a9772c88aa7799767004cdddefc7bb13907868f62bd79612dd23864",
+    "de440/monthly_raw_medians.csv": "a6a58996eb7bb2c18811f8c8a0994c5b662f2f9126aecad5c3f65a4c4f1191cb",
+    "de440/nearby_nightly_raw_means.csv": "621ff047fb66a50c50c64712cefffa222b69cbbd8e7488550661665f6e73864c",
+    "de440/paired_station_raw_summary.csv": "e0034cd696efa5c1f3c86bc6dec564a6fe4635a1e8a3ba7b3776f8b2ed2fc9f8",
+    "de440/temporal_provenance.json": "7daa90dc8f4b1a9a5ca191c5c026ff1632fbc6b627a48209118f565f8d7af756",
+    "inpop17a_jpl_nh/dated_nightly_extrema.csv": "2f68a9e9c5ae4a6f1d7d717d219e395b239d7c263fd121ba25f71a7204358914",
+    "inpop17a_jpl_nh/monthly_raw_medians.csv": "c96773e95a2f1f952b106b82fd7090272c4f1bc1576bd0f99dbbf52eba00173a",
+    "inpop17a_jpl_nh/nearby_nightly_raw_means.csv": "c6d3a416599cf00b7d63557c159e3160654868458b3b101197dd8f7fa701153a",
+    "inpop17a_jpl_nh/paired_station_raw_summary.csv": "56403ad7f56f539caf009ee3b5d97ebb2dc13030a28557566910e0dde5ca8b83",
+    "inpop17a_jpl_nh/temporal_provenance.json": "30e40b4c762b01c91f386cd1582f93ffb525447a09ce3d0cfa66397fc246ac3c",
+    "inpop17a_no_separate_glass/dated_nightly_extrema.csv": "60622050aa04717ad7a2996b94498fe718beece922a71d5da33cce87816d9848",
+    "inpop17a_no_separate_glass/monthly_raw_medians.csv": "a7149e34cc10d0adf55ac145b0f12fc6a48c4743d095cdf61d54e917832851f4",
+    "inpop17a_no_separate_glass/nearby_nightly_raw_means.csv": "7a0d59509067c6782d06186f8e946463874fa64d74b46bdaf7beab576f1bf8fb",
+    "inpop17a_no_separate_glass/paired_station_raw_summary.csv": "af4e8c5bffb55cee02b9d5e359e487233296e19fd58ce4d92c68390c9c6a0b91",
+    "inpop17a_no_separate_glass/temporal_provenance.json": "226263038084f05926bd26bf9860b4547e14b0d9d4341f6980f6f740893597f8",
+    "unmatched_station_reflector_nights.csv": "b66519e1586200dc98d145885f67db2a43b31cb66a51a17cd7b00d0a476a16c9"
+  }
+}
