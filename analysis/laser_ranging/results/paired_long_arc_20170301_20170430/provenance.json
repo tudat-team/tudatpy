@@ -24,7 +24,7 @@
   "wavelength_domain": "Native nominal1064nm reporting allowance ends1064.5nm; actual1064.2nm evaluated unchanged. This is not a solver-tolerance change or a claim of new ray-tracing validation.",
   "nearby_night_comparison_script_sha256": "09ac7798be7ffd94bca8f113b1ee46f2b7185e51571dbb177079fe2f0cc80552",
   "output_sha256": {
-    "README.md": "b8352267295de80bdd03aa0226a38bef03f887425c2e0ebf74a71ee5a2951afb",
+    "README.md": "5f48c3c38cd7b77e391a50fc4a14318ddaac7c93d319196489334da22f6f0d0d",
     "extreme_precision_control.json": "a0f82c0f2cf3ee37b0998ba1a7336104ebfb92c29ee5d0dde82ebd1fc70df0b4",
     "extreme_source_audit.json": "116403fd5e41f2393f496528167ef9d94d9811345a442264bfd3d41c8d8650fa",
     "group_timing_and_weather.csv": "d453cacc08010451ff0d28611b89ef349535d528ad946b2386c19c23f107801f",

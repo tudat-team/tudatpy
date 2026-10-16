@@ -43,7 +43,7 @@ as the explanation for its metre-scale discrepancy, without classifying or
 removing the record. Exact values, epochs and hashes are in
 `extreme_precision_control.json`.
 
-The [time figures](../paired_long_arc_time_plots/README.md) show both stations
+The [time figures](../paired_long_arc_time_plots/README.rst) show both stations
 by reflector with actual UTC gaps and wavelength markers. Their full-range view
 contains every point; a separately labeled ±200 mm detail reports the single
 point outside its window. Both stations show a nonmonotonic rise toward March 22,
