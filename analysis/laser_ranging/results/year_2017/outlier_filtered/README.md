@@ -66,3 +66,63 @@ for model in ("de440", "inpop17a_jpl_nh", "inpop17a_no_separate_glass"):
               1000 * math.sqrt(math.fsum(x*x for x in r) / len(r)), 1000 * p95)
 PYTHON
 ```
+
+The figures below reuse `plot_llr_residuals.py` with unconnected points,
+provider ±1σ bars, station/wavelength markers, and five reflector panels.
+Both views retain the complete observation-time span. The full view uses
+±250 mm and includes every retained point and error bar (largest
+|residual| + σ: 241.915 mm). The ±100 mm detail view labels points outside
+its window; these points remain in the dataset and full view.
+
+| Model | Full view (±250 mm) | Detail (±100 mm) | Points outside detail |
+| --- | --- | --- | ---: |
+| DE440 | [PNG](de440/residuals_full_span.png), [PDF](de440/residuals_full_span.pdf) | [PNG](de440/residuals_y_detail.png), [PDF](de440/residuals_y_detail.pdf) | 291 |
+| INPOP17a + JPL glass | [PNG](inpop17a_jpl_nh/residuals_full_span.png), [PDF](inpop17a_jpl_nh/residuals_full_span.pdf) | [PNG](inpop17a_jpl_nh/residuals_y_detail.png), [PDF](inpop17a_jpl_nh/residuals_y_detail.pdf) | 122 |
+| INPOP17a without separate glass | [PNG](inpop17a_no_separate_glass/residuals_full_span.png), [PDF](inpop17a_no_separate_glass/residuals_full_span.pdf) | [PNG](inpop17a_no_separate_glass/residuals_y_detail.png), [PDF](inpop17a_no_separate_glass/residuals_y_detail.pdf) | 2 |
+
+To replay these figures from this directory, set `LLR_SOURCE_ROOT` to the
+checkout containing the unchanged input CSVs and plotting helper. The input
+hashes and exact two-row mask are the same as above; no nightly means,
+centering, fitted corrections, or further exclusions are applied.
+
+```sh
+LLR_SOURCE_ROOT=/path/to/source/checkout OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 python - <<'PYTHON'
+import csv, importlib.util, os
+from collections import Counter
+from pathlib import Path
+
+source = Path(os.environ["LLR_SOURCE_ROOT"]) / "analysis/laser_ranging"
+spec = importlib.util.spec_from_file_location("llr_plot", source / "plot_llr_residuals.py")
+helper = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helper)
+mask = {
+    ("GRASSE", "luna17_201706.npt", "58", "2017-06-13T03:12:09.609942659400"),
+    ("GRASSE", "luna17_201706.npt", "154", "2017-06-22T09:47:06.763983741400"),
+}
+keys = ("station", "source_file", "source_line", "utc_launch")
+for case, label, outside in (
+    ("de440", "DE440", 291),
+    ("inpop17a_jpl_nh", "INPOP17a + JPL glass", 122),
+    ("inpop17a_no_separate_glass", "INPOP17a without separate glass", 2),
+):
+    path = source / "results/year_2017" / case / "residuals.csv"
+    with path.open(newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    points = helper.read_points(path)
+    assert len(rows) == len(points) == 1579
+    removed = [tuple(r[k] for k in keys) for r in rows
+               if tuple(r[k] for k in keys) in mask]
+    assert len(removed) == 2 and set(removed) == mask
+    points = [p for r, p in zip(rows, points)
+              if tuple(r[k] for k in keys) not in mask]
+    assert len(points) == 1577
+    assert Counter(p["station"] for p in points) == {"APOLLO": 311, "GRASSE": 1266}
+    assert max((abs(p["residual"]) + (p["sigma"] or 0)) * 1000 for p in points) < 250
+    assert sum(abs(p["residual"]) * 1000 > 100 for p in points) == outside
+    destination = Path(case)
+    destination.mkdir(parents=True, exist_ok=True)
+    title = f"Calendar 2017 — {label}; two Grasse outliers excluded"
+    helper.plot(points, destination / "residuals_full_span", title, False, zoom_mm=(-250, 250))
+    helper.plot(points, destination / "residuals_y_detail", title, False, zoom_mm=(-100, 100))
+PYTHON
+```
