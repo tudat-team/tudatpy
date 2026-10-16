@@ -69,6 +69,12 @@ def read_groups(root, manifest):
     ]
 
     grasse = manifest["grasse"]
+    weather_hold_exceptions = {
+        (entry["station"], entry["source_file"], entry["source_line"], entry["utc_launch"]): entry[
+            "maximum_endpoint_hold_s"
+        ]
+        for entry in grasse.get("weather_endpoint_hold_exceptions", [])
+    }
 
     inventory_path = root / grasse["inventory"]["file"]
 
@@ -77,15 +83,16 @@ def read_groups(root, manifest):
     with inventory_path.open(newline="") as stream:
         inventory = list(csv.DictReader(stream))
 
-    source_rows = {
-        (
-            r["source_file"],
-            r["utc_launch"][:10],
-            float(r["seconds_of_day_printed"]),
-            float(r["two_way_time_of_flight_s"]),
-        ): r
-        for r in inventory
-    }
+    source_rows = defaultdict(list)
+    for row in sorted(inventory, key=lambda row: int(row["source_line"])):
+        source_rows[
+            (
+                row["source_file"],
+                row["utc_launch"][:10],
+                float(row["seconds_of_day_printed"]),
+                float(row["two_way_time_of_flight_s"]),
+            )
+        ].append(row)
 
     seen = set()
 
@@ -143,16 +150,25 @@ def read_groups(root, manifest):
             for record in session.data.normal_point_data:
                 key = (path.name, night, record.second_of_day, record.two_way_time_of_flight)
 
-                source = source_rows[key]
+                # Repeated printed normal points retain their distinct original source lines.
+                source = source_rows[key].pop(0)
+                source_identity = (path.name, int(source["source_line"]))
 
-                if key in seen or record.epoch_event != 2:
+                if source_identity in seen or record.epoch_event != 2:
                     raise ValueError("Unexpected duplicate or non-transmit Grasse record")
-                seen.add(key)
+                seen.add(source_identity)
                 utc = midnight + record.second_of_day
 
                 nearest = min(abs(float(utc) - epoch) for epoch in weather)
+                hold_limit = weather_hold_exceptions.get(
+                    ("GRASSE", path.name, int(source["source_line"]), source["utc_launch"]),
+                    1000.0,
+                )
 
-                if float(utc) < min(weather) - 1000 or float(utc) + 5 > max(weather) + 1000:
+                if (
+                    float(utc) < min(weather) - hold_limit
+                    or float(utc) + 5 > max(weather) + hold_limit
+                ):
                     raise ValueError(
                         "Grasse event exceeds declared measured-weather endpoint holding"
                     )
@@ -162,6 +178,14 @@ def read_groups(root, manifest):
 
                 if wavelength != float(source["wavelength_nm"]):
                     raise ValueError("Grasse wavelength differs from its printed configuration")
+                weather_mode = "interpolated"
+                if float(utc) < min(weather):
+                    weather_mode = "held-first"
+                elif float(utc) > max(weather):
+                    weather_mode = "held-last"
+                    if hold_limit > 1000.0:
+                        weather_mode = "held-last-long-source-limitation"
+
                 values.append(
                     dict(
                         index=len(seen) - 1,
@@ -185,11 +209,8 @@ def read_groups(root, manifest):
                         epoch_event=record.epoch_event,
                         system_configuration=record.system_configuration_id,
                         nearest_weather_s=nearest,
-                        weather_mode=(
-                            "held-first"
-                            if float(utc) < min(weather)
-                            else "held-last" if float(utc) > max(weather) else "interpolated"
-                        ),
+                        weather_endpoint_hold_limit_s=hold_limit,
+                        weather_mode=weather_mode,
                     )
                 )
             if not values:
@@ -206,7 +227,9 @@ def read_groups(root, manifest):
                         weather_count=len(weather),
                         weather_start_utc_s=min(weather),
                         weather_end_utc_s=max(weather),
-                        weather_endpoint_hold_limit_s=1000,
+                        weather_endpoint_hold_limit_s=max(
+                            point["weather_endpoint_hold_limit_s"] for point in values
+                        ),
                         calibration_records=len(session.data.calibration_data),
                         calibration_reapplied_m=0.0,
                     ),
@@ -522,6 +545,7 @@ def main():
             reflector_coordinates=ephemeris["reflector_coordinates"].get("coordinates_m"),
             gravitational_parameters=ephemeris.get("gravitational_parameters_m3_s2"),
             lunar_model=ephemeris.get("lunar_model", "de440"),
+            weather_endpoint_padding_s=ledger.get("weather_endpoint_hold_limit_s", 1000.0),
         )
 
         ledger["setup_seconds"] = perf_counter() - setup_start

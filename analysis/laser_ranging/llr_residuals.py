@@ -161,6 +161,7 @@ def create_environment(
     gravitational_parameters=None,
     meteorological_history=None,
     lunar_model="de440",
+    weather_endpoint_padding_s=1000.0,
 ):
     """Assemble native tides and the selected published terrestrial/lunar spatial maps."""
 
@@ -305,7 +306,7 @@ def create_environment(
         bodies,
     )
 
-    # Weather is supplied at every measured UTC tag and held at the end tags for the short light-time window.
+    # Weather is supplied at every measured UTC tag and held at the end tags for the declared endpoint span.
     weather = (
         {
             float(point["utc"]): np.array(
@@ -319,8 +320,8 @@ def create_environment(
 
     utc_tags = sorted(weather)
 
-    weather[utc_tags[0] - 1000.0] = weather[utc_tags[0]]
-    weather[utc_tags[-1] + 1000.0] = weather[utc_tags[-1]]
+    weather[utc_tags[0] - weather_endpoint_padding_s] = weather[utc_tags[0]]
+    weather[utc_tags[-1] + weather_endpoint_padding_s] = weather[utc_tags[-1]]
 
     meteo = environment.ContinuousInterpolatedMeteoData(
         interpolators.create_one_dimensional_vector_interpolator(
