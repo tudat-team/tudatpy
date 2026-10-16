@@ -5,19 +5,21 @@ Current primary: paired March--April 2017 arc
 --------------------------------------------
 
 The current primary result uses fixed DE440/ICRF and the independently
-preselected INPOP17a G+IR APOLLO/Grasse station pair. All **306 points** remain:
-69 APOLLO points on nine UTC nights and 237 Grasse points on 24 nights, across
+preselected INPOP17a G+IR APOLLO/Grasse station pair. The current selection has
+**305 points**: 69 APOLLO points on nine UTC nights and 236 Grasse points on 24 nights, across
 all five reflectors. Raw one-way RMS about zero is **58.488 mm** for APOLLO and
-**359.583 mm** for Grasse. A retained **+5.43 m** A15 observation dominates the
-Grasse RMS; its origin remains unexplained. These discrepancies do not measure
-intrinsic observation noise. No offset, trend, uncertainty inflation or
-residual-based cut is applied.
+**70.101 mm** for Grasse. Exactly one Grasse A15 observation is excluded at
+Dominic's request: ``apollo15_201703.npt`` line 171, UTC
+``2017-03-09T18:34:15.297622200200``. Its original residual was **+5.43 m** and
+its cause remains unexplained. Selection matches that source identity; there
+is no general residual threshold. These discrepancies do not measure intrinsic
+observation noise. No offset, trend or uncertainty adjustment is applied.
 
-The `raw package <../analysis/laser_ranging/results/paired_long_arc_20170301_20170430/README.md>`_
-retains every CSV row, source audit and provenance. The
-`time plots <../analysis/laser_ranging/results/paired_long_arc_time_plots/README.rst>`_
-retain the full range plus labeled central detail, wavelength markers and raw
-nightly means. Two months do not establish a robust monthly period.
+The `current comparison package <../analysis/laser_ranging/results/current_305_20170301_20170430/README.md>`_
+contains the table, unchanged retained CSV rows, and PNG/PDF figures with
+unconnected points. The original 306-point packages remain historical evidence.
+Two months do not establish a robust monthly period. A full calendar-2017
+extension uses the same source releases and model choices.
 
 Prepare the hash-pinned inputs in
 `llr_long_arc_dataset.json <../analysis/laser_ranging/llr_long_arc_dataset.json>`_
@@ -47,7 +49,7 @@ Additional bounded checks find no missing or duplicated millisecond TDB-minus-TT
 launch conversion: three absolute epochs agree with independent ERFA/SOFA within
 2.5 ps. Native lunar displacement agrees with independently evaluated original
 constants within 0.145 nm, including explicit radius and once-only application
-checks. The daily Grasse archive repeats the same retained +5.43 m record.
+checks. The daily Grasse archive repeats the same subsequently excluded +5.43 m record.
 Evidence is in the `absolute clock audit
 <../analysis/laser_ranging/results/absolute_launch_clock_audit/README.rst>`_ and
 the `deformation and source audit
@@ -77,29 +79,29 @@ baselines before any residual calculation.
 
 The fitted reflector optical reference point remains unspecified in the retrieved
 sources. Both optical conventions were declared before calculation; neither is
-chosen by residual size. All original points remain, with no estimation or bias
-correction. Raw one-way means and RMS values are:
+chosen by residual size. Both use the same single-point exclusion as DE440,
+with no estimation or bias correction. Raw one-way means and RMS values are:
 
-.. csv-table:: Full March--April 2017 comparison, millimetres
-   :header: "Separate glass term", "APOLLO mean / RMS (69)", "Grasse mean / RMS (237)"
+.. csv-table:: March--April 2017 comparison after the requested exclusion, millimetres
+   :header: "Model and separate glass term", "APOLLO mean / RMS (69)", "Grasse mean / RMS (236)"
 
-   "JPL n*h per leg", "-47.439 / 49.408", "-37.637 / 358.749"
-   "None", "-3.363 / 12.341", "+10.348 / 356.316"
+   "DE440, JPL n*h per leg", "+1.830 / 58.488", "-12.959 / 70.101"
+   "INPOP17a, JPL n*h per leg", "-47.439 / 49.408", "-60.826 / 63.920"
+   "INPOP17a, none", "-3.363 / 12.341", "-12.807 / 22.095"
 
-The retained Grasse discrepancy remains about 5.47 m in the second case.
-Using every point, its median absolute residual is 12.529 mm and its 95th
-percentile is 37.777 mm; APOLLO's corresponding values are 8.212 and 22.850 mm.
+In the no-separate-glass case, Grasse's median absolute residual is 12.368 mm
+and its 95th percentile is 37.351 mm; APOLLO's values are 8.212 and 22.850 mm.
 These order statistics do not remove or recenter observations. The March 22
 APOLLO spread between five reflector nightly means falls from 139.25 mm in
-the DE440 case to 17.06 mm in the second INPOP case, but a shared trough and
+the DE440 case to 17.06 mm in the no-separate-glass case, but a shared trough and
 recovery remain. Intrinsic measurement-noise residuals have not been achieved.
 
 The published fit data end before this observation arc. Its station range biases,
 including a Grasse term equivalent to 12.3 mm one-way, are not applied here.
 Optical reference points, differing Earth loading/EOP reductions and small omitted
 lunar terms prevent an exact reproduction of the fitted reduction. The `complete
-comparison package <../analysis/laser_ranging/results/inpop17a_long_arc_20170301_20170430/README.md>`_
-contains both raw time series, PNG/PDF figures, source references, an unchanged
+original comparison package <../analysis/laser_ranging/results/inpop17a_long_arc_20170301_20170430/README.md>`_
+contains both unfiltered time series, source references, an unchanged
 eleven-point DE440 control and the independent actual-radius tide check.
 
 Historical single-night setup
