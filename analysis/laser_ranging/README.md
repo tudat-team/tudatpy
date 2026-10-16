@@ -301,6 +301,33 @@ while retaining both exact endpoints. A five-node analytic-motion regression in
 the existing cubic suite exercises this numerical issue without changing any
 light-time tolerance or physical model.
 
+## Stable-cubic results for both frozen weeks
+
+The corrected cubic evaluation let the original failing radial-basis point and
+all declared full-week runs converge with the original 50-iteration, `1e-12`
+criterion. First-week accepted keys and all six exclusions stayed unchanged;
+the historical and date-parameterized no-loading runs matched every CSV field
+on the same kernel. The generic arithmetic change shifted no-loading computed
+half-ranges by at most 0.00959 mm relative to the preceding kernel.
+
+| Week ending | Accepted / raw | No-loading mean / RMS (mm) | Geodetic HARPOS mean / RMS (mm) |
+| --- | ---: | ---: | ---: |
+| 2024-04-06 | 23 / 29 | −0.214 / 8.769 | −0.057 / 7.221 |
+| 2024-04-13 | 131 / 134 | +5.258 / 18.752 | +7.659 / 17.435 |
+
+All statistics are signed one-way O−C with uncentred RMS. The second week retains
+55 Graz and 76 Herstmonceux points; three Graz points fall below the unchanged
+20-degree cutoff in both loading variants. The historical radial first-week
+control had mean −0.052 mm and RMS 7.222 mm. Provider source evidence determined
+the geodetic basis. No fitting, demeaning, clipping or residual-based model choice
+was applied; no loading remains the default.
+
+The [compact combined summary](results/stable_cubic_two_weeks/summary.json) links
+five portable raw CSVs, computed half-range changes, actual input/software hashes
+and the preserved failure/proof. HARPOS changes computed half-range by up to
+6.737 mm in week one and 14.007 mm in week two. This alternate CM/STW105
+realization still differs from the provider's exact BLQ/HARDISP reduction.
+
 ## GOT4.10c loading basis
 
 `ocean_loading.py` evaluates the pinned 17-constituent GOT4.10c HARPOS product,

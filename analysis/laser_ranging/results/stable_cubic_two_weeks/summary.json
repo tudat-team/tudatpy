@@ -1,0 +1,606 @@
+{
+  "experiment": "Two consecutive predeclared LAGEOS1 combined-postfit weeks, fixed SLRF2020 positions/velocities and dated CoM/DHF; no propagation, estimation, fitted bias, demeaning or residual clipping.",
+  "default": "No ocean loading; geodetic HARPOS is an explicit alternate realization, not exact ASI BLQ/HARDISP.",
+  "portable_files": "Raw CSV numerical fields unchanged; absolute source paths replaced by basenames. Historical/current duplicate no-loading CSV is stored once.",
+  "provider_input_manifest": "../../dataset.json",
+  "software": {
+    "kernel_sha256": "10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5",
+    "kernel_native_source_commit": "b1aa772503070347e8ac0b263c8de9278d390c17",
+    "current_analysis_source_commit": "9a912e85ee38d07e235f93bffcf8578a395b91d5",
+    "current_analysis_script_sha256": "500dd6ffeec03f8859ed5bf5a251425e9ab760abb7ebbd5d64fc34ab5ec990ae",
+    "historical_analysis_source_commit": "74c207ff30d355738a8f73b65334b1bc955bd826",
+    "historical_analysis_script_sha256": "9915981f54dd75c19283b45f4a0335442ff59187298285ecc602998db977d6da",
+    "historical_radial_helper_sha256": "c1d60a69ec526496b85804a7e944681e4d1a44ca855cbb5f09fa819153904af2",
+    "current_geodetic_helper_sha256": "073e1534c7619c53c8756381d2e117325e95c5f3ff10edd82d62c1459260843d",
+    "numerical_threads": 1,
+    "native_build_provenance_sha256": "8b29b3cb5c457bbcf4a3a109e9e0f6197bc290a2e3fa5d72244b3ee816ddf009"
+  },
+  "statistics_one_way_observed_minus_computed_metres": {
+    "week1_no_loading": {
+      "all": {
+        "count": 23,
+        "mean_m": -0.00021423452088366383,
+        "rms_m": 0.008769033200462982,
+        "std_m": 0.008766415849187387,
+        "median_m": -0.0013770917430520058
+      },
+      "stations": {
+        "7839": {
+          "count": 13,
+          "mean_m": -0.00025402317540003703,
+          "rms_m": 0.011404740562972882,
+          "std_m": 0.011401911222908144,
+          "median_m": -0.0025468626990914345
+        },
+        "7840": {
+          "count": 10,
+          "mean_m": -0.0001625092700123787,
+          "rms_m": 0.00278785401726059,
+          "std_m": 0.0027831135008684164,
+          "median_m": 0.00020567979663610458
+        }
+      }
+    },
+    "week1_historical_radial": {
+      "all": {
+        "count": 23,
+        "mean_m": -5.2111223340034485e-05,
+        "rms_m": 0.007222044979731394,
+        "std_m": 0.007221856971005825,
+        "median_m": -0.0017323894426226616
+      },
+      "stations": {
+        "7839": {
+          "count": 13,
+          "mean_m": 0.00024639908224344254,
+          "rms_m": 0.009336465299631596,
+          "std_m": 0.009333213368582897,
+          "median_m": -0.0038008373230695724
+        },
+        "7840": {
+          "count": 10,
+          "mean_m": -0.00044017462059855463,
+          "rms_m": 0.002577360647389787,
+          "std_m": 0.0025394948730199127,
+          "median_m": -0.00032914942130446434
+        }
+      }
+    },
+    "week1_geodetic": {
+      "all": {
+        "count": 23,
+        "mean_m": -5.725143558305243e-05,
+        "rms_m": 0.007220742528146967,
+        "std_m": 0.007220515558525854,
+        "median_m": -0.0017430400475859642
+      },
+      "stations": {
+        "7839": {
+          "count": 13,
+          "mean_m": 0.0002452520510325065,
+          "rms_m": 0.00933431523858293,
+          "std_m": 0.009331092776556553,
+          "median_m": -0.0037837959825992584
+        },
+        "7840": {
+          "count": 10,
+          "mean_m": -0.000450505968183279,
+          "rms_m": 0.0025790907017209748,
+          "std_m": 0.0025394395484702598,
+          "median_m": -0.00033980095759034157
+        }
+      }
+    },
+    "week2_no_loading": {
+      "all": {
+        "count": 131,
+        "mean_m": 0.005257534261309464,
+        "rms_m": 0.018751694144937988,
+        "std_m": 0.017999565739107673,
+        "median_m": 0.000899825245141983
+      },
+      "stations": {
+        "7839": {
+          "count": 55,
+          "mean_m": 0.006305922144515948,
+          "rms_m": 0.02363209410552464,
+          "std_m": 0.02277523255028752,
+          "median_m": -0.0009825630113482475
+        },
+        "7840": {
+          "count": 76,
+          "mean_m": 0.0044988325037258236,
+          "rms_m": 0.014210280476746967,
+          "std_m": 0.013479338905570853,
+          "median_m": 0.0011275014840066433
+        }
+      }
+    },
+    "week2_geodetic": {
+      "all": {
+        "count": 131,
+        "mean_m": 0.007658851411165172,
+        "rms_m": 0.017435041746392297,
+        "std_m": 0.015662779949936586,
+        "median_m": 0.0052890470251441
+      },
+      "stations": {
+        "7839": {
+          "count": 55,
+          "mean_m": 0.009030930680984801,
+          "rms_m": 0.02119315616420896,
+          "std_m": 0.01917269306163836,
+          "median_m": 0.004934147000312805
+        },
+        "7840": {
+          "count": 76,
+          "mean_m": 0.00666589930800623,
+          "rms_m": 0.014104043102891945,
+          "std_m": 0.012429393318410835,
+          "median_m": 0.0061399005353450775
+        }
+      }
+    }
+  },
+  "weeks": {
+    "2024-04-06": {
+      "raw_point_count": 29,
+      "accepted_point_count": 23,
+      "excluded": [
+        {
+          "session": 53,
+          "normal_point": 2,
+          "station": "7839",
+          "reason": "below provider 20 degree elevation cutoff"
+        },
+        {
+          "session": 65,
+          "normal_point": 3,
+          "station": "7839",
+          "reason": "below provider 20 degree elevation cutoff"
+        },
+        {
+          "session": 65,
+          "normal_point": 4,
+          "station": "7839",
+          "reason": "below provider 20 degree elevation cutoff"
+        },
+        {
+          "session": 172,
+          "normal_point": 4,
+          "station": "7839",
+          "reason": "Epoch outside the SP3 interpolation interior"
+        },
+        {
+          "session": 172,
+          "normal_point": 5,
+          "station": "7839",
+          "reason": "Epoch outside the SP3 interpolation interior"
+        },
+        {
+          "session": 172,
+          "normal_point": 6,
+          "station": "7839",
+          "reason": "Epoch outside the SP3 interpolation interior"
+        }
+      ],
+      "same_accepted_keys_and_exclusions_with_loading": true,
+      "ephemeris_routes": {
+        "bodies": "cubic-time",
+        "body_table_step_seconds": 30,
+        "satellite_epoch": "time",
+        "rotation_epoch": "double",
+        "body_table_start_tdb_seconds": 765028800.0,
+        "body_table_end_tdb_seconds": 765806400.0
+      },
+      "sp3_holdout": {
+        "8": {
+          "count": 123,
+          "rms_m": 0.001412292988548801,
+          "max_m": 0.005817796805739889
+        },
+        "10": {
+          "count": 123,
+          "rms_m": 0.0014807854337020336,
+          "max_m": 0.005986471309701379
+        }
+      }
+    },
+    "2024-04-13": {
+      "raw_point_count": 134,
+      "accepted_point_count": 131,
+      "excluded": [
+        {
+          "session": 185,
+          "normal_point": 6,
+          "station": "7839",
+          "reason": "below provider 20 degree elevation cutoff"
+        },
+        {
+          "session": 185,
+          "normal_point": 7,
+          "station": "7839",
+          "reason": "below provider 20 degree elevation cutoff"
+        },
+        {
+          "session": 185,
+          "normal_point": 8,
+          "station": "7839",
+          "reason": "below provider 20 degree elevation cutoff"
+        }
+      ],
+      "same_accepted_keys_and_exclusions_with_loading": true,
+      "ephemeris_routes": {
+        "bodies": "cubic-time",
+        "body_table_step_seconds": 30,
+        "satellite_epoch": "time",
+        "rotation_epoch": "double",
+        "body_table_start_tdb_seconds": 765633600.0,
+        "body_table_end_tdb_seconds": 766411200.0
+      },
+      "sp3_holdout": {
+        "8": {
+          "count": 123,
+          "rms_m": 0.002157796593531488,
+          "max_m": 0.011083737360209693
+        },
+        "10": {
+          "count": 123,
+          "rms_m": 0.0022600829594764393,
+          "max_m": 0.011865050730238698
+        }
+      }
+    }
+  },
+  "computed_half_range_change_metrics": {
+    "geodetic_minus_no_loading_half_range_m": {
+      "2024-04-06": {
+        "count": 23,
+        "maximum_absolute_m": 0.00673661008477211,
+        "rms_m": 0.003049272287520157
+      },
+      "2024-04-13": {
+        "count": 131,
+        "maximum_absolute_m": 0.014006825163960457,
+        "rms_m": 0.0070296953878740045
+      }
+    },
+    "geodetic_minus_radial_half_range_m": {
+      "2024-04-06": {
+        "count": 23,
+        "maximum_absolute_m": 1.8105842173099518e-05,
+        "rms_m": 1.0832126964688658e-05
+      }
+    },
+    "stable_minus_old_cubic_no_loading_half_range_m": {
+      "2024-04-06": {
+        "count": 23,
+        "maximum_absolute_m": 9.58610326051712e-06,
+        "rms_m": 4.363271901350583e-06
+      }
+    }
+  },
+  "loading_metadata": [
+    {
+      "model": "GOT4.10c",
+      "source_url": "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps",
+      "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150",
+      "file": "toc_got410c_harmod.hps",
+      "product_release": "GOT4.10c; generated 2017-06-17; HARPOS 2005.03.28",
+      "site": "Graz",
+      "provider_xyz_m": [
+        4194426.703,
+        1162693.879,
+        4647246.56
+      ],
+      "nominal_xyz_m": [
+        4194426.21299162,
+        1162694.35703709,
+        4647246.84303809
+      ],
+      "site_separation_m": 0.7407686762088554,
+      "applicability_radius_m": 3000.0,
+      "constituents": [
+        "K1",
+        "K1-",
+        "K1+",
+        "K2",
+        "K2+",
+        "M2",
+        "M2-",
+        "M4",
+        "N2",
+        "N2-",
+        "O1",
+        "O1-",
+        "P1",
+        "Q1",
+        "Q1-",
+        "S1",
+        "S2"
+      ],
+      "argument_time": "TT seconds since J2000; selected Earth rotation converter at geocentre",
+      "amplitude_axes": "geodetic ellipsoid-normal Up, East, North at provider XYZ",
+      "basis_ellipsoid": {
+        "equatorial_radius_m": 6378137.0,
+        "flattening": 0.0033528131778969143
+      },
+      "basis_source_revision": "aca77c2e11d6241c4b51c25a9815ab8130ee611b",
+      "basis_source_url": "https://github.com/nasa/sgdass/blob/aca77c2e11d6241c4b51c25a9815ab8130ee611b/petools/pet_util/make_uen_to_xyz.f",
+      "axis_wording_discrepancy": "Formal HARPOS says radial Up; this analysis follows the product narrative and pinned NASA consumer's geodetic basis.",
+      "historical_basis_uncertainty": "The exact 2017 generator binary/source was not recovered; current consumer evidence does not prove its historical basis.",
+      "uen_to_itrs": [
+        [
+          0.6563892621384483,
+          -0.2671266705822626,
+          -0.7055469356555798
+        ],
+        [
+          0.18195091519512013,
+          0.9636614249121085,
+          -0.1955774081943588
+        ],
+        [
+          0.7321523072482949,
+          0.0,
+          0.6811409538348127
+        ]
+      ],
+      "origin": "whole-Earth centre of mass",
+      "earth_response": "STW105/REAR",
+      "scope": "17 supplied gravity-tide terms including nodal sidebands; ocean-pole and equilibrium terms are not included",
+      "comparison": "Different realization from ASI 11-constituent BLQ+HARDISP and JPL FES2004; not exact provider replay",
+      "station": "7839",
+      "domes": "11001S002"
+    },
+    {
+      "model": "GOT4.10c",
+      "source_url": "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps",
+      "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150",
+      "file": "toc_got410c_harmod.hps",
+      "product_release": "GOT4.10c; generated 2017-06-17; HARPOS 2005.03.28",
+      "site": "Herstmon",
+      "provider_xyz_m": [
+        4033463.844,
+        23662.33,
+        4924305.061
+      ],
+      "nominal_xyz_m": [
+        4033463.47630212,
+        23662.7872673329,
+        4924305.35075408
+      ],
+      "site_separation_m": 0.654410094673191,
+      "applicability_radius_m": 3000.0,
+      "constituents": [
+        "K1",
+        "K1-",
+        "K1+",
+        "K2",
+        "K2+",
+        "M2",
+        "M2-",
+        "M4",
+        "N2",
+        "N2-",
+        "O1",
+        "O1-",
+        "P1",
+        "Q1",
+        "Q1-",
+        "S1",
+        "S2"
+      ],
+      "argument_time": "TT seconds since J2000; selected Earth rotation converter at geocentre",
+      "amplitude_axes": "geodetic ellipsoid-normal Up, East, North at provider XYZ",
+      "basis_ellipsoid": {
+        "equatorial_radius_m": 6378137.0,
+        "flattening": 0.0033528131778969143
+      },
+      "basis_source_revision": "aca77c2e11d6241c4b51c25a9815ab8130ee611b",
+      "basis_source_url": "https://github.com/nasa/sgdass/blob/aca77c2e11d6241c4b51c25a9815ab8130ee611b/petools/pet_util/make_uen_to_xyz.f",
+      "axis_wording_discrepancy": "Formal HARPOS says radial Up; this analysis follows the product narrative and pinned NASA consumer's geodetic basis.",
+      "historical_basis_uncertainty": "The exact 2017 generator binary/source was not recovered; current consumer evidence does not prove its historical basis.",
+      "uen_to_itrs": [
+        [
+          0.6311066785002535,
+          -0.005866402612221841,
+          -0.7756738655342006
+        ],
+        [
+          0.0037023895761681956,
+          0.9999827925121468,
+          -0.004550493493563563
+        ],
+        [
+          0.7756872131624989,
+          0.0,
+          0.6311175384476302
+        ]
+      ],
+      "origin": "whole-Earth centre of mass",
+      "earth_response": "STW105/REAR",
+      "scope": "17 supplied gravity-tide terms including nodal sidebands; ocean-pole and equilibrium terms are not included",
+      "comparison": "Different realization from ASI 11-constituent BLQ+HARDISP and JPL FES2004; not exact provider replay",
+      "station": "7840",
+      "domes": "13212S001"
+    }
+  ],
+  "geodetic_basis_provenance": "../../ocean_loading_basis.json",
+  "historical_radial_failure": "../got410c_harpos_radial_failure/failure.json",
+  "same_polynomial_diagnosis": "../got410c_harpos_radial_failure/cubic_same_polynomial_proof.json",
+  "first_historical_failing_point_rerun": {
+    "status": "PASS with original50iteration/1e-12fractional settings and exact original script/helper",
+    "station": "7840",
+    "session": 29,
+    "normal_point": 0,
+    "computed_full_two_way_range_m": 14533076.078396542,
+    "observed_minus_computed_m": -0.0017323894426226616,
+    "identical_to_first_point_in_full_historical_radial_run": true
+  },
+  "date_parameterization_control": "Same-kernel historical and current no-loading CSV rows match every field; original23 keys/six exclusions retained. Cross-kernel changes are measured, not required to vanish.",
+  "input_files": [
+    {
+      "path": "ilrsa.orb.lageos1.240406.v81.sp3.gz",
+      "bytes": 244124,
+      "sha256": "938758fd90b502c42507f280a3455d9e1b54bd8320d29b0b078cfc5281ab69d2"
+    },
+    {
+      "path": "SLRF2020_POS+VEL_2023.10.02.snx",
+      "bytes": 172299,
+      "sha256": "aecd35c12fd1e4e0525f13610f5605d379ad2c6f7761e74cdbb9771ec6a95a3f"
+    },
+    {
+      "path": "eopc04_20_IAU2000.62-now.txt",
+      "bytes": 5176575,
+      "sha256": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181"
+    },
+    {
+      "path": "lageos1_20240331.np2",
+      "bytes": 38704,
+      "sha256": "d27a113c8627e899bca7aae2c80fd2d1e06c27b58ca28821006e42ac34407989"
+    },
+    {
+      "path": "lageos1_20240401.np2",
+      "bytes": 24520,
+      "sha256": "22285682b03c7f385ec59135ce90fd65a95c25f58f68a3987b0ffab885df9303"
+    },
+    {
+      "path": "lageos1_20240402.np2",
+      "bytes": 44744,
+      "sha256": "8496412310fd33c0d7b420b3590e09bca42aea3c23b26422072ecea55acfc579"
+    },
+    {
+      "path": "lageos1_20240403.np2",
+      "bytes": 33735,
+      "sha256": "04affe2d03d31ae62aa9f12aa6b23fc49603b927614ca0f2d94dfba9849e9a61"
+    },
+    {
+      "path": "lageos1_20240404.np2",
+      "bytes": 60149,
+      "sha256": "49c553081b9af432db230302f704d71f0e80404e1ddfa875646507045ce823fc"
+    },
+    {
+      "path": "lageos1_20240405.np2",
+      "bytes": 50115,
+      "sha256": "4197c09dbc383842b6b0d6995e5ddb5efca56747d7d9d613e8db2ccad29e207b"
+    },
+    {
+      "path": "lageos1_20240406.np2",
+      "bytes": 22669,
+      "sha256": "ebbcca47708f811ea7bd8991abe1900bd628c5e5aea6a0742dfa8f8e1263a6d8"
+    },
+    {
+      "path": "ilrsa.pos+eop.240406.v80.snx.gz",
+      "bytes": 47171,
+      "sha256": "8234d95b68bfe432f96073a13a8d01c32351f1ee837acee72977b0163ab62823"
+    },
+    {
+      "path": "com6.220915.tar.gz",
+      "bytes": 22221,
+      "sha256": "78289ea4184a508382bbd0b70f7df9189b40fa26683dec2d7cf26de58dcc9a7a"
+    },
+    {
+      "path": "ILRS_Data_Handling_File_2024.02.13.snx",
+      "bytes": 180827,
+      "sha256": "41caafc2dd63bcd91504f529b6de3c37b48156523322ade5d3154ccce8ce52a1"
+    },
+    {
+      "path": "pck00010.tpc",
+      "bytes": 126143,
+      "sha256": "59468328349aa730d18bf1f8d7e86efe6e40b75dfb921908f99321b3a7a701d2"
+    },
+    {
+      "path": "inpop19a_TDB_m100_p100_spice.tpc",
+      "bytes": 18826,
+      "sha256": "55798de268f64f43f5ccf71dae84e1d1603a99301f80251c4d74cb8f26a72eee"
+    },
+    {
+      "path": "inpop19a_TDB_m100_p100_spice.bsp",
+      "bytes": 22318080,
+      "sha256": "01f095b148ef1e5aad6f95213c188ca5b0d8a58901d19a95b0c11082b1d3a0c6"
+    },
+    {
+      "path": "naif0012.tls",
+      "bytes": 5257,
+      "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+    },
+    {
+      "path": "toc_got410c_harmod.hps",
+      "bytes": 1978239,
+      "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150"
+    },
+    {
+      "path": "ilrsa.orb.lageos1.240413.v81.sp3.gz",
+      "bytes": 244097,
+      "sha256": "d87d2ab14b89ec46e61ba3be0c82b8aa6c79806d66da6b36a2d195a1fcb5fc66"
+    },
+    {
+      "path": "lageos1_20240407.np2",
+      "bytes": 53483,
+      "sha256": "e4c30ca7c76a5e3b0689534e899568190a5ab01b44e0bf1f471a13d8cbbde889"
+    },
+    {
+      "path": "lageos1_20240408.np2",
+      "bytes": 34306,
+      "sha256": "d7d19b80fbec1b36200fb9bf0e56338aed692438642c98a86c772236ef64b41a"
+    },
+    {
+      "path": "lageos1_20240409.np2",
+      "bytes": 58027,
+      "sha256": "237481c12ab35edd8213d05581a4a7f05f08139a07a75862fb4347e8071ce030"
+    },
+    {
+      "path": "lageos1_20240410.np2",
+      "bytes": 36340,
+      "sha256": "9aa2002b73a3e493e5199fc9b804fb5388ed429497bc2e33c220ea6315b8ca6a"
+    },
+    {
+      "path": "lageos1_20240411.np2",
+      "bytes": 74987,
+      "sha256": "606036c561cc2a2b48727795713b37f9dce4a76a79184d8228435a8ff7c7b9d7"
+    },
+    {
+      "path": "lageos1_20240412.np2",
+      "bytes": 49321,
+      "sha256": "dce7d59af2de05a5ba67e6e9173fb804757d384c3de6c3a1bd87402c863057eb"
+    },
+    {
+      "path": "lageos1_20240413.np2",
+      "bytes": 60026,
+      "sha256": "51d334b5d6f77d9353d7115ef74fc166316987bede765554aa5e8d26621b14b5"
+    },
+    {
+      "path": "ilrsa.pos+eop.240413.v80.snx.gz",
+      "bytes": 49908,
+      "sha256": "3f78eb24c7ec3817a1def44d0d29d4879fcf87770b08f4f60022c5be4842c500"
+    }
+  ],
+  "original_output_sha256": {
+    "week1_no_loading": {
+      "residuals.csv": "9e89b11064ff4cfd9971319466e3c4337acf45d0ad5fa74576cabf28172efb0f",
+      "summary.json": "6408144644fac0bf4f3d091350bf77ef516bfb7c6eaf78100958018e47c0759d"
+    },
+    "week1_historical_radial": {
+      "residuals.csv": "5d5d56f9f4c7842a204bf8a246ae88bc1ce6ebef7e3ec3ed3acf19f3025f901a",
+      "summary.json": "05d36140d5a4356c053c8583a851c6c57e739ffc6bb699f4877c9066502979bc"
+    },
+    "week1_geodetic": {
+      "residuals.csv": "cf5593ac11e5a7ff08c6eb7cbc2585d7f0cb40665381ab45f4eac442b4abd944",
+      "summary.json": "fa6de5281b69b139145b92e5e24c2002d2ec9dbd7b337fbd74709ea25715aceb"
+    },
+    "week2_no_loading": {
+      "residuals.csv": "468351e9e4dbd0a7c5a845aace4dd1bb05d011c614e4affbcdfa77ff8882cde8",
+      "summary.json": "e10c639c31f3fe303901c0e5094ad9a242d6ef28f18c047c6f1acda86e273e36"
+    },
+    "week2_geodetic": {
+      "residuals.csv": "f97eb87eb95c33a4218954b53fa1e9d763315294fac1f05c806f32053cbc17e4",
+      "summary.json": "7cfa59b90d79d124d5b83c2be3c158908a9fc12100d713f09ef45db2dee225f4"
+    }
+  },
+  "convergence_unchanged": {
+    "maximum_iterations": 50,
+    "fractional_tolerance": 1e-12
+  },
+  "precision_limits": "Time callback preserves precise epochs; rotation and BCRS state components retain double arithmetic. Source SP3 print resolution is1mm; no end-to-end submillimetre accuracy claim."
+}
