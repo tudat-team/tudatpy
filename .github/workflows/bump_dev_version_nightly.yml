@@ -11,7 +11,7 @@
 #
 # This workflow uses GitHub App installation tokens to push the changes.
 
-# This workflow file must be in the master (default branch) of the tudatpy repository because scheduled workflows are only triggered on the default branch.
+# This workflow must be on TudatPy's default branch (currently develop), where scheduled workflows run.
 
 # Required repository configuration in tudatpy:
 # - Variable: VERSION_BUMPER_APP_ID
@@ -28,6 +28,11 @@ on:
 permissions:
   contents: write
   actions: write
+  pull-requests: read
+
+concurrency:
+  group: tudatpy-versioning
+  cancel-in-progress: false
 
 jobs:
 
@@ -47,7 +52,21 @@ jobs:
           - id: should_bump_version
             continue-on-error: true
             name: check whether any commit was made in the last week
+            env:
+              GH_TOKEN: ${{ github.token }}
             run: |
+              # An unsuccessful release check must not allow a version bump.
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+              for REPOSITORY in tudatpy tudatpy-feedstock; do
+                OPEN=$(gh pr list --repo "tudat-team/$REPOSITORY" --state open --limit 500 --json headRefName --jq '[.[] | select(.headRefName | startswith("release/"))] | length')
+                [[ "$OPEN" == 0 ]] || { echo "Release PRs open in $REPOSITORY; skipping."; exit 0; }
+              done
+              SOURCE_VERSION=$(tr -d '\r\n' < version)
+              FEEDSTOCK_VERSION=$(gh api "repos/tudat-team/tudatpy-feedstock/contents/.bumpversion.cfg?ref=develop" --jq '.content' | base64 --decode | sed -n 's/^current_version = //p' | tr -d '\r\n')
+              if [[ "$SOURCE_VERSION" != "$FEEDSTOCK_VERSION" ]]; then
+                echo "Finish aligning the source and feedstock release versions before the weekly bump."
+                exit 0
+              fi
               STR=$(git rev-list --after="7 days ago" HEAD)
               if test -z "$STR"; then
                 echo "should_run=false" >> $GITHUB_OUTPUT
@@ -61,7 +80,7 @@ jobs:
 
   bump-version_tudatpy:
     needs: check_recent_1w_commit
-    if: ${{ needs.check_recent_1w_commit.outputs.should_run != 'false' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ needs.check_recent_1w_commit.outputs.should_run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     name: Bump version in tudatpy repository
 
@@ -95,7 +114,7 @@ jobs:
 
   bump_version_tudatpy_feedstock:
     needs: check_recent_1w_commit
-    if: ${{ needs.check_recent_1w_commit.outputs.should_run != 'false' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ needs.check_recent_1w_commit.outputs.should_run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     name: bump version and create tag in tudatpy-feedstock
     steps:
