@@ -251,5 +251,96 @@
     "uncompressed_sha256": "21f1a30fcc1254d863cb27f8392aa696ef06676519c0bfdea26f72f8d7740071",
     "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed.",
     "selection": "Second consecutive frozen week2024-04-07 through13; selected before any residual evaluation."
+  },
+  {
+    "path": "resources/earth_orientation/eopc04_20_IAU2000.62-now.txt",
+    "size": 5176575,
+    "sha256": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/utcLibrationAmplitudes.txt",
+    "size": 120,
+    "sha256": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/utcLibrationFundamentalArgumentMultipliers.txt",
+    "size": 319,
+    "sha256": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/utcOceanTidesAmplitudes.txt",
+    "size": 1136,
+    "sha256": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/utcOceanTidesFundamentalArgumentMultipliers.txt",
+    "size": 1633,
+    "sha256": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+    "size": 260,
+    "sha256": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
+    "size": 160,
+    "sha256": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/polarMotionOceanTidesAmplitudes.txt",
+    "size": 2272,
+    "sha256": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/polarMotionOceanTidesFundamentalArgumentMultipliers.txt",
+    "size": 1633,
+    "sha256": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+    "source": "Installed Tudat resources; same C04 daily data and conventional IERS 2010 tables used by the frozen baseline.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/desaiSibois2016PolarMotionOceanTidesAmplitudes.txt",
+    "size": 6201,
+    "sha256": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d",
+    "source": "Installed Tudat resources; Desai and Sibois (2016), doi:10.1002/2016JB013125, supporting information ds01; SI conversion is native.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt",
+    "size": 4611,
+    "sha256": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "source": "Installed Tudat resources; Desai and Sibois (2016), doi:10.1002/2016JB013125, supporting information ds01; SI conversion is native.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/desaiSibois2016Ut1OceanTidesAmplitudes.txt",
+    "size": 3021,
+    "sha256": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88",
+    "source": "Installed Tudat resources; Desai and Sibois (2016), doi:10.1002/2016JB013125, supporting information ds01; SI conversion is native.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
+  },
+  {
+    "path": "resources/earth_orientation/desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt",
+    "size": 4611,
+    "sha256": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "source": "Installed Tudat resources; Desai and Sibois (2016), doi:10.1002/2016JB013125, supporting information ds01; SI conversion is native.",
+    "selection": "Pinned before high-fidelity Earth-orientation residual evaluation; raw provider orbit, observations and station inputs unchanged."
   }
 ]

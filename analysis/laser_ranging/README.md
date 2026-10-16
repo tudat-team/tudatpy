@@ -113,6 +113,23 @@ frame, making their common rotation less sensitive to this difference than an
 inertial-orbit/terrestrial-station comparison. The script does not claim exact
 reproduction of the provider's orbit determination.
 
+`--earth-orientation baseline` retains the conventional IERS 2010 ocean EOP
+terms and linear daily interpolation. The explicit alternative
+`--earth-orientation desai-sibois-four-point` replaces those ocean terms with the
+159-term [Desai and Sibois (2016)](https://doi.org/10.1002/2016JB013125)
+series and uses four-point Lagrange interpolation of the same daily C04 data in
+TAI. Conventional libration terms remain included. The model evaluates the CIO,
+short-period EOP and TDB–TT directly, without additional interpolation tables.
+The manifest pins the installed coefficient tables and the unchanged C04 bytes;
+the output records the selected profile and actual hashes. This option changes
+Earth orientation only; it does not select extra station deformations.
+
+The rotation-owned converter supplies external time tags, the SP3 callback and
+native station deformations. The native observable's TAI interval correction
+still uses its default IERS 2010 / linear C04 converter. That distinction is
+recorded explicitly for the alternative profile. These settings are available in
+the current kernel; no high-fidelity residual result is claimed here yet.
+
 The current default uses existing native cubic-spline `Time` ephemerides for
 Earth, Sun and Moon on integer 30-second SPICE knots, padded one day beyond the
 week. The satellite uses `environment.CustomEphemerisTimeObject`: its callback

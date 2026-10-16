@@ -675,6 +675,12 @@ def main():
     parser.add_argument("--body-ephemeris", choices=("cubic-time", "direct"), default="cubic-time")
     parser.add_argument("--body-step", choices=(30, 60), type=int, default=30)
     parser.add_argument("--satellite-epoch", choices=("time", "double"), default="time")
+    parser.add_argument(
+        "--earth-orientation",
+        choices=("baseline", "desai-sibois-four-point"),
+        default="baseline",
+        help="Select the ocean EOP series and daily interpolation; retain the frozen C04 input",
+    )
     args = parser.parse_args()
 
     if args.week_ending != "2024-04-06" and (
@@ -711,7 +717,10 @@ def main():
         if args.station_solution == "slrf2020"
         else week_directory / f"asi.pos+eop.{product_date}.v80.snx.gz"
     )
-    eop_path = Path(resource_paths.get_earth_orientation_path()) / "eopc04_20_IAU2000.62-now.txt"
+    eop_directory = Path(resource_paths.get_earth_orientation_path())
+
+    eop_path = eop_directory / "eopc04_20_IAU2000.62-now.txt"
+
     crd_files = [
         week_directory / f"lageos1_{week_start + timedelta(days=offset):%Y%m%d}.np2"
         for offset in range(7)
@@ -729,6 +738,26 @@ def main():
             "metadata/ILRS_Data_Handling_File_2024.02.13.snx",
         )
     )
+
+    # Pin the conventional clock tables and the selected rotation's ocean EOP tables.
+    eop_tables = [
+        "utcLibrationAmplitudes.txt",
+        "utcLibrationFundamentalArgumentMultipliers.txt",
+        "utcOceanTidesAmplitudes.txt",
+        "utcOceanTidesFundamentalArgumentMultipliers.txt",
+        "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+        "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
+        "polarMotionOceanTidesAmplitudes.txt",
+        "polarMotionOceanTidesFundamentalArgumentMultipliers.txt",
+    ]
+
+    if args.earth_orientation == "desai-sibois-four-point":
+        eop_tables.extend(
+            f"desaiSibois2016{quantity}OceanTides{table}.txt"
+            for quantity in ("PolarMotion", "Ut1")
+            for table in ("Amplitudes", "FundamentalArgumentMultipliers")
+        )
+    inputs.extend(eop_directory / name for name in eop_tables)
 
     if args.got410c_blq:
         inputs.append(args.got410c_blq)
@@ -779,8 +808,18 @@ def main():
             settings.get(name).ephemeris_settings = ephemeris.interpolated_spice(
                 table_start, table_end, args.body_step, "SSB", "J2000", spline, name
             )
+    daily_eop = rotation_model.EarthOrientationEvaluationSettings()
+
+    ocean_eop = rotation_model.OceanTideEopModel.iers_2010
+
+    if args.earth_orientation == "desai-sibois-four-point":
+        daily_eop.interpolation = rotation_model.EarthOrientationInterpolation.lagrange_four_point
+        ocean_eop = rotation_model.OceanTideEopModel.desai_sibois_2016
     settings.get("Earth").rotation_model_settings = rotation_model.gcrs_to_itrs(
-        base_frame="J2000", eop_data=earth_orientation.read_earth_orientation_data(str(eop_path))
+        base_frame="J2000",
+        eop_data=earth_orientation.read_earth_orientation_data(str(eop_path)),
+        eop_evaluation_settings=daily_eop,
+        ocean_tide_eop_model=ocean_eop,
     )
     deformations = [shape_deformation.iers_2010_solid_body_tidal(), shape_deformation.pole_tidal()]
 
@@ -913,6 +952,23 @@ def main():
         "week_start_utc": week_start.isoformat(),
         "week_stop_exclusive_utc": week_stop.isoformat(),
         "station_solution": args.station_solution,
+        "earth_orientation": {
+            "profile": args.earth_orientation,
+            "daily_interpolation": (
+                "four-point Lagrange in TAI"
+                if args.earth_orientation == "desai-sibois-four-point"
+                else "linear in TAI"
+            ),
+            "ocean_eop": (
+                "Desai-Sibois 2016, 159 terms, replacing IERS ocean terms"
+                if args.earth_orientation == "desai-sibois-four-point"
+                else "IERS 2010 ocean terms"
+            ),
+            "libration": "IERS 2010 retained",
+            "observable_interval_converter": "native default IERS 2010 / linear C04",
+            "cio_interpolation": "none",
+            "tdb_tt_interpolation": "none",
+        },
         "sp3_interpolation_points": args.points,
         "ephemeris_routes": {
             "bodies": args.body_ephemeris,
@@ -972,7 +1028,7 @@ def main():
         ),
         "ocean_loading_metadata": ocean_ledger,
         "models": {
-            "rotation": "IERS 2010, IAU 2006, selected C04 file",
+            "rotation": "IERS 2010 chain, IAU 2006, selected C04 file and Earth-orientation profile",
             "observable_time_scale": "TAI",
             "optical": "Mendes-Pavlis + FCULa; CRD measured weather; C0 wavelength; CO2 375 ppm",
             "station_tides": "IERS2010 solid and pole; native shared mean-pole convention",
