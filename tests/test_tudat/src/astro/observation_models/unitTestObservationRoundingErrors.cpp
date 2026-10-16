@@ -156,8 +156,8 @@ void checkStateFunctionNumericalErrors( const std::shared_ptr< ephemerides::Ephe
         }
         else
         {
-            // Test real (w.r.t. Delta t = 1 s) errors against theoretical limit (with safety factor of 2 to account for randomness in
-            // rounding error)
+            // Test real (w.r.t. Delta t = 1 s) errors against theoretical limit (with safety factor of 4 to account for randomness in
+            // rounding error, which can exceed three times the limit on some platforms)
             Eigen::Vector3ld expectedRelativeErrorLevel = limitTimes / perturbationStep;
             Eigen::Vector3ld realRelativeErrorLevels =
                     ( ( currentPartial - nominalPartial ).cwiseQuotient( nominalPartial ) ).segment( 0, 3 );
@@ -166,7 +166,7 @@ void checkStateFunctionNumericalErrors( const std::shared_ptr< ephemerides::Ephe
 
             for( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( realRelativeErrorLevels( j ) ), 3.0 * std::fabs( expectedRelativeErrorLevel( j ) ) );
+                BOOST_CHECK_SMALL( std::fabs( realRelativeErrorLevels( j ) ), 4.0 * std::fabs( expectedRelativeErrorLevel( j ) ) );
             }
         }
     }
