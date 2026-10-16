@@ -1,4 +1,4 @@
-"""Reduce the frozen March-April 2017 arc with one explicitly requested source exclusion."""
+"""Reduce a frozen APOLLO/Grasse arc with one explicitly requested source exclusion."""
 
 import argparse
 from collections import defaultdict
@@ -15,7 +15,7 @@ from tudatpy.data_input.tracking_data import slr
 
 import llr_residuals as model
 
-# This interval and both source releases were selected before any long-arc residual.
+# The default interval and both source releases were selected before any long-arc residual.
 MANIFEST = Path(__file__).with_name("llr_long_arc_dataset.json")
 
 
@@ -39,7 +39,10 @@ def read_groups(root, manifest):
     points = model.read_points(
         root / apollo["file"],
         apollo["sha256"],
-        (date(2017, 3, 1), date(2017, 5, 1)),
+        (
+            date.fromisoformat(manifest["interval_start_utc"]),
+            date.fromisoformat(manifest["interval_stop_exclusive_utc"]),
+        ),
         apollo["source_count"],
     )
 
@@ -363,21 +366,25 @@ def main():
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--kernel-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--dataset-manifest", type=Path, default=MANIFEST)
     parser.add_argument("--station", choices=["APOLLO", "GRASSE"])
     parser.add_argument("--march9-control", action="store_true")
     parser.add_argument("--ephemeris", choices=("de440", "inpop17a"), default="de440")
     parser.add_argument("--glass-convention", choices=("jpl-nh", "none"))
     parser.add_argument("--control-twelve", action="store_true")
+    parser.add_argument("--first-last-control", action="store_true")
     args = parser.parse_args()
 
     if args.ephemeris == "inpop17a" and args.glass_convention is None:
         parser.error("INPOP prism convention is unresolved: explicitly declare jpl-nh or none")
     if args.control_twelve and (args.march9_control or args.station is not None):
         parser.error("The predeclared twelve-point control requires both stations")
+    if args.first_last_control and (args.control_twelve or args.march9_control):
+        parser.error("Choose only one bounded control selection")
 
     started = perf_counter()
 
-    manifest = json.loads(MANIFEST.read_text())
+    manifest = json.loads(args.dataset_manifest.read_text())
 
     ephemeris_path = Path(model.__file__).with_name("llr_dataset.json")
 
@@ -408,6 +415,19 @@ def main():
     )
     if excluded_count != 1:
         raise ValueError("The frozen source must contain the requested exclusion exactly once")
+
+    # Keep the exact requested exclusion separate from unsolved bounded-control points.
+    for points, _, _, ledger in groups:
+        ledger["excluded_count"] = sum(
+            is_requested_exclusion(
+                point["station"],
+                point["source_file"],
+                point["source_line"],
+                point["utc_label"],
+                manifest,
+            )
+            for point in points
+        )
 
     if args.station:
         groups = [group for group in groups if group[3]["station"] == args.station]
@@ -455,6 +475,35 @@ def main():
         groups = selected
         expected_count = 12
 
+    boundary_points = None
+    if args.first_last_control:
+        boundary_points = []
+
+        for station in sorted({group[3]["station"] for group in groups}):
+            retained = sorted(
+                (
+                    point
+                    for points, _, _, _ in groups
+                    for point in points
+                    if point["station"] == station
+                    and not is_requested_exclusion(
+                        point["station"],
+                        point["source_file"],
+                        point["source_line"],
+                        point["utc_label"],
+                        manifest,
+                    )
+                ),
+                key=lambda point: float(point["utc"]),
+            )
+            boundary_points.append(retained[0])
+            if retained[-1] is not retained[0]:
+                boundary_points.append(retained[-1])
+
+        # Preserve full original groups for the same table support and measured weather.
+        groups = [group for group in groups if any(p in boundary_points for p in group[0])]
+        expected_count = len(boundary_points)
+
     args.output.mkdir(parents=True, exist_ok=False)
     rows, group_ledger, events = [], [], []
 
@@ -486,6 +535,8 @@ def main():
                 manifest,
             ):
                 continue
+            if boundary_points is not None and point not in boundary_points:
+                continue
             epoch = converter.convert_time_object(
                 time.utc_scale, time.tdb_scale, point["utc"], position
             )
@@ -500,7 +551,7 @@ def main():
             solver_seconds += perf_counter() - solver_start
             residual = 0.5 * (constants.SPEED_OF_LIGHT * point["observed_rtt_s"] - computed)
 
-            if args.control_twelve:
+            if args.control_twelve or args.first_last_control:
                 events.append(event_vectors(point, bodies, diagnostic))
 
             rows.append(
@@ -539,6 +590,9 @@ def main():
         ledger["solver_seconds"] = solver_seconds
         ledger["source_count"] = len(points)
         ledger["count"] = len(rows) - first_row
+        ledger["control_unselected_count"] = (
+            ledger["source_count"] - ledger["count"] - ledger["excluded_count"]
+        )
         group_ledger.append(ledger)
         print(json.dumps(ledger), flush=True)
     rows.sort(key=lambda row: (row["utc_launch"], row["station"], row["source_line"]))
@@ -562,12 +616,13 @@ def main():
     ]
 
     write_csv(args.output / "nightly_raw_statistics.csv", nightly)
-    if args.control_twelve:
+    if args.control_twelve or args.first_last_control:
         (args.output / "event_diagnostics.json").write_text(json.dumps(events, indent=2) + "\n")
     summary = dict(
         count=len(rows),
         source_count=sum(g["source_count"] for g in group_ledger),
-        excluded_count=sum(g["source_count"] - g["count"] for g in group_ledger),
+        excluded_count=sum(g["excluded_count"] for g in group_ledger),
+        control_unselected_count=sum(g["control_unselected_count"] for g in group_ledger),
         excluded_normal_point=manifest["excluded_normal_point"],
         station_selection=args.station or "APOLLO and GRASSE",
         station_statistics={
@@ -581,7 +636,8 @@ def main():
                 for key in sorted({(r["station"], r["reflector"]) for r in rows})
             )
         },
-        manifest_sha256=model.sha256(MANIFEST),
+        dataset_manifest=str(args.dataset_manifest.resolve()),
+        manifest_sha256=model.sha256(args.dataset_manifest),
         ephemeris_manifest_sha256=model.sha256(ephemeris_path),
         kernel_binary_sha256=model.sha256(Path(kernel.__file__)),
         kernel_sha256=kernel_hashes,
@@ -607,7 +663,11 @@ def main():
         control_selection=(
             "First chronological A11/A14/A15 on March22 and APOLLOApr7/GrasseApr6"
             if args.control_twelve
-            else None
+            else (
+                "First and last retained normal point at each selected station"
+                if args.first_last_control
+                else None
+            )
         ),
         fitting="No fitted bias, demeaning, clipping, wavelength correction or empirical libration term",
         geometry_precision="Geometry uses native diagnostic event doubles; solver retains Time internally",
