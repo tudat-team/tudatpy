@@ -33,8 +33,74 @@ assertions** and the Python settings check at actual 532.1/1064.2 nm wavelengths
 without rounding observed wavelengths or changing formulas/tolerances. Kernel
 SHA-256 is
 ``cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef``.
-The recorded driver runtime is **26.6935 s**. Runtime improvements remain
-proposals only; this run contains no optimization implementation.
+The original driver runtime was **26.6935 s**. A subsequent controlled comparison
+uses geocentric TT only for slow linear station drift: solver time falls from
+**19.631 to 12.778 s**, and driver time from **27.066 to 18.994 s**. All 306 rows
+(11,934 CSV fields), geometry and source metadata remain byte-identical. The
+coordinate change from omitting the topocentric term in that drift calculation
+is below 2e-15 m; the observation clock and simultaneity calculations are unchanged.
+The `runtime control <../analysis/laser_ranging/results/drift_clock_runtime_control/README.rst>`_
+records commands, source and binary provenance. Other optimization proposals
+remain unimplemented.
+
+Additional bounded checks find no missing or duplicated millisecond TDB-minus-TT
+launch conversion: three absolute epochs agree with independent ERFA/SOFA within
+2.5 ps. Native lunar displacement agrees with independently evaluated original
+constants within 0.145 nm, including explicit radius and once-only application
+checks. The daily Grasse archive repeats the same retained +5.43 m record.
+Evidence is in the `absolute clock audit
+<../analysis/laser_ranging/results/absolute_launch_clock_audit/README.rst>`_ and
+the `deformation and source audit
+<../analysis/laser_ranging/results/tide_parameter_plumbing/README.md>`_. These
+controls narrow the possible causes; they do not explain the remaining residuals.
+
+The `finite moving-body Shapiro control
+<../analysis/laser_ranging/results/moving_monopole_control/README.md>`_
+changes individual leg lengths by at most 2.282 micrometres at three saved
+observations. Its nearly cancelling fixed-endpoint sums are not newly iterated
+observables. The `INPOP17a time-kernel control
+<../analysis/laser_ranging/results/inpop17a_time_and_prism_audit/README.rst>`_
+agrees with SOFA within 1.393 ns at three launches. Neither check identifies
+a centimetre error. The latter report also records the unresolved optical
+reference point of INPOP's fitted reflector coordinates.
+
+INPOP17a comparison
+------------------
+
+The optional INPOP17a control uses its own translation, principal-axis rotation,
+GMs, published G+IR station/reflector coordinates, degree-2 surface tides and
+lunar spatial scale. The kernel pool is cleared before loading the matched
+products. Its original header constants support association with the published
+G+IR fit, although the archive does not explicitly name that solution column.
+The documented Lunokhod table misprints are reconstructed from the cited INPOP13c
+baselines before any residual calculation.
+
+The fitted reflector optical reference point remains unspecified in the retrieved
+sources. Both optical conventions were declared before calculation; neither is
+chosen by residual size. All original points remain, with no estimation or bias
+correction. Raw one-way means and RMS values are:
+
+.. csv-table:: Full March--April 2017 comparison, millimetres
+   :header: "Separate glass term", "APOLLO mean / RMS (69)", "Grasse mean / RMS (237)"
+
+   "JPL n*h per leg", "-47.439 / 49.408", "-37.637 / 358.749"
+   "None", "-3.363 / 12.341", "+10.348 / 356.316"
+
+The retained Grasse discrepancy remains about 5.47 m in the second case.
+Using every point, its median absolute residual is 12.529 mm and its 95th
+percentile is 37.777 mm; APOLLO's corresponding values are 8.212 and 22.850 mm.
+These order statistics do not remove or recenter observations. The March 22
+APOLLO spread between five reflector nightly means falls from 139.25 mm in
+the DE440 case to 17.06 mm in the second INPOP case, but a shared trough and
+recovery remain. Intrinsic measurement-noise residuals have not been achieved.
+
+The published fit data end before this observation arc. Its station range biases,
+including a Grasse term equivalent to 12.3 mm one-way, are not applied here.
+Optical reference points, differing Earth loading/EOP reductions and small omitted
+lunar terms prevent an exact reproduction of the fitted reduction. The `complete
+comparison package <../analysis/laser_ranging/results/inpop17a_long_arc_20170301_20170430/README.md>`_
+contains both raw time series, PNG/PDF figures, source references, an unchanged
+eleven-point DE440 control and the independent actual-radius tide check.
 
 Historical single-night setup
 -----------------------------

@@ -102,10 +102,11 @@ included. All exported vectors reconstruct diagnostic double epochs, while the
 observable solver retains `Time`. Future exports request origin `SSB` and record
 that choice; this diagnostic-only change does not alter any range result.
 
-The executed source and manifest are committed as `e26fa7443`; provenance pins
-their Git blobs, SHA256, the cleared eight-kernel pool and native binary hash.
-Retrieve originals with `git show REV:analysis/laser_ranging/PATH`; full copied
-source snapshots are unnecessary. The later manifest addition only documents
+The executed worker source and manifest were committed as `e26fa7443`; their
+identical file blobs are available in integration commit `404009483`. Provenance
+pins the Git blobs, SHA256, cleared eight-kernel pool and native binary hash.
+Retrieve originals with `git show 404009483:analysis/laser_ranging/PATH`; full
+copied source snapshots are unnecessary. The later manifest addition only documents
 the release-to-fit limitation. Frozen input URLs/hashes remain in
 `../../llr_long_arc_dataset.json`. Full original summaries and event vectors
 remain outside the repository; their hashes are retained. To reproduce either
