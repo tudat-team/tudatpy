@@ -1,0 +1,54 @@
+{
+  "scope": "No native observation calculation or model adjustment. All306 source points for drift clock bound; all237 Grasse weather states for independent IERS formula wavelength sensitivity. Elevations90/20/3deg are declared scenarios, not measured NP geometry.",
+  "model_source_sha256": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
+  "arc_manifest_sha256": "10906a8e5ebbf349b7d684844d968690cc500640aae0a634f6f82e722e72c86f",
+  "independent_formula_source_sha256": "195727e384ad608055f191335cb8d3348a132fdcaf664218f2aa6b95f19fd1d2",
+  "wavelengths_nm": [
+    532.1,
+    1064.2
+  ],
+  "grasse_count": 237,
+  "optical_summary": {
+    "90deg": {
+      "minimum_m": -1.1559703660068976e-05,
+      "maximum_m": -1.1340497920730996e-05,
+      "maximum_absolute_m": 1.1559703660068976e-05
+    },
+    "20deg": {
+      "minimum_m": -3.349394758256352e-05,
+      "maximum_m": -3.286280181047374e-05,
+      "maximum_absolute_m": 3.349394758256352e-05
+    },
+    "3deg": {
+      "minimum_m": -0.00016988014086294356,
+      "maximum_m": -0.00016675176217262333,
+      "maximum_absolute_m": 0.00016988014086294356
+    }
+  },
+  "clock_summary": {
+    "APOLLO": {
+      "count": 69,
+      "maximum_abs_clock_difference_seconds": 2.091784768953886e-06,
+      "maximum_position_difference_bound_m": 8.617260665292335e-16,
+      "maximum_velocity_m_per_second": 4.1195732912817215e-10
+    },
+    "GRASSE": {
+      "count": 237,
+      "maximum_abs_clock_difference_seconds": 1.983455883314278e-06,
+      "maximum_position_difference_bound_m": 1.6817324019034275e-15,
+      "maximum_velocity_m_per_second": 8.478799130602884e-10
+    }
+  },
+  "first_grasse_weather": {
+    "utc": "2017-03-30T13:38:13.484221120200",
+    "source": "apollo11_201703.npt",
+    "wavelength_nm": 1064.2,
+    "pressure_hpa": 882.8334466438752,
+    "temperature_k": 287.50700724157844,
+    "humidity": 0.3402259777974083,
+    "1064p2_minus_1064p0_90deg_delay_m": -1.154932499147776e-05,
+    "1064p2_minus_1064p0_20deg_delay_m": -3.3464008051709015e-05,
+    "1064p2_minus_1064p0_3deg_delay_m": -0.0001693744345594439
+  },
+  "probe_sha256": "f16653da8d86aa8c5e31d8d1522de4bf74d0f3d6f77559bff6a2a49535672e98"
+}

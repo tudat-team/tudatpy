@@ -1,0 +1,87 @@
+[
+  {
+    "file": "header.430",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de430/header.430",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "file": "header.441",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de441/header.441",
+    "bytes": 22802,
+    "sha256": "376cd6f6766356ba0f4c25dc5a7ff8130ea2826f3c34149e33c1e6ac970d6e7c"
+  },
+  {
+    "file": "de430-index.html",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de430/",
+    "bytes": 12645,
+    "sha256": "ae4a35636720c353327b1271b0099d79baa07685126f467837ce75afed2682f7"
+  },
+  {
+    "file": "INPOP-lunar-reference-2026.pdf",
+    "url": "https://www.aanda.org/articles/aa/pdf/2026/01/aa55962-25.pdf",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "file": "INPOP-lunar-reference-2024.pdf",
+    "url": "https://arxiv.org/pdf/2409.10043",
+    "error": "bounded download limit"
+  },
+  {
+    "file": "header.430_572",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de430/header.430_572",
+    "bytes": 20343,
+    "sha256": "ed4c6f777ee9d17b8f6f498e8a55538a12c9efee3acd21a0fe3cfc08f64f16a1"
+  },
+  {
+    "file": "INPOP13c.pdf",
+    "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop13c.pdf",
+    "bytes": 6181433,
+    "sha256": "976b2a0dac29960863d74f23af231f9d6c706452de318418462d04da0646c054"
+  },
+  {
+    "file": "INPOP-lunar-reference-2024.pdf",
+    "url": "https://arxiv.org/pdf/2409.10043",
+    "bytes": 3932289,
+    "sha256": "f86c914a5d99ee79fd45e50dfcfd54a5438e00445482813ed30567becc3d4d44"
+  },
+  {
+    "file": "moving-multipoles-2015.pdf",
+    "url": "https://arxiv.org/pdf/1409.3743",
+    "bytes": 98423,
+    "sha256": "0102ed0b52db706484432fe1482e260a8e15dd47cdc9f3ca58ad190aed9c637b"
+  },
+  {
+    "file": "Kopeikin-LLR-2009.pdf",
+    "url": "https://arxiv.org/pdf/0902.3489",
+    "bytes": 134865,
+    "sha256": "fe02b1c9bd45b041744abee1603d30b94a766251c4a5fafaeb3c8021bfd3916d"
+  },
+  {
+    "file": "INPOP17a-2018.pdf",
+    "url": "https://arxiv.org/pdf/1710.09167",
+    "error": "bounded document limit"
+  },
+  {
+    "file": "GRAIL-LLR-inconsistency-2019.pdf",
+    "url": "https://ntrs.nasa.gov/api/citations/20190034149/downloads/20190034149.pdf",
+    "error": "bounded document limit"
+  },
+  {
+    "file": "DE430-README.txt",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de430/README.txt",
+    "bytes": 1122,
+    "sha256": "3e151016efb3d927e78568cd73d8041db1c02ea8fb37e85a9b2cbe92e9af44f1"
+  },
+  {
+    "file": "INPOP17a-README.txt",
+    "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop17a/README.txt",
+    "bytes": 2115,
+    "sha256": "23e675dc151922bb6036d3c00c5dd496877de0bcaa71a985d0599e3d0a7bca64"
+  },
+  {
+    "file": "INPOP17a-2018.pdf",
+    "url": "https://arxiv.org/pdf/1710.09167",
+    "bytes": 4611250,
+    "sha256": "d3ef4f399b91250d4de4206124cea85cc93acc78c52ff99b585edfa4952decff"
+  }
+]

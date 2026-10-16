@@ -1,0 +1,53 @@
+{
+  "retrieved_on": "2026-10-15",
+  "files": [
+    {
+      "file": "MATM-sitelog-20260813.html",
+      "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/MATM_sitelog.html",
+      "sha256": "3882390a1cc3390d09fce17b79b25078181a590bf91e1bee83e7d6218e2b165a",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    },
+    {
+      "file": "ILRS-eccentricity.html",
+      "url": "https://ilrs.gsfc.nasa.gov/network/site_procedures/eccentricity.html",
+      "sha256": "4c4d07caae35f509c2b478228b3d4655c07899ffa1468fb897f9e3ca8b518967",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    },
+    {
+      "file": "ILRS-eccentricities-200420-annotated.pdf",
+      "url": "https://ilrs.gsfc.nasa.gov/docs/2020/RevisedEccentricityFiles-Release200420_ANNOTATED.pdf",
+      "sha256": "a35d934c81b55f18e9f9e3237227cb745a98729e7cf92b186ba84ba9f47f9e9c",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    },
+    {
+      "file": "INPOP21a-README.txt",
+      "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop21a/README.txt",
+      "sha256": "01ac3b5d355a14cb8c34edcd7528236971afe8243f53a9b379e6c2221f854842",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    },
+    {
+      "file": "inpop21a_TDB_m100_p100.header",
+      "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop21a/inpop21a_TDB_m100_p100.header",
+      "sha256": "72267d5ade71dfa98a73e204c47763f22ea5b47bec64f7b3e18265880f4d7cc5",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    },
+    {
+      "file": "JPL-planets-ioms-index.html",
+      "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/",
+      "sha256": "bdc744825fb06fa99ce84842f867d131f3d9a18b061b566b00b9ee41aeb483b8",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    },
+    {
+      "file": "JPL-DE440-ascii-index.html",
+      "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de440/",
+      "sha256": "dfe8eed4bfdbe43437115f101679a2d6d6bc47490637390811d8fa8715be6c85",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    },
+    {
+      "file": "Park-2021-DE440.pdf",
+      "url": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+      "sha256": "96c3945deb12e0f0843c2bf0703d3542d950cf85ff903b1fe11a501634f68ee0",
+      "retained": "Local primary-source research copy; embedded source notices retained, no relicensing claim."
+    }
+  ]
+}

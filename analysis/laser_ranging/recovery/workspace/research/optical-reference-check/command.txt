@@ -1,0 +1,2 @@
+/home/dominic/miniconda3/envs/tudatpy-dev/bin/x86_64-conda-linux-gnu-gfortran -std=legacy -ffixed-form -O0 /home/dominic/Tudat/laser-ranging-work/research/optical-reference-check/FCUL_ZD_HPA.F /home/dominic/Tudat/laser-ranging-work/research/optical-reference-check/check_fcul_zenith.f -o /home/dominic/Tudat/laser-ranging-work/research/optical-reference-check/check_fcul_zenith
+LD_LIBRARY_PATH=/home/dominic/miniconda3/envs/tudatpy-dev/lib /home/dominic/Tudat/laser-ranging-work/research/optical-reference-check/check_fcul_zenith

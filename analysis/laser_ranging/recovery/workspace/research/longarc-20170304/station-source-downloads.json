@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/GRSM_sitelog.html",
+    "file": "GRSM_sitelog.html",
+    "sha256": "577eacac705384270b1339038896bde3da6128f49490b1edc7ac984a0d95283c",
+    "retrieved_utc": "2026-10-16T06:53:23.273309+00:00"
+  },
+  {
+    "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/index.html",
+    "file": "ILRS-active-stations.html",
+    "sha256": "2604bf914ebebb9ad9b8e076c462ecd8d6cf9c5d6377c1124cf6acb4b7b71cad",
+    "retrieved_utc": "2026-10-16T06:53:23.234872+00:00"
+  }
+]

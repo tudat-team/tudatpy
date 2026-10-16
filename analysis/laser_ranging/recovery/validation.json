@@ -1,0 +1,352 @@
+{
+  "checked_at_utc": "2026-10-16T13:55:56.938582+00:00",
+  "scope": "Recovery integrity and existing annual-result verification. No native rebuild, physical-model rerun or figure regeneration.",
+  "imported_files": 162,
+  "external_workspace_scripts_and_markdown_covered": 85,
+  "python_syntax_and_ast_matches": 75,
+  "shell_syntax_passes": 6,
+  "json_parse_passes": 56,
+  "byte_identical_imports": 94,
+  "python_formatting_only_imports": 68,
+  "recovery_index_relative_links_resolve": true,
+  "annual_results": {
+    "de440": {
+      "annual_csv_sha256": "d169c8cda2f04f5a1eef3aa59be26c7b8ae448d2d16d68d2130eeea2186c2c48",
+      "baseline_csv_sha256": "5644a9220b333381ad88eb2727da76b2eb45fd7cdb205fdf60bbdafd042ee9b4",
+      "manifest_sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+      "row_count": 1579,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1268
+      },
+      "missing_identities": [],
+      "unexpected_identities": [],
+      "duplicate_output_identity_count": 0,
+      "requested_exclusion_present": false,
+      "repeated_provider_record_source_lines": [
+        102,
+        105
+      ],
+      "long_weather_rows": [
+        {
+          "source_file": "luna17_201706.npt",
+          "source_line": "154",
+          "utc_launch": "2017-06-22T09:47:06.763983741400",
+          "nearest_measured_weather_s": "1070.7639837265015",
+          "weather_mode": "held-last-long-source-limitation"
+        },
+        {
+          "source_file": "luna21_201706.npt",
+          "source_line": "253",
+          "utc_launch": "2017-06-22T10:00:45.356444133700",
+          "nearest_measured_weather_s": "1889.356444120407",
+          "weather_mode": "held-last-long-source-limitation"
+        },
+        {
+          "source_file": "luna21_201706.npt",
+          "source_line": "257",
+          "utc_launch": "2017-06-22T11:19:16.531986743800",
+          "nearest_measured_weather_s": "6600.531986713409",
+          "weather_mode": "held-last-long-source-limitation"
+        }
+      ],
+      "long_weather_exact_match": true,
+      "coverage": {
+        "APOLLO": {
+          "first_utc": "2017-01-06T00:31:05.0000000",
+          "last_utc": "2017-12-31T07:59:25.0000000",
+          "utc_nights": 42
+        },
+        "GRASSE": {
+          "first_utc": "2017-01-06T17:42:22.773276553200",
+          "last_utc": "2017-12-21T16:33:43.111399259700",
+          "utc_nights": 113
+        }
+      },
+      "march_april_count": 305,
+      "baseline_count": 305,
+      "march_april_identity_exact_match": true,
+      "changed_computed_ranges": [],
+      "all_epoch_events_transmit": true,
+      "expected_retained_coverage": {
+        "APOLLO": {
+          "first_utc": "2017-01-06T00:31:05.0000000",
+          "last_utc": "2017-12-31T07:59:25.0000000",
+          "utc_nights": 42
+        },
+        "GRASSE": {
+          "first_utc": "2017-01-06T17:42:22.773276553200",
+          "last_utc": "2017-12-21T16:33:43.111399259700",
+          "utc_nights": 113
+        }
+      },
+      "coverage_matches_frozen_sources": true,
+      "raw_source_nights": {
+        "APOLLO": 42,
+        "GRASSE": 114
+      },
+      "all_computed_ranges_and_residuals_finite": true,
+      "source_invalid_rows_present": [],
+      "pass": true
+    },
+    "inpop17a_jpl_nh": {
+      "annual_csv_sha256": "378bc8d63f111bd387395babd0796b40b3d1a26fee2147e0774f43d31adcca95",
+      "baseline_csv_sha256": "9c44241901ee2ece854222974d9b0edb81d472dd326496a0fb873f61e906cdf8",
+      "manifest_sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+      "row_count": 1579,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1268
+      },
+      "missing_identities": [],
+      "unexpected_identities": [],
+      "duplicate_output_identity_count": 0,
+      "requested_exclusion_present": false,
+      "repeated_provider_record_source_lines": [
+        102,
+        105
+      ],
+      "long_weather_rows": [
+        {
+          "source_file": "luna17_201706.npt",
+          "source_line": "154",
+          "utc_launch": "2017-06-22T09:47:06.763983741400",
+          "nearest_measured_weather_s": "1070.7639837265015",
+          "weather_mode": "held-last-long-source-limitation"
+        },
+        {
+          "source_file": "luna21_201706.npt",
+          "source_line": "253",
+          "utc_launch": "2017-06-22T10:00:45.356444133700",
+          "nearest_measured_weather_s": "1889.356444120407",
+          "weather_mode": "held-last-long-source-limitation"
+        },
+        {
+          "source_file": "luna21_201706.npt",
+          "source_line": "257",
+          "utc_launch": "2017-06-22T11:19:16.531986743800",
+          "nearest_measured_weather_s": "6600.531986713409",
+          "weather_mode": "held-last-long-source-limitation"
+        }
+      ],
+      "long_weather_exact_match": true,
+      "coverage": {
+        "APOLLO": {
+          "first_utc": "2017-01-06T00:31:05.0000000",
+          "last_utc": "2017-12-31T07:59:25.0000000",
+          "utc_nights": 42
+        },
+        "GRASSE": {
+          "first_utc": "2017-01-06T17:42:22.773276553200",
+          "last_utc": "2017-12-21T16:33:43.111399259700",
+          "utc_nights": 113
+        }
+      },
+      "march_april_count": 305,
+      "baseline_count": 305,
+      "march_april_identity_exact_match": true,
+      "changed_computed_ranges": [],
+      "all_epoch_events_transmit": true,
+      "expected_retained_coverage": {
+        "APOLLO": {
+          "first_utc": "2017-01-06T00:31:05.0000000",
+          "last_utc": "2017-12-31T07:59:25.0000000",
+          "utc_nights": 42
+        },
+        "GRASSE": {
+          "first_utc": "2017-01-06T17:42:22.773276553200",
+          "last_utc": "2017-12-21T16:33:43.111399259700",
+          "utc_nights": 113
+        }
+      },
+      "coverage_matches_frozen_sources": true,
+      "raw_source_nights": {
+        "APOLLO": 42,
+        "GRASSE": 114
+      },
+      "all_computed_ranges_and_residuals_finite": true,
+      "source_invalid_rows_present": [],
+      "pass": true
+    },
+    "inpop17a_no_separate_glass": {
+      "annual_csv_sha256": "7b9701cb97ea980d5cdc467aebbf231b2fc8dc0a5bbe2a3b18834edcde34ad9c",
+      "baseline_csv_sha256": "d11af3bdf13088905872dbb00991824752ea76392bbdfde345ac6917bd617799",
+      "manifest_sha256": "4140847ee51866fed8d3d2a92d6ead4d03113a7e67885adcbfc52958d9174446",
+      "row_count": 1579,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1268
+      },
+      "missing_identities": [],
+      "unexpected_identities": [],
+      "duplicate_output_identity_count": 0,
+      "requested_exclusion_present": false,
+      "repeated_provider_record_source_lines": [
+        102,
+        105
+      ],
+      "long_weather_rows": [
+        {
+          "source_file": "luna17_201706.npt",
+          "source_line": "154",
+          "utc_launch": "2017-06-22T09:47:06.763983741400",
+          "nearest_measured_weather_s": "1070.7639837265015",
+          "weather_mode": "held-last-long-source-limitation"
+        },
+        {
+          "source_file": "luna21_201706.npt",
+          "source_line": "253",
+          "utc_launch": "2017-06-22T10:00:45.356444133700",
+          "nearest_measured_weather_s": "1889.356444120407",
+          "weather_mode": "held-last-long-source-limitation"
+        },
+        {
+          "source_file": "luna21_201706.npt",
+          "source_line": "257",
+          "utc_launch": "2017-06-22T11:19:16.531986743800",
+          "nearest_measured_weather_s": "6600.531986713409",
+          "weather_mode": "held-last-long-source-limitation"
+        }
+      ],
+      "long_weather_exact_match": true,
+      "coverage": {
+        "APOLLO": {
+          "first_utc": "2017-01-06T00:31:05.0000000",
+          "last_utc": "2017-12-31T07:59:25.0000000",
+          "utc_nights": 42
+        },
+        "GRASSE": {
+          "first_utc": "2017-01-06T17:42:22.773276553200",
+          "last_utc": "2017-12-21T16:33:43.111399259700",
+          "utc_nights": 113
+        }
+      },
+      "march_april_count": 305,
+      "baseline_count": 305,
+      "march_april_identity_exact_match": true,
+      "changed_computed_ranges": [],
+      "all_epoch_events_transmit": true,
+      "expected_retained_coverage": {
+        "APOLLO": {
+          "first_utc": "2017-01-06T00:31:05.0000000",
+          "last_utc": "2017-12-31T07:59:25.0000000",
+          "utc_nights": 42
+        },
+        "GRASSE": {
+          "first_utc": "2017-01-06T17:42:22.773276553200",
+          "last_utc": "2017-12-21T16:33:43.111399259700",
+          "utc_nights": 113
+        }
+      },
+      "coverage_matches_frozen_sources": true,
+      "raw_source_nights": {
+        "APOLLO": 42,
+        "GRASSE": 114
+      },
+      "all_computed_ranges_and_residuals_finite": true,
+      "source_invalid_rows_present": [],
+      "pass": true
+    }
+  },
+  "filtered_results": {
+    "de440": {
+      "pass": true,
+      "retained_rows": 1577,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1266
+      },
+      "statistics_match": true,
+      "figures": {
+        "residuals_full_span.pdf": {
+          "bytes": 71025,
+          "sha256": "4a71ce1d7f414e80b586482a7a796cc01d2ab1f9c4d6906aa5135cc73598efb8"
+        },
+        "residuals_full_span.png": {
+          "bytes": 303724,
+          "sha256": "a6ee4981b5d1e2b63b8d88b9a73e4cd895258a4f72702cff7cb50dfc167f726b"
+        },
+        "residuals_y_detail.pdf": {
+          "bytes": 71649,
+          "sha256": "95580646c50981d8db09533d1bf85c5b68c00880141493668da57690e5bc3d56"
+        },
+        "residuals_y_detail.png": {
+          "bytes": 343604,
+          "sha256": "4f17b14a0d2fe5ab1809e36a339813f6c131764222b209549de238f4d771999d"
+        }
+      }
+    },
+    "inpop17a_jpl_nh": {
+      "pass": true,
+      "retained_rows": 1577,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1266
+      },
+      "statistics_match": true,
+      "figures": {
+        "residuals_full_span.pdf": {
+          "bytes": 70826,
+          "sha256": "650c90f29156465fb3e04593d374fc70abd45e924c24fe7a99c3e319692fc8ce"
+        },
+        "residuals_full_span.png": {
+          "bytes": 266074,
+          "sha256": "01140b1e5636c7b562cb041826c3515de94574896d030417e9b2a29cd1989e28"
+        },
+        "residuals_y_detail.pdf": {
+          "bytes": 71521,
+          "sha256": "b64b28ecef980c5d2fe03f27b3b91e236d927350e003912f9216d90a6960fbc9"
+        },
+        "residuals_y_detail.png": {
+          "bytes": 319906,
+          "sha256": "24c1a30a818e06e8901131aca300f81e037954c6e665f509ec320af4f72ee245"
+        }
+      }
+    },
+    "inpop17a_no_separate_glass": {
+      "pass": true,
+      "retained_rows": 1577,
+      "station_counts": {
+        "APOLLO": 311,
+        "GRASSE": 1266
+      },
+      "statistics_match": true,
+      "figures": {
+        "residuals_full_span.pdf": {
+          "bytes": 70735,
+          "sha256": "309bb25f79fce0250199d08d10677f3e5bddf31ccac21de77ad33f93768a8030"
+        },
+        "residuals_full_span.png": {
+          "bytes": 269195,
+          "sha256": "e607972e0991b5efb44ed860ae9f462eef9942fb6c219348ce6c9af289b31891"
+        },
+        "residuals_y_detail.pdf": {
+          "bytes": 71211,
+          "sha256": "736090b474f0f59184ae803f59740d99dcf6b65a6c5efb8ea0b0ca13dd8ce6ce"
+        },
+        "residuals_y_detail.png": {
+          "bytes": 318474,
+          "sha256": "9c2b83824ea64c1e944b2d86e967f6620da957429ae42bf6a14b69c96fe0bfb4"
+        }
+      }
+    }
+  },
+  "continuation_guide": {
+    "relative_links_resolve": true,
+    "all_shell_examples_syntax_valid": true,
+    "runtime_import_and_saved_result_check_executed": true,
+    "native_solve_example_executed": false,
+    "kernel_binary_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+    "annual_provenance_source_matches": {
+      "llr_long_arc.py": true,
+      "llr_residuals.py": true,
+      "llr_year_2017_dataset.json": true,
+      "llr_dataset.json": true,
+      "inpop17a_dataset.json": true,
+      "llr_station_profiles.json": true,
+      "icrf_spice_alias.tf": true,
+      "plot_llr_residuals.py": false
+    },
+    "plotter_difference": "Expected: annual provenance predates the subsequent filtered three-column figure commits."
+  }
+}

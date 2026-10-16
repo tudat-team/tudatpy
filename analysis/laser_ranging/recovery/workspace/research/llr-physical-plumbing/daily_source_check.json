@@ -1,0 +1,18 @@
+[
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2017/apollo15_20170309.npt",
+    "file": "apollo15_20170309.npt",
+    "bytes": 4162,
+    "sha256": "a7482b818bff4f6029cb4b6bd5ee4a931b5153762ab052c5b5dae32ebd5248bd",
+    "candidate_records": [
+      {
+        "line": 15,
+        "text": "11 66855.297622200200     2.490835100745 me09 2  732.5    26     361.9   -.200  -1.200       0.0   1.4 0"
+      }
+    ]
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/apollo15/2017/apollo15_20170309.np2",
+    "error": "response is not a CRD product"
+  }
+]

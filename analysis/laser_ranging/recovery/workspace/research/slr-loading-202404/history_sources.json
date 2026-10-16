@@ -1,0 +1,3077 @@
+{
+  "retrieved_utc": "2026-10-16T06:26:37.094413+00:00",
+  "window": "2024-03-30T00:00:00 through 2024-04-15T00:00:00; provider TAI epochs authoritative",
+  "requested_files": 194,
+  "records": [
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240330_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240330_0000.eph",
+      "sha256": "cf7d0f1e1277769c4a3040b621ab947523232ece91e689b7ef163c9c4ad27796",
+      "bytes": 724403,
+      "epoch_header": "T begin   60399     0.0  2024.03.30-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399     0.0  2024.03.30-00:00:00  Grzl      0.00506  0.00042 -0.00122",
+        "D     1  60399     0.0  2024.03.30-00:00:00  Herl      0.00714 -0.00014 -0.00054"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240330_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240330_0600.eph",
+      "sha256": "dca59038e9822f8bebbc23df6fa2e321112cb2ddad936db8f170847e4caf7981",
+      "bytes": 724403,
+      "epoch_header": "T begin   60399 21600.0  2024.03.30-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 21600.0  2024.03.30-06:00:00  Grzl      0.00504  0.00048 -0.00102",
+        "D     1  60399 21600.0  2024.03.30-06:00:00  Herl      0.00702 -0.00020 -0.00034"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240330_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240330_1200.eph",
+      "sha256": "9a47c08821da9947e4dd965bbd1e615c3661d1221a1ec9fc742c929e2b60556d",
+      "bytes": 724403,
+      "epoch_header": "T begin   60399 43200.0  2024.03.30-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 43200.0  2024.03.30-12:00:00  Grzl      0.00494  0.00040 -0.00074",
+        "D     1  60399 43200.0  2024.03.30-12:00:00  Herl      0.00644 -0.00038 -0.00012"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240330_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240330_1800.eph",
+      "sha256": "237ed10b0bcd25913b6a5e3c839ce11092c80ea4e68f2fb78a629975c4ef6d4a",
+      "bytes": 724403,
+      "epoch_header": "T begin   60399 64800.0  2024.03.30-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 64800.0  2024.03.30-18:00:00  Grzl      0.00480  0.00022 -0.00060",
+        "D     1  60399 64800.0  2024.03.30-18:00:00  Herl      0.00584 -0.00056  0.00006"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240331_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240331_0000.eph",
+      "sha256": "64ed651a048f4df6ee9c8c975cacb22039da3531a6b7f0a5dbf6caed635a3c5a",
+      "bytes": 724403,
+      "epoch_header": "T begin   60400     0.0  2024.03.31-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400     0.0  2024.03.31-00:00:00  Grzl      0.00438  0.00010 -0.00040",
+        "D     1  60400     0.0  2024.03.31-00:00:00  Herl      0.00540 -0.00084  0.00032"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240331_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240331_0600.eph",
+      "sha256": "ade438bc2617c12d5b37563d538dfa4a5c27541caf9bc1c977da9f877153c27b",
+      "bytes": 724403,
+      "epoch_header": "T begin   60400 21600.0  2024.03.31-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 21600.0  2024.03.31-06:00:00  Grzl      0.00424  0.00020 -0.00018",
+        "D     1  60400 21600.0  2024.03.31-06:00:00  Herl      0.00556 -0.00088  0.00062"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240331_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240331_1200.eph",
+      "sha256": "d32571f077bc4df53dc2780fdc0c8f09eeebb39d279b2eae81251efc487f4ef7",
+      "bytes": 724403,
+      "epoch_header": "T begin   60400 43200.0  2024.03.31-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 43200.0  2024.03.31-12:00:00  Grzl      0.00402  0.00018 -0.00010",
+        "D     1  60400 43200.0  2024.03.31-12:00:00  Herl      0.00564 -0.00092  0.00070"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240331_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240331_1800.eph",
+      "sha256": "8a9b5528b4930ea0e36206f36645eb3b68af9687d62bbb981d1616ae47b2300f",
+      "bytes": 724403,
+      "epoch_header": "T begin   60400 64800.0  2024.03.31-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 64800.0  2024.03.31-18:00:00  Grzl      0.00402  0.00012 -0.00020",
+        "D     1  60400 64800.0  2024.03.31-18:00:00  Herl      0.00568 -0.00094  0.00056"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240401_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240401_0000.eph",
+      "sha256": "640e1b4cf7e1454d768a55c3b40d80a8686516f13aa5d7dfd919ff3c39e365a3",
+      "bytes": 724403,
+      "epoch_header": "T begin   60401     0.0  2024.04.01-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401     0.0  2024.04.01-00:00:00  Grzl      0.00440  0.00026 -0.00016",
+        "D     1  60401     0.0  2024.04.01-00:00:00  Herl      0.00578 -0.00090  0.00054"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240401_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240401_0600.eph",
+      "sha256": "e7b91f9189c12b9f8e967c7bd5f2d4eb8ffb0c06967507e44d8765ca2467776b",
+      "bytes": 724403,
+      "epoch_header": "T begin   60401 21600.0  2024.04.01-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 21600.0  2024.04.01-06:00:00  Grzl      0.00510  0.00040 -0.00036",
+        "D     1  60401 21600.0  2024.04.01-06:00:00  Herl      0.00522 -0.00072  0.00038"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240401_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240401_1200.eph",
+      "sha256": "271dae92ceeab190a2dcd4c5ffb65cf5647512d27bc83e241a8344d97410ca33",
+      "bytes": 724403,
+      "epoch_header": "T begin   60401 43200.0  2024.04.01-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 43200.0  2024.04.01-12:00:00  Grzl      0.00516  0.00012 -0.00056",
+        "D     1  60401 43200.0  2024.04.01-12:00:00  Herl      0.00440 -0.00062  0.00003"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240401_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240401_1800.eph",
+      "sha256": "ce76cb154da4230ec8a97b7c1b9a53aa6bbb7a22c198dcbb4b91ae51264cc21f",
+      "bytes": 724403,
+      "epoch_header": "T begin   60401 64800.0  2024.04.01-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 64800.0  2024.04.01-18:00:00  Grzl      0.00522 -0.00006 -0.00062",
+        "D     1  60401 64800.0  2024.04.01-18:00:00  Herl      0.00382 -0.00042 -0.00026"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240402_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240402_0000.eph",
+      "sha256": "78873731f361f2c2132da6c42ad8df58395eab92647af6f82b446ecf5ad935e2",
+      "bytes": 724403,
+      "epoch_header": "T begin   60402     0.0  2024.04.02-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402     0.0  2024.04.02-00:00:00  Grzl      0.00452 -0.00004 -0.00102",
+        "D     1  60402     0.0  2024.04.02-00:00:00  Herl      0.00328 -0.00016 -0.00064"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240402_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240402_0600.eph",
+      "sha256": "9e49499c56815194a1023a85325db9ef04a3cd8883ca83270d9704a5bd7af79b",
+      "bytes": 724403,
+      "epoch_header": "T begin   60402 21600.0  2024.04.02-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 21600.0  2024.04.02-06:00:00  Grzl      0.00329 -0.00004 -0.00130",
+        "D     1  60402 21600.0  2024.04.02-06:00:00  Herl      0.00252  0.00000 -0.00088"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240402_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240402_1200.eph",
+      "sha256": "fdcdc5d6f4c88dd4dbe825f0dbc25a557f1ce95cd48f12893a0b164e4babea58",
+      "bytes": 724403,
+      "epoch_header": "T begin   60402 43200.0  2024.04.02-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 43200.0  2024.04.02-12:00:00  Grzl      0.00236 -0.00006 -0.00142",
+        "D     1  60402 43200.0  2024.04.02-12:00:00  Herl      0.00184  0.00004 -0.00098"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240402_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240402_1800.eph",
+      "sha256": "4473037697110e6029fc9fd39fce5f730a035bcd050a08ce4aa324934a3cae77",
+      "bytes": 724403,
+      "epoch_header": "T begin   60402 64800.0  2024.04.02-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 64800.0  2024.04.02-18:00:00  Grzl      0.00204 -0.00034 -0.00156",
+        "D     1  60402 64800.0  2024.04.02-18:00:00  Herl      0.00216 -0.00016 -0.00116"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240403_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240403_0000.eph",
+      "sha256": "c2974aa07e4c8627aab93d822f9e8b03cdfa4ab861d0697207a544d2a65821f9",
+      "bytes": 724403,
+      "epoch_header": "T begin   60403     0.0  2024.04.03-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403     0.0  2024.04.03-00:00:00  Grzl      0.00226 -0.00034 -0.00174",
+        "D     1  60403     0.0  2024.04.03-00:00:00  Herl      0.00318 -0.00016 -0.00134"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240403_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240403_0600.eph",
+      "sha256": "a8dc66f3fbc9800475fe1625f292394cdaba8fd9aa376fa9cd58e723491b998d",
+      "bytes": 724403,
+      "epoch_header": "T begin   60403 21600.0  2024.04.03-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 21600.0  2024.04.03-06:00:00  Grzl      0.00274 -0.00032 -0.00166",
+        "D     1  60403 21600.0  2024.04.03-06:00:00  Herl      0.00390 -0.00022 -0.00133"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240403_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240403_1200.eph",
+      "sha256": "7b9fdf86dce5d82f542b5d5910a41412415402f9976a5f38b03aab1ab9c723e6",
+      "bytes": 724403,
+      "epoch_header": "T begin   60403 43200.0  2024.04.03-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 43200.0  2024.04.03-12:00:00  Grzl      0.00280 -0.00032 -0.00150",
+        "D     1  60403 43200.0  2024.04.03-12:00:00  Herl      0.00350 -0.00024 -0.00128"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240403_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240403_1800.eph",
+      "sha256": "831ad587b70ec0aa2fc1f68df77efa5984c2a8148e11f3f3534f808322d7c528",
+      "bytes": 724403,
+      "epoch_header": "T begin   60403 64800.0  2024.04.03-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 64800.0  2024.04.03-18:00:00  Grzl      0.00194 -0.00042 -0.00130",
+        "D     1  60403 64800.0  2024.04.03-18:00:00  Herl      0.00226 -0.00028 -0.00119"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240404_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240404_0000.eph",
+      "sha256": "77ce66153855a7097cde17f60d726ef2e85db6eff8cb4685dc9f01b0166d8d5e",
+      "bytes": 724403,
+      "epoch_header": "T begin   60404     0.0  2024.04.04-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404     0.0  2024.04.04-00:00:00  Grzl      0.00136 -0.00028 -0.00104",
+        "D     1  60404     0.0  2024.04.04-00:00:00  Herl      0.00242 -0.00006 -0.00098"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240404_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240404_0600.eph",
+      "sha256": "ce85f21066098a193c3ef1cc77393f9142dc4b9d3fa2187c42d7ee17e750dfce",
+      "bytes": 724403,
+      "epoch_header": "T begin   60404 21600.0  2024.04.04-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 21600.0  2024.04.04-06:00:00  Grzl      0.00064 -0.00024 -0.00088",
+        "D     1  60404 21600.0  2024.04.04-06:00:00  Herl      0.00256 -0.00014 -0.00088"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240404_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240404_1200.eph",
+      "sha256": "605463d89022495ac9b8adc7d8f78daa4a3c1351ffb1d376d3a6efe53bf7b4a0",
+      "bytes": 724403,
+      "epoch_header": "T begin   60404 43200.0  2024.04.04-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 43200.0  2024.04.04-12:00:00  Grzl      0.00028 -0.00016 -0.00068",
+        "D     1  60404 43200.0  2024.04.04-12:00:00  Herl      0.00192 -0.00014 -0.00064"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240404_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240404_1800.eph",
+      "sha256": "97065337cb12219522c01de89620f52fce195ee8872643708caf7fdbcfaa259d",
+      "bytes": 724403,
+      "epoch_header": "T begin   60404 64800.0  2024.04.04-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 64800.0  2024.04.04-18:00:00  Grzl      0.00004 -0.00002 -0.00054",
+        "D     1  60404 64800.0  2024.04.04-18:00:00  Herl      0.00148  0.00004 -0.00046"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240405_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240405_0000.eph",
+      "sha256": "8a9b2a18a0556b53c32c915e458c972bb2b95ad4c119c990cddd8731f680ef8d",
+      "bytes": 724403,
+      "epoch_header": "T begin   60405     0.0  2024.04.05-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405     0.0  2024.04.05-00:00:00  Grzl     -0.00078  0.00022 -0.00026",
+        "D     1  60405     0.0  2024.04.05-00:00:00  Herl      0.00162  0.00034 -0.00018"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240405_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240405_0600.eph",
+      "sha256": "21b558fa1ad969e14bfcc259fd5f173bc9b4d94ccddfac7fc3d08bc2a4ef6fb9",
+      "bytes": 724403,
+      "epoch_header": "T begin   60405 21600.0  2024.04.05-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 21600.0  2024.04.05-06:00:00  Grzl     -0.00160  0.00044 -0.00024",
+        "D     1  60405 21600.0  2024.04.05-06:00:00  Herl      0.00208  0.00050 -0.00020"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240405_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240405_1200.eph",
+      "sha256": "08f87a26413961237b4e04e9125762bf6e5e06d3dca97a6f084f64ec593b3988",
+      "bytes": 724403,
+      "epoch_header": "T begin   60405 43200.0  2024.04.05-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 43200.0  2024.04.05-12:00:00  Grzl     -0.00178  0.00046 -0.00022",
+        "D     1  60405 43200.0  2024.04.05-12:00:00  Herl      0.00154  0.00044 -0.00020"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240405_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240405_1800.eph",
+      "sha256": "069a7171f72e60f3260353d21d151a44ec70c968b5418cd9949a36034df0a156",
+      "bytes": 724403,
+      "epoch_header": "T begin   60405 64800.0  2024.04.05-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 64800.0  2024.04.05-18:00:00  Grzl     -0.00148  0.00032 -0.00032",
+        "D     1  60405 64800.0  2024.04.05-18:00:00  Herl      0.00116  0.00030 -0.00019"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240406_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240406_0000.eph",
+      "sha256": "ca3ff3b391ff5795c5ac2e1fb09f3cf96ebbdee695be0cc860512fc012fa01c3",
+      "bytes": 724403,
+      "epoch_header": "T begin   60406     0.0  2024.04.06-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406     0.0  2024.04.06-00:00:00  Grzl     -0.00166  0.00020 -0.00042",
+        "D     1  60406     0.0  2024.04.06-00:00:00  Herl      0.00130  0.00032 -0.00024"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240406_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240406_0600.eph",
+      "sha256": "2723d95c73335ad93f1f171468d736355d3628189583d90d3a3d4cd526dad4a0",
+      "bytes": 724403,
+      "epoch_header": "T begin   60406 21600.0  2024.04.06-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 21600.0  2024.04.06-06:00:00  Grzl     -0.00208  0.00022 -0.00060",
+        "D     1  60406 21600.0  2024.04.06-06:00:00  Herl      0.00196  0.00048 -0.00054"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240406_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240406_1200.eph",
+      "sha256": "4ef264b9c7b24279e7e86de1bbc688d9faae0a129aa5c3bfbcf292f251209668",
+      "bytes": 724403,
+      "epoch_header": "T begin   60406 43200.0  2024.04.06-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 43200.0  2024.04.06-12:00:00  Grzl     -0.00202  0.00022 -0.00066",
+        "D     1  60406 43200.0  2024.04.06-12:00:00  Herl      0.00186  0.00044 -0.00070"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240406_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240406_1800.eph",
+      "sha256": "8281508cd78fab92c20b388ea79870486baa5962623c82e09760de0b0449f6d6",
+      "bytes": 724403,
+      "epoch_header": "T begin   60406 64800.0  2024.04.06-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 64800.0  2024.04.06-18:00:00  Grzl     -0.00208  0.00014 -0.00072",
+        "D     1  60406 64800.0  2024.04.06-18:00:00  Herl      0.00144  0.00030 -0.00082"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240407_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240407_0000.eph",
+      "sha256": "ebb40a6070475bff56cfb4277107c75bb6704b506f6ba6a3f555b5b698ec6474",
+      "bytes": 724403,
+      "epoch_header": "T begin   60407     0.0  2024.04.07-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407     0.0  2024.04.07-00:00:00  Grzl     -0.00214  0.00014 -0.00078",
+        "D     1  60407     0.0  2024.04.07-00:00:00  Herl      0.00122  0.00030 -0.00098"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240407_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240407_0600.eph",
+      "sha256": "ef82c1e659ef1b907aa49be2f8e10b395b8f63db510659aeba5f10d90bd9101c",
+      "bytes": 724403,
+      "epoch_header": "T begin   60407 21600.0  2024.04.07-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 21600.0  2024.04.07-06:00:00  Grzl     -0.00244  0.00012 -0.00084",
+        "D     1  60407 21600.0  2024.04.07-06:00:00  Herl      0.00041  0.00026 -0.00106"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240407_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240407_1200.eph",
+      "sha256": "4e548078d40f46ddbc6669fb884b6b0ac61e3280921378d1b1b0bd0ea85a84da",
+      "bytes": 724403,
+      "epoch_header": "T begin   60407 43200.0  2024.04.07-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 43200.0  2024.04.07-12:00:00  Grzl     -0.00260 -0.00002 -0.00092",
+        "D     1  60407 43200.0  2024.04.07-12:00:00  Herl      0.00028  0.00012 -0.00116"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240407_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240407_1800.eph",
+      "sha256": "5366302dde3b94614674a0123e17a9ab85efade02e75942598325e7a05ddcfa3",
+      "bytes": 724403,
+      "epoch_header": "T begin   60407 64800.0  2024.04.07-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 64800.0  2024.04.07-18:00:00  Grzl     -0.00208 -0.00014 -0.00110",
+        "D     1  60407 64800.0  2024.04.07-18:00:00  Herl      0.00068 -0.00016 -0.00126"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240408_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240408_0000.eph",
+      "sha256": "6cd971b8b4e63e91939ebace94926d5cd02a309b1baa8d538f0cf85a711ede94",
+      "bytes": 724403,
+      "epoch_header": "T begin   60408     0.0  2024.04.08-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408     0.0  2024.04.08-00:00:00  Grzl     -0.00128 -0.00022 -0.00108",
+        "D     1  60408     0.0  2024.04.08-00:00:00  Herl      0.00124 -0.00032 -0.00116"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240408_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240408_0600.eph",
+      "sha256": "f5098bd66cb19fefeebda9c55e185500296443680f848af78513138ee90ffef2",
+      "bytes": 724403,
+      "epoch_header": "T begin   60408 21600.0  2024.04.08-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 21600.0  2024.04.08-06:00:00  Grzl     -0.00086 -0.00030 -0.00108",
+        "D     1  60408 21600.0  2024.04.08-06:00:00  Herl      0.00174 -0.00046 -0.00104"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240408_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240408_1200.eph",
+      "sha256": "cc4732afaaa416642260e573d764287c67096dd4a46073c60447207b72514988",
+      "bytes": 724403,
+      "epoch_header": "T begin   60408 43200.0  2024.04.08-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 43200.0  2024.04.08-12:00:00  Grzl     -0.00020 -0.00038 -0.00100",
+        "D     1  60408 43200.0  2024.04.08-12:00:00  Herl      0.00256 -0.00053 -0.00090"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240408_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240408_1800.eph",
+      "sha256": "f92d33eb5efc2b656a07fb60f2224c82000717a22994c8339bd0863fcdcf3138",
+      "bytes": 724403,
+      "epoch_header": "T begin   60408 64800.0  2024.04.08-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 64800.0  2024.04.08-18:00:00  Grzl      0.00066 -0.00036 -0.00082",
+        "D     1  60408 64800.0  2024.04.08-18:00:00  Herl      0.00330 -0.00052 -0.00084"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240409_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240409_0000.eph",
+      "sha256": "66b1ba9c7135d0a0298a5f2cb15ae65ba8db373013c149798357d35b222eb6e9",
+      "bytes": 724403,
+      "epoch_header": "T begin   60409     0.0  2024.04.09-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409     0.0  2024.04.09-00:00:00  Grzl      0.00136 -0.00026 -0.00070",
+        "D     1  60409     0.0  2024.04.09-00:00:00  Herl      0.00328 -0.00038 -0.00082"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240409_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240409_0600.eph",
+      "sha256": "e9e84f379b0e14e89891384e9b86463253faa68793d436c66c2856bb9eb04431",
+      "bytes": 724403,
+      "epoch_header": "T begin   60409 21600.0  2024.04.09-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 21600.0  2024.04.09-06:00:00  Grzl      0.00124 -0.00024 -0.00060",
+        "D     1  60409 21600.0  2024.04.09-06:00:00  Herl      0.00254 -0.00026 -0.00088"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240409_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240409_1200.eph",
+      "sha256": "e3e6d3adb5c34ec51d96fae223bd12d6259ea5a2e150446dc22a91e1ab1a9b6a",
+      "bytes": 724403,
+      "epoch_header": "T begin   60409 43200.0  2024.04.09-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 43200.0  2024.04.09-12:00:00  Grzl      0.00098 -0.00032 -0.00036",
+        "D     1  60409 43200.0  2024.04.09-12:00:00  Herl      0.00084 -0.00030 -0.00058"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240409_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240409_1800.eph",
+      "sha256": "0b28749d4f89f4c4efc60d87be53ec433c8ab9e7d07fa891ec7b09f8af6507f7",
+      "bytes": 724403,
+      "epoch_header": "T begin   60409 64800.0  2024.04.09-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 64800.0  2024.04.09-18:00:00  Grzl      0.00049 -0.00054 -0.00024",
+        "D     1  60409 64800.0  2024.04.09-18:00:00  Herl     -0.00080 -0.00030 -0.00050"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240410_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240410_0000.eph",
+      "sha256": "62bb53fb2994faf5c32da125e12e78ba93e9e5e01fe9a6a9d0ed547e3197cc9a",
+      "bytes": 724403,
+      "epoch_header": "T begin   60410     0.0  2024.04.10-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410     0.0  2024.04.10-00:00:00  Grzl     -0.00066 -0.00056  0.00000",
+        "D     1  60410     0.0  2024.04.10-00:00:00  Herl     -0.00216 -0.00020 -0.00044"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240410_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240410_0600.eph",
+      "sha256": "3f76123650ffce222ec01c7af0909f614c314bffaba49308f2bcf81f43040ed7",
+      "bytes": 724403,
+      "epoch_header": "T begin   60410 21600.0  2024.04.10-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 21600.0  2024.04.10-06:00:00  Grzl     -0.00198 -0.00042  0.00018",
+        "D     1  60410 21600.0  2024.04.10-06:00:00  Herl     -0.00304  0.00008 -0.00040"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240410_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240410_1200.eph",
+      "sha256": "d51fe66756895fad6e53f7a809255ff9d610974222e62cbacddaa36ef6f64f54",
+      "bytes": 724403,
+      "epoch_header": "T begin   60410 43200.0  2024.04.10-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 43200.0  2024.04.10-12:00:00  Grzl     -0.00344 -0.00022  0.00034",
+        "D     1  60410 43200.0  2024.04.10-12:00:00  Herl     -0.00342  0.00040 -0.00032"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240410_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240410_1800.eph",
+      "sha256": "27efad9f30b6d4e5c70ecb9bf65e2d989c16731f7cf20153b07e773c1085f74a",
+      "bytes": 724403,
+      "epoch_header": "T begin   60410 64800.0  2024.04.10-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 64800.0  2024.04.10-18:00:00  Grzl     -0.00484 -0.00020  0.00042",
+        "D     1  60410 64800.0  2024.04.10-18:00:00  Herl     -0.00372  0.00040 -0.00032"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240411_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240411_0000.eph",
+      "sha256": "1736495c40b9ac3661ea9f5dfa20f6b435138147b51bc9187dac47520075a7e0",
+      "bytes": 724403,
+      "epoch_header": "T begin   60411     0.0  2024.04.11-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411     0.0  2024.04.11-00:00:00  Grzl     -0.00600 -0.00006  0.00060",
+        "D     1  60411     0.0  2024.04.11-00:00:00  Herl     -0.00410  0.00042 -0.00013"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240411_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240411_0600.eph",
+      "sha256": "5d31a5e1a8cf652a47cdd328cc378feb380dc4d091dd98ae5e04b8ce53ddfbe5",
+      "bytes": 724403,
+      "epoch_header": "T begin   60411 21600.0  2024.04.11-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 21600.0  2024.04.11-06:00:00  Grzl     -0.00650  0.00006  0.00076",
+        "D     1  60411 21600.0  2024.04.11-06:00:00  Herl     -0.00444  0.00045  0.00014"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240411_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240411_1200.eph",
+      "sha256": "2f2ed1693e830c67dc5459c2968c016b7b6152baf29f35bc16d7a8c7ced11804",
+      "bytes": 724403,
+      "epoch_header": "T begin   60411 43200.0  2024.04.11-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 43200.0  2024.04.11-12:00:00  Grzl     -0.00688  0.00002  0.00096",
+        "D     1  60411 43200.0  2024.04.11-12:00:00  Herl     -0.00494  0.00042  0.00040"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240411_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240411_1800.eph",
+      "sha256": "34d9484f45f3f6328b92fa349d118131f5e0e0a5f528657797d7e65b8b54dc6a",
+      "bytes": 724403,
+      "epoch_header": "T begin   60411 64800.0  2024.04.11-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 64800.0  2024.04.11-18:00:00  Grzl     -0.00658  0.00006  0.00108",
+        "D     1  60411 64800.0  2024.04.11-18:00:00  Herl     -0.00470  0.00048  0.00055"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240412_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240412_0000.eph",
+      "sha256": "ef4f6230e700363ef4a4863dafb47231671f931acf470e46583ba735b3c44ecb",
+      "bytes": 724403,
+      "epoch_header": "T begin   60412     0.0  2024.04.12-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412     0.0  2024.04.12-00:00:00  Grzl     -0.00660  0.00020  0.00140",
+        "D     1  60412     0.0  2024.04.12-00:00:00  Herl     -0.00442  0.00066  0.00088"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240412_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240412_0600.eph",
+      "sha256": "c88489bf2c13f8679df34fe9d4fbf44c02818b364ef52b2a53109d4cc02c3ca0",
+      "bytes": 724403,
+      "epoch_header": "T begin   60412 21600.0  2024.04.12-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 21600.0  2024.04.12-06:00:00  Grzl     -0.00654  0.00034  0.00162",
+        "D     1  60412 21600.0  2024.04.12-06:00:00  Herl     -0.00426  0.00078  0.00118"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240412_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240412_1200.eph",
+      "sha256": "a948b109e4d12d9a955a7c1d1a8b0a82ce2c3f99e748aaf0890bcc3035f81fa9",
+      "bytes": 724403,
+      "epoch_header": "T begin   60412 43200.0  2024.04.12-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 43200.0  2024.04.12-12:00:00  Grzl     -0.00566  0.00030  0.00166",
+        "D     1  60412 43200.0  2024.04.12-12:00:00  Herl     -0.00378  0.00079  0.00124"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240412_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240412_1800.eph",
+      "sha256": "5af6ac62393aa57c46c8da1f20d950a8f31f05cbeb2ba8d05a31b96d6b9a7026",
+      "bytes": 724403,
+      "epoch_header": "T begin   60412 64800.0  2024.04.12-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 64800.0  2024.04.12-18:00:00  Grzl     -0.00445  0.00016  0.00160",
+        "D     1  60412 64800.0  2024.04.12-18:00:00  Herl     -0.00280  0.00070  0.00120"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240413_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240413_0000.eph",
+      "sha256": "14358d77377ae26de71e9f879f544bbe5928f7f21e1393b028702c34aabcfcd9",
+      "bytes": 724403,
+      "epoch_header": "T begin   60413     0.0  2024.04.13-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413     0.0  2024.04.13-00:00:00  Grzl     -0.00404  0.00008  0.00136",
+        "D     1  60413     0.0  2024.04.13-00:00:00  Herl     -0.00234  0.00066  0.00100"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240413_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240413_0600.eph",
+      "sha256": "3efbfa10e88a0a55d72c824f069e6595c1e9b513b9bcd1c8ef062c33781d4b2c",
+      "bytes": 724403,
+      "epoch_header": "T begin   60413 21600.0  2024.04.13-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 21600.0  2024.04.13-06:00:00  Grzl     -0.00390  0.00014  0.00114",
+        "D     1  60413 21600.0  2024.04.13-06:00:00  Herl     -0.00186  0.00076  0.00082"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240413_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240413_1200.eph",
+      "sha256": "1ea56e4ca33fdf1825d3622db2c2549a2304d1b9a6aec503d3d97901ca0da534",
+      "bytes": 724403,
+      "epoch_header": "T begin   60413 43200.0  2024.04.13-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 43200.0  2024.04.13-12:00:00  Grzl     -0.00312  0.00004  0.00092",
+        "D     1  60413 43200.0  2024.04.13-12:00:00  Herl     -0.00104  0.00064  0.00060"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240413_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240413_1800.eph",
+      "sha256": "a538ddeaaedef28aa46456269655c0ab31859486d2f299b7366bea81b7bff443",
+      "bytes": 724403,
+      "epoch_header": "T begin   60413 64800.0  2024.04.13-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 64800.0  2024.04.13-18:00:00  Grzl     -0.00230 -0.00016  0.00062",
+        "D     1  60413 64800.0  2024.04.13-18:00:00  Herl     -0.00061  0.00028  0.00036"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240414_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240414_0000.eph",
+      "sha256": "b075c3285ede1fd950aca1a51514ec022960d0c0c480e4ffd7e9dd7d1fe2e2f7",
+      "bytes": 724403,
+      "epoch_header": "T begin   60414     0.0  2024.04.14-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414     0.0  2024.04.14-00:00:00  Grzl     -0.00166 -0.00044  0.00038",
+        "D     1  60414     0.0  2024.04.14-00:00:00  Herl     -0.00074 -0.00008  0.00024"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240414_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240414_0600.eph",
+      "sha256": "67aa8f085e4a082e415b4cfef99045378c115a8673520c1672bbfccb81d84691",
+      "bytes": 724403,
+      "epoch_header": "T begin   60414 21600.0  2024.04.14-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 21600.0  2024.04.14-06:00:00  Grzl     -0.00110 -0.00068  0.00020",
+        "D     1  60414 21600.0  2024.04.14-06:00:00  Herl     -0.00092 -0.00028  0.00014"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240414_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240414_1200.eph",
+      "sha256": "e04b45000fcac44172e7b98a38baedf0acf4ded6d4be126a32f8539e2bf98011",
+      "bytes": 724403,
+      "epoch_header": "T begin   60414 43200.0  2024.04.14-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 43200.0  2024.04.14-12:00:00  Grzl     -0.00052 -0.00084  0.00010",
+        "D     1  60414 43200.0  2024.04.14-12:00:00  Herl     -0.00062 -0.00036  0.00008"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240414_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240414_1800.eph",
+      "sha256": "ffebe899ec7b78f1756033cb353558cff58e75617183f5b5450f335412cc0e6d",
+      "bytes": 724403,
+      "epoch_header": "T begin   60414 64800.0  2024.04.14-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 64800.0  2024.04.14-18:00:00  Grzl      0.00043 -0.00096  0.00006",
+        "D     1  60414 64800.0  2024.04.14-18:00:00  Herl      0.00018 -0.00058 -0.00002"
+      ]
+    },
+    {
+      "component": "atm",
+      "file": "atm_merra2_20240415_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/atm/merra2/atm_merra2_20240415_0000.eph",
+      "sha256": "425309700339e04889d548c17033a71c224406785647f137dcaefb994e5445dd",
+      "bytes": 724403,
+      "epoch_header": "T begin   60415     0.0  2024.04.15-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60415     0.0  2024.04.15-00:00:00  Grzl      0.00138 -0.00104  0.00002",
+        "D     1  60415     0.0  2024.04.15-00:00:00  Herl      0.00106 -0.00080 -0.00008"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_0000.eph",
+      "sha256": "bae1cd4b1b85715fae2562b63a6155ebd177b8d4c8e8ce9a50114b53705795a6",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399     0.0  2024.03.30-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399     0.0  2024.03.30-00:00:00  Grzl     -0.00910 -0.00112 -0.00334",
+        "D     1  60399     0.0  2024.03.30-00:00:00  Herl     -0.00862 -0.00056 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_0300.eph",
+      "sha256": "58203287e0ff32e187eb1ce9b7e933eabf5afc9f13399b5422f5f3110f2c788a",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399 10800.0  2024.03.30-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 10800.0  2024.03.30-03:00:00  Grzl     -0.00910 -0.00112 -0.00334",
+        "D     1  60399 10800.0  2024.03.30-03:00:00  Herl     -0.00862 -0.00056 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_0600.eph",
+      "sha256": "fb2a0ba9b365cce30673d8b3d58c2ada7e2f003b1c070b4dffab2bac0cea5269",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399 21600.0  2024.03.30-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 21600.0  2024.03.30-06:00:00  Grzl     -0.00908 -0.00112 -0.00334",
+        "D     1  60399 21600.0  2024.03.30-06:00:00  Herl     -0.00862 -0.00054 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_0900.eph",
+      "sha256": "4b1c9901ffa44605188bf201125967f56b2d84457154c514d66d5af6d0ac9637",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399 32400.0  2024.03.30-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 32400.0  2024.03.30-09:00:00  Grzl     -0.00907 -0.00112 -0.00334",
+        "D     1  60399 32400.0  2024.03.30-09:00:00  Herl     -0.00862 -0.00054 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_1200.eph",
+      "sha256": "4c74df92ef2df8010462cd1f2492398b4a13cc13c4686b03306d42df366656ff",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399 43200.0  2024.03.30-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 43200.0  2024.03.30-12:00:00  Grzl     -0.00902 -0.00112 -0.00334",
+        "D     1  60399 43200.0  2024.03.30-12:00:00  Herl     -0.00862 -0.00054 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_1500.eph",
+      "sha256": "49c263750054f9fa72342d052263e538cc3a85a871e1f598ad91cebf93e87326",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399 54000.0  2024.03.30-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 54000.0  2024.03.30-15:00:00  Grzl     -0.00900 -0.00112 -0.00334",
+        "D     1  60399 54000.0  2024.03.30-15:00:00  Herl     -0.00860 -0.00056 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_1800.eph",
+      "sha256": "861aff1bba8b32024e459d08d1dcfe6edb69638e0f421f886de45b56f6dff042",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399 64800.0  2024.03.30-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 64800.0  2024.03.30-18:00:00  Grzl     -0.00900 -0.00114 -0.00334",
+        "D     1  60399 64800.0  2024.03.30-18:00:00  Herl     -0.00860 -0.00055 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240330_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240330_2100.eph",
+      "sha256": "cf92c0747194272f91ce1cb47866d24c94f919a603688bcc64b3e79efb226d0b",
+      "bytes": 724504,
+      "epoch_header": "T begin   60399 75600.0  2024.03.30-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60399 75600.0  2024.03.30-21:00:00  Grzl     -0.00898 -0.00114 -0.00334",
+        "D     1  60399 75600.0  2024.03.30-21:00:00  Herl     -0.00859 -0.00056 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_0000.eph",
+      "sha256": "6ff4c698d884f04da1a1649e92281ab8dd4cb66ccdc2ca089192a2a1b72ccb6a",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400     0.0  2024.03.31-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400     0.0  2024.03.31-00:00:00  Grzl     -0.00898 -0.00114 -0.00334",
+        "D     1  60400     0.0  2024.03.31-00:00:00  Herl     -0.00860 -0.00058 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_0300.eph",
+      "sha256": "0ade5b72f37c1f7f7b0c29963090c88fb1c2e64a4a107f5d6a730310982f7441",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400 10800.0  2024.03.31-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 10800.0  2024.03.31-03:00:00  Grzl     -0.00896 -0.00116 -0.00334",
+        "D     1  60400 10800.0  2024.03.31-03:00:00  Herl     -0.00859 -0.00058 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_0600.eph",
+      "sha256": "b4196e879abeeb86e1a8645963de676428c92b46e746c8ddceac42783a81dc58",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400 21600.0  2024.03.31-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 21600.0  2024.03.31-06:00:00  Grzl     -0.00896 -0.00116 -0.00334",
+        "D     1  60400 21600.0  2024.03.31-06:00:00  Herl     -0.00860 -0.00058 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_0900.eph",
+      "sha256": "c6967cfe785f00b8296940f5c26367553aacd5062ae40f49d3dc641207533635",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400 32400.0  2024.03.31-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 32400.0  2024.03.31-09:00:00  Grzl     -0.00894 -0.00116 -0.00334",
+        "D     1  60400 32400.0  2024.03.31-09:00:00  Herl     -0.00860 -0.00058 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_1200.eph",
+      "sha256": "fe5bf77d08ef62df440eb52a926a9f329e8c0f7710b14e293fbfbc63fe8173b4",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400 43200.0  2024.03.31-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 43200.0  2024.03.31-12:00:00  Grzl     -0.00893 -0.00115 -0.00334",
+        "D     1  60400 43200.0  2024.03.31-12:00:00  Herl     -0.00860 -0.00058 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_1500.eph",
+      "sha256": "677f3072d339003a598c0619d34ca458be7fd844a18c140ad1e42b5fb4976bfd",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400 54000.0  2024.03.31-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 54000.0  2024.03.31-15:00:00  Grzl     -0.00890 -0.00118 -0.00334",
+        "D     1  60400 54000.0  2024.03.31-15:00:00  Herl     -0.00860 -0.00056 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_1800.eph",
+      "sha256": "370bdf87c1bac3193744a2d90f15ad992f7b262b9676bf31e31e2c22c06f8323",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400 64800.0  2024.03.31-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 64800.0  2024.03.31-18:00:00  Grzl     -0.00891 -0.00118 -0.00334",
+        "D     1  60400 64800.0  2024.03.31-18:00:00  Herl     -0.00862 -0.00058 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240331_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240331_2100.eph",
+      "sha256": "bffdb86ce7043de9510aebc8e246aff802bebbddd405daced8f40cbffee0e4e0",
+      "bytes": 724504,
+      "epoch_header": "T begin   60400 75600.0  2024.03.31-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60400 75600.0  2024.03.31-21:00:00  Grzl     -0.00888 -0.00118 -0.00336",
+        "D     1  60400 75600.0  2024.03.31-21:00:00  Herl     -0.00862 -0.00058 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_0000.eph",
+      "sha256": "fc71eb7d87033bc1d9c7d94dd828e16642922a1e049622f1bb0933e6891c2205",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401     0.0  2024.04.01-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401     0.0  2024.04.01-00:00:00  Grzl     -0.00888 -0.00118 -0.00336",
+        "D     1  60401     0.0  2024.04.01-00:00:00  Herl     -0.00862 -0.00058 -0.00361"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_0300.eph",
+      "sha256": "1d55e4625b12549399dd59ae8087493290835ca7914d12137e47954d4d15a117",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401 10800.0  2024.04.01-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 10800.0  2024.04.01-03:00:00  Grzl     -0.00888 -0.00118 -0.00336",
+        "D     1  60401 10800.0  2024.04.01-03:00:00  Herl     -0.00864 -0.00056 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_0600.eph",
+      "sha256": "df932846c540102ab6574cfffca431ce490367a72eeac32c2ecdcf5e40d37ddf",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401 21600.0  2024.04.01-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 21600.0  2024.04.01-06:00:00  Grzl     -0.00889 -0.00118 -0.00336",
+        "D     1  60401 21600.0  2024.04.01-06:00:00  Herl     -0.00864 -0.00056 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_0900.eph",
+      "sha256": "6cea9aa6fba2c6d3eb96062bfc3ca0c5cc6ff8f573e6dc32c6b973c298c42fe0",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401 32400.0  2024.04.01-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 32400.0  2024.04.01-09:00:00  Grzl     -0.00886 -0.00120 -0.00336",
+        "D     1  60401 32400.0  2024.04.01-09:00:00  Herl     -0.00864 -0.00056 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_1200.eph",
+      "sha256": "603f690014ef36daf56fa6c39fd0df6d499db91272e314f99fbdc4d55ecad13c",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401 43200.0  2024.04.01-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 43200.0  2024.04.01-12:00:00  Grzl     -0.00883 -0.00120 -0.00336",
+        "D     1  60401 43200.0  2024.04.01-12:00:00  Herl     -0.00862 -0.00054 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_1500.eph",
+      "sha256": "ac844c580a376d2b69bddf3ad1f6d5731020d3efe036b1d354ab271c09902312",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401 54000.0  2024.04.01-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 54000.0  2024.04.01-15:00:00  Grzl     -0.00882 -0.00120 -0.00336",
+        "D     1  60401 54000.0  2024.04.01-15:00:00  Herl     -0.00862 -0.00054 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_1800.eph",
+      "sha256": "350d7766c48af1a4d2ce13bc69ba19f2ca8e40ad5d0171bd3e0b7b76115de176",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401 64800.0  2024.04.01-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 64800.0  2024.04.01-18:00:00  Grzl     -0.00884 -0.00122 -0.00336",
+        "D     1  60401 64800.0  2024.04.01-18:00:00  Herl     -0.00862 -0.00054 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240401_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240401_2100.eph",
+      "sha256": "edb4acc2379c4b4f67b18f65debdc298e83e6ccc3925aa8396192a807d58c087",
+      "bytes": 724504,
+      "epoch_header": "T begin   60401 75600.0  2024.04.01-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60401 75600.0  2024.04.01-21:00:00  Grzl     -0.00888 -0.00120 -0.00336",
+        "D     1  60401 75600.0  2024.04.01-21:00:00  Herl     -0.00860 -0.00054 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_0000.eph",
+      "sha256": "76f51e23b124f6c4e512410d5f0c81059b5fedf50b40f5caad1276f4ec1fbe02",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402     0.0  2024.04.02-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402     0.0  2024.04.02-00:00:00  Grzl     -0.00891 -0.00120 -0.00336",
+        "D     1  60402     0.0  2024.04.02-00:00:00  Herl     -0.00860 -0.00054 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_0300.eph",
+      "sha256": "6bdea31258a3d258586b5ad1aa925440ce4724e8af05781f09c5617f607b3ca1",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402 10800.0  2024.04.02-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 10800.0  2024.04.02-03:00:00  Grzl     -0.00892 -0.00120 -0.00336",
+        "D     1  60402 10800.0  2024.04.02-03:00:00  Herl     -0.00860 -0.00054 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_0600.eph",
+      "sha256": "4b5891a889c78a43b7869942020bff05be52c07c24f6aa8283a45c9bb7954204",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402 21600.0  2024.04.02-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 21600.0  2024.04.02-06:00:00  Grzl     -0.00892 -0.00118 -0.00336",
+        "D     1  60402 21600.0  2024.04.02-06:00:00  Herl     -0.00859 -0.00054 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_0900.eph",
+      "sha256": "b8f7c4987360adbddd8adc1d8b164877b2ae0248f5201c62af80b8c47dd3dd15",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402 32400.0  2024.04.02-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 32400.0  2024.04.02-09:00:00  Grzl     -0.00890 -0.00118 -0.00336",
+        "D     1  60402 32400.0  2024.04.02-09:00:00  Herl     -0.00860 -0.00052 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_1200.eph",
+      "sha256": "71645b49e895d9747aa6493e4f4ee3f28b25cede7f42def1d4c000e1eb8e9ad5",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402 43200.0  2024.04.02-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 43200.0  2024.04.02-12:00:00  Grzl     -0.00888 -0.00116 -0.00336",
+        "D     1  60402 43200.0  2024.04.02-12:00:00  Herl     -0.00857 -0.00052 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_1500.eph",
+      "sha256": "9474ff47da238877c1f1f1a870f7d472dfa7ba3eb46de262211b6ebac73a972b",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402 54000.0  2024.04.02-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 54000.0  2024.04.02-15:00:00  Grzl     -0.00888 -0.00116 -0.00336",
+        "D     1  60402 54000.0  2024.04.02-15:00:00  Herl     -0.00858 -0.00052 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_1800.eph",
+      "sha256": "68ad5247531238015c65592f74d1434623c892ac68cdd4aa328cb934458d6fa4",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402 64800.0  2024.04.02-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 64800.0  2024.04.02-18:00:00  Grzl     -0.00888 -0.00116 -0.00336",
+        "D     1  60402 64800.0  2024.04.02-18:00:00  Herl     -0.00860 -0.00052 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240402_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240402_2100.eph",
+      "sha256": "bdde1f0e764043e9a953a22ffd322ecee169133d7080db02656425f232996990",
+      "bytes": 724504,
+      "epoch_header": "T begin   60402 75600.0  2024.04.02-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60402 75600.0  2024.04.02-21:00:00  Grzl     -0.00886 -0.00116 -0.00336",
+        "D     1  60402 75600.0  2024.04.02-21:00:00  Herl     -0.00862 -0.00052 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_0000.eph",
+      "sha256": "f8635b3f3452b56751596be7b686612d14f4a8fb159cdb19c59b1303280dcb5d",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403     0.0  2024.04.03-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403     0.0  2024.04.03-00:00:00  Grzl     -0.00886 -0.00116 -0.00336",
+        "D     1  60403     0.0  2024.04.03-00:00:00  Herl     -0.00864 -0.00052 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_0300.eph",
+      "sha256": "d89712d7ee6f470719a6f1381fff851c9063081501affe4cb9794c0eb2053a19",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403 10800.0  2024.04.03-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 10800.0  2024.04.03-03:00:00  Grzl     -0.00887 -0.00114 -0.00336",
+        "D     1  60403 10800.0  2024.04.03-03:00:00  Herl     -0.00864 -0.00052 -0.00360"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_0600.eph",
+      "sha256": "d19ce0d488acde113fd51e12e31333b6bbdd2ad02dc02fdbc2d42f7c047d1db3",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403 21600.0  2024.04.03-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 21600.0  2024.04.03-06:00:00  Grzl     -0.00886 -0.00114 -0.00334",
+        "D     1  60403 21600.0  2024.04.03-06:00:00  Herl     -0.00866 -0.00050 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_0900.eph",
+      "sha256": "f7eb690a93201ac03e7a34bcce23e7caaf2c498d687c7ceda330163477907efa",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403 32400.0  2024.04.03-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 32400.0  2024.04.03-09:00:00  Grzl     -0.00884 -0.00114 -0.00334",
+        "D     1  60403 32400.0  2024.04.03-09:00:00  Herl     -0.00864 -0.00049 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_1200.eph",
+      "sha256": "007ff44b74b97a47eef8235032a0cd887273934b98784fc7bb9e07b37f9a10fa",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403 43200.0  2024.04.03-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 43200.0  2024.04.03-12:00:00  Grzl     -0.00882 -0.00114 -0.00336",
+        "D     1  60403 43200.0  2024.04.03-12:00:00  Herl     -0.00864 -0.00050 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_1500.eph",
+      "sha256": "e96cfaaeb0f97ddfbe4ac9da008aacaaf1b50a81e11a12cbf0da9b742cd2b6b5",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403 54000.0  2024.04.03-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 54000.0  2024.04.03-15:00:00  Grzl     -0.00882 -0.00114 -0.00334",
+        "D     1  60403 54000.0  2024.04.03-15:00:00  Herl     -0.00864 -0.00051 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_1800.eph",
+      "sha256": "8a598d4a1208908651f9aaaed0c8271f784a478ad11dc5c6f706c18a2129f936",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403 64800.0  2024.04.03-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 64800.0  2024.04.03-18:00:00  Grzl     -0.00883 -0.00114 -0.00334",
+        "D     1  60403 64800.0  2024.04.03-18:00:00  Herl     -0.00864 -0.00050 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240403_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240403_2100.eph",
+      "sha256": "9565cd5a9563b98a61598041311876e4c8ae0d8745cd0e429560b0f8b8fdb3c1",
+      "bytes": 724504,
+      "epoch_header": "T begin   60403 75600.0  2024.04.03-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60403 75600.0  2024.04.03-21:00:00  Grzl     -0.00881 -0.00114 -0.00334",
+        "D     1  60403 75600.0  2024.04.03-21:00:00  Herl     -0.00864 -0.00050 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_0000.eph",
+      "sha256": "195efa4273ac5cbd8b7495b57f4a2d33e8572db6bf13c81f3ff9ead1804ffca1",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404     0.0  2024.04.04-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404     0.0  2024.04.04-00:00:00  Grzl     -0.00880 -0.00114 -0.00334",
+        "D     1  60404     0.0  2024.04.04-00:00:00  Herl     -0.00864 -0.00050 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_0300.eph",
+      "sha256": "bce888079d9a0fb4575cbc2e3f4bc870ca92a5f4a6764088ac741453f219354b",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404 10800.0  2024.04.04-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 10800.0  2024.04.04-03:00:00  Grzl     -0.00879 -0.00114 -0.00334",
+        "D     1  60404 10800.0  2024.04.04-03:00:00  Herl     -0.00866 -0.00050 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_0600.eph",
+      "sha256": "718a8cdd89307609047885b07b478600171890c82d6abd5fa23c0b233e9b89ce",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404 21600.0  2024.04.04-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 21600.0  2024.04.04-06:00:00  Grzl     -0.00878 -0.00112 -0.00334",
+        "D     1  60404 21600.0  2024.04.04-06:00:00  Herl     -0.00868 -0.00048 -0.00359"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_0900.eph",
+      "sha256": "f5117d0d9ac1c0cadaff01d42d6e8e80c379687699713350da964bedc3214ce6",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404 32400.0  2024.04.04-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 32400.0  2024.04.04-09:00:00  Grzl     -0.00876 -0.00112 -0.00334",
+        "D     1  60404 32400.0  2024.04.04-09:00:00  Herl     -0.00868 -0.00049 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_1200.eph",
+      "sha256": "3b72daf5dfb61acdaa1ed3031890e4493d46b9a6aef688267934e900aaf6c59b",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404 43200.0  2024.04.04-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 43200.0  2024.04.04-12:00:00  Grzl     -0.00874 -0.00112 -0.00332",
+        "D     1  60404 43200.0  2024.04.04-12:00:00  Herl     -0.00866 -0.00046 -0.00358"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_1500.eph",
+      "sha256": "0780e26a103bf0f1af055d3571181c95f45e630238281e99db7e8271eef54940",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404 54000.0  2024.04.04-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 54000.0  2024.04.04-15:00:00  Grzl     -0.00872 -0.00112 -0.00332",
+        "D     1  60404 54000.0  2024.04.04-15:00:00  Herl     -0.00866 -0.00046 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_1800.eph",
+      "sha256": "4e436613290c026f48455718bddc79da0cd29fa11dcfa350dcfea2f0f1a611fb",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404 64800.0  2024.04.04-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 64800.0  2024.04.04-18:00:00  Grzl     -0.00870 -0.00111 -0.00332",
+        "D     1  60404 64800.0  2024.04.04-18:00:00  Herl     -0.00866 -0.00048 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240404_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240404_2100.eph",
+      "sha256": "e571d17f6e9c7cd06bff2f36b22a0f0080f7ecc65781ddd1cfbb948d8d02f2f1",
+      "bytes": 724504,
+      "epoch_header": "T begin   60404 75600.0  2024.04.04-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60404 75600.0  2024.04.04-21:00:00  Grzl     -0.00870 -0.00111 -0.00332",
+        "D     1  60404 75600.0  2024.04.04-21:00:00  Herl     -0.00867 -0.00048 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_0000.eph",
+      "sha256": "866e7065b3e5a34537cbbe3bd1be63c285b3ba93c069bbbf707c95eaee9366f7",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405     0.0  2024.04.05-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405     0.0  2024.04.05-00:00:00  Grzl     -0.00868 -0.00112 -0.00332",
+        "D     1  60405     0.0  2024.04.05-00:00:00  Herl     -0.00866 -0.00048 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_0300.eph",
+      "sha256": "4c9d607062d62a61522317d6fbfa50840c98c851703ab1fccd7cfb03322baa85",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405 10800.0  2024.04.05-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 10800.0  2024.04.05-03:00:00  Grzl     -0.00869 -0.00112 -0.00332",
+        "D     1  60405 10800.0  2024.04.05-03:00:00  Herl     -0.00866 -0.00048 -0.00356"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_0600.eph",
+      "sha256": "bb204938726b96cdc78187e964a92d67f9ae6b865e854f1d2145d3efc307f615",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405 21600.0  2024.04.05-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 21600.0  2024.04.05-06:00:00  Grzl     -0.00867 -0.00112 -0.00330",
+        "D     1  60405 21600.0  2024.04.05-06:00:00  Herl     -0.00864 -0.00048 -0.00354"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_0900.eph",
+      "sha256": "b30a6619b2a378bd111e204cf245d5bfa4b0c5a34a0592aee634355ffacc5e16",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405 32400.0  2024.04.05-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 32400.0  2024.04.05-09:00:00  Grzl     -0.00864 -0.00112 -0.00330",
+        "D     1  60405 32400.0  2024.04.05-09:00:00  Herl     -0.00864 -0.00048 -0.00354"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_1200.eph",
+      "sha256": "d0cac8c553003b8edbb4a61daed976cf9331c97dc64955606930394ae36f7b7b",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405 43200.0  2024.04.05-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 43200.0  2024.04.05-12:00:00  Grzl     -0.00862 -0.00112 -0.00330",
+        "D     1  60405 43200.0  2024.04.05-12:00:00  Herl     -0.00862 -0.00046 -0.00354"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_1500.eph",
+      "sha256": "9ea7c1ef5eb66e504e77e1f60083d4aad0fa671b8dbf12ac89aff4dcace5b5e1",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405 54000.0  2024.04.05-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 54000.0  2024.04.05-15:00:00  Grzl     -0.00859 -0.00112 -0.00330",
+        "D     1  60405 54000.0  2024.04.05-15:00:00  Herl     -0.00860 -0.00046 -0.00354"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_1800.eph",
+      "sha256": "1f0cf3fa7cf8a5898bf8ddaa537f20662fc6450d77e443857b20cd2b35d366a8",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405 64800.0  2024.04.05-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 64800.0  2024.04.05-18:00:00  Grzl     -0.00858 -0.00112 -0.00330",
+        "D     1  60405 64800.0  2024.04.05-18:00:00  Herl     -0.00860 -0.00046 -0.00354"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240405_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240405_2100.eph",
+      "sha256": "11f15de1864da65f7eb6af4e61b7ad8df9e7207f23a69bf6ab52ce72ded35332",
+      "bytes": 724504,
+      "epoch_header": "T begin   60405 75600.0  2024.04.05-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60405 75600.0  2024.04.05-21:00:00  Grzl     -0.00857 -0.00112 -0.00330",
+        "D     1  60405 75600.0  2024.04.05-21:00:00  Herl     -0.00860 -0.00046 -0.00354"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_0000.eph",
+      "sha256": "3374cde408ede2dd1c4aab7e4597f40c60d12ef1046c0016888837c8bb8c7de5",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406     0.0  2024.04.06-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406     0.0  2024.04.06-00:00:00  Grzl     -0.00855 -0.00112 -0.00329",
+        "D     1  60406     0.0  2024.04.06-00:00:00  Herl     -0.00858 -0.00046 -0.00352"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_0300.eph",
+      "sha256": "09c6fc61fd972bf17f0c76b58d710ccce04566c42e251f1ae4d51d892befac66",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406 10800.0  2024.04.06-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 10800.0  2024.04.06-03:00:00  Grzl     -0.00854 -0.00109 -0.00328",
+        "D     1  60406 10800.0  2024.04.06-03:00:00  Herl     -0.00858 -0.00046 -0.00352"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_0600.eph",
+      "sha256": "915065a29c52397441f16f6b05e1e1164a123df3d5fde07aebbc54ae5f90820c",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406 21600.0  2024.04.06-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 21600.0  2024.04.06-06:00:00  Grzl     -0.00852 -0.00110 -0.00328",
+        "D     1  60406 21600.0  2024.04.06-06:00:00  Herl     -0.00856 -0.00046 -0.00352"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_0900.eph",
+      "sha256": "d7088bf8222ef375fd933137635346e53c65eaff553d3a4cd875a9ea0ee82d8b",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406 32400.0  2024.04.06-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 32400.0  2024.04.06-09:00:00  Grzl     -0.00848 -0.00110 -0.00328",
+        "D     1  60406 32400.0  2024.04.06-09:00:00  Herl     -0.00854 -0.00046 -0.00352"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_1200.eph",
+      "sha256": "7bce291e6d6cfede5c944454c98c434e625b18300da0e3e6046a40a671cf07f7",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406 43200.0  2024.04.06-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 43200.0  2024.04.06-12:00:00  Grzl     -0.00845 -0.00110 -0.00328",
+        "D     1  60406 43200.0  2024.04.06-12:00:00  Herl     -0.00852 -0.00046 -0.00352"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_1500.eph",
+      "sha256": "c2faf3a1544be7a28af4a2b0ce665ed2978e5c1526eb661bb27938fd2a43c0eb",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406 54000.0  2024.04.06-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 54000.0  2024.04.06-15:00:00  Grzl     -0.00842 -0.00107 -0.00328",
+        "D     1  60406 54000.0  2024.04.06-15:00:00  Herl     -0.00850 -0.00046 -0.00350"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_1800.eph",
+      "sha256": "07c717c9b91cba3a38678500bd84df5d2c1c72bd502fb84ed1e5b116ac24601d",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406 64800.0  2024.04.06-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 64800.0  2024.04.06-18:00:00  Grzl     -0.00840 -0.00108 -0.00328",
+        "D     1  60406 64800.0  2024.04.06-18:00:00  Herl     -0.00848 -0.00046 -0.00350"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240406_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240406_2100.eph",
+      "sha256": "d462a19caa9f740c6938cd696c4118e9d309ef8cd58315a25200063e8e6c7378",
+      "bytes": 724504,
+      "epoch_header": "T begin   60406 75600.0  2024.04.06-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60406 75600.0  2024.04.06-21:00:00  Grzl     -0.00838 -0.00108 -0.00326",
+        "D     1  60406 75600.0  2024.04.06-21:00:00  Herl     -0.00848 -0.00046 -0.00350"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_0000.eph",
+      "sha256": "15f30e0d24ae901f518be9d9b59bffc380d16716ce656d624fcb511df3adc4e4",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407     0.0  2024.04.07-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407     0.0  2024.04.07-00:00:00  Grzl     -0.00836 -0.00108 -0.00326",
+        "D     1  60407     0.0  2024.04.07-00:00:00  Herl     -0.00848 -0.00046 -0.00350"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_0300.eph",
+      "sha256": "761fcf9fc2bcbcbc0a3c2d08c365e0069c0c10ad1662971e3d8d2e2bd87bb81d",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407 10800.0  2024.04.07-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 10800.0  2024.04.07-03:00:00  Grzl     -0.00837 -0.00108 -0.00326",
+        "D     1  60407 10800.0  2024.04.07-03:00:00  Herl     -0.00847 -0.00046 -0.00348"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_0600.eph",
+      "sha256": "838fa91ff3071d08f151e52b71184a76fbe9b923b7d74c3299b3459236da05e7",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407 21600.0  2024.04.07-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 21600.0  2024.04.07-06:00:00  Grzl     -0.00835 -0.00106 -0.00324",
+        "D     1  60407 21600.0  2024.04.07-06:00:00  Herl     -0.00846 -0.00046 -0.00348"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_0900.eph",
+      "sha256": "ee11d2dc858d458f9d34a279ab8cbd4e24c9833b7d88f8c04a3cecd6bc061c85",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407 32400.0  2024.04.07-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 32400.0  2024.04.07-09:00:00  Grzl     -0.00832 -0.00106 -0.00324",
+        "D     1  60407 32400.0  2024.04.07-09:00:00  Herl     -0.00845 -0.00044 -0.00348"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_1200.eph",
+      "sha256": "38d7c03420d1a0d167adb0a66e624a3a50fd92431871c7ffec2162aafa5f2cac",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407 43200.0  2024.04.07-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 43200.0  2024.04.07-12:00:00  Grzl     -0.00828 -0.00106 -0.00324",
+        "D     1  60407 43200.0  2024.04.07-12:00:00  Herl     -0.00842 -0.00044 -0.00348"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_1500.eph",
+      "sha256": "1cc4e0df57962e50fac1986549eef10d707b276ff85b429121155e52b2eef542",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407 54000.0  2024.04.07-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 54000.0  2024.04.07-15:00:00  Grzl     -0.00824 -0.00106 -0.00324",
+        "D     1  60407 54000.0  2024.04.07-15:00:00  Herl     -0.00842 -0.00046 -0.00347"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_1800.eph",
+      "sha256": "274cd33da1eb12a927460da4ef7b3e6ec85425e7ac3647084b62e453f9df63e0",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407 64800.0  2024.04.07-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 64800.0  2024.04.07-18:00:00  Grzl     -0.00822 -0.00106 -0.00324",
+        "D     1  60407 64800.0  2024.04.07-18:00:00  Herl     -0.00842 -0.00046 -0.00346"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240407_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240407_2100.eph",
+      "sha256": "4e75302eb52d05fb7a3434a70021b84b073f4415c598e80b1af8bf564b760489",
+      "bytes": 724504,
+      "epoch_header": "T begin   60407 75600.0  2024.04.07-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60407 75600.0  2024.04.07-21:00:00  Grzl     -0.00822 -0.00106 -0.00322",
+        "D     1  60407 75600.0  2024.04.07-21:00:00  Herl     -0.00841 -0.00046 -0.00346"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_0000.eph",
+      "sha256": "170050ff53ee60000fbd738d4c94441b2ba6ef797565ceb1fbe821e020c1ef80",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408     0.0  2024.04.08-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408     0.0  2024.04.08-00:00:00  Grzl     -0.00821 -0.00106 -0.00322",
+        "D     1  60408     0.0  2024.04.08-00:00:00  Herl     -0.00840 -0.00047 -0.00345"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_0300.eph",
+      "sha256": "4deaab145e4346ad0e6a52e869169b2e723f2dd68a3ff7c69dc71b28ef588c34",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408 10800.0  2024.04.08-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 10800.0  2024.04.08-03:00:00  Grzl     -0.00818 -0.00106 -0.00322",
+        "D     1  60408 10800.0  2024.04.08-03:00:00  Herl     -0.00841 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_0600.eph",
+      "sha256": "ada5aefce4bde7d959b20ee19331041e4195b874000e594b11fce9c424900362",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408 21600.0  2024.04.08-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 21600.0  2024.04.08-06:00:00  Grzl     -0.00818 -0.00106 -0.00320",
+        "D     1  60408 21600.0  2024.04.08-06:00:00  Herl     -0.00838 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_0900.eph",
+      "sha256": "1282b621f0972bb70f031fd90056f97fa1067bbae4d5bf0f99f13e4e6e0b46df",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408 32400.0  2024.04.08-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 32400.0  2024.04.08-09:00:00  Grzl     -0.00814 -0.00106 -0.00320",
+        "D     1  60408 32400.0  2024.04.08-09:00:00  Herl     -0.00838 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_1200.eph",
+      "sha256": "1b12fb7089cd8f86f3b7935bf0fb4f5f2afbbdc8c6dc2e67d1bca81ed4f6331a",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408 43200.0  2024.04.08-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 43200.0  2024.04.08-12:00:00  Grzl     -0.00810 -0.00106 -0.00320",
+        "D     1  60408 43200.0  2024.04.08-12:00:00  Herl     -0.00836 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_1500.eph",
+      "sha256": "f2cbd5ec41fdd51c9f42c66709f58f88c9c31966f5558393e39ee9461a60ad37",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408 54000.0  2024.04.08-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 54000.0  2024.04.08-15:00:00  Grzl     -0.00807 -0.00106 -0.00320",
+        "D     1  60408 54000.0  2024.04.08-15:00:00  Herl     -0.00837 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_1800.eph",
+      "sha256": "208007b214df7c07f2a16f0da5fe4d01cef75e0cb6f61cf731a7d6bdb47b5763",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408 64800.0  2024.04.08-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 64800.0  2024.04.08-18:00:00  Grzl     -0.00804 -0.00108 -0.00320",
+        "D     1  60408 64800.0  2024.04.08-18:00:00  Herl     -0.00836 -0.00050 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240408_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240408_2100.eph",
+      "sha256": "7c65fb9604909e84611d452ad41be18c4eca1ba0cd4230f2a4f2fb831ce23d21",
+      "bytes": 724504,
+      "epoch_header": "T begin   60408 75600.0  2024.04.08-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60408 75600.0  2024.04.08-21:00:00  Grzl     -0.00804 -0.00107 -0.00320",
+        "D     1  60408 75600.0  2024.04.08-21:00:00  Herl     -0.00836 -0.00050 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_0000.eph",
+      "sha256": "1157b31682e91f47ae0a27c086369a1e7144c73c4bbc817df11d345cd1c44629",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409     0.0  2024.04.09-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409     0.0  2024.04.09-00:00:00  Grzl     -0.00802 -0.00108 -0.00320",
+        "D     1  60409     0.0  2024.04.09-00:00:00  Herl     -0.00837 -0.00050 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_0300.eph",
+      "sha256": "f5af4f035ba9664493eb9053ac026c07c62a2f98281ce3e8cbd1a7b8f18d6349",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409 10800.0  2024.04.09-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 10800.0  2024.04.09-03:00:00  Grzl     -0.00800 -0.00108 -0.00320",
+        "D     1  60409 10800.0  2024.04.09-03:00:00  Herl     -0.00836 -0.00050 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_0600.eph",
+      "sha256": "79b8f3e2c54b9b9de9d0c61cff0f3a5abdd118b926c6e126a5b72b13fbbb5cb4",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409 21600.0  2024.04.09-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 21600.0  2024.04.09-06:00:00  Grzl     -0.00798 -0.00107 -0.00320",
+        "D     1  60409 21600.0  2024.04.09-06:00:00  Herl     -0.00836 -0.00050 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_0900.eph",
+      "sha256": "cc992b43c50b074eb3c343156613fa5e413220cd77c9a650a6693882799113e5",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409 32400.0  2024.04.09-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 32400.0  2024.04.09-09:00:00  Grzl     -0.00796 -0.00108 -0.00320",
+        "D     1  60409 32400.0  2024.04.09-09:00:00  Herl     -0.00834 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_1200.eph",
+      "sha256": "5657e9f77011b72d12d128b49cfab87ef89dfcdd378b45fca1b64c2f0612dbba",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409 43200.0  2024.04.09-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 43200.0  2024.04.09-12:00:00  Grzl     -0.00792 -0.00108 -0.00320",
+        "D     1  60409 43200.0  2024.04.09-12:00:00  Herl     -0.00832 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_1500.eph",
+      "sha256": "7d6be7595460e12d18009e4519ec674fb3c186fc60d9106ea2ac343f2eb66417",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409 54000.0  2024.04.09-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 54000.0  2024.04.09-15:00:00  Grzl     -0.00790 -0.00107 -0.00320",
+        "D     1  60409 54000.0  2024.04.09-15:00:00  Herl     -0.00832 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_1800.eph",
+      "sha256": "894155f01b7c89f3a293159782edf0a04e6b19e22f326c1dbe248f6aa5f238ce",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409 64800.0  2024.04.09-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 64800.0  2024.04.09-18:00:00  Grzl     -0.00788 -0.00108 -0.00320",
+        "D     1  60409 64800.0  2024.04.09-18:00:00  Herl     -0.00831 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240409_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240409_2100.eph",
+      "sha256": "07f7cc53739d02197b7bf277c4700d8d0f28bc9cbfdf18140f33085e818c7861",
+      "bytes": 724504,
+      "epoch_header": "T begin   60409 75600.0  2024.04.09-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60409 75600.0  2024.04.09-21:00:00  Grzl     -0.00788 -0.00110 -0.00320",
+        "D     1  60409 75600.0  2024.04.09-21:00:00  Herl     -0.00830 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_0000.eph",
+      "sha256": "0da51eba273b8939f9459b8b194ba9d0d53830f256480a5dc9bc9977223a5fd0",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410     0.0  2024.04.10-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410     0.0  2024.04.10-00:00:00  Grzl     -0.00788 -0.00110 -0.00320",
+        "D     1  60410     0.0  2024.04.10-00:00:00  Herl     -0.00830 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_0300.eph",
+      "sha256": "e427ebe30ea8296686861a4afaec37c7b27b831ff7a987ae383719dbeaeb4664",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410 10800.0  2024.04.10-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 10800.0  2024.04.10-03:00:00  Grzl     -0.00787 -0.00110 -0.00320",
+        "D     1  60410 10800.0  2024.04.10-03:00:00  Herl     -0.00828 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_0600.eph",
+      "sha256": "31ea0afec0de1ac155b91bd5f10133d0aaa0c8368d3674e7086cb1a0bcb59ed4",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410 21600.0  2024.04.10-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 21600.0  2024.04.10-06:00:00  Grzl     -0.00786 -0.00108 -0.00320",
+        "D     1  60410 21600.0  2024.04.10-06:00:00  Herl     -0.00828 -0.00048 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_0900.eph",
+      "sha256": "dee2259542a7a5f6a49e6f46b5ed06e2183e8c7d397dd5691b5004409fa61764",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410 32400.0  2024.04.10-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 32400.0  2024.04.10-09:00:00  Grzl     -0.00784 -0.00108 -0.00320",
+        "D     1  60410 32400.0  2024.04.10-09:00:00  Herl     -0.00828 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_1200.eph",
+      "sha256": "26fe0cbd0ed0199bb89ceb33fe08b0b51161f03a89ee0662221fcb0d330f9827",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410 43200.0  2024.04.10-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 43200.0  2024.04.10-12:00:00  Grzl     -0.00782 -0.00108 -0.00322",
+        "D     1  60410 43200.0  2024.04.10-12:00:00  Herl     -0.00826 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_1500.eph",
+      "sha256": "d491350e19aa92e59afcb4fa0155d947fb3ff7023f84f4b466c85be5ff25dc51",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410 54000.0  2024.04.10-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 54000.0  2024.04.10-15:00:00  Grzl     -0.00781 -0.00108 -0.00322",
+        "D     1  60410 54000.0  2024.04.10-15:00:00  Herl     -0.00826 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_1800.eph",
+      "sha256": "cafa499926921d58577d6ca4e30c39f35f098201fe0b8fef5e4e8189f9c13e26",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410 64800.0  2024.04.10-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 64800.0  2024.04.10-18:00:00  Grzl     -0.00778 -0.00108 -0.00322",
+        "D     1  60410 64800.0  2024.04.10-18:00:00  Herl     -0.00824 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240410_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240410_2100.eph",
+      "sha256": "2d04e81e7fbf651e4412a20e7e399e376554ef3bf2056e52e3ff32f69edcf4d1",
+      "bytes": 724504,
+      "epoch_header": "T begin   60410 75600.0  2024.04.10-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60410 75600.0  2024.04.10-21:00:00  Grzl     -0.00776 -0.00108 -0.00322",
+        "D     1  60410 75600.0  2024.04.10-21:00:00  Herl     -0.00824 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_0000.eph",
+      "sha256": "63ba98f302b47c1be43c57f7b97f6fb37b02379bcbb7cb0a77ab8ab3faabbbff",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411     0.0  2024.04.11-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411     0.0  2024.04.11-00:00:00  Grzl     -0.00774 -0.00108 -0.00322",
+        "D     1  60411     0.0  2024.04.11-00:00:00  Herl     -0.00823 -0.00046 -0.00344"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_0300.eph",
+      "sha256": "868a540bf173b0b9b51d0d1a2ebd50eeae46dfbe6f0779ba35c191701a076d93",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411 10800.0  2024.04.11-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 10800.0  2024.04.11-03:00:00  Grzl     -0.00773 -0.00108 -0.00320",
+        "D     1  60411 10800.0  2024.04.11-03:00:00  Herl     -0.00822 -0.00046 -0.00342"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_0600.eph",
+      "sha256": "a48ca4c46adbf6ead54280d5b9c09b9167501db06247a936fac556ebc1d08a18",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411 21600.0  2024.04.11-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 21600.0  2024.04.11-06:00:00  Grzl     -0.00771 -0.00106 -0.00320",
+        "D     1  60411 21600.0  2024.04.11-06:00:00  Herl     -0.00820 -0.00046 -0.00342"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_0900.eph",
+      "sha256": "155f86af190f3b2146e426134488983e0133ac2f06b7fedbe1ece403b156f367",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411 32400.0  2024.04.11-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 32400.0  2024.04.11-09:00:00  Grzl     -0.00768 -0.00106 -0.00320",
+        "D     1  60411 32400.0  2024.04.11-09:00:00  Herl     -0.00818 -0.00045 -0.00342"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_1200.eph",
+      "sha256": "1b619df090717df05d8a2274299db4f381093444fa3dd083ba8b77f6b30286da",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411 43200.0  2024.04.11-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 43200.0  2024.04.11-12:00:00  Grzl     -0.00763 -0.00104 -0.00320",
+        "D     1  60411 43200.0  2024.04.11-12:00:00  Herl     -0.00816 -0.00044 -0.00342"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_1500.eph",
+      "sha256": "8fa3fcd03ddaa00516da81effa572fcd1a9fe0405e3211fd8645424972e8fc42",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411 54000.0  2024.04.11-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 54000.0  2024.04.11-15:00:00  Grzl     -0.00760 -0.00104 -0.00320",
+        "D     1  60411 54000.0  2024.04.11-15:00:00  Herl     -0.00814 -0.00044 -0.00342"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_1800.eph",
+      "sha256": "4968c4cacf1cdfed51886bafb469980db7dc411a8b2e9a135910167538313d02",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411 64800.0  2024.04.11-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 64800.0  2024.04.11-18:00:00  Grzl     -0.00758 -0.00104 -0.00320",
+        "D     1  60411 64800.0  2024.04.11-18:00:00  Herl     -0.00814 -0.00044 -0.00340"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240411_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240411_2100.eph",
+      "sha256": "76a967529bfb3221b1229a0e60fd2dd955318d3598ce3ee1eb381fb0a3c775e1",
+      "bytes": 724504,
+      "epoch_header": "T begin   60411 75600.0  2024.04.11-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60411 75600.0  2024.04.11-21:00:00  Grzl     -0.00756 -0.00104 -0.00320",
+        "D     1  60411 75600.0  2024.04.11-21:00:00  Herl     -0.00812 -0.00044 -0.00340"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240412_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240412_0000.eph",
+      "sha256": "c8ee37b2c258a2b6965f5105010e435382b3a249c5e28a060507140d0c1b9fac",
+      "bytes": 724504,
+      "epoch_header": "T begin   60412     0.0  2024.04.12-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412     0.0  2024.04.12-00:00:00  Grzl     -0.00756 -0.00102 -0.00320",
+        "D     1  60412     0.0  2024.04.12-00:00:00  Herl     -0.00812 -0.00044 -0.00340"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240412_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240412_0300.eph",
+      "sha256": "4a25a5f8375672f2f8acb94fbe687dc32d9c8ece81109e3b668780e5b9fdef36",
+      "bytes": 724504,
+      "epoch_header": "T begin   60412 10800.0  2024.04.12-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 10800.0  2024.04.12-03:00:00  Grzl     -0.00754 -0.00102 -0.00320",
+        "D     1  60412 10800.0  2024.04.12-03:00:00  Herl     -0.00810 -0.00042 -0.00340"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240412_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240412_0600.eph",
+      "sha256": "52a076db44b94b33aae3bd400b531312b86858f950a03438b0b70b465d9daea0",
+      "bytes": 724504,
+      "epoch_header": "T begin   60412 21600.0  2024.04.12-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 21600.0  2024.04.12-06:00:00  Grzl     -0.00752 -0.00102 -0.00320",
+        "D     1  60412 21600.0  2024.04.12-06:00:00  Herl     -0.00810 -0.00042 -0.00338"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240412_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240412_0900.eph",
+      "sha256": "cc83f6b00526c58b1192702e14607ef78e99830ce4718292227ec95702f40051",
+      "bytes": 724504,
+      "epoch_header": "T begin   60412 32400.0  2024.04.12-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 32400.0  2024.04.12-09:00:00  Grzl     -0.00750 -0.00102 -0.00318",
+        "D     1  60412 32400.0  2024.04.12-09:00:00  Herl     -0.00808 -0.00042 -0.00338"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240412_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240412_1200.eph",
+      "sha256": "6a1cb3f4a8772bb30029b1e4b24f6d618e7a35d06f05ae1054833ebc2d14a55f",
+      "bytes": 724504,
+      "epoch_header": "T begin   60412 43200.0  2024.04.12-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 43200.0  2024.04.12-12:00:00  Grzl     -0.00746 -0.00100 -0.00318",
+        "D     1  60412 43200.0  2024.04.12-12:00:00  Herl     -0.00808 -0.00042 -0.00338"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240412_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240412_1500.eph",
+      "sha256": "4b69db45203809868d9854527598c6abec25e61a8c829447acd17086e6f8e0a2",
+      "bytes": 724504,
+      "epoch_header": "T begin   60412 54000.0  2024.04.12-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60412 54000.0  2024.04.12-15:00:00  Grzl     -0.00742 -0.00100 -0.00318",
+        "D     1  60412 54000.0  2024.04.12-15:00:00  Herl     -0.00806 -0.00042 -0.00337"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240413_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240413_0000.eph",
+      "sha256": "ad281bbd5a2d66dcfc96f4b9b2dd72abe2cc8be5085c4d30da704da7d88f4df2",
+      "bytes": 724504,
+      "epoch_header": "T begin   60413     0.0  2024.04.13-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413     0.0  2024.04.13-00:00:00  Grzl     -0.00738 -0.00100 -0.00316",
+        "D     1  60413     0.0  2024.04.13-00:00:00  Herl     -0.00803 -0.00044 -0.00336"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240413_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240413_0600.eph",
+      "sha256": "228fad8b352bcca72d8360c33cecf083dd2858e12e13cd1426ffda6f74ca9e35",
+      "bytes": 724504,
+      "epoch_header": "T begin   60413 21600.0  2024.04.13-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 21600.0  2024.04.13-06:00:00  Grzl     -0.00736 -0.00100 -0.00314",
+        "D     1  60413 21600.0  2024.04.13-06:00:00  Herl     -0.00802 -0.00042 -0.00332"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240413_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240413_0900.eph",
+      "sha256": "ce21a40ff5bfdf1fbd3aa3c1bae497d3410e9ad972a49773ecf744308141affa",
+      "bytes": 724504,
+      "epoch_header": "T begin   60413 32400.0  2024.04.13-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 32400.0  2024.04.13-09:00:00  Grzl     -0.00732 -0.00100 -0.00314",
+        "D     1  60413 32400.0  2024.04.13-09:00:00  Herl     -0.00800 -0.00042 -0.00332"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240413_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240413_1200.eph",
+      "sha256": "37ce28738c6fadeff6ce162fdd33c77689394059971685b27de4ac5072a6e8a9",
+      "bytes": 724504,
+      "epoch_header": "T begin   60413 43200.0  2024.04.13-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 43200.0  2024.04.13-12:00:00  Grzl     -0.00729 -0.00098 -0.00314",
+        "D     1  60413 43200.0  2024.04.13-12:00:00  Herl     -0.00798 -0.00044 -0.00332"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240413_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240413_1500.eph",
+      "sha256": "2162638f259cf068dfd3c3b8a2e4ced196ffb68d163d428082aa0f40a68870b9",
+      "bytes": 724504,
+      "epoch_header": "T begin   60413 54000.0  2024.04.13-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 54000.0  2024.04.13-15:00:00  Grzl     -0.00725 -0.00098 -0.00314",
+        "D     1  60413 54000.0  2024.04.13-15:00:00  Herl     -0.00794 -0.00044 -0.00330"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240413_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240413_1800.eph",
+      "sha256": "ecd1b4d5ba6d16be6c9a04938a5ba4b68bc9c80613210ebca90ba77068493399",
+      "bytes": 724504,
+      "epoch_header": "T begin   60413 64800.0  2024.04.13-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 64800.0  2024.04.13-18:00:00  Grzl     -0.00722 -0.00100 -0.00312",
+        "D     1  60413 64800.0  2024.04.13-18:00:00  Herl     -0.00792 -0.00044 -0.00330"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240413_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240413_2100.eph",
+      "sha256": "0b7bda3f9be077698c3209a0c313c0a0e28a7718b7759c08cc7c04031c3e693f",
+      "bytes": 724504,
+      "epoch_header": "T begin   60413 75600.0  2024.04.13-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60413 75600.0  2024.04.13-21:00:00  Grzl     -0.00722 -0.00100 -0.00312",
+        "D     1  60413 75600.0  2024.04.13-21:00:00  Herl     -0.00792 -0.00046 -0.00330"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_0000.eph",
+      "sha256": "cc408daa878e5dd920541df3e584a6c2a45a0ae4db4a566855f534f79da654b8",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414     0.0  2024.04.14-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414     0.0  2024.04.14-00:00:00  Grzl     -0.00721 -0.00100 -0.00310",
+        "D     1  60414     0.0  2024.04.14-00:00:00  Herl     -0.00790 -0.00046 -0.00328"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_0300.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_0300.eph",
+      "sha256": "1d8553a7307f81222e64553aa0899a86bf721ac73c8b08b90c226c8e861943f2",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414 10800.0  2024.04.14-03:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 10800.0  2024.04.14-03:00:00  Grzl     -0.00718 -0.00100 -0.00310",
+        "D     1  60414 10800.0  2024.04.14-03:00:00  Herl     -0.00790 -0.00046 -0.00328"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_0600.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_0600.eph",
+      "sha256": "e332a44a3705f56de4f68cd1a47609e52dc2e9ec5cc04cf4c0993b2c2bbd0d02",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414 21600.0  2024.04.14-06:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 21600.0  2024.04.14-06:00:00  Grzl     -0.00716 -0.00098 -0.00310",
+        "D     1  60414 21600.0  2024.04.14-06:00:00  Herl     -0.00788 -0.00046 -0.00326"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_0900.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_0900.eph",
+      "sha256": "bcb94f661cf764ef98ab4a986ea8366c7e9d5f2d2ffd8ffb5bd3d07fcb4a3caf",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414 32400.0  2024.04.14-09:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 32400.0  2024.04.14-09:00:00  Grzl     -0.00714 -0.00098 -0.00308",
+        "D     1  60414 32400.0  2024.04.14-09:00:00  Herl     -0.00788 -0.00044 -0.00326"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_1200.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_1200.eph",
+      "sha256": "1816a88e88fb787470783a1a5737e7bc9f1feb2783f50a1920ac6510f4f254e4",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414 43200.0  2024.04.14-12:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 43200.0  2024.04.14-12:00:00  Grzl     -0.00708 -0.00098 -0.00308",
+        "D     1  60414 43200.0  2024.04.14-12:00:00  Herl     -0.00785 -0.00046 -0.00326"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_1500.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_1500.eph",
+      "sha256": "8eb962039d68fc879269bf62ac939f2e73644cb954f2a7a5bcb8a4ba7bec8604",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414 54000.0  2024.04.14-15:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 54000.0  2024.04.14-15:00:00  Grzl     -0.00706 -0.00098 -0.00308",
+        "D     1  60414 54000.0  2024.04.14-15:00:00  Herl     -0.00783 -0.00046 -0.00326"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_1800.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_1800.eph",
+      "sha256": "950932db0621d0e49eccb6f4de2e3d8d1877581304ff649c0200a5f8541c2c6f",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414 64800.0  2024.04.14-18:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 64800.0  2024.04.14-18:00:00  Grzl     -0.00704 -0.00098 -0.00308",
+        "D     1  60414 64800.0  2024.04.14-18:00:00  Herl     -0.00782 -0.00046 -0.00324"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240414_2100.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240414_2100.eph",
+      "sha256": "af2fc63577236b23351bd9afc5cabf41053ef67a32cd8c1ecfdcd7c1b939e503",
+      "bytes": 724504,
+      "epoch_header": "T begin   60414 75600.0  2024.04.14-21:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60414 75600.0  2024.04.14-21:00:00  Grzl     -0.00703 -0.00098 -0.00306",
+        "D     1  60414 75600.0  2024.04.14-21:00:00  Herl     -0.00782 -0.00046 -0.00324"
+      ]
+    },
+    {
+      "component": "lws",
+      "file": "lws_merra2_20240415_0000.eph",
+      "url": "https://massloading.net/imsl/load_list/lws/merra2/lws_merra2_20240415_0000.eph",
+      "sha256": "58639ae258087c34e8bd488d4d374d5c1a6f8c10afb67eca9bc4b12844d051c9",
+      "bytes": 724504,
+      "epoch_header": "T begin   60415     0.0  2024.04.15-00:00:00",
+      "site_records": [
+        "S  Grzl       4194426.2130  1162694.3570  4647246.8430   47.0671  15.4934  539.4",
+        "S  Herl       4033463.4760    23662.7870  4924305.3500   50.8674   0.3361   75.4"
+      ],
+      "displacement_records": [
+        "D     1  60415     0.0  2024.04.15-00:00:00  Grzl     -0.00700 -0.00098 -0.00306",
+        "D     1  60415     0.0  2024.04.15-00:00:00  Herl     -0.00780 -0.00048 -0.00324"
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "file": "lws_merra2_20240412_1800.eph",
+      "error": "HTTPSConnectionPool(host='massloading.net', port=443): Max retries exceeded with url: /imsl/load_list/lws/merra2/lws_merra2_20240412_1800.eph (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7536bff62990>, 'Connection to massloading.net timed out. (connect timeout=35)'))"
+    },
+    {
+      "file": "lws_merra2_20240412_2100.eph",
+      "error": "HTTPSConnectionPool(host='massloading.net', port=443): Max retries exceeded with url: /imsl/load_list/lws/merra2/lws_merra2_20240412_2100.eph (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7536bff62450>, 'Connection to massloading.net timed out. (connect timeout=35)'))"
+    },
+    {
+      "file": "lws_merra2_20240413_0300.eph",
+      "error": "HTTPSConnectionPool(host='massloading.net', port=443): Max retries exceeded with url: /imsl/load_list/lws/merra2/lws_merra2_20240413_0300.eph (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7536bdc12e10>, 'Connection to massloading.net timed out. (connect timeout=35)'))"
+    }
+  ]
+}

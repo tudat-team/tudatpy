@@ -1,0 +1,24 @@
+{
+  "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop17a/inpop17a_TDB_m100_p100_spice.tar.gz",
+  "status": 206,
+  "response_headers": {
+    "Date": "Fri, 16 Oct 2026 10:37:29 GMT",
+    "Server": "Apache",
+    "Last-Modified": "Thu, 07 Sep 2017 14:47:42 GMT",
+    "ETag": "\"171196c-5589a8aeba5f6\"",
+    "Accept-Ranges": "bytes",
+    "Content-Length": "65536",
+    "Content-Range": "bytes 0-65535/24189292",
+    "Connection": "close",
+    "Content-Type": "application/x-gzip"
+  },
+  "downloaded_bytes": 65536,
+  "sha256": "92145e222a4e2bff9e345f837044e4bb853017263eccd66b5ebd8da78e68bfa6",
+  "partial_members": [
+    {
+      "name": "inpop17a_TDB_m100_p100_spice.bpc",
+      "declared_size": 2400256,
+      "available_body_bytes": 73802
+    }
+  ]
+}

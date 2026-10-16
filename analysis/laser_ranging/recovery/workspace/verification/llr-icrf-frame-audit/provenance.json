@@ -1,0 +1,8 @@
+{
+  "baseline_script_sha256": "3c7c981f10da211b3fbb2996a316d9c58a52f9177f9a39442c550248a8107847",
+  "diagnostic_script_sha256": "73e8cae47f325044d06b10fb98601f54106479989da8224aae05d28a5cabcdca",
+  "identity_alias_sha256": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7",
+  "kernel_sha256": "10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5",
+  "changes": "Global axes and SPICE queries named ICRF through a constant identity alias to SPICE J2000; Earth model omits SOFA frame bias. Native station/deformation models constructed from selected ICRF Earth model. No other script change.",
+  "primary_source": "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html#ICRF%20vs%20J2000"
+}

@@ -1,0 +1,145 @@
+[
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/products/orbits/TRF/lageos1/2024/240406/asi.orb.lageos1.240406.v80.sp3.gz",
+    "path": "2024-04/asi.orb.lageos1.240406.v80.sp3.gz",
+    "size": 244277,
+    "sha256": "ee02ef518ca0ada0d403e50cab4b01d5dbce50778b867b9f98a56aa683680b07",
+    "retrieved_utc": "2026-10-15T20:04:09.799355+00:00",
+    "rights": "Public ILRS/IGN scientific archive; cite ILRS/provider and Rodriguez etal2019 for CoM; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/products/orbits/TRF/lageos1/2024/240406/ilrsa.orb.lageos1.240406.v81.sp3.gz",
+    "path": "2024-04/ilrsa.orb.lageos1.240406.v81.sp3.gz",
+    "size": 244124,
+    "sha256": "938758fd90b502c42507f280a3455d9e1b54bd8320d29b0b078cfc5281ab69d2",
+    "retrieved_utc": "2026-10-15T20:04:09.527697+00:00",
+    "rights": "Public ILRS/IGN scientific archive; cite ILRS/provider and Rodriguez etal2019 for CoM; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/products/pos+eop/weekly/2024/240406/asi.pos+eop.240406.v80.snx.gz",
+    "path": "2024-04/asi.pos+eop.240406.v80.snx.gz",
+    "size": 76527,
+    "sha256": "62398b1c5a69a628385b4a381270e5450c831259e666470140f92f33d045f54f",
+    "retrieved_utc": "2026-10-15T20:04:10.227325+00:00",
+    "rights": "Public ILRS/IGN scientific archive; cite ILRS/provider and Rodriguez etal2019 for CoM; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/products/pos+eop/weekly/2024/240406/ilrsa.pos+eop.240406.v80.snx.gz",
+    "path": "2024-04/ilrsa.pos+eop.240406.v80.snx.gz",
+    "size": 47171,
+    "sha256": "8234d95b68bfe432f96073a13a8d01c32351f1ee837acee72977b0163ab62823",
+    "retrieved_utc": "2026-10-15T20:04:09.977192+00:00",
+    "rights": "Public ILRS/IGN scientific archive; cite ILRS/provider and Rodriguez etal2019 for CoM; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://ilrs.gsfc.nasa.gov/docs/2024/ILRS_Data_Handling_File_2024.02.13.snx",
+    "path": "metadata/ILRS_Data_Handling_File_2024.02.13.snx",
+    "size": 180827,
+    "sha256": "41caafc2dd63bcd91504f529b6de3c37b48156523322ade5d3154ccce8ce52a1",
+    "retrieved_utc": "2026-10-15T20:04:12.620278+00:00",
+    "rights": "Public ILRS/IGN scientific archive; cite ILRS/provider and Rodriguez etal2019 for CoM; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://ilrs.gsfc.nasa.gov/docs/2023/SLRF2020_POS+VEL_2023.10.02.snx",
+    "path": "metadata/SLRF2020_POS+VEL_2023.10.02.snx",
+    "size": 172299,
+    "sha256": "aecd35c12fd1e4e0525f13610f5605d379ad2c6f7761e74cdbb9771ec6a95a3f",
+    "retrieved_utc": "2026-10-15T20:04:12.617503+00:00",
+    "rights": "Public ILRS/IGN scientific archive; cite ILRS/provider and Rodriguez etal2019 for CoM; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240403.np2",
+    "path": "2024-04/lageos1_20240403.np2",
+    "size": 33735,
+    "sha256": "04affe2d03d31ae62aa9f12aa6b23fc49603b927614ca0f2d94dfba9849e9a61",
+    "retrieved_utc": "2026-10-15T21:14:53.969485+00:00",
+    "rights": "Public scientific archive; no explicit redistribution license observed; cite ILRS and Rodriguez etal2019."
+  },
+  {
+    "url": "https://datos-geodesia.ign.es/SLR/centre_of_mass_models/models/com6.220915.tar.gz",
+    "path": "metadata/com6.220915.tar.gz",
+    "size": 22221,
+    "sha256": "78289ea4184a508382bbd0b70f7df9189b40fa26683dec2d7cf26de58dcc9a7a",
+    "retrieved_utc": "2026-10-15T21:14:54.363298+00:00",
+    "rights": "Public scientific archive; no explicit redistribution license observed; cite ILRS and Rodriguez etal2019."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240331.np2",
+    "path": "2024-04/lageos1_20240331.np2",
+    "size": 38704,
+    "sha256": "d27a113c8627e899bca7aae2c80fd2d1e06c27b58ca28821006e42ac34407989",
+    "retrieved_utc": "2026-10-15T21:15:50.442400+00:00",
+    "rights": "Public ILRS scientific archive; cite ILRS normal-point dataset; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240401.np2",
+    "path": "2024-04/lageos1_20240401.np2",
+    "size": 24520,
+    "sha256": "22285682b03c7f385ec59135ce90fd65a95c25f58f68a3987b0ffab885df9303",
+    "retrieved_utc": "2026-10-15T21:15:50.415407+00:00",
+    "rights": "Public ILRS scientific archive; cite ILRS normal-point dataset; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240402.np2",
+    "path": "2024-04/lageos1_20240402.np2",
+    "size": 44744,
+    "sha256": "8496412310fd33c0d7b420b3590e09bca42aea3c23b26422072ecea55acfc579",
+    "retrieved_utc": "2026-10-15T21:15:50.476175+00:00",
+    "rights": "Public ILRS scientific archive; cite ILRS normal-point dataset; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240404.np2",
+    "path": "2024-04/lageos1_20240404.np2",
+    "size": 60149,
+    "sha256": "49c553081b9af432db230302f704d71f0e80404e1ddfa875646507045ce823fc",
+    "retrieved_utc": "2026-10-15T21:15:50.952163+00:00",
+    "rights": "Public ILRS scientific archive; cite ILRS normal-point dataset; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240405.np2",
+    "path": "2024-04/lageos1_20240405.np2",
+    "size": 50115,
+    "sha256": "4197c09dbc383842b6b0d6995e5ddb5efca56747d7d9d613e8db2ccad29e207b",
+    "retrieved_utc": "2026-10-15T21:15:50.927871+00:00",
+    "rights": "Public ILRS scientific archive; cite ILRS normal-point dataset; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240406.np2",
+    "path": "2024-04/lageos1_20240406.np2",
+    "size": 22669,
+    "sha256": "ebbcca47708f811ea7bd8991abe1900bd628c5e5aea6a0742dfa8f8e1263a6d8",
+    "retrieved_utc": "2026-10-15T21:15:50.885615+00:00",
+    "rights": "Public ILRS scientific archive; cite ILRS normal-point dataset; no explicit per-file redistribution license observed."
+  },
+  {
+    "url": "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps",
+    "path": "optional/toc_got410c_harmod.hps",
+    "size": 1978239,
+    "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150",
+    "retrieved_utc": "2026-10-15T22:07:37.089338+00:00",
+    "scope": "Optional alternate GOT4.10c HARPOS experiment; default remains no ocean loading. Not exact ASI 11-constituent BLQ/HARDISP.",
+    "sites": {
+      "7839": {
+        "site": "Graz",
+        "domes": "11001S002",
+        "provider_xyz_m": [
+          4194426.703,
+          1162693.879,
+          4647246.56
+        ]
+      },
+      "7840": {
+        "site": "Herstmon",
+        "domes": "13212S001",
+        "provider_xyz_m": [
+          4033463.844,
+          23662.33,
+          4924305.061
+        ]
+      }
+    },
+    "axes": "HARPOS geocentric radial Up, East, North; product narrative says ellipsoid-normal Up, an explicitly retained discrepancy.",
+    "origin": "Whole-Earth centre of mass; STW105/REAR Earth response; 17 supplied gravity-tide terms; TT J2000 harmonic arguments.",
+    "rights": "Public International Mass Loading Service scientific product; retain provider and Ray (2013) citations. No explicit per-file redistribution licence observed; product bytes are not included here."
+  }
+]

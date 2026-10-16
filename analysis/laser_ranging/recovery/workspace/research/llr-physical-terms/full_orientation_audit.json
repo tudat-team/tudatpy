@@ -1,0 +1,89 @@
+{
+  "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "ascii_sha256": "e24f6356225f7d912e35af2ebc5f9bcf6fb0425c53aa92b5d7243cb063477286",
+  "header_sha256": "0f4636b663e6f00af9efa2b605ef23635489f56b23dd1a5e3821d3acc6ac3359",
+  "pck_segment_frames": [
+    {
+      "frame_class_id": 31008,
+      "base_frame_id": 1,
+      "type": 2
+    },
+    {
+      "frame_class_id": 31008,
+      "base_frame_id": 1,
+      "type": 2
+    }
+  ],
+  "native_type": "RotationalEphemeris",
+  "cases": [
+    {
+      "case": "apollo",
+      "epoch_tdb_s": 542294424.1855052,
+      "ascii_angles_rad": [
+        -0.029906931378471134,
+        0.432835935611281,
+        4007.661166489162
+      ],
+      "ascii_eq8_vs_native": {
+        "maximum_element": 4.975131529439056e-14,
+        "frobenius": 8.168545746842901e-14,
+        "small_angle_norm_rad": 5.776034090025146e-14,
+        "surface_bound_m": 1.4196932508012961e-07
+      },
+      "ascii_eq8_vs_spice": {
+        "maximum_element": 4.9862337596853073e-14,
+        "frobenius": 8.168260578233115e-14,
+        "small_angle_norm_rad": 5.775832445367385e-14,
+        "surface_bound_m": 1.4196436884969154e-07
+      },
+      "native_vs_spice": {
+        "maximum_element": 1.1102230246251565e-16,
+        "frobenius": 1.6912441851988303e-16,
+        "small_angle_norm_rad": 1.1958902319964102e-16,
+        "surface_bound_m": 2.939382393875567e-10
+      },
+      "alias_vs_j2000": {
+        "maximum_element": 0.0,
+        "frobenius": 0.0,
+        "small_angle_norm_rad": 0.0,
+        "surface_bound_m": 0.0
+      },
+      "native_orthogonality_max": 3.655571303761622e-17
+    },
+    {
+      "case": "matera",
+      "epoch_tdb_s": 714322074.1868316,
+      "ascii_angles_rad": [
+        -0.05201109487199991,
+        0.3908686609250945,
+        4465.566971637269
+      ],
+      "ascii_eq8_vs_native": {
+        "maximum_element": 2.9165520122882885e-13,
+        "frobenius": 4.2629270983115153e-13,
+        "small_angle_norm_rad": 3.014344658919965e-13,
+        "surface_bound_m": 7.408967296865413e-07
+      },
+      "ascii_eq8_vs_spice": {
+        "maximum_element": 2.9154417892636633e-13,
+        "frobenius": 4.261700744877404e-13,
+        "small_angle_norm_rad": 3.0134774960905733e-13,
+        "surface_bound_m": 7.406835894596929e-07
+      },
+      "native_vs_spice": {
+        "maximum_element": 1.1102230246251565e-16,
+        "frobenius": 2.4672134748494927e-16,
+        "small_angle_norm_rad": 1.7445833787009016e-16,
+        "surface_bound_m": 4.288017019288418e-10
+      },
+      "alias_vs_j2000": {
+        "maximum_element": 0.0,
+        "frobenius": 0.0,
+        "small_angle_norm_rad": 0.0,
+        "surface_bound_m": 0.0
+      },
+      "native_orthogonality_max": 3.3306690738754696e-16
+    }
+  ],
+  "probe_sha256": "1a20a3fc55f0986643446e7c5edbad07e673a8c8ebfe7a891caa82927f66fad7"
+}

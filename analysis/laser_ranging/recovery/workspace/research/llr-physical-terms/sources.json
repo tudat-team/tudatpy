@@ -1,0 +1,26 @@
+[
+  {
+    "file": "jpl-ioms-index.html",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/",
+    "sha256": "bdc744825fb06fa99ce84842f867d131f3d9a18b061b566b00b9ee41aeb483b8",
+    "retrieved_utc": "2026-10-16T06:55:35.192403+00:00"
+  },
+  {
+    "file": "header.440",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de440/header.440",
+    "sha256": "0f4636b663e6f00af9efa2b605ef23635489f56b23dd1a5e3821d3acc6ac3359",
+    "retrieved_utc": "2026-10-16T06:55:35.819392+00:00"
+  },
+  {
+    "file": "GRSM_sitelog.html",
+    "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/GRSM_sitelog.html",
+    "sha256": "577eacac705384270b1339038896bde3da6128f49490b1edc7ac984a0d95283c",
+    "retrieved_utc": "2026-10-16T06:55:36.313944+00:00"
+  },
+  {
+    "file": "DE430-moon-coordinates.pdf",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/de430_moon_coord_iom.pdf",
+    "sha256": "c3e15f2033efaf45889674375da24acdc70eb71ab659a37f8715b01902be56c2",
+    "retrieved_utc": "2026-10-16T06:56:09.191669+00:00"
+  }
+]

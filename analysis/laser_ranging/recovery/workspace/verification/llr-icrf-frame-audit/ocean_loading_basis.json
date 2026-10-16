@@ -1,0 +1,16 @@
+{
+  "product_url": "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps",
+  "product_sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150",
+  "basis": "geodetic ellipsoid-normal Up, East, North at provider XYZ",
+  "equatorial_radius_m": 6378137.0,
+  "flattening_reciprocal": 298.257,
+  "source_revision": "aca77c2e11d6241c4b51c25a9815ab8130ee611b",
+  "consumer_rotation_source": "https://github.com/nasa/sgdass/blob/aca77c2e11d6241c4b51c25a9815ab8130ee611b/petools/pet_util/make_uen_to_xyz.f#L19-L68",
+  "consumer_application_source": "https://github.com/nasa/sgdass/blob/aca77c2e11d6241c4b51c25a9815ab8130ee611b/vtd/src/vtd_set_harpos.f#L190-L277",
+  "ellipsoid_source": "https://github.com/nasa/sgdass/blob/aca77c2e11d6241c4b51c25a9815ab8130ee611b/petools/pet_util/ref_ell.f#L62-L64",
+  "formal_specification": "https://massloading.net/harpos_format.txt",
+  "discrepancy": "Formal HARPOS specifies radial Up; the pinned product narrative and current provider consumer use ellipsoid-normal Up.",
+  "historical_uncertainty": "The exact 2017 generator binary/source is not recovered. The current NASA source snapshot does not certify its basis.",
+  "selection_rule": "Use provider consumer evidence, without residual-based basis selection; retain existing radial result files as historical controls.",
+  "provider_software_built_or_executed": false
+}

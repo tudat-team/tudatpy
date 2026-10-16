@@ -1,0 +1,74 @@
+{
+  "station": "Grasse MeO",
+  "cdp": "7845",
+  "domes": "10002S002",
+  "system": 78,
+  "occupancy": 1,
+  "reference_point": "Azimuth/elevation axis intersection",
+  "instrument_eccentricity_metres": [
+    0,
+    0,
+    0
+  ],
+  "sitelog_source": {
+    "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/GRSM_sitelog.html",
+    "file": "GRSM_sitelog.html",
+    "sha256": "577eacac705384270b1339038896bde3da6128f49490b1edc7ac984a0d95283c",
+    "retrieved_utc": "2026-10-16T06:53:23.273309+00:00"
+  },
+  "inpop17a_g_ir": {
+    "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+    "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a",
+    "table": 8,
+    "printed_page": 21,
+    "visually_checked_pdf": true,
+    "reference_epoch": "J2000.0",
+    "reference_frame_description": "Paper table reference coordinates ITRF2005; fitted station solution, not official ITRF realization or matched DE440 solution",
+    "position_m": [
+      4581692.1349,
+      556196.078,
+      4389355.104
+    ],
+    "velocity_m_per_year": [
+      -0.0132,
+      0.0191,
+      0.0133
+    ],
+    "position_sigmas_m": [
+      0.0001,
+      0.0001,
+      0.0012
+    ],
+    "velocity_sigmas_m_per_year": [
+      0.0001,
+      0.0012,
+      0.0001
+    ],
+    "time_interpretation": "Source says J2000 and metres/year; TT Julian years remain explicit analysis interpretation, not reconstructed provider software setting"
+  },
+  "hofmann2017_standard": {
+    "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-797.pdf",
+    "sha256": "cf83f70c456fed3ca5bcabccd9496a9818ba82d30b1a79ff9d4796faa8db6cbe",
+    "tables": "5.4/5.5, printed p67; A.1 identity",
+    "position_m": [
+      4581692.147,
+      556196.115,
+      4389355.105
+    ],
+    "velocity_m_per_year": [
+      -0.0141,
+      0.0193,
+      0.0114
+    ]
+  },
+  "not_applied": {
+    "inpop_table10_fitted_bias": {
+      "start": "2016-06-01",
+      "end": "2018-01-01",
+      "value_cm": 2.46,
+      "convention": "TWO-WAY light time; 1.23cm half-range equivalent, do not import or fit"
+    },
+    "nearby_wrong_monument": "7835 / 10002S001 is a different Grasse system; do not use for these 7845 observations"
+  },
+  "slrf2020_identity_check": "Cached2023.10.02 SLRF file has exact7845/10002S002 as well as nearby7835/10002S001. Exact monument selection is possible, but publishedINPOP station pair is primary by root choice."
+}

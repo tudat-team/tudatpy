@@ -1,0 +1,16 @@
+# Keep archived hashes stable across Windows and Unix checkouts.
+workspace/** -text
+worktrees/** -text
+LASER-RANGING-STATUS.md -text
+
+# Retain the original whitespace in pinned IERS source and compiler output.
+workspace/research/FCUL_A.F whitespace=-blank-at-eol,-blank-at-eof
+workspace/research/FCUL_ZD_HPA.F whitespace=-blank-at-eol,-blank-at-eof
+workspace/research/optical-reference-check/FCUL_ZD_HPA.F whitespace=-blank-at-eol,-blank-at-eof
+workspace/research/optical-reference-check/compiler-version.txt whitespace=-blank-at-eof
+
+# Python's CSV writer used CRLF; this is part of the archived file's hash.
+*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# A patch's blank context lines contain a required leading space.
+workspace/verification/llr-icrf-frame-audit/exact_change.diff whitespace=-blank-at-eol

@@ -1,0 +1,97 @@
+{
+  "apollo_count": 311,
+  "crd_raw_count": 1304,
+  "grasse_count": 1271,
+  "retained_count": 1270,
+  "station_counts": {
+    "7845": 1271,
+    "7941": 33
+  },
+  "sessions": 462,
+  "h4_flags": {
+    "('0', '0', '0', '0', '1', '0', '2', '0')": 429,
+    "('1', '0', '0', '1', '1', '0', '2', '0')": 25,
+    "('0', '0', '0', '1', '1', '0', '2', '0')": 8
+  },
+  "epoch_events": {
+    "2": 1304
+  },
+  "wavelengths": {
+    "1064.2": 1178,
+    "532.1": 93,
+    "532.000": 33
+  },
+  "weather_origins": {
+    "0": 1304
+  },
+  "normal_rollover_count": 0,
+  "first_np_date_ambiguities": [],
+  "max_nearest_weather_s": 6600.5319867438,
+  "weather_hold_over_1000": [
+    {
+      "source_file": "luna17_201706.npt",
+      "source_line": 154,
+      "session_id": 338,
+      "station_cdp": "7845",
+      "system": "78",
+      "occupancy": "1",
+      "utc_reference_code": "4",
+      "reflector_code": 1,
+      "target": "luna17",
+      "utc_launch": "2017-06-22T09:47:06.763983741400",
+      "seconds_of_day_printed": "35226.763983741400",
+      "two_way_time_of_flight_s": "2.348499818830",
+      "epoch_event": "2",
+      "wavelength_nm": "1064.2",
+      "nearest_weather_s": 1070.7639837414,
+      "calibration_records_in_session": 3,
+      "bin_rms_ps_metadata_only": "110.1",
+      "weather_endpoint_hold_required_s": 1075.7639837414,
+      "retained": true
+    },
+    {
+      "source_file": "luna21_201706.npt",
+      "source_line": 253,
+      "session_id": 424,
+      "station_cdp": "7845",
+      "system": "78",
+      "occupancy": "1",
+      "utc_reference_code": "4",
+      "reflector_code": 4,
+      "target": "luna21",
+      "utc_launch": "2017-06-22T10:00:45.356444133700",
+      "seconds_of_day_printed": "36045.356444133700",
+      "two_way_time_of_flight_s": "2.347502783485",
+      "epoch_event": "2",
+      "wavelength_nm": "1064.2",
+      "nearest_weather_s": 1889.3564441337,
+      "calibration_records_in_session": 5,
+      "bin_rms_ps_metadata_only": "163.5",
+      "weather_endpoint_hold_required_s": 1894.3564441337,
+      "retained": true
+    },
+    {
+      "source_file": "luna21_201706.npt",
+      "source_line": 257,
+      "session_id": 424,
+      "station_cdp": "7845",
+      "system": "78",
+      "occupancy": "1",
+      "utc_reference_code": "4",
+      "reflector_code": 4,
+      "target": "luna21",
+      "utc_launch": "2017-06-22T11:19:16.531986743800",
+      "seconds_of_day_printed": "40756.531986743800",
+      "two_way_time_of_flight_s": "2.348693877724",
+      "epoch_event": "2",
+      "wavelength_nm": "1064.2",
+      "nearest_weather_s": 6600.5319867438,
+      "calibration_records_in_session": 5,
+      "bin_rms_ps_metadata_only": "187.0",
+      "weather_endpoint_hold_required_s": 6605.5319867438,
+      "retained": true
+    }
+  ],
+  "first_grasse_utc": "2017-01-06T17:42:22.773276553200",
+  "last_grasse_utc": "2017-12-21T16:33:43.111399259700"
+}

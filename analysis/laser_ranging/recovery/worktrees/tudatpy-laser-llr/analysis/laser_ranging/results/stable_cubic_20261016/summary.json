@@ -1,0 +1,304 @@
+{
+  "native_source_revision": "b1aa772503070347e8ac0b263c8de9278d390c17",
+  "shared": {
+    "kernel_binary_sha256": "10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5",
+    "script_sha256": "3c7c981f10da211b3fbb2996a316d9c58a52f9177f9a39442c550248a8107847",
+    "kernel_sha256": {
+      "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+      "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+      "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+      "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+      "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+      "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+    },
+    "earth_orientation_resource_sha256": {
+      "README_desaiSibois2016.txt": "7c402db01984d0f561b77758c9b6cb290f746694b9e52c6735c19a9de8e9041f",
+      "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d",
+      "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+      "desaiSibois2016Ut1OceanTidesAmplitudes.txt": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88",
+      "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+      "eopc04_08_IAU2000.62-now.txt": "60c35925a5289c618a6054d0a6b2b313afa4dabeef08e348a7cac6a2682e0ea3",
+      "eopc04_14_IAU2000.62-now.txt": "cc838b27572e89ff6d36ee7cbeb6a8f104f1f8e59ddf769e8c93e6515276cd32",
+      "eopc04_20_IAU2000.62-now.txt": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181",
+      "historicalDeltaT.txt": "4a2d068df1cdb5f39ac0e7efa04aafeea5be585afd1c9e2e4380cf8872e1f78e",
+      "polarMotionLibrationAmplitudes.txt": "09bf92da2470901a69b3f3e4a17568ab09fba3df6021e72323b9c83a933a5fb0",
+      "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf",
+      "polarMotionLibrationFundamentalArgumentMultipliers.txt": "3e1b8e99338e6713a244a1afc0e821a900bb67b6951fb76a0df5571b1d2b0206",
+      "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3",
+      "polarMotionOceanTidesAmplitudes.txt": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076",
+      "polarMotionOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+      "utcLibrationAmplitudes.txt": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7",
+      "utcLibrationFundamentalArgumentMultipliers.txt": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5",
+      "utcOceanTidesAmplitudes.txt": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829",
+      "utcOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+    },
+    "spice_knot_step_s": 30
+  },
+  "runtime": {
+    "package_relative_to_build": "src/tudatpy/__init__.py",
+    "kernel_relative_to_build": "src/tudatpy/kernel.so",
+    "interpreter_environment": "tudatpy-dev",
+    "numerical_threads": 1
+  },
+  "fractional_light_time_tolerance": 1e-13,
+  "maximum_iterations": 50,
+  "reconstruction": "git show COMMIT:PATH or git show BLOB gives each exact executed source/manifest; verify SHA256. Raw external summaries retain their original import paths and are separately identified below.",
+  "sources": {
+    "llr_residuals.py": {
+      "commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+      "path": "analysis/laser_ranging/llr_residuals.py",
+      "blob": "cb559028bb2fc76886ffc455abad9016998223f8",
+      "sha256": "3c7c981f10da211b3fbb2996a316d9c58a52f9177f9a39442c550248a8107847"
+    },
+    "matera_case.py": {
+      "commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+      "path": "analysis/laser_ranging/matera_case.py",
+      "blob": "ed155b032f5148ff120114103c5612509b5dac8b",
+      "sha256": "6292d83a4900af31439fcd6eda73a2079b9b5e7fc109b6d5e3f23a889ab5c1b4"
+    },
+    "ocean_loading.py": {
+      "commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+      "path": "analysis/laser_ranging/ocean_loading.py",
+      "blob": "fd983251e1474123e7ccbba5af9401661ab6718e",
+      "sha256": "073e1534c7619c53c8756381d2e117325e95c5f3ff10edd82d62c1459260843d"
+    },
+    "ocean_loading_basis.json": {
+      "commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+      "path": "analysis/laser_ranging/ocean_loading_basis.json",
+      "blob": "0c20f21ebb79882ada16288e101fc098cf153b94",
+      "sha256": "96b87ed6e6e14626314afa4d8014ffbc7eba8c940b548a76d35f7e7c41d06721"
+    },
+    "llr_dataset.json": {
+      "commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+      "path": "analysis/laser_ranging/llr_dataset.json",
+      "blob": "e802fe4241f11082ccaa8fc1cb5e14ca2ba9150f",
+      "sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294"
+    },
+    "matera_dataset.json": {
+      "commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+      "path": "analysis/laser_ranging/matera_dataset.json",
+      "blob": "a16191bdb520d3872afb6e0d404868b777dd1611",
+      "sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f"
+    },
+    "llr_station_profiles.json": {
+      "commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+      "path": "analysis/laser_ranging/llr_station_profiles.json",
+      "blob": "b04e0f6361549cff0c92faf758968b7c37e9c0f9",
+      "sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6"
+    }
+  },
+  "cases": {
+    "apollo_survey": {
+      "count": 11,
+      "mean_m": 0.21954546733336014,
+      "rms_about_zero_m": 0.223159598717939,
+      "scatter_about_mean_m": 0.039999928416536684,
+      "weighted_mean_m": 0.2112662671432586,
+      "normalized_rms": 102.8958608901724,
+      "chi_squared_no_fitted_parameters": 116463.14007162683,
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "station_profile": "survey2005",
+      "station_xyz_m": [
+        -1463998.8970758026,
+        -5166632.9137291815,
+        3435012.566612493
+      ],
+      "csv_sha256": "89ba606602c3c408fddee74912d18d681de4d6bd6fec38eaae20eac395e73b8b",
+      "original_summary_sha256": "8a9e4725ff2e73ae3fe052c67fe25699ad3747e0a302194760fc7f57ce562847",
+      "event_diagnostics_sha256": "589ece6f65d12efa4b95e684dd3c3979ae3124156f0c7178014efe4686e119c8",
+      "ephemeris_controls_sha256": "f256d426be15f0a4ae45a0257d6355e258e7096467f8cb7454a230782fe42781",
+      "mean_by_reflector_m": {
+        "A11": 0.1744265854358673,
+        "A14": 0.25137213865915936,
+        "A15": 0.196046382188797,
+        "L1": 0.2639225125312805
+      }
+    },
+    "apollo_inpop17a": {
+      "count": 11,
+      "mean_m": 0.07986902106891978,
+      "rms_about_zero_m": 0.08929058091725044,
+      "scatter_about_mean_m": 0.039921764916302165,
+      "weighted_mean_m": 0.0677323984969483,
+      "normalized_rms": 36.98782835445695,
+      "chi_squared_no_fitted_parameters": 15049.093910166466,
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "station_profile": "inpop17a-gir",
+      "station_xyz_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "csv_sha256": "89b1ac0f18b651f6eeb0c5fdb8fcb582291ead31831ee63bb72340bec7cdf1ec",
+      "original_summary_sha256": "82159d66ccb01e990f2e9d896a887570259eeea17adde8f09f54134f409f3021",
+      "event_diagnostics_sha256": "b9f61bf631fbd3b49b320fa05f0a50f4226ec95966ee49a3611eb1f16db701e6",
+      "ephemeris_controls_sha256": "f256d426be15f0a4ae45a0257d6355e258e7096467f8cb7454a230782fe42781",
+      "mean_by_reflector_m": {
+        "A11": 0.02763235569000244,
+        "A14": 0.1154480775197347,
+        "A15": 0.0555473268032074,
+        "L1": 0.12738049030303955
+      }
+    },
+    "matera": {
+      "count": 2,
+      "mean_m": 0.1501767635345459,
+      "rms_about_zero_m": 0.15268275085210248,
+      "scatter_about_mean_m": 0.027549266815185547,
+      "weighted_mean_m": null,
+      "normalized_rms": null,
+      "chi_squared_no_fitted_parameters": null,
+      "normal_point_sha256": "a28bd21b005e2978c618a5103bf5fd0d5c8b4bcb6a6bb1e449239e8b14dbe7ef",
+      "dataset_manifest_sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f",
+      "station_profile": "slrf2020-matera",
+      "station_xyz_m": [
+        4641978.52389715,
+        1393067.81970112,
+        4133249.69590866
+      ],
+      "csv_sha256": "8aee16e1916ffde5850b80243d28a6b1a79485745ced7516b399d10a0f05c50d",
+      "original_summary_sha256": "1617213fedb88a0147561660e852af53cda581d809676035da7281de08d670ea",
+      "event_diagnostics_sha256": "ab8d612f73522300fd0e12dc0ae447adec82cfbe96243bad8418962b7fca584b",
+      "ephemeris_controls_sha256": "51e2a43944a138dd3f58bca891af893a324a78634e60ec620315129689d6aa8c",
+      "mean_by_reflector_m": {
+        "A15": 0.1501767635345459
+      }
+    },
+    "apollo_inpop17a_geodetic_got410c": {
+      "count": 11,
+      "mean_m": 0.09203534776514227,
+      "rms_about_zero_m": 0.10033835730642268,
+      "scatter_about_mean_m": 0.039965994404001365,
+      "weighted_mean_m": 0.079827641519537,
+      "normalized_rms": 42.185285417051624,
+      "chi_squared_no_fitted_parameters": 19575.58136289919,
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "station_profile": "inpop17a-gir",
+      "station_xyz_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "csv_sha256": "90bd0ac15dae7dbf2dc2a419e00b8a673805b113535402ab1f7c6541fd64fdb8",
+      "original_summary_sha256": "c00b5c92d99c3873c43d98a78148ca9e60d6c1d0c8ffe84e2263213666fd3c94",
+      "event_diagnostics_sha256": "7f0f5245c0b95a33eb31d4e8846cb3698148c5d6ac5fccefc67483b65f9ea085",
+      "ephemeris_controls_sha256": "f256d426be15f0a4ae45a0257d6355e258e7096467f8cb7454a230782fe42781",
+      "mean_by_reflector_m": {
+        "A11": 0.03968134522438049,
+        "A14": 0.1277028719584147,
+        "A15": 0.06764031946659088,
+        "L1": 0.13967812061309814
+      },
+      "ocean_loading": {
+        "model": "GOT4.10c",
+        "source_url": "https://massloading.net/imsl/load_har_list/toc/got410c/toc_got410c_harmod.hps",
+        "sha256": "67e160364809cec482dc6e122df256d279a87478aeebfc67586cd0fe08311150",
+        "product_release": "GOT4.10c; generated 2017-06-17; HARPOS 2005.03.28",
+        "site": "Apollo",
+        "provider_xyz_m": [
+          -1464000.0,
+          -5166632.0,
+          3435014.0
+        ],
+        "nominal_xyz_m": [
+          -1463998.9155,
+          -5166632.769,
+          3435012.8659
+        ],
+        "site_separation_m": 1.7474793448082064,
+        "applicability_radius_m": 3000.0,
+        "constituents": [
+          "K1",
+          "K1-",
+          "K1+",
+          "K2",
+          "K2+",
+          "M2",
+          "M2-",
+          "M4",
+          "N2",
+          "N2-",
+          "O1",
+          "O1-",
+          "P1",
+          "Q1",
+          "Q1-",
+          "S1",
+          "S2"
+        ],
+        "argument_time": "TT seconds since J2000; selected Earth rotation converter at geocentre",
+        "amplitude_axes": "geodetic ellipsoid-normal Up, East, North at provider XYZ",
+        "basis_ellipsoid": {
+          "equatorial_radius_m": 6378137.0,
+          "flattening": 0.0033528131778969143
+        },
+        "basis_source_revision": "aca77c2e11d6241c4b51c25a9815ab8130ee611b",
+        "basis_source_url": "https://github.com/nasa/sgdass/blob/aca77c2e11d6241c4b51c25a9815ab8130ee611b/petools/pet_util/make_uen_to_xyz.f",
+        "axis_wording_discrepancy": "Formal HARPOS says radial Up; this analysis follows the product narrative and pinned NASA consumer's geodetic basis.",
+        "historical_basis_uncertainty": "The exact 2017 generator binary/source was not recovered; current consumer evidence does not prove its historical basis.",
+        "uen_to_itrs": [
+          [
+            -0.2292087307346484,
+            0.9621208195878144,
+            0.1476038152307856
+          ],
+          [
+            -0.8089051659105315,
+            -0.2726234188687253,
+            0.5209116086703992
+          ],
+          [
+            0.5414201606130556,
+            0.0,
+            0.8407521690020984
+          ]
+        ],
+        "origin": "whole-Earth centre of mass",
+        "earth_response": "STW105/REAR",
+        "scope": "17 supplied gravity-tide terms including nodal sidebands; ocean-pole and equilibrium terms are not included",
+        "comparison": "Different realization from ASI 11-constituent BLQ+HARDISP and JPL FES2004; not exact provider replay"
+      }
+    }
+  },
+  "cross_kernel_controls": {
+    "apollo_survey": {
+      "prior_csv": "../apollo_20170309/survey_cubic30/normal_points.csv",
+      "prior_csv_sha256": "82f953b9ce643cf91897a78d08982cabe383f3070d43efcb3faa3e6bdbe19b25",
+      "prior_kernel_sha256": "bd8d893574bd29281188934ff5a62647e4c08494eb4bfb846c17cfc06a062968",
+      "prior_summary_sha256": "46fdcc6e3edf0244679a68ce88fa507f22ad5ce5979c2e8896369cffd6d9a3b0",
+      "mean_residual_change_m": -4.882162267511541e-06,
+      "max_abs_residual_change_m": 3.832578659057617e-05
+    },
+    "apollo_inpop17a": {
+      "prior_csv": "../apollo_20170309/inpop17a_gir_cubic30/normal_points.csv",
+      "prior_csv_sha256": "66392f70d97581ccb095a34e1ecbe0e0f068dae67f85af4a4b657b54e1ccaaa3",
+      "prior_kernel_sha256": "1864ed04530210fa056e78128bdbbfe1ad536cae6a9d3ade4f23295fbeda1744",
+      "prior_summary_sha256": "f1b364f61acb1cc8e3968157ccc8721b6450b83afe01adea1c93c760d6b83a35",
+      "mean_residual_change_m": -8.279627019708807e-06,
+      "max_abs_residual_change_m": 2.4497509002685547e-05
+    },
+    "matera": {
+      "prior_csv": "../matera_20220821/normal_points.csv",
+      "prior_csv_sha256": "14b99f5c2878322f44d2b322bbb58042c47500dc7293257be3c38b4419c45e13",
+      "prior_kernel_sha256": "bd8d893574bd29281188934ff5a62647e4c08494eb4bfb846c17cfc06a062968",
+      "prior_summary_sha256": "688f8dbab400a0cdfa268b90e704d01c10bce3255f979cabfe19f67fd2d073f3",
+      "mean_residual_change_m": 8.046627044677734e-07,
+      "max_abs_residual_change_m": 1.6093254089355469e-06
+    }
+  },
+  "comparison_convention": "All differences are fresh minus prior. No-loading controls compare unchanged physical models. Historical radial-loading outputs remain untouched and are not used as pure kernel controls.",
+  "same_kernel_loading_comparison": {
+    "mean_residual_change_m": 0.012166326696222479,
+    "minimum_residual_change_m": 0.011706233024597168,
+    "maximum_residual_change_m": 0.012437403202056885,
+    "mean_by_reflector_m": {
+      "A11": 0.012048989534378052,
+      "A14": 0.012254794438680014,
+      "A15": 0.012092992663383484,
+      "L1": 0.012297630310058594
+    }
+  }
+}

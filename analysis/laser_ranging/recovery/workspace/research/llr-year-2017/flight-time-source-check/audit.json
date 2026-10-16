@@ -1,0 +1,45 @@
+{
+  "daily_source": {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2017/apollo15_20170220.npt",
+    "file": "flight-time-source-check/apollo15_20170220.npt",
+    "status": 200,
+    "sha256": "d70d27ea2c7a77be91ac9aaad512331b5dfd5da42356541babcadd9190ffa785"
+  },
+  "records": [
+    {
+      "source_file": "apollo15_201702.npt",
+      "source_line": 168,
+      "daily_lines": [
+        12
+      ],
+      "raw": "11 48188.387557778100    0.000000024976 me09 2   32.9     2      20.3   -.100     -2.000       0.0  99.9 0"
+    },
+    {
+      "source_file": "apollo15_201702.npt",
+      "source_line": 211,
+      "daily_lines": [
+        26
+      ],
+      "raw": "11 48200.476420038600    0.000000017271 me09 2    3.2     2      24.2     .000     -2.000       0.0  86.8 0"
+    }
+  ],
+  "all_crd_record11_count": 1304,
+  "all_crd_outside1_to4seconds": [
+    {
+      "file": "apollo15_201702.npt",
+      "line": 168,
+      "station": "7845",
+      "rtt_s": "2.4976E-8"
+    },
+    {
+      "file": "apollo15_201702.npt",
+      "line": 211,
+      "station": "7845",
+      "rtt_s": "1.7271E-8"
+    }
+  ],
+  "apollo_count": 311,
+  "apollo_min_rtt_s": "2.3492204584470",
+  "apollo_max_rtt_s": "2.6770120814302",
+  "apollo_outside1_to4seconds": 0
+}

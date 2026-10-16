@@ -1,0 +1,56 @@
+{
+  "retrieved_date": "2026-10-16",
+  "sources": [
+    {
+      "file": "inpop17a_v3_090817.pdf",
+      "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+      "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a"
+    },
+    {
+      "file": "inpop17a_TDB_m100_p100.header",
+      "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop17a/inpop17a_TDB_m100_p100.header",
+      "sha256": "2082297553208d173d3dee0b76ed14cb9955e2a4590cb0ba63b7e09e37aee818"
+    },
+    {
+      "file": "Manche_These.pdf",
+      "url": "https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf",
+      "sha256": "f36cf9602a79d4de0d98e1136e9cf5d45db3f9e319bfa0933b8f7a856cec1cb6"
+    }
+  ],
+  "station_candidate": {
+    "solution": "INPOP17a G+IR, Table 8, printed page 21; visually checked rendered PDF",
+    "epoch_as_published": "J2000",
+    "frame_as_published": "Reference values correspond to ITRF2005; fitted station coordinates",
+    "position_m": [
+      -1463998.9155,
+      -5166632.769,
+      3435012.8659
+    ],
+    "velocity_m_per_year": [
+      -0.013,
+      0.0001,
+      0.0
+    ],
+    "position_sigma_m": [
+      0.0004,
+      0.0004,
+      0.0014
+    ],
+    "velocity_sigma_m_per_year": [
+      0.0001,
+      0.0001,
+      0.0016
+    ],
+    "row_algebra": "x=-1463998.7870-.1285; y=-5166632.8080+.0390; z=3435012.8560+.0099; vx=-.0141+.0011; vy=-.0015+.0016; vz=-.0064+.0064",
+    "apollo_fit_end": "2016-11-25 (Table 4); selected March 2017 night excluded"
+  },
+  "limits": {
+    "time": "Table 8 says J2000 and m/year; TT drift scale appears in cited Manche 2011 section 9.1.2. Julian-year implementation would be an explicit interpretation.",
+    "tide": "Report section 2.3 invokes IERS2010; no explicit permanent-tide flag found. Manche 2011 section 9.1.1 defines regularized positions, section 9.1.3.2 invokes Dehant IERS2003 routine. This supports, but does not independently prove, tide-free INPOP17a station coordinates.",
+    "loading": "Manche 2011 sections 9.1.4-5 include atmospheric loading and CSR4.0 ocean loading with geocentre correction; precise 2017 choices not restated.",
+    "reflectors": "Table 9 has apparent errors: L1 reference equals terrestrial MLRS2; L2 reference is at L1 site. Do not silently repair.",
+    "header": "402 constants parsed; no station or reflector coordinates. Dynamical constants align with rounded G+IR values but do not repair reflector metadata.",
+    "matched": "No claim that INPOP fitted coordinates are a DE440 matched station solution or a complete matched INPOP reduction."
+  },
+  "recommendation": "Candidate for a preselected station-only sensitivity profile after root review, retaining DE440 lunar constants and reflectors. Not yet an unambiguous complete matched reduction; do not choose between G and G+IR using the eleven residuals."
+}

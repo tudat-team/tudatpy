@@ -1,0 +1,7 @@
+{
+  "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop17a/inpop17a_TDB_m100_p100_spice.tar.gz",
+  "file": "inpop17a_TDB_m100_p100_spice.tar.gz",
+  "bytes": 24189292,
+  "sha256": "52afaf265f3d1dd4d03b8e2239574af3d3d8c65c0b57e5a8c56fed0b137b98b2",
+  "purpose": "Root-approved coherent INPOP17a orbit/rotation metadata audit; no model or residual run"
+}

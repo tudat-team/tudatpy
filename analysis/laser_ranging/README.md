@@ -1,5 +1,10 @@
 # Fixed-orbit LAGEOS-1 observation reduction
 
+Start with [CONTINUE-HERE.md](CONTINUE-HERE.md) for the current results, file map,
+runtime setup and remaining questions. The [recovery index](recovery/README.md)
+preserves the supporting scripts, research notes and historical status log
+recovered on 16 October 2026.
+
 `fixed_orbit_slr.py` defaults to the frozen week 2024-03-31 through 2024-04-06.
 The separately frozen consecutive week 2024-04-07 through 2024-04-13 is selected
 with `--week-ending 2024-04-13` and its own data root.

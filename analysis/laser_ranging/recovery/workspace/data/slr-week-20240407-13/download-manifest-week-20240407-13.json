@@ -1,0 +1,122 @@
+{
+  "selection_frozen_before_residuals": true,
+  "week_start_utc": "2024-04-07",
+  "week_end_inclusive_utc": "2024-04-13",
+  "target": "LAGEOS1",
+  "stations": {
+    "7839": "11001S002",
+    "7840": "13212S001"
+  },
+  "orbit": "ilrsa.orb.lageos1.240413.v81.sp3.gz",
+  "weekly_eccentricity_metadata": "ilrsa.pos+eop.240413.v80.snx.gz",
+  "selection_reason": "Next consecutive week; same combined-release conventions as first frozen week. No residual-based selection.",
+  "products": [
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240407.np2",
+      "path": "2024-04/lageos1_20240407.np2",
+      "bytes": 53483,
+      "sha256": "e4c30ca7c76a5e3b0689534e899568190a5ab01b44e0bf1f471a13d8cbbde889",
+      "uncompressed_bytes": 53483,
+      "uncompressed_sha256": "e4c30ca7c76a5e3b0689534e899568190a5ab01b44e0bf1f471a13d8cbbde889",
+      "retrieved_utc": "2026-10-15T22:57:58.614864+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240408.np2",
+      "path": "2024-04/lageos1_20240408.np2",
+      "bytes": 34306,
+      "sha256": "d7d19b80fbec1b36200fb9bf0e56338aed692438642c98a86c772236ef64b41a",
+      "uncompressed_bytes": 34306,
+      "uncompressed_sha256": "d7d19b80fbec1b36200fb9bf0e56338aed692438642c98a86c772236ef64b41a",
+      "retrieved_utc": "2026-10-15T22:57:58.582783+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240409.np2",
+      "path": "2024-04/lageos1_20240409.np2",
+      "bytes": 58027,
+      "sha256": "237481c12ab35edd8213d05581a4a7f05f08139a07a75862fb4347e8071ce030",
+      "uncompressed_bytes": 58027,
+      "uncompressed_sha256": "237481c12ab35edd8213d05581a4a7f05f08139a07a75862fb4347e8071ce030",
+      "retrieved_utc": "2026-10-15T22:57:58.622120+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240410.np2",
+      "path": "2024-04/lageos1_20240410.np2",
+      "bytes": 36340,
+      "sha256": "9aa2002b73a3e493e5199fc9b804fb5388ed429497bc2e33c220ea6315b8ca6a",
+      "uncompressed_bytes": 36340,
+      "uncompressed_sha256": "9aa2002b73a3e493e5199fc9b804fb5388ed429497bc2e33c220ea6315b8ca6a",
+      "retrieved_utc": "2026-10-15T22:57:58.588647+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240411.np2",
+      "path": "2024-04/lageos1_20240411.np2",
+      "bytes": 74987,
+      "sha256": "606036c561cc2a2b48727795713b37f9dce4a76a79184d8228435a8ff7c7b9d7",
+      "uncompressed_bytes": 74987,
+      "uncompressed_sha256": "606036c561cc2a2b48727795713b37f9dce4a76a79184d8228435a8ff7c7b9d7",
+      "retrieved_utc": "2026-10-15T22:57:58.817041+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240412.np2",
+      "path": "2024-04/lageos1_20240412.np2",
+      "bytes": 49321,
+      "sha256": "dce7d59af2de05a5ba67e6e9173fb804757d384c3de6c3a1bd87402c863057eb",
+      "uncompressed_bytes": 49321,
+      "uncompressed_sha256": "dce7d59af2de05a5ba67e6e9173fb804757d384c3de6c3a1bd87402c863057eb",
+      "retrieved_utc": "2026-10-15T22:57:58.766889+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd_v2/lageos1/2024/lageos1_20240413.np2",
+      "path": "2024-04/lageos1_20240413.np2",
+      "bytes": 60026,
+      "sha256": "51d334b5d6f77d9353d7115ef74fc166316987bede765554aa5e8d26621b14b5",
+      "uncompressed_bytes": 60026,
+      "uncompressed_sha256": "51d334b5d6f77d9353d7115ef74fc166316987bede765554aa5e8d26621b14b5",
+      "retrieved_utc": "2026-10-15T22:57:58.822797+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/products/orbits/TRF/lageos1/2024/240413/ilrsa.orb.lageos1.240413.v81.sp3.gz",
+      "path": "2024-04/ilrsa.orb.lageos1.240413.v81.sp3.gz",
+      "bytes": 244097,
+      "sha256": "d87d2ab14b89ec46e61ba3be0c82b8aa6c79806d66da6b36a2d195a1fcb5fc66",
+      "uncompressed_bytes": 777470,
+      "uncompressed_sha256": "1e226281d4863df8d0c23dfc351de23f1b29de9be040fd7a01c7843276fb4c60",
+      "retrieved_utc": "2026-10-15T22:57:58.925202+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/products/orbits/TRF/lageos1/2024/240413/ilrsa.orb.lageos1.240413.v81.sum.gz",
+      "path": "2024-04/ilrsa.orb.lageos1.240413.v81.sum.gz",
+      "bytes": 1653,
+      "sha256": "0cbe4f614c1f8bcafadb9d362391b1c40304b89f88c5f4e4c741ca597643f4aa",
+      "uncompressed_bytes": 15571,
+      "uncompressed_sha256": "1e2412b607c2dfd48c936b726e7b51145c801853a5c6ac7e77f33e825593d364",
+      "retrieved_utc": "2026-10-15T22:57:58.969499+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    },
+    {
+      "url": "https://edc.dgfi.tum.de/pub/slr/products/pos+eop/weekly/2024/240413/ilrsa.pos+eop.240413.v80.snx.gz",
+      "path": "2024-04/ilrsa.pos+eop.240413.v80.snx.gz",
+      "bytes": 49908,
+      "sha256": "3f78eb24c7ec3817a1def44d0d29d4879fcf87770b08f4f60022c5be4842c500",
+      "uncompressed_bytes": 153362,
+      "uncompressed_sha256": "21f1a30fcc1254d863cb27f8392aa696ef06676519c0bfdea26f72f8d7740071",
+      "retrieved_utc": "2026-10-15T22:57:59.010225+00:00",
+      "rights": "Public ILRS/EDC scientific archive; retain provider citations. No explicit per-file redistribution licence observed."
+    }
+  ],
+  "reused_metadata": [
+    "metadata/SLRF2020_POS+VEL_2023.10.02.snx",
+    "metadata/ILRS_Data_Handling_File_2024.02.13.snx",
+    "metadata/com6.220915.tar.gz"
+  ],
+  "physical_selection_unchanged": "20 degree provider elevation cutoff; common8/10point interior; no residual clipping or fitted bias.",
+  "residuals_computed": false
+}

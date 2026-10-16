@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-10-15T22:06:06.690676+00:00",
+  "compiler": "/home/dominic/miniconda3/envs/tudatpy-dev/bin/x86_64-conda-linux-gnu-gfortran",
+  "compiler_version": "GNU Fortran (conda-forge gcc 15.2.0-19) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "command": [
+    "/home/dominic/miniconda3/envs/tudatpy-dev/bin/x86_64-conda-linux-gnu-gfortran",
+    "-std=legacy",
+    "-ffixed-form",
+    "-O0",
+    "/home/dominic/Tudat/laser-ranging-work/research/optical-reference-check/FCUL_ZD_HPA.F",
+    "/home/dominic/Tudat/laser-ranging-work/research/optical-reference-check/check_fcul_zenith.f",
+    "-o",
+    "/home/dominic/Tudat/laser-ranging-work/research/optical-reference-check/check_fcul_zenith"
+  ],
+  "working_directory": "/home/dominic/Tudat/laser-ranging-work/research/optical-reference-check",
+  "source_hashes": {
+    "FCUL_ZD_HPA.F": "92731affca053aad15a44be7db58dbf6df689e75cf2e1f3b39cb4d99a4da198b",
+    "check_fcul_zenith.f": "039c0885da6f21eb8e893ca10079018ee48074d64ef3225d2e4bfcebc0aecfe4"
+  },
+  "compile_exit": 0,
+  "run_exit": 0,
+  "stdout": "FCUL_ZTD =    1.93522972487606770E+00\nFCUL_ZHD =    1.93299597223469832E+00\nFCUL_ZWD =    2.23375264136944527E-03\n",
+  "inputs": {
+    "latitude_deg": "30.67166667",
+    "height_m": "2010.344",
+    "pressure_hPa": "798.4188",
+    "water_vapor_pressure_hPa": "14.322",
+    "wavelength_um": "0.532"
+  }
+}

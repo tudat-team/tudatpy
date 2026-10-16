@@ -1,0 +1,30 @@
+[
+  {
+    "file": "de421.bsp",
+    "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421.bsp",
+    "size": 16790528,
+    "sha256": "08b20db2ae22488650641c5a9033e5bfda4b1c4b440cfeaf20f621cfa18ecdb3",
+    "retrieved_utc": "2026-10-16T06:37:55.551988+00:00"
+  },
+  {
+    "file": "moon_pa_de421_1900-2050.bpc",
+    "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de421_1900-2050.bpc",
+    "size": 1770496,
+    "sha256": "656f90616403d75a75f0cd6c8830fc5b44f8cb4facb5ccb8915e752b397520cf",
+    "retrieved_utc": "2026-10-16T06:37:57.339131+00:00"
+  },
+  {
+    "file": "moon_080317.tf",
+    "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf",
+    "size": 21437,
+    "sha256": "78732477b96f9863e7b0d65bcee3c22b8707ca5ed0db56d1173319cb2e8c7993",
+    "retrieved_utc": "2026-10-16T06:37:58.153808+00:00"
+  },
+  {
+    "file": "header.421",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de421/header.421",
+    "size": 8422,
+    "sha256": "0fe9e0d60df4b33772e7332d87eb883eaf4cf3219b5a4cd2d5bc2356e98b2d16",
+    "retrieved_utc": "2026-10-16T06:37:58.659318+00:00"
+  }
+]

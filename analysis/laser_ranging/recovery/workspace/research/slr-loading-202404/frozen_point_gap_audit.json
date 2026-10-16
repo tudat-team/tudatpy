@@ -1,0 +1,336 @@
+{
+  "original_manifest_sha256": "6c4bc3dc620329ead397ad376f88ab52d743a4f1426a261cd925e7bc219b7e96",
+  "affected_points": [
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "0",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1164.883463894944",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "1",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1724.86576388776",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "2",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "2132.218563891952",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "3",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "2180.669063892224",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "4",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "3115.283763889216",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "5",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "3188.021663889288",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "6",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "3287.775463895872",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "7",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "3408.651763893664",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "179",
+      "normal_point": "8",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "3504.900463901456",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "0",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1421.5774716",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "1",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1491.9557966",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "2",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1600.6081542",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "3",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1747.3531556",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "4",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1842.0555828",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "5",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "1974.3884086",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "6",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "2503.47559",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "7",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "2567.6118926",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "8",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "2696.2537336",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7840",
+      "session": "180",
+      "normal_point": "9",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212835",
+      "utc_seconds_into_hour": "2769.974607",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "183",
+      "normal_point": "0",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212839",
+      "utc_seconds_into_hour": "278.01996389590397",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "183",
+      "normal_point": "1",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212839",
+      "utc_seconds_into_hour": "550.94106389396",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "183",
+      "normal_point": "2",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212839",
+      "utc_seconds_into_hour": "1023.3820638936",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "183",
+      "normal_point": "3",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212839",
+      "utc_seconds_into_hour": "1309.57296389528",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "183",
+      "normal_point": "4",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212839",
+      "utc_seconds_into_hour": "1340.099963899704",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "183",
+      "normal_point": "5",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212839",
+      "utc_seconds_into_hour": "1603.036663888024",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "185",
+      "normal_point": "0",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212842",
+      "utc_seconds_into_hour": "1286.817163890208",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "185",
+      "normal_point": "1",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212842",
+      "utc_seconds_into_hour": "1796.947063887472",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "185",
+      "normal_point": "2",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212842",
+      "utc_seconds_into_hour": "1816.84756389072",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "185",
+      "normal_point": "3",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212842",
+      "utc_seconds_into_hour": "2125.136963894592",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "185",
+      "normal_point": "4",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212842",
+      "utc_seconds_into_hour": "2441.275563890112",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "185",
+      "normal_point": "5",
+      "source": "lageos1_20240412.np2",
+      "utc_hours_since_j2000": "212842",
+      "utc_seconds_into_hour": "2777.697463896128",
+      "gap_hours": 9.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "193",
+      "normal_point": "0",
+      "source": "lageos1_20240413.np2",
+      "utc_hours_since_j2000": "212845",
+      "utc_seconds_into_hour": "2591.76866389811",
+      "gap_hours": 6.0
+    },
+    {
+      "week": 2,
+      "station": "7839",
+      "session": "193",
+      "normal_point": "1",
+      "source": "lageos1_20240413.np2",
+      "utc_hours_since_j2000": "212845",
+      "utc_seconds_into_hour": "3261.12966389954",
+      "gap_hours": 6.0
+    }
+  ],
+  "scope": "Data coverage only; no residual/model calculation or gap filling"
+}

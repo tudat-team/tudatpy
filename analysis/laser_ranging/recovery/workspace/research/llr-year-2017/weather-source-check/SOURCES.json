@@ -1,0 +1,50 @@
+[
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo11/2017/apollo11_20170622.npt",
+    "file": "apollo11_20170622.npt",
+    "status": 200,
+    "sha256": "daf6d8d00c0c0da55c388b28ed87cbf4a8e41c7becb951df064eabe6d51e6a94",
+    "weather": []
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo14/2017/apollo14_20170622.npt",
+    "file": "apollo14_20170622.npt",
+    "status": 200,
+    "sha256": "7b33d8ce7e07c262778ffe890fa39e397f9ed859c59d054084502e4cf623cdf7",
+    "weather": []
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2017/apollo15_20170622.npt",
+    "file": "apollo15_20170622.npt",
+    "status": 200,
+    "sha256": "95584870804f40a4350e0b48295de80cc8dc7e55c7bd2cd2351c27c6051ada86",
+    "weather": [
+      "20 31514.              879.94 297.51   53 0",
+      "20 34156.              880.13 295.95   65 0"
+    ]
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/luna17/2017/luna17_20170622.npt",
+    "file": "luna17_20170622.npt",
+    "status": 200,
+    "sha256": "63de0e15cf89638b0c84bf9ffeeff2aa83c5f67ca026c400ad8cec23d85dfb0d",
+    "weather": [
+      "20 29365.              879.8 297.77   34 0",
+      "20 32242.              880.01 297.03   58 0",
+      "20 34156.              880.13 295.95   65 0"
+    ]
+  },
+  {
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/luna21/2017/luna21_20170622.npt",
+    "file": "luna21_20170622.npt",
+    "status": 200,
+    "sha256": "782346353c91dc6bf92fce8e8c0a251af1d713850c07306a3915373b00ce3832",
+    "weather": [
+      "20 28546.              879.78 297.6   36 0",
+      "20 30753.              879.89 297.63   43 0",
+      "20 33288.              880.11 296.38   64 0",
+      "20 34156.              880.13 295.95   65 0",
+      "20 34156.              880.13 295.95   65 0"
+    ]
+  }
+]

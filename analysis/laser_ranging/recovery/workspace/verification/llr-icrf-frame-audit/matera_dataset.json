@@ -1,0 +1,62 @@
+{
+  "case": "Both Matera7941 Apollo15 normal points on UTC2022-08-21; fixed-DE440 independent prediction outside its fitting span",
+  "normal_points": {
+    "file": "apollo15_20220821.npt",
+    "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2022/apollo15_20220821.npt",
+    "sha256": "a28bd21b005e2978c618a5103bf5fd0d5c8b4bcb6a6bb1e449239e8b14dbe7ef",
+    "count": 2,
+    "selection": "Retain both sessions and both normal points in original file order; no residual selection"
+  },
+  "kernel_manifest": "llr_dataset.json",
+  "station_inputs": {
+    "solution": {
+      "file": "SLRF2020_POS+VEL_2025.02.05.snx",
+      "url": "https://ilrs.gsfc.nasa.gov/docs/2025/SLRF2020_POS+VEL_2025.02.05.snx",
+      "sha256": "fd669e0a028bb12ccf01cccbbf0573cc42b89e8c35b22328fcda7296d114c3de"
+    },
+    "eccentricity": {
+      "file": "slrecc.260527.ILRS.xyz.snx",
+      "url": "https://ilrs.gsfc.nasa.gov/docs/2026/slrecc.260527.ILRS.xyz.snx",
+      "sha256": "b51b9496d4cc23129450b9e2593854fb8b7c2f56d59980b6cf144415f98686a7"
+    },
+    "post_seismic": {
+      "file": "ITRF2020-psd-slr.snx",
+      "url": "https://itrf.ign.fr/ftp/pub/itrf/itrf2020/ITRF2020-psd-slr.snx",
+      "sha256": "4b225d01f3b8430d702a974086185604025168548a1dbfa627c5ceacf4f58bdd"
+    },
+    "discontinuities": {
+      "file": "ITRF2020-soln-slr.snx",
+      "url": "https://itrf.ign.fr/ftp/pub/itrf/itrf2020/ITRF2020-soln-slr.snx",
+      "sha256": "59043b54be959da49e6f590e77b3c2f5ac6bf978297b6403e3beb132388a4a74"
+    }
+  },
+  "station": {
+    "cdp": "7941",
+    "point": "A",
+    "solution": "1",
+    "domes": "12734S008",
+    "system_number": 77,
+    "occupancy": 1,
+    "reference_point": "Azimuth/elevation axis intersection, calibrated instrument point; documented zero XYZ eccentricity",
+    "frame": "SLRF2020 in ITRF2020; no speculative frame transform",
+    "origin": "whole-Earth centre of mass",
+    "tide_system": "tide-free",
+    "time_convention": "IGN nominal UTC: native civil UTC/MJD difference divided by365.25; leap seconds excluded from linear terms, TAI validity intervals",
+    "validity_interpretation": "Conservatively use the single SLRF SOLUTION/EPOCHS span for this frozen case; it is an observation span, not a published discontinuity record. Official ITRF2020 SLR discontinuities have no7941 entry."
+  },
+  "reference_point_sources": [
+    {
+      "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/MATM_sitelog.html",
+      "sha256": "3882390a1cc3390d09fce17b79b25078181a590bf91e1bee83e7d6218e2b165a",
+      "description": "Cached revision9,2026-08-13;7941/12734S008 axisintersection,system77 occupation01"
+    },
+    {
+      "url": "https://ilrs.gsfc.nasa.gov/network/site_procedures/eccentricity.html",
+      "sha256": "4c4d07caae35f509c2b478228b3d4655c07899ffa1468fb897f9e3ca8b518967",
+      "description": "Permanent S-DOMES systems reference optical-axis intersection; zero eccentricity"
+    }
+  ],
+  "uncertainty": "CRD bin RMS is accepted-return spread, not normal-point standard error; no sqrt(N) inference, normalized residuals or noise-level claim",
+  "loading": "Disabled for initial case; fitted seasonal terms and atmospheric loading not added",
+  "crd_format": "https://ilrs.gsfc.nasa.gov/docs/2022/crd_v2.01e3.pdf"
+}

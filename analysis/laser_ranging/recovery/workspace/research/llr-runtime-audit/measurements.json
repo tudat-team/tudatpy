@@ -1,0 +1,516 @@
+{
+  "scope": "Two frozen complete APOLLO NPs only; unchanged current model.100 native calls per microprobe; no optimization or implementation edit.",
+  "source_commit": "a453128ac8179fc9c3212648f78efc531ecc1114",
+  "script_sha256": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
+  "kernel_sha256": "80b924287707124a8efea66455b26233b5511b7856983d35c05d21f82734f215",
+  "input_and_kernel_load_seconds": 0.09766486700391397,
+  "environment_setup_seconds": 0.06858452901360579,
+  "normal_points": [
+    {
+      "index": 0,
+      "complete_range_m": 742328585.5548918,
+      "seconds": 0.0588176480086986
+    },
+    {
+      "index": 1,
+      "complete_range_m": 742183337.8836795,
+      "seconds": 0.057472271990263835
+    }
+  ],
+  "microprobes": {
+    "earth_ephemeris": {
+      "advancing_microseconds_per_call": 0.5010701715946198,
+      "same_epoch_microseconds_per_call": 0.377819815184921
+    },
+    "earth_rotation": {
+      "advancing_microseconds_per_call": 46.737729862798005,
+      "same_epoch_microseconds_per_call": 46.736529911868274
+    },
+    "earth_rotation_derivative": {
+      "advancing_microseconds_per_call": 254.35612973524258,
+      "same_epoch_microseconds_per_call": 252.3025101982057
+    },
+    "moon_rotation": {
+      "advancing_microseconds_per_call": 2.8516098973341286,
+      "same_epoch_microseconds_per_call": 2.5766398175619543
+    },
+    "tdb_to_tt": {
+      "advancing_microseconds_per_call": 16.793270187918097,
+      "same_epoch_microseconds_per_call": 17.043529951479286
+    },
+    "tdb_to_utc": {
+      "advancing_microseconds_per_call": 17.488269950263202,
+      "same_epoch_microseconds_per_call": 17.229579971171916
+    },
+    "earth_intrinsic_position": {
+      "advancing_microseconds_per_call": 730.6074499501847,
+      "same_epoch_microseconds_per_call": 660.4189501376823
+    },
+    "earth_final_position": {
+      "advancing_microseconds_per_call": 1816.1291899741627,
+      "same_epoch_microseconds_per_call": 2075.205520086456
+    },
+    "moon_intrinsic_position": {
+      "advancing_microseconds_per_call": 5.410010053310543,
+      "same_epoch_microseconds_per_call": 1.9018500461243093
+    },
+    "moon_final_position": {
+      "advancing_microseconds_per_call": 30.846210138406605,
+      "same_epoch_microseconds_per_call": 29.43168015917763
+    }
+  },
+  "profile_top_self": [
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations.simulate_observations>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 0.06820050600000001,
+      "cumulative_seconds": 0.115642909
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.astro.time_representation.convert_time>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.032363016,
+      "cumulative_seconds": 0.032363016
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.time_derivative_body_fixed_to_inertial_rotation>",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.008001527000000001,
+      "cumulative_seconds": 0.008001527000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.get_cartesian_position>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.0031811950000000004,
+      "cumulative_seconds": 0.019270898
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.body_fixed_to_inertial_rotation>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.00216133,
+      "cumulative_seconds": 0.00216133
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 347,
+      "name": "lunar_spatial",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.0005295650000000001,
+      "cumulative_seconds": 0.001245025
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 271,
+      "name": "earth_simultaneity",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.000308644,
+      "cumulative_seconds": 0.029653432
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.data_input.environment_data.spice.get_body_cartesian_state_at_epoch>",
+      "primitive_calls": 78,
+      "calls": 78,
+      "self_seconds": 0.000302379,
+      "cumulative_seconds": 0.000302379
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 138,
+      "name": "station_kinematic_displacement",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.000171131,
+      "cumulative_seconds": 0.032600805000000004
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations.concatenated_dependent_variable>",
+      "primitive_calls": 10,
+      "calls": 10,
+      "self_seconds": 0.000157841,
+      "cumulative_seconds": 0.000157841
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_simulation_settings.create_observation_simulators>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 0.00013621100000000001,
+      "cumulative_seconds": 0.00013621100000000001
+    },
+    {
+      "file": "linalg.py",
+      "line": 2383,
+      "name": "norm",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.00012160300000000001,
+      "cumulative_seconds": 0.00017975400000000001
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 403,
+      "name": "computed_range",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 8.8374e-05,
+      "cumulative_seconds": 0.116197615
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method numpy.asarray>",
+      "primitive_calls": 220,
+      "calls": 220,
+      "self_seconds": 7.7377e-05,
+      "cumulative_seconds": 7.7377e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.get>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 6.8236e-05,
+      "cumulative_seconds": 6.8236e-05
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 129,
+      "name": "barycentric_state",
+      "primitive_calls": 78,
+      "calls": 78,
+      "self_seconds": 5.5853e-05,
+      "cumulative_seconds": 0.000366132
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 4.5652e-05,
+      "cumulative_seconds": 4.5652e-05
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 236,
+      "name": "<lambda>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 3.2844e-05,
+      "cumulative_seconds": 0.032633649
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 459,
+      "name": "<dictcomp>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 2.7709000000000002e-05,
+      "cumulative_seconds": 0.00019256
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'dot' of 'numpy.ndarray' objects>",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 2.7526e-05,
+      "cumulative_seconds": 2.7526e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observable_models_setup.model_settings.n_way_range>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 2.4877000000000003e-05,
+      "cumulative_seconds": 2.4877000000000003e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 2.1484000000000003e-05,
+      "cumulative_seconds": 2.1484000000000003e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'ravel' of 'numpy.ndarray' objects>",
+      "primitive_calls": 38,
+      "calls": 38,
+      "self_seconds": 1.5065e-05,
+      "cumulative_seconds": 1.5065e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_dependent_variables.elevation_angle_dependent_variable>",
+      "primitive_calls": 4,
+      "calls": 4,
+      "self_seconds": 1.1597000000000001e-05,
+      "cumulative_seconds": 1.1597000000000001e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_dependent_variables.link_end_epochs_dependent_variable>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 9.389000000000001e-06,
+      "cumulative_seconds": 9.389000000000001e-06
+    }
+  ],
+  "profile_top_cumulative": [
+    {
+      "file": "llr_residuals.py",
+      "line": 403,
+      "name": "computed_range",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 8.8374e-05,
+      "cumulative_seconds": 0.116197615
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations.simulate_observations>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 0.06820050600000001,
+      "cumulative_seconds": 0.115642909
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 236,
+      "name": "<lambda>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 3.2844e-05,
+      "cumulative_seconds": 0.032633649
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 138,
+      "name": "station_kinematic_displacement",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.000171131,
+      "cumulative_seconds": 0.032600805000000004
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.astro.time_representation.convert_time>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.032363016,
+      "cumulative_seconds": 0.032363016
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 271,
+      "name": "earth_simultaneity",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.000308644,
+      "cumulative_seconds": 0.029653432
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.get_cartesian_position>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.0031811950000000004,
+      "cumulative_seconds": 0.019270898
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.time_derivative_body_fixed_to_inertial_rotation>",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.008001527000000001,
+      "cumulative_seconds": 0.008001527000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.body_fixed_to_inertial_rotation>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 0.00216133,
+      "cumulative_seconds": 0.00216133
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 347,
+      "name": "lunar_spatial",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.0005295650000000001,
+      "cumulative_seconds": 0.001245025
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 129,
+      "name": "barycentric_state",
+      "primitive_calls": 78,
+      "calls": 78,
+      "self_seconds": 5.5853e-05,
+      "cumulative_seconds": 0.000366132
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.data_input.environment_data.spice.get_body_cartesian_state_at_epoch>",
+      "primitive_calls": 78,
+      "calls": 78,
+      "self_seconds": 0.000302379,
+      "cumulative_seconds": 0.000302379
+    },
+    {
+      "file": "llr_residuals.py",
+      "line": 459,
+      "name": "<dictcomp>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 2.7709000000000002e-05,
+      "cumulative_seconds": 0.00019256
+    },
+    {
+      "file": "linalg.py",
+      "line": 2383,
+      "name": "norm",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 0.00012160300000000001,
+      "cumulative_seconds": 0.00017975400000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations.concatenated_dependent_variable>",
+      "primitive_calls": 10,
+      "calls": 10,
+      "self_seconds": 0.000157841,
+      "cumulative_seconds": 0.000157841
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_simulation_settings.create_observation_simulators>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 0.00013621100000000001,
+      "cumulative_seconds": 0.00013621100000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method numpy.asarray>",
+      "primitive_calls": 220,
+      "calls": 220,
+      "self_seconds": 7.7377e-05,
+      "cumulative_seconds": 7.7377e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.dynamics.environment.get>",
+      "primitive_calls": 52,
+      "calls": 52,
+      "self_seconds": 6.8236e-05,
+      "cumulative_seconds": 6.8236e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 4.5652e-05,
+      "cumulative_seconds": 4.5652e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'dot' of 'numpy.ndarray' objects>",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 2.7526e-05,
+      "cumulative_seconds": 2.7526e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observable_models_setup.model_settings.n_way_range>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 2.4877000000000003e-05,
+      "cumulative_seconds": 2.4877000000000003e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings>",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 2.1484000000000003e-05,
+      "cumulative_seconds": 2.1484000000000003e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'ravel' of 'numpy.ndarray' objects>",
+      "primitive_calls": 38,
+      "calls": 38,
+      "self_seconds": 1.5065e-05,
+      "cumulative_seconds": 1.5065e-05
+    },
+    {
+      "file": "linalg.py",
+      "line": 140,
+      "name": "isComplexType",
+      "primitive_calls": 26,
+      "calls": 26,
+      "self_seconds": 8.646e-06,
+      "cumulative_seconds": 1.1623e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method tudatpy.kernel.estimation.observations_setup.observations_dependent_variables.elevation_angle_dependent_variable>",
+      "primitive_calls": 4,
+      "calls": 4,
+      "self_seconds": 1.1597000000000001e-05,
+      "cumulative_seconds": 1.1597000000000001e-05
+    }
+  ]
+}

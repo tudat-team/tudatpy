@@ -1,0 +1,32 @@
+[
+  {
+    "file": "inpop17a_TDB_m100_p100_spice.bpc",
+    "bytes": 2400256,
+    "sha256": "cfedd5548080d1ba51825032bee467f0995686ce9cf45d4c6a14628fffe7d444"
+  },
+  {
+    "file": "inpop17a_TDB_m100_p100_spice.bsp",
+    "bytes": 22318080,
+    "sha256": "149588753081f9a9d888e36b87072f60f8f2800971ea291768b4ee6b55787567"
+  },
+  {
+    "file": "inpop17a_TDB_m100_p100_spice.tpc",
+    "bytes": 15156,
+    "sha256": "454ab171ada461a342b04585f2397f621719b76e94912c0348f8b0364affc958"
+  },
+  {
+    "file": "inpop17a_TDB_m100_p100_spice_time.bsp",
+    "bytes": 5694464,
+    "sha256": "82cfdddc859309c1d0821c8814906546e94e629534afbcd4201bd405c9f5f91e"
+  },
+  {
+    "file": "inpop17a_TDB_m100_p100_spice.mk",
+    "bytes": 496,
+    "sha256": "a0d185c1e8d63ac7d76dd249a6bab9452a06c3f3107d762682a259819d5ad0b2"
+  },
+  {
+    "file": "inpop17a_TDB_m100_p100_spice.tf",
+    "bytes": 541,
+    "sha256": "bca00099d09f454ee77f3a0151a9121db0b1ba8e6ca7d62a3bd43b24f6ca6374"
+  }
+]

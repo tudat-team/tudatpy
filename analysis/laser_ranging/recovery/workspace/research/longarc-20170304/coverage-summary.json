@@ -1,0 +1,152 @@
+{
+  "interval": [
+    "2017-03-01",
+    "2017-04-30"
+  ],
+  "apollo_release": {
+    "file": "/home/dominic/Tudat/laser-ranging-work/data/llr/160912e_apollo_np2.txt",
+    "sha256": "87495b6d72b761999b9753df6a277ebfd661448352b19cf28b2b378e4df7225d",
+    "rows": 69,
+    "nights": 9,
+    "reflector_counts": {
+      "0": 12,
+      "1": 7,
+      "2": 15,
+      "3": 30,
+      "4": 5
+    },
+    "quality_counts": {
+      "B": 69
+    },
+    "subset": "/home/dominic/Tudat/laser-ranging-work/research/longarc-20170304/apollo_group_e_20170301_20170430.txt",
+    "subset_sha256": "3130f706c4a15d72102a6e9c6c2ca73018c3015e4c19ba1c2fc8df69db7ea214",
+    "source_line_numbers": [
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192
+    ]
+  },
+  "edc_current_crd": {
+    "files": 10,
+    "sessions": 70,
+    "normal_points": 237,
+    "station_counts": {
+      "7845": 237
+    },
+    "station_reflector_counts": {
+      "7845": {
+        "apollo11": 17,
+        "apollo14": 22,
+        "apollo15": 117,
+        "luna17": 44,
+        "luna21": 37
+      }
+    },
+    "nights": 24,
+    "epoch_event_counts": {
+      "2": 237
+    },
+    "wavelength_point_counts": {
+      "1064.2": 224,
+      "532.1": 13
+    },
+    "header_flags": {
+      "data_release": 0,
+      "troposphere_applied": 0,
+      "center_of_mass_applied": 0,
+      "receive_amplitude_applied": 0,
+      "station_system_delay_applied": 1,
+      "spacecraft_system_delay_applied": 0,
+      "range_type": 2,
+      "quality_alert": 0
+    },
+    "meteo_missing_sessions": 0,
+    "calibration_missing_sessions": 0,
+    "max_nearest_weather_seconds": 893.5273917301965,
+    "min_nearest_weather_seconds": 102.24904282409989
+  },
+  "overlap": {
+    "utc_nights": [
+      "2017-03-02",
+      "2017-03-09",
+      "2017-03-22",
+      "2017-04-03",
+      "2017-04-07",
+      "2017-04-14",
+      "2017-04-15",
+      "2017-04-21"
+    ],
+    "night_reflector_pairs": 22,
+    "apollo_points_on_shared_night_reflector_pairs": 48,
+    "grasse_points_on_shared_night_reflector_pairs": 81
+  },
+  "release_caution": "EDC files are existing CRDv1 archive products, not the frozen APOLLO Group-e2022 release. No replacement/deduplication across the two stations or provider releases.",
+  "matera": "No Matera in the ten inspected CRDv1 monthly products; separate V2 browser query returnedHTTP500 and remains unchecked. Do not infer general absence.",
+  "sigma": "APOLLO provider uncertainty retained; CRD bin RMS is accepted-return spread only, no NP sigma or sqrt(N) inference."
+}
