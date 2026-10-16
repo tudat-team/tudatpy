@@ -265,9 +265,13 @@ public:
     MendesPavlisTroposphericCorrectionSettings( const double wavelength, const std::string& bodyWithAtmosphere ):
         LightTimeCorrectionSettings( mendes_pavlis_tropospheric ), wavelength_( wavelength ), bodyWithAtmosphere_( bodyWithAtmosphere )
     {
-        if( !std::isfinite( wavelength_ ) || wavelength_ < 0.355e-6 || wavelength_ > 1.064e-6 )
+        // Accept the nominal 1064 nm line within a half-nanometre reporting interval, including recorded 1064.2 nm.
+        // This is our acceptance convention, not a separately validated endpoint; the supplied wavelength is unchanged.
+        if( !std::isfinite( wavelength_ ) || wavelength_ < 0.355e-6 || wavelength_ > 1.0645e-6 )
         {
-            throw std::invalid_argument( "Mendes-Pavlis requires an optical vacuum wavelength from 0.355 to 1.064 micrometres" );
+            throw std::invalid_argument(
+                    "Mendes-Pavlis requires a vacuum wavelength from 0.355 to 1.0645 micrometres "
+                    "(upper allowance for the nominal 1064 nm line)" );
         }
     }
 

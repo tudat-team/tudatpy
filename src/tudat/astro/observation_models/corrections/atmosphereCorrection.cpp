@@ -364,10 +364,11 @@ Eigen::Vector2d calculateMendesPavlisZenithDelay( const double latitude,
                                                   const double wavelength )
 {
 
-    // The dispersion fit covers the optical laser-ranging wavelengths, not radio signals.
+    // Accept the nominal 1064 nm line within a half-nanometre reporting interval, including recorded 1064.2 nm.
+    // This is our acceptance convention, not a separately validated endpoint; the supplied wavelength is unchanged.
     if( !std::isfinite( latitude ) || std::abs( latitude ) > mathematical_constants::PI / 2 || !std::isfinite( height ) ||
         !std::isfinite( pressure ) || pressure <= 0 || !std::isfinite( waterVaporPressure ) || waterVaporPressure < 0 ||
-        waterVaporPressure > pressure || !std::isfinite( wavelength ) || wavelength < 0.355e-6 || wavelength > 1.064e-6 )
+        waterVaporPressure > pressure || !std::isfinite( wavelength ) || wavelength < 0.355e-6 || wavelength > 1.0645e-6 )
     {
         throw std::invalid_argument( "Invalid Mendes-Pavlis optical wavelength, station coordinates or pressures" );
     }

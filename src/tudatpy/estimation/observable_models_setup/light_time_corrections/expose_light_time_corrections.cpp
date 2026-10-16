@@ -539,7 +539,9 @@ requires elevation above 3 degrees. Its path delay is included inside the light-
 Parameters
 ----------
 observation_wavelength : float
-    Required vacuum laser wavelength in metres, from 0.355e-6 to 1.064e-6.
+    Required vacuum laser wavelength in metres, from 0.355e-6 to 1.0645e-6. The upper bound is an explicit
+    half-nanometre reporting allowance around the nominal 1064 nm validation line, including recorded 1064.2 nm;
+    it is not a separately validated endpoint. The supplied wavelength is evaluated unchanged.
 body_with_atmosphere_name : str, default = "Earth"
     Body carrying the atmosphere and meteorological ground station.
 

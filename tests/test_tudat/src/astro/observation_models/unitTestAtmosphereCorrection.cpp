@@ -995,6 +995,13 @@ BOOST_AUTO_TEST_CASE( testMendesPavlisOfficialReferences )
     BOOST_CHECK_SMALL( zenith[ 1 ] - 0.00223375264136944527, 1e-9 );
     BOOST_CHECK_SMALL( zenith.sum( ) - 1.93522972487606770, 1e-9 );
 
+    // The actual Grasse 1064.2 nm vacuum line uses the same weather and unmodified official FCUL_ZD_HPA routine.
+    const Eigen::Vector2d infraredZenith = calculateMendesPavlisZenithDelay( latitude, 2010.344, 79841.88, 1432.2, 1064.2e-9 );
+
+    BOOST_CHECK_SMALL( infraredZenith[ 0 ] - 1.84616762872316298, 1e-9 );
+    BOOST_CHECK_SMALL( infraredZenith[ 1 ] - 0.00199498878578258532, 1e-9 );
+    BOOST_CHECK_SMALL( infraredZenith.sum( ) - 1.84816261750894562, 1e-9 );
+
     // FCUL_A.F uses a different height and temperature in its independent 15-degree mapping example.
     BOOST_CHECK_SMALL( calculateFculaMapping( latitude, 2075.0, 300.15, 15.0 * mathematical_constants::PI / 180.0 ) - 3.800243667312344087,
                        1e-14 );
