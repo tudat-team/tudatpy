@@ -1,4 +1,4 @@
-"""Reduce a frozen APOLLO/Grasse arc with one explicitly requested source exclusion."""
+"""Reduce a frozen APOLLO/Grasse arc with explicit source-identity exclusions."""
 
 import argparse
 from collections import defaultdict
@@ -19,15 +19,16 @@ import llr_residuals as model
 MANIFEST = Path(__file__).with_name("llr_long_arc_dataset.json")
 
 
-def is_requested_exclusion(station, source_file, source_line, utc_launch, manifest):
-    """Match only the exact source identity excluded at Dominic's explicit request."""
+def is_excluded_point(station, source_file, source_line, utc_launch, manifest):
+    """Match only the declared user outlier or explicitly identified invalid source records."""
 
-    excluded = manifest["excluded_normal_point"]
-    return (station, source_file, str(source_line), utc_launch) == (
-        excluded["station"],
-        excluded["source_file"],
-        str(excluded["source_line"]),
-        excluded["utc_launch"],
+    exclusions = [manifest["excluded_normal_point"]] + manifest.get(
+        "source_invalid_normal_points", []
+    )
+    return any(
+        (station, source_file, str(source_line), utc_launch)
+        == (entry["station"], entry["source_file"], str(entry["source_line"]), entry["utc_launch"])
+        for entry in exclusions
     )
 
 
@@ -430,7 +431,7 @@ def main():
 
     groups = read_groups(args.data_root, manifest)
     excluded_count = sum(
-        is_requested_exclusion(
+        is_excluded_point(
             point["station"],
             point["source_file"],
             point["source_line"],
@@ -440,13 +441,13 @@ def main():
         for points, _, _, _ in groups
         for point in points
     )
-    if excluded_count != 1:
-        raise ValueError("The frozen source must contain the requested exclusion exactly once")
+    if excluded_count != 1 + len(manifest.get("source_invalid_normal_points", [])):
+        raise ValueError("The frozen source must contain each declared exclusion exactly once")
 
     # Keep the exact requested exclusion separate from unsolved bounded-control points.
     for points, _, _, ledger in groups:
         ledger["excluded_count"] = sum(
-            is_requested_exclusion(
+            is_excluded_point(
                 point["station"],
                 point["source_file"],
                 point["source_line"],
@@ -513,7 +514,7 @@ def main():
                     for points, _, _, _ in groups
                     for point in points
                     if point["station"] == station
-                    and not is_requested_exclusion(
+                    and not is_excluded_point(
                         point["station"],
                         point["source_file"],
                         point["source_line"],
@@ -535,6 +536,18 @@ def main():
     rows, group_ledger, events = [], [], []
 
     for points, weather, profile, ledger in groups:
+        if ledger["excluded_count"] == len(points):
+            ledger.update(
+                source_count=len(points),
+                count=0,
+                setup_seconds=0.0,
+                solver_seconds=0.0,
+                control_unselected_count=0,
+            )
+            group_ledger.append(ledger)
+            print(json.dumps(ledger), flush=True)
+            continue
+
         setup_start = perf_counter()
 
         bodies, position, _ = model.create_environment(
@@ -555,7 +568,7 @@ def main():
         first_row = len(rows)
 
         for point in points:
-            if is_requested_exclusion(
+            if is_excluded_point(
                 point["station"],
                 point["source_file"],
                 point["source_line"],
@@ -622,6 +635,15 @@ def main():
             ledger["source_count"] - ledger["count"] - ledger["excluded_count"]
         )
         group_ledger.append(ledger)
+
+        # Save completed groups for diagnosis; only final validated output is named residuals.csv.
+        if len(rows) > first_row:
+            with (args.output / "residuals.partial.csv").open("a", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+                if first_row == 0:
+                    writer.writeheader()
+                writer.writerows(rows[first_row:])
+
         print(json.dumps(ledger), flush=True)
     rows.sort(key=lambda row: (row["utc_launch"], row["station"], row["source_line"]))
     if len(rows) != expected_count:
@@ -652,6 +674,7 @@ def main():
         excluded_count=sum(g["excluded_count"] for g in group_ledger),
         control_unselected_count=sum(g["control_unselected_count"] for g in group_ledger),
         excluded_normal_point=manifest["excluded_normal_point"],
+        source_invalid_normal_points=manifest.get("source_invalid_normal_points", []),
         station_selection=args.station or "APOLLO and GRASSE",
         station_statistics={
             station: statistics([r for r in rows if r["station"] == station])

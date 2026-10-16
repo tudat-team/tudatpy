@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from llr_long_arc import MANIFEST, is_requested_exclusion, statistics, write_csv
+from llr_long_arc import MANIFEST, is_excluded_point, statistics, write_csv
 import plot_llr_residuals as plotting
 
 
@@ -72,7 +72,7 @@ def main():
         if source_counts != {"APOLLO": 69, "GRASSE": 237}:
             raise ValueError("Original station source coverage changed")
         selected = [
-            is_requested_exclusion(
+            is_excluded_point(
                 row["station"], row["source_file"], row["source_line"], row["utc_launch"], manifest
             )
             for row in rows
