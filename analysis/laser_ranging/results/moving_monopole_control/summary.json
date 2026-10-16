@@ -1,8 +1,8 @@
 {
   "scope": "Three frozen NPs, six existing solved legs, no new observation solve/model correction.",
-  "source_revision": "b226a42b78bf530fcb0e17c51d034e4e95f35a09",
+  "source_revision": "1b06bd8bf742edfc29fed470132393dbb4910144",
   "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
-  "probe_sha256": "c45ce3bf7c6e43116267c5a4ea37c956de81016c49467258628142486c1e4757",
+  "probe_sha256": "4b88632628ef8d051215c9f7033337047fba691aefaf09a7f20eb8af66f0d975",
   "environment_script_sha256": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
   "event_inputs": {
     "results/llr-six-de440-inpop17a-attempt1/event_diagnostics.json": "d8e5b82ceb5616ec2c3be6d41a5e2cd98b2ff30f66f6b17c9766ed2581cb1d69",
@@ -32,9 +32,9 @@
       "station": "APOLLO",
       "reflector": "A15",
       "leg": "uplink",
-      "static_delay_length_m": 7.411102897653341,
-      "moving_minus_static_length_m": 2.2803241345119095e-06,
-      "reconstructed_minus_saved_native_length_m": -2.9313493854488115e-09,
+      "static_delay_length_m": 7.411102900557669,
+      "moving_minus_static_length_m": 2.2803241710499505e-06,
+      "reconstructed_minus_saved_native_length_m": -2.702105206253691e-11,
       "source_file": "160912e_apollo_np2.txt",
       "source_line": 134
     },
@@ -42,9 +42,9 @@
       "station": "APOLLO",
       "reflector": "A15",
       "leg": "downlink",
-      "static_delay_length_m": 7.412080280422707,
-      "moving_minus_static_length_m": -2.280473109461622e-06,
-      "reconstructed_minus_saved_native_length_m": -2.9066100637464842e-09,
+      "static_delay_length_m": 7.4120802833278345,
+      "moving_minus_static_length_m": -2.2804731288490353e-06,
+      "reconstructed_minus_saved_native_length_m": -1.482369782479509e-12,
       "source_file": "160912e_apollo_np2.txt",
       "source_line": 134
     },
@@ -52,9 +52,9 @@
       "station": "APOLLO",
       "reflector": "A14",
       "leg": "uplink",
-      "static_delay_length_m": 7.3982252846580625,
-      "moving_minus_static_length_m": 2.2818103049629545e-06,
-      "reconstructed_minus_saved_native_length_m": -3.224095657117232e-09,
+      "static_delay_length_m": 7.398225287891802,
+      "moving_minus_static_length_m": 2.281810341717645e-06,
+      "reconstructed_minus_saved_native_length_m": 9.64384128110396e-12,
       "source_file": "160912e_apollo_np2.txt",
       "source_line": 144
     },
@@ -62,9 +62,9 @@
       "station": "APOLLO",
       "reflector": "A14",
       "leg": "downlink",
-      "static_delay_length_m": 7.399196558901915,
-      "moving_minus_static_length_m": -2.28195461279604e-06,
-      "reconstructed_minus_saved_native_length_m": -3.2224587442897246e-09,
+      "static_delay_length_m": 7.399196562136337,
+      "moving_minus_static_length_m": -2.2819546320336836e-06,
+      "reconstructed_minus_saved_native_length_m": 1.1963763313360687e-11,
       "source_file": "160912e_apollo_np2.txt",
       "source_line": 144
     },
@@ -72,8 +72,8 @@
       "station": "GRASSE",
       "reflector": "A15",
       "leg": "uplink",
-      "static_delay_length_m": 7.452795101844097,
-      "moving_minus_static_length_m": 1.7091923620202686e-06,
+      "static_delay_length_m": 7.452795104530582,
+      "moving_minus_static_length_m": 1.7091923923408827e-06,
       "reconstructed_minus_saved_native_length_m": null,
       "source_file": "apollo15_201703.npt",
       "source_line": 171
@@ -82,8 +82,8 @@
       "station": "GRASSE",
       "reflector": "A15",
       "leg": "downlink",
-      "static_delay_length_m": 7.453596311803878,
-      "moving_minus_static_length_m": -1.709468110222165e-06,
+      "static_delay_length_m": 7.453596314491222,
+      "moving_minus_static_length_m": -1.7094681262826014e-06,
       "reconstructed_minus_saved_native_length_m": null,
       "source_file": "apollo15_201703.npt",
       "source_line": 171
@@ -94,39 +94,47 @@
       "station": "APOLLO",
       "source_file": "160912e_apollo_np2.txt",
       "source_line": 134,
-      "value_m": -7.448747485630285e-11
+      "value_m": -7.447889954239045e-11
     },
     {
       "station": "APOLLO",
       "source_file": "160912e_apollo_np2.txt",
       "source_line": 144,
-      "value_m": -7.215391654269574e-11
+      "value_m": -7.21451580193685e-11
     },
     {
       "station": "GRASSE",
       "source_file": "apollo15_201703.npt",
       "source_line": 171,
-      "value_m": -1.378741009481861e-10
+      "value_m": -1.3786697085935836e-10
     }
   ],
-  "max_abs_native_static_reconstruction_error_m": 3.224095657117232e-09,
-  "max_quadrature_error_m": 6.139776082137457e-78,
-  "max_50_vs80_error_m": 6.190337396860276e-48,
+  "max_abs_native_static_reconstruction_error_m": 2.702105206253691e-11,
+  "max_quadrature_error_m": 2.740971465239936e-78,
+  "max_50_vs80_error_m": 5.733333549417027e-48,
   "zero_velocity_error_m": 0.0,
   "recorded_vs_null_dt_range_s": [
-    1.1961055037791746e-08,
-    9.746393349461724e-08
+    1.146125748799953e-08,
+    9.702005206115426e-08
   ],
-  "endpoint_reconstruction": "Existing native body state plus native rotation times full station_state.get_cartesian_position at saved event doubles. Not a new observable solve. Four APOLLO leg static totals close against saved native correction components; Grasse has saved solved epochs but no separately saved static component.",
-  "output_sha256": {
-    "reproduce.py": "50af83df710d97f46c0e2ca0d276ebcdb44f528f8f3504b898a2bc4e6d9ef3f6",
-    "README.md": "1e47a561d31a70ca4dae724cf5db2b83b5f6b797fe79c515f999a08d0257a69e",
-    "endpoint_inputs.json": "f98afb351f0d8867ed2f4d4cd2870da7a34aa83aa0d7c86ef604cd1d6fdb40f4",
-    "body_delay_comparison.csv": "441dea7b4a81cc8658ebbc5f63a0883e04fc641458cb723c950254cff64e4fd4"
+  "endpoint_reconstruction": "Existing native body state plus native rotation times full station_state.get_cartesian_position(Time(epoch),SSB) at saved event doubles. SSB is required to include Earth terminal relativistic mapping. Not a new observable solve. Four APOLLO leg static totals close against saved native correction components; Grasse has saved solved epochs but no separately saved static component.",
+  "correction_of_prior_reconstruction": {
+    "superseded_commit": "1b06bd8bf",
+    "omission": "Body-origin station positions disabled Earth terminal relativistic mapping; corrected origin is SSB. Earlier audit_llr_shapiro_delay.py has the same omission and is superseded for static-reconstruction accuracy.",
+    "previous_max_static_reconstruction_error_m": 3.224095657117232e-09,
+    "max_endpoint_position_change_m": 0.188695243747292,
+    "max_leg_moving_delta_change_m": 3.675469039296736e-14,
+    "new_observation_solves": 0
   },
   "production_input_sha256": {
     "llr_dataset.json": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
     "llr_long_arc_dataset.json": "10906a8e5ebbf349b7d684844d968690cc500640aae0a634f6f82e722e72c86f",
     "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+  },
+  "output_sha256": {
+    "reproduce.py": "a83febfaec5f35617a652b0bcba8bfd72964e33c067417a2bac84069a9153679",
+    "README.md": "5f4b95b0bf665a4d16ed8b35a5c0af1e7ac5fb6a6276135a60b5594cf88c9f98",
+    "endpoint_inputs.json": "6b3b643f1e7b18e730b93c9f65dac0a7868e4da99b71478e09a2c11aedf3fc5c",
+    "body_delay_comparison.csv": "27d79db7dba201031afd3b156565f5d24d110f0ad170cbe57defae55da0e7577"
   }
 }

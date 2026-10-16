@@ -11,9 +11,9 @@ is changed.
 | Grasse A15, 2017-03-09 18:34:15.297622200200 UTC | +1.709192 | −1.709468 | −0.1379 |
 
 Changes are sums of the Sun, Earth and Moon monopoles. The half-sums are
-algebraic combinations at fixed endpoints, not recomputed observables. Their
-sub-nanometre size is below the 3.23 nm reconstruction comparison with saved
-native Shapiro totals; it is not an observable accuracy claim. The individual
+algebraic combinations at fixed endpoints, not recomputed observables or a
+sub-nanometre observable accuracy claim. The corrected endpoint reconstruction
+agrees with saved native Shapiro totals within 0.0271 nm. The individual
 leg effects are also below the existing micrometre-scale numerical limits of
 the complete range model. A full residual rerun is not warranted by this check.
 
@@ -44,23 +44,34 @@ The first-PM calculation uses the straight null reference segment from equation
 22: spatial points xB−λ(xB−xA), coordinate time tB−λR/c. The actual stored
 event interval, which includes other delays and double epoch rounding, is not
 inserted as a new null constraint. Its difference from R/c is recorded
-(12–97 ns). This is the GR monopole approximation, exact in constant velocity;
+(11–97 ns). This is the GR monopole approximation, exact in constant velocity;
 acceleration, spin, multipoles and higher orders in G are outside this control.
 Atmospheric and glass delays remain part of the frozen solved events, not new
 terms in the vacuum null-segment formula.
 
 The endpoint reconstruction uses the existing native body state, rotation and
-full deformed station position at each saved event double. It is the same route
-used by the earlier fixed-event Shapiro audit. For the four APOLLO legs, the
-static calculation agrees with saved native correction components within
-3.23 nm. Grasse has saved solved epochs but no separately saved static component;
+full station position from `get_cartesian_position(Time(epoch), "SSB")` at each
+saved event double. The `SSB` origin includes Earth's terminal relativistic
+spatial mapping. For the four APOLLO legs, the static calculation agrees with
+saved native correction components within 0.0271 nm. Grasse has saved solved
+epochs but no separately saved static component;
 its reconstruction uses the original full 14-NP/14-weather session environment.
 It is not described as a direct extraction of native internal endpoint states.
 
+This corrects an omission in the first version of this package (`1b06bd8bf`):
+requesting station positions with the body name as origin disabled Earth's
+terminal relativistic mapping. The earlier `audit_llr_shapiro_delay.py` used
+the same incomplete reconstruction. Its approximately 3.23–3.26 nm agreement
+is superseded and must not be treated as the reconstruction's numerical floor.
+The corrected endpoints differ by up to 0.189 m; their static Shapiro totals
+now close to 0.0271 nm. Only the six frozen-leg endpoint calculations are
+repeated, with no observation solve. The moving-minus-static leg changes differ
+by at most 3.68×10^−14 m, so the moving-body conclusion is unchanged.
+
 All input binary doubles are retained through round-trip JSON serialization
 and then evaluated with 80 decimal digits. Equation 23's independent potential
-integral agrees with equation 45 within 6.2×10^−78 m; 50 versus 80 digit results
-agree within 6.2×10^−48 m. Setting velocity to zero reproduces the static formula
+integral agrees with equation 45 within 2.8×10^−78 m; 50 versus 80 digit results
+agree within 5.8×10^−48 m. Setting velocity to zero reproduces the static formula
 exactly at this precision. These arithmetic checks do not improve the native
 endpoint reconstruction or establish an error bound for omitted physics.
 

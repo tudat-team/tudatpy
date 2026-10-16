@@ -1,4 +1,4 @@
-"""Reproduce the saved fixed-endpoint Hees2014 comparison without Tudat or new solves."""
+"""Reproduce the corrected SSB-endpoint Hees2014 comparison without new solves."""
 
 import csv
 import json
@@ -103,6 +103,7 @@ def moving(xa, xb, centre, velocity, tb_minus_t0, gm, quadrature=False):
     return result, factor, integral_error
 
 
+# Saved endpoints already include Earth's terminal mapping through station origin SSB.
 expected = list(csv.DictReader((ROOT / "body_delay_comparison.csv").open()))
 
 errors = []
