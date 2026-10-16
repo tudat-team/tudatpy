@@ -1,0 +1,62 @@
+{
+  "baseline": {
+    "label": "baseline",
+    "command": [
+      "/home/dominic/miniconda3/envs/tudatpy-dev/bin/python",
+      "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_long_arc.py",
+      "--data-root",
+      "/home/dominic/Tudat/laser-ranging-work/research/longarc-20170304",
+      "--kernel-dir",
+      "/home/dominic/Tudat/laser-ranging-work/data/llr/kernels",
+      "--output",
+      "/home/dominic/Tudat/laser-ranging-work/results/llr-drift-clock-baseline-306"
+    ],
+    "source_revision": "3dc1574d9cf29cf247efb040585e2e561cb4bf21",
+    "source_dirty": "",
+    "source_sha256": {
+      "llr_long_arc.py": "723e80ea26a5b3d72bb8602edeedfa70a9f36291043b4f93ab3c4e5e86de02ff",
+      "llr_residuals.py": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a"
+    },
+    "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+    "started_utc": "2026-10-16T10:33:12.019673+00:00",
+    "numerical_threads": 1,
+    "returncode": 0,
+    "external_wall_seconds": 28.038075539981946,
+    "ended_utc": "2026-10-16T10:33:40.057773+00:00",
+    "count": 306,
+    "setup_seconds": 5.889692671014927,
+    "solver_seconds": 19.631222466821782,
+    "total_seconds": 27.066290149989072,
+    "csv_sha256": "e9b3e9da081d5e12f8d10f7cf9579e250a9fe8c3ef2400722b1c36792816e908"
+  },
+  "candidate": {
+    "label": "candidate",
+    "command": [
+      "/home/dominic/miniconda3/envs/tudatpy-dev/bin/python",
+      "/home/dominic/Tudat/tudat-monorepo/tudatpy-laser-signature/analysis/laser_ranging/llr_long_arc.py",
+      "--data-root",
+      "/home/dominic/Tudat/laser-ranging-work/research/longarc-20170304",
+      "--kernel-dir",
+      "/home/dominic/Tudat/laser-ranging-work/data/llr/kernels",
+      "--output",
+      "/home/dominic/Tudat/laser-ranging-work/results/llr-drift-clock-candidate-306"
+    ],
+    "source_revision": "3dc1574d9cf29cf247efb040585e2e561cb4bf21",
+    "source_dirty": " M analysis/laser_ranging/llr_residuals.py\n",
+    "source_sha256": {
+      "llr_long_arc.py": "723e80ea26a5b3d72bb8602edeedfa70a9f36291043b4f93ab3c4e5e86de02ff",
+      "llr_residuals.py": "06cbf67efba6b7e9d25a23e0e119378187d2c09b1db730f8a72b797d2119d2a7"
+    },
+    "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+    "started_utc": "2026-10-16T10:33:55.711227+00:00",
+    "numerical_threads": 1,
+    "returncode": 0,
+    "external_wall_seconds": 19.878223513020203,
+    "ended_utc": "2026-10-16T10:34:15.589481+00:00",
+    "count": 306,
+    "setup_seconds": 5.595850819780026,
+    "solver_seconds": 12.778464092232753,
+    "total_seconds": 18.99361546401633,
+    "csv_sha256": "e9b3e9da081d5e12f8d10f7cf9579e250a9fe8c3ef2400722b1c36792816e908"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "decision": "retain: all raw results/geometry/source identities preserved, clear solver-time benefit",
+  "baseline_revision": "3dc1574d9cf29cf247efb040585e2e561cb4bf21",
+  "kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "observations": 306,
+  "raw_csv_columns": 39,
+  "raw_csv_fields_compared": 11934,
+  "raw_csv_bytes_identical": true,
+  "raw_csv_sha256": "e9b3e9da081d5e12f8d10f7cf9579e250a9fe8c3ef2400722b1c36792816e908",
+  "nightly_statistics_bytes_identical": true,
+  "geometry_fields_compared": [
+    "lunar_phase_angle_deg",
+    "transmit_elevation_deg",
+    "receive_elevation_deg",
+    "earth_direction_pa_x",
+    "earth_direction_pa_y",
+    "earth_direction_pa_z",
+    "sun_direction_pa_x",
+    "sun_direction_pa_y",
+    "sun_direction_pa_z",
+    "transmit_los_pa_x",
+    "transmit_los_pa_y",
+    "transmit_los_pa_z",
+    "receive_los_pa_x",
+    "receive_los_pa_y",
+    "receive_los_pa_z"
+  ],
+  "source_identity_summary_keys_equal": [
+    "manifest_sha256",
+    "ephemeris_manifest_sha256",
+    "kernel_binary_sha256",
+    "kernel_sha256",
+    "earth_orientation_resource_sha256",
+    "station_profiles",
+    "physics",
+    "fitting",
+    "geometry_precision",
+    "uncertainty",
+    "station_statistics",
+    "station_reflector_statistics"
+  ],
+  "all_group_source_weather_metadata_equal": true,
+  "only_changed_function": "station_kinematic_displacement",
+  "baseline_model_source_sha256": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
+  "candidate_model_source_sha256": "06cbf67efba6b7e9d25a23e0e119378187d2c09b1db730f8a72b797d2119d2a7",
+  "timings": {
+    "setup_seconds": {
+      "baseline_s": 5.889692671014927,
+      "candidate_s": 5.595850819780026,
+      "reduction_fraction": 0.04989086318221525
+    },
+    "solver_seconds": {
+      "baseline_s": 19.631222466821782,
+      "candidate_s": 12.778464092232753,
+      "reduction_fraction": 0.3490744596354455
+    },
+    "total_seconds": {
+      "baseline_s": 27.066290149989072,
+      "candidate_s": 18.99361546401633,
+      "reduction_fraction": 0.29825567675649856
+    }
+  },
+  "external_wall": {
+    "baseline": 28.038075539981946,
+    "candidate": 19.878223513020203
+  },
+  "existing_independent_drift_bound": {
+    "source": "/home/dominic/Tudat/laser-ranging-work/research/llr-runtime-audit/wavelength_and_drift_clock.json",
+    "sha256": "2fd9df47e59c76aebb4207d53cb68283b3a16cfeac7a7ab768109b3ae3cf18bc",
+    "clock_summary": {
+      "APOLLO": {
+        "count": 69,
+        "maximum_abs_clock_difference_seconds": 2.091784768953886e-06,
+        "maximum_position_difference_bound_m": 8.617260665292335e-16,
+        "maximum_velocity_m_per_second": 4.1195732912817215e-10
+      },
+      "GRASSE": {
+        "count": 237,
+        "maximum_abs_clock_difference_seconds": 1.983455883314278e-06,
+        "maximum_position_difference_bound_m": 1.6817324019034275e-15,
+        "maximum_velocity_m_per_second": 8.478799130602884e-10
+      }
+    }
+  },
+  "scope": "Only linear cm/year station drift uses geocentric TT. Observable clocks, Earth simultaneity, generic converter and all native code unchanged. One sequential baseline/candidate pair on same machine and pinned kernel, all numerical thread limits1; no repeat needed for observed35percent solver reduction. Timing is a measured local result, not a general performance guarantee.",
+  "packaged_model_source_sha256": "655f1a14a0a966c41f9f05b68052d22d0be8ccefb9e0e6020d8e8c506384f5fb",
+  "packaging_difference": "One blank line added before the explanatory comment after execution; executable AST unchanged."
+}

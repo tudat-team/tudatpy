@@ -142,9 +142,9 @@ def station_kinematic_displacement(epoch, converter, station_profile):
         return np.zeros(3)
 
     profile = STATION_PROFILES[station_profile]
-    tt_epoch = converter.convert_time(
-        time.tdb_scale, time.tt_scale, float(epoch), np.asarray(profile["position_m"])
-    )
+
+    # For linear cm/year drift, geocentric TT changes position by <2e-15 m on the frozen 306 points.
+    tt_epoch = converter.convert_time(time.tdb_scale, time.tt_scale, float(epoch))
     elapsed_years = (tt_epoch - profile["reference_epoch_tt_s"]) / profile["julian_year_s"]
 
     return np.asarray(profile["velocity_m_per_julian_year"]) * elapsed_years
