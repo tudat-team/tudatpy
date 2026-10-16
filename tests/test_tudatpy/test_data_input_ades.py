@@ -45,7 +45,7 @@ def observations():
             "stn": ["F51", "F51", "F51", "F51"],
             "obsTime": ["2016-08-29T12:32:34Z"] * 4,
             "ra": [0, 0.1, 0.1, 0.1],
-            "dec": [90, 30.0, -30.0, 30.0],
+            "dec": [100, 30.0, -30.0, 30.0],
             "rmsRA": [0.15, 0.15, 0.15, 0.15],
             "rmsDec": [0.13, 0.13, 0.13, 0.13],
             "rmsCorr": [0.21, 0.21, 0.21, 0.21],
@@ -78,6 +78,29 @@ def observations_radar():
     )
 
 
+@pytest.fixture
+def observations_occultation():
+    return pd.DataFrame(
+        {
+            "permID": [94, 94, 94, 94],
+            "provID": ["provID"] * 4,
+            "trkSub": ["aa", "aa", "aa", "aa"],
+            "artSat": [None, None, None, None],
+            "mode": ["OCC", "OCC", "OCC", "OCC"],
+            "stn": ["275", "275", "275", "275"],
+            "obsTime": ["2004-02-26T16:07:43.69Z"] * 4,
+            "raStar": [0, 0.1, 0.1, 0.1],
+            "decStar": [100, 30.0, -30.0, 30.0],
+            "deltaRA": [0.001, 0.001, 0.001, 0.001],
+            "deltaDec": [0.005, 0.005, 0.005, 0.005],
+            "rmsRA": [0.15, 0.15, 0.15, 0.15],
+            "rmsDec": [0.13, 0.13, 0.13, 0.13],
+            "rmsCorr": [0.21, 0.21, 0.21, 0.21],
+            "astCat": ["GAIA3E", "GAIA3E", "GAIA3E", "GAIA3E"],
+        }
+    )
+
+
 RADAR_TABLE_META_KEY = "tudatpy_radar_tracking_table"
 
 
@@ -104,7 +127,7 @@ def test_error_if_no_names(observations):
 
 
 # test _check_possible_failures
-# common checks between radar and optical
+# common checks between radar, optical and offset
 def test_rejects_missing_required_column_optical(observations):
     invalid = observations.drop(columns=["mode"])
     with pytest.raises(ValueError, match="Missing required column: mode"):
@@ -115,6 +138,12 @@ def test_rejects_missing_required_column_radar(observations_radar):
     invalid = observations_radar.drop(columns=["frq"])
     with pytest.raises(ValueError, match="Missing required column: frq"):
         parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_missing_required_column_occultation(observations_occultation):
+    invalid = observations_occultation.drop(columns=["raStar"])
+    with pytest.raises(ValueError, match="Missing required column: raStar"):
+        parser._check_possible_failures(invalid, "occultation")
 
 
 def test_rejects_missing_value_in_required_column_optical(observations):
@@ -131,6 +160,13 @@ def test_rejects_missing_value_in_required_column_radar(observations_radar):
         parser._check_possible_failures(invalid, "radar")
 
 
+def test_rejects_missing_value_in_required_column_occultation(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid.loc[0, "raStar"] = None
+    with pytest.raises(ValueError, match="Column 'raStar' contains missing values"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
 def test_rejects_row_without_identifier_optical(observations):
     invalid = observations.copy()
     invalid.loc[0, ["permID", "provID", "artSat", "trkSub"]] = None
@@ -145,6 +181,14 @@ def test_rejects_row_without_identifier_radar(observations_radar):
         parser._check_possible_failures(invalid, "radar")
 
 
+def test_rejects_row_without_identifier_optical(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid.loc[0, ["permID", "provID", "artSat", "trkSub"]] = None
+    with pytest.raises(ValueError, match="Each row must have at least one non-missing identifier"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+# in this case the same snippet of code is used for all oibs_kinds - only test it once
 def test_rejects_invalid_observation_time(observations):
     invalid = observations.copy()
     invalid["obsTime"] = invalid["obsTime"].astype("object")
@@ -252,6 +296,67 @@ def test_rejects_rmsDoppler_value_that_is_not_numeric(observations_radar):
     invalid.loc[0, "rmsDoppler"] = "not-a-number"
     with pytest.raises(ValueError, match="Column 'rmsDoppler' must be convertible to floats"):
         parser._check_possible_failures(invalid, "radar")
+
+
+# occultatiom observations specific tests
+def test_rejects_incomplete_location_group(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["sys"] = ["ICRF"] * 4
+    invalid["ctr"] = ["500"] * 4
+    invalid["pos1"] = [1.0] * 4
+    invalid["pos2"] = [2.0] * 4
+    # pos3 is omitted, so the location group is incomplete
+    with pytest.raises(
+        ValueError, match="If any of sys, ctr, pos1, pos2, pos3 is provided, all must be provided"
+    ):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_position_that_is_not_numeric(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["sys"] = ["ICRF"] * 4
+    invalid["ctr"] = ["500"] * 4
+    invalid["pos1"] = ["not-a-number"] * 4
+    invalid["pos2"] = [2.0] * 4
+    invalid["pos3"] = [3.0] * 4
+    with pytest.raises(ValueError, match="pos1, pos2, and pos3 must be convertible to floats"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_raStar_that_is_not_numeric(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["raStar"] = invalid["raStar"].astype("object")
+    invalid.loc[0, "raStar"] = "not-a-number"
+    with pytest.raises(
+        ValueError, match="Column 'raStar' must contain values convertible to floats"
+    ):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_rmsRA_value_that_is_not_numeric(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["rmsRA"] = invalid["rmsRA"].astype("object")
+    invalid.loc[0, "rmsRA"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'rmsRA' must be convertible to floats"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_missing_deltaRA_and_deltaDec(observations_occultation):
+    df = observations_occultation.drop(columns=["deltaRA", "deltaDec"])
+    with pytest.raises(
+        ValueError,
+        match="Each row must have at least one between the combinations deltaRa/deltaDec or dist/pa",
+    ):
+        parser._check_possible_failures(df, "occultation")
+
+
+def test_missing_deltaRA(observations_occultation):
+    df = observations_occultation.drop(columns=["deltaRA"])
+    with pytest.raises(
+        ValueError,
+        match="Each row must have at least one between the combinations deltaRa/deltaDec or dist/pa",
+    ):
+        parser._check_possible_failures(df, "occultation")
 
 
 # check _epochs_UTC_to_seconds_UTC
@@ -423,6 +528,82 @@ def test_numeric_applies_scale(observations_radar):
     result = parser._numeric(observations_radar, "frq", 1e6)
     expected = pd.Series([2380e6] * 4, index=observations_radar.index)
     pd.testing.assert_series_equal(result, expected, check_names=False)
+
+
+# test _transform_delta_to_radec
+def test_transform_delta_to_radec(observations_occultation):
+    df_out = parser._transform_delta_to_radec(observations_occultation)
+    assert "ra" in df_out.columns
+    assert "dec" in df_out.columns
+    assert len(df_out) == len(observations_occultation)
+
+    arcsec = 1.0 / 3600.0
+    ra_star = observations_occultation["raStar"].to_numpy(dtype=float)
+    dec_star = observations_occultation["decStar"].to_numpy(dtype=float)
+    d_ra = observations_occultation["deltaRA"].to_numpy(dtype=float)
+    d_dec = observations_occultation["deltaDec"].to_numpy(dtype=float)
+    expected_ra = ra_star + d_ra * arcsec / np.cos(np.deg2rad(dec_star))
+    expected_dec = dec_star + d_dec * arcsec
+
+    np.testing.assert_allclose(df_out["ra"].to_numpy(), expected_ra, rtol=1e-12)
+    np.testing.assert_allclose(df_out["dec"].to_numpy(), expected_dec, rtol=1e-12)
+
+
+# test _transform_distpa_to_radec
+def test_transform_distpa_to_radec(observations_occultation):
+    df_in = observations_occultation.copy()
+    df_in["dist"] = [1.0, 2.0, 3.0, 0.5]  # arcsec
+    df_in["pa"] = [0.0, 90.0, 225.0, 45.0]  # deg
+    df_in["rmsDist"] = [0.1, 0.2, 0.3, 0.05]  # arcsec
+    df_in["rmsPA"] = [1.0, 2.0, 1.5, 0.5]  # deg
+
+    df_out = parser._transform_distpa_to_radec(df_in)
+    assert "ra" in df_out.columns
+    assert "dec" in df_out.columns
+    assert len(df_out) == len(df_in)
+
+    arcsec = 1.0 / 3600.0
+    ra_star = df_in["raStar"].to_numpy(dtype=float)
+    dec_star = df_in["decStar"].to_numpy(dtype=float)
+    dist = df_in["dist"].to_numpy(dtype=float)
+    pa = np.deg2rad(df_in["pa"].to_numpy(dtype=float))
+    expected_ra = ra_star + dist * arcsec * np.sin(pa) / np.cos(np.deg2rad(dec_star))
+    expected_dec = dec_star + dist * arcsec * np.cos(pa)
+
+    np.testing.assert_allclose(df_out["ra"].to_numpy(), expected_ra, rtol=1e-12)
+    np.testing.assert_allclose(df_out["dec"].to_numpy(), expected_dec, rtol=1e-12)
+
+
+def test_transform_distpa_to_radec_uncertainties(observations_occultation):
+    df_in = observations_occultation.copy()
+    df_in["dist"] = [1.0, 2.0, 3.0, 0.5]
+    df_in["pa"] = [0.0, 90.0, 225.0, 45.0]
+    df_in["rmsDist"] = [0.1, 0.2, 0.3, 0.05]
+    df_in["rmsPA"] = [1.0, 2.0, 1.5, 0.5]
+    df_in["rmsCorr"] = [0, 0, 0, 0]
+    df_out = parser._transform_distpa_to_radec(df_in)
+
+    d = np.array([1.0, 2.0, 3.0, 0.5])
+    sd = np.array([0.1, 0.2, 0.3, 0.05])
+    pa = np.deg2rad(np.array([0.0, 90.0, 225.0, 45.0]))
+    spa = np.deg2rad(np.array([1.0, 2.0, 1.5, 0.5]))
+    rho = np.array([0, 0, 0, 0])
+    s = np.sin(pa)
+    c = np.cos(pa)
+
+    var_ra = ((s**2) * (sd**2)) + ((d**2) * (c**2) * (spa**2)) + rho * sd * spa * d * np.sin(2 * pa)
+    var_dec = (
+        ((c**2) * (sd**2)) + ((d**2) * (s**2) * (spa**2)) - rho * sd * spa * d * np.sin(2 * pa)
+    )
+    cov = (s * c * sd**2) - (d**2 * s * c * spa**2) + rho * sd * spa * d * (c**2 - s**2)
+    expected_corr = cov / np.sqrt(var_ra * var_dec)
+
+    np.testing.assert_allclose(df_out["rmsRA"].to_numpy(), np.sqrt(var_ra), rtol=1e-10)
+    np.testing.assert_allclose(df_out["rmsDec"].to_numpy(), np.sqrt(var_dec), rtol=1e-10)
+    np.testing.assert_allclose(df_out["rmsCorr"].to_numpy(), expected_corr, rtol=1e-10)
+
+    # correlation must stay within [-1, 1]
+    assert np.all(np.abs(df_out["rmsCorr"].to_numpy()) <= 1.0)
 
 
 # Final test on parse_ades_file
