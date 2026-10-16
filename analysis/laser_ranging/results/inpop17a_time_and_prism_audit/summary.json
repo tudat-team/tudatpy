@@ -1,0 +1,187 @@
+{
+  "scope": "Static provider type2 coefficient evaluation at three saved launch epochs; no native module import, observation solve, model edit, or clock replacement.",
+  "provider_file": "/home/dominic/Tudat/laser-ranging-work/research/llr-ephemeris-controls/inpop17a-spice/inpop17a_TDB_m100_p100_spice_time.bsp",
+  "provider_sha256": "82cfdddc859309c1d0821c8814906546e94e629534afbcd4201bd405c9f5f91e",
+  "provider_bytes": 5694464,
+  "provider_release": "INPOP17a TDB m100_p100 SPICE archive, official August2017 release",
+  "provider_readme": "research/llr-ephemeris-controls/INPOP17a-README.txt: TT\u2212TDB in seconds, TDB product argument",
+  "segment_name": "TT-TDB",
+  "segment_integer_descriptor": [
+    1000000001,
+    1000000000,
+    1,
+    2,
+    385,
+    711748
+  ],
+  "segment_tdb_coverage_s": [
+    -3234816000.0,
+    3234816000.0
+  ],
+  "record_layout": {
+    "init_tdb_s": -3234816000.0,
+    "interval_s": 345600.0,
+    "record_words": 38,
+    "records": 18720,
+    "coefficients_per_component": 12
+  },
+  "interpretation": "The first pseudo-position component is TT\u2212TDB in seconds; second and third components are zero in the inspected records. No kilometre-to-second factor applies. Manual Chebyshev evaluation agrees with SPICE polynomial evaluation.",
+  "launch_source_file": "/home/dominic/Tudat/laser-ranging-work/logs/llr-absolute-launch-clock-audit.json",
+  "launch_source_sha256": "697668113a6a15c3f88ed22b21fd82e0712bc038555ffa2d4105d050256e6dd5",
+  "erfa_version": "2.0.1.5",
+  "spiceypy_version": "7.0.0",
+  "audit_source_sha256": "a7c266d633d4913aeda67aaefa334e5dbded641573f84b831091585cb1ee16ae",
+  "sign_and_clock_scope": "Compare geocentric TT\u2212TDB only. The native topocentric station term remains separate. Loading time.bsp does not replace SPICE str2et or the native SOFA converter.",
+  "rows": [
+    {
+      "station": "APOLLO",
+      "utc": "2017-03-02T01:22:55.0000000",
+      "launch_tdb_time_split": [
+        150469,
+        1444.1854101453862
+      ],
+      "record_index_zero_based": 10927,
+      "chebyshev_argument": -0.22080911220980684,
+      "inpop_tt_minus_tdb_s": -0.0014122324178581945,
+      "inpop_dtt_minus_tdb_dtdb": -1.7781265923017437e-10,
+      "sofa_tt_minus_tdb_s": -0.001412232839316696,
+      "inpop_minus_sofa_s": 4.214585015618194e-10,
+      "static_manual_minus_spice_s": -6.505213034913027e-19,
+      "absolute_epoch_sensitivity_at_100m_per_s_m": 4.214585015618194e-08,
+      "record_midpoint_tdb_s": 541728000.0,
+      "record_radius_s": 172800.0,
+      "coefficients_x_tt_minus_tdb_s": [
+        -0.0014184791931582741,
+        -3.0279720934107486e-05,
+        4.900786350784529e-07,
+        5.166007227972007e-09,
+        -2.9446012140732265e-10,
+        -1.361464584177686e-11,
+        1.0075174442807243e-12,
+        2.6211526874090967e-14,
+        -5.102755600913334e-15,
+        9.504839045456255e-17,
+        2.9180820031889814e-17,
+        -1.6355849615813428e-18
+      ]
+    },
+    {
+      "station": "GRASSE",
+      "utc": "2017-03-09T18:34:15.297622200200",
+      "launch_tdb_time_split": [
+        150654,
+        2124.4831359051973
+      ],
+      "record_index_zero_based": 10929,
+      "chebyshev_argument": -0.36270553740795614,
+      "inpop_tt_minus_tdb_s": -0.0015156408656528358,
+      "inpop_dtt_minus_tdb_dtdb": -1.32226831649984e-10,
+      "sofa_tt_minus_tdb_s": -0.0015156411940255765,
+      "inpop_minus_sofa_s": 3.2837274067422373e-10,
+      "static_manual_minus_spice_s": 4.553649124439119e-18,
+      "absolute_epoch_sensitivity_at_100m_per_s_m": 3.283727406742237e-08,
+      "record_midpoint_tdb_s": 542419200.0,
+      "record_radius_s": 172800.0,
+      "coefficients_x_tt_minus_tdb_s": [
+        -0.0015233079793559095,
+        -2.2143287497652893e-05,
+        4.897999434302237e-07,
+        -3.8229424706418145e-09,
+        -7.19834345707395e-11,
+        1.5070866556088806e-11,
+        -1.4266322498346362e-13,
+        -3.901422254013129e-14,
+        1.139601796471931e-16,
+        1.6120881635778912e-16,
+        3.512464253457217e-18,
+        -1.0292704695076673e-18
+      ]
+    },
+    {
+      "station": "APOLLO",
+      "utc": "2017-04-21T12:14:15.0000000",
+      "launch_tdb_time_split": [
+        151680,
+        924.1855754846048
+      ],
+      "record_index_zero_based": 10940,
+      "chebyshev_argument": -0.9946517038455753,
+      "inpop_tt_minus_tdb_s": -0.0015742668981505927,
+      "inpop_dtt_minus_tdb_dtdb": 1.0068002694945703e-10,
+      "sofa_tt_minus_tdb_s": -0.0015742682905573629,
+      "inpop_minus_sofa_s": 1.3924067701794052e-09,
+      "static_manual_minus_spice_s": 0.0,
+      "absolute_epoch_sensitivity_at_100m_per_s_m": 1.3924067701794052e-07,
+      "record_midpoint_tdb_s": 546220800.0,
+      "record_radius_s": 172800.0,
+      "coefficients_x_tt_minus_tdb_s": [
+        -0.0015557684402402682,
+        1.899561223229816e-05,
+        4.0654880077643867e-07,
+        2.7295948041395097e-09,
+        3.112457431909653e-10,
+        -9.872678063232732e-13,
+        -1.579406166037541e-12,
+        -1.026898313302867e-13,
+        4.2231289174998496e-15,
+        9.77034811080715e-16,
+        3.0060457594748955e-17,
+        -5.265280666050417e-18
+      ]
+    }
+  ],
+  "maximum_abs_inpop_minus_sofa_s": 1.3924067701794052e-09,
+  "conclusion": "The signed, integrated geocentric time difference is usable for an independent comparison. Three values do not establish RTT interval-rate agreement or the prism convention. No observable clock was changed.",
+  "saved_launch_kernel_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "saved_launch_model_source": "55ce9392037ebad1321b488df31422a1087ff3e3",
+  "packaging": "Only portable CLI paths and saved coefficient fields added after the recorded static evaluation. No further observation or clock runs.",
+  "primary_sources": {
+    "manche_thesis": {
+      "url": "https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf",
+      "cached_file": "/home/dominic/Tudat/laser-ranging-work/research/Manche_These.pdf",
+      "sha256": "f36cf9602a79d4de0d98e1136e9cf5d45db3f9e319bfa0933b8f7a856cec1cb6"
+    },
+    "inpop17a_report": {
+      "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+      "cached_file": "/home/dominic/Tudat/laser-ranging-work/research/inpop17a_v3_090817.pdf",
+      "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a"
+    },
+    "published_2018_article": {
+      "url": "https://doi.org/10.1093/mnras/sty096",
+      "cached_file": "/home/dominic/Tudat/laser-ranging-work/research/llr-ephemeris-controls/INPOP17a-2018-publisher.html",
+      "sha256": "cc720f368ca8a192caba6833011855c799390be7b21c5e4751e1a06906768332"
+    },
+    "inpop13c_report": {
+      "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop13c.pdf",
+      "cached_file": "/home/dominic/Tudat/laser-ranging-work/research/llr-ephemeris-controls/INPOP13c.pdf",
+      "sha256": "976b2a0dac29960863d74f23af231f9d6c706452de318418462d04da0646c054"
+    },
+    "original_tdb_header": {
+      "url": "https://ftp.imcce.fr/pub/ephem/planets/inpop17a/inpop17a_TDB_m100_p100.header",
+      "cached_file": "/home/dominic/Tudat/laser-ranging-work/research/inpop17a_TDB_m100_p100.header",
+      "sha256": "2082297553208d173d3dee0b76ed14cb9955e2a4590cb0ba63b7e09e37aee818"
+    },
+    "release_readme": {
+      "url": "https://www.imcce.fr/recherche/equipes/asd/inpop/download17a",
+      "cached_file": "/home/dominic/Tudat/laser-ranging-work/research/llr-ephemeris-controls/INPOP17a-README.txt",
+      "sha256": "23e675dc151922bb6036d3c00c5dd496877de0bcaa71a985d0599e3d0a7bca64"
+    }
+  },
+  "provider_archive_url": "https://ftp.imcce.fr/pub/ephem/planets/inpop17a/inpop17a_TDB_m100_p100_spice.tar.gz",
+  "header_constants_raw": {
+    "FORMAT": 1.0,
+    "UNITE": 1.0,
+    "TIMESC": 0.0,
+    "LBTCBD": 1.550519768e-08,
+    "LGTCGT": 6.969290134e-10
+  },
+  "units_authority": "The official release README specifies TT\u2212TDB in seconds. The original header and filename identify the TDB product. The pseudo-SPK X component is not a distance in kilometres.",
+  "prism_reference_convention": {
+    "status": "unresolved",
+    "checked": "Manche2011 chapter9 Eq9.1 and sections9.3\u20139.6; INPOP17a report Table9; INPOP13c Table13; published2018 article section2.3. Chapter reading and targeted accent-normalized text searches.",
+    "positive_evidence": "The thesis describes a reflection point, with coordinates in the principal-axis frame, and geometric, GR and atmospheric light time. The published2018 article cites Manche and Moyer2003 and a one-way1mm intergroup comparison.",
+    "missing_evidence": "No explicit front-face centre, vertex or effective optical bounce definition, or prism n*h/c term, was recovered. The thermal refractive-index discussion concerns detectability.",
+    "interpretation": "The absence of an explicit term does not prove that the coordinates absorb optical delay. Both predeclared n*h and zero-explicit-glass controls must remain labelled incomplete; residual size cannot establish the convention."
+  },
+  "portable_script_sha256": "f34b76487b4c316b883c6e95557258923ccac68e70d937208a1e27b4dc25004d"
+}
