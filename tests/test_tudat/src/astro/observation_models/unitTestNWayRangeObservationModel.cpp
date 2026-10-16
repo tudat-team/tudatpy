@@ -532,7 +532,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
     BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate );
 
     // Select the same EOP context for station rotation and atomic range normalization.
-    auto rotationSettings = std::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2006, "J2000" );
+    auto rotationSettings = std::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2006,
+                                                                                 defaultBodySettings.getFrameOrientation( ) );
     earth_orientation::EarthOrientationEvaluationSettings eopSettings;
     eopSettings.interpolation = earth_orientation::EarthOrientationInterpolation::lagrange_four_point;
     rotationSettings->setEopEvaluationSettings( eopSettings );
