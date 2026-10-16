@@ -1,0 +1,37 @@
+{
+  "row_count": 306,
+  "station_counts": {
+    "GRASSE": 237,
+    "APOLLO": 69
+  },
+  "night_counts": {
+    "APOLLO": 9,
+    "GRASSE": 24
+  },
+  "reflector_counts": {
+    "GRASSE/A15": 117,
+    "APOLLO/A15": 30,
+    "APOLLO/L2": 5,
+    "APOLLO/A14": 15,
+    "APOLLO/L1": 7,
+    "GRASSE/L2": 37,
+    "GRASSE/L1": 44,
+    "GRASSE/A14": 22,
+    "APOLLO/A11": 12,
+    "GRASSE/A11": 17
+  },
+  "all_apollo_rows_byte_field_exact": true,
+  "csv_sha256": "e9b3e9da081d5e12f8d10f7cf9579e250a9fe8c3ef2400722b1c36792816e908",
+  "grasse_wavelength_counts": {
+    "1064.2": 224,
+    "532.1": 13
+  },
+  "grasse_weather_modes": {
+    "interpolated": 167,
+    "held-last": 70
+  },
+  "elevation_range_deg": [
+    15.502488842539488,
+    68.95031641476197
+  ]
+}

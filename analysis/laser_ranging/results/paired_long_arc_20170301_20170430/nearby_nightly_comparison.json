@@ -1,0 +1,528 @@
+{
+  "pairing": "Nearest Grasse station/reflector nightly mean observation epoch to each APOLLO one, within 12 hours, allowing adjacent UTC dates; no interpolation or fitted alignment",
+  "matched_pairs": 17,
+  "adjacent_date_pairs": 5,
+  "unmatched_station_reflector_nights": [
+    {
+      "station": "APOLLO",
+      "reflector": "A11",
+      "utc_night": "2017-03-09",
+      "count": 2,
+      "nearest_other_station_night": "2017-03-22",
+      "nearest_other_minus_this_hours": 318.18507133218975
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A11",
+      "utc_night": "2017-03-19",
+      "count": 2,
+      "nearest_other_station_night": "2017-03-22",
+      "nearest_other_minus_this_hours": 67.25868244330088
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A11",
+      "utc_night": "2017-04-03",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 16.504975539445876
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "utc_night": "2017-03-02",
+      "count": 2,
+      "nearest_other_station_night": "2017-03-07",
+      "nearest_other_minus_this_hours": 135.32313154637814
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "utc_night": "2017-03-09",
+      "count": 3,
+      "nearest_other_station_night": "2017-03-07",
+      "nearest_other_minus_this_hours": -32.615988823970156
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "utc_night": "2017-03-19",
+      "count": 2,
+      "nearest_other_station_night": "2017-03-22",
+      "nearest_other_minus_this_hours": 66.89297922889392
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "utc_night": "2017-04-03",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 14.550390164984597
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "utc_night": "2017-03-19",
+      "count": 4,
+      "nearest_other_station_night": "2017-03-17",
+      "nearest_other_minus_this_hours": -57.33516520427333
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "utc_night": "2017-04-03",
+      "count": 3,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 17.137238816486466
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L1",
+      "utc_night": "2017-03-02",
+      "count": 1,
+      "nearest_other_station_night": "2017-03-02",
+      "nearest_other_minus_this_hours": 12.576754651069642
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L1",
+      "utc_night": "2017-03-09",
+      "count": 2,
+      "nearest_other_station_night": "2017-03-07",
+      "nearest_other_minus_this_hours": -31.094006765815948
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L1",
+      "utc_night": "2017-03-19",
+      "count": 1,
+      "nearest_other_station_night": "2017-03-22",
+      "nearest_other_minus_this_hours": 66.15469164550305
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L1",
+      "utc_night": "2017-04-03",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 17.464260459078684
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L2",
+      "utc_night": "2017-03-02",
+      "count": 1,
+      "nearest_other_station_night": "2017-03-02",
+      "nearest_other_minus_this_hours": 13.086041787597868
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L2",
+      "utc_night": "2017-03-19",
+      "count": 1,
+      "nearest_other_station_night": "2017-03-22",
+      "nearest_other_minus_this_hours": 66.32653869132201
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L2",
+      "utc_night": "2017-04-03",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 17.933047891524105
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "utc_night": "2017-03-30",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 82.6762538505925
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "utc_night": "2017-04-03",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -16.504975539445876
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "utc_night": "2017-04-04",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -41.86016700413492
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "utc_night": "2017-04-08",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-07",
+      "nearest_other_minus_this_hours": -22.84158890472518
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "utc_night": "2017-04-20",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-15",
+      "nearest_other_minus_this_hours": -118.07325494892068
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A11",
+      "utc_night": "2017-04-21",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-15",
+      "nearest_other_minus_this_hours": -140.63956819057464
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "utc_night": "2017-03-07",
+      "count": 1,
+      "nearest_other_station_night": "2017-03-09",
+      "nearest_other_minus_this_hours": 32.615988823970156
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "utc_night": "2017-03-30",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 81.34323155972693
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "utc_night": "2017-04-03",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -14.550390164984597
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "utc_night": "2017-04-04",
+      "count": 8,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -42.115552867915895
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "utc_night": "2017-04-08",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-07",
+      "nearest_other_minus_this_hours": -22.74501831114292
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "utc_night": "2017-04-20",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-15",
+      "nearest_other_minus_this_hours": -118.35873272445467
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A14",
+      "utc_night": "2017-04-21",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-15",
+      "nearest_other_minus_this_hours": -140.94365071402655
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-02",
+      "count": 4,
+      "nearest_other_station_night": "2017-03-02",
+      "nearest_other_minus_this_hours": -12.199281626078818
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-07",
+      "count": 4,
+      "nearest_other_station_night": "2017-03-09",
+      "nearest_other_minus_this_hours": 31.851869582666293
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-09",
+      "count": 14,
+      "nearest_other_station_night": "2017-03-09",
+      "nearest_other_minus_this_hours": -18.76206741736995
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-11",
+      "count": 2,
+      "nearest_other_station_night": "2017-03-09",
+      "nearest_other_minus_this_hours": -47.75566683994399
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-14",
+      "count": 6,
+      "nearest_other_station_night": "2017-03-19",
+      "nearest_other_minus_this_hours": 109.64419976552327
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-15",
+      "count": 11,
+      "nearest_other_station_night": "2017-03-19",
+      "nearest_other_minus_this_hours": 106.59677012523015
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-17",
+      "count": 5,
+      "nearest_other_station_night": "2017-03-19",
+      "nearest_other_minus_this_hours": 57.33516520427333
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-30",
+      "count": 5,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 84.1976769895686
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-03-31",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 55.208138774633404
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-03",
+      "count": 4,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -17.137238816486466
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-04",
+      "count": 14,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -42.2713601183229
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-07",
+      "count": 2,
+      "nearest_other_station_night": "2017-04-07",
+      "nearest_other_minus_this_hours": -21.56071337805854
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-08",
+      "count": 4,
+      "nearest_other_station_night": "2017-04-07",
+      "nearest_other_minus_this_hours": -22.943631090190674
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-11",
+      "count": 6,
+      "nearest_other_station_night": "2017-04-14",
+      "nearest_other_minus_this_hours": 58.54612564894888
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-13",
+      "count": 4,
+      "nearest_other_station_night": "2017-04-14",
+      "nearest_other_minus_this_hours": 32.858881869779694
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-19",
+      "count": 3,
+      "nearest_other_station_night": "2017-04-21",
+      "nearest_other_minus_this_hours": 52.801108915077315
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "A15",
+      "utc_night": "2017-04-20",
+      "count": 8,
+      "nearest_other_station_night": "2017-04-21",
+      "nearest_other_minus_this_hours": 29.47011718882455
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-03-02",
+      "count": 2,
+      "nearest_other_station_night": "2017-03-02",
+      "nearest_other_minus_this_hours": -12.576754651069642
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-03-07",
+      "count": 5,
+      "nearest_other_station_night": "2017-03-09",
+      "nearest_other_minus_this_hours": 31.094006765815948
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-03-30",
+      "count": 4,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 82.79868936227427
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-03-31",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 55.34905988971392
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-04-03",
+      "count": 7,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -17.464260459078684
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-04-04",
+      "count": 10,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -41.91522997736931
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-04-06",
+      "count": 5,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -87.89345448560185
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-04-08",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -119.59913019080956
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-04-20",
+      "count": 3,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -414.4387882857853
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L1",
+      "utc_night": "2017-04-21",
+      "count": 3,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -436.4502941366699
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-03-02",
+      "count": 4,
+      "nearest_other_station_night": "2017-03-02",
+      "nearest_other_minus_this_hours": -13.086041787597868
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-03-07",
+      "count": 1,
+      "nearest_other_station_night": "2017-03-02",
+      "nearest_other_minus_this_hours": -137.22505280554296
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-03-30",
+      "count": 4,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": 83.59725205222766
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-04-03",
+      "count": 12,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -17.933047891524105
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-04-04",
+      "count": 3,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -42.98755622631974
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-04-08",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -117.96475813362333
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-04-19",
+      "count": 1,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -389.15337707916893
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-04-20",
+      "count": 5,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -413.0630806862646
+    },
+    {
+      "station": "GRASSE",
+      "reflector": "L2",
+      "utc_night": "2017-04-21",
+      "count": 3,
+      "nearest_other_station_night": "2017-04-03",
+      "nearest_other_minus_this_hours": -436.49319496134916
+    }
+  ],
+  "comparison_scope": "Raw means at distinct times; differences contain changing lunar/station geometry and are not simultaneous station biases"
+}

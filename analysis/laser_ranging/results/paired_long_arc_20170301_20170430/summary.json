@@ -1,0 +1,266 @@
+{
+  "count": 306,
+  "station_selection": "APOLLO and GRASSE",
+  "station_statistics": {
+    "APOLLO": {
+      "count": 69,
+      "mean_m": 0.0018295913502789926,
+      "rms_about_zero_m": 0.05848847969089653,
+      "scatter_about_mean_m": 0.058459856756952464
+    },
+    "GRASSE": {
+      "count": 237,
+      "mean_m": 0.01000662820751657,
+      "rms_about_zero_m": 0.3595828051136746,
+      "scatter_about_mean_m": 0.3594435437246514
+    }
+  },
+  "station_reflector_statistics": {
+    "APOLLO/A11": {
+      "count": 12,
+      "mean_m": -0.06201282640298208,
+      "rms_about_zero_m": 0.0677263399470953,
+      "scatter_about_mean_m": 0.027226209507442027
+    },
+    "APOLLO/A14": {
+      "count": 15,
+      "mean_m": 0.04900612036387126,
+      "rms_about_zero_m": 0.05971967026697429,
+      "scatter_about_mean_m": 0.03412974045723021
+    },
+    "APOLLO/A15": {
+      "count": 30,
+      "mean_m": -0.004533447821935018,
+      "rms_about_zero_m": 0.04419528794735072,
+      "scatter_about_mean_m": 0.04396215790421389
+    },
+    "APOLLO/L1": {
+      "count": 7,
+      "mean_m": 0.07500830718449183,
+      "rms_about_zero_m": 0.08457671732617973,
+      "scatter_about_mean_m": 0.03907652705895729
+    },
+    "APOLLO/L2": {
+      "count": 5,
+      "mean_m": -0.05075016021728516,
+      "rms_about_zero_m": 0.06137447821437761,
+      "scatter_about_mean_m": 0.034514458043072314
+    },
+    "GRASSE/A11": {
+      "count": 17,
+      "mean_m": -0.053156137466430664,
+      "rms_about_zero_m": 0.07528556118420851,
+      "scatter_about_mean_m": 0.05331360776078776
+    },
+    "GRASSE/A14": {
+      "count": 22,
+      "mean_m": 0.03871607238596136,
+      "rms_about_zero_m": 0.07703481573287267,
+      "scatter_about_mean_m": 0.06659901331102923
+    },
+    "GRASSE/A15": {
+      "count": 117,
+      "mean_m": 0.014115996849842561,
+      "rms_about_zero_m": 0.5056062101735496,
+      "scatter_about_mean_m": 0.5054091198217486
+    },
+    "GRASSE/L1": {
+      "count": 44,
+      "mean_m": 0.06409079649231651,
+      "rms_about_zero_m": 0.0825803339871856,
+      "scatter_about_mean_m": 0.052075727228869224
+    },
+    "GRASSE/L2": {
+      "count": 37,
+      "mean_m": -0.055353920201997496,
+      "rms_about_zero_m": 0.07488336946505174,
+      "scatter_about_mean_m": 0.05043275265846924
+    }
+  },
+  "manifest_sha256": "10906a8e5ebbf349b7d684844d968690cc500640aae0a634f6f82e722e72c86f",
+  "ephemeris_manifest_sha256": "7e954560da83cec0967376f8fe44ac32e4d16096ee58d213a5b9b96ddcec15c4",
+  "kernel_binary_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "kernel_sha256": {
+    "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+    "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+    "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+    "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+    "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+    "icrf_spice_alias.tf": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7"
+  },
+  "source_sha256": {
+    "llr_long_arc.py": "723e80ea26a5b3d72bb8602edeedfa70a9f36291043b4f93ab3c4e5e86de02ff",
+    "llr_residuals.py": "60a790cb9b25c6f45881afbbc62475a844a5e3e2eac2dfadaf0940ce9db49e2a",
+    "llr_station_profiles.json": "932f373729a935430e9626137caf7a7d3f98dc147310211e5e0ed0bb67c084e6"
+  },
+  "earth_orientation_resource_sha256": {
+    "README_desaiSibois2016.txt": "7c402db01984d0f561b77758c9b6cb290f746694b9e52c6735c19a9de8e9041f",
+    "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d",
+    "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "desaiSibois2016Ut1OceanTidesAmplitudes.txt": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88",
+    "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "eopc04_08_IAU2000.62-now.txt": "60c35925a5289c618a6054d0a6b2b313afa4dabeef08e348a7cac6a2682e0ea3",
+    "eopc04_14_IAU2000.62-now.txt": "cc838b27572e89ff6d36ee7cbeb6a8f104f1f8e59ddf769e8c93e6515276cd32",
+    "eopc04_20_IAU2000.62-now.txt": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181",
+    "historicalDeltaT.txt": "4a2d068df1cdb5f39ac0e7efa04aafeea5be585afd1c9e2e4380cf8872e1f78e",
+    "polarMotionLibrationAmplitudes.txt": "09bf92da2470901a69b3f3e4a17568ab09fba3df6021e72323b9c83a933a5fb0",
+    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf",
+    "polarMotionLibrationFundamentalArgumentMultipliers.txt": "3e1b8e99338e6713a244a1afc0e821a900bb67b6951fb76a0df5571b1d2b0206",
+    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3",
+    "polarMotionOceanTidesAmplitudes.txt": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076",
+    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+    "utcLibrationAmplitudes.txt": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7",
+    "utcLibrationFundamentalArgumentMultipliers.txt": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5",
+    "utcOceanTidesAmplitudes.txt": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829",
+    "utcOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+  },
+  "station_profiles": {
+    "inpop17a-grasse-gir": {
+      "name": "INPOP17a G+IR Grasse 7845 station-only sensitivity",
+      "position_m": [
+        4581692.1349,
+        556196.078,
+        4389355.104
+      ],
+      "velocity_m_per_julian_year": [
+        -0.0132,
+        0.0191,
+        0.0133
+      ],
+      "position_sigma_m": [
+        0.0001,
+        0.0001,
+        0.0012
+      ],
+      "velocity_sigma_m_per_year": [
+        0.0001,
+        0.0012,
+        0.0001
+      ],
+      "reference_epoch": "J2000, interpreted as JD 2451545.0 TT",
+      "reference_epoch_tt_s": 0.0,
+      "julian_year_s": 31557600.0,
+      "frame": "Published fitted coordinates relative to ITRF2005 references; not guaranteed canonical ITRF2005 or matched to the selected EOP frame",
+      "selection": "Published final G+IR station solution independently preselected before long-arc evaluation; no residual-based choice",
+      "row_algebra": "Published final Grasse G+IR values, visually checked in Table 8; no fitted range bias imported.",
+      "sources": [
+        {
+          "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+          "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a",
+          "location": "Table 8, printed page 21; J2000 position and velocity, metres and metres/year; APOLLO data end 2016-11-25 in Table 4"
+        },
+        {
+          "url": "https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf",
+          "sha256": "f36cf9602a79d4de0d98e1136e9cf5d45db3f9e319bfa0933b8f7a856cec1cb6",
+          "location": "Section 9.1.2 specifies TT for linear station velocity; using a Julian year is an explicit interpretation, not restated in the 2017 table"
+        }
+      ],
+      "limitations": [
+        "Station-only sensitivity with DE440 translation, orientation and reflector constants retained; not a matched INPOP or DE440 reduction.",
+        "No speculative frame transform; fitted station coordinates need not realize canonical ITRF2005, ITRF2020 or the selected EOP frame.",
+        "Tide-free interpretation is supported by regularized coordinates and cited IERS routines, but not explicitly flagged in the 2017 report.",
+        "The older cited reduction includes atmospheric and CSR4.0 ocean loading; precise 2017 choices are not restated and are not reproduced here.",
+        "Published component uncertainties are retained as metadata only; no full covariance or reference-point metrology recovered."
+      ],
+      "station": "GRASSE",
+      "cdp": "7845",
+      "domes": "10002S002",
+      "reference_point": "Azimuth/elevation axis intersection",
+      "instrument_eccentricity_metres": [
+        0,
+        0,
+        0
+      ],
+      "sitelog_source": {
+        "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/GRSM_sitelog.html",
+        "file": "GRSM_sitelog.html",
+        "sha256": "577eacac705384270b1339038896bde3da6128f49490b1edc7ac984a0d95283c",
+        "retrieved_utc": "2026-10-16T06:53:23.273309+00:00"
+      },
+      "fitted_bias_excluded": {
+        "start": "2016-06-01",
+        "end": "2018-01-01",
+        "value_cm": 2.46,
+        "convention": "TWO-WAY light time; 1.23cm half-range equivalent, do not import or fit"
+      }
+    },
+    "inpop17a-gir": {
+      "name": "INPOP17a G+IR station-only sensitivity",
+      "position_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "velocity_m_per_julian_year": [
+        -0.013,
+        0.0001,
+        0.0
+      ],
+      "position_sigma_m": [
+        0.0004,
+        0.0004,
+        0.0014
+      ],
+      "velocity_sigma_m_per_year": [
+        0.0001,
+        0.0001,
+        0.0016
+      ],
+      "reference_epoch": "J2000, interpreted as JD 2451545.0 TT",
+      "reference_epoch_tt_s": 0.0,
+      "julian_year_s": 31557600.0,
+      "frame": "Published fitted coordinates relative to ITRF2005 references; not guaranteed canonical ITRF2005 or matched to the selected EOP frame",
+      "selection": "Preselected published final G+IR solution; no choice based on the eleven residuals",
+      "row_algebra": "x=-1463998.7870-.1285; y=-5166632.8080+.0390; z=3435012.8560+.0099; vx=-.0141+.0011; vy=-.0015+.0016; vz=-.0064+.0064",
+      "sources": [
+        {
+          "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+          "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a",
+          "location": "Table 8, printed page 21; J2000 position and velocity, metres and metres/year; APOLLO data end 2016-11-25 in Table 4"
+        },
+        {
+          "url": "https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf",
+          "sha256": "f36cf9602a79d4de0d98e1136e9cf5d45db3f9e319bfa0933b8f7a856cec1cb6",
+          "location": "Section 9.1.2 specifies TT for linear station velocity; using a Julian year is an explicit interpretation, not restated in the 2017 table"
+        }
+      ],
+      "limitations": [
+        "Station-only sensitivity with DE440 translation, orientation and reflector constants retained; not a matched INPOP or DE440 reduction.",
+        "No speculative frame transform; fitted station coordinates need not realize canonical ITRF2005, ITRF2020 or the selected EOP frame.",
+        "Tide-free interpretation is supported by regularized coordinates and cited IERS routines, but not explicitly flagged in the 2017 report.",
+        "The older cited reduction includes atmospheric and CSR4.0 ocean loading; precise 2017 choices are not restated and are not reproduced here.",
+        "Published component uncertainties are retained as metadata only; no full covariance or reference-point metrology recovered."
+      ]
+    }
+  },
+  "setup_seconds": 5.8127358539786655,
+  "solver_seconds": 19.358879676117795,
+  "total_seconds": 26.693526071001543,
+  "physics": "Same complete DE440/ICRF model, 30 s Time cubic tables, no loading, 50 iterations and fractional tolerance 1e-13",
+  "fitting": "No fitted bias, demeaning, clipping, wavelength correction or empirical libration term",
+  "geometry_precision": "Geometry uses native diagnostic event doubles; solver retains Time internally",
+  "uncertainty": "APOLLO supplied NP RTT uncertainty only; Grasse bin RMS remains metadata",
+  "group_count": 79,
+  "group_timings_file": "group_timing_and_weather.csv",
+  "grasse_common_flags": {
+    "cdp_pad_id": 7845,
+    "system_number": 78,
+    "occupancy": 1,
+    "station_epoch_time_scale": 4,
+    "range_type": 2,
+    "data_quality_alert": 0,
+    "tropospheric_correction_applied": 0,
+    "center_of_mass_correction_applied": 0,
+    "receive_amplitude_correction_applied": 0,
+    "station_system_delay_applied": 1,
+    "spacecraft_system_delay_applied": 0
+  },
+  "grasse_measured_weather_records": 237,
+  "grasse_weather_modes": {
+    "interpolated": 167,
+    "held-last": 70
+  },
+  "source_summary_sha256": "f51cababc4930e6cffab18c0fbf6e5ea885683c7d9267ea860830f1f14ca4097",
+  "geometry_scope": "Directions reconstructed at recorded native event double epochs for interpretation, not a second light-time observable or fit; production solver retains Time."
+}

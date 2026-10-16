@@ -1,0 +1,36 @@
+{
+  "analysis_source_revision": "6e7d4b8077963bda9a5c99604a8d57c111086ce4",
+  "native_source_revision": "a366f436c6f6ff03aa57f8b1610075784196bdf8",
+  "kernel_binary_sha256": "cab49e738cfcf0ea5f251cb140ab8919d5372dbc3e5ba09314d0d5be4eedfcef",
+  "command": [
+    "python",
+    "analysis/laser_ranging/llr_long_arc.py",
+    "--data-root",
+    "$DATA_ROOT",
+    "--kernel-dir",
+    "$KERNEL_DIR",
+    "--output",
+    "$NEW_OUTPUT"
+  ],
+  "started_utc": "2026-10-16T07:24:09.286512+00:00",
+  "numerical_threads": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "completed_utc": "2026-10-16T07:24:36.935107+00:00",
+  "status": "complete",
+  "previous_apollo_control": "../apollo_long_arc_20170301_20170430: all69 output rows are field-exact, including raw residuals and geometry",
+  "wavelength_domain": "Native nominal1064nm reporting allowance ends1064.5nm; actual1064.2nm evaluated unchanged. This is not a solver-tolerance change or a claim of new ray-tracing validation.",
+  "nearby_night_comparison_script_sha256": "09ac7798be7ffd94bca8f113b1ee46f2b7185e51571dbb177079fe2f0cc80552",
+  "output_sha256": {
+    "extreme_source_audit.json": "116403fd5e41f2393f496528167ef9d94d9811345a442264bfd3d41c8d8650fa",
+    "group_timing_and_weather.csv": "d453cacc08010451ff0d28611b89ef349535d528ad946b2386c19c23f107801f",
+    "nearby_nightly_comparison.json": "2b133ac49c3d63fbdf52ec9bb73e965a257f27a19cc08b2e2d2db8aa7e159d26",
+    "nearby_nightly_raw_means.csv": "e0776af32fd97230027ad1c98b2726721157db3c26c0cde984dc309364ae1ff6",
+    "nightly_raw_statistics.csv": "8cb9711617fb855bd660989c6ea23367e0636dec4b0e9ec91a8d1f7a684c4023",
+    "residuals.csv": "e9b3e9da081d5e12f8d10f7cf9579e250a9fe8c3ef2400722b1c36792816e908",
+    "summary.json": "2eeacf8f0f35157cad5f058001ae1394f23ba6391aa6878005b36aaa5f0b1771",
+    "verification.json": "e0261057265cd754e3d26db8ff372faef36193aeff4355b06c13b11f85a0d881"
+  }
+}

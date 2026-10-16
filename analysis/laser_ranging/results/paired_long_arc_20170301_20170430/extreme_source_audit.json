@@ -1,0 +1,231 @@
+{
+  "selection": "Positive extreme, negative extreme and largest remaining positive residual; diagnostic source audit only, every NP remains included.",
+  "records": [
+    {
+      "row": {
+        "utc_launch": "2017-03-09T18:34:15.297622200200",
+        "station": "GRASSE",
+        "reflector": "A15",
+        "one_way_residual_m": "5.429946839809418",
+        "one_way_sigma_m": "",
+        "source_file": "apollo15_201703.npt",
+        "source_line": "171",
+        "source_session": "29",
+        "source_station_id": "GRSM",
+        "station_cdp": "7845",
+        "station_domes": "10002S002",
+        "station_profile": "inpop17a-grasse-gir",
+        "quality": "0",
+        "epoch_event": "2",
+        "system_configuration": "me09",
+        "wavelength_nm": "1064.2",
+        "observed_rtt_s": "2.490835100745",
+        "computed_full_two_way_range_m": "746733566.4651275",
+        "photons": "26",
+        "bin_rms_ps_metadata_only": "361.9",
+        "nearest_measured_weather_s": "365.2976222038269",
+        "weather_mode": "interpolated",
+        "station_system_delay_applied": "1",
+        "calibration_reapplied_m": "0.0",
+        "lunar_phase_angle_deg": "34.70100354164149",
+        "transmit_elevation_deg": "42.46305378523646",
+        "receive_elevation_deg": "42.47837921724056",
+        "earth_direction_pa_x": "0.9962516392716351",
+        "earth_direction_pa_y": "0.07787182203825523",
+        "earth_direction_pa_z": "0.03766497817631513",
+        "sun_direction_pa_x": "0.7762495351547709",
+        "sun_direction_pa_y": "0.630377309101145",
+        "sun_direction_pa_z": "-0.007817118548506197",
+        "transmit_los_pa_x": "0.9951678640835627",
+        "transmit_los_pa_y": "0.08888474113076297",
+        "transmit_los_pa_z": "0.04171840228815826",
+        "receive_los_pa_x": "0.9951828475115944",
+        "receive_los_pa_y": "0.08871649665340063",
+        "receive_los_pa_z": "0.04171909922639255"
+      },
+      "provider_sha256": "cd546e1d1f0947962366ab8441091a639233fae77ccd6dcb98e8053bf0963eb6",
+      "provider_header": [
+        "h1 CRD  1 2017  3  9 18",
+        "h2 GRSM       7845 78  1  4",
+        "h3 apollo15        103  103          0 2",
+        "h4  1 2017  3  9 18  9 48 2017  3  9 18 21  8  0 0 0 0 1 0 2 0",
+        "c0 0    1064.2   me09 las6 det2 tim2"
+      ],
+      "provider_np_line": "11 66855.297622200200     2.490835100745 me09 2  732.5    26     361.9   -.200  -1.200       0.0   1.4 0",
+      "nearest_provider_weather_before": [
+        [
+          170,
+          "20 66490.              874.72 286.28   38 0"
+        ]
+      ],
+      "nearest_provider_weather_after": [
+        [
+          173,
+          "20 68148.              874.6 285.92   38 0"
+        ]
+      ],
+      "nearest_provider_calibration_before": [
+        [
+          169,
+          "40 66190.00           0 me09      314      269   3.716    99585.7      0.0    54   0.000   0.000    0.0 3 3 0"
+        ]
+      ],
+      "nearest_provider_calibration_after": [
+        [
+          172,
+          "40 67848.00           0 me09      305      266   3.716    99588.9      0.0    59   0.000   0.000    0.0 3 3 0"
+        ]
+      ],
+      "block_np_count": 14,
+      "other_block_residual_range_m": [
+        -0.07129663228988647,
+        -0.03669625520706177
+      ]
+    },
+    {
+      "row": {
+        "utc_launch": "2017-04-04T20:51:03.377987246900",
+        "station": "GRASSE",
+        "reflector": "A14",
+        "one_way_residual_m": "-0.16075271368026733",
+        "one_way_sigma_m": "",
+        "source_file": "apollo14_201704.npt",
+        "source_line": "72",
+        "source_session": "17",
+        "source_station_id": "GRSM",
+        "station_cdp": "7845",
+        "station_domes": "10002S002",
+        "station_profile": "inpop17a-grasse-gir",
+        "quality": "0",
+        "epoch_event": "2",
+        "system_configuration": "me09",
+        "wavelength_nm": "532.1",
+        "observed_rtt_s": "2.470871480778",
+        "computed_full_two_way_range_m": "740748634.9460418",
+        "photons": "6",
+        "bin_rms_ps_metadata_only": "174.6",
+        "nearest_measured_weather_s": "414.37798726558685",
+        "weather_mode": "held-last",
+        "station_system_delay_applied": "1",
+        "calibration_reapplied_m": "0.0",
+        "lunar_phase_angle_deg": "75.92930600319971",
+        "transmit_elevation_deg": "51.640319581053376",
+        "receive_elevation_deg": "51.63331025554659",
+        "earth_direction_pa_x": "0.9937901825880099",
+        "earth_direction_pa_y": "0.09120292591015805",
+        "earth_direction_pa_z": "0.06374244501991067",
+        "sun_direction_pa_x": "0.1551812738088414",
+        "sun_direction_pa_y": "0.9877122627404415",
+        "sun_direction_pa_z": "-0.01852723107272424",
+        "transmit_los_pa_x": "0.9933590299383588",
+        "transmit_los_pa_y": "0.08833660735149909",
+        "transmit_los_pa_z": "0.07371893543418728",
+        "receive_los_pa_x": "0.9933643739253477",
+        "receive_los_pa_y": "0.08828444085648604",
+        "receive_los_pa_z": "0.07370941675633805"
+      },
+      "provider_sha256": "07bec0403c60f75992d0598240e5ba985a1f364a483619ecf63221918406176a",
+      "provider_header": [
+        "h1 CRD  1 2017  4  4 18",
+        "h2 GRSM       7845 78  1  4",
+        "h3 apollo14        102  102          0 2",
+        "h4  1 2017  4  4 18 27 40 2017  4  4 18 35 46  0 0 0 0 1 0 2 0",
+        "c0 0    532.1   me09 las6 det1 tim2"
+      ],
+      "provider_np_line": "11 75063.377987246900     2.470871480778 me09 2  480.9     6     174.6     .000  -1.400       0.0   6.8 0",
+      "nearest_provider_weather_before": [
+        [
+          71,
+          "20 74649.              875.65 282.34   60 0"
+        ]
+      ],
+      "nearest_provider_weather_after": null,
+      "nearest_provider_calibration_before": [
+        [
+          70,
+          "40 74299.98           0 me09      443      435   3.716   102019      0.0    50.1   0.000   0.000    0.0 3 3 0"
+        ]
+      ],
+      "nearest_provider_calibration_after": null,
+      "block_np_count": 2,
+      "other_block_residual_range_m": [
+        0.008416235446929932,
+        0.008416235446929932
+      ]
+    },
+    {
+      "row": {
+        "utc_launch": "2017-04-21T07:33:16.503831152900",
+        "station": "GRASSE",
+        "reflector": "L1",
+        "one_way_residual_m": "0.17551356554031372",
+        "one_way_sigma_m": "",
+        "source_file": "luna17_201704.npt",
+        "source_line": "136",
+        "source_session": "59",
+        "source_station_id": "GRSM",
+        "station_cdp": "7845",
+        "station_domes": "10002S002",
+        "station_profile": "inpop17a-grasse-gir",
+        "quality": "0",
+        "epoch_event": "2",
+        "system_configuration": "me09",
+        "wavelength_nm": "1064.2",
+        "observed_rtt_s": "2.547950088146",
+        "computed_full_two_way_range_m": "763856219.4355788",
+        "photons": "56",
+        "bin_rms_ps_metadata_only": "94.1",
+        "nearest_measured_weather_s": "356.5038311481476",
+        "weather_mode": "held-last",
+        "station_system_delay_applied": "1",
+        "calibration_reapplied_m": "0.0",
+        "lunar_phase_angle_deg": "111.87894041800523",
+        "transmit_elevation_deg": "32.46634817540301",
+        "receive_elevation_deg": "32.46739574761866",
+        "earth_direction_pa_x": "0.9917045482403666",
+        "earth_direction_pa_y": "-0.1275337949246901",
+        "earth_direction_pa_z": "-0.016038084407981303",
+        "sun_direction_pa_x": "-0.4883279595728674",
+        "sun_direction_pa_y": "-0.8723434211741637",
+        "sun_direction_pa_z": "-0.02351083651330378",
+        "transmit_los_pa_x": "0.9912762480207554",
+        "transmit_los_pa_y": "-0.13165428483553945",
+        "transmit_los_pa_z": "-0.006208815856198941",
+        "receive_los_pa_x": "0.9912860295730854",
+        "receive_los_pa_y": "-0.13158064938034134",
+        "receive_los_pa_z": "-0.006208081980391268"
+      },
+      "provider_sha256": "1f2a2f80a67a5f093dd7aab30e2d0742b6981073d4c984d5d5808c2133d417fe",
+      "provider_header": [
+        "h1 CRD  1 2017  4 21  5",
+        "h2 GRSM       7845 78  1  4",
+        "h3 luna17          101  101          0 2",
+        "h4  1 2017  4 21  5 39  8 2017  4 21  5 50 33  0 0 0 0 1 0 2 0",
+        "c0 0    1064.2   me09 las6 det2 tim2"
+      ],
+      "provider_np_line": "11 27196.503831152900     2.547950088146 me09 2  772.5    56      94.1   -.100   -.200       0.0  39.3 0",
+      "nearest_provider_weather_before": [
+        [
+          135,
+          "20 26840.              881.99 279.41   26 0"
+        ]
+      ],
+      "nearest_provider_weather_after": null,
+      "nearest_provider_calibration_before": [
+        [
+          134,
+          "40 26455.47           0 me09      497      493   3.716    99605.5      0.0    77.7   0.000   0.000    0.0 3 3 0"
+        ]
+      ],
+      "nearest_provider_calibration_after": null,
+      "block_np_count": 3,
+      "other_block_residual_range_m": [
+        0.15629583597183228,
+        0.17156261205673218
+      ]
+    }
+  ],
+  "classification": "Isolated +5.43 m A15 discrepancy has unchanged source RTT/UTC, target and native metadata; no source interpretation error identified. It is not proved to be bad data and is not removed. Other cm-scale extreme records retain their actual wavelength/weather/calibration flags.",
+  "h4_caveat": "Some provider H4 end times precede later NPs in the same block. Every printed record remains at its own UTC; no H4-span selection or epoch rewriting is applied.",
+  "np_uncertainty": "CRD bin RMS is individual-range spread and is not a normal-point uncertainty."
+}
