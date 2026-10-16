@@ -105,6 +105,7 @@ def read_points(path, expected_hash):
 def barycentric_state(body, epoch):
     """Use geometric DE440 states; the n-way solver performs both light-time iterations."""
 
+    # Modern DE440 SPICE products labelled J2000 use ICRF axes, including in the ICRF environment.
     return np.asarray(
         spice.get_body_cartesian_state_at_epoch(body, "SSB", "J2000", "NONE", float(epoch))
     )
@@ -131,10 +132,11 @@ def create_environment(
     station_profile="survey2005",
     got410c_harpos=None,
     station_history=None,
+    inertial_axes="ICRF",
 ):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
-    settings = setup.BodyListSettings("SSB", "J2000")
+    settings = setup.BodyListSettings("SSB", inertial_axes)
 
     # Integer TDB knots are exactly representable by SPICE.
     # Padding isolates the observations from the spline boundaries.
@@ -149,19 +151,19 @@ def create_environment(
                 final_time,
                 spice_knot_step,
                 "SSB",
-                "J2000",
+                inertial_axes,
                 interpolators.cubic_spline_interpolation(
                     boundary_interpolation=interpolators.throw_exception_at_boundary
                 ),
             )
             if spice_knot_step
-            else setup.ephemeris.direct_spice("SSB", "J2000")
+            else setup.ephemeris.direct_spice("SSB", inertial_axes)
         )
         settings.get(name).gravity_field_settings = setup.gravity_field.central_spice()
 
     earth = settings.get("Earth")
 
-    earth.rotation_model_settings = setup.rotation_model.gcrs_to_itrs(base_frame="J2000")
+    earth.rotation_model_settings = setup.rotation_model.gcrs_to_itrs(base_frame=inertial_axes)
     earth.shape_settings = setup.shape.oblate_spherical(6378137.0, 1 / 298.257223563)
     earth.shape_deformation_settings = [
         setup.shape_deformation.iers_2010_solid_body_tidal(),
@@ -170,7 +172,7 @@ def create_environment(
 
     moon = settings.get("Moon")
 
-    moon.rotation_model_settings = setup.rotation_model.spice("J2000", "MOON_PA_DE440")
+    moon.rotation_model_settings = setup.rotation_model.spice(inertial_axes, "MOON_PA_DE440")
     moon.shape_settings = setup.shape.spherical(1738000.0)
     moon.shape_deformation_settings = [
         setup.shape_deformation.basic_solid_body_tidal(
@@ -481,6 +483,12 @@ def main():
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
+        "--inertial-axes",
+        choices=("icrf", "legacy-j2000-bias"),
+        default="icrf",
+        help="ICRF axes for matched DE440 products; legacy retains the historical Earth frame bias",
+    )
+    parser.add_argument(
         "--spice-knot-step",
         type=int,
         choices=(0, 30, 60),
@@ -545,8 +553,26 @@ def main():
 
         spice.load_kernel(str(path))
 
+    # The identity alias lets all environment labels use the actual axes of modern SPICE J2000 products.
+    inertial_axes = "ICRF" if args.inertial_axes == "icrf" else "J2000"
+
+    if inertial_axes == "ICRF":
+        alias = kernel_dataset["analysis_frame_alias"]
+
+        alias_path = Path(__file__).with_name(alias["file"])
+
+        kernel_hashes[alias["file"]] = sha256(alias_path)
+        if kernel_hashes[alias["file"]] != alias["sha256"]:
+            raise ValueError("Analysis ICRF alias differs from its pinned identity definition")
+        spice.load_kernel(str(alias_path))
+
     bodies, position, loading = create_environment(
-        points, args.spice_knot_step, args.station_profile, args.got410c_harpos, history
+        points,
+        args.spice_knot_step,
+        args.station_profile,
+        args.got410c_harpos,
+        history,
+        inertial_axes,
     )
 
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
@@ -664,6 +690,13 @@ def main():
         "dataset_manifest_sha256": sha256(dataset_path),
         "kernel_manifest_sha256": sha256(kernel_manifest),
         "kernel_sha256": kernel_hashes,
+        "inertial_axes": {
+            "profile": args.inertial_axes,
+            "environment_frame": inertial_axes,
+            "spice_j2000_product_axes": "ICRF",
+            "earth_sofa_frame_bias_applied": inertial_axes == "J2000",
+            "moon_frame": "MOON_PA_DE440",
+        },
         "earth_orientation_resource_sha256": {
             path.name: sha256(path)
             for path in sorted(Path(resource_paths.get_earth_orientation_path()).glob("*.txt"))

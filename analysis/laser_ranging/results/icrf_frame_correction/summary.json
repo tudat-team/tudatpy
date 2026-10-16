@@ -1,0 +1,237 @@
+{
+  "baseline_script_sha256": "3c7c981f10da211b3fbb2996a316d9c58a52f9177f9a39442c550248a8107847",
+  "diagnostic_script_sha256": "73e8cae47f325044d06b10fb98601f54106479989da8224aae05d28a5cabcdca",
+  "identity_alias_sha256": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7",
+  "kernel_sha256": "10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5",
+  "changes": "Global axes and SPICE queries named ICRF through a constant identity alias to SPICE J2000; Earth model omits SOFA frame bias. Native station/deformation models constructed from selected ICRF Earth model. No other script change.",
+  "primary_source": "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html#ICRF%20vs%20J2000",
+  "baseline_source_commit": "bb9d38085cd4a192c318d367d25e2aeaafe19f29",
+  "baseline_source_path": "analysis/laser_ranging/llr_residuals.py",
+  "diagnostic_source_patch": "diagnostic_source.patch",
+  "diagnostic_patch_sha256": "41d3439cc1b778fb59943e6908ec8262f965553255c6ffb06432f3614c396b70",
+  "native_source_revision": "b1aa772503070347e8ac0b263c8de9278d390c17",
+  "alias_path": "analysis/laser_ranging/icrf_spice_alias.tf",
+  "translation_and_moon_pa_rotation_bitwise_identical_at_all_probed_epochs": true,
+  "kernel_load_count": 7,
+  "fractional_light_time_tolerance": 1e-13,
+  "maximum_iterations": 50,
+  "no_fitting_or_selection": true,
+  "cases": {
+    "apollo_inpop17a": {
+      "count": 11,
+      "mean_m": -0.02549965273250233,
+      "rms_about_zero_m": 0.049899912255340524,
+      "scatter_about_mean_m": 0.04289252794616412,
+      "mean_by_reflector_m": {
+        "A11": -0.08568993210792542,
+        "A14": 0.014504551887512207,
+        "A15": -0.051002174615859985,
+        "L1": 0.025689363479614258
+      },
+      "maximum_absolute_full_minus_projection_m": 1.768433922397228e-05,
+      "original_csv_sha256": "89b1ac0f18b651f6eeb0c5fdb8fcb582291ead31831ee63bb72340bec7cdf1ec",
+      "diagnostic_csv_sha256": "5f6c5f83d16cddb1f662d9c7682a3da1b7f4af490fe634f2e9748ab9b8055aa1",
+      "diagnostic_summary_sha256": "3806d15a06348a435e7f800e481aae4c13b2cd9a5fb460fd1a5ab389c32d14a4"
+    },
+    "apollo_survey": {
+      "count": 11,
+      "mean_m": 0.11417534134604714,
+      "rms_about_zero_m": 0.12108481799204773,
+      "scatter_about_mean_m": 0.040317794789409604,
+      "mean_by_reflector_m": {
+        "A11": 0.061107486486434937,
+        "A14": 0.15043445428212485,
+        "A15": 0.08949889242649078,
+        "L1": 0.16220742464065552
+      },
+      "maximum_absolute_full_minus_projection_m": 2.112039609952765e-05,
+      "original_csv_sha256": "89ba606602c3c408fddee74912d18d681de4d6bd6fec38eaae20eac395e73b8b",
+      "diagnostic_csv_sha256": "a126785bcec14cd20c33db30ca8e9beac25f70f3ec5f46b2a3600d6ddc09f503",
+      "diagnostic_summary_sha256": "96a11a33d4afde4c63dc0881ac714ad39684aad0c383876f81e432ba941c5ca1"
+    },
+    "matera": {
+      "count": 2,
+      "mean_m": -0.06520041823387146,
+      "rms_about_zero_m": 0.0652277272923013,
+      "scatter_about_mean_m": 0.001887291669845581,
+      "mean_by_reflector_m": {
+        "A15": -0.06520041823387146
+      },
+      "maximum_absolute_full_minus_projection_m": 8.38849237216055e-05,
+      "original_csv_sha256": "8aee16e1916ffde5850b80243d28a6b1a79485745ced7516b399d10a0f05c50d",
+      "diagnostic_csv_sha256": "93803328651ca6a19b870e7cc8538377caa11478b8389d0bc5022e468ca97192",
+      "diagnostic_summary_sha256": "afaefa0ad6ffb47640c918b2f6686d868a1153dd90e3b0657cdac0cdea199208"
+    }
+  },
+  "provider_kernel_sha256": {
+    "de440.bsp": "a4ce9bf9b3282becc9f4b2ac3cebe03a2ae7599981aabd7265fd8482fff7c4b5",
+    "gm_de440.tpc": "924ddf4fb9ead9fe8a1aa55780bcabde40b09d00065d58226e24b68d8092f140",
+    "moon_pa_de440_200625.bpc": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+    "moon_de440_200625.tf": "a1352d73783c87ba7c452441ade92348ac7ac97dfd00e34daa4bbcae46086e8f",
+    "pck00011.tpc": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+    "naif0012.tls": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+  },
+  "earth_orientation_resource_sha256": {
+    "README_desaiSibois2016.txt": "7c402db01984d0f561b77758c9b6cb290f746694b9e52c6735c19a9de8e9041f",
+    "desaiSibois2016PolarMotionOceanTidesAmplitudes.txt": "6d5c1f67a4e676bc9588b8cd7bbb7f0462f99b04dd0b0e79aea9c18001e8435d",
+    "desaiSibois2016PolarMotionOceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "desaiSibois2016Ut1OceanTidesAmplitudes.txt": "e62a14e246dcace488eede317a7f00a5524ebe8ca78eb470020087e2df9eec88",
+    "desaiSibois2016Ut1OceanTidesFundamentalArgumentMultipliers.txt": "03df6d32a84dc684cba7bac67c1bd53e1090fdaf1ed6163c23ccea7a9599a149",
+    "eopc04_08_IAU2000.62-now.txt": "60c35925a5289c618a6054d0a6b2b313afa4dabeef08e348a7cac6a2682e0ea3",
+    "eopc04_14_IAU2000.62-now.txt": "cc838b27572e89ff6d36ee7cbeb6a8f104f1f8e59ddf769e8c93e6515276cd32",
+    "eopc04_20_IAU2000.62-now.txt": "ed3ee86f9a6470a0f6c33e080991745069cf1a7a0899bf6fa9122d10bbd89181",
+    "historicalDeltaT.txt": "4a2d068df1cdb5f39ac0e7efa04aafeea5be585afd1c9e2e4380cf8872e1f78e",
+    "polarMotionLibrationAmplitudes.txt": "09bf92da2470901a69b3f3e4a17568ab09fba3df6021e72323b9c83a933a5fb0",
+    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt": "f42007fdaf5c1b380d143f63d1141c30426b73c0a93caf3a629768f0436295bf",
+    "polarMotionLibrationFundamentalArgumentMultipliers.txt": "3e1b8e99338e6713a244a1afc0e821a900bb67b6951fb76a0df5571b1d2b0206",
+    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt": "f39cc6430bf636bc2ded0fa3e869aa4de071d8cce454aec4b5e76f15d7bc30d3",
+    "polarMotionOceanTidesAmplitudes.txt": "47360a8ea9f386ad0cdcca319de5e996a397481a259d55fcf5c89924843ba076",
+    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863",
+    "utcLibrationAmplitudes.txt": "43e945689ae30f7200d87df1adba1571d912671679ecd06ef27603c147f4bca7",
+    "utcLibrationFundamentalArgumentMultipliers.txt": "901564789b3e7478d856dd9c0f37644d41810e8ef288039b59e7d52bf038c9c5",
+    "utcOceanTidesAmplitudes.txt": "e5a638ccddc614670804ee85d60e3c0a541ce40ad4758a71af5ce680aa615829",
+    "utcOceanTidesFundamentalArgumentMultipliers.txt": "eb2ae730afe18e42b75f201f087057e13a99d632f0217fbef9d520084ac3c863"
+  },
+  "inputs": {
+    "apollo_inpop17a": {
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "kernel_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "station_profile": "inpop17a-gir",
+      "station_xyz_m": [
+        -1463998.9155,
+        -5166632.769,
+        3435012.8659
+      ],
+      "station_profile_metadata": {
+        "name": "INPOP17a G+IR station-only sensitivity",
+        "position_m": [
+          -1463998.9155,
+          -5166632.769,
+          3435012.8659
+        ],
+        "velocity_m_per_julian_year": [
+          -0.013,
+          0.0001,
+          0.0
+        ],
+        "position_sigma_m": [
+          0.0004,
+          0.0004,
+          0.0014
+        ],
+        "velocity_sigma_m_per_year": [
+          0.0001,
+          0.0001,
+          0.0016
+        ],
+        "reference_epoch": "J2000, interpreted as JD 2451545.0 TT",
+        "reference_epoch_tt_s": 0.0,
+        "julian_year_s": 31557600.0,
+        "frame": "Published fitted coordinates relative to ITRF2005 references; not guaranteed canonical ITRF2005 or matched to the selected EOP frame",
+        "selection": "Preselected published final G+IR solution; no choice based on the eleven residuals",
+        "row_algebra": "x=-1463998.7870-.1285; y=-5166632.8080+.0390; z=3435012.8560+.0099; vx=-.0141+.0011; vy=-.0015+.0016; vz=-.0064+.0064",
+        "sources": [
+          {
+            "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+            "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a",
+            "location": "Table 8, printed page 21; J2000 position and velocity, metres and metres/year; APOLLO data end 2016-11-25 in Table 4"
+          },
+          {
+            "url": "https://www.imcce.fr/content/medias/publications/publications-recherche/theses-habilitations/docs/Manche_These.pdf",
+            "sha256": "f36cf9602a79d4de0d98e1136e9cf5d45db3f9e319bfa0933b8f7a856cec1cb6",
+            "location": "Section 9.1.2 specifies TT for linear station velocity; using a Julian year is an explicit interpretation, not restated in the 2017 table"
+          }
+        ],
+        "limitations": [
+          "Station-only sensitivity with DE440 translation, orientation and reflector constants retained; not a matched INPOP or DE440 reduction.",
+          "No speculative frame transform; fitted station coordinates need not realize canonical ITRF2005, ITRF2020 or the selected EOP frame.",
+          "Tide-free interpretation is supported by regularized coordinates and cited IERS routines, but not explicitly flagged in the 2017 report.",
+          "The older cited reduction includes atmospheric and CSR4.0 ocean loading; precise 2017 choices are not restated and are not reproduced here.",
+          "Published component uncertainties are retained as metadata only; no full covariance or reference-point metrology recovered."
+        ]
+      }
+    },
+    "apollo_survey": {
+      "normal_point_sha256": "84ae2564f7705db06315e43cd548629550e324ba092a039d88253bcac4701389",
+      "dataset_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "kernel_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "station_profile": "survey2005",
+      "station_xyz_m": [
+        -1463998.8970758026,
+        -5166632.9137291815,
+        3435012.566612493
+      ],
+      "station_profile_metadata": {
+        "source": "https://tmurphy.physics.ucsd.edu/apollo/doc/APO_coords.pdf",
+        "date": "2005-08-23",
+        "frame": "WGS84",
+        "height_m": 2786.62,
+        "geodetic_latitude_deg": 32.78035394,
+        "east_longitude_deg": 254.1795786,
+        "stated_accuracy_m": 0.1,
+        "warning": "Approximate survey, not the fitted DE440 station solution. No guessed velocity or residual fit."
+      }
+    },
+    "matera": {
+      "normal_point_sha256": "a28bd21b005e2978c618a5103bf5fd0d5c8b4bcb6a6bb1e449239e8b14dbe7ef",
+      "dataset_manifest_sha256": "02fe20697de45b2cc96dbc0d3974b0905994daf4d1c22878cae4cac45ecf265f",
+      "kernel_manifest_sha256": "1d6ae61f1133e9a494a6848dc33288a86a672a9ef8ca40c8c9384956c9d20294",
+      "station_profile_manifest_sha256": "770fac9bab792ad0217fc912b9faac8892d8db24176a3a2f882a3ec2a01e8ba6",
+      "station_profile": "slrf2020-matera",
+      "station_xyz_m": [
+        4641978.52389715,
+        1393067.81970112,
+        4133249.69590866
+      ],
+      "station_profile_metadata": {
+        "cdp": "7941",
+        "point": "A",
+        "solution": "1",
+        "domes": "12734S008",
+        "system_number": 77,
+        "occupancy": 1,
+        "reference_point": "Azimuth/elevation axis intersection, calibrated instrument point; documented zero XYZ eccentricity",
+        "frame": "SLRF2020 in ITRF2020; no speculative frame transform",
+        "origin": "whole-Earth centre of mass",
+        "tide_system": "tide-free",
+        "time_convention": "IGN nominal UTC: native civil UTC/MJD difference divided by365.25; leap seconds excluded from linear terms, TAI validity intervals",
+        "validity_interpretation": "Conservatively use the single SLRF SOLUTION/EPOCHS span for this frozen case; it is an observation span, not a published discontinuity record. Official ITRF2020 SLR discontinuities have no7941 entry.",
+        "reference_utc": "15:001:00000",
+        "position_m": [
+          4641978.52389715,
+          1393067.81970112,
+          4133249.69590866
+        ],
+        "velocity_m_per_s": [
+          -5.902955231706941e-10,
+          6.038771789154434e-10,
+          4.6334606211313594e-10
+        ],
+        "zero_eccentricity_start": "00:001:00000",
+        "zero_eccentricity_end": "00:000:00000",
+        "post_seismic": "No Matera terms in pinned official ITRF2020 SLR PSD product"
+      }
+    }
+  },
+  "projection_method": "Project rotation-only change of full intrinsic station position at original event doubles; subsequent full re-solves retain all physical corrections.",
+  "old_from_new_rotation_matrix": [
+    [
+      0.9999999999999952,
+      -7.078368959969359e-08,
+      8.05621397754334e-08
+    ],
+    [
+      7.078368693823846e-08,
+      0.9999999999999978,
+      3.305943737457487e-08
+    ],
+    [
+      -8.056214211715316e-08,
+      -3.3059431671990214e-08,
+      0.9999999999999962
+    ]
+  ]
+}

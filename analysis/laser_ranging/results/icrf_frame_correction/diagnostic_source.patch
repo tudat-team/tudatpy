@@ -1,0 +1,61 @@
+--- frozen/llr_residuals.py
++++ ICRF/llr_residuals.py
+@@ -106,7 +106,7 @@
+     """Use geometric DE440 states; the n-way solver performs both light-time iterations."""
+ 
+     return np.asarray(
+-        spice.get_body_cartesian_state_at_epoch(body, "SSB", "J2000", "NONE", float(epoch))
++        spice.get_body_cartesian_state_at_epoch(body, "SSB", "ICRF", "NONE", float(epoch))
+     )
+ 
+ 
+@@ -134,7 +134,7 @@
+ ):
+     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
+ 
+-    settings = setup.BodyListSettings("SSB", "J2000")
++    settings = setup.BodyListSettings("SSB", "ICRF")
+ 
+     # Integer TDB knots are exactly representable by SPICE.
+     # Padding isolates the observations from the spline boundaries.
+@@ -149,19 +149,19 @@
+                 final_time,
+                 spice_knot_step,
+                 "SSB",
+-                "J2000",
++                "ICRF",
+                 interpolators.cubic_spline_interpolation(
+                     boundary_interpolation=interpolators.throw_exception_at_boundary
+                 ),
+             )
+             if spice_knot_step
+-            else setup.ephemeris.direct_spice("SSB", "J2000")
++            else setup.ephemeris.direct_spice("SSB", "ICRF")
+         )
+         settings.get(name).gravity_field_settings = setup.gravity_field.central_spice()
+ 
+     earth = settings.get("Earth")
+ 
+-    earth.rotation_model_settings = setup.rotation_model.gcrs_to_itrs(base_frame="J2000")
++    earth.rotation_model_settings = setup.rotation_model.gcrs_to_itrs(base_frame="ICRF")
+     earth.shape_settings = setup.shape.oblate_spherical(6378137.0, 1 / 298.257223563)
+     earth.shape_deformation_settings = [
+         setup.shape_deformation.iers_2010_solid_body_tidal(),
+@@ -170,7 +170,7 @@
+ 
+     moon = settings.get("Moon")
+ 
+-    moon.rotation_model_settings = setup.rotation_model.spice("J2000", "MOON_PA_DE440")
++    moon.rotation_model_settings = setup.rotation_model.spice("ICRF", "MOON_PA_DE440")
+     moon.shape_settings = setup.shape.spherical(1738000.0)
+     moon.shape_deformation_settings = [
+         setup.shape_deformation.basic_solid_body_tidal(
+@@ -544,6 +544,8 @@
+             raise ValueError(f"Kernel differs from pinned matched DE440 set: {name}")
+ 
+         spice.load_kernel(str(path))
++
++    spice.load_kernel(str(Path(__file__).with_name("icrf_spice_alias.tf")))
+ 
+     bodies, position, loading = create_environment(
+         points, args.spice_knot_step, args.station_profile, args.got410c_harpos, history

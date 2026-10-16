@@ -1,0 +1,282 @@
+{
+  "sources": {
+    "SPK": "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/spk.html#Type%202:%20Chebyshev%20(position%20only)",
+    "PCK": "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/pck.html#Type%202:%20Chebyshev%20(Angles%20only)"
+  },
+  "reference": "Exact double coefficients in the hash-pinned SPK/PCK, independently evaluated with80decimaldigits; not original JPL ASCII coefficients, which are not cached.",
+  "original_ascii_source": {
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de440/ascp01950.440",
+    "file": "ascp01950.440",
+    "bytes": 30629582,
+    "sha256": "e24f6356225f7d912e35af2ebc5f9bcf6fb0425c53aa92b5d7243cb063477286",
+    "retrieved_utc": "2026-10-16T06:34:54.904182+00:00",
+    "purpose": "Independent DE440 ASCII translation and lunar libration coefficient comparison to frozen matched SPK/PCK; no residual selection."
+  },
+  "ascii_header_sha256": "0f4636b663e6f00af9efa2b605ef23635489f56b23dd1a5e3821d3acc6ac3359",
+  "fit_constants": {
+    "DENUM": "440.0",
+    "LENUM": "440.0",
+    "TDATEF": "200625163748.0",
+    "TDATEB": "200625161304.0"
+  },
+  "arithmetic_decimal_digits": 80,
+  "spk_segments": [
+    {
+      "center": 0,
+      "target": 1,
+      "type": 2,
+      "degree": 13,
+      "interval_seconds": 691200.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 2,
+      "type": 2,
+      "degree": 9,
+      "interval_seconds": 1382400.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 3,
+      "type": 2,
+      "degree": 12,
+      "interval_seconds": 1382400.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 4,
+      "type": 2,
+      "degree": 10,
+      "interval_seconds": 2764800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 5,
+      "type": 2,
+      "degree": 7,
+      "interval_seconds": 2764800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 6,
+      "type": 2,
+      "degree": 6,
+      "interval_seconds": 2764800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 7,
+      "type": 2,
+      "degree": 5,
+      "interval_seconds": 2764800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 8,
+      "type": 2,
+      "degree": 5,
+      "interval_seconds": 2764800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 9,
+      "type": 2,
+      "degree": 5,
+      "interval_seconds": 2764800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 0,
+      "target": 10,
+      "type": 2,
+      "degree": 10,
+      "interval_seconds": 1382400.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 3,
+      "target": 301,
+      "type": 2,
+      "degree": 12,
+      "interval_seconds": 345600.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 3,
+      "target": 399,
+      "type": 2,
+      "degree": 12,
+      "interval_seconds": 345600.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 1,
+      "target": 199,
+      "type": 2,
+      "degree": 1,
+      "interval_seconds": 34714828800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    },
+    {
+      "center": 2,
+      "target": 299,
+      "type": 2,
+      "degree": 1,
+      "interval_seconds": 34714828800.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        20514081600.0
+      ]
+    }
+  ],
+  "pck_segments": [
+    {
+      "frame_class_id": 31008,
+      "inertial_frame_id": 1,
+      "type": 2,
+      "degree": 9,
+      "interval_seconds": 691200.0,
+      "coverage_et_seconds": [
+        -14200747200.0,
+        13447252800.0
+      ]
+    },
+    {
+      "frame_class_id": 31008,
+      "inertial_frame_id": 1,
+      "type": 2,
+      "degree": 9,
+      "interval_seconds": 691200.0,
+      "coverage_et_seconds": [
+        13447252800.0,
+        20514081600.0
+      ]
+    }
+  ],
+  "cases": {
+    "apollo": {
+      "frozen_launch_count": 11,
+      "max_abs_time_rounding_seconds": 5.6943235904327594e-08,
+      "max_direct_body_errors_m": {
+        "Earth": {
+          "time_rounding_position_error_m": 0.001707138181331616,
+          "double_spice_evaluation_error_at_rounded_epoch_m": 2.707659729788231e-05,
+          "total_direct_error_at_precise_epoch_m": 0.0016995955050710858
+        },
+        "Moon": {
+          "time_rounding_position_error_m": 0.0017496427784286248,
+          "double_spice_evaluation_error_at_rounded_epoch_m": 2.0636932863338318e-05,
+          "total_direct_error_at_precise_epoch_m": 0.0017455079495970623
+        },
+        "Sun": {
+          "time_rounding_position_error_m": 7.300294289707794e-07,
+          "double_spice_evaluation_error_at_rounded_epoch_m": 5.4601200954162556e-08,
+          "total_direct_error_at_precise_epoch_m": 6.99780961963641e-07
+        }
+      },
+      "max_same_epoch_relative_errors_m": {
+        "direct_moon_earth": 4.912152372079099e-08,
+        "bcrs_km_subtraction_then_si": 2.400463231399382e-05,
+        "bcrs_si_subtraction": 3.0420012227169208e-05
+      },
+      "max_a15_lever_arm_pck_errors_m": {
+        "time_rounding": 2.3607770406313108e-07,
+        "double_pck_evaluation_at_rounded_epoch": 7.698665789742992e-07,
+        "total_direct_at_precise_epoch": 7.443203847537996e-07
+      },
+      "max_ascii_binary_difference": {
+        "emb_m": 3.141770402411838e-05,
+        "earth_from_emb_m": 8.330542241945088e-11,
+        "moon_from_emb_m": 8.708905394757945e-09,
+        "sun_m": 6.107427989863075e-08,
+        "libration_angle_norm_rad": 4.160278996055502e-13
+      }
+    },
+    "matera": {
+      "frozen_launch_count": 2,
+      "max_abs_time_rounding_seconds": 3.1621766538592055e-08,
+      "max_direct_body_errors_m": {
+        "Earth": {
+          "time_rounding_position_error_m": 0.0009305415927774538,
+          "double_spice_evaluation_error_at_rounded_epoch_m": 1.0805108728156162e-05,
+          "total_direct_error_at_precise_epoch_m": 0.000921767723293669
+        },
+        "Moon": {
+          "time_rounding_position_error_m": 0.0009205906824727391,
+          "double_spice_evaluation_error_at_rounded_epoch_m": 1.089025449531548e-05,
+          "total_direct_error_at_precise_epoch_m": 0.0009131608871968803
+        },
+        "Sun": {
+          "time_rounding_position_error_m": 4.995521173596918e-07,
+          "double_spice_evaluation_error_at_rounded_epoch_m": 1.1152009243734496e-07,
+          "total_direct_error_at_precise_epoch_m": 5.086853956769907e-07
+        }
+      },
+      "max_same_epoch_relative_errors_m": {
+        "direct_moon_earth": 4.0100494751437736e-08,
+        "bcrs_km_subtraction_then_si": 7.203193340829386e-06,
+        "bcrs_si_subtraction": 1.912673078454788e-05
+      },
+      "max_a15_lever_arm_pck_errors_m": {
+        "time_rounding": 1.311091709688092e-07,
+        "double_pck_evaluation_at_rounded_epoch": 9.633204008422352e-07,
+        "total_direct_at_precise_epoch": 9.975565555087985e-07
+      },
+      "max_ascii_binary_difference": {
+        "emb_m": 3.811332399809844e-05,
+        "earth_from_emb_m": 6.096157376810264e-10,
+        "moon_from_emb_m": 6.165088045779864e-08,
+        "sun_m": 4.5216835576233317e-07,
+        "libration_angle_norm_rad": 3.170561826879877e-13
+      }
+    }
+  },
+  "interpretation": "These are state/orientation representation controls, not residual errors. Simultaneous Moon-Earth geometry is not a replacement for retarded two-epoch BCRS light time. Original ASCII has finite decimal precision; its difference from binary is not attributed entirely to SPICE conversion."
+}

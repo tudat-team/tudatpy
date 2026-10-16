@@ -23,6 +23,17 @@ allowance for modelling error.
 Model conventions
 -----------------
 
+* The default ``--inertial-axes icrf`` uses ICRF axes throughout the environment.
+  A hash-pinned analysis text frame, ``icrf_spice_alias.tf``, is an exact identity
+  alias to SPICE's ``J2000``. Modern DE440 products labelled J2000 use ICRF axes,
+  as documented in `NAIF's ICRF versus J2000 discussion
+  <https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html#ICRF%20vs%20J2000>`_.
+  The native Earth rotation model interprets its J2000 option as the dynamical
+  mean equator/equinox and applies a SOFA frame bias. The historical diagnostic
+  combined that biased Earth rotation with ICRF translation and lunar rotation.
+  ``--inertial-axes legacy-j2000-bias`` preserves that historical calculation.
+  No native frame semantics or provider products are changed by the correction.
+
 * The input UTC epoch is laser launch, constructed as a precise ``Time``. The
   selected Earth-orientation converter maps it to TDB. The native n-way model
   computes the atomic interval with ``time_scale_for_observable=tai_scale``;
@@ -99,6 +110,42 @@ into a fitted range bias.
 
 Published station-only sensitivity
 ----------------------------------
+
+An independently justified axes correction was evaluated with the same frozen
+observations, station parameters, tides, no loading, 30-second Time splines and
+``1e-13`` fractional tolerance. All eleven APOLLO and both Matera points remain.
+The explicit ICRF identity alias leaves the DE440 translations and lunar PA
+rotation bitwise identical at every probed event; only the Earth frame bias is
+removed. No residual mean or offset is fitted.
+
+=========================  ==============  ==================
+Station configuration      Mean (mm)       RMS about zero (mm)
+=========================  ==============  ==================
+APOLLO INPOP17a G+IR        -25.500         49.900
+APOLLO survey2005           +114.175        121.085
+Matera SLRF2020             -65.200         65.228
+=========================  ==============  ==================
+
+The computed half-range increases by 86.705–121.784 mm for APOLLO and by
+241.035/189.799 mm for Matera. These full re-solves agree with the independently
+projected station displacement at the original events within 21.2 micrometres
+for APOLLO and 83.9 micrometres for Matera. The corrected INPOP17a case still has
+42.893 mm scatter, with reflector means A11 -85.690, A14 +14.505, A15 -51.002
+and L1 +25.689 mm. Correcting the frame mismatch does not establish a complete
+centimetre reduction. The compact raw CSVs, per-point projected/full changes,
+exact diagnostic source patch, alias and software/input hashes are retained in
+``analysis/laser_ranging/results/icrf_frame_correction``. Historical results
+remain separate and retain their original frame convention.
+
+The same evidence directory contains an independent 80-digit coefficient audit.
+Official DE440 ASCII coefficients identify fit dates 2020-06-25 and agree with
+the pinned PCK librations within ``4.17e-13`` radians at all thirteen frozen
+launches, below a micrometre at a reflector. The PCK's 2021 packaging date does
+not indicate a different lunar fit. At these launches, direct SPICE's double
+epoch conversion can move absolute Earth/Moon positions by up to 1.75 mm;
+independent stored-polynomial evaluation at the already rounded epochs differs
+by at most 27.1 micrometres. These are state controls, not measured range errors,
+and do not explain the remaining centimetre reflector pattern.
 
 The default ``--station-profile survey2005`` retains the approximate survey and
 zero velocity. The explicit ``--station-profile inpop17a-gir`` uses the

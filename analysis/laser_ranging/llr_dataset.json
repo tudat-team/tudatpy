@@ -86,5 +86,12 @@
     "Download every kernels[].url to its named file under a separate kernel directory and verify each SHA-256. Preserve the kernel files and embedded notices unchanged.",
     "Pass the two directories to llr_residuals.py via --data-dir and --kernel-dir, with an explicit --output-dir. No network access occurs during model evaluation."
   ],
-  "earth_orientation": "Uses the existing default IERS20 Earth rotation and matching clock configuration. Runtime output records hashes of the actual Earth-orientation resource files; no assertion that these equal the historical JPL fit EOP."
+  "earth_orientation": "Uses the existing default IERS20 Earth rotation and matching clock configuration. Runtime output records hashes of the actual Earth-orientation resource files; no assertion that these equal the historical JPL fit EOP.",
+  "analysis_frame_alias": {
+    "file": "icrf_spice_alias.tf",
+    "sha256": "914c9649d57b7f2ffb6595f79b246d40d4264f166b6f1d5298af867231ea14d7",
+    "purpose": "Analysis-only identity alias from ICRF to SPICE J2000; modern DE440 SPK and PA orientation products use ICRF axes. Removes the unintended SOFA dynamical-J2000 bias from Earth rotation without altering native frame semantics.",
+    "source": "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html#ICRF%20vs%20J2000",
+    "load_order": "After the six unchanged provider kernels, only for the default ICRF analysis route."
+  }
 }
