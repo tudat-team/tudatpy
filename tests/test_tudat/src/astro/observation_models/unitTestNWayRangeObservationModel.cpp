@@ -531,8 +531,19 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate );
 
+    // Select the same EOP context for station rotation and atomic range normalization.
+    auto rotationSettings = std::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2006, "J2000" );
+    earth_orientation::EarthOrientationEvaluationSettings eopSettings;
+    eopSettings.interpolation = earth_orientation::EarthOrientationInterpolation::lagrange_four_point;
+    rotationSettings->setEopEvaluationSettings( eopSettings );
+    rotationSettings->setOceanTideEopModel( earth_orientation::OceanTideEopModel::desai_sibois_2016 );
+    defaultBodySettings.at( "Earth" )->rotationModelSettings = rotationSettings;
+
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+    const auto rotation = std::dynamic_pointer_cast< GcrsToItrsRotationModel >( bodies.at( "Earth" )->getRotationalEphemeris( ) );
+    BOOST_REQUIRE( rotation );
+    const auto timeScaleConverter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
 
     // Create ground stations
     std::pair< std::string, std::string > earthStationStation = std::pair< std::string, std::string >( "Earth", "EarthStation" );
@@ -592,12 +603,11 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModelWithBias =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsWithBias, bodies );
 
+        BOOST_CHECK( twoWayObservationModelWithBias->getTimeScaleConverter( ) == timeScaleConverter );
         double biasedTwoWayRange = twoWayObservationModelWithBias->computeObservationsWithLinkEndData(
                 observationTimes.at( observationTimeNumber ), receiver, linkEndTimes, linkEndStates )( 0 );
 
         std::cout << biasedTwoWayRange - unbiasedTwoWayRange << std::endl;
-        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
-                earth_orientation::createDefaultTimeConverter( );
         double transmissionTimeDifference = timeScaleConverter->getCurrentTime< Time >( basic_astrodynamics::tdb_scale,
                                                                                         basic_astrodynamics::utc_scale,
                                                                                         linkEndTimes.at( 0 ),

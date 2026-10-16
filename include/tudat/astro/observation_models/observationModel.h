@@ -348,9 +348,12 @@ public:
         timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
-    virtual void setTimeScaleConverter( )
+    //! Use the supplied time-scale converter, or the default terrestrial converter when none is supplied.
+    virtual void setTimeScaleConverter(
+            const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter = nullptr )
     {
-        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( nullptr, true );
+        timeScaleConverter_ =
+                timeScaleConverter != nullptr ? timeScaleConverter : earth_orientation::createDefaultTimeConverter( nullptr, true );
     }
 
     void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )

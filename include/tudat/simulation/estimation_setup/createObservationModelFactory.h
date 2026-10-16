@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/observation_models/pixelCoordinatesObservationModel.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/azimuthElevationObservationModel.h"
@@ -52,6 +53,31 @@ namespace tudat
 
 namespace observation_models
 {
+//! Retrieve the Earth station's rotation-model time-scale converter for the range time interval.
+inline std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > getEarthStationRangeTimeScaleConverter(
+        const LinkEnds& linkEnds,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    for( const auto& linkEnd : linkEnds )
+    {
+        if( ( linkEnd.first == transmitter || linkEnd.first == receiver ) && linkEnd.second.bodyName_ == "Earth" )
+        {
+            const auto earth = bodies.at( "Earth" );
+
+            if( earth->getGroundStationMap( ).count( linkEnd.second.getReferencePointName( ) ) > 0 )
+            {
+                const auto rotation = std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( earth->getRotationalEphemeris( ) );
+
+                if( rotation != nullptr )
+                {
+                    return rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
  *  Function to create the proper time rate calculator for use in one-way Doppler
@@ -767,13 +793,13 @@ public:
                         std::make_shared< OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
                                 linkEnds, lightTimeCalculator, observationBias, observationSettings->observableTimeScale_, stationStates );
 
-                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
-                {
-                    oneWayRangeObservationModel->setTimeScaleConverter( );
-                }
                 if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
                 {
                     oneWayRangeObservationModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
+                }
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    oneWayRangeObservationModel->setTimeScaleConverter( getEarthStationRangeTimeScaleConverter( linkEnds, bodies ) );
                 }
                 observationModel = oneWayRangeObservationModel;
 
@@ -1146,15 +1172,14 @@ public:
                                 observationSettings->observableTimeScale_,
                                 stationStates );
 
-                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
-                {
-                    nWayRangeObservationModel->setTimeScaleConverter( );
-                }
-
                 if( fullLinkLightTimeCalculator->doCorrectionsNeedFrequency( ) )
                 {
                     nWayRangeObservationModel->setFrequencyInterpolatorAndTurnaroundRatio(
                             getTransmittingFrequencyInterpolator( bodies, linkEnds ), getTurnaroundFunction( bodies, linkEnds ) );
+                }
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    nWayRangeObservationModel->setTimeScaleConverter( getEarthStationRangeTimeScaleConverter( linkEnds, bodies ) );
                 }
 
                 observationModel = nWayRangeObservationModel;
