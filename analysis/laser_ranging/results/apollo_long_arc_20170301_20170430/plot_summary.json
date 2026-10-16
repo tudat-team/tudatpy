@@ -1,0 +1,81 @@
+{
+  "inputs": [
+    {
+      "path": "residuals.csv",
+      "sha256": "2bd0b44740387095565d383dfaaf798a0372b23d6b3c67daef83acaba1114e6e",
+      "rows": 69,
+      "station_override": null
+    }
+  ],
+  "points_plotted": 69,
+  "statistics": [
+    {
+      "station": "APOLLO",
+      "reflector": "A11",
+      "points": 12,
+      "utc_nights": 7,
+      "first_utc": "2017-03-09T01:30:30+00:00",
+      "last_utc": "2017-04-15T10:11:10+00:00",
+      "raw_mean_mm": -62.01282640298208,
+      "raw_rms_mm": 67.7263399470953,
+      "raw_peak_to_peak_mm": 90.94017744064331,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.5515169705521197,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A14",
+      "points": 15,
+      "utc_nights": 8,
+      "first_utc": "2017-03-02T01:53:10+00:00",
+      "last_utc": "2017-04-15T09:54:00+00:00",
+      "raw_mean_mm": 49.00612036387126,
+      "raw_rms_mm": 59.71967026697429,
+      "raw_peak_to_peak_mm": 99.46596622467041,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.9853955507660603,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "A15",
+      "points": 30,
+      "utc_nights": 9,
+      "first_utc": "2017-03-02T01:22:55+00:00",
+      "last_utc": "2017-04-21T12:14:15+00:00",
+      "raw_mean_mm": -4.533447821935018,
+      "raw_rms_mm": 44.19528794735072,
+      "raw_peak_to_peak_mm": 159.36386585235596,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.024409274750818003,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L1",
+      "points": 7,
+      "utc_nights": 5,
+      "first_utc": "2017-03-02T02:01:05+00:00",
+      "last_utc": "2017-04-03T02:14:30+00:00",
+      "raw_mean_mm": 75.00830718449184,
+      "raw_rms_mm": 84.57671732617973,
+      "raw_peak_to_peak_mm": 103.95270586013794,
+      "descriptive_nightly_mean_slope_mm_per_day": -0.8157753046785022,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    },
+    {
+      "station": "APOLLO",
+      "reflector": "L2",
+      "points": 5,
+      "utc_nights": 4,
+      "first_utc": "2017-03-02T01:42:35+00:00",
+      "last_utc": "2017-04-03T02:29:20+00:00",
+      "raw_mean_mm": -50.750160217285156,
+      "raw_rms_mm": 61.37447821437761,
+      "raw_peak_to_peak_mm": 87.78321743011475,
+      "descriptive_nightly_mean_slope_mm_per_day": -2.5693800938753117,
+      "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+    }
+  ],
+  "plot_script_sha256": "5548cb7935e79a2d5f1815f304471d7f0c3500ff6d02528526d2dd57e65a7cc7",
+  "wavelength_markers": "For stations with mixed wavelengths: triangles >=800nm, circles <800nm; raw nightly means/statistics retain all wavelengths unchanged",
+  "interpretation": "Every raw point retained; no offset, trend or outlier removed. Slopes describe unweighted nightly means separately by station and reflector. Two months do not establish a robust monthly period. Plot timestamps use datetime display precision; source CSV bytes are unchanged."
+}

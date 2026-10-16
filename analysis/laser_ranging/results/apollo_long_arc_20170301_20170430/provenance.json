@@ -1,0 +1,47 @@
+{
+  "analysis_source_revision": "8d06418de6142cc2cb8f047543bc8f54cc0d1ba8",
+  "native_source_revision": "7d52716f6723c704b20ca5f833570acd0f0cc0ba",
+  "kernel_binary_sha256": "80b924287707124a8efea66455b26233b5511b7856983d35c05d21f82734f215",
+  "command": [
+    "python",
+    "analysis/laser_ranging/llr_long_arc.py",
+    "--data-root",
+    "$DATA_ROOT",
+    "--kernel-dir",
+    "$KERNEL_DIR",
+    "--station",
+    "APOLLO",
+    "--output",
+    "$NEW_OUTPUT"
+  ],
+  "started_utc": "2026-10-16T07:12:04.674188+00:00",
+  "numerical_threads": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "completed_utc": "2026-10-16T07:12:10.839971+00:00",
+  "status": "complete",
+  "march9_control": "All eleven UTC/reflector/raw residual strings exactly match the frozen prior control.",
+  "plot_source_revision": "17eacc162",
+  "plot_source_path": "analysis/laser_ranging/plot_llr_residuals.py",
+  "output_sha256": {
+    "nightly_raw_statistics.csv": "c8480bbd3578aac3ab2eb63d86b96a74546c4507712d67e65332c69952d9c390",
+    "plot_summary.json": "6a9945c36999006a0998d4c15b10fc3484cd730ac626fd1c2973bd4ae3bba8e9",
+    "residuals.csv": "2bd0b44740387095565d383dfaaf798a0372b23d6b3c67daef83acaba1114e6e",
+    "residuals_full_span.pdf": "aaf877a02709ce55e80a9b812db61dfbf082ff1c2abc33d5afd41a218bc75681",
+    "residuals_full_span.png": "2c7a44e115246bf81495a353211f6c06631ec59efc61926bc04c06e29114b23b",
+    "summary.json": "48ff6e1bfccae809864f5c81028951cef7c9258763726c25385ad24c3dff42e0"
+  },
+  "preceding_full_arc_failure": {
+    "analysis_source_revision": "a453128ac8179fc9c3212648f78efc531ecc1114",
+    "native_source_revision": "7d52716f6723c704b20ca5f833570acd0f0cc0ba",
+    "kernel_binary_sha256": "80b924287707124a8efea66455b26233b5511b7856983d35c05d21f82734f215",
+    "status": "failed_before_first_Grasse_solve",
+    "completed_apollo_points": 69,
+    "completed_grasse_points": 0,
+    "error": "ValueError: Mendes-Pavlis requires an optical vacuum wavelength from 0.355 to 1.064 micrometres",
+    "source_grasse_ir_wavelength_nm": 1064.2,
+    "failed_log_sha256": "5ec9da458f5643c26a20afecb33df12ed067bb128495bd851f333e58f8ff53bd"
+  }
+}
