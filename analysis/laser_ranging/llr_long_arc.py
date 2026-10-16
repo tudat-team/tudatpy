@@ -298,6 +298,7 @@ def main():
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--kernel-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--station", choices=["APOLLO", "GRASSE"])
     parser.add_argument("--march9-control", action="store_true")
     args = parser.parse_args()
 
@@ -315,12 +316,23 @@ def main():
 
     groups = read_groups(args.data_root, manifest)
 
+    if args.station:
+        groups = [group for group in groups if group[3]["station"] == args.station]
+    expected_count = sum(
+        manifest[station.lower()]["count"]
+        for station in ("APOLLO", "GRASSE")
+        if args.station is None or station == args.station
+    )
+
     if args.march9_control:
+        if args.station == "GRASSE":
+            parser.error("The March 9 control contains APOLLO observations")
         groups = [
             group
             for group in groups
             if group[3]["station"] == "APOLLO" and group[3]["group"] == "2017-03-09"
         ]
+        expected_count = 11
     args.output.mkdir(parents=True, exist_ok=False)
     rows, group_ledger = [], []
 
@@ -387,7 +399,7 @@ def main():
         group_ledger.append(ledger)
         print(json.dumps(ledger), flush=True)
     rows.sort(key=lambda row: (row["utc_launch"], row["station"], row["source_line"]))
-    if len(rows) != (11 if args.march9_control else 306):
+    if len(rows) != expected_count:
         raise RuntimeError("The declared arc did not retain every frozen normal point")
     write_csv(args.output / "residuals.csv", rows)
     nights = defaultdict(list)
@@ -409,6 +421,7 @@ def main():
     write_csv(args.output / "nightly_raw_statistics.csv", nightly)
     summary = dict(
         count=len(rows),
+        station_selection=args.station or "APOLLO and GRASSE",
         station_statistics={
             station: statistics([r for r in rows if r["station"] == station])
             for station in sorted({r["station"] for r in rows})
