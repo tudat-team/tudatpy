@@ -351,7 +351,9 @@
     "retrieved_on": "2026-10-14",
     "scope": "Explicit high-tidal deformation profile; original baseline unchanged",
     "conventions": "Official Desai (2002) ocean-pole grid, generated 2006-03-28; 720 by 360, 0.5 degree cell-centred geographic grid; whole-Earth CM correction already applied. Native ocean_pole_tidal uses the selected Earth rotation converter and 2018 secular pole; no additional CM translation.",
-    "rights": "Public scientific model from the stated provider; retain model citation. Data bytes are kept outside the repository."
+    "rights": "Public scientific model from the stated provider; retain model citation. Data bytes are kept outside the repository.",
+    "source_archive_sha256": "3f256265439ae9c9081107950b4be76ff649d71c1f946eddedba55728ae60234",
+    "decompression": "Unmodified gzip decompression; the main sha256 identifies the native text input."
   },
   {
     "path": "optional/s1_s2_def_ce.dat",

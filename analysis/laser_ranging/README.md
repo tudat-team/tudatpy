@@ -236,8 +236,10 @@ provider's orbit determination or a profile chosen by its residual mean.
 
 The possible non-tidal extension remains excluded. Real IMLS `Grzl`/`Herl`
 CM/STW105 histories are cached for March 30 through April 15, 2024: atmosphere
-has all 65 six-hour samples; hydrology has 126 of 129 three-hour samples, missing
-April 12 18h/21h and April 13 03h TAI. No gap is filled. The atmospheric product
+has all 65 six-hour samples and hydrology all 129 three-hour samples. Three
+initial download timeouts were resolved by retrieving the original provider
+files, recorded separately in `hydrology_gap_retries.json`; no synthetic
+samples or interpolation across missing data are introduced. The atmospheric product
 removes the 1979–2015 mean and eight diurnal/semidiurnal harmonics, retaining
 annual/semiannual variations and drift. Hydrology removes the 1980–2017-02-28
 mean and 18 shorter-period harmonics, retaining annual/semiannual variations;
