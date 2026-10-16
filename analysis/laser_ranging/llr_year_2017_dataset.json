@@ -1,7 +1,7 @@
 {
   "interval_start_utc": "2017-01-01",
   "interval_stop_exclusive_utc": "2018-01-01",
-  "selection": "All calendar-2017 APOLLO Group-e rows and all Grasse 7845 normal points in the 60 official monthly CRDv1 products; only the explicitly identified user-requested Grasse NP is excluded. Other stations in these products are outside the predeclared station scope.",
+  "selection": "All calendar-2017 APOLLO Group-e rows and Grasse 7845 normal points in the 60 official monthly CRDv1 products; exclude the exact user-requested March9 Grasse NP and two explicitly identified physically invalid lunar flight times. Other stations are outside the predeclared station scope. No residual, quality, uncertainty or weather selection.",
   "apollo": {
     "file": "apollo_group_e_20170101_20171231.txt",
     "sha256": "76ab2a5a75580fbb5495251126b2681f80477732ce573e9b31c9734681f8ac93",
@@ -1010,7 +1010,7 @@
     "maximum_nearest_weather_seconds": 6600.5319867438,
     "inventory": {
       "file": "grasse_exact_inventory.csv",
-      "sha256": "d6be2ad207d732372297ce3b98d7d46c7e5e34e863f21eb984547b8effc2d26a"
+      "sha256": "de2f04dd423b94307d93139943cbe689bcc3f2c4b76f8ef18067a0e5933820a1"
     },
     "station_sources": {
       "station": "Grasse MeO",
@@ -1087,7 +1087,7 @@
       "slrf2020_identity_check": "Cached2023.10.02 SLRF file has exact7845/10002S002 as well as nearby7835/10002S001. Exact monument selection is possible, but publishedINPOP station pair is primary by root choice."
     },
     "source_count": 1271,
-    "retained_count": 1270,
+    "retained_count": 1268,
     "first_utc_launch": "2017-01-06T17:42:22.773276553200",
     "last_utc_launch": "2017-12-21T16:33:43.111399259700",
     "wavelength_counts": {
@@ -1270,7 +1270,7 @@
     },
     "preparation_script": "prepare_llr_year_2017.py",
     "monthly_coverage_file": "llr_year_2017_sources/monthly_coverage.csv",
-    "monthly_coverage_sha256": "e1ea0800a89c0ed6626b3e1be5e8de68e4144952421193b741d815d126a84a0e",
+    "monthly_coverage_sha256": "29a5d87b7290576e3afd136faaec3fc1366f9b439ce98396742242dd42896148",
     "native_reader_validation_file": "llr_year_2017_sources/native_reader_validation.json",
     "native_reader_validation_sha256": "dc6252c725da7566adfd71a4837a8791855baddbec45452e2024dd6b0189b21c",
     "repeated_source_records": [
@@ -1289,6 +1289,28 @@
         "preceding_calibration_and_meteorology_also_repeated": true,
         "treatment": "Retain both original source-line identities and count both printed records; no deduplication or additional exclusion."
       }
-    ]
-  }
+    ],
+    "retained_selection_revision": "Original 1270 Grasse retained count after the user-requested exclusion is superseded by source-validity audit: two additional printed RTTs cannot represent lunar paths. Raw source_count1271 remains unchanged; final retained_count1268.",
+    "inventory_retained_column": "Final solver eligibility after the one user-requested identity and the two exact source_invalid_normal_points; all1271rawsource rows remain in the CSV."
+  },
+  "source_invalid_normal_points": [
+    {
+      "station": "GRASSE",
+      "source_file": "apollo15_201702.npt",
+      "source_line": 168,
+      "utc_launch": "2017-02-20T13:23:08.387557778100",
+      "reflector": "A15",
+      "printed_rtt_s": "0.000000024976",
+      "reason": "Printed round-trip flight time represents a metre-scale path and cannot be an Earth-Moon-Earth observation; official daily product repeats the exact source record. Cause unestablished; no replacement RTT inferred."
+    },
+    {
+      "station": "GRASSE",
+      "source_file": "apollo15_201702.npt",
+      "source_line": 211,
+      "utc_launch": "2017-02-20T13:23:20.476420038600",
+      "reflector": "A15",
+      "printed_rtt_s": "0.000000017271",
+      "reason": "Printed round-trip flight time represents a metre-scale path and cannot be an Earth-Moon-Earth observation; official daily product repeats the exact source record. Cause unestablished; no replacement RTT inferred."
+    }
+  ]
 }

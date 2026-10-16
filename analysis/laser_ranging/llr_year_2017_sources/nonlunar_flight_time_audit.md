@@ -28,6 +28,8 @@ daily/monthly hashes and the distinct selection proposal. Original provider
 bytes, annual inventory, and frozen raw manifest counts remain unchanged:
 311 APOLLO + 1,271 Grasse source rows, with the prior single requested Grasse
 exclusion. Separately classifying these two rows as invalid lunar flight times
-would leave 311 + 1,268 = 1,579 solver-eligible rows. This is a proposal for review,
-not an applied cut or a new residual result. The repeated August source records
+would leave 311 + 1,268 = 1,579 solver-eligible rows. This proposal was subsequently approved as an exact source-validity exclusion
+and is now reflected in the annual manifest and final eligibility markers;
+it is separate from the user-requested March 9 exclusion and any residual
+selection. The evidence JSON preserves the original pre-approval proposal. The repeated August source records
 remain distinct source-line entries. No new observation solve was performed.

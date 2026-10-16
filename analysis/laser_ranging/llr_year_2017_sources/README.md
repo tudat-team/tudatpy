@@ -3,14 +3,19 @@ Calendar 2017 sources were selected before annual residual evaluation: UTC
 reported Grasse wavelengths. The [manifest](../llr_year_2017_dataset.json)
 pins 311 APOLLO Group-e rows and 1,271 Grasse CRDv1 rows. Exactly one Grasse
 observation is excluded at Dominic's request: `apollo15_201703.npt:171`,
-2017-03-09T18:34:15.297622200200 UTC. Thus 311 + 1,270 observations remain.
+2017-03-09T18:34:15.297622200200 UTC. The subsequent
+[source-validity audit](nonlunar_flight_time_audit.md) establishes that two
+February 20 printed RTTs cannot represent lunar paths. Their exact identities
+are separately listed as `source_invalid_normal_points`; the final retained
+set is 311 APOLLO + 1,268 Grasse = 1,579 observations. The original 1,270
+Grasse selection is superseded; raw counts and provider bytes are unchanged.
 No quality, uncertainty, weather, or residual selection is applied.
 
 The provider repeats the complete calibration/weather/NP block at
 `luna21_201708.npt:100–102` and `103–105` within one session. The two NP
 lines are byte-identical: L2, 2017-08-28T19:50:52.466626381600 UTC,
 RTT 2.663180684343 s. Both original source-line identities remain in the
-1,271 source / 1,270 retained counts. This is a provider-record repetition,
+1,271 source / 1,268 retained counts. This is a provider-record repetition,
 not an independently repeated measurement; no deduplication is applied.
 
 All 60 official EDC monthly files are available. The ten March/April inputs
@@ -47,7 +52,9 @@ Provider bytes and the exact APOLLO subset remain in the research cache
 `laser-ranging-work/research/llr-year-2017/`; large raw products are not
 copied into the repository. The selected Grasse inventory preserves original
 monthly filenames, line numbers, printed UTC/RTT fields, wavelengths, session
-identities, weather ages and the requested exclusion marker. Recreate it with:
+identities and weather ages. Its `retained` column denotes final solver
+eligibility: false only for the one user-requested identity and two exact
+source-invalid lunar RTTs; all 1,271 source rows remain present. Recreate it with:
 
 ```sh
 python analysis/laser_ranging/prepare_llr_year_2017.py \

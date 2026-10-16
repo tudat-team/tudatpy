@@ -1,6 +1,6 @@
 month,apollo_source_count,apollo_retained_count,grasse_source_count,grasse_retained_count,grasse_sessions,grasse_utc_nights,grasse_532_1_nm,grasse_1064_2_nm
 2017-01,4,4,52,52,24,6,18,34
-2017-02,27,27,66,66,21,7,2,64
+2017-02,27,27,66,64,21,7,2,64
 2017-03,41,41,95,94,26,12,0,95
 2017-04,28,28,142,142,44,12,13,129
 2017-05,38,38,127,127,46,9,4,123

@@ -169,16 +169,24 @@ for path in sorted(ROOT / product["file"] for product in manifest["grasse"]["fil
                     )
                 )
 
-                excluded = (
-                    path.name == manifest["excluded_normal_point"]["source_file"]
-                    and line_number == manifest["excluded_normal_point"]["source_line"]
-                )
+                # Match only declared source identities; never filter by a generic RTT threshold.
+                excluded_records = [
+                    record
+                    for record in [manifest["excluded_normal_point"]]
+                    + manifest.get("source_invalid_normal_points", [])
+                    if path.name == record["source_file"] and line_number == record["source_line"]
+                ]
 
-                if (
-                    excluded
-                    and utc_label(day, seconds) != manifest["excluded_normal_point"]["utc_launch"]
-                ):
-                    raise ValueError("Excluded source identity changed")
+                for record in excluded_records:
+                    if (
+                        record["station"] != "GRASSE"
+                        or station[1] != "7845"
+                        or utc_label(day, seconds) != record["utc_launch"]
+                        or ("printed_rtt_s" in record and np[2] != record["printed_rtt_s"])
+                    ):
+                        raise ValueError("Excluded source identity changed")
+                excluded = bool(excluded_records)
+
                 row = dict(
                     source_file=path.name,
                     source_line=line_number,
