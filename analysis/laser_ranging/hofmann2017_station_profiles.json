@@ -1,0 +1,56 @@
+{
+  "purpose": "Independently preselected station-only sensitivity; retain DE440 body, orientation and reflector data, all frozen points and original tolerances",
+  "reference_epoch": "J2000.0, interpreted as JD 2451545.0 TT",
+  "reference_epoch_tt_s": 0.0,
+  "julian_year_s": 31557600.0,
+  "time_interpretation": "The source specifies J2000.0 and metres/year, but does not explicitly restate the time scale of station propagation. TT Julian years are an explicit diagnostic interpretation; not a recovered software setting.",
+  "frame": "Jointly fitted LUNAR ITRS station solution; compared with ITRF2008, not guaranteed canonical ITRF2008 or matched to DE440/ICRF EOP",
+  "origin": "Geocentric ITRS; no additional fitted translation or Helmert transform",
+  "tide_system": "Conventional tide-free, following the inherited station model described by Biskupek 2015 section 4.2.3",
+  "reference_point": "System reference point (SRP), intersection of telescope axes; no extra instrument eccentricity inferred",
+  "sources": {
+    "hofmann2017": {
+      "title": "Lunar Laser Ranging: Verbesserte Modellierung der Monddynamik und Schätzung relativistischer Parameter",
+      "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-797.pdf",
+      "sha256": "cf83f70c456fed3ca5bcabccd9496a9818ba82d30b1a79ff9d4796faa8db6cbe",
+      "location": "Section 5.3 and Tables 5.4-5.5, printed pp.65-67 (tables PDF page69); fixed Matera velocity in Table A.3, printed p.118; SRP identifiers in Table A.1, printed p.117"
+    },
+    "biskupek2015": {
+      "title": "Bestimmung der Erdorientierung mit Lunar Laser Ranging",
+      "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-742.pdf",
+      "sha256": "f2af9449e6fcccfce099cf3a0d6c64404a2e67d2d0689c7f3a8ca20543001178",
+      "location": "Sections 4.2.2-4.2.3, printed pp.34-36: SRP, J2000.0, conventional tide-free coordinates and linear station velocities; APOLLO approximate White Sands GPS a priori velocity"
+    }
+  },
+  "profiles": {
+    "hofmann2017-apollo-standard": {
+      "station": "APOLLO",
+      "cdp": "7045",
+      "domes": "49447S001",
+      "position_m": [-1463998.894, -5166632.781, 3435012.920],
+      "velocity_m_per_julian_year": [-0.0112, 0.0, -0.0053],
+      "position_sigma_m": [0.0019, 0.0018, 0.0094],
+      "velocity_sigma_m_per_year": [0.0002, 0.0001, 0.0009],
+      "velocity_status": "Estimated in the standard joint solution",
+      "reference_frame_limitation": "APOLLO had no official ITRF coordinate: Murphy private communication 2008 provided the a priori position, with the nearby White Sands GPS velocity. The fitted output is not an official ITRF2008 realization."
+    },
+    "hofmann2017-matera-standard": {
+      "station": "MLRO",
+      "cdp": "7941",
+      "domes": "12734S008",
+      "position_m": [4641978.797, 1393067.604, 4133249.427],
+      "velocity_m_per_julian_year": [-0.0181, 0.0193, 0.0147],
+      "position_sigma_m": [0.0135, 0.0154, 0.0227],
+      "velocity_sigma_m_per_year": null,
+      "velocity_status": "Fixed to the ITRF2008 a priori velocity in Table A.3; no fitted velocity uncertainty"
+    }
+  },
+  "limitations": [
+    "Use Tables 5.4-5.5 standard solution only. Tables 5.6 and A.5 describe a separate constrained-velocity solution and are not combined here.",
+    "Internal component uncertainties are metadata only; full covariance and a propagated station uncertainty are unavailable.",
+    "The source jointly fits an independently integrated lunar ephemeris, lunar rotation, reflector coordinates and other parameters; its updates use DE430/GRAIL information. This is not a matched fixed-DE440 station solution.",
+    "Earth displacement models include solid Earth tides, ocean loading, atmospheric loading, pole and ocean pole tides. Their original realizations are not reproduced by changing station coordinates alone.",
+    "Source measurements extend through early 2015. Both frozen observations postdate that fitting interval; station discontinuities and later local metrology are not established by this source.",
+    "No source range biases, empirical lunar librations, reflector positions, or frame transformations are imported. No choice based on residuals."
+  ]
+}
