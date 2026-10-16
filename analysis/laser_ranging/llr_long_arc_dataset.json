@@ -1,0 +1,325 @@
+{
+  "interval_start_utc": "2017-03-01",
+  "interval_stop_exclusive_utc": "2017-05-01",
+  "selection": "All 69 source Group-e rows and all 237 Grasse 7845 normal points in the ten predeclared March-April monthly CRDv1 files; no residual-based selection.",
+  "apollo": {
+    "file": "apollo_group_e_20170301_20170430.txt",
+    "sha256": "3130f706c4a15d72102a6e9c6c2ca73018c3015e4c19ba1c2fc8df69db7ea214",
+    "source_release_url": "https://tmurphy.physics.ucsd.edu/apollo/160912e_apollo_np2.txt",
+    "source_release_sha256": "87495b6d72b761999b9753df6a277ebfd661448352b19cf28b2b378e4df7225d",
+    "source_line_numbers": [
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192
+    ],
+    "count": 69,
+    "nights": 9,
+    "reflector_counts": {
+      "0": 12,
+      "1": 7,
+      "2": 15,
+      "3": 30,
+      "4": 5
+    },
+    "station_profile": "inpop17a-gir",
+    "source_metadata": {
+      "station_ids": {
+        "70610": 69
+      },
+      "wavelength_angstroms": {
+        "5320": 69
+      },
+      "quality_grades": {
+        "B": 69
+      },
+      "pressure_hPa_range": [
+        720.16,
+        733.75
+      ],
+      "temperature_C_range": [
+        -0.8,
+        10.5
+      ],
+      "relative_humidity_percent_range": [
+        16,
+        56
+      ],
+      "source_rtt_sigma_seconds_range": [
+        8.1e-12,
+        7.32e-11
+      ]
+    }
+  },
+  "grasse": {
+    "files": [
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo11/2017/apollo11_201703.npt",
+        "bytes": 2074,
+        "sha256": "9fae3c39f1e6563f0f371dff328a9e159b68bec886f0430239d1a24c939350d5",
+        "retrieved_utc": "2026-10-16T06:50:53.088395+00:00",
+        "file": "crd/apollo11_201703.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo11/2017/apollo11_201704.npt",
+        "bytes": 7532,
+        "sha256": "bcd01d571c11936f2b4daa6206eb616cdc0762a747cd433458fbaa147c2d679b",
+        "retrieved_utc": "2026-10-16T06:50:53.084814+00:00",
+        "file": "crd/apollo11_201704.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo14/2017/apollo14_201703.npt",
+        "bytes": 2581,
+        "sha256": "e3b97df77edf83c327e52e63e78e99556b80b6b0dc01aa0420eab35aab05c8a1",
+        "retrieved_utc": "2026-10-16T06:50:53.093362+00:00",
+        "file": "crd/apollo14_201703.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo14/2017/apollo14_201704.npt",
+        "bytes": 9329,
+        "sha256": "07bec0403c60f75992d0598240e5ba985a1f364a483619ecf63221918406176a",
+        "retrieved_utc": "2026-10-16T06:50:53.077157+00:00",
+        "file": "crd/apollo14_201704.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2017/apollo15_201703.npt",
+        "bytes": 21817,
+        "sha256": "cd546e1d1f0947962366ab8441091a639233fae77ccd6dcb98e8053bf0963eb6",
+        "retrieved_utc": "2026-10-16T06:50:53.216268+00:00",
+        "file": "crd/apollo15_201703.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/apollo15/2017/apollo15_201704.npt",
+        "bytes": 22181,
+        "sha256": "b015a772d4db27743f29892dec30056ec7183b3013e794da2d0be065bb21802b",
+        "retrieved_utc": "2026-10-16T06:50:53.226362+00:00",
+        "file": "crd/apollo15_201704.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/luna17/2017/luna17_201703.npt",
+        "bytes": 6506,
+        "sha256": "125c8991eb3c070fde1e18b5e02cd7cf571a79263575c11a531e533f9d98ce9d",
+        "retrieved_utc": "2026-10-16T06:50:53.225240+00:00",
+        "file": "crd/luna17_201703.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/luna17/2017/luna17_201704.npt",
+        "bytes": 11167,
+        "sha256": "1f2a2f80a67a5f093dd7aab30e2d0742b6981073d4c984d5d5808c2133d417fe",
+        "retrieved_utc": "2026-10-16T06:50:53.220553+00:00",
+        "file": "crd/luna17_201704.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/luna21/2017/luna21_201703.npt",
+        "bytes": 5192,
+        "sha256": "87d753ef5803cf62e5036c7aa1ee49ba366f992e6dd1837ddb4c8257fb673849",
+        "retrieved_utc": "2026-10-16T06:50:53.350795+00:00",
+        "file": "crd/luna21_201703.npt"
+      },
+      {
+        "url": "https://edc.dgfi.tum.de/pub/slr/data/npt_crd/luna21/2017/luna21_201704.npt",
+        "bytes": 9589,
+        "sha256": "6a472a64642760769bd46361524d9e10d1b6f112bde1d6b431593e4a086befa5",
+        "retrieved_utc": "2026-10-16T06:50:53.352243+00:00",
+        "file": "crd/luna21_201704.npt"
+      }
+    ],
+    "count": 237,
+    "sessions": 70,
+    "nights": 24,
+    "station_profile": "inpop17a-grasse-gir",
+    "reflector_counts": {
+      "apollo11": 17,
+      "apollo14": 22,
+      "apollo15": 117,
+      "luna17": 44,
+      "luna21": 37
+    },
+    "identity": {
+      "cdp": "7845",
+      "domes": "10002S002",
+      "system": 78,
+      "occupancy": 1,
+      "reference_point": "Azimuth/elevation axis intersection",
+      "instrument_eccentricity_metres": [
+        0,
+        0,
+        0
+      ]
+    },
+    "flags": {
+      "data_release": 0,
+      "troposphere_applied": 0,
+      "center_of_mass_applied": 0,
+      "receive_amplitude_applied": 0,
+      "station_system_delay_applied": 1,
+      "spacecraft_system_delay_applied": 0,
+      "range_type": 2,
+      "quality_alert": 0
+    },
+    "weather_policy": "Use all measured origin-0 records at printed UTC epochs with SI conversion; linear interpolation within each CRD session, endpoint values held for at most 1000 s as in the existing short-case environment. Record actual nearest-weather age and interpolation/holding mode for each NP; no standard atmosphere or calibration reapplication.",
+    "maximum_nearest_weather_seconds": 893.5273917301965,
+    "inventory": {
+      "file": "grasse_exact_inventory.csv",
+      "sha256": "044438b0e4ed9cc8d73886b3d83b2262202d7e82a2fcb7987fb166feb6eab516"
+    },
+    "station_sources": {
+      "station": "Grasse MeO",
+      "cdp": "7845",
+      "domes": "10002S002",
+      "system": 78,
+      "occupancy": 1,
+      "reference_point": "Azimuth/elevation axis intersection",
+      "instrument_eccentricity_metres": [
+        0,
+        0,
+        0
+      ],
+      "sitelog_source": {
+        "url": "https://ilrs.gsfc.nasa.gov/network/stations/active/GRSM_sitelog.html",
+        "file": "GRSM_sitelog.html",
+        "sha256": "577eacac705384270b1339038896bde3da6128f49490b1edc7ac984a0d95283c",
+        "retrieved_utc": "2026-10-16T06:53:23.273309+00:00"
+      },
+      "inpop17a_g_ir": {
+        "url": "https://www.imcce.fr/content/medias/recherche/equipes/asd/inpop/inpop17a_v3_090817.pdf",
+        "sha256": "1c73a95d11e1899f22a8b61a904eb1d200be1985d8d46b2b187927bc31cb318a",
+        "table": 8,
+        "printed_page": 21,
+        "visually_checked_pdf": true,
+        "reference_epoch": "J2000.0",
+        "reference_frame_description": "Paper table reference coordinates ITRF2005; fitted station solution, not official ITRF realization or matched DE440 solution",
+        "position_m": [
+          4581692.1349,
+          556196.078,
+          4389355.104
+        ],
+        "velocity_m_per_year": [
+          -0.0132,
+          0.0191,
+          0.0133
+        ],
+        "position_sigmas_m": [
+          0.0001,
+          0.0001,
+          0.0012
+        ],
+        "velocity_sigmas_m_per_year": [
+          0.0001,
+          0.0012,
+          0.0001
+        ],
+        "time_interpretation": "Source says J2000 and metres/year; TT Julian years remain explicit analysis interpretation, not reconstructed provider software setting"
+      },
+      "hofmann2017_standard": {
+        "url": "https://dgk.badw.de/fileadmin/user_upload/Files/DGK/docs/c-797.pdf",
+        "sha256": "cf83f70c456fed3ca5bcabccd9496a9818ba82d30b1a79ff9d4796faa8db6cbe",
+        "tables": "5.4/5.5, printed p67; A.1 identity",
+        "position_m": [
+          4581692.147,
+          556196.115,
+          4389355.105
+        ],
+        "velocity_m_per_year": [
+          -0.0141,
+          0.0193,
+          0.0114
+        ]
+      },
+      "not_applied": {
+        "inpop_table10_fitted_bias": {
+          "start": "2016-06-01",
+          "end": "2018-01-01",
+          "value_cm": 2.46,
+          "convention": "TWO-WAY light time; 1.23cm half-range equivalent, do not import or fit"
+        },
+        "nearby_wrong_monument": "7835 / 10002S001 is a different Grasse system; do not use for these 7845 observations"
+      },
+      "slrf2020_identity_check": "Cached2023.10.02 SLRF file has exact7845/10002S002 as well as nearby7835/10002S001. Exact monument selection is possible, but publishedINPOP station pair is primary by root choice."
+    }
+  },
+  "overlap_preflight": {
+    "utc_nights": [
+      "2017-03-02",
+      "2017-03-09",
+      "2017-03-22",
+      "2017-04-03",
+      "2017-04-07",
+      "2017-04-14",
+      "2017-04-15",
+      "2017-04-21"
+    ],
+    "night_reflector_pairs": 22,
+    "apollo_points_on_shared_night_reflector_pairs": 48,
+    "grasse_points_on_shared_night_reflector_pairs": 81
+  },
+  "model": "DE440 translation and PA orientation, explicit ICRF axes, published paired INPOP17a G+IR stations, 30 s native Time cubic tables, existing complete corrections, no loading or fitted station/colour/libration corrections.",
+  "comparison_caution": "APOLLO frozen 2022 Group-e release and Grasse CRDv1 archive retain distinct releases and calibration conventions; nearby nights are not simultaneous.",
+  "uncertainty": "APOLLO supplied RTT uncertainty retained; Grasse bin RMS is not used as an NP sigma.",
+  "excluded_empirical_terms": "JPL2020 sections 3.19 and 4 station/time-span/green-IR biases and fitted libration harmonics are not imported. INPOP Table10 Grasse 2.46 cm two-way bias is documented and excluded."
+}
