@@ -80,6 +80,26 @@ Model conventions
 Outputs and limitations
 -----------------------
 
+``--ephemeris de421-mer`` selects a separately pinned, coherent DE421 SPK,
+DE421 binary lunar PCK and its ``moon_080317.tf`` frame definitions. Both frozen
+dates lie inside their common 1900–2051 coverage. The lunar fixed frame is
+explicitly ``MOON_ME_DE421`` and reflector coordinates are the DE421 MER column
+of Park et al. (2021), Table 1; DE440 PA coordinates are not reused as MER
+coordinates. Sun, Earth and Moon mass parameters come from the public DE421
+header's GMS, GMB, EMRAT and AU, converted to SI, rather than the DE440 GM file.
+``de421_dataset.json`` pins every product, the constants derivation and reference
+point. Supply its cached files in the selected ``--kernel-dir``.
+
+This is a fixed-station ephemeris/realization sensitivity. The published MER
+coordinates agree with Eq.19-rotated DE440 PA coordinates within 0.758 mm from
+printed precision; they are not an independently recovered original DE421 fit.
+The actual DE421 versus DE440 orientation difference remains: at the frozen
+events it changes the A15 inertial surface vector by about 0.319 m (APOLLO) and
+0.337 m (Matera). Station coordinates, EOP, elastic tides, spatial conversions,
+range corrections and iteration settings stay fixed across the two ephemerides.
+The separate Hofmann station options retain DE440. No fitted transformation or
+choice by residual improvement is introduced.
+
 ``normal_points.csv`` retains every row and its original uncertainty, together
 with the one-way residual, normalized residual and sequential Shapiro,
 atmospheric and glass increments. These increments come from re-solving the

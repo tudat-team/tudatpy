@@ -1,4 +1,4 @@
-"""Fixed-DE440 laser diagnostic; no estimation, editing, bias removal or detrending.
+"""Fixed-ephemeris laser diagnostic; no estimation, editing, bias removal or detrending.
 
 Requires the optical-troposphere, laser-signature and station-deformation bindings.
 The public 2005 APOLLO survey is only accurate to about 0.1 m. This is deliberately
@@ -118,9 +118,9 @@ def read_points(path, expected_hash):
 
 
 def barycentric_state(body, epoch):
-    """Use geometric DE440 states; the n-way solver performs both light-time iterations."""
+    """Use the selected geometric states; the n-way solver performs both light-time iterations."""
 
-    # Modern DE440 SPICE products labelled J2000 use ICRF axes, including in the ICRF environment.
+    # Modern JPL DE SPICE products labelled J2000 use ICRF axes, including in the ICRF environment.
     return np.asarray(
         spice.get_body_cartesian_state_at_epoch(body, "SSB", "J2000", "NONE", float(epoch))
     )
@@ -147,6 +147,9 @@ def create_environment(
     station_profile="survey2005",
     got410c_harpos=None,
     station_history=None,
+    lunar_frame="MOON_PA_DE440",
+    reflector_coordinates=None,
+    gravitational_parameters=None,
 ):
     """Assemble existing native tides and analysis-local JPL2020 coordinate corrections."""
 
@@ -173,7 +176,11 @@ def create_environment(
             if spice_knot_step
             else setup.ephemeris.direct_spice("SSB", "ICRF")
         )
-        settings.get(name).gravity_field_settings = setup.gravity_field.central_spice()
+        settings.get(name).gravity_field_settings = (
+            setup.gravity_field.central(gravitational_parameters[name])
+            if gravitational_parameters is not None
+            else setup.gravity_field.central_spice()
+        )
 
     earth = settings.get("Earth")
 
@@ -186,7 +193,7 @@ def create_environment(
 
     moon = settings.get("Moon")
 
-    moon.rotation_model_settings = setup.rotation_model.spice("ICRF", "MOON_PA_DE440")
+    moon.rotation_model_settings = setup.rotation_model.spice("ICRF", lunar_frame)
     moon.shape_settings = setup.shape.spherical(1738000.0)
     moon.shape_deformation_settings = [
         setup.shape_deformation.basic_solid_body_tidal(
@@ -310,6 +317,9 @@ def create_environment(
     for code in sorted({point["reflector"] for point in points}):
         name, coordinates = REFLECTORS[code]
 
+        if reflector_coordinates is not None:
+            coordinates = reflector_coordinates[str(code)]
+
         setup.add_ground_station(
             bodies.get("Moon"),
             setup.ground_station.basic_station(
@@ -321,7 +331,7 @@ def create_environment(
         intrinsic_moon = bodies.get("Moon").get_ground_station(name + "_intrinsic").station_state
 
         def lunar_spatial(epoch, intrinsic=intrinsic_moon):
-            """JPL2020 Eqs.16–17 use LM=1.4825e-8, solar potential and DE440 TDB lunar orientation."""
+            """Use JPL2020 Eqs.16–17 with LM=1.4825e-8 and the selected TDB lunar orientation."""
 
             to_inertial = bodies.get("Moon").rotation_model.body_fixed_to_inertial_rotation(epoch)
 
@@ -493,9 +503,15 @@ def main():
         "--kernel-dir",
         type=Path,
         required=True,
-        help="Offline directory of the six named DE440/SPICE kernels",
+        help="Offline directory of the selected manifest's matched kernels and constants source",
     )
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--ephemeris",
+        choices=("de440", "de421-mer"),
+        default="de440",
+        help="Matched translation, lunar orientation, constants and reflector-frame realization",
+    )
     parser.add_argument(
         "--spice-knot-step",
         type=int,
@@ -516,8 +532,22 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.ephemeris == "de421-mer" and args.station_profile.startswith("hofmann2017-"):
+        parser.error("The separate Hofmann station sensitivities retain DE440")
+
     kernel_manifest = Path(__file__).with_name("llr_dataset.json")
     kernel_dataset = json.loads(kernel_manifest.read_text())
+
+    ephemeris_manifest = (
+        Path(__file__).with_name("de421_dataset.json")
+        if args.ephemeris == "de421-mer"
+        else kernel_manifest
+    )
+
+    ephemeris_dataset = json.loads(ephemeris_manifest.read_text())
+
+    lunar_frame = ephemeris_dataset["reflector_coordinates"]["frame"]
+
     dataset_path = (
         Path(__file__).with_name("matera_dataset.json")
         if args.case == "matera20220821"
@@ -555,7 +585,7 @@ def main():
     # Clear any kernels loaded by earlier work in the same interpreter, then load only the declared matched set.
     spice.clear_kernels()
 
-    for record in kernel_dataset["kernels"]:
+    for record in ephemeris_dataset["kernels"]:
         name = record["file"]
 
         expected_hash = record["sha256"]
@@ -565,9 +595,16 @@ def main():
         kernel_hashes[name] = sha256(path)
 
         if kernel_hashes[name] != expected_hash:
-            raise ValueError(f"Kernel differs from pinned matched DE440 set: {name}")
+            raise ValueError(f"Kernel differs from the pinned matched ephemeris set: {name}")
 
         spice.load_kernel(str(path))
+
+    # The DE421 constants are derived from its source header, not the DE440 GM kernel.
+    constants_source = ephemeris_dataset.get("constants_source")
+
+    if constants_source is not None:
+        if sha256(args.kernel_dir / constants_source["file"]) != constants_source["sha256"]:
+            raise ValueError("Ephemeris constants header differs from its pinned source")
 
     # The identity alias lets all environment labels use the actual axes of modern SPICE J2000 products.
     alias = kernel_dataset["analysis_frame_alias"]
@@ -585,6 +622,9 @@ def main():
         args.station_profile,
         args.got410c_harpos,
         history,
+        lunar_frame,
+        ephemeris_dataset["reflector_coordinates"].get("coordinates_m"),
+        ephemeris_dataset.get("gravitational_parameters_m3_s2"),
     )
 
     converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
@@ -690,6 +730,7 @@ def main():
     summary = {
         "count": len(rows),
         "case": args.case,
+        "ephemeris": args.ephemeris,
         "mean_m": float(np.mean(residuals)),
         "rms_about_zero_m": float(np.sqrt(np.mean(residuals**2))),
         "scatter_about_mean_m": float(np.std(residuals)),
@@ -704,13 +745,18 @@ def main():
         ),
         "normal_point_sha256": dataset["normal_points"]["sha256"],
         "dataset_manifest_sha256": sha256(dataset_path),
-        "kernel_manifest_sha256": sha256(kernel_manifest),
+        "kernel_manifest_sha256": sha256(ephemeris_manifest),
+        "ephemeris_constants_source": constants_source,
+        "gravitational_parameters_m3_s2": {
+            name: bodies.get(name).gravitational_parameter for name in ("Sun", "Earth", "Moon")
+        },
+        "reflector_coordinate_metadata": ephemeris_dataset["reflector_coordinates"],
         "kernel_sha256": kernel_hashes,
         "inertial_axes": {
             "environment_frame": "ICRF",
             "spice_j2000_product_axes": "ICRF",
             "earth_sofa_frame_bias_applied": False,
-            "moon_frame": "MOON_PA_DE440",
+            "moon_frame": lunar_frame,
         },
         "earth_orientation_resource_sha256": {
             path.name: sha256(path)

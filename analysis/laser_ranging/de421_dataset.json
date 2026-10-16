@@ -1,0 +1,103 @@
+{
+  "purpose": "Fixed-station coherent DE421 translation/orientation and lunar-frame realization sensitivity; no fitted offsets or recovered DE421 station solution.",
+  "kernels": [
+    {
+      "file": "de421.bsp",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421.bsp",
+      "size": 16790528,
+      "sha256": "08b20db2ae22488650641c5a9033e5bfda4b1c4b440cfeaf20f621cfa18ecdb3",
+      "retrieved_utc": "2026-10-16T06:37:55.551988+00:00"
+    },
+    {
+      "file": "moon_pa_de421_1900-2050.bpc",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de421_1900-2050.bpc",
+      "size": 1770496,
+      "sha256": "656f90616403d75a75f0cd6c8830fc5b44f8cb4facb5ccb8915e752b397520cf",
+      "retrieved_utc": "2026-10-16T06:37:57.339131+00:00"
+    },
+    {
+      "file": "moon_080317.tf",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf",
+      "size": 21437,
+      "sha256": "78732477b96f9863e7b0d65bcee3c22b8707ca5ed0db56d1173319cb2e8c7993",
+      "retrieved_utc": "2026-10-16T06:37:58.153808+00:00"
+    },
+    {
+      "file": "pck00011.tpc",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc",
+      "sha256": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+      "size": 131226,
+      "origin": "Shared unchanged standard shape/leap-second products from frozen DE440 diagnostic; body GMs instead come from the DE421 header."
+    },
+    {
+      "file": "naif0012.tls",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls",
+      "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+      "size": 5257,
+      "origin": "Shared unchanged standard shape/leap-second products from frozen DE440 diagnostic; body GMs instead come from the DE421 header."
+    }
+  ],
+  "constants_source": {
+    "file": "header.421",
+    "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de421/header.421",
+    "size": 8422,
+    "sha256": "0fe9e0d60df4b33772e7332d87eb883eaf4cf3219b5a4cd2d5bc2356e98b2d16",
+    "retrieved_utc": "2026-10-16T06:37:58.659318+00:00"
+  },
+  "gravitational_parameters_m3_s2": {
+    "Sun": 1.3271244004094458e+20,
+    "Earth": 398600436233339.6,
+    "Moon": 4902800076227.743
+  },
+  "gravitational_parameter_derivation": {
+    "source_constants": {
+      "AU": "0.149597870699626200D+09",
+      "GMS": "0.295912208285591100D-03",
+      "GMB": "0.899701140826804900D-09",
+      "EMRAT": "0.813005690699153000D+02"
+    },
+    "formula": "factor=(AU_km*1000)^3/86400^2; GM_Sun=GMS*factor; GM_Earth=GMB*factor/(1+1/EMRAT); GM_Moon=GM_Earth/EMRAT",
+    "decimal_digits_before_final_float": 60,
+    "independent_published_check": "Folkner et al.2008 DE421 IOM Table1; https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421_announcement.pdf"
+  },
+  "reflector_coordinates": {
+    "source": "https://ssd.jpl.nasa.gov/doc/Park.2021.AJ.DE440.pdf",
+    "table": "1, DE421 MER column",
+    "frame": "MOON_ME_DE421",
+    "units": "metres",
+    "reference_point": "Array front-face centre, same physical reference as DE440 Table1/JPL2020 reduction; no extra fitted range offset",
+    "coordinates_m": {
+      "0": [
+        1591747.649,
+        691222.2,
+        20398.11
+      ],
+      "1": [
+        1114958.865,
+        -780934.127,
+        1075632.692
+      ],
+      "2": [
+        1652818.682,
+        -520454.587,
+        -110361.165
+      ],
+      "3": [
+        1554937.504,
+        98604.886,
+        764412.81
+      ],
+      "4": [
+        1339388.213,
+        802310.527,
+        755849.393
+      ]
+    },
+    "limitation": "These published MER coordinates agree with the Eq19-transformed DE440 PA coordinates within0.758mm printed precision. They provide frame-compatible positions, not independently recovered original DE421-fit reflector parameters."
+  },
+  "coverage": {
+    "SPK": "1899-07-29 through2053-10-09",
+    "PCK": "1900-01-01 through2051-01-01"
+  },
+  "retained_physics": "Same ICRF axes, actual station profile/EOP, Earth tides, lunar elastic degree2/3 parameters, spatial transformations, Shapiro, atmosphere and glass as the DE440 controls. No loading added. This is an ephemeris/realization sensitivity, not a full DE421 fitted reduction."
+}
