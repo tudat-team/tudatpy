@@ -1,4 +1,4 @@
-"""Reduce the frozen March-April 2017 APOLLO/Grasse arc without fitting or cuts."""
+"""Reduce the frozen March-April 2017 arc with one explicitly requested source exclusion."""
 
 import argparse
 from collections import defaultdict
@@ -19,6 +19,18 @@ import llr_residuals as model
 MANIFEST = Path(__file__).with_name("llr_long_arc_dataset.json")
 
 
+def is_requested_exclusion(station, source_file, source_line, utc_launch, manifest):
+    """Match only the exact source identity excluded at Dominic's explicit request."""
+
+    excluded = manifest["excluded_normal_point"]
+    return (station, source_file, str(source_line), utc_launch) == (
+        excluded["station"],
+        excluded["source_file"],
+        str(excluded["source_line"]),
+        excluded["utc_launch"],
+    )
+
+
 def read_groups(root, manifest):
     """Keep all frozen rows, original identities and measured weather in bounded groups."""
 
@@ -28,7 +40,7 @@ def read_groups(root, manifest):
         root / apollo["file"],
         apollo["sha256"],
         (date(2017, 3, 1), date(2017, 5, 1)),
-        apollo["count"],
+        apollo["source_count"],
     )
 
     nights = defaultdict(list)
@@ -193,7 +205,7 @@ def read_groups(root, manifest):
                     ),
                 )
             )
-    if len(seen) != grasse["count"] or len(inventory) != len(seen):
+    if len(seen) != grasse["source_count"] or len(inventory) != len(seen):
         raise ValueError("The long arc must retain all audited Grasse normal points")
     return groups
 
@@ -383,11 +395,24 @@ def main():
         raise RuntimeError("The cleared kernel pool differs from the declared load inventory")
 
     groups = read_groups(args.data_root, manifest)
+    excluded_count = sum(
+        is_requested_exclusion(
+            point["station"],
+            point["source_file"],
+            point["source_line"],
+            point["utc_label"],
+            manifest,
+        )
+        for points, _, _, _ in groups
+        for point in points
+    )
+    if excluded_count != 1:
+        raise ValueError("The frozen source must contain the requested exclusion exactly once")
 
     if args.station:
         groups = [group for group in groups if group[3]["station"] == args.station]
     expected_count = sum(
-        manifest[station.lower()]["count"]
+        manifest[station.lower()]["retained_count"]
         for station in ("APOLLO", "GRASSE")
         if args.station is None or station == args.station
     )
@@ -450,8 +475,17 @@ def main():
         converter = bodies.get("Earth").rotation_model.angles_calculator.time_scale_converter
 
         solver_seconds = 0.0
+        first_row = len(rows)
 
         for point in points:
+            if is_requested_exclusion(
+                point["station"],
+                point["source_file"],
+                point["source_line"],
+                point["utc_label"],
+                manifest,
+            ):
+                continue
             epoch = converter.convert_time_object(
                 time.utc_scale, time.tdb_scale, point["utc"], position
             )
@@ -503,12 +537,13 @@ def main():
                 )
             )
         ledger["solver_seconds"] = solver_seconds
-        ledger["count"] = len(points)
+        ledger["source_count"] = len(points)
+        ledger["count"] = len(rows) - first_row
         group_ledger.append(ledger)
         print(json.dumps(ledger), flush=True)
     rows.sort(key=lambda row: (row["utc_launch"], row["station"], row["source_line"]))
     if len(rows) != expected_count:
-        raise RuntimeError("The declared arc did not retain every frozen normal point")
+        raise RuntimeError("The declared retained arc count differs from the explicit selection")
     write_csv(args.output / "residuals.csv", rows)
     nights = defaultdict(list)
 
@@ -531,6 +566,9 @@ def main():
         (args.output / "event_diagnostics.json").write_text(json.dumps(events, indent=2) + "\n")
     summary = dict(
         count=len(rows),
+        source_count=sum(g["source_count"] for g in group_ledger),
+        excluded_count=sum(g["source_count"] - g["count"] for g in group_ledger),
+        excluded_normal_point=manifest["excluded_normal_point"],
         station_selection=args.station or "APOLLO and GRASSE",
         station_statistics={
             station: statistics([r for r in rows if r["station"] == station])

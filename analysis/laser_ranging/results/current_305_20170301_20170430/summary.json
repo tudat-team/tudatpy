@@ -1,0 +1,748 @@
+{
+  "excluded_normal_point": {
+    "station": "GRASSE",
+    "source_file": "apollo15_201703.npt",
+    "source_line": 171,
+    "utc_launch": "2017-03-09T18:34:15.297622200200",
+    "reflector": "A15",
+    "reason": "Excluded at Dominic\u2019s explicit request; physical cause not established"
+  },
+  "manifest_sha256": "5b7dd9ec5075cb88a58cefd22119eeb6da83165177096fe300e853ce9d98168d",
+  "postprocessing_source_sha256": "b1f50e803a43881e23fcc046e320792e8d19a262634844f17cf9133b56ea09e8",
+  "method": "One exact source-identity exclusion; no solves, residual threshold, centering or fitting",
+  "absolute_order_statistics": "All retained raw values; NumPy default linear95th percentile",
+  "cases": {
+    "de440": {
+      "source_csv": "paired_long_arc_20170301_20170430/residuals.csv",
+      "source_csv_sha256": "e9b3e9da081d5e12f8d10f7cf9579e250a9fe8c3ef2400722b1c36792816e908",
+      "retained_csv_sha256": "5644a9220b333381ad88eb2727da76b2eb45fd7cdb205fdf60bbdafd042ee9b4",
+      "source_count": 306,
+      "retained_count": 305,
+      "source_station_counts": {
+        "APOLLO": 69,
+        "GRASSE": 237
+      },
+      "all_retained_csv_lines_byte_identical": true,
+      "station_statistics": {
+        "APOLLO": {
+          "count": 69,
+          "mean_m": 0.0018295913502789926,
+          "rms_about_zero_m": 0.05848847969089653,
+          "scatter_about_mean_m": 0.058459856756952464,
+          "median_absolute_residual_m": 0.05028104782104492,
+          "percentile95_absolute_residual_m": 0.10419722795486447
+        },
+        "GRASSE": {
+          "count": 236,
+          "mean_m": -0.012959220146728774,
+          "rms_about_zero_m": 0.07010066707243212,
+          "scatter_about_mean_m": 0.06889239535092817,
+          "median_absolute_residual_m": 0.04872050881385803,
+          "percentile95_absolute_residual_m": 0.14012685418128967
+        }
+      },
+      "station_reflector_statistics": {
+        "APOLLO/A11": {
+          "count": 12,
+          "mean_m": -0.06201282640298208,
+          "rms_about_zero_m": 0.0677263399470953,
+          "scatter_about_mean_m": 0.027226209507442027,
+          "median_absolute_residual_m": 0.07069337368011475,
+          "percentile95_absolute_residual_m": 0.09220748841762542
+        },
+        "APOLLO/A14": {
+          "count": 15,
+          "mean_m": 0.04900612036387126,
+          "rms_about_zero_m": 0.05971967026697429,
+          "scatter_about_mean_m": 0.03412974045723021,
+          "median_absolute_residual_m": 0.036576807498931885,
+          "percentile95_absolute_residual_m": 0.10279015898704529
+        },
+        "APOLLO/A15": {
+          "count": 30,
+          "mean_m": -0.004533447821935018,
+          "rms_about_zero_m": 0.04419528794735072,
+          "scatter_about_mean_m": 0.04396215790421389,
+          "median_absolute_residual_m": 0.03860604763031006,
+          "percentile95_absolute_residual_m": 0.06611985862255096
+        },
+        "APOLLO/L1": {
+          "count": 7,
+          "mean_m": 0.07500830718449183,
+          "rms_about_zero_m": 0.08457671732617973,
+          "scatter_about_mean_m": 0.03907652705895729,
+          "median_absolute_residual_m": 0.06887465715408325,
+          "percentile95_absolute_residual_m": 0.12286250591278075
+        },
+        "APOLLO/L2": {
+          "count": 5,
+          "mean_m": -0.05075016021728516,
+          "rms_about_zero_m": 0.06137447821437761,
+          "scatter_about_mean_m": 0.034514458043072314,
+          "median_absolute_residual_m": 0.07033604383468628,
+          "percentile95_absolute_residual_m": 0.08181390762329102
+        },
+        "GRASSE/A11": {
+          "count": 17,
+          "mean_m": -0.053156137466430664,
+          "rms_about_zero_m": 0.07528556118420851,
+          "scatter_about_mean_m": 0.05331360776078776,
+          "median_absolute_residual_m": 0.07980245351791382,
+          "percentile95_absolute_residual_m": 0.11498688459396361
+        },
+        "GRASSE/A14": {
+          "count": 22,
+          "mean_m": 0.03871607238596136,
+          "rms_about_zero_m": 0.07703481573287267,
+          "scatter_about_mean_m": 0.06659901331102923,
+          "median_absolute_residual_m": 0.03098398447036743,
+          "percentile95_absolute_residual_m": 0.15256820619106293
+        },
+        "GRASSE/A15": {
+          "count": 116,
+          "mean_m": -0.032572200072222744,
+          "rms_about_zero_m": 0.060549293787894455,
+          "scatter_about_mean_m": 0.05104183343756224,
+          "median_absolute_residual_m": 0.051631808280944824,
+          "percentile95_absolute_residual_m": 0.09110137820243835
+        },
+        "GRASSE/L1": {
+          "count": 44,
+          "mean_m": 0.06409079649231651,
+          "rms_about_zero_m": 0.0825803339871856,
+          "scatter_about_mean_m": 0.052075727228869224,
+          "median_absolute_residual_m": 0.046463966369628906,
+          "percentile95_absolute_residual_m": 0.16610708236694338
+        },
+        "GRASSE/L2": {
+          "count": 37,
+          "mean_m": -0.055353920201997496,
+          "rms_about_zero_m": 0.07488336946505174,
+          "scatter_about_mean_m": 0.05043275265846924,
+          "median_absolute_residual_m": 0.058265626430511475,
+          "percentile95_absolute_residual_m": 0.11212424039840697
+        }
+      },
+      "descriptive_plot_statistics": [
+        {
+          "station": "APOLLO",
+          "reflector": "A11",
+          "points": 12,
+          "utc_nights": 7,
+          "first_utc": "2017-03-09T01:30:30+00:00",
+          "last_utc": "2017-04-15T10:11:10+00:00",
+          "raw_mean_mm": -62.01282640298208,
+          "raw_rms_mm": 67.7263399470953,
+          "raw_peak_to_peak_mm": 90.94017744064331,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.5515169705521197,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "A14",
+          "points": 15,
+          "utc_nights": 8,
+          "first_utc": "2017-03-02T01:53:10+00:00",
+          "last_utc": "2017-04-15T09:54:00+00:00",
+          "raw_mean_mm": 49.00612036387126,
+          "raw_rms_mm": 59.71967026697429,
+          "raw_peak_to_peak_mm": 99.46596622467041,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.9853955507660603,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "A15",
+          "points": 30,
+          "utc_nights": 9,
+          "first_utc": "2017-03-02T01:22:55+00:00",
+          "last_utc": "2017-04-21T12:14:15+00:00",
+          "raw_mean_mm": -4.533447821935018,
+          "raw_rms_mm": 44.19528794735072,
+          "raw_peak_to_peak_mm": 159.36386585235596,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.024409274750818003,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "L1",
+          "points": 7,
+          "utc_nights": 5,
+          "first_utc": "2017-03-02T02:01:05+00:00",
+          "last_utc": "2017-04-03T02:14:30+00:00",
+          "raw_mean_mm": 75.00830718449184,
+          "raw_rms_mm": 84.57671732617973,
+          "raw_peak_to_peak_mm": 103.95270586013794,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.8157753046785022,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "L2",
+          "points": 5,
+          "utc_nights": 4,
+          "first_utc": "2017-03-02T01:42:35+00:00",
+          "last_utc": "2017-04-03T02:29:20+00:00",
+          "raw_mean_mm": -50.750160217285156,
+          "raw_rms_mm": 61.37447821437761,
+          "raw_peak_to_peak_mm": 87.78321743011475,
+          "descriptive_nightly_mean_slope_mm_per_day": -2.5693800938753117,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A11",
+          "points": 17,
+          "utc_nights": 10,
+          "first_utc": "2017-03-22T07:11:54.234447+00:00",
+          "last_utc": "2017-04-21T07:07:44.859617+00:00",
+          "raw_mean_mm": -53.156137466430664,
+          "raw_rms_mm": 75.2855611842085,
+          "raw_peak_to_peak_mm": 167.92309284210205,
+          "descriptive_nightly_mean_slope_mm_per_day": 1.2772164749932853,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A14",
+          "points": 22,
+          "utc_nights": 11,
+          "first_utc": "2017-03-07T17:14:10.773567+00:00",
+          "last_utc": "2017-04-21T07:20:39.755150+00:00",
+          "raw_mean_mm": 38.716072385961354,
+          "raw_rms_mm": 77.03481573287267,
+          "raw_peak_to_peak_mm": 313.7791156768799,
+          "descriptive_nightly_mean_slope_mm_per_day": 1.2318335643637963,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A15",
+          "points": 116,
+          "utc_nights": 24,
+          "first_utc": "2017-03-01T14:05:45.063187+00:00",
+          "last_utc": "2017-04-21T06:34:47.167247+00:00",
+          "raw_mean_mm": -32.57220007222274,
+          "raw_rms_mm": 60.549293787894456,
+          "raw_peak_to_peak_mm": 294.71397399902344,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.8024780301828338,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "L1",
+          "points": 44,
+          "utc_nights": 11,
+          "first_utc": "2017-03-02T13:20:11.337811+00:00",
+          "last_utc": "2017-04-21T07:33:16.503831+00:00",
+          "raw_mean_mm": 64.09079649231651,
+          "raw_rms_mm": 82.5803339871856,
+          "raw_peak_to_peak_mm": 211.73584461212158,
+          "descriptive_nightly_mean_slope_mm_per_day": 1.1221971352180948,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "L2",
+          "points": 37,
+          "utc_nights": 10,
+          "first_utc": "2017-03-02T13:04:33.811882+00:00",
+          "last_utc": "2017-04-21T07:53:53.202817+00:00",
+          "raw_mean_mm": -55.3539202019975,
+          "raw_rms_mm": 74.88336946505174,
+          "raw_peak_to_peak_mm": 168.90454292297363,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.9924896110507531,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        }
+      ]
+    },
+    "inpop17a_jpl_nh": {
+      "source_csv": "inpop17a_long_arc_20170301_20170430/full/jpl_nh/residuals.csv",
+      "source_csv_sha256": "d7303418ca0cb0560ee7a904f3b7d3bd30ad09a09eade2ac713fe6035727e86b",
+      "retained_csv_sha256": "9c44241901ee2ece854222974d9b0edb81d472dd326496a0fb873f61e906cdf8",
+      "source_count": 306,
+      "retained_count": 305,
+      "source_station_counts": {
+        "APOLLO": 69,
+        "GRASSE": 237
+      },
+      "all_retained_csv_lines_byte_identical": true,
+      "station_statistics": {
+        "APOLLO": {
+          "count": 69,
+          "mean_m": -0.047439327274543655,
+          "rms_about_zero_m": 0.04940762369657839,
+          "scatter_about_mean_m": 0.013806647206379726,
+          "median_absolute_residual_m": 0.04562997817993164,
+          "percentile95_absolute_residual_m": 0.07124962806701658
+        },
+        "GRASSE": {
+          "count": 236,
+          "mean_m": -0.060825721187106635,
+          "rms_about_zero_m": 0.06392049797837193,
+          "scatter_about_mean_m": 0.01964845296381926,
+          "median_absolute_residual_m": 0.05841994285583496,
+          "percentile95_absolute_residual_m": 0.09599141776561737
+        }
+      },
+      "station_reflector_statistics": {
+        "APOLLO/A11": {
+          "count": 12,
+          "mean_m": -0.04930326839288076,
+          "rms_about_zero_m": 0.050937269428461635,
+          "scatter_about_mean_m": 0.012798169502208424,
+          "median_absolute_residual_m": 0.0498751699924469,
+          "percentile95_absolute_residual_m": 0.06806108951568603
+        },
+        "APOLLO/A14": {
+          "count": 15,
+          "mean_m": -0.0413732369740804,
+          "rms_about_zero_m": 0.04275895126137707,
+          "scatter_about_mean_m": 0.010797368904478799,
+          "median_absolute_residual_m": 0.04105955362319946,
+          "percentile95_absolute_residual_m": 0.05950331091880798
+        },
+        "APOLLO/A15": {
+          "count": 30,
+          "mean_m": -0.04342840512593587,
+          "rms_about_zero_m": 0.04455191231025168,
+          "scatter_about_mean_m": 0.009942158654836598,
+          "median_absolute_residual_m": 0.043939948081970215,
+          "percentile95_absolute_residual_m": 0.06100814938545227
+        },
+        "APOLLO/L1": {
+          "count": 7,
+          "mean_m": -0.062344763960157125,
+          "rms_about_zero_m": 0.06331369420984798,
+          "scatter_about_mean_m": 0.011034232245626838,
+          "median_absolute_residual_m": 0.06486707925796509,
+          "percentile95_absolute_residual_m": 0.07729667425155638
+        },
+        "APOLLO/L2": {
+          "count": 5,
+          "mean_m": -0.06436206102371216,
+          "rms_about_zero_m": 0.06673841283941907,
+          "scatter_about_mean_m": 0.0176505197970113,
+          "median_absolute_residual_m": 0.053652822971343994,
+          "percentile95_absolute_residual_m": 0.08920440673828124
+        },
+        "GRASSE/A11": {
+          "count": 17,
+          "mean_m": -0.059388690135058236,
+          "rms_about_zero_m": 0.060933687708503693,
+          "scatter_about_mean_m": 0.013634433680923137,
+          "median_absolute_residual_m": 0.06002235412597656,
+          "percentile95_absolute_residual_m": 0.08379158973693848
+        },
+        "GRASSE/A14": {
+          "count": 22,
+          "mean_m": -0.05068947510285811,
+          "rms_about_zero_m": 0.06353013482325369,
+          "scatter_about_mean_m": 0.038296933878021085,
+          "median_absolute_residual_m": 0.042022258043289185,
+          "percentile95_absolute_residual_m": 0.05557079613208771
+        },
+        "GRASSE/A15": {
+          "count": 116,
+          "mean_m": -0.05491620970183406,
+          "rms_about_zero_m": 0.05649239904705202,
+          "scatter_about_mean_m": 0.013251455092764392,
+          "median_absolute_residual_m": 0.054419100284576416,
+          "percentile95_absolute_residual_m": 0.07605637609958649
+        },
+        "GRASSE/L1": {
+          "count": 44,
+          "mean_m": -0.06456866995854811,
+          "rms_about_zero_m": 0.06546148110297768,
+          "scatter_about_mean_m": 0.01077461683678781,
+          "median_absolute_residual_m": 0.06479868292808533,
+          "percentile95_absolute_residual_m": 0.07931345105171204
+        },
+        "GRASSE/L2": {
+          "count": 37,
+          "mean_m": -0.08158897870295756,
+          "rms_about_zero_m": 0.0827879445261344,
+          "scatter_about_mean_m": 0.014038600823110727,
+          "median_absolute_residual_m": 0.07988154888153076,
+          "percentile95_absolute_residual_m": 0.10507819652557374
+        }
+      },
+      "descriptive_plot_statistics": [
+        {
+          "station": "APOLLO",
+          "reflector": "A11",
+          "points": 12,
+          "utc_nights": 7,
+          "first_utc": "2017-03-09T01:30:30+00:00",
+          "last_utc": "2017-04-15T10:11:10+00:00",
+          "raw_mean_mm": -49.30326839288076,
+          "raw_rms_mm": 50.93726942846163,
+          "raw_peak_to_peak_mm": 40.768980979919434,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.1193705823999055,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "A14",
+          "points": 15,
+          "utc_nights": 8,
+          "first_utc": "2017-03-02T01:53:10+00:00",
+          "last_utc": "2017-04-15T09:54:00+00:00",
+          "raw_mean_mm": -41.3732369740804,
+          "raw_rms_mm": 42.75895126137707,
+          "raw_peak_to_peak_mm": 35.751521587371826,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.3264311901079679,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "A15",
+          "points": 30,
+          "utc_nights": 9,
+          "first_utc": "2017-03-02T01:22:55+00:00",
+          "last_utc": "2017-04-21T12:14:15+00:00",
+          "raw_mean_mm": -43.42840512593587,
+          "raw_rms_mm": 44.55191231025168,
+          "raw_peak_to_peak_mm": 38.95390033721924,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.004169678769626165,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "L1",
+          "points": 7,
+          "utc_nights": 5,
+          "first_utc": "2017-03-02T02:01:05+00:00",
+          "last_utc": "2017-04-03T02:14:30+00:00",
+          "raw_mean_mm": -62.344763960157124,
+          "raw_rms_mm": 63.313694209847974,
+          "raw_peak_to_peak_mm": 35.88968515396118,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.09288594116175448,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "L2",
+          "points": 5,
+          "utc_nights": 4,
+          "first_utc": "2017-03-02T01:42:35+00:00",
+          "last_utc": "2017-04-03T02:29:20+00:00",
+          "raw_mean_mm": -64.36206102371216,
+          "raw_rms_mm": 66.73841283941907,
+          "raw_peak_to_peak_mm": 45.63397169113159,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.4303934019952354,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A11",
+          "points": 17,
+          "utc_nights": 10,
+          "first_utc": "2017-03-22T07:11:54.234447+00:00",
+          "last_utc": "2017-04-21T07:07:44.859617+00:00",
+          "raw_mean_mm": -59.38869013505823,
+          "raw_rms_mm": 60.93368770850369,
+          "raw_peak_to_peak_mm": 44.45880651473999,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.4678518477053657,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A14",
+          "points": 22,
+          "utc_nights": 11,
+          "first_utc": "2017-03-07T17:14:10.773567+00:00",
+          "last_utc": "2017-04-21T07:20:39.755150+00:00",
+          "raw_mean_mm": -50.68947510285811,
+          "raw_rms_mm": 63.53013482325369,
+          "raw_peak_to_peak_mm": 194.2858099937439,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.03589868444402206,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A15",
+          "points": 116,
+          "utc_nights": 24,
+          "first_utc": "2017-03-01T14:05:45.063187+00:00",
+          "last_utc": "2017-04-21T06:34:47.167247+00:00",
+          "raw_mean_mm": -54.916209701834056,
+          "raw_rms_mm": 56.49239904705202,
+          "raw_peak_to_peak_mm": 104.9576997756958,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.002952501318234083,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "L1",
+          "points": 44,
+          "utc_nights": 11,
+          "first_utc": "2017-03-02T13:20:11.337811+00:00",
+          "last_utc": "2017-04-21T07:33:16.503831+00:00",
+          "raw_mean_mm": -64.56866995854811,
+          "raw_rms_mm": 65.46148110297769,
+          "raw_peak_to_peak_mm": 51.334261894226074,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.08491019322922318,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "L2",
+          "points": 37,
+          "utc_nights": 10,
+          "first_utc": "2017-03-02T13:04:33.811882+00:00",
+          "last_utc": "2017-04-21T07:53:53.202817+00:00",
+          "raw_mean_mm": -81.58897870295756,
+          "raw_rms_mm": 82.7879445261344,
+          "raw_peak_to_peak_mm": 54.71479892730713,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.6365767094100383,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        }
+      ]
+    },
+    "inpop17a_zero_explicit_glass": {
+      "source_csv": "inpop17a_long_arc_20170301_20170430/full/zero_explicit_glass/residuals.csv",
+      "source_csv_sha256": "e8d6afb4fa4f214efb19035762a09f818423080bb1786fbe51dc470e51cbaaed",
+      "retained_csv_sha256": "d11af3bdf13088905872dbb00991824752ea76392bbdfde345ac6917bd617799",
+      "source_count": 306,
+      "retained_count": 305,
+      "source_station_counts": {
+        "APOLLO": 69,
+        "GRASSE": 237
+      },
+      "all_retained_csv_lines_byte_identical": true,
+      "station_statistics": {
+        "APOLLO": {
+          "count": 69,
+          "mean_m": -0.0033629303393156633,
+          "rms_about_zero_m": 0.012341145827499199,
+          "scatter_about_mean_m": 0.01187411385613727,
+          "median_absolute_residual_m": 0.008211672306060791,
+          "percentile95_absolute_residual_m": 0.022849881649017318
+        },
+        "GRASSE": {
+          "count": 236,
+          "mean_m": -0.012806792885570203,
+          "rms_about_zero_m": 0.022094550090383382,
+          "scatter_about_mean_m": 0.018004310586150436,
+          "median_absolute_residual_m": 0.012368261814117432,
+          "percentile95_absolute_residual_m": 0.037351176142692566
+        }
+      },
+      "station_reflector_statistics": {
+        "APOLLO/A11": {
+          "count": 12,
+          "mean_m": -0.00927737851937612,
+          "rms_about_zero_m": 0.01580717154350743,
+          "scatter_about_mean_m": 0.012798317077416452,
+          "median_absolute_residual_m": 0.009851962327957153,
+          "percentile95_absolute_residual_m": 0.028034746646881097
+        },
+        "APOLLO/A14": {
+          "count": 15,
+          "mean_m": -0.00134732723236084,
+          "rms_about_zero_m": 0.010881414660734324,
+          "scatter_about_mean_m": 0.010797680044703249,
+          "median_absolute_residual_m": 0.009051740169525146,
+          "percentile95_absolute_residual_m": 0.019476807117462157
+        },
+        "APOLLO/A15": {
+          "count": 30,
+          "mean_m": -0.003401823838551839,
+          "rms_about_zero_m": 0.010508311719241038,
+          "scatter_about_mean_m": 0.009942444858293105,
+          "median_absolute_residual_m": 0.007153242826461792,
+          "percentile95_absolute_residual_m": 0.02098154425621033
+        },
+        "APOLLO/L1": {
+          "count": 7,
+          "mean_m": 0.0009693333080836705,
+          "rms_about_zero_m": 0.011077049117484864,
+          "scatter_about_mean_m": 0.011034555273730418,
+          "median_absolute_residual_m": 0.005634129047393799,
+          "percentile95_absolute_residual_m": 0.018070149421691894
+        },
+        "APOLLO/L2": {
+          "count": 5,
+          "mean_m": -0.0010468721389770507,
+          "rms_about_zero_m": 0.01767961722257011,
+          "scatter_about_mean_m": 0.01764859552092549,
+          "median_absolute_residual_m": 0.014993607997894287,
+          "percentile95_absolute_residual_m": 0.02629050016403198
+        },
+        "GRASSE/A11": {
+          "count": 17,
+          "mean_m": -0.019359876127804026,
+          "rms_about_zero_m": 0.02367857140490538,
+          "scatter_about_mean_m": 0.013633412635627461,
+          "median_absolute_residual_m": 0.0199887752532959,
+          "percentile95_absolute_residual_m": 0.043764495849609376
+        },
+        "GRASSE/A14": {
+          "count": 22,
+          "mean_m": -0.010663525624708696,
+          "rms_about_zero_m": 0.03975285824489242,
+          "scatter_about_mean_m": 0.03829593920887295,
+          "median_absolute_residual_m": 0.006854116916656494,
+          "percentile95_absolute_residual_m": 0.015544158220291137
+        },
+        "GRASSE/A15": {
+          "count": 116,
+          "mean_m": -0.014890036192433587,
+          "rms_about_zero_m": 0.01993196091354577,
+          "scatter_about_mean_m": 0.013250278791298474,
+          "median_absolute_residual_m": 0.014674633741378784,
+          "percentile95_absolute_residual_m": 0.03602190315723419
+        },
+        "GRASSE/L1": {
+          "count": 44,
+          "mean_m": -0.001256865533915433,
+          "rms_about_zero_m": 0.010848963678673808,
+          "scatter_about_mean_m": 0.01077591304395312,
+          "median_absolute_residual_m": 0.007797867059707642,
+          "percentile95_absolute_residual_m": 0.01617433726787567
+        },
+        "GRASSE/L2": {
+          "count": 37,
+          "mean_m": -0.018274091385506296,
+          "rms_about_zero_m": 0.023043106966512676,
+          "scatter_about_mean_m": 0.01403717787535335,
+          "median_absolute_residual_m": 0.016565382480621338,
+          "percentile95_absolute_residual_m": 0.04176502227783203
+        }
+      },
+      "descriptive_plot_statistics": [
+        {
+          "station": "APOLLO",
+          "reflector": "A11",
+          "points": 12,
+          "utc_nights": 7,
+          "first_utc": "2017-03-09T01:30:30+00:00",
+          "last_utc": "2017-04-15T10:11:10+00:00",
+          "raw_mean_mm": -9.27737851937612,
+          "raw_rms_mm": 15.807171543507428,
+          "raw_peak_to_peak_mm": 40.76850414276123,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.11934115539535428,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "A14",
+          "points": 15,
+          "utc_nights": 8,
+          "first_utc": "2017-03-02T01:53:10+00:00",
+          "last_utc": "2017-04-15T09:54:00+00:00",
+          "raw_mean_mm": -1.3473272323608398,
+          "raw_rms_mm": 10.881414660734324,
+          "raw_peak_to_peak_mm": 35.75313091278076,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.32639577283412896,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "A15",
+          "points": 30,
+          "utc_nights": 9,
+          "first_utc": "2017-03-02T01:22:55+00:00",
+          "last_utc": "2017-04-21T12:14:15+00:00",
+          "raw_mean_mm": -3.401823838551839,
+          "raw_rms_mm": 10.508311719241037,
+          "raw_peak_to_peak_mm": 38.95282745361328,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.00421987281215604,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "L1",
+          "points": 7,
+          "utc_nights": 5,
+          "first_utc": "2017-03-02T02:01:05+00:00",
+          "last_utc": "2017-04-03T02:14:30+00:00",
+          "raw_mean_mm": 0.9693333080836705,
+          "raw_rms_mm": 11.077049117484863,
+          "raw_peak_to_peak_mm": 35.89129447937012,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.0929717343983337,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "APOLLO",
+          "reflector": "L2",
+          "points": 5,
+          "utc_nights": 4,
+          "first_utc": "2017-03-02T01:42:35+00:00",
+          "last_utc": "2017-04-03T02:29:20+00:00",
+          "raw_mean_mm": -1.0468721389770508,
+          "raw_rms_mm": 17.67961722257011,
+          "raw_peak_to_peak_mm": 45.62646150588989,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.43028526386279875,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A11",
+          "points": 17,
+          "utc_nights": 10,
+          "first_utc": "2017-03-22T07:11:54.234447+00:00",
+          "last_utc": "2017-04-21T07:07:44.859617+00:00",
+          "raw_mean_mm": -19.359876127804025,
+          "raw_rms_mm": 23.67857140490538,
+          "raw_peak_to_peak_mm": 44.45880651473999,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.46768488588996576,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A14",
+          "points": 22,
+          "utc_nights": 11,
+          "first_utc": "2017-03-07T17:14:10.773567+00:00",
+          "last_utc": "2017-04-21T07:20:39.755150+00:00",
+          "raw_mean_mm": -10.663525624708697,
+          "raw_rms_mm": 39.75285824489242,
+          "raw_peak_to_peak_mm": 194.2782998085022,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.035918999824213156,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "A15",
+          "points": 116,
+          "utc_nights": 24,
+          "first_utc": "2017-03-01T14:05:45.063187+00:00",
+          "last_utc": "2017-04-21T06:34:47.167247+00:00",
+          "raw_mean_mm": -14.890036192433588,
+          "raw_rms_mm": 19.93196091354577,
+          "raw_peak_to_peak_mm": 104.95245456695557,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.0029109136595752844,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "L1",
+          "points": 44,
+          "utc_nights": 11,
+          "first_utc": "2017-03-02T13:20:11.337811+00:00",
+          "last_utc": "2017-04-21T07:33:16.503831+00:00",
+          "raw_mean_mm": -1.2568655339154329,
+          "raw_rms_mm": 10.848963678673808,
+          "raw_peak_to_peak_mm": 51.31828784942627,
+          "descriptive_nightly_mean_slope_mm_per_day": 0.08514973387032093,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        },
+        {
+          "station": "GRASSE",
+          "reflector": "L2",
+          "points": 37,
+          "utc_nights": 10,
+          "first_utc": "2017-03-02T13:04:33.811882+00:00",
+          "last_utc": "2017-04-21T07:53:53.202817+00:00",
+          "raw_mean_mm": -18.274091385506296,
+          "raw_rms_mm": 23.043106966512678,
+          "raw_peak_to_peak_mm": 54.71694469451904,
+          "descriptive_nightly_mean_slope_mm_per_day": -0.6364641646876212,
+          "trend_scope": "Unweighted linear description of raw nightly means; no fitted correction or period inference"
+        }
+      ]
+    }
+  }
+}

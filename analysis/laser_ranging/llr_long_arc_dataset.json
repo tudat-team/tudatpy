@@ -1,7 +1,7 @@
 {
   "interval_start_utc": "2017-03-01",
   "interval_stop_exclusive_utc": "2017-05-01",
-  "selection": "All 69 source Group-e rows and all 237 Grasse 7845 normal points in the ten predeclared March-April monthly CRDv1 files; no residual-based selection.",
+  "selection": "Source coverage is all69 APOLLO Group-e rows and all237 Grasse7845 normal points. Retain305 after the one exact source-identity exclusion explicitly requested by Dominic; no residual threshold.",
   "apollo": {
     "file": "apollo_group_e_20170301_20170430.txt",
     "sha256": "3130f706c4a15d72102a6e9c6c2ca73018c3015e4c19ba1c2fc8df69db7ea214",
@@ -78,7 +78,6 @@
       191,
       192
     ],
-    "count": 69,
     "nights": 9,
     "reflector_counts": {
       "0": 12,
@@ -114,7 +113,9 @@
         8.1e-12,
         7.32e-11
       ]
-    }
+    },
+    "source_count": 69,
+    "retained_count": 69
   },
   "grasse": {
     "files": [
@@ -189,7 +190,6 @@
         "file": "crd/luna21_201704.npt"
       }
     ],
-    "count": 237,
     "sessions": 70,
     "nights": 24,
     "station_profile": "inpop17a-grasse-gir",
@@ -301,7 +301,9 @@
         "nearby_wrong_monument": "7835 / 10002S001 is a different Grasse system; do not use for these 7845 observations"
       },
       "slrf2020_identity_check": "Cached2023.10.02 SLRF file has exact7845/10002S002 as well as nearby7835/10002S001. Exact monument selection is possible, but publishedINPOP station pair is primary by root choice."
-    }
+    },
+    "source_count": 237,
+    "retained_count": 236
   },
   "overlap_preflight": {
     "utc_nights": [
@@ -321,5 +323,13 @@
   "model": "DE440 translation and PA orientation, explicit ICRF axes, published paired INPOP17a G+IR stations, 30 s native Time cubic tables, existing complete corrections, no loading or fitted station/colour/libration corrections.",
   "comparison_caution": "APOLLO frozen 2022 Group-e release and Grasse CRDv1 archive retain distinct releases and calibration conventions; nearby nights are not simultaneous.",
   "uncertainty": "APOLLO supplied RTT uncertainty retained; Grasse bin RMS is not used as an NP sigma.",
-  "excluded_empirical_terms": "JPL2020 sections 3.19 and 4 station/time-span/green-IR biases and fitted libration harmonics are not imported. INPOP Table10 Grasse 2.46 cm two-way bias is documented and excluded."
+  "excluded_empirical_terms": "JPL2020 sections 3.19 and 4 station/time-span/green-IR biases and fitted libration harmonics are not imported. INPOP Table10 Grasse 2.46 cm two-way bias is documented and excluded.",
+  "excluded_normal_point": {
+    "station": "GRASSE",
+    "source_file": "apollo15_201703.npt",
+    "source_line": 171,
+    "utc_launch": "2017-03-09T18:34:15.297622200200",
+    "reflector": "A15",
+    "reason": "Excluded at Dominic\u2019s explicit request; physical cause not established"
+  }
 }

@@ -120,8 +120,8 @@ def describe(points):
     return result
 
 
-def plot(points, output, title, connect_means, zoom_mm=None):
-    """Save full-range reflector panels with raw points, optional provider sigmas and nightly means."""
+def plot(points, output, title, show_means, zoom_mm=None):
+    """Save unconnected reflector points, optional provider sigmas and nightly-mean markers."""
 
     fig, axes = plt.subplots(5, 1, sharex=True, figsize=(11, 12), constrained_layout=True)
     stations = sorted({p["station"] for p in points})
@@ -183,15 +183,14 @@ def plot(points, output, title, connect_means, zoom_mm=None):
                     label=f"{station} provider NP ±1σ",
                 )
 
-            if connect_means:
+            if show_means:
                 means = np.array(nightly_means(group))
-                ax.plot(
+                ax.scatter(
                     mdates.num2date(means[:, 0]),
                     means[:, 1] * 1000,
-                    ":D",
+                    marker="D",
                     color=color,
-                    markersize=4,
-                    linewidth=1,
+                    s=16,
                     label=f"{station} nightly raw mean (unweighted{', both wavelengths' if mixed_wavelengths else ''})",
                 )
 
@@ -313,7 +312,7 @@ def main():
         statistics=describe(points),
         plot_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         wavelength_markers="For stations with mixed wavelengths: triangles >=800nm, circles <800nm; raw nightly means/statistics retain all wavelengths unchanged",
-        interpretation="Every raw point retained; no offset, trend or outlier removed. Slopes describe unweighted nightly means separately by station and reflector. Two months do not establish a robust monthly period. Plot timestamps use datetime display precision; source CSV bytes are unchanged.",
+        interpretation="Every supplied point retained; no offset or trend removed. Slopes describe unweighted nightly means separately by station and reflector; they do not establish a physical cause or periodic signal. Plot timestamps use datetime display precision; source CSV bytes are unchanged.",
     )
     (args.output / "plot_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(f"Saved {len(points)} unchanged raw points to {args.output}")

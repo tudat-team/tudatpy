@@ -1,0 +1,58 @@
+{
+  "method": "Postprocessing only; zero observation solves",
+  "source_files": {
+    "llr_long_arc.py": {
+      "sha256": "60881f36c861f5518e8268add66debae6db98d855c97729523ffc6d2f42f293f",
+      "git_blob": "e4301dde03f3854d3166f56cd72c37168d2678b7"
+    },
+    "llr_long_arc_dataset.json": {
+      "sha256": "5b7dd9ec5075cb88a58cefd22119eeb6da83165177096fe300e853ce9d98168d",
+      "git_blob": "7b2e3dbf1a06a995b8c20f6f9457bd5ddee30605"
+    },
+    "llr_requested_exclusion.py": {
+      "sha256": "b1f50e803a43881e23fcc046e320792e8d19a262634844f17cf9133b56ea09e8",
+      "git_blob": "939a71fe006af0c140459f88566d5b3b60fc14a0"
+    },
+    "plot_llr_residuals.py": {
+      "sha256": "03250f0cf053efee9d0841b7620f2585725c46f06f358a2add48992941c63a92",
+      "git_blob": "0c5f8492829be2c20a1436496383bcf65e17b853"
+    }
+  },
+  "source_context_verification": {
+    "source_counts": {
+      "APOLLO": 69,
+      "GRASSE": 237
+    },
+    "retained_counts": {
+      "APOLLO": 69,
+      "GRASSE": 236
+    },
+    "exact_identity_matches": 1,
+    "affected_session_source_points": 14,
+    "affected_session_measured_weather_records": 14,
+    "observation_solves": 0
+  },
+  "output_sha256": {
+    "README.md": "03ba211e22093567c0b5823e77d617eab117d76139c37a1644dde7e600552417",
+    "de440/figures/residuals_full_span.pdf": "da393ca629be1807dd11235d45e317f6972a70741aff3281c625012744e69348",
+    "de440/figures/residuals_full_span.png": "db7da126ce1e3b27515e723e4d2f3409a5c62cdaee6163d791f1f26505fe736f",
+    "de440/figures/residuals_y_detail.pdf": "869ca1f4c5cc1182b8215268b369cf4ad414b217785105aa63379fbd812f8ec9",
+    "de440/figures/residuals_y_detail.png": "e6c4bcc6cc5c5c808673ec6743c7262bb1dd23428fe5f0370546256f7a5382d9",
+    "de440/nightly_raw_statistics.csv": "2f2f240584c62e85ba05bd35edfb192425528e3548bfd64f6acd0cf2e52ff53f",
+    "de440/residuals.csv": "5644a9220b333381ad88eb2727da76b2eb45fd7cdb205fdf60bbdafd042ee9b4",
+    "inpop17a_jpl_nh/figures/residuals_full_span.pdf": "f2fc55fcee03dde892a1aa4827afdd8a127ae4f4deae8da10bb88b32a6770cb1",
+    "inpop17a_jpl_nh/figures/residuals_full_span.png": "deaa4bcc08f68c656b2a0f9a2860badb42217802253d3c7550fd283199eb44bf",
+    "inpop17a_jpl_nh/figures/residuals_y_detail.pdf": "ae3919cbea485b0855213b1ecd772504757b80c985db1c2d694b9d2a3c98ec93",
+    "inpop17a_jpl_nh/figures/residuals_y_detail.png": "333134bedc3eb725736065156e8fef6e3d793f1d29e832052f1fade776c3e752",
+    "inpop17a_jpl_nh/nightly_raw_statistics.csv": "e551dd9302943ce48943ce69759ec4a54247da3cfa1a10989d664bba451618f3",
+    "inpop17a_jpl_nh/residuals.csv": "9c44241901ee2ece854222974d9b0edb81d472dd326496a0fb873f61e906cdf8",
+    "inpop17a_zero_explicit_glass/figures/residuals_full_span.pdf": "14e19fa164457113907c43bbacbba4e519d946c67f640851545612594a8a7184",
+    "inpop17a_zero_explicit_glass/figures/residuals_full_span.png": "c49bed67c3fb4a2d6a4424f94264d664b4ab37c52ab2ac55ec99c37a5df8436d",
+    "inpop17a_zero_explicit_glass/figures/residuals_y_detail.pdf": "45204eefd6c41e87433ddd8b2a0fc6264c560feaa8f9781ae656c60bf8671225",
+    "inpop17a_zero_explicit_glass/figures/residuals_y_detail.png": "c891c93b62c296a4a2b67d3965850041423df9a88311658ea9117f49842c1c6e",
+    "inpop17a_zero_explicit_glass/nightly_raw_statistics.csv": "80f74b3de27808aa2a4a951d292aee315286e0867d46be84b98322a5f9e982f0",
+    "inpop17a_zero_explicit_glass/residuals.csv": "d11af3bdf13088905872dbb00991824752ea76392bbdfde345ac6917bd617799",
+    "summary.json": "f9daf8b3b646697f23a06d970c728dc629ec37603531c73a045fc25b173021ec"
+  },
+  "plot_source_note": "Docstring and CLI interpretation text were clarified after generation; plotted values and marker-only behavior are unchanged."
+}
