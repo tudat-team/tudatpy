@@ -1,349 +1,130 @@
 #include "tudat/astro/ground_stations/stationLoadingDeformation.h"
-#include "tudat/astro/ground_stations/atmosphericTideDeformation.h"
-#include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include <algorithm>
-#include <cmath>
-#include <set>
 #include <limits>
 
 namespace tudat
 {
 namespace basic_astrodynamics
 {
-namespace
-{
-using namespace input_output;
-Eigen::Vector3d vector( const std::array< double, 3 >& values )
-{
-    return { values[ 0 ], values[ 1 ], values[ 2 ] };
-}
-bool sameScope( const StationLoadingMetadata& first, const StationLoadingMetadata& second )
-{
-    if( first.components.empty( ) )
-    {
-        return false;
-    }
-    for( const auto signal : { first.diurnal, first.semidiurnal, first.annual, first.semiannual, first.mean, first.trend } )
-    {
-        if( signal == StationLoadingSignalPresence::unknown )
-        {
-            return false;
-        }
-    }
-    return std::set< StationLoadingComponent >( first.components.begin( ), first.components.end( ) ) ==
-            std::set< StationLoadingComponent >( second.components.begin( ), second.components.end( ) ) &&
-            first.diurnal == second.diurnal && first.semidiurnal == second.semidiurnal && first.annual == second.annual &&
-            first.semiannual == second.semiannual && first.mean == second.mean && first.trend == second.trend &&
-            std::set< std::string >( first.removedHarmonics.begin( ), first.removedHarmonics.end( ) ) ==
-            std::set< std::string >( second.removedHarmonics.begin( ), second.removedHarmonics.end( ) ) &&
-            first.oceanResponse == second.oceanResponse;
-}
-}  // namespace
 
 StationLoadingDeformation::StationLoadingDeformation( const input_output::StationLoadingData& data,
-                                                      const StationLoadingEvaluationSettings& settings,
+                                                      const std::map< std::string, std::string >& stationBindings,
+                                                      const double maximumGapSeconds,
                                                       std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter ):
-    BodyDeformationModel( converter ), data_( data ), settings_( settings )
+    BodyDeformationModel( converter ), data_( data ), stationBindings_( stationBindings ), maximumGapSeconds_( maximumGapSeconds )
 {
-    using namespace input_output;
-    validateStationLoadingData( data_ );
-    if( !std::isfinite( settings_.maximumGapSeconds ) || settings_.maximumGapSeconds <= 0 )
-    {
-        throw std::invalid_argument( "Loading maximum interpolation gap must be positive and finite" );
-    }
-    if( settings_.spatialSelection != StationLoadingSpatialSelection::explicitBindings &&
-        settings_.spatialSelection != StationLoadingSpatialSelection::withinProviderRadius )
-    {
-        throw std::invalid_argument( "Unknown loading spatial-selection policy" );
-    }
-    if( settings_.spatialSelection == StationLoadingSpatialSelection::explicitBindings && settings_.stationBindings.empty( ) )
-    {
-        throw std::invalid_argument( "Loading requires explicit station/provider bindings or requested spatial selection" );
-    }
-    if( settings_.spatialSelection == StationLoadingSpatialSelection::withinProviderRadius && !settings_.stationBindings.empty( ) )
-    {
-        throw std::invalid_argument( "Spatial loading selection cannot silently combine with explicit bindings" );
-    }
-    for( const auto& binding : settings_.stationBindings )
+    for( const auto& binding : stationBindings_ )
     {
         if( !data_.sites.count( binding.second ) )
         {
-            throw std::invalid_argument( "Loading binding names an undeclared provider label" );
+            throw std::invalid_argument( "Station loading binding names an unknown site " + binding.second );
         }
     }
-    if( data_.basis == StationLoadingBasis::unspecified || data_.metadata.referenceFrame.empty( ) ||
-        data_.metadata.referenceOrigin == StationLoadingOrigin::unspecified || data_.metadata.originDefinition.empty( ) ||
-        settings_.outputOriginDefinition.empty( ) )
+    for( const auto& tai : data_.epochs )
     {
-        throw std::invalid_argument(
-                "Loading basis, Cartesian reference frame, source origin and requested output origin must be explicit" );
+        tdbEpochs_.push_back( timeConverter_->getCurrentTime< Time >( tai_scale, tdb_scale, tai ) );
     }
-    grid_ = prepareGrid( data_ );
     for( const auto& entry : data_.sites )
     {
-        Eigen::Matrix3d basis = Eigen::Matrix3d::Identity( );
-        if( data_.basis == StationLoadingBasis::geocentricRadialEastNorth )
-        {
-            const auto position = vector( entry.second.cartesianPosition );
-            const double norm = position.norm( ), horizontal = std::hypot( position.x( ), position.y( ) );
-            if( norm == 0 || horizontal == 0 )
-            {
-                throw std::invalid_argument( "Provider radial/east/north axes are undefined at geocentre/pole" );
-            }
-            basis.col( 0 ) = position / norm;
-            basis.col( 1 ) = Eigen::Vector3d( -position.y( ), position.x( ), 0 ) / horizontal;
-            basis.col( 2 ) = basis.col( 0 ).cross( basis.col( 1 ) );
-        }
-        sourceBases_.emplace( entry.first, basis );
-    }
-    if( settings_.originTranslation )
-    {
-        // Freeze preloaded translation data too; later caller mutation cannot change this model.
-        settings_.originTranslation = std::make_shared< const StationLoadingOriginTranslation >( *settings_.originTranslation );
-        const auto& translation = *settings_.originTranslation;
-        validateStationLoadingData( translation.series );
-        if( translation.identifier.empty( ) || translation.sourceOriginDefinition != data_.metadata.originDefinition ||
-            translation.targetOriginDefinition != settings_.outputOriginDefinition ||
-            translation.targetOrigin == StationLoadingOrigin::unspecified ||
-            translation.series.metadata.originDefinition != translation.targetOriginDefinition ||
-            translation.series.metadata.referenceOrigin != translation.targetOrigin ||
-            translation.series.metadata.referenceFrame != data_.metadata.referenceFrame ||
-            translation.series.basis != StationLoadingBasis::cartesian || translation.series.sites.size( ) != 1 ||
-            !sameScope( data_.metadata, translation.series.metadata ) )
-        {
-            throw std::invalid_argument(
-                    "Loading origin translation must match both definitions, Cartesian axes and the complete component/signal scope" );
-        }
-        translationGrid_ = prepareGrid( translation.series );
-    }
-    else if( settings_.outputOriginDefinition != data_.metadata.originDefinition )
-    {
-        throw std::invalid_argument( "Loading origin change requires a matching explicit Cartesian translation series" );
+        const Eigen::Vector3d& position = entry.second.cartesianPosition;
+        Eigen::Matrix3d basis;
+        basis.col( 0 ) = position.normalized( );
+        basis.col( 1 ) = Eigen::Vector3d( -position.y( ), position.x( ), 0 ).normalized( );
+        basis.col( 2 ) = basis.col( 0 ).cross( basis.col( 1 ) );
+        siteBases_.emplace( entry.first, basis );
     }
 }
 
-StationLoadingDeformation::PreparedGrid StationLoadingDeformation::prepareGrid( const input_output::StationLoadingData& data ) const
-{
-    PreparedGrid result;
-    for( const auto& source : data.epochs )
-    {
-        const long long hours = ( static_cast< long long >( source.modifiedJulianDay ) - 51544LL ) * 24LL - 12LL;
-        if( hours < std::numeric_limits< int >::min( ) || hours > std::numeric_limits< int >::max( ) )
-        {
-            throw std::invalid_argument( "Loading source epoch is outside the precise Time range" );
-        }
-        const Time time( static_cast< int >( hours ), source.secondsOfDay );
-        Time tai;
-        switch( data.timeScale )
-        {
-            case input_output::StationLoadingTimeScale::tai:
-                tai = time;
-                break;
-            case input_output::StationLoadingTimeScale::tt:
-                tai = convertTTtoTAI( time );
-                break;
-            case input_output::StationLoadingTimeScale::utc:
-                tai = sofa_interface::convertUTCtoTAI( time );
-                break;
-            case input_output::StationLoadingTimeScale::tdb:
-                tai = timeConverter_->getTaiTime( tdb_scale, time );
-                break;
-            default:
-                throw std::invalid_argument( "Unsupported source loading clock" );
-        }
-        if( !result.tai.empty( ) && tai <= result.tai.back( ) )
-        {
-            throw std::invalid_argument( "Source loading epochs are not increasing on continuous TAI" );
-        }
-        const Time tdb = data.timeScale == input_output::StationLoadingTimeScale::tdb
-                ? time
-                : timeConverter_->getCurrentTime< Time >( tai_scale, tdb_scale, tai );
-        if( !result.tdb.empty( ) && tdb <= result.tdb.back( ) )
-        {
-            throw std::invalid_argument( "Source loading epochs are not distinguishable on the precise TDB input axis" );
-        }
-        result.tai.push_back( tai );
-        result.tdb.push_back( tdb );
-    }
-    return result;
-}
-
-const input_output::StationLoadingSite& StationLoadingDeformation::selectSite( const Eigen::Vector3d& position,
-                                                                               const std::string& stationId ) const
-{
-    if( !position.allFinite( ) )
-    {
-        throw std::invalid_argument( "Loading target coordinates must be finite" );
-    }
-    const input_output::StationLoadingSite* selected = nullptr;
-    const auto inRadius = [ & ]( const auto& site ) {
-        return ( position - vector( site.cartesianPosition ) ).norm( ) <= site.validityRadiusMetres;
-    };
-    if( settings_.spatialSelection == StationLoadingSpatialSelection::explicitBindings )
-    {
-        const auto binding = settings_.stationBindings.find( stationId );
-        if( binding == settings_.stationBindings.end( ) )
-        {
-            throw std::out_of_range( "No explicit loading binding for this environment station ID" );
-        }
-        selected = &data_.sites.at( binding->second );
-        if( !inRadius( *selected ) )
-        {
-            throw std::out_of_range( "Loading target is outside the bound provider validity radius" );
-        }
-    }
-    else
-    {
-        for( const auto& entry : data_.sites )
-        {
-            if( inRadius( entry.second ) )
-            {
-                if( selected )
-                {
-                    throw std::invalid_argument( "Loading spatial match is ambiguous within provider validity radii" );
-                }
-                selected = &entry.second;
-            }
-        }
-    }
-    if( !selected )
-    {
-        throw std::out_of_range( "No loading provider point covers this target" );
-    }
-    return *selected;
-}
-
-//! Preserve exact source-node positions and optionally differentiate the same linear physical-time interval.
-Eigen::Vector6d StationLoadingDeformation::interpolate( const input_output::StationLoadingSite& site,
-                                                        const PreparedGrid& grid,
-                                                        const Time& requestedTdb,
-                                                        const bool withRate ) const
-{
-    if( site.samples.empty( ) )
-    {
-        throw std::out_of_range( "Loading site has no source samples" );
-    }
-
-    // Site coverage and source-node lookup use the precise TDB axis.
-    const std::size_t first = site.samples.begin( )->first, last = site.samples.rbegin( )->first;
-
-    // An epoch less than one microsecond outside the first or last sample (for instance the rounded
-    // double value of that sample's epoch) is evaluated at that sample.
-    const double coverageToleranceSeconds = 1.0E-6;
-
-    if( requestedTdb < grid.tdb[ first ] - coverageToleranceSeconds || requestedTdb > grid.tdb[ last ] + coverageToleranceSeconds )
-    {
-        throw std::out_of_range( "Loading epoch outside exact site coverage" );
-    }
-
-    const Time tdb = std::min( std::max( requestedTdb, grid.tdb[ first ] ), grid.tdb[ last ] );
-
-    const auto sourceNode = std::lower_bound( grid.tdb.begin( ) + first, grid.tdb.begin( ) + last + 1, tdb );
-
-    const bool exactNode = *sourceNode == tdb;
-
-    const std::size_t sourceIndex = std::distance( grid.tdb.begin( ), sourceNode );
-
-    // Use authoritative TAI nodes at exact source epochs rather than round-tripping their TDB images.
-    const Time tai = exactNode ? grid.tai[ sourceIndex ] : timeConverter_->getTaiTime( tdb_scale, tdb );
-
-    Eigen::Vector6d result = Eigen::Vector6d::Zero( );
-
-    if( exactNode )
-    {
-        result.head< 3 >( ) = vector( site.samples.at( sourceIndex ).displacement );
-        if( !withRate )
-        {
-            return result;
-        }
-    }
-    if( first == last )
-    {
-        throw std::out_of_range( "Loading position exists at this singleton epoch, but no interpolant rate is available" );
-    }
-
-    // Rates use the interval to the right at a knot and the left interval at the final endpoint.
-    const std::size_t lower = exactNode ? ( sourceIndex == last ? last - 1 : sourceIndex ) : sourceIndex - 1;
-
-    const double duration = static_cast< double >( grid.tai[ lower + 1 ] - grid.tai[ lower ] );
-
-    if( duration > settings_.maximumGapSeconds )
-    {
-        throw std::out_of_range( "Loading interpolant support exceeds the declared maximum gap" );
-    }
-
-    // Source-component displacements in metres at the two interval endpoints.
-    const Eigen::Vector3d left = vector( site.samples.at( lower ).displacement );
-
-    const Eigen::Vector3d right = vector( site.samples.at( lower + 1 ).displacement );
-
-    if( !exactNode )
-    {
-        result.head< 3 >( ) = left + ( right - left ) * ( static_cast< double >( tai - grid.tai[ lower ] ) / duration );
-    }
-    if( withRate )
-    {
-        result.tail< 3 >( ) = ( right - left ) / duration;
-    }
-    return result;
-}
-
-//! Share provider selection, interpolation and fixed source basis between displacement and state requests.
-Eigen::Vector6d StationLoadingDeformation::evaluate( const Time& tdb,
-                                                     const Eigen::Vector3d& position,
-                                                     const std::string& stationId,
+Eigen::Vector6d StationLoadingDeformation::evaluate( const Time& requestedTdb,
+                                                     const std::shared_ptr< ground_stations::GroundStationState >& station,
                                                      const bool withRate ) const
 {
-    // Select the provider point once; both state components use its original Cartesian component basis.
-    const auto& site = selectSite( position, stationId );
-
-    Eigen::Vector6d loading = interpolate( site, grid_, tdb, withRate );
-
-    Eigen::Vector6d translation = Eigen::Vector6d::Zero( );
-
-    if( settings_.originTranslation )
+    // Select the site bound to the station, or the nearest site within whose radius the station lies.
+    const Eigen::Vector3d position = station->getNominalCartesianPosition( );
+    const auto binding = stationBindings_.find( station->getSiteId( ) );
+    if( !stationBindings_.empty( ) && binding == stationBindings_.end( ) )
     {
-        translation = interpolate( settings_.originTranslation->series.sites.begin( )->second, translationGrid_, tdb, withRate );
+        throw std::out_of_range( "No station loading binding for station " + station->getSiteId( ) );
     }
-    if( withRate )
+    std::string identifier;
+    double distance = std::numeric_limits< double >::infinity( );
+    for( const auto& entry : data_.sites )
     {
-        // TAI and TT differ by a constant; obtain their common derivative with respect to TDB only once.
-        const double physicalRateWrtTdb = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
-
-        loading.tail< 3 >( ) *= physicalRateWrtTdb;
-        translation.tail< 3 >( ) *= physicalRateWrtTdb;
+        const double current = ( position - entry.second.cartesianPosition ).norm( );
+        if( current <= entry.second.validityRadiusMetres && current < distance &&
+            ( binding == stationBindings_.end( ) || binding->second == entry.first ) )
+        {
+            identifier = entry.first;
+            distance = current;
+        }
+    }
+    if( identifier.empty( ) )
+    {
+        throw std::out_of_range( "No station loading site covers station " + station->getSiteId( ) );
+    }
+    const auto& displacements = data_.sites.at( identifier ).displacements;
+    if( displacements.empty( ) )
+    {
+        throw std::out_of_range( "Station loading site " + identifier + " has no displacements" );
     }
 
-    // Preserve the source-rate scaling before rotation and the Cartesian origin addition after rotation.
-    const auto& basis = sourceBases_.at( site.identifier );
+    // An epoch less than one microsecond outside the first or last sample is evaluated at that sample.
+    const std::size_t first = displacements.begin( )->first, last = displacements.rbegin( )->first;
+    if( requestedTdb < tdbEpochs_[ first ] - 1.0E-6 || requestedTdb > tdbEpochs_[ last ] + 1.0E-6 )
+    {
+        throw std::out_of_range( "Station loading epoch outside the series of site " + identifier );
+    }
+    const Time tdb = std::min( std::max( requestedTdb, tdbEpochs_[ first ] ), tdbEpochs_[ last ] );
+    const auto node = std::lower_bound( tdbEpochs_.begin( ) + first, tdbEpochs_.begin( ) + last + 1, tdb );
+    const std::size_t index = std::distance( tdbEpochs_.begin( ), node );
+    const bool atSample = *node == tdb;
 
+    // Interpolate in TAI, using the TAI epoch of the series at a sample.
     Eigen::Vector6d result = Eigen::Vector6d::Zero( );
-
-    result.head< 3 >( ) = basis * loading.head< 3 >( );
-    if( withRate )
+    if( atSample )
     {
-        result.tail< 3 >( ) = basis * loading.tail< 3 >( );
+        result.head< 3 >( ) = displacements.at( index );
     }
-    if( settings_.originTranslation )
+    if( !atSample || withRate )
     {
-        result += translation;
+        if( first == last )
+        {
+            throw std::out_of_range( "Station loading rate unavailable for a single sample" );
+        }
+        const std::size_t lower = atSample ? ( index == last ? last - 1 : index ) : index - 1;
+        const double duration = static_cast< double >( data_.epochs[ lower + 1 ] - data_.epochs[ lower ] );
+        if( duration > maximumGapSeconds_ )
+        {
+            throw std::out_of_range( "Station loading interval exceeds the maximum gap" );
+        }
+        const Eigen::Vector3d slope = ( displacements.at( lower + 1 ) - displacements.at( lower ) ) / duration;
+        if( !atSample )
+        {
+            const Time tai = timeConverter_->getTaiTime( tdb_scale, tdb );
+            result.head< 3 >( ) = displacements.at( lower ) + slope * static_cast< double >( tai - data_.epochs[ lower ] );
+        }
+        if( withRate )
+        {
+            result.tail< 3 >( ) = slope * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
+        }
     }
+    const auto& basis = siteBases_.at( identifier );
+    result.head< 3 >( ) = basis * result.head< 3 >( ).eval( );
+    result.tail< 3 >( ) = basis * result.tail< 3 >( ).eval( );
     return result;
 }
 
-//! Evaluate displacement alone without requiring a neighbouring source sample or clock derivative.
 Eigen::Vector3d StationLoadingDeformation::evaluateDisplacement( const Time& tdb,
                                                                  const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), false ).head< 3 >( );
+    return evaluate( tdb, station, false ).head< 3 >( );
 }
 
-//! Evaluate both Cartesian state components with one provider/interpolant selection.
 Eigen::Vector6d StationLoadingDeformation::evaluateDisplacementState( const Time& tdb,
                                                                       const std::shared_ptr< ground_stations::GroundStationState > station )
 {
-    return evaluate( tdb, station->getNominalCartesianPosition( ), station->getSiteId( ), true );
+    return evaluate( tdb, station, true );
 }
 
 }  // namespace basic_astrodynamics

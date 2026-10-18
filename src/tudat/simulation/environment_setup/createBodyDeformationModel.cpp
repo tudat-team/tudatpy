@@ -266,14 +266,10 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             {
                 throw std::invalid_argument( "Station loading requires Earth's model-owned GCRS/ITRS time converter" );
             }
-            if( settings->getData( ).metadata.referenceFrame != rotation->getTargetFrameOrientation( ) )
-            {
-                throw std::invalid_argument(
-                        "Loading source Cartesian frame must explicitly match the body's fixed frame; no frame identity is inferred" );
-            }
             bodyDeformationModel = std::make_shared< basic_astrodynamics::StationLoadingDeformation >(
-                    settings->getData( ),
-                    settings->getEvaluationSettings( ),
+                    settings->data_,
+                    settings->stationBindings_,
+                    settings->maximumGapSeconds_,
                     rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
             break;
         }

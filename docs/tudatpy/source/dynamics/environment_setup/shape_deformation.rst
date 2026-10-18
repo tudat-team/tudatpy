@@ -91,12 +91,7 @@ Enumerations
 
    OceanTideSynthesis
 
-   StationLoadingSpatialSelection
-
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.OceanTideSynthesis
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingSpatialSelection
    :members:
 
 
@@ -118,10 +113,6 @@ Classes
 
    StationLoadingBodyDeformationSettings
 
-   StationLoadingEvaluationSettings
-
-   StationLoadingOriginTranslation
-
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings
@@ -142,8 +133,3 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingBodyDeformationSettings
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingEvaluationSettings
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingOriginTranslation
-   :members:

@@ -95,31 +95,25 @@ class StationLoadingBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
     StationLoadingBodyDeformationSettings( const input_output::StationLoadingData& data,
-                                           const basic_astrodynamics::StationLoadingEvaluationSettings& settings ):
-        BodyDeformationSettings( gravitation::station_loading ), data_( data ), settings_( settings )
-    {
-        input_output::validateStationLoadingData( data_ );
-    }
-    const input_output::StationLoadingData& getData( ) const
-    {
-        return data_;
-    }
-    const basic_astrodynamics::StationLoadingEvaluationSettings& getEvaluationSettings( ) const
-    {
-        return settings_;
-    }
+                                           const std::map< std::string, std::string >& stationBindings,
+                                           const double maximumGapSeconds ):
+        BodyDeformationSettings( gravitation::station_loading ), data_( data ), stationBindings_( stationBindings ),
+        maximumGapSeconds_( maximumGapSeconds )
+    {}
 
-private:
-    //! Station loading series, and the settings for evaluating it.
+    //! Station loading series, the site identifier per ground station name, and the maximum interpolation gap (see
+    //! basic_astrodynamics::StationLoadingDeformation).
     input_output::StationLoadingData data_;
-    basic_astrodynamics::StationLoadingEvaluationSettings settings_;
+    std::map< std::string, std::string > stationBindings_;
+    double maximumGapSeconds_;
 };
 
 inline std::shared_ptr< StationLoadingBodyDeformationSettings > stationLoadingBodyShapeDeformation(
         const input_output::StationLoadingData& data,
-        const basic_astrodynamics::StationLoadingEvaluationSettings& settings )
+        const std::map< std::string, std::string >& stationBindings = {},
+        const double maximumGapSeconds = 86400.0 )
 {
-    return std::make_shared< StationLoadingBodyDeformationSettings >( data, settings );
+    return std::make_shared< StationLoadingBodyDeformationSettings >( data, stationBindings, maximumGapSeconds );
 }
 
 //! The two physical atmospheric coefficient representations; file input is loaded at settings creation.

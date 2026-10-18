@@ -44,35 +44,26 @@ Eigen::Matrix3d referenceBasis( )
             std::sin( latitude ), 0.0, std::cos( latitude );
     return result;
 }
+//! Series with four samples, 100 s apart, starting 100 s before originTai.
 StationLoadingData data( )
 {
     StationLoadingData result;
-    result.metadata = imlsMerra2AtmosphericLoadingMetadata( "controlled mathematical fixture" );
-    result.metadata.source = "analytic sample values on split source epochs";
-    result.metadata.referenceFrame = "ITRS";
-    result.basis = StationLoadingBasis::geocentricRadialEastNorth;
-    result.timeScale = StationLoadingTimeScale::tai;
-    result.epochs = { { 57753, 86336.0L }, { 57754, 36.0L }, { 57754, 136.0L }, { 57754, 236.0L } };
-    result.nominalSampleIntervalSeconds = 100.0L;
+    result.source = "analytic sample values";
+    for( int i = 0; i < 4; ++i )
+    {
+        result.epochs.push_back( originTai + ( i - 1 ) * 100.0 );
+    }
     StationLoadingSite site;
-    site.identifier = "arbitrary_provider_label";
-    site.cartesianPosition = { providerPoint.x( ), providerPoint.y( ), providerPoint.z( ) };
+    site.cartesianPosition = providerPoint;
     site.validityRadiusMetres = 3000;
     for( std::size_t i = 0; i < 4; ++i )
     {
-        const auto value = scalarFunction( ( static_cast< double >( i ) - 1 ) * 100.0 );
-        site.samples[ i ].displacement = { value.x( ), value.y( ), value.z( ) };
+        site.displacements[ i ] = scalarFunction( ( static_cast< double >( i ) - 1 ) * 100.0 );
     }
-    result.sites.emplace( site.identifier, site );
+    result.sites.emplace( "arbitrary_provider_label", site );
     return result;
 }
-StationLoadingEvaluationSettings settings( const StationLoadingData& source )
-{
-    StationLoadingEvaluationSettings result;
-    result.stationBindings = { { "ENVIRONMENT_STATION", source.sites.begin( )->first } };
-    result.outputOriginDefinition = source.metadata.originDefinition;
-    return result;
-}
+const std::map< std::string, std::string > bindings{ { "ENVIRONMENT_STATION", "arbitrary_provider_label" } };
 std::shared_ptr< GroundStationState > station( const Eigen::Vector3d& point = providerPoint,
                                                const std::shared_ptr< StationMotionModel >& motion = nullptr )
 {
@@ -83,25 +74,6 @@ std::shared_ptr< GroundStationState > station( const Eigen::Vector3d& point = pr
     result->setSiteId( "ENVIRONMENT_STATION" );
     return result;
 }
-std::shared_ptr< StationLoadingOriginTranslation > translation( const StationLoadingData& source,
-                                                                const std::string& identifier = "component-specific origin shift" )
-{
-    auto result = std::make_shared< StationLoadingOriginTranslation >( );
-    result->identifier = identifier;
-    result->sourceOriginDefinition = source.metadata.originDefinition;
-    result->targetOriginDefinition = "controlled supplied centre-of-figure definition";
-    result->targetOrigin = StationLoadingOrigin::centreOfFigure;
-    result->series = source;
-    result->series.basis = StationLoadingBasis::cartesian;
-    result->series.metadata.originDefinition = result->targetOriginDefinition;
-    result->series.metadata.referenceOrigin = result->targetOrigin;
-    for( auto& sample : result->series.sites.begin( )->second.samples )
-    {
-        const double seconds = ( static_cast< double >( sample.first ) - 1 ) * 100;
-        sample.second.displacement = { .001 + 2e-6 * seconds, -.002 + 3e-6 * seconds, .003 - 4e-6 * seconds };
-    }
-    return result;
-}
 }  // namespace
 
 //! Compare loading positions and velocities with the selected linear interpolant.
@@ -109,7 +81,7 @@ BOOST_AUTO_TEST_CASE( linear_values_rates_knot_side_and_error_convergence_use_th
 {
     const auto converter = loadingClock( );
     const auto source = data( );
-    StationLoadingDeformation model( source, settings( source ), converter );
+    StationLoadingDeformation model( source, bindings, 86400.0, converter );
     for( const double seconds : { -100.0, -75.0, 0.0, 25.0, 99.0, 100.0, 150.0, 200.0 } )
     {
         const Time input = tdb( converter, originTai + seconds );
@@ -130,15 +102,12 @@ BOOST_AUTO_TEST_CASE( linear_values_rates_knot_side_and_error_convergence_use_th
     // this explicit linear policy; it makes no claim about provider B-splines.
     const auto midpointError = [ & ]( double h ) {
         auto grid = data( );
-        const long double begin = 36.0L - h / 2;
-        grid.epochs = { { begin < 0 ? 57753 : 57754, begin < 0 ? begin + 86400.0L : begin }, { 57754, 36.0L + h / 2 } };
-        grid.nominalSampleIntervalSeconds = h;
-        auto& samples = grid.sites.begin( )->second.samples;
+        grid.epochs = { originTai - h / 2, originTai + h / 2 };
+        auto& samples = grid.sites.begin( )->second.displacements;
         samples.clear( );
-        const auto left = scalarFunction( -h / 2 ), right = scalarFunction( h / 2 );
-        samples[ 0 ].displacement = { left.x( ), left.y( ), left.z( ) };
-        samples[ 1 ].displacement = { right.x( ), right.y( ), right.z( ) };
-        StationLoadingDeformation interpolant( grid, settings( grid ), converter );
+        samples[ 0 ] = scalarFunction( -h / 2 );
+        samples[ 1 ] = scalarFunction( h / 2 );
+        StationLoadingDeformation interpolant( grid, bindings, 86400.0, converter );
         return ( interpolant.calculateDisplacement( tdb( converter, originTai ), station( ) ) - referenceBasis( ) * scalarFunction( 0 ) )
                 .norm( );
     };
@@ -147,12 +116,12 @@ BOOST_AUTO_TEST_CASE( linear_values_rates_knot_side_and_error_convergence_use_th
     BOOST_CHECK_SMALL( midpointError( 100 ) / midpointError( 50 ) - 4.0, 1e-10 );
 }
 
-//! Preserve provider displacement geometry while binding stations explicitly.
+//! Preserve provider displacement geometry, with explicit and radius-based site selection.
 BOOST_AUTO_TEST_CASE( provider_geometry_is_fixed_and_spatial_binding_is_explicit )
 {
     const auto converter = loadingClock( );
     const auto source = data( );
-    StationLoadingDeformation model( source, settings( source ), converter );
+    StationLoadingDeformation model( source, bindings, 86400.0, converter );
     const auto original = station( );
     const Time input = tdb( converter, originTai + 25.0 );
     const auto expected = model.calculateDisplacement( input, original );
@@ -169,40 +138,8 @@ BOOST_AUTO_TEST_CASE( provider_geometry_is_fixed_and_spatial_binding_is_explicit
 
     // Oblate geodetic up differs from the provider radial direction.
     BOOST_CHECK_GT( std::abs( local.z( ) - raw.x( ) ), 1e-6 );
-    auto radius = settings( source );
-    radius.stationBindings.clear( );
-    radius.spatialSelection = StationLoadingSpatialSelection::withinProviderRadius;
-    StationLoadingDeformation matched( source, radius, converter );
+    StationLoadingDeformation matched( source, {}, 86400.0, converter );
     BOOST_CHECK_SMALL( ( matched.calculateDisplacement( input, original ) - expected ).norm( ), 1e-15 );
-    auto duplicate = source;
-    auto other = duplicate.sites.begin( )->second;
-    other.identifier = "another_internal_label";
-    duplicate.sites.emplace( other.identifier, other );
-    StationLoadingDeformation ambiguous( duplicate, radius, converter );
-
-    // Reject two provider sites that match the same station instead of choosing one silently.
-    BOOST_CHECK_THROW( ambiguous.calculateDisplacement( input, original ), std::invalid_argument );
-}
-
-//! Apply a component-specific origin translation and its velocity once.
-BOOST_AUTO_TEST_CASE( matching_scoped_origin_translation_is_cartesian_and_applies_its_rate_once )
-{
-    const auto converter = loadingClock( );
-    const auto source = data( );
-    auto options = settings( source );
-    options.originTranslation = translation( source );
-    options.outputOriginDefinition = options.originTranslation->targetOriginDefinition;
-    StationLoadingDeformation converted( source, options, converter ), original( source, settings( source ), converter );
-    const Time input = tdb( converter, originTai + 25.0 );
-    const Eigen::Vector6d difference =
-            converted.calculateDisplacementState( input, station( ) ) - original.calculateDisplacementState( input, station( ) );
-
-    // The change equals the declared Cartesian translation and its TDB derivative.
-    BOOST_CHECK_SMALL( ( difference.head< 3 >( ) - Eigen::Vector3d( .00105, -.001925, .0029 ) ).norm( ), 1e-12 );
-    BOOST_CHECK_SMALL(
-            ( difference.tail< 3 >( ) - Eigen::Vector3d( 2e-6, 3e-6, -4e-6 ) * converter->getGeocentricTtRateWithRespectToTdb( input ) )
-                    .norm( ),
-            1e-16 );
 }
 
 //! Close the full station velocity after factory-created non-tidal loading.
@@ -232,10 +169,9 @@ BOOST_AUTO_TEST_CASE( native_factory_and_full_station_state_preserve_the_loading
     earth->setRotationalEphemeris( rotation );
     earth->setShapeModel( std::make_shared< OblateSpheroidBodyShapeModel >( 6378137, 1.0 / 298.257223563 ) );
     const auto source = data( );
-    const auto options = settings( source );
-    const auto configured = simulation_setup::stationLoadingBodyShapeDeformation( source, options );
+    const auto configured = simulation_setup::stationLoadingBodyShapeDeformation( source, bindings );
     const auto loaded = simulation_setup::createBodyDeformationModel( configured, "Earth", bodies );
-    StationLoadingDeformation direct( source, options, converter );
+    StationLoadingDeformation direct( source, bindings, 86400.0, converter );
     earth->addBodyDeformationModel( loaded );
     const auto bound = simulation_setup::createGroundStationState( earth,
                                                                    providerPoint,
@@ -268,12 +204,4 @@ BOOST_AUTO_TEST_CASE( native_factory_and_full_station_state_preserve_the_loading
             BOOST_CHECK_SMALL( ( inertial.tail< 3 >( ) - numerical ).norm( ), 2e-7 );
         }
     }
-    auto incompatible = source;
-    incompatible.metadata.referenceFrame = "unconverted realization";
-
-    // Reject loading in an unconverted terrestrial frame before it enters the station state.
-    BOOST_CHECK_THROW(
-            simulation_setup::createBodyDeformationModel(
-                    simulation_setup::stationLoadingBodyShapeDeformation( incompatible, settings( incompatible ) ), "Earth", bodies ),
-            std::invalid_argument );
 }

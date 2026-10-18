@@ -19,21 +19,16 @@ TEST_DATA = Path(resource_paths.get_test_data_path()) / "pr1092"
 
 def test_loaded_products_create_deformation_settings():
     """Pass real station, atmospheric and ocean-pole records into their deformation factories."""
-    metadata = station_loading.imls_merra2_atmospheric_loading_metadata("binding release")
-    metadata.reference_frame = "ITRS"
     loading = station_loading.read_ephedisp_station_loading_data(
-        str(TEST_DATA / "src/io/station_loading_fixtures/imls_merra2_extract.eph"), metadata
+        str(TEST_DATA / "src/io/station_loading_fixtures/imls_merra2_extract.eph")
     )
-    policy = shape_deformation.StationLoadingEvaluationSettings()
-    policy.station_bindings = {"EnvironmentStation": "weuc"}
-    policy.output_origin_definition = loading.metadata.origin_definition
 
     # Provider REN values stay in metres when the raw series enters the loading settings.
     np.testing.assert_array_equal(
-        loading.sites["weuc"].samples[0].displacement, [-0.00510, -0.00202, 0.00170]
+        loading.sites["weuc"].displacements[0], [-0.00510, -0.00202, 0.00170]
     )
     assert isinstance(
-        shape_deformation.station_loading(loading, policy),
+        shape_deformation.station_loading(loading, {"EnvironmentStation": "weuc"}),
         shape_deformation.StationLoadingBodyDeformationSettings,
     )
 

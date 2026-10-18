@@ -63,92 +63,6 @@ void expose_shape_deformation_setup( py::module& m )
       )doc" );
 
     namespace ba = tudat::basic_astrodynamics;
-    py::enum_< ba::StationLoadingSpatialSelection >( m, "StationLoadingSpatialSelection", R"doc(
-
-Enumeration of methods to associate ground stations with the sites of a station loading series.
-
-      )doc" )
-            .value( "explicit_bindings",
-                    ba::StationLoadingSpatialSelection::explicitBindings,
-                    "Each station is associated with the site given in the station bindings." )
-            .value( "within_provider_radius",
-                    ba::StationLoadingSpatialSelection::withinProviderRadius,
-                    "Each station is associated with the site within whose validity radius it lies (an error is raised if "
-                    "there are several)." );
-    py::class_< ba::StationLoadingOriginTranslation, std::shared_ptr< ba::StationLoadingOriginTranslation > >(
-            m, "StationLoadingOriginTranslation", R"doc(
-
-Time series of the translation from the reference origin of a station loading series to another origin, which is added
-to the loading displacements. The physical content of the translation series must match that of the loading series.
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "identifier", &ba::StationLoadingOriginTranslation::identifier, R"doc(
-
-         Identifier of the translation.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "source_origin_definition", &ba::StationLoadingOriginTranslation::sourceOriginDefinition, R"doc(
-
-         Definition of the origin of the loading series (must match its metadata).
-
-         :type: str
-      )doc" )
-            .def_readwrite( "target_origin_definition", &ba::StationLoadingOriginTranslation::targetOriginDefinition, R"doc(
-
-         Definition of the origin to which the displacements are translated.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "target_origin", &ba::StationLoadingOriginTranslation::targetOrigin, R"doc(
-
-         Origin to which the displacements are translated.
-
-         :type: ~tudatpy.data_input.environment_data.station_loading.StationLoadingOrigin
-      )doc" )
-            .def_readwrite( "series", &ba::StationLoadingOriginTranslation::series, R"doc(
-
-         Time series of the translation (source origin minus target origin), with a single site and Cartesian components.
-
-         :type: ~tudatpy.data_input.environment_data.station_loading.StationLoadingData
-      )doc" );
-    py::class_< ba::StationLoadingEvaluationSettings >( m, "StationLoadingEvaluationSettings", R"doc(
-
-Settings for the evaluation of a station loading series (see :func:`station_loading`).
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "spatial_selection", &ba::StationLoadingEvaluationSettings::spatialSelection, R"doc(
-
-         Method to associate ground stations with sites of the series.
-
-         :type: StationLoadingSpatialSelection
-      )doc" )
-            .def_readwrite( "station_bindings", &ba::StationLoadingEvaluationSettings::stationBindings, R"doc(
-
-         Site identifier of the series for each ground station name (used with ``explicit_bindings``). The station must also lie within the validity radius of the site.
-
-         :type: dict[str, str]
-      )doc" )
-            .def_readwrite( "maximum_gap_seconds", &ba::StationLoadingEvaluationSettings::maximumGapSeconds, R"doc(
-
-         Maximum interval between two samples over which the series is interpolated, in seconds (default 86400).
-
-         :type: float
-      )doc" )
-            .def_readwrite( "output_origin_definition", &ba::StationLoadingEvaluationSettings::outputOriginDefinition, R"doc(
-
-         Definition of the reference origin of the output displacements. Must be equal to that of the series, or to the target of the origin translation.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "origin_translation", &ba::StationLoadingEvaluationSettings::originTranslation, R"doc(
-
-         Translation to another reference origin, or ``None``.
-
-         :type: StationLoadingOriginTranslation | None
-      )doc" );
     py::class_< tss::StationLoadingBodyDeformationSettings,
                 std::shared_ptr< tss::StationLoadingBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "StationLoadingBodyDeformationSettings", R"doc(
@@ -162,29 +76,34 @@ Settings for the evaluation of a station loading series (see :func:`station_load
     m.def( "station_loading",
            &tss::stationLoadingBodyShapeDeformation,
            py::arg( "data" ),
-           py::arg( "evaluation_settings" ),
+           py::arg( "station_bindings" ) = std::map< std::string, std::string >( ),
+           py::arg( "maximum_gap_seconds" ) = 86400.0,
            R"doc(
 
  Function for creating station loading deformation from a precomputed series.
 
  Function for creating a deformation model from a precomputed station loading series (for instance non-tidal
  atmospheric, oceanic or hydrological loading from the International Mass Loading Service). Each ground station is
- associated with a site of the series, either explicitly or by its validity radius. The displacements are interpolated
- linearly in TAI, and converted to body-fixed Cartesian coordinates; their rate is the derivative of the interpolant.
- Epochs outside the series, or in a gap longer than the maximum gap, raise an exception.
+ associated with a site of the series: the site given for its name in ``station_bindings`` or, if no bindings are given,
+ the nearest site within whose validity radius it lies. The displacements are interpolated linearly in TAI, and
+ converted to body-fixed Cartesian coordinates; their rate is the derivative of the interpolant. Epochs outside the
+ series, or in a gap longer than the maximum gap, raise an exception.
 
- The Cartesian frame of the series (``reference_frame`` of its metadata) must be that of the body-fixed frame of the
- body. The reference origin of the output must be equal to that of the series, unless an origin translation is given.
- Avoiding signals that are modelled twice (for instance tidal signals also modelled by a tidal loading model, or
- seasonal loading when the station coordinates contain fitted seasonal terms) is the responsibility of the user.
+ The series must be given in the body-fixed frame of the body, and with respect to the reference origin of the station
+ coordinates. Avoiding signals that are modelled twice (for instance tidal signals also modelled by a tidal loading
+ model, or seasonal loading when the station coordinates contain fitted seasonal terms) is the responsibility of the
+ user.
 
 
  Parameters
  ----------
  data : ~tudatpy.data_input.environment_data.station_loading.StationLoadingData
      Station loading series.
- evaluation_settings : StationLoadingEvaluationSettings
-     Settings for the evaluation of the series.
+ station_bindings : dict[str, str], default = {}
+     Site identifier of the series for each ground station name. The station must lie within the validity radius of
+     the site.
+ maximum_gap_seconds : float, default = 86400
+     Maximum interval between two samples over which the series is interpolated, in seconds.
 
  Returns
  -------
@@ -200,14 +119,9 @@ Settings for the evaluation of a station loading series (see :func:`station_load
      from tudatpy.data_input.environment_data import station_loading
      from tudatpy.dynamics.environment_setup import shape_deformation
 
-     metadata = station_loading.imls_merra2_atmospheric_loading_metadata( release="<provider release>" )
-     metadata.reference_frame = "ITRS"
-     data = station_loading.read_ephedisp_station_loading_data( "provider.eph", metadata )
-     evaluation_settings = shape_deformation.StationLoadingEvaluationSettings( )
-     evaluation_settings.station_bindings = { "MyStation": "weuc" }
-     evaluation_settings.output_origin_definition = data.metadata.origin_definition
+     data = station_loading.read_ephedisp_station_loading_data( "provider.eph" )
      body_settings.get( "Earth" ).shape_deformation_settings.append(
-         shape_deformation.station_loading( data, evaluation_settings ) )
+         shape_deformation.station_loading( data, station_bindings={ "MyStation": "weuc" } ) )
 
  )doc" );
     py::class_< ba::AtmosphericTideEvaluationSettings >( m, "AtmosphericTideEvaluationSettings", R"doc(
