@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-18",
+  "baseline_commit": "38dbb4b85",
+  "native_awvr_commit": "de172374c",
+  "support_identical": true,
+  "radiometer_unit": "01",
+  "use_measured_dry_delay": false,
+  "mapping": "Niell",
+  "all_six_quality_flags_zero": true,
+  "source_transition_counts_removed": {
+    "X": 11,
+    "Ka": 16
+  },
+  "per_pj_band": [
+    {
+      "fit": "x-only",
+      "pj_band": "PJ3-X",
+      "count": 840,
+      "TSAC_rms_mHz": 1.7839510588758996,
+      "AWVR_rms_mHz": 1.692264043689386,
+      "TSAC_rms_um_s": 31.81511479604162,
+      "AWVR_rms_um_s": 30.179969158149675,
+      "rms_reduction_percent": 5.139547675948419
+    },
+    {
+      "fit": "x-only",
+      "pj_band": "PJ6-X",
+      "count": 488,
+      "TSAC_rms_mHz": 1.8482528792924064,
+      "AWVR_rms_mHz": 1.7707727770275579,
+      "TSAC_rms_um_s": 32.96656266493134,
+      "AWVR_rms_um_s": 31.58456155200924,
+      "rms_reduction_percent": 4.192072585571271
+    },
+    {
+      "fit": "combined",
+      "pj_band": "PJ3-X",
+      "count": 840,
+      "TSAC_rms_mHz": 2.1852919328410914,
+      "AWVR_rms_mHz": 2.121251830792679,
+      "TSAC_rms_um_s": 38.97254658266849,
+      "AWVR_rms_um_s": 37.83045038925586,
+      "rms_reduction_percent": 2.9305055807877345
+    },
+    {
+      "fit": "combined",
+      "pj_band": "PJ3-Ka",
+      "count": 396,
+      "TSAC_rms_mHz": 3.559844626757183,
+      "AWVR_rms_mHz": 2.1444370689448204,
+      "TSAC_rms_um_s": 16.630086999276944,
+      "AWVR_rms_um_s": 10.017900590413442,
+      "rms_reduction_percent": 39.76037457291272
+    },
+    {
+      "fit": "combined",
+      "pj_band": "PJ6-X",
+      "count": 488,
+      "TSAC_rms_mHz": 2.9312444554084225,
+      "AWVR_rms_mHz": 2.874561140416797,
+      "TSAC_rms_um_s": 52.28338974620026,
+      "AWVR_rms_um_s": 51.27234098803955,
+      "rms_reduction_percent": 1.9337628046354083
+    },
+    {
+      "fit": "combined",
+      "pj_band": "PJ6-Ka",
+      "count": 486,
+      "TSAC_rms_mHz": 3.1807317599019993,
+      "AWVR_rms_mHz": 2.5099256975704174,
+      "TSAC_rms_um_s": 14.861269594187156,
+      "AWVR_rms_um_s": 11.72706902018478,
+      "rms_reduction_percent": 21.089677249371384
+    }
+  ],
+  "largest_parameter_shift_in_baseline_formal_sigmas": {
+    "x-only": 0.244249921026557,
+    "combined": 0.4212463902759448
+  }
+}
