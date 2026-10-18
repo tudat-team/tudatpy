@@ -640,18 +640,14 @@ Eigen::Vector6d OceanTideEarthDeformation::evaluateDisplacementState( const Time
     {
         const double centre = static_cast< double >( tdb );
         const Eigen::Vector3d velocity = differentiateDisplacement(
-                centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); }, {} );
+                centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); } );
         return ( Eigen::Vector6d( ) << calculateDisplacement( tdb, station ), velocity ).finished( );
     }
     const Time tt = timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb );
     const double rate = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     const Eigen::Vector3d velocity =
             differentiateDisplacement(
-                    tt,
-                    [ & ]( const Time& sample ) { return displacementAtArgumentTime( static_cast< double >( sample ), station ); },
-                    []( const Time& lower, const Time& upper ) {
-                        validateEarthDeformationUtcInterval( static_cast< double >( lower ), static_cast< double >( upper ) );
-                    } ) *
+                    tt, [ & ]( const Time& sample ) { return displacementAtArgumentTime( static_cast< double >( sample ), station ); } ) *
             rate;
     return ( Eigen::Vector6d( ) << displacementAtArgumentTime( static_cast< double >( tt ), station ), velocity ).finished( );
 }

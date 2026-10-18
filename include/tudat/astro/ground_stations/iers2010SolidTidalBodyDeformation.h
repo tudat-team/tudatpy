@@ -160,7 +160,6 @@ protected:
     Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
     Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
-    void validateDisplacementDerivativeInterval( const Time& lower, const Time& upper ) const override;
 
 private:
     Eigen::Vector3d displacementFromArguments( const std::shared_ptr< ground_stations::GroundStationState > station,

@@ -14,24 +14,14 @@ namespace basic_astrodynamics
 {
 namespace
 {
-//! Displacement velocity from a fourth-order central difference, after checking the interval covered by the stencil.
+//! Displacement velocity from a fourth-order central difference.
 template< typename Epoch >
 Eigen::Vector3d differentiateDisplacementAtEpoch( const Epoch& time,
                                                   const double requestedStep,
-                                                  const std::function< Eigen::Vector3d( const Epoch& ) >& displacement,
-                                                  const std::function< void( const Epoch&, const Epoch& ) >& validateInterval )
+                                                  const std::function< Eigen::Vector3d( const Epoch& ) >& displacement )
 {
     // Use the actually representable step, which differs from the requested step only for double epochs.
     const double step = static_cast< double >( ( time + requestedStep ) - time );
-    if( !std::isfinite( static_cast< double >( time ) ) || !std::isfinite( step ) || step <= 0.0 )
-    {
-        throw std::invalid_argument( "Displacement derivative step does not give finite distinct stencil epochs." );
-    }
-    if( validateInterval )
-    {
-        validateInterval( time - 2.0 * step, time + 2.0 * step );
-    }
-
     const Eigen::Vector3d velocity = numerical_derivatives::computeFourthOrderCentralDifference( displacement, time, step );
     if( !velocity.allFinite( ) )
     {
@@ -93,28 +83,22 @@ Eigen::Vector6d BodyDeformationModel::evaluateDisplacementState( const Time& tdb
                                                                  const std::shared_ptr< ground_stations::GroundStationState > station )
 {
     Eigen::Vector6d state;
-    state.tail< 3 >( ) = differentiateDisplacement(
-            tdb,
-            [ & ]( const Time& time ) { return calculateDisplacement( time, station ); },
-            [ & ]( const Time& lower, const Time& upper ) { validateDisplacementDerivativeInterval( lower, upper ); } );
+    state.tail< 3 >( ) = differentiateDisplacement( tdb, [ & ]( const Time& time ) { return calculateDisplacement( time, station ); } );
     state.head< 3 >( ) = calculateDisplacement( tdb, station );
     return state;
 }
 
-Eigen::Vector3d BodyDeformationModel::differentiateDisplacement(
-        const Time& time,
-        const std::function< Eigen::Vector3d( const Time& ) >& displacement,
-        const std::function< void( const Time&, const Time& ) >& validateInterval ) const
+Eigen::Vector3d BodyDeformationModel::differentiateDisplacement( const Time& time,
+                                                                 const std::function< Eigen::Vector3d( const Time& ) >& displacement ) const
 {
-    return differentiateDisplacementAtEpoch< Time >( time, displacementDerivativeTimeStep_, displacement, validateInterval );
+    return differentiateDisplacementAtEpoch< Time >( time, displacementDerivativeTimeStep_, displacement );
 }
 
 Eigen::Vector3d BodyDeformationModel::differentiateDisplacement(
         double time,
-        const std::function< Eigen::Vector3d( const double& ) >& displacement,
-        const std::function< void( const double&, const double& ) >& validateInterval ) const
+        const std::function< Eigen::Vector3d( const double& ) >& displacement ) const
 {
-    return differentiateDisplacementAtEpoch< double >( time, displacementDerivativeTimeStep_, displacement, validateInterval );
+    return differentiateDisplacementAtEpoch< double >( time, displacementDerivativeTimeStep_, displacement );
 }
 
 void BodyDeformationModel::setDisplacementDerivativeTimeStep( const double timeStep )

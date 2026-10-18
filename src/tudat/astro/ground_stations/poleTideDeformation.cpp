@@ -62,9 +62,7 @@ Eigen::Vector6d PoleTideDeformation::evaluateDisplacementState( const Time& tdb,
     const Time tt = timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb );
     const double rate = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     const Eigen::Vector3d velocity =
-            differentiateDisplacement(
-                    tt, [ & ]( const Time& sample ) { return displacementAtTt( sample, station ); }, []( const Time&, const Time& ) {} ) *
-            rate;
+            differentiateDisplacement( tt, [ & ]( const Time& sample ) { return displacementAtTt( sample, station ); } ) * rate;
     return ( Eigen::Vector6d( ) << displacementAtTt( tt, station ), velocity ).finished( );
 }
 

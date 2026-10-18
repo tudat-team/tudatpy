@@ -152,7 +152,7 @@ Eigen::Vector6d OceanPoleTideDeformation::evaluateDisplacementState( const Time&
     const auto position = [ this, station ]( const Time& time ) { return calculateDisplacementAtTt( time, station ); };
     Eigen::Vector6d state;
     state.head< 3 >( ) = position( tt );
-    state.tail< 3 >( ) = differentiateDisplacement( tt, position, {} ) * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
+    state.tail< 3 >( ) = differentiateDisplacement( tt, position ) * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     return state;
 }
 }  // namespace basic_astrodynamics
