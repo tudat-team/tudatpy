@@ -139,16 +139,10 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          :type: :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
       )doc" )
-            .def(
-                    "perform_estimation",
-                    []( tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >& estimator,
-                        std::shared_ptr< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > > input,
-                        const tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::ParameterVectorType&
-                                aprioriParameterVector ) { return estimator.estimateParameters( input, aprioriParameterVector ); },
-                    py::arg( "estimation_input" ),
-                    py::arg( "apriori_parameter_vector" ) =
-                            tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::ParameterVectorType::Zero( 0 ),
-                    R"doc(
+            .def( "perform_estimation",
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::estimateParameters,
+                  py::arg( "estimation_input" ),
+                  R"doc(
 
          Function to trigger the parameter estimation.
 
@@ -206,10 +200,6 @@ void expose_estimation_analysis_estimator( py::module& m )
          estimation_input : :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
              Object consolidating all relevant settings for the estimation
              This includes foremost the simulated observations, as well as a priori information about the estimatable parameters and convergence criteria for the least squares estimation.
-         apriori_parameter_vector : numpy.ndarray, optional
-             A priori parameter values, if different from the current (initial) parameter values. Only
-             relevant if ``apply_apriori_parameter_deviation`` is set in the estimation input. If empty (default),
-             the initial parameter values are used as a priori values.
 
          Returns
          -------

@@ -33,25 +33,9 @@ template< typename ObservationScalarType,
 std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
-{
-    return estimateParameters( estimationInput, ParameterVectorType::Zero( 0 ) );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
-OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
-        std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
-        const ParameterVectorType& aprioriParameterEstimateInput )
 
 {
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
-
-    if( aprioriParameterEstimateInput.size( ) != 0 && aprioriParameterEstimateInput.size( ) != currentParameterEstimate_.size( ) )
-    {
-        throw std::runtime_error( "Error in estimation, size of a priori parameter vector is inconsistent with estimated parameters" );
-    }
 
     // Get number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
@@ -118,8 +102,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
     ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
-    const ParameterVectorType aprioriParameterEstimate =
-            aprioriParameterEstimateInput.size( ) == 0 ? currentParameterEstimate_ : aprioriParameterEstimateInput;
+    const ParameterVectorType aprioriParameterEstimate = currentParameterEstimate_;
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 
