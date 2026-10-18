@@ -14,8 +14,7 @@ from tudatpy.dynamics.environment_setup import rotation_model
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000
 from tudatpy.resource_installer import download_extra_file, DEFAULT_DEST, DEFAULT_CACHE
 import tarfile
-import sys
-from functools import cache
+import shutil
 import matplotlib.pyplot as plt
 
 try:
@@ -25,65 +24,133 @@ try:
 except ModuleNotFoundError:
     TRIMESH_AVAILABLE = False
 
-# Location of DAMIT archive files under tudat/resources
-_DAMIT_RESOURCES = DEFAULT_DEST / "damit"
+# File locations
+# - Full archive download stored under .tudat / resource / damit / archive
+# - Individual models and asteroid tables saved under .tudat / resource / damit / models
+_DAMIT_DIR = DEFAULT_DEST / "damit"
+_DAMIT_DIR.mkdir(parents=True, exist_ok=True)
+_DAMIT_MODELS_DIR = DEFAULT_DEST / "damit" / "models"
+_DAMIT_TABLES_DIR = _DAMIT_MODELS_DIR / "tables"
+_DAMIT_ARCHIVE_DIR = DEFAULT_DEST / "damit" / "archive"
+_ARCHIVE_AVAILABLE = (_DAMIT_ARCHIVE_DIR / "tables").is_dir() and (
+    _DAMIT_ARCHIVE_DIR / "files"
+).is_dir()
 
 
-@cache
-def _damit_files_path() -> Path:
-    """Find the path to the DAMIT catalog"""
-    # Lookup files in damit resources
-    if _DAMIT_RESOURCES.is_dir():
-        for path in _DAMIT_RESOURCES.iterdir():
-            if path.is_dir() and path.name.startswith("damit-"):
-                return path
+def _download_tables(force: bool = False) -> None:
+    """Download DAMIT asteroid and asteroid model tables"""
+    # Check if they exist
+    asteroid_models_csv = _DAMIT_TABLES_DIR / "asteroid_models.csv"
+    asteroids_csv = _DAMIT_TABLES_DIR / "asteroids.csv"
+    tables_exist = asteroids_csv.exists() and asteroid_models_csv.exists()
 
-    # Attempt download if not present
-    print("No DAMIT files found on disk.")
-    _download_latest_damit_models()
+    # Download if tables don't exist yet, or if they should be overwritten
+    if not tables_exist or force:
+        print("Downloading DAMIT tables...")
+        _DAMIT_TABLES_DIR.mkdir(parents=True, exist_ok=True)
+        download_extra_file(
+            url="https://damit.cuni.cz/projects/damit/exports/table/asteroids",
+            dest_path=_DAMIT_TABLES_DIR / "asteroids.csv",
+            cache_dir=DEFAULT_CACHE,
+            force=True,
+        )
+        download_extra_file(
+            url="https://damit.cuni.cz/projects/damit/exports/table/asteroid_models",
+            dest_path=_DAMIT_TABLES_DIR / "asteroid_models.csv",
+            cache_dir=DEFAULT_CACHE,
+            force=True,
+        )
+        print("DAMIT tables saved.")
 
-    return _damit_files_path()
+
+def _download_model(model_id: int, force: bool = False) -> None:
+    """Downloads an individual model"""
+    # Check if model exists on disk
+    model_file = _DAMIT_MODELS_DIR / str(model_id) / "obj.txt"
+
+    # Download if model does not exist yet or if it should be overwritten
+    if not model_file.exists() or force:
+        _DAMIT_MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        base_url = "https://damit.cuni.cz/projects/damit/generated_files/open/AsteroidModel"
+        url_shape_obj = f"{base_url}/{model_id}/shape.obj"
+
+        print(f"Downloading model with model ID {model_id}...")
+
+        download_extra_file(
+            url=url_shape_obj,
+            dest_path=model_file,
+            cache_dir=DEFAULT_CACHE,
+            force=True,
+        )
+        print("Model saved.")
 
 
-def _download_latest_damit_models() -> None:
+def download_damit_archive(force: bool = False) -> None:
     """
-    Downloads the latest DAMIT shape models from the DAMIT website
+    This function downloads the latest complete DAMIT archive containing shape models for roughly
+    10,000 asteroids. The complete archive takes up roughly 4 GB of disk space.
+
+    Parameters
+    ----------
+    force : bool
+        Overwrites existing archive if it exists
     """
+    global _ARCHIVE_AVAILABLE
+    if _ARCHIVE_AVAILABLE and not force:
+        return
+
     while True:
         user_query = input(
             "The DAMIT archive (~4 GB) will be downloaded from the internet. Proceed? (y/n) "
         )
         if user_query.lower() == "n":
-            sys.exit()
+            return
         if user_query.lower() == "y":
             break
 
-    _DAMIT_RESOURCES.mkdir(parents=True, exist_ok=True)
+    # Download archive compressed tar.gz file
     url = "https://damit.cuni.cz/projects/damit/exports/complete/latest"
-
     tar_path = download_extra_file(
-        url=url, dest_path=_DAMIT_RESOURCES / "damit.tar.gz", cache_dir=DEFAULT_CACHE, force=False
+        url=url, dest_path=_DAMIT_DIR / "damit_latest.tar.gz", cache_dir=DEFAULT_CACHE, force=True
     )
 
+    # Clean up existing files in damit/archive
+    if _DAMIT_ARCHIVE_DIR.exists():
+        shutil.rmtree(_DAMIT_ARCHIVE_DIR)
+
     print("Extracting files...")
-    with tarfile.open(tar_path, "r:*") as tar:
-        tar.extractall(_DAMIT_RESOURCES, filter="data")
+    with tarfile.open(tar_path, "r:gz") as tar:
+        tar.extractall(_DAMIT_ARCHIVE_DIR, filter="data")
 
-    tar_path.unlink()  # Remove compressed file
+    # Move contents to archive/
+    top_folder = next(_DAMIT_ARCHIVE_DIR.glob("damit-*"))
+    for folder in ("files", "tables"):
+        shutil.move(top_folder / folder, _DAMIT_ARCHIVE_DIR / folder)
 
-    print(f"DAMIT files saved to {str(_DAMIT_RESOURCES)}")
+    top_folder.rmdir()  # Remove empty top folder
+    tar_path.unlink()  # Remove compressed gz file
+
+    print(f"DAMIT files saved to {str(_DAMIT_ARCHIVE_DIR)}")
+
+    _ARCHIVE_AVAILABLE = True
 
 
 def _load_table() -> pd.DataFrame:
     """Loads all asteroid shape models into a pandas dataframe"""
+    if _ARCHIVE_AVAILABLE:
+        table_dir = _DAMIT_ARCHIVE_DIR / "tables"
+    else:
+        _download_tables()
+        table_dir = _DAMIT_TABLES_DIR
+
     # Asteroid data table containing primarily the DAMIT ID's of the asteroids
-    asteroid_data = pd.read_csv(
-        _damit_files_path() / "tables" / "asteroids.csv", dtype={"number": "Int64"}
-    ).rename(columns={"number": "mpc_number", "id": "asteroid_id"})
+    asteroid_data = pd.read_csv(table_dir / "asteroids.csv", dtype={"number": "Int64"}).rename(
+        columns={"number": "mpc_number", "id": "asteroid_id"}
+    )
 
     # Model data containing actual models
     asteroid_models = pd.read_csv(
-        _damit_files_path() / "tables" / "asteroid_models.csv",
+        table_dir / "asteroid_models.csv",
     )
 
     # Append the MPC number to the table to query by MPC
@@ -160,7 +227,7 @@ class DamitModel:
             )
             if best_model.empty:
                 raise LookupError(f"No shape models found for {mpc_number}")
-            self._data = best_model.sort_values("quality_flag").iloc[-1]
+            self._data = best_model.sort_values("quality_flag", ascending=False).iloc[0]
 
         # Retrieve by model ID
         elif damit_model_id and not mpc_number:
@@ -182,37 +249,40 @@ class DamitModel:
         return self._data.copy(deep=True)
 
     @staticmethod
-    def _shape_file_path(model_metadata: pd.Series) -> Path:
-        """Get the path of a DAMIT shape model"""
-        shape_model_file = (
-            _damit_files_path()
-            / "files"
-            / f'asteroid_{model_metadata["asteroid_id"]}'
-            / f"model_{model_metadata["id"]}"
-            / "shape.txt"
-        )
-        if not shape_model_file.exists():
-            raise FileNotFoundError("Shape model file for this asteroid model could not be found")
-
-        return shape_model_file
-
-    @staticmethod
     def _load_shape_model(
         model_metadata: pd.Series, diameter: float | None
     ) -> tuple[np.ndarray, np.ndarray]:
         """Locates and loads the polyhedron shape model"""
+        # Locate model file
+        model_id = model_metadata["id"]
+        if _ARCHIVE_AVAILABLE:
+            shape_model_file = (
+                _DAMIT_ARCHIVE_DIR
+                / "files"
+                / f'asteroid_{model_metadata["asteroid_id"]}'
+                / f"model_{model_id}"
+                / "obj.txt"
+            )
+        else:
+            _download_model(model_id)
+            shape_model_file = _DAMIT_MODELS_DIR / str(model_id) / "obj.txt"
 
-        # Load shape model from DAMIT data
-        shape_model_file = DamitModel._shape_file_path(model_metadata)
+        if not shape_model_file.exists():
+            raise FileNotFoundError("Shape model file for this asteroid model could not be found")
 
-        with open(shape_model_file, "r") as f:
-            number_of_vertices, number_of_facets = [
-                int(num) for num in f.readline().strip().split()
-            ]
-
-        vertices_and_facets = np.loadtxt(shape_model_file, skiprows=1)
-        vertices = vertices_and_facets[:number_of_vertices]
-        facets = vertices_and_facets[number_of_vertices:].astype(int) - 1  # Apply zero-indexing
+        # Load OBJ file: 'v x y z' lines are vertices, 'f i j k' lines are facets
+        vertices_and_facets = pd.read_csv(
+            shape_model_file, sep=r"\s+", names=["v/f", "num1", "num2", "num3"]
+        )
+        vertices = vertices_and_facets.loc[
+            vertices_and_facets["v/f"] == "v", ["num1", "num2", "num3"]
+        ].to_numpy()
+        facets = (
+            vertices_and_facets.loc[
+                vertices_and_facets["v/f"] == "f", ["num1", "num2", "num3"]
+            ].to_numpy(dtype=int)
+            - 1
+        )  # Apply zero-indexing
 
         # Scale model for size
         if model_metadata["calibrated_size"] == 1:
