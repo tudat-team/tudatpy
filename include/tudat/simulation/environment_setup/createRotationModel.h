@@ -332,7 +332,6 @@ public:
 
     void setEopData( const input_output::EarthOrientationData& data )
     {
-        input_output::validateEarthOrientationData( data );
         eopData_ = std::make_shared< input_output::EarthOrientationData >( data );
     }
     std::shared_ptr< const input_output::EarthOrientationData > getEopData( ) const

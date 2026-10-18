@@ -62,93 +62,6 @@ void expose_shape_deformation_setup( py::module& m )
 
       )doc" );
 
-    namespace ba = tudat::basic_astrodynamics;
-    py::enum_< ba::StationLoadingSpatialSelection >( m, "StationLoadingSpatialSelection", R"doc(
-
-Enumeration of methods to associate ground stations with the sites of a station loading series.
-
-      )doc" )
-            .value( "explicit_bindings",
-                    ba::StationLoadingSpatialSelection::explicitBindings,
-                    "Each station is associated with the site given in the station bindings." )
-            .value( "within_provider_radius",
-                    ba::StationLoadingSpatialSelection::withinProviderRadius,
-                    "Each station is associated with the site within whose validity radius it lies (an error is raised if "
-                    "there are several)." );
-    py::class_< ba::StationLoadingOriginTranslation, std::shared_ptr< ba::StationLoadingOriginTranslation > >(
-            m, "StationLoadingOriginTranslation", R"doc(
-
-Time series of the translation from the reference origin of a station loading series to another origin, which is added
-to the loading displacements. The physical content of the translation series must match that of the loading series.
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "identifier", &ba::StationLoadingOriginTranslation::identifier, R"doc(
-
-         Identifier of the translation.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "source_origin_definition", &ba::StationLoadingOriginTranslation::sourceOriginDefinition, R"doc(
-
-         Definition of the origin of the loading series (must match its metadata).
-
-         :type: str
-      )doc" )
-            .def_readwrite( "target_origin_definition", &ba::StationLoadingOriginTranslation::targetOriginDefinition, R"doc(
-
-         Definition of the origin to which the displacements are translated.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "target_origin", &ba::StationLoadingOriginTranslation::targetOrigin, R"doc(
-
-         Origin to which the displacements are translated.
-
-         :type: ~tudatpy.data_input.environment_data.station_loading.StationLoadingOrigin
-      )doc" )
-            .def_readwrite( "series", &ba::StationLoadingOriginTranslation::series, R"doc(
-
-         Time series of the translation (source origin minus target origin), with a single site and Cartesian components.
-
-         :type: ~tudatpy.data_input.environment_data.station_loading.StationLoadingData
-      )doc" );
-    py::class_< ba::StationLoadingEvaluationSettings >( m, "StationLoadingEvaluationSettings", R"doc(
-
-Settings for the evaluation of a station loading series (see :func:`station_loading`).
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "spatial_selection", &ba::StationLoadingEvaluationSettings::spatialSelection, R"doc(
-
-         Method to associate ground stations with sites of the series.
-
-         :type: StationLoadingSpatialSelection
-      )doc" )
-            .def_readwrite( "station_bindings", &ba::StationLoadingEvaluationSettings::stationBindings, R"doc(
-
-         Site identifier of the series for each ground station name (used with ``explicit_bindings``). The station must also lie within the validity radius of the site.
-
-         :type: dict[str, str]
-      )doc" )
-            .def_readwrite( "maximum_gap_seconds", &ba::StationLoadingEvaluationSettings::maximumGapSeconds, R"doc(
-
-         Maximum interval between two samples over which the series is interpolated, in seconds (default 86400).
-
-         :type: float
-      )doc" )
-            .def_readwrite( "output_origin_definition", &ba::StationLoadingEvaluationSettings::outputOriginDefinition, R"doc(
-
-         Definition of the reference origin of the output displacements. Must be equal to that of the series, or to the target of the origin translation.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "origin_translation", &ba::StationLoadingEvaluationSettings::originTranslation, R"doc(
-
-         Translation to another reference origin, or ``None``.
-
-         :type: StationLoadingOriginTranslation | None
-      )doc" );
     py::class_< tss::StationLoadingBodyDeformationSettings,
                 std::shared_ptr< tss::StationLoadingBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "StationLoadingBodyDeformationSettings", R"doc(
@@ -162,29 +75,34 @@ Settings for the evaluation of a station loading series (see :func:`station_load
     m.def( "station_loading",
            &tss::stationLoadingBodyShapeDeformation,
            py::arg( "data" ),
-           py::arg( "evaluation_settings" ),
+           py::arg( "station_bindings" ) = std::map< std::string, std::string >( ),
+           py::arg( "maximum_gap_seconds" ) = 86400.0,
            R"doc(
 
  Function for creating station loading deformation from a precomputed series.
 
  Function for creating a deformation model from a precomputed station loading series (for instance non-tidal
  atmospheric, oceanic or hydrological loading from the International Mass Loading Service). Each ground station is
- associated with a site of the series, either explicitly or by its validity radius. The displacements are interpolated
- linearly in TAI, and converted to body-fixed Cartesian coordinates; their rate is the derivative of the interpolant.
- Epochs outside the series, or in a gap longer than the maximum gap, raise an exception.
+ associated with a site of the series: the site given for its name in ``station_bindings`` or, if no bindings are given,
+ the nearest site within whose validity radius it lies. The displacements are interpolated linearly in TAI, and
+ converted to body-fixed Cartesian coordinates; their rate is the derivative of the interpolant. Epochs outside the
+ series, or in a gap longer than the maximum gap, raise an exception.
 
- The Cartesian frame of the series (``reference_frame`` of its metadata) must be that of the body-fixed frame of the
- body. The reference origin of the output must be equal to that of the series, unless an origin translation is given.
- Avoiding signals that are modelled twice (for instance tidal signals also modelled by a tidal loading model, or
- seasonal loading when the station coordinates contain fitted seasonal terms) is the responsibility of the user.
+ The series must be given in the body-fixed frame of the body, and with respect to the reference origin of the station
+ coordinates. Avoiding signals that are modelled twice (for instance tidal signals also modelled by a tidal loading
+ model, or seasonal loading when the station coordinates contain fitted seasonal terms) is the responsibility of the
+ user.
 
 
  Parameters
  ----------
  data : ~tudatpy.data_input.environment_data.station_loading.StationLoadingData
      Station loading series.
- evaluation_settings : StationLoadingEvaluationSettings
-     Settings for the evaluation of the series.
+ station_bindings : dict[str, str], default = {}
+     Site identifier of the series for each ground station name. The station must lie within the validity radius of
+     the site.
+ maximum_gap_seconds : float, default = 86400
+     Maximum interval between two samples over which the series is interpolated, in seconds.
 
  Returns
  -------
@@ -200,44 +118,11 @@ Settings for the evaluation of a station loading series (see :func:`station_load
      from tudatpy.data_input.environment_data import station_loading
      from tudatpy.dynamics.environment_setup import shape_deformation
 
-     metadata = station_loading.imls_merra2_atmospheric_loading_metadata( release="<provider release>" )
-     metadata.reference_frame = "ITRS"
-     data = station_loading.read_ephedisp_station_loading_data( "provider.eph", metadata )
-     evaluation_settings = shape_deformation.StationLoadingEvaluationSettings( )
-     evaluation_settings.station_bindings = { "MyStation": "weuc" }
-     evaluation_settings.output_origin_definition = data.metadata.origin_definition
+     data = station_loading.read_ephedisp_station_loading_data( "provider.eph" )
      body_settings.get( "Earth" ).shape_deformation_settings.append(
-         shape_deformation.station_loading( data, evaluation_settings ) )
+         shape_deformation.station_loading( data, station_bindings={ "MyStation": "weuc" } ) )
 
  )doc" );
-    py::class_< ba::AtmosphericTideEvaluationSettings >( m, "AtmosphericTideEvaluationSettings", R"doc(
-
-Settings for the evaluation of an atmospheric S1/S2 tidal loading model (see :func:`atmospheric_tide_from_grid`).
-
-Conventions that are not set are taken from the metadata of the data. For a grid identified as the Ray and Ponte (2003)
-model with Farrell Green functions, conventions that are set in neither default to geocentric. For other data, they
-must be set in one of the two.
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "lookup_latitude_convention", &ba::AtmosphericTideEvaluationSettings::lookupLatitudeConvention, R"doc(
-
-         Latitude convention with which stations are located in the grid.
-
-         :type: ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideLatitudeConvention
-      )doc" )
-            .def_readwrite( "displacement_basis", &ba::AtmosphericTideEvaluationSettings::displacementBasis, R"doc(
-
-         Local basis of the displacement components of the coefficients.
-
-         :type: ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideDisplacementBasis
-      )doc" )
-            .def_readwrite( "convert_to_centre_of_mass", &ba::AtmosphericTideEvaluationSettings::convertToCentreOfMass, R"doc(
-
-         Whether displacements given with respect to the centre of the solid Earth are converted to the centre of mass, by adding the translation of Table 7.6 of the IERS Conventions 2010 (default false). Only possible for the identified Ray and Ponte (2003) product.
-
-         :type: bool
-      )doc" );
     py::class_< tss::AtmosphericTideBodyDeformationSettings,
                 std::shared_ptr< tss::AtmosphericTideBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "AtmosphericTideBodyDeformationSettings", R"doc(
@@ -251,28 +136,25 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_grid",
            &tss::atmosphericTideBodyShapeDeformationFromGrid,
            py::arg( "grid" ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from a grid.
 
  Function for creating the atmospheric tidal loading deformation model of Section 7.1.3 of the IERS Conventions 2010,
- using coefficients interpolated (bilinearly) from a global grid at the station location. The diurnal (S1) and
- semi-diurnal (S2) terms are evaluated with UT1 (Eqs. 7.19a/b), using the time converter of the Earth rotation model.
- The rate of the displacement is computed analytically. The duplicated 0/360 degree longitude columns and the polar
- rows of the grid are averaged (the differences are below 1 micrometre for the Ray and Ponte grid); a grid whose
- duplicated values differ by more than 10 micrometres is rejected.
-
- The displacements are given with respect to the reference origin of the grid, unless the conversion to the centre of
- mass is selected in the evaluation settings.
+ using coefficients interpolated (bilinearly) from a global grid at the geocentric latitude and longitude of the station.
+ The radial, north and east components of the coefficients are taken as geocentric (as for the Ray and Ponte, 2003,
+ model). The diurnal (S1) and semi-diurnal (S2) terms are evaluated with UT1 (Eqs. 7.19a/b), using the time converter of
+ the Earth rotation model. The rate of the displacement is computed analytically.
 
 
  Parameters
  ----------
  grid : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideGrid
      Grid of loading coefficients (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_grid`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------
@@ -284,22 +166,23 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_stations",
            &tss::atmosphericTideBodyShapeDeformationFromStations,
            py::arg( "stations" ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from station-specific coefficients.
 
  Function for creating the atmospheric tidal loading deformation model (see :func:`atmospheric_tide_from_grid`), using
  precomputed coefficients for each station. A ground station is associated with the coefficients whose identifier is
- equal to the station name. The displacement basis must be set in the data or in the evaluation settings.
+ equal to the station name.
 
 
  Parameters
  ----------
- stations : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideStationData
-     Station-specific loading coefficients (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_station_data`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ stations : dict[str, numpy.ndarray[numpy.float64[3, 4]]]
+     Loading coefficients per station name (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_station_data`).
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------
@@ -311,8 +194,7 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_grid_file",
            &tss::atmosphericTideBodyShapeDeformationFromGridFile,
            py::arg( "file_path" ),
-           py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from a grid file.
@@ -324,10 +206,9 @@ must be set in one of the two.
  ----------
  file_path : str
      Path of the grid file.
- metadata : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideMetadata, default = AtmosphericTideMetadata()
-     Declared properties of the grid (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_grid`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------
@@ -339,8 +220,7 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_station_file",
            &tss::atmosphericTideBodyShapeDeformationFromStationFile,
            py::arg( "file_path" ),
-           py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from a station coefficient file.
@@ -353,10 +233,9 @@ must be set in one of the two.
  ----------
  file_path : str
      Path of the station coefficient file.
- metadata : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideMetadata, default = AtmosphericTideMetadata()
-     Declared properties of the data (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_station_data`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------
@@ -596,30 +475,6 @@ Parameters
 ----------
 blq_files : list[ string ]
     List of blq files defining ocean tide amplitudes and phases for the requested stations
-synthesis : OceanTideSynthesis, default = OceanTideSynthesis.iers_hardisp
-    Method to compute the displacement from the BLQ constituents.
-
-Returns
--------
-BodyDeformationSettings
-    Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
-
-)doc" );
-
-    m.def( "ocean_tidal_from_data",
-           &tss::oceanTideBodyShapeDeformationFromData,
-           py::arg( "data" ),
-           py::arg( "synthesis" ) = tudat::basic_astrodynamics::OceanTideSynthesis::iersHardisp,
-           R"doc(
-
-Function for creating IERS 2010 ocean tide deformation model from BLQ data that has already been read.
-
-Same as :func:`ocean_tidal`, but using data read with :func:`~tudatpy.data_input.environment_data.ocean_loading.read_ocean_loading_data`.
-
-Parameters
-----------
-data : ~tudatpy.data_input.environment_data.ocean_loading.OceanLoadingData
-    Ocean tidal loading coefficients.
 synthesis : OceanTideSynthesis, default = OceanTideSynthesis.iers_hardisp
     Method to compute the displacement from the BLQ constituents.
 

@@ -93,28 +93,22 @@ class StationHistoryGroundStationMotionSettings : public GroundStationMotionSett
 public:
     StationHistoryGroundStationMotionSettings(
             std::shared_ptr< ground_stations::StationCoordinateHistory > history,
-            std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets = {},
-            std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction = nullptr ):
+            std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets = {} ):
         GroundStationMotionSettings( station_history_motion ), history_( std::move( history ) ),
-        referencePointOffsets_( std::move( referencePointOffsets ) ), timeFunction_( std::move( timeFunction ) )
+        referencePointOffsets_( std::move( referencePointOffsets ) )
     {}
 
     //! Station coordinate history, and the reference point offsets added to it (in order).
     std::shared_ptr< ground_stations::StationCoordinateHistory > history_;
     std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets_;
-
-    //! Function converting a TDB epoch to the time of the history (if empty, the IGN convention is used).
-    std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction_;
 };
 
 //! Create settings for station motion from a station coordinate history, optionally with reference point offsets.
 inline std::shared_ptr< StationHistoryGroundStationMotionSettings > stationHistoryGroundStationMotionSettings(
         std::shared_ptr< ground_stations::StationCoordinateHistory > history,
-        std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets = {},
-        std::function< ground_stations::StationHistoryTime( const Time&, bool ) > timeFunction = nullptr )
+        std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets = {} )
 {
-    return std::make_shared< StationHistoryGroundStationMotionSettings >(
-            std::move( history ), std::move( referencePointOffsets ), std::move( timeFunction ) );
+    return std::make_shared< StationHistoryGroundStationMotionSettings >( std::move( history ), std::move( referencePointOffsets ) );
 }
 
 class PiecewiseConstantGroundStationMotionSettings : public GroundStationMotionSettings

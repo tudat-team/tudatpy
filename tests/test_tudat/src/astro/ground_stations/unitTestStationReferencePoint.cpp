@@ -16,7 +16,7 @@ SinexStationHistory equipment( )
 }
 SinexEquipmentHeaderTimeContext context( )
 {
-    return { std::nullopt, convertSinexCivilUtcToTai( { 2026, 288, 0 } ), "explicit controlled coverage bound, not a source header" };
+    return { std::nullopt, convertSinexCivilUtcToTai( { 2026, 288, 0 } ) };
 }
 std::shared_ptr< StationCoordinateHistory > marker( const Eigen::Vector3d& position = Eigen::Vector3d( 3e6, -5e6, 2e6 ),
                                                     const std::string& code = "abmf" )
@@ -27,11 +27,9 @@ std::shared_ptr< StationCoordinateHistory > marker( const Eigen::Vector3d& posit
     meta.frame = meta.release = "ITRF2020";
     meta.origin = "CM";
     meta.tideSystem = "explicit source tide convention";
-    auto reference = getIgnNominalUtcStationTime( SinexCivilUtc{ 2008, 1, 0 } );
-    meta.timeConvention = reference.convention;
     StationHistoryLinearSolution solution;
     solution.source.key = { meta.site, "1" };
-    solution.referenceTime = reference;
+    solution.referenceTime = convertSinexCivilUtcToTai( { 2008, 1, 0 } );
     solution.positionMetres = position;
     return std::make_shared< StationCoordinateHistory >( std::vector< StationHistoryLinearSolution >{ solution },
                                                          std::vector< StationPostSeismicTerm >{},
@@ -67,39 +65,30 @@ StationReferencePointOffset calibration( const std::shared_ptr< StationReference
     return result;
 }
 
-//! Station motion model of the history and offsets, evaluated at a fixed station history epoch.
-std::shared_ptr< StationHistoryMotionModel > motion( const std::shared_ptr< StationCoordinateHistory >& history,
-                                                     const std::vector< std::shared_ptr< StationReferencePointOffsetHistory > >& offsets,
-                                                     const StationHistoryTime& time )
-{
-    const std::function< StationHistoryTime( const Time&, bool ) > timeFunction = [ time ]( const Time&, bool rates ) {
-        auto output = time;
-        if( !rates )
-        {
-            output.mjdRate.reset( );
-            output.decimalYearRate.reset( );
-        }
-        return output;
-    };
-    return std::make_shared< StationHistoryMotionModel >( history, offsets, timeFunction );
-}
-
-//! Position of the point at the end of the offsets, from the station motion model (with a station at the origin).
+//! Position of the point at the end of the offsets.
 Eigen::Vector3d pointPosition( const std::shared_ptr< StationCoordinateHistory >& history,
                                const std::vector< std::shared_ptr< StationReferencePointOffsetHistory > >& offsets,
-                               const StationHistoryTime& time )
+                               const Time& tai )
 {
-    const auto station = std::make_shared< GroundStationState >( Eigen::Vector3d::Zero( ) );
-    return motion( history, offsets, time )->getBodyFixedStationPositionCorrection( Time( 0.0 ), station, "" );
+    Eigen::Vector3d position = history->getPosition( tai );
+    for( const auto& offset : offsets )
+    {
+        position += offset->getPositionCorrection( tai );
+    }
+    return position;
 }
 
-//! State of the point at the end of the offsets, from the station motion model (with a station at the origin).
+//! State of the point at the end of the offsets.
 Eigen::Vector6d pointState( const std::shared_ptr< StationCoordinateHistory >& history,
                             const std::vector< std::shared_ptr< StationReferencePointOffsetHistory > >& offsets,
-                            const StationHistoryTime& time )
+                            const Time& tai )
 {
-    const auto station = std::make_shared< GroundStationState >( Eigen::Vector3d::Zero( ) );
-    return motion( history, offsets, time )->getBodyFixedStationMotion( Time( 0.0 ), station, "" );
+    Eigen::Vector6d state = history->getState( tai );
+    for( const auto& offset : offsets )
+    {
+        state += offset->getStateCorrection( tai );
+    }
+    return state;
 }
 void close( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected, double tolerance = 1e-9 )
 {
@@ -112,8 +101,8 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
 {
     const auto source = marker( );
     const auto point = arp( source );
-    const auto query = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2008, 200, 0 } ), 1.0 );
-    const auto& record = point->getActiveOffset( query.tai );
+    const auto query = convertSinexCivilUtcToTai( { 2008, 200, 0 } );
+    const auto& record = point->getActiveOffset( query );
 
     // Apply published antenna offsets with their equipment identities and dated changes.
     BOOST_CHECK_EQUAL( point->getOffsets( ).size( ), 3 );
@@ -124,7 +113,7 @@ BOOST_AUTO_TEST_CASE( publishedUneDirectionEquipmentAssociationAndDatedSwitch )
     close( point->getPositionCorrection( query ), expected, 2e-17 );
     close( pointPosition( source, { point }, query ), source->getPosition( query ) + expected );
     BOOST_CHECK_GT( expected.dot( source->getPosition( query ) ), 0.0 );
-    const auto atSwitch = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2009, 288, 72000 } ), 1.0 );
+    const auto atSwitch = convertSinexCivilUtcToTai( { 2009, 288, 72000 } );
     close( pointPosition( source, { point }, atSwitch ), source->getPosition( atSwitch ) );
 
     // The state at a switch uses the new (right-hand) record, consistent with the position.
@@ -169,7 +158,7 @@ BOOST_AUTO_TEST_CASE( explicitOblateNormalDiffersFromRadialUp )
     const auto source = marker( position );
     const auto point =
             createSinexAntennaReferencePointOffsets( source->getMetadata( ), equipment( ), "ABMF:geodetic_ARP", normal, context( ) );
-    const auto query = getIgnNominalUtcStationTime( SinexCivilUtc{ 2008, 200, 0 } );
+    const auto query = convertSinexCivilUtcToTai( { 2008, 200, 0 } );
     close( point->getPositionCorrection( query ), 0.05 * normal.enuToTerrestrial.col( 2 ), 1e-16 );
 }
 
@@ -205,16 +194,16 @@ BOOST_AUTO_TEST_CASE( calibratedReferenceVectorsRatesAndFrames )
     const Time reference = convertSinexCivilUtcToTai( { 2008, 200, 0 } );
     const Eigen::Vector3d velocity( 1e-6, -2e-6, 3e-6 );
     offset.positionFunction = [ reference, velocity ]( const auto& t ) -> Eigen::Vector3d {
-        return Eigen::Vector3d( 0.01, -0.02, 0.03 ) + velocity * static_cast< double >( t.tai - reference );
+        return Eigen::Vector3d( 0.01, -0.02, 0.03 ) + velocity * static_cast< double >( t - reference );
     };
     offset.stateFunction = [ position = offset.positionFunction, velocity ]( const auto& t ) {
         Eigen::Vector6d result;
         result.head< 3 >( ) = position( t );
-        result.tail< 3 >( ) = velocity * ( *t.mjdRate * 86400.0 );
+        result.tail< 3 >( ) = velocity;
         return result;
     };
     const auto calibrated = std::make_shared< StationReferencePointOffsetHistory >( std::vector< StationReferencePointOffset >{ offset } );
-    const auto query = getIgnNominalUtcStationTimeFromTai( reference + 10.0, 1.0 );
+    const auto query = reference + 10.0;
 
     // The marker and its ARP offsets are constant, so the velocity is that of the calibration.
     close( pointState( source, { point, calibrated }, query ).tail< 3 >( ), velocity, 1e-20 );
@@ -247,11 +236,7 @@ BOOST_AUTO_TEST_CASE( precisePublicPointSwitchAndCompleteInertialOffsetVelocity 
     const auto source = marker( );
     const auto point = arp( source );
     const auto converter = basic_astrodynamics::getGeocentricTimeConverter( );
-    const std::function< StationHistoryTime( const Time&, bool ) > sourceClock = [ converter ]( const Time& tdb, bool rates ) {
-        return getIgnNominalUtcStationTimeFromTdb( tdb, converter, rates );
-    };
-    const auto settings =
-            simulation_setup::stationReferencePointSettings( source, { point }, Eigen::Vector3d( 3e6, -5e6, 2e6 ), sourceClock );
+    const auto settings = simulation_setup::stationReferencePointSettings( source, { point }, Eigen::Vector3d( 3e6, -5e6, 2e6 ) );
     const Time ordinaryTai = convertSinexCivilUtcToTai( { 2008, 200, 0 } );
     const Time tdb = converter->getCurrentTime< Time >( basic_astrodynamics::tai_scale, basic_astrodynamics::tdb_scale, ordinaryTai );
     const auto body = std::make_shared< simulation_setup::Body >( );
@@ -271,10 +256,9 @@ BOOST_AUTO_TEST_CASE( precisePublicPointSwitchAndCompleteInertialOffsetVelocity 
     // Preserve a precise equipment switch and the complete inertial offset velocity.
     BOOST_REQUIRE( left < right );
     BOOST_REQUIRE_EQUAL( static_cast< double >( left ), static_cast< double >( right ) );
-    const auto leftSource = getIgnNominalUtcStationTimeFromTdb( left, converter );
-    const auto rightSource = getIgnNominalUtcStationTimeFromTdb( right, converter );
-    BOOST_REQUIRE( leftSource.tai < switchTai );
-    BOOST_REQUIRE( rightSource.tai > switchTai );
+    const auto leftSource = converter->getTaiTime( basic_astrodynamics::tdb_scale, left );
+    BOOST_REQUIRE( leftSource < switchTai );
+    BOOST_REQUIRE( converter->getTaiTime( basic_astrodynamics::tdb_scale, right ) > switchTai );
     const Eigen::Vector3d leftPosition = station->getNominalStationState( )->getCartesianPositionInTime( left, "SSB" );
     const Eigen::Vector3d rightPosition = station->getNominalStationState( )->getCartesianPositionInTime( right, "SSB" );
     close( leftPosition - rightPosition, point->getPositionCorrection( leftSource ), 1e-9 );
@@ -288,7 +272,7 @@ BOOST_AUTO_TEST_CASE( precisePublicPointSwitchAndCompleteInertialOffsetVelocity 
                                                ephemeris->getCartesianStateFromExtendedTime( tdb - 0.25 ).head< 3 >( ) ) /
             0.5;
     close( actual.tail< 3 >( ), finiteDifference, 1e-7 );
-    const auto sourceTime = getIgnNominalUtcStationTimeFromTdb( tdb, converter );
+    const auto sourceTime = converter->getTaiTime( basic_astrodynamics::tdb_scale, tdb );
     const Eigen::Vector3d localOffset = point->getPositionCorrection( sourceTime );
     const auto rotation = body->getRotationalEphemeris( );
     const Eigen::Vector3d expectedOffsetVelocity =

@@ -18,46 +18,12 @@ Functions
 
 .. autofunction:: read_atmospheric_tide_station_data
 
-Enumerations
-------------
-
-.. autosummary::
-
-   AtmosphericLoadingReferenceOrigin
-   AtmosphericTideLatitudeConvention
-   AtmosphericTideDisplacementBasis
-   AtmosphericTideSourceProfile
-
-.. autoclass:: AtmosphericLoadingReferenceOrigin
-   :members:
-
-.. autoclass:: AtmosphericTideLatitudeConvention
-   :members:
-
-.. autoclass:: AtmosphericTideDisplacementBasis
-   :members:
-
-.. autoclass:: AtmosphericTideSourceProfile
-   :members:
-
 Classes
 -------
 
 .. autosummary::
 
-   AtmosphericTideMetadata
    AtmosphericTideGrid
-   AtmosphericTideStation
-   AtmosphericTideStationData
-
-.. autoclass:: AtmosphericTideMetadata
-   :members:
 
 .. autoclass:: AtmosphericTideGrid
-   :members:
-
-.. autoclass:: AtmosphericTideStation
-   :members:
-
-.. autoclass:: AtmosphericTideStationData
    :members:

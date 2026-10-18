@@ -34,12 +34,6 @@ Functions
 
    fit_tle_to_cartesian_state_history
 
-   ign_nominal_utc_station_time_from_tdb
-
-   ign_nominal_utc_station_time_from_tai
-
-   ign_nominal_utc_station_time
-
    sinex_civil_utc_to_tai
 
    station_reference_point_identity
@@ -51,12 +45,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment.transform_to_inertial_orientation
 
 .. autofunction:: tudatpy.dynamics.environment.fit_tle_to_cartesian_state_history
-
-.. autofunction:: tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tdb
-
-.. autofunction:: tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tai
-
-.. autofunction:: tudatpy.dynamics.environment.ign_nominal_utc_station_time
 
 .. autofunction:: tudatpy.dynamics.environment.sinex_civil_utc_to_tai
 
@@ -76,8 +64,6 @@ Enums
 
    StationPostSeismicFunction
 
-   StationLocalVertical
-
    StationReferencePointOffsetBasis
 
 
@@ -88,9 +74,6 @@ Enums
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationPostSeismicFunction
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment.StationLocalVertical
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationReferencePointOffsetBasis
@@ -165,8 +148,6 @@ Classes
    StationReferencePointGeometry
 
    StationHistoryMetadata
-
-   StationHistoryTime
 
    StationHistoryInterval
 
@@ -289,9 +270,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationHistoryMetadata
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment.StationHistoryTime
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationHistoryInterval

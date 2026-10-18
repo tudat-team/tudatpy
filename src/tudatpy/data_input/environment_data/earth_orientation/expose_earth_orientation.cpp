@@ -74,78 +74,6 @@ retained as a measured value.
          :math:`(d\psi, d\epsilon)` offsets are rejected.
 
          :type: list[float] | None
-      )doc" )
-            .def_readonly( "polar_motion_rates", &EarthOrientationRecord::polarMotionRates, R"doc(
-
-         **read-only**
-
-         Polar motion rates in radians per second (modern C04 only), or ``None`` if not given.
-
-         :type: list[float] | None
-      )doc" )
-            .def_readonly( "polar_motion_uncertainty", &EarthOrientationRecord::polarMotionUncertainty, R"doc(
-
-         **read-only**
-
-         Uncertainty of the polar motion coordinates in radians, or ``None`` if not given.
-
-         :type: list[float] | None
-      )doc" )
-            .def_readonly( "ut1_minus_utc_uncertainty", &EarthOrientationRecord::ut1MinusUtcUncertainty, R"doc(
-
-         **read-only**
-
-         Uncertainty of UT1-UTC in seconds, or ``None`` if not given.
-
-         :type: float | None
-      )doc" )
-            .def_readonly( "length_of_day_uncertainty", &EarthOrientationRecord::lengthOfDayUncertainty, R"doc(
-
-         **read-only**
-
-         Uncertainty of the excess length of day in seconds, or ``None`` if not given.
-
-         :type: float | None
-      )doc" )
-            .def_readonly( "celestial_pole_offset_uncertainty", &EarthOrientationRecord::celestialPoleOffsetUncertainty, R"doc(
-
-         **read-only**
-
-         Uncertainty of the celestial pole offsets in radians, or ``None`` if not given.
-
-         :type: list[float] | None
-      )doc" )
-            .def_readonly( "polar_motion_rate_uncertainty", &EarthOrientationRecord::polarMotionRateUncertainty, R"doc(
-
-         **read-only**
-
-         Uncertainty of the polar motion rates in radians per second, or ``None`` if not given.
-
-         :type: list[float] | None
-      )doc" )
-            .def_readonly( "polar_motion_status", &EarthOrientationRecord::polarMotionStatus, R"doc(
-
-         **read-only**
-
-         Bulletin A flag of the polar motion values (``I`` for IERS/interpolated, ``P`` for predicted). Empty for C04.
-
-         :type: str
-      )doc" )
-            .def_readonly( "ut1_status", &EarthOrientationRecord::ut1Status, R"doc(
-
-         **read-only**
-
-         Bulletin A flag of the UT1-UTC value (``I`` or ``P``). Empty for C04.
-
-         :type: str
-      )doc" )
-            .def_readonly( "celestial_pole_status", &EarthOrientationRecord::celestialPoleStatus, R"doc(
-
-         **read-only**
-
-         Bulletin A flag of the celestial pole offsets (``I`` or ``P``). Empty for C04.
-
-         :type: str
       )doc" );
 
     py::class_< EarthOrientationData >( module, "EarthOrientationData", R"doc(
@@ -170,47 +98,6 @@ Earth rotation model settings (see :func:`~tudatpy.dynamics.environment_setup.ro
          **read-only**
 
          Name of the file (or other source) from which the data was read.
-
-         :type: str
-      )doc" )
-            .def_readonly( "format_description", &EarthOrientationData::formatDescription, R"doc(
-
-         **read-only**
-
-         Description of the detected file format (for instance, the C04 column layout).
-
-         :type: str
-      )doc" )
-            .def_readonly( "header", &EarthOrientationData::header, R"doc(
-
-         **read-only**
-
-         Header lines of the file, unmodified.
-
-         :type: list[str]
-      )doc" )
-            .def_readonly( "terrestrial_frame", &EarthOrientationData::terrestrialFrame, R"doc(
-
-         **read-only**
-
-         Terrestrial reference frame of the data, taken from the C04 header when given (default ``ITRS``). A frame
-         realization is never inferred from the file name.
-
-         :type: str
-      )doc" )
-            .def_readonly( "celestial_frame", &EarthOrientationData::celestialFrame, R"doc(
-
-         **read-only**
-
-         Celestial reference frame of the data (``GCRS``).
-
-         :type: str
-      )doc" )
-            .def_readonly( "celestial_pole_convention", &EarthOrientationData::celestialPoleConvention, R"doc(
-
-         **read-only**
-
-         Convention of the celestial pole offsets (``dX,dY``).
 
          :type: str
       )doc" )

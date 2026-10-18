@@ -17,19 +17,9 @@ std::string fixture( const std::string& name )
 {
     return paths::getTudatTestDataPath( ) + "pr1092/reference_files/station_history/" + name;
 }
-StationHistoryTime manufacturedTime( long double years )
+Time manufacturedTime( long double years )
 {
-    const long double days = years * 365.25L;
-    StationHistoryTime result;
-    result.tai = Time( years * 31557600.0L );
-    result.mjdDay = 50000 + static_cast< int >( std::floor( days ) );
-    result.mjdFraction = days - std::floor( days );
-    result.calendarYear = 2000 + static_cast< int >( std::floor( years ) );
-    result.yearFraction = years - std::floor( years );
-    result.mjdRate = 1.0 / 86400.0;
-    result.decimalYearRate = 1.0 / 31557600.0;
-    result.convention = "controlled source coordinate";
-    return result;
+    return Time( years * 31557600.0L );
 }
 StationHistoryMetadata metadata( )
 {
@@ -39,7 +29,6 @@ StationHistoryMetadata metadata( )
     result.frame = "ITRF2020";
     result.release = "ITRF2020";
     result.origin = "CM";
-    result.timeConvention = "controlled source coordinate";
     return result;
 }
 StationHistoryLinearSolution linear( )
@@ -173,13 +162,13 @@ BOOST_AUTO_TEST_CASE( stableShortTimeCumulativeEventsAndAnalyticRates )
 BOOST_AUTO_TEST_CASE( halfOpenValidityRightHandSolutionsAndNoExtrapolation )
 {
     auto first = linear( );
-    first.validity = { manufacturedTime( 0 ).tai, manufacturedTime( 1 ).tai };
+    first.validity = { manufacturedTime( 0 ), manufacturedTime( 1 ) };
     first.velocityMetresPerJulianYear = Eigen::Vector3d( 0.01, -0.02, 0.03 );
     auto second = first;
     second.source.key.solutionId = "2";
     second.positionMetres = Eigen::Vector3d( 0.1, -0.2, 0.3 );
     second.velocityMetresPerJulianYear *= -1;
-    second.validity = { first.validity.endTai, manufacturedTime( 2 ).tai };
+    second.validity = { first.validity.endTai, manufacturedTime( 2 ) };
     StationCoordinateHistory history( { second, first }, {}, {}, metadata( ) );
 
     // Select the new coordinate solution and its velocity at a dated solution boundary.
@@ -191,29 +180,25 @@ BOOST_AUTO_TEST_CASE( halfOpenValidityRightHandSolutionsAndNoExtrapolation )
 //! Compare seasonal positions and velocities with calendar phases in rotated bases.
 BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
 {
-    auto ref = getIgnNominalUtcStationTime( SinexCivilUtc{ 2020, 1, 0 } );
     auto solution = linear( );
-    solution.referenceTime = ref;
-    auto meta = metadata( );
-    meta.timeConvention = ref.convention;
-    const StationSeasonalTerm annual{ "1", 1, { 0.01, -0.02, 0.03 }, { -0.04, 0.05, -0.06 }, {} };
-    const StationSeasonalTerm semiannual{ "1", 2, { -0.002, 0.003, -0.004 }, { 0.005, -0.006, 0.007 }, {} };
+    solution.referenceTime = convertSinexCivilUtcToTai( { 2020, 1, 0 } );
+    const auto meta = metadata( );
+    const StationSeasonalTerm annual{ "1", 1, { 0.01, -0.02, 0.03 }, { -0.04, 0.05, -0.06 } };
+    const StationSeasonalTerm semiannual{ "1", 2, { -0.002, 0.003, -0.004 }, { 0.005, -0.006, 0.007 } };
     StationCoordinateHistory history( { solution }, {}, { annual, semiannual }, meta );
-    const auto tai = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
-    const auto time = getIgnNominalUtcStationTimeFromTai( tai, 1.00000001 );
+    const auto time = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
 
-    // Compare seasonal positions and velocities with calendar phases in rotated bases.
-    BOOST_CHECK_SMALL( static_cast< double >( time.yearFraction - 59.5L / 366 ), 1e-18 );
+    // Compare seasonal positions and velocities with calendar phases (of the TAI epoch, 37 s after UTC) in rotated bases.
+    const double yearFraction = ( 59.5 + 37.0 / 86400.0 ) / 366;
+    BOOST_CHECK_SMALL( static_cast< double >( getCalendarDecimalYear( time ) - 2020 ) - yearFraction, 1e-15 );
     Eigen::Vector3d expected = Eigen::Vector3d::Zero( );
     for( const auto& term : { annual, semiannual } )
     {
-        const double phase = 2.0 * std::acos( -1.0 ) * term.cyclesPerCalendarYear * ( 59.5 / 366 );
+        const double phase = 2.0 * std::acos( -1.0 ) * term.cyclesPerCalendarYear * yearFraction;
         expected += term.cosineMetres * std::cos( phase ) + term.sineMetres * std::sin( phase );
     }
     closeVector( history.getPosition( time ), expected, 1e-16 );
-    const Eigen::Vector3d difference = ( history.getPosition( getIgnNominalUtcStationTimeFromTai( tai + 10.0 ) ) -
-                                         history.getPosition( getIgnNominalUtcStationTimeFromTai( tai - 10.0 ) ) ) /
-            20.0 * 1.00000001;
+    const Eigen::Vector3d difference = ( history.getPosition( time + 10.0 ) - history.getPosition( time - 10.0 ) ) / 20.0;
     closeVector( history.getState( time ).tail< 3 >( ), difference, 2e-18 );
     const Eigen::Matrix3d rotation = Eigen::AngleAxisd( 0.73, Eigen::Vector3d( 1, 2, 3 ).normalized( ) ).toRotationMatrix( );
     auto rotatedAnnual = annual;
@@ -226,10 +211,6 @@ BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
     StationCoordinateHistory rotated( { solution }, {}, { rotatedAnnual, rotatedSemiannual }, meta );
     closeVector( rotated.getPosition( time ), rotation * history.getPosition( time ), 1e-16 );
     closeVector( rotated.getState( time ).tail< 3 >( ), rotation * history.getState( time ).tail< 3 >( ), 1e-23 );
-    const auto nextYear = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2021, 1, 0 } ), 1.0 );
-    BOOST_CHECK_EQUAL( nextYear.calendarYear, 2021 );
-    BOOST_CHECK_EQUAL( nextYear.yearFraction, 0.0L );
-    BOOST_CHECK_EQUAL( *nextYear.decimalYearRate, 1.0 / ( 365 * 86400.0 ) );
 }
 
 //! Assemble published SINEX coordinates and their corresponding velocity records.
@@ -247,8 +228,6 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionAndVelocity )
     BOOST_CHECK_EQUAL( history->getMetadata( ).release, "ITRF2020" );
     const auto& last = history->getSolutions( ).back( );
     BOOST_CHECK_EQUAL( last.source.key.solutionId, "6" );
-    BOOST_CHECK_EQUAL( last.velocitySolutionId, "4" );
-    BOOST_CHECK_EQUAL( *last.velocityValidity.startTai, convertSinexCivilUtcToTai( { 2020, 204, 22365 } ) );
 
     // There is no V identifier 6: the SSC's complete solution 6 velocity is used.
     for( int c = 0; c < 3; ++c )
@@ -256,8 +235,7 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionAndVelocity )
         BOOST_CHECK_EQUAL( last.velocityMetresPerJulianYear[ c ], *last.source.velocityMetresPerSecond[ c ] * 31557600.0 );
     }
     const auto event = history->getPostSeismicTerms( ).front( ).eventTime;
-    auto query = getIgnNominalUtcStationTimeFromTai( event.tai + 100.0, 1.0 );
-    BOOST_CHECK( history->getState( query ).allFinite( ) );
+    BOOST_CHECK( history->getState( event + 100.0 ).allFinite( ) );
 }
 
 //! Sum all published repeated post-seismic parameter pairs.
@@ -273,7 +251,7 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairs )
 
         // Sum all published repeated post-seismic parameter pairs.
         BOOST_CHECK_EQUAL( history->getPostSeismicTerms( ).size( ), siteCode == "AB48" ? 4 : 5 );
-        const auto time = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2019, 160, 43200 } ), 1.0 );
+        const auto time = convertSinexCivilUtcToTai( { 2019, 160, 43200 } );
         Eigen::Vector3d expected = Eigen::Vector3d::Zero( );
         for( const auto& entry : deformation.parameters )
         {
@@ -283,8 +261,8 @@ BOOST_AUTO_TEST_CASE( publishedRepeatedPsdPairs )
                 continue;
             }
             const double tau = deformation.parameters.at( entry.first + 1 ).originalValue;
-            const auto event = getIgnNominalUtcStationTime( *amplitude.referenceEpoch.civilUtc );
-            const double dt = static_cast< double >( ( time.mjdDay - event.mjdDay + time.mjdFraction - event.mjdFraction ) / 365.25L );
+            const auto event = convertSinexCivilUtcToTai( *amplitude.referenceEpoch.civilUtc );
+            const double dt = static_cast< double >( static_cast< long double >( time - event ) / 31557600.0L );
             const double correction = amplitude.type.substr( 1, 3 ) == "LOG" ? std::log( 1 + dt / tau ) : 1 - std::exp( -dt / tau );
             expected += basis.col( std::string( "ENU" ).find( amplitude.type.back( ) ) ) * ( amplitude.originalValue * correction );
         }
@@ -304,7 +282,7 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
     // Build seasonal station motion from published SINEX coefficients in a fixed basis.
     BOOST_CHECK_EQUAL( history->getSeasonalTerms( ).size( ), 12 );
     BOOST_CHECK( history->hasFittedSeasonalTerms( ) );
-    const auto time = getIgnNominalUtcStationTimeFromTai( convertSinexCivilUtcToTai( { 2020, 60, 43200 } ), 1.0 );
+    const auto time = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
     Eigen::Vector3d expected = Eigen::Vector3d::Zero( );
     for( const auto& entry : seasons.parameters )
     {
@@ -313,7 +291,7 @@ BOOST_AUTO_TEST_CASE( publishedSeasonalFactoryOriginIdentityAndFixedBasis )
         {
             continue;
         }
-        const double angle = 2 * std::acos( -1.0 ) * ( p.type[ 1 ] - '0' ) * 59.5 / 366;
+        const double angle = 2 * std::acos( -1.0 ) * ( p.type[ 1 ] - '0' ) * ( 59.5 + 37.0 / 86400.0 ) / 366;
         const double function = p.type.substr( 2, 3 ) == "COS" ? std::cos( angle ) : std::sin( angle );
         expected += basis.col( std::string( "ENU" ).find( p.type.back( ) ) ) * ( p.originalValue * function );
     }
@@ -349,25 +327,15 @@ BOOST_AUTO_TEST_CASE( precisePhysicalBoundaryIndependentSourceCoordinatesAndMoti
                                                                  std::vector< StationPostSeismicTerm >{},
                                                                  std::vector< StationSeasonalTerm >{},
                                                                  metadata( ) );
-    auto time = manufacturedTime( 0 );
-    time.tai = boundary - 1e-12L;
 
     // Select the old solution just before the boundary and the new solution at the boundary.
-    closeVector( history->getPosition( time ), a.positionMetres, 1e-30 );
-    time.tai = boundary;
-    closeVector( history->getPosition( time ), b.positionMetres, 1e-30 );
-    const auto settings = simulation_setup::stationHistoryGroundStationMotionSettings( history, {}, [ time ]( const auto&, bool rates ) {
-        auto output = time;
-        if( !rates )
-        {
-            output.mjdRate.reset( );
-        }
-        return output;
-    } );
+    closeVector( history->getPosition( boundary - 1e-12L ), a.positionMetres, 1e-30 );
+    closeVector( history->getPosition( boundary ), b.positionMetres, 1e-30 );
+    const auto settings = simulation_setup::stationHistoryGroundStationMotionSettings( history );
     const auto factoryStation = simulation_setup::createGroundStationState( std::make_shared< simulation_setup::Body >( ),
                                                                             Eigen::Vector3d( 100, 200, 300 ),
                                                                             coordinate_conversions::cartesian_position,
                                                                             { settings } );
-    closeVector( factoryStation->getCartesianPositionInTime( 0.0, "Earth" ), b.positionMetres, 1e-30 );
-    closeVector( factoryStation->getCartesianStateInTime( 0.0, "Earth" ).head< 3 >( ), b.positionMetres, 1e-30 );
+    closeVector( factoryStation->getCartesianPositionInTime( 300000.0, "Earth" ), b.positionMetres, 1e-30 );
+    closeVector( factoryStation->getCartesianStateInTime( 300000.0, "Earth" ).head< 3 >( ), b.positionMetres, 1e-30 );
 }

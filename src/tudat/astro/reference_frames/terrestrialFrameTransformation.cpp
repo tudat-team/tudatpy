@@ -38,10 +38,10 @@ TerrestrialFrameAffineTransformation evaluateHelmertCoordinates( const input_out
     // The declared rotation convention sets the sign; elapsed is expressed in the published rate-year unit.
     const double sign = p.rotationConvention == input_output::HelmertRotationConvention::positionVector ? 1.0 : -1.0;
 
-    const double elapsed = p.parameterRateYearSeconds * ( decimalYear - p.referenceDecimalYear );
+    const double elapsed = 31557600.0 * ( decimalYear - p.referenceDecimalYear );
 
     // Chain SI-normalized parameter rates to the caller's input seconds only when a state was requested.
-    const double rateFactor = rate ? p.parameterRateYearSeconds * *rate : 0.0;
+    const double rateFactor = rate ? 31557600.0 * *rate : 0.0;
 
     TerrestrialFrameAffineTransformation result;
 
@@ -134,26 +134,11 @@ TerrestrialFrameAffineTransformation evaluateLinearizedHelmert( const input_outp
                                                                 double decimalYearRateWithRespectToInputSeconds )
 {
     validateCoordinates( decimalYear, decimalYearRateWithRespectToInputSeconds );
-    input_output::validateTerrestrialFrameTransformationParameters( p );
-    if( p.rotationConvention == input_output::HelmertRotationConvention::unspecified )
-    {
-        throw std::runtime_error( "Explicit Helmert rotation convention required" );
-    }
     return evaluateHelmertCoordinates( p, decimalYear, decimalYearRateWithRespectToInputSeconds );
 }
 
 //! Store the validated catalogue and its declared rotation conventions.
-HelmertTransformationModel::HelmertTransformationModel( const input_output::TerrestrialFrameTransformationData& data ): data_( data )
-{
-    input_output::validateTerrestrialFrameTransformationData( data_ );
-    for( const auto& entry : data_.records )
-    {
-        if( entry.second.rotationConvention == input_output::HelmertRotationConvention::unspecified )
-        {
-            throw std::runtime_error( "Terrestrial-frame model requires a declared rotation convention" );
-        }
-    }
-}
+HelmertTransformationModel::HelmertTransformationModel( const input_output::TerrestrialFrameTransformationData& data ): data_( data ) {}
 
 //! Share the source-to-hub-to-target calculation between position and state evaluation.
 TerrestrialFrameAffineTransformation HelmertTransformationModel::evaluateTransformation( const std::string& source,

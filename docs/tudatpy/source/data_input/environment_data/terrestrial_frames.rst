@@ -39,8 +39,6 @@ Classes
    TerrestrialFrameTransformationData
    TerrestrialFrameTransformationParameters
    TerrestrialFrameIdentity
-   TerrestrialFrameTransformationSource
-
 .. autoclass:: TerrestrialFrameTransformationData
    :members:
 
@@ -50,5 +48,3 @@ Classes
 .. autoclass:: TerrestrialFrameIdentity
    :members:
 
-.. autoclass:: TerrestrialFrameTransformationSource
-   :members:

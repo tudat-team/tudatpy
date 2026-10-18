@@ -29,66 +29,6 @@ Enumeration of the kinds of point on a station of which a station history gives 
                     gs::StationReferencePointKind::calibratedInstrumentPoint,
                     "Instrument point defined by a user-supplied calibration (for instance a phase centre)." );
 
-    py::class_< gs::StationHistoryTime >( m, "StationHistoryTime", R"doc(
-
-Epoch at which a station history is evaluated, in the time coordinates used by its source.
-
-Station solutions are valid on TAI intervals, while their reference epochs and seasonal terms use a modified Julian
-date and a calendar decimal year. These are stored split into an integer and a fractional part to retain precision.
-For state evaluation, the derivatives of the modified Julian date and decimal year with respect to TDB are also needed.
-Objects of this class are normally created by :func:`ign_nominal_utc_station_time_from_tdb`; they need to be created
-directly only for custom trajectories.
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "tai", &gs::StationHistoryTime::tai, R"doc(
-
-         Epoch in TAI, used to select the valid records.
-
-         :type: astro.time_representation.Time
-      )doc" )
-            .def_readwrite( "mjd_day", &gs::StationHistoryTime::mjdDay, R"doc(
-
-         Integer part of the modified Julian date (in the source's time convention).
-
-         :type: int
-      )doc" )
-            .def_readwrite( "mjd_fraction", &gs::StationHistoryTime::mjdFraction, R"doc(
-
-         Fractional part of the modified Julian date.
-
-         :type: float
-      )doc" )
-            .def_readwrite( "calendar_year", &gs::StationHistoryTime::calendarYear, R"doc(
-
-         Calendar year.
-
-         :type: int
-      )doc" )
-            .def_readwrite( "year_fraction", &gs::StationHistoryTime::yearFraction, R"doc(
-
-         Fraction of the calendar year.
-
-         :type: float
-      )doc" )
-            .def_readwrite( "mjd_rate", &gs::StationHistoryTime::mjdRate, R"doc(
-
-         Derivative of the modified Julian date with respect to TDB, in days per second (``None`` if not set).
-
-         :type: float | None
-      )doc" )
-            .def_readwrite( "decimal_year_rate", &gs::StationHistoryTime::decimalYearRate, R"doc(
-
-         Derivative of the decimal year with respect to TDB, in years per second (``None`` if not set).
-
-         :type: float | None
-      )doc" )
-            .def_readwrite( "convention", &gs::StationHistoryTime::convention, R"doc(
-
-         Name of the time convention (must match that of the station coordinate history).
-
-         :type: str
-      )doc" );
     py::class_< gs::StationHistoryInterval >( m, "StationHistoryInterval", R"doc(
 
 Validity interval of a station history record, :math:`[t_{start}, t_{end})` in TAI. An end that is ``None`` is
@@ -151,12 +91,6 @@ of the station of which it gives the position.
 
          :type: str
       )doc" )
-            .def_readwrite( "time_convention", &gs::StationHistoryMetadata::timeConvention, R"doc(
-
-         Name of the time convention of the source.
-
-         :type: str
-      )doc" )
             .def_readwrite( "reference_point_kind", &gs::StationHistoryMetadata::referencePointKind, R"doc(
 
          Kind of point of which the history gives the position.
@@ -168,18 +102,6 @@ of the station of which it gives the position.
          Name of that point.
 
          :type: str
-      )doc" )
-            .def_readwrite( "sources", &gs::StationHistoryMetadata::sources, R"doc(
-
-         Names of the source files.
-
-         :type: list[str]
-      )doc" )
-            .def_readwrite( "signals", &gs::StationHistoryMetadata::signals, R"doc(
-
-         Signals to which a calibrated instrument point applies.
-
-         :type: list[str]
       )doc" );
     py::class_< gs::StationHistoryLinearSolution >( m, "StationHistoryLinearSolution", R"doc(
 
@@ -199,23 +121,11 @@ Linear (position and velocity) solution of a station history, valid on a single 
 
          :type: StationHistoryInterval
       )doc" )
-            .def_readwrite( "velocity_solution_id", &gs::StationHistoryLinearSolution::velocitySolutionId, R"doc(
-
-         Identifier of the velocity solution.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "velocity_validity", &gs::StationHistoryLinearSolution::velocityValidity, R"doc(
-
-         Validity interval of the velocity solution.
-
-         :type: StationHistoryInterval
-      )doc" )
             .def_readwrite( "reference_time", &gs::StationHistoryLinearSolution::referenceTime, R"doc(
 
-         Reference epoch of the position.
+         Reference epoch of the position, in TAI.
 
-         :type: StationHistoryTime
+         :type: astro.time_representation.Time
       )doc" )
             .def_readwrite( "position_metres", &gs::StationHistoryLinearSolution::positionMetres, R"doc(
 
@@ -254,9 +164,9 @@ Post-seismic deformation term of a station history, applied from the epoch of an
       )doc" )
             .def_readwrite( "event_time", &gs::StationPostSeismicTerm::eventTime, R"doc(
 
-         Epoch of the earthquake.
+         Epoch of the earthquake, in TAI.
 
-         :type: StationHistoryTime
+         :type: astro.time_representation.Time
       )doc" )
             .def_readwrite( "amplitude_metres", &gs::StationPostSeismicTerm::amplitudeMetres, R"doc(
 
@@ -269,26 +179,6 @@ Post-seismic deformation term of a station history, applied from the epoch of an
          Relaxation time :math:`\tau` in Julian years.
 
          :type: float
-      )doc" )
-            .def_readwrite( "amplitude_parameter_index", &gs::StationPostSeismicTerm::amplitudeParameterIndex, R"doc(
-
-         SINEX parameter index of the amplitude.
-
-         :type: int
-      )doc" )
-            .def_readwrite( "relaxation_parameter_index", &gs::StationPostSeismicTerm::relaxationParameterIndex, R"doc(
-
-         SINEX parameter index of the relaxation time.
-
-         :type: int
-      )doc" )
-            .def_readonly( "provenance", &gs::StationPostSeismicTerm::provenance, R"doc(
-
-         **read-only**
-
-         Line of the SINEX file from which the term was read.
-
-         :type: ~tudatpy.data_input.environment_data.station_history.SinexSourceRecord
       )doc" );
     py::class_< gs::StationSeasonalTerm >( m, "StationSeasonalTerm", R"doc(
 
@@ -321,12 +211,6 @@ the number of cycles per year.
          Sine coefficients :math:`\mathbf{s}` in metres.
 
          :type: numpy.ndarray[numpy.float64[3, 1]]
-      )doc" )
-            .def_readwrite( "parameter_indices", &gs::StationSeasonalTerm::parameterIndices, R"doc(
-
-         SINEX parameter indices of the coefficients.
-
-         :type: list[int]
       )doc" );
 
     // Station coordinate histories expose copied coefficient records so Python mutation cannot invalidate the native model.
@@ -368,15 +252,15 @@ station with :func:`~tudatpy.dynamics.environment_setup.ground_station.station_h
       )doc" )
             .def( "position",
                   &gs::StationCoordinateHistory::getPosition,
-                  py::arg( "source_time" ),
+                  py::arg( "tai" ),
                   R"doc(
 
          Function to compute the position of the station.
 
          Parameters
          ----------
-         source_time : StationHistoryTime
-             Epoch at which the position is computed.
+         tai : astro.time_representation.Time
+             Epoch (TAI) at which the position is computed.
 
          Returns
          -------
@@ -386,20 +270,20 @@ station with :func:`~tudatpy.dynamics.environment_setup.ground_station.station_h
       )doc" )
             .def( "state",
                   &gs::StationCoordinateHistory::getState,
-                  py::arg( "source_time" ),
+                  py::arg( "tai" ),
                   R"doc(
 
-         Function to compute the position and velocity of the station. The rates of ``source_time`` must be set.
+         Function to compute the position and velocity of the station.
 
          Parameters
          ----------
-         source_time : StationHistoryTime
-             Epoch at which the state is computed.
+         tai : astro.time_representation.Time
+             Epoch (TAI) at which the state is computed.
 
          Returns
          -------
          numpy.ndarray[numpy.float64[6, 1]]
-             Cartesian position and velocity, in metres and metres per TDB second.
+             Cartesian position and velocity, in metres and metres per second.
 
       )doc" )
             .def_property_readonly(
@@ -445,84 +329,6 @@ station with :func:`~tudatpy.dynamics.environment_setup.ground_station.station_h
          :type: bool
       )doc" );
 
-    m.def( "ign_nominal_utc_station_time_from_tai",
-           &gs::getIgnNominalUtcStationTimeFromTai,
-           py::arg( "tai" ),
-           py::arg( "tai_rate_with_respect_to_tdb" ) = py::none( ),
-           R"doc(
-
-Function to compute the station history epoch for a given TAI epoch, using the IGN time conventions.
-
-The IGN station products use UTC modified Julian dates and calendar decimal years, without leap seconds (an epoch
-during an inserted leap second cannot be represented). Only epochs after 1972 are supported.
-
-
-Parameters
-----------
-tai : astro.time_representation.Time
-    Epoch in TAI.
-tai_rate_with_respect_to_tdb : float | None, default = None
-    Derivative of TAI with respect to TDB. If given, the rates of the epoch are set (needed for state evaluation).
-
-Returns
--------
-StationHistoryTime
-    Station history epoch.
-
-      )doc" );
-    m.def( "ign_nominal_utc_station_time_from_tdb",
-           &gs::getIgnNominalUtcStationTimeFromTdb,
-           py::arg( "tdb" ),
-           py::arg( "converter" ) = nullptr,
-           py::arg( "require_rates" ) = false,
-           R"doc(
-
-Function to compute the station history epoch for a given TDB epoch, using the IGN time conventions (see
-:func:`ign_nominal_utc_station_time_from_tai`).
-
-
-Parameters
-----------
-tdb : astro.time_representation.Time
-    Epoch in TDB.
-converter : ~tudatpy.astro.time_representation.TimeScaleConverter, default = None
-    Time scale converter used to convert TDB to TAI. If not given, the default converter is used.
-require_rates : bool, default = False
-    Whether the rates of the epoch must be computed (needed for state evaluation).
-
-Returns
--------
-StationHistoryTime
-    Station history epoch.
-
-      )doc" );
-    m.def(
-            "ign_nominal_utc_station_time",
-            []( int year, int day, int seconds ) { return gs::getIgnNominalUtcStationTime( io::SinexCivilUtc{ year, day, seconds } ); },
-            py::arg( "year" ),
-            py::arg( "day_of_year" ),
-            py::arg( "seconds_of_day" ),
-            R"doc(
-
-Function to compute the station history epoch for a calendar UTC epoch (as used in SINEX files), using the IGN time
-conventions (see :func:`ign_nominal_utc_station_time_from_tai`). The rates of the epoch are not set.
-
-
-Parameters
-----------
-year : int
-    Four-digit year.
-day_of_year : int
-    Day of year.
-seconds_of_day : int
-    Seconds of day.
-
-Returns
--------
-StationHistoryTime
-    Station history epoch.
-
-      )doc" );
     m.def(
             "sinex_civil_utc_to_tai",
             []( int year, int day, int seconds ) { return gs::convertSinexCivilUtcToTai( io::SinexCivilUtc{ year, day, seconds } ); },
@@ -531,8 +337,8 @@ StationHistoryTime
             py::arg( "seconds_of_day" ),
             R"doc(
 
-Function to convert a calendar UTC epoch (as used in SINEX files) to TAI. Unlike
-:func:`ign_nominal_utc_station_time`, an epoch during an inserted leap second (seconds of day 86400) is supported.
+Function to convert a calendar UTC epoch (as used in SINEX files) to TAI. An epoch during an inserted leap second
+(seconds of day 86400) is supported.
 
 
 Parameters
@@ -581,15 +387,6 @@ Identification of a point on a station: its monument and the kind and name of th
 
          :type: str
       )doc" );
-    py::enum_< gs::StationLocalVertical >( m, "StationLocalVertical", R"doc(
-
-Enumeration of definitions of the local vertical, used to convert local (up, north, east) offsets to Cartesian
-coordinates.
-
-      )doc" )
-            .value( "geocentric_radial", gs::StationLocalVertical::geocentricRadial, "Geocentric radial direction." )
-            .value( "geodetic_ellipsoid_normal", gs::StationLocalVertical::geodeticEllipsoidNormal, "Normal to the reference ellipsoid." )
-            .value( "explicit_fixed_basis", gs::StationLocalVertical::explicitFixedBasis, "User-defined fixed basis." );
     py::class_< gs::StationReferencePointGeometry >( m, "StationReferencePointGeometry", R"doc(
 
 Fixed local (east, north, up) basis of a station, used to convert local offsets of its reference points to Cartesian
@@ -605,35 +402,11 @@ coordinates. Objects of this class are normally created with
 
          :type: str
       )doc" )
-            .def_readwrite( "vertical", &gs::StationReferencePointGeometry::vertical, R"doc(
-
-         Definition of the local vertical.
-
-         :type: StationLocalVertical
-      )doc" )
             .def_readwrite( "enu_to_terrestrial", &gs::StationReferencePointGeometry::enuToTerrestrial, R"doc(
 
          Rotation matrix from the local (east, north, up) basis to body-fixed Cartesian coordinates.
 
          :type: numpy.ndarray[numpy.float64[3, 3]]
-      )doc" )
-            .def_readwrite( "anchor_metres", &gs::StationReferencePointGeometry::anchorMetres, R"doc(
-
-         Cartesian position at which the basis is defined, in metres.
-
-         :type: numpy.ndarray[numpy.float64[3, 1]]
-      )doc" )
-            .def_readwrite( "equatorial_radius_metres", &gs::StationReferencePointGeometry::equatorialRadiusMetres, R"doc(
-
-         Equatorial radius of the reference ellipsoid in metres (geodetic vertical only).
-
-         :type: float | None
-      )doc" )
-            .def_readwrite( "flattening", &gs::StationReferencePointGeometry::flattening, R"doc(
-
-         Flattening of the reference ellipsoid (geodetic vertical only).
-
-         :type: float | None
       )doc" );
     py::class_< gs::SinexEquipmentHeaderTimeContext >( m, "SinexEquipmentHeaderTimeContext", R"doc(
 
@@ -653,12 +426,6 @@ not give that epoch.
          Epoch to use for an end that refers to the header, in TAI.
 
          :type: astro.time_representation.Time | None
-      )doc" )
-            .def_readwrite( "source", &gs::SinexEquipmentHeaderTimeContext::source, R"doc(
-
-         Description of where these epochs come from.
-
-         :type: str
       )doc" );
     py::enum_< gs::StationReferencePointOffsetBasis >( m, "StationReferencePointOffsetBasis", R"doc(
 
@@ -742,45 +509,16 @@ a single interval.
       )doc" )
             .def_readwrite( "position_function", &gs::StationReferencePointOffset::positionFunction, R"doc(
 
-         Time-dependent offset (in the component order of :attr:`basis`), used instead of :attr:`components_metres` if set.
+         Time-dependent offset (in the component order of :attr:`basis`) as a function of TAI, used instead of
+         :attr:`components_metres` if set.
 
-         :type: callable[[StationHistoryTime], numpy.ndarray[numpy.float64[3, 1]]]
+         :type: callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 1]]]
       )doc" )
             .def_readwrite( "state_function", &gs::StationReferencePointOffset::stateFunction, R"doc(
 
-         Time-dependent offset and its rate with respect to TDB, required for state evaluation if :attr:`position_function` is set.
+         Time-dependent offset and its rate (per second), required for state evaluation if :attr:`position_function` is set.
 
-         :type: callable[[StationHistoryTime], numpy.ndarray[numpy.float64[6, 1]]]
-      )doc" )
-            .def_readwrite( "direction_dependent", &gs::StationReferencePointOffset::directionDependent, R"doc(
-
-         Whether the offset depends on the observation direction (which is not modelled).
-
-         :type: bool
-      )doc" )
-            .def_readonly( "provenance", &gs::StationReferencePointOffset::provenance, R"doc(
-
-         **read-only**
-
-         Line of the SINEX file that gives the offset.
-
-         :type: ~tudatpy.data_input.environment_data.station_history.SinexSourceRecord
-      )doc" )
-            .def_readonly( "equipment_provenance", &gs::StationReferencePointOffset::equipmentProvenance, R"doc(
-
-         **read-only**
-
-         Line of the SINEX file that gives the equipment.
-
-         :type: ~tudatpy.data_input.environment_data.station_history.SinexSourceRecord
-      )doc" )
-            .def_readonly( "header_time_context", &gs::StationReferencePointOffset::headerTimeContext, R"doc(
-
-         **read-only**
-
-         Validity interval used for header-referenced epochs, if any.
-
-         :type: SinexEquipmentHeaderTimeContext | None
+         :type: callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[6, 1]]]
       )doc" );
     py::class_< gs::StationReferencePointOffsetHistory, std::shared_ptr< gs::StationReferencePointOffsetHistory > >(
             m, "StationReferencePointOffsetHistory", R"doc(
@@ -806,15 +544,15 @@ new offset starts, the new offset is used for both position and velocity.
       )doc" )
             .def( "position_correction",
                   &gs::StationReferencePointOffsetHistory::getPositionCorrection,
-                  py::arg( "source_time" ),
+                  py::arg( "tai" ),
                   R"doc(
 
          Function to compute the Cartesian offset at a given epoch.
 
          Parameters
          ----------
-         source_time : StationHistoryTime
-             Epoch at which the position is computed.
+         tai : astro.time_representation.Time
+             Epoch (TAI) at which the offset is computed.
 
          Returns
          -------
@@ -824,20 +562,20 @@ new offset starts, the new offset is used for both position and velocity.
       )doc" )
             .def( "state_correction",
                   &gs::StationReferencePointOffsetHistory::getStateCorrection,
-                  py::arg( "source_time" ),
+                  py::arg( "tai" ),
                   R"doc(
 
          Function to compute the Cartesian offset and its rate at a given epoch.
 
          Parameters
          ----------
-         source_time : StationHistoryTime
-             Epoch at which the position is computed.
+         tai : astro.time_representation.Time
+             Epoch (TAI) at which the offset is computed.
 
          Returns
          -------
          numpy.ndarray[numpy.float64[6, 1]]
-             Cartesian offset and its rate, in metres and metres per TDB second.
+             Cartesian offset and its rate, in metres and metres per second.
 
       )doc" )
             .def_property_readonly( "offsets", &gs::StationReferencePointOffsetHistory::getOffsets, py::return_value_policy::copy, R"doc(

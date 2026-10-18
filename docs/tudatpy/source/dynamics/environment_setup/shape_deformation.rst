@@ -37,8 +37,6 @@ Functions
 
    ocean_tidal
 
-   ocean_tidal_from_data
-
    pole_tidal
 
    ocean_pole_tidal
@@ -62,8 +60,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.iers_2010_solid_body_tidal
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal
-
-.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal_from_data
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.pole_tidal
 
@@ -91,12 +87,7 @@ Enumerations
 
    OceanTideSynthesis
 
-   StationLoadingSpatialSelection
-
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.OceanTideSynthesis
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingSpatialSelection
    :members:
 
 
@@ -114,13 +105,7 @@ Classes
 
    AtmosphericTideBodyDeformationSettings
 
-   AtmosphericTideEvaluationSettings
-
    StationLoadingBodyDeformationSettings
-
-   StationLoadingEvaluationSettings
-
-   StationLoadingOriginTranslation
 
 
 
@@ -136,14 +121,6 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.AtmosphericTideBodyDeformationSettings
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.AtmosphericTideEvaluationSettings
-   :members:
-
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingBodyDeformationSettings
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingEvaluationSettings
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingOriginTranslation
-   :members:

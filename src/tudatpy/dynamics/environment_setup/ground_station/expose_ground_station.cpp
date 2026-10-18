@@ -750,7 +750,6 @@ Keep throw_exception_when_not_available true when every configured contribution 
            py::arg( "seasonal" ) = nullptr,
            py::arg( "enu_to_terrestrial" ) = py::none( ),
            py::arg( "domes_selector" ) = py::none( ),
-           py::arg( "velocity_consistency_tolerance_metres_per_julian_year" ) = 1.0e-8,
            R"doc(
 
  Function for creating a station history from IGN (ITRF) station products.
@@ -759,18 +758,17 @@ Keep throw_exception_when_not_available true when every configured contribution 
  distributed by IGN: the station coordinate solution, the discontinuity file and, optionally, the post-seismic
  deformation and seasonal-term files. The station position is the sum of:
 
- * the linear (position and velocity) solution that is valid at the epoch. Each position solution must lie within a
-   single velocity interval of the discontinuity file, and solutions sharing a velocity interval must have consistent
-   velocities;
+ * the linear (position and velocity) solution that is valid at the epoch (its validity interval is given by the
+   position record of the discontinuity file);
  * all post-seismic deformation terms (logarithmic and exponential) of earthquakes before the epoch. An amplitude with
    parameter index :math:`i` is paired with the relaxation time with index :math:`i+1`; relaxation times are
    interpreted in Julian years (although labelled ``m`` in the IGN files);
  * the annual and semi-annual seasonal terms of the valid position solution, with a phase given by the fraction of the
    actual calendar year.
 
- The time conventions of the IGN products are used: elapsed time for the linear and post-seismic terms is the
- difference of UTC modified Julian dates divided by 365.25, without leap seconds. Solution validity intervals are
- :math:`[t_{start}, t_{end})` in TAI, so a new solution applies from its start epoch; epochs in a gap between
+ The history is evaluated in TAI: elapsed time for the linear and post-seismic terms is the TAI interval in Julian years
+ (differences with respect to the UTC convention of the IGN products are below 0.1 micrometre). Solution validity
+ intervals are :math:`[t_{start}, t_{end})`, so a new solution applies from its start epoch; epochs in a gap between
  solutions, or outside them, raise an exception.
 
  The ``frame``, ``release``, ``origin`` and ``tide_system`` attributes of all products must be set by the user, and be
@@ -782,7 +780,7 @@ Keep throw_exception_when_not_available true when every configured contribution 
  solutions : SinexStationHistory
      Station coordinate solution (for instance ``ITRF2020-IGS-TRF.SNX``).
  discontinuities : SinexStationHistory
-     Discontinuity file, giving the validity intervals of the position and velocity solutions.
+     Discontinuity file, giving the validity intervals of the position solutions.
  site : SinexSiteKey
      Site code and point code of the station.
  post_seismic : SinexStationHistory, default = None
@@ -794,8 +792,6 @@ Keep throw_exception_when_not_available true when every configured contribution 
      the post-seismic or seasonal terms are given in east, north, up components.
  domes_selector : str, default = None
      DOMES number of the monument, required when several monuments share the site and point code.
- velocity_consistency_tolerance_metres_per_julian_year : float, default = 1e-8
-     Tolerance on the difference between velocity components of solutions that share a velocity interval.
 
  Returns
  -------
@@ -890,7 +886,6 @@ Keep throw_exception_when_not_available true when every configured contribution 
            py::arg( "history" ),
            py::arg( "reference_point_offsets" ) =
                    std::vector< std::shared_ptr< tudat::ground_stations::StationReferencePointOffsetHistory > >( ),
-           py::arg( "source_time_function" ) = py::none( ),
            R"doc(
 
  Function for creating settings for station motion from a station coordinate history.
@@ -898,9 +893,8 @@ Keep throw_exception_when_not_available true when every configured contribution 
  Function for creating settings for station motion from a station coordinate history, optionally moved to another point
  of the station by reference point offsets (for instance from the marker to the antenna reference point). The nominal
  position of the ground station is subtracted, so that the resulting station position is equal to the position from the
- history plus the offsets. By default, the epoch is converted to the time coordinates of the station history using the
- IGN conventions (see :func:`~tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tdb`), with the time scale
- converter of the body's rotation model when available.
+ history plus the offsets. The history is evaluated at the TAI epoch, computed with the time scale converter of the
+ body's rotation model when available.
 
 
  Parameters
@@ -910,9 +904,6 @@ Keep throw_exception_when_not_available true when every configured contribution 
  reference_point_offsets : list[StationReferencePointOffsetHistory], default = []
      Offset histories added to the position of the history, in order: the first starts at the point of the history, and
      each next one at the end point of the previous one. They must be given in the frame of the history.
- source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None
-     Custom conversion of the TDB epoch (first argument) to the time coordinates of the station history, setting the
-     rates when the second argument is true. Its time convention must match that of the station history.
 
  Returns
  -------
@@ -1026,7 +1017,6 @@ Keep throw_exception_when_not_available true when every configured contribution 
            py::arg( "history" ),
            py::arg( "reference_point_offsets" ),
            py::arg( "nominal_position" ),
-           py::arg( "source_time_function" ) = py::none( ),
            R"doc(
 
  Function for creating settings for a ground station located at a reference point of a station.
@@ -1045,8 +1035,6 @@ Keep throw_exception_when_not_available true when every configured contribution 
      Offset histories from the point of the history to the reference point, in order.
  nominal_position : numpy.ndarray[numpy.float64[3, 1]]
      Nominal Cartesian position of the station, in the body-fixed frame.
- source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None
-     Custom conversion of the epoch to the time coordinates of the station history (see :func:`station_history_motion`).
 
  Returns
  -------

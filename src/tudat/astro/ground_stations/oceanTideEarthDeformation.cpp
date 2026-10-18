@@ -1,6 +1,8 @@
 #include <algorithm>
 #include "tudat/astro/ground_stations/earthDeformationTime.h"
 #include <array>
+#include <fstream>
+#include <optional>
 #include <cmath>
 #include <map>
 #include <vector>
@@ -11,6 +13,7 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/io/textParsing.h"
 
 namespace tudat
 {
@@ -337,7 +340,9 @@ double evaluateOceanLoadingSpline( const OceanLoadingAdmittanceSpline& spline, c
             dy * ( y[ left ] / dk - s[ left ] * dk / 6.0 );
 }
 
-Eigen::Vector3d synthesizeExpandedOceanLoading( const double tt, const input_output::OceanLoadingStation& station )
+Eigen::Vector3d synthesizeExpandedOceanLoading( const double tt,
+                                                const Eigen::Matrix< double, 3, 11 >& amplitudesMetres,
+                                                const Eigen::Matrix< double, 3, 11 >& phaseLagsRadians )
 {
     const auto astronomy = computeOceanLoadingAstronomicalArguments( tt );
     const double degreesToRadians = mathematical_constants::PI / 180.0;
@@ -402,9 +407,8 @@ Eigen::Vector3d synthesizeExpandedOceanLoading( const double tt, const input_out
             for( const std::size_t column : columns )
             {
                 const std::size_t tide = mainIndices[ column ];
-                const double amplitude =
-                        station.amplitudesMetres( component, column ) / std::abs( oceanLoadingEquilibriumAmplitudes[ tide ] );
-                const double lag = station.phaseLagsDegrees( component, column ) * degreesToRadians;
+                const double amplitude = amplitudesMetres( component, column ) / std::abs( oceanLoadingEquilibriumAmplitudes[ tide ] );
+                const double lag = phaseLagsRadians( component, column );
                 x.push_back( frequencies[ tide ] );
                 real.push_back( amplitude * std::cos( lag ) );
                 imaginary.push_back( -amplitude * std::sin( lag ) );
@@ -429,15 +433,56 @@ Eigen::Vector3d synthesizeExpandedOceanLoading( const double tt, const input_out
 
 }  // namespace
 
-//! Compatibility wrapper; neutral input records retain phases in their original degrees.
 std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > readBlqFile( const std::string& fileName )
 {
-    const auto data = input_output::readOceanLoadingData( fileName );
-    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > result( 2 );
-    for( const auto& station : data.stations )
+    std::ifstream stream( fileName );
+    if( !stream )
     {
-        result[ 0 ].emplace( station.first, station.second.amplitudesMetres );
-        result[ 1 ].emplace( station.first, unit_conversions::convertDegreesToRadians( station.second.phaseLagsDegrees ) );
+        throw std::runtime_error( "Ocean loading BLQ file could not be opened: " + fileName );
+    }
+
+    // Each station has a name line and six rows of eleven values: amplitudes (m) and phase lags (degrees) of the up, west and
+    // south displacements. Lines starting with $$ are comments.
+    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > result( 2 );
+    Eigen::Matrix< double, 6, 11 > values;
+    std::string line, station;
+    int row = 6;
+    while( std::getline( stream, line ) )
+    {
+        const auto tokens = input_output::text_parsing::splitIntoTokens( line );
+        if( tokens.empty( ) || tokens.front( ).rfind( "$$", 0 ) == 0 )
+        {
+            continue;
+        }
+        if( row == 6 )
+        {
+            station = tokens.front( );
+            row = 0;
+            continue;
+        }
+        for( int column = 0; column < 11; ++column )
+        {
+            const auto value = column < static_cast< int >( tokens.size( ) )
+                    ? input_output::text_parsing::parseFiniteNumber( tokens[ column ] )
+                    : std::nullopt;
+            if( !value || tokens.size( ) != 11 )
+            {
+                throw std::runtime_error( "Invalid BLQ coefficient row for station " + station + " in " + fileName );
+            }
+            values( row, column ) = *value;
+        }
+        if( ++row == 6 )
+        {
+            if( !result[ 0 ].emplace( station, values.topRows< 3 >( ) ).second )
+            {
+                throw std::runtime_error( "Duplicate ocean loading station " + station + " in " + fileName );
+            }
+            result[ 1 ].emplace( station, unit_conversions::convertDegreesToRadians( values.bottomRows< 3 >( ).eval( ) ) );
+        }
+    }
+    if( row != 6 )
+    {
+        throw std::runtime_error( "Truncated BLQ station block for station " + station + " in " + fileName );
     }
     return result;
 }
@@ -472,41 +517,18 @@ OceanTideEarthDeformation::OceanTideEarthDeformation(
     }
 }
 
-//! Construct from provider records, retaining the intentional empty state used for later station append.
 OceanTideEarthDeformation::OceanTideEarthDeformation(
-        const input_output::OceanLoadingData& data,
+        const std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > >& blqData,
         const OceanTideSynthesis synthesis,
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter ):
     OceanTideEarthDeformation( std::vector< std::string >( ), synthesis, converter )
 {
-    // An intentional empty model supports later addBlqFile/addOceanLoadingData, like the filename constructor.
-    if( data.stations.empty( ) )
-    {
-        input_output::validateOceanLoadingData( data, true );
-        oceanLoadingData_ = data;
-    }
-    else
-    {
-        addOceanLoadingData( data );
-    }
+    addBlqData( blqData );
 }
 
 OceanTideEarthDeformation::OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
                                                       const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction ):
     OceanTideEarthDeformation( blqFiles, OceanTideSynthesis::legacyElevenConstituents )
-{
-    if( !doodsonArgumentFunction )
-    {
-        throw std::runtime_error( "Ocean loading legacy argument callback is empty" );
-    }
-    doodsonArgumentFunction_ = doodsonArgumentFunction;
-    usesNativeUtcPhase_ = false;
-}
-
-//! Apply a supplied legacy argument clock after initializing the same preloaded/empty provider records.
-OceanTideEarthDeformation::OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
-                                                      const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction ):
-    OceanTideEarthDeformation( data, OceanTideSynthesis::legacyElevenConstituents )
 {
     if( !doodsonArgumentFunction )
     {
@@ -531,18 +553,18 @@ void OceanTideEarthDeformation::initializeLegacyConstituents( )
 
 void OceanTideEarthDeformation::addBlqFile( const std::string& blqFile )
 {
-    addOceanLoadingData( input_output::readOceanLoadingData( blqFile ) );
+    addBlqData( readBlqFile( blqFile ) );
 }
 
-//! Append provider records and prepare metre amplitudes and radian phases for the model's station lookup.
-void OceanTideEarthDeformation::addOceanLoadingData( const input_output::OceanLoadingData& data )
+void OceanTideEarthDeformation::addBlqData( const std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > >& blqData )
 {
-    // Settings construction and later model append operations share the neutral provenance/duplicate checks.
-    input_output::appendOceanLoadingData( oceanLoadingData_, data );
-    for( const auto& item : data.stations )
+    for( const auto& item : blqData.at( 0 ) )
     {
-        siteOceanTideAmplitudes_.emplace( item.first, item.second.amplitudesMetres );
-        siteOceanTidePhases_.emplace( item.first, unit_conversions::convertDegreesToRadians( item.second.phaseLagsDegrees ) );
+        if( !siteOceanTideAmplitudes_.emplace( item.first, item.second ).second )
+        {
+            throw std::runtime_error( "Duplicate ocean loading station " + item.first );
+        }
+        siteOceanTidePhases_.emplace( item.first, blqData.at( 1 ).at( item.first ) );
     }
 }
 
@@ -552,16 +574,17 @@ Eigen::Vector3d OceanTideEarthDeformation::calculateGeocentricEnuDisplacement( c
     {
         throw std::runtime_error( "Ocean loading evaluation time must be finite" );
     }
-    if( synthesis_ == OceanTideSynthesis::iersHardisp )
-    {
-        const Eigen::Vector3d uws = synthesizeExpandedOceanLoading( time, oceanLoadingData_.getStation( siteIdentifier ) );
-        return Eigen::Vector3d( -uws( 1 ), -uws( 2 ), uws( 0 ) );
-    }
     // Check to see if requested site is available.
     if( siteOceanTideAmplitudes_.count( siteIdentifier ) == 0 )
     {
         throw std::out_of_range( "Error, requested site: " + siteIdentifier +
                                  ", which is not available for ocean tide displacement calculation (blq file missing)" );
+    }
+    if( synthesis_ == OceanTideSynthesis::iersHardisp )
+    {
+        const Eigen::Vector3d uws = synthesizeExpandedOceanLoading(
+                time, siteOceanTideAmplitudes_.at( siteIdentifier ), siteOceanTidePhases_.at( siteIdentifier ) );
+        return Eigen::Vector3d( -uws( 1 ), -uws( 2 ), uws( 0 ) );
     }
 
     // Calculate doodson arguments at given time.
@@ -617,18 +640,14 @@ Eigen::Vector6d OceanTideEarthDeformation::evaluateDisplacementState( const Time
     {
         const double centre = static_cast< double >( tdb );
         const Eigen::Vector3d velocity = differentiateDisplacement(
-                centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); }, {} );
+                centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); } );
         return ( Eigen::Vector6d( ) << calculateDisplacement( tdb, station ), velocity ).finished( );
     }
     const Time tt = timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, tdb );
     const double rate = timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     const Eigen::Vector3d velocity =
             differentiateDisplacement(
-                    tt,
-                    [ & ]( const Time& sample ) { return displacementAtArgumentTime( static_cast< double >( sample ), station ); },
-                    []( const Time& lower, const Time& upper ) {
-                        validateEarthDeformationUtcInterval( static_cast< double >( lower ), static_cast< double >( upper ) );
-                    } ) *
+                    tt, [ & ]( const Time& sample ) { return displacementAtArgumentTime( static_cast< double >( sample ), station ); } ) *
             rate;
     return ( Eigen::Vector6d( ) << displacementAtArgumentTime( static_cast< double >( tt ), station ), velocity ).finished( );
 }

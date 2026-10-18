@@ -8,95 +8,54 @@ namespace tudat
 {
 namespace basic_astrodynamics
 {
-//! How a ground station is matched to a site of a station loading series: by an explicit list of pairs, or by finding the
-//! site within whose validity radius the station lies.
-enum class StationLoadingSpatialSelection { explicitBindings, withinProviderRadius };
 
-//! Time series of the translation between two origins (r_sourceOrigin - r_targetOrigin), used to convert station loading
-//! displacements to another origin.
-struct StationLoadingOriginTranslation {
-    //! Name of the translation series.
-    std::string identifier;
-
-    //! Descriptions of the origin of the displacements and of the origin to which they are converted, and the latter origin.
-    std::string sourceOriginDefinition;
-    std::string targetOriginDefinition;
-    input_output::StationLoadingOrigin targetOrigin = input_output::StationLoadingOrigin::unspecified;
-
-    //! Translation, as a station loading series with a single site.
-    input_output::StationLoadingData series;
-};
-
-//! Settings for computing station displacements from a station loading series.
-struct StationLoadingEvaluationSettings {
-    //! How ground stations are matched to sites of the series.
-    StationLoadingSpatialSelection spatialSelection = StationLoadingSpatialSelection::explicitBindings;
-
-    //! Environment station ID -> arbitrary provider label. The empty ID explicitly binds an unidentified nominal station.
-    std::map< std::string, std::string > stationBindings;
-
-    //! Linear interpolation only; a gap larger than this is unavailable, even if present in an irregular source grid.
-    double maximumGapSeconds = 86400.0;
-
-    //! Description of the origin of the output displacements, and the translation used to convert them to that origin
-    //! (nullptr if the origin of the series is used).
-    std::string outputOriginDefinition;
-    std::shared_ptr< const StationLoadingOriginTranslation > originTranslation;
-};
-
-//! Precomputed loading, evaluated on continuous TAI and returned in provider Cartesian axes.
-//! Native input is precise TDB Time. Rates differentiate the same linear interpolant,
-//! taking the interval to the right of a knot, and to the left of the final endpoint.
+//! Displacements of ground stations from a station loading series (for instance non-tidal atmospheric loading).
+/*!
+ * Each ground station is associated with a site of the series: the site given for its name in the station bindings or, if
+ * no bindings are given, the nearest site within whose validity radius it lies. The radial, east and north displacements
+ * of the site are interpolated linearly in TAI, and rotated to body-fixed Cartesian axes using the position of the site.
+ * The rate is that of the linear interpolant (at a sample, that of the interval to its right). Epochs outside the series,
+ * or in an interval longer than the maximum gap, raise an exception.
+ */
 class StationLoadingDeformation : public BodyDeformationModel
 {
 public:
+    //! Constructor
+    /*!
+     * \param data Station loading series
+     * \param stationBindings Site identifier of the series per ground station name (empty to select sites by their radius)
+     * \param maximumGapSeconds Maximum interval between two samples over which the series is interpolated
+     * \param converter Time scale converter (if nullptr, a converter without EOP data is used)
+     */
     StationLoadingDeformation( const input_output::StationLoadingData& data,
-                               const StationLoadingEvaluationSettings& settings,
+                               const std::map< std::string, std::string >& stationBindings = {},
+                               double maximumGapSeconds = 86400.0,
                                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr );
-    const input_output::StationLoadingData& getData( ) const
-    {
-        return data_;
-    }
-    const StationLoadingEvaluationSettings& getEvaluationSettings( ) const
-    {
-        return settings_;
-    }
 
 protected:
-    //! Return Cartesian displacement in metres, including valid singleton source positions.
+    //! Cartesian displacement in metres.
     Eigen::Vector3d evaluateDisplacement( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
-    //! Return displacement and the derivative of its linear TAI interpolant per TDB second.
+    //! Cartesian displacement and its rate (per TDB second).
     Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                const std::shared_ptr< ground_stations::GroundStationState > station ) override;
 
 private:
-    //! Epochs of a station loading series, converted to TAI and TDB.
-    struct PreparedGrid {
-        //! TAI and TDB of each epoch.
-        std::vector< Time > tai, tdb;
-    };
-    PreparedGrid prepareGrid( const input_output::StationLoadingData& data ) const;
-    const input_output::StationLoadingSite& selectSite( const Eigen::Vector3d& position, const std::string& stationId ) const;
+    //! Displacement and (if requested) its rate for a station.
+    Eigen::Vector6d evaluate( const Time& tdb, const std::shared_ptr< ground_stations::GroundStationState >& station, bool withRate ) const;
 
-    //! Select one provider point and calculate displacement plus optional rate, applying its basis/origin once.
-    Eigen::Vector6d evaluate( const Time& tdb, const Eigen::Vector3d& position, const std::string& stationId, bool withRate ) const;
-
-    //! Evaluate one physical TAI interval; the optional velocity is returned per TAI second.
-    Eigen::Vector6d interpolate( const input_output::StationLoadingSite& site,
-                                 const PreparedGrid& grid,
-                                 const Time& tdb,
-                                 bool withRate ) const;
-
-    //! Station loading series, and the settings for evaluating it.
+    //! Station loading series, and the site identifier per ground station name.
     input_output::StationLoadingData data_;
-    StationLoadingEvaluationSettings settings_;
+    std::map< std::string, std::string > stationBindings_;
 
-    //! Epochs of the series and of the origin translation, in TAI and TDB.
-    PreparedGrid grid_, translationGrid_;
+    //! Maximum interval between two samples over which the series is interpolated.
+    double maximumGapSeconds_;
 
-    //! Rotation from the component directions of each site to body-fixed Cartesian axes, with the site identifier as key.
-    std::map< std::string, Eigen::Matrix3d > sourceBases_;
+    //! Epochs of the series in TDB.
+    std::vector< Time > tdbEpochs_;
+
+    //! Rotation from the radial, east and north directions of each site to body-fixed Cartesian axes.
+    std::map< std::string, Eigen::Matrix3d > siteBases_;
 };
 
 }  // namespace basic_astrodynamics

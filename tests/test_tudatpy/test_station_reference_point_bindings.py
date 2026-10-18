@@ -60,7 +60,7 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
         post_seismic=products[2],
         enu_to_terrestrial=np.eye(3),
     )
-    query = environment.ign_nominal_utc_station_time(2019, 200, 0)
+    query = environment.sinex_civil_utc_to_tai(2019, 200, 0)
 
     # Editing exported solution and PSD records must not alter the validated trajectory.
     expected = trajectory.position(query)
@@ -97,7 +97,6 @@ def test_returned_offsets_and_trajectory_terms_are_independent_snapshots():
     assert station.station_name == "AB07:ARP"
 
     # Returned coefficient and offset records remain copies.
-    query = environment.ign_nominal_utc_station_time_from_tai(query.tai, 1.0)
     expected_point = transformed.position(query) + point_offset.components_metres
     np.testing.assert_array_equal(
         transformed.position(query) + point_history.position_correction(query), expected_point

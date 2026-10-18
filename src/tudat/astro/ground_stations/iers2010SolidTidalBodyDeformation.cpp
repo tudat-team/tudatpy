@@ -423,18 +423,8 @@ Eigen::Vector6d Iers2010EarthDeformation::evaluateDisplacementState( const Time&
     }
     const double centre = static_cast< double >( tdb );
     const Eigen::Vector3d velocity = differentiateDisplacement(
-            centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); }, {} );
+            centre, [ & ]( const double& sample ) { return calculateDisplacement( tdb + ( sample - centre ), station ); } );
     return ( Eigen::Vector6d( ) << calculateDisplacement( tdb, station ), velocity ).finished( );
-}
-
-void Iers2010EarthDeformation::validateDisplacementDerivativeInterval( const Time& lower, const Time& upper ) const
-{
-    if( usesNativeUtcPhase_ )
-    {
-        validateEarthDeformationUtcInterval(
-                static_cast< double >( timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, lower ) ),
-                static_cast< double >( timeConverter_->getCurrentTime< Time >( tdb_scale, tt_scale, upper ) ) );
-    }
 }
 
 Eigen::Vector3d Iers2010EarthDeformation::displacementFromArguments(

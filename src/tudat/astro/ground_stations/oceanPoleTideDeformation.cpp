@@ -95,7 +95,6 @@ Eigen::Matrix< double, 3, 2 > interpolateOceanPoleTideCoefficients( const input_
                                                                     const double latitudeDegrees,
                                                                     const double longitudeDegrees )
 {
-    input_output::validateOceanPoleTideGrid( grid );
     return interpolateValidatedOceanPoleTideCoefficients( grid, latitudeDegrees, longitudeDegrees );
 }
 
@@ -104,7 +103,6 @@ OceanPoleTideDeformation::OceanPoleTideDeformation( const input_output::OceanPol
                                                     const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter ):
     BodyDeformationModel( converter ), grid_( grid ), polarMotionCalculator_( polarMotionCalculator )
 {
-    input_output::validateOceanPoleTideGrid( grid_ );
     if( !polarMotionCalculator_ )
     {
         throw std::runtime_error( "Ocean pole-tide loading requires a polar motion calculator" );
@@ -154,7 +152,7 @@ Eigen::Vector6d OceanPoleTideDeformation::evaluateDisplacementState( const Time&
     const auto position = [ this, station ]( const Time& time ) { return calculateDisplacementAtTt( time, station ); };
     Eigen::Vector6d state;
     state.head< 3 >( ) = position( tt );
-    state.tail< 3 >( ) = differentiateDisplacement( tt, position, {} ) * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
+    state.tail< 3 >( ) = differentiateDisplacement( tt, position ) * timeConverter_->getGeocentricTtRateWithRespectToTdb( tdb );
     return state;
 }
 }  // namespace basic_astrodynamics

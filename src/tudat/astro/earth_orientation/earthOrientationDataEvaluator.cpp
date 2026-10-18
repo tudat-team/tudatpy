@@ -50,7 +50,6 @@ EarthOrientationDataEvaluator::EarthOrientationDataEvaluator( const input_output
                                                               const EarthOrientationEvaluationSettings& settings ):
     data_( data ), settings_( settings )
 {
-    input_output::validateEarthOrientationData( data );
     if( data.records.size( ) < 2 )
     {
         throw std::runtime_error( "EOP evaluation requires at least two UTC epochs" );

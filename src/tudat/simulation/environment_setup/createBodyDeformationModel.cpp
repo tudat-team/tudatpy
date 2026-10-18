@@ -15,17 +15,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Eagerly read BLQ inputs and combine them with the same provenance/duplicate rules as model append operations.
-OceanTideBodyDeformationSettings::OceanTideBodyDeformationSettings( const std::vector< std::string > blqFiles,
-                                                                    const basic_astrodynamics::OceanTideSynthesis synthesis ):
-    BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles ), synthesis_( synthesis )
-{
-    for( const auto& file : blqFiles )
-    {
-        input_output::appendOceanLoadingData( data_, input_output::readOceanLoadingData( file ) );
-    }
-}
-
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
         const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > lunarEphemeris,
@@ -266,14 +255,10 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             {
                 throw std::invalid_argument( "Station loading requires Earth's model-owned GCRS/ITRS time converter" );
             }
-            if( settings->getData( ).metadata.referenceFrame != rotation->getTargetFrameOrientation( ) )
-            {
-                throw std::invalid_argument(
-                        "Loading source Cartesian frame must explicitly match the body's fixed frame; no frame identity is inferred" );
-            }
             bodyDeformationModel = std::make_shared< basic_astrodynamics::StationLoadingDeformation >(
-                    settings->getData( ),
-                    settings->getEvaluationSettings( ),
+                    settings->data_,
+                    settings->stationBindings_,
+                    settings->maximumGapSeconds_,
                     rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( ) );
             break;
         }
@@ -294,17 +279,11 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 throw std::runtime_error( "Atmospheric loading requires Earth's GCRS/ITRS model and shared time converter" );
             }
             const auto converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
-            const auto shape = bodyMap.at( body )->getShapeModel( );
-            if( settings->getInputFormat( ) == AtmosphericTideInputFormat::grid )
-            {
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
-                        settings->getGrid( ), converter, settings->getEvaluationSettings( ), shape );
-            }
-            else
-            {
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
-                        settings->getStations( ), converter, settings->getEvaluationSettings( ), shape );
-            }
+            bodyDeformationModel = settings->grid_.coefficientsMetres.empty( )
+                    ? std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
+                              settings->stationCoefficients_, converter, settings->convertToCentreOfMass_ )
+                    : std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
+                              settings->grid_, converter, settings->convertToCentreOfMass_ );
             break;
         }
         case ocean_pole_tide: {
@@ -360,9 +339,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 }
 
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                        oceanTideBodyDeformationSettings->getOceanLoadingData( ),
-                        oceanTideBodyDeformationSettings->getSynthesis( ),
-                        converter );
+                        oceanTideBodyDeformationSettings->getBlqFiles( ), oceanTideBodyDeformationSettings->getSynthesis( ), converter );
             }
             break;
         }

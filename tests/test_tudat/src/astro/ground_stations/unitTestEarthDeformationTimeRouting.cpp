@@ -90,22 +90,19 @@ std::shared_ptr< earth_orientation::PolarMotionCalculator > routingPolar(
                 return converter->getUt1FromTai( tai );
             } );
 }
-input_output::OceanLoadingData routingOceanData( )
+std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > routingOceanData( )
 {
-    input_output::OceanLoadingData data;
+    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > data( 2 );
     for( const auto& fixture : hardispReferenceStations )
     {
-        input_output::OceanLoadingStation row;
-        row.stationIdentifier = fixture.identifier;
         for( int i = 0; i < 3; ++i )
         {
             for( int j = 0; j < 11; ++j )
             {
-                row.amplitudesMetres( i, j ) = fixture.coefficients[ i ][ j ];
-                row.phaseLagsDegrees( i, j ) = fixture.coefficients[ i + 3 ][ j ];
+                data[ 0 ][ fixture.identifier ]( i, j ) = fixture.coefficients[ i ][ j ];
+                data[ 1 ][ fixture.identifier ]( i, j ) = fixture.coefficients[ i + 3 ][ j ] * mathematical_constants::PI / 180.0;
             }
         }
-        data.stations.emplace( row.stationIdentifier, row );
     }
     return data;
 }
@@ -384,16 +381,7 @@ BOOST_AUTO_TEST_CASE( native_tide_models_use_interpolated_clock_rates )
     const auto model = makeModel( routingRotation( converter, tt_scale ) );
     const Time epoch( 0.0 );
 
-    // An interior clock query must not evaluate unrelated civil-day boundaries.
-    BOOST_CHECK_NO_THROW( ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter ) );
-
-    // The history clock and both deformation states use the rate of the selected interpolated clock.
-    const auto historyTime = ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter, true );
-
-    BOOST_REQUIRE( historyTime.mjdRate.has_value( ) );
-    BOOST_REQUIRE( historyTime.decimalYearRate.has_value( ) );
-    BOOST_CHECK( std::isfinite( *historyTime.mjdRate ) );
-    BOOST_CHECK( std::isfinite( *historyTime.decimalYearRate ) );
+    // Both deformation states use the rate of the selected interpolated clock.
     const auto positionOnly = std::make_shared< ContextOnlyPositionModel >( converter );
     std::vector< std::shared_ptr< BodyDeformationModel > > selected{ positionOnly };
     const auto motion =

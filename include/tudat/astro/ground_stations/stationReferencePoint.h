@@ -22,22 +22,11 @@ struct StationReferencePointIdentity {
     std::string name;
 };
 
-//! Definition of the local vertical used for up/north/east offsets at a station.
-enum class StationLocalVertical { geocentricRadial, geodeticEllipsoidNormal, explicitFixedBasis };
-
 //! Local directions (east, north, up) at a station, used to convert up/north/east offsets to terrestrial coordinates.
 struct StationReferencePointGeometry {
-    //! Terrestrial reference frame, and the definition of the local vertical.
+    //! Terrestrial reference frame, and the rotation from east/north/up to terrestrial Cartesian axes.
     std::string frame;
-    StationLocalVertical vertical = StationLocalVertical::explicitFixedBasis;
-
-    //! Rotation from east/north/up to terrestrial Cartesian axes, and the position (metres) at which it was computed.
     Eigen::Matrix3d enuToTerrestrial = Eigen::Matrix3d::Identity( );
-    Eigen::Vector3d anchorMetres = Eigen::Vector3d::Zero( );
-
-    //! Equatorial radius (metres) and flattening of the ellipsoid, for a geodetic vertical.
-    std::optional< double > equatorialRadiusMetres;
-    std::optional< double > flattening;
 };
 StationReferencePointGeometry createGeocentricStationReferencePointGeometry( const Eigen::Vector3d& anchor, const std::string& frame );
 StationReferencePointGeometry createGeodeticStationReferencePointGeometry( const Eigen::Vector3d& anchor,
@@ -45,14 +34,10 @@ StationReferencePointGeometry createGeodeticStationReferencePointGeometry( const
                                                                            double equatorialRadiusMetres,
                                                                            double flattening );
 
-//! Explicit bounded context for missing source header limits, with its own provenance.
+//! Start and end (TAI) used for equipment records whose start or end refers to header limits that the file does not give.
 struct SinexEquipmentHeaderTimeContext {
-    //! Start and end (TAI) used for equipment records whose start or end refers to the missing header limits.
     std::optional< Time > startTai;
     std::optional< Time > endTai;
-
-    //! Description of where these limits come from.
-    std::string source;
 };
 
 //! Component order of a reference point offset: up, north, east (UNE) or Cartesian X, Y, Z.
@@ -76,19 +61,12 @@ struct StationReferencePointOffset {
     //! Calibration and signal to which the offset applies (required for an offset to a calibrated instrument point).
     std::string calibrationId, signal;
 
-    //! Name of the source of the offset, the lines from which the offset and the equipment were read, and the time limits
-    //! used when the source header gives none.
+    //! Name of the source of the offset.
     std::string source;
-    input_output::SinexSourceRecord provenance;
-    input_output::SinexSourceRecord equipmentProvenance;
-    std::optional< SinexEquipmentHeaderTimeContext > headerTimeContext;
 
-    //! Optional time-dependent reference vectors in the declared basis; state rates are d/dTDB.
-    std::function< Eigen::Vector3d( const StationHistoryTime& ) > positionFunction;
-    std::function< Eigen::Vector6d( const StationHistoryTime& ) > stateFunction;
-
-    //! Whether the offset depends on the direction of the signal; such offsets are not supported.
-    bool directionDependent = false;
+    //! Optional time-dependent reference vectors in the declared basis, as a function of TAI (rates per second).
+    std::function< Eigen::Vector3d( const Time& ) > positionFunction;
+    std::function< Eigen::Vector6d( const Time& ) > stateFunction;
 };
 
 //! Offsets between two points of a station over time (for instance with a new offset after each antenna change).
@@ -98,8 +76,8 @@ class StationReferencePointOffsetHistory
 public:
     StationReferencePointOffsetHistory( std::vector< StationReferencePointOffset > offsets,
                                         std::optional< StationReferencePointGeometry > geometry = std::nullopt );
-    Eigen::Vector3d getPositionCorrection( const StationHistoryTime& time ) const;
-    Eigen::Vector6d getStateCorrection( const StationHistoryTime& time ) const;
+    Eigen::Vector3d getPositionCorrection( const Time& tai ) const;
+    Eigen::Vector6d getStateCorrection( const Time& tai ) const;
     const StationReferencePointOffset& getActiveOffset( const Time& tai ) const;
     const std::vector< StationReferencePointOffset >& getOffsets( ) const
     {

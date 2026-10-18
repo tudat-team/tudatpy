@@ -80,18 +80,10 @@ protected:
     virtual Eigen::Vector6d evaluateDisplacementState( const Time& tdb,
                                                        const std::shared_ptr< ground_stations::GroundStationState > station );
 
-    //! Numerical derivative (fourth-order central difference) of the given displacement function at the given epoch. If
-    //! validateInterval is provided, it is first called with the first and last epoch at which the displacement is evaluated.
+    //! Numerical derivative (fourth-order central difference) of the given displacement function at the given epoch.
     Eigen::Vector3d differentiateDisplacement( const Time& time,
-                                               const std::function< Eigen::Vector3d( const Time& ) >& displacement,
-                                               const std::function< void( const Time&, const Time& ) >& validateInterval ) const;
-    Eigen::Vector3d differentiateDisplacement( double time,
-                                               const std::function< Eigen::Vector3d( const double& ) >& displacement,
-                                               const std::function< void( const double&, const double& ) >& validateInterval ) const;
-
-    //! Check that the numerical derivative of the displacement can be computed over the given TDB interval; throws an
-    //! exception if it cannot. By default, any interval is accepted.
-    virtual void validateDisplacementDerivativeInterval( const Time&, const Time& ) const {}
+                                               const std::function< Eigen::Vector3d( const Time& ) >& displacement ) const;
+    Eigen::Vector3d differentiateDisplacement( double time, const std::function< Eigen::Vector3d( const double& ) >& displacement ) const;
 
     //! Object to convert between time scales.
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter_;
