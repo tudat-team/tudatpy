@@ -32,10 +32,6 @@ struct StationHistoryLinearSolution {
     input_output::SinexCartesianSolution source;
     StationHistoryInterval validity;
 
-    //! Independent V history identifier; SSC velocities remain attached to their P solution.
-    std::string velocitySolutionId;
-    StationHistoryInterval velocityValidity;
-
     //! Reference epoch (TAI), and the position (metres) and velocity (metres per Julian year) at that epoch.
     Time referenceTime;
     Eigen::Vector3d positionMetres = Eigen::Vector3d::Zero( );
@@ -54,10 +50,6 @@ struct StationPostSeismicTerm {
     //! Amplitude (metres, per Cartesian component) and relaxation time (Julian years) of the term.
     Eigen::Vector3d amplitudeMetres = Eigen::Vector3d::Zero( );
     double relaxationJulianYears = 0.0;
-
-    //! Parameter numbers of the amplitude and relaxation time in the source file.
-    std::size_t amplitudeParameterIndex = 0;
-    std::size_t relaxationParameterIndex = 0;
 };
 
 //! Periodic (seasonal) motion of a station, with a given number of cycles per calendar year.
@@ -69,9 +61,6 @@ struct StationSeasonalTerm {
     int cyclesPerCalendarYear = 1;
     Eigen::Vector3d cosineMetres = Eigen::Vector3d::Zero( );
     Eigen::Vector3d sineMetres = Eigen::Vector3d::Zero( );
-
-    //! Parameter numbers of the amplitudes in the source file.
-    std::vector< std::size_t > parameterIndices;
 };
 
 //! Point of a station whose position is described: the monument marker, the antenna reference point, or a calibrated
@@ -93,10 +82,6 @@ struct StationHistoryMetadata {
     //! Point of the station whose position is described, and its name.
     StationReferencePointKind referencePointKind = StationReferencePointKind::marker;
     std::string referencePointName = "marker";
-
-    //! Source files of the history, and the kinds of station motion it includes (for instance post-seismic deformation).
-    std::vector< std::string > sources;
-    std::vector< std::string > signals;
 };
 
 //! Catalogued coordinates of a station point over time: linear (position and velocity) solutions with consecutive
@@ -196,19 +181,19 @@ std::shared_ptr< StationCoordinateHistory > transformStationCoordinateHistory(
         const std::string& targetTideSystem,
         bool acknowledgeAlignedReleases = false );
 
-//! Explicit profile for IGN's source-index pairing and relaxation-unit convention.
+//! Create the station coordinate history of one station from IGN (ITRF) SINEX products.
 /*!
- * Every product must carry consistent supplied frame/release/origin/tide metadata.
- * An ENU product requires an explicit, constant proper ENU-to-terrestrial rotation.
- * The native profile interprets TLOG/TEXP as Julian years even where IGN labels m;
- * the neutral input records remain unchanged. Amplitude index i is paired only
- * with matching relaxation index i+1; input line order has no meaning.
- * SSC velocity coefficients stay attached to their P solution. Independent V
- * intervals provide their own identity and must contain each complete P interval.
- * Shared V intervals require componentwise agreement within the caller's declared
- * tolerance (default 10 nm per Julian year); supplied coefficients are unchanged.
- * A DOMES selector resolves duplicated SITE/ID metadata; the caller warrants the
- * association of parameter records to that monument using companion products.
+ * Each Cartesian solution of the station is valid in the interval of its position (P) discontinuity record. Post-seismic
+ * amplitude parameters (index i) are paired with their relaxation times (index i + 1, in Julian years). All products must
+ * have the same frame, release, origin and tide system (set by the user).
+ * \param solutions Cartesian position and velocity solutions
+ * \param discontinuities Discontinuity (validity interval) records
+ * \param site Station identifier
+ * \param postSeismic Post-seismic deformation parameters (may be nullptr)
+ * \param seasonal Seasonal (annual and semi-annual) parameters (may be nullptr)
+ * \param enuToTerrestrial Rotation from east, north and up to terrestrial axes, required for ENU parameters
+ * \param domesSelector DOMES number selecting one of several monuments with the same station identifier
+ * \return Station coordinate history
  */
 std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory(
         const input_output::SinexStationHistory& solutions,
@@ -217,8 +202,7 @@ std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory(
         const input_output::SinexStationHistory* postSeismic = nullptr,
         const input_output::SinexStationHistory* seasonal = nullptr,
         const std::optional< Eigen::Matrix3d >& enuToTerrestrial = std::nullopt,
-        const std::optional< std::string >& domesSelector = std::nullopt,
-        double velocityConsistencyToleranceMetresPerJulianYear = 1.0e-8 );
+        const std::optional< std::string >& domesSelector = std::nullopt );
 
 }  // namespace ground_stations
 }  // namespace tudat

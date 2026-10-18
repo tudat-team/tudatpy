@@ -21,8 +21,6 @@ StationHistoryMetadata metadata( const std::string& frame = "ITRF2020" )
     result.frame = result.release = frame;
     result.origin = "CM";
     result.tideSystem = "explicit controlled tide convention";
-    result.sources = { "controlled source history" };
-    result.signals = { "linear marker coordinates" };
     return result;
 }
 //! TAI epoch with the given calendar decimal year (for years with TAI - UTC = 37 s).
@@ -49,7 +47,7 @@ std::shared_ptr< StationCoordinateHistory > history( const Eigen::Vector6d& stat
     std::vector< StationSeasonalTerm > terms;
     if( seasonal )
     {
-        terms.push_back( { "1", 1, Eigen::Vector3d( 0.01, -0.02, 0.03 ), Eigen::Vector3d::Zero( ), {} } );
+        terms.push_back( { "1", 1, Eigen::Vector3d( 0.01, -0.02, 0.03 ), Eigen::Vector3d::Zero( ) } );
     }
     return std::make_shared< StationCoordinateHistory >(
             std::vector< StationHistoryLinearSolution >{ linear }, std::vector< StationPostSeismicTerm >{}, terms, meta );

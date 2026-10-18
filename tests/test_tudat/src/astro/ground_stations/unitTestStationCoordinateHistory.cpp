@@ -183,8 +183,8 @@ BOOST_AUTO_TEST_CASE( calendarSeasonalCoordinatesRatesAndBasisEquivalence )
     auto solution = linear( );
     solution.referenceTime = convertSinexCivilUtcToTai( { 2020, 1, 0 } );
     const auto meta = metadata( );
-    const StationSeasonalTerm annual{ "1", 1, { 0.01, -0.02, 0.03 }, { -0.04, 0.05, -0.06 }, {} };
-    const StationSeasonalTerm semiannual{ "1", 2, { -0.002, 0.003, -0.004 }, { 0.005, -0.006, 0.007 }, {} };
+    const StationSeasonalTerm annual{ "1", 1, { 0.01, -0.02, 0.03 }, { -0.04, 0.05, -0.06 } };
+    const StationSeasonalTerm semiannual{ "1", 2, { -0.002, 0.003, -0.004 }, { 0.005, -0.006, 0.007 } };
     StationCoordinateHistory history( { solution }, {}, { annual, semiannual }, meta );
     const auto time = convertSinexCivilUtcToTai( { 2020, 60, 43200 } );
 
@@ -228,8 +228,6 @@ BOOST_AUTO_TEST_CASE( publishedHistoryPositionAndVelocity )
     BOOST_CHECK_EQUAL( history->getMetadata( ).release, "ITRF2020" );
     const auto& last = history->getSolutions( ).back( );
     BOOST_CHECK_EQUAL( last.source.key.solutionId, "6" );
-    BOOST_CHECK_EQUAL( last.velocitySolutionId, "4" );
-    BOOST_CHECK_EQUAL( *last.velocityValidity.startTai, convertSinexCivilUtcToTai( { 2020, 204, 22365 } ) );
 
     // There is no V identifier 6: the SSC's complete solution 6 velocity is used.
     for( int c = 0; c < 3; ++c )

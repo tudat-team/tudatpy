@@ -739,7 +739,6 @@ reference_epoch:
            py::arg( "seasonal" ) = nullptr,
            py::arg( "enu_to_terrestrial" ) = py::none( ),
            py::arg( "domes_selector" ) = py::none( ),
-           py::arg( "velocity_consistency_tolerance_metres_per_julian_year" ) = 1.0e-8,
            R"doc(
 
  Function for creating a station history from IGN (ITRF) station products.
@@ -748,18 +747,17 @@ reference_epoch:
  distributed by IGN: the station coordinate solution, the discontinuity file and, optionally, the post-seismic
  deformation and seasonal-term files. The station position is the sum of:
 
- * the linear (position and velocity) solution that is valid at the epoch. Each position solution must lie within a
-   single velocity interval of the discontinuity file, and solutions sharing a velocity interval must have consistent
-   velocities;
+ * the linear (position and velocity) solution that is valid at the epoch (its validity interval is given by the
+   position record of the discontinuity file);
  * all post-seismic deformation terms (logarithmic and exponential) of earthquakes before the epoch. An amplitude with
    parameter index :math:`i` is paired with the relaxation time with index :math:`i+1`; relaxation times are
    interpreted in Julian years (although labelled ``m`` in the IGN files);
  * the annual and semi-annual seasonal terms of the valid position solution, with a phase given by the fraction of the
    actual calendar year.
 
- The time conventions of the IGN products are used: elapsed time for the linear and post-seismic terms is the
- difference of UTC modified Julian dates divided by 365.25, without leap seconds. Solution validity intervals are
- :math:`[t_{start}, t_{end})` in TAI, so a new solution applies from its start epoch; epochs in a gap between
+ The history is evaluated in TAI: elapsed time for the linear and post-seismic terms is the TAI interval in Julian years
+ (differences with respect to the UTC convention of the IGN products are below 0.1 micrometre). Solution validity
+ intervals are :math:`[t_{start}, t_{end})`, so a new solution applies from its start epoch; epochs in a gap between
  solutions, or outside them, raise an exception.
 
  The ``frame``, ``release``, ``origin`` and ``tide_system`` attributes of all products must be set by the user, and be
@@ -771,7 +769,7 @@ reference_epoch:
  solutions : SinexStationHistory
      Station coordinate solution (for instance ``ITRF2020-IGS-TRF.SNX``).
  discontinuities : SinexStationHistory
-     Discontinuity file, giving the validity intervals of the position and velocity solutions.
+     Discontinuity file, giving the validity intervals of the position solutions.
  site : SinexSiteKey
      Site code and point code of the station.
  post_seismic : SinexStationHistory, default = None
@@ -783,8 +781,6 @@ reference_epoch:
      the post-seismic or seasonal terms are given in east, north, up components.
  domes_selector : str, default = None
      DOMES number of the monument, required when several monuments share the site and point code.
- velocity_consistency_tolerance_metres_per_julian_year : float, default = 1e-8
-     Tolerance on the difference between velocity components of solutions that share a velocity interval.
 
  Returns
  -------

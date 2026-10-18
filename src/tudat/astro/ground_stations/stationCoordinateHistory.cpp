@@ -95,7 +95,7 @@ double metres( const SinexParameterRecord& parameter )
 }
 }  // namespace
 
-//! Own and validate the published solution and correction records once.
+//! Sort the linear solutions, which must have consecutive validity intervals.
 StationCoordinateHistory::StationCoordinateHistory( std::vector< StationHistoryLinearSolution > solutions,
                                                     std::vector< StationPostSeismicTerm > postSeismicTerms,
                                                     std::vector< StationSeasonalTerm > seasonalTerms,
@@ -104,52 +104,16 @@ StationCoordinateHistory::StationCoordinateHistory( std::vector< StationHistoryL
     metadata_( std::move( metadata ) )
 {
     requireValidStationHistory( !solutions_.empty( ), "no linear position solutions supplied" );
-    requireValidStationHistory( !metadata_.frame.empty( ) && !metadata_.release.empty( ), "explicit frame and release metadata required" );
     std::sort( solutions_.begin( ), solutions_.end( ), []( const auto& a, const auto& b ) {
         return !a.validity.startTai ? b.validity.startTai.has_value( )
                                     : ( b.validity.startTai && *a.validity.startTai < *b.validity.startTai );
     } );
-    std::set< std::string > identifiers;
-    for( std::size_t i = 0; i < solutions_.size( ); ++i )
+    for( std::size_t i = 1; i < solutions_.size( ); ++i )
     {
-        const auto& solution = solutions_[ i ];
-        const auto& interval = solution.validity;
-        requireValidStationHistory( solution.positionMetres.allFinite( ) && solution.velocityMetresPerJulianYear.allFinite( ),
-                                    "nonfinite linear solution" );
-        requireValidStationHistory( solution.source.key.site == metadata_.site && !solution.source.key.solutionId.empty( ) &&
-                                            identifiers.insert( solution.source.key.solutionId ).second,
-                                    "inconsistent or repeated position solution identity" );
-        for( const auto& boundary : { interval.startTai, interval.endTai } )
-        {
-            requireValidStationHistory( !boundary || std::isfinite( static_cast< long double >( *boundary ) ),
-                                        "nonfinite validity endpoint" );
-        }
-        requireValidStationHistory( !interval.startTai || !interval.endTai || *interval.startTai < *interval.endTai,
-                                    "empty or reversed validity interval" );
-        if( i > 0 )
-        {
-            const auto& previous = solutions_[ i - 1 ].validity;
-            requireValidStationHistory( previous.endTai && interval.startTai && *previous.endTai == *interval.startTai,
-                                        "position validity intervals overlap or contain a gap" );
-        }
-    }
-    for( const auto& term : postSeismicTerms_ )
-    {
-        requireValidStationHistory(
-                term.amplitudeMetres.allFinite( ) && std::isfinite( term.relaxationJulianYears ) && term.relaxationJulianYears > 0.0,
-                "post-seismic relaxation must be positive and finite" );
-        requireValidStationHistory(
-                term.function == StationPostSeismicFunction::logarithmic || term.function == StationPostSeismicFunction::exponential,
-                "unsupported post-seismic function" );
-    }
-    std::set< std::pair< std::string, int > > seasonalKeys;
-    for( const auto& term : seasonalTerms_ )
-    {
-        requireValidStationHistory( identifiers.count( term.solutionId ) &&
-                                            ( term.cyclesPerCalendarYear == 1 || term.cyclesPerCalendarYear == 2 ) &&
-                                            seasonalKeys.emplace( term.solutionId, term.cyclesPerCalendarYear ).second,
-                                    "unknown or repeated seasonal position-solution/frequency identity" );
-        requireValidStationHistory( term.cosineMetres.allFinite( ) && term.sineMetres.allFinite( ), "nonfinite seasonal coefficient" );
+        const auto& previous = solutions_[ i - 1 ].validity;
+        const auto& interval = solutions_[ i ].validity;
+        requireValidStationHistory( previous.endTai && interval.startTai && *previous.endTai == *interval.startTai,
+                                    "position validity intervals overlap or contain a gap" );
     }
 }
 
@@ -298,8 +262,6 @@ std::shared_ptr< StationCoordinateHistory > transformStationCoordinateHistory(
     StationHistoryMetadata metadata = input;
     metadata.frame = std::move( target.realization );
     metadata.release = std::move( target.release );
-    metadata.sources.push_back( catalogue.provenance.source );
-    metadata.signals.push_back( sameRealization ? "declared same-frame identity" : "terrestrial frame transformation" );
     return std::make_shared< StationCoordinateHistory >(
             std::move( solutions ), std::move( postSeismicTerms ), std::move( seasonalTerms ), std::move( metadata ) );
 }
@@ -310,12 +272,8 @@ std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory( c
                                                                                const SinexStationHistory* postSeismic,
                                                                                const SinexStationHistory* seasonal,
                                                                                const std::optional< Eigen::Matrix3d >& enuToTerrestrial,
-                                                                               const std::optional< std::string >& domesSelector,
-                                                                               double velocityConsistencyToleranceMetresPerJulianYear )
+                                                                               const std::optional< std::string >& domesSelector )
 {
-    requireValidStationHistory(
-            std::isfinite( velocityConsistencyToleranceMetresPerJulianYear ) && velocityConsistencyToleranceMetresPerJulianYear >= 0.0,
-            "invalid declared velocity consistency tolerance" );
     StationHistoryMetadata metadata;
     metadata.site = site;
     metadata.domesId = uniqueDomes( solutions, site, domesSelector );
@@ -323,77 +281,27 @@ std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory( c
     metadata.release = solutions.release;
     metadata.origin = solutions.origin;
     metadata.tideSystem = solutions.tideSystem;
-    metadata.signals = { "piecewise linear station coordinates" };
     for( const auto* product : { &solutions, &discontinuities, postSeismic, seasonal } )
     {
-        if( !product )
+        if( product )
         {
-            continue;
-        }
-        checkMetadata( *product, metadata );
-        metadata.sources.push_back( product->source );
-        if( product == postSeismic || product == seasonal )
-        {
-            requireValidStationHistory( uniqueDomes( *product, site, domesSelector ) == metadata.domesId,
-                                        product->source + ": station monument association differs" );
-        }
-    }
-    if( enuToTerrestrial )
-    {
-        requireValidStationHistory(
-                enuToTerrestrial->allFinite( ) &&
-                        ( enuToTerrestrial->transpose( ) * *enuToTerrestrial - Eigen::Matrix3d::Identity( ) ).norm( ) < 1e-12 &&
-                        std::abs( enuToTerrestrial->determinant( ) - 1.0 ) < 1e-12,
-                "local basis must be a constant proper rotation" );
-    }
-    std::vector< StationHistoryLinearSolution > linear;
-    std::set< std::string > identifiers;
-    std::vector< std::pair< std::string, StationHistoryInterval > > velocityIntervals;
-    std::set< std::string > velocityIdentifiers;
-    for( const auto& record : discontinuities.discontinuities )
-    {
-        if( record.kind == "V" && record.key.site == site )
-        {
-            requireValidStationHistory( velocityIdentifiers.insert( record.key.solutionId ).second, "repeated V interval identity" );
-            velocityIntervals.emplace_back( record.key.solutionId,
-                                            StationHistoryInterval{ intervalEnd( record.start, true, discontinuities ),
-                                                                    intervalEnd( record.end, false, discontinuities ) } );
-        }
-    }
-    std::sort( velocityIntervals.begin( ), velocityIntervals.end( ), []( const auto& a, const auto& b ) {
-        return !a.second.startTai ? b.second.startTai.has_value( ) : ( b.second.startTai && *a.second.startTai < *b.second.startTai );
-    } );
-    for( std::size_t i = 0; i < velocityIntervals.size( ); ++i )
-    {
-        const auto& interval = velocityIntervals[ i ].second;
-        requireValidStationHistory( !interval.startTai || !interval.endTai || *interval.startTai < *interval.endTai,
-                                    "empty or reversed V interval" );
-        if( i )
-        {
-            requireValidStationHistory( velocityIntervals[ i - 1 ].second.endTai && interval.startTai &&
-                                                *velocityIntervals[ i - 1 ].second.endTai == *interval.startTai,
-                                        "V intervals overlap or contain a gap" );
+            checkMetadata( *product, metadata );
         }
     }
 
-    // A selector disambiguates SITE/ID metadata only. Parameter-to-monument
-    // association must be warranted by the supplied companion products.
+    // With a DOMES selector, only the selected monument is used to collect the solutions.
     auto selectedSolutions = solutions;
     if( domesSelector )
     {
         const auto range = selectedSolutions.sites.equal_range( site );
         for( auto it = range.first; it != range.second; )
         {
-            if( it->second.domesId != *domesSelector )
-            {
-                it = selectedSolutions.sites.erase( it );
-            }
-            else
-            {
-                ++it;
-            }
+            it = it->second.domesId != *domesSelector ? selectedSolutions.sites.erase( it ) : std::next( it );
         }
     }
+
+    // One linear solution per Cartesian solution of the station, valid in the interval of its position discontinuity record.
+    std::vector< StationHistoryLinearSolution > linear;
     for( const auto& key : getSinexStationCoordinateSolutionKeys( solutions ) )
     {
         if( !( key.site == site ) )
@@ -408,165 +316,60 @@ std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory( c
             solution.positionMetres[ c ] = solution.source.positionMetres[ c ];
             solution.velocityMetresPerJulianYear[ c ] = *solution.source.velocityMetresPerSecond[ c ] * secondsPerJulianYear;
         }
-        std::size_t count = 0;
-        for( const auto& record : discontinuities.discontinuities )
-        {
-            if( record.kind == "P" && record.key == key )
-            {
-                ++count;
-                solution.validity = { intervalEnd( record.start, true, discontinuities ),
-                                      intervalEnd( record.end, false, discontinuities ) };
-            }
-        }
-        requireValidStationHistory( count == 1, "each Cartesian solution requires exactly one matching P validity interval" );
-        count = 0;
-        for( const auto& entry : velocityIntervals )
-        {
-            const auto& velocityInterval = entry.second;
-            const bool containsStart = !velocityInterval.startTai ||
-                    ( solution.validity.startTai && *solution.validity.startTai >= *velocityInterval.startTai );
-            const bool containsEnd =
-                    !velocityInterval.endTai || ( solution.validity.endTai && *solution.validity.endTai <= *velocityInterval.endTai );
-            if( containsStart && containsEnd )
-            {
-                ++count;
-                solution.velocitySolutionId = entry.first;
-                solution.velocityValidity = velocityInterval;
-            }
-        }
-        requireValidStationHistory( count == 1, "each P interval requires exactly one independent containing V interval" );
-        for( const auto& previous : linear )
-        {
-            if( previous.velocitySolutionId == solution.velocitySolutionId )
-            {
-                requireValidStationHistory(
-                        ( previous.velocityMetresPerJulianYear - solution.velocityMetresPerJulianYear ).cwiseAbs( ).maxCoeff( ) <=
-                                velocityConsistencyToleranceMetresPerJulianYear,
-                        "attached SSC velocities contradict their shared V interval" );
-            }
-        }
-        identifiers.insert( key.solutionId );
+        const auto record = std::find_if( discontinuities.discontinuities.begin( ),
+                                          discontinuities.discontinuities.end( ),
+                                          [ & ]( const auto& entry ) { return entry.kind == "P" && entry.key == key; } );
+        requireValidStationHistory( record != discontinuities.discontinuities.end( ),
+                                    "solution " + key.solutionId + " has no position validity interval" );
+        solution.validity = { intervalEnd( record->start, true, discontinuities ), intervalEnd( record->end, false, discontinuities ) };
         linear.push_back( std::move( solution ) );
     }
-    for( const auto& velocityId : velocityIdentifiers )
+
+    // Post-seismic terms: each amplitude parameter (ALOG_/AEXP_) is followed by its relaxation time (TLOG_/TEXP_, in
+    // Julian years, although IGN labels the unit m).
+    std::vector< StationPostSeismicTerm > psd;
+    for( const auto& entry : postSeismic ? postSeismic->parameters : std::map< std::size_t, SinexParameterRecord >( ) )
     {
-        requireValidStationHistory(
-                std::any_of( linear.begin( ), linear.end( ), [ & ]( const auto& s ) { return s.velocitySolutionId == velocityId; } ),
-                "V interval has no associated P solution" );
-    }
-    for( const auto& record : discontinuities.discontinuities )
-    {
-        if( record.key.site == site && record.kind == "P" )
+        const auto& amplitude = entry.second;
+        if( !( amplitude.key.site == site ) || amplitude.type.size( ) != 6 ||
+            ( amplitude.type.substr( 0, 5 ) != "ALOG_" && amplitude.type.substr( 0, 5 ) != "AEXP_" ) )
         {
-            requireValidStationHistory( identifiers.count( record.key.solutionId ),
-                                        "position interval has no matching Cartesian solution" );
+            continue;
         }
+        const auto partner = postSeismic->parameters.find( amplitude.index + 1 );
+        requireValidStationHistory( partner != postSeismic->parameters.end( ) && partner->second.type == "T" + amplitude.type.substr( 1 ),
+                                    "post-seismic amplitude parameter " + std::to_string( amplitude.index ) + " has no relaxation time" );
+        StationPostSeismicTerm term;
+        term.function =
+                amplitude.type.substr( 1, 3 ) == "LOG" ? StationPostSeismicFunction::logarithmic : StationPostSeismicFunction::exponential;
+        term.eventTime = sourceEpoch( amplitude.referenceEpoch );
+        term.amplitudeMetres = metres( amplitude ) * componentVector( amplitude.type.back( ), enuToTerrestrial );
+        term.relaxationJulianYears = partner->second.originalValue;
+        psd.push_back( term );
     }
 
-    std::vector< StationPostSeismicTerm > psd;
-    if( postSeismic )
+    // Seasonal terms: annual and semi-annual cosine and sine amplitudes (A1COS_, A2SIN_, ...) per position solution.
+    std::map< std::pair< std::string, int >, StationSeasonalTerm > grouped;
+    for( const auto& entry : seasonal ? seasonal->parameters : std::map< std::size_t, SinexParameterRecord >( ) )
     {
-        metadata.signals.push_back( "empirical post-seismic deformation" );
-        std::set< std::size_t > paired;
-        for( const auto& entry : postSeismic->parameters )
+        const auto& p = entry.second;
+        if( !( p.key.site == site ) )
         {
-            const auto& amplitude = entry.second;
-            if( !( amplitude.key.site == site ) )
-            {
-                continue;
-            }
-            if( amplitude.type.size( ) == 6 && ( amplitude.type.substr( 0, 5 ) == "TLOG_" || amplitude.type.substr( 0, 5 ) == "TEXP_" ) )
-            {
-                continue;
-            }
-            requireValidStationHistory(
-                    amplitude.type.size( ) == 6 && ( amplitude.type.substr( 0, 5 ) == "ALOG_" || amplitude.type.substr( 0, 5 ) == "AEXP_" ),
-                    "unsupported PSD parameter" );
-            const auto partner = postSeismic->parameters.find( amplitude.index + 1 );
-            requireValidStationHistory( partner != postSeismic->parameters.end( ), "orphan PSD amplitude parameter" );
-            const auto& relaxation = partner->second;
-            requireValidStationHistory( relaxation.type == "T" + amplitude.type.substr( 1 ) && relaxation.key == amplitude.key &&
-                                                relaxation.referenceEpoch.civilUtc && amplitude.referenceEpoch.civilUtc &&
-                                                *relaxation.referenceEpoch.civilUtc == *amplitude.referenceEpoch.civilUtc,
-                                        "PSD source-index partner has inconsistent family/component/identity/event" );
-            requireValidStationHistory( relaxation.originalUnit == "m" || relaxation.originalUnit == "y",
-                                        "unsupported IGN PSD relaxation unit" );
-            StationPostSeismicTerm term;
-            term.function = amplitude.type.substr( 1, 3 ) == "LOG" ? StationPostSeismicFunction::logarithmic
-                                                                   : StationPostSeismicFunction::exponential;
-            term.eventTime = sourceEpoch( amplitude.referenceEpoch );
-            term.amplitudeMetres = metres( amplitude ) * componentVector( amplitude.type.back( ), enuToTerrestrial );
-            term.relaxationJulianYears = relaxation.originalValue;
-            term.amplitudeParameterIndex = amplitude.index;
-            term.relaxationParameterIndex = relaxation.index;
-            psd.push_back( term );
-            requireValidStationHistory( paired.insert( amplitude.index ).second && paired.insert( relaxation.index ).second,
-                                        "PSD parameter used twice" );
+            continue;
         }
-        for( const auto& entry : postSeismic->parameters )
-        {
-            if( entry.second.key.site == site )
-            {
-                requireValidStationHistory( paired.count( entry.first ), "orphan PSD relaxation parameter" );
-            }
-        }
+        requireValidStationHistory( p.type.size( ) == 6 && p.type[ 0 ] == 'A' && ( p.type[ 1 ] == '1' || p.type[ 1 ] == '2' ) &&
+                                            ( p.type.substr( 2, 3 ) == "COS" || p.type.substr( 2, 3 ) == "SIN" ),
+                                    "unsupported seasonal parameter " + p.type );
+        auto& term = grouped[ { p.key.solutionId, p.type[ 1 ] - '0' } ];
+        term.solutionId = p.key.solutionId;
+        term.cyclesPerCalendarYear = p.type[ 1 ] - '0';
+        ( p.type.substr( 2, 3 ) == "COS" ? term.cosineMetres : term.sineMetres ) +=
+                metres( p ) * componentVector( p.type.back( ), enuToTerrestrial );
     }
     std::vector< StationSeasonalTerm > seasons;
-    if( seasonal )
+    for( const auto& entry : grouped )
     {
-        requireValidStationHistory( !metadata.origin.empty( ),
-                                    "seasonal product requires an explicit frame origin (for example CM or CF)" );
-        metadata.signals.push_back( "empirical annual and semiannual station coordinates" );
-        std::map< std::pair< std::string, int >, StationSeasonalTerm > grouped;
-        std::map< std::pair< std::string, int >, std::set< std::string > > present;
-        for( const auto& entry : seasonal->parameters )
-        {
-            const auto& p = entry.second;
-            if( !( p.key.site == site ) )
-            {
-                continue;
-            }
-            requireValidStationHistory( p.type.size( ) == 6 && p.type[ 0 ] == 'A' && ( p.type[ 1 ] == '1' || p.type[ 1 ] == '2' ) &&
-                                                ( p.type.substr( 2, 3 ) == "COS" || p.type.substr( 2, 3 ) == "SIN" ),
-                                        "unsupported seasonal parameter" );
-            requireValidStationHistory( identifiers.count( p.key.solutionId ), "seasonal solution has no matching position validity" );
-            const auto key = std::make_pair( p.key.solutionId, p.type[ 1 ] - '0' );
-            requireValidStationHistory( present[ key ].insert( p.type ).second, "duplicate seasonal component" );
-            auto& term = grouped[ key ];
-            term.solutionId = key.first;
-            term.cyclesPerCalendarYear = key.second;
-            const Eigen::Vector3d component = metres( p ) * componentVector( p.type.back( ), enuToTerrestrial );
-            if( p.type.substr( 2, 3 ) == "COS" )
-            {
-                term.cosineMetres += component;
-            }
-            else
-            {
-                term.sineMetres += component;
-            }
-            term.parameterIndices.push_back( p.index );
-        }
-        for( const auto& entry : grouped )
-        {
-            const auto& fields = present.at( entry.first );
-            requireValidStationHistory( fields.size( ) == 6, "incomplete seasonal sine/cosine component set" );
-            const char family = fields.begin( )->back( );
-            const std::string components = std::string( "XYZ" ).find( family ) != std::string::npos ? "XYZ" : "ENU";
-            for( const char c : components )
-            {
-                for( const std::string function : { "COS", "SIN" } )
-                {
-                    requireValidStationHistory( fields.count( "A" + std::to_string( entry.first.second ) + function + c ),
-                                                "mixed seasonal component bases" );
-                }
-            }
-            seasons.push_back( entry.second );
-        }
-        for( const auto& id : identifiers )
-        {
-            requireValidStationHistory( grouped.count( { id, 1 } ) && grouped.count( { id, 2 } ),
-                                        "missing annual/semiannual coefficients for position solution" );
-        }
+        seasons.push_back( entry.second );
     }
     return std::make_shared< StationCoordinateHistory >(
             std::move( linear ), std::move( psd ), std::move( seasons ), std::move( metadata ) );

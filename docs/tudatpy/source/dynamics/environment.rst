@@ -64,8 +64,6 @@ Enums
 
    StationPostSeismicFunction
 
-   StationLocalVertical
-
    StationReferencePointOffsetBasis
 
 
@@ -76,9 +74,6 @@ Enums
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationPostSeismicFunction
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment.StationLocalVertical
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.StationReferencePointOffsetBasis

@@ -102,18 +102,6 @@ of the station of which it gives the position.
          Name of that point.
 
          :type: str
-      )doc" )
-            .def_readwrite( "sources", &gs::StationHistoryMetadata::sources, R"doc(
-
-         Names of the source files.
-
-         :type: list[str]
-      )doc" )
-            .def_readwrite( "signals", &gs::StationHistoryMetadata::signals, R"doc(
-
-         Signals to which a calibrated instrument point applies.
-
-         :type: list[str]
       )doc" );
     py::class_< gs::StationHistoryLinearSolution >( m, "StationHistoryLinearSolution", R"doc(
 
@@ -130,18 +118,6 @@ Linear (position and velocity) solution of a station history, valid on a single 
             .def_readwrite( "validity", &gs::StationHistoryLinearSolution::validity, R"doc(
 
          Validity interval of the position solution.
-
-         :type: StationHistoryInterval
-      )doc" )
-            .def_readwrite( "velocity_solution_id", &gs::StationHistoryLinearSolution::velocitySolutionId, R"doc(
-
-         Identifier of the velocity solution.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "velocity_validity", &gs::StationHistoryLinearSolution::velocityValidity, R"doc(
-
-         Validity interval of the velocity solution.
 
          :type: StationHistoryInterval
       )doc" )
@@ -203,18 +179,6 @@ Post-seismic deformation term of a station history, applied from the epoch of an
          Relaxation time :math:`\tau` in Julian years.
 
          :type: float
-      )doc" )
-            .def_readwrite( "amplitude_parameter_index", &gs::StationPostSeismicTerm::amplitudeParameterIndex, R"doc(
-
-         SINEX parameter index of the amplitude.
-
-         :type: int
-      )doc" )
-            .def_readwrite( "relaxation_parameter_index", &gs::StationPostSeismicTerm::relaxationParameterIndex, R"doc(
-
-         SINEX parameter index of the relaxation time.
-
-         :type: int
       )doc" );
     py::class_< gs::StationSeasonalTerm >( m, "StationSeasonalTerm", R"doc(
 
@@ -247,12 +211,6 @@ the number of cycles per year.
          Sine coefficients :math:`\mathbf{s}` in metres.
 
          :type: numpy.ndarray[numpy.float64[3, 1]]
-      )doc" )
-            .def_readwrite( "parameter_indices", &gs::StationSeasonalTerm::parameterIndices, R"doc(
-
-         SINEX parameter indices of the coefficients.
-
-         :type: list[int]
       )doc" );
 
     // Station coordinate histories expose copied coefficient records so Python mutation cannot invalidate the native model.
@@ -429,15 +387,6 @@ Identification of a point on a station: its monument and the kind and name of th
 
          :type: str
       )doc" );
-    py::enum_< gs::StationLocalVertical >( m, "StationLocalVertical", R"doc(
-
-Enumeration of definitions of the local vertical, used to convert local (up, north, east) offsets to Cartesian
-coordinates.
-
-      )doc" )
-            .value( "geocentric_radial", gs::StationLocalVertical::geocentricRadial, "Geocentric radial direction." )
-            .value( "geodetic_ellipsoid_normal", gs::StationLocalVertical::geodeticEllipsoidNormal, "Normal to the reference ellipsoid." )
-            .value( "explicit_fixed_basis", gs::StationLocalVertical::explicitFixedBasis, "User-defined fixed basis." );
     py::class_< gs::StationReferencePointGeometry >( m, "StationReferencePointGeometry", R"doc(
 
 Fixed local (east, north, up) basis of a station, used to convert local offsets of its reference points to Cartesian
@@ -453,35 +402,11 @@ coordinates. Objects of this class are normally created with
 
          :type: str
       )doc" )
-            .def_readwrite( "vertical", &gs::StationReferencePointGeometry::vertical, R"doc(
-
-         Definition of the local vertical.
-
-         :type: StationLocalVertical
-      )doc" )
             .def_readwrite( "enu_to_terrestrial", &gs::StationReferencePointGeometry::enuToTerrestrial, R"doc(
 
          Rotation matrix from the local (east, north, up) basis to body-fixed Cartesian coordinates.
 
          :type: numpy.ndarray[numpy.float64[3, 3]]
-      )doc" )
-            .def_readwrite( "anchor_metres", &gs::StationReferencePointGeometry::anchorMetres, R"doc(
-
-         Cartesian position at which the basis is defined, in metres.
-
-         :type: numpy.ndarray[numpy.float64[3, 1]]
-      )doc" )
-            .def_readwrite( "equatorial_radius_metres", &gs::StationReferencePointGeometry::equatorialRadiusMetres, R"doc(
-
-         Equatorial radius of the reference ellipsoid in metres (geodetic vertical only).
-
-         :type: float | None
-      )doc" )
-            .def_readwrite( "flattening", &gs::StationReferencePointGeometry::flattening, R"doc(
-
-         Flattening of the reference ellipsoid (geodetic vertical only).
-
-         :type: float | None
       )doc" );
     py::class_< gs::SinexEquipmentHeaderTimeContext >( m, "SinexEquipmentHeaderTimeContext", R"doc(
 
@@ -501,12 +426,6 @@ not give that epoch.
          Epoch to use for an end that refers to the header, in TAI.
 
          :type: astro.time_representation.Time | None
-      )doc" )
-            .def_readwrite( "source", &gs::SinexEquipmentHeaderTimeContext::source, R"doc(
-
-         Description of where these epochs come from.
-
-         :type: str
       )doc" );
     py::enum_< gs::StationReferencePointOffsetBasis >( m, "StationReferencePointOffsetBasis", R"doc(
 
@@ -600,20 +519,6 @@ a single interval.
          Time-dependent offset and its rate (per second), required for state evaluation if :attr:`position_function` is set.
 
          :type: callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[6, 1]]]
-      )doc" )
-            .def_readwrite( "direction_dependent", &gs::StationReferencePointOffset::directionDependent, R"doc(
-
-         Whether the offset depends on the observation direction (which is not modelled).
-
-         :type: bool
-      )doc" )
-            .def_readonly( "header_time_context", &gs::StationReferencePointOffset::headerTimeContext, R"doc(
-
-         **read-only**
-
-         Validity interval used for header-referenced epochs, if any.
-
-         :type: SinexEquipmentHeaderTimeContext | None
       )doc" );
     py::class_< gs::StationReferencePointOffsetHistory, std::shared_ptr< gs::StationReferencePointOffsetHistory > >(
             m, "StationReferencePointOffsetHistory", R"doc(

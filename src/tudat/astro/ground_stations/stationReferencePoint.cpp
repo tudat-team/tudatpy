@@ -39,6 +39,7 @@ StationHistoryInterval intersection( const StationHistoryInterval& a, const Stat
     return { !a.startTai ? b.startTai : ( !b.startTai ? a.startTai : std::optional< Time >( std::max( *a.startTai, *b.startTai ) ) ),
              !a.endTai ? b.endTai : ( !b.endTai ? a.endTai : std::optional< Time >( std::min( *a.endTai, *b.endTai ) ) ) };
 }
+//! Sort records by start epoch, and check that their validity intervals are consecutive.
 template< typename Record >
 void sortAndCheck( std::vector< Record >& records )
 {
@@ -47,52 +48,17 @@ void sortAndCheck( std::vector< Record >& records )
         return !a.validity.startTai ? b.validity.startTai.has_value( )
                                     : ( b.validity.startTai && *a.validity.startTai < *b.validity.startTai );
     } );
-    for( std::size_t i = 0; i < records.size( ); ++i )
+    for( std::size_t i = 1; i < records.size( ); ++i )
     {
-        const auto& interval = records[ i ].validity;
-        for( const auto& boundary : { interval.startTai, interval.endTai } )
-        {
-            requireValidReferencePoint( !boundary || std::isfinite( static_cast< long double >( *boundary ) ),
-                                        "nonfinite validity endpoint" );
-        }
-        requireValidReferencePoint( !interval.startTai || !interval.endTai || *interval.startTai < *interval.endTai,
-                                    "empty or reversed interval" );
-        if( i )
-        {
-            requireValidReferencePoint(
-                    records[ i - 1 ].validity.endTai && interval.startTai && *records[ i - 1 ].validity.endTai == *interval.startTai,
-                    "history contains gaps or overlaps" );
-        }
+        requireValidReferencePoint( records[ i - 1 ].validity.endTai && records[ i ].validity.startTai &&
+                                            *records[ i - 1 ].validity.endTai == *records[ i ].validity.startTai,
+                                    "history contains gaps or overlaps" );
     }
 }
 Eigen::Matrix3d localBasis( double latitude, double longitude )
 {
     return reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( longitude, latitude )
             .toRotationMatrix( );
-}
-void checkGeometry( const StationReferencePointGeometry& geometry )
-{
-    requireValidReferencePoint( geometry.vertical == StationLocalVertical::explicitFixedBasis ||
-                                        geometry.vertical == StationLocalVertical::geocentricRadial ||
-                                        geometry.vertical == StationLocalVertical::geodeticEllipsoidNormal,
-                                "unknown local vertical convention" );
-    const auto& matrix = geometry.enuToTerrestrial;
-    requireValidReferencePoint( !geometry.frame.empty( ) && matrix.allFinite( ) &&
-                                        ( matrix.transpose( ) * matrix - Eigen::Matrix3d::Identity( ) ).norm( ) < 1e-12 &&
-                                        std::abs( matrix.determinant( ) - 1 ) < 1e-12,
-                                "explicit geometry must be a proper fixed ENU rotation in a named frame" );
-    if( geometry.vertical != StationLocalVertical::explicitFixedBasis )
-    {
-        const auto expected = geometry.vertical == StationLocalVertical::geocentricRadial
-                ? createGeocentricStationReferencePointGeometry( geometry.anchorMetres, geometry.frame )
-                : createGeodeticStationReferencePointGeometry(
-                          geometry.anchorMetres,
-                          geometry.frame,
-                          geometry.equatorialRadiusMetres.value_or( std::numeric_limits< double >::quiet_NaN( ) ),
-                          geometry.flattening.value_or( std::numeric_limits< double >::quiet_NaN( ) ) );
-        requireValidReferencePoint( ( matrix - expected.enuToTerrestrial ).norm( ) < 1e-12,
-                                    "declared vertical/shape disagrees with supplied local basis" );
-    }
 }
 std::optional< Time > boundary( const SinexEpoch& epoch,
                                 bool start,
@@ -109,49 +75,26 @@ std::optional< Time > boundary( const SinexEpoch& epoch,
         resolved = start ? &product.headerStart : &product.headerEnd;
         if( resolved->meaning != SinexEpochMeaning::specified && context )
         {
-            const auto& supplied = start ? context->startTai : context->endTai;
-            requireValidReferencePoint( !context->source.empty( ) && supplied.has_value( ),
-                                        "missing explicit bounded header-time context" );
-            return supplied;
+            return start ? context->startTai : context->endTai;
         }
     }
     requireValidReferencePoint( resolved->meaning == SinexEpochMeaning::specified && resolved->civilUtc.has_value( ),
                                 product.source + ": unresolved equipment header/default endpoint" );
-    const Time tai = convertSinexCivilUtcToTai( *resolved->civilUtc );
-    if( resolved != &epoch && context )
-    {
-        const auto& supplied = start ? context->startTai : context->endTai;
-        requireValidReferencePoint( !supplied || *supplied == tai, "header-time context contradicts a specified source header" );
-    }
-    return tai;
+    return convertSinexCivilUtcToTai( *resolved->civilUtc );
 }
 }  // namespace
 
 StationReferencePointGeometry createGeocentricStationReferencePointGeometry( const Eigen::Vector3d& anchor, const std::string& frame )
 {
-    requireValidReferencePoint( anchor.allFinite( ) && anchor.norm( ) > 0 && anchor.head< 2 >( ).norm( ) > 0 && !frame.empty( ),
-                                "a finite nonpolar anchor and explicit frame are required" );
-    StationReferencePointGeometry result;
-    result.frame = frame;
-    result.vertical = StationLocalVertical::geocentricRadial;
-    result.anchorMetres = anchor;
-    result.enuToTerrestrial = localBasis( std::atan2( anchor.z( ), anchor.head< 2 >( ).norm( ) ), std::atan2( anchor.y( ), anchor.x( ) ) );
-    return result;
+    return { frame, localBasis( std::atan2( anchor.z( ), anchor.head< 2 >( ).norm( ) ), std::atan2( anchor.y( ), anchor.x( ) ) ) };
 }
 StationReferencePointGeometry createGeodeticStationReferencePointGeometry( const Eigen::Vector3d& anchor,
                                                                            const std::string& frame,
                                                                            double radius,
                                                                            double flattening )
 {
-    requireValidReferencePoint( std::isfinite( radius ) && radius > 0 && std::isfinite( flattening ) && flattening >= 0 && flattening < 1,
-                                "positive equatorial radius and physical flattening are required" );
-    auto result = createGeocentricStationReferencePointGeometry( anchor, frame );
     const Eigen::Vector3d coordinates = coordinate_conversions::convertCartesianToGeodeticCoordinates( anchor, radius, flattening, 1e-8 );
-    result.vertical = StationLocalVertical::geodeticEllipsoidNormal;
-    result.equatorialRadiusMetres = radius;
-    result.flattening = flattening;
-    result.enuToTerrestrial = localBasis( coordinates.y( ), coordinates.z( ) );
-    return result;
+    return { frame, localBasis( coordinates.y( ), coordinates.z( ) ) };
 }
 
 StationReferencePointOffsetHistory::StationReferencePointOffsetHistory( std::vector< StationReferencePointOffset > offsets,
@@ -159,49 +102,17 @@ StationReferencePointOffsetHistory::StationReferencePointOffsetHistory( std::vec
     offsets_( std::move( offsets ) ), geometry_( std::move( geometry ) )
 {
     sortAndCheck( offsets_ );
-    if( geometry_ )
-    {
-        checkGeometry( *geometry_ );
-    }
     for( const auto& offset : offsets_ )
     {
-        for( const auto& id : { offset.from, offset.to } )
-        {
-            requireValidReferencePoint(
-                    !id.site.siteCode.empty( ) && !id.site.pointCode.empty( ) && !id.domesId.empty( ) && !id.name.empty( ),
-                    "incomplete reference-point identity" );
-        }
         requireValidReferencePoint( sameIdentity( offset.from, offsets_.front( ).from ) &&
-                                            sameIdentity( offset.to, offsets_.front( ).to ) && offset.from.site == offset.to.site &&
-                                            offset.from.domesId == offset.to.domesId,
-                                    "offset history mixes physical point identities" );
-        requireValidReferencePoint( !offset.frame.empty( ) && offset.frame == offsets_.front( ).frame && offset.from.name != offset.to.name,
-                                    "explicit common frame and distinct point names required" );
-        requireValidReferencePoint( ( offset.from.kind == StationReferencePointKind::marker &&
-                                      offset.to.kind == StationReferencePointKind::antennaReferencePoint ) ||
-                                            ( offset.from.kind == StationReferencePointKind::antennaReferencePoint &&
-                                              offset.to.kind == StationReferencePointKind::calibratedInstrumentPoint ),
-                                    "only explicit marker-to-ARP or ARP-to-calibrated-point vectors are supported" );
-        requireValidReferencePoint( !offset.equipmentType.empty( ) && !offset.equipmentSerialNumber.empty( ) &&
-                                            offset.componentsMetres.allFinite( ) && !offset.directionDependent,
-                                    "incomplete equipment, nonfinite vector or direction-dependent correction" );
-        requireValidReferencePoint( offset.basis == StationReferencePointOffsetBasis::xyz ||
-                                            ( offset.basis == StationReferencePointOffsetBasis::une && geometry_ ),
+                                            sameIdentity( offset.to, offsets_.front( ).to ) && offset.frame == offsets_.front( ).frame,
+                                    "offset history mixes point identities or frames" );
+        requireValidReferencePoint( offset.basis == StationReferencePointOffsetBasis::xyz || geometry_,
                                     "UNE offsets require explicit fixed local geometry" );
-        requireValidReferencePoint( !geometry_ || geometry_->frame == offset.frame,
-                                    "offset component frame disagrees with its local geometry" );
-        requireValidReferencePoint( !offset.stateFunction || offset.positionFunction,
-                                    "time-dependent state callback also needs a position callback" );
-        if( offset.to.kind == StationReferencePointKind::calibratedInstrumentPoint )
-        {
-            requireValidReferencePoint( !offset.calibrationId.empty( ) && !offset.signal.empty( ),
-                                        "calibrated reference point requires explicit calibration and signal" );
-        }
     }
 }
 const StationReferencePointOffset& StationReferencePointOffsetHistory::getActiveOffset( const Time& tai ) const
 {
-    requireValidReferencePoint( std::isfinite( static_cast< long double >( tai ) ), "nonfinite physical query epoch" );
     for( const auto& offset : offsets_ )
     {
         if( contains( offset.validity, tai ) )
@@ -214,7 +125,6 @@ const StationReferencePointOffset& StationReferencePointOffsetHistory::getActive
 Eigen::Vector3d StationReferencePointOffsetHistory::toTerrestrial( const Eigen::Vector3d& components,
                                                                    StationReferencePointOffsetBasis basis ) const
 {
-    requireValidReferencePoint( components.allFinite( ), "nonfinite reference-point vector/rate" );
     if( basis == StationReferencePointOffsetBasis::xyz )
     {
         return components;
@@ -310,17 +220,6 @@ std::shared_ptr< StationReferencePointOffsetHistory > createSinexAntennaReferenc
                                 "an explicit marker and ARP name are required" );
     const auto key = equipmentSite.value_or( from.site );
     requireValidReferencePoint( equipment.frame.empty( ) || equipment.frame == meta.frame, "equipment/marker coordinate frames differ" );
-    if( context )
-    {
-        requireValidReferencePoint( !context->source.empty( ), "explicit header-time context requires provenance" );
-        for( const auto& value : { context->startTai, context->endTai } )
-        {
-            requireValidReferencePoint( !value || std::isfinite( static_cast< long double >( *value ) ),
-                                        "nonfinite equipment header context" );
-        }
-        requireValidReferencePoint( !context->startTai || !context->endTai || *context->startTai < *context->endTai,
-                                    "reversed equipment header context" );
-    }
     std::set< std::string > domes;
     const auto sites = equipment.sites.equal_range( key );
     for( auto it = sites.first; it != sites.second; ++it )
@@ -398,7 +297,6 @@ std::shared_ptr< StationReferencePointOffsetHistory > createSinexAntennaReferenc
                 record.equipmentType = antenna.source.equipmentType;
                 record.equipmentSerialNumber = antenna.source.serialNumber;
                 record.source = equipment.source;
-                record.headerTimeContext = context;
                 offsets.push_back( record );
             }
         }

@@ -16,7 +16,7 @@ SinexStationHistory equipment( )
 }
 SinexEquipmentHeaderTimeContext context( )
 {
-    return { std::nullopt, convertSinexCivilUtcToTai( { 2026, 288, 0 } ), "explicit controlled coverage bound, not a source header" };
+    return { std::nullopt, convertSinexCivilUtcToTai( { 2026, 288, 0 } ) };
 }
 std::shared_ptr< StationCoordinateHistory > marker( const Eigen::Vector3d& position = Eigen::Vector3d( 3e6, -5e6, 2e6 ),
                                                     const std::string& code = "abmf" )
