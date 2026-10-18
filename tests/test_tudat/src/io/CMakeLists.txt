@@ -125,6 +125,12 @@ TUDAT_ADD_TEST_CASE(ReadTabulatedMediaCorrections
 TUDAT_ADD_TEST_CASE(ReadTabulatedWeatherData
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
+TUDAT_ADD_TEST_CASE(ReadDsnAmcFile
+        PRIVATE_LINKS
+        tudat_input_output
+        tudat_basic_astrodynamics
+        )
+
 TUDAT_ADD_TEST_CASE(TrackingTxtFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 

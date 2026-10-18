@@ -22,6 +22,7 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 
 namespace tudat
 {
@@ -971,6 +972,121 @@ BOOST_AUTO_TEST_CASE( testSeasonalPlusAdjustmentTroposphericCorrections )
     BOOST_CHECK_CLOSE_FRACTION( tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tOutside ),
                                 seasonalManager->computeMediaCorrection( tOutside ),
                                 1e-15 );
+}
+
+BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
+{
+    // At zenith both Niell mappings are unity, so the path delays can be checked directly
+    const auto mapping =
+            std::make_shared< NiellTroposphericMapping >( []( Eigen::Vector3d, double ) { return mathematical_constants::PI / 2.0; },
+                                                          []( double ) { return Eigen::Vector3d( 800.0, 0.6, 0.0 ); },
+                                                          true );
+    const auto fallback = std::make_shared< MappedTroposphericCorrection >(
+            tabulated_tropospheric,
+            mapping,
+            true,
+            []( double tdb ) { return 2.0 + 1.0e-4 * ( tdb - 1070.0 ); },
+            []( double tdb ) { return 0.4 + 2.0e-5 * ( tdb - 1070.0 ); } );
+    const std::map< double, Eigen::Vector2d > samples = { { 1000.0, Eigen::Vector2d( 2.1, 0.04 ) },
+                                                          { 1030.0, Eigen::Vector2d( 2.3, 0.10 ) },
+                                                          { 1100.0, Eigen::Vector2d( 2.5, 0.16 ) },
+                                                          { 1130.0, Eigen::Vector2d( 2.7, 0.22 ) } };
+    const auto tdbToUtc = []( double tdb ) { return tdb - 70.0; };
+    MeasuredTroposphericCorrection wetOnly( samples, tdbToUtc, fallback, mapping, true, 30.0 );
+    MeasuredTroposphericCorrection wetAndDry( samples, tdbToUtc, fallback, mapping, true, 30.0, true );
+
+    const double tdb = 1085.0;  // UTC=1015: measured wet 0.07 m and measured dry 2.2 m.
+    const std::vector< Eigen::Vector6d > states( 2, Eigen::Vector6d::Zero( ) );
+    const std::vector< double > times = { tdb, tdb + 100.0 };
+    BOOST_CHECK_CLOSE_FRACTION( wetOnly.getWetZenithRangeCorrectionFunction( )( tdb ), 0.07, 1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( wetOnly.getDryZenithRangeCorrectionFunction( )( tdb ), 2.0015, 1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            wetOnly.calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, times, 0, nullptr ) * SPEED_OF_LIGHT, 2.0715, 1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            wetAndDry.calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, times, 0, nullptr ) * SPEED_OF_LIGHT, 2.27, 1.0e-14 );
+
+    // Measurements are used at the samples (on both sides of a gap); the fallback is used in the gap and outside the samples
+    for( const auto& sample : samples )
+    {
+        const double time = sample.first + 70.0;
+        BOOST_CHECK_EQUAL( wetOnly.getWetZenithRangeCorrectionFunction( )( time ), sample.second( 1 ) );
+    }
+    for( const double utc : { 999.0, 1030.01, 1065.0, 1099.99, 1130.01 } )
+    {
+        const double time = utc + 70.0;
+        BOOST_CHECK_EQUAL( wetOnly.getWetZenithRangeCorrectionFunction( )( time ),
+                           fallback->getWetZenithRangeCorrectionFunction( )( time ) );
+        BOOST_CHECK_EQUAL( wetAndDry.getDryZenithRangeCorrectionFunction( )( time ),
+                           fallback->getDryZenithRangeCorrectionFunction( )( time ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                wetOnly.calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, { time, time + 100.0 }, 0, nullptr ),
+                fallback->calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, { time, time + 100.0 }, 0, nullptr ),
+                1.0e-14 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    auto bodySettings = simulation_setup::getDefaultBodySettings( { "Earth" } );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
+    bodySettings.addSettings( "Probe" );
+    auto bodies = simulation_setup::createSystemOfBodies( bodySettings );
+
+    // Synthetic seasonal/adjustment managers avoid weather or TRO test files.
+    const auto constantManager = []( double value ) {
+        return std::make_shared< TabulatedMediaReferenceCorrectionManager >(
+                std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >{
+                        std::make_shared< ConstantReferenceCorrection >( -1.0e10, 1.0e10, value ) } );
+    };
+    AtmosphericCorrectionPerStationAndSpacecraftType dry, wet, zero;
+    for( const std::string station : { "DSS-25", "DSS-26" } )
+    {
+        const auto key = std::make_pair( station, std::string( "" ) );
+        dry[ key ][ one_way_doppler ] = constantManager( 2.0 );
+        wet[ key ][ one_way_doppler ] = constantManager( 0.4 );
+        zero[ key ][ one_way_doppler ] = constantManager( 0.0 );
+    }
+    const auto fallbackSettings = std::make_shared< TabulatedTroposphericCorrectionSettings >(
+            zero, zero, "Earth", TroposphericMappingModel::simplified_chao, dry, wet );
+    const double utc = 548445540.0;
+    const std::map< std::string, std::map< double, Eigen::Vector2d > > samples = {
+        { "DSS-25", { { utc - 15.0, Eigen::Vector2d( 2.1, 0.04 ) }, { utc + 15.0, Eigen::Vector2d( 2.2, 0.10 ) } } }
+    };
+    const auto settings = measuredTroposphericCorrectionSettings( samples, fallbackSettings, 30.0 );
+    LinkEnds linkEnds = { { transmitter, LinkEndId( "Probe" ) }, { receiver, LinkEndId( "Earth", "DSS-25" ) } };
+    const auto measured = std::dynamic_pointer_cast< MeasuredTroposphericCorrection >(
+            createLightTimeCorrections( settings, bodies, linkEnds, transmitter, receiver, one_way_doppler ) );
+    BOOST_REQUIRE( measured != nullptr );
+    const Eigen::Vector3d stationPosition =
+            bodies.at( "Earth" )->getGroundStation( "DSS-25" )->getNominalStationState( )->getNominalCartesianPosition( );
+    const double tdb = earth_orientation::createDefaultTimeConverter( )->getCurrentTime( utc_scale, tdb_scale, utc, stationPosition );
+    BOOST_CHECK_SMALL( measured->getWetZenithRangeCorrectionFunction( )( tdb ) - 0.07, 1.0e-8 );
+    BOOST_CHECK_EQUAL( measured->getDryZenithRangeCorrectionFunction( )( tdb ), 2.0 );
+
+    // Measured paths must use Niell even when the fallback settings use Chao.
+    Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
+    spacecraftState.head< 3 >( ) = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( tdb ) *
+            ( stationPosition.normalized( ) + 2.0 * stationPosition.unitOrthogonal( ) ) * 1.0e9;
+    const Eigen::Vector6d stationState = Eigen::Vector6d::Zero( );
+    const auto niellMapping = createTroposphericElevationMapping(
+            TroposphericMappingModel::niell, bodies, linkEnds.at( transmitter ), linkEnds.at( receiver ), false );
+    const double expectedPath = 2.0 * niellMapping->computeDryTroposphericMapping( spacecraftState, stationState, tdb - 100.0, tdb ) +
+            0.07 * niellMapping->computeWetTroposphericMapping( spacecraftState, stationState, tdb - 100.0, tdb );
+    BOOST_CHECK_CLOSE_FRACTION( measured->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                                        { spacecraftState, stationState }, { tdb - 100.0, tdb }, 0, nullptr ) *
+                                        SPEED_OF_LIGHT,
+                                expectedPath,
+                                1.0e-8 );
+
+    // A station without AMC data still receives its normal mapped model.
+    linkEnds[ receiver ] = LinkEndId( "Earth", "DSS-26" );
+    const auto otherStation = createLightTimeCorrections( settings, bodies, linkEnds, transmitter, receiver, one_way_doppler );
+    BOOST_REQUIRE( otherStation != nullptr );
+    BOOST_CHECK( std::dynamic_pointer_cast< MeasuredTroposphericCorrection >( otherStation ) == nullptr );
+    const auto mapped = std::dynamic_pointer_cast< MappedTroposphericCorrection >( otherStation );
+    BOOST_REQUIRE( mapped != nullptr );
+    BOOST_CHECK_EQUAL( mapped->getWetZenithRangeCorrectionFunction( )( tdb ), 0.4 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

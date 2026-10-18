@@ -15,12 +15,57 @@
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/io/matrixTextFileReader.h"
 #include "tudat/math/basic/legendrePolynomials.h"
+#include "tudat/math/interpolators/linearInterpolator.h"
 
 namespace tudat
 {
 
 namespace observation_models
 {
+
+MeasuredTroposphericCorrection::MeasuredTroposphericCorrection( const std::map< double, Eigen::Vector2d >& zenithDelays,
+                                                                const std::function< double( double ) >& tdbToUtc,
+                                                                const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+                                                                const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+                                                                const bool isUplinkCorrection,
+                                                                const double maximumInterpolationGap,
+                                                                const bool useMeasuredDryDelay ):
+    MappedTroposphericCorrection( measured_tropospheric, elevationMapping, isUplinkCorrection ), zenithDelays_( zenithDelays ),
+    tdbToUtc_( tdbToUtc ), fallbackCorrection_( fallbackCorrection ), maximumInterpolationGap_( maximumInterpolationGap ),
+    useMeasuredDryDelay_( useMeasuredDryDelay )
+{
+    if( zenithDelays_.size( ) < 2 )
+    {
+        throw std::runtime_error( "Error when creating measured tropospheric correction, at least two measurements are required" );
+    }
+    interpolator_ = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( zenithDelays_ );
+    dryZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 0 ); };
+    wetZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 1 ); };
+}
+
+bool MeasuredTroposphericCorrection::isMeasurementAvailable( const double utcTime ) const
+{
+    // Check if time is at a measurement, or between two measurements that are at most maximumInterpolationGap apart
+    auto nextMeasurement = zenithDelays_.lower_bound( utcTime );
+    if( nextMeasurement == zenithDelays_.end( ) )
+    {
+        return false;
+    }
+    return nextMeasurement->first == utcTime ||
+            ( nextMeasurement != zenithDelays_.begin( ) &&
+              nextMeasurement->first - std::prev( nextMeasurement )->first <= maximumInterpolationGap_ );
+}
+
+double MeasuredTroposphericCorrection::computeZenithCorrection( const double stationTdbTime, const int component )
+{
+    double utcTime = tdbToUtc_( stationTdbTime );
+    if( ( component == 1 || useMeasuredDryDelay_ ) && isMeasurementAvailable( utcTime ) )
+    {
+        return interpolator_->interpolate( utcTime )( component );
+    }
+    return component == 0 ? fallbackCorrection_->getDryZenithRangeCorrectionFunction( )( stationTdbTime )
+                          : fallbackCorrection_->getWetZenithRangeCorrectionFunction( )( stationTdbTime );
+}
 
 bool TabulatedMediaReferenceCorrection::isTimeValid( const double time )
 {

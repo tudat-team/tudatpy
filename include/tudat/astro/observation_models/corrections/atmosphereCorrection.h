@@ -639,6 +639,37 @@ protected:
     bool isUplinkCorrection_;
 };
 
+//! Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers)
+/*!
+ * Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers).
+ * The measured zenith [dry, wet] path delays (indexed by UTC time) are linearly interpolated, for measurements separated by
+ * at most maximumInterpolationGap. The measured wet delay replaces that of the fallback model, the measured dry delay is only
+ * used if useMeasuredDryDelay is true. Outside of the measured data, the fallback model is used.
+ */
+class MeasuredTroposphericCorrection : public MappedTroposphericCorrection
+{
+public:
+    MeasuredTroposphericCorrection( const std::map< double, Eigen::Vector2d >& zenithDelays,
+                                    const std::function< double( double ) >& tdbToUtc,
+                                    const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+                                    const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+                                    const bool isUplinkCorrection,
+                                    const double maximumInterpolationGap,
+                                    const bool useMeasuredDryDelay = false );
+
+private:
+    bool isMeasurementAvailable( const double utcTime ) const;
+
+    double computeZenithCorrection( const double stationTdbTime, const int component );
+
+    std::map< double, Eigen::Vector2d > zenithDelays_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > interpolator_;
+    std::function< double( double ) > tdbToUtc_;
+    std::shared_ptr< MappedTroposphericCorrection > fallbackCorrection_;
+    double maximumInterpolationGap_;
+    bool useMeasuredDryDelay_;
+};
+
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.
 // Derived class from MappedTroposphericCorrection.
 class TabulatedTroposphericCorrection : public MappedTroposphericCorrection

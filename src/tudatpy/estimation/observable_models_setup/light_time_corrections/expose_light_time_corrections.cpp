@@ -60,6 +60,9 @@ to select which correction contributions are saved individually.)doc" )
             .value( "tabulated_tropospheric",
                     tom::tabulated_tropospheric,
                     R"doc(Tropospheric light-time correction from tabulated delays.)doc" )
+            .value( "measured_tropospheric",
+                    tom::measured_tropospheric,
+                    R"doc(Niell-mapped tropospheric correction from measured zenith path lengths.)doc" )
             .value( "saastamoinen_tropospheric",
                     tom::saastamoinen_tropospheric,
                     R"doc(Tropospheric light-time correction using the Saastamoinen model.)doc" )
@@ -477,6 +480,47 @@ Examples
            -------
            :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
                Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated tropospheric corrections.
+
+           )doc" );
+
+    m.def( "measured_tropospheric_light_time_correction",
+           &tom::measuredTroposphericCorrectionSettings,
+           py::arg( "zenith_delays_per_station" ),
+           py::arg( "fallback_settings" ),
+           py::arg( "maximum_interpolation_gap" ),
+           py::arg( "use_measured_dry_delay" ) = false,
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           R"doc(
+
+Function for creating settings for a tropospheric light-time correction from measured zenith path delays.
+
+Function for creating settings for a tropospheric light-time correction from measured zenith path delays (e.g. from water vapour
+radiometers, see :func:`~tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays`), mapped to the signal elevation with
+the Niell mapping function. The measured zenith wet path delay replaces the wet path delay of the fallback correction; the dry path delay
+of the fallback correction is retained, unless ``use_measured_dry_delay`` is true. The measurements are linearly interpolated (in UTC) if
+they are separated by at most ``maximum_interpolation_gap``. Outside of the measurements (and for ground stations without measurements),
+the fallback correction is used.
+
+Note that an (integrated) Doppler observable for which the correction switches between measurements and fallback correction may
+contain an error due to the difference between the two.
+
+Parameters
+----------
+zenith_delays_per_station : dict[str, dict[float, numpy.ndarray]]
+    Per ground station, zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key.
+fallback_settings : LightTimeCorrectionSettings
+    Settings for a (mapped) tropospheric correction used outside of the measurements (e.g. from :func:`dsn_tabulated_tropospheric_light_time_correction`).
+maximum_interpolation_gap : float
+    Maximum interval [s] between two measurements over which they are interpolated.
+use_measured_dry_delay : bool, default = False
+    Boolean denoting whether the measured dry path delay replaces that of the fallback correction.
+body_with_atmosphere_name : str, default = "Earth"
+    Name of the body with the atmosphere.
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    Settings for the measured tropospheric light-time correction.
 
            )doc" );
 
