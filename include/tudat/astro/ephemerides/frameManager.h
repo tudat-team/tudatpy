@@ -42,6 +42,21 @@ bool isFrameInertial( const std::string& frame );
  */
 std::string getBaseFrameName( );
 
+//! Function to find the first body in the chain of ephemeris origins of a body that is contained in a given list
+/*!
+ * Function to find the first body in the chain of ephemeris origins of a body (the origin of its ephemeris, the origin of the
+ * ephemeris of that origin, etc.) that is contained in a given list. For instance, if the ephemeris of a moon is defined w.r.t.
+ * a planet, and the ephemeris of the planet w.r.t. a (propagated) barycenter, the barycenter is returned when it is in the
+ * list. The body itself is not checked against the list.
+ * \param bodyName Body for which the chain of ephemeris origins is to be checked
+ * \param ephemerisOrigins Ephemeris origin (value) of each body (key)
+ * \param bodiesToFind List of bodies to find in the chain of ephemeris origins
+ * \return First body in the chain of ephemeris origins that is in bodiesToFind (empty string if none)
+ */
+std::string getFirstEphemerisOriginInList( const std::string& bodyName,
+                                           const std::map< std::string, std::string >& ephemerisOrigins,
+                                           const std::vector< std::string >& bodiesToFind );
+
 //! Class to retrieve translation functions between different frames
 /*!
  * Class to retrieve translation functions between different frames, as calculated from a list of

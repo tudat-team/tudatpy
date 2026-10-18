@@ -711,6 +711,9 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
     isBodyInPropagation_ = isBodyInPropagation;
 
+    // Ephemerides (or states set during propagation) may have changed, so state is recomputed on next request
+    recomputeStateOnNextCall( );
+
     if( rotationalEphemeris_ != nullptr )
     {
         rotationalEphemeris_->setIsBodyInPropagation( isBodyInPropagation );
@@ -791,6 +794,20 @@ void setAreBodiesInPropagation( const SystemOfBodies& bodies, const bool areBodi
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }
+}
+
+//! Function to retrieve the ephemeris origins of all bodies that have an ephemeris
+std::map< std::string, std::string > getEphemerisOrigins( const SystemOfBodies& bodies )
+{
+    std::map< std::string, std::string > ephemerisOrigins;
+    for( auto bodyIterator : bodies.getMap( ) )
+    {
+        if( bodyIterator.second->getEphemeris( ) != nullptr )
+        {
+            ephemerisOrigins[ bodyIterator.first ] = bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( );
+        }
+    }
+    return ephemerisOrigins;
 }
 
 bool isReferencePointGroundStation( const std::shared_ptr< Body > body, const std::string& referencePointName )
