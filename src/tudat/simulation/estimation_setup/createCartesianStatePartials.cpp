@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
@@ -23,7 +25,8 @@ namespace observation_partials
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate )
+        const std::string bodyToEstimate,
+        const std::vector< std::string >& bodiesWithEstimatedState )
 {
     // Declare data map to return.
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > partialMap;
@@ -31,13 +34,23 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     // Declare local variable to use in loop
     std::string currentBodyName;
 
+    std::map< std::string, std::string > ephemerisOrigins;
+    if( bodiesWithEstimatedState.size( ) > 0 )
+    {
+        ephemerisOrigins = simulation_setup::getEphemerisOrigins( bodies );
+    }
+
     // Iterate over all like ends.
     for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-        // Check if current link end is on body that is requested.
+        // Check if current link end is on body that is requested, or on body with ephemeris defined w.r.t. requested body
         currentBodyName = linkEndIterator->second.bodyName_;
-        if( bodyToEstimate == currentBodyName )
+        bool isBodyEphemerisDependent = bodiesWithEstimatedState.size( ) > 0 &&
+                std::find( bodiesWithEstimatedState.begin( ), bodiesWithEstimatedState.end( ), currentBodyName ) ==
+                        bodiesWithEstimatedState.end( ) &&
+                ephemerides::getFirstEphemerisOriginInList( currentBodyName, ephemerisOrigins, bodiesWithEstimatedState ) == bodyToEstimate;
+        if( bodyToEstimate == currentBodyName || isBodyEphemerisDependent )
         {
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );

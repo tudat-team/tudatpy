@@ -96,7 +96,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
  * observation partial. \param bodyToEstimate Name of body wrt position of which a partial is to be
  * created. \param positionPartialScaler Object scale position partials to observation partials for
  * current link ends. \param lightTimeCorrectionPartialObjects List of light time correction
- * partials to be used (empty by default) \return observation partial object wrt a current position
+ * partials to be used (empty by default) \param bodiesWithEstimatedState Names of all bodies with an estimated
+ * translational state (see createCartesianStatePartialsWrtBodyState) \return observation partial object wrt a current position
  * of a body (is nullptr if no parameter dependency exists).
  */
 template< int ObservationSize >
@@ -106,11 +107,12 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const std::string bodyToEstimate,
         const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lightTimeCorrectionPartialObjects =
-                std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
+                std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ),
+        const std::vector< std::string >& bodiesWithEstimatedState = std::vector< std::string >( ) )
 {
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( oneWayLinkEnds, bodies, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( oneWayLinkEnds, bodies, bodyToEstimate, bodiesWithEstimatedState );
 
     // Create observation partials if any position partials are created (i.e. if any dependency
     // exists).
@@ -238,6 +240,17 @@ createSingleLinkObservationPartials(
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > >
             initialDynamicalParameters = parametersToEstimate->getEstimatedInitialStateParameters( );
 
+    // Retrieve all bodies with estimated translational state
+    std::vector< std::string > bodiesWithEstimatedState;
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ||
+            initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
+        {
+            bodiesWithEstimatedState.push_back( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+        }
+    }
+
     // Iterate over list of bodies of which the partials of the accelerations acting on them are
     // required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
@@ -250,8 +263,12 @@ createSingleLinkObservationPartials(
 
             // Create position observation partial for current body
             std::shared_ptr< ObservationPartial< ObservationSize > > currentObservationPartial =
-                    createObservationPartialWrtBodyPosition< ObservationSize >(
-                            oneWayLinkEnds, bodies, acceleratedBody, positionScaling, lightTimeCorrectionPartialObjects );
+                    createObservationPartialWrtBodyPosition< ObservationSize >( oneWayLinkEnds,
+                                                                                bodies,
+                                                                                acceleratedBody,
+                                                                                positionScaling,
+                                                                                lightTimeCorrectionPartialObjects,
+                                                                                bodiesWithEstimatedState );
 
             // Check if partial is non-null (i.e. whether dependency exists between current
             // observable and current body)
@@ -340,7 +357,8 @@ createSingleLinkObservationPartials(
                                                                  bodies,
                                                                  std::placeholders::_1,
                                                                  positionScaling,
-                                                                 lightTimeCorrectionPartialObjects );
+                                                                 lightTimeCorrectionPartialObjects,
+                                                                 std::vector< std::string >( ) );
             currentObservationPartial =
                     createObservationPartialWrtLinkProperty< ObservationSize >( oneWayLinkEnds,
                                                                                 observableType,

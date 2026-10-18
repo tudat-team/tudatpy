@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#include <algorithm>
+
 #include "tudat/astro/ephemerides/frameManager.h"
 
 namespace tudat
@@ -338,6 +340,31 @@ std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std
         ephemerisOrigins.push_back( getBaseFrameNameOfBody( bodyList.at( i ) ) );
     }
     return ephemerisOrigins;
+}
+
+//! Function to find the first body in the chain of ephemeris origins of a body that is contained in a given list
+std::string getFirstEphemerisOriginInList( const std::string& bodyName,
+                                           const std::map< std::string, std::string >& ephemerisOrigins,
+                                           const std::vector< std::string >& bodiesToFind )
+{
+    std::vector< std::string > checkedBodies = { bodyName };
+    std::string currentBody = bodyName;
+    while( ephemerisOrigins.count( currentBody ) > 0 )
+    {
+        currentBody = ephemerisOrigins.at( currentBody );
+        if( std::find( bodiesToFind.begin( ), bodiesToFind.end( ), currentBody ) != bodiesToFind.end( ) )
+        {
+            return currentBody;
+        }
+
+        // Stop if chain of origins is circular
+        if( std::find( checkedBodies.begin( ), checkedBodies.end( ), currentBody ) != checkedBodies.end( ) )
+        {
+            break;
+        }
+        checkedBodies.push_back( currentBody );
+    }
+    return "";
 }
 
 }  // namespace ephemerides

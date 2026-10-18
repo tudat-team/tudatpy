@@ -7,12 +7,14 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#include <algorithm>
 #include <map>
 
 #include <functional>
 
 #include <Eigen/Core>
 
+#include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/variationalEquations.h"
 #include "tudat/astro/propagators/rotationalMotionQuaternionsStateDerivative.h"
 
@@ -113,6 +115,33 @@ void VariationalEquations::clearPartials( )
     }
 }
 
+//! Function to set the bodies with an ephemeris defined w.r.t. a body with an estimated translational state
+void VariationalEquations::setEphemerisDependentBodies( const std::map< std::string, std::string >& ephemerisOrigins )
+{
+    ephemerisDependentBodies_.clear( );
+    if( dynamicalStatesToEstimate_.count( translational_state ) > 0 )
+    {
+        std::vector< std::string > estimatedBodies;
+        for( auto estimatedBody : dynamicalStatesToEstimate_.at( translational_state ) )
+        {
+            estimatedBodies.push_back( estimatedBody.first );
+        }
+
+        for( auto originIterator : ephemerisOrigins )
+        {
+            if( std::find( estimatedBodies.begin( ), estimatedBodies.end( ), originIterator.first ) == estimatedBodies.end( ) )
+            {
+                std::string estimatedOrigin =
+                        ephemerides::getFirstEphemerisOriginInList( originIterator.first, ephemerisOrigins, estimatedBodies );
+                if( estimatedOrigin != "" )
+                {
+                    ephemerisDependentBodies_[ originIterator.first ] = estimatedOrigin;
+                }
+            }
+        }
+    }
+}
+
 //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
 void VariationalEquations::setStatePartialFunctionList( )
 {
@@ -152,6 +181,30 @@ void VariationalEquations::setStatePartialFunctionList( )
                                                                             stateTypeStartIndices_.at( estimatedStateIterator->first ),
                                                                     getSingleIntegrationSize( estimatedStateIterator->first ) ),
                                                     currentDerivativeFunction.first ) );
+                        }
+
+                        // Add partials w.r.t. bodies with ephemeris defined w.r.t. current estimated body (shifted by same state)
+                        if( estimatedStateIterator->first == translational_state )
+                        {
+                            for( auto dependentBodyIterator : ephemerisDependentBodies_ )
+                            {
+                                if( dependentBodyIterator.second == estimatedStateIterator->second.at( k ).first )
+                                {
+                                    currentDerivativeFunction = stateDerivativeTypeIterator_->second.at( i )
+                                                                        .at( j )
+                                                                        ->getDerivativeFunctionWrtStateOfIntegratedBody(
+                                                                                std::make_pair( dependentBodyIterator.first, "" ),
+                                                                                estimatedStateIterator->first );
+                                    if( currentDerivativeFunction.second != 0 )
+                                    {
+                                        currentBodyPartialList.insert( std::make_pair(
+                                                std::make_pair( k * getSingleIntegrationSize( estimatedStateIterator->first ) +
+                                                                        stateTypeStartIndices_.at( estimatedStateIterator->first ),
+                                                                getSingleIntegrationSize( estimatedStateIterator->first ) ),
+                                                currentDerivativeFunction.first ) );
+                                    }
+                                }
+                            }
                         }
                     }
                 }
