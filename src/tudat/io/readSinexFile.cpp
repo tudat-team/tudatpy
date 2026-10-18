@@ -302,7 +302,6 @@ double convertSinexDateTimeToSecondsSinceEpoch( const std::string& dateTime, con
 
 std::map< std::string, SinexStationState > readSinexStationData( const SinexStationHistory& history, const double referenceJulianDay )
 {
-    validateSinexStationHistory( history );
     std::map< std::string, SinexStationState > result;
     for( const auto& key : getSinexStationCoordinateSolutionKeys( history ) )
     {

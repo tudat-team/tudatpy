@@ -47,7 +47,6 @@ std::string uniqueDomes( const SinexStationHistory& history,
 }
 void checkMetadata( const SinexStationHistory& product, const StationHistoryMetadata& metadata )
 {
-    validateSinexStationHistory( product );
     requireValidStationHistory(
             !product.frame.empty( ) && !product.release.empty( ) && !product.origin.empty( ) && !product.tideSystem.empty( ),
             product.source + ": explicit frame, release, origin and tide-system metadata required" );
@@ -90,9 +89,8 @@ Eigen::Vector3d componentVector( char component, const std::optional< Eigen::Mat
 }
 double metres( const SinexParameterRecord& parameter )
 {
-    requireValidStationHistory(
-            parameter.normalization == SinexNormalization::si && parameter.siUnit == "m" && parameter.valueSi.has_value( ),
-            parameter.provenance.source + ": unsupported amplitude unit at parameter " + std::to_string( parameter.index ) );
+    requireValidStationHistory( parameter.siUnit == "m" && parameter.valueSi.has_value( ),
+                                "unsupported amplitude unit at parameter " + std::to_string( parameter.index ) );
     return *parameter.valueSi;
 }
 }  // namespace
@@ -501,7 +499,6 @@ std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory( c
             term.relaxationJulianYears = relaxation.originalValue;
             term.amplitudeParameterIndex = amplitude.index;
             term.relaxationParameterIndex = relaxation.index;
-            term.provenance = amplitude.provenance;
             psd.push_back( term );
             requireValidStationHistory( paired.insert( amplitude.index ).second && paired.insert( relaxation.index ).second,
                                         "PSD parameter used twice" );

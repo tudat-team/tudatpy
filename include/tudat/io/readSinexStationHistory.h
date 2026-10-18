@@ -16,14 +16,6 @@ namespace tudat
 namespace input_output
 {
 
-//! Location and text of a line in a SINEX file, kept to trace each record back to its source.
-struct SinexSourceRecord {
-    //! Name of the file (or other source), line number and full text of the line.
-    std::string source;
-    std::size_t line = 0;
-    std::string text;
-};
-
 //! SINEX epoch (YY:DDD:SSSSS), as calendar year, day of year and second of day in UTC.
 struct SinexCivilUtc {
     //! Year (four digits), day of year and second of day.
@@ -47,9 +39,6 @@ enum class SinexEpochMeaning { specified, unspecified, headerStartDefault, heade
 
 //! Epoch field of a SINEX file. An all-zero epoch is not a date; its meaning depends on the field it is in.
 struct SinexEpoch {
-    //! Text of the field in the file.
-    std::string original;
-
     //! Whether the field gives a date, or has one of the special meanings of an all-zero epoch.
     SinexEpochMeaning meaning = SinexEpochMeaning::unspecified;
 
@@ -102,13 +91,7 @@ struct SinexSiteRecord {
     std::optional< double > approximateLongitudeRadians;
     std::optional< double > approximateLatitudeRadians;
     std::optional< double > approximateHeightMetres;
-
-    //! Line in the file from which this record was read.
-    SinexSourceRecord provenance;
 };
-
-//! Whether a SINEX parameter value could be converted to SI units.
-enum class SinexNormalization { si, unresolvedExtension, unsupportedUnit };
 
 //! Estimated parameter from the SOLUTION/ESTIMATE block of a SINEX file (for instance one coordinate of a station).
 struct SinexParameterRecord {
@@ -124,14 +107,10 @@ struct SinexParameterRecord {
     double originalValue = 0.0;
     double originalStandardDeviation = 0.0;
 
-    //! Whether the value could be converted to SI units, and if so, the value, standard deviation and SI unit.
-    SinexNormalization normalization = SinexNormalization::unsupportedUnit;
+    //! Value, standard deviation and SI unit, if the value could be converted to SI units.
     std::optional< double > valueSi;
     std::optional< double > standardDeviationSi;
     std::string siUnit;
-
-    //! Line in the file from which this record was read.
-    SinexSourceRecord provenance;
 };
 
 //! Time span of the observations used for one station solution (SOLUTION/EPOCHS block of a SINEX file).
@@ -144,9 +123,6 @@ struct SinexObservationSpan {
     SinexEpoch start;
     SinexEpoch end;
     SinexEpoch mean;
-
-    //! Line in the file from which this record was read.
-    SinexSourceRecord provenance;
 };
 
 //! Discontinuity in the coordinates of a station, from the SOLUTION/DISCONTINUITY block (an ITRF extension of SINEX).
@@ -161,9 +137,6 @@ struct SinexDiscontinuityRecord {
     SinexEpoch start;
     SinexEpoch end;
     std::string description;
-
-    //! Line in the file from which this record was read.
-    SinexSourceRecord provenance;
 };
 
 //! Component order of a SINEX eccentricity: up, north, east (UNE) or Cartesian X, Y, Z.
@@ -182,9 +155,6 @@ struct SinexEccentricityRecord {
 
     //! Metres in the declared component order; UNE is not silently reordered to ENU.
     std::array< double, 3 > componentsMetres{ { 0.0, 0.0, 0.0 } };
-
-    //! Line in the file from which this record was read.
-    SinexSourceRecord provenance;
 };
 
 //! Kind of equipment in a SINEX equipment record.
@@ -203,23 +173,12 @@ struct SinexEquipmentRecord {
     std::string equipmentType;
     std::string serialNumber;
     std::string firmwareVersion;
-
-    //! Line in the file from which this record was read.
-    SinexSourceRecord provenance;
-};
-
-//! Block of a SINEX file that is kept, but not interpreted.
-struct SinexOpaqueBlock {
-    //! Name of the block and its lines.
-    std::string name;
-    std::vector< SinexSourceRecord > records;
 };
 
 //! Contents of a SINEX file with station coordinates and station history.
 struct SinexStationHistory {
-    //! Name of the file (or other source), its header line, SINEX version and the agency that made the file.
+    //! Name of the file (or other source), SINEX version and the agency that made the file.
     std::string source;
-    std::string originalHeader;
     std::string version;
     std::string agency;
 
@@ -237,7 +196,6 @@ struct SinexStationHistory {
     std::string release;
     std::string origin;
     std::string tideSystem;
-    std::vector< SinexSourceRecord > comments;
 
     //! Repeated raw site/point keys can identify different techniques/monuments in combined products.
     std::multimap< SinexSiteKey, SinexSiteRecord > sites;
@@ -246,9 +204,6 @@ struct SinexStationHistory {
     std::vector< SinexDiscontinuityRecord > discontinuities;
     std::vector< SinexEccentricityRecord > eccentricities;
     std::vector< SinexEquipmentRecord > equipmentHistories;
-
-    //! Unknown blocks and covariance declarations are retained without evaluation.
-    std::vector< SinexOpaqueBlock > opaqueBlocks;
 };
 
 //! Cartesian position (and, if available, velocity) of one station solution, collected from a SINEX file.
@@ -270,14 +225,11 @@ struct SinexCartesianSolution {
     std::array< std::optional< SinexEpoch >, 3 > velocityReferenceEpochs;
 };
 
-//! Strict SINEX 2.02 fixed-width station-product input, including parameter-only IGN extensions.
+//! Read the station blocks of a SINEX (2.0x) file, including the IGN parameter extensions; other blocks are ignored.
 SinexStationHistory readSinexStationHistory( std::istream& stream, const std::string& source = "<stream>" );
 SinexStationHistory readSinexStationHistory( const std::string& fileName );
 
-//! Validate mutable preloaded records without constructing any environment model.
-void validateSinexStationHistory( const SinexStationHistory& history );
-
-//! Explicit solution selection; complete positions are required only by this consuming query.
+//! Collect the Cartesian position (and velocity) of one station solution; the position must be complete.
 SinexCartesianSolution getSinexStationCoordinateSolution( const SinexStationHistory& history,
                                                           const SinexSolutionKey& key,
                                                           bool requireCompleteVelocity = false );

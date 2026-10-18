@@ -183,9 +183,8 @@ StationReferencePointOffsetHistory::StationReferencePointOffsetHistory( std::vec
                                               offset.to.kind == StationReferencePointKind::calibratedInstrumentPoint ),
                                     "only explicit marker-to-ARP or ARP-to-calibrated-point vectors are supported" );
         requireValidReferencePoint( !offset.equipmentType.empty( ) && !offset.equipmentSerialNumber.empty( ) &&
-                                            ( !offset.provenance.source.empty( ) || !offset.source.empty( ) ) &&
                                             offset.componentsMetres.allFinite( ) && !offset.directionDependent,
-                                    "incomplete equipment/source, nonfinite vector or direction-dependent correction" );
+                                    "incomplete equipment, nonfinite vector or direction-dependent correction" );
         requireValidReferencePoint( offset.basis == StationReferencePointOffsetBasis::xyz ||
                                             ( offset.basis == StationReferencePointOffsetBasis::une && geometry_ ),
                                     "UNE offsets require explicit fixed local geometry" );
@@ -306,7 +305,6 @@ std::shared_ptr< StationReferencePointOffsetHistory > createSinexAntennaReferenc
         const std::optional< std::string >& domesSelector,
         const std::optional< SinexSiteKey >& equipmentSite )
 {
-    validateSinexStationHistory( equipment );
     const auto from = getStationReferencePointIdentity( meta );
     requireValidReferencePoint( from.kind == StationReferencePointKind::marker && !name.empty( ),
                                 "an explicit marker and ARP name are required" );
@@ -399,8 +397,7 @@ std::shared_ptr< StationReferencePointOffsetHistory > createSinexAntennaReferenc
                 }
                 record.equipmentType = antenna.source.equipmentType;
                 record.equipmentSerialNumber = antenna.source.serialNumber;
-                record.provenance = eccentricity.source.provenance;
-                record.equipmentProvenance = antenna.source.provenance;
+                record.source = equipment.source;
                 record.headerTimeContext = context;
                 offsets.push_back( record );
             }

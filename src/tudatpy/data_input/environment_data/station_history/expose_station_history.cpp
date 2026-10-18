@@ -30,17 +30,6 @@ which it is given; it is never converted to a date.
                     "Zero epoch, meaning the end epoch of the file header." )
             .value( "open_start", tio::SinexEpochMeaning::openStart, "Zero epoch, meaning an interval that is open at its start." )
             .value( "open_end", tio::SinexEpochMeaning::openEnd, "Zero epoch, meaning an interval that is open at its end." );
-    py::enum_< tio::SinexNormalization >( m, "SinexNormalization", R"doc(
-
-Enumeration describing whether the value of a SINEX parameter could be converted to SI units.
-
-      )doc" )
-            .value( "si", tio::SinexNormalization::si, "Converted to SI units." )
-            .value( "unresolved_extension",
-                    tio::SinexNormalization::unresolvedExtension,
-                    "Provider extension whose units are not defined by the file (for instance IGN ``TEXP``/``TLOG`` relaxation "
-                    "times, labelled ``m`` but given in years); not converted." )
-            .value( "unsupported_unit", tio::SinexNormalization::unsupportedUnit, "Unit not supported; not converted." );
     py::enum_< tio::SinexEccentricityBasis >( m, "SinexEccentricityBasis", R"doc(
 
 Enumeration of the component orders of a SINEX eccentricity.
@@ -134,35 +123,6 @@ the station position or velocity.
 
          :type: str
       )doc" );
-    py::class_< tio::SinexSourceRecord >( m, "SinexSourceRecord", R"doc(
-
-Line of a SINEX file from which a record was read.
-
-      )doc" )
-            .def_readonly( "source", &tio::SinexSourceRecord::source, R"doc(
-
-         **read-only**
-
-         Name of the file.
-
-         :type: str
-      )doc" )
-            .def_readonly( "line", &tio::SinexSourceRecord::line, R"doc(
-
-         **read-only**
-
-         Line number in the file.
-
-         :type: int
-      )doc" )
-            .def_readonly( "text", &tio::SinexSourceRecord::text, R"doc(
-
-         **read-only**
-
-         Line of the file, unmodified.
-
-         :type: str
-      )doc" );
     py::class_< tio::SinexCivilUtc >( m, "SinexCivilUtc", R"doc(
 
 Calendar UTC epoch of a SINEX record (year, day of year and seconds of day). No leap-second table is used, so a seconds-of-day value of 86400 is retained as given.
@@ -196,14 +156,6 @@ Calendar UTC epoch of a SINEX record (year, day of year and seconds of day). No 
 
 Epoch of a SINEX record, as given in the file (``YY:DDD:SSSSS``), with its meaning.
 
-      )doc" )
-            .def_readonly( "original", &tio::SinexEpoch::original, R"doc(
-
-         **read-only**
-
-         Epoch as given in the file.
-
-         :type: str
       )doc" )
             .def_readonly( "meaning", &tio::SinexEpoch::meaning, R"doc(
 
@@ -281,14 +233,6 @@ Record of the ``SITE/ID`` block of a SINEX file.
          Approximate height in metres, or ``None``.
 
          :type: float | None
-      )doc" )
-            .def_readonly( "provenance", &tio::SinexSiteRecord::provenance, R"doc(
-
-         **read-only**
-
-         Line of the file from which the record was read.
-
-         :type: SinexSourceRecord
       )doc" );
     py::class_< tio::SinexParameterRecord >( m, "SinexParameterRecord", R"doc(
 
@@ -359,14 +303,6 @@ Estimated parameter of the ``SOLUTION/ESTIMATE`` block of a SINEX file (for inst
 
          :type: float
       )doc" )
-            .def_readonly( "normalization", &tio::SinexParameterRecord::normalization, R"doc(
-
-         **read-only**
-
-         Whether the value could be converted to SI units.
-
-         :type: SinexNormalization
-      )doc" )
             .def_readonly( "value_si", &tio::SinexParameterRecord::valueSi, R"doc(
 
          **read-only**
@@ -390,14 +326,6 @@ Estimated parameter of the ``SOLUTION/ESTIMATE`` block of a SINEX file (for inst
          SI unit of the converted value.
 
          :type: str
-      )doc" )
-            .def_readonly( "provenance", &tio::SinexParameterRecord::provenance, R"doc(
-
-         **read-only**
-
-         Line of the file from which the record was read.
-
-         :type: SinexSourceRecord
       )doc" );
     py::class_< tio::SinexObservationSpan >( m, "SinexObservationSpan", R"doc(
 
@@ -443,14 +371,6 @@ Record of the ``SOLUTION/EPOCHS`` block of a SINEX file: the span of the observa
          Mean observation epoch.
 
          :type: SinexEpoch
-      )doc" )
-            .def_readonly( "provenance", &tio::SinexObservationSpan::provenance, R"doc(
-
-         **read-only**
-
-         Line of the file from which the record was read.
-
-         :type: SinexSourceRecord
       )doc" );
     py::class_< tio::SinexDiscontinuityRecord >( m, "SinexDiscontinuityRecord", R"doc(
 
@@ -504,14 +424,6 @@ Record of the ``SOLUTION/DISCONTINUITY`` block (ITRF extension) of a SINEX file:
          Description of the discontinuity (for instance an earthquake or an equipment change).
 
          :type: str
-      )doc" )
-            .def_readonly( "provenance", &tio::SinexDiscontinuityRecord::provenance, R"doc(
-
-         **read-only**
-
-         Line of the file from which the record was read.
-
-         :type: SinexSourceRecord
       )doc" );
     py::class_< tio::SinexEccentricityRecord >( m, "SinexEccentricityRecord", R"doc(
 
@@ -565,14 +477,6 @@ Record of the ``SITE/ECCENTRICITY`` block of a SINEX file: the offset of the ant
          Eccentricity in metres, in the component order of :attr:`basis`.
 
          :type: list[float]
-      )doc" )
-            .def_readonly( "provenance", &tio::SinexEccentricityRecord::provenance, R"doc(
-
-         **read-only**
-
-         Line of the file from which the record was read.
-
-         :type: SinexSourceRecord
       )doc" );
     py::class_< tio::SinexEquipmentRecord >( m, "SinexEquipmentRecord", R"doc(
 
@@ -642,35 +546,6 @@ Record of the ``SITE/RECEIVER`` or ``SITE/ANTENNA`` block of a SINEX file.
          Firmware version (receivers only).
 
          :type: str
-      )doc" )
-            .def_readonly( "provenance", &tio::SinexEquipmentRecord::provenance, R"doc(
-
-         **read-only**
-
-         Line of the file from which the record was read (including any provider extension columns).
-
-         :type: SinexSourceRecord
-      )doc" );
-    py::class_< tio::SinexOpaqueBlock >( m, "SinexOpaqueBlock", R"doc(
-
-Block of a SINEX file that is not interpreted (for instance a covariance matrix), retained as read.
-
-      )doc" )
-            .def_readonly( "name", &tio::SinexOpaqueBlock::name, R"doc(
-
-         **read-only**
-
-         Name of the block.
-
-         :type: str
-      )doc" )
-            .def_readonly( "records", &tio::SinexOpaqueBlock::records, R"doc(
-
-         **read-only**
-
-         Lines of the block.
-
-         :type: list[SinexSourceRecord]
       )doc" );
     py::class_< tio::SinexCartesianSolution >( m, "SinexCartesianSolution", R"doc(
 
@@ -775,14 +650,6 @@ The records are stored as read, without combining the different blocks or applyi
 
          :type: str
       )doc" )
-            .def_readonly( "original_header", &tio::SinexStationHistory::originalHeader, R"doc(
-
-         **read-only**
-
-         Header line of the file, unmodified.
-
-         :type: str
-      )doc" )
             .def_readonly( "version", &tio::SinexStationHistory::version, R"doc(
 
          **read-only**
@@ -863,14 +730,6 @@ The records are stored as read, without combining the different blocks or applyi
 
          :type: str
       )doc" )
-            .def_readonly( "comments", &tio::SinexStationHistory::comments, R"doc(
-
-         **read-only**
-
-         Lines of the ``FILE/COMMENT`` block.
-
-         :type: list[SinexSourceRecord]
-      )doc" )
             .def_readonly( "parameters", &tio::SinexStationHistory::parameters, R"doc(
 
          **read-only**
@@ -910,14 +769,6 @@ The records are stored as read, without combining the different blocks or applyi
          Receiver and antenna histories.
 
          :type: list[SinexEquipmentRecord]
-      )doc" )
-            .def_readonly( "opaque_blocks", &tio::SinexStationHistory::opaqueBlocks, R"doc(
-
-         **read-only**
-
-         Blocks that are not interpreted.
-
-         :type: list[SinexOpaqueBlock]
       )doc" )
             .def_property_readonly(
                     "sites",
@@ -977,19 +828,6 @@ Examples
    history = station_history.read_sinex_station_history( "ITRF2020-IGS-TRF.SSC" )
    key = station_history.SinexSolutionKey( "AB07", "A", "1" )
    solution = station_history.get_station_coordinate_solution( history, key )
-
-      )doc" );
-    m.def( "validate_sinex_station_history",
-           &tio::validateSinexStationHistory,
-           py::arg( "history" ),
-           R"doc(
-
-Function to check the records of a SINEX station file, raising an exception if they are inconsistent.
-
-Parameters
-----------
-history : SinexStationHistory
-    Contents of the SINEX file.
 
       )doc" );
     m.def( "get_station_coordinate_solution_keys",

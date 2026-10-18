@@ -76,11 +76,8 @@ struct StationReferencePointOffset {
     //! Calibration and signal to which the offset applies (required for an offset to a calibrated instrument point).
     std::string calibrationId, signal;
 
-    //! Name of the source of the offset, the lines from which the offset and the equipment were read, and the time limits
-    //! used when the source header gives none.
+    //! Name of the source of the offset, and the time limits used when the source header gives none.
     std::string source;
-    input_output::SinexSourceRecord provenance;
-    input_output::SinexSourceRecord equipmentProvenance;
     std::optional< SinexEquipmentHeaderTimeContext > headerTimeContext;
 
     //! Optional time-dependent reference vectors in the declared basis, as a function of TAI (rates per second).

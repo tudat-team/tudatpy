@@ -55,10 +55,9 @@ struct StationPostSeismicTerm {
     Eigen::Vector3d amplitudeMetres = Eigen::Vector3d::Zero( );
     double relaxationJulianYears = 0.0;
 
-    //! Parameter numbers of the amplitude and relaxation time in the source file, and the line from which the term was read.
+    //! Parameter numbers of the amplitude and relaxation time in the source file.
     std::size_t amplitudeParameterIndex = 0;
     std::size_t relaxationParameterIndex = 0;
-    input_output::SinexSourceRecord provenance;
 };
 
 //! Periodic (seasonal) motion of a station, with a given number of cycles per calendar year.

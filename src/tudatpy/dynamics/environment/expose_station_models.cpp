@@ -215,14 +215,6 @@ Post-seismic deformation term of a station history, applied from the epoch of an
          SINEX parameter index of the relaxation time.
 
          :type: int
-      )doc" )
-            .def_readonly( "provenance", &gs::StationPostSeismicTerm::provenance, R"doc(
-
-         **read-only**
-
-         Line of the SINEX file from which the term was read.
-
-         :type: ~tudatpy.data_input.environment_data.station_history.SinexSourceRecord
       )doc" );
     py::class_< gs::StationSeasonalTerm >( m, "StationSeasonalTerm", R"doc(
 
@@ -614,22 +606,6 @@ a single interval.
          Whether the offset depends on the observation direction (which is not modelled).
 
          :type: bool
-      )doc" )
-            .def_readonly( "provenance", &gs::StationReferencePointOffset::provenance, R"doc(
-
-         **read-only**
-
-         Line of the SINEX file that gives the offset.
-
-         :type: ~tudatpy.data_input.environment_data.station_history.SinexSourceRecord
-      )doc" )
-            .def_readonly( "equipment_provenance", &gs::StationReferencePointOffset::equipmentProvenance, R"doc(
-
-         **read-only**
-
-         Line of the SINEX file that gives the equipment.
-
-         :type: ~tudatpy.data_input.environment_data.station_history.SinexSourceRecord
       )doc" )
             .def_readonly( "header_time_context", &gs::StationReferencePointOffset::headerTimeContext, R"doc(
 

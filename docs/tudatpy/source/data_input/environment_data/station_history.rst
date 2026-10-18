@@ -12,13 +12,10 @@ Functions
 .. autosummary::
 
    read_sinex_station_history
-   validate_sinex_station_history
    get_station_coordinate_solution_keys
    get_station_coordinate_solution
 
 .. autofunction:: read_sinex_station_history
-
-.. autofunction:: validate_sinex_station_history
 
 .. autofunction:: get_station_coordinate_solution_keys
 
@@ -30,14 +27,10 @@ Enumerations
 .. autosummary::
 
    SinexEpochMeaning
-   SinexNormalization
    SinexEccentricityBasis
    SinexEquipmentKind
 
 .. autoclass:: SinexEpochMeaning
-   :members:
-
-.. autoclass:: SinexNormalization
    :members:
 
 .. autoclass:: SinexEccentricityBasis
@@ -61,10 +54,8 @@ Classes
    SinexDiscontinuityRecord
    SinexEccentricityRecord
    SinexEquipmentRecord
-   SinexOpaqueBlock
    SinexEpoch
    SinexCivilUtc
-   SinexSourceRecord
 
 .. autoclass:: SinexStationHistory
    :members:
@@ -96,14 +87,9 @@ Classes
 .. autoclass:: SinexEquipmentRecord
    :members:
 
-.. autoclass:: SinexOpaqueBlock
-   :members:
-
 .. autoclass:: SinexEpoch
    :members:
 
 .. autoclass:: SinexCivilUtc
    :members:
 
-.. autoclass:: SinexSourceRecord
-   :members:

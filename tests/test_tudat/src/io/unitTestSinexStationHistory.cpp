@@ -70,7 +70,6 @@ BOOST_AUTO_TEST_CASE( published_coordinate_and_motion_products )
         if( row.second.type.rfind( "TEXP", 0 ) == 0 )
         {
             BOOST_CHECK_EQUAL( row.second.originalUnit, "m" );
-            BOOST_CHECK( row.second.normalization == SinexNormalization::unresolvedExtension );
             BOOST_CHECK( !row.second.valueSi );
         }
     }
@@ -119,8 +118,7 @@ BOOST_AUTO_TEST_CASE( published_igs_equipment_history )
     BOOST_CHECK_EQUAL( antenna.equipmentType, "AERAT2775_43    SPKE" );
     BOOST_CHECK_EQUAL( antenna.serialNumber, "5546" );
 
-    // Equipment changes preserve the published eccentricity and trailing IGS source fields.
-    BOOST_CHECK_EQUAL( antenna.provenance.text.substr( 68 ), "    0" );
+    // Equipment changes preserve the published eccentricity.
     BOOST_REQUIRE_EQUAL( history.eccentricities.size( ), 3 );
     BOOST_CHECK_EQUAL( history.eccentricities.front( ).componentsMetres[ 0 ], 0.05 );
     BOOST_CHECK( history.eccentricities.back( ).end.meaning == SinexEpochMeaning::headerEndDefault );
