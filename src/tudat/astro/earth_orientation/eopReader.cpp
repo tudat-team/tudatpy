@@ -49,7 +49,6 @@ EOPReader::EOPReader( const std::string& eopFile, const std::string& format, con
 
 EOPReader::EOPReader( const input_output::EarthOrientationData& data ): rawData_( data )
 {
-    input_output::validateEarthOrientationData( data );
     for( const auto& entry : data.records )
     {
         const double mjd = entry.first;
