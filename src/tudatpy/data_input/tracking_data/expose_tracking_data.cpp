@@ -17,6 +17,8 @@
 #include "scalarTypes.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingSupplementaryData.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/dualFrequencyDopplerCalibration.h"
 
 namespace py = pybind11;
 namespace tdat = tudat::data;
@@ -875,6 +877,79 @@ void expose_tracking_data( py::module& m )
          Returns
          -------
          None
+      )doc" );
+
+    m.def(
+            "get_dsn_doppler_frequency_calibration",
+            []( const std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > >& trackingData,
+                const std::vector< int >& observationIndices,
+                const tudat::simulation_setup::SystemOfBodies& bodies,
+                const std::shared_ptr< tudat::ground_stations::StationFrequencyInterpolator >& transmittingFrequency,
+                const std::vector< std::shared_ptr< tudat::observation_models::LightTimeCorrectionSettings > >& nonDispersiveCorrections,
+                const std::shared_ptr< tudat::observation_models::LightTimeCorrectionSettings >& ionosphericCorrection ) {
+                if( trackingData->getObservableType( ) != "DsnNWayAveragedDoppler" || trackingData->getTimeScale( ) != "UTC" ||
+                    trackingData->getReferenceLinkEnd( ) != "receiver" )
+                {
+                    throw std::runtime_error( "Error in DSN dual-frequency calibration, receiver-tagged (UTC) DSN Doppler data required" );
+                }
+
+                // Retrieve observation epochs, and observations including corrections
+                std::vector< TIME_TYPE > receptionTimes;
+                std::vector< long double > observations;
+                for( int index : observationIndices )
+                {
+                    receptionTimes.push_back( trackingData->getObservationEpochs( ).at( index ) );
+                    observations.push_back( trackingData->getObservations( ).at( index )( 0 ) );
+                    if( !trackingData->getObservationCorrections( ).empty( ) )
+                    {
+                        observations.back( ) += trackingData->getObservationCorrections( ).at( index )( 0 );
+                    }
+                }
+                return tudat::observation_models::getDsnDopplerFrequencyCalibration(
+                        tudat::observation_models::getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) ),
+                        bodies,
+                        receptionTimes,
+                        observations,
+                        tudat::observation_models::getAncillarySettingsFromTrackingData( trackingData ),
+                        transmittingFrequency,
+                        nonDispersiveCorrections,
+                        ionosphericCorrection );
+            },
+            py::arg( "tracking_data" ),
+            py::arg( "observation_indices" ),
+            py::arg( "bodies" ),
+            py::arg( "transmitting_frequency_calculator" ),
+            py::arg( "non_dispersive_corrections" ),
+            py::arg( "ionospheric_correction" ),
+            R"doc(
+
+         Function to compute the quantities needed for a dual-frequency calibration of two-way DSN Doppler tracking data.
+
+         Function to compute the quantities needed for a dual-frequency calibration of two-way DSN Doppler tracking data, for
+         the selected observations. Used by
+         :func:`~tudatpy.data_input.tracking_data.radio_utilities.compute_dual_frequency_doppler_corrections`.
+
+         Parameters
+         ----------
+         tracking_data : TrackingData
+             Two-way DSN Doppler tracking data (receiver-tagged, UTC).
+         observation_indices : list[int]
+             Indices of observations for which the quantities are computed.
+         bodies : SystemOfBodies
+             System of bodies.
+         transmitting_frequency_calculator : TransmittingFrequencyCalculator
+             Transmitting frequency calculator of the transmitting station.
+         non_dispersive_corrections : list[LightTimeCorrectionSettings]
+             Non-dispersive light-time corrections, used to compute the light time.
+         ionospheric_correction : LightTimeCorrectionSettings
+             Ionospheric light-time correction.
+
+         Returns
+         -------
+         numpy.ndarray
+             Matrix (extended precision) with, per observation: received frequency normalized by the carrier normalization,
+             carrier normalization [Hz], ionospheric contribution to normalized received frequency, squared inverse mean uplink and
+             downlink frequencies (relative to 1 GHz), and emission interval duration [s].
       )doc" );
 
     auto genericTextFile = m.def_submodule( "generic_text_file" );

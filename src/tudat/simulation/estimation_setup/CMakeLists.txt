@@ -64,6 +64,7 @@ set(estimation_HEADERS
         processTrackingTxtFile.h
         trackingDataWeighting.h
         createObservationCollection.h
+        dualFrequencyDopplerCalibration.h
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h
         compressDopplerObservationCollection.h
@@ -87,6 +88,7 @@ set(estimation_SOURCES
         createAccelerationPartials.cpp
         createObservationModel.cpp
         createObservationCollection.cpp
+        dualFrequencyDopplerCalibration.cpp
         trackingDataWeighting.cpp
         createInverseAprioriCovariance.cpp
         createObservationViability.cpp
