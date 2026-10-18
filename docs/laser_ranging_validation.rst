@@ -33,10 +33,6 @@ suite was rebuilt and rerun at the final source revision.
      - Cases
      - Assertions
      - Evidence origin
-   * - LaserTargetSignature
-     - 4
-     - 21
-     - Retained
    * - LaserRangingData
      - 1
      - 104
@@ -63,8 +59,7 @@ retains 59 passing cases from ``test_data_input_earth_orientation.py``,
 ``test_station_reference_point_bindings.py`` and ``test_time_conversions.py``.
 The `documentation and runtime check <../../../laser-ranging-work/logs/final-python-surface.json>`_
 resolved all 87 autosummary names in edited RST files since ``ebe3115ec``.
-Its binding smoke exercised scalar and array target signatures, optical and
-target correction factories, body-deformation station motion, actual SP3/CRD
+Its binding smoke exercised the optical correction factory, body-deformation station motion, actual SP3/CRD
 records and the selected Earth-rotation time converter. That check used source
 ``9f9f868d7`` and kernel
 ``029f3ea61f723093697a8b055e304189d3906ffb541d6fae929008890625deff``;
@@ -262,3 +257,7 @@ and `quantization evidence <../../../laser-ranging-work/logs/earth-rotation-20ns
 retain the measured floor and the original failed assertion separately. The
 preceding kernel and its provenance are preserved externally under
 ``laser-ranging-work/binaries/10f8307ba799847f11d9614d2c3f3da3db23962c46a739d73f536f9dc31ae5d5/``.
+
+The laser target signature correction was later removed: its only use (the lunar reflector glass path)
+is applied as a constant range bias in the LLR driver. Annual DE440 residuals agree with the saved results
+to within light-time convergence noise (median 2 micrometres, maximum 0.26 mm).

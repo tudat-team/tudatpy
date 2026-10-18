@@ -1,8 +1,0 @@
-{
-  "url": "https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de440/ascp01950.440",
-  "file": "ascp01950.440",
-  "bytes": 30629582,
-  "sha256": "e24f6356225f7d912e35af2ebc5f9bcf6fb0425c53aa92b5d7243cb063477286",
-  "retrieved_utc": "2026-10-16T06:34:54.904182+00:00",
-  "purpose": "Independent DE440 ASCII translation and lunar libration coefficient comparison to frozen matched SPK/PCK; no residual selection."
-}

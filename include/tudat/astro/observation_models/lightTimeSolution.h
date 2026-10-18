@@ -731,11 +731,7 @@ public:
         bool correctionsNeedFrequency = false;
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
-
-            // Coupled optical target weights depend on geometry, without a radio-frequency model.
-            const auto type = correctionFunctions_.at( i )->getLightTimeCorrectionType( );
-
-            if( type != laser_target_signature && requiresMultiLegIterations( type ) )
+            if( requiresMultiLegIterations( correctionFunctions_.at( i )->getLightTimeCorrectionType( ) ) )
             {
                 correctionsNeedFrequency = true;
             }

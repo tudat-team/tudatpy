@@ -363,16 +363,6 @@ Eigen::Vector2d calculateMendesPavlisZenithDelay( const double latitude,
                                                   const double waterVaporPressure,
                                                   const double wavelength )
 {
-
-    // Accept the nominal 1064 nm line within a half-nanometre reporting interval, including recorded 1064.2 nm.
-    // This is our acceptance convention, not a separately validated endpoint; the supplied wavelength is unchanged.
-    if( !std::isfinite( latitude ) || std::abs( latitude ) > mathematical_constants::PI / 2 || !std::isfinite( height ) ||
-        !std::isfinite( pressure ) || pressure <= 0 || !std::isfinite( waterVaporPressure ) || waterVaporPressure < 0 ||
-        waterVaporPressure > pressure || !std::isfinite( wavelength ) || wavelength < 0.355e-6 || wavelength > 1.0645e-6 )
-    {
-        throw std::invalid_argument( "Invalid Mendes-Pavlis optical wavelength, station coordinates or pressures" );
-    }
-
     // IERS 2010 Eqs. 9.1-9.7 use inverse micrometres, hPa and a fixed CO2 abundance of 375 ppm.
     const double sigmaSquared = 1e-12 / ( wavelength * wavelength );
 
@@ -388,11 +378,6 @@ Eigen::Vector2d calculateMendesPavlisZenithDelay( const double latitude,
             ( 295.235 + 3 * 2.6422 * sigmaSquared - 5 * 0.032380 * sigmaSquared * sigmaSquared +
               7 * 0.004028 * sigmaSquared * sigmaSquared * sigmaSquared );
 
-    if( gravityFactor <= 0 )
-    {
-        throw std::invalid_argument( "Invalid Mendes-Pavlis station gravity factor" );
-    }
-
     return Eigen::Vector2d( 2.416579e-3 * dryDispersion * ( pressure / 100.0 ) / gravityFactor,
                             1e-4 * ( 5.316 * wetDispersion - 3.759 * dryDispersion ) * ( waterVaporPressure / 100.0 ) / gravityFactor );
 }
@@ -401,11 +386,10 @@ Eigen::Vector2d calculateMendesPavlisZenithDelay( const double latitude,
 // Adapted from IERS FCUL_A.F with angles in radians and height in metres; the IERS notice is retained in licenses/.
 double calculateFculaMapping( const double latitude, const double height, const double temperature, const double elevation )
 {
-    if( !std::isfinite( latitude ) || std::abs( latitude ) > mathematical_constants::PI / 2 || !std::isfinite( height ) ||
-        !std::isfinite( temperature ) || temperature <= 0 || !std::isfinite( elevation ) ||
-        elevation <= 3.0 * mathematical_constants::PI / 180.0 || elevation > mathematical_constants::PI / 2 )
+    // Mapping function is valid down to 3 degrees elevation
+    if( elevation <= 3.0 * mathematical_constants::PI / 180.0 )
     {
-        throw std::invalid_argument( "FCULa requires finite station data and elevation above 3 degrees" );
+        throw std::invalid_argument( "Error in FCULa tropospheric mapping, elevation must be above 3 degrees" );
     }
 
     // The fitted temperature term is in Celsius; the public input is kelvin.

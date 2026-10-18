@@ -582,13 +582,15 @@ def main():
                 time.utc_scale, time.tdb_scale, point["utc"], position
             )
 
-            correction = model.complete_light_time_corrections(
+            correction, glass_path_length = model.complete_light_time_corrections(
                 point, explicit_glass=args.glass_convention != "none"
             )
 
             solver_start = perf_counter()
 
-            computed, diagnostic = model.computed_range(point, epoch, bodies, correction)
+            computed, diagnostic = model.computed_range(
+                point, epoch, bodies, correction, glass_path_length
+            )
             solver_seconds += perf_counter() - solver_start
             residual = 0.5 * (constants.SPEED_OF_LIGHT * point["observed_rtt_s"] - computed)
 

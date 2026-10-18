@@ -34,7 +34,6 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
         case ionex_vtec_ionospheric:
         case inverse_power_series_solar_corona:
         case nequick2_ionospheric:
-        case laser_target_signature:
             requiresMultiLegIterations = true;
             break;
         default:
@@ -53,9 +52,6 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
 
     switch( lightTimeCorrectionType )
     {
-        case laser_target_signature:
-            name = "laser target signature";
-            break;
         case first_order_relativistic:
             name = "first order relativistic";
             break;

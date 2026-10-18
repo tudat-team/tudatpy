@@ -61,8 +61,6 @@ Functions
 
    mendes_pavlis_tropospheric_light_time_correction
 
-   laser_target_light_time_correction
-
    inverse_power_series_solar_corona_light_time_correction
 
    set_vmf_troposphere_data
@@ -92,8 +90,6 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.vmf3o_tropospheric_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.mendes_pavlis_tropospheric_light_time_correction
-
-.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.laser_target_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.inverse_power_series_solar_corona_light_time_correction
 
@@ -134,12 +130,6 @@ Classes
 
    LightTimeCorrectionSettings
 
-   LaserTargetSignature
-
-   LaserTargetResponse
-
-   LaserTargetLightTimeCorrectionSettings
-
    JakowskiVtecCalculator
 
    GlobalIonosphereModelVtecCalculator
@@ -148,16 +138,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings
-   :members:
-
-.. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.LaserTargetSignature
-   :members:
-   :special-members: __init__
-
-.. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.LaserTargetResponse
-   :members:
-
-.. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.LaserTargetLightTimeCorrectionSettings
    :members:
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.JakowskiVtecCalculator

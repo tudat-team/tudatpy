@@ -24,7 +24,7 @@ from tudatpy.astro import element_conversion, time_representation as time
 from tudatpy.data_input import resource_paths
 from tudatpy.dynamics import environment, environment_setup as setup
 from tudatpy.estimation import observations
-from tudatpy.estimation.observable_models_setup import links, model_settings
+from tudatpy.estimation.observable_models_setup import biases, links, model_settings
 from tudatpy.estimation.observable_models_setup import light_time_corrections as ltc
 from tudatpy.estimation.observations_setup import observations_dependent_variables as dep
 from tudatpy.estimation.observations_setup import observations_simulation_settings as sim
@@ -423,27 +423,23 @@ def create_environment(
 
 
 def complete_light_time_corrections(point, explicit_glass=True):
-    """Use the existing complete model without adding a second array-profile correction."""
+    """Return the light-time corrections, and the optical path through the reflector glass per leg (n*h, metres)."""
 
     thickness = 0.0435 if point["reflector"] in (1, 4) else 0.0275
-
-    signature = ltc.LaserTargetSignature(
-        [np.zeros(3)], [1.0], internal_optical_path_length=1.4555 * thickness
-    )
 
     corrections = [
         ltc.first_order_relativistic_light_time_correction(["Sun", "Earth", "Moon"]),
         ltc.mendes_pavlis_tropospheric_light_time_correction(point["wavelength_m"]),
     ]
 
-    if explicit_glass:
-        corrections.append(ltc.laser_target_light_time_correction("Moon", signature))
-
-    return corrections
+    return corrections, (1.4555 * thickness if explicit_glass else 0.0)
 
 
-def computed_range(point, epoch, bodies, corrections):
-    """Return c times the atomic round-trip interval, using exactly one native clock transfer."""
+def computed_range(point, epoch, bodies, corrections, glass_path_length=0.0):
+    """Return c times the atomic round-trip interval, using exactly one native clock transfer.
+
+    The optical path through the reflector glass is added to both legs as a constant range bias.
+    """
 
     name = REFLECTORS[point["reflector"]][0]
     station_name = point.get("station", "APOLLO")
@@ -462,6 +458,9 @@ def computed_range(point, epoch, bodies, corrections):
     model = model_settings.n_way_range(
         link,
         corrections,
+        bias_settings=(
+            biases.absolute_bias([2.0 * glass_path_length]) if glass_path_length else None
+        ),
         light_time_convergence_settings=convergence,
         time_scale_for_observable=time.tai_scale,
     )
@@ -719,7 +718,7 @@ def main():
             time.utc_scale, time.tdb_scale, point["utc"], position
         )
 
-        shapiro, optical, target = complete_light_time_corrections(point)
+        (shapiro, optical), glass_path_length = complete_light_time_corrections(point)
 
         geometric, geometric_events = computed_range(point, epoch, bodies, [])
 
@@ -727,7 +726,9 @@ def main():
 
         atmospheric, atmospheric_events = computed_range(point, epoch, bodies, [shapiro, optical])
 
-        complete, complete_events = computed_range(point, epoch, bodies, [shapiro, optical, target])
+        complete, complete_events = computed_range(
+            point, epoch, bodies, [shapiro, optical], glass_path_length
+        )
 
         event_diagnostics.append(
             {
