@@ -157,6 +157,14 @@ Calendar UTC epoch of a SINEX record (year, day of year and seconds of day). No 
 Epoch of a SINEX record, as given in the file (``YY:DDD:SSSSS``), with its meaning.
 
       )doc" )
+            .def_readonly( "original", &tio::SinexEpoch::original, R"doc(
+
+         **read-only**
+
+         Text of the epoch field in the file.
+
+         :type: str
+      )doc" )
             .def_readonly( "meaning", &tio::SinexEpoch::meaning, R"doc(
 
          **read-only**

@@ -71,6 +71,7 @@ struct SinexLine {
             fail( "Invalid SINEX epoch: " + token );
         }
         SinexEpoch result;
+        result.original = token;
         if( token == "00:000:00000" )
         {
             result.meaning = zeroMeaning;
