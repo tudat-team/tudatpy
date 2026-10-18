@@ -163,9 +163,8 @@ def station_history(data_dir, dataset):
 
     civil = source.position_reference_epoch.civil_utc
     linear = environment.StationHistoryLinearSolution()
-    linear.source, linear.validity, linear.velocity_validity = source, validity, validity
-    linear.velocity_solution_id = key.solution_id
-    linear.reference_time = environment.ign_nominal_utc_station_time(
+    linear.source, linear.validity = source, validity
+    linear.reference_time = environment.sinex_civil_utc_to_tai(
         civil.year, civil.day_of_year, civil.seconds_of_day
     )
     linear.position_metres = np.asarray(source.position_metres)
@@ -176,13 +175,10 @@ def station_history(data_dir, dataset):
     metadata.site, metadata.domes_id = key.site, source.site.domes_id
     metadata.frame, metadata.release = "ITRF2020", "SLRF2020 250205"
     metadata.origin, metadata.tide_system = "whole-Earth centre of mass", "tide-free"
-    metadata.time_convention = linear.reference_time.convention
     metadata.reference_point_kind = (
         environment.StationReferencePointKind.calibrated_instrument_point
     )
     metadata.reference_point_name = "MATERA optical axis intersection"
-    metadata.sources = [record["file"] for record in dataset["station_inputs"].values()]
-    metadata.signals = ["nominal-civil-UTC linear station coordinates"]
     history = environment.StationCoordinateHistory([linear], [], [], metadata)
     ledger = dict(
         dataset["station"],

@@ -736,7 +736,7 @@ def main():
                 "launch_tdb_time_split": epoch.__getstate__(),
                 "station_kinematic_position_at_launch_m": (
                     history.position(
-                        environment.ign_nominal_utc_station_time_from_tdb(epoch, converter)
+                        converter.convert_time_object(time.tdb_scale, time.tai_scale, epoch)
                     )
                     if history is not None
                     else position

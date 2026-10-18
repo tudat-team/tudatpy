@@ -325,27 +325,15 @@ def station_simultaneity(earth, nominal_position):
 def additional_tidal_deformations(ocean_pole_grid, atmospheric_tide_grid):
     """Read the pinned CM ocean-pole and RP03 CE grids, adding the RP03 CM translation once."""
     ocean_pole = shape_deformation.ocean_pole_tidal(str(ocean_pole_grid))
-    metadata = atmospheric_loading.AtmosphericTideMetadata()
-    metadata.reference_origin = (
-        atmospheric_loading.AtmosphericLoadingReferenceOrigin.solid_earth_centre
-    )
-    metadata.source_profile = (
-        atmospheric_loading.AtmosphericTideSourceProfile.iers2010_rp03_no_ib_farrell
-    )
-    metadata.latitude_convention = atmospheric_loading.AtmosphericTideLatitudeConvention.geocentric
-    metadata.displacement_basis = (
-        atmospheric_loading.AtmosphericTideDisplacementBasis.geocentric_radial_north_east
-    )
-    metadata.expected_longitude_count, metadata.expected_latitude_count = 361, 181
-    grid = atmospheric_loading.read_atmospheric_tide_grid(str(atmospheric_tide_grid), metadata)
-    evaluation = shape_deformation.AtmosphericTideEvaluationSettings()
-    evaluation.lookup_latitude_convention = metadata.latitude_convention
-    evaluation.displacement_basis = metadata.displacement_basis
+    grid = atmospheric_loading.read_atmospheric_tide_grid(str(atmospheric_tide_grid))
+    if (len(grid.longitudes_degrees), len(grid.latitudes_degrees)) != (361, 181):
+        raise ValueError("Unexpected RP03 grid dimensions")
 
-    # The ocean grid is already CM; only RP03 needs the identified IERS Table 7.6 translation.
-    evaluation.convert_to_centre_of_mass = True
-
-    return [ocean_pole, shape_deformation.atmospheric_tide_from_grid(grid, evaluation)]
+    # The ocean grid is already CM; only RP03 needs the IERS Table 7.6 translation.
+    return [
+        ocean_pole,
+        shape_deformation.atmospheric_tide_from_grid(grid, convert_to_centre_of_mass=True),
+    ]
 
 
 def load_stations(
