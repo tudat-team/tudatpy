@@ -1,6 +1,8 @@
 """Gravity records, consuming settings and assembled-model binding contracts."""
 
 from pathlib import Path
+
+from tudatpy.data_input import resource_paths
 import pickle
 
 import numpy as np
@@ -148,7 +150,10 @@ def assembled_corrections(time, variations):
     field.tide_system = gravity_data.TideSystem.tide_free
     settings.get("Earth").gravity_field_settings = field
     eop = earth_orientation.read_earth_orientation_data(
-        str(TEST_DATA / "src/io/earth_orientation_fixtures/modern_c04.txt")
+        str(
+            Path(resource_paths.get_test_data_path())
+            / "pr1092/src/io/earth_orientation_fixtures/modern_c04.txt"
+        )
     )
 
     settings.get("Earth").rotation_model_settings = rotation_model.gcrs_to_itrs(eop_data=eop)
