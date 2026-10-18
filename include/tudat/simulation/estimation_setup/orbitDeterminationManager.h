@@ -152,16 +152,6 @@ public:
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
             std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput );
 
-    //! Function to estimate parameters, with a priori parameter values that differ from the initial parameter values
-    /*!
-     * Function to estimate parameters, using the current parameter values as initial guess, and aprioriParameterEstimate as the
-     * a priori parameter values (to which the deviation is computed if applyAprioriParameterDeviation is set). If
-     * aprioriParameterEstimate is empty, the initial parameter values are used as a priori values.
-     */
-    std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
-            std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
-            const ParameterVectorType& aprioriParameterEstimateOverride );
-
     template< int ObservationSize >
     void computePartialsAndObservations(
             const observation_models::LinkEnds& linkEnds,
