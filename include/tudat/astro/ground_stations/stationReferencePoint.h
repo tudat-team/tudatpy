@@ -83,9 +83,9 @@ struct StationReferencePointOffset {
     input_output::SinexSourceRecord equipmentProvenance;
     std::optional< SinexEquipmentHeaderTimeContext > headerTimeContext;
 
-    //! Optional time-dependent reference vectors in the declared basis; state rates are d/dTDB.
-    std::function< Eigen::Vector3d( const StationHistoryTime& ) > positionFunction;
-    std::function< Eigen::Vector6d( const StationHistoryTime& ) > stateFunction;
+    //! Optional time-dependent reference vectors in the declared basis, as a function of TAI (rates per second).
+    std::function< Eigen::Vector3d( const Time& ) > positionFunction;
+    std::function< Eigen::Vector6d( const Time& ) > stateFunction;
 
     //! Whether the offset depends on the direction of the signal; such offsets are not supported.
     bool directionDependent = false;
@@ -98,8 +98,8 @@ class StationReferencePointOffsetHistory
 public:
     StationReferencePointOffsetHistory( std::vector< StationReferencePointOffset > offsets,
                                         std::optional< StationReferencePointGeometry > geometry = std::nullopt );
-    Eigen::Vector3d getPositionCorrection( const StationHistoryTime& time ) const;
-    Eigen::Vector6d getStateCorrection( const StationHistoryTime& time ) const;
+    Eigen::Vector3d getPositionCorrection( const Time& tai ) const;
+    Eigen::Vector6d getStateCorrection( const Time& tai ) const;
     const StationReferencePointOffset& getActiveOffset( const Time& tai ) const;
     const std::vector< StationReferencePointOffset >& getOffsets( ) const
     {

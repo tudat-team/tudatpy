@@ -2,7 +2,6 @@
 #ifndef TUDAT_STATION_COORDINATE_HISTORY_H
 #define TUDAT_STATION_COORDINATE_HISTORY_H
 
-#include <functional>
 #include <memory>
 #include <optional>
 #include <Eigen/Geometry>
@@ -12,50 +11,13 @@
 
 namespace tudat
 {
-namespace earth_orientation
-{
-class TerrestrialTimeScaleConverter;
-}
 namespace ground_stations
 {
-//! Independent source coordinates; physical validity is always selected on TAI.
-/*!
- * MJD and calendar year are split to avoid subtracting large floating-point epochs.
- * Rates, when supplied, are derivatives with respect to environment TDB seconds.
- * The coordinate convention must agree with that used to construct the station coordinate history.
- */
-struct StationHistoryTime {
-    //! The epoch as TAI (seconds since J2000).
-    Time tai;
-
-    //! The epoch as modified Julian day and fraction of that day.
-    int mjdDay = 0;
-    long double mjdFraction = 0.0L;
-
-    //! The epoch as calendar year and fraction of that year.
-    int calendarYear = 0;
-    long double yearFraction = 0.0L;
-
-    //! Derivatives of the modified Julian date and of the decimal year with respect to TDB, if computed.
-    std::optional< double > mjdRate;
-    std::optional< double > decimalYearRate;
-
-    //! Name of the convention used to compute the modified Julian date and year from the epoch.
-    std::string convention;
-};
-
-//! Strict nominal civil UTC profile, post-1972; inserted seconds are not representable.
-StationHistoryTime getIgnNominalUtcStationTimeFromTdb(
-        const Time& tdb,
-        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr,
-        bool requireRates = false );
-
-//! Explicit TAI input; a missing clock rate still permits position evaluation.
-StationHistoryTime getIgnNominalUtcStationTimeFromTai( const Time& tai, std::optional< double > taiRateWithRespectToTdb = std::nullopt );
-StationHistoryTime getIgnNominalUtcStationTime( const input_output::SinexCivilUtc& civil );
-
-//! Physical interval conversion also accepts a real civil inserted-second label.
+//! Convert a SINEX civil UTC epoch (year, day of year, seconds of day) to TAI.
 Time convertSinexCivilUtcToTai( const input_output::SinexCivilUtc& civil );
+
+//! Calendar decimal year of a TAI epoch (year plus the fraction of that calendar year that has elapsed).
+long double getCalendarDecimalYear( const Time& tai );
 
 //! Validity interval of a station history record, in TAI.
 struct StationHistoryInterval {
@@ -74,8 +36,8 @@ struct StationHistoryLinearSolution {
     std::string velocitySolutionId;
     StationHistoryInterval velocityValidity;
 
-    //! Reference epoch, and the position (metres) and velocity (metres per Julian year) at that epoch.
-    StationHistoryTime referenceTime;
+    //! Reference epoch (TAI), and the position (metres) and velocity (metres per Julian year) at that epoch.
+    Time referenceTime;
     Eigen::Vector3d positionMetres = Eigen::Vector3d::Zero( );
     Eigen::Vector3d velocityMetresPerJulianYear = Eigen::Vector3d::Zero( );
 };
@@ -85,9 +47,9 @@ enum class StationPostSeismicFunction { logarithmic, exponential };
 
 //! Post-seismic deformation of a station after an earthquake: a logarithmic or exponential decay with time.
 struct StationPostSeismicTerm {
-    //! Logarithmic or exponential function, and the epoch of the earthquake.
+    //! Logarithmic or exponential function, and the epoch (TAI) of the earthquake.
     StationPostSeismicFunction function = StationPostSeismicFunction::logarithmic;
-    StationHistoryTime eventTime;
+    Time eventTime;
 
     //! Amplitude (metres, per Cartesian component) and relaxation time (Julian years) of the term.
     Eigen::Vector3d amplitudeMetres = Eigen::Vector3d::Zero( );
@@ -129,9 +91,6 @@ struct StationHistoryMetadata {
     std::string origin;
     std::string tideSystem;
 
-    //! Convention used to convert epochs to the time used by the history (see StationHistoryTime).
-    std::string timeConvention;
-
     //! Point of the station whose position is described, and its name.
     StationReferencePointKind referencePointKind = StationReferencePointKind::marker;
     std::string referencePointName = "marker";
@@ -147,8 +106,9 @@ struct StationHistoryMetadata {
  * All applicable post-seismic terms accumulate. At a genuine event the correction
  * is zero and its rate is the right-hand rate. At a solution boundary the new
  * half-open solution supplies both position and the right-hand velocity. Neither
- * value asserts a two-sided derivative at a discontinuity. Position-only calls
- * never require source-coordinate rates. Gaps, overlaps and extrapolation fail.
+ * value asserts a two-sided derivative at a discontinuity. Elapsed times are TAI
+ * intervals in Julian years; seasonal terms use the calendar decimal year of the
+ * TAI epoch. Gaps, overlaps and extrapolation fail.
  */
 class StationCoordinateHistory
 {
@@ -159,11 +119,14 @@ public:
                               std::vector< StationSeasonalTerm > seasonalTerms,
                               StationHistoryMetadata metadata );
 
-    //! Evaluate absolute terrestrial position without requiring source-coordinate rates.
-    Eigen::Vector3d getPosition( const StationHistoryTime& time ) const;
+    //! Absolute terrestrial position at a TAI epoch.
+    Eigen::Vector3d getPosition( const Time& tai ) const
+    {
+        return getState( tai ).head< 3 >( );
+    }
 
-    //! Evaluate absolute terrestrial position and its analytic TDB velocity.
-    Eigen::Matrix< double, 6, 1 > getState( const StationHistoryTime& time ) const;
+    //! Absolute terrestrial position and velocity (metres per second) at a TAI epoch.
+    Eigen::Matrix< double, 6, 1 > getState( const Time& tai ) const;
 
     //! Description of the history: station, point, frame and conventions.
     const StationHistoryMetadata& getMetadata( ) const
@@ -196,9 +159,6 @@ public:
     }
 
 private:
-    //! Evaluate the linear, cumulative post-seismic and fitted seasonal records.
-    Eigen::Matrix< double, 6, 1 > evaluate( const StationHistoryTime& time, bool rates ) const;
-
     //! Linear solutions, ordered in time.
     std::vector< StationHistoryLinearSolution > solutions_;
 

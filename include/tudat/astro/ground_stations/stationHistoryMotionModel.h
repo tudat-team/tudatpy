@@ -5,6 +5,7 @@
 #include "tudat/astro/ground_stations/stationReferencePoint.h"
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/earthDeformationTime.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {
@@ -24,23 +25,19 @@ public:
      *  \param history Station coordinate history
      *  \param referencePointOffsets Offset histories added to the position of the history, in this order (see
      *  validateStationReferencePointOffsets)
-     *  \param timeFunction Function converting a TDB epoch to the time used by the history (with rates, if the boolean is
-     *  true). If empty, the IGN convention is used, with the time scale converter below.
-     *  \param converter Time scale converter used by the IGN convention (if nullptr, a converter without EOP data is used)
+     *  \param converter Time scale converter used to convert TDB to TAI (if nullptr, a converter without EOP data is used)
      */
     StationHistoryMotionModel( std::shared_ptr< StationCoordinateHistory > history,
                                std::vector< std::shared_ptr< StationReferencePointOffsetHistory > > referencePointOffsets = {},
-                               std::function< StationHistoryTime( const Time&, bool ) > timeFunction = nullptr,
                                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter = nullptr ):
-        history_( std::move( history ) ), referencePointOffsets_( std::move( referencePointOffsets ) ),
-        timeFunction_( std::move( timeFunction ) ), converter_( std::move( converter ) )
+        history_( std::move( history ) ), referencePointOffsets_( std::move( referencePointOffsets ) ), converter_( std::move( converter ) )
     {
         if( !history_ )
         {
             throw std::runtime_error( "Station history motion requires a station coordinate history" );
         }
         validateStationReferencePointOffsets( history_->getMetadata( ), referencePointOffsets_ );
-        if( !converter_ && !timeFunction_ )
+        if( !converter_ )
         {
             converter_ = basic_astrodynamics::getGeocentricTimeConverter( );
         }
@@ -55,11 +52,11 @@ public:
         {
             throw std::runtime_error( "Station history motion requires a nominal station state" );
         }
-        const StationHistoryTime historyTime = sourceTime( time, true );
-        Eigen::Vector6d state = history_->getState( historyTime );
+        const Time tai = converter_->getTaiTime( basic_astrodynamics::tdb_scale, time );
+        Eigen::Vector6d state = history_->getState( tai );
         for( const auto& offsets : referencePointOffsets_ )
         {
-            state += offsets->getStateCorrection( historyTime );
+            state += offsets->getStateCorrection( tai );
         }
         state.head< 3 >( ) -= station->getNominalCartesianPosition( );
         return state;
@@ -74,11 +71,11 @@ public:
         {
             throw std::runtime_error( "Station history motion requires a nominal station state" );
         }
-        const StationHistoryTime historyTime = sourceTime( time, false );
-        Eigen::Vector3d position = history_->getPosition( historyTime );
+        const Time tai = converter_->getTaiTime( basic_astrodynamics::tdb_scale, time );
+        Eigen::Vector3d position = history_->getPosition( tai );
         for( const auto& offsets : referencePointOffsets_ )
         {
-            position += offsets->getPositionCorrection( historyTime );
+            position += offsets->getPositionCorrection( tai );
         }
         return position - station->getNominalCartesianPosition( );
     }
@@ -96,21 +93,13 @@ public:
     }
 
 private:
-    //! Source coordinates of the TDB epoch, from the custom callback or the IGN nominal UTC profile.
-    StationHistoryTime sourceTime( const Time& time, bool rates ) const
-    {
-        return timeFunction_ ? timeFunction_( time, rates ) : getIgnNominalUtcStationTimeFromTdb( time, converter_, rates );
-    }
-
     //! Station coordinate history from which the position is computed.
     std::shared_ptr< StationCoordinateHistory > history_;
 
     //! Reference point offset histories added to the position of the history, in order.
     std::vector< std::shared_ptr< StationReferencePointOffsetHistory > > referencePointOffsets_;
 
-    //! Function converting a TDB epoch to the time used by the station history (with rates, if the boolean is true). If
-    //! empty, the IGN convention is used, with the time scale converter below.
-    std::function< StationHistoryTime( const Time&, bool ) > timeFunction_;
+    //! Time scale converter used to convert TDB to TAI.
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter_;
 };
 }  // namespace ground_stations

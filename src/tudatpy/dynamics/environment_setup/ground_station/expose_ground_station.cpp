@@ -879,7 +879,6 @@ reference_epoch:
            py::arg( "history" ),
            py::arg( "reference_point_offsets" ) =
                    std::vector< std::shared_ptr< tudat::ground_stations::StationReferencePointOffsetHistory > >( ),
-           py::arg( "source_time_function" ) = py::none( ),
            R"doc(
 
  Function for creating settings for station motion from a station coordinate history.
@@ -887,9 +886,8 @@ reference_epoch:
  Function for creating settings for station motion from a station coordinate history, optionally moved to another point
  of the station by reference point offsets (for instance from the marker to the antenna reference point). The nominal
  position of the ground station is subtracted, so that the resulting station position is equal to the position from the
- history plus the offsets. By default, the epoch is converted to the time coordinates of the station history using the
- IGN conventions (see :func:`~tudatpy.dynamics.environment.ign_nominal_utc_station_time_from_tdb`), with the time scale
- converter of the body's rotation model when available.
+ history plus the offsets. The history is evaluated at the TAI epoch, computed with the time scale converter of the
+ body's rotation model when available.
 
 
  Parameters
@@ -899,9 +897,6 @@ reference_epoch:
  reference_point_offsets : list[StationReferencePointOffsetHistory], default = []
      Offset histories added to the position of the history, in order: the first starts at the point of the history, and
      each next one at the end point of the previous one. They must be given in the frame of the history.
- source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None
-     Custom conversion of the TDB epoch (first argument) to the time coordinates of the station history, setting the
-     rates when the second argument is true. Its time convention must match that of the station history.
 
  Returns
  -------
@@ -1015,7 +1010,6 @@ reference_epoch:
            py::arg( "history" ),
            py::arg( "reference_point_offsets" ),
            py::arg( "nominal_position" ),
-           py::arg( "source_time_function" ) = py::none( ),
            R"doc(
 
  Function for creating settings for a ground station located at a reference point of a station.
@@ -1034,8 +1028,6 @@ reference_epoch:
      Offset histories from the point of the history to the reference point, in order.
  nominal_position : numpy.ndarray[numpy.float64[3, 1]]
      Nominal Cartesian position of the station, in the body-fixed frame.
- source_time_function : callable[[astro.time_representation.Time, bool], StationHistoryTime], default = None
-     Custom conversion of the epoch to the time coordinates of the station history (see :func:`station_history_motion`).
 
  Returns
  -------

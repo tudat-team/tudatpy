@@ -14,14 +14,12 @@ namespace simulation_setup
  *  \param history Station coordinate history (for instance of the station marker)
  *  \param referencePointOffsets Offset histories from the point of the history to the reference point, in order
  *  \param nominalPosition Nominal position of the ground station
- *  \param sourceTimeFunction Function converting a TDB epoch to the time of the history (if empty, the IGN convention is used)
  *  \return Ground station settings
  */
 inline std::shared_ptr< GroundStationSettings > stationReferencePointSettings(
         std::shared_ptr< ground_stations::StationCoordinateHistory > history,
         std::vector< std::shared_ptr< ground_stations::StationReferencePointOffsetHistory > > referencePointOffsets,
-        const Eigen::Vector3d& nominalPosition,
-        std::function< ground_stations::StationHistoryTime( const Time&, bool ) > sourceTimeFunction = nullptr )
+        const Eigen::Vector3d& nominalPosition )
 {
     if( !history || referencePointOffsets.empty( ) || !referencePointOffsets.back( ) )
     {
@@ -32,8 +30,8 @@ inline std::shared_ptr< GroundStationSettings > stationReferencePointSettings(
             name,
             nominalPosition,
             coordinate_conversions::cartesian_position,
-            std::vector< std::shared_ptr< GroundStationMotionSettings > >{ stationHistoryGroundStationMotionSettings(
-                    std::move( history ), std::move( referencePointOffsets ), std::move( sourceTimeFunction ) ) } );
+            std::vector< std::shared_ptr< GroundStationMotionSettings > >{
+                    stationHistoryGroundStationMotionSettings( std::move( history ), std::move( referencePointOffsets ) ) } );
 }
 }  // namespace simulation_setup
 }  // namespace tudat

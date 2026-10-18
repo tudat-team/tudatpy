@@ -384,16 +384,7 @@ BOOST_AUTO_TEST_CASE( native_tide_models_use_interpolated_clock_rates )
     const auto model = makeModel( routingRotation( converter, tt_scale ) );
     const Time epoch( 0.0 );
 
-    // An interior clock query must not evaluate unrelated civil-day boundaries.
-    BOOST_CHECK_NO_THROW( ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter ) );
-
-    // The history clock and both deformation states use the rate of the selected interpolated clock.
-    const auto historyTime = ground_stations::getIgnNominalUtcStationTimeFromTdb( 0.0, converter, true );
-
-    BOOST_REQUIRE( historyTime.mjdRate.has_value( ) );
-    BOOST_REQUIRE( historyTime.decimalYearRate.has_value( ) );
-    BOOST_CHECK( std::isfinite( *historyTime.mjdRate ) );
-    BOOST_CHECK( std::isfinite( *historyTime.decimalYearRate ) );
+    // Both deformation states use the rate of the selected interpolated clock.
     const auto positionOnly = std::make_shared< ContextOnlyPositionModel >( converter );
     std::vector< std::shared_ptr< BodyDeformationModel > > selected{ positionOnly };
     const auto motion =

@@ -222,24 +222,19 @@ Eigen::Vector3d StationReferencePointOffsetHistory::toTerrestrial( const Eigen::
     }
     return geometry_->enuToTerrestrial * Eigen::Vector3d( components.z( ), components.y( ), components.x( ) );
 }
-Eigen::Vector3d StationReferencePointOffsetHistory::getPositionCorrection( const StationHistoryTime& time ) const
+Eigen::Vector3d StationReferencePointOffsetHistory::getPositionCorrection( const Time& tai ) const
 {
-    const auto& offset = getActiveOffset( time.tai );
-    return toTerrestrial( offset.positionFunction ? offset.positionFunction( time ) : offset.componentsMetres, offset.basis );
+    const auto& offset = getActiveOffset( tai );
+    return toTerrestrial( offset.positionFunction ? offset.positionFunction( tai ) : offset.componentsMetres, offset.basis );
 }
-Eigen::Vector6d StationReferencePointOffsetHistory::getStateCorrection( const StationHistoryTime& time ) const
+Eigen::Vector6d StationReferencePointOffsetHistory::getStateCorrection( const Time& tai ) const
 {
-    const auto& offset = getActiveOffset( time.tai );
+    const auto& offset = getActiveOffset( tai );
     Eigen::Vector6d state = Eigen::Vector6d::Zero( );
     if( offset.positionFunction )
     {
         requireValidReferencePoint( static_cast< bool >( offset.stateFunction ), "time-dependent reference-point rate is unavailable" );
-        state = offset.stateFunction( time );
-        const Eigen::Vector3d position = offset.positionFunction( time );
-        requireValidReferencePoint( state.allFinite( ) && position.allFinite( ) &&
-                                            ( state.head< 3 >( ) - position ).norm( ) <=
-                                                    32 * std::numeric_limits< double >::epsilon( ) * std::max( 1.0, position.norm( ) ),
-                                    "position/state calibration callbacks disagree" );
+        state = offset.stateFunction( tai );
     }
     else
     {

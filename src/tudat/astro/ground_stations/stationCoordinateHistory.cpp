@@ -1,6 +1,7 @@
 /* Copyright (c) 2026, Delft University of Technology. Modified BSD license. */
 #include "tudat/astro/ground_stations/stationCoordinateHistory.h"
 #include "tudat/astro/reference_frames/terrestrialFrameTransformation.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include <algorithm>
 #include <cmath>
 #include <set>
@@ -13,7 +14,6 @@ namespace ground_stations
 namespace
 {
 using namespace input_output;
-constexpr double daysPerJulianYear = 365.25;
 constexpr double secondsPerJulianYear = 31557600.0;
 void requireValidStationHistory( bool condition, const std::string& message )
 {
@@ -22,24 +22,9 @@ void requireValidStationHistory( bool condition, const std::string& message )
         throw std::runtime_error( "Station history: " + message );
     }
 }
-void validateTime( const StationHistoryTime& time, const std::string& convention )
+double elapsedJulianYears( const Time& tai, const Time& reference )
 {
-    requireValidStationHistory( std::isfinite( static_cast< long double >( time.tai ) ) && std::isfinite( time.mjdFraction ) &&
-                                        time.mjdFraction >= 0.0L && time.mjdFraction < 1.0L && std::isfinite( time.yearFraction ) &&
-                                        time.yearFraction >= 0.0L && time.yearFraction < 1.0L,
-                                "invalid split source coordinates" );
-    requireValidStationHistory( !convention.empty( ) && time.convention == convention, "source time conventions differ" );
-    for( const auto& rate : { time.mjdRate, time.decimalYearRate } )
-    {
-        requireValidStationHistory( !rate || ( std::isfinite( *rate ) && *rate > 0.0 ),
-                                    "source coordinate rate must be finite and positive" );
-    }
-}
-double elapsedYears( const StationHistoryTime& time, const StationHistoryTime& reference )
-{
-    return static_cast< double >(
-            ( static_cast< long double >( time.mjdDay ) - reference.mjdDay + time.mjdFraction - reference.mjdFraction ) /
-            daysPerJulianYear );
+    return static_cast< double >( static_cast< long double >( tai - reference ) / secondsPerJulianYear );
 }
 std::string uniqueDomes( const SinexStationHistory& history,
                          const SinexSiteKey& site,
@@ -85,11 +70,11 @@ std::optional< Time > intervalEnd( const SinexEpoch& epoch, bool start, const Si
                                 history.source + ": unresolved station validity endpoint" );
     return convertSinexCivilUtcToTai( *resolved->civilUtc );
 }
-StationHistoryTime sourceEpoch( const SinexEpoch& epoch )
+Time sourceEpoch( const SinexEpoch& epoch )
 {
     requireValidStationHistory( epoch.meaning == SinexEpochMeaning::specified && epoch.civilUtc.has_value( ),
                                 "unspecified model reference/event epoch" );
-    return getIgnNominalUtcStationTime( *epoch.civilUtc );
+    return convertSinexCivilUtcToTai( *epoch.civilUtc );
 }
 Eigen::Vector3d componentVector( char component, const std::optional< Eigen::Matrix3d >& enuToTerrestrial )
 {
@@ -131,7 +116,6 @@ StationCoordinateHistory::StationCoordinateHistory( std::vector< StationHistoryL
     {
         const auto& solution = solutions_[ i ];
         const auto& interval = solution.validity;
-        validateTime( solution.referenceTime, metadata_.timeConvention );
         requireValidStationHistory( solution.positionMetres.allFinite( ) && solution.velocityMetresPerJulianYear.allFinite( ),
                                     "nonfinite linear solution" );
         requireValidStationHistory( solution.source.key.site == metadata_.site && !solution.source.key.solutionId.empty( ) &&
@@ -153,7 +137,6 @@ StationCoordinateHistory::StationCoordinateHistory( std::vector< StationHistoryL
     }
     for( const auto& term : postSeismicTerms_ )
     {
-        validateTime( term.eventTime, metadata_.timeConvention );
         requireValidStationHistory(
                 term.amplitudeMetres.allFinite( ) && std::isfinite( term.relaxationJulianYears ) && term.relaxationJulianYears > 0.0,
                 "post-seismic relaxation must be positive and finite" );
@@ -173,98 +156,63 @@ StationCoordinateHistory::StationCoordinateHistory( std::vector< StationHistoryL
 }
 
 //! Evaluate owned linear, cumulative post-seismic and fitted seasonal records.
-Eigen::Matrix< double, 6, 1 > StationCoordinateHistory::evaluate( const StationHistoryTime& time, bool rates ) const
+Eigen::Matrix< double, 6, 1 > StationCoordinateHistory::getState( const Time& tai ) const
 {
-    validateTime( time, metadata_.timeConvention );
     const StationHistoryLinearSolution* selected = nullptr;
     for( const auto& solution : solutions_ )
     {
-        if( ( !solution.validity.startTai || time.tai >= *solution.validity.startTai ) &&
-            ( !solution.validity.endTai || time.tai < *solution.validity.endTai ) )
+        if( ( !solution.validity.startTai || tai >= *solution.validity.startTai ) &&
+            ( !solution.validity.endTai || tai < *solution.validity.endTai ) )
         {
             selected = &solution;
         }
     }
     requireValidStationHistory( selected != nullptr, "requested epoch outside physical station validity" );
-    requireValidStationHistory( !rates || time.mjdRate.has_value( ), "MJD derivative with respect to TDB is unavailable" );
-    const double yearsRate = rates ? *time.mjdRate / daysPerJulianYear : 0.0;
+    const double yearsRate = 1.0 / secondsPerJulianYear;
     Eigen::Matrix< double, 6, 1 > result = Eigen::Matrix< double, 6, 1 >::Zero( );
-    result.head< 3 >( ) = selected->positionMetres + selected->velocityMetresPerJulianYear * elapsedYears( time, selected->referenceTime );
-    if( rates )
-    {
-        result.tail< 3 >( ) = selected->velocityMetresPerJulianYear * yearsRate;
-    }
+    result.head< 3 >( ) =
+            selected->positionMetres + selected->velocityMetresPerJulianYear * elapsedJulianYears( tai, selected->referenceTime );
+    result.tail< 3 >( ) = selected->velocityMetresPerJulianYear * yearsRate;
     for( const auto& term : postSeismicTerms_ )
     {
-        if( time.tai < term.eventTime.tai )
+        if( tai < term.eventTime )
         {
             continue;
         }
-        const double dt = elapsedYears( time, term.eventTime );
-        requireValidStationHistory( dt >= 0.0, "physical and source event ordering disagree" );
+        const double dt = elapsedJulianYears( tai, term.eventTime );
         const double x = dt / term.relaxationJulianYears;
         if( term.function == StationPostSeismicFunction::logarithmic )
         {
             result.head< 3 >( ) += term.amplitudeMetres * std::log1p( x );
-            if( rates )
-            {
-                result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / ( term.relaxationJulianYears + dt ) );
-            }
+            result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / ( term.relaxationJulianYears + dt ) );
         }
         else
         {
             result.head< 3 >( ) -= term.amplitudeMetres * std::expm1( -x );
-            if( rates )
-            {
-                result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / term.relaxationJulianYears * std::exp( -x ) );
-            }
+            result.tail< 3 >( ) += term.amplitudeMetres * ( yearsRate / term.relaxationJulianYears * std::exp( -x ) );
         }
     }
+    const long double decimalYear = getCalendarDecimalYear( tai );
+    const int year = static_cast< int >( std::floor( decimalYear ) );
+    const bool leapYear = year % 4 == 0 && ( year % 100 != 0 || year % 400 == 0 );
+    const double decimalYearRate = 1.0 / ( ( leapYear ? 366.0 : 365.0 ) * 86400.0 );
     for( const auto& term : seasonalTerms_ )
     {
         if( term.solutionId != selected->source.key.solutionId )
         {
             continue;
         }
-        requireValidStationHistory( !rates || time.decimalYearRate.has_value( ),
-                                    "calendar decimal-year derivative with respect to TDB is unavailable" );
-        const double omega = 2.0 * std::acos( -1.0 ) * term.cyclesPerCalendarYear;
-        const double angle = static_cast< double >( omega * time.yearFraction );
+        const double omega = 2.0 * mathematical_constants::PI * term.cyclesPerCalendarYear;
+        const double angle = omega * static_cast< double >( decimalYear - year );
         result.head< 3 >( ) += term.cosineMetres * std::cos( angle ) + term.sineMetres * std::sin( angle );
-        if( rates )
-        {
-            result.tail< 3 >( ) +=
-                    ( -term.cosineMetres * std::sin( angle ) + term.sineMetres * std::cos( angle ) ) * ( omega * *time.decimalYearRate );
-        }
+        result.tail< 3 >( ) +=
+                ( -term.cosineMetres * std::sin( angle ) + term.sineMetres * std::cos( angle ) ) * ( omega * decimalYearRate );
     }
-    requireValidStationHistory( result.allFinite( ), "nonfinite station coordinate history result" );
     return result;
-}
-
-//! Evaluate the position without requiring rates.
-Eigen::Vector3d StationCoordinateHistory::getPosition( const StationHistoryTime& time ) const
-{
-    return evaluate( time, false ).head< 3 >( );
-}
-
-//! Evaluate the position and its analytic TDB velocity.
-Eigen::Matrix< double, 6, 1 > StationCoordinateHistory::getState( const StationHistoryTime& time ) const
-{
-    return evaluate( time, true );
 }
 
 namespace
 {
-//! Calendar decimal year of a station history epoch.
-double decimalYear( const StationHistoryTime& time )
-{
-    if( !std::isfinite( time.yearFraction ) || time.yearFraction < 0 || time.yearFraction >= 1 )
-    {
-        throw std::runtime_error( "Invalid station-history calendar coordinates for frame transformation" );
-    }
-    return static_cast< double >( time.calendarYear + time.yearFraction );
-}
-
 //! Release of a realization in the catalogue: the release of its row, or else the name of the realization.
 std::string catalogueRelease( const input_output::TerrestrialFrameTransformationData& catalogue, const std::string& realization )
 {
@@ -322,8 +270,8 @@ std::shared_ptr< StationCoordinateHistory > transformStationCoordinateHistory(
         // Each linear solution is transformed at its reference epoch; the parameter rates are per year (rate argument 1).
         for( auto& solution : solutions )
         {
-            const auto transformation =
-                    model.getTransformation( input.frame, target.realization, decimalYear( solution.referenceTime ), 1.0 );
+            const auto transformation = model.getTransformation(
+                    input.frame, target.realization, static_cast< double >( getCalendarDecimalYear( solution.referenceTime ) ), 1.0 );
             const Eigen::Vector3d position = solution.positionMetres;
             solution.positionMetres = transformation.translation + transformation.matrix * position;
             solution.velocityMetresPerJulianYear = transformation.translationRate + transformation.matrixRate * position +
@@ -341,7 +289,10 @@ std::shared_ptr< StationCoordinateHistory > transformStationCoordinateHistory(
         // Post-seismic amplitudes are rotated and scaled with the matrix at the epoch of the earthquake.
         for( auto& term : postSeismicTerms )
         {
-            term.amplitudeMetres = model.getTransformation( input.frame, target.realization, decimalYear( term.eventTime ), 1.0 ).matrix *
+            term.amplitudeMetres =
+                    model.getTransformation(
+                                 input.frame, target.realization, static_cast< double >( getCalendarDecimalYear( term.eventTime ) ), 1.0 )
+                            .matrix *
                     term.amplitudeMetres;
         }
     }
@@ -374,7 +325,6 @@ std::shared_ptr< StationCoordinateHistory > createIgnStationCoordinateHistory( c
     metadata.release = solutions.release;
     metadata.origin = solutions.origin;
     metadata.tideSystem = solutions.tideSystem;
-    metadata.timeConvention = "IGN nominal UTC";
     metadata.signals = { "piecewise linear station coordinates" };
     for( const auto* product : { &solutions, &discontinuities, postSeismic, seasonal } )
     {
