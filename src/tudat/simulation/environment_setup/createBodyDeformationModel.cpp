@@ -290,17 +290,11 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 throw std::runtime_error( "Atmospheric loading requires Earth's GCRS/ITRS model and shared time converter" );
             }
             const auto converter = rotation->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( );
-            const auto shape = bodyMap.at( body )->getShapeModel( );
-            if( settings->getInputFormat( ) == AtmosphericTideInputFormat::grid )
-            {
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
-                        settings->getGrid( ), converter, settings->getEvaluationSettings( ), shape );
-            }
-            else
-            {
-                bodyDeformationModel = std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
-                        settings->getStations( ), converter, settings->getEvaluationSettings( ), shape );
-            }
+            bodyDeformationModel = settings->grid_.coefficientsMetres.empty( )
+                    ? std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
+                              settings->stationCoefficients_, converter, settings->convertToCentreOfMass_ )
+                    : std::make_shared< basic_astrodynamics::AtmosphericTideDeformation >(
+                              settings->grid_, converter, settings->convertToCentreOfMass_ );
             break;
         }
         case ocean_pole_tide: {

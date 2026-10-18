@@ -23,48 +23,11 @@ Eigen::Vector3d calculateIers2010Rp03AtmosphericGeocentreTranslation( const doub
 //! Cartesian derivative of the same table translation, in metres per UT1 second.
 Eigen::Vector3d differentiateIers2010Rp03AtmosphericGeocentreTranslationWrtUt1( const double ut1SecondsSinceJ2000 );
 
-//! Validated interpolation object; no file I/O, time conversion, station latitude inference or origin conversion.
-//! Duplicated seam columns are averaged, and polar rows are replaced by their Cartesian mean, on a model copy only.
-//! Provider rounding makes these duplicates differ slightly (below 1 micrometre for RP03); a grid whose duplicates
-//! differ by more than maximumEndpointDiscrepancyMetres is rejected as inconsistent.
-class AtmosphericTideGridInterpolator
-{
-public:
-    //! Largest difference (metres) between duplicated seam or pole values for which the grid is accepted.
-    static constexpr double maximumEndpointDiscrepancyMetres = 1.0e-5;
-
-    AtmosphericTideGridInterpolator( const input_output::AtmosphericTideGrid& grid );
-
-    //! Interpolate metre coefficients at degree coordinates; missing spatial coverage raises std::out_of_range.
-    Eigen::Matrix< double, 3, 4 > interpolate( const double providerLatitudeDegrees, const double providerLongitudeDegrees ) const;
-
-    //! The original neutral grid, including both conflicting endpoints, is never modified.
-    const input_output::AtmosphericTideGrid& getProviderGrid( ) const
-    {
-        return providerGrid_;
-    }
-    double getMaximumSeamDiscrepancyMetres( ) const
-    {
-        return seamDiscrepancy_;
-    }
-    double getMaximumPolarCartesianDiscrepancyMetres( ) const
-    {
-        return polarDiscrepancy_;
-    }
-
-private:
-    //! Grid as read from the file, and the coefficients used for interpolation (with averaged seam and pole values).
-    input_output::AtmosphericTideGrid providerGrid_;
-    std::vector< Eigen::Matrix< double, 3, 4 > > modelCoefficients_;
-
-    //! Whether the grid covers all longitudes, and whether its first and last longitude columns are the same meridian.
-    bool periodic_ = false;
-    bool duplicatedSeam_ = false;
-
-    //! Largest difference (metres) between the duplicated seam values, and between the values at each pole.
-    double seamDiscrepancy_ = 0;
-    double polarDiscrepancy_ = 0;
-};
+//! Bilinear interpolation of grid coefficients (metres) at a geocentric latitude and longitude (degrees). The longitude is
+//! periodic if the grid covers all longitudes; a duplicated 0/360 degree column is not used.
+input_output::AtmosphericTideCoefficients interpolateAtmosphericTideGrid( const input_output::AtmosphericTideGrid& grid,
+                                                                          const double latitudeDegrees,
+                                                                          const double longitudeDegrees );
 }  // namespace basic_astrodynamics
 }  // namespace tudat
 #endif

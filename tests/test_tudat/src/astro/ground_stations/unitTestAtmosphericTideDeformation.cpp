@@ -5,7 +5,6 @@
 #include <limits>
 #include "tudat/astro/ground_stations/atmosphericTideDeformation.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
-#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
@@ -41,13 +40,6 @@ std::shared_ptr< TerrestrialTimeScaleConverter > modelClock( double shift = 0, d
     settings.maximumGapSeconds = maximumGap;
     return std::make_shared< TerrestrialTimeScaleConverter >( std::make_shared< EarthOrientationDataEvaluator >( data, settings ),
                                                               nullptr );
-}
-AtmosphericTideEvaluationSettings explicitGeometry( )
-{
-    AtmosphericTideEvaluationSettings s;
-    s.lookupLatitudeConvention = AtmosphericTideLatitudeConvention::geocentric;
-    s.displacementBasis = AtmosphericTideDisplacementBasis::geocentricRadialNorthEast;
-    return s;
 }
 AtmosphericTideGrid grid( bool latitudeDependent = false )
 {
@@ -117,115 +109,56 @@ std::shared_ptr< ground_stations::GroundStationState > station( const Eigen::Vec
     s->setSiteId( id );
     return s;
 }
-AtmosphericTideMetadata rp03( )
-{
-    AtmosphericTideMetadata m;
-    m.modelName = "Ray-Ponte 2003";
-    m.greensFunction = "Farrell elastic Green functions";
-    m.sourceProfile = AtmosphericTideSourceProfile::iers2010Rp03NoIbFarrell;
-    m.referenceOrigin = AtmosphericLoadingReferenceOrigin::solidEarthCentre;
-    return m;
-}
 }  // namespace
 
-//! Separate provider lookup latitude from the displacement basis on an oblate Earth.
+//! Look up the grid at the geocentric latitude and use geocentric radial, north and east directions.
 BOOST_AUTO_TEST_CASE( independentLookupAndBasisAndSameCartesianRepresentation )
 {
     const auto c = modelClock( );
     const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
     const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
     const auto oblate = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137, 1. / 298.257223563 );
-    const auto sphere = std::make_shared< SphericalBodyShapeModel >( 6378137 );
 
-    // Known ellipsoid surface coordinate 45deg,30deg; normal direction is known independently.
+    // Ellipsoid surface point at geodetic latitude 45 degrees and longitude 30 degrees.
     const double f = 1. / 298.257223563, e2 = f * ( 2 - f ), lat = mathematical_constants::PI / 4, lon = mathematical_constants::PI / 6;
     const double n = 6378137 / std::sqrt( 1 - e2 * std::pow( std::sin( lat ), 2 ) );
     const Eigen::Vector3d p(
             n * std::cos( lat ) * std::cos( lon ), n * std::cos( lat ) * std::sin( lon ), n * ( 1 - e2 ) * std::sin( lat ) );
-    const Eigen::Vector3d normal( std::cos( lat ) * std::cos( lon ), std::cos( lat ) * std::sin( lon ), std::sin( lat ) );
-    Eigen::Matrix3d normalBasis;
-    normalBasis.col( 0 ) = normal;
-    normalBasis.col( 2 ) = Eigen::Vector3d::UnitZ( ).cross( normal ).normalized( );
-    normalBasis.col( 1 ) = normal.cross( normalBasis.col( 2 ) );
     const auto g = grid( true );
     const double gc = std::asin( p.normalized( ).z( ) ) * 180 / mathematical_constants::PI;
-    for( bool geodeticLookup : { false, true } )
-    {
-        for( bool geodeticBasis : { false, true } )
-        {
-            auto settings = explicitGeometry( );
-            if( geodeticLookup )
-            {
-                settings.lookupLatitudeConvention = AtmosphericTideLatitudeConvention::geodetic;
-            }
-            if( geodeticBasis )
-            {
-                settings.displacementBasis = AtmosphericTideDisplacementBasis::geodeticUpNorthEast;
-            }
-            AtmosphericTideDeformation model( g, c, settings, oblate );
-            auto coeff = g.coefficientsMetres.front( );
-            coeff( 0, 0 ) = 1e-3 * ( 1 + ( geodeticLookup ? 45 : gc ) );
-            const Eigen::Vector3d expected = ( geodeticBasis ? normalBasis : basis( p ) ) * independentLocal( coeff, ut1 );
-
-            // Separate provider lookup latitude from the displacement basis on an oblate Earth.
-            close( model.calculateDisplacement( epoch, station( p, oblate ) ), expected, 1e-13 );
-            close( model.calculateDisplacement( epoch, station( p, sphere ) ), expected, 1e-13 );
-            close( model.calculateDisplacement( epoch, station( p ) ), expected, 1e-13 );
-            const Eigen::Vector3d expectedRate = ( geodeticBasis ? normalBasis : basis( p ) ) *
-                    independentLocalRate( coeff, static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) *
-                    c->getGeocentricTtRateWithRespectToTdb( epoch );
-            close( model.calculateDisplacementState( epoch, station( p, oblate ) ).tail< 3 >( ), expectedRate, 2e-20 );
-            close( model.calculateDisplacementState( epoch, station( p, sphere ) ).tail< 3 >( ), expectedRate, 2e-20 );
-            close( model.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( ), expectedRate, 2e-20 );
-            const Eigen::Vector3d expectedEnuRate( expectedRate.dot( normalBasis.col( 2 ) ),
-                                                   expectedRate.dot( normalBasis.col( 1 ) ),
-                                                   expectedRate.dot( normalBasis.col( 0 ) ) );
-            const Eigen::Vector3d actualEnuRate =
-                    station( p, oblate )->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch ) ) *
-                    model.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( );
-            close( actualEnuRate, expectedEnuRate, 2e-20 );
-            const auto s = station( p, oblate );
-            close( s->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch ) ) *
-                           model.calculateDisplacement( epoch, s ),
-                   s->getRotationFromBodyFixedToTopocentricFrame( static_cast< double >( epoch ) ) * expected );
-        }
-    }
+    AtmosphericTideDeformation model( g, c );
+    auto coeff = g.coefficientsMetres.front( );
+    coeff( 0, 0 ) = 1e-3 * ( 1 + gc );
+    const Eigen::Vector3d expected = basis( p ) * independentLocal( coeff, ut1 );
+    close( model.calculateDisplacement( epoch, station( p, oblate ) ), expected, 1e-13 );
+    close( model.calculateDisplacement( epoch, station( p ) ), expected, 1e-13 );
+    const Eigen::Vector3d expectedRate = basis( p ) *
+            independentLocalRate( coeff, static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) *
+            c->getGeocentricTtRateWithRespectToTdb( epoch );
+    close( model.calculateDisplacementState( epoch, station( p ) ).tail< 3 >( ), expectedRate, 2e-20 );
 }
 
-//! Add the RP03 origin translation once, including when the supplied data already use CM.
+//! Add the RP03 origin translation once.
 BOOST_AUTO_TEST_CASE( optInRp03OriginExactlyOnceInCartesian )
 {
     const auto c = modelClock( );
-    auto g = grid( );
-    g.metadata = rp03( );
-    auto settings = explicitGeometry( );
-    AtmosphericTideDeformation ce( g, c, settings );
-    settings.convertToCentreOfMass = true;
-    AtmosphericTideDeformation cm( g, c, settings );
+    const auto g = grid( );
+    AtmosphericTideDeformation ce( g, c ), cm( g, c, true );
     const double ut1 = ( 57754. - 51544.5 ) * 86400. + 12345;
     const Time epoch( tdbAtUt1( c, Time( ut1 ) ) );
     const Eigen::Vector3d p( 4000000, 3000000, 3500000 );
     const auto translation = calculateIers2010Rp03AtmosphericGeocentreTranslation( ut1 );
 
-    // Add the RP03 origin translation once, including when the supplied data already use CM.
     close( cm.calculateDisplacement( epoch, station( p ) ) - ce.calculateDisplacement( epoch, station( p ) ), translation );
-    BOOST_CHECK( cm.getOutputReferenceOrigin( ) == AtmosphericLoadingReferenceOrigin::wholeEarthCentreOfMass );
-    BOOST_CHECK( ce.getOutputReferenceOrigin( ) == AtmosphericLoadingReferenceOrigin::solidEarthCentre );
-    g.metadata.referenceOrigin = AtmosphericLoadingReferenceOrigin::wholeEarthCentreOfMass;
-    AtmosphericTideDeformation alreadyCm( g, c, settings );
-    close( alreadyCm.calculateDisplacement( epoch, station( p ) ), ce.calculateDisplacement( epoch, station( p ) ) );
 }
 
 //! Compare station coefficients and their velocity with independent Fourier synthesis.
 BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRate )
 {
     const auto c = modelClock( );
-    AtmosphericTideStationData data;
-    AtmosphericTideStation row;
-    row.stationIdentifier = "7839";
-    row.coefficientsMetres = grid( ).coefficientsMetres.front( );
-    data.stations.emplace( row.stationIdentifier, row );
-    AtmosphericTideDeformation model( data, c, explicitGeometry( ) );
+    const AtmosphericTideCoefficients coefficients = grid( ).coefficientsMetres.front( );
+    const std::map< std::string, AtmosphericTideCoefficients > data{ { "7839", coefficients } };
+    AtmosphericTideDeformation model( data, c );
     const Eigen::Vector3d p( 6378137, 0, 0 );
     const auto s = station( p );
     const auto epoch = tdbAtUt1( c, Time( ( 57754. - 51544.5 ) * 86400. ) );
@@ -233,12 +166,11 @@ BOOST_AUTO_TEST_CASE( exactStationCoefficientsAndAnalyticRate )
     // Compare station coefficients and their velocity with independent Fourier synthesis.
     close( model.calculateDisplacement( epoch, s ),
            basis( p ) *
-                   independentLocal( row.coefficientsMetres,
-                                     static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) );
-    const std::shared_ptr< BodyDeformationModel > base = std::make_shared< AtmosphericTideDeformation >( data, c, explicitGeometry( ) );
+                   independentLocal( coefficients, static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) ) ) );
+    const std::shared_ptr< BodyDeformationModel > base = std::make_shared< AtmosphericTideDeformation >( data, c );
     const double ut1 = static_cast< double >( c->getCurrentTime< Time >( tdb_scale, ut1_scale, epoch ) );
     const Eigen::Vector3d expected =
-            basis( p ) * independentLocalRate( row.coefficientsMetres, ut1 ) * c->getGeocentricTtRateWithRespectToTdb( epoch );
+            basis( p ) * independentLocalRate( coefficients, ut1 ) * c->getGeocentricTtRateWithRespectToTdb( epoch );
     close( base->calculateDisplacementState( epoch, s ).tail< 3 >( ), expected, 2e-20 );
     close( base->calculateDisplacementState( Time( static_cast< double >( epoch ) ), s ).tail< 3 >( ), expected, 2e-18 );
     close( base->calculateDisplacementState( epoch, s ).head< 3 >( ), model.calculateDisplacement( epoch, s ) );
@@ -257,14 +189,10 @@ BOOST_AUTO_TEST_CASE( nativeFactoryGridAndStationFileResults )
     const auto base = paths::getTudatTestDataPath( ) + "pr1092/reference_files/atmospheric_tides/";
     const auto path = base + "rp03_ce_grid_extract.txt";
     const auto g = readAtmosphericTideGrid( path );
-    const auto settings = explicitGeometry( );
-    const auto preloaded = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g, settings ), "Earth", bodies );
-
-    // The factory applies the RP03 geocentric defaults when no conventions are supplied.
-    const auto defaulted = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g ), "Earth", bodies );
+    const auto preloaded = createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromGrid( g ), "Earth", bodies );
 
     // File settings already own the provider grid before an environment model is constructed.
-    const auto fileSettings = atmosphericTideBodyShapeDeformationFromGridFile( path, {}, settings );
+    const auto fileSettings = atmosphericTideBodyShapeDeformationFromGridFile( path );
 
     const auto file = createBodyDeformationModel( fileSettings, "Earth", bodies );
 
@@ -278,21 +206,17 @@ BOOST_AUTO_TEST_CASE( nativeFactoryGridAndStationFileResults )
 
         // Compare models built from loaded atmospheric grid and station files with preloaded models.
         close( preloaded->calculateDisplacement( tdb, station( p ) ), file->calculateDisplacement( tdb, station( p ) ) );
-        close( preloaded->calculateDisplacement( tdb, station( p ) ), defaulted->calculateDisplacement( tdb, station( p ) ) );
         const Eigen::Vector6d a = preloaded->calculateDisplacementState( tdb, station( p ) );
         const Eigen::Vector6d b = file->calculateDisplacementState( tdb, station( p ) );
-        const Eigen::Vector6d defaultedState = defaulted->calculateDisplacementState( tdb, station( p ) );
         close( a.head< 3 >( ), b.head< 3 >( ) );
         close( a.tail< 3 >( ), b.tail< 3 >( ), 2e-20 );
-        close( a.head< 3 >( ), defaultedState.head< 3 >( ) );
-        close( a.tail< 3 >( ), defaultedState.tail< 3 >( ), 2e-20 );
     }
     const auto stations = readAtmosphericTideStationData( base + "bernese_manual_stations.atl" );
     const auto stationPreloaded =
-            createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromStations( stations, settings ), "Earth", bodies );
+            createBodyDeformationModel( atmosphericTideBodyShapeDeformationFromStations( stations ), "Earth", bodies );
     const auto stationFile = createBodyDeformationModel(
-            atmosphericTideBodyShapeDeformationFromStationFile( base + "bernese_manual_stations.atl", {}, settings ), "Earth", bodies );
-    const auto namedStation = station( p, nullptr, stations.stations.begin( )->first );
+            atmosphericTideBodyShapeDeformationFromStationFile( base + "bernese_manual_stations.atl" ), "Earth", bodies );
+    const auto namedStation = station( p, nullptr, stations.begin( )->first );
     const Time epoch( c->getCurrentTime< Time >( tai_scale, tdb_scale, midnightTai ) );
     close( stationPreloaded->calculateDisplacement( epoch, namedStation ), stationFile->calculateDisplacement( epoch, namedStation ) );
     close( stationPreloaded->calculateDisplacementState( epoch, namedStation ).tail< 3 >( ),
@@ -337,7 +261,7 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
 {
     const std::vector< double > slopes{ .01, .02, .03, .04 };
     const auto c = slopedClock( slopes );
-    AtmosphericTideDeformation model( grid( ), c, explicitGeometry( ) );
+    AtmosphericTideDeformation model( grid( ), c );
     const Eigen::Vector3d p( 6378137, 0, 0 );
     const auto s = station( p );
     const auto& epochs = c->getEarthOrientationDataEvaluator( )->getEpochsTai( );
@@ -378,8 +302,7 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
             close( model.calculateDisplacementState( epoch, s ).tail< 3 >( ), expected, 2e-20 );
 
             // Only the ground-station scalar boundary normalizes rounded endpoint images.
-            std::vector< std::shared_ptr< BodyDeformationModel > > models{ std::make_shared< AtmosphericTideDeformation >(
-                    grid( ), c, explicitGeometry( ) ) };
+            std::vector< std::shared_ptr< BodyDeformationModel > > models{ std::make_shared< AtmosphericTideDeformation >( grid( ), c ) };
             ground_stations::BodyDeformationStationMotionModel adapter( [ & ]( ) -> auto& { return models; }, true );
             const auto scalarState = adapter.getBodyFixedStationMotion( static_cast< double >( epoch ), s );
             if( shift == 0 && ( i == 0 || i + 1 == epochs.size( ) ) )
@@ -400,12 +323,8 @@ BOOST_AUTO_TEST_CASE( selectedDailySlopesRightKnotsFinalLeftAndScalarBoundary )
 BOOST_AUTO_TEST_CASE( analyticRatesConvergeAndApplyOriginOnce )
 {
     const auto c = slopedClock( { .02, .02, .02, .02 } );
-    auto g = grid( );
-    g.metadata = rp03( );
-    auto options = explicitGeometry( );
-    AtmosphericTideDeformation ce( g, c, options );
-    options.convertToCentreOfMass = true;
-    AtmosphericTideDeformation cm( g, c, options );
+    const auto g = grid( );
+    AtmosphericTideDeformation ce( g, c ), cm( g, c, true );
     const Eigen::Vector3d p( 4000000, 3000000, 3500000 );
     const Time midnightTai( ( 57754. - 51544.5 ) * 86400. + 37 );
     for( double offset : { 12345., 43200. } )

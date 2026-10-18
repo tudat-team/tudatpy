@@ -35,15 +35,11 @@ def test_loaded_products_create_deformation_settings():
     atmosphere = atmospheric_loading.read_atmospheric_tide_station_data(
         str(TEST_DATA / "reference_files/atmospheric_tides/bernese_manual_stations.atl")
     )
-    policy = shape_deformation.AtmosphericTideEvaluationSettings()
-    policy.displacement_basis = (
-        atmospheric_loading.AtmosphericTideDisplacementBasis.geocentric_radial_north_east
-    )
 
     # The signed provider station coefficient is converted to metres before construction.
-    assert atmosphere.stations["ABPO"].coefficients_metres[0, 0] == -0.3414 * 1.0e-3
+    assert atmosphere["ABPO"][0, 0] == -0.3414 * 1.0e-3
     assert isinstance(
-        shape_deformation.atmospheric_tide_from_stations(atmosphere, policy),
+        shape_deformation.atmospheric_tide_from_stations(atmosphere),
         shape_deformation.AtmosphericTideBodyDeformationSettings,
     )
 

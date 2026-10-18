@@ -16,20 +16,6 @@ void close( const Eigen::Vector3d& actual, const Eigen::Vector3d& expected, doub
         BOOST_CHECK_SMALL( actual[ i ] - expected[ i ], tolerance );
     }
 }
-AtmosphericTideGrid grid( )
-{
-    AtmosphericTideGrid result;
-    result.longitudesDegrees = { 0, 90, 180, 270, 360 };
-    result.latitudesDegrees = { 45, 0, -45 };
-    for( int i = 0; i < 5; ++i )
-    {
-        for( int j = 0; j < 3; ++j )
-        {
-            result.coefficientsMetres.push_back( Eigen::Matrix< double, 3, 4 >::Constant( ( i == 4 ? 0 : i ) + 10 * j ) );
-        }
-    }
-    return result;
-}
 }  // namespace
 
 //! Check S1 and S2 signs and periods with exact quarter-day arithmetic.
@@ -82,60 +68,20 @@ BOOST_AUTO_TEST_CASE( analyticDerivativeAndEpochReduction )
            1e-11 );
 }
 
-//! Preserve a single Cartesian displacement when averaging provider values around the pole.
-BOOST_AUTO_TEST_CASE( polarCartesianAveragingChangesOnlyModelCopy )
-{
-    auto raw = grid( );
-    raw.latitudesDegrees = { 90, 0, -90 };
-
-    // A constant radial value with zero horizontal components is Cartesian-consistent at each pole.
-    for( std::size_t i = 0; i < raw.longitudesDegrees.size( ); ++i )
-    {
-        for( std::size_t j : { 0u, 2u } )
-        {
-            auto& c = raw.coefficientsMetres[ i * 3 + j ];
-            c.setZero( );
-            c.row( 0 ).setConstant( 1 );
-            const double longitude = raw.longitudesDegrees[ i ] * mathematical_constants::PI / 180;
-            const double northSign = j == 0 ? -1 : 1;
-            c.row( 1 ).setConstant( northSign * ( .003 * std::cos( longitude ) - .005 * std::sin( longitude ) ) );
-            c.row( 2 ).setConstant( -.003 * std::sin( longitude ) - .005 * std::cos( longitude ) );
-        }
-    }
-    AtmosphericTideGridInterpolator exact( raw );
-
-    // A consistent polar ring needs no correction; averaging retains the raw coefficients.
-    BOOST_CHECK_SMALL( exact.getMaximumPolarCartesianDiscrepancyMetres( ), 1e-15 );
-    raw.coefficientsMetres[ 0 ]( 0, 0 ) += 4e-7;
-    AtmosphericTideGridInterpolator averaged( raw );
-    BOOST_CHECK_GT( averaged.getMaximumPolarCartesianDiscrepancyMetres( ), 3.9e-7 );
-    BOOST_CHECK_EQUAL( averaged.getProviderGrid( ).coefficientsMetres[ 0 ]( 0, 0 ), 1 + 4e-7 );
-    for( double lon : { 0., 25.5, 45., 90., 180., 270. } )
-    {
-        const auto local = averaged.interpolate( 90, lon ).col( 0 ).eval( );
-        const double angle = lon * mathematical_constants::PI / 180;
-        close( Eigen::Vector3d( -local.y( ) * std::cos( angle ) - local.z( ) * std::sin( angle ),
-                                -local.y( ) * std::sin( angle ) + local.z( ) * std::cos( angle ),
-                                local.x( ) ),
-               Eigen::Vector3d( .003, -.005, 1 + 5e-8 ) );
-    }
-}
-
 //! Interpolate the published atmospheric grid against independent Decimal arithmetic.
 BOOST_AUTO_TEST_CASE( realGridNodesAndIndependentDecimalInterpolation )
 {
     const std::string base = paths::getTudatTestDataPath( ) + "pr1092/reference_files/atmospheric_tides/";
     const auto raw = readAtmosphericTideGrid( base + "rp03_ce_grid_extract.txt" );
-    AtmosphericTideGridInterpolator model( raw );
 
     // At a grid node, interpolation returns the published coefficient matrix.
-    BOOST_CHECK_SMALL( ( model.interpolate( -19, 47 ) - raw.coefficientsMetres.front( ) ).norm( ), 1e-18 );
+    BOOST_CHECK_SMALL( ( interpolateAtmosphericTideGrid( raw, -19, 47 ) - raw.coefficientsMetres.front( ) ).norm( ), 1e-18 );
 
     // Independent Decimal interpolation of four original provider rows; this is not reference-software conformance.
     Eigen::Matrix< double, 3, 4 > expected;
     expected << -.229413396401398, -.140409687704627, 1.040762193571904, .276668845291711, .059365717547470, .059123892373735,
             -.033761020617976, -.014395543429494, .007941624058988, -.103894064696771, -.016544820023036, .059869142014747;
-    BOOST_CHECK_SMALL( ( model.interpolate( -19.018307, 47.22921 ) - expected * 1e-3 ).norm( ), 1e-16 );
+    BOOST_CHECK_SMALL( ( interpolateAtmosphericTideGrid( raw, -19.018307, 47.22921 ) - expected * 1e-3 ).norm( ), 1e-16 );
 }
 
 //! Synthesize radial loading directly from published polar-node coefficients.

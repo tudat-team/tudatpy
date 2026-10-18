@@ -62,7 +62,6 @@ void expose_shape_deformation_setup( py::module& m )
 
       )doc" );
 
-    namespace ba = tudat::basic_astrodynamics;
     py::class_< tss::StationLoadingBodyDeformationSettings,
                 std::shared_ptr< tss::StationLoadingBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "StationLoadingBodyDeformationSettings", R"doc(
@@ -124,34 +123,6 @@ void expose_shape_deformation_setup( py::module& m )
          shape_deformation.station_loading( data, station_bindings={ "MyStation": "weuc" } ) )
 
  )doc" );
-    py::class_< ba::AtmosphericTideEvaluationSettings >( m, "AtmosphericTideEvaluationSettings", R"doc(
-
-Settings for the evaluation of an atmospheric S1/S2 tidal loading model (see :func:`atmospheric_tide_from_grid`).
-
-Conventions that are not set are taken from the metadata of the data. For a grid identified as the Ray and Ponte (2003)
-model with Farrell Green functions, conventions that are set in neither default to geocentric. For other data, they
-must be set in one of the two.
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "lookup_latitude_convention", &ba::AtmosphericTideEvaluationSettings::lookupLatitudeConvention, R"doc(
-
-         Latitude convention with which stations are located in the grid.
-
-         :type: ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideLatitudeConvention
-      )doc" )
-            .def_readwrite( "displacement_basis", &ba::AtmosphericTideEvaluationSettings::displacementBasis, R"doc(
-
-         Local basis of the displacement components of the coefficients.
-
-         :type: ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideDisplacementBasis
-      )doc" )
-            .def_readwrite( "convert_to_centre_of_mass", &ba::AtmosphericTideEvaluationSettings::convertToCentreOfMass, R"doc(
-
-         Whether displacements given with respect to the centre of the solid Earth are converted to the centre of mass, by adding the translation of Table 7.6 of the IERS Conventions 2010 (default false). Only possible for the identified Ray and Ponte (2003) product.
-
-         :type: bool
-      )doc" );
     py::class_< tss::AtmosphericTideBodyDeformationSettings,
                 std::shared_ptr< tss::AtmosphericTideBodyDeformationSettings >,
                 tss::BodyDeformationSettings >( m, "AtmosphericTideBodyDeformationSettings", R"doc(
@@ -165,28 +136,25 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_grid",
            &tss::atmosphericTideBodyShapeDeformationFromGrid,
            py::arg( "grid" ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from a grid.
 
  Function for creating the atmospheric tidal loading deformation model of Section 7.1.3 of the IERS Conventions 2010,
- using coefficients interpolated (bilinearly) from a global grid at the station location. The diurnal (S1) and
- semi-diurnal (S2) terms are evaluated with UT1 (Eqs. 7.19a/b), using the time converter of the Earth rotation model.
- The rate of the displacement is computed analytically. The duplicated 0/360 degree longitude columns and the polar
- rows of the grid are averaged (the differences are below 1 micrometre for the Ray and Ponte grid); a grid whose
- duplicated values differ by more than 10 micrometres is rejected.
-
- The displacements are given with respect to the reference origin of the grid, unless the conversion to the centre of
- mass is selected in the evaluation settings.
+ using coefficients interpolated (bilinearly) from a global grid at the geocentric latitude and longitude of the station.
+ The radial, north and east components of the coefficients are taken as geocentric (as for the Ray and Ponte, 2003,
+ model). The diurnal (S1) and semi-diurnal (S2) terms are evaluated with UT1 (Eqs. 7.19a/b), using the time converter of
+ the Earth rotation model. The rate of the displacement is computed analytically.
 
 
  Parameters
  ----------
  grid : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideGrid
      Grid of loading coefficients (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_grid`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------
@@ -198,22 +166,23 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_stations",
            &tss::atmosphericTideBodyShapeDeformationFromStations,
            py::arg( "stations" ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from station-specific coefficients.
 
  Function for creating the atmospheric tidal loading deformation model (see :func:`atmospheric_tide_from_grid`), using
  precomputed coefficients for each station. A ground station is associated with the coefficients whose identifier is
- equal to the station name. The displacement basis must be set in the data or in the evaluation settings.
+ equal to the station name.
 
 
  Parameters
  ----------
- stations : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideStationData
-     Station-specific loading coefficients (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_station_data`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ stations : dict[str, numpy.ndarray[numpy.float64[3, 4]]]
+     Loading coefficients per station name (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_station_data`).
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------
@@ -225,8 +194,7 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_grid_file",
            &tss::atmosphericTideBodyShapeDeformationFromGridFile,
            py::arg( "file_path" ),
-           py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from a grid file.
@@ -238,10 +206,9 @@ must be set in one of the two.
  ----------
  file_path : str
      Path of the grid file.
- metadata : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideMetadata, default = AtmosphericTideMetadata()
-     Declared properties of the grid (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_grid`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------
@@ -253,8 +220,7 @@ must be set in one of the two.
     m.def( "atmospheric_tide_from_station_file",
            &tss::atmosphericTideBodyShapeDeformationFromStationFile,
            py::arg( "file_path" ),
-           py::arg( "metadata" ) = tudat::input_output::AtmosphericTideMetadata( ),
-           py::arg( "evaluation_settings" ) = ba::AtmosphericTideEvaluationSettings( ),
+           py::arg( "convert_to_centre_of_mass" ) = false,
            R"doc(
 
  Function for creating atmospheric S1/S2 tidal loading deformation from a station coefficient file.
@@ -267,10 +233,9 @@ must be set in one of the two.
  ----------
  file_path : str
      Path of the station coefficient file.
- metadata : ~tudatpy.data_input.environment_data.atmospheric_loading.AtmosphericTideMetadata, default = AtmosphericTideMetadata()
-     Declared properties of the data (see :func:`~tudatpy.data_input.environment_data.atmospheric_loading.read_atmospheric_tide_station_data`).
- evaluation_settings : AtmosphericTideEvaluationSettings, default = AtmosphericTideEvaluationSettings()
-     Settings for the evaluation of the model.
+ convert_to_centre_of_mass : bool, default = False
+     Whether the IERS 2010 (Table 7.6) translation from the centre of the solid Earth to the centre of mass of the whole
+     Earth is added to the displacements (for the Ray and Ponte, 2003, model).
 
  Returns
  -------

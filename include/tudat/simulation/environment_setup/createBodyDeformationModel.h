@@ -116,90 +116,54 @@ inline std::shared_ptr< StationLoadingBodyDeformationSettings > stationLoadingBo
     return std::make_shared< StationLoadingBodyDeformationSettings >( data, stationBindings, maximumGapSeconds );
 }
 
-//! The two physical atmospheric coefficient representations; file input is loaded at settings creation.
-enum class AtmosphericTideInputFormat { grid, stationCoefficients };
-
-//! Atmospheric loading settings containing grid or station-specific provider coefficients.
+//! Settings for S1/S2 atmospheric tide loading from a grid or from station coefficients (see
+//! basic_astrodynamics::AtmosphericTideDeformation).
 class AtmosphericTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
-    //! Copy grid data; geometry and origin policies are resolved when the model is created.
-    AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideGrid& grid,
-                                            const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
-        BodyDeformationSettings( gravitation::atmospheric_tide ), data_( grid ), settings_( settings )
+    AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideGrid& grid, const bool convertToCentreOfMass ):
+        BodyDeformationSettings( gravitation::atmospheric_tide ), grid_( grid ), convertToCentreOfMass_( convertToCentreOfMass )
     {}
 
-    //! Copy station-specific coefficients and their source metadata.
-    AtmosphericTideBodyDeformationSettings( const input_output::AtmosphericTideStationData& stations,
-                                            const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings ):
-        BodyDeformationSettings( gravitation::atmospheric_tide ), data_( stations ), settings_( settings )
+    AtmosphericTideBodyDeformationSettings( const std::map< std::string, input_output::AtmosphericTideCoefficients >& stationCoefficients,
+                                            const bool convertToCentreOfMass ):
+        BodyDeformationSettings( gravitation::atmospheric_tide ), stationCoefficients_( stationCoefficients ),
+        convertToCentreOfMass_( convertToCentreOfMass )
     {}
 
-    //! Return the active grid representation; callers must select the matching input format.
-    const input_output::AtmosphericTideGrid& getGrid( ) const
-    {
-        return std::get< input_output::AtmosphericTideGrid >( data_ );
-    }
-
-    //! Return the active station representation; callers must select the matching input format.
-    const input_output::AtmosphericTideStationData& getStations( ) const
-    {
-        return std::get< input_output::AtmosphericTideStationData >( data_ );
-    }
-
-    //! Return the requested scientific geometry, origin and endpoint policies.
-    const basic_astrodynamics::AtmosphericTideEvaluationSettings& getEvaluationSettings( ) const
-    {
-        return settings_;
-    }
-
-    //! Return whether these settings contain grid or station-specific coefficients.
-    AtmosphericTideInputFormat getInputFormat( ) const
-    {
-        return std::holds_alternative< input_output::AtmosphericTideGrid >( data_ ) ? AtmosphericTideInputFormat::grid
-                                                                                    : AtmosphericTideInputFormat::stationCoefficients;
-    }
-
-private:
-    //! One provider data object, including its own metadata and file provenance.
-    std::variant< input_output::AtmosphericTideGrid, input_output::AtmosphericTideStationData > data_;
-
-    //! Policies resolved against the active provider data during environment creation.
-    basic_astrodynamics::AtmosphericTideEvaluationSettings settings_;
+    //! Grid of coefficients (empty if station coefficients are used), coefficients per station name, and whether the
+    //! translation to the centre of mass of the whole Earth is added.
+    input_output::AtmosphericTideGrid grid_;
+    std::map< std::string, input_output::AtmosphericTideCoefficients > stationCoefficients_;
+    bool convertToCentreOfMass_;
 };
 
-//! Construct settings from a copied atmospheric grid.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromGrid(
         const input_output::AtmosphericTideGrid& grid,
-        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+        const bool convertToCentreOfMass = false )
 {
-    return std::make_shared< AtmosphericTideBodyDeformationSettings >( grid, settings );
+    return std::make_shared< AtmosphericTideBodyDeformationSettings >( grid, convertToCentreOfMass );
 }
 
-//! Construct settings from copied atmospheric station coefficients.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromStations(
-        const input_output::AtmosphericTideStationData& stations,
-        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+        const std::map< std::string, input_output::AtmosphericTideCoefficients >& stationCoefficients,
+        const bool convertToCentreOfMass = false )
 {
-    return std::make_shared< AtmosphericTideBodyDeformationSettings >( stations, settings );
+    return std::make_shared< AtmosphericTideBodyDeformationSettings >( stationCoefficients, convertToCentreOfMass );
 }
 
-//! Read and validate the grid now; subsequent model creation performs no atmospheric file access.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromGridFile(
         const std::string& path,
-        const input_output::AtmosphericTideMetadata& metadata = {},
-        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+        const bool convertToCentreOfMass = false )
 {
-    return atmosphericTideBodyShapeDeformationFromGrid( input_output::readAtmosphericTideGrid( path, metadata ), settings );
+    return atmosphericTideBodyShapeDeformationFromGrid( input_output::readAtmosphericTideGrid( path ), convertToCentreOfMass );
 }
 
-//! Read and validate station coefficients now; subsequent model creation uses the same preloaded settings.
 inline std::shared_ptr< AtmosphericTideBodyDeformationSettings > atmosphericTideBodyShapeDeformationFromStationFile(
         const std::string& path,
-        const input_output::AtmosphericTideMetadata& metadata = {},
-        const basic_astrodynamics::AtmosphericTideEvaluationSettings& settings = {} )
+        const bool convertToCentreOfMass = false )
 {
-    return atmosphericTideBodyShapeDeformationFromStations( input_output::readAtmosphericTideStationData( path, metadata ), settings );
+    return atmosphericTideBodyShapeDeformationFromStations( input_output::readAtmosphericTideStationData( path ), convertToCentreOfMass );
 }
 
 //! Settings for the ocean pole tide loading deformation model (IERS 2010 Conventions, Section 7.1.5).

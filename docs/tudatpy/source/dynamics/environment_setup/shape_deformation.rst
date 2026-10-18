@@ -109,8 +109,6 @@ Classes
 
    AtmosphericTideBodyDeformationSettings
 
-   AtmosphericTideEvaluationSettings
-
    StationLoadingBodyDeformationSettings
 
 
@@ -125,9 +123,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.AtmosphericTideBodyDeformationSettings
-   :members:
-
-.. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.AtmosphericTideEvaluationSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.StationLoadingBodyDeformationSettings
