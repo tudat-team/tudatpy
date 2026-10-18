@@ -33,7 +33,8 @@ enum LightTimeCorrectionType {
     jakowski_vtec_ionospheric,
     inverse_power_series_solar_corona,
     ionex_vtec_ionospheric,
-    nequick2_ionospheric
+    nequick2_ionospheric,
+    measured_tropospheric
 };
 
 bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );

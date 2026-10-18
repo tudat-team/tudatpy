@@ -639,6 +639,41 @@ protected:
     bool isUplinkCorrection_;
 };
 
+//! Tropospheric correction using quality-screened, absolute zenith path measurements.
+/*!
+ * Samples contain [dry, wet] path lengths in metres, indexed by UTC seconds since
+ * J2000. Linear interpolation is restricted to intervals no longer than
+ * maximumInterpolationGap. Outside these intervals the supplied mapped model is
+ * used. Wet measurements replace its wet delay; dry measurements are optional.
+ * Quality screening belongs to the input-data preparation, before construction.
+ */
+class MeasuredTroposphericCorrection : public MappedTroposphericCorrection
+{
+public:
+    MeasuredTroposphericCorrection( const std::map< double, Eigen::Vector2d >& zenithDelays,
+                                    const std::function< double( double ) >& tdbToUtc,
+                                    const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+                                    const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+                                    const bool isUplinkCorrection,
+                                    const double maximumInterpolationGap,
+                                    const bool useMeasuredDryDelay = false );
+
+    //! Whether the station event (TDB) is covered by valid measured samples.
+    bool hasMeasuredCorrection( const double stationTdbTime ) const;
+
+private:
+    bool hasMeasuredCorrectionAtUtc( const double utcTime ) const;
+    double computeZenithCorrection( const double stationTdbTime, const int component );
+
+    std::map< double, Eigen::Vector2d > zenithDelays_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > interpolator_;
+    std::function< double( double ) > tdbToUtc_;
+    // Retain the model: its zenith callbacks may capture its this pointer.
+    std::shared_ptr< MappedTroposphericCorrection > fallbackCorrection_;
+    double maximumInterpolationGap_;
+    bool useMeasuredDryDelay_;
+};
+
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.
 // Derived class from MappedTroposphericCorrection.
 class TabulatedTroposphericCorrection : public MappedTroposphericCorrection

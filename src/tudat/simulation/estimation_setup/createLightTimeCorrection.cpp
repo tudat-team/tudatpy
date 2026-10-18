@@ -184,6 +184,53 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
             break;
         }
+        case measured_tropospheric: {
+            const auto settings = std::dynamic_pointer_cast< MeasuredTroposphericCorrectionSettings >( correctionSettings );
+            if( !settings || !isRadiometricObservableType( observableType ) )
+            {
+                throw std::runtime_error( "Measured troposphere requires matching settings and a radiometric observable." );
+            }
+            if( transmitter.bodyName_ == receiver.bodyName_ ||
+                ( transmitter.bodyName_ != settings->getBodyWithAtmosphere( ) &&
+                  receiver.bodyName_ != settings->getBodyWithAtmosphere( ) ) )
+            {
+                break;
+            }
+
+            const bool isUplink = transmitter.bodyName_ == settings->getBodyWithAtmosphere( );
+            const LinkEndId station = isUplink ? transmitter : receiver;
+            lightTimeCorrection = createLightTimeCorrections(
+                    settings->getFallbackSettings( ), bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType, observableType );
+            const auto samples = settings->getZenithDelaysPerStation( ).find( station.getReferencePointName( ) );
+            if( samples == settings->getZenithDelaysPerStation( ).end( ) || samples->second.empty( ) )
+            {
+                break;
+            }
+            const auto fallback = std::dynamic_pointer_cast< MappedTroposphericCorrection >( lightTimeCorrection );
+            if( !fallback )
+            {
+                throw std::runtime_error( "Measured troposphere requires a mapped tropospheric fallback for " +
+                                          station.getReferencePointName( ) );
+            }
+            const Eigen::Vector3d stationPosition = bodies.at( station.bodyName_ )
+                                                            ->getGroundStation( station.getReferencePointName( ) )
+                                                            ->getNominalStationState( )
+                                                            ->getNominalCartesianPosition( );
+            const auto timeConverter = earth_orientation::createDefaultTimeConverter( );
+            const auto tdbToUtc = [ timeConverter, stationPosition ]( const double time ) {
+                return timeConverter->getCurrentTime(
+                        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, stationPosition );
+            };
+            lightTimeCorrection = std::make_shared< MeasuredTroposphericCorrection >(
+                    samples->second,
+                    tdbToUtc,
+                    fallback,
+                    createTroposphericElevationMapping( TroposphericMappingModel::niell, bodies, transmitter, receiver, isUplink ),
+                    isUplink,
+                    settings->getMaximumInterpolationGap( ),
+                    settings->getUseMeasuredDryDelay( ) );
+            break;
+        }
         case saastamoinen_tropospheric: {
             std::shared_ptr< SaastamoinenTroposphericCorrectionSettings > troposphericCorrectionSettings =
                     std::dynamic_pointer_cast< SaastamoinenTroposphericCorrectionSettings >( correctionSettings );

@@ -15,12 +15,73 @@
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/io/matrixTextFileReader.h"
 #include "tudat/math/basic/legendrePolynomials.h"
+#include "tudat/math/interpolators/linearInterpolator.h"
 
 namespace tudat
 {
 
 namespace observation_models
 {
+
+MeasuredTroposphericCorrection::MeasuredTroposphericCorrection( const std::map< double, Eigen::Vector2d >& zenithDelays,
+                                                                const std::function< double( double ) >& tdbToUtc,
+                                                                const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+                                                                const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+                                                                const bool isUplinkCorrection,
+                                                                const double maximumInterpolationGap,
+                                                                const bool useMeasuredDryDelay ):
+    MappedTroposphericCorrection( measured_tropospheric, elevationMapping, isUplinkCorrection ), zenithDelays_( zenithDelays ),
+    tdbToUtc_( tdbToUtc ), fallbackCorrection_( fallbackCorrection ), maximumInterpolationGap_( maximumInterpolationGap ),
+    useMeasuredDryDelay_( useMeasuredDryDelay )
+{
+    if( zenithDelays_.size( ) < 2 || !tdbToUtc_ || !fallbackCorrection_ || !std::isfinite( maximumInterpolationGap_ ) ||
+        maximumInterpolationGap_ <= 0.0 )
+    {
+        throw std::runtime_error(
+                "Measured troposphere requires at least two samples, a time converter, "
+                "a mapped fallback model and a positive finite interpolation gap." );
+    }
+    for( const auto& sample : zenithDelays_ )
+    {
+        if( !std::isfinite( sample.first ) || !sample.second.allFinite( ) || ( sample.second.array( ) < 0.0 ).any( ) )
+        {
+            throw std::runtime_error( "Measured tropospheric zenith delays must have finite epochs and nonnegative finite paths." );
+        }
+    }
+    interpolator_ = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( zenithDelays_ );
+    dryZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 0 ); };
+    wetZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 1 ); };
+}
+
+bool MeasuredTroposphericCorrection::hasMeasuredCorrectionAtUtc( const double utcTime ) const
+{
+    const auto upper = zenithDelays_.lower_bound( utcTime );
+    if( upper == zenithDelays_.end( ) )
+    {
+        return false;
+    }
+    if( upper->first == utcTime )
+    {
+        return true;
+    }
+    return upper != zenithDelays_.begin( ) && upper->first - std::prev( upper )->first <= maximumInterpolationGap_;
+}
+
+bool MeasuredTroposphericCorrection::hasMeasuredCorrection( const double stationTdbTime ) const
+{
+    return hasMeasuredCorrectionAtUtc( tdbToUtc_( stationTdbTime ) );
+}
+
+double MeasuredTroposphericCorrection::computeZenithCorrection( const double stationTdbTime, const int component )
+{
+    const double utcTime = tdbToUtc_( stationTdbTime );
+    if( ( component == 1 || useMeasuredDryDelay_ ) && hasMeasuredCorrectionAtUtc( utcTime ) )
+    {
+        return interpolator_->interpolate( utcTime )( component );
+    }
+    return component == 0 ? fallbackCorrection_->getDryZenithRangeCorrectionFunction( )( stationTdbTime )
+                          : fallbackCorrection_->getWetZenithRangeCorrectionFunction( )( stationTdbTime );
+}
 
 bool TabulatedMediaReferenceCorrection::isTimeValid( const double time )
 {

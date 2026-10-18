@@ -60,6 +60,9 @@ to select which correction contributions are saved individually.)doc" )
             .value( "tabulated_tropospheric",
                     tom::tabulated_tropospheric,
                     R"doc(Tropospheric light-time correction from tabulated delays.)doc" )
+            .value( "measured_tropospheric",
+                    tom::measured_tropospheric,
+                    R"doc(Niell-mapped tropospheric correction from measured zenith path lengths.)doc" )
             .value( "saastamoinen_tropospheric",
                     tom::saastamoinen_tropospheric,
                     R"doc(Tropospheric light-time correction using the Saastamoinen model.)doc" )
@@ -452,6 +455,37 @@ Examples
            :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
                Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated tropospheric corrections.
 
+           )doc" );
+
+    m.def( "measured_tropospheric_light_time_correction",
+           &tom::measuredTroposphericCorrectionSettings,
+           py::arg( "zenith_delays_per_station" ),
+           py::arg( "fallback_settings" ),
+           py::arg( "maximum_interpolation_gap" ),
+           py::arg( "use_measured_dry_delay" ) = false,
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           R"doc(Create a tropospheric light-time correction from measured zenith paths.
+
+           The mapping function is Niell. Each station's input is a dictionary of
+           UTC epochs (seconds since J2000) to [dry, wet] zenith path lengths in
+           metres. The wet path REPLACES the fallback wet path; the fallback dry
+           path is retained unless ``use_measured_dry_delay`` is true. Supply this
+           correction in place of the fallback in the observation settings.
+
+           Samples must be quality-screened before calling this function. For
+           DSN AMC products, inspect the flags returned by ``read_dsn_amc_file``;
+           missing retrievals (999 cm) are not valid delays. Linear interpolation
+           uses only adjacent samples separated by at most
+           ``maximum_interpolation_gap`` seconds. Removed bad samples therefore
+           leave gaps when this limit is set to the product cadence. There is no
+           extrapolation. The mapped fallback is used in gaps, outside coverage,
+           and for stations absent from the dictionary.
+
+           The station event is converted from TDB to UTC separately on each
+           link leg. An integrated Doppler count that crosses a change between
+           measured and fallback paths can include a discontinuity between the
+           absolute calibrations; exclude such counts from comparisons or supply
+           a continuous, independently validated calibration.
            )doc" );
 
     m.def( "saastamoinen_tropospheric_light_time_correction",
