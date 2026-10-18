@@ -152,10 +152,11 @@ public:
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
             std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput );
 
-    //! Estimate from the current parameter vector with an independent fixed prior mean.
-    /*! An empty prior vector preserves the original starting-vector prior convention.
-     * A nonempty vector requires applyAprioriParameterDeviation and must contain one
-     * finite value per estimated scalar parameter. The initial guess is unchanged.
+    //! Function to estimate parameters, with a priori parameter values that differ from the initial parameter values
+    /*!
+     * Function to estimate parameters, using the current parameter values as initial guess, and aprioriParameterEstimate as the
+     * a priori parameter values (to which the deviation is computed if applyAprioriParameterDeviation is set). If
+     * aprioriParameterEstimate is empty, the initial parameter values are used as a priori values.
      */
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
             std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,

@@ -19,6 +19,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
+#include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/simulation/estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "tudat/io/solarActivityData.h"
 
@@ -85,9 +86,14 @@ public:
      * Constructor
      * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
      * \param useBending Boolean flag to determine if light bending should be included, default is true.
+     * \param evaluationEpoch Epoch at which the perturbing body states are evaluated
      */
-    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies, const bool useBending = false ):
-        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending )
+    FirstOrderRelativisticLightTimeCorrectionSettings(
+            const std::vector< std::string >& perturbingBodies,
+            const bool useBending = false,
+            const PerturbingBodyEvaluationEpoch evaluationEpoch = link_end_or_light_time_midpoint ):
+        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending ),
+        evaluationEpoch_( evaluationEpoch )
     {}
 
     //! Destructor
@@ -113,12 +119,21 @@ public:
         return useBending_;
     }
 
+    //! Function returning the epoch at which the perturbing body states are evaluated
+    PerturbingBodyEvaluationEpoch getEvaluationEpoch( )
+    {
+        return evaluationEpoch_;
+    }
+
 private:
     //! List of bodies for which the point masses are used to compute the light-time correction.
     std::vector< std::string > perturbingBodies_;
 
     //! Boolean flag to determine if light bending should be included.
     bool useBending_;
+
+    //! Epoch at which the perturbing body states are evaluated
+    PerturbingBodyEvaluationEpoch evaluationEpoch_;
 };
 
 // Class defining  settings for tabulated tropospheric corrections
@@ -515,9 +530,10 @@ private:
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
         const std::vector< std::string >& perturbingBodies,
-        const bool useBending = false )
+        const bool useBending = false,
+        const PerturbingBodyEvaluationEpoch evaluationEpoch = link_end_or_light_time_midpoint )
 {
-    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, useBending );
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, useBending, evaluationEpoch );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(

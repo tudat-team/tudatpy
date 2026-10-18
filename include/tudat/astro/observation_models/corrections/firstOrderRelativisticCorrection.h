@@ -27,18 +27,25 @@ namespace tudat
 namespace observation_models
 {
 
+//! Epoch at which the state of a perturbing body is evaluated in the first-order relativistic light-time correction
+enum PerturbingBodyEvaluationEpoch {
+    //! Transmission (reception) time if the perturbing body is the transmitter (receiver), light-time midpoint otherwise
+    link_end_or_light_time_midpoint,
+    //! Time of closest approach of the perturbing body to the (straight-line) signal path, within the light-time leg
+    closest_approach_to_signal
+};
+
 //! Class to calculate first order relativistic light time correction (Shapiro time delay) due to a set of point masses.
 /*!
  *  Class to calculate first order relativistic light time correction (Shapiro time delay) due to a set of point masses.
  *  This class has the properties (mass and position) of the gravitating bodies as member variables. It receives the states
  *  and times of  receiver and transmitter as input each time a light time is to be calculated.
- *  The forward correction evaluates each moving perturbing body at its closest approach to the straight photon
- *  segment, bounded by transmission and reception, independently of body names. Zero-duration legs use transmission
- *  time; a zero spatial segment with positive duration uses the midpoint as an explicit degenerate fallback.
- *
- *  This temporary forward light-time fix is validated for range and averaged Doppler. The position gradient retains
- *  the existing fixed-perturber-epoch approximation and does not differentiate the selected epoch; the time partial
- *  remains zero. It does NOT fix instantaneous Doppler or estimation derivatives (the separate PR1073 is not merged).
+ *  NOTE: If the perturbing body is equal to the transmitting or receiving body, the transmission or reception time,
+ *  respectively, are used to evaluate this perturbing body's state when computing the correction. For all other bodies,
+ *  the mid-way point of the light time is used (link_end_or_light_time_midpoint). Alternatively, the state of each
+ *  perturbing body can be evaluated at its closest approach to the signal path (closest_approach_to_signal).
+ *  NOTE: in either case, the partial derivatives do not account for the dependency of the evaluation epoch on the link
+ *  end states.
  */
 class FirstOrderLightTimeCorrectionCalculator : public LightTimeCorrection
 {
@@ -56,6 +63,7 @@ public:
      *  \param ppnParameterGammaFunction Function returning the parametric post-Newtonian parameter gamma, a measure
      *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
      *  \param useBending Boolean flag to determine if light bending should be included.
+     *  \param evaluationEpoch Epoch at which the perturbing body states are evaluated
      */
     FirstOrderLightTimeCorrectionCalculator(
             const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
@@ -64,16 +72,17 @@ public:
             const std::string transmittingBody,
             const std::string receivingBody,
             const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; },
-            const bool useBending = false ):
+            const bool useBending = false,
+            const PerturbingBodyEvaluationEpoch evaluationEpoch = link_end_or_light_time_midpoint ):
         LightTimeCorrection( first_order_relativistic ), perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
-        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), useBending_( useBending )
+        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), useBending_( useBending ),
+        evaluationEpoch_( evaluationEpoch )
     {
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
 
-        // Retain the legacy fractions for class-layout/ABI compatibility only.
-        // The forward closest-approach policy and position-gradient body evaluation do not use them.
+        // Check if perturbing body is transmitting/receiving body, and set evaluation time settings accordingly
         for( unsigned int i = 0; i < perturbingBodyNames.size( ); i++ )
         {
             if( perturbingBodyNames.at( i ) == transmittingBody )
@@ -217,7 +226,19 @@ public:
         return useBending_;
     }
 
+    PerturbingBodyEvaluationEpoch getEvaluationEpoch( )
+    {
+        return evaluationEpoch_;
+    }
+
 private:
+    //! Function to compute the epoch at which the state of a perturbing body is evaluated
+    double getPerturbingBodyEvaluationTime( const unsigned int bodyIndex,
+                                            const Eigen::Vector3d& transmitterPosition,
+                                            const Eigen::Vector3d& receiverPosition,
+                                            const double transmissionTime,
+                                            const double receptionTime );
+
     //! Set of function returning the state of the gravitating bodies as a function of time.
     std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
 
@@ -234,7 +255,7 @@ private:
      */
     std::function< double( ) > ppnParameterGammaFunction_;
 
-    //! Legacy link-name fractions retained for ABI; unused by forward closest-approach body evaluation.
+    //! List of values (between 0 and 1) of how far into the light-time the state of each perturbing body is to be evaluated.
     std::vector< double > lightTimeEvaluationContribution_;
 
     //! List of light-time correction due to each separate perturbing body, as computed by last call to
@@ -246,6 +267,9 @@ private:
 
     //! Boolean flag to determine if light bending should be included.
     bool useBending_;
+
+    //! Epoch at which the perturbing body states are evaluated
+    PerturbingBodyEvaluationEpoch evaluationEpoch_;
 };
 
 }  // namespace observation_models

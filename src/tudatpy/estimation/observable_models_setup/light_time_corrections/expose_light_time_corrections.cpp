@@ -284,13 +284,28 @@ Examples
 
      )doc" );
 
+    py::enum_< tom::PerturbingBodyEvaluationEpoch >( m,
+                                                     "PerturbingBodyEvaluationEpoch",
+                                                     R"doc(
+
+         Enumeration of epochs at which perturbing body states are evaluated in the relativistic light-time correction.
+
+      )doc" )
+            .value( "link_end_or_light_time_midpoint",
+                    tom::link_end_or_light_time_midpoint,
+                    R"doc(Transmission/reception time if the perturbing body is the transmitter/receiver, light-time midpoint otherwise.)doc" )
+            .value( "closest_approach_to_signal",
+                    tom::closest_approach_to_signal,
+                    R"doc(Time of closest approach of the perturbing body to the signal path, within the light-time leg.)doc" );
+
     m.def(
             "first_order_relativistic_light_time_correction",
-            []( const std::vector< std::string >& perturbingBodies ) {
+            []( const std::vector< std::string >& perturbingBodies, const tom::PerturbingBodyEvaluationEpoch evaluationEpoch ) {
                 // Force bending to always be false
-                return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, false );
+                return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, false, evaluationEpoch );
             },
             py::arg( "perturbing_bodies" ),
+            py::arg( "evaluation_epoch" ) = tom::link_end_or_light_time_midpoint,
             R"doc(
 
 Function for creating settings for first-order relativistic light-time corrections.
@@ -305,10 +320,15 @@ Function for creating settings for first-order relativistic light-time correctio
 
 * 2. **Perturbing Body Not as a Link End:** If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
 
+This is the default (``link_end_or_light_time_midpoint``). Alternatively (``closest_approach_to_signal``), the state of each perturbing body is evaluated at the time of its closest approach to the signal path between transmitter and receiver (within each light-time leg). For a spacecraft close to a planet (e.g. Juno at Jupiter), this choice is more accurate.
+In both cases, the partial derivatives neglect the dependency of the evaluation epoch on the link end states.
+
 Parameters
 ----------
 perturbing_bodies : List[str]
     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+evaluation_epoch : PerturbingBodyEvaluationEpoch, default = PerturbingBodyEvaluationEpoch.link_end_or_light_time_midpoint
+    Epoch at which the states of the perturbing bodies are evaluated.
 
 Returns
 -------
@@ -343,11 +363,12 @@ Examples
 
     m.def(
             "approximated_second_order_relativistic_light_time_correction",
-            []( const std::vector< std::string >& perturbingBodies ) {
+            []( const std::vector< std::string >& perturbingBodies, const tom::PerturbingBodyEvaluationEpoch evaluationEpoch ) {
                 // Force bending to always be true
-                return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, true );
+                return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, true, evaluationEpoch );
             },
             py::arg( "perturbing_bodies" ),
+            py::arg( "evaluation_epoch" ) = tom::link_end_or_light_time_midpoint,
 
             R"doc(
 
@@ -363,10 +384,15 @@ Function for creating settings for approximated second-order relativistic light-
 
 * 2. **Perturbing Body Not as a Link End:** If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
 
+This is the default (``link_end_or_light_time_midpoint``). Alternatively (``closest_approach_to_signal``), the state of each perturbing body is evaluated at the time of its closest approach to the signal path between transmitter and receiver (within each light-time leg). For a spacecraft close to a planet (e.g. Juno at Jupiter), this choice is more accurate.
+In both cases, the partial derivatives neglect the dependency of the evaluation epoch on the link end states.
+
 Parameters
 ----------
 perturbing_bodies : List[str]
     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+evaluation_epoch : PerturbingBodyEvaluationEpoch, default = PerturbingBodyEvaluationEpoch.link_end_or_light_time_midpoint
+    Epoch at which the states of the perturbing bodies are evaluated.
 
 Returns
 -------

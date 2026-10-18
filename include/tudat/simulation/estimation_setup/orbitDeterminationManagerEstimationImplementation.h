@@ -43,22 +43,14 @@ template< typename ObservationScalarType,
 std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
-        const ParameterVectorType& aprioriParameterEstimateOverride )
+        const ParameterVectorType& aprioriParameterEstimateInput )
 
 {
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-    if( aprioriParameterEstimateOverride.size( ) != 0 )
+    if( aprioriParameterEstimateInput.size( ) != 0 && aprioriParameterEstimateInput.size( ) != currentParameterEstimate_.size( ) )
     {
-        if( !estimationInput->getApplyAprioriParameterDeviation( ) )
-        {
-            throw std::invalid_argument( "An independent prior mean requires apply_apriori_parameter_deviation=true." );
-        }
-        if( aprioriParameterEstimateOverride.size( ) != currentParameterEstimate_.size( ) ||
-            !aprioriParameterEstimateOverride.allFinite( ) )
-        {
-            throw std::invalid_argument( "The independent prior mean must contain one finite value per estimated parameter." );
-        }
+        throw std::runtime_error( "Error in estimation, size of a priori parameter vector is inconsistent with estimated parameters" );
     }
 
     // Get number of observations
@@ -126,8 +118,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
     ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
-    const ParameterVectorType aprioriParameterEstimate = aprioriParameterEstimateOverride.size( ) == 0
-            ? currentParameterEstimate_ : aprioriParameterEstimateOverride;
+    const ParameterVectorType aprioriParameterEstimate =
+            aprioriParameterEstimateInput.size( ) == 0 ? currentParameterEstimate_ : aprioriParameterEstimateInput;
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 
