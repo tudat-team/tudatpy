@@ -33,9 +33,33 @@ template< typename ObservationScalarType,
 std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
+{
+    return estimateParameters( estimationInput, ParameterVectorType::Zero( 0 ) );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
+        std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
+        const ParameterVectorType& aprioriParameterEstimateOverride )
 
 {
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
+
+    if( aprioriParameterEstimateOverride.size( ) != 0 )
+    {
+        if( !estimationInput->getApplyAprioriParameterDeviation( ) )
+        {
+            throw std::invalid_argument( "An independent prior mean requires apply_apriori_parameter_deviation=true." );
+        }
+        if( aprioriParameterEstimateOverride.size( ) != currentParameterEstimate_.size( ) ||
+            !aprioriParameterEstimateOverride.allFinite( ) )
+        {
+            throw std::invalid_argument( "The independent prior mean must contain one finite value per estimated parameter." );
+        }
+    }
 
     // Get number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
@@ -102,7 +126,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
     ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
-    const ParameterVectorType aprioriParameterEstimate = currentParameterEstimate_;
+    const ParameterVectorType aprioriParameterEstimate = aprioriParameterEstimateOverride.size( ) == 0
+            ? currentParameterEstimate_ : aprioriParameterEstimateOverride;
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 

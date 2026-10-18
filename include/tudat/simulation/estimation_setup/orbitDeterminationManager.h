@@ -152,6 +152,15 @@ public:
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
             std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput );
 
+    //! Estimate from the current parameter vector with an independent fixed prior mean.
+    /*! An empty prior vector preserves the original starting-vector prior convention.
+     * A nonempty vector requires applyAprioriParameterDeviation and must contain one
+     * finite value per estimated scalar parameter. The initial guess is unchanged.
+     */
+    std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
+            std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
+            const ParameterVectorType& aprioriParameterEstimateOverride );
+
     template< int ObservationSize >
     void computePartialsAndObservations(
             const observation_models::LinkEnds& linkEnds,

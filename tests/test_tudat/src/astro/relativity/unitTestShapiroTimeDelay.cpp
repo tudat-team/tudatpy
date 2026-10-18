@@ -11,6 +11,9 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/included/unit_test.hpp>
+#include <algorithm>
+#include <limits>
+#include <stdexcept>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/relativity/relativisticLightTimeCorrection.h"
@@ -294,6 +297,166 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayGradient )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 analyticalLightTimePartialWrtTransmitterNoBending, numericalLightTimePartialWrtTransmitterNoBending, 1.0E-7 );
     }
+}
+
+namespace
+{
+
+void checkClosestApproachCase(
+        const Eigen::Vector3d& bodyPositionAtTransmission,
+        const Eigen::Vector3d& bodyVelocity,
+        const Eigen::Vector3d& transmitterPosition,
+        const Eigen::Vector3d& receiverPosition,
+        const double transmissionTime,
+        const double duration,
+        const double expectedOffset,
+        const std::string& bodyName = "Perturber",
+        const std::string& transmitterName = "Transmitter",
+        const std::string& receiverName = "Receiver" )
+{
+    const double gm = 1.266865341960128e17;
+    const double expectedEpoch = transmissionTime + expectedOffset;
+    Eigen::Vector6d transmitter = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d receiver = Eigen::Vector6d::Zero( );
+    transmitter.head< 3 >( ) = transmitterPosition;
+    receiver.head< 3 >( ) = receiverPosition;
+    for( const bool bending : { false, true } )
+    {
+        double lastBodyEpoch = TUDAT_NAN;
+        const auto stateFunction = [ & ]( const double epoch ) -> Eigen::Vector6d {
+            lastBodyEpoch = epoch;
+            Eigen::Vector6d state;
+            state.head< 3 >( ) = bodyPositionAtTransmission + ( epoch - transmissionTime ) * bodyVelocity;
+            state.tail< 3 >( ) = bodyVelocity;
+            return state;
+        };
+        FirstOrderLightTimeCorrectionCalculator calculator(
+                { stateFunction }, { [ & ]( ) { return gm; } }, { bodyName }, transmitterName, receiverName,
+                []( ) { return 1.0; }, bending );
+        const double calculated = calculator.calculateLightTimeCorrection(
+                transmitter, receiver, transmissionTime, transmissionTime + duration );
+        const double epochTolerance = std::max( 1.0e-9, 2.0 * std::numeric_limits< double >::epsilon( ) *
+                                               std::max( std::abs( transmissionTime ), std::abs( transmissionTime + duration ) ) );
+        BOOST_CHECK_SMALL( lastBodyEpoch - expectedEpoch, epochTolerance );
+        const Eigen::Vector3d expectedBodyPosition =
+                bodyPositionAtTransmission + ( expectedEpoch - transmissionTime ) * bodyVelocity;
+        const double expected = calculateFirstOrderLightTimeCorrectionFromCentralBody(
+                gm, transmitterPosition, receiverPosition, expectedBodyPosition, 1.0, bending );
+        BOOST_CHECK_CLOSE_FRACTION( calculated, expected, 1.0e-12 );
+        if( bodyVelocity.isZero( 0.0 ) )
+        {
+            // Changing an epoch must not change the stationary-body delay.
+            BOOST_CHECK_EQUAL( calculated, expected );
+        }
+        if( ( receiverPosition - transmitterPosition ).isZero( 0.0 ) )
+        {
+            continue;  // The pre-existing position gradient is undefined for a zero spatial path.
+        }
+        // Check the evaluation epoch in the existing fixed-body-epoch gradient,
+        // without claiming that it differentiates the selected epoch itself.
+        const Eigen::Vector3d gradient = calculator.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                transmitter, receiver, transmissionTime, transmissionTime + duration, observation_models::receiver );
+        BOOST_CHECK_SMALL( lastBodyEpoch - expectedEpoch, epochTolerance );
+        const Eigen::Vector3d expectedGradient = calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
+                gm, transmitterPosition, receiverPosition, expectedBodyPosition, true, 1.0, bending );
+        BOOST_CHECK_SMALL( ( gradient - expectedGradient ).norm( ), 1.0e-20 );
+    }
+}
+
+}  // namespace
+
+BOOST_AUTO_TEST_CASE( testClosestApproachStationaryInteriorAndNameIndependence )
+{
+    const Eigen::Vector3d transmitter = Eigen::Vector3d::Zero( );
+    const Eigen::Vector3d receiver( 1.0e9, 0.0, 0.0 );
+    const Eigen::Vector3d body( 4.0e8, 2.0e8, 0.0 );
+    // Legacy constructor fractions would select transmit, receive or midpoint;
+    // all three name combinations must now select the same interior epoch.
+    for( const std::string name : { "Earth", "Jupiter", "Other" } )
+    {
+        checkClosestApproachCase( body, Eigen::Vector3d::Zero( ), transmitter, receiver,
+                                  1000.0, 10.0, 4.0, name, "Earth", "Jupiter" );
+    }
+    checkClosestApproachCase( Eigen::Vector3d( 4.123456789e8, 2.0e8, 0.0 ), Eigen::Vector3d::Zero( ),
+                              transmitter, receiver, 5.0e8, 10.0, 4.123456789 );
+}
+
+BOOST_AUTO_TEST_CASE( testClosestApproachMovingBodyAnalytic )
+{
+    const Eigen::Vector3d transmitter = Eigen::Vector3d::Zero( );
+    const Eigen::Vector3d receiver( 1.0e9, 0.0, 0.0 );
+    const Eigen::Vector3d body( 4.0e8, 2.0e8, 0.0 );
+    const Eigen::Vector3d bodyVelocity( 1.0e6, -2.0e6, 3.0e5 );
+    const Eigen::Vector3d relativeVelocity = receiver / 10.0 - bodyVelocity;
+    const double analyticOffset = body.dot( relativeVelocity ) / relativeVelocity.squaredNorm( );
+    checkClosestApproachCase( body, bodyVelocity, transmitter, receiver, 1000.0, 10.0, analyticOffset );
+    BOOST_CHECK( std::abs( analyticOffset - 4.0 ) > 0.01 );
+}
+
+BOOST_AUTO_TEST_CASE( testClosestApproachClampedLegEndpoints )
+{
+    const Eigen::Vector3d transmitter = Eigen::Vector3d::Zero( );
+    const Eigen::Vector3d receiver( 1.0e9, 0.0, 0.0 );
+    checkClosestApproachCase( Eigen::Vector3d( -1.0e8, 2.0e8, 0.0 ), Eigen::Vector3d::Zero( ),
+                              transmitter, receiver, 1000.0, 10.0, 0.0 );
+    checkClosestApproachCase( Eigen::Vector3d( 1.2e9, 2.0e8, 0.0 ), Eigen::Vector3d::Zero( ),
+                              transmitter, receiver, 1000.0, 10.0, 10.0 );
+}
+
+BOOST_AUTO_TEST_CASE( testClosestApproachJupiterLikeUplinkAndDownlink )
+{
+    const Eigen::Vector3d earth = Eigen::Vector3d::Zero( );
+    const Eigen::Vector3d spacecraft( 7.0e11, 0.0, 0.0 );
+    const Eigen::Vector3d jupiter( 7.004e11, 7.0e7, 0.0 );
+    const Eigen::Vector3d velocity( 0.0, 1.3e4, 0.0 );
+    // The gravitating body's name deliberately differs from the spacecraft end.
+    checkClosestApproachCase( jupiter, velocity, earth, spacecraft, 5.0e8, 2500.0, 2500.0,
+                              "Jupiter", "Earth", "JUNO" );
+    checkClosestApproachCase( jupiter, velocity, spacecraft, earth, 5.0e8, 2500.0, 0.0,
+                              "Jupiter", "JUNO", "Earth" );
+}
+
+BOOST_AUTO_TEST_CASE( testClosestApproachZeroDurationAndZeroSpatialPath )
+{
+    const Eigen::Vector3d transmitter = Eigen::Vector3d::Zero( );
+    const Eigen::Vector3d receiver( 1.0e9, 0.0, 0.0 );
+    const Eigen::Vector3d body( 4.0e8, 2.0e8, 0.0 );
+    checkClosestApproachCase( body, Eigen::Vector3d( 1.0e3, 2.0e3, 0.0 ), transmitter, receiver,
+                              1000.0, 0.0, 0.0 );
+    checkClosestApproachCase( body, Eigen::Vector3d( 1.0e3, 2.0e3, 0.0 ), transmitter, transmitter,
+                              1000.0, 10.0, 5.0 );
+}
+
+BOOST_AUTO_TEST_CASE( testClosestApproachInvalidInputAndConvergenceGuards )
+{
+    Eigen::Vector6d transmitter = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d receiver = Eigen::Vector6d::Zero( );
+    receiver( 0 ) = 1000.0;
+    const auto finiteState = []( const double ) -> Eigen::Vector6d {
+        Eigen::Vector6d result = Eigen::Vector6d::Zero( );
+        result( 1 ) = 100.0;
+        return result;
+    };
+    FirstOrderLightTimeCorrectionCalculator valid( { finiteState }, { []( ) { return 1.0e14; } },
+                                                  { "Body" }, "Transmitter", "Receiver" );
+    BOOST_CHECK_THROW( valid.calculateLightTimeCorrection( transmitter, receiver, 1.0, 0.0 ), std::invalid_argument );
+    BOOST_CHECK_THROW( valid.calculateLightTimeCorrection( transmitter, receiver, 0.0,
+                                                         std::numeric_limits< double >::infinity( ) ), std::invalid_argument );
+    const auto invalidState = []( const double ) -> Eigen::Vector6d {
+        return Eigen::Vector6d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
+    };
+    FirstOrderLightTimeCorrectionCalculator invalid( { invalidState }, { []( ) { return 1.0e14; } },
+                                                    { "Body" }, "Transmitter", "Receiver" );
+    BOOST_CHECK_THROW( invalid.calculateLightTimeCorrection( transmitter, receiver, 0.0, 10.0 ), std::runtime_error );
+    const auto nonconvergentState = []( const double epoch ) -> Eigen::Vector6d {
+        Eigen::Vector6d result = Eigen::Vector6d::Zero( );
+        result( 0 ) = 100.0 * epoch + ( epoch < 5.0 ? 100.0 : -100.0 );
+        result( 1 ) = 100.0;
+        return result;
+    };
+    FirstOrderLightTimeCorrectionCalculator nonconvergent( { nonconvergentState }, { []( ) { return 1.0e14; } },
+                                                          { "Body" }, "Transmitter", "Receiver" );
+    BOOST_CHECK_THROW( nonconvergent.calculateLightTimeCorrection( transmitter, receiver, 0.0, 10.0 ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

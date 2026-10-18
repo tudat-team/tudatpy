@@ -32,9 +32,13 @@ namespace observation_models
  *  Class to calculate first order relativistic light time correction (Shapiro time delay) due to a set of point masses.
  *  This class has the properties (mass and position) of the gravitating bodies as member variables. It receives the states
  *  and times of  receiver and transmitter as input each time a light time is to be calculated.
- *  NOTE: If the perturbing body is equal to the transmitting or receiving body, the transmission or reception time,
- *  respectively, are used to evaluate this perturbing body's state when computing the correction. For all other bodies,
- *  the mid-way point of the light time is used.
+ *  The forward correction evaluates each moving perturbing body at its closest approach to the straight photon
+ *  segment, bounded by transmission and reception, independently of body names. Zero-duration legs use transmission
+ *  time; a zero spatial segment with positive duration uses the midpoint as an explicit degenerate fallback.
+ *
+ *  This temporary forward light-time fix is validated for range and averaged Doppler. The position gradient retains
+ *  the existing fixed-perturber-epoch approximation and does not differentiate the selected epoch; the time partial
+ *  remains zero. It does NOT fix instantaneous Doppler or estimation derivatives (the separate PR1073 is not merged).
  */
 class FirstOrderLightTimeCorrectionCalculator : public LightTimeCorrection
 {
@@ -68,7 +72,8 @@ public:
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
 
-        // Check if perturbing body is transmitting/receiving body, and set evaluation time settings accordingly
+        // Retain the legacy fractions for class-layout/ABI compatibility only.
+        // The forward closest-approach policy and position-gradient body evaluation do not use them.
         for( unsigned int i = 0; i < perturbingBodyNames.size( ); i++ )
         {
             if( perturbingBodyNames.at( i ) == transmittingBody )
@@ -229,7 +234,7 @@ private:
      */
     std::function< double( ) > ppnParameterGammaFunction_;
 
-    //! List of values (between 0 and 1) of how far into the light-time the state of each perturbing body is to be evaluated.
+    //! Legacy link-name fractions retained for ABI; unused by forward closest-approach body evaluation.
     std::vector< double > lightTimeEvaluationContribution_;
 
     //! List of light-time correction due to each separate perturbing body, as computed by last call to

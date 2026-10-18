@@ -140,8 +140,13 @@ void expose_estimation_analysis_estimator( py::module& m )
          :type: :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
       )doc" )
             .def( "perform_estimation",
-                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::estimateParameters,
+                  []( tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >& estimator,
+                      std::shared_ptr< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > > input,
+                      const Eigen::VectorXd& aprioriParameterVector ) {
+                      return estimator.estimateParameters( input, aprioriParameterVector );
+                  },
                   py::arg( "estimation_input" ),
+                  py::arg( "apriori_parameter_vector" ) = Eigen::VectorXd::Zero( 0 ),
                   R"doc(
 
          Function to trigger the parameter estimation.
@@ -200,6 +205,12 @@ void expose_estimation_analysis_estimator( py::module& m )
          estimation_input : :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
              Object consolidating all relevant settings for the estimation
              This includes foremost the simulated observations, as well as a priori information about the estimatable parameters and convergence criteria for the least squares estimation.
+         apriori_parameter_vector : numpy.ndarray, optional
+             Fixed prior mean, independently of the current parameter vector used as the
+             initial guess. An empty vector preserves the original convention of centering
+             the prior on the starting vector. A nonempty vector requires
+             apply_apriori_parameter_deviation=True, must cover all estimated scalar
+             parameters, and must contain only finite values.
 
          Returns
          -------
