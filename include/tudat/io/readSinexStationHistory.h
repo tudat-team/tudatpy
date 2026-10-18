@@ -39,6 +39,9 @@ enum class SinexEpochMeaning { specified, unspecified, headerStartDefault, heade
 
 //! Epoch field of a SINEX file. An all-zero epoch is not a date; its meaning depends on the field it is in.
 struct SinexEpoch {
+    //! Text of the field in the file.
+    std::string original;
+
     //! Whether the field gives a date, or has one of the special meanings of an all-zero epoch.
     SinexEpochMeaning meaning = SinexEpochMeaning::unspecified;
 
