@@ -19,7 +19,6 @@ void expose_terrestrial_frames( pybind11::module& module )
 Enumeration of sign conventions for the rotation angles of a Helmert transformation.
 
       )doc" )
-            .value( "unspecified", io::HelmertRotationConvention::unspecified, "Convention not declared." )
             .value( "position_vector",
                     io::HelmertRotationConvention::positionVector,
                     "Rotation of the position vector (the convention of the IGN/ITRF tables)." )
@@ -45,36 +44,11 @@ Identification of a terrestrial reference frame realization (for instance ITRF20
          :type: str
       )doc" );
 
-    py::class_< io::TerrestrialFrameTransformationSource >( module, "TerrestrialFrameTransformationSource", R"doc(
-
-Description of the source of a table of terrestrial frame transformation parameters.
-
-      )doc" )
-            .def( py::init<>( ) )
-            .def_readwrite( "source", &io::TerrestrialFrameTransformationSource::source, R"doc(
-
-         Name of the file (or other source) of the table.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "source_release", &io::TerrestrialFrameTransformationSource::sourceRelease, R"doc(
-
-         Release of the table.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "source_sha256", &io::TerrestrialFrameTransformationSource::sourceSha256, R"doc(
-
-         SHA-256 checksum of the source file.
-
-         :type: str
-      )doc" );
-
     py::class_< io::TerrestrialFrameTransformationParameters >( module, "TerrestrialFrameTransformationParameters", R"doc(
 
 Parameters of a linearized (14-parameter) Helmert transformation between two terrestrial frame realizations.
 
-The parameters and their rates are stored in SI units; the units of the source are retained. The transformation is
+The parameters and their rates are stored in SI units. The transformation is
 evaluated with :func:`~tudatpy.astro.frame_conversion.evaluate_linearized_helmert`.
 
       )doc" )
@@ -136,76 +110,11 @@ evaluated with :func:`~tudatpy.astro.frame_conversion.evaluate_linearized_helmer
 
          :type: float
       )doc" )
-            .def_readwrite( "parameter_rate_year_seconds", &io::TerrestrialFrameTransformationParameters::parameterRateYearSeconds, R"doc(
-
-         Length of the year in which the source gives its rates, in seconds (a Julian year of 365.25 days). Rates are converted to SI with this value; it does not define a time scale.
-
-         :type: float
-      )doc" )
             .def_readwrite( "rotation_convention", &io::TerrestrialFrameTransformationParameters::rotationConvention, R"doc(
 
          Sign convention of the rotation angles.
 
          :type: HelmertRotationConvention
-      )doc" )
-            .def_readwrite( "original_translation_units", &io::TerrestrialFrameTransformationParameters::originalTranslationUnits, R"doc(
-
-         Units of the translation in the source.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "original_rotation_units", &io::TerrestrialFrameTransformationParameters::originalRotationUnits, R"doc(
-
-         Units of the rotation angles in the source.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "original_scale_units", &io::TerrestrialFrameTransformationParameters::originalScaleUnits, R"doc(
-
-         Units of the scale difference in the source.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "original_rate_time_units", &io::TerrestrialFrameTransformationParameters::originalRateTimeUnits, R"doc(
-
-         Time unit of the rates in the source.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "provenance", &io::TerrestrialFrameTransformationParameters::provenance, R"doc(
-
-         Source of the parameters.
-
-         :type: TerrestrialFrameTransformationSource
-      )doc" )
-            .def_readwrite( "original_parameter_line", &io::TerrestrialFrameTransformationParameters::originalParameterLine, R"doc(
-
-         Line of the source that gives the parameters, unmodified.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "original_rate_line", &io::TerrestrialFrameTransformationParameters::originalRateLine, R"doc(
-
-         Line of the source that gives the rates, unmodified.
-
-         :type: str
-      )doc" )
-            .def_readwrite( "parameter_source_line", &io::TerrestrialFrameTransformationParameters::parameterSourceLine, R"doc(
-
-         Line number of the parameters in the source.
-
-         :type: int
-      )doc" )
-            .def_readwrite( "rate_source_line", &io::TerrestrialFrameTransformationParameters::rateSourceLine, R"doc(
-
-         Line number of the rates in the source.
-
-         :type: int
-      )doc" )
-            .def( "validate", &io::validateTerrestrialFrameTransformationParameters, R"doc(
-
-         Check that the parameters are finite and consistent, and raise an exception if not.
-
       )doc" );
 
     py::class_< io::TerrestrialFrameTransformationData >( module, "TerrestrialFrameTransformationData", R"doc(
@@ -223,18 +132,6 @@ Objects of this class are created by :func:`read_terrestrial_frame_transformatio
          Common realization from which all parameters in the table transform.
 
          :type: TerrestrialFrameIdentity
-      )doc" )
-            .def_readwrite( "provenance", &io::TerrestrialFrameTransformationData::provenance, R"doc(
-
-         Source of the table.
-
-         :type: TerrestrialFrameTransformationSource
-      )doc" )
-            .def_readwrite( "source_headers", &io::TerrestrialFrameTransformationData::sourceHeaders, R"doc(
-
-         Header lines and notices of the source, unmodified.
-
-         :type: list[str]
       )doc" )
             .def_readwrite( "records", &io::TerrestrialFrameTransformationData::records, R"doc(
 
@@ -260,35 +157,25 @@ Objects of this class are created by :func:`read_terrestrial_frame_transformatio
          TerrestrialFrameTransformationParameters
              Parameters of the transformation from the reference realization to the target realization.
 
-      )doc" )
-            .def( "validate", &io::validateTerrestrialFrameTransformationData, R"doc(
-
-         Check that all records are valid and consistent with the reference realization, and raise an exception if not.
-
       )doc" );
 
     module.def( "read_terrestrial_frame_transformation_data",
-                py::overload_cast< const std::string&, const io::TerrestrialFrameTransformationSource& >(
-                        &io::readTerrestrialFrameTransformationData ),
+                py::overload_cast< const std::string& >( &io::readTerrestrialFrameTransformationData ),
                 py::arg( "file_path" ),
-                py::arg( "source" ) = io::TerrestrialFrameTransformationSource( ),
                 R"doc(
 
 Function to read a table of terrestrial frame transformation parameters.
 
 Function to read a table of terrestrial frame transformation parameters in the format published by IGN for the ITRF
-realizations (for instance ``Transfo-ITRF2020_TRFs.txt``). The units, the column order and the transformation equation
-declared in the file are checked. Translations, rotations, scale and their rates are converted to SI units, using a
-Julian year (365.25 days) for the rates. Malformed, non-finite, duplicated or truncated records raise an exception that
-gives the file and line.
+realizations (for instance ``Transfo-ITRF2020_TRFs.txt``), with translations in mm, scale in ppb and rotations in mas
+(position-vector convention), and their rates per year. Translations, rotations, scale and their rates are converted to
+SI units, using a Julian year (365.25 days) for the rates.
 
 
 Parameters
 ----------
 file_path : str
     Path of the file that is to be read.
-source : TerrestrialFrameTransformationSource, default = TerrestrialFrameTransformationSource()
-    Description of the source (release, checksum), which is stored with the parameters.
 
 Returns
 -------
