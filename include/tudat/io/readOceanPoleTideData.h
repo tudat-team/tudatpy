@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 #include <Eigen/Core>
-#include "tudat/io/readOceanLoadingData.h"
 
 namespace tudat
 {
@@ -28,18 +27,10 @@ struct OceanPoleTideGrid {
     //! Dimensionless coefficients per grid point, longitude varying fastest: rows radial, north, east; columns real and
     //! imaginary part.
     std::vector< Eigen::Matrix< double, 3, 2 > > coefficients;
-
-    //! Name of the file (or other source) and its header lines.
-    std::string source;
-    std::vector< std::string > sourceHeaders;
-
-    //! Origin of the reference frame of the coefficients.
-    OceanLoadingReferenceOrigin referenceOrigin = OceanLoadingReferenceOrigin::unspecified;
 };
 
-void validateOceanPoleTideGrid( const OceanPoleTideGrid& grid );
-
-//! Read the IERS eight-column plain-text format, retaining headers and origin declaration. No decompression is performed.
+//! Read the IERS eight-column plain-text format (header lines with the grid geometry, then longitude, latitude and the six
+//! coefficients per grid point). No decompression is performed.
 OceanPoleTideGrid readOceanPoleTideGrid( std::istream& stream, const std::string& source = "<stream>" );
 OceanPoleTideGrid readOceanPoleTideGrid( const std::string& filePath );
 

@@ -138,7 +138,6 @@ endif ()
 # Neutral environment readers compile once without links to dynamics models.
 set(environment_data_SOURCES
         "readEarthOrientationData.cpp"
-        "readOceanLoadingData.cpp"
         "readOceanPoleTideData.cpp"
         "readAtmosphericTideData.cpp"
         "readTerrestrialFrameTransformationData.cpp"
@@ -149,7 +148,6 @@ set(environment_data_SOURCES
 set(environment_data_HEADERS
         "textParsing.h"
         "readEarthOrientationData.h"
-        "readOceanLoadingData.h"
         "readOceanPoleTideData.h"
         "readAtmosphericTideData.h"
         "readTerrestrialFrameTransformationData.h"

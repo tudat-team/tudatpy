@@ -37,8 +37,6 @@ Functions
 
    ocean_tidal
 
-   ocean_tidal_from_data
-
    pole_tidal
 
    ocean_pole_tidal
@@ -62,8 +60,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.iers_2010_solid_body_tidal
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal
-
-.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal_from_data
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.pole_tidal
 

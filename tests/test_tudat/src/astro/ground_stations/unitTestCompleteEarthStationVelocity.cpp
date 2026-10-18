@@ -79,18 +79,15 @@ struct EarthStationFixture {
                 std::vector< std::function< double( ) > >{ []( ) { return 0.0123000371; }, []( ) { return 332946.0482; } },
                 6378136.6,
                 love );
-        input_output::OceanLoadingData oceanData;
-        input_output::OceanLoadingStation oceanStation;
-        oceanStation.stationIdentifier = "COMPLETE_VELOCITY";
+        std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > oceanData( 2 );
         for( int row = 0; row < 3; ++row )
         {
             for( int column = 0; column < 11; ++column )
             {
-                oceanStation.amplitudesMetres( row, column ) = 0.001 + 0.0002 * row + 0.0001 * column;
-                oceanStation.phaseLagsDegrees( row, column ) = 13.0 * column + 19.0 * row;
+                oceanData[ 0 ][ "COMPLETE_VELOCITY" ]( row, column ) = 0.001 + 0.0002 * row + 0.0001 * column;
+                oceanData[ 1 ][ "COMPLETE_VELOCITY" ]( row, column ) = ( 13.0 * column + 19.0 * row ) * mathematical_constants::PI / 180.0;
             }
         }
-        oceanData.stations.emplace( oceanStation.stationIdentifier, oceanStation );
         ocean = std::make_shared< OceanTideEarthDeformation >( oceanData, OceanTideSynthesis::iersHardisp, clock );
         pole = std::make_shared< PoleTideDeformation >( polar, clock );
         models = { solid, ocean, pole };
@@ -101,7 +98,7 @@ struct EarthStationFixture {
         auto shape = std::make_shared< OblateSpheroidBodyShapeModel >( 6378137.0, 1.0 / 298.257223563 );
         station = std::make_shared< GroundStationState >(
                 Eigen::Vector3d( 4075578.385, 931852.890, 4801570.154 ), coordinate_conversions::cartesian_position, shape, combined );
-        station->setSiteId( oceanStation.stationIdentifier );
+        station->setSiteId( "COMPLETE_VELOCITY" );
     }
     Eigen::Vector3d inertialPosition( const double t, const std::shared_ptr< ephemerides::GcrsToItrsRotationModel >& model ) const
     {

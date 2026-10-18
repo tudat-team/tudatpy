@@ -90,22 +90,19 @@ std::shared_ptr< earth_orientation::PolarMotionCalculator > routingPolar(
                 return converter->getUt1FromTai( tai );
             } );
 }
-input_output::OceanLoadingData routingOceanData( )
+std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > routingOceanData( )
 {
-    input_output::OceanLoadingData data;
+    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > data( 2 );
     for( const auto& fixture : hardispReferenceStations )
     {
-        input_output::OceanLoadingStation row;
-        row.stationIdentifier = fixture.identifier;
         for( int i = 0; i < 3; ++i )
         {
             for( int j = 0; j < 11; ++j )
             {
-                row.amplitudesMetres( i, j ) = fixture.coefficients[ i ][ j ];
-                row.phaseLagsDegrees( i, j ) = fixture.coefficients[ i + 3 ][ j ];
+                data[ 0 ][ fixture.identifier ]( i, j ) = fixture.coefficients[ i ][ j ];
+                data[ 1 ][ fixture.identifier ]( i, j ) = fixture.coefficients[ i + 3 ][ j ] * mathematical_constants::PI / 180.0;
             }
         }
-        data.stations.emplace( row.stationIdentifier, row );
     }
     return data;
 }

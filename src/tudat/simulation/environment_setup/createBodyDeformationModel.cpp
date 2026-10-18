@@ -15,17 +15,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Eagerly read BLQ inputs and combine them with the same provenance/duplicate rules as model append operations.
-OceanTideBodyDeformationSettings::OceanTideBodyDeformationSettings( const std::vector< std::string > blqFiles,
-                                                                    const basic_astrodynamics::OceanTideSynthesis synthesis ):
-    BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles ), synthesis_( synthesis )
-{
-    for( const auto& file : blqFiles )
-    {
-        input_output::appendOceanLoadingData( data_, input_output::readOceanLoadingData( file ) );
-    }
-}
-
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
         const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > lunarEphemeris,
@@ -350,9 +339,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 }
 
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                        oceanTideBodyDeformationSettings->getOceanLoadingData( ),
-                        oceanTideBodyDeformationSettings->getSynthesis( ),
-                        converter );
+                        oceanTideBodyDeformationSettings->getBlqFiles( ), oceanTideBodyDeformationSettings->getSynthesis( ), converter );
             }
             break;
         }

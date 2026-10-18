@@ -9,7 +9,6 @@
 
 // #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "tudat/io/readOceanLoadingData.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
@@ -43,7 +42,7 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
  *  The default IERS HARDISP convention expands the eleven provider coefficients to
  *  342 constituents using complex admittance interpolation (IERS section 7.1.2).
  *  The explicit legacy mode retains the former eleven-constituent Moyer synthesis.
- *  BLQ data are loaded before evaluation and retain their provider frame-origin metadata.
+ *  BLQ data are loaded at construction (or by addBlqFile).
  *  Native phase rates reject UTC offset steps/ambiguity in the current scalar-UTC
  *  representation. This is not a physical tide singularity. Explicit custom argument
  *  callbacks retain their own time basis and interval policy.
@@ -51,7 +50,7 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
 class OceanTideEarthDeformation : public BodyDeformationModel
 {
 public:
-    //! Filename adapters; all BLQ input occurs during construction or addBlqFile.
+    //! Constructor from BLQ files.
     OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
                                const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp,
                                const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
@@ -62,8 +61,8 @@ public:
         OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, synthesis, converter )
     {}
 
-    //! Construct from preloaded provider coefficients with no file access; empty data permits later append.
-    OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
+    //! Constructor from BLQ data, as returned by readBlqFile (amplitudes in metres and phase lags in radians per station).
+    OceanTideEarthDeformation( const std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > >& blqData,
                                const OceanTideSynthesis synthesis = OceanTideSynthesis::iersHardisp,
                                const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& converter = nullptr );
 
@@ -75,19 +74,18 @@ public:
         OceanTideEarthDeformation( std::vector< std::string >{ blqFile }, doodsonArgumentFunction )
     {}
 
-    //! Use an explicit legacy argument callback with preloaded coefficients or an initial empty station set.
-    OceanTideEarthDeformation( const input_output::OceanLoadingData& data,
-                               const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction );
+    //! Constructor from BLQ data with a custom argument function, using the legacy eleven constituents.
+    OceanTideEarthDeformation( const std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > >& blqData,
+                               const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction ):
+        OceanTideEarthDeformation( std::vector< std::string >( ), doodsonArgumentFunction )
+    {
+        addBlqData( blqData );
+    }
 
     void addBlqFile( const std::string& blqFile );
 
-    //! Add preloaded station data; duplicate station identifiers are rejected atomically.
-    void addOceanLoadingData( const input_output::OceanLoadingData& data );
-
-    const input_output::OceanLoadingData& getOceanLoadingData( ) const
-    {
-        return oceanLoadingData_;
-    }
+    //! Add BLQ data, as returned by readBlqFile; duplicate stations are rejected.
+    void addBlqData( const std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > >& blqData );
 
     OceanTideSynthesis getSynthesis( ) const
     {
@@ -142,9 +140,6 @@ private:
 
     //! Method used to compute the displacement from the coefficients.
     OceanTideSynthesis synthesis_;
-
-    //! Ocean loading coefficients of all stations.
-    input_output::OceanLoadingData oceanLoadingData_;
 
     //! Map containing site displacement amplitudes per tide.
     /*!

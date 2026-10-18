@@ -99,33 +99,17 @@ BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
     BOOST_CHECK_SMALL( ( icelandResults - icelandTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
 }
 
-//! Compare BLQ file construction, preloaded coefficients and appended loading data.
+//! Compare BLQ file construction and preloaded coefficients.
 BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
 {
     const std::string file = paths::getEarthDeformationDataFilesPath( ) + "/oceanTidetest.blq";
-    const auto data = input_output::readOceanLoadingData( file );
-    const auto compatibility = readBlqFile( file );
-    const auto& onsala = data.getStation( "ONSALA" );
-
-    // Compare BLQ file construction, preloaded coefficients and appended loading data.
-    BOOST_CHECK_EQUAL( compatibility[ 0 ].at( "ONSALA" )( 0, 0 ), 0.00352 );
-    BOOST_CHECK_SMALL( compatibility[ 1 ].at( "ONSALA" )( 0, 0 ) + 1.1292280260403312, 1.0E-14 );
-    BOOST_CHECK_EQUAL( onsala.phaseLagsDegrees( 0, 0 ), -64.7 );
-    const std::function< Eigen::Vector6d( const double ) > arguments = []( const double time ) {
-        return sofa_interface::calculateDoodsonFundamentalArguments( time );
-    };
-    OceanTideEarthDeformation fromFile( file, arguments );
-    OceanTideEarthDeformation preloaded( data, arguments );
-
-    // Both empty construction routes support later append while preserving provider station provenance.
-    OceanTideEarthDeformation initiallyEmpty( input_output::OceanLoadingData{}, arguments );
-
-    initiallyEmpty.addOceanLoadingData( data );
+    const auto data = readBlqFile( file );
+    BOOST_CHECK_EQUAL( data[ 0 ].at( "ONSALA" )( 0, 0 ), 0.00352 );
+    BOOST_CHECK_SMALL( data[ 1 ].at( "ONSALA" )( 0, 0 ) + 1.1292280260403312, 1.0E-14 );
+    OceanTideEarthDeformation fromFile( file ), preloaded( data );
     for( const double time : { 0.0, 1.0E8, 3.0E8 } )
     {
         BOOST_CHECK_SMALL( ( enuDisplacement( fromFile, time, "ONSALA" ) - enuDisplacement( preloaded, time, "ONSALA" ) ).norm( ),
-                           1.0E-14 );
-        BOOST_CHECK_SMALL( ( enuDisplacement( initiallyEmpty, time, "ONSALA" ) - enuDisplacement( preloaded, time, "ONSALA" ) ).norm( ),
                            1.0E-14 );
     }
 }
@@ -133,24 +117,22 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingCompatibilityAndPreloadedData )
 namespace
 {
 
-input_output::OceanLoadingData makeHardispReferenceData( )
+//! Amplitudes and phase lags (radians) of the pinned IERS HARDISP/ILRS reference stations.
+std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > makeHardispReferenceData( )
 {
-    input_output::OceanLoadingData data;
-    data.source = "Pinned IERS HARDISP/ILRS reference inputs";
+    std::vector< std::map< std::string, Eigen::Matrix< double, 3, 11 > > > data( 2 );
     for( const auto& reference : hardispReferenceStations )
     {
-        input_output::OceanLoadingStation station;
-        station.stationIdentifier = reference.identifier;
-        station.source = data.source;
+        auto& amplitudes = data[ 0 ][ reference.identifier ];
+        auto& phases = data[ 1 ][ reference.identifier ];
         for( int row = 0; row < 3; ++row )
         {
             for( int column = 0; column < 11; ++column )
             {
-                station.amplitudesMetres( row, column ) = reference.coefficients[ row ][ column ];
-                station.phaseLagsDegrees( row, column ) = reference.coefficients[ row + 3 ][ column ];
+                amplitudes( row, column ) = reference.coefficients[ row ][ column ];
+                phases( row, column ) = reference.coefficients[ row + 3 ][ column ] * mathematical_constants::PI / 180.0;
             }
         }
-        data.stations.emplace( station.stationIdentifier, station );
     }
     return data;
 }
@@ -240,16 +222,16 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingSphericalAndOblateGeometry )
 BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
 {
     auto data = makeHardispReferenceData( );
-    for( auto& station : data.stations )
+    for( auto& station : data[ 0 ] )
     {
-        station.second.amplitudesMetres.setZero( );
+        station.second.setZero( );
     }
     OceanTideEarthDeformation zero( data );
 
     // Check direct eleven-term synthesis and its zero-amplitude limit.
     checkOceanLoadingVector( enuDisplacement( zero, 1.0E8, "ONSALA" ), Eigen::Vector3d::Zero( ), 1.0E-15 );
-    data.stations.at( "ONSALA" ).amplitudesMetres( 0, 0 ) = 0.01;
-    data.stations.at( "ONSALA" ).phaseLagsDegrees( 0, 0 ) = 0.1 * 180.0 / mathematical_constants::PI;
+    data[ 0 ].at( "ONSALA" )( 0, 0 ) = 0.01;
+    data[ 1 ].at( "ONSALA" )( 0, 0 ) = 0.1;
     const std::function< Eigen::Vector6d( const double ) > arguments = []( const double ) {
         Eigen::Vector6d result = Eigen::Vector6d::Zero( );
         result( 0 ) = 0.25;
@@ -267,42 +249,24 @@ BOOST_AUTO_TEST_CASE( testOceanLoadingLegacyModeAndZeroAmplitudes )
             enuDisplacement( explicitLegacy, tdbFromTt( 1.0E8 ), "ONSALA" ), enuDisplacement( callbackLegacy, 1.0E8, "ONSALA" ), 1.0E-14 );
 }
 
-//! Compare factory-created ocean loading with the independent HARDISP displacement.
+//! Compare factory-created ocean loading with the directly created model.
 BOOST_AUTO_TEST_CASE( testOceanLoadingFactoriesConsumePreloadedData )
 {
-    const auto data = makeHardispReferenceData( );
+    const std::string file = paths::getEarthDeformationDataFilesPath( ) + "/oceanTidetest.blq";
     simulation_setup::SystemOfBodies bodies;
     bodies.createEmptyBody( "Earth" );
-
-    // Empty filename settings normalize to empty provider data, allowing station records to be appended later.
-    const auto emptySettings = simulation_setup::oceanTideBodyShapeDeformation( std::vector< std::string >{} );
-
-    const auto empty = std::dynamic_pointer_cast< OceanTideEarthDeformation >(
-            simulation_setup::createBodyDeformationModel( emptySettings, "Earth", bodies ) );
-
-    // Compare factory-created ocean loading with the independent HARDISP displacement.
-    BOOST_REQUIRE( empty != nullptr );
-    BOOST_CHECK( empty->getOceanLoadingData( ).stations.empty( ) );
-    empty->addOceanLoadingData( data );
-    BOOST_CHECK_EQUAL( empty->getOceanLoadingData( ).stations.size( ), data.stations.size( ) );
-    const auto fullSettings = simulation_setup::oceanTideBodyShapeDeformationFromData( data );
-    const auto full = std::dynamic_pointer_cast< OceanTideEarthDeformation >(
-            simulation_setup::createBodyDeformationModel( fullSettings, "Earth", bodies ) );
-    BOOST_REQUIRE( full != nullptr );
-    BOOST_CHECK( full->getSynthesis( ) == OceanTideSynthesis::iersHardisp );
-    const auto legacySettings =
-            simulation_setup::oceanTideBodyShapeDeformationFromData( data, OceanTideSynthesis::legacyElevenConstituents );
-    const auto legacy = std::dynamic_pointer_cast< OceanTideEarthDeformation >(
-            simulation_setup::createBodyDeformationModel( legacySettings, "Earth", bodies ) );
-    BOOST_REQUIRE( legacy != nullptr );
-    BOOST_CHECK( legacy->getSynthesis( ) == OceanTideSynthesis::legacyElevenConstituents );
-    const auto& reference = hardispReferenceCases[ 0 ];
-    const double utc = timeFromDecomposedDateTime< double >(
-            reference.year, reference.month, reference.day, reference.hour, reference.minute, reference.second );
-    const double tt = sofa_interface::convertUTCtoTT( utc );
-    const Eigen::Vector3d expected( -reference.upSouthWest[ 2 ], -reference.upSouthWest[ 1 ], reference.upSouthWest[ 0 ] );
-    checkOceanLoadingVector( enuDisplacement( *full, tdbFromTt( tt ), "ONSALA" ), expected, 1.0E-6 );
-    BOOST_CHECK_EQUAL( full->getOceanLoadingData( ).stations.size( ), data.stations.size( ) );
+    OceanTideEarthDeformation direct( file );
+    for( const auto synthesis : { OceanTideSynthesis::iersHardisp, OceanTideSynthesis::legacyElevenConstituents } )
+    {
+        const auto model = std::dynamic_pointer_cast< OceanTideEarthDeformation >( simulation_setup::createBodyDeformationModel(
+                simulation_setup::oceanTideBodyShapeDeformation( { file }, synthesis ), "Earth", bodies ) );
+        BOOST_REQUIRE( model != nullptr );
+        BOOST_CHECK( model->getSynthesis( ) == synthesis );
+        if( synthesis == OceanTideSynthesis::iersHardisp )
+        {
+            checkOceanLoadingVector( enuDisplacement( *model, 1.0E8, "ONSALA" ), enuDisplacement( direct, 1.0E8, "ONSALA" ), 1.0E-15 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -203,25 +203,11 @@ inline std::shared_ptr< OceanPoleTideBodyDeformationSettings > oceanPoleTideBody
 class OceanTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
-    //! Read and combine BLQ inputs now, retaining provenance and rejecting duplicate station identifiers.
     OceanTideBodyDeformationSettings(
             const std::vector< std::string > blqFiles,
-            const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp );
-
-    //! Copy BLQ amplitudes in metres and phase lags in degrees; empty data permits later model append.
-    OceanTideBodyDeformationSettings(
-            const input_output::OceanLoadingData& data,
             const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp ):
-        BodyDeformationSettings( gravitation::ocean_tide ), data_( data ), synthesis_( synthesis )
-    {
-        input_output::validateOceanLoadingData( data_, true );
-    }
-
-    //! Return BLQ station coefficients and their provider provenance.
-    const input_output::OceanLoadingData& getOceanLoadingData( ) const
-    {
-        return data_;
-    }
+        BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles ), synthesis_( synthesis )
+    {}
 
     //! Return the selected conventional or explicit legacy synthesis method.
     basic_astrodynamics::OceanTideSynthesis getSynthesis( ) const
@@ -229,18 +215,15 @@ public:
         return synthesis_;
     }
 
-    //! Return the BLQ files from which the data were read (empty for preloaded data).
+    //! Return the BLQ files with the ocean loading coefficients.
     std::vector< std::string > getBlqFiles( )
     {
         return blqFiles_;
     }
 
 protected:
-    //! BLQ files from which the data were read, if any.
+    //! BLQ files with the ocean loading coefficients.
     std::vector< std::string > blqFiles_;
-
-    //! BLQ coefficients, including provider headers and per-station source provenance.
-    input_output::OceanLoadingData data_;
 
     //! Synthesis convention applied when the environment constructs the model.
     basic_astrodynamics::OceanTideSynthesis synthesis_;
@@ -270,20 +253,11 @@ inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformat
     return std::make_shared< BodyDeformationSettings >( gravitation::iers_2010 );
 }
 
-//! Read one or more BLQ files at settings creation; later model creation uses only normalized station data.
 inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation(
         const std::vector< std::string > blqFiles,
         const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp )
 {
     return std::make_shared< OceanTideBodyDeformationSettings >( blqFiles, synthesis );
-}
-
-//! Construct ocean-loading settings from preloaded BLQ coefficients and source metadata.
-inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformationFromData(
-        const input_output::OceanLoadingData& data,
-        const basic_astrodynamics::OceanTideSynthesis synthesis = basic_astrodynamics::OceanTideSynthesis::iersHardisp )
-{
-    return std::make_shared< OceanTideBodyDeformationSettings >( data, synthesis );
 }
 
 inline std::shared_ptr< BodyDeformationSettings > poleTideBodyShapeDeformation( )

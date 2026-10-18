@@ -95,7 +95,6 @@ Eigen::Matrix< double, 3, 2 > interpolateOceanPoleTideCoefficients( const input_
                                                                     const double latitudeDegrees,
                                                                     const double longitudeDegrees )
 {
-    input_output::validateOceanPoleTideGrid( grid );
     return interpolateValidatedOceanPoleTideCoefficients( grid, latitudeDegrees, longitudeDegrees );
 }
 
@@ -104,7 +103,6 @@ OceanPoleTideDeformation::OceanPoleTideDeformation( const input_output::OceanPol
                                                     const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > converter ):
     BodyDeformationModel( converter ), grid_( grid ), polarMotionCalculator_( polarMotionCalculator )
 {
-    input_output::validateOceanPoleTideGrid( grid_ );
     if( !polarMotionCalculator_ )
     {
         throw std::runtime_error( "Ocean pole-tide loading requires a polar motion calculator" );

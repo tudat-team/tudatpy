@@ -484,30 +484,6 @@ BodyDeformationSettings
     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
 
 )doc" );
-
-    m.def( "ocean_tidal_from_data",
-           &tss::oceanTideBodyShapeDeformationFromData,
-           py::arg( "data" ),
-           py::arg( "synthesis" ) = tudat::basic_astrodynamics::OceanTideSynthesis::iersHardisp,
-           R"doc(
-
-Function for creating IERS 2010 ocean tide deformation model from BLQ data that has already been read.
-
-Same as :func:`ocean_tidal`, but using data read with :func:`~tudatpy.data_input.environment_data.ocean_loading.read_ocean_loading_data`.
-
-Parameters
-----------
-data : ~tudatpy.data_input.environment_data.ocean_loading.OceanLoadingData
-    Ocean tidal loading coefficients.
-synthesis : OceanTideSynthesis, default = OceanTideSynthesis.iers_hardisp
-    Method to compute the displacement from the BLQ constituents.
-
-Returns
--------
-BodyDeformationSettings
-    Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
-
-)doc" );
 }
 
 }  // namespace shape_deformation
