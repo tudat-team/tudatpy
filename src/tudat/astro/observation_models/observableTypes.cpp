@@ -1823,13 +1823,6 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
     {
         singleLinkStateEntries = observedObserverBodiesLinkStateEntries;
     }
-    else if( observableType == position_angle || observableType == separation_distance || observableType == position_angle_and_separation )
-    {
-        // Three-link-end observables: states stored as [transmitter, transmitter2, receiver]
-        singleLinkStateEntries[ transmitter ] = 0;
-        singleLinkStateEntries[ transmitter2 ] = 1;
-        singleLinkStateEntries[ receiver ] = 2;
-    }
     else
     {
         throw std::runtime_error( "Error when getting single link state entries, observable type " + getObservableName( observableType ) +

@@ -142,8 +142,7 @@ inline PositionAngleAndSeparationGeometryPartials calculatePositionAngleAndSepar
                                                                 secondLineOfSightPartialWrtReceiverVelocity );
     }
 
-    // This performs all physical singularity checks used by the observation model.
-    observation_models::calculatePositionAngleAndSeparation(
+    observation_models::checkPositionAngleGeometry< double >(
             firstLineOfSight, secondLineOfSight, northPoleDirection, calculatePositionAngle );
 
     const auto lineOfSightPartials = calculatePositionAngleAndSeparationPartialWrtLinesOfSight(
@@ -228,23 +227,29 @@ public:
      * \param firstAngularPositionPartial Angular-position partial for the link from first transmitter to receiver (may be nullptr).
      * \param secondAngularPositionPartial Angular-position partial for the link from second transmitter to receiver (may be nullptr).
      * \param j2000ToGlobalFrameTransformation Rotation from ICRF/J2000 to the frame of the link-end states.
-     * \param componentIndex Index of observable component (0: position angle, 1: separation, -1: both).
+     * \param observableType Observable type: position_angle or separation_distance (ObservationSize 1), or
+     * position_angle_and_separation (ObservationSize 2).
      * \param receiverStatePartial Partial of the receiver state w.r.t. the parameter, used for the receiver-velocity dependency of
      * stellar aberration (nullptr if the receiver state does not depend on the parameter).
      */
     PositionAngleAndSeparationPartial( const std::shared_ptr< ObservationPartial< 2 > > firstAngularPositionPartial,
                                        const std::shared_ptr< ObservationPartial< 2 > > secondAngularPositionPartial,
                                        const Eigen::Matrix3d& j2000ToGlobalFrameTransformation,
-                                       const int componentIndex,
+                                       const observation_models::ObservableType observableType,
                                        const std::shared_ptr< CartesianStatePartial > receiverStatePartial = nullptr ):
         ObservationPartial< ObservationSize >( getParameterIdentifier( firstAngularPositionPartial, secondAngularPositionPartial ) ),
         firstAngularPositionPartial_( firstAngularPositionPartial ), secondAngularPositionPartial_( secondAngularPositionPartial ),
-        j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation ), componentIndex_( componentIndex ),
-        receiverStatePartial_( receiverStatePartial )
+        j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation ),
+        calculatePositionAngle_( observableType != observation_models::separation_distance ),
+        firstComponent_( observableType == observation_models::separation_distance ? 1 : 0 ), receiverStatePartial_( receiverStatePartial )
     {
-        if( ( ObservationSize == 2 && componentIndex_ != -1 ) || ( ObservationSize == 1 && componentIndex_ != 0 && componentIndex_ != 1 ) )
+        if( ( ObservationSize == 2 && observableType != observation_models::position_angle_and_separation ) ||
+            ( ObservationSize == 1 && observableType != observation_models::position_angle &&
+              observableType != observation_models::separation_distance ) )
         {
-            throw std::runtime_error( "Invalid component requested for a position-angle and separation partial." );
+            throw std::runtime_error( "Invalid observable type " + observation_models::getObservableName( observableType ) +
+                                      " requested for a position-angle and separation partial of size " +
+                                      std::to_string( ObservationSize ) + "." );
         }
     }
 
@@ -268,7 +273,7 @@ public:
         // Match the observation model's frame convention at the receiver epoch.
         // The epoch is held fixed with respect to the estimated parameters here.
         Eigen::Vector3d referencePoleDirection = Eigen::Vector3d::UnitZ( );
-        if( componentIndex_ != 1 )
+        if( calculatePositionAngle_ )
         {
             referencePoleDirection = j2000ToGlobalFrameTransformation_ *
                     observation_models::getPositionAngleReferencePoleInJ2000( times.at( 2 ), ancillarySettings );
@@ -276,12 +281,11 @@ public:
         const bool applyStellarAberration = observation_models::getPositionAngleDirectionType( ancillarySettings ) ==
                 observation_models::aberrated_position_angle_direction;
         const PositionAngleAndSeparationGeometryPartials geometryPartials = calculatePositionAngleAndSeparationPartialWrtAngularPositions(
-                states, referencePoleDirection, componentIndex_ != 1, applyStellarAberration );
-        const int firstOutputRow = componentIndex_ < 0 ? 0 : componentIndex_;
+                states, referencePoleDirection, calculatePositionAngle_, applyStellarAberration );
         const Eigen::Matrix< double, ObservationSize, 2 > firstTransformation =
-                geometryPartials.partialWrtFirstAngularPosition.block( firstOutputRow, 0, ObservationSize, 2 );
+                geometryPartials.partialWrtFirstAngularPosition.block( firstComponent_, 0, ObservationSize, 2 );
         const Eigen::Matrix< double, ObservationSize, 2 > secondTransformation =
-                geometryPartials.partialWrtSecondAngularPosition.block( firstOutputRow, 0, ObservationSize, 2 );
+                geometryPartials.partialWrtSecondAngularPosition.block( firstComponent_, 0, ObservationSize, 2 );
 
         std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > partials;
         appendTransformedPartials( partials,
@@ -301,7 +305,7 @@ public:
         if( applyStellarAberration && receiverStatePartial_ != nullptr )
         {
             const Eigen::Matrix< double, ObservationSize, 3 > receiverVelocityTransformation =
-                    geometryPartials.partialWrtReceiverVelocity.block( firstOutputRow, 0, ObservationSize, 3 );
+                    geometryPartials.partialWrtReceiverVelocity.block( firstComponent_, 0, ObservationSize, 3 );
             partials.push_back( std::make_pair(
                     receiverVelocityTransformation * receiverStatePartial_->calculatePartialOfVelocity( states.at( 2 ), times.at( 2 ) ),
                     times.at( 2 ) ) );
@@ -348,7 +352,13 @@ private:
     std::shared_ptr< ObservationPartial< 2 > > firstAngularPositionPartial_;
     std::shared_ptr< ObservationPartial< 2 > > secondAngularPositionPartial_;
     Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
-    int componentIndex_;
+
+    //! Whether the position angle is part of the observable (false for separation-distance-only observables).
+    bool calculatePositionAngle_;
+
+    //! Index in [position angle; separation] of the first component of the observable.
+    int firstComponent_;
+
     std::shared_ptr< CartesianStatePartial > receiverStatePartial_;
 };
 

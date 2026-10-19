@@ -1206,53 +1206,6 @@ private:
     std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > secondDopplerModelSettings_;
 };
 
-//! Class for defining settings for position angle observation model.
-class PositionAngleObservationModelSettings : public ObservationModelSettings
-{
-public:
-    PositionAngleObservationModelSettings( const LinkDefinition linkEnds,
-                                           const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-                                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-                                           const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-                                           const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                                                   std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModelSettings( position_angle, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria )
-    {}
-};
-
-//! Class for defining settings for angular separation distance observation model.
-class SeparationObservationModelSettings : public ObservationModelSettings
-{
-public:
-    SeparationObservationModelSettings( const LinkDefinition linkEnds,
-                                        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-                                                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-                                        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-                                        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                                                std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModelSettings( separation_distance, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria )
-    {}
-};
-
-//! Class for defining settings for combined position angle and separation observation model.
-class PositionAngleAndSeparationObservationModelSettings : public ObservationModelSettings
-{
-public:
-    PositionAngleAndSeparationObservationModelSettings(
-            const LinkDefinition linkEnds,
-            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                    std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModelSettings( position_angle_and_separation,
-                                  linkEnds,
-                                  lightTimeCorrectionsList,
-                                  biasSettings,
-                                  lightTimeConvergenceCriteria )
-    {}
-};
-
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
@@ -1704,8 +1657,8 @@ inline std::shared_ptr< ObservationModelSettings > positionAngleSettings(
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                 std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
-    return std::make_shared< PositionAngleObservationModelSettings >(
-            linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria );
+    return std::make_shared< ObservationModelSettings >(
+            position_angle, linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > separationSettings(
@@ -1716,8 +1669,8 @@ inline std::shared_ptr< ObservationModelSettings > separationSettings(
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                 std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
-    return std::make_shared< SeparationObservationModelSettings >(
-            linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria );
+    return std::make_shared< ObservationModelSettings >(
+            separation_distance, linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > positionAngleAndSeparationSettings(
@@ -1728,8 +1681,8 @@ inline std::shared_ptr< ObservationModelSettings > positionAngleAndSeparationSet
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                 std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
-    return std::make_shared< PositionAngleAndSeparationObservationModelSettings >(
-            linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria );
+    return std::make_shared< ObservationModelSettings >(
+            position_angle_and_separation, linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria(

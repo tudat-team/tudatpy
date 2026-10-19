@@ -181,7 +181,7 @@ PositionSeparationModel createPositionSeparationModel( SystemOfBodies& bodies,
     linkEnds[ transmitter ] = std::make_pair( referenceBody, std::string( "" ) );
     linkEnds[ transmitter2 ] = std::make_pair( observedBody, std::string( "" ) );
     return ObservationModelCreator< 2, double, double >::createObservationModel(
-            std::make_shared< PositionAngleAndSeparationObservationModelSettings >( linkEnds ), bodies );
+            std::make_shared< ObservationModelSettings >( position_angle_and_separation, linkEnds ), bodies );
 }
 
 double convertUtcJulianDateToTdb( const double julianDate )
@@ -414,11 +414,11 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
 
     // Create observation settings for all three models
     std::shared_ptr< ObservationModelSettings > positionAngleSettings =
-            std::make_shared< PositionAngleObservationModelSettings >( linkEnds, lightTimeCorrectionSettings );
+            std::make_shared< ObservationModelSettings >( position_angle, linkEnds, lightTimeCorrectionSettings );
     std::shared_ptr< ObservationModelSettings > separationSettings =
-            std::make_shared< SeparationObservationModelSettings >( linkEnds, lightTimeCorrectionSettings );
+            std::make_shared< ObservationModelSettings >( separation_distance, linkEnds, lightTimeCorrectionSettings );
     std::shared_ptr< ObservationModelSettings > positionAngleAndSeparationSettings =
-            std::make_shared< PositionAngleAndSeparationObservationModelSettings >( linkEnds, lightTimeCorrectionSettings );
+            std::make_shared< ObservationModelSettings >( position_angle_and_separation, linkEnds, lightTimeCorrectionSettings );
 
     // Create observation models
     std::shared_ptr< ObservationModel< 1 > > positionAngleModel =

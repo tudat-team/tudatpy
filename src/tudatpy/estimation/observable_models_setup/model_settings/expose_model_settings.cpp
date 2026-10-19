@@ -1731,14 +1731,11 @@ Returns
 
 Function for creating settings for a position angle observable.
 
-Function for creating observation model settings of position angle type observables.
-It models the position-angle component :math:`\theta` of
-:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`, where the model and its
-literature references are described in detail.
-The reference pole (J2000/ICRF by default) and the choice of astrometric (default) or aberrated directions are not part of these
-model settings, but are set per observation set through ancillary settings created with
-:func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings` or
-:func:`~tudatpy.estimation.observations_setup.ancillary_settings.custom_position_angle_ancillary_settings`.
+Function for creating observation model settings of position angle type observables. This observable is the position angle
+:math:`\theta` of the second transmitter w.r.t. the first transmitter, as observed by the receiver, and is identical to the first
+entry of the :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` observable (where the model is described in detail).
+The north pole that is used to define the position angle, and the choice of astrometric or aberrated directions, are defined by
+the ancillary settings of the observations (see :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`).
 
 Parameters
 ----------
@@ -1770,15 +1767,13 @@ Returns
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an angular separation-distance observable.
+Function for creating settings for an angular separation observable.
 
-Function for creating observation model settings of angular separation-distance type observables.
-It returns the angular-separation component :math:`\rho` of
-:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`.
-Note that changing the position-angle reference frame, pole, or reference epoch does not change :math:`\rho`. The choice of
-astrometric (default) or aberrated directions does affect :math:`\rho`, and is set per observation set through ancillary settings
-created with :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings` (see
-:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` for details).
+Function for creating observation model settings of angular separation type observables. This observable is the angle
+:math:`\rho` between the directions from the receiver to the two transmitters, and is identical to the second entry of the
+:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` observable (where the model is described in detail).
+The choice of astrometric or aberrated directions is defined by the ancillary settings of the observations (see
+:func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`).
 
 Parameters
 ----------
@@ -1798,7 +1793,7 @@ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_
 Returns
 -------
 :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation-distance observable.
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation observable.
 
 )doc" );
 
@@ -1810,93 +1805,63 @@ Returns
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for a position-angle and separation-distance observable.
+Function for creating settings for a combined position angle and angular separation observable.
 
-Function for creating observation model settings of position-angle and separation-distance type observables.
-It returns :math:`\mathbf{h}=[\theta,\rho]^T`, where :math:`\theta` is the position angle of
-``transmitter2`` relative to ``transmitter`` and :math:`\rho` is their angular separation, both observed at ``receiver``.
-For reception epoch :math:`t_R`, each transmitter has its own retarded emission epoch :math:`t_i` found from its
-light-time equation, including any configured light-time corrections. With transmitter and receiver inertial states
-evaluated at those respective epochs, define
-
-.. math::
-
-    \mathbf{q}_i &= \mathbf{r}_i(t_i)-\mathbf{r}_R(t_R), \\
-    \mathbf{u}_i &= \mathbf{q}_i/\|\mathbf{q}_i\|, \qquad i\in\{1,2\}.
-
-By default these are astrometric directions. If stellar aberration is selected (through ancillary settings, see below), each
-:math:`\mathbf{u}_i` is first transformed using the inertial velocity of the receiver at :math:`t_R`. Writing
-:math:`\boldsymbol{\beta}_R=\mathbf{v}_R(t_R)/c`, with :math:`c` the speed of light:
-
-.. math::
-    a_i &= -\mathbf{u}_i\cdot\boldsymbol{\beta}_R
-           +\sqrt{1-\|\boldsymbol{\beta}_R\|^2
-                  +(\mathbf{u}_i\cdot\boldsymbol{\beta}_R)^2}, \\
-    \mathbf{u}_i &\longrightarrow a_i\mathbf{u}_i+\boldsymbol{\beta}_R.
-
-The right-hand side is the unit vector :math:`\mathbf{u}'_i` for which :math:`\mathbf{u}'_i-\boldsymbol{\beta}_R` is parallel to
-:math:`\mathbf{u}_i`: this is classical stellar aberration, which agrees with the special-relativistic transformation
-(e.g. Klioner, 2003) to first order in :math:`\|\boldsymbol{\beta}_R\|`. For an observer moving with the Earth, the two differ by
-at most about 0.5 mas in absolute direction, and much less in the separation and position angle of two nearby bodies.
-The aberrated option applies only stellar aberration: gravitational light deflection and atmospheric refraction are not applied,
-so it does not reproduce every reduction that may be implied by the label *apparent* for a given data set
-(see Desmars et al., 2009, and the example of Qiao et al., 1999, who publish apparent P/S with differential refraction removed but
-stellar aberration retained).
-
-Let :math:`\mathbf{n}` be the selected unit celestial north pole (default ICRF, can be modified through ancillary settings, see below) in the same frame as the states,
-and define local east and north at the first transmitter's line of sight by
+Function for creating observation model settings of combined position angle and angular separation type observables. This
+observable consists of the position angle :math:`\theta` of the second transmitter (``transmitter2``) w.r.t. the first transmitter
+(``transmitter``), and the angular separation :math:`\rho` between the two, as observed by the receiver. Each of the two
+transmitters has its own light-time solution (including any light-time corrections) to the receiver, which results in emission
+times :math:`t_{1}` and :math:`t_{2}` for a reception time :math:`t_{R}`. The (astrometric) directions from the receiver to the
+transmitters are then:
 
 .. math::
 
-    \mathbf{e} &= \frac{\mathbf{n}\times\mathbf{u}_1}{\|\mathbf{n}\times\mathbf{u}_1\|}, \\
-    \mathbf{m} &= \mathbf{u}_1\times\mathbf{e}.
+    \mathbf{u}_{i} = \frac{\mathbf{r}_{i}(t_{i})-\mathbf{r}_{R}(t_{R})}{||\mathbf{r}_{i}(t_{i})-\mathbf{r}_{R}(t_{R})||}, \qquad i=1,2
 
-The unbiased observables, in radians, are then:
+If aberrated directions are selected in the ancillary settings, these directions are corrected for (classical) stellar aberration,
+using the velocity :math:`\mathbf{v}_{R}` of the receiver at :math:`t_{R}`, with :math:`\boldsymbol{\beta}_{R}=\mathbf{v}_{R}/c`:
 
 .. math::
 
-    \theta &= \operatorname{atan2}(\mathbf{u}_2\cdot\mathbf{e},\mathbf{u}_2\cdot\mathbf{m}), \\
-    \rho &= \operatorname{atan2}(\|\mathbf{u}_1\times\mathbf{u}_2\|,\mathbf{u}_1\cdot\mathbf{u}_2).
+    a_{i} &= -\mathbf{u}_{i}\cdot\boldsymbol{\beta}_{R}+\sqrt{1-||\boldsymbol{\beta}_{R}||^{2}+(\mathbf{u}_{i}\cdot\boldsymbol{\beta}_{R})^{2}}\\
+    \mathbf{u}_{i} &\rightarrow a_{i}\mathbf{u}_{i}+\boldsymbol{\beta}_{R}
 
-:math:`\theta` is measured from north through east and has principal value :math:`[-\pi,\pi]`;
-:math:`\rho` lies in :math:`[0,\pi]`. These are spherical (great-circle) quantities; position angle and separation measured as
-polar coordinates in a calibrated (tangent-plane) image may require a different projection.
-Changing the celestial reference system of a position angle only changes the local north direction :math:`\mathbf{m}`, and leaves
-:math:`\rho` unchanged (Yuan et al., 2021).
+This gives the unit vector :math:`\mathbf{u}'_{i}` for which :math:`\mathbf{u}'_{i}-\boldsymbol{\beta}_{R}` is parallel to
+:math:`\mathbf{u}_{i}`. This classical model is equal to the relativistic model (e.g. Klioner, 2003) to first order in
+:math:`||\boldsymbol{\beta}_{R}||`; for an observer moving with the Earth, the difference in absolute direction is at most about 0.5 mas, and is
+much smaller for the position angle and separation of two nearby bodies. Only stellar aberration is applied: light deflection and
+atmospheric refraction are not included. Therefore, this option does not necessarily reproduce all corrections that are applied to
+observations that are labelled as *apparent* (see Desmars et al., 2009; for instance, Qiao et al., 1999, provide apparent position
+angles and separations from which differential refraction is removed, but stellar aberration is retained).
 
-**Selecting the reference pole and direction convention.** The observation model settings created by this function (and by
-:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle` and
-:func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance`) do *not* fix the reference pole, or the
-choice between astrometric and aberrated directions. Both are properties of the observations, and are chosen **per observation set**
-through its :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`, usually
-created by :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings` or
-:func:`~tudatpy.estimation.observations_setup.ancillary_settings.custom_position_angle_ancillary_settings`. Therefore, a single
-observation model can be used for data sets with different conventions:
+With :math:`\mathbf{n}` the unit vector along the north pole (by default the ICRF/J2000 pole), expressed in the same frame as
+the states, the east and north directions at the first transmitter are:
 
-* When simulating observations, provide the ancillary settings to the observation simulation settings, *e.g.* through the
-  ``ancillary_settings`` argument of
-  :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings`, or using
-  :func:`~tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable`.
-* When processing real observations, the ancillary settings must be stored in the observation set (*e.g.* through the
-  ``ancillary_settings`` argument of :func:`~tudatpy.estimation.observations.create_single_observation_set`), so that the
-  pre-fit residuals and partial derivatives are computed using the convention in which the data are given.
+.. math::
 
-If no such ancillary settings are provided, J2000/ICRF north and astrometric directions are used. The settings are:
+    \mathbf{e} &= \frac{\mathbf{n}\times\mathbf{u}_{1}}{||\mathbf{n}\times\mathbf{u}_{1}||}\\
+    \mathbf{m} &= \mathbf{u}_{1}\times\mathbf{e}
 
-* ``position_angle_reference_frame`` selects the pole (see
-  :class:`~tudatpy.estimation.observations_setup.ancillary_settings.PositionAngleReferenceFrame`): J2000/ICRF (default), B1950,
-  IAU 1976 or IAU 2006 mean-of-date, IAU 1976/1980 or IAU 2006/2000A true-of-date, or a custom pole. The date-dependent poles are
-  computed using SOFA. The B1950 option rotates only the pole, using the B1950-to-J2000 rotation defined by NAIF; it is not a
-  complete FK4 catalogue-coordinate transformation.
-* ``position_angle_custom_reference_pole`` supplies the pole vector in ICRF/J2000 coordinates for the custom choice.
-* ``position_angle_reference_epoch`` optionally fixes the TDB epoch used to evaluate a date-dependent pole; if absent,
-  the reception epoch is used. It does not change the observation time tag or light-time solution.
-* ``position_angle_direction_type`` selects astrometric (default) or aberrated directions (see
-  :class:`~tudatpy.estimation.observations_setup.ancillary_settings.PositionAngleDirectionType`).
+and the observable is computed as follows (in the unbiased case):
 
-The pole settings affect :math:`\theta` but not :math:`\rho`; the direction convention can affect both components. The partial
-derivatives of the observables account for the selected pole (which is kept fixed w.r.t. the estimated parameters), and for
-stellar aberration (including its dependence on the receiver velocity) when aberrated directions are selected.
+.. math::
+
+    \theta &= \operatorname{atan2}(\mathbf{u}_{2}\cdot\mathbf{e},\mathbf{u}_{2}\cdot\mathbf{m})\\
+    \rho &= \operatorname{atan2}(||\mathbf{u}_{1}\times\mathbf{u}_{2}||,\mathbf{u}_{1}\cdot\mathbf{u}_{2})
+
+The position angle is measured from north through east, in the range :math:`[-\pi,\pi]`, and the separation is in the range
+:math:`[0,\pi]` (both in radians). These are defined on the celestial sphere; position angles and separations that are measured
+as polar coordinates in a (tangent-plane) image may require a different projection. A change of the north pole only changes the
+direction :math:`\mathbf{m}`, so that the separation :math:`\rho` is not affected by it (Yuan et al., 2021).
+
+The north pole, and the choice of astrometric or aberrated directions, are not part of the observation model settings created by
+this function (or by :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle` and
+:func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance`). Instead, they are defined by the ancillary
+settings of each set of observations (see
+:func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`). If no such settings are
+defined, the ICRF/J2000 north pole and astrometric directions are used. The partial derivatives of the observable include the
+effect of the selected north pole (which is assumed independent of the estimated parameters) and, if aberrated directions are used,
+of stellar aberration (including its dependency on the receiver velocity).
 
 References
 ----------
@@ -1938,7 +1903,7 @@ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_
 Returns
 -------
 :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position-angle and separation-distance observable.
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the combined position angle and angular separation observable.
 
 )doc" );
 

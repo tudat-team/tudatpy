@@ -880,67 +880,27 @@ createPositionAngleAndSeparationPartials(
         throw std::runtime_error( "Concatenated position-angle and separation partials are not supported." );
     }
 
-    LinkEnds firstLinkEnds;
-    LinkEnds secondLinkEnds;
-    std::shared_ptr< LightTimeCalculator< ParameterType, TimeType > > firstLightTimeCalculator;
-    std::shared_ptr< LightTimeCalculator< ParameterType, TimeType > > secondLightTimeCalculator;
-    Eigen::Matrix3d j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( );
-    int componentIndex = -1;
-
-    switch( observationModel->getObservableType( ) )
+    const auto typedModel =
+            std::dynamic_pointer_cast< PositionAngleAndSeparationObservationModel< ObservationSize, ParameterType, TimeType > >(
+                    observationModel );
+    if( typedModel == nullptr )
     {
-        case position_angle: {
-            const auto typedModel =
-                    std::dynamic_pointer_cast< PositionAngleObservationModel< ParameterType, TimeType > >( observationModel );
-            if( typedModel == nullptr )
-            {
-                throw std::runtime_error( "Cannot create position-angle partials: observation model has an incompatible type." );
-            }
-            firstLinkEnds = typedModel->getFirstLinkEnds( );
-            secondLinkEnds = typedModel->getSecondLinkEnds( );
-            firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
-            secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
-            j2000ToGlobalFrameTransformation = typedModel->getJ2000ToGlobalFrameTransformation( );
-            componentIndex = 0;
-            break;
-        }
-        case separation_distance: {
-            const auto typedModel = std::dynamic_pointer_cast< SeparationObservationModel< ParameterType, TimeType > >( observationModel );
-            if( typedModel == nullptr )
-            {
-                throw std::runtime_error( "Cannot create separation-distance partials: observation model has an incompatible type." );
-            }
-            firstLinkEnds = typedModel->getFirstLinkEnds( );
-            secondLinkEnds = typedModel->getSecondLinkEnds( );
-            firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
-            secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
-            componentIndex = 1;
-            break;
-        }
-        case position_angle_and_separation: {
-            const auto typedModel =
-                    std::dynamic_pointer_cast< PositionAngleAndSeparationObservationModel< ParameterType, TimeType > >( observationModel );
-            if( typedModel == nullptr )
-            {
-                throw std::runtime_error(
-                        "Cannot create position-angle and separation partials: observation model has an incompatible type." );
-            }
-            firstLinkEnds = typedModel->getFirstLinkEnds( );
-            secondLinkEnds = typedModel->getSecondLinkEnds( );
-            firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
-            secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
-            j2000ToGlobalFrameTransformation = typedModel->getJ2000ToGlobalFrameTransformation( );
-            break;
-        }
-        default:
-            throw std::runtime_error( "Cannot create position-angle partials for observable " +
-                                      getObservableName( observationModel->getObservableType( ) ) + "." );
+        throw std::runtime_error( "Cannot create position-angle and/or separation partials for observable " +
+                                  getObservableName( observationModel->getObservableType( ) ) +
+                                  ": observation model has an incompatible type." );
     }
+    const std::pair< LinkEnds, LinkEnds > undifferencedLinkEnds =
+            getUndifferencedLinkEnds( observationModel->getObservableType( ), observationModel->getLinkEnds( ) );
+    const auto firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
+    const auto secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
+    const Eigen::Matrix3d j2000ToGlobalFrameTransformation = typedModel->getJ2000ToGlobalFrameTransformation( );
 
     const auto firstAngularPositionModel =
-            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( firstLinkEnds, firstLightTimeCalculator );
+            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( undifferencedLinkEnds.first,
+                                                                                            firstLightTimeCalculator );
     const auto secondAngularPositionModel =
-            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( secondLinkEnds, secondLightTimeCalculator );
+            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( undifferencedLinkEnds.second,
+                                                                                            secondLightTimeCalculator );
 
     const auto firstAngularPartials = ObservationPartialCreator< 2, ParameterType, TimeType >::createObservationPartials(
             firstAngularPositionModel, bodies, parametersToEstimate, true, isPartialForConcatenatedObservable );
@@ -974,7 +934,11 @@ createPositionAngleAndSeparationPartials(
             receiverStatePartial = getReceiverStatePartial( partial.second.second );
         }
         partials[ partial.first ] = std::make_shared< PositionAngleAndSeparationPartial< ObservationSize > >(
-                partial.second.first, partial.second.second, j2000ToGlobalFrameTransformation, componentIndex, receiverStatePartial );
+                partial.second.first,
+                partial.second.second,
+                j2000ToGlobalFrameTransformation,
+                observationModel->getObservableType( ),
+                receiverStatePartial );
     }
 
     // Biases acting on the final observable are not part of either angular-position leg.

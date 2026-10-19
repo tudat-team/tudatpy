@@ -232,12 +232,12 @@ BOOST_AUTO_TEST_CASE( testAberratedPositionAngleAndSeparationPartials )
     };
     for( const auto& ancillarySettings : ancillarySettingsList )
     {
-        checkAberratedPositionAngleAndSeparationPartials< 1 >( std::make_shared< PositionAngleObservationModelSettings >( linkEnds ),
+        checkAberratedPositionAngleAndSeparationPartials< 1 >( std::make_shared< ObservationModelSettings >( position_angle, linkEnds ),
                                                                ancillarySettings );
-        checkAberratedPositionAngleAndSeparationPartials< 1 >( std::make_shared< SeparationObservationModelSettings >( linkEnds ),
-                                                               ancillarySettings );
+        checkAberratedPositionAngleAndSeparationPartials< 1 >(
+                std::make_shared< ObservationModelSettings >( separation_distance, linkEnds ), ancillarySettings );
         checkAberratedPositionAngleAndSeparationPartials< 2 >(
-                std::make_shared< PositionAngleAndSeparationObservationModelSettings >( linkEnds ), ancillarySettings );
+                std::make_shared< ObservationModelSettings >( position_angle_and_separation, linkEnds ), ancillarySettings );
     }
 }
 
@@ -280,7 +280,8 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
             {
                 std::shared_ptr< ObservationModel< 1 > > positionAngleModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                                std::make_shared< observation_models::PositionAngleObservationModelSettings >(
+                                std::make_shared< observation_models::ObservationModelSettings >(
+                                        observation_models::position_angle,
                                         linkEnds,
                                         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
                                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
@@ -307,7 +308,8 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
             {
                 std::shared_ptr< ObservationModel< 1 > > separationModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                                std::make_shared< observation_models::SeparationObservationModelSettings >(
+                                std::make_shared< observation_models::ObservationModelSettings >(
+                                        observation_models::separation_distance,
                                         linkEnds,
                                         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
                                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
@@ -334,7 +336,8 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
             {
                 std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
                         observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-                                std::make_shared< observation_models::PositionAngleAndSeparationObservationModelSettings >(
+                                std::make_shared< observation_models::ObservationModelSettings >(
+                                        observation_models::position_angle_and_separation,
                                         linkEnds,
                                         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
                                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
@@ -373,7 +376,8 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
             {
                 std::shared_ptr< ObservationModel< 1 > > positionAngleModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                                std::make_shared< observation_models::PositionAngleObservationModelSettings >(
+                                std::make_shared< observation_models::ObservationModelSettings >(
+                                        observation_models::position_angle,
                                         linkEnds,
                                         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
                                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
@@ -400,7 +404,8 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
             {
                 std::shared_ptr< ObservationModel< 1 > > separationModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                                std::make_shared< observation_models::SeparationObservationModelSettings >(
+                                std::make_shared< observation_models::ObservationModelSettings >(
+                                        observation_models::separation_distance,
                                         linkEnds,
                                         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
                                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
@@ -427,7 +432,8 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
             {
                 std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
                         observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-                                std::make_shared< observation_models::PositionAngleAndSeparationObservationModelSettings >(
+                                std::make_shared< observation_models::ObservationModelSettings >(
+                                        observation_models::position_angle_and_separation,
                                         linkEnds,
                                         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
                                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
