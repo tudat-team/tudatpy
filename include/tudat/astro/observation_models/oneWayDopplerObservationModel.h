@@ -562,22 +562,11 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr ) override
     {
-        auto ancillarySetings = ancillarySettingsInput;
-        // Standalone models initialize their frequency here. Constituent legs use
-        // the frequency settings supplied by their parent observation model.
-        if( this->frequencyInterpolator_ != nullptr )
-        {
-            // Work on a copy, so that the frequencies set here do not leak into the caller's settings
-            ancillarySetings = ( ancillarySettingsInput == nullptr )
-                    ? std::make_shared< ObservationAncillarySimulationSettings >( )
-                    : std::make_shared< ObservationAncillarySimulationSettings >( *ancillarySettingsInput );
-            setTransmissionFrequency( getLightTimeCalculator( ),
-                                      this->timeScaleConverter_,
-                                      this->frequencyInterpolator_,
-                                      time,
-                                      linkEndAssociatedWithTime,
-                                      ancillarySetings );
-        }
+        // Standalone models set their frequency here; constituent legs (no frequency interpolator) use the frequencies
+        // set by their parent observation model.
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
+        this->setFrequencyProperties(
+                time, linkEndAssociatedWithTime, getLightTimeCalculator( ), ancillarySettingsInput, ancillarySetings );
 
         this->getFullLinkLightTimeCalculatorFromBase( )->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );

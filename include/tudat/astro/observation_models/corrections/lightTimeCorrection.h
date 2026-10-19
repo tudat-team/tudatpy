@@ -175,23 +175,6 @@ protected:
         return ( isDownlinkOfTwoWayLink_ && currentMultiLegTransmitterIndex == 0 ) ? 2 : currentMultiLegTransmitterIndex;
     }
 
-    /*!
-     * Function to retrieve the forward and backward perturbations of the link end time used to numerically compute the
-     * partial of the light-time correction w.r.t. link end time. By default, both are equal to timePerturbation_.
-     * Derived classes for which the correction is discontinuous in time (e.g. at the boundaries of tabulated data)
-     * should override this function, such that the perturbed times do not cross a discontinuity.
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Pair with forward (first) and backward (second) time perturbation (both non-negative)
-     */
-    virtual std::pair< double, double > getLinkEndTimePerturbations( const double transmissionTime,
-                                                                     const double receptionTime,
-                                                                     const LinkEndType linkEndAtWhichPartialIsEvaluated )
-    {
-        return std::make_pair( timePerturbation_, timePerturbation_ );
-    }
-
     void getTransmissionReceptionTimesAndStates( const std::vector< Eigen::Vector6d >& linkEndsStatesInput,
                                                  const std::vector< double >& linkEndsTimesInput,
                                                  const unsigned int currentMultiLegTransmitterIndex,

@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <tuple>
-
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 
 namespace tudat
@@ -24,8 +22,6 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
     switch( lightTimeCorrectionType )
     {
         case first_order_relativistic:
-        // Custom corrections receive the ancillary settings, but are not assumed to require frequencies
-        case function_wrapper_light_time_correction:
         case tabulated_tropospheric:
         case saastamoinen_tropospheric:
         case vmf3_tropospheric:
@@ -103,39 +99,29 @@ double LightTimeCorrection::calculateLightTimeCorrectionPartialDerivativeWrtLink
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
-    // Perturbations may be asymmetric (or one-sided) to avoid crossing discontinuities in the correction
-    double upTimePerturbation, downTimePerturbation;
-    std::tie( upTimePerturbation, downTimePerturbation ) =
-            getLinkEndTimePerturbations( transmissionTime, receptionTime, linkEndAtWhichPartialIsEvaluated );
-    if( !( upTimePerturbation + downTimePerturbation > 0.0 ) )
-    {
-        upTimePerturbation = timePerturbation_;
-        downTimePerturbation = timePerturbation_;
-    }
-
     double upPerturbedCorrection = 0.0, downPerturbedCorrection = 0.0;
     if( ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
     {
-        double upPerturbedTransmissionTime = transmissionTime + upTimePerturbation;
+        double upPerturbedTransmissionTime = transmissionTime + timePerturbation_;
         upPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, upPerturbedTransmissionTime, receptionTime, ancillarySettings );
 
-        double downPerturbedTransmissionTime = transmissionTime - downTimePerturbation;
+        double downPerturbedTransmissionTime = transmissionTime - timePerturbation_;
         downPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime, ancillarySettings );
     }
     else if( ( linkEndAtWhichPartialIsEvaluated == receiver ) )
     {
-        double upPerturbedReceptionTime = receptionTime + upTimePerturbation;
+        double upPerturbedReceptionTime = receptionTime + timePerturbation_;
         upPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, transmissionTime, upPerturbedReceptionTime, ancillarySettings );
 
-        double downPerturbedReceptionTime = receptionTime - downTimePerturbation;
+        double downPerturbedReceptionTime = receptionTime - timePerturbation_;
         downPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, transmissionTime, downPerturbedReceptionTime, ancillarySettings );
     }
 
-    return ( upPerturbedCorrection - downPerturbedCorrection ) / ( upTimePerturbation + downTimePerturbation );
+    return ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * timePerturbation_ );
 }
 
 /*!
@@ -159,10 +145,9 @@ Eigen::Matrix< double, 3, 1 > LightTimeCorrection::calculateLightTimeCorrectionP
 {
     Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
 
-    // Scale perturbation with link length, not with (barycentric) link end position, which would be orders of magnitude
-    // too large for the link geometry (e.g. elevation) of near-Earth links
-    double positionPerturbation =
-            positionRelativePerturbation_ * ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ).norm( );
+    double positionPerturbation = ( linkEndAtWhichPartialIsEvaluated == receiver )
+            ? ( positionRelativePerturbation_ * receiverState.segment( 0, 3 ).norm( ) )
+            : ( positionRelativePerturbation_ * transmitterState.segment( 0, 3 ).norm( ) );
 
     Eigen::Vector6d perturbedState;
     for( int i = 0; i < 3; i++ )
