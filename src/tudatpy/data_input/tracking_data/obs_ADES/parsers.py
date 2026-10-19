@@ -694,7 +694,7 @@ def parse_ades_file(file_path: str):  # -> Table:
 
     result_data_optical = pd.DataFrame()
     result_data_radar = pd.DataFrame()
-    result_data_occultations = pd.DataFrame()
+    result_data_occultation = pd.DataFrame()
     result_data_offset = pd.DataFrame()
 
     for obs_kind, rows in rows_by_kind.items():
