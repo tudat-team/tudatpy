@@ -137,7 +137,10 @@ class SBDBquery:
     _KM_S_TO_M_S = (u.km / u.s, u.m / u.s)
     _AU_D2_TO_M_S2 = (u.au / u.d**2, u.m / u.s**2)
 
-    # SBDB field -> (unit used by the SBDB, tudat SI unit)
+    # SBDB field -> (unit of the field in the SBDB API, tudat SI unit)
+    # The SBDB units are those of the SBDB API (https://ssd-api.jpl.nasa.gov/doc/sbdb.html): documented there for
+    # moid, moid_jup, q and the close approach fields, and given in the units entry of each API response for GM,
+    # diameter, A1, A2, A3 and DT
     field_units = {
         "moid": _AU_TO_M,
         "moid_jup": _AU_TO_M,
@@ -511,8 +514,12 @@ class SBDBquery:
         return {key: values[mask] for key, values in close_approach_data.items()}
 
     def _to_si(self, name, value):
-        """Convert an SBDB field to SI units. astroquery does not always attach units (e.g. ``dist``,
-        ``unc_angle``, or columns with missing entries), in which case the SBDB unit from ``field_units`` is assumed.
+        """Convert an SBDB field to SI units.
+
+        astroquery attaches units only to some fields: ``dist`` and ``unc_angle`` always arrive as plain floats, and
+        so does any close approach column with a missing entry. For these, the unit the SBDB API uses for the field
+        is taken from ``field_units``. When astroquery does attach a unit, the conversion uses it, and fails if it
+        is incompatible with the SI unit.
         """
         sbdb_unit, si_unit = self.field_units[name]
         if not isinstance(value, u.Quantity):
