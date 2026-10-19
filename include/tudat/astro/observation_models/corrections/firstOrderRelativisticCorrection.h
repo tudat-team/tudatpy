@@ -27,14 +27,6 @@ namespace tudat
 namespace observation_models
 {
 
-//! Epoch at which the state of a perturbing body is evaluated in the first-order relativistic light-time correction
-enum PerturbingBodyEvaluationEpoch {
-    //! Transmission (reception) time if the perturbing body is the transmitter (receiver), light-time midpoint otherwise
-    link_end_or_light_time_midpoint,
-    //! Time of closest approach of the perturbing body to the (straight-line) signal path, within the light-time leg
-    closest_approach_to_signal
-};
-
 //! Class to calculate first order relativistic light time correction (Shapiro time delay) due to a set of point masses.
 /*!
  *  Class to calculate first order relativistic light time correction (Shapiro time delay) due to a set of point masses.
@@ -42,8 +34,8 @@ enum PerturbingBodyEvaluationEpoch {
  *  and times of  receiver and transmitter as input each time a light time is to be calculated.
  *  NOTE: If the perturbing body is equal to the transmitting or receiving body, the transmission or reception time,
  *  respectively, are used to evaluate this perturbing body's state when computing the correction. For all other bodies,
- *  the mid-way point of the light time is used (link_end_or_light_time_midpoint). Alternatively, the state of each
- *  perturbing body can be evaluated at its closest approach to the signal path (closest_approach_to_signal).
+ *  the mid-way point of the light time is used. Alternatively (computeMassiveBodyAtClosestApproach), the state of each
+ *  perturbing body can be evaluated at its closest approach to the signal path, within the light-time leg.
  *  NOTE: in either case, the partial derivatives do not account for the dependency of the evaluation epoch on the link
  *  end states.
  */
@@ -63,7 +55,8 @@ public:
      *  \param ppnParameterGammaFunction Function returning the parametric post-Newtonian parameter gamma, a measure
      *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
      *  \param useBending Boolean flag to determine if light bending should be included.
-     *  \param evaluationEpoch Epoch at which the perturbing body states are evaluated
+     *  \param computeMassiveBodyAtClosestApproach Boolean denoting whether the perturbing body states are evaluated at their
+     *  closest approach to the signal path (instead of the link end or light-time midpoint)
      */
     FirstOrderLightTimeCorrectionCalculator(
             const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
@@ -73,11 +66,11 @@ public:
             const std::string receivingBody,
             const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; },
             const bool useBending = false,
-            const PerturbingBodyEvaluationEpoch evaluationEpoch = link_end_or_light_time_midpoint ):
+            const bool computeMassiveBodyAtClosestApproach = false ):
         LightTimeCorrection( first_order_relativistic ), perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
         perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), useBending_( useBending ),
-        evaluationEpoch_( evaluationEpoch )
+        computeMassiveBodyAtClosestApproach_( computeMassiveBodyAtClosestApproach )
     {
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
@@ -226,9 +219,9 @@ public:
         return useBending_;
     }
 
-    PerturbingBodyEvaluationEpoch getEvaluationEpoch( )
+    bool getComputeMassiveBodyAtClosestApproach( )
     {
-        return evaluationEpoch_;
+        return computeMassiveBodyAtClosestApproach_;
     }
 
 private:
@@ -268,8 +261,8 @@ private:
     //! Boolean flag to determine if light bending should be included.
     bool useBending_;
 
-    //! Epoch at which the perturbing body states are evaluated
-    PerturbingBodyEvaluationEpoch evaluationEpoch_;
+    //! Boolean denoting whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool computeMassiveBodyAtClosestApproach_;
 };
 
 }  // namespace observation_models

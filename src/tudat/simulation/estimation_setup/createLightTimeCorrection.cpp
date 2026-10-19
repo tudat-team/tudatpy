@@ -96,7 +96,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                         receiver.bodyName_,
                         std::bind( &relativity::PPNParameterSet::getParameterGamma, ppnParameterSet ),
                         relativisticCorrectionSettings->getBendingFlag( ),
-                        relativisticCorrectionSettings->getEvaluationEpoch( ) );
+                        relativisticCorrectionSettings->getComputeMassiveBodyAtClosestApproach( ) );
             }
             else
             {
