@@ -3551,20 +3551,10 @@ bool
                     R"doc(
             **read-only**
 
-            Orientation of the camera, including the current :attr:`~Camera.pointing_correction`. Returns a 4x1
-            numpy array [w, x, y, z].
-            )doc" )
-            .def_property_readonly(
-                    "nominal_quaternion",
-                    []( const tsm::Camera& self ) -> Eigen::Vector4d {
-                        Eigen::Quaterniond q = self.getNominalRotationFromBodyFixedToCameraFrame( );
-                        return tudat::linear_algebra::convertQuaternionToVectorFormat( q );
-                    },
-                    R"doc(
-            **read-only**
-
-            Orientation of the camera, excluding the current :attr:`~Camera.pointing_correction`. Returns a 4x1
-            numpy array [w, x, y, z].
+            Orientation of the camera w.r.t. its host body, including the current :attr:`~Camera.pointing_correction`.
+            Returns a 4x1 numpy array [w, x, y, z]. For a camera with picture-specific pointing (such as the cameras
+            created from SUM files), the orientation is defined directly w.r.t. the inertial frame, and this property
+            only contains the pointing correction.
             )doc" )
             .def_property( "pointing_correction",
                            &tsm::Camera::getPointingCorrection,

@@ -308,7 +308,7 @@ public:
         }
     }
 
-    bool isVelocityScalingNonZero( )
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return true;
     }
@@ -353,9 +353,9 @@ public:
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > getLinkIndependentPartials(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
 
-    bool useLinkIndependentPartials( )
+    bool useLinkIndependentPartials( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
     {
-        return ( transmitterProperTimePartials_ != nullptr ) || ( receiverProperTimePartials_ != nullptr );
+        return getProperTimeParameterDependencySize( parameterIdentifier ) != 0;
     }
 
     virtual bool useLightTimeGradientPartials( )
@@ -542,7 +542,7 @@ public:
         return currentTransmittedFrequency_ * oneWayDopplerScaling_->getLightTimeGradientPartialScalingFactor( linkEndType );
     }
 
-    bool isVelocityScalingNonZero( )
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return true;
     }
@@ -578,9 +578,9 @@ public:
         return dopplerPartials;
     }
 
-    bool useLinkIndependentPartials( )
+    bool useLinkIndependentPartials( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
     {
-        return oneWayDopplerScaling_->useLinkIndependentPartials( );
+        return oneWayDopplerScaling_->useLinkIndependentPartials( parameterIdentifier );
     }
 
     virtual bool useLightTimeGradientPartials( )

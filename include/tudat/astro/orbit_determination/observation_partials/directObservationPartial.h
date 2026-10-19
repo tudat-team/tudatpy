@@ -118,8 +118,7 @@ public:
 
             if( !fixLinkEndTime_ )
             {
-                if( positionPartialScaler_->isVelocityScalingNonZero( ) &&
-                    !positionPartialScaler_->getVelocityScalingFactor( positionPartialIterator_->first ).isZero( 0.0 ) )
+                if( positionPartialScaler_->isVelocityScalingNonZero( positionPartialIterator_->first ) )
                 {
                     // Scale position partials
                     returnPartial.push_back( std::make_pair(
@@ -140,8 +139,7 @@ public:
             }
             else
             {
-                if( positionPartialScaler_->isVelocityScalingNonZero( ) &&
-                    !positionPartialScaler_->getFixedTimeVelocityScalingFactor( positionPartialIterator_->first ).isZero( 0.0 ) )
+                if( positionPartialScaler_->isVelocityScalingNonZero( positionPartialIterator_->first ) )
                 {
                     // Scale position partials
                     returnPartial.push_back( std::make_pair(
@@ -223,7 +221,7 @@ public:
 
     virtual bool useLinkIndependentPartials( )
     {
-        return positionPartialScaler_->hasLinkIndependentPartial( this->parameterIdentifier_ );
+        return positionPartialScaler_->useLinkIndependentPartials( this->parameterIdentifier_ );
     }
 
     observation_models::ObservableType getObservableType( )

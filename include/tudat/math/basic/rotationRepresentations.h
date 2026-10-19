@@ -107,19 +107,6 @@ inline Eigen::Quaterniond getQuaternionFromRotationVector( const Eigen::Vector3d
     return Eigen::Quaterniond( Eigen::AngleAxisd( rotationAngle, rotationVector / rotationAngle ) );
 }
 
-//! Get rotation vector from associated quaternion (logarithmic map of SO(3))
-/*!
- * Get the rotation vector associated with quaternion q, i.e. the inverse of getQuaternionFromRotationVector.
- * The returned vector has the rotation axis as its direction and the rotation angle (in radians, in [0, pi])
- * as its norm.
- * \param quaternion Quaternion for which the equivalent rotation vector is to be computed.
- * \return Rotation vector defining same rotation as quaternion
- */
-inline Eigen::Vector3d getRotationVectorFromQuaternion( const Eigen::Quaterniond& quaternion )
-{
-    const Eigen::AngleAxisd angleAxis( quaternion.normalized( ) );
-    return angleAxis.angle( ) * angleAxis.axis( );
-}
 }  // namespace basic_mathematics
 
 }  // namespace tudat

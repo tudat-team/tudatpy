@@ -16,10 +16,8 @@ and converting it to objects that Tudat can process further. See also
 better understanding what data is being loaded before it is processed into
 Tudat-compatible objects.
 
-Repeated measurements of the same landmark in the same image are loaded once
-when their pixel coordinates agree. Conflicting coordinates, image metadata,
-or landmark definitions raise an error. This also applies when converting raw
-data directly with :func:`convert_raw_sum_lmk_data`.
+Each image and each landmark may be provided only once; a repeated image or
+landmark ID raises an error.
 
 .. currentmodule:: tudatpy.data_input.tracking_data.sum_lmk
 

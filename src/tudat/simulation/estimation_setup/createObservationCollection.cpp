@@ -781,7 +781,7 @@ void setReferencePointSupplementaryDataInBodies(
         {
             const Eigen::Vector3d existingPosition =
                     body->getGroundStation( referencePointName )->getNominalStationState( )->getNominalCartesianPosition( );
-            if( ( existingPosition - position ).norm( ) > 1.0E-9 * std::max( 1.0, position.norm( ) ) )
+            if( !existingPosition.isApprox( position ) )
             {
                 throw std::runtime_error( "Error when setting reference point supplementary data in body " + bodyName +
                                           ": reference point " + referencePointName + " already exists at a different position." );

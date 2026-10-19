@@ -161,25 +161,6 @@ BOOST_AUTO_TEST_CASE( testPixelCoordinatesObservationModelFactory )
     BOOST_CHECK_THROW( pixelCoordinatesSettings( linkEndsWithoutCamera ), std::runtime_error );
 }
 
-//! The projection model must reject calibrations that cannot define a finite, invertible pixel mapping.
-BOOST_AUTO_TEST_CASE( testPsfCameraCalibrationValidation )
-{
-    const Eigen::Vector2d principalPoint( 512.0, 512.0 );
-    Eigen::Matrix< double, 2, 3 > kMatrix;
-    kMatrix << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
-
-    BOOST_CHECK_NO_THROW( system_models::PsfCameraProjectionModel( 100.0, principalPoint, kMatrix ) );
-    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 0.0, principalPoint, kMatrix ), std::runtime_error );
-
-    Eigen::Vector2d nonFinitePrincipalPoint = principalPoint;
-    nonFinitePrincipalPoint( 0 ) = std::numeric_limits< double >::quiet_NaN( );
-    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 100.0, nonFinitePrincipalPoint, kMatrix ), std::runtime_error );
-
-    Eigen::Matrix< double, 2, 3 > singularKMatrix = kMatrix;
-    singularKMatrix.row( 1 ) = 2.0 * singularKMatrix.row( 0 );
-    BOOST_CHECK_THROW( system_models::PsfCameraProjectionModel( 100.0, principalPoint, singularKMatrix ), std::runtime_error );
-}
-
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

@@ -2177,9 +2177,9 @@ EstimatableParameterSettings
 
  Function for creating parameter settings for a per-image camera pointing correction.
 
- Function for creating parameter settings object for a 3-vector small-angle pointing correction of a
- camera registered on a body (e.g. one ``Camera_<imageId>`` per SPC SUM image). All pixel-coordinate
- observations sharing that camera share this correction. Using it as estimatable parameter requires:
+ Function for creating parameter settings object for a pointing correction of a camera registered on a
+ body (e.g. one ``Camera_<imageId>`` per SPC SUM image), represented as a rotation vector (axis times angle,
+ in radians) in the camera frame. All pixel-coordinate observations sharing that camera share this correction. Using it as estimatable parameter requires:
 
  * The body to carry a ``VehicleSystems`` with the named camera.
  * At least one pixel-coordinate observation model to rely on the specified camera.
@@ -2191,6 +2191,7 @@ EstimatableParameterSettings
      Body name identifying the body (spacecraft) carrying the camera.
  camera_name : str
      Name which identifies the camera whose pointing is corrected.
+
  Returns
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`

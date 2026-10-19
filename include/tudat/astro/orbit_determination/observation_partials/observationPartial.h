@@ -99,7 +99,8 @@ public:
         return observableType_;
     }
 
-    virtual bool isVelocityScalingNonZero( )
+    //! Whether the velocity of the given link end contributes to the observable.
+    virtual bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return false;
     }
@@ -107,17 +108,8 @@ public:
     virtual std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > getLinkIndependentPartials(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
     {
-        if( useLinkIndependentPartials( ) == false )
-        {
-            throw std::runtime_error( "Error when getting link independent partials of observable type " +
-                                      observation_models::getObservableName( observableType_ ) + ", no such model is defined." );
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting link independent partials of observable type " +
-                                      observation_models::getObservableName( observableType_ ) +
-                                      ", derived class model is not implemented." );
-        }
+        throw std::runtime_error( "Error when getting link independent partials of observable type " +
+                                  observation_models::getObservableName( observableType_ ) + ", no such model is defined." );
     }
 
     virtual Eigen::Matrix< double, ObservationSize, 3 > getLightTimeGradientPartialScalingFactor(
@@ -127,15 +119,10 @@ public:
                                   observation_models::getObservableName( observableType_ ) + ", derived class model is not implemented." );
     }
 
-    virtual bool useLinkIndependentPartials( )
+    //! Whether the observable has a contribution w.r.t. the given parameter that is independent of the link-end positions.
+    virtual bool useLinkIndependentPartials( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
     {
         return false;
-    }
-
-    //! Whether a particular parameter has a contribution independent of the link-end positions.
-    virtual bool hasLinkIndependentPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
-    {
-        return useLinkIndependentPartials( );
     }
 
     virtual bool useLightTimeGradientPartials( )

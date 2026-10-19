@@ -144,7 +144,8 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
     currentLinkEndType_ = fixedLinkEnd;
 }
 
-bool PixelCoordinatesScaling::hasLinkIndependentPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
+bool PixelCoordinatesScaling::useLinkIndependentPartials(
+        const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
 {
     return ( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ ) ||
             ( parameterIdentifier.second.first == pointingReferenceBodyName_ &&
@@ -154,7 +155,7 @@ bool PixelCoordinatesScaling::hasLinkIndependentPartial( const estimatable_param
 std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > PixelCoordinatesScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
 {
-    if( !hasLinkIndependentPartial( parameterIdentifier ) )
+    if( !useLinkIndependentPartials( parameterIdentifier ) )
     {
         return {};
     }

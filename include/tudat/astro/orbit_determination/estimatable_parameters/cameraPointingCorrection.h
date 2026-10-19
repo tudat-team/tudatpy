@@ -56,7 +56,7 @@ public:
             throw std::runtime_error( "Error when setting camera pointing correction parameter for " + parameterName_.second.first + ", " +
                                       parameterName_.second.second + ": parameter size must be 3." );
         }
-        systemModels_->getCamera( parameterName_.second.second )->setPointingCorrection( parameterValue.segment( 0, 3 ) );
+        systemModels_->getCamera( parameterName_.second.second )->setPointingCorrection( parameterValue );
     }
 
     int getParameterSize( )

@@ -30,8 +30,7 @@
 #include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/simulation/environment_setup/body.h"
-
-#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
 {
@@ -82,6 +81,51 @@ inline std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerP
     return properTimeRateDopplerPartial;
 }
 
+//! Function to create partials of the rotation from a body-fixed to the inertial frame, w.r.t. estimated rotation parameters
+/*!
+ *  Function to create partials of the rotation from a body-fixed to the inertial frame, w.r.t. those estimated parameters that
+ *  define the rotation of the given body. The partials are evaluated at a given time, as required for observation partials.
+ *  \param parametersToEstimate Set of all parameters which are to be estimated.
+ *  \param bodyName Name of body for which to create partials of rotation from body-fixed to inertial frame.
+ *  \param bodies Map of body objects, used in the creation of the partials.
+ *  \return Rotation matrix partial objects for all rotation parameters of bodyName in parametersToEstimate.
+ */
+template< typename ParameterType >
+RotationMatrixPartialNamedList createObservationRotationMatrixPartials(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::string& bodyName,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    RotationMatrixPartialNamedList rotationMatrixPartials;
+    const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel = bodies.at( bodyName )->getRotationalEphemeris( );
+    for( const auto& parameter : parametersToEstimate->getEstimatedInitialStateParameters( ) )
+    {
+        if( parameter->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state &&
+            parameter->getParameterName( ).second.first == bodyName )
+        {
+            rotationMatrixPartials[ std::make_pair( estimatable_parameters::initial_rotational_body_state, "" ) ] =
+                    std::make_shared< RotationMatrixPartialWrtRotationalState >(
+                            [ rotationModel ]( const double time ) { return rotationModel->getRotationToBaseFrame( time ); } );
+        }
+    }
+
+    auto addParameterPartials = [ & ]( const auto& parameters ) {
+        for( const auto& parameter : parameters )
+        {
+            if( parameter.second->getParameterName( ).second.first == bodyName &&
+                estimatable_parameters::isParameterRotationMatrixProperty( parameter.second->getParameterName( ).first ) )
+            {
+                rotationMatrixPartials[ std::make_pair( parameter.second->getParameterName( ).first,
+                                                        parameter.second->getSecondaryIdentifier( ) ) ] =
+                        createRotationMatrixPartialsWrtParameter( bodies, parameter.second );
+            }
+        }
+    };
+    addParameterPartials( parametersToEstimate->getDoubleParameters( ) );
+    addParameterPartials( parametersToEstimate->getVectorParameters( ) );
+    return rotationMatrixPartials;
+}
+
 template< int ObservationSize >
 class ObservationPartialScalingCreator
 {
@@ -92,7 +136,8 @@ public:
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel =
-                    nullptr );
+                    nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr );
 
     template< typename ParameterType = double, typename TimeType = double >
     static std::shared_ptr< PositionPartialScaling > createDifferencedPositionPartialScalingObject(
@@ -111,7 +156,8 @@ public:
             const observation_models::LinkEnds& linkEnds,
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel = nullptr )
+            const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel = nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr )
     {
         std::shared_ptr< DirectPositionPartialScaling< 1 > > positionPartialScaler;
 
@@ -362,7 +408,8 @@ public:
             const observation_models::LinkEnds& linkEnds,
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 2, ParameterType, TimeType > > observationModel = nullptr )
+            const std::shared_ptr< observation_models::ObservationModel< 2, ParameterType, TimeType > > observationModel = nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr )
     {
         std::shared_ptr< DirectPositionPartialScaling< 2 > > positionPartialScaler;
 
@@ -416,9 +463,25 @@ public:
                             return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
                         },
                         pixelCoordinatesModel != nullptr && pixelCoordinatesModel->getCorrectForStellarAberration( ) );
-                std::static_pointer_cast< PixelCoordinatesScaling >( positionPartialScaler )
-                        ->setPointingCorrectionFunction( linkEnds.at( observation_models::receiver ),
-                                                         [ camera ]( ) { return camera->getPointingCorrection( ); } );
+                const std::shared_ptr< PixelCoordinatesScaling > pixelCoordinatesScaling =
+                        std::static_pointer_cast< PixelCoordinatesScaling >( positionPartialScaler );
+                pixelCoordinatesScaling->setPointingCorrectionFunction( linkEnds.at( observation_models::receiver ),
+                                                                        [ camera ]( ) { return camera->getPointingCorrection( ); } );
+
+                // If the camera pointing is given relative to a body-fixed frame, the camera orientation depends on that body's rotation.
+                const std::string& referenceBodyName = camera->getPointingReferenceBodyName( );
+                if( parametersToEstimate != nullptr && camera->hasRotationFromInertialToCameraFrameFunction( ) &&
+                    !referenceBodyName.empty( ) )
+                {
+                    const std::shared_ptr< ephemerides::RotationalEphemeris > referenceRotationModel =
+                            bodies.at( referenceBodyName )->getRotationalEphemeris( );
+                    pixelCoordinatesScaling->setRotationMatrixPartials(
+                            referenceBodyName,
+                            [ referenceRotationModel ]( const double time ) {
+                                return referenceRotationModel->getRotationToBaseFrame( time );
+                            },
+                            createObservationRotationMatrixPartials( parametersToEstimate, referenceBodyName, bodies ) );
+                }
                 break;
             }
             case observation_models::azimuth_elevation_angle: {
@@ -501,7 +564,8 @@ public:
             const observation_models::LinkEnds& linkEnds,
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 3, ParameterType, TimeType > > observationModel = nullptr )
+            const std::shared_ptr< observation_models::ObservationModel< 3, ParameterType, TimeType > > observationModel = nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr )
     {
         std::shared_ptr< DirectPositionPartialScaling< 3 > > positionPartialScaler;
 

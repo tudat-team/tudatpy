@@ -112,9 +112,10 @@ public:
         return positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
 
-    bool isVelocityScalingNonZero( ) override
+    //! Only the receiver velocity contributes, through stellar aberration.
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType ) override
     {
-        return correctForStellarAberration_;
+        return correctForStellarAberration_ && linkEndType == observation_models::receiver;
     }
 
     Eigen::Matrix< double, 2, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
@@ -141,12 +142,8 @@ public:
         rotationMatrixPartials_ = rotationMatrixPartials;
     }
 
-    bool useLinkIndependentPartials( ) override
-    {
-        return pointingCorrectionFunction_ || !rotationMatrixPartials_.empty( );
-    }
-
-    bool hasLinkIndependentPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ) override;
+    //! Whether the camera orientation depends on the given parameter (pointing correction, or reference-body rotation).
+    bool useLinkIndependentPartials( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
 
     //! Identify the receiver camera and supply its current rotation-vector correction.
     void setPointingCorrectionFunction( const observation_models::LinkEndId& cameraLinkEnd,
