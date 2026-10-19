@@ -485,7 +485,7 @@ Examples
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays.
 
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays (e.g. from water vapour
-radiometers, see :func:`~tudatpy.data_input.environment_data.read_dsn_amc_file`), mapped to the signal elevation with the selected
+radiometers, see :func:`~tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays`), mapped to the signal elevation with the selected
 mapping function (independent of the mapping function of the fallback correction). The measured zenith wet path delay replaces the wet
 path delay of the fallback correction; the dry path delay of the fallback correction is retained, unless ``use_measured_dry_delay`` is
 true. The measurements are interpolated (using ``interpolator_settings``) at times between measurements separated by at most
@@ -499,7 +499,7 @@ Parameters
 ----------
 zenith_delays_per_station : dict[str, dict[float, numpy.ndarray]]
     Per ground station (key), zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key. For DSN AMC data, the
-    path delays for a station are the second output of :func:`~tudatpy.data_input.environment_data.read_dsn_amc_file`.
+    path delays for a station are the output of :func:`~tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays`.
 fallback_settings : LightTimeCorrectionSettings
     Settings for a (mapped) tropospheric correction used outside of the measurements (e.g. from :func:`dsn_tabulated_tropospheric_light_time_correction`).
 maximum_interpolation_gap : float
@@ -517,6 +517,22 @@ Returns
 -------
 :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
     Settings for the measured tropospheric light-time correction.
+
+Examples
+--------
+.. code-block:: python
+
+    from tudatpy.data_input import environment_data
+    from tudatpy.estimation.observable_models_setup import light_time_corrections
+
+    # Read AMC file and retrieve valid zenith path delays for DSS-25
+    records = environment_data.read_dsn_amc_file("amc_dss25.txt")
+    zenith_delays = environment_data.get_valid_dsn_amc_zenith_delays(records)
+
+    # Use measured delays for DSS-25, with tabulated (TSAC) corrections as fallback
+    fallback_settings = light_time_corrections.dsn_tabulated_tropospheric_light_time_correction(tro_file_names)
+    correction_settings = light_time_corrections.measured_tropospheric_light_time_correction(
+        {"DSS-25": zenith_delays}, fallback_settings, maximum_interpolation_gap=30.0)
 
            )doc" );
 

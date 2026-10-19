@@ -20,17 +20,7 @@ namespace tudat
 namespace input_output
 {
 
-//! Function to check whether all quality flags of an AMC record are 0, and its path delays are valid (non-negative, and not equal
-//! to the 999 cm placeholder for a missing retrieval)
-bool isDsnAmcRecordValid( const DsnAmcRecord& record )
-{
-    return record.cloudFlag == 0 && record.wvrFlag == 0 && record.mtpFlag == 0 && record.surfaceFlag == 0 && record.windFlag == 0 &&
-            record.pathDelayFlag == 0 && record.zenithWetDelay >= 0.0 && record.zenithWetDelay < 9.99 && record.zenithDryDelay >= 0.0 &&
-            record.zenithDryDelay < 9.99;
-}
-
-std::pair< std::vector< DsnAmcRecord >, std::map< double, Eigen::Vector2d > > readDsnAmcFile( const std::string& fileName,
-                                                                                              const bool filterInvalidRecords )
+std::vector< DsnAmcRecord > readDsnAmcFile( const std::string& fileName )
 {
     std::ifstream file( fileName );
     if( !file.is_open( ) )
@@ -42,7 +32,6 @@ std::pair< std::vector< DsnAmcRecord >, std::map< double, Eigen::Vector2d > > re
     const double unixEpoch = basic_astrodynamics::DateTime( 1970, 1, 1, 0, 0, 0.0 ).epoch< double >( );
 
     std::vector< DsnAmcRecord > records;
-    std::map< double, Eigen::Vector2d > zenithDelays;
     std::string line;
     while( std::getline( file, line ) )
     {
@@ -67,13 +56,27 @@ std::pair< std::vector< DsnAmcRecord >, std::map< double, Eigen::Vector2d > > re
         record.utcTime += unixEpoch;
         record.zenithWetDelay /= 100.0;
         record.zenithDryDelay /= 100.0;
-        if( !filterInvalidRecords || isDsnAmcRecordValid( record ) )
+        records.push_back( record );
+    }
+    return records;
+}
+
+std::map< double, Eigen::Vector2d > getValidDsnAmcZenithDelays( const std::vector< DsnAmcRecord >& records,
+                                                                const int minimumRejectedCloudFlag )
+{
+    std::map< double, Eigen::Vector2d > zenithDelays;
+    for( const DsnAmcRecord& record : records )
+    {
+        // Retain records with acceptable cloud flag, all other quality flags 0, and valid path delays (9.99 m is the 999 cm
+        // placeholder for a missing retrieval)
+        if( record.cloudFlag < minimumRejectedCloudFlag && record.wvrFlag == 0 && record.mtpFlag == 0 && record.surfaceFlag == 0 &&
+            record.windFlag == 0 && record.pathDelayFlag == 0 && record.zenithWetDelay >= 0.0 && record.zenithWetDelay < 9.99 &&
+            record.zenithDryDelay >= 0.0 && record.zenithDryDelay < 9.99 )
         {
-            records.push_back( record );
             zenithDelays[ record.utcTime ] = ( Eigen::Vector2d( ) << record.zenithDryDelay, record.zenithWetDelay ).finished( );
         }
     }
-    return std::make_pair( records, zenithDelays );
+    return zenithDelays;
 }
 
 }  // namespace input_output

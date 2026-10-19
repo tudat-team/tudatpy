@@ -13,7 +13,6 @@
 
 #include <map>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -75,18 +74,27 @@ struct DsnAmcRecord {
     double windDirection;
 };
 
-//! Function to read the records of a DSN AMC path delay file
+//! Function to read all records of a DSN AMC path delay file (without any quality screening)
 /*!
- * Function to read the records of a DSN AMC path delay file. The time is converted from UTC seconds since 1970 to UTC seconds
- * since J2000, and path delays from cm to m. Other quantities are in the units of the file.
+ * Function to read all records of a DSN AMC path delay file (without any quality screening). The time is converted from UTC
+ * seconds since 1970 to UTC seconds since J2000, and path delays from cm to m. Other quantities are in the units of the file.
  * \param fileName Name of AMC file
- * \param filterInvalidRecords Boolean denoting whether only valid records are retained: those for which all quality flags are 0,
- * and the path delays are valid (non-negative, and not equal to the 999 cm placeholder for a missing retrieval)
- * \return Pair with list of records in file, and the zenith [dry, wet] path delays [m] of these records, with UTC time (seconds
- * since J2000) as key
+ * \return List of records in file
  */
-std::pair< std::vector< DsnAmcRecord >, std::map< double, Eigen::Vector2d > > readDsnAmcFile( const std::string& fileName,
-                                                                                              const bool filterInvalidRecords = true );
+std::vector< DsnAmcRecord > readDsnAmcFile( const std::string& fileName );
+
+//! Function to retrieve valid zenith path delays from DSN AMC records
+/*!
+ * Function to retrieve valid zenith path delays from DSN AMC records, retaining only records for which the cloud flag is below
+ * minimumRejectedCloudFlag, all other quality flags are 0, and the path delays are valid (non-negative, and not equal to the 999 cm
+ * placeholder for a missing retrieval).
+ * \param records AMC records (from readDsnAmcFile)
+ * \param minimumRejectedCloudFlag Cloud flag value at and above which records are rejected (default 1: only records with cloud
+ * flag 0, i.e. liquid water below 20 micrometer, are retained)
+ * \return Zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key.
+ */
+std::map< double, Eigen::Vector2d > getValidDsnAmcZenithDelays( const std::vector< DsnAmcRecord >& records,
+                                                                const int minimumRejectedCloudFlag = 1 );
 
 }  // namespace input_output
 }  // namespace tudat

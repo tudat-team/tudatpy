@@ -83,26 +83,41 @@ void expose_environment_data( py::module& m )
             .def_readonly( "wind_speed", &tudat::input_output::DsnAmcRecord::windSpeed, R"doc(Wind speed [mph].)doc" )
             .def_readonly( "wind_direction", &tudat::input_output::DsnAmcRecord::windDirection, R"doc(Wind direction [deg].)doc" );
 
-    m.def( "read_dsn_amc_file",
-           &tudat::input_output::readDsnAmcFile,
-           py::arg( "file_name" ),
-           py::arg( "filter_invalid_records" ) = true,
-           R"doc(
-        Read the records of a DSN Advanced Media Calibration (AMC) path delay file.
+    m.def( "read_dsn_amc_file", &tudat::input_output::readDsnAmcFile, py::arg( "file_name" ), R"doc(
+        Read all records of a DSN Advanced Media Calibration (AMC) path delay file, without any quality screening.
 
         Parameters
         ----------
         file_name : str
             Name of AMC file
-        filter_invalid_records : bool, default = True
-            Boolean denoting whether only valid records are retained: those for which all quality flags are 0, and the path
-            delays are valid (non-negative, and not equal to the 999 cm placeholder for a missing retrieval)
 
         Returns
         -------
-        tuple[list[DsnAmcRecord], dict[float, numpy.ndarray]]
-            Records in file, and the zenith [dry, wet] path delays [m] of these records, with UTC time (seconds since J2000) as
-            key. The latter can be used as input for
+        list[DsnAmcRecord]
+            Records in file
+    )doc" );
+
+    m.def( "get_valid_dsn_amc_zenith_delays",
+           &tudat::input_output::getValidDsnAmcZenithDelays,
+           py::arg( "records" ),
+           py::arg( "minimum_rejected_cloud_flag" ) = 1,
+           R"doc(
+        Retrieve the valid zenith path delays from DSN AMC records: those for which the cloud flag is below
+        ``minimum_rejected_cloud_flag``, all other quality flags are 0, and the path delays are valid (non-negative, and not
+        equal to the 999 cm placeholder for a missing retrieval).
+
+        Parameters
+        ----------
+        records : list[DsnAmcRecord]
+            AMC records, from :func:`read_dsn_amc_file`
+        minimum_rejected_cloud_flag : int, default = 1
+            Cloud flag value at and above which records are rejected (cloud flag 0: liquid water < 20 micrometer, 1: 20-100
+            micrometer, 2: 100-200 micrometer, 3: > 200 micrometer). By default, only records with cloud flag 0 are retained.
+
+        Returns
+        -------
+        dict[float, numpy.ndarray]
+            Zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key, which can be used as input for
             :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.measured_tropospheric_light_time_correction`
     )doc" );
 
