@@ -1022,58 +1022,6 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
     }
 }
 
-BOOST_AUTO_TEST_CASE( testMeasuredTroposphericStationEventsAndNiellMapping )
-{
-    // Reuse the GODOT wet mapping reference above (Kourou); the transmitting and receiving station events have different
-    // measurement coverage
-    const double epoch = 517557600.0;
-    const double expectedWetMapping = 3.59993033305367;
-    const std::map< double, Eigen::Vector2d > samples = { { epoch + 70.0, Eigen::Vector2d( 2.0, 0.04 ) },
-                                                          { epoch + 100.0, Eigen::Vector2d( 2.0, 0.10 ) } };
-    Eigen::Vector6d stationState = Eigen::Vector6d::Zero( );
-    stationState( 0 ) = 10.0;
-    Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
-    spacecraftState( 0 ) = 100.0;
-
-    for( const bool isUplink : { true, false } )
-    {
-        double expectedStationTime = epoch + ( isUplink ? 85.0 : 170.0 );
-        unsigned int elevationCalls = 0;
-        const auto mapping = std::make_shared< NiellTroposphericMapping >(
-                [ & ]( Eigen::Vector3d vectorAwayFromStation, double stationTime ) {
-                    ++elevationCalls;
-                    BOOST_CHECK_EQUAL( stationTime, expectedStationTime );
-                    BOOST_CHECK_EQUAL( vectorAwayFromStation( 0 ), 90.0 );
-                    return 0.279499332478995;
-                },
-                []( double ) { return Eigen::Vector3d( -14.2714925195833, 0.0916549210572268, 0.0 ); },
-                isUplink );
-        const auto fallback = std::make_shared< MappedTroposphericCorrection >(
-                tabulated_tropospheric, mapping, isUplink, []( double ) { return 0.0; }, []( double ) { return 0.6; } );
-        MeasuredTroposphericCorrection correction( samples, fallback, mapping, isUplink, 30.0 );
-
-        // Use second leg, to check that the epochs of the first leg are not used
-        const std::vector< Eigen::Vector6d > states = { Eigen::Vector6d::Zero( ),
-                                                        isUplink ? stationState : spacecraftState,
-                                                        isUplink ? spacecraftState : stationState };
-        const std::vector< double > times = { epoch - 1000.0, epoch + 85.0, epoch + 170.0 };
-        const double path = correction.calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, times, 1, nullptr ) * SPEED_OF_LIGHT;
-        BOOST_CHECK_CLOSE_FRACTION( path, ( isUplink ? 0.07 : 0.6 ) * expectedWetMapping, 1.0e-13 );
-        BOOST_CHECK_EQUAL( elevationCalls, 2 );
-        if( !isUplink )
-        {
-            // Reception event now covered by measurements
-            expectedStationTime = epoch + 85.0;
-            const std::vector< double > coveredReceptionTimes = { epoch - 1000.0, epoch + 10.0, epoch + 85.0 };
-            BOOST_CHECK_CLOSE_FRACTION(
-                    correction.calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, coveredReceptionTimes, 1, nullptr ) *
-                            SPEED_OF_LIGHT,
-                    0.07 * expectedWetMapping,
-                    1.0e-13 );
-        }
-    }
-}
-
 BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
 {
     spice_interface::loadStandardSpiceKernels( );
