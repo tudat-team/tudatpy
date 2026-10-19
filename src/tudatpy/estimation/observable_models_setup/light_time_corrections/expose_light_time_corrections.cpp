@@ -479,6 +479,7 @@ Examples
            py::arg( "use_measured_dry_delay" ) = false,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
+           py::arg_v( "interpolator_settings", ti::linearInterpolation( ), "tudatpy.math.interpolators.linear_interpolation()" ),
            R"doc(
 
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays.
@@ -487,8 +488,9 @@ Function for creating settings for a tropospheric light-time correction from mea
 radiometers, see :func:`~tudatpy.data_input.environment_data.read_dsn_amc_file`), mapped to the signal elevation with the selected
 mapping function (independent of the mapping function of the fallback correction). The measured zenith wet path delay replaces the wet
 path delay of the fallback correction; the dry path delay of the fallback correction is retained, unless ``use_measured_dry_delay`` is
-true. The measurements are linearly interpolated if they are separated by at most ``maximum_interpolation_gap``. Outside of the
-measurements (and for ground stations without measurements), the fallback correction is used.
+true. The measurements are interpolated (using ``interpolator_settings``) at times between measurements separated by at most
+``maximum_interpolation_gap``. Outside of the measurements (and for ground stations without measurements), the fallback correction
+is used.
 
 Note that an (integrated) Doppler observable for which the correction switches between measurements and fallback correction may
 contain an error due to the difference between the two.
@@ -508,6 +510,8 @@ body_with_atmosphere_name : str, default = "Earth"
     Name of the body with the atmosphere.
 mapping_model : TroposphericMappingModel, default = niell
     Mapping function used to map the zenith path delays to the signal elevation.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.linear_interpolation()
+    Settings for the interpolator of the measured zenith path delays.
 
 Returns
 -------

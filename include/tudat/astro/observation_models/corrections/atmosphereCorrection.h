@@ -31,6 +31,7 @@
 
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
@@ -642,19 +643,21 @@ protected:
 //! Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers)
 /*!
  * Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers).
- * The measured zenith [dry, wet] path delays (indexed by TDB time) are linearly interpolated, for measurements separated by
- * at most maximumInterpolationGap. The measured wet delay replaces that of the fallback model, the measured dry delay is only
- * used if useMeasuredDryDelay is true. Outside of the measured data, the fallback model is used.
+ * The measured zenith [dry, wet] path delays (indexed by TDB time) are interpolated (using interpolatorSettings), at times between
+ * measurements separated by at most maximumInterpolationGap. The measured wet delay replaces that of the fallback model, the measured dry
+ * delay is only used if useMeasuredDryDelay is true. Outside of the measured data, the fallback model is used.
  */
 class MeasuredTroposphericCorrection : public MappedTroposphericCorrection
 {
 public:
-    MeasuredTroposphericCorrection( const std::map< double, Eigen::Vector2d >& zenithDelays,
-                                    const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
-                                    const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
-                                    const bool isUplinkCorrection,
-                                    const double maximumInterpolationGap,
-                                    const bool useMeasuredDryDelay = false );
+    MeasuredTroposphericCorrection(
+            const std::map< double, Eigen::Vector2d >& zenithDelays,
+            const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+            const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+            const bool isUplinkCorrection,
+            const double maximumInterpolationGap,
+            const bool useMeasuredDryDelay = false,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
 
 private:
     bool isMeasurementAvailable( const double time ) const;

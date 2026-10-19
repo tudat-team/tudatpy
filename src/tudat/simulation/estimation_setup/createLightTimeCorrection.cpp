@@ -239,7 +239,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                             settings->getTroposphericMappingModelType( ), bodies, transmitter, receiver, isUplink ),
                     isUplink,
                     settings->getMaximumInterpolationGap( ),
-                    settings->getUseMeasuredDryDelay( ) );
+                    settings->getUseMeasuredDryDelay( ),
+                    settings->getInterpolatorSettings( ) );
             break;
         }
         case saastamoinen_tropospheric: {

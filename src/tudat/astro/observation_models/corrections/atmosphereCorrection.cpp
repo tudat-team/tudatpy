@@ -15,7 +15,6 @@
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/io/matrixTextFileReader.h"
 #include "tudat/math/basic/legendrePolynomials.h"
-#include "tudat/math/interpolators/linearInterpolator.h"
 
 namespace tudat
 {
@@ -23,12 +22,14 @@ namespace tudat
 namespace observation_models
 {
 
-MeasuredTroposphericCorrection::MeasuredTroposphericCorrection( const std::map< double, Eigen::Vector2d >& zenithDelays,
-                                                                const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
-                                                                const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
-                                                                const bool isUplinkCorrection,
-                                                                const double maximumInterpolationGap,
-                                                                const bool useMeasuredDryDelay ):
+MeasuredTroposphericCorrection::MeasuredTroposphericCorrection(
+        const std::map< double, Eigen::Vector2d >& zenithDelays,
+        const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+        const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+        const bool isUplinkCorrection,
+        const double maximumInterpolationGap,
+        const bool useMeasuredDryDelay,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ):
     MappedTroposphericCorrection( measured_tropospheric, elevationMapping, isUplinkCorrection ), zenithDelays_( zenithDelays ),
     fallbackCorrection_( fallbackCorrection ), maximumInterpolationGap_( maximumInterpolationGap ),
     useMeasuredDryDelay_( useMeasuredDryDelay )
@@ -37,7 +38,7 @@ MeasuredTroposphericCorrection::MeasuredTroposphericCorrection( const std::map< 
     {
         throw std::runtime_error( "Error when creating measured tropospheric correction, at least two measurements are required" );
     }
-    interpolator_ = std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >( zenithDelays_ );
+    interpolator_ = interpolators::createOneDimensionalInterpolator( zenithDelays_, interpolatorSettings );
     dryZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 0 ); };
     wetZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 1 ); };
 }
