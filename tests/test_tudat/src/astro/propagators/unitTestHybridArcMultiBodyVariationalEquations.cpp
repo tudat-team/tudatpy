@@ -462,14 +462,15 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
                 multiArcJuiceAccelerationMap.at( i ),
                 std::vector< std::string >( { "JUICE" } ),
                 multiArcSystemInitialStates.at( i ),
-                juiceArcEndTimes.at( i ) ) );
+                flybyTimes.at( i ),
+                multiArcIntegratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( juiceArcEndTimes.at( i ) ) ) );
     }
 
     std::shared_ptr< propagators::MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList );
 
-    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator =
-            MultiArcDynamicsSimulator<>( bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, flybyTimes, true, false, false );
+    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator = MultiArcDynamicsSimulator<>( bodies, multiArcPropagatorSettings );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
             backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -635,7 +636,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
     double initialEpoch = 946728000.0;
     double finalEpoch = 1200000000.0;
 
-    int numberArcs = 5;
+    unsigned int numberArcs = 5;
 
     double propagationTimeStep = 1800.0;
     double flybyDuration = 8.0 * 3600.0;
@@ -648,7 +649,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEpoch, propagationTimeStep );
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, propagationTimeStep );
 
     // Compute flybys times and associated central bodies
     std::vector< std::string > multiArcCentralBodies;
@@ -678,7 +679,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::map< int, std::vector< std::string > > bodiesToPropagatePerArc, centralBodiesPerArc;
         if( testCase == 0 )
         {
-            for( int i = 0; i < numberArcs; i++ )
+            for( unsigned int i = 0; i < numberArcs; i++ )
             {
                 bodiesToPropagatePerArc[ i ] = { "Io", "Europa", "Ganymede", "Callisto", "JUICE" };
                 centralBodiesPerArc[ i ] = { "Jupiter", "Jupiter", "Jupiter", "Jupiter", multiArcCentralBodies.at( i ) };
@@ -704,11 +705,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
 
         // Set accelerations map for the moons.
         std::vector< std::string > moonsToPropagate, centralBodiesForMoons;
-        std::map< int, AccelerationMap > multiArcMoonsAccelerationMap;
-        for( int i = 0; i < numberArcs; i++ )
+        std::map< unsigned int, AccelerationMap > multiArcMoonsAccelerationMap;
+        for( unsigned int i = 0; i < numberArcs; i++ )
         {
             std::vector< std::string > arcWiseMoonsToPropagate, arcWiseMoonsCentralBodies;
-            for( int j = 0; j < bodiesToPropagatePerArc.at( i ).size( ) - 1; j++ )
+            for( unsigned int j = 0; j < bodiesToPropagatePerArc.at( i ).size( ) - 1; j++ )
             {
                 arcWiseMoonsToPropagate.push_back( bodiesToPropagatePerArc.at( i ).at( j ) );
                 arcWiseMoonsCentralBodies.push_back( centralBodiesPerArc.at( i ).at( j ) );
@@ -717,7 +718,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         }
 
         // Merge arc-wise acceleration maps
-        std::map< int, AccelerationMap > multiArcCompleteAccelerationMaps = multiArcMoonsAccelerationMap;
+        std::map< unsigned int, AccelerationMap > multiArcCompleteAccelerationMaps = multiArcMoonsAccelerationMap;
         for( unsigned int k = 0; k < numberArcs; k++ )
         {
             AccelerationMap arcWiseAccelerationMap = multiArcCompleteAccelerationMaps.at( k );
@@ -729,13 +730,13 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::vector< std::shared_ptr< SingleArcPropagatorSettings<> > > propagatorSettingsList;
         std::map< std::string, std::vector< std::string > > multiArcCentralBodiesPerBody;
         std::map< std::string, Eigen::VectorXd > multiArcInitialStatesPerBody;
-        std::map< std::string, std::vector< std::pair< int, int > > > counterArcsPerBody;
-        std::map< int, Eigen::VectorXd > multiArcInitialStates;
+        std::map< std::string, std::vector< std::pair< unsigned int, unsigned int > > > counterArcsPerBody;
+        std::map< unsigned int, Eigen::VectorXd > multiArcInitialStates;
         std::vector< double > arcStartTimes;
         std::map< std::string, std::vector< double > > arcStartTimesPerBody;
         std::vector< std::string > listBodiesToPropagate;
 
-        for( int arc = 0; arc < numberArcs; arc++ )
+        for( unsigned int arc = 0; arc < numberArcs; arc++ )
         {
             arcStartTimes.push_back( multiArcStartTimes.at( arc ) );
 
@@ -779,12 +780,14 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
             }
 
             multiArcInitialStates[ arc ] = arcWiseConcatenatedStates;
-            propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings<> >( centralBodiesPerArc.at( arc ),
-                                                                                multiArcCompleteAccelerationMaps.at( arc ),
-                                                                                bodiesToPropagatePerArc.at( arc ),
-                                                                                arcWiseConcatenatedStates,
-                                                                                multiArcEndTimes.at( arc ) ) );
+            propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings<> >(
+                    centralBodiesPerArc.at( arc ),
+                    multiArcCompleteAccelerationMaps.at( arc ),
+                    bodiesToPropagatePerArc.at( arc ),
+                    arcWiseConcatenatedStates,
+                    multiArcStartTimes.at( arc ),
+                    integratorSettings->clone( ),
+                    std::make_shared< PropagationTimeTerminationSettings >( multiArcEndTimes.at( arc ) ) ) );
         }
         std::cout << "create multi-arc propagator settings" << "\n\n";
         std::shared_ptr< MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
@@ -803,7 +806,13 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
 
         std::shared_ptr< TranslationalStatePropagatorSettings<> > singleArcPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings<> >(
-                        singleArcCentralBody, jupiterAccelerationModelMap, singleArcPropagatedBody, singleArcInitialStates, finalEpoch );
+                        singleArcCentralBody,
+                        jupiterAccelerationModelMap,
+                        singleArcPropagatedBody,
+                        singleArcInitialStates,
+                        initialEpoch,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ) );
 
         std::shared_ptr< HybridArcPropagatorSettings<> > hybridArcPropagatorSettings =
                 std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPropagatorSettings );
@@ -812,7 +821,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         {
             Eigen::VectorXd arcWiseStatesCurrentBody;
             arcWiseStatesCurrentBody.resize( 6 * itr.second.size( ) );
-            std::vector< std::pair< int, int > > currentBodyArcIndices = counterArcsPerBody.at( itr.first );
+            std::vector< std::pair< unsigned int, unsigned int > > currentBodyArcIndices = counterArcsPerBody.at( itr.first );
             for( unsigned int j = 0; j < itr.second.size( ); j++ )
             {
                 arcWiseStatesCurrentBody.segment( 6 * j, 6 ) = multiArcInitialStates.at( currentBodyArcIndices.at( j ).first )
@@ -884,35 +893,15 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
                 createParametersToEstimate< double >( multiArcParameterNames, bodies, multiArcPropagatorSettings );
         printEstimatableParameterEntries( multiArcParametersToEstimate );
 
-        //        integratorSettings->initialTime_ = initialEpoch;
         HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
-                HybridArcVariationalEquationsSolver< double, double >(
-                        bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate, arcStartTimes, true, false, true );
-        //        integratorSettings->initialTime_ = initialEpoch;
+                HybridArcVariationalEquationsSolver< double, double >( bodies, hybridArcPropagatorSettings, parametersToEstimate, true );
         SingleArcVariationalEquationsSolver< double, double > singleArcVariationalEquationsSolverTest =
                 SingleArcVariationalEquationsSolver< double, double >(
-                        bodies,
-                        integratorSettings,
-                        singleArcPropagatorSettings,
-                        singleArcParametersToEstimate,
-                        true,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                        false,
-                        true,
-                        true );
+                        bodies, singleArcPropagatorSettings, singleArcParametersToEstimate, true, true );
 
         MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquationsSolverTest =
                 MultiArcVariationalEquationsSolver< double, double >(
-                        bodies,
-                        integratorSettings,
-                        multiArcPropagatorSettings,
-                        multiArcParametersToEstimate,
-                        arcStartTimes,
-                        true,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                        false,
-                        true,
-                        false );
+                        bodies, multiArcPropagatorSettings, multiArcParametersToEstimate, true );
 
         std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > singleArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getSingleArcSolver( );

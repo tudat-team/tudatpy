@@ -246,6 +246,7 @@ public:
         std::vector< double > vectorOfTimes;
 
         Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation;
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation;
 
         // Iterate over all observation times
         int currentObservationSize;
@@ -258,7 +259,7 @@ public:
             {
                 // Compute observation
                 currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancillarySettings );
+                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, idealObservation, ancillarySettings );
             }
             catch( std::runtime_error& caughtException )
             {
@@ -291,7 +292,7 @@ public:
                                                                                       vectorOfStates,
                                                                                       vectorOfTimes,
                                                                                       linkEnds,
-                                                                                      currentObservation,
+                                                                                      idealObservation,
                                                                                       linkEndAssociatedWithTime,
                                                                                       ancillarySettings );
                 }
@@ -352,7 +353,7 @@ protected:
      *  \param times List of states at each link end during observation
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  \param currentObservation Value of observation for which partial scaling is to be computed
+     *  \param currentObservation Ideal value of observation for which partial scaling is to be computed
      */
     virtual void updatePartials( const std::vector< Eigen::Vector6d >& states,
                                  const std::vector< double >& times,
@@ -376,7 +377,7 @@ protected:
      *  \param times Times at link ends (reception, transmission, reflection, etc. ), order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
-     *  \param currentObservation Value of observation for which partials are to be computed
+     *  \param currentObservation Ideal value of observation for which partials are to be computed
      *  \param linkEndAssociatedWithTime Reference link end for observations
      *  \return Matrix of partial derivative of observation w.r.t. parameter vector.
      */

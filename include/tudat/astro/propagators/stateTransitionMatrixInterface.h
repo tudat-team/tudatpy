@@ -113,6 +113,53 @@ protected:
     int sensitivityMatrixSize_;
 };
 
+//! Interface object for estimation runs with no numerically propagated dynamics.
+/*!
+ *  Interface object for observation-only estimation. This mode estimates parameters that affect observations
+ *  directly, while the dynamical state is fixed outside the OrbitDeterminationManager. Consequently there is
+ *  no state transition matrix to interpolate, but the interface still exposes the full estimated-parameter
+ *  vector size to the observation partial assembly.
+ */
+class ObservationOnlyStateTransitionAndSensitivityMatrixInterface : public CombinedStateTransitionAndSensitivityMatrixInterface
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param numberOfParameters Total number of estimated parameters.
+     */
+    ObservationOnlyStateTransitionAndSensitivityMatrixInterface( const int numberOfParameters ):
+        CombinedStateTransitionAndSensitivityMatrixInterface( 0, numberOfParameters )
+    {}
+
+    //! Destructor.
+    ~ObservationOnlyStateTransitionAndSensitivityMatrixInterface( ) {}
+
+    //! Function to get the empty concatenated state transition and sensitivity matrix.
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix(
+            const double,
+            const bool = true,
+            const std::vector< std::string >& = std::vector< std::string >( ) ) override
+    {
+        return Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, getFullParameterVectorSize( ) );
+    }
+
+    //! Function to get the empty full concatenated state transition and sensitivity matrix.
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix(
+            const double,
+            const bool = true,
+            const std::vector< std::string >& = std::vector< std::string >( ) ) override
+    {
+        return Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, getFullParameterVectorSize( ) );
+    }
+
+    //! Function to get the size of the total parameter vector.
+    int getFullParameterVectorSize( ) override
+    {
+        return sensitivityMatrixSize_ + stateTransitionMatrixSize_;
+    }
+};
+
 //! Interface object of interpolation of numerically propagated state transition and sensitivity matrices for single-arc
 //! estimation.
 class SingleArcCombinedStateTransitionAndSensitivityMatrixInterface : public CombinedStateTransitionAndSensitivityMatrixInterface

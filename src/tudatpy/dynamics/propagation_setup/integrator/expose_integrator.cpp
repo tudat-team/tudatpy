@@ -18,6 +18,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/math/integrators/createNumericalIntegrator.h>
 
 #include "scalarTypes.h"
@@ -55,6 +56,93 @@ namespace propagation_setup
 {
 namespace integrator
 {
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerancesDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const tni::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const Eigen::MatrixXd relativeErrorTolerance,
+        const Eigen::MatrixXd absoluteErrorTolerance,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactor = 0.8,
+        const IndependentVariableType maximumFactorIncrease = 4.0,
+        const IndependentVariableType minimumFactorIncrease = 0.1,
+        const bool throwExceptionIfMinimumStepExceeded = true )
+{
+    tudat::utilities::printDeprecationWarning(
+            "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size_vector_tolerances",
+            "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step",
+            "Deprecated as of v1.1." );
+    return tni::rungeKuttaVariableStepSettingsVectorTolerances< IndependentVariableType >( initialTimeStep,
+                                                                                           coefficientSet,
+                                                                                           minimumStepSize,
+                                                                                           maximumStepSize,
+                                                                                           relativeErrorTolerance,
+                                                                                           absoluteErrorTolerance,
+                                                                                           assessTerminationOnMinorSteps,
+                                                                                           safetyFactor,
+                                                                                           maximumFactorIncrease,
+                                                                                           minimumFactorIncrease,
+                                                                                           throwExceptionIfMinimumStepExceeded );
+}
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const tni::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const double relativeErrorTolerance,
+        const double absoluteErrorTolerance,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactor = 0.8,
+        const IndependentVariableType maximumFactorIncrease = 4.0,
+        const IndependentVariableType minimumFactorIncrease = 0.1,
+        const bool throwExceptionIfMinimumStepExceeded = true )
+{
+    tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size",
+                                               "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step",
+                                               "Deprecated as of v1.1." );
+    return tni::rungeKuttaVariableStepSettingsScalarTolerances< IndependentVariableType >( initialTimeStep,
+                                                                                           coefficientSet,
+                                                                                           minimumStepSize,
+                                                                                           maximumStepSize,
+                                                                                           relativeErrorTolerance,
+                                                                                           absoluteErrorTolerance,
+                                                                                           assessTerminationOnMinorSteps,
+                                                                                           safetyFactor,
+                                                                                           maximumFactorIncrease,
+                                                                                           minimumFactorIncrease,
+                                                                                           throwExceptionIfMinimumStepExceeded );
+}
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKutta4SettingsDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_4",
+                                               "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_fixed_step",
+                                               "Deprecated as of v1.1." );
+    return tni::rungeKutta4Settings< IndependentVariableType >( initialTimeStep, assessTerminationOnMinorSteps );
+}
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettingsDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const tni::CoefficientSets coefficientSet,
+        const tni::RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse =
+                tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_fixed_step_size",
+                                               "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_fixed_step",
+                                               "Deprecated as of v1.1." );
+    return tni::rungeKuttaFixedStepSettings< IndependentVariableType >(
+            initialTimeStep, coefficientSet, orderToUse, assessTerminationOnMinorSteps );
+}
 
 void expose_integrator( py::module& m )
 {
@@ -111,10 +199,16 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
             //       tni::AvailableIntegrators::euler)
             //       .value("runge_kutta_4_type",
             //       tni::AvailableIntegrators::rungeKutta4)
-            .value( "runge_kutta_fixed_step_size_type", tni::AvailableIntegrators::rungeKuttaFixedStepSize )
-            .value( "runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize )
-            .value( "bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer )
-            .value( "adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton )
+            .value( "runge_kutta_fixed_step_size_type",
+                    tni::AvailableIntegrators::rungeKuttaFixedStepSize,
+                    R"doc(Runge-Kutta integrator with a fixed step size.)doc" )
+            .value( "runge_kutta_variable_step_size_type",
+                    tni::AvailableIntegrators::rungeKuttaVariableStepSize,
+                    R"doc(Runge-Kutta integrator with adaptive step-size control.)doc" )
+            .value( "bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer, R"doc(Bulirsch-Stoer extrapolation integrator.)doc" )
+            .value( "adams_bashforth_moulton_type",
+                    tni::AvailableIntegrators::adamsBashforthMoulton,
+                    R"doc(Adams-Bashforth-Moulton multistep integrator.)doc" )
             .export_values( );
 
     py::enum_< tni::CoefficientSets >( m,
@@ -348,21 +442,39 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" );
-    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m, "IntegratorSettingsFloat" );
+    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m,
+                                                                                                           "IntegratorSettingsFloat",
+                                                                                                           R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.integrator`.
+
+      )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >,
-                tni::IntegratorSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeBaseSettings", R"doc(No documentation found.)doc" );
+                tni::IntegratorSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeBaseSettings", R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.integrator`.
+
+      )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE > >,
-                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m, "RungeKuttaVariableStepSizeSettingsVectorTolerances", R"doc(No documentation found.)doc" );
+                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeSettingsVectorTolerances", R"doc(
+
+         Model created from settings returned by
+         :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size_vector_tolerances`.
+
+      )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE > >,
-                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m, "RungeKuttaVariableStepSizeSettingsScalarTolerances", R"doc(No documentation found.)doc" );
+                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeSettingsScalarTolerances", R"doc(
+
+         Model created from settings returned by
+         :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size`.
+
+      )doc" );
 
     py::class_< tni::BulirschStoerIntegratorSettings< TIME_TYPE >,
                 std::shared_ptr< tni::BulirschStoerIntegratorSettings< TIME_TYPE > >,
@@ -406,9 +518,33 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "safety_factor", &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_ )
-            .def_readwrite( "minimum_step_decrease", &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_ )
-            .def_readwrite( "maximum_step_decrease", &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_ );
+            .def_readwrite( "safety_factor",
+                            &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_,
+                            R"doc(
+
+         Safety multiplier applied when computing the next integration step size.
+
+         :type: float
+
+      )doc" )
+            .def_readwrite( "minimum_step_decrease",
+                            &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_,
+                            R"doc(
+
+         Minimum permitted multiplicative factor in the next-step size calculation.
+
+         :type: float
+
+      )doc" )
+            .def_readwrite( "maximum_step_decrease",
+                            &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_,
+                            R"doc(
+
+         Maximum permitted multiplicative factor in the next-step size calculation.
+
+         :type: float
+
+      )doc" );
 
     py::class_< tni::IntegratorStepSizeValidationSettings, std::shared_ptr< tni::IntegratorStepSizeValidationSettings > >(
             m,
@@ -424,9 +560,33 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "minimum_step", &tni::IntegratorStepSizeValidationSettings::minimumStep_ )
-            .def_readwrite( "maximum_step", &tni::IntegratorStepSizeValidationSettings::maximumStep_ )
-            .def_readwrite( "minimum_step_handling", &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_ );
+            .def_readwrite( "minimum_step",
+                            &tni::IntegratorStepSizeValidationSettings::minimumStep_,
+                            R"doc(
+
+         Minimum allowed integration step magnitude, in seconds.
+
+         :type: float
+
+      )doc" )
+            .def_readwrite( "maximum_step",
+                            &tni::IntegratorStepSizeValidationSettings::maximumStep_,
+                            R"doc(
+
+         Maximum allowed integration step magnitude, in seconds.
+
+         :type: float
+
+      )doc" )
+            .def_readwrite( "minimum_step_handling",
+                            &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_,
+                            R"doc(
+
+         Policy used when the required step size falls below the minimum allowed step.
+
+         :type: MinimumIntegrationTimeStepHandling
+
+      )doc" );
 
     // FACTORY FUNCTIONS
     m.def( "print_butcher_tableau",
@@ -644,17 +804,16 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  IntegratorStepSizeControlSettings
      Object containing settings for per-element step-size control.
 
-
  Examples
  --------
  In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
  Here we will create them manually for demonstration purposes.
  We would like to create integrator settings with the following settings:
- 
+
  - Relative error tolerance of 1e-12
  - Absolute error tolerance of 1e-12
  - Relative and absolute error tolerances are applied to the position and velocity blocks of a single Cartesian state vector
- 
+
  .. code-block:: python
 
      from tudatpy.dynamics import propagation_setup
@@ -718,7 +877,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
      )
      ...
 
-
      )doc" );
 
     m.def( "step_size_control_blockwise_matrix_tolerance",
@@ -739,7 +897,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  different tolerances can be provided for each state block.
 
  If the size of the tolerances used as input differ from one another, or differ from the number of blocks, an exception is thrown
-
 
  .. note::
 
@@ -773,7 +930,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  - Relative error tolerance of 1e-12 for position and velocity blocks
  - Absolute error tolerance of 1e-9 for position and 1e-12 for velocity blocks
- 
+
  .. code-block:: python
 
      import numpy as np
@@ -843,9 +1000,6 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
      )
      ...
 
-
-
-
      )doc" );
 
     m.def( "standard_cartesian_state_element_blocks",
@@ -885,7 +1039,25 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
     m.def( "standard_rotational_state_element_blocks",
            &tni::getStandardRotationalStatesElementsToCheck,
            py::arg( "number_of_rows" ),
-           py::arg( "number_of_columns" ) );
+           py::arg( "number_of_columns" ),
+           R"doc(
+
+         Return the standard rotational-state element blocks used for integration error control of a state array with
+         ``number_of_rows`` rows and ``number_of_columns`` columns.
+
+         Parameters
+         ----------
+         number_of_rows : int
+             Number of rows in the state matrix for which blocks are generated.
+         number_of_columns : int
+             Number of columns in the state matrix for which blocks are generated.
+
+         Returns
+         -------
+         list[tuple[int, int, int, int]]
+             State matrix blocks, each specified by start row, start column, number of rows and number of columns.
+
+      )doc" );
 
     m.def( "step_size_control_custom_blockwise_scalar_tolerance",
            &tni::perBlockFromFunctionIntegratorStepSizeControlSettings< double >,
@@ -1434,14 +1606,8 @@ IntegratorSettings
 
      )doc" );
 
-    /*!
-     * DEPRECATED
-     * -------------------------------------------------------------------------
-     *
-     */
-
     m.def( "runge_kutta_variable_step_size_vector_tolerances",
-           &tni::rungeKuttaVariableStepSettingsVectorTolerances< TIME_TYPE >,
+           &rungeKuttaVariableStepSettingsVectorTolerancesDeprecated< TIME_TYPE >,
            py::arg( "initial_time_step" ),
            py::arg( "coefficient_set" ),
            py::arg( "minimum_step_size" ),
@@ -1452,10 +1618,11 @@ IntegratorSettings
            py::arg( "safety_factor" ) = 0.8,
            py::arg( "maximum_factor_increase" ) = 4.0,
            py::arg( "minimum_factor_increase" ) = 0.1,
-           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_variable_step` instead.)doc" );
 
     m.def( "runge_kutta_variable_step_size",
-           &tni::rungeKuttaVariableStepSettingsScalarTolerances< TIME_TYPE >,
+           &rungeKuttaVariableStepSettingsDeprecated< TIME_TYPE >,
            py::arg( "initial_time_step" ),
            py::arg( "coefficient_set" ),
            py::arg( "minimum_step_size" ),
@@ -1466,7 +1633,22 @@ IntegratorSettings
            py::arg( "safety_factor" ) = 0.8,
            py::arg( "maximum_factor_increase" ) = 4.0,
            py::arg( "minimum_factor_increase" ) = 0.1,
-           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_variable_step` instead.)doc" );
+
+    m.def( "runge_kutta_4",
+           &rungeKutta4SettingsDeprecated< TIME_TYPE >,
+           py::arg( "initial_time_step" ),
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_fixed_step` with ``CoefficientSets.rk_4`` instead.)doc" );
+
+    m.def( "runge_kutta_fixed_step_size",
+           &rungeKuttaFixedStepSettingsDeprecated< TIME_TYPE >,
+           py::arg( "initial_time_step" ),
+           py::arg( "coefficient_set" ),
+           py::arg( "order_to_use" ) = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_fixed_step` instead.)doc" );
 
     /*!
      * DEPRECATED UNDOCUMENTED
@@ -1479,20 +1661,8 @@ IntegratorSettings
            py::arg( "initial_time_step" ),
            py::arg( "assess_termination_on_minor_steps" ) = false );
 
-    m.def( "runge_kutta_4",
-           &tni::rungeKutta4Settings< TIME_TYPE >,
-           py::arg( "initial_time_step" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false );
-
-    m.def( "runge_kutta_fixed_step_size",
-           &tni::rungeKuttaFixedStepSettings< TIME_TYPE >,
-           py::arg( "initial_time_step" ),
-           py::arg( "coefficient_set" ),
-           py::arg( "order_to_use" ) = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
-           py::arg( "assess_termination_on_minor_steps" ) = false );
-
     m.def( "bulirsch_stoer",
-           &tni::bulirschStoerIntegratorSettingsDeprecatedNew< TIME_TYPE >,
+           &tni::bulirschStoerIntegratorSettings< TIME_TYPE >,
            py::arg( "initial_time_step" ),
            py::arg( "extrapolation_sequence" ),
            py::arg( "maximum_number_of_steps" ),

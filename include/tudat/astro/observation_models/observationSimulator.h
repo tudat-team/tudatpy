@@ -107,7 +107,7 @@ public:
      * Function to get the size of the observable for a given set of link ends
      * \return Size of the observable for a given set of link ends
      */
-    int getObservationSize( )
+    int getObservationSize( ) override
     {
         return observationModels_.begin( )->second->getObservationSize( );
     }
@@ -150,7 +150,7 @@ public:
                               const LinkEnds linkEnds,
                               const LinkEndType linkEndAssociatedWithTime,
                               const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
-                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
+                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) override
     {
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;

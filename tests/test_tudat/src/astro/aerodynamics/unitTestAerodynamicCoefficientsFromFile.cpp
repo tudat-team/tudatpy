@@ -247,8 +247,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 std::make_shared< PropagationHybridTerminationSettings >( propagationTerminationSettingsList, true );
 
         // Create propagation settings.
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                     accelerationModelMap,

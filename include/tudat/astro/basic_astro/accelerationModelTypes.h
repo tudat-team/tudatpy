@@ -42,7 +42,6 @@ enum AvailableAcceleration {
     undefined_acceleration,
     point_mass_gravity,
     aerodynamic,
-    cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
     mutual_spherical_harmonic_gravity,
     full_two_body_spherical_harmonic_gravity,

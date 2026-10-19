@@ -98,12 +98,10 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             double radiationPressureCoefficient = 1.2;
             std::vector< std::string > occultingBodies;
             //        occultingBodies.push_back( "Earth" );
-            std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                            "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-            bodies.at( "Orbiter" )
-                    ->setRadiationPressureInterface(
-                            "Sun", createRadiationPressureInterface( orbiterRadiationPressureSettings, "Orbiter", bodies ) );
+            addRadiationPressureTargetModel( bodies,
+                                             "Orbiter",
+                                             cannonballRadiationPressureTargetModelSettings(
+                                                     referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
             std::shared_ptr< IntegratorSettings<> > singleArcIntegratorSettings;
             std::shared_ptr< IntegratorSettings<> > multiArcIntegratorSettings;
@@ -151,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
             accelerationsOfOrbiter[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
             accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-            accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+            accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
             accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
             multiArcAccelerationMap[ "Orbiter" ] = accelerationsOfOrbiter;
 

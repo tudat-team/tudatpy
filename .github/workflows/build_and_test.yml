@@ -55,7 +55,7 @@ jobs:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
-            build_jobs: 3
+            build_jobs: 2
             ccache: ON
           - os: windows-latest
             label: win-64
@@ -156,6 +156,9 @@ jobs:
     - name: Create conda environment from environment.yml - ${{ matrix.platform.os }}
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
       # if: steps.cache.outputs.cache-hit != 'true'
+      env:
+        # Temporary CI pin until Windows Python header/library discovery is fixed.
+        CONDA_PINNED_PACKAGES: python=3.14.8
       run: conda env update -n tudat -f environment.yaml
 
     - name: Show full conda package list

@@ -468,14 +468,15 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
                 multiArcJuiceAccelerationMap.at( i ),
                 std::vector< std::string >( { "JUICE" } ),
                 multiArcSystemInitialStates.at( i ),
-                juiceArcEndTimes.at( i ) ) );
+                flybyTimes.at( i ),
+                multiArcIntegratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( juiceArcEndTimes.at( i ) ) ) );
     }
 
     std::shared_ptr< propagators::MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList );
 
-    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator =
-            MultiArcDynamicsSimulator<>( bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, flybyTimes, true, false, false );
+    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator = MultiArcDynamicsSimulator<>( bodies, multiArcPropagatorSettings );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
             backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -660,7 +661,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEpoch, propagationTimeStep );
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, propagationTimeStep );
 
     // Compute flybys times and associated central bodies
     std::vector< std::string > multiArcCentralBodies;
@@ -791,15 +792,18 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
             }
 
             multiArcInitialStates[ arc ] = arcWiseConcatenatedStates;
-            propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings<> >( centralBodiesPerArc.at( arc ),
-                                                                                multiArcCompleteAccelerationMaps.at( arc ),
-                                                                                bodiesToPropagatePerArc.at( arc ),
-                                                                                arcWiseConcatenatedStates,
-                                                                                multiArcEndTimes.at( arc ) ) );
+            propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings<> >(
+                    centralBodiesPerArc.at( arc ),
+                    multiArcCompleteAccelerationMaps.at( arc ),
+                    bodiesToPropagatePerArc.at( arc ),
+                    arcWiseConcatenatedStates,
+                    arcStartTimes.at( arc ),
+                    integratorSettings->clone( ),
+                    std::make_shared< PropagationTimeTerminationSettings >( multiArcEndTimes.at( arc ) ) ) );
         }
         std::shared_ptr< MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
                 std::make_shared< MultiArcPropagatorSettings<> >( propagatorSettingsList );
+        multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
         for( auto itr : multiArcCentralBodiesPerBody )
         {
@@ -843,17 +847,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         //                    propagatorSettingsList.at( 0 ) ), singleArcParametersToEstimate/*, true, nullptr, false, true, false*/ );
 
         MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquations =
-                MultiArcVariationalEquationsSolver< double, double >(
-                        bodies,
-                        integratorSettings,
-                        multiArcPropagatorSettings,
-                        parametersToEstimate,
-                        arcStartTimes,
-                        true,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                        false,
-                        true,
-                        true );
+                MultiArcVariationalEquationsSolver< double, double >( bodies, multiArcPropagatorSettings, parametersToEstimate, true );
 
         std::vector< std::map< double, Eigen::VectorXd > > multiArcStateHistory =
                 multiArcVariationalEquations.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
@@ -957,7 +951,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 one_way_range, linkEndsGanymede, lightTimeCorrections /*std::shared_ptr< LightTimeCorrectionSettings >( )*/ ) );
 
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, multiArcPropagatorSettings );
+                bodies, parametersToEstimate, observationSettingsList, multiArcPropagatorSettings );
 
         // Compute observation times
         std::vector< double > observationTimes;
@@ -1093,16 +1087,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
             MultiArcVariationalEquationsSolver< double, double > perArcVariationalEquations =
                     MultiArcVariationalEquationsSolver< double, double >(
-                            bodies,
-                            integratorSettings,
-                            perArcPropagatorSettings,
-                            singleArcParametersToEstimate,
-                            { arcStartTimes.at( arc ) },
-                            true,
-                            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                            false,
-                            true,
-                            true );
+                            bodies, perArcPropagatorSettings, singleArcParametersToEstimate, true );
 
             // Comparison - state histories
             std::vector< std::map< double, Eigen::VectorXd > > perArcStateHistory =

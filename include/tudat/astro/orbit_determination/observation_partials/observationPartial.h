@@ -54,7 +54,7 @@ public:
      *  \param times List of times at each link end during observation.
      *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
      *  is kept constant when computing observable.
-     *  \param currentObservation Value of observation for which partial scaling is to be computed
+     *  \param currentObservation Ideal value of observation for which partial scaling is to be computed
      */
     virtual void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                          const std::vector< double >& times,
@@ -132,6 +132,12 @@ public:
         return false;
     }
 
+    //! Whether getLinkIndependentPartials can return a non-empty contribution for the given parameter.
+    virtual bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterType )
+    {
+        return useLinkIndependentPartials( );
+    }
+
     virtual bool useLightTimeGradientPartials( )
     {
         return false;
@@ -175,7 +181,7 @@ public:
      *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
      *  \param times Link end times.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+     *  \param currentObservation Ideal value of the observation for which the partial is to be computed (default NaN for
      *  compatibility purposes).
      *  \return Vector of pairs containing partial values and associated times.
      */
@@ -370,7 +376,7 @@ public:
      */
     ObservationPartialWrtConstantRelativeBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
-        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_additive_observation_bias,
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_relative_observation_bias,
                                                                linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {}
@@ -396,7 +402,9 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
-        return { std::make_pair( currentObservation, times.at( 0 ) ) };
+        // Each relative-bias component affects only the corresponding observable component.
+        const Eigen::Matrix< double, ObservationSize, ObservationSize > partial = currentObservation.asDiagonal( );
+        return { std::make_pair( partial, times.at( 0 ) ) };
     }
 
 private:
@@ -437,7 +445,7 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ), linkEndIndex_( linkEndIndex ),
         numberOfArcs_( numberOfArcs )
     {
-        totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
+        totalPartial_.setZero( ObservationSize, ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
@@ -465,7 +473,8 @@ public:
         if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
         {
             int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
-            totalPartial_.segment( currentIndex * ObservationSize, ObservationSize ) = currentObservation;
+            // Each component affects its own column in the active arc; all other columns remain zero.
+            totalPartial_.block( 0, currentIndex * ObservationSize, ObservationSize, ObservationSize ) = currentObservation.asDiagonal( );
         }
         return { std::make_pair( totalPartial_, times.at( linkEndIndex_ ) ) };
     }
@@ -486,8 +495,8 @@ private:
     //! Number of arcs for which biases are defined
     int numberOfArcs_;
 
-    //! Pre-allocated partial vector
-    Eigen::VectorXd totalPartial_;
+    //! One row per observable component and one observable-sized column block per arc.
+    Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > totalPartial_;
 };
 
 // extern template class ObservationPartial< 1 >;

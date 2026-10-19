@@ -60,29 +60,55 @@ Examples
 
 
       )doc" )
-            .value( "one_way_range_type", tom::ObservableType::one_way_range )
-            .value( "n_way_range_type", tom::ObservableType::n_way_range )
-            .value( "angular_position_type", tom::ObservableType::angular_position )
-            .value( "azimuth_elevation_type", tom::ObservableType::azimuth_elevation_angle )
-            .value( "relative_angular_position_type", tom::ObservableType::relative_angular_position )
-            .value( "position_observable_type", tom::ObservableType::position_observable )
-            .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
-            .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
-            .value( "one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
-            .value( "one_way_averaged_doppler_type", tom::ObservableType::one_way_differenced_range )
-            .value( "two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
-            .value( "n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
-            .value( "euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
-            .value( "dsn_one_way_averaged_doppler_type", tom::ObservableType::dsn_one_way_averaged_doppler )
-            .value( "dsn_n_way_averaged_doppler_type", tom::ObservableType::dsn_n_way_averaged_doppler )
-            .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
-            .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
-            .value( "differenced_time_of_arrival_type", tom::ObservableType::differenced_time_of_arrival )
-            .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates )
-            .value( "differenced_frequency_of_arrival_type", tom::ObservableType::differenced_frequency_of_arrival )
-            .value( "position_angle_type", tom::ObservableType::position_angle )
-            .value( "separation_distance_type", tom::ObservableType::separation_distance )
-            .value( "position_angle_and_separation_type", tom::ObservableType::position_angle_and_separation )
+            .value( "one_way_range_type", tom::ObservableType::one_way_range, R"doc(One way range observable.)doc" )
+            .value( "n_way_range_type", tom::ObservableType::n_way_range, R"doc(N way range observable.)doc" )
+            .value( "angular_position_type", tom::ObservableType::angular_position, R"doc(Angular position observable.)doc" )
+            .value( "azimuth_elevation_type", tom::ObservableType::azimuth_elevation_angle, R"doc(Azimuth elevation observable.)doc" )
+            .value( "relative_angular_position_type",
+                    tom::ObservableType::relative_angular_position,
+                    R"doc(Relative angular position observable.)doc" )
+            .value( "position_observable_type", tom::ObservableType::position_observable, R"doc(Position observable.)doc" )
+            .value( "velocity_observable_type", tom::ObservableType::velocity_observable, R"doc(Velocity observable.)doc" )
+            .value( "relative_position_observable_type",
+                    tom::ObservableType::relative_position_observable,
+                    R"doc(Relative position observable.)doc" )
+            .value( "one_way_instantaneous_doppler_type",
+                    tom::ObservableType::one_way_doppler,
+                    R"doc(One way instantaneous doppler observable.)doc" )
+            .value( "one_way_averaged_doppler_type",
+                    tom::ObservableType::one_way_differenced_range,
+                    R"doc(One way averaged doppler observable.)doc" )
+            .value( "two_way_instantaneous_doppler_type",
+                    tom::ObservableType::two_way_doppler,
+                    R"doc(Two way instantaneous doppler observable.)doc" )
+            .value( "n_way_averaged_doppler_type",
+                    tom::ObservableType::n_way_differenced_range,
+                    R"doc(N way averaged doppler observable.)doc" )
+            .value( "euler_angle_313_observable_type",
+                    tom::ObservableType::euler_angle_313_observable,
+                    R"doc(Euler angle 313 observable.)doc" )
+            .value( "dsn_one_way_averaged_doppler_type",
+                    tom::ObservableType::dsn_one_way_averaged_doppler,
+                    R"doc(Dsn one way averaged doppler observable.)doc" )
+            .value( "dsn_n_way_averaged_doppler_type",
+                    tom::ObservableType::dsn_n_way_averaged_doppler,
+                    R"doc(Dsn n way averaged doppler observable.)doc" )
+            .value( "doppler_measured_frequency_type",
+                    tom::ObservableType::doppler_measured_frequency,
+                    R"doc(Doppler measured frequency observable.)doc" )
+            .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range, R"doc(Dsn n way range observable.)doc" )
+            .value( "differenced_time_of_arrival_type",
+                    tom::ObservableType::differenced_time_of_arrival,
+                    R"doc(Differenced time of arrival observable.)doc" )
+            .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates, R"doc(Pixel coordinates observable.)doc" )
+            .value( "differenced_frequency_of_arrival_type",
+                    tom::ObservableType::differenced_frequency_of_arrival,
+                    R"doc(Differenced frequency of arrival observable.)doc" )
+            .value( "position_angle_type", tom::ObservableType::position_angle, R"doc(Position angle observable.)doc" )
+            .value( "separation_distance_type", tom::ObservableType::separation_distance, R"doc(Angular separation observable.)doc" )
+            .value( "position_angle_and_separation_type",
+                    tom::ObservableType::position_angle_and_separation,
+                    R"doc(Position angle and angular separation observable.)doc" )
             .export_values( );
 }
 
@@ -1377,10 +1403,10 @@ where the sign is defined by the ``subtract_doppler_signature`` input (negative 
 
 Computing this observable requires the following ancillary settings to be set:
 
-* ``doppler_integration_time`` — Defines the observable integration time at the receiver (in UTC seconds).
-* ``doppler_reference_frequency`` — The Doppler reference frequency :math:`f_{\text{ref}}`. If not used, must be set to 0.
-* ``frequency_bands`` — The frequency band for the up- and downlink, used to compute the turnaround ratio :math:`M_{2}` on the spacecraft.
-* ``reception_reference_frequency_band`` — The receiver reference frequency band used to compute :math:`M_{2_{R}}`.
+* ``doppler_integration_time``: Defines the observable integration time at the receiver (in UTC seconds).
+* ``doppler_reference_frequency``: The Doppler reference frequency :math:`f_{\text{ref}}`. If not used, must be set to 0.
+* ``frequency_bands``: The frequency band for the up- and downlink, used to compute the turnaround ratio :math:`M_{2}` on the spacecraft.
+* ``reception_reference_frequency_band``: The receiver reference frequency band used to compute :math:`M_{2_{R}}`.
 
 Typically, these quantities are loaded automatically from the tracking data files.
 
@@ -1489,7 +1515,7 @@ The range observable at time tag :math:`t_{R}` (in TDB) is computed as follows, 
 
    h = \mod\left(F, 2^{n+6}\right)
 
-This observable gives the range in “range units” (RU), modulo the factor :math:`2^{n+6}`. The conversion factor from
+This observable gives the range in "range units" (RU), modulo the factor :math:`2^{n+6}`. The conversion factor from
 range units to meters depends on the transmitted frequency and can therefore not (if the signal is ramped) be computed
 a priori. The conversion factor is equal to:
 

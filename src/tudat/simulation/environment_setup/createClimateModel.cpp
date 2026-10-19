@@ -53,6 +53,8 @@ std::shared_ptr< environment::ClimateModel > createClimateModel( std::shared_ptr
             break;
         }
 #endif
+        case undefined_climate_model:
+            throw std::runtime_error( "Error when making climate model, undefined climate model type" );
         default:
             throw std::runtime_error( "Error when making climate model, input type not recognized" );
     }

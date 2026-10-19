@@ -20,8 +20,6 @@ namespace tudat
 namespace utilities
 {
 
-void printDeprecationError( const std::string& name, const std::string& descriptionPage );
-
 void printDeprecationWarning( const std::string& oldName, const std::string& newName, const std::string& description = "" );
 
 }  // namespace utilities
