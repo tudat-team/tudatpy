@@ -13,6 +13,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -48,23 +49,18 @@ struct DsnAmcRecord {
     double windDirection;
 };
 
-//! Function to read all records of a DSN AMC path delay file (without any quality screening)
+//! Function to read the records of a DSN AMC path delay file
 /*!
- * Function to read all records of a DSN AMC path delay file (without any quality screening). The time is converted from UTC
- * seconds since 1970 to UTC seconds since J2000, and path delays from cm to m. Other quantities are in the units of the file.
+ * Function to read the records of a DSN AMC path delay file. The time is converted from UTC seconds since 1970 to UTC seconds
+ * since J2000, and path delays from cm to m. Other quantities are in the units of the file.
  * \param fileName Name of AMC file
- * \return List of records in file
+ * \param filterInvalidRecords Boolean denoting whether only valid records are retained: those for which all quality flags are 0,
+ * and the path delays are valid (non-negative, and not equal to the 999 cm placeholder for a missing retrieval)
+ * \return Pair with list of records in file, and the zenith [dry, wet] path delays [m] of these records, with UTC time (seconds
+ * since J2000) as key
  */
-std::vector< DsnAmcRecord > readDsnAmcFile( const std::string& fileName );
-
-//! Function to retrieve valid zenith path delays from DSN AMC records
-/*!
- * Function to retrieve valid zenith path delays from DSN AMC records, retaining only records for which all quality flags are 0, and
- * the path delays are valid (non-negative, and not equal to the 999 cm placeholder for a missing retrieval).
- * \param records AMC records (from readDsnAmcFile)
- * \return Zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key.
- */
-std::map< double, Eigen::Vector2d > getValidDsnAmcZenithDelays( const std::vector< DsnAmcRecord >& records );
+std::pair< std::vector< DsnAmcRecord >, std::map< double, Eigen::Vector2d > > readDsnAmcFile( const std::string& fileName,
+                                                                                              const bool filterInvalidRecords = true );
 
 }  // namespace input_output
 }  // namespace tudat

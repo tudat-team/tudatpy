@@ -484,9 +484,10 @@ Examples
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays.
 
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays (e.g. from water vapour
-radiometers, see :func:`~tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays`), mapped to the signal elevation with
-the selected mapping function (independent of the mapping function of the fallback correction). The measured zenith wet path delay replaces the wet path delay of the fallback correction; the dry path delay
-of the fallback correction is retained, unless ``use_measured_dry_delay`` is true. The measurements are linearly interpolated if
+radiometers, see :func:`~tudatpy.data_input.environment_data.read_dsn_amc_file`), mapped to the signal elevation with the selected
+mapping function (independent of the mapping function of the fallback correction). The measured zenith wet path delay replaces the wet
+path delay of the fallback correction; the dry path delay of the fallback correction is retained, unless ``use_measured_dry_delay`` is
+true. The measurements are linearly interpolated if
 they are separated by at most ``maximum_interpolation_gap``. Outside of the measurements (and for ground stations without measurements),
 the fallback correction is used.
 

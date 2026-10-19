@@ -33,11 +33,7 @@ Functions
 
    read_dsn_amc_file
 
-   get_valid_dsn_amc_zenith_delays
-
 .. autofunction:: tudatpy.data_input.environment_data.read_dsn_amc_file
-
-.. autofunction:: tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays
 
 Classes
 -------
