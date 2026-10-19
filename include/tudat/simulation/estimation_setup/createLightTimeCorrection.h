@@ -197,8 +197,8 @@ private:
     TroposphericMappingModel troposphericMappingModelType_;
 };
 
-//! Settings for tropospheric correction from measured zenith path delays per ground station (Niell mapping), with a fallback
-//! (mapped tropospheric correction) outside of the measurements
+//! Settings for tropospheric correction from measured zenith path delays per ground station, with a fallback (mapped tropospheric
+//! correction) outside of the measurements
 class MeasuredTroposphericCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
@@ -206,10 +206,12 @@ public:
                                             const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
                                             const double maximumInterpolationGap,
                                             const bool useMeasuredDryDelay = false,
-                                            const std::string& bodyWithAtmosphere = "Earth" ):
+                                            const std::string& bodyWithAtmosphere = "Earth",
+                                            const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell ):
         LightTimeCorrectionSettings( measured_tropospheric ), zenithDelaysPerStation_( zenithDelaysPerStation ),
         fallbackSettings_( fallbackSettings ), maximumInterpolationGap_( maximumInterpolationGap ),
-        useMeasuredDryDelay_( useMeasuredDryDelay ), bodyWithAtmosphere_( bodyWithAtmosphere )
+        useMeasuredDryDelay_( useMeasuredDryDelay ), bodyWithAtmosphere_( bodyWithAtmosphere ),
+        troposphericMappingModelType_( troposphericMappingModel )
     {}
 
     const std::map< std::string, std::map< double, Eigen::Vector2d > >& getZenithDelaysPerStation( ) const
@@ -232,6 +234,10 @@ public:
     {
         return bodyWithAtmosphere_;
     }
+    TroposphericMappingModel getTroposphericMappingModelType( ) const
+    {
+        return troposphericMappingModelType_;
+    }
 
 private:
     std::map< std::string, std::map< double, Eigen::Vector2d > > zenithDelaysPerStation_;
@@ -239,6 +245,7 @@ private:
     double maximumInterpolationGap_;
     bool useMeasuredDryDelay_;
     std::string bodyWithAtmosphere_;
+    TroposphericMappingModel troposphericMappingModelType_;
 };
 
 //! Function to create settings for tropospheric correction from measured zenith path delays per ground station
@@ -247,10 +254,15 @@ inline std::shared_ptr< LightTimeCorrectionSettings > measuredTroposphericCorrec
         const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
         const double maximumInterpolationGap,
         const bool useMeasuredDryDelay = false,
-        const std::string& bodyWithAtmosphere = "Earth" )
+        const std::string& bodyWithAtmosphere = "Earth",
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell )
 {
-    return std::make_shared< MeasuredTroposphericCorrectionSettings >(
-            zenithDelaysPerStation, fallbackSettings, maximumInterpolationGap, useMeasuredDryDelay, bodyWithAtmosphere );
+    return std::make_shared< MeasuredTroposphericCorrectionSettings >( zenithDelaysPerStation,
+                                                                       fallbackSettings,
+                                                                       maximumInterpolationGap,
+                                                                       useMeasuredDryDelay,
+                                                                       bodyWithAtmosphere,
+                                                                       troposphericMappingModel );
 }
 
 class SaastamoinenTroposphericCorrectionSettings : public LightTimeCorrectionSettings

@@ -1037,7 +1037,8 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
 }
 
 // Test the creation of the measured tropospheric correction from settings: conversion of the measurement epochs from UTC to TDB,
-// use of the Niell mapping for the measured correction, and use of the fallback correction for stations without measurements
+// use of the mapping of the measured correction settings (default Niell), and use of the fallback correction for stations without
+// measurements
 BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
 {
     // Create Earth with DSN ground stations, and a spacecraft
@@ -1086,8 +1087,8 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
     BOOST_CHECK_SMALL( measured->getWetZenithRangeCorrectionFunction( )( tdb ) - 0.07, 1.0e-8 );
     BOOST_CHECK_EQUAL( measured->getDryZenithRangeCorrectionFunction( )( tdb ), 2.0 );
 
-    // Check that the light-time correction uses the Niell mapping for the dry and wet delays (for a signal at an arbitrary
-    // non-zenith elevation), even though the fallback settings use the Chao mapping
+    // Check that the light-time correction uses the (default) Niell mapping of the measured correction settings for the dry and wet
+    // delays (for a signal at an arbitrary non-zenith elevation), rather than the Chao mapping of the fallback settings
     Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
     spacecraftState.head< 3 >( ) = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( tdb ) *
             ( stationPosition.normalized( ) + 2.0 * stationPosition.unitOrthogonal( ) ) * 1.0e9;

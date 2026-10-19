@@ -478,13 +478,14 @@ Examples
            py::arg( "maximum_interpolation_gap" ),
            py::arg( "use_measured_dry_delay" ) = false,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
+           py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
            R"doc(
 
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays.
 
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays (e.g. from water vapour
 radiometers, see :func:`~tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays`), mapped to the signal elevation with
-the Niell mapping function. The measured zenith wet path delay replaces the wet path delay of the fallback correction; the dry path delay
+the selected mapping function (independent of the mapping function of the fallback correction). The measured zenith wet path delay replaces the wet path delay of the fallback correction; the dry path delay
 of the fallback correction is retained, unless ``use_measured_dry_delay`` is true. The measurements are linearly interpolated if
 they are separated by at most ``maximum_interpolation_gap``. Outside of the measurements (and for ground stations without measurements),
 the fallback correction is used.
@@ -504,6 +505,8 @@ use_measured_dry_delay : bool, default = False
     Boolean denoting whether the measured dry path delay replaces that of the fallback correction.
 body_with_atmosphere_name : str, default = "Earth"
     Name of the body with the atmosphere.
+mapping_model : TroposphericMappingModel, default = niell
+    Mapping function used to map the zenith path delays to the signal elevation.
 
 Returns
 -------

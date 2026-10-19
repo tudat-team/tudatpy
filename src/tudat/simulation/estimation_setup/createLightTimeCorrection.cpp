@@ -235,7 +235,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
             lightTimeCorrection = std::make_shared< MeasuredTroposphericCorrection >(
                     tdbZenithDelays,
                     fallback,
-                    createTroposphericElevationMapping( TroposphericMappingModel::niell, bodies, transmitter, receiver, isUplink ),
+                    createTroposphericElevationMapping(
+                            settings->getTroposphericMappingModelType( ), bodies, transmitter, receiver, isUplink ),
                     isUplink,
                     settings->getMaximumInterpolationGap( ),
                     settings->getUseMeasuredDryDelay( ) );
