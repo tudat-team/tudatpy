@@ -8,19 +8,18 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cstdio>
 #include <fstream>
 #include <limits>
 
-#include <boost/filesystem.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readSinexFile.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/support/testFileUtilities.h"
 
 namespace tudat
 {
@@ -32,9 +31,7 @@ namespace
 
 std::string createTempPath( const std::string& suffix )
 {
-    const boost::filesystem::path tempPath =
-            boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat-ilrs-%%%%%%" + suffix );
-    return tempPath.string( );
+    return createTemporaryFilePath( "tudat-ilrs", suffix );
 }
 
 void writeSyntheticSinexFile( const std::string& fileName )

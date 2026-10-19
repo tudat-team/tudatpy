@@ -60,6 +60,39 @@ def _batch_from_optical_table(table, in_degrees=True, custom_name=None):
     return batch
 
 
+def test_observatory_names_counts_and_catalog_filters():
+    """Summarize four observations and verify station names, counts, and ground/space choices."""
+    batch = BatchMPC()
+    batch._table = pd.DataFrame({"observatory": ["089", "089", "C51", "ZZZ"]})
+    catalog = Table(
+        {
+            "Code": ["89", "C51", "500"],
+            "Name": ["Nikolaev", "WISE", "Geocenter"],
+            "Longitude": [31.98, np.nan, 0.0],
+        }
+    )
+    with patch("astroquery.mpc.MPC.get_observatory_codes", return_value=catalog):
+        # Known codes receive their published names and every used code receives the right count.
+        stations = batch.observatories_table().set_index("Code")
+        assert stations["Name"].to_dict() == {"089": "Nikolaev", "C51": "WISE", "ZZZ": "ZZZ"}
+        assert stations["count"].to_dict() == {"089": 2, "C51": 1, "ZZZ": 1}
+
+        # Asking for space or ground stations must separate C51 from the two ground stations.
+        assert batch.observatories_table(only_space_telescopes=True).Code.tolist() == ["C51"]
+        assert batch.observatories_table(exclude_space_telescopes=True).Code.tolist() == [
+            "089",
+            "ZZZ",
+        ]
+        full_catalog = batch.observatories_table(only_in_batch=False).set_index("Code")
+        # Asking for the full catalogue must include unused station 500 with count zero.
+        assert full_catalog.loc["500", "count"] == 0
+        assert full_catalog.loc["089", "count"] == 2
+        empty_catalog = BatchMPC().observatories_table(only_in_batch=False)
+        # With no observations, the full catalogue still contains all three stations at count zero.
+        assert len(empty_catalog) == 3
+        assert (empty_catalog["count"] == 0).all()
+
+
 # ---------------------------------------------------------------------------
 # standardize_optical_dataframe: normalizes observatory codes and MPC numbers
 # before they're stored, so downstream lookups/joins are consistent.
@@ -316,9 +349,38 @@ def test_read_80_column_data_reads_file(tmp_path):
         "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
     )
 
-    _check_tracking_data_pair(
-        read_80_column_data([str(observation_file)], custom_name="Eros"), expected_sets=1
+    tracking_data, supplementary_data = read_80_column_data(
+        [str(observation_file)], custom_name="Eros"
     )
+
+    # The S record must produce one UTC angular-position data set.
+    assert len(tracking_data) == 1
+    assert tracking_data[0].time_scale == "UTC"
+    assert tracking_data[0].observable_type == "AngularPosition"
+
+    # The paired s record must provide receiver-state data for observatory 500.
+    assert len(supplementary_data) == 1
+    assert supplementary_data[0].body_name == "500"
+    assert supplementary_data[0].reference_point_name == ""
+
+
+def test_mpc80_historical_coordinates_load_before_epoch_filter(monkeypatch):
+    records = [
+        "00001         A1801 01 11.79783 03 36 43.82 +16 55                      MC004535",
+        "00001         A1801 01 18.77899 03 37 11    +17 25                      MC004535",
+        "00001         C2025 10 13.24277 00 20 45.76 +25 53 06.1          18.3 RrET147718",
+    ]
+    monkeypatch.setattr(
+        BatchMPC, "_fetch_mpc80_records", staticmethod(lambda code, id_type: records)
+    )
+    batch = BatchMPC()
+    batch.get_observations(["1"], use_mpc80_format=True)
+    assert len(batch.table) == 3
+    np.testing.assert_allclose(batch.table.DEC.iloc[:2], np.deg2rad([16 + 55 / 60, 17 + 25 / 60]))
+
+    batch.filter(epoch_start=0.0)
+    assert len(batch.table) == 1
+    assert batch.table.note2.tolist() == ["C"]
 
 
 # ---------------------------------------------------------------------------

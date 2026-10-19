@@ -76,12 +76,20 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type double vectors
     for( auto& it : trackingData->getAncillarySettingsDoubleVector( ) )
     {
+        if( shouldSkipObservationCollectionAncillarySetting( it.first ) )
+        {
+            continue;
+        }
         ancillarySettings->setAncillaryDoubleVectorData( ancillarySettings->getAncillaryVariableFromString( it.first ), it.second );
     }
 
     // Parse and add ancillary settings of type string vectors (frequency band(s))
     for( auto& it : trackingData->getAncillarySettingsStringVector( ) )
     {
+        if( trackingData->isObservationMetadata( it.first ) || shouldSkipObservationCollectionAncillarySetting( it.first ) )
+        {
+            continue;
+        }
         observation_models::ObservationAncillarySimulationVariable ancillaryVariable =
                 ancillarySettings->getAncillaryVariableFromString( it.first );
 
@@ -108,6 +116,10 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type string (reception reference frequency band)
     for( auto& it : trackingData->getAncillarySettingsString( ) )
     {
+        if( shouldSkipObservationCollectionAncillarySetting( it.first ) )
+        {
+            continue;
+        }
         observation_models::ObservationAncillarySimulationVariable ancillaryVariable =
                 ancillarySettings->getAncillaryVariableFromString( it.first );
 
@@ -125,8 +137,9 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
                 observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( it.second ) ) );
     }
 
-    if( trackingData->getAncillarySettingsDouble( ).empty( ) && trackingData->getAncillarySettingsDoubleVector( ).empty( ) &&
-        trackingData->getAncillarySettingsStringVector( ).empty( ) && trackingData->getAncillarySettingsString( ).empty( ) )
+    // Metadata and reader-only settings may fill the input maps without producing
+    // simulation settings. Angular observations require nullptr in that case.
+    if( ancillarySettings->getDoubleData( ).empty( ) && ancillarySettings->getDoubleVectorData( ).empty( ) )
     {
         return nullptr;
     }
@@ -160,16 +173,8 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
     setObservationWeightsFromTrackingDataScheme< ObservationScalarType, TimeType >( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
 
     // Apply corrections if requested (and if they exist)
-    if( applyCorrections )
+    if( applyCorrections && !trackingData->getObservationCorrections( ).empty( ) )
     {
-        // Check if corrections are available in the TrackingData object
-        if( trackingData->getObservationCorrections( ).empty( ) )
-        {
-            std::cerr << "Warning when applying corrections to observations when creating a single observation set from tracking data: "
-                         "no such corrections available in the tracking data object."
-                      << std::endl;
-        }
-
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections = trackingData->getObservationCorrections( );
 
         // Check size consistency

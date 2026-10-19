@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
@@ -98,14 +97,10 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagation )
         double radiationPressureCoefficient = 1.2;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Earth" );
-        std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-        // Create and set radiation pressure settings
-        bodies.at( "Vehicle" )
-                ->setRadiationPressureInterface( "Sun",
-                                                 createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+        addRadiationPressureTargetModel(
+                bodies,
+                "Vehicle",
+                cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
         //    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
         //        std::shared_ptr< interpolators::OneDimensionalInterpolator
@@ -118,8 +113,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagation )
         accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-        accelerationsOfVehicle[ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+        accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
         accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -212,9 +206,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagation )
         std::shared_ptr< CovarianceAnalysisInput< double, double > > estimationInput =
                 std::make_shared< CovarianceAnalysisInput< double, double > >( simulatedObservations );
 
-        std::map< observation_models::ObservableType, double > weightPerObservable;
-        weightPerObservable[ position_observable ] = 1.0;
-        estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+        simulatedObservations->setConstantWeight( 1.0, observationParser( position_observable ) );
 
         // Perform estimation
         std::shared_ptr< CovarianceAnalysisOutput< double > > estimationOutput =
@@ -372,14 +364,10 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
             double radiationPressureCoefficient = 1.2;
             std::vector< std::string > occultingBodies;
             occultingBodies.push_back( "Earth" );
-            std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                            "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-            // Create and set radiation pressure settings
-            bodies.at( "Vehicle" )
-                    ->setRadiationPressureInterface(
-                            "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+            addRadiationPressureTargetModel( bodies,
+                                             "Vehicle",
+                                             cannonballRadiationPressureTargetModelSettings(
+                                                     referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
             // Set accelerations on Vehicle that are to be taken into account.
             SelectedAccelerationMap accelerationMap;
@@ -392,7 +380,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
             accelerationsOfVehicle[ "Mars" ].push_back(
                     std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
             accelerationsOfVehicle[ "Sun" ].push_back(
-                    std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+                    std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
             accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -515,9 +503,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
                     std::make_shared< CovarianceAnalysisInput< double, double > >(
                             simulatedObservations, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
 
-            std::map< observation_models::ObservableType, double > weightPerObservable;
-            weightPerObservable[ position_observable ] = 1.0;
-            estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+            simulatedObservations->setConstantWeight( 1.0, observationParser( position_observable ) );
 
             // Perform estimation
             std::shared_ptr< CovarianceAnalysisOutput< double > > estimationOutput =

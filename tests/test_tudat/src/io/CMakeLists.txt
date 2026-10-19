@@ -137,6 +137,26 @@ TUDAT_ADD_TEST_CASE(TrackingData
 TUDAT_ADD_TEST_CASE(IfmsFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    TUDAT_ADD_TEST_CASE(ObservationCollectionSerialization
+            PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+    TUDAT_ADD_TEST_CASE(PropagationResultsSerialization
+        PRIVATE_LINKS
+            ${Tudat_PROPAGATION_LIBRARIES}
+            ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+    TUDAT_ADD_TEST_CASE(PodInputOutputTypesSerialization
+        PRIVATE_LINKS
+            ${Tudat_PROPAGATION_LIBRARIES}
+            ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+    TUDAT_ADD_TEST_CASE(SettingsSerialization
+            PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+endif ()
+
 TUDAT_ADD_TEST_CASE(InpopFileReading
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 

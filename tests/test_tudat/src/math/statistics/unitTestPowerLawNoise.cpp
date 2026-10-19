@@ -1,14 +1,11 @@
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <iostream>
 #include <ctime>
 
-#include <boost/format.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "tudat/math/statistics/powerLawNoiseGeneration.h"
 #include "tudat/math/statistics/allanVariance.h"
@@ -76,7 +73,7 @@ double getExpectedAllanVarianceExponent( const int phasePower )
 
 BOOST_AUTO_TEST_CASE( testPowerLawNoiseSimulation )
 {
-    std::vector< double > maximumFrequencies = boost::assign::list_of( 128.0 );
+    std::vector< double > maximumFrequencies = { 128.0 };
     int counter = 0;
     double timeIntervalRatio = 0.0;
     double allanVarianceRatio = 0.0;

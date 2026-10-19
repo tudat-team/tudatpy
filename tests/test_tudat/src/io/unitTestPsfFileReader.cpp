@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
@@ -16,7 +15,7 @@
 #include <memory>
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readPsfFile.h"
@@ -152,6 +151,80 @@ BOOST_AUTO_TEST_CASE( testSinglePsfFileReader )
     BOOST_CHECK_EQUAL( trackingDataAndSupplementaryData.first.front( )->getReferenceLinkEnd( ), "receiver" );
     BOOST_CHECK_EQUAL( trackingDataAndSupplementaryData.first.front( )->getTimeScale( ), "UTC" );
     BOOST_CHECK_EQUAL( trackingDataAndSupplementaryData.first.front( )->getSingleObservationSize( ), 2 );
+}
+
+// Create one image with a chosen time, camera direction, and focal length.
+input_output::psf::RawPsfFileContents syntheticPsf( const double epoch, const double focalLength = 1.0 )
+{
+    using namespace input_output::psf;
+    RawPsfFileContents file;
+    file.spacecraftId_ = "Voyager2";
+    const Eigen::Quaterniond rotation( Eigen::AngleAxisd( epoch / 3600.0, Eigen::Vector3d::UnitZ( ) ) );
+    auto camera =
+            std::make_shared< data::CameraInstrumentSupplementaryData >( "NAC",
+                                                                         focalLength,
+                                                                         Eigen::Vector2d::Zero( ),
+                                                                         Eigen::Vector4d::Zero( ),
+                                                                         Eigen::Matrix< double, 2, 3 >::Zero( ),
+                                                                         Eigen::Matrix< double, 6, 1 >::Zero( ),
+                                                                         Eigen::Vector3d::Zero( ),
+                                                                         std::map< double, Eigen::Quaterniond >{ { epoch, rotation } } );
+    auto supplementary = std::make_shared< data::TrackingSupplementaryData >( "Voyager2", "NAC" );
+    supplementary->setInstrumentSupplementaryData( { camera } );
+    file.trackingSupplementaryData_ = { supplementary };
+    RawPsfFileImageContents image;
+    image.cameraId_ = "NAC";
+    image.endOfExposureTimeUtcString_ = epoch == 0.0 ? "2000 JAN 01 12:00:00" : "2000 JAN 01 13:00:00";
+    auto measurement = std::make_shared< RawPsfMeasurement >( );
+    measurement->opticalImageType_ = OpticalImageType::satellite;
+    measurement->imageName_ = "Triton";
+    measurement->sigmaPixelLine_ = Eigen::Vector2d::Ones( );
+    image.measurements_ = { measurement };
+    file.images_ = { image };
+    return file;
+}
+
+// Combine two camera files in both orders, verify that both images and directions
+// remain, and reject files that disagree about the camera or its direction.
+BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
+{
+    using namespace input_output::psf;
+    const auto first = syntheticPsf( 0.0 );
+    const auto second = syntheticPsf( 3600.0 );
+    for( const auto& inputs : { std::vector< RawPsfFileContents >{ first, second }, std::vector< RawPsfFileContents >{ second, first } } )
+    {
+        const auto result = convertRawPsfFiles<>( inputs );
+        // Either file order must produce two observations and two camera directions.
+        BOOST_REQUIRE_EQUAL( result.first.size( ), 1 );
+        BOOST_CHECK_EQUAL( result.first.front( )->getNumberOfObservations( ), 2 );
+        BOOST_REQUIRE_EQUAL( result.second.size( ), 1 );
+        const auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >(
+                result.second.front( )->getInstrumentSupplementaryData( ).front( ) );
+        BOOST_REQUIRE( camera != nullptr );
+        const auto& history = camera->getRotationFromInertialToCameraFrameHistory( );
+        BOOST_REQUIRE_EQUAL( history.size( ), 2 );
+        BOOST_CHECK( history.at( 0.0 ).toRotationMatrix( ).isApprox( Eigen::Matrix3d::Identity( ) ) );
+        BOOST_CHECK( history.at( 3600.0 ).toRotationMatrix( ).isApprox(
+                Eigen::AngleAxisd( 1.0, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) ) );
+    }
+    // Combining files must not alter either supplied file for later use.
+    BOOST_CHECK_EQUAL( getPsfCameraInstrumentSupplementaryData( first, "NAC" )->getRotationFromInertialToCameraFrameHistory( ).size( ), 1 );
+    // An identical duplicate is allowed, but a different focal length is not.
+    BOOST_CHECK_NO_THROW( convertRawPsfFiles<>( { first, first } ) );
+    BOOST_CHECK_THROW( convertRawPsfFiles<>( { first, syntheticPsf( 3600.0, 2.0 ) } ), std::runtime_error );
+    // Two different camera directions recorded at the same time must also be rejected.
+    auto conflicting = syntheticPsf( 0.0 );
+    auto changedCamera = std::make_shared< data::CameraInstrumentSupplementaryData >(
+            "NAC",
+            1.0,
+            Eigen::Vector2d::Zero( ),
+            Eigen::Vector4d::Zero( ),
+            Eigen::Matrix< double, 2, 3 >::Zero( ),
+            Eigen::Matrix< double, 6, 1 >::Zero( ),
+            Eigen::Vector3d::Zero( ),
+            std::map< double, Eigen::Quaterniond >{ { 0.0, Eigen::Quaterniond( Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitZ( ) ) ) } } );
+    conflicting.trackingSupplementaryData_.front( )->setInstrumentSupplementaryData( { changedCamera } );
+    BOOST_CHECK_THROW( convertRawPsfFiles<>( { first, conflicting } ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

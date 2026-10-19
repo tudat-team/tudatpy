@@ -25,6 +25,7 @@ namespace observations_setup
 namespace observations_simulation_settings
 {
 
+void expose_observation_simulation_settings_types( py::module& m );
 void expose_observations_simulation_settings( py::module& m );
 
 }  // namespace observations_simulation_settings

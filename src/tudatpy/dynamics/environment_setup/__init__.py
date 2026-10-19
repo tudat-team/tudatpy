@@ -29,7 +29,6 @@ from tudatpy.kernel.dynamics.environment_setup import (
     add_flight_conditions,
     convert_ground_station_state_between_itrf_frames,
     add_ground_station,
-    create_radiation_pressure_interface,
     get_ground_station_list,
     add_camera,
 )

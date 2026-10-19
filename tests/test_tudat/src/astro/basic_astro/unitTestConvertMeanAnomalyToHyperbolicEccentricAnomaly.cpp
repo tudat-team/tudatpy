@@ -18,10 +18,9 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real_distribution.hpp>

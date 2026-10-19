@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
@@ -96,6 +95,23 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     {
         BOOST_CHECK_SMALL( std::fabs( estimationError( i + 12 ) ), 5.0E-13 );
     }
+}
+
+//! Test whether estimation applies custom integrated-state interpolation both initially and when reintegrating the dynamics.
+BOOST_AUTO_TEST_CASE( testIntegratedStateInterpolatorAfterPropagationAndEstimation )
+{
+    std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
+               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
+            podDataOutput;
+    std::pair< int, int > interpolatorOrders{ -1, -1 };
+
+    // Run estimation with eighth-order interpolation and record the order of each generated environment ephemeris.
+    executeEarthOrbiterParameterEstimation< double, double >(
+            podDataOutput, interpolatorOrders, 1.0E7, 1, 1, false, false, interpolators::lagrangeInterpolation( 8 ) );
+
+    // Verify that the initial propagation and the estimation reintegration both use the requested order.
+    BOOST_CHECK_EQUAL( interpolatorOrders.first, 8 );
+    BOOST_CHECK_EQUAL( interpolatorOrders.second, 8 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

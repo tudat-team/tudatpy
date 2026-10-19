@@ -11,10 +11,9 @@
  * Communications Earth & Environment, 3(1), Article 1. https://doi.org/10.1038/s43247-021-00337-x
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 
 #include "tudat/basics/testMacros.h"

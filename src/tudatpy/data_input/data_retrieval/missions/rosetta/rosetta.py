@@ -7,6 +7,8 @@ import re
 import time
 from .._download import _REQUEST_TIMEOUT
 
+_ROSETTA_RSI_MAPPING_TIMEOUT = 120  # seconds
+
 
 class RosettaMixin:
     """Rosetta mission file-discovery mixin."""
@@ -345,7 +347,7 @@ class RosettaMixin:
 
     #########################################################################################################
 
-    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict):
+    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict) -> list[str]:
         """
         Given a start_date and end_date, iterate over the mapping_dict (which is keyed by rsi_volume_id)
         and return a list of rsi_volume_id values whose associated record's start_date_utc falls within the interval.
@@ -524,7 +526,7 @@ class RosettaMixin:
         max_retries = 3
         for attempt in range(1, max_retries + 1):
             try:
-                response = requests.get(url, timeout=_REQUEST_TIMEOUT)
+                response = requests.get(url, timeout=_ROSETTA_RSI_MAPPING_TIMEOUT)
                 response.raise_for_status()
                 break
             except requests.exceptions.RequestException as e:

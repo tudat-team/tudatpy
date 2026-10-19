@@ -101,6 +101,53 @@ BOOST_AUTO_TEST_CASE( testVectorObservableSizeValidation )
     BOOST_CHECK_THROW( trackingData.setObservationCorrections( wrongSingleCorrectionSize ), std::runtime_error );
 }
 
+// Start with valid weights and corrections, reject an incorrectly sized replacement,
+// and verify that every original value remains available.
+BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
+{
+    auto trackingData = createVectorTrackingData( );
+    const std::vector< Eigen::VectorXd > original = { Eigen::Vector2d( 3.0, 4.0 ), Eigen::Vector2d( 5.0, 6.0 ) };
+    trackingData.setObservationWeights( original );
+    trackingData.setObservationCorrections( original );
+    const std::vector< Eigen::VectorXd > invalid = { Eigen::Vector2d( 7.0, 8.0 ) };
+
+    // Both rejected changes must leave the two previously stored rows untouched.
+    BOOST_CHECK_THROW( trackingData.setObservationWeights( invalid ), std::runtime_error );
+    BOOST_CHECK_THROW( trackingData.setObservationCorrections( invalid ), std::runtime_error );
+    BOOST_REQUIRE_EQUAL( trackingData.getObservationWeights( ).size( ), original.size( ) );
+    BOOST_REQUIRE_EQUAL( trackingData.getObservationCorrections( ).size( ), original.size( ) );
+    for( unsigned int i = 0; i < original.size( ); ++i )
+    {
+        BOOST_CHECK( trackingData.getObservationWeights( ).at( i ).isApprox( original.at( i ) ) );
+        BOOST_CHECK( trackingData.getObservationCorrections( ).at( i ).isApprox( original.at( i ) ) );
+    }
+}
+
+// Remove the middle observation and verify that its two descriptive notes disappear,
+// while the signal-band description for the complete link remains unchanged.
+BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged )
+{
+    data::TrackingData<> trackingData( "AngularPosition",
+                                       {},
+                                       { Eigen::Vector2d( 1, 2 ), Eigen::Vector2d( 3, 4 ), Eigen::Vector2d( 5, 6 ) },
+                                       { 10, 20, 30 },
+                                       "receiver" );
+    trackingData.addAncillarySettings( "note2", { "C", "P", "S" } );
+    trackingData.addObservationMetadata( "observer", { "Alice", "Bob", "Carol" } );
+    const std::vector< std::string > bands = { "X-band", "S-band", "X-band" };
+    trackingData.addAncillarySettings( "frequency bands", bands );
+
+    // A descriptive field must contain one value for each observation.
+    BOOST_CHECK_THROW( trackingData.addObservationMetadata( "observer", { "Alice" } ), std::runtime_error );
+    trackingData.removeSingleObservationEntry( 1 );
+
+    // Bob and the matching method disappear; the remaining notes stay in their original order.
+    BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "note2" ) == std::vector< std::string >( { "C", "S" } ) );
+    BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "observer" ) == std::vector< std::string >( { "Alice", "Carol" } ) );
+    BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "frequency bands" ) == bands );
+    BOOST_CHECK_EQUAL( trackingData.getNumberOfObservations( ), 2 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

@@ -19,8 +19,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro/accelerationModel.h>
+#include <tudat/astro/basic_astro/accelerationModelTypes.h>
 #include <tudat/astro/basic_astro/massRateModel.h>
 #include <tudat/astro/basic_astro/torqueModel.h>
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
@@ -32,35 +32,9 @@
 
 namespace py = pybind11;
 
-namespace ta = tudat::aerodynamics;
 namespace tp = tudat::propagators;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
-
-namespace tudat
-{
-
-namespace aerodynamics
-{
-
-class PyAerodynamicGuidance : public ta::AerodynamicGuidance
-{
-public:
-    using AerodynamicGuidance::AerodynamicGuidance;
-
-    using AerodynamicGuidance::currentAngleOfAttack_;
-    using AerodynamicGuidance::currentAngleOfSideslip_;
-    using AerodynamicGuidance::currentBankAngle_;
-
-    void updateGuidance( const double currentTime ) override
-    {
-        PYBIND11_OVERLOAD_PURE( void, AerodynamicGuidance, updateGuidance, currentTime );
-    }
-};
-
-}  // namespace aerodynamics
-
-}  // namespace tudat
 
 namespace tudatpy
 {
@@ -69,24 +43,123 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_state_utility_types( py::module& m )
+{
+    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >(
+            m, "TorqueModel", R"doc(Base interface for a torque model used in rotational dynamics propagation.)doc" );
+
+    using AccelerationModel = tba::AccelerationModel< Eigen::Vector3d >;
+    py::class_< AccelerationModel, std::shared_ptr< AccelerationModel > >( m,
+                                                                           "AccelerationModel",
+                                                                           R"doc(
+
+         Base class for the calculation of a translational acceleration model.
+
+      )doc" )
+            .def( "update_members",
+                  &AccelerationModel::updateMembers,
+                  py::arg( "current_time" ),
+                  R"doc(
+
+         Update the acceleration model and its cached acceleration at ``current_time``, in seconds since J2000.
+
+         Parameters
+         ----------
+         current_time : float
+             Epoch at which to update the model, in seconds since J2000.
+
+      )doc" )
+            .def_property_readonly( "acceleration",
+                                    &AccelerationModel::getAcceleration,
+                                    R"doc(
+
+         **read-only**
+
+         Three-component acceleration, in metres per second squared, as computed by the last call to :meth:`~AccelerationModel.update_members`.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
+            .def(
+                    "update_and_get_acceleration",
+                    []( AccelerationModel& accelerationModel, const double currentTime ) {
+                        accelerationModel.updateMembers( currentTime );
+                        return accelerationModel.getAcceleration( );
+                    },
+                    py::arg( "current_time" ),
+                    R"doc(
+
+         Call :meth:`~AccelerationModel.update_members` at ``current_time`` and return :attr:`~AccelerationModel.acceleration`.
+
+         Parameters
+         ----------
+         current_time : float
+             Epoch at which to update the model, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[3, 1]]
+             Updated Cartesian acceleration vector, in metres per second squared.
+
+      )doc" )
+            .def_property_readonly(
+                    "acceleration_type",
+                    []( const std::shared_ptr< AccelerationModel >& accelerationModel ) {
+                        return tba::getAccelerationModelType( accelerationModel );
+                    },
+                    R"doc(
+
+         **read-only**
+
+         Acceleration type identifier for the concrete physical model.
+
+         :type: tudatpy.dynamics.propagation_setup.acceleration.AvailableAcceleration
+
+      )doc" );
+
+    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >(
+            m, "MassRateModel", R"doc(Base interface for a model of the time derivative of a body's mass.)doc" );
+}
+
 void expose_propagation_state_utility_bindings( py::module& m )
 {
-    py::class_< ta::AerodynamicGuidance, ta::PyAerodynamicGuidance, std::shared_ptr< ta::AerodynamicGuidance > >( m, "AerodynamicGuidance" )
-            .def( py::init<>( ) )
-            .def( "updateGuidance",
-                  &ta::AerodynamicGuidance::updateGuidance,
-                  py::arg( "current_time" ) )  // The current_time parameter is now expected to be a Time object
-            .def_readwrite( "angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_ )
-            .def_readwrite( "bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_ )
-            .def_readwrite( "sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_ );
-
-    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
-
     m.def( "get_single_integration_differential_equation_order",
            &tp::getSingleIntegrationDifferentialEquationOrder,
-           py::arg( "state_type" ) );
+           py::arg( "state_type" ),
+           R"doc(
 
-    m.def( "get_generalized_acceleration_size", &tp::getGeneralizedAccelerationSize, py::arg( "state_type" ) );
+         Return the differential equation order associated with the integrated ``state_type``.
+
+         Parameters
+         ----------
+         state_type : StateType
+             Type of integrated state.
+
+         Returns
+         -------
+         int
+             Order of the differential equation associated with the state type.
+
+      )doc" );
+
+    m.def( "get_generalized_acceleration_size",
+           &tp::getGeneralizedAccelerationSize,
+           py::arg( "state_type" ),
+           R"doc(
+
+         Return the number of generalized acceleration components associated with ``state_type``.
+
+         Parameters
+         ----------
+         state_type : StateType
+             Type of integrated state.
+
+         Returns
+         -------
+         int
+             Number of entries in the generalized acceleration for the state type.
+
+      )doc" );
 
     m.def( "get_state_of_bodies",
            py::overload_cast< const std::vector< std::string >&,
@@ -112,7 +185,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
      List of names of bodies for which the state is to be extracted
  central_bodies : list[str]
      List of central bodies, w.r.t. which the states are to be computed (in the same order as ``bodies_to_propagate``)
- bodies_to_propagate : SystemOfBodies
+ body_system : SystemOfBodies
      System of bodies that define the environment
  initial_time : astro.time_representation.Time
      Time at which the states are to be extracted from the environment (Time object representing seconds since J2000 TDB)
@@ -138,7 +211,32 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "bodies_to_propagate" ),
            py::arg( "central_bodies" ),
            py::arg( "body_system" ),
-           py::arg( "initial_time" ) );
+           py::arg( "initial_time" ),
+           R"doc(
+
+         Return concatenated Cartesian states of ``bodies_to_propagate`` relative to their matching ``central_bodies``
+         at ``initial_time``.
+
+         States are obtained from ephemerides in ``body_system`` and contain positions in metres and velocities in
+         metres per second; the epoch is in seconds since J2000.
+
+         Parameters
+         ----------
+         bodies_to_propagate : list[str]
+             Names of the bodies whose translational states are retrieved, in output order.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the propagated or observed bodies.
+         body_system : SystemOfBodies
+             System of bodies containing the ephemerides.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[m, 1]]
+             Concatenated Cartesian position and velocity states relative to the central bodies, in metres and metres per second.
+
+      )doc" );
 
     m.def( "get_initial_state_of_body",  // overload [2/2]
            py::overload_cast< const std::string&, const std::string&, const tss::SystemOfBodies&, const TIME_TYPE >(
@@ -146,7 +244,32 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "body_to_propagate" ),
            py::arg( "central_body" ),
            py::arg( "bodies" ),
-           py::arg( "initial_time" ) );
+           py::arg( "initial_time" ),
+           R"doc(
+
+         Return the Cartesian state of ``body_to_propagate`` relative to ``central_body`` at ``initial_time`` from the
+         ephemerides in ``bodies``.
+
+         The six-component result contains position in metres and velocity in metres per second; the epoch is in
+         seconds since J2000.
+
+         Parameters
+         ----------
+         body_to_propagate : str
+             Name of the body whose initial state is retrieved.
+         central_body : str
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[m, 1]]
+             Cartesian position and velocity relative to the central body, in metres and metres per second.
+
+      )doc" );
 
     m.def( "get_initial_rotational_state_of_body",
            py::overload_cast< const std::string&, const std::string&, const tss::SystemOfBodies&, const TIME_TYPE >(
@@ -154,7 +277,32 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "body_to_propagate" ),
            py::arg( "base_orientation" ),
            py::arg( "bodies" ),
-           py::arg( "initial_time" ) );
+           py::arg( "initial_time" ),
+           R"doc(
+
+         Return the seven-component rotational state of ``body_to_propagate`` at ``initial_time`` from its rotation
+         model in ``bodies``.
+
+         The state contains the quaternion relating ``base_orientation`` to the body-fixed frame and angular velocity
+         in radians per second; the epoch is in seconds since J2000.
+
+         Parameters
+         ----------
+         body_to_propagate : str
+             Name of the body whose initial state is retrieved.
+         base_orientation : str
+             Inertial orientation in which the initial rotational state is expressed.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         initial_time : Time
+             Initial epoch, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[m, 1]]
+             Rotational state comprising the quaternion and body-fixed angular velocity in radians per second.
+
+      )doc" );
 
     py::class_< tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >,
                 std::shared_ptr< tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE > > >( m,
@@ -267,7 +415,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
  Returns
  -------
- DampedInitialRotationalStateResults
+ RotationalProperModeDampingResults
      Object that contains the results of the damping algorithm (final damped rotational state, and forward/backward propagation results).
 
 
@@ -304,11 +452,6 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
 
      )doc" );
-
-    py::class_< tba::AccelerationModel< Eigen::Vector3d >, std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
-            m, "AccelerationModel" );
-
-    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
 }
 
 }  // namespace propagation

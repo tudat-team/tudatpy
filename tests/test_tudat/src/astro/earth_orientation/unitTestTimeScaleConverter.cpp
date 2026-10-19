@@ -9,14 +9,13 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/utilityMacros.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/basic_astro/timeConversions.h"

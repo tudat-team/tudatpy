@@ -30,9 +30,9 @@
 #ifndef TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 #define TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 
+#include <array>
 #include <vector>
 
-#include <boost/array.hpp>
 #include <boost/multi_array.hpp>
 #include <memory>
 #include "tudat/math/interpolators/lookupScheme.h"
@@ -107,11 +107,11 @@ public:
 
         // Save (in)dependent variables
         independentValues_ = independentValues;
-        dependentData_.resize( reinterpret_cast<
-                               boost::array< size_t,
-                                             boost::multi_array< DependentVariableType,
-                                                                 static_cast< size_t >( NumberOfDimensions ) >::dimensionality > const& >(
-                *dependentData.shape( ) ) );  // resize dependent data container
+        dependentData_.resize(
+                reinterpret_cast< std::array< size_t,
+                                              boost::multi_array< DependentVariableType,
+                                                                  static_cast< size_t >( NumberOfDimensions ) >::dimensionality > const& >(
+                        *dependentData.shape( ) ) );  // resize dependent data container
         dependentData_ = dependentData;
 
         // Check consistency of template arguments and input variables.
@@ -345,7 +345,7 @@ public:
         if( NumberOfDimensions == 2 )
         {
             // Access the four corner values directly using pre-computed indices (with wrap-around)
-            boost::array< unsigned int, 2 > indices;
+            std::array< unsigned int, 2 > indices;
 
             indices[ 0 ] = state.i0;
             indices[ 1 ] = state.i1;
@@ -370,7 +370,7 @@ public:
         else
         {
             // Fall back to recursive implementation for higher dimensions
-            boost::array< unsigned int, NumberOfDimensions > interpolationIndices;
+            std::array< unsigned int, NumberOfDimensions > interpolationIndices;
             for( unsigned int i = 0; i < NumberOfDimensions; i++ )
             {
                 interpolationIndices[ i ] = static_cast< unsigned int >( -1 );
@@ -440,7 +440,7 @@ public:
         else
         {
             // Initialize function evaluation indices to -1 for debugging purposes.
-            boost::array< unsigned int, NumberOfDimensions > interpolationIndices;
+            std::array< unsigned int, NumberOfDimensions > interpolationIndices;
             for( unsigned int i = 0; i < NumberOfDimensions; i++ )
             {
                 interpolationIndices[ i ] = -1;
@@ -572,7 +572,7 @@ private:
 
         // Access the four corner values directly (avoids recursive calls)
         // For periodic dimensions, indices wrap around automatically via i0_next and i1_next
-        boost::array< unsigned int, 2 > indices;
+        std::array< unsigned int, 2 > indices;
 
         indices[ 0 ] = i0;
         indices[ 1 ] = i1;
@@ -658,7 +658,7 @@ private:
      */
     DependentVariableType performRecursiveInterpolationStep( const unsigned int currentDimension,
                                                              const std::vector< IndependentVariableType >& independentValuesToInterpolate,
-                                                             boost::array< unsigned int, NumberOfDimensions > currentArrayIndices,
+                                                             std::array< unsigned int, NumberOfDimensions > currentArrayIndices,
                                                              const std::vector< unsigned int >& nearestLowerIndices ) const
     {
         IndependentVariableType upperFraction, lowerFraction;

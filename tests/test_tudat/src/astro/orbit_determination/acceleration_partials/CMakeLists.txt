@@ -12,6 +12,11 @@ TUDAT_ADD_TEST_CASE(AccelerationPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(PanelMaterialPropertyPartials
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(SphericalHarmonicPartials
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}

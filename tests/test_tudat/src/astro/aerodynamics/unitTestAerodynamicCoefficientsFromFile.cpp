@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -18,7 +17,7 @@
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <tudat/basics/testMacros.h>
 #include <tudat/astro/basic_astro/sphericalStateConversions.h>
@@ -248,8 +247,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 std::make_shared< PropagationHybridTerminationSettings >( propagationTerminationSettingsList, true );
 
         // Create propagation settings.
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                     accelerationModelMap,

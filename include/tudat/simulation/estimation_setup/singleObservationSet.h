@@ -14,14 +14,22 @@
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
+
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
@@ -359,6 +367,13 @@ public:
 
     Eigen::MatrixXd getObservationsDependentVariablesMatrix( )
     {
+        // No dependent variable bookkeeping is configured for this set (e.g. sets created without
+        // dependent variables). Return an empty matrix rather than dereferencing a null pointer.
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            return Eigen::MatrixXd::Zero( numberOfObservations_, 0 );
+        }
+
         Eigen::MatrixXd dependentVariablesMatrix =
                 Eigen::MatrixXd::Zero( numberOfObservations_, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables_.size( ); i++ )
@@ -385,6 +400,13 @@ public:
     Eigen::MatrixXd getSingleDependentVariable( std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
                                                 const bool returnFirstCompatibleSettings = false )
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting dependent variable, no dependent variable bookkeeping is "
+                    "configured for this observation set." );
+        }
+
         // Retrieve full map of dependent variables start indices and sizes based on settings
         std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > >
                 settingsIndicesAndSizes = dependentVariableBookkeeping_->getSettingsIndicesAndSizes( );
@@ -424,6 +446,13 @@ public:
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getCompatibleDependentVariablesSettingsList(
             std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting compatible dependent variable settings, no dependent variable "
+                    "bookkeeping is configured for this observation set." );
+        }
+
         // Check which settings are compatible with the input settings object
         std::vector< std::shared_ptr< ObservationDependentVariableSettings > > compatibleSettings;
         for( auto it : dependentVariableBookkeeping_->getDependentVariableSettings( ) )
@@ -441,6 +470,13 @@ public:
     std::vector< Eigen::MatrixXd > getAllCompatibleDependentVariables(
             std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting compatible dependent variables, no dependent variable "
+                    "bookkeeping is configured for this observation set." );
+        }
+
         // Retrieve start indices and sizes for each dependent variable settings
         std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > >
                 settingsIndicesAndSizes = dependentVariableBookkeeping_->getSettingsIndicesAndSizes( );
@@ -643,14 +679,14 @@ public:
     void setWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights )
     {
         // Check size consistency
-        if( weights.size( ) != static_cast< int >( singleObservationSize_ * observations_.size( ) ) )
+        if( weights.size( ) != observations_.size( ) )
         {
             throw std::runtime_error(
                     "Error when settings weights in single observation set, numbers of weights and observations are inconsistent." );
         }
 
-        // Set each weight entry
-        for( unsigned int k = 0; k < weights_.size( ); k++ )
+        // Validate the complete replacement before changing any existing weight.
+        for( unsigned int k = 0; k < weights.size( ); k++ )
         {
             // Check size consistent for each weight entry
             if( weights[ k ].size( ) != singleObservationSize_ )
@@ -659,8 +695,8 @@ public:
                         "Error when settings weights in single observation set, size of single weight entry is inconsistent with single "
                         "observation size." );
             }
-            weights_.at( k ) = weights[ k ];
         }
+        weights_ = weights;
     }
 
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
@@ -745,12 +781,58 @@ public:
 
     void removeObservations( const std::vector< unsigned int >& indicesToRemove )
     {
-        unsigned int counter = 0;
-        for( auto ind : indicesToRemove )
+        if( indicesToRemove.empty( ) )
         {
-            removeSingleObservation( ind - counter );  // observations are already filtered and sorted
-            counter += 1;
+            return;
         }
+
+        // Indices refer to the original rows and must be unique and increasing.
+        // Validate before modifying any vector so invalid input leaves the set intact.
+        for( std::size_t i = 0; i < indicesToRemove.size( ); ++i )
+        {
+            if( indicesToRemove[ i ] >= numberOfObservations_ || ( i > 0 && indicesToRemove[ i ] <= indicesToRemove[ i - 1 ] ) )
+            {
+                throw std::runtime_error(
+                        "Error when removing observations from SingleObservationSet, indices must be "
+                        "strictly increasing and within the original observation count." );
+            }
+        }
+
+        // Compact every row-aligned vector in one pass. Repeated erases and time-bound
+        // scans make filtering large tracking files quadratic in the observation count.
+        std::size_t nextRemoval = 0;
+        std::size_t destination = 0;
+        const bool hasDependentVariables = !observationsDependentVariables_.empty( );
+        for( std::size_t source = 0; source < observations_.size( ); ++source )
+        {
+            if( nextRemoval < indicesToRemove.size( ) && source == indicesToRemove[ nextRemoval ] )
+            {
+                ++nextRemoval;
+                continue;
+            }
+            if( destination != source )
+            {
+                observations_[ destination ] = std::move( observations_[ source ] );
+                observationTimes_[ destination ] = std::move( observationTimes_[ source ] );
+                weights_[ destination ] = std::move( weights_[ source ] );
+                residuals_[ destination ] = std::move( residuals_[ source ] );
+                if( hasDependentVariables )
+                {
+                    observationsDependentVariables_[ destination ] = std::move( observationsDependentVariables_[ source ] );
+                }
+            }
+            ++destination;
+        }
+        observations_.resize( destination );
+        observationTimes_.resize( destination );
+        weights_.resize( destination );
+        residuals_.resize( destination );
+        if( hasDependentVariables )
+        {
+            observationsDependentVariables_.resize( destination );
+        }
+        numberOfObservations_ = observations_.size( );
+        updateTimeBounds( );
     }
 
     void eraseDuplicateObservations( )
@@ -1265,7 +1347,7 @@ private:
         return singleDependentVariable;
     }
 
-    const ObservableType observableType_;
+    ObservableType observableType_;
 
     LinkDefinition linkEnds_;
 
@@ -1275,13 +1357,13 @@ private:
 
     std::vector< TimeType > observationTimes_;
 
-    const LinkEndType referenceLinkEnd_;
+    LinkEndType referenceLinkEnd_;
 
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
-    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     unsigned int numberOfObservations_;
 
@@ -1294,6 +1376,83 @@ private:
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals_;
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
+
+public:
+    bool operator==( const SingleObservationSet& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SingleObservationSet& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const SingleObservationSet& rhs ) const
+    {
+        const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
+            return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
+        };
+
+        return observableType_ == rhs.observableType_ && linkEnds_ == rhs.linkEnds_ && timeBounds_ == rhs.timeBounds_ &&
+                observations_ == rhs.observations_ && observationTimes_ == rhs.observationTimes_ &&
+                referenceLinkEnd_ == rhs.referenceLinkEnd_ && observationsDependentVariables_ == rhs.observationsDependentVariables_ &&
+                pointedObjectsEqual( dependentVariableBookkeeping_, rhs.dependentVariableBookkeeping_ ) &&
+                pointedObjectsEqual( ancillarySettings_, rhs.ancillarySettings_ ) && numberOfObservations_ == rhs.numberOfObservations_ &&
+                singleObservationSize_ == rhs.singleObservationSize_ && weights_ == rhs.weights_ && residuals_ == rhs.residuals_ &&
+                pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ );
+    }
+
+    TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
+
+protected:
+    // Default constructor for serialization
+    SingleObservationSet( ):
+        observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), numberOfObservations_( 0 ),
+        singleObservationSize_( 0 )
+    {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( CEREAL_NVP( weights_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( CEREAL_NVP( weights_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
+    }
 };
 
 template< typename ObservationScalarType = double,
@@ -1466,8 +1625,8 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                         observationSet->getDependentVariableBookkeeping( ),
                         observationSet->getAncillarySettings( ) );
 
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector = weightsVector.segment(
+                startIndex * observationSet->getSingleObservableSize( ), sizeCurrentSet * observationSet->getSingleObservableSize( ) );
         newSet->setTabulatedWeights( newWeightsVector );
 
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =

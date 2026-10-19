@@ -46,8 +46,10 @@ void add_data_to_kernel( py::module_& m )
                               const std::string& >( &tio::setDsnWeatherDataInGroundStations ),
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::linearInterpolation( ),
-           py::arg( "ground_stations_per_complex" ) = tss::getDefaultDsnStationNamesPerComplex( ),
+           py::arg_v( "interpolator_settings", tudat::interpolators::linearInterpolation( ), "..." ),
+           py::arg_v( "ground_stations_per_complex",
+                      tss::getDefaultDsnStationNamesPerComplex( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth" );
 
     m.def( "set_estrack_weather_data_in_ground_stations",
@@ -59,8 +61,10 @@ void add_data_to_kernel( py::module_& m )
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
            py::arg( "ground_station_name" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation(
-                   tudat::interpolators::AvailableLookupScheme::huntingAlgorithm,
-                   tudat::interpolators::BoundaryInterpolationType::use_boundary_value_with_warning ),
+           py::arg_v( "interpolator_settings",
+                      tudat::interpolators::cubicSplineInterpolation(
+                              tudat::interpolators::AvailableLookupScheme::huntingAlgorithm,
+                              tudat::interpolators::BoundaryInterpolationType::use_boundary_value_with_warning ),
+                      "..." ),
            py::arg( "body_with_ground_stations_name" ) = "Earth" );
 }

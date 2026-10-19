@@ -155,7 +155,7 @@ convertRawPsfFiles( const std::vector< RawPsfFileContents >& rawPsfDataVector,
     std::map< data::PlainLinkDefinition, std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > weightsMap;
 
     std::vector< std::shared_ptr< data::TrackingSupplementaryData > > trackingSupplementaryDataSets;
-    std::set< std::pair< std::string, std::string > > addedSupplementaryData;
+    std::map< std::pair< std::string, std::string >, std::shared_ptr< data::CameraInstrumentSupplementaryData > > cameras;
 
     for( const RawPsfFileContents& psfFileContents : rawPsfDataVector )
     {
@@ -166,9 +166,22 @@ convertRawPsfFiles( const std::vector< RawPsfFileContents >& rawPsfDataVector,
         {
             const std::pair< std::string, std::string > key =
                     std::make_pair( supplementaryData->getBodyName( ), supplementaryData->getReferencePointName( ) );
-            if( addedSupplementaryData.insert( key ).second )
+            for( const auto& instrument : supplementaryData->getInstrumentSupplementaryData( ) )
             {
-                trackingSupplementaryDataSets.push_back( supplementaryData );
+                auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
+                if( camera == nullptr || camera->getCameraId( ) != key.second )
+                {
+                    throw std::runtime_error( "Invalid camera supplementary data in PSF file." );
+                }
+                auto existing = cameras.find( key );
+                if( existing == cameras.end( ) )
+                {
+                    cameras.emplace( key, std::make_shared< data::CameraInstrumentSupplementaryData >( *camera ) );
+                }
+                else
+                {
+                    existing->second->merge( *camera );
+                }
             }
         }
 
@@ -233,6 +246,12 @@ convertRawPsfFiles( const std::vector< RawPsfFileContents >& rawPsfDataVector,
         trackingDataSets.push_back( trackingData );
     }
 
+    for( const auto& camera : cameras )
+    {
+        auto supplementary = std::make_shared< data::TrackingSupplementaryData >( camera.first.first, camera.first.second );
+        supplementary->setInstrumentSupplementaryData( { camera.second } );
+        trackingSupplementaryDataSets.push_back( supplementary );
+    }
     return std::make_pair( trackingDataSets, trackingSupplementaryDataSets );
 }
 

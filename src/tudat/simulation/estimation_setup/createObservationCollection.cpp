@@ -1,7 +1,11 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
 
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+
 #include <cmath>
+#include <iterator>
 
 namespace tudat
 {
@@ -71,7 +75,7 @@ void checkTrackingDataLinkEnds( const observation_models::ObservableType observa
 
 bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
 {
-    return ancillarySetting == "Doppler base frequency" || ancillarySetting == "note2" || ancillarySetting == "catalog";
+    return ancillarySetting == "Doppler base frequency" || data::isOpticalObservationMetadata( ancillarySetting );
 }
 
 std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
@@ -242,6 +246,40 @@ std::map< double, Eigen::Vector6d > getTranslationalStateHistoryWithVelocity(
     return stateHistory;
 }
 
+std::map< double, Eigen::Vector6d > convertTranslationalStateHistoryToTdb(
+        const data::TranslationalStateSupplementaryData& translationalStateSupplementaryData,
+        const std::map< double, Eigen::Vector6d >& stateHistory,
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& timeScaleConverter )
+{
+    const basic_astrodynamics::TimeScales inputTimeScale =
+            basic_astrodynamics::timeScaleFromString( translationalStateSupplementaryData.getTimeScale( ) );
+
+    if( inputTimeScale == basic_astrodynamics::tdb_scale )
+    {
+        return stateHistory;
+    }
+    if( inputTimeScale != basic_astrodynamics::utc_scale )
+    {
+        throw std::runtime_error(
+                "Error when processing translational state tracking supplementary data: "
+                "only TDB and UTC time scales are supported, received " +
+                translationalStateSupplementaryData.getTimeScale( ) + "." );
+    }
+
+    if( timeScaleConverter == nullptr )
+    {
+        timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
+    }
+
+    std::map< double, Eigen::Vector6d > tdbStateHistory;
+    for( const auto& [ utcTime, state ] : stateHistory )
+    {
+        tdbStateHistory[ timeScaleConverter->getCurrentTime(
+                inputTimeScale, basic_astrodynamics::tdb_scale, utcTime, Eigen::Vector3d::Zero( ) ) ] = state;
+    }
+    return tdbStateHistory;
+}
+
 void setTranslationalStateSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< data::TranslationalStateSupplementaryData > >&
@@ -257,15 +295,22 @@ void setTranslationalStateSupplementaryDataInBodies(
                     "Error, reference point ID for setting ephemeris from tracking supplementary data must be empty, but found " +
                     referencePointName );
         }
+        if( bodies.count( bodyName ) == 0 )
+        {
+            bodies.createEmptyBody( bodyName, false );
+        }
         std::map< double, Eigen::Vector6d > stateHistory;
         std::vector< std::pair< double, std::pair< Eigen::Vector6d, Eigen::Vector6d > > > inconsistentDuplicateStateHistoryEntries;
         std::string frameOrigin;
+        std::string frameOrientation;
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter;
 
         for( unsigned int i = 0; i < it->second.size( ); ++i )
         {
             if( i == 0 )
             {
                 frameOrigin = it->second.at( i ).getFrameOrigin( );
+                frameOrientation = it->second.at( i ).getFrameOrientation( );
             }
             else if( it->second.at( i ).getFrameOrigin( ) != frameOrigin )
             {
@@ -274,8 +319,16 @@ void setTranslationalStateSupplementaryDataInBodies(
                         "supplementary data for body " +
                         bodyName + ". Found " + it->second.at( i ).getFrameOrigin( ) + " but expected " + frameOrigin + "." );
             }
+            else if( it->second.at( i ).getFrameOrientation( ) != frameOrientation )
+            {
+                throw std::runtime_error(
+                        "Error, inconsistent frame orientations found when setting translational state from tracking "
+                        "supplementary data for body " +
+                        bodyName + ". Found " + it->second.at( i ).getFrameOrientation( ) + " but expected " + frameOrientation + "." );
+            }
 
-            std::map< double, Eigen::Vector6d > currentStateHistory = getTranslationalStateHistoryWithVelocity( it->second.at( i ) );
+            std::map< double, Eigen::Vector6d > currentStateHistory = convertTranslationalStateHistoryToTdb(
+                    it->second.at( i ), getTranslationalStateHistoryWithVelocity( it->second.at( i ) ), timeScaleConverter );
             for( auto stateIterator = currentStateHistory.begin( ); stateIterator != currentStateHistory.end( ); ++stateIterator )
             {
                 if( stateHistory.count( stateIterator->first ) == 0 )
@@ -299,6 +352,12 @@ void setTranslationalStateSupplementaryDataInBodies(
                                           ", existing ephemeris frame origin is " + ephemeris->getReferenceFrameOrigin( ) +
                                           " but supplementary data frame origin is " + frameOrigin + "." );
             }
+            if( ephemeris->getReferenceFrameOrientation( ) != frameOrientation )
+            {
+                throw std::runtime_error( "Error when setting tracking supplementary data in body " + bodyName +
+                                          ", existing ephemeris frame orientation is " + ephemeris->getReferenceFrameOrientation( ) +
+                                          " but supplementary data frame orientation is " + frameOrientation + "." );
+            }
 
             if( !ephemerides::isTabulatedEphemeris( ephemeris ) )
             {
@@ -315,8 +374,17 @@ void setTranslationalStateSupplementaryDataInBodies(
             bodies.at( bodyName )
                     ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< double, Time > >(
                             interpolators::createOneDimensionalInterpolator( timeStateHistory, interpolators::linearInterpolation( ) ),
-                            frameOrigin ) );
+                            frameOrigin,
+                            frameOrientation ) );
         }
+    }
+
+    if( !translationalStateSupplementaryData.empty( ) )
+    {
+        // The ephemeris object stores the state with respect to its own frame
+        // origin. Rebuild the SystemOfBodies frame links so later observation
+        // models obtain states with respect to the global frame origin.
+        bodies.processBodyFrameDefinitions< double, Time >( );
     }
 }
 
@@ -422,7 +490,7 @@ void setFrequencySupplementaryDataInBodies(
         }
 
         std::vector< data::RampedFrequencySupplementaryData::FrequencyRamp > frequencyRamps;
-        std::vector< std::map< double, double > > piecewiseConstantFrequencyHistories;
+        std::map< double, double > piecewiseConstantFrequencyHistory;
 
         for( unsigned int i = 0; i < it->second.size( ); ++i )
         {
@@ -463,16 +531,34 @@ void setFrequencySupplementaryDataInBodies(
                                               referencePointName +
                                               ": frequency data type is piecewise constant, but derived object type is inconsistent." );
                 }
-                piecewiseConstantFrequencyHistories.push_back( piecewiseConstantFrequencySupplementaryData->getFrequencyHistory( ) );
+                for( const auto& entry : piecewiseConstantFrequencySupplementaryData->getFrequencyHistory( ) )
+                {
+                    // Match ramp-table merging: later entries replace earlier values at the same epoch.
+                    piecewiseConstantFrequencyHistory[ entry.first ] = entry.second;
+                }
             }
         }
 
-        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" )
+        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "piecewise_constant_frequency" )
+        {
+            for( auto entry = piecewiseConstantFrequencyHistory.begin( ); entry != piecewiseConstantFrequencyHistory.end( ); ++entry )
+            {
+                const auto nextEntry = std::next( entry );
+                const Time startTime( entry->first );
+                // The final ramp needs a positive nominal duration. The existing
+                // interpolator extrapolates it beyond this end time at zero rate.
+                const Time endTime = nextEntry != piecewiseConstantFrequencyHistory.end( ) ? Time( nextEntry->first ) : startTime + 1.0;
+                frequencyRamps.emplace_back( startTime, endTime, entry->second, 0.0 );
+            }
+        }
+
+        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" ||
+            it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "piecewise_constant_frequency" )
         {
             if( frequencyRamps.empty( ) )
             {
-                throw std::runtime_error( "Error when setting ramped frequency supplementary data in body " + bodyName +
-                                          ", reference point " + referencePointName + ": no frequency ramps were found." );
+                throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
+                                          referencePointName + ": no frequency entries were found." );
             }
 
             std::vector< Time > startTimes;
@@ -639,6 +725,17 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
     {
         const std::pair< std::string, std::string > bodyReferencePoint =
                 std::make_pair( currentSupplementaryData.getBodyName( ), currentSupplementaryData.getReferencePointName( ) );
+
+        if( currentSupplementaryData.isPassiveRadarReflector( ) )
+        {
+            std::shared_ptr< simulation_setup::Body > body = bodies.at( currentSupplementaryData.getBodyName( ) );
+            if( body->getVehicleSystems( ) == nullptr )
+            {
+                body->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+            }
+            body->getVehicleSystems( )->setTransponderTurnaroundRatio(
+                    []( observation_models::FrequencyBands, observation_models::FrequencyBands ) { return 1.0; } );
+        }
 
         if( !currentSupplementaryData.getTranslationalStateSupplementaryData( ).getStateHistory( ).empty( ) )
         {

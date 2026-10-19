@@ -223,47 +223,32 @@ void expose_tracking_data( py::module& m )
             .def( "get_ancillary_settings_string_vector",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsStringVector,
                   R"doc(
-         Return a string-vector ancillary setting.
-
-         Parameters
-         ----------
-         ancillary_settings_type : str
-             Ancillary setting identifier.
+         Return all string-vector ancillary settings, keyed by setting identifier.
 
          Returns
          -------
-         list[str]
-             Ancillary setting values.
+         dict[str, list[str]]
+             Ancillary setting identifiers and their values.
       )doc" )
             .def( "get_ancillary_settings_double",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDouble,
                   R"doc(
-         Return a floating-point ancillary setting.
-
-         Parameters
-         ----------
-         ancillary_settings_type : str
-             Ancillary setting identifier.
+         Return all floating-point ancillary settings, keyed by setting identifier.
 
          Returns
          -------
-         float
-             Ancillary setting value.
+         dict[str, float]
+             Ancillary setting identifiers and their values.
       )doc" )
             .def( "get_ancillary_settings_double_vector",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDoubleVector,
                   R"doc(
-         Return a floating-point-vector ancillary setting.
-
-         Parameters
-         ----------
-         ancillary_settings_type : str
-             Ancillary setting identifier.
+         Return all floating-point-vector ancillary settings, keyed by setting identifier.
 
          Returns
          -------
-         list[float]
-             Ancillary setting values.
+         dict[str, list[float]]
+             Ancillary setting identifiers and their values.
       )doc" )
             .def( "set_observation_weights",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeights,
@@ -361,6 +346,12 @@ void expose_tracking_data( py::module& m )
          list
              Observation correction vectors.
       )doc" )
+            .def( "add_observation_metadata",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationMetadata,
+                  py::arg( "key" ),
+                  py::arg( "values" ),
+                  "Attach one string per observation. Values remain aligned when observations are removed; "
+                  "they are not interpreted as simulation ancillary settings." )
             .def( "remove_single_observation_entry",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry,
                   py::arg( "index" ),
@@ -403,7 +394,7 @@ void expose_tracking_data( py::module& m )
          the corresponding environment models.
       )doc" )
             .def( py::init<>( ) )
-            .def( py::init< const double, const double, const double, const double >( ),
+            .def( py::init< const tudat::Time, const tudat::Time, const double, const double >( ),
                   py::arg( "start_time" ),
                   py::arg( "end_time" ),
                   py::arg( "start_frequency" ),
@@ -411,16 +402,16 @@ void expose_tracking_data( py::module& m )
             .def_readwrite( "start_time", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::startTime_, R"doc(
          **read-only**
 
-         Ramp start time.
+         Ramp start time, preserving extended epoch precision. Float inputs are accepted.
 
-         :type: float
+         :type: tudatpy.astro.time_representation.Time
       )doc" )
             .def_readwrite( "end_time", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::endTime_, R"doc(
          **read-only**
 
-         Ramp end time.
+         Ramp end time, preserving extended epoch precision. Float inputs are accepted.
 
-         :type: float
+         :type: tudatpy.astro.time_representation.Time
       )doc" )
             .def_readwrite( "start_frequency", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::startFrequency_, R"doc(
          **read-only**
@@ -456,10 +447,13 @@ void expose_tracking_data( py::module& m )
             .def( py::init< const std::vector< tdat::RampedFrequencySupplementaryData::FrequencyRamp >& >( ), py::arg( "frequency_ramps" ) )
             .def_property_readonly( "frequency_ramps",
                                     &tdat::RampedFrequencySupplementaryData::getFrequencyRamps,
+                                    py::return_value_policy::copy,
                                     R"doc(
          **read-only**
 
-         Frequency-ramp records.
+         Independent copies of the frequency-ramp records. Appending ramps to
+         the container does not invalidate previously retrieved records, and
+         editing a retrieved record does not change the container.
 
          :type: list[FrequencyRamp]
       )doc" )
@@ -474,9 +468,9 @@ void expose_tracking_data( py::module& m )
 
          Parameters
          ----------
-         start_time : float
+         start_time : tudatpy.astro.time_representation.Time | float
              Ramp start time.
-         end_time : float
+         end_time : tudatpy.astro.time_representation.Time | float
              Ramp end time.
          start_frequency : float
              Ramp start frequency.
@@ -499,6 +493,10 @@ void expose_tracking_data( py::module& m )
          the history is set on the associated
          :class:`~tudatpy.dynamics.environment.GroundStation`, or on the
          associated body's vehicle systems if no reference point is specified.
+         Each entry takes effect at its epoch and is installed as a ramp with
+         zero rate. The existing ramp calculator holds the first and last
+         frequencies outside the tabulated epochs. Later entries replace earlier
+         entries at the same epoch when histories or existing ramp tables are merged.
          See :ref:`ground_station`, :ref:`vehicle_systems`, and
          :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings`
          for the environment model to which this data is attached.
@@ -659,6 +657,33 @@ void expose_tracking_data( py::module& m )
          for the corresponding environment setup interface.
       )doc" )
             .def( py::init<>( ) )
+            .def( py::init< const std::map< double, Eigen::Vector6d >&,
+                            const std::string&,
+                            const bool,
+                            const std::string&,
+                            const std::string& >( ),
+                  py::arg( "state_history" ),
+                  py::arg( "frame_origin" ),
+                  py::arg( "is_velocity_defined" ),
+                  py::arg( "time_scale" ) = "TDB",
+                  py::arg( "frame_orientation" ) = "J2000",
+                  R"doc(
+         Create translational-state supplementary data from a tabulated state history.
+
+         Parameters
+         ----------
+         state_history : dict[float, numpy.ndarray]
+             Cartesian states (position and velocity) per epoch.
+         frame_origin : str
+             Origin of the frame in which the states are expressed.
+         is_velocity_defined : bool
+             Whether the velocity entries are valid. If False, velocities are
+             computed from positions by finite differences when the data are applied.
+         time_scale : str, default "TDB"
+             Time scale of the epochs ("TDB" or "UTC").
+         frame_orientation : str, default "J2000"
+             Orientation of the frame in which the states are expressed.
+      )doc" )
             .def_property_readonly( "state_history",
                                     &tdat::TranslationalStateSupplementaryData::getStateHistory,
                                     R"doc(
@@ -677,6 +702,15 @@ void expose_tracking_data( py::module& m )
 
          :type: str
       )doc" )
+            .def_property_readonly( "frame_orientation",
+                                    &tdat::TranslationalStateSupplementaryData::getFrameOrientation,
+                                    R"doc(
+         **read-only**
+
+         Orientation of the translational-state frame.
+
+         :type: str
+      )doc" )
             .def_property_readonly( "is_velocity_defined",
                                     &tdat::TranslationalStateSupplementaryData::isVelocityDefined,
                                     R"doc(
@@ -685,6 +719,15 @@ void expose_tracking_data( py::module& m )
          Boolean that defines whether velocity entries are defined, if not they are computed through finite differences when this object is processed to update the environment.
 
          :type: bool
+      )doc" )
+            .def_property_readonly( "time_scale",
+                                    &tdat::TranslationalStateSupplementaryData::getTimeScale,
+                                    R"doc(
+         **read-only**
+
+         Time scale of the tabulated state-history epochs.
+
+         :type: str
       )doc" );
 
     py::class_< tdat::RotationalStateSupplementaryData >( m, "RotationalStateSupplementaryData", R"doc(
@@ -729,10 +772,23 @@ void expose_tracking_data( py::module& m )
          :type: bool
       )doc" );
 
-    py::class_< tdat::TrackingSupplementaryData, std::shared_ptr< tdat::TrackingSupplementaryData > >(
-            m,
-            "TrackingSupplementaryData",
-            R"doc(Container for tracking supplementary data. These objects store auxiliary information loaded from tracking data files and are applied to a system of bodies by :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.)doc" )
+    py::class_< tdat::TrackingSupplementaryData, std::shared_ptr< tdat::TrackingSupplementaryData > >( m,
+                                                                                                       "TrackingSupplementaryData",
+                                                                                                       R"doc(
+         Container for tracking supplementary data.
+
+         These objects store auxiliary information loaded from tracking data
+         files and are applied to a system of bodies by
+         :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body to which the data apply.
+         reference_point_name : str
+             Name of the reference point on the body, or an empty string for
+             body-level data.
+      )doc" )
             .def( py::init<>( ) )
             .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "reference_point_name" ) )
             .def_property( "body_name",
@@ -754,6 +810,16 @@ void expose_tracking_data( py::module& m )
          Reference point name.
 
          :type: str
+      )doc" )
+            .def_property( "is_passive_radar_reflector",
+                           &tdat::TrackingSupplementaryData::isPassiveRadarReflector,
+                           &tdat::TrackingSupplementaryData::setIsPassiveRadarReflector,
+                           R"doc(
+         Whether the named body is a passive radar reflector. Applying this
+         supplementary data sets its turnaround ratio to one for every
+         frequency-band pair.
+
+         :type: bool
       )doc" )
             .def_property( "translational_state_supplementary_data",
                            &tdat::TrackingSupplementaryData::getTranslationalStateSupplementaryData,

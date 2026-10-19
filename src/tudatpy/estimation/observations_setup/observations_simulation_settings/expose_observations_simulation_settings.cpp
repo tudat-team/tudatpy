@@ -26,9 +26,13 @@ namespace observations_setup
 namespace observations_simulation_settings
 {
 
-void expose_observations_simulation_settings( py::module& m )
+void expose_observation_simulation_settings_types( py::module& m )
 {
     expose_observation_simulation_settings_core_bindings( m );
+}
+
+void expose_observations_simulation_settings( py::module& m )
+{
     expose_observation_simulation_settings_factory_bindings( m );
 }
 

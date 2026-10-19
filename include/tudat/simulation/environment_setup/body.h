@@ -33,6 +33,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/math/basic/numericalDerivative.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/simulation/environment_setup/baseStateInterface.h"
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
@@ -57,7 +58,6 @@ class BodyShapeModel;
 
 namespace electromagnetism
 {
-class RadiationPressureInterface;
 class RadiationPressureTargetModel;
 class RadiationSourceModel;
 }  // namespace electromagnetism
@@ -535,15 +535,6 @@ public:
     std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& getBodyDeformationModelsReference( );
 
     void addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel );
-    //! Function to set the radiation pressure interface of the body, for a single radiation source.
-    /*!
-     *  Function to set the radiation pressure interface of the body, for a single radiation source
-     *  \param radiatingBody Name of body that is the source of the radiation.
-     *  \param radiationPressureInterface Radiation pressure interface of the body.
-     */
-    void setRadiationPressureInterface( const std::string& radiatingBody,
-                                        const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface );
-
     //! Function to set the radiation source model of the body.
     /*!
      *  Function to set the radiation source model of the body.
@@ -630,13 +621,6 @@ public:
      * \return Body flight conditions
      */
     std::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( );
-
-    //! Function to retrieve the shape model of the body.
-    /*!
-     *  Function to retrieve the shape model of the body.
-     *  \return Shape model of the body.
-     */
-    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > getRadiationPressureInterfaces( );
 
     //! Function to retrieve the radiation source model of the body.
     /*!
@@ -828,6 +812,16 @@ public:
         return timeScaleConverter_;
     }
 
+    void setClimateModel( std::shared_ptr< environment::ClimateModel > climateModel )
+    {
+        climateModel_ = climateModel;
+    }
+
+    std::shared_ptr< environment::ClimateModel > getClimateModel( )
+    {
+        return climateModel_;
+    }
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -907,10 +901,6 @@ private:
 
     std::shared_ptr< RigidBodyProperties > massProperties_;
 
-    //! List of radiation pressure models for the body, with the sources bodies as key
-    // RP-OLD
-    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > radiationPressureInterfaces_;
-
     //! Radiation source model of the body.
     std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel_;
 
@@ -937,6 +927,8 @@ private:
     bool isRotationSet_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
+
+    std::shared_ptr< environment::ClimateModel > climateModel_;
 
     std::shared_ptr< TimeEphemeris > timeScaleConverter_;
 };

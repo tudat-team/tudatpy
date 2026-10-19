@@ -223,7 +223,7 @@ def plot_porkchop_of_single_field(
             ]
         )
         cbar = fig.colorbar(contour, cax=cax)
-        cbar.ax.set_title("$m^2/s^2$" if C3 else "m/s", pad=12.5, x=2.5)
+        cbar.ax.set_title("$km^2/s^2$" if C3 else "km/s", pad=12.5, x=2.5)
         cbar.ax.yaxis.set_ticks(levels)
         plt.sca(ax)
 

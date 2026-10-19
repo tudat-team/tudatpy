@@ -268,6 +268,20 @@ protected:
      */
     void computeAccelerationPartialWrtLiftComponent( Eigen::MatrixXd& partial );
 
+    //! Function to compute the partial derivative of the acceleration w.r.t. a scalar panel material property
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. a scalar panel material property analytically. The
+     * aerodynamic acceleration is a linear map of the body-frame force coefficient vector returned by the panelled gas-surface
+     * interaction model; the partial applies that same map to the analytical derivative of the coefficient vector w.r.t. the
+     * material property (see GasSurfaceInteractionModel::computeAerodynamicCoefficientsPartial). Requires a panelled aerodynamic
+     * coefficient interface.
+     * \param accelerationPartial Derivative of acceleration by reference.
+     * \param parameter Parameter object that is associated with the variable of differentiation.
+     */
+    void computeAccelerationPartialWrtPanelMaterialProperty(
+            Eigen::MatrixXd& accelerationPartial,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+
     //! Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
