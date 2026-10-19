@@ -974,9 +974,12 @@ BOOST_AUTO_TEST_CASE( testSeasonalPlusAdjustmentTroposphericCorrections )
                                 1e-15 );
 }
 
+// Test the measured tropospheric correction: replacement of the fallback wet (and optionally dry) zenith delay by the measured delay,
+// linear interpolation of the measurements, and use of the fallback correction in gaps between, and outside of, the measurements
 BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
 {
-    // At zenith both Niell mappings are unity, so the path delays can be checked directly
+    // Create Niell mapping at zenith (for which both dry and wet mappings are unity, so the path delays can be checked directly), and
+    // fallback correction with linearly varying dry and wet zenith delays
     const auto mapping =
             std::make_shared< NiellTroposphericMapping >( []( Eigen::Vector3d, double ) { return mathematical_constants::PI / 2.0; },
                                                           []( double ) { return Eigen::Vector3d( 800.0, 0.6, 0.0 ); },
@@ -991,24 +994,35 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
                                                           { 1100.0, Eigen::Vector2d( 2.3, 0.10 ) },
                                                           { 1170.0, Eigen::Vector2d( 2.5, 0.16 ) },
                                                           { 1200.0, Eigen::Vector2d( 2.7, 0.22 ) } };
+
+    // Create measured corrections (interpolating only between measurements separated by at most 30 s), using only the measured wet
+    // delay, and using both the measured wet and dry delay
     MeasuredTroposphericCorrection wetOnly( samples, fallback, mapping, true, 30.0 );
     MeasuredTroposphericCorrection wetAndDry( samples, fallback, mapping, true, 30.0, true );
 
-    const double tdb = 1085.0;  // Measured wet 0.07 m and measured dry 2.2 m.
+    // Check that halfway between the first two measurements, the interpolated measured wet delay (0.07 m) is used, together with
+    // the fallback dry delay (2.0015 m)
+    const double tdb = 1085.0;
     const std::vector< Eigen::Vector6d > states( 2, Eigen::Vector6d::Zero( ) );
     const std::vector< double > times = { tdb, tdb + 100.0 };
     BOOST_CHECK_CLOSE_FRACTION( wetOnly.getWetZenithRangeCorrectionFunction( )( tdb ), 0.07, 1.0e-14 );
     BOOST_CHECK_CLOSE_FRACTION( wetOnly.getDryZenithRangeCorrectionFunction( )( tdb ), 2.0015, 1.0e-14 );
+
+    // Check that the total light-time correction is the sum of the dry and wet delays (mapping is unity), where the dry delay is
+    // the fallback (2.0015 m) or measured (2.2 m) delay, depending on whether the measured dry delay is used
     BOOST_CHECK_CLOSE_FRACTION(
             wetOnly.calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, times, 0, nullptr ) * SPEED_OF_LIGHT, 2.0715, 1.0e-14 );
     BOOST_CHECK_CLOSE_FRACTION(
             wetAndDry.calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, times, 0, nullptr ) * SPEED_OF_LIGHT, 2.27, 1.0e-14 );
 
-    // Measurements are used at the samples (on both sides of a gap); the fallback is used in the gap and outside the samples
+    // Check that the measured wet delay is used exactly at each of the measurements, including those directly before and after
+    // the gap between 1100 and 1170 s (which exceeds the maximum interpolation interval)
     for( const auto& sample : samples )
     {
         BOOST_CHECK_EQUAL( wetOnly.getWetZenithRangeCorrectionFunction( )( sample.first ), sample.second( 1 ) );
     }
+    // Check that the fallback wet and dry delays, and the fallback light-time correction, are used before the first measurement,
+    // inside the gap between measurements, and after the last measurement
     for( const double time : { 1069.0, 1100.01, 1135.0, 1169.99, 1200.01 } )
     {
         BOOST_CHECK_EQUAL( wetOnly.getWetZenithRangeCorrectionFunction( )( time ),
@@ -1022,15 +1036,19 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
     }
 }
 
+// Test the creation of the measured tropospheric correction from settings: conversion of the measurement epochs from UTC to TDB,
+// use of the Niell mapping for the measured correction, and use of the fallback correction for stations without measurements
 BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
 {
+    // Create Earth with DSN ground stations, and a spacecraft
     spice_interface::loadStandardSpiceKernels( );
     auto bodySettings = simulation_setup::getDefaultBodySettings( { "Earth" } );
     bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
     bodySettings.addSettings( "Probe" );
     auto bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
-    // Synthetic seasonal/adjustment managers avoid weather or TRO test files.
+    // Create fallback settings: tabulated tropospheric correction with constant dry (2.0 m) and wet (0.4 m) zenith delays for
+    // DSS-25 and DSS-26, using the Chao mapping
     const auto constantManager = []( double value ) {
         return std::make_shared< TabulatedMediaReferenceCorrectionManager >(
                 std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >{
@@ -1046,22 +1064,30 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
     }
     const auto fallbackSettings = std::make_shared< TabulatedTroposphericCorrectionSettings >(
             zero, zero, "Earth", TroposphericMappingModel::simplified_chao, dry, wet );
+
+    // Create settings for measured correction, with measurements for DSS-25 only, 15 s before and after a given UTC epoch
     const double utc = 548445540.0;
     const std::map< std::string, std::map< double, Eigen::Vector2d > > samples = {
         { "DSS-25", { { utc - 15.0, Eigen::Vector2d( 2.1, 0.04 ) }, { utc + 15.0, Eigen::Vector2d( 2.2, 0.10 ) } } }
     };
     const auto settings = measuredTroposphericCorrectionSettings( samples, fallbackSettings, 30.0 );
+
+    // Check that a measured correction is created for a downlink to DSS-25
     LinkEnds linkEnds = { { transmitter, LinkEndId( "Probe" ) }, { receiver, LinkEndId( "Earth", "DSS-25" ) } };
     const auto measured = std::dynamic_pointer_cast< MeasuredTroposphericCorrection >(
             createLightTimeCorrections( settings, bodies, linkEnds, transmitter, receiver, one_way_doppler ) );
     BOOST_REQUIRE( measured != nullptr );
+
+    // Check that at the TDB epoch corresponding to the UTC epoch, the interpolated measured wet delay (0.07 m) is used, which
+    // verifies the conversion of the measurement epochs from UTC to TDB, and that the fallback dry delay (2.0 m) is used
     const Eigen::Vector3d stationPosition =
             bodies.at( "Earth" )->getGroundStation( "DSS-25" )->getNominalStationState( )->getNominalCartesianPosition( );
     const double tdb = earth_orientation::createDefaultTimeConverter( )->getCurrentTime( utc_scale, tdb_scale, utc, stationPosition );
     BOOST_CHECK_SMALL( measured->getWetZenithRangeCorrectionFunction( )( tdb ) - 0.07, 1.0e-8 );
     BOOST_CHECK_EQUAL( measured->getDryZenithRangeCorrectionFunction( )( tdb ), 2.0 );
 
-    // Measured paths must use Niell even when the fallback settings use Chao.
+    // Check that the light-time correction uses the Niell mapping for the dry and wet delays (for a signal at an arbitrary
+    // non-zenith elevation), even though the fallback settings use the Chao mapping
     Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
     spacecraftState.head< 3 >( ) = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( tdb ) *
             ( stationPosition.normalized( ) + 2.0 * stationPosition.unitOrthogonal( ) ) * 1.0e9;
@@ -1076,7 +1102,7 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
                                 expectedPath,
                                 1.0e-8 );
 
-    // A station without AMC data still receives its normal mapped model.
+    // Check that for a downlink to DSS-26 (without measurements), the fallback correction is created, with its own wet delay
     linkEnds[ receiver ] = LinkEndId( "Earth", "DSS-26" );
     const auto otherStation = createLightTimeCorrections( settings, bodies, linkEnds, transmitter, receiver, one_way_doppler );
     BOOST_REQUIRE( otherStation != nullptr );
