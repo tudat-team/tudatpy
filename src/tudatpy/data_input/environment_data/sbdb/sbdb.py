@@ -132,6 +132,47 @@ class SBDBquery:
     Useful for retrieving names and masses in conjunction with the MPC module.
     """
 
+    _AU_TO_M = (u.au, u.m)
+    _KM_TO_M = (u.km, u.m)
+    _KM_S_TO_M_S = (u.km / u.s, u.m / u.s)
+    _AU_D2_TO_M_S2 = (u.au / u.d**2, u.m / u.s**2)
+
+    # SBDB field -> (unit used by the SBDB, tudat SI unit)
+    field_units = {
+        "moid": _AU_TO_M,
+        "moid_jup": _AU_TO_M,
+        "q": _AU_TO_M,
+        "dist": _AU_TO_M,
+        "dist_min": _AU_TO_M,
+        "dist_max": _AU_TO_M,
+        "diameter": _KM_TO_M,
+        "unc_major": _KM_TO_M,
+        "unc_minor": _KM_TO_M,
+        "GM": (u.km**3 / u.s**2, u.m**3 / u.s**2),
+        "v_inf": _KM_S_TO_M_S,
+        "v_rel": _KM_S_TO_M_S,
+        "sigma_t": (u.min, u.s),
+        "DT": (u.d, u.s),
+        "unc_angle": (u.deg, u.rad),
+        "A1": _AU_D2_TO_M_S2,
+        "A2": _AU_D2_TO_M_S2,
+        "A3": _AU_D2_TO_M_S2,
+    }
+
+    # Full body name (lower case) -> abbreviated name used by the SBDB close approach data
+    close_approach_body_names = {
+        "mercury": "Merc",
+        "venus": "Venus",
+        "earth": "Earth",
+        "moon": "Moon",
+        "mars": "Mars",
+        "jupiter": "Juptr",
+        "saturn": "Satrn",
+        "uranus": "Urnus",
+        "neptune": "Neptn",
+        "pluto": "Pluto",
+    }
+
     def __init__(self, MPCcode: Union[str, int], *args, **kwargs) -> None:
         """Create a Small-Body Database Query
 
@@ -184,7 +225,7 @@ class SBDBquery:
 
         Small body's minimum orbital intersection distance with Earth, in metres.
         """
-        return self.query["orbit"]["moid"].to(u.meter).value
+        return self._to_si("moid", self.query["orbit"]["moid"])
 
     @property
     def moid_jup(self):
@@ -192,7 +233,7 @@ class SBDBquery:
 
         Small body's minimum orbital intersection distance with Jupiter, in metres.
         """
-        return self.query["orbit"]["moid_jup"].to(u.meter).value
+        return self._to_si("moid_jup", self.query["orbit"]["moid_jup"])
 
     @property
     def codes_300_spkid(self):
@@ -226,8 +267,7 @@ class SBDBquery:
         Returns the gravitational parameter for the small body if available
         """
         try:
-            res = self.query["phys_par"]["GM"].to(u.meter**3 / u.second**2)
-            return res.value
+            return self._to_si("GM", self.query["phys_par"]["GM"])
         except Exception as _:
             raise ValueError(f"Gravitational parameter is not available for object {self.name}")
 
@@ -254,8 +294,7 @@ class SBDBquery:
         Returns diameter of the small body if available
         """
         try:
-            res = self.query["phys_par"]["diameter"].to(u.meter)
-            return res.value
+            return self._to_si("diameter", self.query["phys_par"]["diameter"])
         except Exception as _:
             raise ValueError(f"Diameter is not available for object {self.name}")
 
@@ -269,7 +308,7 @@ class SBDBquery:
         parameters = []
         for name in ("A1", "A2", "A3"):
             try:
-                value = self.query["orbit"]["model_pars"][name].to(u.m / u.s**2).value
+                value = self._to_si(name, self.query["orbit"]["model_pars"][name])
             except Exception:
                 value = 0.0
             parameters.append(value)
@@ -282,7 +321,7 @@ class SBDBquery:
         Asymmetric cometary non-gravitational model parameter ``DT`` in seconds.
         """
         try:
-            return self.query["orbit"]["model_pars"]["DT"].to(u.s).value
+            return self._to_si("DT", self.query["orbit"]["model_pars"]["DT"])
         except Exception as exception:
             raise ValueError(
                 f"Asymmetry parameter DT is not available for object {self.name}"
@@ -323,7 +362,7 @@ class SBDBquery:
         Perihelion distance in metres.
         """
         try:
-            return self.query["orbit"]["elements"]["q"].to(u.m).value
+            return self._to_si("q", self.query["orbit"]["elements"]["q"])
         except Exception as exception:
             raise ValueError(
                 f"Perihelion distance is not available for object {self.name}"
@@ -376,3 +415,106 @@ class SBDBquery:
             Simplified estimation for the object's gravitational parameter
         """
         return GRAVITATIONAL_CONSTANT * self.estimated_spherical_mass(density)
+
+    def get_sbdb_close_approaches_with_bodies(
+        self,
+        body: str | list[str],
+        start_time: DateTime | None = None,
+        end_time: DateTime | None = None,
+        maximum_distance: float | None = None,
+    ) -> dict:
+        """Retrieve the close approaches of the small body to the requested bodies, as listed by the SBDB.
+        Requires the SBDB query to be created with ``close_approach=True``.
+
+        The quantities are converted from the SBDB units to the tudat conventions (SI units, epochs in seconds
+        since J2000 TDB).
+
+        Parameters
+        ----------
+        body : str | list[str]
+            Name(s) of the bodies to consider (e.g. ``["Earth", "Jupiter"]``). Full planet names are mapped to the
+            abbreviations used by the SBDB (e.g. ``"Jupiter"`` to ``"Juptr"``), other names are used as given
+        start_time : DateTime, optional
+            Only keep close approaches at or after this epoch (TDB)
+        end_time : DateTime, optional
+            Only keep close approaches at or before this epoch (TDB)
+        maximum_distance : float, optional
+            Only keep close approaches whose nominal closest approach distance (``dist``) is at most this value, in [m]
+
+        Returns
+        -------
+        dict
+            Close approach data, with one array per quantity and one entry per close approach that satisfies all
+            the filters:
+
+            - ``epoch``: epoch of the closest approach, in [s] since J2000 TDB
+            - ``cd``: epoch of the closest approach, as calendar date string in TDB (as given by the SBDB, for display)
+            - ``dist``, ``dist_min``, ``dist_max``: nominal, minimum and maximum (3-sigma) closest approach
+              distance, in [m]
+            - ``v_inf``, ``v_rel``: velocity relative to the body at infinity and at the closest approach, in [m/s]
+            - ``sigma_t``: 3-sigma uncertainty of the closest approach epoch, in [s]
+            - ``sigma_tf``: same as ``sigma_t``, as formatted string (as given by the SBDB)
+            - ``unc_major``, ``unc_minor``: semi-major and semi-minor axes of the 3-sigma uncertainty ellipse in the
+              target plane, in [m]
+            - ``unc_angle``: orientation angle of the uncertainty ellipse in the target plane, in [rad]
+            - ``orbit_ref``: reference of the orbit solution used by the SBDB, as string
+            - ``body``: name of the body, as abbreviated by the SBDB
+        """
+        if "ca_data" not in self.query.keys():
+            raise ValueError(
+                "Query does not contain close approach data.\nTo request close approaches in the query, you must type:\n"
+                "'sbdb_query = SBDBquery(str(asteroid_number), full_precision=True, close_approach=True)'\n"
+            )
+
+        close_approach_data = dict()
+        for key, values in self.query["ca_data"].items():
+            if key == "jd":
+                # Epoch, not a duration: the origin is moved to J2000 as well (the SBDB epochs are in TDB)
+                julian_days = np.atleast_1d(u.Quantity(values, u.d).value)
+                close_approach_data["epoch"] = np.array(
+                    [DateTime.from_julian_day(julian_day).to_epoch() for julian_day in julian_days]
+                )
+            elif key == "orbit_ref":
+                # astroquery parses the orbit solution reference as a number (e.g. 220.0)
+                close_approach_data[key] = np.array(
+                    [
+                        (
+                            str(int(reference))
+                            if isinstance(reference, float) and reference.is_integer()
+                            else str(reference)
+                        )
+                        for reference in np.atleast_1d(values)
+                    ]
+                )
+            elif key in self.field_units:
+                close_approach_data[key] = np.atleast_1d(self._to_si(key, values))
+            else:
+                close_approach_data[key] = np.atleast_1d(np.asarray(values))
+
+        # Select encounters involving any requested body
+        bodies = [body] if isinstance(body, str) else body
+        sbdb_bodies = [self.close_approach_body_names.get(name.lower(), name) for name in bodies]
+        mask = np.isin(close_approach_data["body"], sbdb_bodies)
+
+        # Filter by start time
+        if start_time is not None:
+            mask &= close_approach_data["epoch"] >= start_time.to_epoch()
+
+        # Filter by end time
+        if end_time is not None:
+            mask &= close_approach_data["epoch"] <= end_time.to_epoch()
+
+        # Filter by closest approach distance
+        if maximum_distance is not None:
+            mask &= close_approach_data["dist"] <= maximum_distance
+
+        return {key: values[mask] for key, values in close_approach_data.items()}
+
+    def _to_si(self, name, value):
+        """Convert an SBDB field to SI units. astroquery does not always attach units (e.g. ``dist``,
+        ``unc_angle``, or columns with missing entries), in which case the SBDB unit from ``field_units`` is assumed.
+        """
+        sbdb_unit, si_unit = self.field_units[name]
+        if not isinstance(value, u.Quantity):
+            value = np.asarray(value, dtype=float) * sbdb_unit
+        return value.to(si_unit).value
