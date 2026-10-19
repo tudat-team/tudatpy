@@ -21,6 +21,7 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/varianceComponentEstimation.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -209,6 +210,44 @@ void expose_estimation_analysis_estimator( py::module& m )
 
 
 
+
+     )doc" )
+            .def(
+                    "perform_estimation_with_variance_components",
+                    []( tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >& estimator,
+                        const std::shared_ptr< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > > estimationInput,
+                        const std::shared_ptr< tss::VarianceComponentSettings > settings ) {
+                        return tss::estimateParametersWithVarianceComponents( estimator, estimationInput, settings );
+                    },
+                    py::arg( "estimation_input" ),
+                    py::arg( "variance_component_settings" ),
+                    R"doc(
+
+         Function to perform the parameter estimation, while estimating the weight of each group of observations.
+
+         Uses Helmert's variance component estimation, following
+         `Sahin et al. (1992) <https://doi.org/10.1007/BF02033189>`_:
+
+         1. Estimate the parameters with the current weights (see :meth:`perform_estimation`).
+         2. Estimate a variance factor :math:`s_k` for each group :math:`k` with Helmert's equations.
+         3. Divide the weights of each group by :math:`s_k`, and repeat until all :math:`s_k` are close to 1.
+
+         The weights in the observation collection of ``estimation_input`` are changed by this function, and end up as the
+         estimated weights. A priori information and inter-arc continuity constraints are kept fixed. Linear parameter
+         constraints are not supported. The design matrix must be saved (the default).
+
+         Parameters
+         ----------
+         estimation_input : :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
+             Input to the estimation. The weights of its observations are the starting weights.
+         variance_component_settings : :class:`~tudatpy.estimation.estimation_analysis.VarianceComponentSettings`
+             Observation groups and iteration settings, created with
+             :func:`~tudatpy.estimation.estimation_analysis.variance_component_settings`.
+
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.VarianceComponentEstimationOutput`
+             Output of the last estimation, and the variance factors of each iteration.
 
      )doc" )
             .def( "compute_covariance",
