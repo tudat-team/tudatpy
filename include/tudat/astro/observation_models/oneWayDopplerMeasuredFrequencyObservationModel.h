@@ -176,34 +176,19 @@ public:
                     time, linkEndAssociatedWithTime, lightTimeCalculator_, ancillarySettings, ancillarySettingsToUse );
         }
 
-        // Calculate the light time using correct signature
-        StateType receiverState, transmitterState;
-        bool isTimeAtReception = ( linkEndAssociatedWithTime == receiver );
-        TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                receiverState, transmitterState, time, isTimeAtReception, ancillarySettingsToUse );
-
-        // Update link end states and times
-        linkEndStates.resize( 2 );
-        linkEndTimes.resize( 2 );
-        linkEndStates[ 0 ] = transmitterState.template cast< double >( );
-        linkEndStates[ 1 ] = receiverState.template cast< double >( );
-        if( isTimeAtReception )
-        {
-            linkEndTimes[ 1 ] = static_cast< double >( time );
-            linkEndTimes[ 0 ] = static_cast< double >( time - lightTime );
-        }
-        else
-        {
-            linkEndTimes[ 0 ] = static_cast< double >( time );
-            linkEndTimes[ 1 ] = static_cast< double >( time + lightTime );
-        }
+        // Calculate the Doppler observable. This also computes the link end times and states (including link end delays)
+        ObservationScalarType dopplerMultiplicationTerm = oneWayDopplerModel_->getMultiplicationTerm( );
+        ObservationScalarType oneWayDoppler =
+                oneWayDopplerModel_->computeIdealObservationsWithLinkEndData(
+                        time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettingsToUse )( 0, 0 ) /
+                dopplerMultiplicationTerm;
 
         // Get the frequency of the transmitter
-        TimeType transmitterTime = time - lightTime;
+        TimeType transmitterTime = linkEndTimes.at( 0 );
 
-        Eigen::Vector3d transmitterPosition = transmitterState.template segment< 3 >( 0 ).template cast< double >( );
+        // Time scale conversion requires an Earth-fixed position: use the geocenter if the transmitter is not a ground station
         Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
-                ? transmitterPosition
+                ? Eigen::Vector3d::Zero( ).eval( )
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
         TimeType transmitterFrequencyTime = transmitterTime;
@@ -216,13 +201,6 @@ public:
         ObservationScalarType transmittedFrequency =
                 frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
                         transmitterFrequencyTime );
-
-        // Calculate the Doppler observable
-        ObservationScalarType dopplerMultiplicationTerm = oneWayDopplerModel_->getMultiplicationTerm( );
-        ObservationScalarType oneWayDoppler =
-                oneWayDopplerModel_->computeIdealObservationsWithLinkEndData(
-                        time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettingsToUse )( 0, 0 ) /
-                dopplerMultiplicationTerm;
 
         ObservationScalarType receivedFrequency =
                 ( transmittedFrequency * ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + oneWayDoppler ) );

@@ -1434,19 +1434,17 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
+                // Station states are also needed for TDB observables, to convert the transmission time to UTC
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
-                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                for( auto it : linkEnds )
                 {
-                    for( auto it : linkEnds )
+                    if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                ->getGroundStationMap( )
+                                .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                     {
-                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                    ->getGroundStationMap( )
-                                    .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
-                        {
-                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
-                                                                ->getNominalStationState( );
-                        }
+                        stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                            ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
+                                                            ->getNominalStationState( );
                     }
                 }
 

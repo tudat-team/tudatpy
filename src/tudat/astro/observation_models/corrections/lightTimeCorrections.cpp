@@ -159,9 +159,10 @@ Eigen::Matrix< double, 3, 1 > LightTimeCorrection::calculateLightTimeCorrectionP
 {
     Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
 
-    double positionPerturbation = ( linkEndAtWhichPartialIsEvaluated == receiver )
-            ? ( positionRelativePerturbation_ * receiverState.segment( 0, 3 ).norm( ) )
-            : ( positionRelativePerturbation_ * transmitterState.segment( 0, 3 ).norm( ) );
+    // Scale perturbation with link length, not with (barycentric) link end position, which would be orders of magnitude
+    // too large for the link geometry (e.g. elevation) of near-Earth links
+    double positionPerturbation =
+            positionRelativePerturbation_ * ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ).norm( );
 
     Eigen::Vector6d perturbedState;
     for( int i = 0; i < 3; i++ )
