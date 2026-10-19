@@ -987,15 +987,14 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
             true,
             []( double tdb ) { return 2.0 + 1.0e-4 * ( tdb - 1070.0 ); },
             []( double tdb ) { return 0.4 + 2.0e-5 * ( tdb - 1070.0 ); } );
-    const std::map< double, Eigen::Vector2d > samples = { { 1000.0, Eigen::Vector2d( 2.1, 0.04 ) },
-                                                          { 1030.0, Eigen::Vector2d( 2.3, 0.10 ) },
-                                                          { 1100.0, Eigen::Vector2d( 2.5, 0.16 ) },
-                                                          { 1130.0, Eigen::Vector2d( 2.7, 0.22 ) } };
-    const auto tdbToUtc = []( double tdb ) { return tdb - 70.0; };
-    MeasuredTroposphericCorrection wetOnly( samples, tdbToUtc, fallback, mapping, true, 30.0 );
-    MeasuredTroposphericCorrection wetAndDry( samples, tdbToUtc, fallback, mapping, true, 30.0, true );
+    const std::map< double, Eigen::Vector2d > samples = { { 1070.0, Eigen::Vector2d( 2.1, 0.04 ) },
+                                                          { 1100.0, Eigen::Vector2d( 2.3, 0.10 ) },
+                                                          { 1170.0, Eigen::Vector2d( 2.5, 0.16 ) },
+                                                          { 1200.0, Eigen::Vector2d( 2.7, 0.22 ) } };
+    MeasuredTroposphericCorrection wetOnly( samples, fallback, mapping, true, 30.0 );
+    MeasuredTroposphericCorrection wetAndDry( samples, fallback, mapping, true, 30.0, true );
 
-    const double tdb = 1085.0;  // UTC=1015: measured wet 0.07 m and measured dry 2.2 m.
+    const double tdb = 1085.0;  // Measured wet 0.07 m and measured dry 2.2 m.
     const std::vector< Eigen::Vector6d > states( 2, Eigen::Vector6d::Zero( ) );
     const std::vector< double > times = { tdb, tdb + 100.0 };
     BOOST_CHECK_CLOSE_FRACTION( wetOnly.getWetZenithRangeCorrectionFunction( )( tdb ), 0.07, 1.0e-14 );
@@ -1008,12 +1007,10 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericReplacementAndCoverage )
     // Measurements are used at the samples (on both sides of a gap); the fallback is used in the gap and outside the samples
     for( const auto& sample : samples )
     {
-        const double time = sample.first + 70.0;
-        BOOST_CHECK_EQUAL( wetOnly.getWetZenithRangeCorrectionFunction( )( time ), sample.second( 1 ) );
+        BOOST_CHECK_EQUAL( wetOnly.getWetZenithRangeCorrectionFunction( )( sample.first ), sample.second( 1 ) );
     }
-    for( const double utc : { 999.0, 1030.01, 1065.0, 1099.99, 1130.01 } )
+    for( const double time : { 1069.0, 1100.01, 1135.0, 1169.99, 1200.01 } )
     {
-        const double time = utc + 70.0;
         BOOST_CHECK_EQUAL( wetOnly.getWetZenithRangeCorrectionFunction( )( time ),
                            fallback->getWetZenithRangeCorrectionFunction( )( time ) );
         BOOST_CHECK_EQUAL( wetAndDry.getDryZenithRangeCorrectionFunction( )( time ),
@@ -1031,9 +1028,8 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericStationEventsAndNiellMapping )
     // measurement coverage
     const double epoch = 517557600.0;
     const double expectedWetMapping = 3.59993033305367;
-    const std::map< double, Eigen::Vector2d > samples = { { epoch, Eigen::Vector2d( 2.0, 0.04 ) },
-                                                          { epoch + 30.0, Eigen::Vector2d( 2.0, 0.10 ) } };
-    const auto tdbToUtc = []( double tdb ) { return tdb - 70.0; };
+    const std::map< double, Eigen::Vector2d > samples = { { epoch + 70.0, Eigen::Vector2d( 2.0, 0.04 ) },
+                                                          { epoch + 100.0, Eigen::Vector2d( 2.0, 0.10 ) } };
     Eigen::Vector6d stationState = Eigen::Vector6d::Zero( );
     stationState( 0 ) = 10.0;
     Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
@@ -1054,7 +1050,7 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericStationEventsAndNiellMapping )
                 isUplink );
         const auto fallback = std::make_shared< MappedTroposphericCorrection >(
                 tabulated_tropospheric, mapping, isUplink, []( double ) { return 0.0; }, []( double ) { return 0.6; } );
-        MeasuredTroposphericCorrection correction( samples, tdbToUtc, fallback, mapping, isUplink, 30.0 );
+        MeasuredTroposphericCorrection correction( samples, fallback, mapping, isUplink, 30.0 );
 
         // Use second leg, to check that the epochs of the first leg are not used
         const std::vector< Eigen::Vector6d > states = { Eigen::Vector6d::Zero( ),

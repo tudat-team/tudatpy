@@ -485,7 +485,7 @@ Function for creating settings for a tropospheric light-time correction from mea
 Function for creating settings for a tropospheric light-time correction from measured zenith path delays (e.g. from water vapour
 radiometers, see :func:`~tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays`), mapped to the signal elevation with
 the Niell mapping function. The measured zenith wet path delay replaces the wet path delay of the fallback correction; the dry path delay
-of the fallback correction is retained, unless ``use_measured_dry_delay`` is true. The measurements are linearly interpolated (in UTC) if
+of the fallback correction is retained, unless ``use_measured_dry_delay`` is true. The measurements are linearly interpolated if
 they are separated by at most ``maximum_interpolation_gap``. Outside of the measurements (and for ground stations without measurements),
 the fallback correction is used.
 

@@ -223,14 +223,17 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                                                             ->getGroundStation( station.getReferencePointName( ) )
                                                             ->getNominalStationState( )
                                                             ->getNominalCartesianPosition( );
+
+            // Convert measurement epochs from UTC to TDB
             const auto timeConverter = earth_orientation::createDefaultTimeConverter( );
-            const auto tdbToUtc = [ timeConverter, stationPosition ]( const double time ) {
-                return timeConverter->getCurrentTime(
-                        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, stationPosition );
-            };
+            std::map< double, Eigen::Vector2d > tdbZenithDelays;
+            for( const auto& [ utcTime, zenithDelay ] : stationZenithDelays->second )
+            {
+                tdbZenithDelays[ timeConverter->getCurrentTime(
+                        basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcTime, stationPosition ) ] = zenithDelay;
+            }
             lightTimeCorrection = std::make_shared< MeasuredTroposphericCorrection >(
-                    stationZenithDelays->second,
-                    tdbToUtc,
+                    tdbZenithDelays,
                     fallback,
                     createTroposphericElevationMapping( TroposphericMappingModel::niell, bodies, transmitter, receiver, isUplink ),
                     isUplink,
