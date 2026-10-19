@@ -869,6 +869,32 @@ BOOST_AUTO_TEST_CASE( testTabulatedIonosphericTimeDerivativeAtValidityBoundaries
     }
 }
 
+// Check numerical position partials of light-time corrections for a near-Earth link, with barycentric link end states
+BOOST_AUTO_TEST_CASE( testNumericalCorrectionPositionPartialsNearEarth )
+{
+    // Correction depending only on the line-of-sight direction, mimicking an elevation-dependent media correction
+    const Eigen::Vector3d stationDirection = Eigen::Vector3d( 0.3, -0.5, 0.8 ).normalized( );
+    LightTimeCorrectionFunctionWrapper correction( LightTimeCorrectionFunctionSingleLeg(
+            [ = ]( const Eigen::Vector6d& transmitterState, const Eigen::Vector6d& receiverState, const double, const double,
+                   const std::shared_ptr< ObservationAncillarySimulationSettings > ) {
+                return 1.0E-8 * ( receiverState - transmitterState ).segment( 0, 3 ).normalized( ).dot( stationDirection );
+            } ) );
+
+    // Station on an Earth at ~1 AU from the origin, spacecraft at 1000 km from the station
+    Eigen::Vector6d stationState = Eigen::Vector6d::Zero( ), spacecraftState = Eigen::Vector6d::Zero( );
+    stationState.segment( 0, 3 ) = Eigen::Vector3d( 1.0E11, 1.1E11, 0.4E11 ) + 6378.0E3 * stationDirection;
+    spacecraftState.segment( 0, 3 ) = stationState.segment( 0, 3 ) + 1000.0E3 * Eigen::Vector3d( 0.6, -0.2, 0.7 ).normalized( );
+
+    // Compare with analytical partial w.r.t. receiver (spacecraft) position
+    const Eigen::Vector3d lineOfSight = ( spacecraftState - stationState ).segment( 0, 3 );
+    const Eigen::Vector3d unitLineOfSight = lineOfSight.normalized( );
+    const Eigen::Vector3d expectedPartial =
+            1.0E-8 * ( stationDirection - unitLineOfSight.dot( stationDirection ) * unitLineOfSight ) / lineOfSight.norm( );
+    const Eigen::Vector3d computedPartial = correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            stationState, spacecraftState, 0.0, 0.0, receiver, nullptr );
+    BOOST_CHECK_SMALL( ( computedPartial - expectedPartial ).norm( ) / expectedPartial.norm( ), 1.0E-5 );
+}
+
 BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )
 {
     using namespace tudat;
