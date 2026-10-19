@@ -26,7 +26,7 @@ double FirstOrderLightTimeCorrectionCalculator::getPerturbingBodyEvaluationTime(
                                                                                  const double receptionTime )
 {
     double lightTime = receptionTime - transmissionTime;
-    if( evaluationEpoch_ == link_end_or_light_time_midpoint || lightTime == 0.0 )
+    if( !computeMassiveBodyAtClosestApproach_ || lightTime == 0.0 )
     {
         return transmissionTime + lightTimeEvaluationContribution_.at( bodyIndex ) * lightTime;
     }

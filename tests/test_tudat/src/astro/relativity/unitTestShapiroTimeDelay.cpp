@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayGradient )
 }
 
 //! Test the epochs at which the perturbing body state is evaluated, for a body moving at constant velocity
-BOOST_AUTO_TEST_CASE( testShapiroDelayPerturbingBodyEvaluationEpoch )
+BOOST_AUTO_TEST_CASE( testShapiroDelayMassiveBodyAtClosestApproach )
 {
     const double gravitationalParameter = 1.266865361E17;
     const double transmissionTime = 1.0E8;
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayPerturbingBodyEvaluationEpoch )
 
     for( bool useBending : { false, true } )
     {
-        for( PerturbingBodyEvaluationEpoch evaluationEpoch : { link_end_or_light_time_midpoint, closest_approach_to_signal } )
+        for( bool computeMassiveBodyAtClosestApproach : { false, true } )
         {
             // Check uplink, downlink, and perturbing body as receiver (with legacy settings: midpoint, midpoint, and reception)
             for( unsigned int test = 0; test < 3; test++ )
@@ -337,12 +337,12 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayPerturbingBodyEvaluationEpoch )
                         receiverName,
                         []( ) { return 1.0; },
                         useBending,
-                        evaluationEpoch );
+                        computeMassiveBodyAtClosestApproach );
                 double lightTimeCorrection = correctionCalculator.calculateLightTimeCorrection(
                         transmitterState, receiverState, transmissionTime, transmissionTime + lightTime );
 
                 double expectedOffset;
-                if( evaluationEpoch == link_end_or_light_time_midpoint )
+                if( !computeMassiveBodyAtClosestApproach )
                 {
                     expectedOffset = ( test == 2 ) ? lightTime : 0.5 * lightTime;
                 }
