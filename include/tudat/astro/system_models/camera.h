@@ -221,8 +221,9 @@ private:
     {
         if( !( focalLength_ > 0.0 ) || !principalPoint_.allFinite( ) || !kMatrix_.allFinite( ) )
         {
-            throw std::runtime_error( "Error when creating PSF camera model: focal length must be positive, and principal point and "
-                                      "K-MATRIX must be finite." );
+            throw std::runtime_error(
+                    "Error when creating PSF camera model: focal length must be positive, and principal point and "
+                    "K-MATRIX must be finite." );
         }
     }
 

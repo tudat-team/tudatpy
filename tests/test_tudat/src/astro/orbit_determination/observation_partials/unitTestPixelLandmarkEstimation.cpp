@@ -515,10 +515,9 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
         {
             if( row != column )
             {
-                BOOST_CHECK_SMALL(
-                        normalMatrix.block( pointingStartIndices.at( row ), pointingStartIndices.at( column ), 3, 3 ).norm( ) /
-                                diagonalBlock.norm( ),
-                        1.0E-12 );
+                BOOST_CHECK_SMALL( normalMatrix.block( pointingStartIndices.at( row ), pointingStartIndices.at( column ), 3, 3 ).norm( ) /
+                                           diagonalBlock.norm( ),
+                                   1.0E-12 );
             }
         }
     }
@@ -702,7 +701,7 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    auto estimate = [ ]( RealRosettaScenario& scenario, const bool estimatePointing ) {
+    auto estimate = []( RealRosettaScenario& scenario, const bool estimatePointing ) {
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
         if( estimatePointing )
         {
@@ -749,9 +748,8 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
         largestCorrection = std::max( largestCorrection, jointOutput->parameterEstimate_.segment( i, 3 ).norm( ) );
     }
 
-    BOOST_TEST_MESSAGE( "Real-data residual RMS: a-priori " << initialRms << " px, state-only " << stateOnlyRms << " px, joint "
-                                                            << jointRms << " px; largest pointing correction " << largestCorrection
-                                                            << " rad" );
+    BOOST_TEST_MESSAGE( "Real-data residual RMS: a-priori " << initialRms << " px, state-only " << stateOnlyRms << " px, joint " << jointRms
+                                                            << " px; largest pointing correction " << largestCorrection << " rad" );
 
     BOOST_CHECK_LT( stateOnlyRms, 3.0 );
     BOOST_CHECK_LT( stateOnlyRms, 0.1 * initialRms );

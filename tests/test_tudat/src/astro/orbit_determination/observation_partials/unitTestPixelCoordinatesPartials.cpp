@@ -330,9 +330,8 @@ BOOST_AUTO_TEST_CASE( testPointingCorrectionAppliedForBodyFixedCamera )
 
     std::shared_ptr< system_models::Camera > camera = bodies.at( "Spacecraft" )->getVehicleSystems( )->getCamera( cameraName );
     BOOST_REQUIRE( !camera->hasRotationFromInertialToCameraFrameFunction( ) );
-    BOOST_CHECK_SMALL(
-            ( camera->getRotationFromBodyFixedToCameraFrame( ).toRotationMatrix( ) - Eigen::Matrix3d::Identity( ) ).norm( ),
-            1.0E-12 );
+    BOOST_CHECK_SMALL( ( camera->getRotationFromBodyFixedToCameraFrame( ).toRotationMatrix( ) - Eigen::Matrix3d::Identity( ) ).norm( ),
+                       1.0E-12 );
 
     LinkEnds linkEnds;
     linkEnds[ transmitter ] = LinkEndId( "Target", "LMK0001" );

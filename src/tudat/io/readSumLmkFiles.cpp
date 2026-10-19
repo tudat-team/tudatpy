@@ -92,9 +92,10 @@ int parseInt( const std::string& token, const std::string& context )
 
 Eigen::Vector3d parseVector3( const std::vector< std::string >& tokens, const std::string& context, const double scale = 1.0 )
 {
-    return scale * Eigen::Vector3d( parseDouble( tokens.at( 0 ), context ),
-                                    parseDouble( tokens.at( 1 ), context ),
-                                    parseDouble( tokens.at( 2 ), context ) );
+    return scale *
+            Eigen::Vector3d( parseDouble( tokens.at( 0 ), context ),
+                             parseDouble( tokens.at( 1 ), context ),
+                             parseDouble( tokens.at( 2 ), context ) );
 }
 
 //! Parse a one- or three-valued uncertainty record; a single value applies to all three components.

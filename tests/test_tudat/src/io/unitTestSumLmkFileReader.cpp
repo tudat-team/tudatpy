@@ -148,8 +148,9 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
 {
     const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
     const std::vector< std::string > sumFiles = { testDataPath + "/W48230079013.SUM" };
-    const std::vector< std::string > lmkFiles = {
-        testDataPath + "/FA0115.LMK", testDataPath + "/FC0098.LMK", testDataPath + "/GD0036.LMK" };
+    const std::vector< std::string > lmkFiles = { testDataPath + "/FA0115.LMK",
+                                                  testDataPath + "/FC0098.LMK",
+                                                  testDataPath + "/GD0036.LMK" };
     const SumImageData image = readSumFile( sumFiles.at( 0 ) );
     const std::map< std::string, LmkLandmarkData > landmarks = readLmkFiles( lmkFiles );
 
@@ -173,8 +174,8 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
 
         const data::PlainLinkDefinition& linkEnds = trackingData->getLinkEnds( );
         BOOST_REQUIRE_EQUAL( linkEnds.size( ), 2 );
-        BOOST_CHECK( linkEnds.at( 0 ) == std::make_pair( std::make_pair( std::string( "Comet" ), observation.landmarkId_ ),
-                                                         std::string( "transmitter" ) ) );
+        BOOST_CHECK( linkEnds.at( 0 ) ==
+                     std::make_pair( std::make_pair( std::string( "Comet" ), observation.landmarkId_ ), std::string( "transmitter" ) ) );
         BOOST_CHECK( linkEnds.at( 1 ) ==
                      std::make_pair( std::make_pair( std::string( "Spacecraft" ), cameraName ), std::string( "receiver" ) ) );
     }
