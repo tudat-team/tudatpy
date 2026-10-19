@@ -116,7 +116,27 @@ getLightTimeGradientParameterPartialFunction( const estimatable_parameters::Esti
             }
 
             // Set partial of gravitational parameter
-            if( parameterId.first == estimatable_parameters::ppn_parameter_gamma )
+            if( parameterId.first == estimatable_parameters::gravitational_parameter )
+            {
+                // Retrieve function from FirstOrderRelativisticLightTimeCorrectionPartial if correction depends on
+                // body associated with parameter.
+                std::vector< std::string > perturbingBodies = currentLightTimeCorrectorPartial->getPerturbingBodies( );
+                std::vector< std::string >::iterator findIterator =
+                        std::find( perturbingBodies.begin( ), perturbingBodies.end( ), parameterId.second.first );
+                if( findIterator != perturbingBodies.end( ) )
+                {
+                    int bodyIndex = std::distance( perturbingBodies.begin( ), findIterator );
+                    partialFunction = std::make_pair(
+                            std::bind( &FirstOrderRelativisticLightTimeCorrectionPartial::gradientWrtBodyGravitationalParameter,
+                                       currentLightTimeCorrectorPartial,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2,
+                                       std::placeholders::_3,
+                                       bodyIndex ),
+                            1 );
+                }
+            }
+            else if( parameterId.first == estimatable_parameters::ppn_parameter_gamma )
             {
                 partialFunction =
                         std::make_pair( std::bind( &FirstOrderRelativisticLightTimeCorrectionPartial::gradientWrtPpnParameterGamma,

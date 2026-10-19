@@ -158,7 +158,9 @@ public:
                                    std::placeholders::_1 ),
                         dopplerObservationModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
-                        receiverProperTimePartials );
+                        receiverProperTimePartials,
+                        observation_models::one_way_doppler,
+                        dopplerObservationModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
 
                 break;
             }
@@ -214,7 +216,8 @@ public:
                         oneWayDopplerModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
                         receiverProperTimePartials,
-                        observation_models::one_way_doppler );
+                        observation_models::one_way_doppler,
+                        oneWayDopplerModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
 
                 // Get the frequency interpolator from the observation model
                 auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );

@@ -132,6 +132,12 @@ public:
         return false;
     }
 
+    //! Whether getLinkIndependentPartials can return a non-empty contribution for the given parameter.
+    virtual bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterType )
+    {
+        return useLinkIndependentPartials( );
+    }
+
     virtual bool useLightTimeGradientPartials( )
     {
         return false;
