@@ -681,10 +681,8 @@ std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeT
     {
         throw std::runtime_error( "Error when making " + modelName + " model, " + std::to_string( linkEnds.size( ) ) + " link ends found" );
     }
-    if( linkEnds.count( receiver ) == 0 )
-        throw std::runtime_error( "Error when making " + modelName + " model, no receiver found" );
-    if( linkEnds.count( transmitter ) == 0 )
-        throw std::runtime_error( "Error when making " + modelName + " model, no transmitter found" );
+    if( linkEnds.count( receiver ) == 0 ) throw std::runtime_error( "Error when making " + modelName + " model, no receiver found" );
+    if( linkEnds.count( transmitter ) == 0 ) throw std::runtime_error( "Error when making " + modelName + " model, no transmitter found" );
     if( linkEnds.count( transmitter2 ) == 0 )
         throw std::runtime_error( "Error when making " + modelName + " model, no second transmitter found" );
 
@@ -2555,10 +2553,10 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             if constexpr( ObservationSize == 1 || ObservationSize == 2 )
             {
                 const auto positionAngleAndSeparationModel =
-                        std::dynamic_pointer_cast< observation_models::
-                                                           PositionAngleAndSeparationObservationModel< ObservationSize,
-                                                                                                       ObservationScalarType,
-                                                                                                       TimeType > >( observationModel );
+                        std::dynamic_pointer_cast< observation_models::PositionAngleAndSeparationObservationModel< ObservationSize,
+                                                                                                                   ObservationScalarType,
+                                                                                                                   TimeType > >(
+                                observationModel );
                 currentLightTimeCorrections.push_back(
                         positionAngleAndSeparationModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
                 currentLightTimeCorrections.push_back(

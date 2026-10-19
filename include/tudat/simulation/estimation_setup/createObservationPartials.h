@@ -895,12 +895,10 @@ createPositionAngleAndSeparationPartials(
     const auto secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
     const Eigen::Matrix3d j2000ToGlobalFrameTransformation = typedModel->getJ2000ToGlobalFrameTransformation( );
 
-    const auto firstAngularPositionModel =
-            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( undifferencedLinkEnds.first,
-                                                                                            firstLightTimeCalculator );
-    const auto secondAngularPositionModel =
-            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( undifferencedLinkEnds.second,
-                                                                                            secondLightTimeCalculator );
+    const auto firstAngularPositionModel = std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >(
+            undifferencedLinkEnds.first, firstLightTimeCalculator );
+    const auto secondAngularPositionModel = std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >(
+            undifferencedLinkEnds.second, secondLightTimeCalculator );
 
     const auto firstAngularPartials = ObservationPartialCreator< 2, ParameterType, TimeType >::createObservationPartials(
             firstAngularPositionModel, bodies, parametersToEstimate, true, isPartialForConcatenatedObservable );
@@ -933,12 +931,12 @@ createPositionAngleAndSeparationPartials(
         {
             receiverStatePartial = getReceiverStatePartial( partial.second.second );
         }
-        partials[ partial.first ] = std::make_shared< PositionAngleAndSeparationPartial< ObservationSize > >(
-                partial.second.first,
-                partial.second.second,
-                j2000ToGlobalFrameTransformation,
-                observationModel->getObservableType( ),
-                receiverStatePartial );
+        partials[ partial.first ] =
+                std::make_shared< PositionAngleAndSeparationPartial< ObservationSize > >( partial.second.first,
+                                                                                          partial.second.second,
+                                                                                          j2000ToGlobalFrameTransformation,
+                                                                                          observationModel->getObservableType( ),
+                                                                                          receiverStatePartial );
     }
 
     // Biases acting on the final observable are not part of either angular-position leg.
