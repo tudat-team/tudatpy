@@ -78,7 +78,7 @@ TUDAT_ADD_TEST_CASE(OceanPoleTideGravityFieldVariations
 
 TUDAT_ADD_TEST_CASE(EarthSolidGravityTides
         PRIVATE_LINKS
-        tudat_gravitation tudat_earth_orientation tudat_basic_astrodynamics tudat_basic_mathematics
+        tudat_gravitation tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_mathematics
         )
 
 TUDAT_ADD_TEST_CASE(HarmonicGravityFieldVariations
