@@ -62,7 +62,7 @@ to select which correction contributions are saved individually.)doc" )
                     R"doc(Tropospheric light-time correction from tabulated delays.)doc" )
             .value( "measured_tropospheric",
                     tom::measured_tropospheric,
-                    R"doc(Niell-mapped tropospheric correction from measured zenith path lengths.)doc" )
+                    R"doc(Tropospheric light-time correction from measured zenith path delays.)doc" )
             .value( "saastamoinen_tropospheric",
                     tom::saastamoinen_tropospheric,
                     R"doc(Tropospheric light-time correction using the Saastamoinen model.)doc" )
@@ -487,9 +487,8 @@ Function for creating settings for a tropospheric light-time correction from mea
 radiometers, see :func:`~tudatpy.data_input.environment_data.read_dsn_amc_file`), mapped to the signal elevation with the selected
 mapping function (independent of the mapping function of the fallback correction). The measured zenith wet path delay replaces the wet
 path delay of the fallback correction; the dry path delay of the fallback correction is retained, unless ``use_measured_dry_delay`` is
-true. The measurements are linearly interpolated if
-they are separated by at most ``maximum_interpolation_gap``. Outside of the measurements (and for ground stations without measurements),
-the fallback correction is used.
+true. The measurements are linearly interpolated if they are separated by at most ``maximum_interpolation_gap``. Outside of the
+measurements (and for ground stations without measurements), the fallback correction is used.
 
 Note that an (integrated) Doppler observable for which the correction switches between measurements and fallback correction may
 contain an error due to the difference between the two.
@@ -497,7 +496,8 @@ contain an error due to the difference between the two.
 Parameters
 ----------
 zenith_delays_per_station : dict[str, dict[float, numpy.ndarray]]
-    Per ground station, zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key.
+    Per ground station (key), zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key. For DSN AMC data, the
+    path delays for a station are the second output of :func:`~tudatpy.data_input.environment_data.read_dsn_amc_file`.
 fallback_settings : LightTimeCorrectionSettings
     Settings for a (mapped) tropospheric correction used outside of the measurements (e.g. from :func:`dsn_tabulated_tropospheric_light_time_correction`).
 maximum_interpolation_gap : float
