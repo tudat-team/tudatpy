@@ -42,6 +42,7 @@ set(gravitation_SOURCES
         "polyhedronGravityField.cpp"
         "polyhedronGravityModel.cpp"
         "ringGravityField.cpp"
+        "ellipsoidalHarmonicsGravityField.cpp"
         "ringGravityModel.cpp"
         )
 
@@ -77,6 +78,8 @@ set(gravitation_HEADERS
         "polyhedronGravityField.h"
         "polyhedronGravityModel.h"
         "ringGravityField.h"
+        "ellipsoidalHarmonicsGravityField.h"
+        "ellipsoidalHarmonicsGravityModel.h"
         "ringGravityModel.h"
         )
 

@@ -1,0 +1,320 @@
+/*    Copyright (c) 2010-2023, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          Garmier, R., Barriot, J.-P. (2001), Celestial Mechanics and Dynamical Astronomy, 79(4), 235-275.
+ *          Hu, X., Jekeli, C. (2015), Journal of Geodesy, 89(2), 159-177.
+ *          See tudat/math/basic/ellipsoidalHarmonics.h for the full citations.
+ */
+
+#ifndef TUDAT_ELLIPSOIDALHARMONICSACCELERATIONPARTIAL_H
+#define TUDAT_ELLIPSOIDALHARMONICSACCELERATIONPARTIAL_H
+
+#include "tudat/astro/gravitation/ellipsoidalHarmonicsGravityField.h"
+#include "tudat/astro/gravitation/ellipsoidalHarmonicsGravityModel.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
+
+namespace tudat
+{
+namespace acceleration_partials
+{
+
+class EllipsoidalHarmonicsGravityPartial : public AccelerationPartial
+{
+public:
+    //! Contructor.
+    /*!
+     *  Constructor, requires input on the acceleration model as of which partials are to be computed.
+     *  If any partials of parameters of the rotation model of the body exerting acceleration are to be calculated,
+     *  RotationMatrixPartial objects must be pre-constructed and passed here as a map, with one object for each parameter
+     *  wrt which a partial is to be taken.
+     *  \param acceleratedBody Name of body undergoing acceleration.
+     *  \param acceleratingBody Name of body exerting acceleration.
+     *  \param accelerationModel Ellipsoidal harmonics gravity acceleration model from which acceleration is calculated wrt
+     *  which the object being constructed is to calculate partials.
+     *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the
+     *  rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated.
+     */
+    EllipsoidalHarmonicsGravityPartial(
+            const std::string& acceleratedBody,
+            const std::string& acceleratingBody,
+            const std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > accelerationModel,
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+                    observation_partials::RotationMatrixPartialNamedList( ) );
+
+    //! Destructor
+    ~EllipsoidalHarmonicsGravityPartial( ) {}
+
+    //! Function for updating the partial object to current state and time.
+    /*!
+     *  Function for updating the partial object to current state and time. Calculates the variables that are
+     *  used for the calculation of multple partials, to prevent multiple calculations of same function.
+     *  \param currentTime Time to which object is to be updated (note that most update functions are time-independent,
+     *  since the 'current' state of the bodies is typically updated globally by the NBodyStateDerivative class).
+     */
+    void update( const double currentTime = TUDAT_NAN );
+
+    /*! Function returning the partial w.r.t. a double parameter.
+     *
+     * Covers the gravitational parameter and the rotation model of the body exerting the
+     * acceleration. Throws for a rotation parameter whose rotation matrix partial was not set up,
+     * rather than reporting that the acceleration does not depend on it.
+     *
+     * \param parameter Parameter w.r.t. which partial is to be taken.
+     * \return Pair of partial function and number of columns (0 for no dependency).
+     */
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+
+    /*! Function returning the partial w.r.t. a vector parameter.
+     *
+     * Covers the rotation model of the body exerting the acceleration.
+     *
+     * \param parameter Parameter w.r.t. which partial is to be taken.
+     * \return Pair of partial function and number of columns (0 for no dependency).
+     */
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+
+    /*! Partial w.r.t. the gravitational parameter used by the acceleration.
+     *
+     * The acceleration is proportional to that parameter, so the partial is the acceleration
+     * divided by it. With mutual attraction the parameter is the sum of both bodies', so the
+     * partial is the same for either body.
+     *
+     * \param partialMatrix Output partial.
+     */
+    void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
+
+    /*! Partial w.r.t. a parameter of the rotation model of the body exerting the acceleration.
+     *
+     * \param partialMatrix Output partial, one column per entry of the parameter.
+     * \param parameterType Type of the rotation parameter.
+     * \param secondaryIdentifier Secondary identifier of the rotation parameter.
+     */
+    void wrtRotationModelParameter( Eigen::MatrixXd& partialMatrix,
+                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                    const std::string& secondaryIdentifier );
+
+    //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration
+     *  and adding it to the existing partial block
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
+        }
+    }
+
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration
+     *  and adding it to the existing partial block
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 3 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtVelocity_;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtVelocity_;
+        }
+    }
+
+    //! Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration and
+     *  adding it to the existing partial block.
+     *  The update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  exerting acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
+    void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
+        }
+    }
+
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration and
+     *  adding it to the existing partial block.
+     *  The update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  exerting acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
+    void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtVelocity_;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtVelocity_;
+        }
+    }
+
+    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in inertial coordinates.
+    /*!
+     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
+     * in inertial coordinates
+     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in inertial coordinates.
+     */
+    Eigen::Matrix3d getCurrentPartialWrtPosition( )
+    {
+        return currentPartialWrtPosition_;
+    }
+
+    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in body-fixed coordinates.
+    /*!
+     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
+     * in body-fixed coordinates
+     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in body-fixed coordinates.
+     */
+    Eigen::Matrix3d getCurrentBodyFixedPartialWrtPosition( )
+    {
+        return currentBodyFixedPartialWrtPosition_;
+    }
+
+    //! Function to retrieve partial of acceleration wrt the velocity of body undergoing acceleration, in inertial coordinates.
+    /*!
+     * Function to retrieve the current partial of the acceleration wrt the velocity of the body undergoing the acceleration,
+     * in inertial coordinates
+     * \return Current partial of the acceleration wrt the velocity of the body undergoing the acceleration, in inertial coordinates.
+     */
+    Eigen::Matrix3d getCurrentPartialWrtVelocity( )
+    {
+        return currentPartialWrtVelocity_;
+    }
+
+private:
+    //! Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration
+    /*!
+     *  Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration,
+     *  set by update( time ) function.
+     */
+    Eigen::Vector3d bodyFixedPosition_;
+
+    //! Current rotation from the frame the propagation runs in to the body-fixed frame.
+    Eigen::Matrix3d currentRotationToBodyFixedFrame_;
+
+    //! Acceleration model of which partials are taken.
+    std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > ellipsoidalHarmonicsAccelerationModel_;
+
+    //! The current partial of the acceleration wrt the position of the body undergoing the acceleration.
+    /*!
+     *  The current partial of the acceleration wrt the position of the body undergoing the acceleration.
+     *  The partial wrt the position of the body exerting the acceleration is minus this value.
+     *  Value is set by the update( time ) function.
+     */
+    Eigen::Matrix3d currentPartialWrtPosition_;
+
+    //! The current partial of the acceleration wrt the position of the body undergoing the acceleration,
+    //! with both acceleration and position in body-fixed frame.
+    /*!
+     *  The current partial of the acceleration wrt the position of the body undergoing the acceleration.
+     *  with both acceleration and position in body-fixed frame. Value is set by the update( time ) function.
+     */
+    Eigen::Matrix3d currentBodyFixedPartialWrtPosition_;
+
+    //! The current partial of the acceleration wrt the velocity of the body undergoing the acceleration.
+    /*!
+     *  The current partial of the acceleration wrt the velocity of the body undergoing the acceleration.
+     *  The partial wrt the velocity of the body exerting the acceleration is minus this value.
+     * Value is set by the update( time ) function.
+     */
+    Eigen::Matrix3d currentPartialWrtVelocity_;
+
+    //! Function to return the gravitational parameter used for calculating the acceleration.
+    std::function< double( ) > gravitationalParameterFunction_;
+
+    //! Function returning position of body undergoing acceleration.
+    std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratedBody_;
+
+    //! Function returning position of body exerting acceleration.
+    std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratingBody_;
+
+    //! Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
+    //! Gravity field of the body exerting the acceleration, which supplies the Hessian.
+    std::shared_ptr< gravitation::EllipsoidalHarmonicsGravityField > gravityField_;
+
+    std::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
+
+    //! Function to retrieve the current spherical harmonic acceleration.
+    std::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
+
+    //! Function to update the acceleration to the current state and time.
+    /*!
+     *  Function to update the acceleration to the current state and time.
+     *  Called when updating an object of this class with the update( time ) function,
+     *  in case the partial is called before the acceleration model in the current iteration of the numerical integration.
+     */
+    std::function< void( const double ) > updateFunction_;
+
+    //! Map of RotationMatrixPartial, one for each relevant rotation parameter
+    /*!
+     *  Map of RotationMatrixPartial, one for each parameter representing a property of the rotation of the
+     *  body exerting the acceleration wrt which an acceleration partial will be calculated.
+     *  Map is pre-created and set through the constructor.
+     */
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartials_;
+};
+
+}  // namespace acceleration_partials
+
+}  // namespace tudat
+
+#endif  // TUDAT_ELLIPSOIDALHARMONICSACCELERATIONPARTIAL_H

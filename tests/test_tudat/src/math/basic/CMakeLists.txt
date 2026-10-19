@@ -34,3 +34,5 @@ TUDAT_ADD_TEST_CASE(SphericalHarmonicTransformation
         )
 
 TUDAT_ADD_TEST_CASE(WignerDMatrices PRIVATE_LINKS tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(EllipsoidalHarmonics PRIVATE_LINKS tudat_basic_mathematics tudat_input_output)

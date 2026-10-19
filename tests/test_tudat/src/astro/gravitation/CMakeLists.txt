@@ -113,3 +113,12 @@ TUDAT_ADD_TEST_CASE(RingGravityField
 
 TUDAT_ADD_TEST_CASE(RingGravityModel
         PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(EllipsoidalHarmonicsGravityField
+        PRIVATE_LINKS
+        tudat_gravitation
+        tudat_input_output
+        tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(EllipsoidalHarmonicsGravityModel
+        PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} )

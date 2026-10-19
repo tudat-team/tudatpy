@@ -24,6 +24,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/relativisticAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/ellipsoidalHarmonicsAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
@@ -764,6 +765,70 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
 
                 // Create partial-calculating object.
                 accelerationPartial = std::make_shared< ThirdBodyGravityPartial< RingGravityPartial > >(
+                        accelerationPartialForBodyUndergoingAcceleration,
+                        accelerationPartialForCentralBody,
+                        acceleratedBody.first,
+                        acceleratingBody.first,
+                        thirdBodyAccelerationModel,
+                        thirdBodyAccelerationModel->getCentralBodyName( ) );
+            }
+            break;
+        }
+        case ellipsoidal_harmonic_gravity: {
+            // Check if identifier is consistent with type.
+            std::shared_ptr< EllipsoidalHarmonicsGravitationalAccelerationModel > ellipsoidalHarmonicsAccelerationModel =
+                    std::dynamic_pointer_cast< EllipsoidalHarmonicsGravitationalAccelerationModel >( accelerationModel );
+            if( ellipsoidalHarmonicsAccelerationModel == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (ellipsoidal_harmonic_gravity) set when making "
+                        "acceleration partial." );
+            }
+            else
+            {
+                std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+                          std::shared_ptr< observation_partials::RotationMatrixPartial > >
+                        rotationMatrixPartials =
+                                observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies );
+
+                // Create partial-calculating object.
+                accelerationPartial = std::make_shared< EllipsoidalHarmonicsGravityPartial >(
+                        acceleratedBody.first, acceleratingBody.first, ellipsoidalHarmonicsAccelerationModel, rotationMatrixPartials );
+            }
+            break;
+        }
+        case third_body_ellipsoidal_harmonic_gravity: {
+            // Check if identifier is consistent with type.
+            if( std::dynamic_pointer_cast< ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel >( accelerationModel ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type "
+                        "(third_body_ellipsoidal_harmonic_gravity) when making acceleration partial." );
+            }
+            else
+            {
+                std::shared_ptr< ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel > thirdBodyAccelerationModel =
+                        std::dynamic_pointer_cast< ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel >( accelerationModel );
+
+                // Create partials for constituent central gravity accelerations
+                std::shared_ptr< EllipsoidalHarmonicsGravityPartial > accelerationPartialForBodyUndergoingAcceleration =
+                        std::dynamic_pointer_cast< EllipsoidalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                                thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
+                                acceleratedBody,
+                                acceleratingBody,
+                                bodies,
+                                parametersToEstimate ) );
+                std::shared_ptr< EllipsoidalHarmonicsGravityPartial > accelerationPartialForCentralBody =
+                        std::dynamic_pointer_cast< EllipsoidalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                                thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
+                                std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
+                                                bodies.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                                acceleratingBody,
+                                bodies,
+                                parametersToEstimate ) );
+
+                // Create partial-calculating object.
+                accelerationPartial = std::make_shared< ThirdBodyGravityPartial< EllipsoidalHarmonicsGravityPartial > >(
                         accelerationPartialForBodyUndergoingAcceleration,
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,
