@@ -1293,6 +1293,11 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                       py::arg( "condition" ),
                       py::arg( "weight" ),
                       R"doc(Set one dense observable-size weight matrix for all observations matching a condition.)doc" )
+                .def( "scale_weights",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::scaleWeights,
+                      py::arg( "condition" ),
+                      py::arg( "factor" ),
+                      R"doc(Multiply the weights of all observations matching a condition by a positive factor, including weight correlations among them. A weight correlation between a selected and an unselected observation is rejected.)doc" )
                 .def( "set_weight_vector_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightVectorForSet,
                       py::arg( "set_id" ),

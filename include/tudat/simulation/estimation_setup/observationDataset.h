@@ -198,6 +198,13 @@ public:
     void setConstantSingleObservationMatrixWeight( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
                                                    const Eigen::MatrixXd& weight );
 
+    //! Multiply the weights of all observations matching a condition by a positive factor.
+    /*!
+     * Weight correlations among the selected observations are scaled by the same factor, so relative weights within the
+     * selection are kept. A weight correlation between a selected and an unselected observation is rejected.
+     */
+    void scaleWeights( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition, const double factor );
+
     //! Store one full M x M weight block for an observation set.
     void setWeightMatrixForSet( const unsigned int setId, const Eigen::MatrixXd& weightMatrix );
 

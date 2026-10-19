@@ -121,6 +121,39 @@ public:
         }
     }
 
+    //! Multiply the selected principal block (diagonal and correlations within it) by a positive factor.
+    /*!
+     * A correlation between a selected and an unselected entry cannot be scaled consistently, so it is rejected
+     * before anything is changed.
+     */
+    void scale( const std::vector< Index >& indices, const double factor )
+    {
+        if( !( factor > 0.0 ) || !std::isfinite( factor ) )
+        {
+            throw std::runtime_error( "Observation weight scaling factor must be finite and positive." );
+        }
+        const auto selected = indexMap( indices );
+        for( const auto& entry : offDiagonal_ )
+        {
+            if( selected.count( entry.first.first ) != selected.count( entry.first.second ) )
+            {
+                throw std::runtime_error(
+                        "Cannot scale observation weights: a weight correlation connects selected and unselected observations." );
+            }
+        }
+        for( const Index index : indices )
+        {
+            diagonal_.at( index ) *= factor;
+        }
+        for( auto& entry : offDiagonal_ )
+        {
+            if( selected.count( entry.first.first ) )
+            {
+                entry.second *= factor;
+            }
+        }
+    }
+
     //! Replace one contiguous observation block by its diagonal.
     void setObservationDiagonal( const Index first, const Eigen::VectorXd& diagonal )
     {

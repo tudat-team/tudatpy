@@ -283,6 +283,20 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
     }
 }
 
+// Multiply the weights of all observation rows matching a condition, including correlations among them.
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::scaleWeights(
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+        const double factor )
+{
+    const std::vector< unsigned int > scalarIds =
+            getScalarComponentIdsForObservationSelection( getObservationIdsMatchingCondition( condition ), {} );
+    completeWeightData_.reset( );
+    observationWeights_.scale( scalarIds, factor );
+}
+
 // Return all explicitly stored scalar-component-indexed off-diagonal blocks.
 
 // Report whether the dataset contains any scalar-component-indexed off-diagonal blocks.
