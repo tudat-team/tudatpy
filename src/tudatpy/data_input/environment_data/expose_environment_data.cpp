@@ -35,25 +35,53 @@ namespace environment_data
 void expose_environment_data( py::module& m )
 {
     py::class_< tudat::input_output::DsnAmcRecord >( m, "DsnAmcRecord", R"doc(
-        Single record of a DSN Advanced Media Calibration (AMC) path delay file. Time is in UTC seconds since J2000,
-        zenith path delays in m, azimuth/elevation in deg, cloud liquid in micrometer, wind speed in mph. Quality flags are 0 for
-        nominal data.
+        Single record of a DSN Advanced Media Calibration (AMC) path delay file (see DSN document DORS_002_020501).
     )doc" )
-            .def_readonly( "utc_time", &tudat::input_output::DsnAmcRecord::utcTime )
-            .def_readonly( "azimuth", &tudat::input_output::DsnAmcRecord::azimuth )
-            .def_readonly( "elevation", &tudat::input_output::DsnAmcRecord::elevation )
-            .def_readonly( "zenith_wet_delay", &tudat::input_output::DsnAmcRecord::zenithWetDelay )
-            .def_readonly( "zenith_dry_delay", &tudat::input_output::DsnAmcRecord::zenithDryDelay )
-            .def_readonly( "cloud_liquid", &tudat::input_output::DsnAmcRecord::cloudLiquid )
-            .def_readonly( "algorithm_id", &tudat::input_output::DsnAmcRecord::algorithmId )
-            .def_readonly( "cloud_flag", &tudat::input_output::DsnAmcRecord::cloudFlag )
-            .def_readonly( "wvr_flag", &tudat::input_output::DsnAmcRecord::wvrFlag )
-            .def_readonly( "mtp_flag", &tudat::input_output::DsnAmcRecord::mtpFlag )
-            .def_readonly( "surface_flag", &tudat::input_output::DsnAmcRecord::surfaceFlag )
-            .def_readonly( "wind_flag", &tudat::input_output::DsnAmcRecord::windFlag )
-            .def_readonly( "path_delay_flag", &tudat::input_output::DsnAmcRecord::pathDelayFlag )
-            .def_readonly( "wind_speed", &tudat::input_output::DsnAmcRecord::windSpeed )
-            .def_readonly( "wind_direction", &tudat::input_output::DsnAmcRecord::windDirection );
+            .def_readonly( "utc_time",
+                           &tudat::input_output::DsnAmcRecord::utcTime,
+                           R"doc(UTC time, in seconds since J2000 (converted from UTC seconds since 1970 in the file).)doc" )
+            .def_readonly( "azimuth",
+                           &tudat::input_output::DsnAmcRecord::azimuth,
+                           R"doc(Azimuth of the Advanced Water Vapor Radiometer (AWVR) [deg].)doc" )
+            .def_readonly( "elevation", &tudat::input_output::DsnAmcRecord::elevation, R"doc(Elevation of the AWVR [deg].)doc" )
+            .def_readonly( "zenith_wet_delay",
+                           &tudat::input_output::DsnAmcRecord::zenithWetDelay,
+                           R"doc(Zenith wet path delay [m] (converted from cm in the file; 999 cm denotes a missing retrieval).)doc" )
+            .def_readonly(
+                    "zenith_dry_delay",
+                    &tudat::input_output::DsnAmcRecord::zenithDryDelay,
+                    R"doc(Zenith dry (static) path delay [m] (converted from cm in the file; 999 cm denotes a missing retrieval).)doc" )
+            .def_readonly( "cloud_liquid", &tudat::input_output::DsnAmcRecord::cloudLiquid, R"doc(Cloud liquid [micrometer].)doc" )
+            .def_readonly(
+                    "algorithm_id",
+                    &tudat::input_output::DsnAmcRecord::algorithmId,
+                    R"doc(Identifier of retrieval algorithm (e.g. 005/006: statistical, 200: Bayesian), with leading zeros retained.)doc" )
+            .def_readonly(
+                    "cloud_flag",
+                    &tudat::input_output::DsnAmcRecord::cloudFlag,
+                    R"doc(Cloud flag: 0: liquid water < 20 micrometer, 1: 20-100 micrometer, 2: 100-200 micrometer, 3: > 200 micrometer.)doc" )
+            .def_readonly(
+                    "wvr_flag",
+                    &tudat::input_output::DsnAmcRecord::wvrFlag,
+                    R"doc(AWVR flag: 0: all AWVR observables within acceptable range, 1: AWVR observable(s) outside acceptable range.)doc" )
+            .def_readonly(
+                    "mtp_flag",
+                    &tudat::input_output::DsnAmcRecord::mtpFlag,
+                    R"doc(Microwave Temperature Profiler (MTP) flag: 0: all MTP observables within acceptable range, 1: MTP observable(s) outside acceptable range.)doc" )
+            .def_readonly(
+                    "surface_flag",
+                    &tudat::input_output::DsnAmcRecord::surfaceFlag,
+                    R"doc(Surface meteorology flag: 0: all surface meteorology observables within acceptable range, 1: observable(s) outside acceptable range.)doc" )
+            .def_readonly(
+                    "wind_flag",
+                    &tudat::input_output::DsnAmcRecord::windFlag,
+                    R"doc(Wind flag: 0: wind observables within acceptable range, 1: wind observable(s) outside acceptable range.)doc" )
+            .def_readonly(
+                    "path_delay_flag",
+                    &tudat::input_output::DsnAmcRecord::pathDelayFlag,
+                    R"doc(Path delay flag: 0: retrieved zenith path delay within acceptable range, 1: retrieved zenith path delay outside acceptable range, 2: elevation outside prescribed range (no retrieval for Bayesian algorithm; retrieval possibly erroneous due to ground pickup for statistical algorithm).)doc" )
+            .def_readonly( "wind_speed", &tudat::input_output::DsnAmcRecord::windSpeed, R"doc(Wind speed [mph].)doc" )
+            .def_readonly( "wind_direction", &tudat::input_output::DsnAmcRecord::windDirection, R"doc(Wind direction [deg].)doc" );
 
     m.def( "read_dsn_amc_file",
            &tudat::input_output::readDsnAmcFile,

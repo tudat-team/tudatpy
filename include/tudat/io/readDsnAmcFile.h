@@ -25,27 +25,53 @@ namespace input_output
 
 //! Single record of a DSN Advanced Media Calibration (AMC) path delay file (see DSN document DORS_002_020501)
 struct DsnAmcRecord {
-    //! UTC time, in seconds since J2000
+    //! UTC time, in seconds since J2000 (converted from UTC seconds since 1970 in the file)
     double utcTime;
-    //! Azimuth and elevation of radiometer [deg]
+
+    //! Azimuth of the Advanced Water Vapor Radiometer (AWVR) [deg]
     double azimuth;
+
+    //! Elevation of the AWVR [deg]
     double elevation;
-    //! Zenith wet and dry path delays [m]
+
+    //! Zenith wet path delay [m] (converted from cm in the file; 999 cm denotes a missing retrieval)
     double zenithWetDelay;
+
+    //! Zenith dry (static) path delay [m] (converted from cm in the file; 999 cm denotes a missing retrieval)
     double zenithDryDelay;
+
     //! Cloud liquid [micrometer]
     double cloudLiquid;
-    //! Identifier of retrieval algorithm
+
+    //! Identifier of retrieval algorithm (e.g. 005/006: statistical, 200: Bayesian), with leading zeros retained
     std::string algorithmId;
-    //! Quality flags (0 is nominal)
+
+    //! Cloud flag: 0: liquid water < 20 micrometer, 1: 20-100 micrometer, 2: 100-200 micrometer, 3: > 200 micrometer
     int cloudFlag;
+
+    //! AWVR flag: 0: all AWVR observables within acceptable range, 1: AWVR observable(s) outside acceptable range
     int wvrFlag;
+
+    //! Microwave Temperature Profiler (MTP) flag: 0: all MTP observables within acceptable range, 1: MTP observable(s) outside
+    //! acceptable range
     int mtpFlag;
+
+    //! Surface meteorology flag: 0: all surface meteorology observables within acceptable range, 1: observable(s) outside
+    //! acceptable range
     int surfaceFlag;
+
+    //! Wind flag: 0: wind observables within acceptable range, 1: wind observable(s) outside acceptable range
     int windFlag;
+
+    //! Path delay flag: 0: retrieved zenith path delay within acceptable range, 1: retrieved zenith path delay outside acceptable
+    //! range, 2: elevation outside prescribed range (no retrieval for Bayesian algorithm; retrieval possibly erroneous due to ground
+    //! pickup for statistical algorithm)
     int pathDelayFlag;
-    //! Wind speed [mph] and direction [deg]
+
+    //! Wind speed [mph]
     double windSpeed;
+
+    //! Wind direction [deg]
     double windDirection;
 };
 
