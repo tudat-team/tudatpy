@@ -19,6 +19,43 @@ namespace tudat
 namespace observation_models
 {
 
+double FirstOrderLightTimeCorrectionCalculator::getPerturbingBodyEvaluationTime( const unsigned int bodyIndex,
+                                                                                 const Eigen::Vector3d& transmitterPosition,
+                                                                                 const Eigen::Vector3d& receiverPosition,
+                                                                                 const double transmissionTime,
+                                                                                 const double receptionTime )
+{
+    double lightTime = receptionTime - transmissionTime;
+    if( !computeMassiveBodyAtClosestApproach_ || lightTime == 0.0 )
+    {
+        return transmissionTime + lightTimeEvaluationContribution_.at( bodyIndex ) * lightTime;
+    }
+
+    // Iterate time (w.r.t. transmission) at which the distance between the body and signal (moving along a straight line
+    // at constant velocity) is minimal, using the instantaneous body velocity. Limited to the transmission-reception interval.
+    Eigen::Vector3d signalVelocity = ( receiverPosition - transmitterPosition ) / lightTime;
+    double timeOffset = 0.5 * lightTime;
+    for( unsigned int i = 0; i < 10; i++ )
+    {
+        Eigen::Vector6d bodyState = perturbingBodyStateFunctions_.at( bodyIndex )( transmissionTime + timeOffset );
+        Eigen::Vector3d relativePosition = transmitterPosition + timeOffset * signalVelocity - bodyState.segment( 0, 3 );
+        Eigen::Vector3d relativeVelocity = signalVelocity - bodyState.segment( 3, 3 );
+        if( relativeVelocity.norm( ) == 0.0 )
+        {
+            break;
+        }
+
+        double previousTimeOffset = timeOffset;
+        timeOffset = std::min( std::max( timeOffset - relativePosition.dot( relativeVelocity ) / relativeVelocity.squaredNorm( ), 0.0 ),
+                               lightTime );
+        if( std::fabs( timeOffset - previousTimeOffset ) < 1.0E-6 )
+        {
+            break;
+        }
+    }
+    return transmissionTime + timeOffset;
+}
+
 //! Function to calculate first order relativistic light time correction due to set of gravitating point masses.
 double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,
@@ -47,7 +84,8 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
     // Iterate over all gravitating bodies.
     for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
     {
-        evaluationTime = transmissionTime + lightTimeEvaluationContribution_.at( i ) * ( receptionTime - transmissionTime );
+        evaluationTime = getPerturbingBodyEvaluationTime(
+                i, transmitterState.segment( 0, 3 ), receiverState.segment( 0, 3 ), transmissionTime, receptionTime );
         // Calculate correction due to current body and add to total.
         currentLighTimeCorrectionComponents_.at( i ) = relativity::calculateFirstOrderLightTimeCorrectionFromCentralBody(
                 perturbingBodyGravitationalParameterFunctions_.at( i )( ),
@@ -83,7 +121,8 @@ Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::calculate
     // Iterate over all gravitating bodies.
     for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
     {
-        evaluationTime = transmissionTime + lightTimeEvaluationContribution_.at( i ) * ( receptionTime - transmissionTime );
+        evaluationTime = getPerturbingBodyEvaluationTime(
+                i, transmitterState.segment( 0, 3 ), receiverState.segment( 0, 3 ), transmissionTime, receptionTime );
         perturbingBodyState = perturbingBodyStateFunctions_.at( i )( evaluationTime );
 
         // Calculate correction due to current body and add to total.

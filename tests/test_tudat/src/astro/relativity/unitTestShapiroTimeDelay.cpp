@@ -296,6 +296,80 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayGradient )
     }
 }
 
+//! Test the epochs at which the perturbing body state is evaluated, for a body moving at constant velocity
+BOOST_AUTO_TEST_CASE( testShapiroDelayMassiveBodyAtClosestApproach )
+{
+    const double gravitationalParameter = 1.266865361E17;
+    const double transmissionTime = 1.0E8;
+    const double lightTime = 2500.0;
+
+    Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d junoState = Eigen::Vector6d::Zero( );
+    junoState( 0 ) = 7.0E11;
+    Eigen::Vector3d jupiterPositionAtTransmission( 6.995E11, 7.0E7, 0.0 );
+    Eigen::Vector3d jupiterVelocity( 0.0, -1.3E4, 0.0 );
+
+    double lastEvaluationTime = TUDAT_NAN;
+    std::function< Eigen::Vector6d( const double ) > jupiterStateFunction = [ & ]( const double time ) {
+        lastEvaluationTime = time;
+        Eigen::Vector6d state;
+        state << jupiterPositionAtTransmission + ( time - transmissionTime ) * jupiterVelocity, jupiterVelocity;
+        return state;
+    };
+
+    for( bool useBending : { false, true } )
+    {
+        for( bool computeMassiveBodyAtClosestApproach : { false, true } )
+        {
+            // Check uplink, downlink, and perturbing body as receiver (with legacy settings: midpoint, midpoint, and reception)
+            for( unsigned int test = 0; test < 3; test++ )
+            {
+                std::string transmitterName = ( test == 1 ) ? "JUNO" : "Earth";
+                std::string receiverName = ( test == 0 ) ? "JUNO" : ( test == 1 ? "Earth" : "Jupiter" );
+                Eigen::Vector6d transmitterState = ( test == 1 ) ? junoState : earthState;
+                Eigen::Vector6d receiverState = ( test == 1 ) ? earthState : junoState;
+
+                FirstOrderLightTimeCorrectionCalculator correctionCalculator(
+                        { jupiterStateFunction },
+                        { [ = ]( ) { return gravitationalParameter; } },
+                        { "Jupiter" },
+                        transmitterName,
+                        receiverName,
+                        []( ) { return 1.0; },
+                        useBending,
+                        computeMassiveBodyAtClosestApproach );
+                double lightTimeCorrection = correctionCalculator.calculateLightTimeCorrection(
+                        transmitterState, receiverState, transmissionTime, transmissionTime + lightTime );
+
+                double expectedOffset;
+                if( !computeMassiveBodyAtClosestApproach )
+                {
+                    expectedOffset = ( test == 2 ) ? lightTime : 0.5 * lightTime;
+                }
+                else
+                {
+                    // Closest approach of Jupiter to signal, computed analytically (near Juno, inside the light-time interval)
+                    Eigen::Vector3d relativeVelocity =
+                            ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ) / lightTime - jupiterVelocity;
+                    expectedOffset = ( jupiterPositionAtTransmission - transmitterState.segment( 0, 3 ) ).dot( relativeVelocity ) /
+                            relativeVelocity.squaredNorm( );
+                    BOOST_CHECK( std::fabs( expectedOffset - ( test == 1 ? 0.0 : lightTime ) ) < 10.0 );
+                }
+                BOOST_CHECK_SMALL( lastEvaluationTime - ( transmissionTime + expectedOffset ), 1.0E-5 );
+
+                double expectedLightTimeCorrection = calculateFirstOrderLightTimeCorrectionFromCentralBody(
+                        gravitationalParameter,
+                        transmitterState.segment( 0, 3 ),
+                        receiverState.segment( 0, 3 ),
+                        jupiterPositionAtTransmission + expectedOffset * jupiterVelocity,
+                        1.0,
+                        useBending );
+                BOOST_CHECK_CLOSE_FRACTION( lightTimeCorrection, expectedLightTimeCorrection, 1.0E-12 );
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
