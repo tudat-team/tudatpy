@@ -19,8 +19,10 @@
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerMeasuredFrequencyPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/twoWayDopplerPartial.h"
 #include "tudat/math/interpolators/interpolator.h"
@@ -305,6 +307,82 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     }
 
     return std::make_pair( twoWayDopplerPartialList, twoWayDopplerScaler );
+}
+
+//! Function to generate one-way Doppler measured frequency partials and associated scaler for single link ends.
+/*!
+ *  Function to generate one-way Doppler measured frequency partials and associated scaler for all parameters that are
+ *  to be estimated, for a single link ends set. The partials are created as the partials of the one-way Doppler observable
+ *  (using a OneWayDopplerScaling), scaled by the transmitted frequency of the observation (see
+ *  OneWayDopplerMeasuredFrequencyPartial). Since the transmitted frequency depends on the frequency band of the
+ *  observation, which is only available from the ancillary settings, this scaling is applied at the level of the partials,
+ *  rather than the position partial scaling. Partials w.r.t. observation biases (other than time biases) are not scaled.
+ *  \param observationModel One-way Doppler measured frequency observation model for which partials are to be created.
+ *  \param bodies List of all bodies, for creating the partials.
+ *  \param parametersToEstimate Set of parameters that are to be estimated.
+ *  \param isPartialForDifferencedObservable True if partial is to be used in a differenced observable
+ *  \param isPartialForConcatenatedObservable True if partial is to be used in a concatenated observable
+ *  \return Set of observation partials with associated indices in complete vector of parameters that are
+ *  estimated, and OneWayDopplerScaling object, used for scaling the position partial members of the partials.
+ */
+template< typename ParameterType, typename TimeType >
+std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createOneWayDopplerMeasuredFrequencyPartials(
+        const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const bool isPartialForDifferencedObservable = false,
+        const bool isPartialForConcatenatedObservable = false )
+{
+    auto oneWayDopplerMeasuredFrequencyModel =
+            std::dynamic_pointer_cast< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > >(
+                    observationModel );
+    if( oneWayDopplerMeasuredFrequencyModel == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when creating one-way Doppler measured frequency partials; input observation model is not one-way Doppler "
+                "measured frequency" );
+    }
+
+    // Create partials of the one-way Doppler observable (not yet scaled by the transmitted frequency)
+    std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > oneWayDopplerPartials =
+            createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
+                    observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable, isPartialForConcatenatedObservable );
+
+    const std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator =
+            oneWayDopplerMeasuredFrequencyModel->getFrequencyInterpolator( );
+    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
+            oneWayDopplerMeasuredFrequencyModel->getTimeScaleConverter( );
+    const std::function< double( const std::vector< Eigen::Vector6d >&,
+                                 const std::vector< double >&,
+                                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
+            scalingFactorFunction =
+                    [ frequencyInterpolator, timeScaleConverter ](
+                            const std::vector< Eigen::Vector6d >& linkEndStates,
+                            const std::vector< double >& linkEndTimes,
+                            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) {
+                        return getOneWayDopplerMeasuredFrequencyScalingFactor(
+                                frequencyInterpolator, timeScaleConverter, linkEndStates, linkEndTimes, ancillarySettings );
+                    };
+
+    // Scale one-way Doppler partials by the transmitted frequency, except partials w.r.t. observation biases (which are
+    // already in units of the observable). Time bias partials are computed from the state partials, and are scaled.
+    SingleLinkObservationPartialList oneWayDopplerMeasuredFrequencyPartialList;
+    for( auto const& [ partialKey, partialValue ] : oneWayDopplerPartials.first )
+    {
+        const estimatable_parameters::EstimatebleParametersEnum parameterType = partialValue->getParameterIdentifier( ).first;
+        if( estimatable_parameters::isParameterObservationLinkProperty( parameterType ) &&
+            !estimatable_parameters::isParameterObservationLinkTimeProperty( parameterType ) )
+        {
+            oneWayDopplerMeasuredFrequencyPartialList[ partialKey ] = partialValue;
+        }
+        else
+        {
+            oneWayDopplerMeasuredFrequencyPartialList[ partialKey ] =
+                    std::make_shared< OneWayDopplerMeasuredFrequencyPartial >( partialValue, scalingFactorFunction );
+        }
+    }
+
+    return std::make_pair( oneWayDopplerMeasuredFrequencyPartialList, oneWayDopplerPartials.second );
 }
 
 }  // namespace observation_partials

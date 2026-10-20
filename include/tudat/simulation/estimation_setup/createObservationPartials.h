@@ -181,13 +181,12 @@ public:
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable, true );
                 break;
             case observation_models::one_way_doppler_measured_frequency:
-                // One-way Doppler measured frequency uses single link partials (not two-way)
-                observationPartials =
-                        createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >( observationModel,
-                                                                                                   bodies,
-                                                                                                   parametersToEstimate,
-                                                                                                   isPartialForDifferencedObservable,
-                                                                                                   isPartialForConcatenatedObservable );
+                observationPartials = createOneWayDopplerMeasuredFrequencyPartials< ObservationScalarType, TimeType >(
+                        observationModel,
+                        bodies,
+                        parametersToEstimate,
+                        isPartialForDifferencedObservable,
+                        isPartialForConcatenatedObservable );
                 break;
             case observation_models::n_way_range:
                 if( isPartialForConcatenatedObservable )
@@ -583,35 +582,21 @@ public:
                 {
                     if( firstPartial != nullptr )
                     {
-                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial ) == nullptr )
+                        if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyPartial >( firstPartial ) == nullptr )
                         {
                             throw std::runtime_error(
                                     "Error when creating differenced frequency of arrival partial; first "
-                                    "input object type is incompatible" );
-                        }
-                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial )->getObservableType( ) !=
-                                 one_way_doppler_measured_frequency )
-                        {
-                            throw std::runtime_error(
-                                    "Error when creating differenced frequency of arrival partial; first "
-                                    "input observable type is incompatible (expected one_way_doppler_measured_frequency)" );
+                                    "input object type is incompatible (expected one-way Doppler measured frequency partial)" );
                         }
                     }
 
                     if( secondPartial != nullptr )
                     {
-                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial ) == nullptr )
+                        if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyPartial >( secondPartial ) == nullptr )
                         {
                             throw std::runtime_error(
                                     "Error when creating differenced frequency of arrival partial; second "
-                                    "input object type is incompatible" );
-                        }
-                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial )->getObservableType( ) !=
-                                 one_way_doppler_measured_frequency )
-                        {
-                            throw std::runtime_error(
-                                    "Error when creating differenced frequency of arrival partial; second "
-                                    "input observable type is incompatible (expected one_way_doppler_measured_frequency)" );
+                                    "input object type is incompatible (expected one-way Doppler measured frequency partial)" );
                         }
                     }
                 }

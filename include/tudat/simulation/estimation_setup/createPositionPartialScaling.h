@@ -17,6 +17,7 @@
 #include <vector>
 #include <map>
 
+#include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
@@ -203,8 +204,9 @@ public:
                                    100.0,
                                    numerical_derivatives::order8 );
 
-                // Create the underlying one-way Doppler scaling (normalized by c)
-                auto oneWayDopplerScaling = std::make_shared< OneWayDopplerScaling >(
+                // Create the one-way Doppler scaling (normalized by c). The scaling by the transmitted frequency f_tx is applied
+                // in the OneWayDopplerMeasuredFrequencyPartial objects, since f_tx depends on the frequency band of the observation.
+                positionPartialScaler = std::make_shared< OneWayDopplerScaling >(
                         std::bind( &linear_algebra::evaluateSecondBlockInStateVector,
                                    transmitterNumericalStateDerivativeFunction,
                                    std::placeholders::_1 ),
@@ -214,25 +216,7 @@ public:
                         oneWayDopplerModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
                         receiverProperTimePartials,
-                        observation_models::one_way_doppler );
-
-                // Get the frequency interpolator from the observation model
-                auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );
-                auto timeScaleConverter = owdmfObservationModel->getTimeScaleConverter( );
-
-                // Create a function that returns the transmitted frequency at a given transmission time and state.
-                // The frequency interpolator is queried in UTC to match the observation model.
-                std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction =
-                        [ frequencyInterpolator, timeScaleConverter ]( const double time,
-                                                                       const Eigen::Vector6d& transmitterState ) -> double {
-                    const double transmitterUtcTime = timeScaleConverter->template getCurrentTime< double >(
-                            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, transmitterState.segment< 3 >( 0 ) );
-                    return frequencyInterpolator->template getTemplatedCurrentFrequency< double, double >( transmitterUtcTime );
-                };
-
-                // Create the OWDMF scaling that wraps the one-way Doppler scaling and multiplies by f_tx
-                positionPartialScaler =
-                        std::make_shared< OneWayDopplerMeasuredFrequencyScaling >( oneWayDopplerScaling, transmittedFrequencyFunction );
+                        observation_models::one_way_doppler_measured_frequency );
 
                 break;
             }
@@ -298,17 +282,23 @@ public:
                 break;
             }
             case observation_models::differenced_frequency_of_arrival: {
-                if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyScaling >( firstPositionPartialScaling ) == nullptr )
+                std::shared_ptr< OneWayDopplerScaling > firstOneWayDopplerScaling =
+                        std::dynamic_pointer_cast< OneWayDopplerScaling >( firstPositionPartialScaling );
+                if( firstOneWayDopplerScaling == nullptr ||
+                    firstOneWayDopplerScaling->getObservableType( ) != observation_models::one_way_doppler_measured_frequency )
                 {
                     throw std::runtime_error(
                             "Error when creating differenced frequency of arrival scaling object, first FOA partial is of incompatible "
-                            "type (expected OneWayDopplerMeasuredFrequencyScaling)" );
+                            "type (expected OneWayDopplerScaling for one-way Doppler measured frequency)" );
                 }
-                if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyScaling >( secondPositionPartialScaling ) == nullptr )
+                std::shared_ptr< OneWayDopplerScaling > secondOneWayDopplerScaling =
+                        std::dynamic_pointer_cast< OneWayDopplerScaling >( secondPositionPartialScaling );
+                if( secondOneWayDopplerScaling == nullptr ||
+                    secondOneWayDopplerScaling->getObservableType( ) != observation_models::one_way_doppler_measured_frequency )
                 {
                     throw std::runtime_error(
                             "Error when creating differenced frequency of arrival scaling object, second FOA partial is of incompatible "
-                            "type (expected OneWayDopplerMeasuredFrequencyScaling)" );
+                            "type (expected OneWayDopplerScaling for one-way Doppler measured frequency)" );
                 }
                 positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
                         firstPositionPartialScaling,
