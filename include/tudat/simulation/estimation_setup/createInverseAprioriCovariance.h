@@ -13,6 +13,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -40,6 +41,15 @@ getCameraPointingInverseAprioriCovarianceEntries(
  */
 std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
 getReferencePointPositionInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
+//! Extract per-reference-point position variances from tracking supplementary data of any source format.
+/*!
+ *  Same as getReferencePointPositionInverseAprioriCovarianceEntries, but gives the variances themselves. Use these to
+ *  build a covariance, for example for reference points held fixed as consider parameters.
+ */
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionAprioriCovarianceEntries(
         const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
 
 //! Validate/initialize a covariance-like matrix input.
@@ -158,6 +168,55 @@ Eigen::MatrixXd createCovarianceFromDiagonalEntries(
 {
     return addCovarianceDiagonalEntries< InitialStateParameterType >(
             Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, covarianceDiagonalEntriesPerParameter, requireAllEntriesToMatch );
+}
+
+//! Consider covariance for reference points that are held fixed as consider parameters.
+/*!
+ *  Each ground_station_position consider parameter gets a diagonal block with its squared position uncertainty from
+ *  the supplementary data. Other consider parameters keep their values from the input matrix. A consider reference
+ *  point without a position uncertainty is an error, because it would silently contribute nothing.
+ *  \param supplementaryData Tracking supplementary data holding the position uncertainties.
+ *  \param parameterSet Parameter set that holds the consider parameters.
+ *  \param considerCovariance Consider covariance to add to, or a 0x0 matrix to start from zeros.
+ *  \return Covariance of the consider parameters, in the order of the consider parameter set.
+ */
+template< typename InitialStateParameterType = double >
+Eigen::MatrixXd createReferencePointConsiderCovariance(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
+        const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) )
+{
+    if( parameterSet == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point consider covariance: parameter set is null." );
+    }
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > considerParameters =
+            parameterSet->getConsiderParameters( );
+    if( considerParameters == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point consider covariance: parameter set has no consider parameters." );
+    }
+
+    const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > varianceEntries =
+            getReferencePointPositionAprioriCovarianceEntries( supplementaryData );
+    std::set< estimatable_parameters::EstimatebleParameterIdentifier > referencePointsWithUncertainty;
+    for( const auto& entry : varianceEntries )
+    {
+        referencePointsWithUncertainty.insert( entry.first );
+    }
+    for( const auto& parameter : considerParameters->getEstimatedVectorParameters( ) )
+    {
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterName = parameter->getParameterName( );
+        if( parameterName.first == estimatable_parameters::ground_station_position &&
+            referencePointsWithUncertainty.count( parameterName ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating reference point consider covariance: reference point " +
+                                      parameterName.second.second + " on " + parameterName.second.first +
+                                      " is a consider parameter but has no position uncertainty." );
+        }
+    }
+
+    return addCovarianceDiagonalEntries< InitialStateParameterType >( considerCovariance, considerParameters, varianceEntries, false );
 }
 
 //! Formal position uncertainties of estimated reference points, along each reference point's own local frame axes.

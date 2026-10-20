@@ -47,8 +47,9 @@ getCameraPointingInverseAprioriCovarianceEntries(
     return entries;
 }
 
+//! Position variances of all reference points that have a position uncertainty.
 std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
-getReferencePointPositionInverseAprioriCovarianceEntries(
+getReferencePointPositionAprioriCovarianceEntries(
         const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
 {
     std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries;
@@ -68,7 +69,20 @@ getReferencePointPositionInverseAprioriCovarianceEntries(
         entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
                                                    estimatable_parameters::ground_station_position,
                                                    std::make_pair( currentData->getBodyName( ), currentData->getReferencePointName( ) ) ),
-                                           Eigen::VectorXd( uncertainty.array( ).square( ).inverse( ) ) ) );
+                                           Eigen::VectorXd( uncertainty.array( ).square( ) ) ) );
+    }
+    return entries;
+}
+
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries =
+            getReferencePointPositionAprioriCovarianceEntries( supplementaryData );
+    for( auto& entry : entries )
+    {
+        entry.second = entry.second.array( ).inverse( );
     }
     return entries;
 }

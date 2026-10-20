@@ -2137,6 +2137,98 @@ BOOST_AUTO_TEST_CASE( testLandmarkLocalFrameUncertainties )
             std::runtime_error );
 }
 
+//! Landmarks held fixed as consider parameters: SIGMA_LMK gives the consider covariance, and its effect on
+//! the covariance of the estimated parameters must match the textbook consider formula.
+BOOST_AUTO_TEST_CASE( testLandmarkConsiderCovariance )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double landmarkSigma = 0.5;
+    LandmarkObservationScenario scenario = buildLandmarkObservationScenario( 6, landmarkSigma );
+    const int numberOfConsiderParameters = 3 * static_cast< int >( scenario.landmarks_.size( ) );
+
+    // Pointing is estimated, the landmark positions are consider parameters.
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+    const std::shared_ptr< EstimatableParameterSet< double > > parameters =
+            createParametersToEstimate< double, double >( pointingSettingsForTest( scenario.conversionResult_ ),
+                                                          scenario.bodies_,
+                                                          nullPropagatorSettings,
+                                                          landmarkParameterSettings( scenario.conversionResult_ ) );
+    const int numberOfEstimatedParameters = parameters->getEstimatedParameterSetSize( );
+    BOOST_REQUIRE_EQUAL( numberOfEstimatedParameters, 3 * static_cast< int >( scenario.imageIds_.size( ) ) );
+    BOOST_REQUIRE_EQUAL( parameters->getConsiderParameters( )->getEstimatedParameterSetSize( ), numberOfConsiderParameters );
+
+    // SIGMA_LMK squared on the diagonal, nothing off it.
+    const Eigen::MatrixXd considerCovariance =
+            createReferencePointConsiderCovariance( scenario.conversionResult_.supplementaryData_, parameters );
+    BOOST_REQUIRE_EQUAL( considerCovariance.rows( ), numberOfConsiderParameters );
+    BOOST_REQUIRE_EQUAL( considerCovariance.cols( ), numberOfConsiderParameters );
+    BOOST_CHECK_SMALL(
+            ( considerCovariance -
+              landmarkSigma * landmarkSigma * Eigen::MatrixXd::Identity( numberOfConsiderParameters, numberOfConsiderParameters ) )
+                    .norm( ),
+            1.0E-12 );
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            scenario.bodies_, parameters, scenario.conversionResult_.observationModelSettings_, nullPropagatorSettings );
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateIdealPixelObservations(
+            scenario.conversionResult_.observationCollection_, orbitDeterminationManager, scenario.bodies_ );
+
+    const std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
+            std::make_shared< CovarianceAnalysisInput< double, double > >(
+                    simulatedObservations, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
+    covarianceInput->defineCovarianceSettings( true, true, true, false );
+    const std::shared_ptr< CovarianceAnalysisOutput< double, double > > covarianceOutput =
+            orbitDeterminationManager.computeCovariance( covarianceInput );
+    BOOST_REQUIRE( covarianceOutput != nullptr );
+
+    // Every landmark component must have a non-zero partial, otherwise the consider term would be empty.
+    const Eigen::MatrixXd designMatrix = covarianceOutput->getUnnormalizedDesignMatrix( );
+    const Eigen::MatrixXd considerDesignMatrix = covarianceOutput->getUnnormalizedDesignMatrixConsiderParameters( );
+    BOOST_REQUIRE_EQUAL( designMatrix.cols( ), numberOfEstimatedParameters );
+    BOOST_REQUIRE_EQUAL( considerDesignMatrix.cols( ), numberOfConsiderParameters );
+    BOOST_REQUIRE_EQUAL( considerDesignMatrix.rows( ), designMatrix.rows( ) );
+    for( int i = 0; i < numberOfConsiderParameters; ++i )
+    {
+        BOOST_CHECK_GT( considerDesignMatrix.col( i ).norm( ), 0.0 );
+    }
+
+    // Consider formula with unit weights: P H^T Hc C Hc^T H P, where P is the covariance without the landmarks.
+    const Eigen::MatrixXd covariance = covarianceOutput->getUnnormalizedCovarianceMatrix( );
+    const Eigen::MatrixXd sensitivity = covariance * designMatrix.transpose( ) * considerDesignMatrix;
+    const Eigen::MatrixXd expectedContribution = sensitivity * considerCovariance * sensitivity.transpose( );
+    const Eigen::MatrixXd actualContribution = covarianceOutput->getUnnormalizedCovarianceWithConsiderParameters( ) - covariance;
+    BOOST_REQUIRE_GT( expectedContribution.norm( ), 0.0 );
+    BOOST_CHECK_SMALL( ( actualContribution - expectedContribution ).norm( ) / expectedContribution.norm( ), 1.0E-8 );
+
+    // Landmark uncertainty can only make the estimated parameters less certain.
+    for( int i = 0; i < numberOfEstimatedParameters; ++i )
+    {
+        BOOST_CHECK_GT( actualContribution( i, i ), 0.0 );
+    }
+
+    // A parameter set without consider parameters is rejected.
+    const std::shared_ptr< EstimatableParameterSet< double > > noConsiderParameters =
+            createParametersToEstimate< double, double >( pointingSettingsForTest( scenario.conversionResult_ ), scenario.bodies_ );
+    BOOST_CHECK_THROW( createReferencePointConsiderCovariance( scenario.conversionResult_.supplementaryData_, noConsiderParameters ),
+                       std::runtime_error );
+
+    // A consider landmark without SIGMA_LMK is rejected, because it would silently add nothing.
+    LandmarkObservationScenario noSigmaScenario = buildLandmarkObservationScenario( 2 );
+    const std::shared_ptr< EstimatableParameterSet< double > > noSigmaParameters =
+            createParametersToEstimate< double, double >( pointingSettingsForTest( noSigmaScenario.conversionResult_ ),
+                                                          noSigmaScenario.bodies_,
+                                                          nullPropagatorSettings,
+                                                          landmarkParameterSettings( noSigmaScenario.conversionResult_ ) );
+    BOOST_CHECK_THROW( createReferencePointConsiderCovariance( noSigmaScenario.conversionResult_.supplementaryData_, noSigmaParameters ),
+                       std::runtime_error );
+
+    // An input consider covariance of the wrong size is rejected.
+    BOOST_CHECK_THROW( createReferencePointConsiderCovariance(
+                               scenario.conversionResult_.supplementaryData_, parameters, Eigen::MatrixXd::Identity( 2, 2 ) ),
+                       std::runtime_error );
+}
+
 //! The real archived LMK local frames must pass validation at the tolerance the code uses.
 //!
 //! This pins the tolerance: the SUM camera tolerance of 1e-7 would reject most real landmark files, whose

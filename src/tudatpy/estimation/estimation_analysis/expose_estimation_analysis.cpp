@@ -228,6 +228,65 @@ void expose_estimation_analysis( py::module& m )
 
      )doc" );
 
+    m.def( "get_reference_point_position_apriori_covariance_entries",
+           &tss::getReferencePointPositionAprioriCovarianceEntries,
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+ Function to get position variance entries for reference points, such as ground stations or landmarks.
+
+ Same as :func:`get_reference_point_position_inverse_apriori_covariance_entries`, but each entry holds the
+ variance of each body-fixed position component instead of its inverse. For SUM/LMK data, the variance is
+ the square of the LMK ``SIGMA_LMK`` value.
+
+ Parameters
+ ----------
+ supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+     Tracking supplementary data, for example as returned by
+     :func:`~tudatpy.data_input.tracking_data.sum_lmk.read_sum_lmk_data`.
+
+ Returns
+ -------
+ list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
+     One ``(parameter_identifier, variances)`` entry per reference point with a position uncertainty.
+
+     )doc" );
+
+    m.def( "create_reference_point_consider_covariance",
+           &tss::createReferencePointConsiderCovariance< STATE_SCALAR_TYPE >,
+           py::arg( "supplementary_data" ),
+           py::arg( "parameter_set" ),
+           py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+           R"doc(
+
+ Function to create the consider covariance for reference points held fixed as consider parameters.
+
+ Use this to keep landmarks (or ground stations) fixed during estimation, while still accounting for their
+ position uncertainty in the covariance of the estimated parameters. Add the reference point positions as
+ consider parameters, for example with
+ ``create_parameter_set(..., consider_parameters_names=get_observed_reference_point_position_parameter_settings(...))``,
+ and pass the result of this function as the consider covariance of the estimation or covariance analysis input.
+
+ Each ``ground_station_position`` consider parameter gets a diagonal block with its squared position uncertainty.
+ For SUM/LMK data, this is the LMK ``SIGMA_LMK`` value. Other consider parameters keep their values from
+ ``consider_covariance``. A consider reference point without a position uncertainty raises an error.
+
+ Parameters
+ ----------
+ supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+     Tracking supplementary data holding the position uncertainties.
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Parameter set that holds the consider parameters.
+ consider_covariance : numpy.ndarray[numpy.float64[m, m]], default = empty
+     Consider covariance to add to. If empty, the function starts from a zero matrix.
+
+ Returns
+ -------
+ numpy.ndarray[numpy.float64[m, m]]
+     Covariance of the consider parameters, in the order of the consider parameter set.
+
+     )doc" );
+
     m.def( "get_reference_point_local_frame_uncertainties",
            &tss::getReferencePointLocalFrameUncertainties< STATE_SCALAR_TYPE >,
            py::arg( "supplementary_data" ),

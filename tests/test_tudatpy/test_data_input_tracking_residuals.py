@@ -982,7 +982,9 @@ def test_sum_lmk_landmark_position_helpers():
     from tudatpy.dynamics import parameters_setup
     from tudatpy.estimation.estimation_analysis import (
         create_covariance_from_diagonal_entries,
+        create_reference_point_consider_covariance,
         get_reference_point_local_frame_uncertainties,
+        get_reference_point_position_apriori_covariance_entries,
         get_reference_point_position_inverse_apriori_covariance_entries,
     )
     from tudatpy.estimation.observations import (
@@ -1042,6 +1044,22 @@ def test_sum_lmk_landmark_position_helpers():
     )
     np.testing.assert_allclose(uncertainties[("Target", "LMK0001")], [1.0, 2.0, 3.0])
     np.testing.assert_allclose(uncertainties[("Target", "LMK0002")], [4.0, 5.0, 6.0])
+
+    # Variance entries are the squared SIGMA_LMK.
+    variance_entries = get_reference_point_position_apriori_covariance_entries(supplementary_data)
+    assert len(variance_entries) == 2
+    np.testing.assert_allclose(variance_entries[0][1], [1.0, 1.0, 1.0])
+
+    # LMK0001 estimated, LMK0002 held fixed as a consider parameter.
+    consider_parameter_set = parameters_setup.create_parameter_set(
+        parameter_settings[:1], bodies, consider_parameters_names=parameter_settings[1:]
+    )
+    consider_covariance = create_reference_point_consider_covariance(
+        supplementary_data, consider_parameter_set
+    )
+    np.testing.assert_allclose(consider_covariance, np.eye(3))
+    with pytest.raises(RuntimeError):
+        create_reference_point_consider_covariance(supplementary_data, parameter_set)
 
 
 def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():

@@ -27,6 +27,10 @@ Functions
 
    get_reference_point_position_inverse_apriori_covariance_entries
 
+   get_reference_point_position_apriori_covariance_entries
+
+   create_reference_point_consider_covariance
+
    get_reference_point_local_frame_uncertainties
 
    add_covariance_diagonal_entries
@@ -55,6 +59,10 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_position_inverse_apriori_covariance_entries
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_position_apriori_covariance_entries
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.create_reference_point_consider_covariance
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_local_frame_uncertainties
 
