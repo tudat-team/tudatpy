@@ -56,10 +56,12 @@ public:
      *  is kept constant when computing observable.
      *  \param currentObservation Ideal value of observation for which partial scaling is to be computed
      */
-    virtual void update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                         const std::vector< double >& times,
-                         const observation_models::LinkEndType fixedLinkEnd,
-                         const Eigen::VectorXd currentObservation ) = 0;
+    virtual void update(
+            const std::vector< Eigen::Vector6d >& linkEndStates,
+            const std::vector< double >& times,
+            const observation_models::LinkEndType fixedLinkEnd,
+            const Eigen::VectorXd currentObservation,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) = 0;
 };
 
 template< int ObservationSize >
@@ -93,6 +95,23 @@ public:
     }
 
     virtual Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) = 0;
+
+    //! Function to get the factor by which the light-time correction partials of a given leg are to be scaled
+    /*!
+     * Function to get the factor by which the light-time correction partials of a given leg are to be scaled. Observables
+     * consisting of more than one light-time leg (in the order of getLightTimeLegStateEntryIndices) must override this function.
+     * \param legIndex Index of the light-time leg
+     * \return Factor by which the light-time correction partials of the leg are to be scaled
+     */
+    virtual Eigen::Matrix< double, ObservationSize, 1 > getLegLightTimePartialScalingFactor( const int legIndex )
+    {
+        if( legIndex != 0 )
+        {
+            throw std::runtime_error( "Error when getting light-time partial scaling of observable type " +
+                                      observation_models::getObservableName( observableType_ ) + ", only a single leg is supported." );
+        }
+        return getLightTimePartialScalingFactor( );
+    }
 
     observation_models::ObservableType getObservableType( )
     {

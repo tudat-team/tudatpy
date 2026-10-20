@@ -184,7 +184,12 @@ static const std::map< LinkEndType, int > observedObserverBodiesLinkStateEntries
 
 static const std::map< LinkEndType, int > observedBodyLinkStateEntries = { { observed_body, 0 } };
 
+static const std::map< LinkEndType, int > twoTransmitterLinkStateEntries = { { transmitter, 0 }, { transmitter2, 1 }, { receiver, 2 } };
+
 std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType );
+
+//! Function to get the indices in the link end states/times of the transmitter and receiver of each light-time leg of an observable
+std::vector< std::vector< int > > getLightTimeLegStateEntryIndices( const ObservableType observableType );
 
 //! Function retrieving link ends information for all interlinks for a given observable type and link ends
 std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > getInterlinks(

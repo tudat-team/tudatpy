@@ -52,10 +52,12 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfPixelsWrtLinkEndPositionCameraFr
     return partial;
 }
 
-void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                      const std::vector< double >& times,
-                                      const observation_models::LinkEndType fixedLinkEnd,
-                                      const Eigen::VectorXd )
+void PixelCoordinatesScaling::update(
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType fixedLinkEnd,
+        const Eigen::VectorXd,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     if( fixedLinkEnd != observation_models::receiver )
     {

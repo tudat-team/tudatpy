@@ -101,7 +101,7 @@ void checkAberratedPositionAngleAndSeparationPartials( const std::shared_ptr< Ob
     std::vector< double > linkEndTimes;
     const Eigen::VectorXd observation = observationModel->computeObservationsWithLinkEndData(
             observationTime, receiver, linkEndTimes, linkEndStates, ancillarySettings );
-    partialSet.second->update( linkEndStates, linkEndTimes, receiver, observation );
+    partialSet.second->update( linkEndStates, linkEndTimes, receiver, observation, ancillarySettings );
 
     std::function< Eigen::VectorXd( const double ) > observationFunction =
             std::bind( &ObservationModel< ObservationSize >::computeObservations,
@@ -226,9 +226,8 @@ BOOST_AUTO_TEST_CASE( testAberratedPositionAngleAndSeparationPartials )
     linkEnds[ transmitter2 ] = std::make_pair< std::string, std::string >( "Moon", "" );
 
     const std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettingsList = {
-        getPositionAngleAncillarySettings( j2000_position_angle_reference_frame, TUDAT_NAN, aberrated_position_angle_direction ),
-        getPositionAngleAncillarySettings(
-                true_of_date_iau_2006_2000a_position_angle_reference_frame, TUDAT_NAN, aberrated_position_angle_direction )
+        getPositionAngleAncillarySettings( j2000_position_angle_reference_frame, TUDAT_NAN, true ),
+        getPositionAngleAncillarySettings( true_of_date_iau_2006_2000a_position_angle_reference_frame, TUDAT_NAN, true )
     };
     for( const auto& ancillarySettings : ancillarySettingsList )
     {

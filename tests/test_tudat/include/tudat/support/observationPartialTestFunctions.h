@@ -290,8 +290,11 @@ void testObservationPartials(
             // Calculate analytical observation partials.
             if( positionPartialScaler != nullptr )
             {
-                positionPartialScaler->update(
-                        vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ), currentObservation );
+                positionPartialScaler->update( vectorOfStates,
+                                               vectorOfTimes,
+                                               static_cast< LinkEndType >( linkEndIterator->first ),
+                                               currentObservation,
+                                               modifiedAncillarySettings );
             }
 
             typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > >

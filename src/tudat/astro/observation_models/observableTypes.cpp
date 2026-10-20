@@ -784,9 +784,6 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
             undifferencedObservableType = n_way_range;
             break;
         case relative_angular_position:
-        case position_angle:
-        case separation_distance:
-        case position_angle_and_separation:
             undifferencedObservableType = angular_position;
             break;
         default:
@@ -889,9 +886,6 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
             break;
         }
         case relative_angular_position:
-        case position_angle:
-        case separation_distance:
-        case position_angle_and_separation:
             firstIndices = { 0, 2 };
             secondIndices = { 1, 2 };
             break;
@@ -913,10 +907,7 @@ std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType d
         case dsn_n_way_averaged_doppler:
             linkEndsPair = { differencedLinkEnds, differencedLinkEnds };
             break;
-        case relative_angular_position:
-        case position_angle:
-        case separation_distance:
-        case position_angle_and_separation: {
+        case relative_angular_position: {
             LinkEnds firstLinkEnds;
             firstLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter );
             firstLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
@@ -1823,12 +1814,29 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
     {
         singleLinkStateEntries = observedObserverBodiesLinkStateEntries;
     }
+    else if( observableType == position_angle || observableType == separation_distance || observableType == position_angle_and_separation )
+    {
+        singleLinkStateEntries = twoTransmitterLinkStateEntries;
+    }
     else
     {
         throw std::runtime_error( "Error when getting single link state entries, observable type " + getObservableName( observableType ) +
                                   " not recognized." );
     }
     return singleLinkStateEntries;
+}
+
+std::vector< std::vector< int > > getLightTimeLegStateEntryIndices( const ObservableType observableType )
+{
+    switch( observableType )
+    {
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
+            return { { 0, 2 }, { 1, 2 } };
+        default:
+            return { { 0, 1 } };
+    }
 }
 
 //! Function to check if an observable type requires residual wrapping.

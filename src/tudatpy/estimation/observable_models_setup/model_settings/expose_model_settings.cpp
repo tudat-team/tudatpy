@@ -1760,7 +1760,7 @@ Function for creating settings for a position angle observable.
 Function for creating observation model settings of position angle type observables. This observable is the position angle
 :math:`\theta` of the second transmitter w.r.t. the first transmitter, as observed by the receiver, and is identical to the first
 entry of the :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` observable (where the model is described in detail).
-The north pole that is used to define the position angle, and the choice of astrometric or aberrated directions, are defined by
+The north pole that is used to define the position angle, and the use of stellar aberration, are defined by
 the ancillary settings of the observations (see :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`).
 
 Parameters
@@ -1798,7 +1798,7 @@ Function for creating settings for an angular separation observable.
 Function for creating observation model settings of angular separation type observables. This observable is the angle
 :math:`\rho` between the directions from the receiver to the two transmitters, and is identical to the second entry of the
 :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` observable (where the model is described in detail).
-The choice of astrometric or aberrated directions is defined by the ancillary settings of the observations (see
+The use of stellar aberration is defined by the ancillary settings of the observations (see
 :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`).
 
 Parameters
@@ -1837,28 +1837,23 @@ Function for creating observation model settings of combined position angle and 
 observable consists of the position angle :math:`\theta` of the second transmitter (``transmitter2``) w.r.t. the first transmitter
 (``transmitter``), and the angular separation :math:`\rho` between the two, as observed by the receiver. Each of the two
 transmitters has its own light-time solution (including any light-time corrections) to the receiver, which results in emission
-times :math:`t_{1}` and :math:`t_{2}` for a reception time :math:`t_{R}`. The (astrometric) directions from the receiver to the
+times :math:`t_{1}` and :math:`t_{2}` for a reception time :math:`t_{R}`. The directions from the receiver to the
 transmitters are then:
 
 .. math::
 
     \mathbf{u}_{i} = \frac{\mathbf{r}_{i}(t_{i})-\mathbf{r}_{R}(t_{R})}{||\mathbf{r}_{i}(t_{i})-\mathbf{r}_{R}(t_{R})||}, \qquad i=1,2
 
-If aberrated directions are selected in the ancillary settings, these directions are corrected for (classical) stellar aberration,
-using the velocity :math:`\mathbf{v}_{R}` of the receiver at :math:`t_{R}`, with :math:`\boldsymbol{\beta}_{R}=\mathbf{v}_{R}/c`:
+If stellar aberration is selected in the ancillary settings, these directions are corrected for (classical) stellar aberration
+:cite:p:`urban2013`, using the velocity :math:`\mathbf{v}_{R}` of the receiver at :math:`t_{R}`, with
+:math:`\boldsymbol{\beta}_{R}=\mathbf{v}_{R}/c`:
 
 .. math::
 
     a_{i} &= -\mathbf{u}_{i}\cdot\boldsymbol{\beta}_{R}+\sqrt{1-||\boldsymbol{\beta}_{R}||^{2}+(\mathbf{u}_{i}\cdot\boldsymbol{\beta}_{R})^{2}}\\
     \mathbf{u}_{i} &\rightarrow a_{i}\mathbf{u}_{i}+\boldsymbol{\beta}_{R}
 
-This gives the unit vector :math:`\mathbf{u}'_{i}` for which :math:`\mathbf{u}'_{i}-\boldsymbol{\beta}_{R}` is parallel to
-:math:`\mathbf{u}_{i}`. This classical model is equal to the relativistic model (e.g. Klioner, 2003) to first order in
-:math:`||\boldsymbol{\beta}_{R}||`; for an observer moving with the Earth, the difference in absolute direction is at most about 0.5 mas, and is
-much smaller for the position angle and separation of two nearby bodies. Only stellar aberration is applied: light deflection and
-atmospheric refraction are not included. Therefore, this option does not necessarily reproduce all corrections that are applied to
-observations that are labelled as *apparent* (see Desmars et al., 2009; for instance, Qiao et al., 1999, provide apparent position
-angles and separations from which differential refraction is removed, but stellar aberration is retained).
+Light deflection and atmospheric refraction are not included.
 
 With :math:`\mathbf{n}` the unit vector along the north pole (by default the ICRF/J2000 pole), expressed in the same frame as
 the states, the east and north directions at the first transmitter are:
@@ -1876,40 +1871,12 @@ and the observable is computed as follows (in the unbiased case):
     \rho &= \operatorname{atan2}(||\mathbf{u}_{1}\times\mathbf{u}_{2}||,\mathbf{u}_{1}\cdot\mathbf{u}_{2})
 
 The position angle is measured from north through east, in the range :math:`[-\pi,\pi]`, and the separation is in the range
-:math:`[0,\pi]` (both in radians). These are defined on the celestial sphere; position angles and separations that are measured
-as polar coordinates in a (tangent-plane) image may require a different projection. A change of the north pole only changes the
-direction :math:`\mathbf{m}`, so that the separation :math:`\rho` is not affected by it (Yuan et al., 2021).
+:math:`[0,\pi]` (both in radians).
 
-The north pole, and the choice of astrometric or aberrated directions, are not part of the observation model settings created by
-this function (or by :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle` and
-:func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance`). Instead, they are defined by the ancillary
-settings of each set of observations (see
+The north pole, and the use of stellar aberration, are not part of the observation model settings, but are defined by the
+ancillary settings of each set of observations (see
 :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`). If no such settings are
-defined, the ICRF/J2000 north pole and astrometric directions are used. The partial derivatives of the observable include the
-effect of the selected north pole (which is assumed independent of the estimated parameters) and, if aberrated directions are used,
-of stellar aberration (including its dependency on the receiver velocity).
-
-References
-----------
-- Capitaine, N., Wallace, P.T., and Chapront, J. (2003), Expressions for IAU 2000 precession quantities, A&A 412, 567-586,
-  https://doi.org/10.1051/0004-6361:20031539 (IAU 2006 precession).
-- Desmars, J., Vienne, A., and Arlot, J.-E. (2009), A new catalogue of observations of the eight major satellites of Saturn
-  (1874-2007), A&A 493, 1183-1195, https://doi.org/10.1051/0004-6361:200810203
-- Klioner, S.A. (2003), A practical relativistic model for microarcsecond astrometry in space, AJ 125, 1580-1597,
-  https://doi.org/10.1086/367593
-- Lieske, J.H., Lederle, T., Fricke, W., and Morando, B. (1977), Expressions for the precession quantities based upon the IAU
-  (1976) system of astronomical constants, A&A 58, 1-16 (IAU 1976 precession).
-- Mathews, P.M., Herring, T.A., and Buffett, B.A. (2002), Modeling of nutation and precession: new nutation series for nonrigid
-  Earth and insights into the Earth's interior, J. Geophys. Res. 107, https://doi.org/10.1029/2001JB000390 (IAU 2000A nutation).
-- NAIF, Frames Required Reading, https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html (B1950 frame).
-- Qiao, R.C., Shen, K.X., Liu, J.R., and Harper, D. (1999), 1994-1996 CCD astrometric observations of Saturn's satellites and
-  comparison with theories, A&AS 137, 1-5, https://doi.org/10.1051/aas:1999238
-- Seidelmann, P.K. (1982), 1980 IAU theory of nutation: the final report of the IAU Working Group on Nutation, Celestial
-  Mechanics 27, 79-106, https://doi.org/10.1007/BF01228952 (IAU 1980 nutation).
-- Urban, S.E. and Seidelmann, P.K. (eds.) (2013), Explanatory Supplement to the Astronomical Almanac, 3rd ed., University Science
-  Books (precession, nutation, and aberration).
-- Yuan, Y., Li, F., Fu, Y., Ren, S., et al. (2021), New precise positions in 2013-2019 and a catalog of ground-based astrometric
-  observations of 11 Neptunian satellites (1847-2019) based on Gaia-DR2, A&A 645, A48, https://doi.org/10.1051/0004-6361/202038776
+defined, the ICRF/J2000 north pole is used, without stellar aberration.
 
 Parameters
 ----------

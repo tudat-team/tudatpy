@@ -17,60 +17,18 @@ namespace tudat
 
 namespace sofa_interface
 {
-namespace
-{
-
-Eigen::Matrix3d convertSofaRotationMatrix( const double sofaRotationMatrix[ 3 ][ 3 ] )
-{
-    Eigen::Matrix3d rotationMatrix;
-    for( int row = 0; row < 3; row++ )
-    {
-        for( int column = 0; column < 3; column++ )
-        {
-            rotationMatrix( row, column ) = sofaRotationMatrix[ row ][ column ];
-        }
-    }
-    return rotationMatrix;
-}
-
-}  // namespace
-
-Eigen::Matrix3d getPrecessionMatrix( const double terrestrialTime, const PrecessionNutationModel model, const double referenceJulianDay )
+Eigen::Matrix3d getPrecessionMatrix( const double terrestrialTime, const double referenceJulianDay, const bool useIau2006 )
 {
     double precessionMatrix[ 3 ][ 3 ];
-    const double elapsedJulianDays = terrestrialTime / physical_constants::JULIAN_DAY;
-    switch( model )
+    if( useIau2006 )
     {
-        case PrecessionNutationModel::iau_1976_1980:
-            iauPmat76( referenceJulianDay, elapsedJulianDays, precessionMatrix );
-            break;
-        case PrecessionNutationModel::iau_2006_2000a:
-            iauPmat06( referenceJulianDay, elapsedJulianDays, precessionMatrix );
-            break;
-        default:
-            throw std::runtime_error( "Unsupported IAU precession model." );
+        iauPmat06( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionMatrix );
     }
-    return convertSofaRotationMatrix( precessionMatrix );
-}
-
-Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime,
-                                             const PrecessionNutationModel model,
-                                             const double referenceJulianDay )
-{
-    double precessionNutationMatrix[ 3 ][ 3 ];
-    const double elapsedJulianDays = terrestrialTime / physical_constants::JULIAN_DAY;
-    switch( model )
+    else
     {
-        case PrecessionNutationModel::iau_1976_1980:
-            iauPnm80( referenceJulianDay, elapsedJulianDays, precessionNutationMatrix );
-            break;
-        case PrecessionNutationModel::iau_2006_2000a:
-            iauPnm06a( referenceJulianDay, elapsedJulianDays, precessionNutationMatrix );
-            break;
-        default:
-            throw std::runtime_error( "Unsupported IAU precession-nutation model." );
+        iauPmat76( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionMatrix );
     }
-    return convertSofaRotationMatrix( precessionNutationMatrix );
+    return Eigen::Map< Eigen::Matrix< double, 3, 3, Eigen::RowMajor > >( &precessionMatrix[ 0 ][ 0 ] );
 }
 
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
@@ -167,9 +125,18 @@ double calculateEquationOfEquinoxes( const double terrestrialTime,
     return equationOfEquinoxes;
 }
 
-Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const double referenceJulianDay )
+Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const double referenceJulianDay, const bool useIau2006 )
 {
-    return getPrecessionNutationMatrix( terrestrialTime, PrecessionNutationModel::iau_1976_1980, referenceJulianDay );
+    double precessionNutationMatrix[ 3 ][ 3 ];
+    if( useIau2006 )
+    {
+        iauPnm06a( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionNutationMatrix );
+    }
+    else
+    {
+        iauPnm80( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionNutationMatrix );
+    }
+    return Eigen::Map< Eigen::Matrix< double, 3, 3, Eigen::RowMajor > >( &precessionNutationMatrix[ 0 ][ 0 ] );
 }
 
 void getPrecessionAngles( double& zeta, double& z, double& theta, const double terrestrialTime, const double referenceJulianDay )

@@ -44,19 +44,17 @@ double getPositionAngleReferenceEpoch( const double observationTime,
     return referenceEpoch;
 }
 
-Eigen::Vector3d getMeanOfDatePoleInJ2000( const double terrestrialTime, const bool useIau2006Precession )
+Eigen::Vector3d getMeanOfDatePoleInJ2000( const double terrestrialTime, const bool useIau2006 )
 {
-    const sofa_interface::PrecessionNutationModel model = useIau2006Precession ? sofa_interface::PrecessionNutationModel::iau_2006_2000a
-                                                                               : sofa_interface::PrecessionNutationModel::iau_1976_1980;
-    return sofa_interface::getPrecessionMatrix( terrestrialTime, model ).transpose( ) * Eigen::Vector3d::UnitZ( );
+    return sofa_interface::getPrecessionMatrix( terrestrialTime, basic_astrodynamics::JULIAN_DAY_ON_J2000, useIau2006 ).transpose( ) *
+            Eigen::Vector3d::UnitZ( );
 }
 
-Eigen::Vector3d getTrueOfDatePoleInJ2000( const double terrestrialTime, const bool useIau2006PrecessionNutation )
+Eigen::Vector3d getTrueOfDatePoleInJ2000( const double terrestrialTime, const bool useIau2006 )
 {
-    const sofa_interface::PrecessionNutationModel model = useIau2006PrecessionNutation
-            ? sofa_interface::PrecessionNutationModel::iau_2006_2000a
-            : sofa_interface::PrecessionNutationModel::iau_1976_1980;
-    return sofa_interface::getPrecessionNutationMatrix( terrestrialTime, model ).transpose( ) * Eigen::Vector3d::UnitZ( );
+    return sofa_interface::getPrecessionNutationMatrix( terrestrialTime, basic_astrodynamics::JULIAN_DAY_ON_J2000, useIau2006 )
+                   .transpose( ) *
+            Eigen::Vector3d::UnitZ( );
 }
 
 }  // namespace
@@ -127,30 +125,13 @@ Eigen::Vector3d getPositionAngleReferencePoleInJ2000( const double observationTi
     }
 }
 
-PositionAngleDirectionType getPositionAngleDirectionType(
-        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+bool getPositionAngleUseStellarAberration( const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
 {
-    PositionAngleDirectionType directionType = astrometric_position_angle_direction;
-    if( ancillarySettings != nullptr && ancillarySettings->hasAncillaryIntData( position_angle_direction_type ) )
+    if( ancillarySettings != nullptr && ancillarySettings->hasAncillaryIntData( position_angle_use_stellar_aberration ) )
     {
-        const int directionTypeValue = ancillarySettings->getAncillaryIntData( position_angle_direction_type );
-        if( directionTypeValue < astrometric_position_angle_direction || directionTypeValue > aberrated_position_angle_direction )
-        {
-            throw std::runtime_error( "Position-angle direction-type ancillary setting contains an unsupported enum value: " +
-                                      std::to_string( directionTypeValue ) + "." );
-        }
-        directionType = static_cast< PositionAngleDirectionType >( directionTypeValue );
+        return ancillarySettings->getAncillaryIntData( position_angle_use_stellar_aberration ) != 0;
     }
-
-    switch( directionType )
-    {
-        case astrometric_position_angle_direction:
-        case aberrated_position_angle_direction:
-            return directionType;
-        default:
-            throw std::runtime_error( "Position-angle direction-type ancillary setting contains an unsupported enum value: " +
-                                      std::to_string( static_cast< int >( directionType ) ) + "." );
-    }
+    return false;
 }
 
 }  // namespace observation_models

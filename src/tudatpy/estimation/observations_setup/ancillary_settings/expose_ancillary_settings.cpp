@@ -82,19 +82,6 @@ void expose_ancillary_settings_types( py::module& m )
                     R"doc(Intermediate received frequency used in the observation calculation.)doc" )
             .export_values( );
 
-    py::enum_< tom::PositionAngleDirectionType >( m,
-                                                  "PositionAngleDirectionType",
-                                                  R"doc(
-        Enumeration of the directions used to compute position angle and separation observables.
-
-        The ``astrometric`` option uses the light-time corrected (geometric) directions from the receiver to the two transmitters. The
-        ``aberrated`` option uses the apparent directions, which include stellar aberration due to the velocity of the receiver.
-        See :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` for the model, and
-        :func:`position_angle_ancillary_settings` for how this setting is used.
-        )doc" )
-            .value( "astrometric", tom::PositionAngleDirectionType::astrometric_position_angle_direction )
-            .value( "aberrated", tom::PositionAngleDirectionType::aberrated_position_angle_direction );
-
     py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
         Enumeration of frequency bands.
 
@@ -221,10 +208,10 @@ void expose_ancillary_settings_types( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_list_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_list_settings`
                     )doc" )
-            .value( "position_angle_direction_type",
-                    tom::ObservationAncillarySimulationVariable::position_angle_direction_type,
+            .value( "position_angle_use_stellar_aberration",
+                    tom::ObservationAncillarySimulationVariable::position_angle_use_stellar_aberration,
                     R"doc(
-                    Directions (see :class:`PositionAngleDirectionType`) used to compute position angle and separation observables.
+                    Whether the directions used to compute position angle and separation observables include stellar aberration (1) or not (0).
                     This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_int_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_int_settings`
@@ -425,7 +412,7 @@ void expose_ancillary_settings( py::module& m )
            &tom::getPositionAngleAncillarySettings,
            py::arg( "reference_frame" ) = tom::j2000_position_angle_reference_frame,
            py::arg( "reference_epoch" ) = TUDAT_NAN,
-           py::arg( "direction_type" ) = tom::astrometric_position_angle_direction,
+           py::arg( "use_stellar_aberration" ) = false,
            R"doc(
 
  Function for creating ancillary settings for position angle and separation observables.
@@ -435,7 +422,7 @@ void expose_ancillary_settings( py::module& m )
  :func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance` and
  :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`). These settings define the
  reference frame of which the north pole is used to compute the position angle, and whether the directions to the transmitters
- are astrometric or include stellar aberration. These choices depend on how a given set of observations is defined, and are
+ include stellar aberration. These choices depend on how a given set of observations is defined, and are
  therefore set per set of observations, rather than in the observation model settings. As a result, the same observation model
  can be used for sets of observations that use different conventions.
 
@@ -445,8 +432,8 @@ void expose_ancillary_settings( py::module& m )
  :func:`~tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable`). When using real
  observations, they are stored in the observation set (for instance using the ``ancillary_settings`` argument of
  :func:`~tudatpy.estimation.observations.create_single_observation_set`), so that the residuals and partial derivatives are
- computed using the same conventions as the observations. If no such settings are provided, the J2000/ICRF north pole and
- astrometric directions are used.
+ computed using the same conventions as the observations. If no such settings are provided, the J2000/ICRF north pole is used,
+ without stellar aberration.
 
  The following reference frames can be used for the north pole: J2000/ICRF (default), B1950, the IAU 1976 or IAU 2006 mean-of-date
  frame, and the IAU 1976/1980 or IAU 2006/2000A true-of-date frame. The orientation of the mean- and true-of-date frames is
@@ -454,7 +441,7 @@ void expose_ancillary_settings( py::module& m )
  is not a full FK4 to ICRF conversion of catalogue coordinates. To use a user-defined north pole, use
  :func:`custom_position_angle_ancillary_settings`.
 
- The reference frame only affects the position angle, while the choice of directions affects both the position angle and the
+ The reference frame only affects the position angle, while stellar aberration affects both the position angle and the
  separation.
 
  Parameters
@@ -467,9 +454,9 @@ void expose_ancillary_settings( py::module& m )
      of each observation is used. This setting is not used for the J2000 and B1950 frames. It does not modify the observation times
      or the light-time computation.
 
- direction_type : PositionAngleDirectionType, default = astrometric
-     Directions used to compute the observables: astrometric (light-time corrected) directions, or aberrated directions that
-     include stellar aberration due to the velocity of the receiver (light deflection and refraction are not included)
+ use_stellar_aberration : bool, default = False
+     Whether the (light-time corrected) directions used to compute the observables are corrected for stellar aberration due to the
+     velocity of the receiver
 
  Returns
  -------
@@ -481,7 +468,7 @@ void expose_ancillary_settings( py::module& m )
     m.def( "custom_position_angle_ancillary_settings",
            &tom::getCustomPositionAngleAncillarySettings,
            py::arg( "reference_pole" ),
-           py::arg( "direction_type" ) = tom::astrometric_position_angle_direction,
+           py::arg( "use_stellar_aberration" ) = false,
            R"doc(
 
  Function for creating ancillary settings for position angle and separation observables, using a user-defined north pole.
@@ -495,8 +482,8 @@ void expose_ancillary_settings( py::module& m )
  reference_pole : numpy.ndarray[numpy.float64[3, 1]]
      Direction of the north pole, in ICRF/J2000 coordinates (need not be normalized, but must be non-zero)
 
- direction_type : PositionAngleDirectionType, default = astrometric
-     Directions used to compute the observables (see
+ use_stellar_aberration : bool, default = False
+     Whether stellar aberration is used (see
      :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`)
 
  Returns

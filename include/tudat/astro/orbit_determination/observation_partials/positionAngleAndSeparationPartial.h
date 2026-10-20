@@ -11,19 +11,15 @@
 #ifndef TUDAT_POSITIONANGLEANDSEPARATIONPARTIAL_H
 #define TUDAT_POSITIONANGLEANDSEPARATIONPARTIAL_H
 
-#include <limits>
-#include <memory>
-#include <stdexcept>
 #include <utility>
 #include <vector>
 
 #include <Eigen/Core>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
 #include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
-#include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
-#include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat
 {
@@ -31,326 +27,210 @@ namespace tudat
 namespace observation_partials
 {
 
-//! Partials of position angle and separation distance w.r.t. the angular positions of both transmitters and the receiver velocity.
-struct PositionAngleAndSeparationGeometryPartials {
-    //! Partial of [position angle; separation] w.r.t. [right ascension; declination] of the first transmitter, as seen by receiver.
-    Eigen::Matrix2d partialWrtFirstAngularPosition;
-
-    //! Partial of [position angle; separation] w.r.t. [right ascension; declination] of the second transmitter, as seen by receiver.
-    Eigen::Matrix2d partialWrtSecondAngularPosition;
-
-    //! Partial of [position angle; separation] w.r.t. the inertial receiver velocity (zero for astrometric directions).
-    Eigen::Matrix< double, 2, 3 > partialWrtReceiverVelocity;
-};
-
 //! Calculate the partials of position angle and separation distance w.r.t. the two (observed) unit lines of sight.
 /*!
  * \param firstLineOfSight Unit direction from receiver to first transmitter, as used in the observable.
  * \param secondLineOfSight Unit direction from receiver to second transmitter, as used in the observable.
- * \param northPoleDirection Celestial north pole defining the position angle, in the same frame as the lines of sight.
+ * \param northPoleDirection Unit celestial north pole defining the position angle, in the same frame as the lines of sight.
  * \param calculatePositionAngle Whether the position-angle row is computed (it is left zero otherwise).
  * \return Partials of [position angle; separation] w.r.t. the first and second line of sight, respectively.
  */
-inline std::pair< Eigen::Matrix< double, 2, 3 >, Eigen::Matrix< double, 2, 3 > > calculatePositionAngleAndSeparationPartialWrtLinesOfSight(
+std::pair< Eigen::Matrix< double, 2, 3 >, Eigen::Matrix< double, 2, 3 > > calculatePositionAngleAndSeparationPartialWrtLinesOfSight(
         const Eigen::Vector3d& firstLineOfSight,
         const Eigen::Vector3d& secondLineOfSight,
         const Eigen::Vector3d& northPoleDirection,
-        const bool calculatePositionAngle = true )
-{
-    Eigen::Matrix< double, 2, 3 > firstUnitVectorPartial = Eigen::Matrix< double, 2, 3 >::Zero( );
-    Eigen::Matrix< double, 2, 3 > secondUnitVectorPartial = Eigen::Matrix< double, 2, 3 >::Zero( );
-    if( calculatePositionAngle )
-    {
-        const Eigen::Vector3d unnormalisedEastDirection = northPoleDirection.cross( firstLineOfSight );
-        const double eastDirectionNorm = unnormalisedEastDirection.norm( );
-        const Eigen::Vector3d eastDirection = unnormalisedEastDirection / eastDirectionNorm;
-        const Eigen::Vector3d northDirection = firstLineOfSight.cross( eastDirection );
+        const bool calculatePositionAngle = true );
 
-        const double eastProjection = secondLineOfSight.dot( eastDirection );
-        const double northProjection = secondLineOfSight.dot( northDirection );
-        const double positionAngleDenominator = eastProjection * eastProjection + northProjection * northProjection;
-
-        const Eigen::Matrix3d eastDirectionPartial = ( Eigen::Matrix3d::Identity( ) - eastDirection * eastDirection.transpose( ) ) *
-                linear_algebra::getCrossProductMatrix( northPoleDirection ) / eastDirectionNorm;
-        const Eigen::Matrix3d northDirectionPartial = -linear_algebra::getCrossProductMatrix( eastDirection ) +
-                linear_algebra::getCrossProductMatrix( firstLineOfSight ) * eastDirectionPartial;
-
-        firstUnitVectorPartial.row( 0 ) = ( northProjection * secondLineOfSight.transpose( ) * eastDirectionPartial -
-                                            eastProjection * secondLineOfSight.transpose( ) * northDirectionPartial ) /
-                positionAngleDenominator;
-        secondUnitVectorPartial.row( 0 ) =
-                ( northProjection * eastDirection.transpose( ) - eastProjection * northDirection.transpose( ) ) / positionAngleDenominator;
-    }
-
-    const double cosineOfSeparation = firstLineOfSight.dot( secondLineOfSight );
-    const double sineOfSeparation = firstLineOfSight.cross( secondLineOfSight ).norm( );
-    firstUnitVectorPartial.row( 1 ) = ( cosineOfSeparation * firstLineOfSight - secondLineOfSight ).transpose( ) / sineOfSeparation;
-    secondUnitVectorPartial.row( 1 ) = ( cosineOfSeparation * secondLineOfSight - firstLineOfSight ).transpose( ) / sineOfSeparation;
-
-    return std::make_pair( firstUnitVectorPartial, secondUnitVectorPartial );
-}
-
-//! Calculate the partials of position angle and separation distance w.r.t. both angular positions and the receiver velocity.
+//! Derived class for scaling three-dimensional position partials to position angle and/or separation distance partials
 /*!
- * The angular positions are the right ascension and declination (in the frame of the link-end states) of the astrometric
- * (light-time-corrected geometric) directions from the receiver to each transmitter. If stellar aberration is applied, the partials
- * include the derivative of the aberrated directions w.r.t. the astrometric directions, and w.r.t. the receiver velocity.
- * \param linkEndStates States of first transmitter, second transmitter and receiver (in this order), in the global frame.
- * \param northPoleDirection Celestial north pole defining the position angle, in the global frame.
- * \param calculatePositionAngle Whether the position-angle partials are computed (they are left zero otherwise).
- * \param applyStellarAberration Whether the observable uses directions aberrated with the receiver velocity.
- * \return Partials of [position angle; separation] w.r.t. both angular positions and the receiver velocity.
- */
-inline PositionAngleAndSeparationGeometryPartials calculatePositionAngleAndSeparationPartialWrtAngularPositions(
-        const std::vector< Eigen::Vector6d >& linkEndStates,
-        const Eigen::Vector3d& northPoleDirection,
-        const bool calculatePositionAngle = true,
-        const bool applyStellarAberration = false )
-{
-    if( linkEndStates.size( ) != 3 )
-    {
-        throw std::runtime_error( "Position-angle partials require states for two transmitters and one receiver." );
-    }
-
-    const Eigen::Vector3d firstRelativePosition = linkEndStates.at( 0 ).segment< 3 >( 0 ) - linkEndStates.at( 2 ).segment< 3 >( 0 );
-    const Eigen::Vector3d secondRelativePosition = linkEndStates.at( 1 ).segment< 3 >( 0 ) - linkEndStates.at( 2 ).segment< 3 >( 0 );
-    const Eigen::Vector3d receiverVelocity = linkEndStates.at( 2 ).segment< 3 >( 3 );
-
-    const Eigen::Vector3d firstAstrometricLineOfSight = firstRelativePosition.normalized( );
-    const Eigen::Vector3d secondAstrometricLineOfSight = secondRelativePosition.normalized( );
-
-    // Retrieve directions as used in the observable, and their partials w.r.t. the astrometric directions and receiver velocity
-    Eigen::Vector3d firstLineOfSight = firstAstrometricLineOfSight;
-    Eigen::Vector3d secondLineOfSight = secondAstrometricLineOfSight;
-    Eigen::Matrix3d firstLineOfSightPartialWrtAstrometricDirection = Eigen::Matrix3d::Identity( );
-    Eigen::Matrix3d secondLineOfSightPartialWrtAstrometricDirection = Eigen::Matrix3d::Identity( );
-    Eigen::Matrix3d firstLineOfSightPartialWrtReceiverVelocity = Eigen::Matrix3d::Zero( );
-    Eigen::Matrix3d secondLineOfSightPartialWrtReceiverVelocity = Eigen::Matrix3d::Zero( );
-    if( applyStellarAberration )
-    {
-        firstLineOfSight =
-                observation_models::calculateApparentDirectionWithStellarAberration( firstAstrometricLineOfSight, receiverVelocity );
-        secondLineOfSight =
-                observation_models::calculateApparentDirectionWithStellarAberration( secondAstrometricLineOfSight, receiverVelocity );
-        observation_models::calculateStellarAberrationPartials( firstAstrometricLineOfSight,
-                                                                receiverVelocity,
-                                                                firstLineOfSightPartialWrtAstrometricDirection,
-                                                                firstLineOfSightPartialWrtReceiverVelocity );
-        observation_models::calculateStellarAberrationPartials( secondAstrometricLineOfSight,
-                                                                receiverVelocity,
-                                                                secondLineOfSightPartialWrtAstrometricDirection,
-                                                                secondLineOfSightPartialWrtReceiverVelocity );
-    }
-
-    observation_models::checkPositionAngleGeometry< double >(
-            firstLineOfSight, secondLineOfSight, northPoleDirection, calculatePositionAngle );
-
-    const auto lineOfSightPartials = calculatePositionAngleAndSeparationPartialWrtLinesOfSight(
-            firstLineOfSight, secondLineOfSight, northPoleDirection.normalized( ), calculatePositionAngle );
-
-    const double singularityTolerance = 100.0 * std::numeric_limits< double >::epsilon( );
-    const auto getUnitVectorPartialWrtAngularPosition = [ singularityTolerance ]( const Eigen::Vector3d& lineOfSight ) {
-        const double horizontalNorm = lineOfSight.head< 2 >( ).norm( );
-        if( horizontalNorm <= singularityTolerance )
-        {
-            throw std::runtime_error( "Position-angle partials cannot be formed from right ascension at a pole of the state frame." );
-        }
-
-        Eigen::Matrix< double, 3, 2 > partial;
-        partial.col( 0 ) << -lineOfSight.y( ), lineOfSight.x( ), 0.0;
-        partial.col( 1 ) << -lineOfSight.x( ) * lineOfSight.z( ) / horizontalNorm, -lineOfSight.y( ) * lineOfSight.z( ) / horizontalNorm,
-                horizontalNorm;
-        return partial;
-    };
-
-    PositionAngleAndSeparationGeometryPartials geometryPartials;
-    geometryPartials.partialWrtFirstAngularPosition = lineOfSightPartials.first * firstLineOfSightPartialWrtAstrometricDirection *
-            getUnitVectorPartialWrtAngularPosition( firstAstrometricLineOfSight );
-    geometryPartials.partialWrtSecondAngularPosition = lineOfSightPartials.second * secondLineOfSightPartialWrtAstrometricDirection *
-            getUnitVectorPartialWrtAngularPosition( secondAstrometricLineOfSight );
-    geometryPartials.partialWrtReceiverVelocity = lineOfSightPartials.first * firstLineOfSightPartialWrtReceiverVelocity +
-            lineOfSightPartials.second * secondLineOfSightPartialWrtReceiverVelocity;
-    return geometryPartials;
-}
-
-//! Scaling object that updates the independent angular-position scalers for both light-time legs.
-class PositionAngleAndSeparationPartialScaling : public PositionPartialScaling
-{
-public:
-    PositionAngleAndSeparationPartialScaling( const std::shared_ptr< PositionPartialScaling > firstPartialScaling,
-                                              const std::shared_ptr< PositionPartialScaling > secondPartialScaling ):
-        firstPartialScaling_( firstPartialScaling ), secondPartialScaling_( secondPartialScaling )
-    {}
-
-    void update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                 const std::vector< double >& times,
-                 const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd ) override
-    {
-        if( fixedLinkEnd != observation_models::receiver )
-        {
-            throw std::runtime_error( "Position-angle and separation observations must be referenced at the receiver." );
-        }
-        if( linkEndStates.size( ) != 3 || times.size( ) != 3 )
-        {
-            throw std::runtime_error( "Position-angle partial scaling requires three link-end states and times." );
-        }
-
-        firstPartialScaling_->update( { linkEndStates.at( 0 ), linkEndStates.at( 2 ) },
-                                      { times.at( 0 ), times.at( 2 ) },
-                                      observation_models::receiver,
-                                      Eigen::Vector2d::Constant( TUDAT_NAN ) );
-        secondPartialScaling_->update( { linkEndStates.at( 1 ), linkEndStates.at( 2 ) },
-                                       { times.at( 1 ), times.at( 2 ) },
-                                       observation_models::receiver,
-                                       Eigen::Vector2d::Constant( TUDAT_NAN ) );
-    }
-
-private:
-    std::shared_ptr< PositionPartialScaling > firstPartialScaling_;
-    std::shared_ptr< PositionPartialScaling > secondPartialScaling_;
-};
-
-//! Class to compute partials of position angle and/or separation distance observables.
-/*!
- * The partials are computed from the partials of the angular positions (right ascension and declination) of both transmitters,
- * as seen from the receiver. If the observation ancillary settings select aberrated directions, the contribution of the stellar
- * aberration to the partials is included, both through the change in the astrometric directions and through the dependency on the
- * receiver velocity.
+ * Derived class for scaling three-dimensional position partials to position angle and/or separation distance partials. The link
+ * end states are those of the first transmitter, second transmitter and receiver (in this order). The north pole defining the
+ * position angle, and the use of stellar aberration, are taken from the ancillary settings of the observation. If stellar
+ * aberration is used, the observable also depends on the receiver velocity.
  */
 template< int ObservationSize >
-class PositionAngleAndSeparationPartial : public ObservationPartial< ObservationSize >
+class PositionAngleAndSeparationScaling : public DirectPositionPartialScaling< ObservationSize >
 {
 public:
     //! Constructor
     /*!
-     * \param firstAngularPositionPartial Angular-position partial for the link from first transmitter to receiver (may be nullptr).
-     * \param secondAngularPositionPartial Angular-position partial for the link from second transmitter to receiver (may be nullptr).
-     * \param j2000ToGlobalFrameTransformation Rotation from ICRF/J2000 to the frame of the link-end states.
+     * Constructor
      * \param observableType Observable type: position_angle or separation_distance (ObservationSize 1), or
      * position_angle_and_separation (ObservationSize 2).
-     * \param receiverStatePartial Partial of the receiver state w.r.t. the parameter, used for the receiver-velocity dependency of
-     * stellar aberration (nullptr if the receiver state does not depend on the parameter).
+     * \param j2000ToGlobalFrameTransformation Rotation from ICRF/J2000 to the frame of the link-end states.
      */
-    PositionAngleAndSeparationPartial( const std::shared_ptr< ObservationPartial< 2 > > firstAngularPositionPartial,
-                                       const std::shared_ptr< ObservationPartial< 2 > > secondAngularPositionPartial,
-                                       const Eigen::Matrix3d& j2000ToGlobalFrameTransformation,
-                                       const observation_models::ObservableType observableType,
-                                       const std::shared_ptr< CartesianStatePartial > receiverStatePartial = nullptr ):
-        ObservationPartial< ObservationSize >( getParameterIdentifier( firstAngularPositionPartial, secondAngularPositionPartial ) ),
-        firstAngularPositionPartial_( firstAngularPositionPartial ), secondAngularPositionPartial_( secondAngularPositionPartial ),
+    PositionAngleAndSeparationScaling( const observation_models::ObservableType observableType,
+                                       const Eigen::Matrix3d& j2000ToGlobalFrameTransformation ):
+        DirectPositionPartialScaling< ObservationSize >( observableType ),
         j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation ),
         calculatePositionAngle_( observableType != observation_models::separation_distance ),
-        firstComponent_( observableType == observation_models::separation_distance ? 1 : 0 ), receiverStatePartial_( receiverStatePartial )
+        firstComponent_( observableType == observation_models::separation_distance ? 1 : 0 )
     {
-        if( ( ObservationSize == 2 && observableType != observation_models::position_angle_and_separation ) ||
-            ( ObservationSize == 1 && observableType != observation_models::position_angle &&
-              observableType != observation_models::separation_distance ) )
+        if( observation_models::getObservableSize( observableType ) != ObservationSize )
         {
-            throw std::runtime_error( "Invalid observable type " + observation_models::getObservableName( observableType ) +
-                                      " requested for a position-angle and separation partial of size " +
-                                      std::to_string( ObservationSize ) + "." );
+            throw std::runtime_error( "Error when creating position angle/separation distance partial scaling, observable " +
+                                      observation_models::getObservableName( observableType ) + " is incompatible with size " +
+                                      std::to_string( ObservationSize ) );
         }
     }
 
-    std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& =
-                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) override
+    //! Update the scaling object to the current times and states
+    /*!
+     *  Update the scaling object to the current times and states
+     *  \param linkEndStates List of states at each link end during observation (first transmitter, second transmitter, receiver)
+     *  \param times List of times at each link end during observation.
+     *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
+     *  is kept constant when computing observable.
+     *  \param currentObservation Value of observation for which partial scaling is to be computed
+     *  \param ancillarySettings Ancillary settings of the observation, defining north pole and use of stellar aberration
+     */
+    void update( const std::vector< Eigen::Vector6d >& linkEndStates,
+                 const std::vector< double >& times,
+                 const observation_models::LinkEndType fixedLinkEnd,
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
     {
-        if( linkEndOfFixedTime != observation_models::receiver )
+        if( fixedLinkEnd != observation_models::receiver )
         {
-            throw std::runtime_error( "Position-angle and separation partials must be referenced at the receiver." );
-        }
-        if( states.size( ) != 3 || times.size( ) != 3 )
-        {
-            throw std::runtime_error( "Position-angle and separation partials require three link-end states and times." );
+            throw std::runtime_error(
+                    "Error when updating position angle/separation distance scaling object, fixed link end time different from receiver." );
         }
 
-        // Match the observation model's frame convention at the receiver epoch.
-        // The epoch is held fixed with respect to the estimated parameters here.
-        Eigen::Vector3d referencePoleDirection = Eigen::Vector3d::UnitZ( );
+        Eigen::Vector3d northPoleDirection = Eigen::Vector3d::UnitZ( );
         if( calculatePositionAngle_ )
         {
-            referencePoleDirection = j2000ToGlobalFrameTransformation_ *
+            northPoleDirection = j2000ToGlobalFrameTransformation_ *
                     observation_models::getPositionAngleReferencePoleInJ2000( times.at( 2 ), ancillarySettings );
         }
-        const bool applyStellarAberration = observation_models::getPositionAngleDirectionType( ancillarySettings ) ==
-                observation_models::aberrated_position_angle_direction;
-        const PositionAngleAndSeparationGeometryPartials geometryPartials = calculatePositionAngleAndSeparationPartialWrtAngularPositions(
-                states, referencePoleDirection, calculatePositionAngle_, applyStellarAberration );
-        const Eigen::Matrix< double, ObservationSize, 2 > firstTransformation =
-                geometryPartials.partialWrtFirstAngularPosition.block( firstComponent_, 0, ObservationSize, 2 );
-        const Eigen::Matrix< double, ObservationSize, 2 > secondTransformation =
-                geometryPartials.partialWrtSecondAngularPosition.block( firstComponent_, 0, ObservationSize, 2 );
+        useStellarAberration_ = observation_models::getPositionAngleUseStellarAberration( ancillarySettings );
+        const Eigen::Vector3d receiverVelocity = linkEndStates.at( 2 ).segment< 3 >( 3 );
 
-        std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > partials;
-        appendTransformedPartials( partials,
-                                   firstAngularPositionPartial_,
-                                   firstTransformation,
-                                   { states.at( 0 ), states.at( 2 ) },
-                                   { times.at( 0 ), times.at( 2 ) },
-                                   ancillarySettings );
-        appendTransformedPartials( partials,
-                                   secondAngularPositionPartial_,
-                                   secondTransformation,
-                                   { states.at( 1 ), states.at( 2 ) },
-                                   { times.at( 1 ), times.at( 2 ) },
-                                   ancillarySettings );
-
-        // Add dependency of stellar aberration on receiver velocity (receiver time is fixed).
-        if( applyStellarAberration && receiverStatePartial_ != nullptr )
+        // Compute observed lines of sight, and their partials w.r.t. the relative positions and receiver velocity
+        std::vector< Eigen::Vector3d > linesOfSight( 2 );
+        std::vector< Eigen::Matrix3d > lineOfSightPartialsWrtRelativePosition( 2 );
+        std::vector< Eigen::Matrix3d > lineOfSightPartialsWrtReceiverVelocity( 2, Eigen::Matrix3d::Zero( ) );
+        for( unsigned int i = 0; i < 2; i++ )
         {
-            const Eigen::Matrix< double, ObservationSize, 3 > receiverVelocityTransformation =
-                    geometryPartials.partialWrtReceiverVelocity.block( firstComponent_, 0, ObservationSize, 3 );
-            partials.push_back( std::make_pair(
-                    receiverVelocityTransformation * receiverStatePartial_->calculatePartialOfVelocity( states.at( 2 ), times.at( 2 ) ),
-                    times.at( 2 ) ) );
+            const Eigen::Vector3d relativePosition = linkEndStates.at( i ).segment< 3 >( 0 ) - linkEndStates.at( 2 ).segment< 3 >( 0 );
+            if( useStellarAberration_ )
+            {
+                linesOfSight[ i ] =
+                        observation_models::calculateApparentDirectionWithStellarAberration( relativePosition, receiverVelocity );
+                observation_models::calculateStellarAberrationPartials( relativePosition,
+                                                                        receiverVelocity,
+                                                                        lineOfSightPartialsWrtRelativePosition[ i ],
+                                                                        lineOfSightPartialsWrtReceiverVelocity[ i ] );
+            }
+            else
+            {
+                linesOfSight[ i ] = relativePosition.normalized( );
+                lineOfSightPartialsWrtRelativePosition[ i ] =
+                        ( Eigen::Matrix3d::Identity( ) - linesOfSight[ i ] * linesOfSight[ i ].transpose( ) ) / relativePosition.norm( );
+            }
         }
-        return partials;
+
+        observation_models::checkPositionAngleGeometry< double >(
+                linesOfSight[ 0 ], linesOfSight[ 1 ], northPoleDirection, calculatePositionAngle_ );
+        const std::pair< Eigen::Matrix< double, 2, 3 >, Eigen::Matrix< double, 2, 3 > > lineOfSightPartials =
+                calculatePositionAngleAndSeparationPartialWrtLinesOfSight(
+                        linesOfSight[ 0 ], linesOfSight[ 1 ], northPoleDirection.normalized( ), calculatePositionAngle_ );
+
+        // Compute scaling factors, with and without light-time correction, for each transmitter
+        velocityScalingFactor_ = Eigen::Matrix< double, ObservationSize, 3 >::Zero( );
+        for( unsigned int i = 0; i < 2; i++ )
+        {
+            const Eigen::Matrix< double, 2, 3 >& currentLineOfSightPartial =
+                    ( i == 0 ) ? lineOfSightPartials.first : lineOfSightPartials.second;
+            const Eigen::Vector3d transmitterVelocity = linkEndStates.at( i ).segment< 3 >( 3 );
+            const Eigen::Vector3d normalizedRelativePosition =
+                    ( linkEndStates.at( i ).segment< 3 >( 0 ) - linkEndStates.at( 2 ).segment< 3 >( 0 ) ).normalized( );
+            const double lightTimeDenominator = physical_constants::SPEED_OF_LIGHT + normalizedRelativePosition.dot( transmitterVelocity );
+
+            fixedTimeScalingFactors_[ i ] = ( currentLineOfSightPartial * lineOfSightPartialsWrtRelativePosition[ i ] )
+                                                    .block( firstComponent_, 0, ObservationSize, 3 );
+            scalingFactors_[ i ] = fixedTimeScalingFactors_[ i ] *
+                    ( Eigen::Matrix3d::Identity( ) - transmitterVelocity * normalizedRelativePosition.transpose( ) / lightTimeDenominator );
+            lightTimeCorrectionScalingFactors_[ i ] = -fixedTimeScalingFactors_[ i ] * transmitterVelocity / lightTimeDenominator;
+            velocityScalingFactor_ += ( currentLineOfSightPartial * lineOfSightPartialsWrtReceiverVelocity[ i ] )
+                                              .block( firstComponent_, 0, ObservationSize, 3 );
+        }
+
+        currentLinkEndType_ = fixedLinkEnd;
+    }
+
+    //! Function to retrieve the position scaling factor (with light-time correction) for specific link end
+    Eigen::Matrix< double, ObservationSize, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
+    {
+        return getLinkEndScalingFactor( scalingFactors_, linkEndType );
+    }
+
+    //! Function to retrieve the position scaling factor (without light-time correction) for specific link end
+    Eigen::Matrix< double, ObservationSize, 3 > getFixedTimePositionScalingFactor(
+            const observation_models::LinkEndType linkEndType ) override
+    {
+        return getLinkEndScalingFactor( fixedTimeScalingFactors_, linkEndType );
+    }
+
+    //! Function to retrieve the velocity scaling factor for specific link end (non-zero only for receiver, with stellar aberration)
+    Eigen::Matrix< double, ObservationSize, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
+    {
+        if( linkEndType == observation_models::receiver )
+        {
+            return velocityScalingFactor_;
+        }
+        return Eigen::Matrix< double, ObservationSize, 3 >::Zero( );
+    }
+
+    Eigen::Matrix< double, ObservationSize, 3 > getFixedTimeVelocityScalingFactor(
+            const observation_models::LinkEndType linkEndType ) override
+    {
+        return getVelocityScalingFactor( linkEndType );
+    }
+
+    bool isVelocityScalingNonZero( ) override
+    {
+        return useStellarAberration_;
+    }
+
+    Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) override
+    {
+        throw std::runtime_error(
+                "Error when getting position angle/separation distance light-time partial scaling, leg index must be provided." );
+    }
+
+    //! Function to retrieve the factor by which the light-time partials of the given leg (0: first transmitter, 1: second
+    //! transmitter) are to be scaled
+    Eigen::Matrix< double, ObservationSize, 1 > getLegLightTimePartialScalingFactor( const int legIndex ) override
+    {
+        return lightTimeCorrectionScalingFactors_.at( legIndex );
+    }
+
+    observation_models::LinkEndType getCurrentLinkEndType( ) override
+    {
+        return currentLinkEndType_;
     }
 
 private:
-    static estimatable_parameters::EstimatebleParameterIdentifier getParameterIdentifier(
-            const std::shared_ptr< ObservationPartial< 2 > >& firstPartial,
-            const std::shared_ptr< ObservationPartial< 2 > >& secondPartial )
+    Eigen::Matrix< double, ObservationSize, 3 > getLinkEndScalingFactor(
+            const std::vector< Eigen::Matrix< double, ObservationSize, 3 > >& transmitterScalingFactors,
+            const observation_models::LinkEndType linkEndType )
     {
-        if( firstPartial != nullptr )
+        switch( linkEndType )
         {
-            return firstPartial->getParameterIdentifier( );
-        }
-        if( secondPartial != nullptr )
-        {
-            return secondPartial->getParameterIdentifier( );
-        }
-        throw std::runtime_error( "Cannot create a position-angle partial from two null angular-position partials." );
-    }
-
-    static void appendTransformedPartials(
-            std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > >& outputPartials,
-            const std::shared_ptr< ObservationPartial< 2 > >& angularPositionPartial,
-            const Eigen::Matrix< double, ObservationSize, 2 >& transformation,
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings )
-    {
-        if( angularPositionPartial == nullptr )
-        {
-            return;
-        }
-        const auto angularPartials = angularPositionPartial->calculatePartial(
-                states, times, observation_models::receiver, ancillarySettings, Eigen::Vector2d::Constant( TUDAT_NAN ) );
-        for( const auto& angularPartial : angularPartials )
-        {
-            outputPartials.push_back( std::make_pair( transformation * angularPartial.first, angularPartial.second ) );
+            case observation_models::transmitter:
+                return transmitterScalingFactors.at( 0 );
+            case observation_models::transmitter2:
+                return transmitterScalingFactors.at( 1 );
+            case observation_models::receiver:
+                return -transmitterScalingFactors.at( 0 ) - transmitterScalingFactors.at( 1 );
+            default:
+                throw std::runtime_error(
+                        "Error when getting position angle/separation distance scaling factor, incorrect link end type: " +
+                        observation_models::getLinkEndTypeString( linkEndType ) );
         }
     }
 
-    std::shared_ptr< ObservationPartial< 2 > > firstAngularPositionPartial_;
-    std::shared_ptr< ObservationPartial< 2 > > secondAngularPositionPartial_;
+    //! Rotation from ICRF/J2000 to the frame of the link-end states.
     Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
 
     //! Whether the position angle is part of the observable (false for separation-distance-only observables).
@@ -359,7 +239,26 @@ private:
     //! Index in [position angle; separation] of the first component of the observable.
     int firstComponent_;
 
-    std::shared_ptr< CartesianStatePartial > receiverStatePartial_;
+    //! Whether stellar aberration was used in the last call to update( )
+    bool useStellarAberration_ = false;
+
+    //! Scaling factors, per transmitter, with light-time correction
+    std::vector< Eigen::Matrix< double, ObservationSize, 3 > > scalingFactors_ =
+            std::vector< Eigen::Matrix< double, ObservationSize, 3 > >( 2 );
+
+    //! Scaling factors, per transmitter, without light-time correction
+    std::vector< Eigen::Matrix< double, ObservationSize, 3 > > fixedTimeScalingFactors_ =
+            std::vector< Eigen::Matrix< double, ObservationSize, 3 > >( 2 );
+
+    //! Light-time correction partial scaling factors, per transmitter
+    std::vector< Eigen::Matrix< double, ObservationSize, 1 > > lightTimeCorrectionScalingFactors_ =
+            std::vector< Eigen::Matrix< double, ObservationSize, 1 > >( 2 );
+
+    //! Receiver velocity scaling factor (due to stellar aberration)
+    Eigen::Matrix< double, ObservationSize, 3 > velocityScalingFactor_ = Eigen::Matrix< double, ObservationSize, 3 >::Zero( );
+
+    //! Fixed link end for last computation of update() function.
+    observation_models::LinkEndType currentLinkEndType_;
 };
 
 }  // namespace observation_partials

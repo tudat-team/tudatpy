@@ -443,9 +443,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
                     currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
-                    if( linkEndIterator->first == receiver &&
-                        ( observableType == relative_angular_position || observableType == position_angle ||
-                          observableType == separation_distance || observableType == position_angle_and_separation ) )
+                    if( linkEndIterator->first == receiver && observableType == relative_angular_position )
                     {
                         currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
                     }

@@ -39,9 +39,8 @@ Eigen::Vector3d getPositionAngleReferencePoleInJ2000(
         const double observationTime,
         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr );
 
-//! Return the astrometric or stellar-aberrated direction convention selected by ancillary settings.
-PositionAngleDirectionType getPositionAngleDirectionType(
-        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr );
+//! Return whether the ancillary settings select directions that include stellar aberration (false by default).
+bool getPositionAngleUseStellarAberration( const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr );
 
 //! Check that position angle and/or separation distance (and their partials) are defined for the given geometry.
 /*!
@@ -261,7 +260,7 @@ public:
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePositionSecondTransmitter =
                 secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
-        if( getPositionAngleDirectionType( ancillarySettingsInput ) == aberrated_position_angle_direction )
+        if( getPositionAngleUseStellarAberration( ancillarySettingsInput ) )
         {
             const Eigen::Vector3d receiverVelocity = receiverState.segment( 3, 3 ).template cast< double >( );
             relativePositionFirstTransmitter = calculateApparentDirectionWithStellarAberration(

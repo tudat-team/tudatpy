@@ -770,11 +770,11 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     dataset.expectedRows = 41;
     dataset.expectedColumns = 4;
     dataset.primaryConvention = "aberrated true-of-date";
-    dataset.primarySettings = getPositionAngleAncillarySettings(
-            true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, aberrated_position_angle_direction );
+    dataset.primarySettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, true );
     dataset.comparisonConvention = "astrometric true-of-date";
-    dataset.comparisonSettings = getPositionAngleAncillarySettings(
-            true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, astrometric_position_angle_direction );
+    dataset.comparisonSettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, false );
     const std::map< int, std::string > observedSatellites = { { 602, "Enceladus" }, { 603, "Tethys" }, { 604, "Dione" }, { 605, "Rhea" } };
     for( const auto& observedSatellite : observedSatellites )
     {

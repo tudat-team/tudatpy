@@ -108,8 +108,6 @@ Enumerations
 
    PositionAngleReferenceFrame
 
-   PositionAngleDirectionType
-
 
 .. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationVariable
    :members:
@@ -121,9 +119,6 @@ Enumerations
    :members:
 
 .. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.PositionAngleReferenceFrame
-   :members:
-
-.. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.PositionAngleDirectionType
    :members:
 
 

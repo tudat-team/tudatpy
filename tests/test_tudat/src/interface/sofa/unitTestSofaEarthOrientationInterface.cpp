@@ -74,14 +74,11 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
         BOOST_CHECK_SMALL( expectedCioLocator - cipInGcrs( 2 ), 2.0E-12 );
     }
 
-    // The Eigen matrices returned by the new interface must be orthogonal, and the
-    // legacy two-argument function must retain its IAU 1976/1980 convention.
-    const Eigen::Matrix3d meanOfDate1976 = getPrecessionMatrix( testJulianDay2, PrecessionNutationModel::iau_1976_1980, testJulianDay1 );
-    const Eigen::Matrix3d meanOfDate2006 = getPrecessionMatrix( testJulianDay2, PrecessionNutationModel::iau_2006_2000a, testJulianDay1 );
-    const Eigen::Matrix3d trueOfDate1980 =
-            getPrecessionNutationMatrix( testJulianDay2, PrecessionNutationModel::iau_1976_1980, testJulianDay1 );
-    const Eigen::Matrix3d trueOfDate2000a =
-            getPrecessionNutationMatrix( testJulianDay2, PrecessionNutationModel::iau_2006_2000a, testJulianDay1 );
+    // The Eigen matrices must be orthogonal, and the default must retain the IAU 1976/1980 convention.
+    const Eigen::Matrix3d meanOfDate1976 = getPrecessionMatrix( testJulianDay2, testJulianDay1, false );
+    const Eigen::Matrix3d meanOfDate2006 = getPrecessionMatrix( testJulianDay2, testJulianDay1, true );
+    const Eigen::Matrix3d trueOfDate1980 = getPrecessionNutationMatrix( testJulianDay2, testJulianDay1, false );
+    const Eigen::Matrix3d trueOfDate2000a = getPrecessionNutationMatrix( testJulianDay2, testJulianDay1, true );
     const Eigen::Matrix3d identity = Eigen::Matrix3d::Identity( );
     BOOST_CHECK_SMALL( ( meanOfDate1976.transpose( ) * meanOfDate1976 - identity ).norm( ), 1.0e-14 );
     BOOST_CHECK_SMALL( ( meanOfDate2006.transpose( ) * meanOfDate2006 - identity ).norm( ), 1.0e-14 );
