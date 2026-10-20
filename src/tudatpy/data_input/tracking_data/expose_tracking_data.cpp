@@ -14,6 +14,7 @@
 #include "odf/expose_odf.h"
 #include "psf/expose_psf.h"
 #include "slr/expose_slr.h"
+#include "sum_lmk/expose_sum_lmk.h"
 #include "scalarTypes.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingDataTime.h"
@@ -778,9 +779,60 @@ number of observation events, regardless of the number of scalar components.)doc
                                     R"doc(
          **read-only**
 
-         Camera-frame rotation history indexed by time.
+         Camera-frame rotation history indexed by time. The rotations start
+         from the inertial frame, or from the body-fixed frame of
+         :attr:`pointing_reference_body_name` when that is set.
 
          :type: dict[float, object]
+      )doc" )
+            .def_property( "pointing_reference_body_name",
+                           &tdat::CameraInstrumentSupplementaryData::getPointingReferenceBodyName,
+                           &tdat::CameraInstrumentSupplementaryData::setPointingReferenceBodyName,
+                           R"doc(
+         Body whose body-fixed frame the camera rotation history starts from.
+         An empty string means the inertial frame.
+
+         :type: str
+      )doc" )
+            .def_property( "pointing_uncertainty",
+                           &tdat::CameraInstrumentSupplementaryData::getPointingUncertainty,
+                           &tdat::CameraInstrumentSupplementaryData::setPointingUncertainty,
+                           R"doc(
+         A-priori uncertainty of the camera pointing about the three camera
+         axes [rad]. Entries are NaN when the source gives no value.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+      )doc" );
+
+    py::class_< tdat::ReferencePointSupplementaryData, std::shared_ptr< tdat::ReferencePointSupplementaryData > >(
+            m, "ReferencePointSupplementaryData", R"doc(
+         Container for the position of a reference point fixed to a body, such
+         as a ground station or a surface landmark.
+
+         When applied with
+         :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`,
+         a ground station with this position is created on the associated body,
+         named after the reference point. If the ground station already exists,
+         its position must match.
+      )doc" )
+            .def( py::init< const Eigen::Vector3d& >( ), py::arg( "body_fixed_position" ) )
+            .def_property_readonly( "body_fixed_position",
+                                    &tdat::ReferencePointSupplementaryData::getBodyFixedPosition,
+                                    R"doc(
+         **read-only**
+
+         Cartesian position of the reference point in the body-fixed frame [m].
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+      )doc" )
+            .def_property( "position_uncertainty",
+                           &tdat::ReferencePointSupplementaryData::getPositionUncertainty,
+                           &tdat::ReferencePointSupplementaryData::setPositionUncertainty,
+                           R"doc(
+         A-priori uncertainty of each body-fixed position component [m].
+         Entries are NaN when the source gives no value.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
       )doc" );
 
     py::class_< tdat::TranslationalStateSupplementaryData >( m, "TranslationalStateSupplementaryData", R"doc(
@@ -1000,6 +1052,14 @@ number of observation events, regardless of the number of scalar components.)doc
 
          :type: list[InstrumentSupplementaryData]
       )doc" )
+            .def_property( "reference_point_supplementary_data",
+                           &tdat::TrackingSupplementaryData::getReferencePointSupplementaryData,
+                           &tdat::TrackingSupplementaryData::setReferencePointSupplementaryData,
+                           R"doc(
+         Body-fixed position of the reference point, or None if not provided.
+
+         :type: ReferencePointSupplementaryData | None
+      )doc" )
             .def( "set_frequency_supplementary_data",
                   &tdat::TrackingSupplementaryData::setFrequencySupplementaryData,
                   py::arg( "frequency_supplementary_data" ),
@@ -1033,6 +1093,9 @@ number of observation events, regardless of the number of scalar components.)doc
 
     auto slrModule = m.def_submodule( "slr" );
     slr::expose_slr( slrModule );
+
+    auto sumLmkModule = m.def_submodule( "sum_lmk" );
+    sum_lmk::expose_sum_lmk( sumLmkModule );
 }
 
 }  // namespace tracking_data

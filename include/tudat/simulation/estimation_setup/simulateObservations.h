@@ -15,6 +15,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <cmath>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
@@ -45,7 +46,8 @@ void addNoiseAndDependentVariableToObservation(
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
         const observation_models::ObservableType observableType,
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
-        const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
+        const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
+        const bool scaleAngularPositionNoise = false )
 {
     if( dependentVariableCalculator != nullptr )
     {
@@ -56,6 +58,10 @@ void addNoiseAndDependentVariableToObservation(
     // Add noise if needed.
     if( noiseFunction != nullptr )
     {
+        if( scaleAngularPositionNoise && ( observableType != observation_models::angular_position || ObservationSize != 2 ) )
+        {
+            throw std::runtime_error( "Error, declination scaling of noise is only supported for angular position observations." );
+        }
         Eigen::VectorXd noiseToAdd = noiseFunction( observationTime );
         if( noiseToAdd.rows( ) != ObservationSize )
         {
@@ -66,6 +72,10 @@ void addNoiseAndDependentVariableToObservation(
         }
         else
         {
+            if( scaleAngularPositionNoise )
+            {
+                noiseToAdd( 0 ) /= std::cos( static_cast< double >( calculatedObservation( 1 ) ) );
+            }
             calculatedObservation += noiseToAdd.template cast< ObservationScalarType >( );
         }
     }
@@ -91,8 +101,14 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
                 std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
+        const bool scaleAngularPositionNoise = false )
 {
+    if( scaleAngularPositionNoise && noiseFunction != nullptr && observationModel->getResidualWrappingSettings( ).normalizeRightAscension )
+    {
+        throw std::runtime_error( "Error, declination scaling of noise cannot be used with normalized angular position observations." );
+    }
+
     // Simulate observable, and retrieve link end times and states
     std::vector< Eigen::Vector6d > vectorOfStates;
     std::vector< double > vectorOfTimes;
@@ -115,7 +131,8 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
                 ancillarySettings,
                 observationModel->getObservableType( ),
                 noiseFunction,
-                dependentVariableCalculator );
+                dependentVariableCalculator,
+                scaleAngularPositionNoise );
     }
 
     // Return simulated observable and viability
@@ -145,7 +162,8 @@ simulateObservationsWithCheck(
                 std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
+        const bool scaleAngularPositionNoise = false )
 {
     std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
@@ -160,7 +178,8 @@ simulateObservationsWithCheck(
                                                                                                   linkViabilityCalculators,
                                                                                                   noiseFunction,
                                                                                                   dependentVariableCalculator,
-                                                                                                  ancillarySettings );
+                                                                                                  ancillarySettings,
+                                                                                                  scaleAngularPositionNoise );
 
         // Check if receiving station can view transmitting station.
         if( std::get< 1 >( simulatedObservation ) )
@@ -198,7 +217,8 @@ simulateObservationDatasetWithCheckAndLinkEndIdOutput(
                 std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
+        const bool scaleAngularPositionNoise = false )
 {
     std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
                 std::vector< TimeType >,
@@ -210,7 +230,8 @@ simulateObservationDatasetWithCheckAndLinkEndIdOutput(
                                                                                                        linkViabilityCalculators,
                                                                                                        noiseFunction,
                                                                                                        dependentVariableCalculator,
-                                                                                                       ancillarySettings );
+                                                                                                       ancillarySettings,
+                                                                                                       scaleAngularPositionNoise );
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
             std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
     observationDataset->addObservationSet(
@@ -236,6 +257,12 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         const SystemOfBodies& bodies )
 {
     using namespace observation_models;
+
+    if( observationsToSimulate->getScaleAngularPositionNoise( ) && observationsToSimulate->getObservationNoiseFunction( ) != nullptr &&
+        observationModel->getResidualWrappingSettings( ).normalizeRightAscension )
+    {
+        throw std::runtime_error( "Error, declination scaling of noise cannot be used with normalized angular position observations." );
+    }
 
     // Create viability settings for arc-defining constraint
     std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > arcDefiningViabilityCalculators =
@@ -362,7 +389,8 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
                         ancillarySettings,
                         observationModel->getObservableType( ),
                         observationsToSimulate->getObservationNoiseFunction( ),
-                        dependentVariableCalculator );
+                        dependentVariableCalculator,
+                        observationsToSimulate->getScaleAngularPositionNoise( ) );
                 observations.push_back( currentObservation );
                 observationTimes.push_back( it.first );
                 observationsDependentVariables.push_back( currentDependentVariable );
@@ -435,7 +463,8 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
                 currentObservationViabilityCalculators,
                 noiseFunction,
                 dependentVariableCalculator,
-                tabulatedObservationSettings->getAncillarySettings( ) );
+                tabulatedObservationSettings->getAncillarySettings( ),
+                tabulatedObservationSettings->getScaleAngularPositionNoise( ) );
     }
     else if( std::dynamic_pointer_cast< PerArcObservationSimulationSettings< TimeType > >( observationsToSimulate ) != nullptr )
     {

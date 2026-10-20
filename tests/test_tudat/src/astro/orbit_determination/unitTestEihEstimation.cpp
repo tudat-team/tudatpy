@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
 
         if( test == 0 )
         {
-            BOOST_CHECK_EQUAL( estimationOutput->residualStandardDeviation_ < 15.0, true );
+            BOOST_CHECK_EQUAL( estimationOutput->residualStandardDeviation_ < 1.0E1, true );
         }
         else
         {
@@ -246,11 +246,12 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
         //        input_output::writeMatrixToFile( bestResiduals, "residuals_eih_" + std::to_string( test ) + ".dat", 16 );
     }
 
-    BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 0, 3 ).norm( ) / parameterCorrections.at( 1 ).segment( 0, 3 ).norm( ), 0.025 );
+    BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 0, 3 ).norm( ) / parameterCorrections.at( 1 ).segment( 0, 3 ).norm( ),
+                       1.0E-2 );
 
     BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 3, 3 ).norm( ) / parameterCorrections.at( 1 ).segment( 3, 3 ).norm( ), 0.025 );
 
-    BOOST_CHECK_SMALL( parameterCorrections.at( 0 )( 6 ) / parameterCorrections.at( 1 )( 6 ), 0.00025 );
+    BOOST_CHECK_SMALL( parameterCorrections.at( 0 )( 6 ) / parameterCorrections.at( 1 )( 6 ), 2.0E-4 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

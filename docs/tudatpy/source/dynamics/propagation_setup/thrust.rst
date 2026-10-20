@@ -45,14 +45,8 @@ Enumerations
 
 .. autosummary::
 
-   ThrustFrames
-
    ThrustMagnitudeTypes
 
-
-
-.. autoclass:: tudatpy.dynamics.propagation_setup.thrust.ThrustFrames
-   :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.thrust.ThrustMagnitudeTypes
    :members:

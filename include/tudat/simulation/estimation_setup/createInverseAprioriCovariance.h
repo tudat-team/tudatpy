@@ -12,6 +12,7 @@
 #define TUDAT_CREATE_INVERSE_APRIORI_COVARIANCE_H
 
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -19,11 +20,38 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/io/trackingSupplementaryData.h"
 
 namespace tudat
 {
 namespace simulation_setup
 {
+
+//! Extract per-camera pointing inverse variances from tracking supplementary data of any source format.
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getCameraPointingInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
+//! Function to get the inverse variances of reference point positions (e.g. landmarks), for use in an a-priori covariance.
+/*!
+ *  Gives one entry per reference point with a position uncertainty, for its ground_station_position parameter.
+ *  \param supplementaryData Tracking supplementary data holding the position uncertainties.
+ *  \return Inverse variance of each body-fixed position component, per reference point.
+ */
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
+//! Function to get the variances of reference point positions (e.g. landmarks).
+/*!
+ *  Same as getReferencePointPositionInverseAprioriCovarianceEntries, but gives the variances themselves.
+ *  \param supplementaryData Tracking supplementary data holding the position uncertainties.
+ *  \return Variance of each body-fixed position component, per reference point.
+ */
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
 //! Validate/initialize a covariance-like matrix input.
 /*!
  * If the input matrix is 0x0, a zero matrix with the required dimensions is created.
@@ -140,6 +168,50 @@ Eigen::MatrixXd createCovarianceFromDiagonalEntries(
 {
     return addCovarianceDiagonalEntries< InitialStateParameterType >(
             Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, covarianceDiagonalEntriesPerParameter, requireAllEntriesToMatch );
+}
+
+//! Function to create the consider covariance for reference points (e.g. landmarks) that are held fixed.
+/*!
+ *  Each ground_station_position consider parameter gets its position variance on the diagonal. Other consider
+ *  parameters keep their values from the input matrix.
+ *  \param supplementaryData Tracking supplementary data holding the position uncertainties.
+ *  \param parameterSet Parameter set that holds the consider parameters.
+ *  \param considerCovariance Consider covariance to add to, or a 0x0 matrix to start from zeros.
+ *  \return Covariance of the consider parameters, in the order of the consider parameter set.
+ */
+template< typename InitialStateParameterType = double >
+Eigen::MatrixXd createReferencePointConsiderCovariance(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
+        const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) )
+{
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > considerParameters =
+            parameterSet->getConsiderParameters( );
+    if( considerParameters == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point consider covariance: parameter set has no consider parameters." );
+    }
+
+    const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > varianceEntries =
+            getReferencePointPositionAprioriCovarianceEntries( supplementaryData );
+    std::set< estimatable_parameters::EstimatebleParameterIdentifier > referencePointsWithUncertainty;
+    for( const auto& entry : varianceEntries )
+    {
+        referencePointsWithUncertainty.insert( entry.first );
+    }
+    for( const auto& parameter : considerParameters->getEstimatedVectorParameters( ) )
+    {
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterName = parameter->getParameterName( );
+        if( parameterName.first == estimatable_parameters::ground_station_position &&
+            referencePointsWithUncertainty.count( parameterName ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating reference point consider covariance: reference point " +
+                                      parameterName.second.second + " on " + parameterName.second.first +
+                                      " is a consider parameter but has no position uncertainty." );
+        }
+    }
+
+    return addCovarianceDiagonalEntries< InitialStateParameterType >( considerCovariance, considerParameters, varianceEntries, false );
 }
 
 }  // namespace simulation_setup

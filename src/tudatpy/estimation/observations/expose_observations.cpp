@@ -1738,6 +1738,31 @@ tudatpy.estimation.observations.ObservationDataset
            py::arg( "supplementary_data" ),
            R"doc(Apply source-loaded tracking supplementary data to a system of bodies.)doc" );
 
+    m.def( "get_observed_reference_point_position_parameter_settings",
+           &tom::getObservedReferencePointPositionParameterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observation_dataset" ),
+           py::arg( "body_name" ),
+           R"doc(
+
+        Function to create position parameter settings for the observed reference points on a body.
+
+        Gives one ``ground_station_position`` parameter per reference point (for example a SUM/LMK landmark) on
+        ``body_name`` that has observations in ``observation_dataset``, ordered by name. Reference points whose
+        observations were all rejected or removed get no parameter.
+
+        Parameters
+        ----------
+        observation_dataset : :class:`~tudatpy.estimation.observations.ObservationDataset`
+            Observations to be used in the estimation.
+        body_name : str
+            Body the reference points are fixed to.
+
+        Returns
+        -------
+        list[:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`]
+            One position parameter setting per reference point.
+        )doc" );
+
     {
         m.def(
                 "create_observation_dataset_from_single_observation_set",
