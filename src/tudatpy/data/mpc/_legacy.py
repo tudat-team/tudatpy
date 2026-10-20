@@ -863,8 +863,7 @@ class BatchMPC:
                     warnings.warn(
                         "Future datetime bounds in filter are fixed in "
                         "data_input.tracking_data.mpc.BatchMPC, not in the deprecated "
-                        "tudatpy.data.mpc.BatchMPC.",
-                        stacklevel=3,
+                        "tudatpy.data.mpc.BatchMPC."
                     )
                     raise
 
@@ -882,6 +881,7 @@ class BatchMPC:
                 elif isinstance(epoch_end, datetime.datetime):
                     epoch_end_iso_string = epoch_end.isoformat(sep=" ")
                     epoch_end_utc = DateTime.from_iso_string(epoch_end_iso_string).to_epoch()
+                    epoch_end_tdb = convert_datetime_bound_to_tdb(epoch_end_utc)
                     self._table = self._table.query("epoch_seconds_TDB <= @epoch_end_tdb")
 
             self._refresh_metadata()
