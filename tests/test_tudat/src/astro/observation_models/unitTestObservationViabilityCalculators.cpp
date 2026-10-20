@@ -14,6 +14,7 @@
 #include <cmath>
 #include <iomanip>
 #include <limits>
+#include <sstream>
 #include <string>
 
 #include <boost/test/included/unit_test.hpp>
@@ -1465,6 +1466,67 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                     }
 
                     BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+
+                    // TEMPORARY CI DIAGNOSTICS: print the geometry used by the occultation calculator for all
+                    // near-limb observations and for all mismatches, so that Windows and Linux can be compared.
+                    {
+                        std::vector< std::pair< int, int > > occultationIndices =
+                                getLinkStateAndTimeIndicesForLinkEnd( currentLinkEnds, currentObservable, LinkEndId( "Spacecraft", "" ) );
+                        std::function< Eigen::Vector6d( const double ) > earthStateFunction = [ & ]( const double time ) {
+                            return bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time );
+                        };
+
+                        std::ostringstream legOutput;
+                        legOutput << std::setprecision( 17 );
+                        bool isNearLimb = false;
+                        for( const std::pair< int, int >& indices : occultationIndices )
+                        {
+                            const double evaluationEpoch =
+                                    getEvaluationEpochOfViabilityBody( linkEndStates, linkEndTimes, indices, earthStateFunction );
+                            const Eigen::Vector3d earthPosition = earthStateFunction( evaluationEpoch ).segment( 0, 3 );
+                            const Eigen::Vector3d firstPosition = linkEndStates.at( indices.first ).segment( 0, 3 );
+                            const Eigen::Vector3d secondPosition = linkEndStates.at( indices.second ).segment( 0, 3 );
+                            const Eigen::Vector3d linkVector = secondPosition - firstPosition;
+                            const Eigen::Vector3d firstToEarth = earthPosition - firstPosition;
+                            const double projectionFraction = firstToEarth.dot( linkVector ) / linkVector.squaredNorm( );
+                            const double distanceToLink = firstToEarth.cross( linkVector.normalized( ) ).norm( );
+                            const bool isOcculted = computeOccultation( firstPosition, secondPosition, earthPosition, earthRadius );
+
+                            const Eigen::Vector3d spacecraftRelativePosition = linkEndStates.at( indices.first ).segment( 0, 3 ) -
+                                    earthStateFunction( linkEndTimes.at( indices.first ) ).segment( 0, 3 );
+                            const Eigen::Vector3d linkDirection = linkVector.normalized( );
+                            const double alongLinkSpacecraftPosition = spacecraftRelativePosition.dot( linkDirection );
+                            if( std::fabs( alongLinkSpacecraftPosition ) < 1.0E5 )
+                            {
+                                isNearLimb = true;
+                            }
+
+                            legOutput << "  leg (" << indices.first << ", " << indices.second << "): t1 "
+                                      << linkEndTimes.at( indices.first ) << " t2 " << linkEndTimes.at( indices.second ) << " tEarth "
+                                      << evaluationEpoch << "\n    pos1 " << firstPosition.transpose( ) << "\n    pos2 "
+                                      << secondPosition.transpose( ) << "\n    earth " << earthPosition.transpose( )
+                                      << "\n    projection fraction " << projectionFraction << ", distance to link - radius "
+                                      << distanceToLink - earthRadius << ", occulted " << isOcculted
+                                      << ", spacecraft along-link position w.r.t. Earth " << alongLinkSpacecraftPosition << "\n";
+                        }
+
+                        if( isNearLimb || currentObservationIsViable != currentObservationWasViable )
+                        {
+                            std::vector< std::shared_ptr< ObservationViabilityCalculator > > viabilityCalculators =
+                                    createObservationViabilityCalculators(
+                                            bodies, currentLinkEnds, currentObservable, observationViabilitySettings );
+                            const bool recomputedViability =
+                                    isObservationViable( linkEndStates, linkEndTimes, viabilityCalculators, currentObservation );
+
+                            std::cout << std::setprecision( 17 ) << "VIABILITY_DIAGNOSTIC observable " << currentObservable << " "
+                                      << getLinkEndsString( currentLinkEnds ) << " index " << unconstrainedIndex << " epoch "
+                                      << unconstrainedObservationTimes.at( unconstrainedIndex ) << " simulatedViable "
+                                      << currentObservationWasViable << " recomputedViable " << recomputedViability
+                                      << " testReferenceViable " << currentObservationIsViable << " mismatch "
+                                      << ( currentObservationIsViable != currentObservationWasViable ) << "\n"
+                                      << legOutput.str( ) << std::endl;
+                        }
+                    }
 
                     if( currentObservationIsViable != currentObservationWasViable )
                     {

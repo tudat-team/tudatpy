@@ -62,11 +62,6 @@ jobs:
             path_conda_env: C:\Miniconda\envs\tudat
             build_jobs: 2
             ccache: OFF
-          - os: macos-latest
-            label: osx-64
-            path_conda_env: /Users/runner/miniconda3/envs/tudat
-            build_jobs: 2
-            ccache: ON
         build_type: [Release]
         compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
         # include:
@@ -77,8 +72,6 @@ jobs:
             compilers: {c: clang, cxx: clang++}
           - platform: {os: ubuntu-latest}
             compilers: {c: clang, cxx: clang++}
-          - platform: {os: macos-latest}
-            compilers: {c: gcc, cxx: g++}
 
     steps:
     - uses: actions/checkout@v6
@@ -261,6 +254,7 @@ jobs:
         else
           cmake --build "${{ github.workspace }}/build" \
             --config "${{ matrix.build_type }}" \
+            --target test_observation_models_ObservationViabilityCalculators \
             -j${{ matrix.platform.build_jobs }}
         fi
 
@@ -278,22 +272,7 @@ jobs:
         if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
-
-    - name: Build Python package
-      shell: bash -l {0}
-      run: |
-        python build.py --skip-setup --skip-build --skip-stubs --tests -j${{ matrix.platform.build_jobs }}
-
-    - name: Install
-      shell: bash -l {0}
-      run: |
-        python install.py -e
-
-    - name: Test Python
-      shell: bash -l {0}
-      run: |
-        pytest
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" --target test_observation_models_ObservationViabilityCalculators -j3
 
     - name: Test C++ kernel
       if: always() && (steps.build_kernel_non_windows.outcome == 'success' || steps.build_kernel_windows.outcome == 'success')
@@ -301,4 +280,4 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       shell: bash -l {0}
-      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure -j4
+      run: ctest --build-config ${{ matrix.build_type }} -R ObservationViabilityCalculators -V
