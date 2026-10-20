@@ -74,7 +74,7 @@ endif ()
 TUDAT_ADD_LIBRARY("propagation_setup"
         "${propagation_SOURCES}"
         "${propagation_HEADERS}"
-        PUBLIC_LINKS ${PUBLIC_LINKS_LIST}
+        PUBLIC_LINKS Tudat::tudat_estimatable_parameters ${PUBLIC_LINKS_LIST}
         PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"

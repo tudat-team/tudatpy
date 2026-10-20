@@ -1,5 +1,7 @@
 import datetime
+import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
@@ -282,9 +284,14 @@ def test_real_radar_record_parses_and_converts():
     assert len(tracking_data) == 2
 
 
-def test_jpl_radar_query_returns_canonical_radar_data(monkeypatch):
+@pytest.mark.parametrize("encoded", [False, True])
+def test_jpl_radar_query_returns_canonical_radar_data(monkeypatch, encoded):
     # Check conversion of a representative JPL API response to the shared schema.
-    monkeypatch.setattr(jpl_radar_backend, "_query", lambda params, timeout: _JPL_RESPONSE)
+    response = SimpleNamespace(
+        raise_for_status=lambda: None,
+        json=lambda: json.dumps(_JPL_RESPONSE) if encoded else _JPL_RESPONSE,
+    )
+    monkeypatch.setattr(jpl_radar_backend.requests, "get", lambda *args, **kwargs: response)
     table = JPLRadarQuery("1997 WQ23").to_radar_data()
 
     # All API measurements must survive with source-qualified JPL station names.

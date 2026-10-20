@@ -101,6 +101,7 @@ You can add the `--docs` flag to build the API documentation, which will be save
 The `install.py` script installs `tudatpy` in your active conda environment.
 When using editable mode (appending the `-e` flag) the Python files in the environment are linked the tudatpy source using symbolic links.
 File modifications therefore affect the installed package immediately, while the compiled kernel remains the one in the selected build directory.
+When the checkout gains new Python modules or packages, run `python install.py -e` again to add their links. Repeated editable installations preserve the existing installation manifest; rebuilding with `build.py` alone does not install newly added files.
 
 > [!WARNING]
 > When using editable mode the Python files in your environment track the current state of your `tudatpy` source repository.

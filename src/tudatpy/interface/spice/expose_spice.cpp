@@ -632,6 +632,16 @@ void expose_spice( py::module& m )
 
      )doc" );
 
+    m.def( "asteroid_spice_id",
+           &tudat::spice_interface::getAsteroidSpiceId,
+           py::arg( "number" ),
+           R"doc(Return the original seven-digit asteroid SPICE identifier as a string.
+
+Uses 2000000 + the permanent MPC asteroid number, for numbers from 1 to 999999.
+For example, 673 yields "2000673" and 67125 yields "2067125". This is the original
+numbering scheme used by Tudat's standard asteroid kernels. It does not inspect
+kernel availability or resolve exceptional or extended asteroid-system IDs.)doc" );
+
     m.def( "convert_naif_id_to_body_name",
            &tudat::spice_interface::convertNaifIdToBodyName,
            py::arg( "naif_id" ),

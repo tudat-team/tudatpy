@@ -15,6 +15,7 @@
 #include "tudat/paths.hpp"
 
 #include <math.h>
+#include <stdexcept>
 
 namespace tudat
 {
@@ -559,6 +560,15 @@ double getPolarRadius( const std::string& body )
 }
 
 //! Convert a body name to its NAIF identification number.
+std::string getAsteroidSpiceId( const int asteroidNumber )
+{
+    if( asteroidNumber <= 0 || asteroidNumber > 999999 )
+    {
+        throw std::invalid_argument( "The original SPICE asteroid numbering scheme requires a number from 1 to 999999." );
+    }
+    return std::to_string( 2000000 + asteroidNumber );
+}
+
 int convertBodyNameToNaifId( const std::string& bodyName )
 {
     setSpiceErrorHandling( );

@@ -1,6 +1,7 @@
 """JPL Small-Body Radar Astrometry API (https://ssd-api.jpl.nasa.gov/doc/sb_radar.html)."""
 
 import functools
+import json
 
 import numpy as np
 import pandas as pd
@@ -20,7 +21,9 @@ _API_URL = "https://ssd-api.jpl.nasa.gov/sb_radar.api"
 def _query(params: dict, timeout: float) -> dict:
     response = requests.get(_API_URL, params=params, timeout=timeout)
     response.raise_for_status()
-    return response.json()
+    content = response.json()
+    # The API occasionally returns a JSON string containing the response object.
+    return json.loads(content) if isinstance(content, str) else content
 
 
 def _as_frame(content: dict) -> pd.DataFrame:

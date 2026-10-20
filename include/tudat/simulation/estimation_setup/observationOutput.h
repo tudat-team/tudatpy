@@ -87,6 +87,21 @@ public:
         totalDependentVariableSize_ = 0;
     }
 
+    //! Deep snapshot of the layout, including mutable polymorphic settings.
+    std::shared_ptr< ObservationDependentVariableBookkeeping > clone( ) const
+    {
+        auto copy = std::make_shared< ObservationDependentVariableBookkeeping >( *this );
+        for( auto& settings : copy->settingsList_ )
+        {
+            settings = settings ? settings->clone( ) : nullptr;
+        }
+        for( auto& settings : copy->deferredSettings_ )
+        {
+            settings = settings ? settings->clone( ) : nullptr;
+        }
+        return copy;
+    }
+
     //! Register a new dependent variable entry. Returns (startIndex, size).
     //!
     //! When `sizeOverride` is non-negative it is used verbatim (needed for dependent variables

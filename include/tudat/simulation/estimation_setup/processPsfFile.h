@@ -33,7 +33,6 @@
 #include "tudat/io/readPsfFile.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 
@@ -79,6 +78,12 @@ public:
 
     //! USE flag retained when filterByUseFlag_ is true.
     int requiredUseFlag_ = 0;
+
+    //! Body-fixed camera reference point position used when adding PSF cameras to the receiver body.
+    Eigen::Vector3d bodyFixedCameraPosition_ = Eigen::Vector3d::Zero( );
+
+    //! Use picture-specific RA/DEC/TWIST as a direct inertial-to-camera pointing source.
+    bool usePicturePointing_ = true;
 };
 
 inline std::string convertStringToUpperCase( const std::string& input )
