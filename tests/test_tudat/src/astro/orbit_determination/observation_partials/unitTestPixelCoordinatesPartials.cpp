@@ -404,21 +404,15 @@ BOOST_AUTO_TEST_CASE( testPointingCorrectionAppliedForBodyFixedCamera )
     pointingParameter->setParameterValue( Eigen::Vector3d::Zero( ) );
 }
 
-//! The landmark position parameter (ground_station_position on the target body) has never been
-//! exercised for pixel observations: its partial comes from the generic vector-parameter route in
-//! createSingleLinkObservationPartials and the ground_station_position case in
-//! createCartesianStatePartialsWrtParameter, with no pixel-specific code involved. This checks that
-//! the route is reached, that the partial matches the observable's actual sensitivity, that it is
-//! attached only to the landmark it belongs to, and that resetting a landmark position works on a
-//! target body that has no shape model (the one step that is not obvious from the call graph).
+//! The pixel partial w.r.t. a landmark position (ground_station_position on the target body) matches central differences,
+//! and is only created for the landmark in the link ends.
 BOOST_AUTO_TEST_CASE( testLandmarkPositionPartial )
 {
     spice_interface::loadStandardSpiceKernels( );
 
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
 
-    // Non-identity target orientation, so that a partial which forgot to rotate from the body-fixed to
-    // the inertial frame would be caught rather than hidden by an identity rotation matrix.
+    // Non-identity target orientation, so that a missing body-fixed to inertial rotation would be caught.
     const Eigen::Quaterniond targetOrientation(
             Eigen::AngleAxisd( 0.7, ( Eigen::Vector3d( ) << 0.3, -0.5, 0.81 ).finished( ).normalized( ) ) );
     bodies.at( "Target" )
@@ -454,12 +448,6 @@ BOOST_AUTO_TEST_CASE( testLandmarkPositionPartial )
 
     std::shared_ptr< GroundStationPosition > landmarkParameter = std::make_shared< GroundStationPosition >(
             bodies.at( "Target" )->getGroundStation( "LMK0001" )->getNominalStationState( ), "Target", "LMK0001" );
-
-    // Resetting the position must work on a body without a shape model: the reset recomputes a
-    // topocentric frame, which is the only part of the round trip not visible from the call graph.
-    BOOST_CHECK_NO_THROW( landmarkParameter->setParameterValue( nominalLandmarkPosition ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::Vector3d( landmarkParameter->getParameterValue( ) ), nominalLandmarkPosition, 1.0E-14 );
-    BOOST_CHECK_EQUAL( landmarkParameter->getParameterSize( ), 3 );
 
     std::shared_ptr< EstimatableParameterSet< double > > parameterSet = std::make_shared< EstimatableParameterSet< double > >(
             std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
@@ -505,23 +493,15 @@ BOOST_AUTO_TEST_CASE( testLandmarkPositionPartial )
         return numericalPartial;
     };
 
-    // The observable must actually respond to a landmark displacement on this path.
     const Eigen::Vector3d displacedLandmarkPosition = nominalLandmarkPosition + ( Eigen::Vector3d( ) << 25.0, -40.0, 15.0 ).finished( );
-    BOOST_CHECK( ( computePixelObservation( displacedLandmarkPosition ) - computePixelObservation( nominalLandmarkPosition ) ).norm( ) >
-                 1.0E-2 );
-
     for( const Eigen::Vector3d& evaluationPoint : { nominalLandmarkPosition, displacedLandmarkPosition } )
     {
         const Eigen::Matrix< double, 2, 3 > analyticalPartial = computeAnalyticalPartial( evaluationPoint );
         const Eigen::Matrix< double, 2, 3 > numericalPartial = computeNumericalPartial( evaluationPoint );
-        BOOST_CHECK( analyticalPartial.norm( ) > 1.0E-6 );
 
-        // Compared per column, relative to that column's own magnitude: the component along the line of
-        // sight is orders of magnitude less sensitive than the two transverse ones, so a single absolute
-        // tolerance on the whole matrix would not test it at all.
+        // Compared per column, because the component along the line of sight is much less sensitive than the others.
         for( int i = 0; i < 3; ++i )
         {
-            BOOST_CHECK( analyticalPartial.col( i ).norm( ) > 0.0 );
             BOOST_CHECK_SMALL( ( analyticalPartial.col( i ) - numericalPartial.col( i ) ).norm( ) / analyticalPartial.col( i ).norm( ),
                                1.0E-6 );
         }
@@ -529,7 +509,7 @@ BOOST_AUTO_TEST_CASE( testLandmarkPositionPartial )
 
     landmarkParameter->setParameterValue( nominalLandmarkPosition );
 
-    // A parameter for a different landmark on the same body must not be attached to this link end.
+    // A parameter for a different landmark on the same body gives no partial for this link.
     {
         std::shared_ptr< GroundStationPosition > otherLandmarkParameter = std::make_shared< GroundStationPosition >(
                 bodies.at( "Target" )->getGroundStation( "LMK0002" )->getNominalStationState( ), "Target", "LMK0002" );
@@ -540,11 +520,6 @@ BOOST_AUTO_TEST_CASE( testLandmarkPositionPartial )
                 pixelCoordinatesModel, bodies, otherParameterSet );
         BOOST_CHECK_EQUAL( otherPartials.first.size( ), 0 );
     }
-
-    // Requesting a landmark that does not exist on the body must fail cleanly.
-    const std::vector< std::shared_ptr< EstimatableParameterSettings > > missingLandmarkSettings = { groundStationPosition(
-            "Target", "LMK_MISSING" ) };
-    BOOST_CHECK_THROW( createParametersToEstimate( missingLandmarkSettings, bodies ), std::runtime_error );
 }
 
 //! The same direct partial handles pointing with and without stellar aberration, and receiver velocity

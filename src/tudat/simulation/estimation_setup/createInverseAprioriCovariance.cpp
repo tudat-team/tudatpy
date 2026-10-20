@@ -47,7 +47,6 @@ getCameraPointingInverseAprioriCovarianceEntries(
     return entries;
 }
 
-//! Position variances of all reference points that have a position uncertainty.
 std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
 getReferencePointPositionAprioriCovarianceEntries(
         const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
@@ -60,16 +59,10 @@ getReferencePointPositionAprioriCovarianceEntries(
         {
             continue;
         }
-        const Eigen::Vector3d& uncertainty = referencePoint->getPositionUncertainty( );
-        if( !uncertainty.array( ).isFinite( ).all( ) || ( uncertainty.array( ) <= 0.0 ).any( ) )
-        {
-            throw std::runtime_error( "Error when creating position a-priori for reference point " + currentData->getReferencePointName( ) +
-                                      " on " + currentData->getBodyName( ) + ": uncertainties must be finite and positive." );
-        }
         entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
                                                    estimatable_parameters::ground_station_position,
                                                    std::make_pair( currentData->getBodyName( ), currentData->getReferencePointName( ) ) ),
-                                           Eigen::VectorXd( uncertainty.array( ).square( ) ) ) );
+                                           Eigen::VectorXd( referencePoint->getPositionUncertainty( ).array( ).square( ) ) ) );
     }
     return entries;
 }

@@ -11,11 +11,9 @@
 #ifndef TUDAT_CREATE_INVERSE_APRIORI_COVARIANCE_H
 #define TUDAT_CREATE_INVERSE_APRIORI_COVARIANCE_H
 
-#include <map>
 #include <memory>
 #include <set>
 #include <stdexcept>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -34,19 +32,21 @@ std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, 
 getCameraPointingInverseAprioriCovarianceEntries(
         const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
 
-//! Extract per-reference-point position inverse variances from tracking supplementary data of any source format.
+//! Function to get the inverse variances of reference point positions (e.g. landmarks), for use in an a-priori covariance.
 /*!
- *  Each reference point with a position uncertainty gives one entry for its ground_station_position parameter. The
- *  uncertainty is per body-fixed component, so the entry is a plain diagonal.
+ *  Gives one entry per reference point with a position uncertainty, for its ground_station_position parameter.
+ *  \param supplementaryData Tracking supplementary data holding the position uncertainties.
+ *  \return Inverse variance of each body-fixed position component, per reference point.
  */
 std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
 getReferencePointPositionInverseAprioriCovarianceEntries(
         const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
 
-//! Extract per-reference-point position variances from tracking supplementary data of any source format.
+//! Function to get the variances of reference point positions (e.g. landmarks).
 /*!
- *  Same as getReferencePointPositionInverseAprioriCovarianceEntries, but gives the variances themselves. Use these to
- *  build a covariance, for example for reference points held fixed as consider parameters.
+ *  Same as getReferencePointPositionInverseAprioriCovarianceEntries, but gives the variances themselves.
+ *  \param supplementaryData Tracking supplementary data holding the position uncertainties.
+ *  \return Variance of each body-fixed position component, per reference point.
  */
 std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
 getReferencePointPositionAprioriCovarianceEntries(
@@ -170,11 +170,10 @@ Eigen::MatrixXd createCovarianceFromDiagonalEntries(
             Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, covarianceDiagonalEntriesPerParameter, requireAllEntriesToMatch );
 }
 
-//! Consider covariance for reference points that are held fixed as consider parameters.
+//! Function to create the consider covariance for reference points (e.g. landmarks) that are held fixed.
 /*!
- *  Each ground_station_position consider parameter gets a diagonal block with its squared position uncertainty from
- *  the supplementary data. Other consider parameters keep their values from the input matrix. A consider reference
- *  point without a position uncertainty is an error, because it would silently contribute nothing.
+ *  Each ground_station_position consider parameter gets its position variance on the diagonal. Other consider
+ *  parameters keep their values from the input matrix.
  *  \param supplementaryData Tracking supplementary data holding the position uncertainties.
  *  \param parameterSet Parameter set that holds the consider parameters.
  *  \param considerCovariance Consider covariance to add to, or a 0x0 matrix to start from zeros.
@@ -186,10 +185,6 @@ Eigen::MatrixXd createReferencePointConsiderCovariance(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
         const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) )
 {
-    if( parameterSet == nullptr )
-    {
-        throw std::runtime_error( "Error when creating reference point consider covariance: parameter set is null." );
-    }
     const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > considerParameters =
             parameterSet->getConsiderParameters( );
     if( considerParameters == nullptr )
@@ -217,73 +212,6 @@ Eigen::MatrixXd createReferencePointConsiderCovariance(
     }
 
     return addCovarianceDiagonalEntries< InitialStateParameterType >( considerCovariance, considerParameters, varianceEntries, false );
-}
-
-//! Formal position uncertainties of estimated reference points, along each reference point's own local frame axes.
-/*!
- *  The positions are estimated in the body-fixed frame. Each 3x3 covariance block is rotated into the local frame given
- *  in the supplementary data, and the square roots of its diagonal are returned. Reference points without a local frame,
- *  or that are not estimated, are left out.
- *  \param supplementaryData Tracking supplementary data holding the reference point local frames.
- *  \param parameterSet Estimated parameter set the covariance belongs to.
- *  \param covariance Covariance of the estimated parameters.
- *  \return Uncertainties along the local x, y and z axes [m], keyed by (body name, reference point name).
- */
-template< typename InitialStateParameterType = double >
-std::map< std::pair< std::string, std::string >, Eigen::Vector3d > getReferencePointLocalFrameUncertainties(
-        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
-        const Eigen::MatrixXd& covariance )
-{
-    if( parameterSet == nullptr )
-    {
-        throw std::runtime_error( "Error when computing reference point local frame uncertainties: parameter set is null." );
-    }
-    const int numberOfParameters = parameterSet->getEstimatedParameterSetSize( );
-    if( covariance.rows( ) != numberOfParameters || covariance.cols( ) != numberOfParameters )
-    {
-        throw std::runtime_error( "Error when computing reference point local frame uncertainties: covariance is " +
-                                  std::to_string( covariance.rows( ) ) + "x" + std::to_string( covariance.cols( ) ) +
-                                  ", but the estimated parameter set has size " + std::to_string( numberOfParameters ) + "." );
-    }
-
-    std::map< std::pair< std::string, std::string >, Eigen::Vector3d > localFrameUncertainties;
-    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
-    {
-        const std::shared_ptr< data::ReferencePointSupplementaryData >& referencePoint = currentData->getReferencePointSupplementaryData( );
-        if( referencePoint == nullptr || !referencePoint->getRotationFromLocalToBodyFixedFrame( ).array( ).isFinite( ).all( ) )
-        {
-            continue;
-        }
-
-        const std::pair< std::string, std::string > bodyAndReferencePoint =
-                std::make_pair( currentData->getBodyName( ), currentData->getReferencePointName( ) );
-        const std::vector< std::pair< int, int > > parameterIndices =
-                parameterSet->getIndicesForParameterType( estimatable_parameters::EstimatebleParameterIdentifier(
-                        estimatable_parameters::ground_station_position, bodyAndReferencePoint ) );
-        if( parameterIndices.empty( ) )
-        {
-            continue;
-        }
-        if( parameterIndices.size( ) > 1 || parameterIndices.at( 0 ).second != 3 )
-        {
-            throw std::runtime_error( "Error when computing reference point local frame uncertainties: reference point " +
-                                      bodyAndReferencePoint.second + " on " + bodyAndReferencePoint.first +
-                                      " must match exactly one 3-element position parameter." );
-        }
-
-        const Eigen::Matrix3d& rotationToBodyFixed = referencePoint->getRotationFromLocalToBodyFixedFrame( );
-        const int startIndex = parameterIndices.at( 0 ).first;
-        const Eigen::Matrix3d localFrameCovariance =
-                rotationToBodyFixed.transpose( ) * covariance.block( startIndex, startIndex, 3, 3 ) * rotationToBodyFixed;
-        if( ( localFrameCovariance.diagonal( ).array( ) < 0.0 ).any( ) )
-        {
-            throw std::runtime_error( "Error when computing reference point local frame uncertainties: reference point " +
-                                      bodyAndReferencePoint.second + " on " + bodyAndReferencePoint.first + " has a negative variance." );
-        }
-        localFrameUncertainties[ bodyAndReferencePoint ] = localFrameCovariance.diagonal( ).cwiseSqrt( );
-    }
-    return localFrameUncertainties;
 }
 
 }  // namespace simulation_setup

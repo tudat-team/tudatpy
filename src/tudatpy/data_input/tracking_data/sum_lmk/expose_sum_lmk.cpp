@@ -50,9 +50,6 @@ void expose_sum_lmk( py::module& m )
             .def_readonly( "landmark_id", &tio::sum_lmk::LmkLandmarkData::landmarkId_ )
             .def_readonly( "body_fixed_position", &tio::sum_lmk::LmkLandmarkData::bodyFixedPosition_ )
             .def_readonly( "landmark_position_sigma", &tio::sum_lmk::LmkLandmarkData::landmarkPositionSigma_ )
-            .def_readonly( "local_x_axis", &tio::sum_lmk::LmkLandmarkData::localXAxis_ )
-            .def_readonly( "local_y_axis", &tio::sum_lmk::LmkLandmarkData::localYAxis_ )
-            .def_readonly( "local_z_axis", &tio::sum_lmk::LmkLandmarkData::localZAxis_ )
             .def_readonly( "source_file", &tio::sum_lmk::LmkLandmarkData::sourceFile_ );
 
     m.def( "read_raw_sum_files",

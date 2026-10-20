@@ -1811,25 +1811,20 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
            &tom::getObservedReferencePointPositionParameterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection" ),
            py::arg( "body_name" ),
-           py::arg( "reference_point_names" ) = std::vector< std::string >( ),
            R"doc(
 
         Function to create position parameter settings for the observed reference points on a body.
 
-        Gives one ``ground_station_position`` parameter per reference point (for example a ground station or a
-        SUM/LMK landmark) on ``body_name`` that still has observations in ``observation_collection``. Reference
-        points whose observations were all filtered out get no parameter. The settings are ordered by name.
-        Each parameter is shared by all arcs that observe the reference point.
+        Gives one ``ground_station_position`` parameter per reference point (for example a SUM/LMK landmark) on
+        ``body_name`` that has observations in ``observation_collection``, ordered by name. Reference points whose
+        observations were all filtered out get no parameter.
 
         Parameters
         ----------
         observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
-            Observations that will be used in the estimation.
+            Observations to be used in the estimation.
         body_name : str
             Body the reference points are fixed to.
-        reference_point_names : list[str], optional
-            Only create settings for these reference points. A name without observations raises an error.
-            By default, all observed reference points are used.
 
         Returns
         -------

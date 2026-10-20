@@ -31,8 +31,6 @@ Functions
 
    create_reference_point_consider_covariance
 
-   get_reference_point_local_frame_uncertainties
-
    add_covariance_diagonal_entries
 
    create_best_fit_to_ephemeris
@@ -63,8 +61,6 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_position_apriori_covariance_entries
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_reference_point_consider_covariance
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_local_frame_uncertainties
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.add_covariance_diagonal_entries
 

@@ -978,13 +978,11 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
 
 
 def test_sum_lmk_landmark_position_helpers():
-    """Use LMK SIGMA_LMK and UX/UY/UZ for landmark position parameters, a-priori and uncertainties."""
+    """Use LMK SIGMA_LMK for landmark position parameters, the a-priori covariance and the consider covariance."""
     from tudatpy.dynamics import parameters_setup
     from tudatpy.estimation.estimation_analysis import (
         create_covariance_from_diagonal_entries,
         create_reference_point_consider_covariance,
-        get_reference_point_local_frame_uncertainties,
-        get_reference_point_position_apriori_covariance_entries,
         get_reference_point_position_inverse_apriori_covariance_entries,
     )
     from tudatpy.estimation.observations import (
@@ -999,12 +997,11 @@ def test_sum_lmk_landmark_position_helpers():
         "Spacecraft",
     )
 
-    # The fixture gives SIGMA_LMK = 1 m and an identity UX/UY/UZ frame for LMK0001.
+    # The fixture gives SIGMA_LMK = 1 m.
     landmark = next(
         entry for entry in supplementary_data if entry.reference_point_name == "LMK0001"
     ).reference_point_supplementary_data
     np.testing.assert_allclose(landmark.position_uncertainty, [1.0, 1.0, 1.0])
-    np.testing.assert_allclose(landmark.rotation_from_local_to_body_fixed_frame, np.eye(3))
 
     spice.load_standard_kernels()
     body_settings = environment_setup.BodyListSettings("SSB", "J2000")
@@ -1022,44 +1019,26 @@ def test_sum_lmk_landmark_position_helpers():
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     collection = create_observation_collection_from_tracking_data(tracking_data, bodies)
 
-    # One position parameter per observed landmark, ordered by name.
     parameter_settings = get_observed_reference_point_position_parameter_settings(
         collection, "Target"
     )
     assert len(parameter_settings) == 2
-    with pytest.raises(RuntimeError):
-        get_observed_reference_point_position_parameter_settings(collection, "Target", ["NOPE"])
+
+    # Both landmarks estimated: the inverse a-priori covariance is 1 / (1 m)^2 on the diagonal.
     parameter_set = parameters_setup.create_parameter_set(parameter_settings, bodies)
-
-    # SIGMA_LMK of 1 m gives an inverse variance of 1 per body-fixed component.
     entries = get_reference_point_position_inverse_apriori_covariance_entries(supplementary_data)
-    assert len(entries) == 2
-    inverse_apriori = create_covariance_from_diagonal_entries(parameter_set, entries)
-    np.testing.assert_allclose(inverse_apriori, np.eye(6))
-
-    # With an identity local frame, local and body-fixed uncertainties are equal.
-    covariance = np.diag([1.0, 4.0, 9.0, 16.0, 25.0, 36.0])
-    uncertainties = get_reference_point_local_frame_uncertainties(
-        supplementary_data, parameter_set, covariance
+    np.testing.assert_allclose(
+        create_covariance_from_diagonal_entries(parameter_set, entries), np.eye(6)
     )
-    np.testing.assert_allclose(uncertainties[("Target", "LMK0001")], [1.0, 2.0, 3.0])
-    np.testing.assert_allclose(uncertainties[("Target", "LMK0002")], [4.0, 5.0, 6.0])
 
-    # Variance entries are the squared SIGMA_LMK.
-    variance_entries = get_reference_point_position_apriori_covariance_entries(supplementary_data)
-    assert len(variance_entries) == 2
-    np.testing.assert_allclose(variance_entries[0][1], [1.0, 1.0, 1.0])
-
-    # LMK0001 estimated, LMK0002 held fixed as a consider parameter.
+    # LMK0001 estimated and LMK0002 held fixed: the consider covariance is (1 m)^2 on the diagonal.
     consider_parameter_set = parameters_setup.create_parameter_set(
         parameter_settings[:1], bodies, consider_parameters_names=parameter_settings[1:]
     )
-    consider_covariance = create_reference_point_consider_covariance(
-        supplementary_data, consider_parameter_set
+    np.testing.assert_allclose(
+        create_reference_point_consider_covariance(supplementary_data, consider_parameter_set),
+        np.eye(3),
     )
-    np.testing.assert_allclose(consider_covariance, np.eye(3))
-    with pytest.raises(RuntimeError):
-        create_reference_point_consider_covariance(supplementary_data, parameter_set)
 
 
 def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():

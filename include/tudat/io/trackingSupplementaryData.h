@@ -366,23 +366,10 @@ public:
         positionUncertainty_ = positionUncertainty;
     }
 
-    //! Rotation from the reference point's own local frame to the body-fixed frame. NaN when the source gives no frame.
-    const Eigen::Matrix3d& getRotationFromLocalToBodyFixedFrame( ) const
-    {
-        return rotationFromLocalToBodyFixedFrame_;
-    }
-
-    void setRotationFromLocalToBodyFixedFrame( const Eigen::Matrix3d& rotationFromLocalToBodyFixedFrame )
-    {
-        rotationFromLocalToBodyFixedFrame_ = rotationFromLocalToBodyFixedFrame;
-    }
-
 private:
     Eigen::Vector3d bodyFixedPosition_;
 
     Eigen::Vector3d positionUncertainty_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
-
-    Eigen::Matrix3d rotationFromLocalToBodyFixedFrame_ = Eigen::Matrix3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
 };
 
 class TrackingSupplementaryData

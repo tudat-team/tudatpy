@@ -138,14 +138,6 @@ double getSumImageObservationTime( const SumImageData& image );
 //! Get the rotation from the target body-fixed frame to the camera frame, given by the SUM CX/CY/CZ rows.
 Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImageData& image );
 
-//! Get the rotation from a landmark's local frame to the body-fixed frame, with the LMK UX/UY/UZ axes as its columns.
-/*!
- *  UZ is the normal of the landmark's terrain patch. Throws if an axis is missing or the axes do not form a rotation.
- *  \param landmark Raw LMK landmark contents.
- *  \return Rotation matrix from the local frame to the body-fixed frame.
- */
-Eigen::Matrix3d getLmkLandmarkRotationFromLocalToBodyFixedFrame( const LmkLandmarkData& landmark );
-
 //! Check SUM/LMK data before conversion, and return the images to convert.
 /*!
  *  Check SUM/LMK data before conversion, and return the images to convert. Each image may be provided only once, and its
@@ -167,9 +159,8 @@ std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageDa
 //! Create the supplementary data for SUM/LMK observations.
 /*!
  *  Create the supplementary data for SUM/LMK observations. Each landmark becomes a reference point on the target body,
- *  carrying its SIGMA_LMK position uncertainty and UX/UY/UZ local frame when the LMK file gives them. Each image becomes
- *  a camera on the receiver body, pointed relative to the target body-fixed frame and carrying the SUM SIGMA_PTG
- *  pointing uncertainty.
+ *  carrying its SIGMA_LMK position uncertainty when given. Each image becomes a camera on the receiver body, pointed
+ *  relative to the target body-fixed frame and carrying the SUM SIGMA_PTG pointing uncertainty.
  *  \param sumImages SUM images to convert (output of getSumImagesToConvert).
  *  \param landmarks Raw LMK landmark contents, with the landmark ID as key.
  *  \param targetBodyName Name of the body on which the landmarks are located.

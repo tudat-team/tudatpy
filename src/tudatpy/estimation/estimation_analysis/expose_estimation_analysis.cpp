@@ -259,17 +259,15 @@ void expose_estimation_analysis( py::module& m )
            py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
            R"doc(
 
- Function to create the consider covariance for reference points held fixed as consider parameters.
+ Function to create the consider covariance for reference points (e.g. landmarks) that are held fixed.
 
- Use this to keep landmarks (or ground stations) fixed during estimation, while still accounting for their
- position uncertainty in the covariance of the estimated parameters. Add the reference point positions as
- consider parameters, for example with
- ``create_parameter_set(..., consider_parameters_names=get_observed_reference_point_position_parameter_settings(...))``,
- and pass the result of this function as the consider covariance of the estimation or covariance analysis input.
+ Use this to keep landmark positions fixed in an estimation, while still including their uncertainty in the
+ covariance of the estimated parameters. Add the landmarks as consider parameters (``consider_parameters_names`` in
+ :func:`~tudatpy.dynamics.parameters_setup.create_parameter_set`) and pass the result as the consider covariance of
+ the estimation or covariance analysis input.
 
- Each ``ground_station_position`` consider parameter gets a diagonal block with its squared position uncertainty.
- For SUM/LMK data, this is the LMK ``SIGMA_LMK`` value. Other consider parameters keep their values from
- ``consider_covariance``. A consider reference point without a position uncertainty raises an error.
+ Each ``ground_station_position`` consider parameter gets its position variance (for SUM/LMK data, ``SIGMA_LMK``
+ squared) on the diagonal. Other consider parameters keep their values from ``consider_covariance``.
 
  Parameters
  ----------
@@ -284,37 +282,6 @@ void expose_estimation_analysis( py::module& m )
  -------
  numpy.ndarray[numpy.float64[m, m]]
      Covariance of the consider parameters, in the order of the consider parameter set.
-
-     )doc" );
-
-    m.def( "get_reference_point_local_frame_uncertainties",
-           &tss::getReferencePointLocalFrameUncertainties< STATE_SCALAR_TYPE >,
-           py::arg( "supplementary_data" ),
-           py::arg( "parameter_set" ),
-           py::arg( "covariance" ),
-           R"doc(
-
- Function to express estimated reference point position uncertainties along each point's own local axes.
-
- Reference point positions are estimated in the body-fixed frame. This function rotates each 3x3 covariance
- block into the reference point's local frame and returns the square roots of the diagonal. For an SPC
- landmark, the local axes are its UX, UY and UZ axes, and UZ is the surface normal.
-
- Reference points without a local frame, or that are not estimated, are left out.
-
- Parameters
- ----------
- supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
-     Tracking supplementary data holding the local frames.
- parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
-     Estimated parameter set the covariance belongs to.
- covariance : numpy.ndarray[numpy.float64[m, m]]
-     Covariance of the estimated parameters.
-
- Returns
- -------
- dict[tuple[str, str], numpy.ndarray]
-     Uncertainties along the local x, y and z axes [m], keyed by ``(body_name, reference_point_name)``.
 
      )doc" );
 

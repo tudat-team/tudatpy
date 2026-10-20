@@ -694,16 +694,6 @@ void expose_tracking_data( py::module& m )
          Entries are NaN when the source gives no value.
 
          :type: numpy.ndarray[numpy.float64[3, 1]]
-      )doc" )
-            .def_property( "rotation_from_local_to_body_fixed_frame",
-                           &tdat::ReferencePointSupplementaryData::getRotationFromLocalToBodyFixedFrame,
-                           &tdat::ReferencePointSupplementaryData::setRotationFromLocalToBodyFixedFrame,
-                           R"doc(
-         Rotation from the reference point's own local frame to the body-fixed
-         frame. For an SPC landmark, the columns are its UX, UY and UZ axes, and
-         UZ is the surface normal. Entries are NaN when the source gives no frame.
-
-         :type: numpy.ndarray[numpy.float64[3, 3]]
       )doc" );
 
     py::class_< tdat::TranslationalStateSupplementaryData >( m, "TranslationalStateSupplementaryData", R"doc(

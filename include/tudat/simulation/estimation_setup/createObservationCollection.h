@@ -361,23 +361,19 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
 void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bodies,
                                            const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
 
-//! Position parameter settings for the reference points on a body that still have observations in a collection.
+//! Function to create position parameter settings for the reference points (e.g. landmarks) on a body that have observations.
 /*!
- *  Gives one ground_station_position parameter per reference point, ordered by name. Such a parameter is shared by all
- *  arcs. Reference points whose observations were all filtered out get no parameter. If referencePointNames is given,
- *  only those are used, and a name without observations raises an error.
+ *  Gives one ground_station_position parameter per reference point, ordered by name. Reference points whose observations
+ *  were all filtered out get no parameter.
+ *  \param observationCollection Observations to be used in the estimation.
+ *  \param bodyName Name of the body the reference points are fixed to.
+ *  \return Position parameter settings, one per observed reference point.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getObservedReferencePointPositionParameterSettings(
         const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
-        const std::string& bodyName,
-        const std::vector< std::string >& referencePointNames = std::vector< std::string >( ) )
+        const std::string& bodyName )
 {
-    if( observationCollection == nullptr )
-    {
-        throw std::runtime_error( "Error when creating reference point position parameter settings: observation collection is null." );
-    }
-
     // Count observations rather than list link ends, since filtering can leave empty observation sets behind.
     std::set< std::string > observedReferencePoints;
     for( const auto& observableEntry : observationCollection->getObservationsReference( ) )
@@ -387,10 +383,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             unsigned int numberOfObservations = 0;
             for( const auto& observationSet : linkEndsEntry.second )
             {
-                if( observationSet != nullptr )
-                {
-                    numberOfObservations += observationSet->getTotalObservationSetSize( );
-                }
+                numberOfObservations += observationSet->getTotalObservationSetSize( );
             }
             if( numberOfObservations == 0 )
             {
@@ -406,23 +399,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
     }
 
-    std::set< std::string > referencePointsToEstimate = observedReferencePoints;
-    if( !referencePointNames.empty( ) )
-    {
-        referencePointsToEstimate.clear( );
-        for( const std::string& referencePointName : referencePointNames )
-        {
-            if( observedReferencePoints.count( referencePointName ) == 0 )
-            {
-                throw std::runtime_error( "Error when creating reference point position parameter settings: reference point " +
-                                          referencePointName + " on " + bodyName + " has no observations in the collection." );
-            }
-            referencePointsToEstimate.insert( referencePointName );
-        }
-    }
-
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings;
-    for( const std::string& referencePointName : referencePointsToEstimate )
+    for( const std::string& referencePointName : observedReferencePoints )
     {
         parameterSettings.push_back( estimatable_parameters::groundStationPosition( bodyName, referencePointName ) );
     }

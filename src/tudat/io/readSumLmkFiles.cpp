@@ -43,10 +43,6 @@ constexpr double kilometersToMeters = 1000.0;
 //! archive have a Frobenius orthogonality error just below 8e-8, due to their stored numerical precision.
 constexpr double sumCameraRotationMatrixTolerance = 1.0E-7;
 
-//! Tolerance for the same checks on an LMK UX/UY/UZ landmark frame. Looser than the camera tolerance, because the worst
-//! orthonormality error in the archived LMK files is 2.3e-7.
-constexpr double lmkLandmarkFrameTolerance = 1.0E-6;
-
 enum class SumSection { none, landmarks, limbFits };
 enum class LmkSection { none, pictures, mapOverlaps, limbFits };
 
@@ -580,31 +576,6 @@ std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageDa
     return imagesToConvert;
 }
 
-Eigen::Matrix3d getLmkLandmarkRotationFromLocalToBodyFixedFrame( const LmkLandmarkData& landmark )
-{
-    const std::string errorPrefix = "Error when building local frame of landmark '" + landmark.landmarkId_ + "': ";
-    if( !landmark.localXAxis_.allFinite( ) || !landmark.localYAxis_.allFinite( ) || !landmark.localZAxis_.allFinite( ) )
-    {
-        throw std::runtime_error( errorPrefix + "UX/UY/UZ entries must be finite." );
-    }
-
-    // UX/UY/UZ are body-fixed unit vectors, so they are the columns of the rotation.
-    Eigen::Matrix3d localFrame;
-    localFrame.col( 0 ) = landmark.localXAxis_;
-    localFrame.col( 1 ) = landmark.localYAxis_;
-    localFrame.col( 2 ) = landmark.localZAxis_;
-
-    const bool isRotation = ( localFrame * localFrame.transpose( ) - Eigen::Matrix3d::Identity( ) ).norm( ) <= lmkLandmarkFrameTolerance &&
-            std::fabs( localFrame.determinant( ) - 1.0 ) <= lmkLandmarkFrameTolerance;
-    if( !isRotation )
-    {
-        throw std::runtime_error( errorPrefix + "UX/UY/UZ must form an orthonormal right-handed rotation matrix." );
-    }
-
-    // The files store the axes at limited precision, so snap to the nearest exact rotation.
-    return Eigen::Quaterniond( localFrame ).normalized( ).toRotationMatrix( );
-}
-
 std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrackingSupplementaryData(
         const std::vector< SumImageData >& sumImages,
         const std::map< std::string, LmkLandmarkData >& landmarks,
@@ -618,22 +589,15 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
         const LmkLandmarkData& landmark = landmarkEntry.second;
         auto referencePoint = std::make_shared< data::ReferencePointSupplementaryData >( landmark.bodyFixedPosition_ );
 
-        // SIGMA_LMK is given in the body-fixed frame, so it is used as is.
+        // SIGMA_LMK is given per body-fixed position component.
         if( !landmark.landmarkPositionSigma_.array( ).isNaN( ).all( ) )
         {
             if( !landmark.landmarkPositionSigma_.allFinite( ) || ( landmark.landmarkPositionSigma_.array( ) <= 0.0 ).any( ) )
             {
-                throw std::runtime_error( "Error when converting LMK landmark '" + landmark.landmarkId_ +
-                                          "': SIGMA_LMK must contain three finite positive values, or be absent." );
+                throw std::runtime_error( "Error when converting LMK landmark " + landmark.landmarkId_ +
+                                          ": SIGMA_LMK must contain three finite positive values, or be absent." );
             }
             referencePoint->setPositionUncertainty( landmark.landmarkPositionSigma_ );
-        }
-
-        // Only set the local frame when the file gives one.
-        if( !( landmark.localXAxis_.array( ).isNaN( ).all( ) && landmark.localYAxis_.array( ).isNaN( ).all( ) &&
-               landmark.localZAxis_.array( ).isNaN( ).all( ) ) )
-        {
-            referencePoint->setRotationFromLocalToBodyFixedFrame( getLmkLandmarkRotationFromLocalToBodyFixedFrame( landmark ) );
         }
 
         landmarkData->setReferencePointSupplementaryData( referencePoint );
