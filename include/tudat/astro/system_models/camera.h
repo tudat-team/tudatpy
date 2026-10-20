@@ -219,35 +219,16 @@ public:
 private:
     void validateCalibration( ) const
     {
-        if( !std::isfinite( focalLength_ ) || focalLength_ <= std::numeric_limits< double >::epsilon( ) )
+        if( !( focalLength_ > 0.0 ) || !principalPoint_.allFinite( ) || !kMatrix_.allFinite( ) )
         {
-            throw std::runtime_error( "Error when creating PSF camera model: focal length must be finite and positive." );
-        }
-        if( !principalPoint_.array( ).isFinite( ).all( ) )
-        {
-            throw std::runtime_error( "Error when creating PSF camera model: principal point must be finite." );
-        }
-        if( !kMatrix_.array( ).isFinite( ).all( ) )
-        {
-            throw std::runtime_error( "Error when creating PSF camera model: K-MATRIX entries must be finite." );
-        }
-        if( !kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).isInvertible( ) )
-        {
-            throw std::runtime_error( "Error when creating PSF camera model: leading 2x2 K-MATRIX block must be nonsingular." );
-        }
-        if( !distortionCoefficients_.array( ).isFinite( ).all( ) || !mountingOffsetsDegrees_.array( ).isFinite( ).all( ) ||
-            !fieldOfViewBounds_.array( ).isFinite( ).all( ) )
-        {
-            throw std::runtime_error( "Error when creating PSF camera model: auxiliary calibration values must be finite." );
+            throw std::runtime_error(
+                    "Error when creating PSF camera model: focal length must be positive, and principal point and "
+                    "K-MATRIX must be finite." );
         }
     }
 
     void validateProjectionDirection( const Eigen::Vector3d& cameraFrameVector ) const
     {
-        if( !cameraFrameVector.array( ).isFinite( ).all( ) )
-        {
-            throw std::runtime_error( "Error when projecting with PSF camera model: camera-frame vector must be finite." );
-        }
         if( cameraFrameVector.z( ) <= std::numeric_limits< double >::epsilon( ) )
         {
             throw std::runtime_error(
@@ -262,10 +243,6 @@ private:
 
     Eigen::Vector2d pixelLineToFocalPlaneCoordinates( const Eigen::Vector2d& pixelLine ) const
     {
-        if( !pixelLine.array( ).isFinite( ).all( ) )
-        {
-            throw std::runtime_error( "Error when converting PSF pixel/line coordinates: pixel/line values must be finite." );
-        }
         const Eigen::Vector2d target = pixelLine - principalPoint_;
         Eigen::Vector2d focalPlaneCoordinates = kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).solve( target );
 
@@ -285,20 +262,7 @@ private:
             jacobian( 1, 0 ) = kMatrix_( 1, 0 ) + kMatrix_( 1, 2 ) * y;
             jacobian( 1, 1 ) = kMatrix_( 1, 1 ) + kMatrix_( 1, 2 ) * x;
 
-            const Eigen::FullPivLU< Eigen::Matrix2d > jacobianLu = jacobian.fullPivLu( );
-            if( !jacobianLu.isInvertible( ) )
-            {
-                throw std::runtime_error(
-                        "Error when converting PSF pixel/line coordinates to camera-frame unit vector: local K-MATRIX Jacobian is "
-                        "singular." );
-            }
-            focalPlaneCoordinates -= jacobianLu.solve( residual );
-            if( !focalPlaneCoordinates.array( ).isFinite( ).all( ) )
-            {
-                throw std::runtime_error(
-                        "Error when converting PSF pixel/line coordinates to camera-frame unit vector: Newton solve produced non-finite "
-                        "values." );
-            }
+            focalPlaneCoordinates -= jacobian.fullPivLu( ).solve( residual );
         }
 
         throw std::runtime_error( "Error when converting PSF pixel/line coordinates to camera-frame unit vector: Newton solve failed." );
@@ -392,15 +356,6 @@ public:
     Eigen::Quaterniond getRotationFromBodyFixedToCameraFrame( ) const
     {
         return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ );
-    }
-
-    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame, excluding the
-     *  current pointing correction.
-     *  \return The nominal rotation from body-fixed to camera frame.
-     */
-    Eigen::Quaterniond getNominalRotationFromBodyFixedToCameraFrame( ) const
-    {
-        return rotationFromBodyFixedToCameraFrame_;
     }
 
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const

@@ -84,7 +84,7 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation );
+                 const Eigen::VectorXd currentObservation ) override;
 
     //! Get the position scaling factor (accounting for light-time correction) for a given link end type
     /*!
@@ -95,7 +95,7 @@ public:
      *  \param linkEndType Link end type for which scaling factor is to be retrieved.
      *  \return Position scaling factor for given link end type.
      */
-    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return realPositionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
@@ -107,14 +107,15 @@ public:
      *  \param linkEndType Link end type for which scaling factor is to be retrieved.
      *  \return Position scaling factor for given link end type.
      */
-    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
 
-    bool isVelocityScalingNonZero( ) override
+    //! Only the receiver velocity contributes, through stellar aberration.
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType ) override
     {
-        return correctForStellarAberration_;
+        return correctForStellarAberration_ && linkEndType == observation_models::receiver;
     }
 
     Eigen::Matrix< double, 2, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
@@ -141,12 +142,8 @@ public:
         rotationMatrixPartials_ = rotationMatrixPartials;
     }
 
-    bool useLinkIndependentPartials( ) override
-    {
-        return pointingCorrectionFunction_ || !rotationMatrixPartials_.empty( );
-    }
-
-    bool hasLinkIndependentPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ) override;
+    //! Whether the camera orientation depends on the given parameter (pointing correction, or reference-body rotation).
+    bool useLinkIndependentPartials( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
 
     //! Identify the receiver camera and supply its current rotation-vector correction.
     void setPointingCorrectionFunction( const observation_models::LinkEndId& cameraLinkEnd,
@@ -165,7 +162,7 @@ public:
     /*!  Get the factor by which the light-time partials should be scaled in one-way observation partial.
      *  \return Factor by which the light-time partials should be scaled in one-way observation partial.
      */
-    Eigen::Vector2d getLightTimePartialScalingFactor( )
+    Eigen::Vector2d getLightTimePartialScalingFactor( ) override
     {
         return lightTimeCorrectionScalingFactor_;
     }
@@ -175,7 +172,7 @@ public:
      * Fixed link end for last computation of update() function.
      * \return Function to get the fixed link end for last computation of update() function.
      */
-    observation_models::LinkEndType getCurrentLinkEndType( )
+    observation_models::LinkEndType getCurrentLinkEndType( ) override
     {
         return currentLinkEndType_;
     }
