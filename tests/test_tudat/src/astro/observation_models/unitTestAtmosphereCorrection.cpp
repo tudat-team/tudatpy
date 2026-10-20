@@ -874,9 +874,12 @@ BOOST_AUTO_TEST_CASE( testNumericalCorrectionPositionPartialsNearEarth )
 {
     // Correction depending only on the line-of-sight direction, mimicking an elevation-dependent media correction
     const Eigen::Vector3d stationDirection = Eigen::Vector3d( 0.3, -0.5, 0.8 ).normalized( );
-    LightTimeCorrectionFunctionWrapper correction( LightTimeCorrectionFunctionSingleLeg(
-            [ = ]( const Eigen::Vector6d& transmitterState, const Eigen::Vector6d& receiverState, const double, const double,
-                   const std::shared_ptr< ObservationAncillarySimulationSettings > ) {
+    LightTimeCorrectionFunctionWrapper correction(
+            LightTimeCorrectionFunctionSingleLeg( [ = ]( const Eigen::Vector6d& transmitterState,
+                                                         const Eigen::Vector6d& receiverState,
+                                                         const double,
+                                                         const double,
+                                                         const std::shared_ptr< ObservationAncillarySimulationSettings > ) {
                 return 1.0E-8 * ( receiverState - transmitterState ).segment( 0, 3 ).normalized( ).dot( stationDirection );
             } ) );
 
