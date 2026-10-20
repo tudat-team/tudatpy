@@ -429,90 +429,79 @@ BOOST_AUTO_TEST_CASE( testHybridArcEstimationOverThreePerijoves )
     ioLinkEnds[ observed_body ] = LinkEndId( "Io", "" );
     ganymedeLinkEnds[ observed_body ] = LinkEndId( "Ganymede", "" );
 
-    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettings = {
-        std::make_shared< ObservationModelSettings >( position_observable, spacecraftLinkEnds ),
-        std::make_shared< ObservationModelSettings >( one_way_range, earthSpacecraftLinkEnds ),
-        std::make_shared< ObservationModelSettings >( one_way_doppler, earthSpacecraftLinkEnds ),
-        std::make_shared< ObservationModelSettings >( position_observable, ioLinkEnds ),
-        std::make_shared< ObservationModelSettings >( position_observable, ganymedeLinkEnds )
+    struct ObservationTypeSettings {
+        std::string name;
+        ObservableType observable;
+        LinkEnds linkEnds;
+        LinkEndType referenceLinkEnd;
+        double relativeTolerance;
     };
+    const std::vector< ObservationTypeSettings > observationTypes = {
+        { "Juno position", position_observable, spacecraftLinkEnds, observed_body, 2.0E-5 },
+        { "range", one_way_range, earthSpacecraftLinkEnds, receiver, 2.0E-5 },
+        { "Doppler", one_way_doppler, earthSpacecraftLinkEnds, receiver, 1.0E-4 },
+        { "Io position", position_observable, ioLinkEnds, observed_body, 2.0E-5 },
+        { "Ganymede position", position_observable, ganymedeLinkEnds, observed_body, 2.0E-5 }
+    };
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettings;
+    for( const ObservationTypeSettings& type : observationTypes )
+    {
+        observationSettings.push_back( std::make_shared< ObservationModelSettings >( type.observable, type.linkEnds ) );
+    }
 
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parametersToEstimate, observationSettings, propagatorSettings );
 
-    // Compute observations and partials at nominal parameters
-    std::function< void( Eigen::VectorXd&, Eigen::MatrixXd&, std::vector< Eigen::VectorXd >& ) > computeObservations =
-            [ & ]( Eigen::VectorXd& observations, Eigen::MatrixXd& partials, std::vector< Eigen::VectorXd >& observationsPerType ) {
-                observationsPerType.resize( 5 );
-                std::vector< Eigen::MatrixXd > partialsPerType( 5 );
-                orbitDeterminationManager.computePartialsAndObservations< 3 >( spacecraftLinkEnds,
+    // Compute observations and partials of all types (concatenated), and start row of each type
+    std::vector< int > typeStartIndices = { 0 };
+    std::function< void( Eigen::VectorXd&, Eigen::MatrixXd& ) > computeObservations = [ & ]( Eigen::VectorXd& observations,
+                                                                                             Eigen::MatrixXd& partials ) {
+        std::vector< Eigen::VectorXd > observationsPerType( observationTypes.size( ) );
+        std::vector< Eigen::MatrixXd > partialsPerType( observationTypes.size( ) );
+        typeStartIndices = { 0 };
+        for( unsigned int i = 0; i < observationTypes.size( ); i++ )
+        {
+            const ObservationTypeSettings& type = observationTypes.at( i );
+            if( getObservableSize( type.observable ) == 3 )
+            {
+                orbitDeterminationManager.computePartialsAndObservations< 3 >( type.linkEnds,
                                                                                nullptr,
-                                                                               position_observable,
-                                                                               observed_body,
+                                                                               type.observable,
+                                                                               type.referenceLinkEnd,
                                                                                observationTimes,
-                                                                               observationsPerType[ 0 ],
-                                                                               partialsPerType[ 0 ] );
-                orbitDeterminationManager.computePartialsAndObservations< 1 >( earthSpacecraftLinkEnds,
+                                                                               observationsPerType[ i ],
+                                                                               partialsPerType[ i ] );
+            }
+            else
+            {
+                orbitDeterminationManager.computePartialsAndObservations< 1 >( type.linkEnds,
                                                                                nullptr,
-                                                                               one_way_range,
-                                                                               receiver,
+                                                                               type.observable,
+                                                                               type.referenceLinkEnd,
                                                                                observationTimes,
-                                                                               observationsPerType[ 1 ],
-                                                                               partialsPerType[ 1 ] );
-                orbitDeterminationManager.computePartialsAndObservations< 1 >( earthSpacecraftLinkEnds,
-                                                                               nullptr,
-                                                                               one_way_doppler,
-                                                                               receiver,
-                                                                               observationTimes,
-                                                                               observationsPerType[ 2 ],
-                                                                               partialsPerType[ 2 ] );
-                orbitDeterminationManager.computePartialsAndObservations< 3 >( ioLinkEnds,
-                                                                               nullptr,
-                                                                               position_observable,
-                                                                               observed_body,
-                                                                               observationTimes,
-                                                                               observationsPerType[ 3 ],
-                                                                               partialsPerType[ 3 ] );
-                orbitDeterminationManager.computePartialsAndObservations< 3 >( ganymedeLinkEnds,
-                                                                               nullptr,
-                                                                               position_observable,
-                                                                               observed_body,
-                                                                               observationTimes,
-                                                                               observationsPerType[ 4 ],
-                                                                               partialsPerType[ 4 ] );
-                partials = Eigen::MatrixXd::Zero( 0, numberOfParameters );
-                for( unsigned int i = 0; i < partialsPerType.size( ); i++ )
-                {
-                    Eigen::MatrixXd currentPartials = partials;
-                    partials.resize( currentPartials.rows( ) + partialsPerType[ i ].rows( ), numberOfParameters );
-                    partials << currentPartials, partialsPerType[ i ];
-                }
-                observations.resize( partials.rows( ) );
-                int currentIndex = 0;
-                for( unsigned int i = 0; i < observationsPerType.size( ); i++ )
-                {
-                    observations.segment( currentIndex, observationsPerType[ i ].rows( ) ) = observationsPerType[ i ];
-                    currentIndex += observationsPerType[ i ].rows( );
-                }
-            };
+                                                                               observationsPerType[ i ],
+                                                                               partialsPerType[ i ] );
+            }
+            typeStartIndices.push_back( typeStartIndices.back( ) + observationsPerType[ i ].rows( ) );
+        }
+
+        observations.resize( typeStartIndices.back( ) );
+        partials.resize( typeStartIndices.back( ), numberOfParameters );
+        for( unsigned int i = 0; i < observationTypes.size( ); i++ )
+        {
+            observations.segment( typeStartIndices[ i ], observationsPerType[ i ].rows( ) ) = observationsPerType[ i ];
+            partials.block( typeStartIndices[ i ], 0, partialsPerType[ i ].rows( ), numberOfParameters ) = partialsPerType[ i ];
+        }
+    };
 
     Eigen::VectorXd nominalObservations;
     Eigen::MatrixXd analyticalPartials;
-    std::vector< Eigen::VectorXd > nominalObservationsPerType;
-    computeObservations( nominalObservations, analyticalPartials, nominalObservationsPerType );
-
-    // Index ranges of observation types in concatenated vectors
-    std::vector< int > typeStartIndices = { 0 };
-    for( unsigned int i = 0; i < nominalObservationsPerType.size( ); i++ )
-    {
-        typeStartIndices.push_back( typeStartIndices.back( ) + nominalObservationsPerType[ i ].rows( ) );
-    }
-    const std::vector< std::string > typeNames = { "Juno position", "range", "Doppler", "Io position", "Ganymede position" };
-    const std::vector< double > typeTolerances = { 2.0E-5, 2.0E-5, 1.0E-4, 2.0E-5, 2.0E-5 };
+    computeObservations( nominalObservations, analyticalPartials );
 
     // Numerical noise floor per type, relative to largest partial (for weak dependencies, e.g. Doppler on barycenter position)
     std::vector< double > typeAbsoluteTolerances;
-    for( unsigned int type = 0; type < typeNames.size( ); type++ )
+    for( unsigned int type = 0; type < observationTypes.size( ); type++ )
     {
         double maximumColumnNorm = 0.0;
         for( int column = 0; column < numberOfParameters; column++ )
@@ -562,18 +551,17 @@ BOOST_AUTO_TEST_CASE( testHybridArcEstimationOverThreePerijoves )
         Eigen::VectorXd perturbedParameters = truthParameters;
         Eigen::VectorXd upperObservations, lowerObservations;
         Eigen::MatrixXd unusedPartials;
-        std::vector< Eigen::VectorXd > unusedObservationsPerType;
 
         perturbedParameters( column ) += step;
         orbitDeterminationManager.resetParameterEstimate( perturbedParameters, false );
-        computeObservations( upperObservations, unusedPartials, unusedObservationsPerType );
+        computeObservations( upperObservations, unusedPartials );
 
         perturbedParameters( column ) -= 2.0 * step;
         orbitDeterminationManager.resetParameterEstimate( perturbedParameters, false );
-        computeObservations( lowerObservations, unusedPartials, unusedObservationsPerType );
+        computeObservations( lowerObservations, unusedPartials );
 
         const Eigen::VectorXd numericalPartials = ( upperObservations - lowerObservations ) / ( 2.0 * step );
-        for( unsigned int type = 0; type < typeNames.size( ); type++ )
+        for( unsigned int type = 0; type < observationTypes.size( ); type++ )
         {
             const int numberOfRows = typeStartIndices[ type + 1 ] - typeStartIndices[ type ];
             const Eigen::VectorXd numericalBlock = numericalPartials.segment( typeStartIndices[ type ], numberOfRows );
@@ -585,22 +573,26 @@ BOOST_AUTO_TEST_CASE( testHybridArcEstimationOverThreePerijoves )
                 continue;
             }
             const double relativeError = ( numericalBlock - analyticalBlock ).norm( ) / analyticalBlock.norm( );
-            BOOST_CHECK_MESSAGE( ( numericalBlock - analyticalBlock ).norm( ) <
-                                         typeTolerances.at( type ) * analyticalBlock.norm( ) + typeAbsoluteTolerances.at( type ),
-                                 typeNames.at( type )
-                                         << " partial, parameter " << column << ": relative error " << relativeError << ", analytical norm "
-                                         << analyticalBlock.norm( ) << ", numerical norm " << numericalBlock.norm( ) );
+            BOOST_CHECK_MESSAGE(
+                    ( numericalBlock - analyticalBlock ).norm( ) <
+                            observationTypes.at( type ).relativeTolerance * analyticalBlock.norm( ) + typeAbsoluteTolerances.at( type ),
+                    observationTypes.at( type ).name << " partial, parameter " << column << ": relative error " << relativeError
+                                                     << ", analytical norm " << analyticalBlock.norm( ) << ", numerical norm "
+                                                     << numericalBlock.norm( ) );
         }
     }
     orbitDeterminationManager.resetParameterEstimate( truthParameters, false );
 
-    // Simulate (noise-free) observations with true parameters
-    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > simulationSettings = {
-        std::make_shared< TabulatedObservationSimulationSettings<> >(
-                position_observable, spacecraftLinkEnds, observationTimes, observed_body ),
-        std::make_shared< TabulatedObservationSimulationSettings<> >( one_way_range, earthSpacecraftLinkEnds, observationTimes, receiver ),
-        std::make_shared< TabulatedObservationSimulationSettings<> >( one_way_doppler, earthSpacecraftLinkEnds, observationTimes, receiver )
-    };
+    // Simulate (noise-free) spacecraft observations with true parameters
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > simulationSettings;
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        simulationSettings.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings<> >( observationTypes.at( i ).observable,
+                                                                              observationTypes.at( i ).linkEnds,
+                                                                              observationTimes,
+                                                                              observationTypes.at( i ).referenceLinkEnd ) );
+    }
     std::shared_ptr< ObservationCollection< double, double > > observations =
             simulateObservations< double, double >( simulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
 

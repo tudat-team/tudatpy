@@ -241,15 +241,8 @@ createSingleLinkObservationPartials(
             initialDynamicalParameters = parametersToEstimate->getEstimatedInitialStateParameters( );
 
     // Retrieve all bodies with estimated translational state
-    std::vector< std::string > bodiesWithEstimatedState;
-    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
-    {
-        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ||
-            initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
-        {
-            bodiesWithEstimatedState.push_back( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
-        }
-    }
+    std::vector< std::string > bodiesWithEstimatedState =
+            estimatable_parameters::getListOfBodiesToEstimate( parametersToEstimate )[ propagators::translational_state ];
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are
     // required.

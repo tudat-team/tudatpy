@@ -11,7 +11,6 @@
 #ifndef TUDAT_CREATESTATEDERIVATIVEMODEL_H
 #define TUDAT_CREATESTATEDERIVATIVEMODEL_H
 
-#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -300,27 +299,23 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
     // integrated state, not from the (outdated) ephemeris of the integrated body
     std::map< std::string, std::pair< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >
             centralBodyStatesWrtIntegratedBodies;
-    std::map< std::string, std::string > ephemerisOrigins = simulation_setup::getEphemerisOrigins( bodies );
+    std::map< std::string, std::string > ephemerisDependentBodies =
+            ephemerides::getEphemerisDependentBodies( simulation_setup::getEphemerisOrigins( bodies ), bodiesToIntegrate );
     std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager;
-    for( unsigned int i = 0; i < centralBodiesToUse.size( ); i++ )
+    for( const std::string& centralBody : centralBodiesToUse )
     {
-        const std::string centralBody = centralBodiesToUse.at( i );
-        if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), centralBody ) == bodiesToIntegrate.end( ) &&
-            centralBodyStatesWrtIntegratedBodies.count( centralBody ) == 0 )
+        if( ephemerisDependentBodies.count( centralBody ) > 0 )
         {
-            std::string integratedOrigin = ephemerides::getFirstEphemerisOriginInList( centralBody, ephemerisOrigins, bodiesToIntegrate );
-            if( integratedOrigin != "" )
+            if( frameManager == nullptr )
             {
-                if( frameManager == nullptr )
-                {
-                    frameManager = simulation_setup::createFrameManager( bodies.getMap( ) );
-                }
-                std::shared_ptr< ephemerides::Ephemeris > ephemerisWrtIntegratedOrigin =
-                        frameManager->getEphemeris< StateScalarType, TimeType >( integratedOrigin, centralBody );
-                centralBodyStatesWrtIntegratedBodies[ centralBody ] = std::make_pair( integratedOrigin, [ = ]( const TimeType time ) {
-                    return ephemerisWrtIntegratedOrigin->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time );
-                } );
+                frameManager = simulation_setup::createFrameManager( bodies.getMap( ) );
             }
+            const std::string integratedOrigin = ephemerisDependentBodies.at( centralBody );
+            std::shared_ptr< ephemerides::Ephemeris > ephemerisWrtIntegratedOrigin =
+                    frameManager->getEphemeris< StateScalarType, TimeType >( integratedOrigin, centralBody );
+            centralBodyStatesWrtIntegratedBodies[ centralBody ] = std::make_pair( integratedOrigin, [ = ]( const TimeType time ) {
+                return ephemerisWrtIntegratedOrigin->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time );
+            } );
         }
     }
 

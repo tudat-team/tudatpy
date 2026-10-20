@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 #include <algorithm>
+#include <set>
 
 #include "tudat/astro/ephemerides/frameManager.h"
 
@@ -342,29 +343,37 @@ std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std
     return ephemerisOrigins;
 }
 
-//! Function to find the first body in the chain of ephemeris origins of a body that is contained in a given list
-std::string getFirstEphemerisOriginInList( const std::string& bodyName,
-                                           const std::map< std::string, std::string >& ephemerisOrigins,
-                                           const std::vector< std::string >& bodiesToFind )
+//! Function to find the bodies with an ephemeris defined (directly or indirectly) w.r.t. one of a list of bodies
+std::map< std::string, std::string > getEphemerisDependentBodies( const std::map< std::string, std::string >& ephemerisOrigins,
+                                                                  const std::vector< std::string >& originBodies )
 {
-    std::vector< std::string > checkedBodies = { bodyName };
-    std::string currentBody = bodyName;
-    while( ephemerisOrigins.count( currentBody ) > 0 )
+    std::map< std::string, std::string > ephemerisDependentBodies;
+    for( auto originIterator : ephemerisOrigins )
     {
-        currentBody = ephemerisOrigins.at( currentBody );
-        if( std::find( bodiesToFind.begin( ), bodiesToFind.end( ), currentBody ) != bodiesToFind.end( ) )
+        if( std::find( originBodies.begin( ), originBodies.end( ), originIterator.first ) != originBodies.end( ) )
         {
-            return currentBody;
+            continue;
         }
 
-        // Stop if chain of origins is circular
-        if( std::find( checkedBodies.begin( ), checkedBodies.end( ), currentBody ) != checkedBodies.end( ) )
+        // Follow chain of ephemeris origins, until a body in originBodies is found (or the chain ends, or is circular)
+        std::set< std::string > checkedBodies = { originIterator.first };
+        std::string currentOrigin = originIterator.second;
+        while( checkedBodies.count( currentOrigin ) == 0 )
         {
-            break;
+            if( std::find( originBodies.begin( ), originBodies.end( ), currentOrigin ) != originBodies.end( ) )
+            {
+                ephemerisDependentBodies[ originIterator.first ] = currentOrigin;
+                break;
+            }
+            else if( ephemerisOrigins.count( currentOrigin ) == 0 )
+            {
+                break;
+            }
+            checkedBodies.insert( currentOrigin );
+            currentOrigin = ephemerisOrigins.at( currentOrigin );
         }
-        checkedBodies.push_back( currentBody );
     }
-    return "";
+    return ephemerisDependentBodies;
 }
 
 }  // namespace ephemerides

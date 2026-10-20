@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <algorithm>
-
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
@@ -34,11 +32,9 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     // Declare local variable to use in loop
     std::string currentBodyName;
 
-    std::map< std::string, std::string > ephemerisOrigins;
-    if( bodiesWithEstimatedState.size( ) > 0 )
-    {
-        ephemerisOrigins = simulation_setup::getEphemerisOrigins( bodies );
-    }
+    // Retrieve bodies with an ephemeris defined w.r.t. a body with estimated state
+    std::map< std::string, std::string > ephemerisDependentBodies =
+            ephemerides::getEphemerisDependentBodies( simulation_setup::getEphemerisOrigins( bodies ), bodiesWithEstimatedState );
 
     // Iterate over all like ends.
     for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
@@ -46,11 +42,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     {
         // Check if current link end is on body that is requested, or on body with ephemeris defined w.r.t. requested body
         currentBodyName = linkEndIterator->second.bodyName_;
-        bool isBodyEphemerisDependent = bodiesWithEstimatedState.size( ) > 0 &&
-                std::find( bodiesWithEstimatedState.begin( ), bodiesWithEstimatedState.end( ), currentBodyName ) ==
-                        bodiesWithEstimatedState.end( ) &&
-                ephemerides::getFirstEphemerisOriginInList( currentBodyName, ephemerisOrigins, bodiesWithEstimatedState ) == bodyToEstimate;
-        if( bodyToEstimate == currentBodyName || isBodyEphemerisDependent )
+        if( bodyToEstimate == currentBodyName ||
+            ( ephemerisDependentBodies.count( currentBodyName ) > 0 && ephemerisDependentBodies.at( currentBodyName ) == bodyToEstimate ) )
         {
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );

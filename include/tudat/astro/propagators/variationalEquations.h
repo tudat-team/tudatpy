@@ -538,7 +538,7 @@ private:
     //! Function to set the bodies with an ephemeris defined w.r.t. a body with an estimated translational state
     /*!
      *  Function to set the bodies with an ephemeris defined (directly or indirectly) w.r.t. a body with an estimated translational
-     *  state, (ephemerisDependentBodies_ member). Bodies with an estimated translational state themselves are not included.
+     *  state (ephemerisDependentBodies_ member). Bodies with an estimated translational state themselves are not included.
      *  \param ephemerisOrigins Ephemeris origin (value) of each body with an ephemeris (key).
      */
     void setEphemerisDependentBodies( const std::map< std::string, std::string >& ephemerisOrigins );
