@@ -1213,6 +1213,11 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     // Create list of body objects
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
+    // TEMPORARY CI DIAGNOSTICS: verify that the approximate ephemerides are identical across platforms
+    std::cout << std::setprecision( 17 ) << "VIABILITY_EPHEMERIS_DIAGNOSTIC Earth "
+              << bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( 0.0 ).transpose( ) << " Jupiter "
+              << bodies.getBody( "Jupiter" )->getStateInBaseFrameFromEphemeris( 0.0 ).transpose( ) << std::endl;
+
     // Define one-way range/one-way Doppler/angular position/one-way differenced range link ends
     LinkEnds oneWayLinkEnds1;
     oneWayLinkEnds1[ transmitter ] = std::make_pair< std::string, std::string >( "Jupiter", "" );
