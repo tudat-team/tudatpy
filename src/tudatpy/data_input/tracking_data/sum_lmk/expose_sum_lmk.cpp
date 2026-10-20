@@ -158,7 +158,7 @@ void expose_sum_lmk( py::module& m )
          Apply the supplementary data with
          :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`
          before creating observations with
-         :func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.
+         :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
 
          Parameters
          ----------

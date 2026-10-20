@@ -12,7 +12,7 @@
 #define TUDAT_SUM_LMK_TEST_HELPERS_H
 
 #include "tudat/io/readSumLmkFiles.h"
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
@@ -24,7 +24,7 @@ namespace unit_tests
 
 //! Shared fixture setup; all conversion and environment changes use the public tracking-data interface.
 struct LoadedPixelTestData {
-    std::shared_ptr< observation_models::ObservationCollection< double, double > > observationCollection_;
+    std::shared_ptr< observation_models::ObservationDataset< double, double > > observationDataset_;
     std::vector< std::shared_ptr< data::TrackingSupplementaryData > > supplementaryData_;
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettings_;
     std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
@@ -32,10 +32,12 @@ struct LoadedPixelTestData {
 };
 
 inline std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > pixelModelSettingsForTest(
-        const std::shared_ptr< observation_models::ObservationCollection< double, double > >& collection )
+        const std::shared_ptr< observation_models::ObservationDataset< double, double > >& dataset )
 {
+    const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
+            dataset->getLinkEndsPerObservableType( );
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > settings;
-    for( const auto& link : collection->getLinkDefinitionsForSingleObservable( observation_models::pixel_coordinates ) )
+    for( const auto& link : linkEndsPerObservable.at( observation_models::pixel_coordinates ) )
     {
         settings.push_back( observation_models::pixelCoordinatesSettings( link ) );
     }
@@ -54,8 +56,8 @@ inline LoadedPixelTestData loadPixelTestData( const std::vector< input_output::s
     observation_models::setTrackingSupplementaryDataInBodies( bodies, loaded.second );
     LoadedPixelTestData result;
     result.supplementaryData_ = loaded.second;
-    result.observationCollection_ = observation_models::createObservationCollection< double, double >( loaded.first, bodies );
-    result.observationModelSettings_ = pixelModelSettingsForTest( result.observationCollection_ );
+    result.observationDataset_ = observation_models::createObservationDatasetFromTrackingData< double, double >( loaded.first, bodies );
+    result.observationModelSettings_ = pixelModelSettingsForTest( result.observationDataset_ );
     result.inverseAprioriCovarianceDiagonalEntries_ = simulation_setup::getCameraPointingInverseAprioriCovarianceEntries( loaded.second );
     return result;
 }

@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkProcessingRealData )
     }
 
     // The observation epoch is the SUM UTC epoch, converted to TDB.
-    const double epoch = loaded.observationCollection_->getConcatenatedTimeVector( ).front( );
+    const double epoch = loaded.observationDataset_->getTimes( ).front( );
     BOOST_CHECK_SMALL( epoch - spice_interface::convertDateStringToEphemerisTime( "2015-04-14T16:26:27.974" ), 1.0E-3 );
 
     // The camera is oriented by CX/CY/CZ w.r.t. the rotating target body-fixed frame.
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkSkipMode )
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
     LoadedPixelTestData result = loadPixelTestData( { image }, makeSyntheticLandmarks( ), bodies, "Target", "Spacecraft", true );
 
-    BOOST_REQUIRE_EQUAL( result.observationCollection_->getConcatenatedObservations( ).size( ), 2 );
+    BOOST_REQUIRE_EQUAL( result.observationDataset_->getTotalScalarSize( ), 2 );
     BOOST_REQUIRE_EQUAL( result.observationModelSettings_.size( ), 1 );
     BOOST_CHECK_EQUAL( result.observationModelSettings_.at( 0 )->linkEnds_.linkEnds_.at( transmitter ).stationName_, "LMK0001" );
 }
@@ -536,7 +536,7 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
                 ->setEphemeris( std::make_shared< ConstantEphemeris >( [ &receiverState ]( ) { return receiverState; }, "SSB", "J2000" ) );
         const auto loaded = loadPixelTestData(
                 { makeSyntheticSumImage( "IMGABERRATION", Eigen::Vector3d::Constant( 1.0E-4 ) ) }, makeSyntheticLandmarks( ), bodies );
-        const auto link = loaded.observationCollection_->getLinkDefinitionsForSingleObservable( pixel_coordinates ).front( );
+        const auto link = loaded.observationDataset_->getLinkEndsPerObservableType( ).at( pixel_coordinates ).front( );
         const auto model = ObservationModelCreator< 2, double, double >::createObservationModel(
                 pixelCoordinatesSettings( link, {}, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), aberration ), bodies );
         const auto parameter = std::make_shared< CameraPointingCorrection >(
@@ -547,7 +547,7 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
         const auto partials = ObservationPartialCreator< 2, double, double >::createObservationPartials( model, bodies, parameters );
         BOOST_REQUIRE_EQUAL( partials.first.size( ), 1 );
         BOOST_REQUIRE( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( partials.first.begin( )->second ) != nullptr );
-        const double epoch = loaded.observationCollection_->getConcatenatedTimeVector( ).front( );
+        const double epoch = loaded.observationDataset_->getTimes( ).front( );
         const std::function< Eigen::VectorXd( const double ) > observable = [ & ]( const double time ) {
             // The receiver ephemeris changes between numerical evaluations at the same epoch.
             bodies.at( "Spacecraft" )->recomputeStateOnNextCall( );
@@ -617,12 +617,11 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartial )
         landmarks.at( "LMK0001" ).bodyFixedPosition_ = Eigen::Vector3d( 400.0, -250.0, 100.0 );
         const auto loaded = loadPixelTestData( { image }, landmarks, bodies );
         const auto model = ObservationModelCreator< 2, double, double >::createObservationModel(
-                pixelCoordinatesSettings(
-                        loaded.observationCollection_->getLinkDefinitionsForSingleObservable( pixel_coordinates ).front( ),
-                        {},
-                        nullptr,
-                        std::make_shared< LightTimeConvergenceCriteria >( ),
-                        aberration ),
+                pixelCoordinatesSettings( loaded.observationDataset_->getLinkEndsPerObservableType( ).at( pixel_coordinates ).front( ),
+                                          {},
+                                          nullptr,
+                                          std::make_shared< LightTimeConvergenceCriteria >( ),
+                                          aberration ),
                 bodies );
         const auto parameter = std::make_shared< RotationRate >( rotation, "Target" );
         const auto parameters = std::make_shared< EstimatableParameterSet< double > >(
@@ -669,7 +668,7 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationalStatePartial )
             std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >{ parameter } );
     const auto partials = ObservationPartialCreator< 2, double, double >::createObservationPartials( model, bodies, parameters );
     BOOST_REQUIRE_EQUAL( partials.first.size( ), 1 );
-    const double epoch = loaded.observationCollection_->getConcatenatedTimeVector( ).front( );
+    const double epoch = loaded.observationDataset_->getTimes( ).front( );
     std::vector< double > times;
     std::vector< Eigen::Vector6d > states;
     const Eigen::Vector2d observation = model->computeObservationsWithLinkEndData( epoch, receiver, times, states );

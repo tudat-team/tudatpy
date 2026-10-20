@@ -356,18 +356,17 @@ std::vector< int > getPointingStartIndices( const std::shared_ptr< EstimatablePa
 }
 
 //! Simulate ideal pixel observations at the epochs of the converted SUM/LMK data, with unit weights.
-std::shared_ptr< ObservationCollection< double, double > > simulatePixelObservations(
+std::shared_ptr< ObservationDataset< double, double > > simulatePixelObservations(
         const LoadedPixelTestData& conversionResult,
         const OrbitDeterminationManager< double, double >& orbitDeterminationManager,
         const SystemOfBodies& bodies )
 {
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
-            getObservationSimulationSettingsFromObservations< double, double >( conversionResult.observationCollection_, bodies ),
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
+            getObservationSimulationSettingsFromObservationDataset< double, double >( conversionResult.observationDataset_, bodies ),
             orbitDeterminationManager.getObservationSimulators( ),
             bodies );
-    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
-    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
-    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< double, double >::observableType( pixel_coordinates ), 1.0 );
     return simulatedObservations;
 }
 
@@ -383,7 +382,7 @@ Eigen::Vector3d syntheticPointingOffset( const int imageIndex, const double magn
 
 //! The committed real Rosetta/67P scenario: comet with point-mass gravity and the SPC body-fixed
 //! attitude, spacecraft on the reconstructed SPICE orbiter arc, and the reduced SUM/LMK dataset
-//! ingested into a pixel observation collection. Shared by the real-data estimation tests.
+//! ingested into a pixel observation dataset. Shared by the real-data estimation tests.
 struct RealRosettaScenario {
     SystemOfBodies bodies_;
     LoadedPixelTestData conversionResult_;
@@ -572,7 +571,7 @@ LandmarkObservationScenario buildLandmarkObservationScenario( const int numberOf
 std::vector< std::shared_ptr< EstimatableParameterSettings > > landmarkParameterSettings( const LoadedPixelTestData& loaded,
                                                                                           const std::string& targetBody = "Target" )
 {
-    return getObservedReferencePointPositionParameterSettings< double, double >( loaded.observationCollection_, targetBody );
+    return getObservedReferencePointPositionParameterSettings< double, double >( loaded.observationDataset_, targetBody );
 }
 
 //! Inverse a-priori covariance from SIGMA_LMK, for the landmarks in the parameter set.
@@ -596,18 +595,17 @@ int landmarkStartIndex( const std::shared_ptr< EstimatableParameterSet< double >
 }
 
 //! Simulate ideal pixel observations for a scenario and give them unit weight.
-std::shared_ptr< ObservationCollection< double, double > > simulateIdealPixelObservations(
-        const std::shared_ptr< ObservationCollection< double, double > >& templateCollection,
+std::shared_ptr< ObservationDataset< double, double > > simulateIdealPixelObservations(
+        const std::shared_ptr< ObservationDataset< double, double > >& templateDataset,
         OrbitDeterminationManager< double, double >& orbitDeterminationManager,
         const SystemOfBodies& bodies )
 {
     const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations< double, double >( templateCollection, bodies );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            getObservationSimulationSettingsFromObservationDataset< double, double >( templateDataset, bodies );
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
-    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
-    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
-    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< double, double >::observableType( pixel_coordinates ), 1.0 );
     return simulatedObservations;
 }
 
@@ -646,7 +644,7 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
         truthParameters.segment( pointingStartIndices.at( imageIndex ), 3 ) = syntheticPointingOffset( imageIndex, 1.5E-3 );
     }
     parametersToEstimate->resetParameterValues( truthParameters );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
             simulatePixelObservations( conversionResult, orbitDeterminationManager, bodies );
     parametersToEstimate->resetParameterValues( Eigen::VectorXd( Eigen::VectorXd::Zero( truthParameters.rows( ) ) ) );
 
@@ -695,7 +693,7 @@ BOOST_AUTO_TEST_CASE( testInitialStateRecovery )
             scenario.propagatorSettings_ );
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parametersToEstimate, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
             simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
 
     const Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
@@ -745,7 +743,7 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
         truthParameters.segment( pointingStartIndices.at( imageIndex ), 3 ) = syntheticPointingOffset( imageIndex, 1.0E-3 );
     }
     parametersToEstimate->resetParameterValues( truthParameters );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
             simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
 
     // Perturb the state and zero all pointing corrections, then recover both.
@@ -799,7 +797,7 @@ BOOST_AUTO_TEST_CASE( testPointingApriori )
         truthParameters.segment( pointingStartIndices.at( imageIndex ), 3 ) = syntheticPointingOffset( imageIndex, 1.0E-3 );
     }
     parametersToEstimate->resetParameterValues( truthParameters );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
             simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
 
     // The a-priori created from the SUM SIGMA_PTG values: 1/sigma^2 on the pointing parameters only.
@@ -871,9 +869,8 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
                                                                                scenario.conversionResult_.observationModelSettings_,
                                                                                scenario.propagatorSettings_ );
 
-        std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
-        weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
-        scenario.conversionResult_.observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
+        scenario.conversionResult_.observationDataset_->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< double, double >::observableType( pixel_coordinates ), 1.0 );
 
         Eigen::MatrixXd inverseAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 );
         if( estimatePointing )
@@ -882,7 +879,7 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
                     parametersToEstimate, scenario.conversionResult_.inverseAprioriCovarianceDiagonalEntries_, false );
         }
         const std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-                scenario.conversionResult_.observationCollection_, inverseAprioriCovariance );
+                scenario.conversionResult_.observationDataset_, inverseAprioriCovariance );
         estimationInput->defineEstimationSettings( true, true, true, true, true, true );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 8 ) );
         return orbitDeterminationManager.estimateParameters( estimationInput );
@@ -934,8 +931,8 @@ BOOST_AUTO_TEST_CASE( testLandmarkPositionRecovery )
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parameters, scenario.conversionResult_.observationModelSettings_, nullPropagatorSettings );
     const Eigen::VectorXd truthParameters = parameters->getFullParameterValues< double >( );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateIdealPixelObservations(
-            scenario.conversionResult_.observationCollection_, orbitDeterminationManager, scenario.bodies_ );
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
+            simulateIdealPixelObservations( scenario.conversionResult_.observationDataset_, orbitDeterminationManager, scenario.bodies_ );
 
     Eigen::VectorXd perturbedParameters = truthParameters;
     for( int i = 0; i < perturbedParameters.size( ); ++i )
@@ -966,10 +963,10 @@ BOOST_AUTO_TEST_CASE( testObservedLandmarkParameterSettings )
     LoadedPixelTestData loaded = loadPixelTestData( { earlyImage, lateImage }, makeLandmarks( ), bodies );
     BOOST_CHECK_EQUAL( landmarkParameterSettings( loaded ).size( ), 2 );
 
-    // Remove the observations of L2. Its observation set stays in the collection, but is empty.
+    // Reject the observations of L2. They stay in the dataset, but are no longer used.
     const double earlyTime = sumImageTdbTimeForTest( earlyImage );
-    loaded.observationCollection_->filterObservations(
-            observationFilter( time_bounds_filtering, earlyTime - 1.0, earlyTime + 1.0, true, true ) );
+    loaded.observationDataset_->rejectObservations(
+            !ObservationSelectionCondition< double, double >::timeBounds( earlyTime - 1.0, earlyTime + 1.0 ) );
 
     const std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings = landmarkParameterSettings( loaded );
     BOOST_REQUIRE_EQUAL( parameterSettings.size( ), 1 );
@@ -1011,8 +1008,8 @@ BOOST_AUTO_TEST_CASE( testLandmarkAprioriAndConsiderCovariance )
 
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parameters, scenario.conversionResult_.observationModelSettings_, nullPropagatorSettings );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateIdealPixelObservations(
-            scenario.conversionResult_.observationCollection_, orbitDeterminationManager, scenario.bodies_ );
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
+            simulateIdealPixelObservations( scenario.conversionResult_.observationDataset_, orbitDeterminationManager, scenario.bodies_ );
     const std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< double, double > >(
                     simulatedObservations, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
@@ -1146,8 +1143,8 @@ BOOST_AUTO_TEST_CASE( testLandmarkAcrossMultipleArcs )
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parameters, loaded.observationModelSettings_, propagatorSettings );
     const Eigen::VectorXd truthParameters = parameters->getFullParameterValues< double >( );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
-            simulateIdealPixelObservations( loaded.observationCollection_, orbitDeterminationManager, bodies );
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
+            simulateIdealPixelObservations( loaded.observationDataset_, orbitDeterminationManager, bodies );
 
     Eigen::VectorXd perturbedParameters = truthParameters;
     for( int arcIndex = 0; arcIndex < 2; ++arcIndex )
@@ -1170,7 +1167,12 @@ BOOST_AUTO_TEST_CASE( testLandmarkAcrossMultipleArcs )
 
     // Each landmark's partials are non-zero for observations in both arcs.
     const Eigen::MatrixXd designMatrix = estimationOutput->getUnnormalizedDesignMatrix( );
-    const std::vector< double > observationTimes = simulatedObservations->getConcatenatedTimeVector( );
+    std::vector< double > observationTimes;
+    for( const auto& component : simulatedObservations->getScalarComponents( ObservationSelectionCondition< double, double >::all( ),
+                                                                             ObservationOrdering::estimation ) )
+    {
+        observationTimes.push_back( simulatedObservations->getObservationRow( component.first ).time_ );
+    }
     const double arcBoundaryTime = 0.5 * ( epochs.at( numberOfImagesPerArc - 1 ) + epochs.at( numberOfImagesPerArc ) );
     for( const auto& landmark : landmarks )
     {
@@ -1212,9 +1214,8 @@ BOOST_AUTO_TEST_CASE( testRealRosettaLandmarkEstimation )
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parameters, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
     const Eigen::VectorXd aprioriParameters = parameters->getFullParameterValues< double >( );
-    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
-    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
-    scenario.conversionResult_.observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
+    scenario.conversionResult_.observationDataset_->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< double, double >::observableType( pixel_coordinates ), 1.0 );
 
     // Solve with or without the SIGMA_LMK a-priori, and return the median landmark displacement from the LMK position.
     auto medianLandmarkDisplacement = [ & ]( const bool useApriori, double& finalResidualRms ) {
@@ -1222,7 +1223,7 @@ BOOST_AUTO_TEST_CASE( testRealRosettaLandmarkEstimation )
         const Eigen::MatrixXd inverseApriori =
                 useApriori ? landmarkInverseAprioriCovariance( scenario.conversionResult_, parameters ) : Eigen::MatrixXd::Zero( 0, 0 );
         const std::shared_ptr< EstimationInput< double, double > > estimationInput =
-                std::make_shared< EstimationInput< double, double > >( scenario.conversionResult_.observationCollection_, inverseApriori );
+                std::make_shared< EstimationInput< double, double > >( scenario.conversionResult_.observationDataset_, inverseApriori );
         estimationInput->defineEstimationSettings( true, true, true, false, true, false );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 6 ) );
         const std::shared_ptr< EstimationOutput< double > > output = orbitDeterminationManager.estimateParameters( estimationInput );
