@@ -201,6 +201,33 @@ void expose_estimation_analysis( py::module& m )
 
      )doc" );
 
+    m.def( "get_camera_pointing_inverse_apriori_covariance_entries",
+           &tss::getCameraPointingInverseAprioriCovarianceEntries,
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+ Function to get pointing a-priori entries for cameras.
+
+ Each camera in ``supplementary_data`` with a pointing uncertainty gives one entry for its
+ ``camera_pointing_correction`` parameter. The entry holds the inverse variance of each pointing correction
+ component. For SUM/LMK data, the uncertainty is the SUM ``SIGMA_PTG`` value.
+
+ The result can be passed to :func:`create_covariance_from_diagonal_entries` to build an inverse a-priori
+ covariance. Use ``require_all_entries_to_match=False`` there if not all cameras are estimated.
+
+ Parameters
+ ----------
+ supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+     Tracking supplementary data, for example as returned by
+     :func:`~tudatpy.data_input.tracking_data.sum_lmk.read_sum_lmk_data`.
+
+ Returns
+ -------
+ list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
+     One ``(parameter_identifier, inverse_variances)`` entry per camera with a pointing uncertainty.
+
+     )doc" );
+
     m.def( "get_reference_point_position_inverse_apriori_covariance_entries",
            &tss::getReferencePointPositionInverseAprioriCovarianceEntries,
            py::arg( "supplementary_data" ),

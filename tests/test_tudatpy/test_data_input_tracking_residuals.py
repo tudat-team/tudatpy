@@ -978,11 +978,12 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
 
 
 def test_sum_lmk_landmark_position_helpers():
-    """Use LMK SIGMA_LMK for landmark position parameters, the a-priori covariance and the consider covariance."""
+    """Use SUM SIGMA_PTG and LMK SIGMA_LMK for the a-priori covariance, and SIGMA_LMK for the consider covariance."""
     from tudatpy.dynamics import parameters_setup
     from tudatpy.estimation.estimation_analysis import (
         create_covariance_from_diagonal_entries,
         create_reference_point_consider_covariance,
+        get_camera_pointing_inverse_apriori_covariance_entries,
         get_reference_point_position_inverse_apriori_covariance_entries,
     )
     from tudatpy.estimation.observations import (
@@ -1029,6 +1030,17 @@ def test_sum_lmk_landmark_position_helpers():
     entries = get_reference_point_position_inverse_apriori_covariance_entries(supplementary_data)
     np.testing.assert_allclose(
         create_covariance_from_diagonal_entries(parameter_set, entries), np.eye(6)
+    )
+
+    # Camera pointing estimated: the inverse a-priori covariance is 1 / (1e-4 rad)^2 on the diagonal.
+    pointing_set = parameters_setup.create_parameter_set(
+        [parameters_setup.camera_pointing_correction("Spacecraft", "Camera_IMG001")], bodies
+    )
+    pointing_entries = get_camera_pointing_inverse_apriori_covariance_entries(supplementary_data)
+    assert len(pointing_entries) == 1
+    np.testing.assert_allclose(
+        create_covariance_from_diagonal_entries(pointing_set, pointing_entries),
+        1.0e8 * np.eye(3),
     )
 
     # LMK0001 estimated and LMK0002 held fixed: the consider covariance is (1 m)^2 on the diagonal.

@@ -25,6 +25,8 @@ Functions
 
    create_covariance_from_diagonal_entries
 
+   get_camera_pointing_inverse_apriori_covariance_entries
+
    get_reference_point_position_inverse_apriori_covariance_entries
 
    get_reference_point_position_apriori_covariance_entries
@@ -55,6 +57,8 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.get_camera_pointing_inverse_apriori_covariance_entries
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.get_reference_point_position_inverse_apriori_covariance_entries
 
