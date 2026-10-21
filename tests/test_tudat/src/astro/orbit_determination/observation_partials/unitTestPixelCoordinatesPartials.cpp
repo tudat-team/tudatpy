@@ -59,51 +59,6 @@ using namespace tudat::estimatable_parameters;
 namespace
 {
 
-SystemOfBodies createSyntheticSumLmkBodies( )
-{
-    SystemOfBodies bodies( "SSB", "J2000" );
-    bodies.createEmptyBody< double, double >( "Target", false );
-    bodies.createEmptyBody< double, double >( "Spacecraft", false );
-
-    bodies.at( "Target" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "J2000" ) );
-    Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
-    spacecraftState( 2 ) = -10000.0;
-    bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< ConstantEphemeris >( spacecraftState, "SSB", "J2000" ) );
-
-    bodies.at( "Target" )
-            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
-                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Target_Fixed" ) );
-    bodies.at( "Spacecraft" )
-            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
-                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Spacecraft_Fixed" ) );
-
-    bodies.processBodyFrameDefinitions< double, double >( );
-    return bodies;
-}
-
-//! Minimal in-memory SUM image with synthetic (+Z-boresight) geometry: spacecraft behind a landmark at the origin, and
-//! identity camera axes.
-input_output::sum_lmk::SumImageData makeSyntheticSumImage( const std::string& imageId, const Eigen::Vector3d& pointingSigma )
-{
-    input_output::sum_lmk::SumImageData image;
-    image.imageId_ = imageId;
-    image.utcEpochString_ = "2015 JUN 05 07:24:42.053";
-    image.imageSize_ = Eigen::Vector2i( 1024, 1024 );
-    image.focalLengthMm_ = 100.0;
-    image.opticalCenter_ = Eigen::Vector2d( 512.0, 512.0 );
-    // SCOBJ = spacecraft-to-object: with the spacecraft at z = -10000 and target at the origin,
-    // the spacecraft-to-object vector is +10000 along z.
-    image.spacecraftObjectVector_ = Eigen::Vector3d( 0.0, 0.0, 10000.0 );
-    image.cameraAxes_ = Eigen::Matrix3d::Identity( );
-    image.kMatrix_ << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
-    image.pointingSigma_ = pointingSigma;
-    input_output::sum_lmk::SumLandmarkObservation observation;
-    observation.landmarkId_ = "LMK0001";
-    observation.pixelCoordinates_ = Eigen::Vector2d( 512.0, 512.0 );
-    image.landmarkObservations_.push_back( observation );
-    return image;
-}
-
 std::map< std::string, input_output::sum_lmk::LmkLandmarkData > makeSyntheticLandmarks( )
 {
     input_output::sum_lmk::LmkLandmarkData landmark;
@@ -288,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkProcessingRealData )
 BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkSkipMode )
 {
     spice_interface::loadStandardSpiceKernels( );
-    input_output::sum_lmk::SumImageData image = makeSyntheticSumImage( "IMGMIXED", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    input_output::sum_lmk::SumImageData image = makeSyntheticSumImage( "IMGMIXED" );
     input_output::sum_lmk::SumLandmarkObservation missingObservation;
     missingObservation.landmarkId_ = "LMK_MISSING";
     missingObservation.pixelCoordinates_ = Eigen::Vector2d( 600.0, 600.0 );
@@ -416,7 +371,7 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
         bodies.at( "Spacecraft" )
                 ->setEphemeris( std::make_shared< ConstantEphemeris >( [ &receiverState ]( ) { return receiverState; }, "SSB", "J2000" ) );
         const auto loaded = loadPixelTestData(
-                { makeSyntheticSumImage( "IMGABERRATION", Eigen::Vector3d::Constant( 1.0E-4 ) ) }, makeSyntheticLandmarks( ), bodies );
+                { makeSyntheticSumImage( "IMGABERRATION" ) }, makeSyntheticLandmarks( ), bodies );
         const auto link = loaded.observationCollection_->getLinkDefinitionsForSingleObservable( pixel_coordinates ).front( );
         const auto model = ObservationModelCreator< 2, double, double >::createObservationModel(
                 pixelCoordinatesSettings( link, {}, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), aberration ), bodies );
@@ -482,7 +437,7 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartial )
     for( const bool aberration : { false, true } )
     {
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-        const auto image = makeSyntheticSumImage( "IMGROTATION", Eigen::Vector3d::Constant( 1.0E-4 ) );
+        const auto image = makeSyntheticSumImage( "IMGROTATION" );
         const double epoch = sumImageTdbTimeForTest( image );
         const auto rotation =
                 std::make_shared< SimpleRotationalEphemeris >( Eigen::Quaterniond( Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) ),
@@ -539,7 +494,7 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationalStatePartial )
     auto landmarks = makeSyntheticLandmarks( );
     landmarks.at( "LMK0001" ).bodyFixedPosition_ = Eigen::Vector3d( 400.0, -250.0, 100.0 );
     const auto loaded =
-            loadPixelTestData( { makeSyntheticSumImage( "IMGSTATE", Eigen::Vector3d::Constant( 1.0E-4 ) ) }, landmarks, bodies );
+            loadPixelTestData( { makeSyntheticSumImage( "IMGSTATE" ) }, landmarks, bodies );
     const auto model =
             ObservationModelCreator< 2, double, double >::createObservationModel( loaded.observationModelSettings_.front( ), bodies );
     const auto parameter = std::make_shared< InitialRotationalStateParameter< double > >(
