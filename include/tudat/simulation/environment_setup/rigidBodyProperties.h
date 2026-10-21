@@ -53,6 +53,9 @@ public:
 
     Eigen::Matrix3d getCurrentInertiaTensor( );
 
+    //! Function to retrieve whether these properties define an inertia tensor
+    bool isInertiaTensorAvailable( ) const;
+
     virtual void setCurrentMass( const double currentMass ) = 0;
 
     virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
@@ -71,6 +74,9 @@ protected:
     bool isComComputed_;
 
     bool isInertiaTensorComputed_;
+
+    //! Boolean denoting whether these properties define an inertia tensor
+    bool isInertiaTensorAvailable_;
 };
 
 class TimeDependentRigidBodyProperties : public RigidBodyProperties
@@ -129,27 +135,56 @@ protected:
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
 };
 
+//! Rigid-body properties (mass, center of mass and inertia tensor) derived from a body's gravity field.
+/*!
+ * Rigid-body properties derived from a body's gravity field. The properties are recomputed from the gravity field when updated
+ * (for a time-dependent gravity field, once per time step during propagation).
+ */
 class FromGravityFieldRigidBodyProperties : public RigidBodyProperties
 {
 public:
-    FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
+    //! Constructor, with scaled mean moment of inertia required to compute an inertia tensor from a spherical harmonic gravity field.
+    FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel,
+                                         const double scaledMeanMomentOfInertia = TUDAT_NAN );
 
     virtual ~FromGravityFieldRigidBodyProperties( );
 
-    virtual void resetCurrentTime( );
+    void resetCurrentTime( ) override;
 
-    virtual void updateMass( const double currentTime );
+    void updateMass( const double currentTime ) override;
 
-    virtual void updateMassDistribution( const double currentTime );
+    void updateMassDistribution( const double currentTime ) override;
 
-    virtual void setCurrentMass( const double currentMass );
+    void setCurrentMass( const double currentMass ) override;
 
-    virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
+    void setIsBodyInPropagation( const bool isBodyInPropagation ) override;
+
+    //! Reset the gravity field from which these properties are derived
+    void resetGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
+
+    //! Return the scaled mean moment of inertia (I_xx + I_yy + I_zz) / ( 3 M R^2 )
+    double getScaledMeanMomentOfInertia( ) const;
+
+    //! Reset the scaled mean moment of inertia, and recompute the inertia tensor
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia );
 
 protected:
-    const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
+    //! Function to compute the mass from the gravity field
+    void computeMassFromGravityField( );
+
+    //! Function to compute the center of mass and inertia tensor from the gravity field
+    void computeMassDistributionFromGravityField( );
+
+    //! Gravity field from which properties are derived.
+    std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
+
+    //! Scaled mean moment of inertia, used with the degree-two coefficients to compute the inertia tensor.
+    double scaledMeanMomentOfInertia_;
 
     bool modelIsTimeDependent_;
+
+    //! Inertia tensor per unit mass of (homogeneous) polyhedron
+    Eigen::Matrix3d polyhedronInertiaTensorPerUnitMass_;
 };
 
 }  // namespace simulation_setup

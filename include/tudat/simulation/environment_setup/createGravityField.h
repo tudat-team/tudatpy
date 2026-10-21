@@ -153,6 +153,9 @@ public:
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized).
      *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which
      *  the coefficients are referred.
+     *  \param scaledMeanMomentOfInertia Deprecated compatibility input. During body creation
+     *  this value is transferred to gravity-derived rigid-body-property settings and is not
+     *  stored in the runtime gravity model.
      */
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
                                             const double referenceRadius,
@@ -231,11 +234,13 @@ public:
         return inertiaTensor_;
     }
 
+    //! Return the compatibility input that is transferred to rigid-body-property settings.
     double getScaledMeanMomentOfInertia( )
     {
         return scaledMeanMomentOfInertia_;
     }
 
+    //! Set the compatibility input that is transferred to rigid-body-property settings.
     void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
     {
         scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
@@ -323,6 +328,7 @@ protected:
     // Boolean that denotes whether the field should be created as time-dependent (even if no variations are imposed intially)
     bool createTimeDependentField_;
 
+    //! Compatibility-only input carrier; never copied to SphericalHarmonicsGravityField.
     double scaledMeanMomentOfInertia_;
 };
 
@@ -889,6 +895,32 @@ protected:
     RigidBodyPropertiesType rigidBodyPropertiesType_;
 };
 
+//! Settings for rigid-body properties derived from the body's gravity field.
+class FromGravityFieldRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
+{
+public:
+    //! Constructor, with scaled mean moment of inertia (required to compute inertia tensor from spherical harmonic gravity field)
+    explicit FromGravityFieldRigidBodyPropertiesSettings( const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+        RigidBodyPropertiesSettings( from_gravity_field_rigid_body_properties ), scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
+    {}
+
+    //! Function to retrieve the scaled mean moment of inertia
+    double getScaledMeanMomentOfInertia( ) const
+    {
+        return scaledMeanMomentOfInertia_;
+    }
+
+    //! Function to reset the scaled mean moment of inertia
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
+    {
+        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
+    }
+
+private:
+    //! Scaled mean moment of inertia (I_xx + I_yy + I_zz) / ( 3 M R^2 )
+    double scaledMeanMomentOfInertia_;
+};
+
 class ConstantRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
 {
 public:
@@ -1000,6 +1032,12 @@ inline std::shared_ptr< RigidBodyPropertiesSettings > constantRigidBodyPropertie
         const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) )
 {
     return std::make_shared< ConstantRigidBodyPropertiesSettings >( mass, centerOfMass, inertiaTensor );
+}
+
+inline std::shared_ptr< RigidBodyPropertiesSettings > fromGravityFieldRigidBodyPropertiesSettings(
+        const double scaledMeanMomentOfInertia = TUDAT_NAN )
+{
+    return std::make_shared< FromGravityFieldRigidBodyPropertiesSettings >( scaledMeanMomentOfInertia );
 }
 
 inline std::shared_ptr< RigidBodyPropertiesSettings > fromFunctionRigidBodyPropertiesSettings(

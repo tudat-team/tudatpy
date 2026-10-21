@@ -123,7 +123,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                                 bodies,
                                 parametersToEstimate ) ),
                         acceleratedBody.first,
-                        acceleratingBody.first );
+                        acceleratingBody.first,
+                        std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                                acceleratingBody.second->getMassProperties( ) ) != nullptr );
             }
             break;
         case full_two_body_spherical_harmonic_gravitational_torque: {
