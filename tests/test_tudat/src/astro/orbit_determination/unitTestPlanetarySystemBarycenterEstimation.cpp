@@ -136,8 +136,9 @@ SystemOfBodies createBodies( const bool spacecraftIsMultiArc )
     bodies.at( "Sun" )->setEphemeris( createCustomEphemeris( []( const double ) { return Eigen::Vector6d::Zero( ).eval( ); }, "SSB" ) );
     bodies.at( "Earth" )->setEphemeris( createCustomEphemeris(
             []( const double time ) { return getCircularOrbitState( time, 1.496E11, sunGravitationalParameter, 1.3 ); }, "SSB" ) );
-    bodies.at( "Saturn" )->setEphemeris( createCustomEphemeris(
-            []( const double time ) { return getCircularOrbitState( time, 1.4335E12, sunGravitationalParameter, 1.0 ); }, "SSB" ) );
+    bodies.at( "Saturn" )
+            ->setEphemeris( createCustomEphemeris(
+                    []( const double time ) { return getCircularOrbitState( time, 1.4335E12, sunGravitationalParameter, 1.0 ); }, "SSB" ) );
     bodies.at( "Jupiter" )->setEphemeris( createCustomEphemeris( getJupiterStateWrtBarycenter, barycenterName ) );
     bodies.at( "Io" )->setEphemeris( createCustomEphemeris( getIoStateWrtJupiter, "Jupiter" ) );
     bodies.at( "Ganymede" )->setEphemeris( createCustomEphemeris( getGanymedeStateWrtBarycenter, barycenterName ) );
@@ -369,16 +370,15 @@ BOOST_AUTO_TEST_CASE( testPropagatedEphemerisOriginInEnvironment )
     {
         dependentVariables.push_back( relativePositionDependentVariable( bodyName, "Sun" ) );
     }
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-            bodies,
-            createSingleArcPropagatorSettings( bodies,
-                                               { barycenterName, "Juno" },
-                                               initialState,
-                                               initialTime,
-                                               initialTime - arcDuration / 2.0,
-                                               initialTime + arcDuration / 2.0,
-                                               30.0,
-                                               dependentVariables ) );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies,
+                                                                    createSingleArcPropagatorSettings( bodies,
+                                                                                                       { barycenterName, "Juno" },
+                                                                                                       initialState,
+                                                                                                       initialTime,
+                                                                                                       initialTime - arcDuration / 2.0,
+                                                                                                       initialTime + arcDuration / 2.0,
+                                                                                                       30.0,
+                                                                                                       dependentVariables ) );
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 
@@ -428,8 +428,8 @@ BOOST_AUTO_TEST_CASE( testHybridArcObservationPartials )
     SystemOfBodies bodies = createBodies( true );
 
     std::shared_ptr< HybridArcPropagatorSettings< double > > propagatorSettings = createHybridArcPropagatorSettings( bodies );
-    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double >(
-            getInitialHybridArcParameterSettings< double >( propagatorSettings, bodies ), bodies );
+    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double >( getInitialHybridArcParameterSettings< double >( propagatorSettings, bodies ), bodies );
     BOOST_CHECK_EQUAL( parametersToEstimate->getParameterSetSize( ), 6 * ( numberOfArcs + 1 ) );
 
     checkObservationPartials( bodies, parametersToEstimate, propagatorSettings, getObservationTimesOfAllArcs( 1200.0 ) );
