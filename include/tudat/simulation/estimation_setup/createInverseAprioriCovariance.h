@@ -19,11 +19,18 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/io/trackingSupplementaryData.h"
 
 namespace tudat
 {
 namespace simulation_setup
 {
+
+//! Extract per-camera pointing inverse variances from tracking supplementary data of any source format.
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getCameraPointingInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
 //! Validate/initialize a covariance-like matrix input.
 /*!
  * If the input matrix is 0x0, a zero matrix with the required dimensions is created.

@@ -3551,7 +3551,22 @@ bool
                     R"doc(
             **read-only**
 
-            Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
+            Orientation of the camera w.r.t. its host body, including the current :attr:`~Camera.pointing_correction`.
+            Returns a 4x1 numpy array [w, x, y, z]. For a camera with picture-specific pointing (such as the cameras
+            created from SUM files), the orientation is defined directly w.r.t. the inertial frame, and this property
+            only contains the pointing correction.
+            )doc" )
+            .def_property( "pointing_correction",
+                           &tsm::Camera::getPointingCorrection,
+                           &tsm::Camera::setPointingCorrection,
+                           R"doc(
+
+            Small pointing correction of this camera, as a rotation vector (axis times angle, in radians)
+            expressed in the camera frame. It is applied on top of the camera's nominal orientation for every
+            observable computed with this camera, and is the quantity estimated by the
+            :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction` parameter. Defaults to zero.
+
+            :type: numpy.ndarray[numpy.float64[3, 1]]
             )doc" );
     /*
      **************   GROUND STATION FUNCTIONALITY

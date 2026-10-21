@@ -187,9 +187,9 @@ public:
         return getVelocityScalingFactor( linkEndType );
     }
 
-    bool isVelocityScalingNonZero( ) override
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType ) override
     {
-        return useStellarAberration_;
+        return useStellarAberration_ && linkEndType == observation_models::receiver;
     }
 
     Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) override
