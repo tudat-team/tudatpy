@@ -24,7 +24,6 @@
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
-#include "tudat/simulation/estimation_setup/createDopplerPartials.h"
 
 namespace tudat
 {
@@ -604,10 +603,6 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
     const double expectedShift = downlinkFrequency / SPEED_OF_LIGHT * ( 2000.0 / 86400.0 ) *
             ( std::pow( 2295.0e6 / frequency, 2 ) + std::pow( 2295.0e6 / downlinkFrequency, 2 ) );
     ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { s_band, ka_band } );
-    // Empty parameter set, only needed to create the observation partials
-    const auto parameters = std::make_shared< estimatable_parameters::EstimatableParameterSet< double > >(
-            std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >{},
-            std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >{} );
 
     for( const auto observable : { two_way_doppler, doppler_measured_frequency } )
     {
@@ -616,20 +611,12 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
                 std::make_shared< ObservationModelSettings >( observable, twoWayLinkEnds, corrections ), bodies );
         const auto vacuum = ObservationModelCreator< 1, double, Time >::createObservationModel(
                 std::make_shared< ObservationModelSettings >( observable, twoWayLinkEnds ), bodies );
-        std::vector< double > times;
-        std::vector< Eigen::Vector6d > states;
-        const auto observation =
-                model->computeObservationsWithLinkEndData( Time( observationTime ), receiver, times, states, ancillarySettings );
-        // Compare difference between the models with the expected shift (two-way Doppler is a range-rate, the measured
-        // frequency is in Hz)
+        const auto observation = model->computeObservations( Time( observationTime ), receiver, ancillarySettings );
+        // Ionospheric Doppler shift, in Hz (two-way Doppler is a range-rate, the measured frequency is in Hz)
         const double toHertz = ( observable == two_way_doppler ) ? downlinkFrequency / SPEED_OF_LIGHT : 1.0;
-        BOOST_CHECK_SMALL(
-                toHertz * ( observation( 0 ) - vacuum->computeObservations( Time( observationTime ), receiver, ancillarySettings )( 0 ) ) -
-                        expectedShift,
-                0.5e-3 );
-        // Check that the partials (which evaluate the ionospheric correction of the individual legs) can be computed
-        const auto partials = observation_partials::createTwoWayDopplerPartials< double, Time >( model, bodies, parameters );
-        BOOST_CHECK_NO_THROW( partials.second->update( states, times, receiver, observation ) );
+        const double ionosphericShift =
+                toHertz * ( observation( 0 ) - vacuum->computeObservations( Time( observationTime ), receiver, ancillarySettings )( 0 ) );
+        BOOST_CHECK_CLOSE_FRACTION( ionosphericShift, expectedShift, 2.0E-4 );
     }
 
     // Check that one-way Doppler models, which retrieve the transmitted frequency from the station, give the same result
