@@ -936,12 +936,17 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     )
     assert len(tracking_data) == 2
 
+    # The camera sits 10 m along Y from the spacecraft centre. This gives a one-pixel line residual at 10 km range.
+    camera_data = next(
+        entry for entry in supplementary_data if entry.instrument_supplementary_data
+    ).instrument_supplementary_data[0]
+    camera_data.body_fixed_position = np.array([0.0, 10.0, 0.0])
+
     spice.load_standard_kernels()
     body_settings = environment_setup.BodyListSettings("SSB", "J2000")
     states = {
         "Target": np.zeros(6),
-        # A 10 m displacement in Y gives a one-pixel line residual at 10 km range.
-        "Spacecraft": np.array([0.0, 10.0, -10000.0, 0.0, 0.0, 0.0]),
+        "Spacecraft": np.array([0.0, 0.0, -10000.0, 0.0, 0.0, 0.0]),
     }
     for name, state in states.items():
         body_settings.add_empty_settings(name)

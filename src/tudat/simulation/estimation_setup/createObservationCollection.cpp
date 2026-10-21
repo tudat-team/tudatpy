@@ -752,7 +752,7 @@ void setInstrumentSupplementaryDataInBodies(
                         cameraSupplementaryData->getCameraId( ),
                         Eigen::Vector3d::Zero( ),
                         projectionModel,
-                        Eigen::Vector3d::Zero( ),
+                        cameraSupplementaryData->getBodyFixedPosition( ),
                         createCameraPointingFunction( bodies, *cameraSupplementaryData, tdbPictureEpochs ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
                 const std::shared_ptr< system_models::Camera > camera =

@@ -655,6 +655,16 @@ void expose_tracking_data( py::module& m )
 
          :type: str
       )doc" )
+            .def_property( "body_fixed_position",
+                           &tdat::CameraInstrumentSupplementaryData::getBodyFixedPosition,
+                           &tdat::CameraInstrumentSupplementaryData::setBodyFixedPosition,
+                           R"doc(
+         Position of the camera in the body-fixed frame of the body that
+         carries it [m]. It is used when the camera is created from this
+         supplementary data. Defaults to zero.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+      )doc" )
             .def_property( "pointing_uncertainty_history",
                            &tdat::CameraInstrumentSupplementaryData::getPointingUncertaintyHistory,
                            &tdat::CameraInstrumentSupplementaryData::setPointingUncertaintyHistory,

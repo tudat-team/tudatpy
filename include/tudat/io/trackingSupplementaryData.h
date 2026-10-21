@@ -213,6 +213,17 @@ public:
         pointingReferenceBodyName_ = pointingReferenceBodyName;
     }
 
+    //! Position of the camera in the body-fixed frame of the body that carries it [m]. Zero by default.
+    const Eigen::Vector3d& getBodyFixedPosition( ) const
+    {
+        return bodyFixedPosition_;
+    }
+
+    void setBodyFixedPosition( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        bodyFixedPosition_ = bodyFixedPosition;
+    }
+
     //! Calibration of each picture, per picture epoch of the pointing history. When empty, all pictures use the calibration of
     //! the camera.
     const std::map< double, CameraPictureCalibration >& getPictureCalibrationHistory( ) const
@@ -255,7 +266,7 @@ public:
         if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
             !fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) || !kMatrix_.isApprox( other.kMatrix_ ) ||
             !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) ||
-            pointingReferenceBodyName_ != other.pointingReferenceBodyName_ )
+            bodyFixedPosition_ != other.bodyFixedPosition_ || pointingReferenceBodyName_ != other.pointingReferenceBodyName_ )
         {
             throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
         }
@@ -319,6 +330,8 @@ private:
     std::map< double, Eigen::Quaterniond > rotationFromInertialToCameraFrameHistory_;
 
     std::string pointingReferenceBodyName_;
+
+    Eigen::Vector3d bodyFixedPosition_ = Eigen::Vector3d::Zero( );
 
     std::map< double, CameraPictureCalibration > pictureCalibrationHistory_;
 
