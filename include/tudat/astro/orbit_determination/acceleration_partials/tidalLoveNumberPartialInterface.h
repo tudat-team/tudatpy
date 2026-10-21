@@ -374,12 +374,6 @@ public:
         return getCurrentParameterPartial( parameter, maximumDegreeAndOrder );
     }
 
-    //! Function to retrieve whether partials of the time derivatives of the coefficients are computed
-    bool getComputeTimeDerivatives( )
-    {
-        return computeTimeDerivatives_;
-    }
-
     //! Name of body being deformed
     std::string getDeformedBody( )
     {

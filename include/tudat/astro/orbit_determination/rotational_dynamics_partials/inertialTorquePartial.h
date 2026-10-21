@@ -190,7 +190,8 @@ public:
                     {
                         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientRatePartials =
                                 tidalGravityFieldVariations_.at( i )
-                                        ->calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtAngularVelocity( currentTime, j );
+                                        ->calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtAngularVelocity(
+                                                currentTime, j, 2 );
                         currentPartialDerivativeWrtAngularVelocity_.block( 0, j, 3, 1 ) += getTorquePartialFromDegreeTwoCoefficientRates(
                                 coefficientRatePartials.first, coefficientRatePartials.second );
                     }
@@ -213,7 +214,7 @@ public:
                     {
                         std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > coefficientPartials =
                                 tidalGravityFieldVariations_.at( i )->calculateSphericalHarmonicsCorrectionsPartialWrtOrientation(
-                                        currentTime, rotationToBodyFixedFramePartials );
+                                        currentTime, rotationToBodyFixedFramePartials, 2 );
                         std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > coefficientRatePartials =
                                 tidalGravityFieldVariations_.at( i )
                                         ->calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtOrientation(
@@ -225,7 +226,8 @@ public:
                                                            std::placeholders::_1,
                                                            std::placeholders::_2,
                                                            std::placeholders::_3,
-                                                           std::placeholders::_4 ) );
+                                                           std::placeholders::_4 ),
+                                                2 );
                         for( unsigned int j = 0; j < 4; j++ )
                         {
                             currentPartialDerivativeWrtQuaternion_.block( 0, j, 3, 1 ) +=

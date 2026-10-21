@@ -221,6 +221,7 @@ Eigen::Vector6d SolidBodyTideGravityFieldVariations::getBodyFixedRelativeState( 
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariations::calculateTimeDerivativeOfCorrections(
         const double time,
         const std::vector< int >& bodyIndices,
+        const int maximumDegree,
         const int angularVelocityComponent )
 {
     Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
@@ -242,7 +243,8 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
                     return calculateTidalForcingTimeDerivative( degree, order, bodyFixedRelativeState );
                 },
                 cosineRates,
-                sineRates );
+                sineRates,
+                maximumDegree );
     }
     return std::make_pair( cosineRates, sineRates );
 }
@@ -261,25 +263,28 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
     {
         bodyIndices.push_back( i );
     }
-    return calculateTimeDerivativeOfCorrections( time, bodyIndices );
+    return calculateTimeDerivativeOfCorrections( time, bodyIndices, maximumDegree_ );
 }
 
 //! Function for calculating time derivatives of spherical harmonic coefficient corrections due to a single body causing deformation
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
-SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivativeDueToBody( const double time, const int bodyIndex )
+SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivativeDueToBody( const double time,
+                                                                                                    const int bodyIndex,
+                                                                                                    const int maximumDegree )
 {
     if( rotationDerivativeFunction_ == nullptr )
     {
         return GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
     }
-    return calculateTimeDerivativeOfCorrections( time, { bodyIndex } );
+    return calculateTimeDerivativeOfCorrections( time, { bodyIndex }, maximumDegree );
 }
 
 //! Function for calculating partials of time derivatives of coefficient corrections w.r.t. angular velocity of deformed body
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
 SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtAngularVelocity(
         const double time,
-        const int angularVelocityComponent )
+        const int angularVelocityComponent,
+        const int maximumDegree )
 {
     std::vector< int > bodyIndices;
     if( rotationDerivativeFunction_ != nullptr )
@@ -289,7 +294,7 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeD
             bodyIndices.push_back( i );
         }
     }
-    return calculateTimeDerivativeOfCorrections( time, bodyIndices, angularVelocityComponent );
+    return calculateTimeDerivativeOfCorrections( time, bodyIndices, maximumDegree, angularVelocityComponent );
 }
 
 //! Function to compute the partial of the time derivative of the tidal forcing w.r.t. the body-fixed position of the deforming body
@@ -314,7 +319,8 @@ std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcin
 std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > >
 SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsPartialWrtOrientation(
         const double time,
-        const std::vector< Eigen::Matrix3d >& rotationToBodyFixedFramePartials )
+        const std::vector< Eigen::Matrix3d >& rotationToBodyFixedFramePartials,
+        const int maximumDegree )
 {
     std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > correctionPartials(
             rotationToBodyFixedFramePartials.size( ),
@@ -342,7 +348,8 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsParti
                         return calculateTidalForcingTimeDerivative( degree, order, modifiedBodyFixedState );
                     },
                     correctionPartials.at( j ).first,
-                    correctionPartials.at( j ).second );
+                    correctionPartials.at( j ).second,
+                    maximumDegree );
         }
     }
     return correctionPartials;
@@ -353,7 +360,8 @@ std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > >
 SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtOrientation(
         const double time,
         const std::vector< Eigen::Matrix3d >& rotationToBodyFixedFramePartials,
-        const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction )
+        const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction,
+        const int maximumDegree )
 {
     std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > correctionRatePartials(
             rotationToBodyFixedFramePartials.size( ),
@@ -364,7 +372,7 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeD
         return correctionRatePartials;
     }
 
-    // Partial of rotation matrix derivative w.r.t. orientation, for constant angular velocity: dQ/dt = -[omega x] Q = ( dQ/dt Q^T ) Q
+    // Partial of rotation matrix derivative w.r.t. orientation, for constant angular velocity: dR/dt = -[omega x] R = ( dR/dt R^T ) R
     const Eigen::Matrix3d rotationToBodyFixedFrame = deformedBodyOrientationFunction_( time ).toRotationMatrix( );
     const Eigen::Matrix3d angularVelocityMatrix = rotationDerivativeFunction_( time ) * rotationToBodyFixedFrame.transpose( );
 
@@ -389,7 +397,8 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeD
                                         degree, order, bodyFixedRelativeState, positionPartial, forcingHessianFunction );
                     },
                     correctionRatePartials.at( j ).first,
-                    correctionRatePartials.at( j ).second );
+                    correctionRatePartials.at( j ).second,
+                    maximumDegree );
         }
     }
     return correctionRatePartials;
@@ -446,12 +455,17 @@ std::complex< double > SolidBodyTideGravityFieldVariations::calculateUnitLoveNum
 void BasicSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDerivatives(
         const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
         Eigen::MatrixXd& cosineRates,
-        Eigen::MatrixXd& sineRates )
+        Eigen::MatrixXd& sineRates,
+        const int maximumDegree )
 {
     // Mean forcing terms are constant, and do not contribute
     for( auto loveNumberIt : loveNumbers_ )
     {
         int n = loveNumberIt.first;
+        if( n > maximumDegree )
+        {
+            continue;
+        }
         for( int m = 0; ( m <= n && m < static_cast< int >( loveNumberIt.second.size( ) ) ); m++ )
         {
             std::complex< double > stokesCoefficientCorrectionRate = loveNumberIt.second[ m ] * unitLoveNumberForcingRateFunction( n, m );
@@ -468,16 +482,27 @@ void BasicSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDerivatives
 void ModeCoupledSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDerivatives(
         const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
         Eigen::MatrixXd& cosineRates,
-        Eigen::MatrixXd& sineRates )
+        Eigen::MatrixXd& sineRates,
+        const int maximumDegree )
 {
     for( auto loveNumberIt : loveNumbers_ )
     {
-        std::complex< double > unityLoveNumberForcingRate =
-                unitLoveNumberForcingRateFunction( loveNumberIt.first.first, loveNumberIt.first.second );
+        // Only compute forcing if it contributes to a response at or below the maximum degree
+        std::complex< double > unityLoveNumberForcingRate;
+        bool isForcingRateComputed = false;
         for( auto responseIt : loveNumberIt.second )
         {
             int nResponse = responseIt.first.first;
             int mResponse = responseIt.first.second;
+            if( nResponse > maximumDegree )
+            {
+                continue;
+            }
+            if( !isForcingRateComputed )
+            {
+                unityLoveNumberForcingRate = unitLoveNumberForcingRateFunction( loveNumberIt.first.first, loveNumberIt.first.second );
+                isForcingRateComputed = true;
+            }
             std::complex< double > stokesCoefficientCorrectionRate = responseIt.second * unityLoveNumberForcingRate;
             cosineRates( nResponse - minimumDegree_, mResponse ) += stokesCoefficientCorrectionRate.real( );
             if( mResponse != 0 )

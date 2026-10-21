@@ -113,12 +113,6 @@ public:
             throw std::runtime_error( "Error when creating inertial torque: inertia tensor is not available." );
         }
         includeInertiaTensorDerivative_ = rigidBodyProperties_->isInertiaTensorDerivativeAvailable( );
-        if( !includeInertiaTensorDerivative_ )
-        {
-            std::cerr << "Warning when creating inertial torque: inertia tensor derivative is not available, "
-                         "its contribution to the inertial torque is neglected."
-                      << std::endl;
-        }
     }
 
     //! Destructor

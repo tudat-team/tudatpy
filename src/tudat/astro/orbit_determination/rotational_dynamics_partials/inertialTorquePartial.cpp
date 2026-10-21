@@ -438,8 +438,8 @@ void InertialTorquePartial::wrtGravitationalParameterOfDeformingBody( Eigen::Mat
         std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tidalVariation =
                 tidalGravityFieldVariations_.at( variationAndBodyIndices.at( i ).first );
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientRates =
-                tidalVariation->calculateSphericalHarmonicsCorrectionsTimeDerivativeDueToBody( currentTidalPartialTime_,
-                                                                                               variationAndBodyIndices.at( i ).second );
+                tidalVariation->calculateSphericalHarmonicsCorrectionsTimeDerivativeDueToBody(
+                        currentTidalPartialTime_, variationAndBodyIndices.at( i ).second, 2 );
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientPartials =
                 tidalVariation->calculateSphericalHarmonicsCorrectionsPartialWrtDeformingBodyGravitationalParameter(
                         currentTidalPartialTime_, variationAndBodyIndices.at( i ).second );

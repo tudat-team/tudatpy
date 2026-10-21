@@ -173,7 +173,7 @@ void Body::setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentR
     currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 );
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = currentRotationToLocalFrame_.toRotationMatrix( );
-    // For inertial-to-body rotation Q, Q_dot = -[omega_body x] Q.
+    // For inertial-to-body rotation R, R_dot = -[omega_body x] R.
     currentRotationToLocalFrameDerivative_ =
             -linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
             currentRotationMatrixToLocalFrame;
