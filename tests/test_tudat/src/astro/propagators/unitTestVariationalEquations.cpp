@@ -1138,14 +1138,17 @@ std::pair< Eigen::MatrixXd, Eigen::VectorXd > propagateRotationWithGravityDerive
     torqueMap[ "Body" ];
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, { "Body" } );
 
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, 10.0 );
     std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< RotationalStatePropagatorSettings< double > >(
                     torqueModelMap,
                     std::vector< std::string >( { "Body" } ),
                     initialRotationalState,
+                    initialTime,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialTime, 10.0 );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
@@ -1154,13 +1157,7 @@ std::pair< Eigen::MatrixXd, Eigen::VectorXd > propagateRotationWithGravityDerive
 
     // Propagate dynamics and variational equations, and retrieve state and state transition matrix at test time
     SingleArcVariationalEquationsSolver< double, double > variationalEquationsSolver(
-            bodies,
-            integratorSettings,
-            propagatorSettings,
-            parametersToEstimate,
-            true,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-            false );
+            bodies, propagatorSettings, parametersToEstimate, true );
 
     return std::make_pair(
             variationalEquationsSolver.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix( testTime ),
