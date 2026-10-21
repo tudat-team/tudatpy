@@ -83,7 +83,9 @@ BOOST_AUTO_TEST_CASE( testPixelCoordinatesPartials )
     Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 );
     parameterPerturbationMultipliers( 2 ) = 10.0;
 
-    // Test partials with constant ephemerides (allows test of position partials).
+    // Test partials with constant ephemerides (allows test of position partials), without and with stellar aberration (which
+    // adds a dependency on the receiver velocity).
+    for( const bool aberration : { false, true } )
     {
         const double stateEvaluationTime = 1.1E7;
 
@@ -133,7 +135,9 @@ BOOST_AUTO_TEST_CASE( testPixelCoordinatesPartials )
         };
         std::shared_ptr< ObservationModel< 2 > > pixelCoordinatesModel =
                 observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-                        pixelCoordinatesSettings( linkEnds, lightTimeCorrectionSettings ), bodies );
+                        pixelCoordinatesSettings(
+                                linkEnds, lightTimeCorrectionSettings, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), aberration ),
+                        bodies );
 
         // Create parameter objects.
         std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > initialStateParameters;
@@ -358,9 +362,9 @@ BOOST_AUTO_TEST_CASE( testPointingCorrectionAppliedForBodyFixedCamera )
     pointingParameter->setParameterValue( Eigen::Vector3d::Zero( ) );
 }
 
-//! The same direct partial handles pointing with and without stellar aberration, and receiver velocity
-//! affects the pixels only when aberration is enabled.
-BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
+//! The pointing partial of a camera with picture-specific pointing (as created from SUM data), with and without stellar
+//! aberration, at zero and non-zero corrections. Receiver state partials with aberration are tested in testPixelCoordinatesPartials.
+BOOST_AUTO_TEST_CASE( testPixelPointingPartialWithAberration )
 {
     spice_interface::loadStandardSpiceKernels( );
     for( const bool aberration : { false, true } )
@@ -368,10 +372,8 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
         SystemOfBodies bodies = createSyntheticSumLmkBodies( );
         Eigen::Vector6d receiverState;
         receiverState << 200.0, -300.0, -10000.0, 30000.0, -20000.0, 10000.0;
-        bodies.at( "Spacecraft" )
-                ->setEphemeris( std::make_shared< ConstantEphemeris >( [ &receiverState ]( ) { return receiverState; }, "SSB", "J2000" ) );
-        const auto loaded = loadPixelTestData(
-                { makeSyntheticSumImage( "IMGABERRATION" ) }, makeSyntheticLandmarks( ), bodies );
+        bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< ConstantEphemeris >( receiverState, "SSB", "J2000" ) );
+        const auto loaded = loadPixelTestData( { makeSyntheticSumImage( "IMGABERRATION" ) }, makeSyntheticLandmarks( ), bodies );
         const auto link = loaded.observationCollection_->getLinkDefinitionsForSingleObservable( pixel_coordinates ).front( );
         const auto model = ObservationModelCreator< 2, double, double >::createObservationModel(
                 pixelCoordinatesSettings( link, {}, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), aberration ), bodies );
@@ -385,8 +387,6 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
         BOOST_REQUIRE( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( partials.first.begin( )->second ) != nullptr );
         const double epoch = loaded.observationCollection_->getConcatenatedTimeVector( ).front( );
         const std::function< Eigen::VectorXd( const double ) > observable = [ & ]( const double time ) {
-            // The receiver ephemeris changes between numerical evaluations at the same epoch.
-            bodies.at( "Spacecraft" )->recomputeStateOnNextCall( );
             return Eigen::VectorXd( model->computeObservations( time, receiver ) );
         };
         for( const Eigen::Vector3d& correction : std::vector< Eigen::Vector3d >{ Eigen::Vector3d::Zero( ),
@@ -407,50 +407,25 @@ BOOST_AUTO_TEST_CASE( testPixelPointingAndReceiverVelocityWithAberration )
             BOOST_CHECK_SMALL( ( analytical.front( ).first - numerical ).norm( ), 1.0E-5 );
         }
         parameter->setParameterValue( Eigen::Vector3d::Zero( ) );
-        std::vector< double > times;
-        std::vector< Eigen::Vector6d > states;
-        const Eigen::Vector2d observation = model->computeObservationsWithLinkEndData( epoch, receiver, times, states );
-        partials.second->update( states, times, receiver, observation );
-        const auto scaling = std::dynamic_pointer_cast< PixelCoordinatesScaling >( partials.second );
-        for( int component = 0; component < 6; ++component )
-        {
-            const double original = receiverState( component );
-            const double step = component < 3 ? 0.01 : 10.0;
-            receiverState( component ) = original + step;
-            const Eigen::Vector2d up = observable( epoch );
-            receiverState( component ) = original - step;
-            const Eigen::Vector2d down = observable( epoch );
-            receiverState( component ) = original;
-            const Eigen::Vector2d numerical = ( up - down ) / ( 2.0 * step );
-            const Eigen::Vector2d analytical = component < 3
-                    ? Eigen::Vector2d( scaling->getPositionScalingFactor( receiver ).col( component ) )
-                    : Eigen::Vector2d( scaling->getVelocityScalingFactor( receiver ).col( component - 3 ) );
-            BOOST_CHECK_SMALL( ( analytical - numerical ).norm( ), component < 3 ? 1.0E-8 : 1.0E-11 );
-        }
     }
 }
 
-//! A target rotation changes both the landmark position and the camera's reference frame.
-BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartial )
+//! A target rotation changes both the landmark position and the camera's reference frame: the sum of both contributions is
+//! tested for a rotation model parameter (with and without stellar aberration), and for the target's rotational state.
+BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartials )
 {
     spice_interface::loadStandardSpiceKernels( );
-    for( const bool aberration : { false, true } )
-    {
-        SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-        const auto image = makeSyntheticSumImage( "IMGROTATION" );
-        const double epoch = sumImageTdbTimeForTest( image );
-        const auto rotation =
-                std::make_shared< SimpleRotationalEphemeris >( Eigen::Quaterniond( Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) ),
-                                                               1.0E-4,
-                                                               epoch - 1000.0,
-                                                               "J2000",
-                                                               "Target_Fixed" );
+    const auto image = makeSyntheticSumImage( "IMGROTATION" );
+    const double epoch = sumImageTdbTimeForTest( image );
+    auto landmarks = makeSyntheticLandmarks( );
+    landmarks.at( "LMK0001" ).bodyFixedPosition_ = Eigen::Vector3d( 400.0, -250.0, 100.0 );
+
+    // Set the target rotation, and create the pixel model and the summed analytical partial w.r.t. the given parameters
+    auto createModelAndPartial = [ & ]( SystemOfBodies& bodies,
+                                        const std::shared_ptr< RotationalEphemeris >& rotation,
+                                        const std::shared_ptr< EstimatableParameterSet< double > >& parameters,
+                                        const bool aberration ) {
         bodies.at( "Target" )->setRotationalEphemeris( rotation );
-        Eigen::Vector6d receiverState;
-        receiverState << 1500.0, -700.0, -10000.0, 30000.0, -20000.0, 10000.0;
-        bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< ConstantEphemeris >( receiverState, "SSB", "J2000" ) );
-        auto landmarks = makeSyntheticLandmarks( );
-        landmarks.at( "LMK0001" ).bodyFixedPosition_ = Eigen::Vector3d( 400.0, -250.0, 100.0 );
         const auto loaded = loadPixelTestData( { image }, landmarks, bodies );
         const auto model = ObservationModelCreator< 2, double, double >::createObservationModel(
                 pixelCoordinatesSettings(
@@ -460,10 +435,6 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartial )
                         std::make_shared< LightTimeConvergenceCriteria >( ),
                         aberration ),
                 bodies );
-        const auto parameter = std::make_shared< RotationRate >( rotation, "Target" );
-        const auto parameters = std::make_shared< EstimatableParameterSet< double > >(
-                std::vector< std::shared_ptr< EstimatableParameter< double > > >{ parameter },
-                std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) );
         const auto partials = ObservationPartialCreator< 2, double, double >::createObservationPartials( model, bodies, parameters );
         BOOST_REQUIRE_EQUAL( partials.first.size( ), 1 );
         std::vector< double > times;
@@ -473,67 +444,74 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartial )
         const auto contributions = partials.first.begin( )->second->calculatePartial( states, times, receiver, nullptr, observation );
         BOOST_REQUIRE_EQUAL( contributions.size( ), 2 );
         BOOST_CHECK_EQUAL( contributions.back( ).second, epoch );
-        const Eigen::Vector2d analytical = contributions.at( 0 ).first + contributions.at( 1 ).first;
+        return std::make_pair( model, Eigen::MatrixXd( contributions.at( 0 ).first + contributions.at( 1 ).first ) );
+    };
+
+    // Rotation rate, with a moving receiver so that aberration is relevant
+    for( const bool aberration : { false, true } )
+    {
+        SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+        Eigen::Vector6d receiverState;
+        receiverState << 1500.0, -700.0, -10000.0, 30000.0, -20000.0, 10000.0;
+        bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< ConstantEphemeris >( receiverState, "SSB", "J2000" ) );
+        const auto rotation =
+                std::make_shared< SimpleRotationalEphemeris >( Eigen::Quaterniond( Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) ),
+                                                               1.0E-4,
+                                                               epoch - 1000.0,
+                                                               "J2000",
+                                                               "Target_Fixed" );
+        const auto parameter = std::make_shared< RotationRate >( rotation, "Target" );
+        const auto modelAndPartial = createModelAndPartial(
+                bodies,
+                rotation,
+                std::make_shared< EstimatableParameterSet< double > >(
+                        std::vector< std::shared_ptr< EstimatableParameter< double > > >{ parameter },
+                        std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) ),
+                aberration );
         const std::function< Eigen::VectorXd( const double ) > observable = [ & ]( const double time ) {
-            return Eigen::VectorXd( model->computeObservations( time, receiver ) );
+            return Eigen::VectorXd( modelAndPartial.first->computeObservations( time, receiver ) );
         };
         const Eigen::VectorXd numerical = calculateNumericalObservationParameterPartial( parameter, 1.0E-8, observable, epoch );
-        BOOST_CHECK_SMALL( ( analytical - numerical ).norm( ) / numerical.norm( ), 1.0E-7 );
+        BOOST_CHECK_SMALL( ( modelAndPartial.second - numerical ).norm( ) / numerical.norm( ), 1.0E-7 );
     }
-}
 
-BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationalStatePartial )
-{
-    spice_interface::loadStandardSpiceKernels( );
-    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
-    Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
-    rotationalState.head< 4 >( ) = linear_algebra::convertQuaternionToVectorFormat(
-            Eigen::Quaterniond( Eigen::AngleAxisd( 0.15, Eigen::Vector3d( 1.0, 2.0, -1.0 ).normalized( ) ) ) );
-    const auto rotation = std::make_shared< ConstantRotationalEphemeris >( rotationalState, "J2000", "Target_Fixed" );
-    bodies.at( "Target" )->setRotationalEphemeris( rotation );
-    auto landmarks = makeSyntheticLandmarks( );
-    landmarks.at( "LMK0001" ).bodyFixedPosition_ = Eigen::Vector3d( 400.0, -250.0, 100.0 );
-    const auto loaded =
-            loadPixelTestData( { makeSyntheticSumImage( "IMGSTATE" ) }, landmarks, bodies );
-    const auto model =
-            ObservationModelCreator< 2, double, double >::createObservationModel( loaded.observationModelSettings_.front( ), bodies );
-    const auto parameter = std::make_shared< InitialRotationalStateParameter< double > >(
-            "Target", rotationalState, []( ) { return Eigen::Matrix3d::Identity( ); }, "SSB", "J2000" );
-    const auto parameters = std::make_shared< EstimatableParameterSet< double > >(
-            std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
-            std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ),
-            std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >{ parameter } );
-    const auto partials = ObservationPartialCreator< 2, double, double >::createObservationPartials( model, bodies, parameters );
-    BOOST_REQUIRE_EQUAL( partials.first.size( ), 1 );
-    const double epoch = loaded.observationCollection_->getConcatenatedTimeVector( ).front( );
-    std::vector< double > times;
-    std::vector< Eigen::Vector6d > states;
-    const Eigen::Vector2d observation = model->computeObservationsWithLinkEndData( epoch, receiver, times, states );
-    partials.second->update( states, times, receiver, observation );
-    const auto contributions = partials.first.begin( )->second->calculatePartial( states, times, receiver, nullptr, observation );
-    BOOST_REQUIRE_EQUAL( contributions.size( ), 2 );
-    for( const auto& contribution : contributions )
+    // Initial rotational state: only the quaternion entries contribute, compared to central differences in the normalized quaternion
     {
-        BOOST_REQUIRE_EQUAL( contribution.first.cols( ), 7 );
+        SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+        Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
+        rotationalState.head< 4 >( ) = linear_algebra::convertQuaternionToVectorFormat(
+                Eigen::Quaterniond( Eigen::AngleAxisd( 0.15, Eigen::Vector3d( 1.0, 2.0, -1.0 ).normalized( ) ) ) );
+        const auto rotation = std::make_shared< ConstantRotationalEphemeris >( rotationalState, "J2000", "Target_Fixed" );
+        const auto parameter = std::make_shared< InitialRotationalStateParameter< double > >(
+                "Target", rotationalState, []( ) { return Eigen::Matrix3d::Identity( ); }, "SSB", "J2000" );
+        const auto modelAndPartial = createModelAndPartial(
+                bodies,
+                rotation,
+                std::make_shared< EstimatableParameterSet< double > >(
+                        std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
+                        std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ),
+                        std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >{ parameter } ),
+                false );
+        BOOST_REQUIRE_EQUAL( modelAndPartial.second.cols( ), 7 );
+        const Eigen::Matrix< double, 2, 7 > analytical = modelAndPartial.second;
+        BOOST_CHECK_SMALL( analytical.rightCols< 3 >( ).norm( ), 1.0E-15 );
+        const Eigen::Matrix4d normalizationPartial =
+                Eigen::Matrix4d::Identity( ) - rotationalState.head< 4 >( ) * rotationalState.head< 4 >( ).transpose( );
+        const Eigen::Matrix< double, 2, 4 > normalizedAnalytical = analytical.leftCols< 4 >( ) * normalizationPartial;
+        const double step = 1.0E-7;
+        for( int component = 0; component < 4; ++component )
+        {
+            Eigen::Vector7d perturbed = rotationalState;
+            perturbed( component ) += step;
+            rotation->updateConstantState( perturbed );
+            const Eigen::Vector2d up = modelAndPartial.first->computeObservations( epoch, receiver );
+            perturbed( component ) -= 2.0 * step;
+            rotation->updateConstantState( perturbed );
+            const Eigen::Vector2d down = modelAndPartial.first->computeObservations( epoch, receiver );
+            BOOST_CHECK_SMALL( ( normalizedAnalytical.col( component ) - ( up - down ) / ( 2.0 * step ) ).norm( ), 1.0E-5 );
+        }
+        rotation->updateConstantState( rotationalState );
     }
-    const Eigen::Matrix< double, 2, 7 > analytical = contributions.at( 0 ).first + contributions.at( 1 ).first;
-    BOOST_CHECK_SMALL( analytical.rightCols< 3 >( ).norm( ), 1.0E-15 );
-    const Eigen::Matrix4d normalizationPartial =
-            Eigen::Matrix4d::Identity( ) - rotationalState.head< 4 >( ) * rotationalState.head< 4 >( ).transpose( );
-    const Eigen::Matrix< double, 2, 4 > normalizedAnalytical = analytical.leftCols< 4 >( ) * normalizationPartial;
-    const double step = 1.0E-7;
-    for( int component = 0; component < 4; ++component )
-    {
-        Eigen::Vector7d perturbed = rotationalState;
-        perturbed( component ) += step;
-        rotation->updateConstantState( perturbed );
-        const Eigen::Vector2d up = model->computeObservations( epoch, receiver );
-        perturbed( component ) -= 2.0 * step;
-        rotation->updateConstantState( perturbed );
-        const Eigen::Vector2d down = model->computeObservations( epoch, receiver );
-        BOOST_CHECK_SMALL( ( normalizedAnalytical.col( component ) - ( up - down ) / ( 2.0 * step ) ).norm( ), 1.0E-5 );
-    }
-    rotation->updateConstantState( rotationalState );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
