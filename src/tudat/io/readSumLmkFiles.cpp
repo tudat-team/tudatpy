@@ -529,6 +529,17 @@ Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImage
     return Eigen::Quaterniond( image.cameraAxes_ ).normalized( );
 }
 
+data::CameraPictureCalibration getSumImageCalibration( const SumImageData& image )
+{
+    data::CameraPictureCalibration calibration;
+    calibration.focalLength_ = image.focalLengthMm_;
+    calibration.principalPoint_ = image.opticalCenter_;
+    calibration.fieldOfViewBounds_ =
+            Eigen::Vector4d( 0.0, static_cast< double >( image.imageSize_( 0 ) ), 0.0, static_cast< double >( image.imageSize_( 1 ) ) );
+    calibration.kMatrix_ = image.kMatrix_;
+    return calibration;
+}
+
 std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageData >& sumImages,
                                                    const std::map< std::string, LmkLandmarkData >& landmarks,
                                                    const bool skipObservationsWithMissingLandmarks,
@@ -569,7 +580,8 @@ std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageDa
         }
     }
 
-    // All images are taken by one camera, so they must share its calibration and have distinct epochs.
+    // All images are taken by one camera, so they must have distinct epochs. Their calibration may differ (for instance by pixel
+    // binning), and is kept per image.
     std::sort( imagesToConvert.begin( ), imagesToConvert.end( ), []( const SumImageData& first, const SumImageData& second ) {
         return getSumImageObservationTime( first ) < getSumImageObservationTime( second );
     } );
@@ -577,14 +589,11 @@ std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageDa
     {
         const SumImageData& firstImage = imagesToConvert.front( );
         const SumImageData& image = imagesToConvert.at( i );
-        if( image.focalLengthMm_ != firstImage.focalLengthMm_ || image.opticalCenter_ != firstImage.opticalCenter_ ||
-            image.kMatrix_ != firstImage.kMatrix_ || image.imageSize_ != firstImage.imageSize_ ||
-            image.pointingSigma_.array( ).isNaN( ).all( ) != firstImage.pointingSigma_.array( ).isNaN( ).all( ) ||
+        if( image.pointingSigma_.array( ).isNaN( ).all( ) != firstImage.pointingSigma_.array( ).isNaN( ).all( ) ||
             !( getSumImageObservationTime( image ) > getSumImageObservationTime( imagesToConvert.at( i - 1 ) ) ) )
         {
             throw std::runtime_error( "Error when converting SUM image " + image.imageId_ +
-                                      ": all images must share MMFL, CTR, K-MATRIX and image size, have distinct epochs, and either "
-                                      "all or none must give SIGMA_PTG." );
+                                      ": all images must have distinct epochs, and either all or none must give SIGMA_PTG." );
         }
     }
     return imagesToConvert;
@@ -612,11 +621,13 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
     }
 
     std::map< double, Eigen::Quaterniond > pointingHistory;
+    std::map< double, data::CameraPictureCalibration > pictureCalibrationHistory;
     std::map< double, std::string > pictureIdHistory;
     std::map< double, Eigen::Vector3d > pointingUncertaintyHistory;
     for( const SumImageData& image : sumImages )
     {
         pointingHistory[ getSumImageObservationTime( image ) ] = getSumImageRotationFromBodyFixedToCameraFrame( image );
+        pictureCalibrationHistory[ getSumImageObservationTime( image ) ] = getSumImageCalibration( image );
         pictureIdHistory[ getSumImageObservationTime( image ) ] = image.imageId_;
         if( !image.pointingSigma_.array( ).isNaN( ).all( ) )
         {
@@ -624,18 +635,17 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
         }
     }
 
-    // The images share their calibration (see getSumImagesToConvert), so it is taken from the first one.
-    const SumImageData& firstImage = sumImages.front( );
-    auto camera = std::make_shared< data::CameraInstrumentSupplementaryData >(
-            cameraName,
-            firstImage.focalLengthMm_,
-            firstImage.opticalCenter_,
-            Eigen::Vector4d(
-                    0.0, static_cast< double >( firstImage.imageSize_( 0 ) ), 0.0, static_cast< double >( firstImage.imageSize_( 1 ) ) ),
-            firstImage.kMatrix_,
-            Eigen::Matrix< double, 6, 1 >::Zero( ),
-            Eigen::Vector3d::Zero( ),
-            pointingHistory );
+    // Each image has its own calibration. The camera-level calibration is that of the first image.
+    const data::CameraPictureCalibration& firstCalibration = pictureCalibrationHistory.begin( )->second;
+    auto camera = std::make_shared< data::CameraInstrumentSupplementaryData >( cameraName,
+                                                                               firstCalibration.focalLength_,
+                                                                               firstCalibration.principalPoint_,
+                                                                               firstCalibration.fieldOfViewBounds_,
+                                                                               firstCalibration.kMatrix_,
+                                                                               Eigen::Matrix< double, 6, 1 >::Zero( ),
+                                                                               Eigen::Vector3d::Zero( ),
+                                                                               pointingHistory );
+    camera->setPictureCalibrationHistory( pictureCalibrationHistory );
     camera->setPointingReferenceBodyName( targetBodyName );
     camera->setPictureIdHistory( pictureIdHistory );
     camera->setPointingUncertaintyHistory( pointingUncertaintyHistory );

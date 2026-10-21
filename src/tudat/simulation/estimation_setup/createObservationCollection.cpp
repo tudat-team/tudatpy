@@ -665,6 +665,31 @@ void setFrequencySupplementaryDataInBodies(
     }
 }
 
+//! Get one value per picture of a camera, in time order, from a history keyed by the picture epochs of its pointing history.
+//! The result is empty when the history is empty. Otherwise, every picture must have a value.
+template< typename ValueType >
+std::vector< ValueType > getPerPictureValues( const data::CameraInstrumentSupplementaryData& cameraSupplementaryData,
+                                              const std::map< double, ValueType >& valueHistory,
+                                              const std::string& valueName )
+{
+    std::vector< ValueType > values;
+    if( valueHistory.empty( ) )
+    {
+        return values;
+    }
+    for( const auto& rotationEntry : cameraSupplementaryData.getRotationFromInertialToCameraFrameHistory( ) )
+    {
+        const auto valueIterator = valueHistory.find( rotationEntry.first );
+        if( valueIterator == valueHistory.end( ) )
+        {
+            throw std::runtime_error( "Error when setting camera supplementary data for camera " + cameraSupplementaryData.getCameraId( ) +
+                                      ": " + valueName + " must be given for all pictures or none." );
+        }
+        values.push_back( valueIterator->second );
+    }
+    return values;
+}
+
 void setInstrumentSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >&
@@ -735,22 +760,28 @@ void setInstrumentSupplementaryDataInBodies(
                 camera->setPointingReferenceBodyName( cameraSupplementaryData->getPointingReferenceBodyName( ) );
 
                 // One pointing correction per picture, with the picture identifiers in time order.
-                std::vector< std::string > pictureIds;
-                const std::map< double, std::string >& pictureIdHistory = cameraSupplementaryData->getPictureIdHistory( );
-                for( const auto& rotationEntry : cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) )
+                camera->setPictures(
+                        tdbPictureEpochs,
+                        getPerPictureValues(
+                                *cameraSupplementaryData, cameraSupplementaryData->getPictureIdHistory( ), "picture identifiers" ) );
+
+                // A camera whose calibration changes between pictures gets one projection model per picture.
+                std::vector< std::shared_ptr< system_models::CameraProjectionModel > > pictureProjectionModels;
+                for( const data::CameraPictureCalibration& calibration : getPerPictureValues(
+                             *cameraSupplementaryData, cameraSupplementaryData->getPictureCalibrationHistory( ), "picture calibrations" ) )
                 {
-                    if( !pictureIdHistory.empty( ) )
-                    {
-                        if( pictureIdHistory.count( rotationEntry.first ) == 0 )
-                        {
-                            throw std::runtime_error( "Error when setting camera supplementary data for camera " +
-                                                      cameraSupplementaryData->getCameraId( ) +
-                                                      ": picture identifiers must be given for all pictures or none." );
-                        }
-                        pictureIds.push_back( pictureIdHistory.at( rotationEntry.first ) );
-                    }
+                    pictureProjectionModels.push_back( std::make_shared< system_models::PsfCameraProjectionModel >(
+                            calibration.focalLength_,
+                            calibration.principalPoint_,
+                            calibration.kMatrix_,
+                            cameraSupplementaryData->getDistortionCoefficients( ),
+                            cameraSupplementaryData->getMountingOffsets( ),
+                            calibration.fieldOfViewBounds_ ) );
                 }
-                camera->setPictures( tdbPictureEpochs, pictureIds );
+                if( !pictureProjectionModels.empty( ) )
+                {
+                    camera->setPictureProjectionModels( pictureProjectionModels );
+                }
             }
             else
             {

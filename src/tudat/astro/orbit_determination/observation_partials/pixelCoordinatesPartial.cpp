@@ -109,7 +109,7 @@ void PixelCoordinatesScaling::update(
 
     currentRelativeRangeVectorCameraFrame_ = currentRotationFromInertialToCameraFrame_ * currentInertialDirectionToProject_;
     currentPixelLinePartialWrtCameraFramePosition_ =
-            pixelLinePartialWrtCameraFramePositionFunction_( currentRelativeRangeVectorCameraFrame_ );
+            pixelLinePartialWrtCameraFramePositionFunction_( currentRelativeRangeVectorCameraFrame_, currentReceiverTime_ );
     hasCurrentCameraFrameQuantities_ = true;
     const Eigen::Matrix< double, 2, 3 > pixelPartialWrtInertialDirection =
             currentPixelLinePartialWrtCameraFramePosition_ * currentRotationFromInertialToCameraFrame_;

@@ -424,8 +424,9 @@ public:
     Eigen::Vector2d calculateObservableFromInertial( const Eigen::Vector3d& positionOfObservedBodyInInertialFrame,
                                                      const double secondsSinceEpoch ) const
     {
-        return projectionModel_->projectUnitVectorToPixelLine( getRotationFromInertialToCameraFrame( secondsSinceEpoch ) *
-                                                               positionOfObservedBodyInInertialFrame );
+        return getProjectionModel( secondsSinceEpoch )
+                ->projectUnitVectorToPixelLine( getRotationFromInertialToCameraFrame( secondsSinceEpoch ) *
+                                                positionOfObservedBodyInInertialFrame );
     }
 
     //! Function to set the pictures taken by the camera, and reset all pointing corrections to zero.
@@ -459,6 +460,27 @@ public:
     int getNumberOfPointingCorrections( ) const
     {
         return std::max( 1, static_cast< int >( pictureEpochs_.size( ) ) );
+    }
+
+    //! Function to set one projection model per picture, for a camera whose calibration changes between pictures.
+    /*!
+     *  \param pictureProjectionModels Projection model of each picture, in the order of the pictures (see setPictures).
+     */
+    void setPictureProjectionModels( const std::vector< std::shared_ptr< CameraProjectionModel > >& pictureProjectionModels )
+    {
+        if( pictureProjectionModels.size( ) != static_cast< unsigned int >( pictureEpochs_.size( ) ) )
+        {
+            throw std::runtime_error( "Error when setting picture projection models of camera " + cameraId_ +
+                                      ": the number of projection models must match the number of pictures." );
+        }
+        pictureProjectionModels_ = pictureProjectionModels;
+    }
+
+    //! Function to get the projection model of the picture closest in time to the given time, or the camera's single projection
+    //! model if it has no projection model per picture.
+    std::shared_ptr< CameraProjectionModel > getProjectionModel( const double secondsSinceEpoch ) const
+    {
+        return pictureProjectionModels_.empty( ) ? projectionModel_ : pictureProjectionModels_.at( getPictureIndex( secondsSinceEpoch ) );
     }
 
     //! Function to get the index of the picture closest in time to the given time (0 if the camera has no pictures).
@@ -536,6 +558,9 @@ private:
 
     //! Identifier of each picture, or empty if the pictures have no identifier.
     std::vector< std::string > pictureIds_;
+
+    //! Projection model of each picture, or empty if all pictures use projectionModel_.
+    std::vector< std::shared_ptr< CameraProjectionModel > > pictureProjectionModels_;
 
     //! Small rotation-vector correction of each picture, applied by camera pointing estimation.
     Eigen::VectorXd pointingCorrection_ = Eigen::VectorXd::Zero( 3 );

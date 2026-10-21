@@ -440,8 +440,8 @@ public:
                             return camera->getRotationFromInertialToCameraFrame(
                                     receiverBody->getRotationalEphemeris( )->getRotationToTargetFrame( time ), time );
                         },
-                        [ camera ]( const Eigen::Vector3d& cameraFramePosition ) {
-                            return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
+                        [ camera ]( const Eigen::Vector3d& cameraFramePosition, const double time ) {
+                            return camera->getProjectionModel( time )->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
                         },
                         pixelCoordinatesModel != nullptr && pixelCoordinatesModel->getCorrectForStellarAberration( ) );
                 const std::shared_ptr< PixelCoordinatesScaling > pixelCoordinatesScaling =

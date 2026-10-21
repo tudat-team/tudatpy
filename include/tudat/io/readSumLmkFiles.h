@@ -135,11 +135,14 @@ double getSumImageObservationTime( const SumImageData& image );
 //! Get the rotation from the target body-fixed frame to the camera frame, given by the SUM CX/CY/CZ rows.
 Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImageData& image );
 
+//! Get the camera calibration of a SUM image: MMFL, CTR, K-MATRIX and the image size as field-of-view bounds.
+data::CameraPictureCalibration getSumImageCalibration( const SumImageData& image );
+
 //! Check SUM/LMK data before conversion, and return the images to convert.
 /*!
  *  Check SUM/LMK data before conversion, and return the images to convert, sorted by epoch. Each image may be provided only once,
  *  and its calibration, attitude, pointing uncertainty and pixel coordinates must be valid. All images are taken by one camera,
- *  so they must share its calibration and have distinct epochs. Images without landmark observations are not converted.
+ *  so they must have distinct epochs. Images without landmark observations are not converted.
  *  \param sumImages Raw SUM image contents.
  *  \param landmarks Raw LMK landmark contents, with the landmark ID as key.
  *  \param skipObservationsWithMissingLandmarks If true, observations of landmarks without LMK data are skipped; if false,
@@ -156,8 +159,8 @@ std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageDa
 //! Create the supplementary data for SUM/LMK observations.
 /*!
  *  Create the supplementary data for SUM/LMK observations. Each landmark becomes a reference point on the target body. The
- *  images become one camera on the receiver body, with the ID of each image, its pointing relative to the target body-fixed
- *  frame and its SUM SIGMA_PTG pointing uncertainty.
+ *  images become one camera on the receiver body, with the ID and calibration of each image, its pointing relative to the
+ *  target body-fixed frame and its SUM SIGMA_PTG pointing uncertainty.
  *  \param sumImages SUM images to convert (output of getSumImagesToConvert).
  *  \param landmarks Raw LMK landmark contents, with the landmark ID as key.
  *  \param targetBodyName Name of the body on which the landmarks are located.

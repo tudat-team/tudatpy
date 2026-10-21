@@ -42,7 +42,7 @@ class PixelCoordinatesScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
     PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
-                             std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
+                             std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition, const double time ) >
                                      pixelLinePartialWrtCameraFramePositionFunction,
                              const bool correctForStellarAberration = false ):
         DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
@@ -61,7 +61,7 @@ public:
                              const bool correctForStellarAberration = false ):
         PixelCoordinatesScaling(
                 rotationFromInertialToCameraFrameFunction,
-                [ focalLengthsMatrix ]( const Eigen::Vector3d& cameraFramePosition ) {
+                [ focalLengthsMatrix ]( const Eigen::Vector3d& cameraFramePosition, const double ) {
                     return calculatePartialOfPixelsWrtLinkEndPositionCameraFrame( cameraFramePosition, focalLengthsMatrix, false );
                 },
                 correctForStellarAberration )
@@ -190,7 +190,7 @@ private:
     Eigen::Matrix3d currentRotationFromInertialToCameraFrame_;
     double currentReceiverTime_ = TUDAT_NAN;
     std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction_;
-    std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
+    std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition, const double time ) >
             pixelLinePartialWrtCameraFramePositionFunction_;
     std::string pointingReferenceBodyName_;
     std::function< Eigen::Quaterniond( const double ) > rotationFromReferenceFrameToInertialFunction_;

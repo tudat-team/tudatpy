@@ -151,10 +151,10 @@ void expose_sum_lmk( py::module& m )
 
          Every (image, landmark) pair becomes one pixel-coordinate observation,
          sent by the landmark and received by the camera. All images must be
-         taken by one camera, so they must share its calibration. The
-         supplementary data adds each landmark as a ground station on the
-         target body, and the camera on the receiver body, with the pointing
-         of each image. The pointing of each image can be estimated with
+         taken by one camera, at distinct epochs. The supplementary data adds
+         each landmark as a ground station on the target body, and the camera
+         on the receiver body, with the ID, calibration and pointing of each
+         image. The pointing of each image can be estimated with
          :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction`.
          The SUM ``SIGMA_PTG`` values are stored as the camera's
          ``pointing_uncertainty_history``.

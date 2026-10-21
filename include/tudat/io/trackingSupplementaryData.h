@@ -123,6 +123,20 @@ private:
     std::string instrumentSupplementaryDataKind_;
 };
 
+//! Calibration of one picture, for a camera whose calibration changes between pictures (for instance by pixel binning).
+struct CameraPictureCalibration {
+    double focalLength_ = 0.0;
+    Eigen::Vector2d principalPoint_ = Eigen::Vector2d::Zero( );
+    Eigen::Vector4d fieldOfViewBounds_ = Eigen::Vector4d::Zero( );
+    Eigen::Matrix< double, 2, 3 > kMatrix_ = Eigen::Matrix< double, 2, 3 >::Zero( );
+
+    bool operator==( const CameraPictureCalibration& other ) const
+    {
+        return focalLength_ == other.focalLength_ && principalPoint_ == other.principalPoint_ &&
+                fieldOfViewBounds_ == other.fieldOfViewBounds_ && kMatrix_ == other.kMatrix_;
+    }
+};
+
 class CameraInstrumentSupplementaryData : public InstrumentSupplementaryData
 {
 public:
@@ -199,6 +213,18 @@ public:
         pointingReferenceBodyName_ = pointingReferenceBodyName;
     }
 
+    //! Calibration of each picture, per picture epoch of the pointing history. When empty, all pictures use the calibration of
+    //! the camera.
+    const std::map< double, CameraPictureCalibration >& getPictureCalibrationHistory( ) const
+    {
+        return pictureCalibrationHistory_;
+    }
+
+    void setPictureCalibrationHistory( const std::map< double, CameraPictureCalibration >& pictureCalibrationHistory )
+    {
+        pictureCalibrationHistory_ = pictureCalibrationHistory;
+    }
+
     //! Identifier of each picture, per picture epoch of the pointing history. Empty when not provided.
     const std::map< double, std::string >& getPictureIdHistory( ) const
     {
@@ -222,7 +248,7 @@ public:
         pointingUncertaintyHistory_ = pointingUncertaintyHistory;
     }
 
-    //! Merge compatible camera histories; conflicting calibration, attitudes, picture identifiers or pointing uncertainties are
+    //! Merge compatible camera histories; conflicting calibrations, attitudes, picture identifiers or pointing uncertainties are
     //! errors.
     void merge( const CameraInstrumentSupplementaryData& other )
     {
@@ -240,6 +266,15 @@ public:
             if( !inserted.second && !inserted.first->second.toRotationMatrix( ).isApprox( entry.second.toRotationMatrix( ) ) )
             {
                 throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
+            }
+        }
+        auto mergedPictureCalibrationHistory = pictureCalibrationHistory_;
+        for( const auto& entry : other.pictureCalibrationHistory_ )
+        {
+            const auto inserted = mergedPictureCalibrationHistory.emplace( entry );
+            if( !inserted.second && !( inserted.first->second == entry.second ) )
+            {
+                throw std::runtime_error( "Conflicting picture calibrations for PSF camera " + cameraId_ );
             }
         }
         auto mergedPictureIdHistory = pictureIdHistory_;
@@ -261,6 +296,7 @@ public:
             }
         }
         rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
+        pictureCalibrationHistory_.swap( mergedPictureCalibrationHistory );
         pictureIdHistory_.swap( mergedPictureIdHistory );
         pointingUncertaintyHistory_.swap( mergedUncertaintyHistory );
     }
@@ -283,6 +319,8 @@ private:
     std::map< double, Eigen::Quaterniond > rotationFromInertialToCameraFrameHistory_;
 
     std::string pointingReferenceBodyName_;
+
+    std::map< double, CameraPictureCalibration > pictureCalibrationHistory_;
 
     std::map< double, std::string > pictureIdHistory_;
 
