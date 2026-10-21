@@ -26,6 +26,7 @@ from tudatpy.dynamics.propagation_setup import dependent_variable as dep_var
 from tudatpy.dynamics.propagation_setup import torque
 from tudatpy.dynamics.propagation_setup import propagator
 from tudatpy.dynamics.propagation_setup import acceleration as acc
+from tudatpy.dynamics.environment_setup import radiation_pressure
 from tudatpy.dynamics.environment_setup.aerodynamic_coefficients import (
     AerodynamicsReferenceFrames,
 )
@@ -80,7 +81,7 @@ class TestAccelerationSettingsPickle:
         assert_roundtrip(acc.radiation_pressure())
 
     def test_cannonball_radiation_pressure(self):
-        assert_roundtrip(acc.cannonball_radiation_pressure())
+        assert_roundtrip(acc.radiation_pressure(radiation_pressure.cannonball_target))
 
     def test_spherical_harmonic_gravity(self):
         assert_roundtrip(acc.spherical_harmonic_gravity(4, 4))

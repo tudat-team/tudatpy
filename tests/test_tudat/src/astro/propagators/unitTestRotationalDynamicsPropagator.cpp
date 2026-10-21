@@ -317,21 +317,24 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
             basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, bodiesToIntegrate );
 
             // Define propagator settings.
+            std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
+                    std::make_shared< RungeKuttaVariableStepSizeSettings<> >( 10.0, rungeKuttaFehlberg78, 2.0, 30.0, 1.0E-13, 1.0E-13 );
             std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
                     std::make_shared< RotationalStatePropagatorSettings< double > >(
                             torqueModelMap,
                             bodiesToIntegrate,
                             systemInitialState,
+                            initialEphemerisTime,
+                            integratorSettings,
+
                             std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
                             getRotationalPropagator( propagatorType ) );
 
             // Define integrator settings.
-            std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
-                    std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                            initialEphemerisTime, 10.0, rungeKuttaFehlberg78, 2.0, 30.0, 1.0E-13, 1.0E-13 );
 
             // Propagate dynamics
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
             // Retrieve Phobos rotation model with reset rotational state
             std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodies.at( "Phobos" )->getRotationalEphemeris( );
@@ -573,8 +576,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 
         // Define integrator settings.
         std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
-                std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                        initialEphemerisTime, 30.0, rungeKuttaFehlberg78, 30.0, 30.0, 1.0, 1.0 );
+                std::make_shared< RungeKuttaVariableStepSizeSettings<> >( 30.0, rungeKuttaFehlberg78, 30.0, 30.0, 1.0, 1.0 );
 
         // Define propagator settings.
         std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -582,11 +584,15 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
                         torqueModelMap,
                         bodiesToIntegrate,
                         systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+
                         std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
                         getRotationalPropagator( propagatorType ) );
 
         // Propagate dynamics
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Retrieve Phobos rotation model with reset rotational state
         std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodies.at( "Phobos" )->getRotationalEphemeris( );
@@ -844,15 +850,17 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             propagatorSettingsList.push_back( translationalPropagatorSettings );
             propagatorSettingsList.push_back( rotationalPropagatorSettings );
 
-            std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList, terminationSettings, dependentVariablesList );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                    std::make_shared< RungeKuttaVariableStepSizeSettings<> >( 0.02, rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
+            std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< MultiTypePropagatorSettings< double > >(
+                            propagatorSettingsList, integratorSettings, 0.0, terminationSettings, dependentVariablesList );
 
             // Create integrator settings for rotation.
-            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                    0.0, 0.02, rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
 
             // Create simulation object and propagate dynamics.
-            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
             std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
             std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
@@ -1032,8 +1040,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
             basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, bodiesToIntegrate );
 
             // Define integrator settings.
-            std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 10.0 );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 10.0 );
 
             // Define propagator settings.
             std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -1041,6 +1048,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
                             torqueModelMap,
                             bodiesToIntegrate,
                             systemInitialState,
+                            initialEphemerisTime,
+                            integratorSettings,
+
                             std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
             propagatorSettings->resetDependentVariablesToSave( { customDependentVariable(
@@ -1050,7 +1060,8 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
                     9 ) } );
 
             // Propagate dynamics
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
             const auto dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
             // Check that inertia tensor derivative is zero for static gravity field
             BOOST_REQUIRE_GT( dependentVariableHistory.size( ), 1 );
@@ -1141,8 +1152,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
 
     // Define integrator settings.
     const double integrationStep = 10.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, integrationStep );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationStep );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
     dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >( body_inertia_tensor, "Phobos" ) );
@@ -1341,7 +1351,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
                 std::make_shared< SingleTorqueDependentVariableSaveSettings >( torqueModelTypes.at( modelCase ), "Jupiter", "Io", false ) );
 
         std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEpoch, integrationStep );
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationStep );
 
         std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< RotationalStatePropagatorSettings< double > >(

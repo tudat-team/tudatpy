@@ -377,12 +377,6 @@ void Body::addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::
     bodyDeformationModels_.push_back( deformationModel );
 }
 
-void Body::setRadiationPressureInterface( const std::string& radiatingBody,
-                                          const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface )
-{
-    radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
-}
-
 void Body::setRadiationSourceModel( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel )
 {
     radiationSourceModel_ = radiationSourceModel;
@@ -448,11 +442,6 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > Body::getAerody
 std::shared_ptr< aerodynamics::FlightConditions > Body::getFlightConditions( )
 {
     return aerodynamicFlightConditions_;
-}
-
-std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > Body::getRadiationPressureInterfaces( )
-{
-    return radiationPressureInterfaces_;
 }
 
 const std::shared_ptr< electromagnetism::RadiationSourceModel > Body::getRadiationSourceModel( ) const

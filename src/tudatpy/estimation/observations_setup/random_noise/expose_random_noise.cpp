@@ -297,6 +297,41 @@ void expose_random_noise( py::module& m )
 
      )doc" );
 
+    m.def( "add_gaussian_noise_to_angular_position_observable",
+           &tss::addGaussianNoiseToAngularPositionObservationSimulationSettings< TIME_TYPE >,
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           R"doc(
+
+ Add Gaussian noise that is isotropic in the local sky plane to angular position observations.
+
+ This function adds noise to right ascension :math:`\alpha` and declination :math:`\delta`,
+ Only angular position entries in the settings list are modified by this function
+
+ At each observation time, two independent, zero-mean Gaussian on-sky error samples
+ :math:`\epsilon_\alpha` and :math:`\epsilon_\delta` are generated, each with standard deviation
+ ``noise_amplitude`` in radians. They are converted to errors in the observed angles as follows:
+
+ .. math::
+
+     \Delta\alpha = \frac{\epsilon_\alpha}{\cos\delta}, \qquad
+     \Delta\delta = \epsilon_\delta.
+
+ Parameters
+ ----------
+ observation_simulation_settings_list : list[ObservationSimulationSettings]
+     Existing observation simulation settings to modify.
+ noise_amplitude : float
+     Standard deviation in radians of each independent on-sky error component,
+     :math:`\Delta\alpha\cos\delta` and :math:`\Delta\delta`.
+
+ Returns
+ -------
+ None
+     The angular position simulation settings are changed in-place.
+
+     )doc" );
+
     m.def( "add_gaussian_noise_to_observable_for_link_ends",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const double,
