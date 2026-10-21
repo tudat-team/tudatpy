@@ -9,7 +9,8 @@
  */
 
 #include <cmath>
-#include "tudat/astro/observation_models/pixelCoordinatesObservationModel.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 #include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
@@ -99,28 +100,11 @@ void PixelCoordinatesScaling::update(
     Eigen::Matrix3d directionPartialWrtReceiverVelocity = Eigen::Matrix3d::Zero( );
     if( correctForStellarAberration_ )
     {
-        const Eigen::Vector3d beta = linkEndStates.at( observerIndex_ ).segment( 3, 3 ) / physical_constants::SPEED_OF_LIGHT;
+        const Eigen::Vector3d receiverVelocity = linkEndStates.at( observerIndex_ ).segment( 3, 3 );
         currentInertialDirectionToProject_ =
-                observation_models::computeApparentDirectionWithStellarAberration( normalizedRelativeRangeVector, beta );
-
-        const double directionDotVelocity = normalizedRelativeRangeVector.dot( beta );
-        const double squareRoot = std::sqrt( 1.0 - beta.squaredNorm( ) + directionDotVelocity * directionDotVelocity );
-        const double scaleFactor = squareRoot - directionDotVelocity;
-        const Eigen::Vector3d unnormalizedApparentDirection = scaleFactor * normalizedRelativeRangeVector + beta;
-        const Eigen::Matrix3d normalizationPartial =
-                ( Eigen::Matrix3d::Identity( ) - currentInertialDirectionToProject_ * currentInertialDirectionToProject_.transpose( ) ) /
-                unnormalizedApparentDirection.norm( );
-        const Eigen::Matrix3d apparentDirectionPartialWrtUnitDirection = scaleFactor * Eigen::Matrix3d::Identity( ) +
-                normalizedRelativeRangeVector * ( ( directionDotVelocity / squareRoot - 1.0 ) * beta.transpose( ) );
-        directionPartialWrtRelativePosition = normalizationPartial * apparentDirectionPartialWrtUnitDirection *
-                ( Eigen::Matrix3d::Identity( ) - normalizedRelativeRangeVector * normalizedRelativeRangeVector.transpose( ) ) /
-                relativeRangeVector.norm( );
-        directionPartialWrtReceiverVelocity = normalizationPartial *
-                ( Eigen::Matrix3d::Identity( ) +
-                  normalizedRelativeRangeVector *
-                          ( -normalizedRelativeRangeVector + ( directionDotVelocity * normalizedRelativeRangeVector - beta ) / squareRoot )
-                                  .transpose( ) ) /
-                physical_constants::SPEED_OF_LIGHT;
+                observation_models::calculateApparentDirectionWithStellarAberration( relativeRangeVector, receiverVelocity );
+        observation_models::calculateStellarAberrationPartials(
+                relativeRangeVector, receiverVelocity, directionPartialWrtRelativePosition, directionPartialWrtReceiverVelocity );
     }
 
     currentRelativeRangeVectorCameraFrame_ = currentRotationFromInertialToCameraFrame_ * currentInertialDirectionToProject_;
