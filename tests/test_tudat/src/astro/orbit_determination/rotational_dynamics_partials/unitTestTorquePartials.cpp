@@ -645,6 +645,63 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     }
 }
 
+//! Test partial of inertial torque w.r.t. angular velocity, for a body with a time-varying inertia tensor
+//! (torque -omega x ( I omega ) - dI/dt omega), by comparing with numerical partials
+BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithInertiaTensorDerivative )
+{
+    // Create body with mass-dependent rigid body properties, and a prescribed inertia tensor derivative
+    SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
+    bodies.createEmptyBody( "Vehicle" );
+    std::shared_ptr< Body > vehicle = bodies.at( "Vehicle" );
+
+    Eigen::Matrix3d inertiaTensor;
+    inertiaTensor << 5.0E3, 1.0E2, -2.0E2, 1.0E2, 6.0E3, 3.0E2, -2.0E2, 3.0E2, 8.0E3;
+    Eigen::Matrix3d inertiaTensorDerivative;
+    inertiaTensorDerivative << -2.0E1, 3.0, 1.0, 3.0, -1.0E1, -4.0, 1.0, -4.0, -3.0E1;
+
+    std::shared_ptr< MassDependentRigidBodyProperties > rigidBodyProperties =
+            std::make_shared< MassDependentRigidBodyProperties >( 1.0E3, nullptr, [ = ]( const double ) { return inertiaTensor; } );
+    rigidBodyProperties->setInertiaTensorDerivativeFunction( [ = ]( const double ) { return inertiaTensorDerivative; } );
+    vehicle->setMassProperties( rigidBodyProperties );
+
+    // Set rotational state of body
+    Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
+    rotationalState.segment( 0, 4 ) = tudat::linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond(
+            Eigen::AngleAxisd( 0.4343, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 2.4354, Eigen::Vector3d::UnitX( ) ) ) );
+    rotationalState( 4 ) = 1.0E-5;
+    rotationalState( 5 ) = 2.0E-5;
+    rotationalState( 6 ) = -3.2E-5;
+    vehicle->setCurrentRotationalStateToLocalFrame( rotationalState );
+
+    double testTime = 1000.0;
+    rigidBodyProperties->update( testTime );
+
+    // Create inertial torque and associated partial
+    std::shared_ptr< InertialTorqueModel > inertialTorqueModel = createInertialTorqueModel( vehicle, "Vehicle" );
+    BOOST_CHECK( inertialTorqueModel->isInertiaTensorDerivativeIncluded( ) );
+    std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial(
+            inertialTorqueModel, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Vehicle", vehicle ) );
+
+    // Calculate analytical partial w.r.t. angular velocity
+    inertialTorqueModel->updateMembers( testTime );
+    torquePartial->update( testTime );
+    Eigen::MatrixXd partialWrtRotationalVelocity = Eigen::Matrix3d::Zero( );
+    torquePartial->wrtRotationalVelocityOfAcceleratedBody( partialWrtRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+    // Calculate numerical partial w.r.t. angular velocity
+    Eigen::Vector3d rotationalVelocityPerturbation = Eigen::Vector3d::Constant( 1.0E-6 );
+    std::function< void( Eigen::Vector7d ) > rotationalStateSetFunction =
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, vehicle, std::placeholders::_1 );
+    Eigen::Matrix3d testPartialWrtRotationalVelocity = calculateTorqueWrtRotationalStatePartials(
+            rotationalStateSetFunction, inertialTorqueModel, rotationalState, rotationalVelocityPerturbation, 4, 3 );
+
+    // Check that the inertia tensor derivative dominates the partial, so that the comparison tests its contribution
+    BOOST_CHECK_GT( inertiaTensorDerivative.norm( ), 10.0 * ( partialWrtRotationalVelocity + inertiaTensorDerivative ).norm( ) );
+
+    // Compare analytical and numerical partials
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRotationalVelocity, partialWrtRotationalVelocity, 1.0E-8 );
+}
+
 class EffectiveTorqueModel : public basic_astrodynamics::TorqueModel
 {
 public:

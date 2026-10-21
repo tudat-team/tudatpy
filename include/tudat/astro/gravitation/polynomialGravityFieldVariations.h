@@ -32,7 +32,10 @@ public:
 
     virtual ~PolynomialGravityFieldVariations( ) {}
 
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) override;
+
+    //! Differentiate each nonconstant power of time relative to the reference epoch.
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
 
     std::map< int, Eigen::MatrixXd > getCosineAmplitudes( )
     {

@@ -148,6 +148,13 @@ void InertialTorquePartial::wrtGravitationalParameter( Eigen::MatrixXd& gravitat
 {
     gravitationalParameterPartial.block( 0, 0, 3, 1 ) = -currentAngularVelocityCrossProductMatrix_ * currentInertiaTensor_ *
             currentAngularVelocityVector_ / currentGravitationalParameter_;
+
+    // Add contribution of inertia tensor derivative, which is proportional to the gravitational parameter
+    if( inertiaTensorDerivativeFunction_ != nullptr )
+    {
+        gravitationalParameterPartial.block( 0, 0, 3, 1 ) -=
+                inertiaTensorDerivativeFunction_( ) * currentAngularVelocityVector_ / currentGravitationalParameter_;
+    }
 }
 
 //! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients

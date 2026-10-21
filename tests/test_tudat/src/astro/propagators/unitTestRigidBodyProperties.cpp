@@ -32,7 +32,11 @@
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include <limits>
 #include <string>
 
@@ -89,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
     body->setGravityFieldModel( std::make_shared< GravityFieldModel >( 4.0E5 ) );
     BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorAvailable( ) );
 
-    // Check inertia tensor from static degree two field and scaled mean moment of inertia, against principal
+    // Check inertia tensor (and zero derivative) from static degree two field and scaled mean moment of inertia, against principal
     // moments computed from the unnormalized coefficients
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
     cosineCoefficients( 0, 0 ) = 1.0;
@@ -106,6 +110,7 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
     const Eigen::Matrix3d expectedInertiaTensor =
             ( 4.0E5 / physical_constants::GRAVITATIONAL_CONSTANT ) * ( 2.0E3 * 2.0E3 ) * scaledPrincipalMoments.asDiagonal( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), expectedInertiaTensor, 5.0E-15 );
+    BOOST_CHECK_SMALL( body->getBodyInertiaTensorDerivative( ).norm( ), 1.0E-30 );
 
     // Check that explicitly set rigid body properties are retained when resetting the gravity field
     const Eigen::Matrix3d explicitInertiaTensor = 7.0 * Eigen::Matrix3d::Identity( );
@@ -227,6 +232,81 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     explicitBody->getMassProperties( )->update( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
+}
+
+//! Test inertia tensor derivative from linearly varying degree two coefficients against numerical derivatives, and its contribution to
+//! the inertial torque.
+BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative )
+{
+    using namespace gravitation;
+    using namespace simulation_setup;
+
+    Eigen::MatrixXd nominalCosine = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd nominalSine = Eigen::MatrixXd::Zero( 3, 3 );
+    nominalCosine( 0, 0 ) = 1.0;
+    nominalCosine( 2, 0 ) = -1.0e-3;
+    nominalCosine( 2, 2 ) = 2.0e-4;
+
+    Eigen::MatrixXd cosineRate = Eigen::MatrixXd::Zero( 1, 3 );
+    Eigen::MatrixXd sineRate = Eigen::MatrixXd::Zero( 1, 3 );
+    cosineRate << 2.0e-8, -3.0e-8, 5.0e-8;
+    sineRate << 0.0, 7.0e-8, -11.0e-8;
+    const std::shared_ptr< PolynomialGravityFieldVariations > prescribedVariation = std::make_shared< PolynomialGravityFieldVariations >(
+            std::map< int, Eigen::MatrixXd >( { { 1, cosineRate } } ), std::map< int, Eigen::MatrixXd >( { { 1, sineRate } } ), 0.0, 2, 0 );
+    const std::shared_ptr< GravityFieldVariationsSet > variationSet = std::make_shared< GravityFieldVariationsSet >(
+            std::vector< std::shared_ptr< GravityFieldVariations > >( { prescribedVariation } ),
+            std::vector< BodyDeformationTypes >( { polynomial_variation } ),
+            std::vector< std::string >( { "" } ) );
+    const std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+            std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+                    4.0e5, 2.0e3, nominalCosine, nominalSine, variationSet, "BodyFixed" );
+
+    const std::shared_ptr< Body > body = std::make_shared< Body >( );
+    body->setBodyName( "TestBody" );
+    body->setGravityFieldModel( gravityField );
+    body->setMassProperties( std::make_shared< FromGravityFieldRigidBodyProperties >( gravityField, 0.4 ) );
+    body->setGravityFieldVariationSet( variationSet );
+    body->setIsBodyInPropagation( true );
+
+    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+
+    const Eigen::Vector3d angularVelocity = ( Eigen::Vector3d( ) << 1.0e-4, -2.0e-4, 3.0e-4 ).finished( );
+    Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
+    rotationalState( 0 ) = 1.0;
+    rotationalState.tail( 3 ) = angularVelocity;
+    body->setCurrentRotationalStateToLocalFrame( rotationalState );
+    const auto inertialTorque = createInertialTorqueModel( body, "TestBody" );
+
+    // Update gravity field, and rigid body properties derived from it, to given time
+    std::function< void( const double ) > updateEnvironment = [ = ]( const double time ) {
+        gravityField->update( time );
+        body->getMassProperties( )->resetCurrentTime( );
+        body->getMassProperties( )->update( time );
+    };
+
+    for( const double time : { 0.0, 10.0, 40.0 } )
+    {
+        const double step = 1.0;
+        updateEnvironment( time - step );
+        const Eigen::Matrix3d previousInertia = body->getBodyInertiaTensor( );
+        updateEnvironment( time + step );
+        const Eigen::Matrix3d nextInertia = body->getBodyInertiaTensor( );
+        const Eigen::Matrix3d numericalDerivative = ( nextInertia - previousInertia ) / ( 2.0 * step );
+        updateEnvironment( time );
+        const Eigen::Matrix3d inertiaDerivative = body->getBodyInertiaTensorDerivative( );
+
+        // Compare inertia tensor derivative with numerical derivative
+        BOOST_REQUIRE_GT( inertiaDerivative.norm( ), 0.0 );
+        BOOST_CHECK_SMALL( ( inertiaDerivative - numericalDerivative ).norm( ) / inertiaDerivative.norm( ), 1.0e-9 );
+
+        inertialTorque->updateMembers( time );
+        const Eigen::Vector3d derivativeTorque =
+                inertialTorque->getTorque( ) + angularVelocity.cross( body->getBodyInertiaTensor( ) * angularVelocity );
+        const Eigen::Vector3d expectedDerivativeTorque = -inertiaDerivative * angularVelocity;
+        // Check that the inertial torque includes -dI/dt * omega
+        BOOST_REQUIRE_GT( expectedDerivativeTorque.norm( ), 0.0 );
+        BOOST_CHECK_SMALL( ( derivativeTorque - expectedDerivativeTorque ).norm( ) / expectedDerivativeTorque.norm( ), 1.0e-13 );
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )

@@ -45,6 +45,10 @@ public:
 
     virtual void updateMassDistribution( const double currentTime ) = 0;
 
+    //! Function to set the inertia tensor derivative from the time derivatives of the degree two gravity field coefficients
+    //! (only used for properties derived from a gravity field)
+    virtual void updateInertiaTensorDerivative( const Eigen::Vector5d& ) {}
+
     virtual void resetCurrentTime( );
 
     double getCurrentMass( );
@@ -53,8 +57,14 @@ public:
 
     Eigen::Matrix3d getCurrentInertiaTensor( );
 
+    //! Function to retrieve the time derivative of the inertia tensor, as set by the latest call to update function
+    Eigen::Matrix3d getCurrentDerivativeInertiaTensor( );
+
     //! Function to retrieve whether these properties define an inertia tensor
     bool isInertiaTensorAvailable( ) const;
+
+    //! Function to retrieve whether these properties define a time derivative of the inertia tensor
+    bool isInertiaTensorDerivativeAvailable( ) const;
 
     virtual void setCurrentMass( const double currentMass ) = 0;
 
@@ -67,6 +77,9 @@ protected:
 
     Eigen::Matrix3d currentInertiaTensor_;
 
+    //! Time derivative of inertia tensor, as set by the latest call to update function
+    Eigen::Matrix3d currentDerivativeInertiaTensor_;
+
     bool isBodyInPropagation_;
 
     bool isMassComputed_;
@@ -75,8 +88,14 @@ protected:
 
     bool isInertiaTensorComputed_;
 
+    //! Boolean denoting whether the inertia tensor derivative has been computed for the current time
+    bool isDerivativeInertiaTensorComputed_;
+
     //! Boolean denoting whether these properties define an inertia tensor
     bool isInertiaTensorAvailable_;
+
+    //! Boolean denoting whether these properties define a time derivative of the inertia tensor
+    bool isDerivativeInertiaTensorAvailable_;
 };
 
 class TimeDependentRigidBodyProperties : public RigidBodyProperties
@@ -129,13 +148,19 @@ public:
 
     virtual void setCurrentMass( const double currentMass );
 
+    //! Supply dI/dt as a function of time, including the mass-rate dependence, for rotational dynamics.
+    void setInertiaTensorDerivativeFunction( const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction );
+
 protected:
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+    //! Function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
-//! Rigid-body properties (mass, center of mass and inertia tensor) derived from a body's gravity field.
+//! Rigid-body properties (mass, center of mass, inertia tensor and its derivative) derived from a body's gravity field.
 /*!
  * Rigid-body properties derived from a body's gravity field. The properties are recomputed from the gravity field when updated
  * (for a time-dependent gravity field, once per time step during propagation).
@@ -155,6 +180,9 @@ public:
 
     void updateMassDistribution( const double currentTime ) override;
 
+    //! Set the inertia tensor derivative from the time derivatives of the (C20, C21, C22, S21, S22) coefficients.
+    void updateInertiaTensorDerivative( const Eigen::Vector5d& derivativeDegreeTwoCoefficients ) override;
+
     void setCurrentMass( const double currentMass ) override;
 
     void setIsBodyInPropagation( const bool isBodyInPropagation ) override;
@@ -172,8 +200,13 @@ protected:
     //! Function to compute the mass from the gravity field
     void computeMassFromGravityField( );
 
-    //! Function to compute the center of mass and inertia tensor from the gravity field
-    void computeMassDistributionFromGravityField( );
+    //! Function to compute the center of mass, inertia tensor and (for a time-dependent field) its time derivative from the gravity field
+    /*!
+     * Function to compute the center of mass, inertia tensor and (for a time-dependent field) its time derivative from the gravity
+     * field
+     * \param currentTime Time at which the inertia tensor derivative is to be computed (not computed if NaN)
+     */
+    void computeMassDistributionFromGravityField( const double currentTime );
 
     //! Gravity field from which properties are derived.
     std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;

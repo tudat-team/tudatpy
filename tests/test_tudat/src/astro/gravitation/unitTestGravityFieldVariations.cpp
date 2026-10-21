@@ -18,6 +18,9 @@
 
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
+#include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -34,6 +37,28 @@ BOOST_AUTO_TEST_SUITE( test_gravity_field_variations )
 
 using namespace tudat::gravitation;
 using namespace tudat::spice_interface;
+
+//! Function to compare time derivatives of gravity field variations with numerical derivatives
+void checkGravityFieldVariationDerivative( const std::shared_ptr< GravityFieldVariations >& variation,
+                                           const double time,
+                                           const double timeStep,
+                                           const double relativeTolerance = 1.0e-8 )
+{
+    const auto rates = variation->calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
+    std::function< Eigen::MatrixXd( const double ) > cosineCorrectionFunction = [ = ]( const double currentTime ) {
+        return variation->calculateSphericalHarmonicsCorrections( currentTime ).first;
+    };
+    std::function< Eigen::MatrixXd( const double ) > sineCorrectionFunction = [ = ]( const double currentTime ) {
+        return variation->calculateSphericalHarmonicsCorrections( currentTime ).second;
+    };
+    const Eigen::MatrixXd numericalCosineRate =
+            numerical_derivatives::computeCentralDifferenceFromFunction( cosineCorrectionFunction, time, timeStep );
+    const Eigen::MatrixXd numericalSineRate =
+            numerical_derivatives::computeCentralDifferenceFromFunction( sineCorrectionFunction, time, timeStep );
+
+    BOOST_CHECK_SMALL( ( rates.first - numericalCosineRate ).norm( ), relativeTolerance * numericalCosineRate.norm( ) + 1.0e-25 );
+    BOOST_CHECK_SMALL( ( rates.second - numericalSineRate ).norm( ), relativeTolerance * numericalSineRate.norm( ) + 1.0e-25 );
+}
 
 //! Function to get nominal gravity field coefficients for Jupiter
 /*!
@@ -177,6 +202,7 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
             std::vector< std::string >{ "BasicTidal", "Tabulated" } );
 }
 
+//! Test combined tidal and tabulated gravity field variations, and time derivatives of tabulated variations
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
     // Load spice kernels.
@@ -286,6 +312,28 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
             BOOST_CHECK_SMALL( directSineCorrections( 2, i ) - tidalCorrectionsFromObject.second( 0, i ), 1.0E-19 );
         }
     }
+
+    const auto tabulatedVariation = getTabulatedGravityFieldVariations( );
+    auto cosineTable = tabulatedVariation->getCosineCoefficientCorrections( );
+    auto sineTable = tabulatedVariation->getSineCoefficientCorrections( );
+    const double firstEpoch = cosineTable.begin( )->first;
+    const double tableStep = 3600.0;
+    // Check time derivatives of tabulated variations in three intervals, and after resetting the table
+    for( const double intervalOffset : { 0.25, 1.5, 2.75 } )
+    {
+        checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + intervalOffset * tableStep, 10.0, 1.0e-10 );
+    }
+
+    for( auto& entry : cosineTable )
+    {
+        entry.second *= 2.0;
+    }
+    for( auto& entry : sineTable )
+    {
+        entry.second *= -3.0;
+    }
+    tabulatedVariation->resetCoefficientInterpolator( cosineTable, sineTable );
+    checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + 1.5 * tableStep, 10.0, 1.0e-10 );
 }
 
 std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityFieldVariation( )
@@ -487,6 +535,7 @@ void getPeriodicGravityFieldVariationSettings( std::vector< Eigen::MatrixXd >& c
     }
 }
 
+//! Test periodic gravity field variations, and their time derivatives
 BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
 {
     using namespace tudat::simulation_setup;
@@ -563,6 +612,12 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
             std::shared_ptr< gravitation::GravityFieldVariationsSet > variations =
                     createGravityFieldModelVariationsSet( "Jupiter", dummySystem, variationSettingsList );
             timeDependentGravityField->updateCorrectionFunctions( );
+
+            // Check time derivatives against numerical derivatives
+            for( const double derivativeTime : { referenceEpoch - 2.0e4, referenceEpoch, referenceEpoch + 3.0e4 } )
+            {
+                checkGravityFieldVariationDerivative( variations->getVariationObjects( ).at( 0 ), derivativeTime, 1.0 );
+            }
 
             if( k < 3 )
             {
@@ -654,6 +709,7 @@ void getPolynomialGravityFieldVariationSettings( std::map< int, Eigen::MatrixXd 
     minimumOrder = 0;
 }
 
+//! Test polynomial gravity field variations, and their time derivatives
 BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
 {
     using namespace tudat::simulation_setup;
@@ -695,6 +751,28 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
         std::shared_ptr< gravitation::GravityFieldVariationsSet > variations =
                 createGravityFieldModelVariationsSet( "Jupiter", dummySystem, variationSettingsList );
         timeDependentGravityField->updateCorrectionFunctions( );
+
+        // Check time derivatives for constant, linear, quadratic and cubic terms against numerical derivatives, before, at and after
+        // the reference epoch, and check that at the reference epoch only the linear terms contribute.
+        {
+            std::map< int, Eigen::MatrixXd > rateTestCosineAmplitudes = cosineAmplitudes;
+            std::map< int, Eigen::MatrixXd > rateTestSineAmplitudes = sineAmplitudes;
+            rateTestCosineAmplitudes[ 0 ] = cosineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
+            rateTestSineAmplitudes[ 0 ] = sineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
+            rateTestCosineAmplitudes[ 2 ] = cosineAmplitudes.at( 1 ) / physical_constants::JULIAN_YEAR;
+            rateTestSineAmplitudes[ 3 ] = sineAmplitudes.at( 1 ) / ( physical_constants::JULIAN_YEAR * physical_constants::JULIAN_YEAR );
+            std::shared_ptr< gravitation::GravityFieldVariations > polynomialVariation =
+                    std::make_shared< gravitation::PolynomialGravityFieldVariations >(
+                            rateTestCosineAmplitudes, rateTestSineAmplitudes, referenceEpoch, minimumDegree, minimumOrder );
+
+            for( const double timeOffset : { -0.25 * physical_constants::JULIAN_YEAR, 0.0, 0.5 * physical_constants::JULIAN_YEAR } )
+            {
+                checkGravityFieldVariationDerivative( polynomialVariation, referenceEpoch + timeOffset, 100.0 );
+            }
+            const auto referenceRates = polynomialVariation->calculateSphericalHarmonicsCorrectionsTimeDerivative( referenceEpoch );
+            BOOST_CHECK_SMALL( ( referenceRates.first - cosineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
+            BOOST_CHECK_SMALL( ( referenceRates.second - sineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
+        }
 
         timeDependentGravityField->update( 2.0 * testTime );
 

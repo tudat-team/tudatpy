@@ -203,11 +203,19 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                                            acceleratedBody.second->getGravityFieldModel( ) ) );
             }
 
+            // Inertia tensor derivative is included in partial if it is included in the torque model
+            std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction;
+            if( std::dynamic_pointer_cast< InertialTorqueModel >( torqueModel )->isInertiaTensorDerivativeIncluded( ) )
+            {
+                inertiaTensorDerivativeFunction = std::bind( &Body::getBodyInertiaTensorDerivative, acceleratedBody.second );
+            }
+
             torquePartial = std::make_shared< acceleration_partials::InertialTorquePartial >( angularVelocityFunction,
                                                                                               inertiaTensorFunction,
                                                                                               inertiaTensorNormalizationFunction,
                                                                                               gravitationalParameterFunction,
-                                                                                              acceleratedBody.first );
+                                                                                              acceleratedBody.first,
+                                                                                              inertiaTensorDerivativeFunction );
             break;
         }
         case custom_torque:
