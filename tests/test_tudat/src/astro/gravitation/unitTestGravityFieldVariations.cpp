@@ -19,6 +19,7 @@
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
+#include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -43,10 +44,16 @@ void checkGravityFieldVariationDerivative( const std::shared_ptr< GravityFieldVa
                                            const double relativeTolerance = 1.0e-8 )
 {
     const auto rates = variation->calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
-    const auto before = variation->calculateSphericalHarmonicsCorrections( time - timeStep );
-    const auto after = variation->calculateSphericalHarmonicsCorrections( time + timeStep );
-    const Eigen::MatrixXd numericalCosineRate = ( after.first - before.first ) / ( 2.0 * timeStep );
-    const Eigen::MatrixXd numericalSineRate = ( after.second - before.second ) / ( 2.0 * timeStep );
+    std::function< Eigen::MatrixXd( const double ) > cosineCorrectionFunction = [ = ]( const double currentTime ) {
+        return variation->calculateSphericalHarmonicsCorrections( currentTime ).first;
+    };
+    std::function< Eigen::MatrixXd( const double ) > sineCorrectionFunction = [ = ]( const double currentTime ) {
+        return variation->calculateSphericalHarmonicsCorrections( currentTime ).second;
+    };
+    const Eigen::MatrixXd numericalCosineRate =
+            numerical_derivatives::computeCentralDifferenceFromFunction( cosineCorrectionFunction, time, timeStep );
+    const Eigen::MatrixXd numericalSineRate =
+            numerical_derivatives::computeCentralDifferenceFromFunction( sineCorrectionFunction, time, timeStep );
 
     // Both coefficient blocks must agree with the numerical rates, including zero sine entries.
     BOOST_CHECK_SMALL( ( rates.first - numericalCosineRate ).norm( ), relativeTolerance * numericalCosineRate.norm( ) + 1.0e-25 );
@@ -520,7 +527,7 @@ BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
     basicVariationModel->resetLoveNumbersOfDegree( loveNumbers, 2 );
     checkGravityFieldVariationDerivative( basicVariationModel, testTime, 1.0, 5.0e-8 );
 
-    // Degrees three/four exercise the general recurrence, complex Love numbers, and constant mean offsets.
+    // Check rates for degrees three and four, with complex Love numbers and constant mean offsets.
     const auto higherDegreeVariation = getBasicGravityFieldVariation( true );
     checkGravityFieldVariationDerivative( higherDegreeVariation, testTime, 1.0, 5.0e-8 );
     const auto raisingStates = higherDegreeVariation->getDeformingBodyStateFunctions( );
@@ -541,14 +548,13 @@ BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
                 higherDegreeVariation->getMeanForcingSineTerms( ).at( 4 ).at( 1 ) );
     }
     const auto higherDegreeValues = higherDegreeVariation->calculateSphericalHarmonicsCorrections( testTime );
-    // An independent explicit-Legendre calculation checks C41/S41, including normalization,
-    // the complex Love number and the mean offset; a value/rate consistency check alone cannot do this.
+    // Check C41/S41 against a direct calculation per body causing deformation, including the complex Love number and the mean offset
     BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.first( 2, 1 ), expectedCoefficient41.real( ), 1.0e-12 );
     BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.second( 2, 1 ), -expectedCoefficient41.imag( ), 1.0e-12 );
     auto degreeFourLoveNumbers = higherDegreeVariation->getLoveNumbersOfDegree( 4 );
     degreeFourLoveNumbers.push_back( 0.5 );
     higherDegreeVariation->resetLoveNumbersOfDegree( degreeFourLoveNumbers, 4 );
-    // Enabling another order must resize both the forcing buffers and the constant mean-forcing arrays.
+    // Check rates after enabling an additional order (with zero mean forcing)
     checkGravityFieldVariationDerivative( higherDegreeVariation, testTime + 3600.0, 1.0, 5.0e-8 );
 }
 

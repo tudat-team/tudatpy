@@ -37,6 +37,14 @@ using namespace gravitation;
 using namespace basic_astrodynamics;
 using namespace electromagnetism;
 
+//! Function to retrieve the (deprecated) scaled mean moment of inertia from gravity field settings (NaN if not defined)
+double getDeprecatedScaledMeanMomentOfInertia( const std::shared_ptr< GravityFieldSettings > gravityFieldSettings )
+{
+    const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+    return ( sphericalHarmonicsSettings == nullptr ) ? TUDAT_NAN : sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( );
+}
+
 std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSettings( const std::shared_ptr< BodySettings >& bodySettings )
 {
     const std::shared_ptr< RigidBodyPropertiesSettings > explicitSettings = bodySettings->rigidBodyPropertiesSettings;
@@ -46,13 +54,7 @@ std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSetting
     }
 
     // The scaled mean moment on gravity settings is retained only for older input files.
-    double legacyScaledMeanMomentOfInertia = TUDAT_NAN;
-    const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsSettings =
-            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings->gravityFieldSettings );
-    if( sphericalHarmonicsSettings != nullptr )
-    {
-        legacyScaledMeanMomentOfInertia = sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( );
-    }
+    const double legacyScaledMeanMomentOfInertia = getDeprecatedScaledMeanMomentOfInertia( bodySettings->gravityFieldSettings );
 
     if( explicitSettings == nullptr )
     {
@@ -143,14 +145,12 @@ void addGravityFieldModel( const SystemOfBodies& bodies,
 
     // Keep the legacy settings route functional without copying its value into the runtime
     // gravity model. Explicit non-gravity rigid-body properties are preserved by Body.
-    const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsSettings =
-            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+    const double legacyScaledMeanMomentOfInertia = getDeprecatedScaledMeanMomentOfInertia( gravityFieldSettings );
     const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityDerivedRigidBodyProperties =
             std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( bodies.at( bodyName )->getMassProperties( ) );
-    if( sphericalHarmonicsSettings != nullptr && gravityDerivedRigidBodyProperties != nullptr &&
-        std::isfinite( sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( ) ) )
+    if( gravityDerivedRigidBodyProperties != nullptr && std::isfinite( legacyScaledMeanMomentOfInertia ) )
     {
-        gravityDerivedRigidBodyProperties->setScaledMeanMomentOfInertia( sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( ) );
+        gravityDerivedRigidBodyProperties->setScaledMeanMomentOfInertia( legacyScaledMeanMomentOfInertia );
     }
 
     if( gravityFieldVariationSettings.size( ) > 0 )

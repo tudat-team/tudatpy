@@ -24,6 +24,7 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/legendrePolynomials.h"
+#include "tudat/math/basic/sphericalHarmonics.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
 namespace tudat
@@ -157,9 +158,8 @@ public:
                                          const int maximumOrder,
                                          const std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction = nullptr ):
         // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
-        GravityFieldVariations( 2, 0, maximumDegree, maximumOrder ),
-        canComputeTimeDerivative_( static_cast< bool >( rotationDerivativeFunction ) ),
-        rotationDerivativeFunction_( rotationDerivativeFunction ), deformedBodyStateFunction_( deformedBodyStateFunction ),
+        GravityFieldVariations( 2, 0, maximumDegree, maximumOrder ), rotationDerivativeFunction_( rotationDerivativeFunction ),
+        sphericalHarmonicsCache_( maximumDegree + 2, maximumDegree + 2 ), deformedBodyStateFunction_( deformedBodyStateFunction ),
         deformedBodyOrientationFunction_( deformedBodyOrientationFunction ), deformingBodyStateFunctions_( deformingBodyStateFunctions ),
         deformedBodyReferenceRadius_( deformedBodyReferenceRadius ), deformedBodyMass_( deformedBodyMass ),
         deformingBodyMasses_( deformingBodyMasses ), deformingBodies_( deformingBodies )
@@ -193,7 +193,14 @@ public:
         return calculateBasicSphericalHarmonicsCorrections( time );
     }
 
-    //! Differentiate the tidal forcing for fixed Love numbers and gravitational parameters.
+    //! Function for calculating time derivatives of spherical harmonic coefficient corrections.
+    /*!
+     *  Function for calculating time derivatives of spherical harmonic coefficient corrections, for constant Love numbers
+     *  and masses. Requires the time derivative of the rotation to the deformed body-fixed frame to be defined.
+     *  \param time Time at which time derivatives of variations are to be calculated.
+     *
+eturn Pair of matrices containing time derivatives of variations in (cosine,sine) coefficients.
+     */
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
 
     //! Function to return reference radius the spherical harmonic gravity field of deformed body.
@@ -315,23 +322,36 @@ public:
     }
 
 protected:
-    //! Allocate forcing buffers and precompute the constant recurrence factors.
-    void initializeTimeDerivative( const int maximumForcingDegree, const int maximumForcingOrder );
+    //! Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number
+    /*!
+     *  Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number,
+     *  due to the body causing deformation with the current mass ratio, from the gradient of the associated spherical harmonic term.
+     *  \param degree Degree of tide.
+     *  \param order Order of tide.
+     *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     *
+eturn Time derivative of tidal forcing (cosine coefficient minus i times sine coefficient)
+     */
+    std::complex< double > calculateTidalForcingTimeDerivative( const int degree,
+                                                                const int order,
+                                                                const Eigen::Vector6d& bodyFixedRelativeState );
 
-    //! Shared forcing recurrence; value-only calls omit all rate arithmetic at compile time.
-    template< bool computeTimeDerivative >
-    void updateTidalForcing( const Eigen::Vector3d& position, const Eigen::Vector3d& velocity );
+    //! Function to add time derivatives of corrections due to the current body causing deformation.
+    /*!
+     *  Function to add time derivatives of corrections due to the current body causing deformation
+     *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     *  \param cosineRates Time derivatives of cosine coefficient corrections (correction added to input value).
+     *  \param sineRates Time derivatives of sine coefficient corrections (correction added to input value).
+     */
+    virtual void addTidalCorrectionTimeDerivatives( const Eigen::Vector6d& bodyFixedRelativeState,
+                                                    Eigen::MatrixXd& cosineRates,
+                                                    Eigen::MatrixXd& sineRates ) = 0;
 
-    //! Apply the model's Love numbers to the shared forcing rates.
-    virtual void addTidalCorrectionTimeDerivatives( Eigen::MatrixXd& cosineRates, Eigen::MatrixXd& sineRates ) = 0;
-
-    bool canComputeTimeDerivative_ = false;
+    //! Function returning time derivative of rotation matrix from inertial to deformed body-fixed frame
     std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction_;
-    int maximumForcingDegree_ = 0;
-    int maximumForcingOrder_ = 0;
-    Eigen::MatrixXd firstRecurrenceFactors_, secondRecurrenceFactors_;
-    // Complex storage follows the existing cosine - i * sine convention.
-    Eigen::MatrixXcd tidalForcing_, tidalForcingRates_;
+
+    //! Cache for computing gradients of spherical harmonic tidal forcing terms
+    basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 
     //! List of functions to call for calculating spherical harmonic corrections.
     /*!
@@ -475,11 +495,6 @@ protected:
     //! Current position of body being deformed.
     Eigen::Vector3d deformedBodyPosition;
 
-    Eigen::Vector3d deformedBodyVelocity_;
-    Eigen::Vector6d relativeDeformingBodyState_;
-    Eigen::Vector3d relativeDeformingBodyFixedPosition_;
-    double inverseDeformedBodyMass_;
-
     //! Current rotation to frame fixed to deformed body.
     Eigen::Quaterniond toDeformedBodyFrameRotation;
 
@@ -549,14 +564,6 @@ public:
                                                   this,
                                                   std::placeholders::_1,
                                                   std::placeholders::_2 ) );
-
-        int maximumForcingOrder = 0;
-        for( const auto& degree : loveNumbers_ )
-        {
-            maximumForcingOrder =
-                    std::max( maximumForcingOrder, std::min( degree.first, static_cast< int >( degree.second.size( ) ) - 1 ) );
-        }
-        initializeTimeDerivative( loveNumbers_.rbegin( )->first, maximumForcingOrder );
 
         // If cosine mean forcing terms are empty map (default), set map values to zero
         if( meanForcingCosineTerms_.empty( ) )
@@ -630,11 +637,6 @@ public:
         {
             if( loveNumbers.size( ) <= static_cast< unsigned int >( degree + 1 ) )
             {
-                const int newMaximumOrder = static_cast< int >( loveNumbers.size( ) ) - 1;
-                if( newMaximumOrder > maximumForcingOrder_ )
-                {
-                    initializeTimeDerivative( maximumForcingDegree_, newMaximumOrder );
-                }
                 // Newly enabled orders have zero mean forcing unless explicitly configured at construction.
                 meanForcingCosineTerms_[ degree ].resize( std::max( meanForcingCosineTerms_[ degree ].size( ), loveNumbers.size( ) ), 0.0 );
                 meanForcingSineTerms_[ degree ].resize( std::max( meanForcingSineTerms_[ degree ].size( ), loveNumbers.size( ) ), 0.0 );
@@ -676,7 +678,9 @@ protected:
      *  (passed by reference; correction added to input value).
      */
     void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections ) override;
-    void addTidalCorrectionTimeDerivatives( Eigen::MatrixXd& cosineRates, Eigen::MatrixXd& sineRates ) override;
+    void addTidalCorrectionTimeDerivatives( const Eigen::Vector6d& bodyFixedRelativeState,
+                                            Eigen::MatrixXd& cosineRates,
+                                            Eigen::MatrixXd& sineRates ) override;
 
     // LOVE NUMBER TODO: FIX DOCS
     //! List of love numbers for each degree and order
@@ -728,16 +732,21 @@ public:
                                                   this,
                                                   std::placeholders::_1,
                                                   std::placeholders::_2 ) );
-        int maximumForcingOrder = 0;
+        int maximumForcingDegree = 0;
         for( const auto& forcing : loveNumbers_ )
         {
             if( forcing.first.first < 0 || forcing.first.second < 0 || forcing.first.second > forcing.first.first )
             {
                 throw std::runtime_error( "Error creating mode-coupled tidal variation: invalid forcing degree/order." );
             }
-            maximumForcingOrder = std::max( maximumForcingOrder, forcing.first.second );
+            maximumForcingDegree = std::max( maximumForcingDegree, forcing.first.first );
         }
-        initializeTimeDerivative( loveNumbers_.rbegin( )->first.first, maximumForcingOrder );
+
+        // Forcing degree may exceed response degree
+        if( maximumForcingDegree > maximumDegree_ )
+        {
+            sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumForcingDegree + 2, maximumForcingDegree + 2 );
+        }
     }
 
     //! Destructor
@@ -773,7 +782,9 @@ public:
 
 protected:
     void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections ) override;
-    void addTidalCorrectionTimeDerivatives( Eigen::MatrixXd& cosineRates, Eigen::MatrixXd& sineRates ) override;
+    void addTidalCorrectionTimeDerivatives( const Eigen::Vector6d& bodyFixedRelativeState,
+                                            Eigen::MatrixXd& cosineRates,
+                                            Eigen::MatrixXd& sineRates ) override;
 
     std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers_;
 };

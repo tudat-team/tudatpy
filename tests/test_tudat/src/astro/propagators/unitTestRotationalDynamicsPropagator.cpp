@@ -1272,6 +1272,12 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     // Ensure the propagation genuinely exercises a changing inertia and a nonzero derivative torque.
     BOOST_REQUIRE_GT( maximumDerivativeTorque, 0.0 );
     BOOST_REQUIRE_GT( dependentVariableHistory.size( ), 4 );
+    std::function< Eigen::VectorXd( const double ) > inertiaTensorFunction = [ & ]( const double time ) -> Eigen::VectorXd {
+        return dependentVariableHistory.at( time ).head( 9 );
+    };
+    std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = [ & ]( const double time ) {
+        return angularMomentumHistory.at( time );
+    };
     for( const auto& entry : dependentVariableHistory )
     {
         const double time = entry.first;
@@ -1279,19 +1285,14 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         {
             continue;
         }
-        const Eigen::VectorXd numericalInertiaDerivative = ( dependentVariableHistory.at( time - 2.0 * integrationStep ).head( 9 ) -
-                                                             8.0 * dependentVariableHistory.at( time - integrationStep ).head( 9 ) +
-                                                             8.0 * dependentVariableHistory.at( time + integrationStep ).head( 9 ) -
-                                                             dependentVariableHistory.at( time + 2.0 * integrationStep ).head( 9 ) ) /
-                ( 12.0 * integrationStep );
+        const Eigen::VectorXd numericalInertiaDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                inertiaTensorFunction, time, integrationStep, numerical_derivatives::order4 );
         const Eigen::VectorXd savedInertiaDerivative = entry.second.segment( 23, 9 );
         // A fourth-order central difference of saved body-fixed inertia agrees with its saved derivative.
         BOOST_CHECK_SMALL( ( numericalInertiaDerivative - savedInertiaDerivative ).norm( ) / savedInertiaDerivative.norm( ), 1.0e-7 );
 
-        const Eigen::Vector3d numericalAngularMomentumDerivative =
-                ( angularMomentumHistory.at( time - 2.0 * integrationStep ) - 8.0 * angularMomentumHistory.at( time - integrationStep ) +
-                  8.0 * angularMomentumHistory.at( time + integrationStep ) - angularMomentumHistory.at( time + 2.0 * integrationStep ) ) /
-                ( 12.0 * integrationStep );
+        const Eigen::Vector3d numericalAngularMomentumDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                angularMomentumFunction, time, integrationStep, numerical_derivatives::order4 );
         // Inertial angular-momentum change equals the physical torque. This independently checks
         // that the inertia-derivative contribution is actually applied to the integrated rotation.
         // Allow roundoff from differencing the large angular momentum when the physical torque is small.
