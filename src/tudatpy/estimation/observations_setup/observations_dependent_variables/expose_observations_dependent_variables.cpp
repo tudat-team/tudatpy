@@ -375,17 +375,15 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
            R"doc(
         Function to create a dependent variable for the range between link ends.
-        The range is evaluated from the states of the link ends at the epoch(s) of the observation:
+        The range is the Euclidean distance between the positions of two consecutive link ends, each
+        evaluated at its own link-end time :math:`t_{start}` and :math:`t_{end}` (as determined by the light-time solution):
 
         .. math::
 
             r = || \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||
 
-        The range is the Euclidean distance between the positions of two consecutive link ends, each
-        evaluated at its own link-end time (as determined by the light-time solution). Light-time
-        corrections affect these times, but the range does *not* include the correction terms
-        themselves, so it generally differs from the speed of light times the light time (see
-        :func:`light_time_between_link_ends_dependent_variable`).
+        Light-time corrections affect these times, but the range does *not* include the correction terms
+        themselves (see :func:`light_time_between_link_ends_dependent_variable`).
 
         Parameters
         ----------
@@ -420,8 +418,13 @@ void expose_observations_dependent_variables( py::module& m )
            R"doc(
         Function to create a dependent variable for the light time between two consecutive link ends.
 
-        The light time is taken directly from the light-time solution of the observation model, and
-        therefore includes all light-time corrections, but no link-end (e.g. retransmission) delays.
+        The light time is taken directly from the light-time solution of the observation model:
+
+        .. math::
+
+            \Delta t = t_{end} - t_{start} = \frac{|| \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||}{c} + \Delta t_{corr}
+
+        with :math:`\Delta t_{corr}` the sum of all light-time corrections. Link-end (e.g. retransmission) delays are not included.
         For multi-leg observables, each leg is a separate dependent variable (e.g., uplink and
         downlink for a two-way observable). For integrated observables, the light time at the start
         or end of the integration interval is used, as set by ``integrated_observation_handling``.
