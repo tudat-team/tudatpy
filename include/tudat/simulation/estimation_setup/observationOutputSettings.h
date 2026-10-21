@@ -14,7 +14,6 @@
 #include <memory>
 #include <functional>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -453,7 +452,8 @@ inline std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleDepen
             station_azimuth_angle, linkEndId, linkEndRole, originatingLinkEndId, originatingLinkEndRole, integratedObservableHandling );
 }
 
-//! Function to create a dependent variable computing the range between the two ends of the link
+//! Function to create a dependent variable computing the distance between the positions of two consecutive link ends, each evaluated at
+//! its own link-end time (light-time corrections affect these times, but are not included in the distance)
 inline std::shared_ptr< ObservationDependentVariableSettings > targetRangeBetweenLinkEndsDependentVariable(
         const LinkEndType startLinkEndType = unidentified_link_end,
         const LinkEndType endLinkEndType = unidentified_link_end,
@@ -465,20 +465,8 @@ inline std::shared_ptr< ObservationDependentVariableSettings > targetRangeBetwee
             target_range, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
 }
 
-//! Function to create a dependent variable computing the solved signal-propagation light time
-//! between two link ends.
-//!
-//! The returned scalar is the sum of the already solved per-leg times of flight along the
-//! contiguous n-way chain from `startLinkEndType` to `endLinkEndType`. It includes configured
-//! light-time corrections, but excludes all link-end delays, including transmitter, receiver,
-//! and intermediate retransmission / turnaround delays. For a two-way observation with
-//! ground transmission `t0`, spacecraft reception `t1`, spacecraft retransmission `t2` and
-//! ground reception `t3`, the uplink light time is `(t1 - t0)`, the downlink light time is
-//! `(t3 - t2)`, and the combined uplink+downlink light time is `(t1 - t0) + (t3 - t2)`, not
-//! `(t3 - t0)`.
-//!
-//! If both ends are left unspecified, the full transmitter-to-receiver propagation path is
-//! selected. If only one end is specified, the other defaults to the corresponding path endpoint.
+//! Function to create a dependent variable computing the light time of a single leg (between two consecutive link ends), as solved by
+//! the observation model (including light-time corrections, excluding link-end delays)
 inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeBetweenLinkEndsDependentVariable(
         const LinkEndType startLinkEndType = unidentified_link_end,
         const LinkEndType endLinkEndType = unidentified_link_end,

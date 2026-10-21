@@ -329,6 +329,12 @@ void expose_observations_dependent_variables( py::module& m )
            R"doc(
         Function to create a dependent variable for the range between link ends.
 
+        The range is the Euclidean distance between the positions of two consecutive link ends, each
+        evaluated at its own link-end time (as determined by the light-time solution). Light-time
+        corrections affect these times, but the range does *not* include the correction terms
+        themselves, so it generally differs from the speed of light times the light time (see
+        :func:`light_time_between_link_ends_dependent_variable`).
+
         Parameters
         ----------
         start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
@@ -360,38 +366,20 @@ void expose_observations_dependent_variables( py::module& m )
                       "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
            R"doc(
-        Function to create a dependent variable for the solved signal-propagation light time
-        between two link ends.
+        Function to create a dependent variable for the light time between two consecutive link ends.
 
-        The returned scalar is the sum of the already solved per-leg times of flight along the
-        contiguous n-way chain from ``start_link_end_type`` to ``end_link_end_type``. It is the
-        light time of the actual observation-model solution (including any configured light-time
-        corrections), not a second independent light-time solve and not an instantaneous
-        Euclidean range divided by the speed of light.
-
-        All link-end delays are excluded, including transmitter, receiver, and intermediate
-        retransmission / turnaround delays. For a two-way observation with ground transmission
-        ``t0``, spacecraft reception ``t1``, spacecraft retransmission ``t2`` and ground
-        reception ``t3``:
-
-        * uplink: ``start_link_end_type=transmitter``, ``end_link_end_type=retransmitter`` → ``t1 - t0``
-        * downlink: ``start_link_end_type=retransmitter``, ``end_link_end_type=receiver`` → ``t3 - t2``
-        * combined uplink+downlink: ``start_link_end_type=transmitter``, ``end_link_end_type=receiver`` → ``(t1 - t0) + (t3 - t2)``
-
-        The combined value is therefore not ``t3 - t0``, which would additionally include the
-        retransmission delay ``t2 - t1``.
-
-        If the start and end are left unspecified, the full transmitter-to-receiver propagation
-        path is saved. If only one end is specified, the other defaults to the corresponding
-        path endpoint. The start must precede the end along the transmitter → receiver chain;
-        reversed or ambiguous selections raise a ``RuntimeError``.
+        The light time is taken directly from the light-time solution of the observation model, and
+        therefore includes all light-time corrections, but no link-end (e.g. retransmission) delays.
+        For multi-leg observables, each leg is a separate dependent variable (e.g., uplink and
+        downlink for a two-way observable). For integrated observables, the light time at the start
+        or end of the integration interval is used, as set by ``integrated_observation_handling``.
 
         Parameters
         ----------
         start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
-            Type of the starting (transmitting) link end of the selected portion.
+            Type of the starting (transmitting) link end of the leg.
         end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
-            Type of the ending (receiving) link end of the selected portion.
+            Type of the ending (receiving) link end of the leg.
         start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             Optional specific link-end ID for the starting end (body/station).
         end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string

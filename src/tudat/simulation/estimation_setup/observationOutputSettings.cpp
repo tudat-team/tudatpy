@@ -11,9 +11,6 @@
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/astro/observation_models/observationViabilityCalculator.h"
 
-#include <map>
-#include <stdexcept>
-
 namespace tudat
 {
 
@@ -120,7 +117,7 @@ std::string getObservationDependentVariableName( const ObservationDependentVaria
             break;
         }
         case light_time_dependent_variable: {
-            dependentVariableName = "Signal-propagation light time between link ends ";
+            dependentVariableName = "Light time between link ends ";
             break;
         }
         default:
@@ -415,175 +412,6 @@ bool doesInterlinkVariableExistForGivenLink( const observation_models::Observabl
     return doesLinkHaveDependency;
 }
 
-namespace
-{
-
-//! Whether an observable exposes one linear transmitter-to-receiver propagation chain.
-bool doesObservableHaveLinearLinkEndTimeChain( const ObservableType observableType )
-{
-    switch( observableType )
-    {
-        case one_way_range:
-        case angular_position:
-        case azimuth_elevation_angle:
-        case one_way_doppler:
-        case one_way_doppler_measured_frequency:
-        case one_way_differenced_range:
-        case n_way_range:
-        case dsn_n_way_range:
-        case two_way_doppler:
-        case n_way_differenced_range:
-        case dsn_one_way_averaged_doppler:
-        case dsn_n_way_averaged_doppler:
-        case doppler_measured_frequency:
-        case pixel_coordinates:
-            return true;
-        default:
-            return false;
-    }
-}
-
-//! Match a selector to one concrete signal-path node. An empty ID is a wildcard; every non-empty
-//! ID must match exactly, so a body-origin selector does not accidentally select a station.
-bool doesLinkEndMatchLightTimeSelection( const LinkEndType actualType,
-                                         const LinkEndId& actualId,
-                                         const LinkEndType requestedType,
-                                         const LinkEndId& requestedId )
-{
-    return ( requestedType == unidentified_link_end || requestedType == actualType ) &&
-            ( requestedId == LinkEndId( "", "" ) || requestedId == actualId );
-}
-
-//! Rebuild the transmitter → ... → receiver chain ordered by the existing n-way role-to-index mapping.
-std::vector< std::pair< LinkEndType, LinkEndId > > getLinearLinkEndChain( const LinkEnds& linkEnds )
-{
-    const int numberOfLinkEnds = static_cast< int >( linkEnds.size( ) );
-    std::map< int, std::pair< LinkEndType, LinkEndId > > linkEndsByIndex;
-    for( const auto& linkEnd : linkEnds )
-    {
-        const int chainIndex = getNWayLinkIndexFromLinkEndType( linkEnd.first, numberOfLinkEnds );
-        if( linkEndsByIndex.count( chainIndex ) != 0 )
-        {
-            throw std::runtime_error(
-                    "Error when building the linear link-end chain for the light_time_dependent_variable: duplicate chain index " +
-                    std::to_string( chainIndex ) + "." );
-        }
-        linkEndsByIndex[ chainIndex ] = std::make_pair( linkEnd.first, linkEnd.second );
-    }
-
-    std::vector< std::pair< LinkEndType, LinkEndId > > chain;
-    chain.reserve( static_cast< size_t >( numberOfLinkEnds ) );
-    for( int i = 0; i < numberOfLinkEnds; i++ )
-    {
-        if( linkEndsByIndex.count( i ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when building the linear link-end chain for the light_time_dependent_variable: missing chain index " +
-                    std::to_string( i ) + "." );
-        }
-        chain.push_back( linkEndsByIndex.at( i ) );
-    }
-    return chain;
-}
-
-std::vector< int > getMatchingLightTimeSelectionIndices( const std::vector< std::pair< LinkEndType, LinkEndId > >& chain,
-                                                         const LinkEndType requestedType,
-                                                         const LinkEndId& requestedId )
-{
-    std::vector< int > matchingIndices;
-    for( int i = 0; i < static_cast< int >( chain.size( ) ); i++ )
-    {
-        if( doesLinkEndMatchLightTimeSelection( chain.at( i ).first, chain.at( i ).second, requestedType, requestedId ) )
-        {
-            matchingIndices.push_back( i );
-        }
-    }
-    return matchingIndices;
-}
-
-int resolveUniqueLightTimeSelectionIndex( const std::vector< int >& matchingIndices,
-                                          const std::string& selectionDescription,
-                                          const ObservableType observableType,
-                                          const int numberOfLinkEnds )
-{
-    if( matchingIndices.size( ) != 1 )
-    {
-        throw std::runtime_error( "Error when creating light_time_dependent_variable for " +
-                                  getObservableName( observableType, numberOfLinkEnds ) + ": " + selectionDescription +
-                                  " link-end selector matches " + std::to_string( matchingIndices.size( ) ) +
-                                  " nodes of the signal path. Specify a unique LinkEndType and/or LinkEndId." );
-    }
-    return matchingIndices.front( );
-}
-
-std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAllCompatibleLightTimeDependentVariableSettings(
-        const ObservableType observableType,
-        const LinkEnds& linkEnds,
-        const std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings )
-{
-    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allDependentVariablesSettings;
-    if( !doesObservableHaveLinearLinkEndTimeChain( observableType ) )
-    {
-        return allDependentVariablesSettings;
-    }
-
-    std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
-            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( dependentVariableSettings );
-    if( interlinkSettings == nullptr )
-    {
-        throw std::runtime_error(
-                "Error when creating light_time_dependent_variable: settings object must be an "
-                "InterlinkObservationDependentVariableSettings." );
-    }
-
-    const std::vector< std::pair< LinkEndType, LinkEndId > > chain = getLinearLinkEndChain( linkEnds );
-    const bool startSelectorSpecified = ( interlinkSettings->originatingLinkEndType_ != unidentified_link_end ||
-                                          interlinkSettings->originatingLinkEndId_ != LinkEndId( "", "" ) );
-    const bool endSelectorSpecified =
-            ( interlinkSettings->linkEndType_ != unidentified_link_end || interlinkSettings->linkEndId_ != LinkEndId( "", "" ) );
-
-    int startIndex = 0;
-    int endIndex = static_cast< int >( chain.size( ) ) - 1;
-    if( startSelectorSpecified )
-    {
-        const std::vector< int > matchingStartIndices = getMatchingLightTimeSelectionIndices(
-                chain, interlinkSettings->originatingLinkEndType_, interlinkSettings->originatingLinkEndId_ );
-        if( matchingStartIndices.empty( ) )
-        {
-            return allDependentVariablesSettings;
-        }
-        startIndex =
-                resolveUniqueLightTimeSelectionIndex( matchingStartIndices, "start", observableType, static_cast< int >( chain.size( ) ) );
-    }
-    if( endSelectorSpecified )
-    {
-        const std::vector< int > matchingEndIndices =
-                getMatchingLightTimeSelectionIndices( chain, interlinkSettings->linkEndType_, interlinkSettings->linkEndId_ );
-        if( matchingEndIndices.empty( ) )
-        {
-            return allDependentVariablesSettings;
-        }
-        endIndex = resolveUniqueLightTimeSelectionIndex( matchingEndIndices, "end", observableType, static_cast< int >( chain.size( ) ) );
-    }
-
-    if( startIndex >= endIndex )
-    {
-        throw std::runtime_error(
-                "Error when creating light_time_dependent_variable for " + getObservableName( observableType, linkEnds.size( ) ) +
-                ": the selected start link end must precede the selected end link end along the transmitter → receiver chain." );
-    }
-
-    allDependentVariablesSettings.push_back( createCompleteObservationDependentVariableSettings( dependentVariableSettings,
-                                                                                                 chain.at( endIndex ).first,
-                                                                                                 chain.at( endIndex ).second,
-                                                                                                 chain.at( startIndex ).first,
-                                                                                                 chain.at( startIndex ).second ) );
-
-    return allDependentVariablesSettings;
-}
-
-}  // namespace
-
 //! Function that checks whether a given dependent variable can be computed for a given observable type and link ends.
 bool doesObservationDependentVariableExistForGivenLink( const observation_models::ObservableType observableType,
                                                         const observation_models::LinkEnds& linkEnds,
@@ -605,6 +433,7 @@ bool doesObservationDependentVariableExistForGivenLink( const observation_models
                     std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( variableSettings ) );
             break;
         case target_range:
+        case light_time_dependent_variable:
             doesLinkHaveDependency = doesInterlinkVariableExistForGivenLink(
                     observableType,
                     linkEnds,
@@ -658,12 +487,6 @@ bool doesObservationDependentVariableExistForGivenLink( const observation_models
                 doesLinkHaveDependency = false;
             }
             break;
-        case light_time_dependent_variable: {
-            auto interlinkSettings = std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( variableSettings );
-            doesLinkHaveDependency = ( interlinkSettings != nullptr ) && doesObservableHaveLinearLinkEndTimeChain( observableType ) &&
-                    doesInterlinkVariableExistForGivenLink( observableType, linkEnds, interlinkSettings );
-            break;
-        }
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableId( variableSettings ) +
@@ -736,8 +559,6 @@ bool isInterlinkPropertyDirectionAgnostic( const ObservationDependentVariables v
             // different physical leg and should not be considered equivalent.
             break;
         case light_time_dependent_variable:
-            // Light time is ordered along the signal path; the reverse start/end pair is a
-            // different (and, for a one-way chain, physically unavailable) selection.
             break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
@@ -849,13 +670,6 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
         const LinkEnds& linkEnds,
         std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings )
 {
-    // The light-time dependent variable can span multiple contiguous legs (e.g. combined uplink+downlink).
-    // Adjacent-only `getInterlinks` expansion would drop that request, so it has its own span logic.
-    if( dependentVariableSettings->variableType_ == light_time_dependent_variable )
-    {
-        return createAllCompatibleLightTimeDependentVariableSettings( observableType, linkEnds, dependentVariableSettings );
-    }
-
     // Retrieve relevant information about all interlinks for current observable type and link ends
     std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksInSet =
             getInterlinks( observableType, linkEnds );
