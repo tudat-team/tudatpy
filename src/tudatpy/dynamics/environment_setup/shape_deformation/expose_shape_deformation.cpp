@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_shape_deformation.h"
 
 #include <pybind11/complex.h>
@@ -15,6 +17,8 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/astro/ephemerides/ephemeris.h>
+#include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
 
 namespace py = pybind11;
@@ -29,12 +33,11 @@ namespace environment_setup
 namespace shape_deformation
 {
 
-void expose_shape_deformation_setup( py::module &m )
+void expose_shape_deformation_setup( py::module& m )
 {
-    py::class_< tss::BodyDeformationSettings, std::shared_ptr< tss::BodyDeformationSettings > >(
-            m,
-            "BodyDeformationSettings",
-            R"doc(
+    py::class_< tss::BodyDeformationSettings, std::shared_ptr< tss::BodyDeformationSettings > >( m,
+                                                                                                 "BodyDeformationSettings",
+                                                                                                 R"doc(
 
          Base class for providing settings for body shape deformation model.
 
@@ -75,7 +78,7 @@ void expose_shape_deformation_setup( py::module &m )
  ----------
  tide_raising_bodies : list[ string ]
      List of bodies that raise a tide that induces the shape variation.
- displacement_love_numbers : dict[ int, [float,float] ]
+ displacement_love_numbers : dict[int, tuple[float, float]]
      Dictionary of pairs. The dictionary key the spherical harmonic degree :math:`l` of the tidal deformation (2 or 3 are currently supported). The dictionary value is comprised of a pair of floats representing the :math:`h_{2}` and :math:`l_{2}` deformation Love numbers
  reference_radius : float, default = NaN
      Spherical harmonic reference radius of the deformed body. If this value is left undefined (e.g at NaN), the reference radius of the existing spherical harmonic gravity field of the deformed body is used.
@@ -166,9 +169,9 @@ void expose_shape_deformation_setup( py::module &m )
            &tss::iers2010TidalBodyShapeDeformation,
            R"doc(
 
- Function for creating full IERS 2010 shape deformation model
+ Function for creating full IERS 2010 solid Earth tide shape deformation model
 
- Function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in
+ Function for creating full IERS 2010 solid Earth tide shape deformation model, computing the tidal shape variation due to the full model defined in
  Section 7.1.1 of the IERS Conventions 2010, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
 
  Returns
@@ -178,12 +181,42 @@ void expose_shape_deformation_setup( py::module &m )
 
      )doc" );
 
-    m.def( "pole_tidal", &tss::poleTideBodyShapeDeformation, R"doc(No documentation found.)doc" );
+    m.def( "pole_tidal", &tss::poleTideBodyShapeDeformation, R"doc(
+
+Function for creating IERS 2010 pole tide deformation model
+
+Function for creating IERS 2010  2010 pole tide deformation model, computing the shape variation as a result of polar-motion induced
+rotational variation, as described ion Section 7.1.4 of the IERS Conventions 2010
+
+Returns
+-------
+BodyDeformationSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
+
+)doc" );
 
     m.def( "ocean_tidal",
            &tss::oceanTideBodyShapeDeformation,
            py::arg( "blq_files" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+Function for creating IERS 2010 ocean tide deformation model
+
+Function for creating IERS 2010 ocean tide deformation model, implementing the 11 main tidal modes, as described ion Section 7.1.2
+(Equation 7.16 specifically) of the IERS Conventions 2010. This function requires BLQ files for the stations under consideration, which can
+be queried on the `Ocean Loading Provider <https://barre.oso.chalmers.se/loading/l.php>`_
+
+Parameters
+----------
+blq_files : list[ string ]
+    List of blq files defining ocean tide amplitudes and phases for the requested stations
+
+Returns
+-------
+BodyDeformationSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
+
+)doc" );
 }
 
 }  // namespace shape_deformation

@@ -32,16 +32,12 @@ class Remover:
         # Resolve build directory
         self.build_dir = Path(self.args.build_dir).resolve()
         if not self.build_dir.exists():
-            raise FileNotFoundError(
-                f"Build directory {self.build_dir} does not exist."
-            )
+            raise FileNotFoundError(f"Build directory {self.build_dir} does not exist.")
 
         # Resolve conda prefix
         self.conda_prefix = Path(os.environ["CONDA_PREFIX"])
         if not self.conda_prefix.exists():
-            raise FileNotFoundError(
-                f"Conda prefix {self.conda_prefix} does not exist."
-            )
+            raise FileNotFoundError(f"Conda prefix {self.conda_prefix} does not exist.")
 
         # Resolve installation manifest
         self.manifest_dir = self.build_dir / "manifests"
@@ -104,15 +100,13 @@ class Remover:
                 case "000":
                     if not element.is_symlink():
                         raise ValueError(
-                            "Aborting uninstall: "
-                            f"Not a symlink with code 000: {element}"
+                            "Aborting uninstall: " f"Not a symlink with code 000: {element}"
                         )
                     links.append(element)
                 case "999":
                     if not element.is_dir():
                         raise ValueError(
-                            "Aborting uninstall: "
-                            f"Not a directory with code 999: {element}"
+                            "Aborting uninstall: " f"Not a directory with code 999: {element}"
                         )
                     if element.name not in ["tudat", "tudatpy"]:
                         raise ValueError(
@@ -123,10 +117,7 @@ class Remover:
                         )
                     directories.append(element)
                 case _:
-                    raise ValueError(
-                        "Aborting uninstall: "
-                        f"Unknown code {code} for {element}"
-                    )
+                    raise ValueError("Aborting uninstall: " f"Unknown code {code} for {element}")
 
         # Remove links
         for link in links:

@@ -28,7 +28,7 @@ std::pair< int, int > getMaximumDegreeOrderForPolynomialVariations( const std::m
     {
         throw std::runtime_error( "Error when creating polynomial gravity field variations, no variation blocks defined." );
     }
-    for( auto it: cosineAmplitudes )
+    for( auto it : cosineAmplitudes )
     {
         if( it.second.rows( ) == 0 || it.second.cols( ) == 0 )
         {
@@ -45,7 +45,7 @@ std::pair< int, int > getMaximumDegreeOrderForPolynomialVariations( const std::m
         }
     }
 
-    for( auto it: sineAmplitudes )
+    for( auto it : sineAmplitudes )
     {
         if( it.second.rows( ) == 0 || it.second.cols( ) == 0 )
         {
@@ -83,7 +83,7 @@ PolynomialGravityFieldVariations::PolynomialGravityFieldVariations( const std::m
             getMaximumDegreeOrderForPolynomialVariations( cosineAmplitudes, sineAmplitudes, minimumDegree, minimumOrder ).second ),
     cosineAmplitudes_( cosineAmplitudes ), sineAmplitudes_( sineAmplitudes ), referenceEpoch_( referenceEpoch )
 {
-    for( auto it: cosineAmplitudes_ )
+    for( auto it : cosineAmplitudes_ )
     {
         if( sineAmplitudes_.count( it.first ) != 0 )
         {
@@ -96,7 +96,7 @@ PolynomialGravityFieldVariations::PolynomialGravityFieldVariations( const std::m
         }
     }
 
-    for( auto it: sineAmplitudes_ )
+    for( auto it : sineAmplitudes_ )
     {
         if( cosineAmplitudes_.count( it.first ) != 0 )
         {
@@ -115,12 +115,12 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PolynomialGravityFieldVariations::
     Eigen::MatrixXd cosineCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sineCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
 
-    for( auto it: cosineAmplitudes_ )
+    for( auto it : cosineAmplitudes_ )
     {
         cosineCorrections += it.second * std::pow( time - referenceEpoch_, it.first );
     }
 
-    for( auto it: sineAmplitudes_ )
+    for( auto it : sineAmplitudes_ )
     {
         sineCorrections += it.second * std::pow( time - referenceEpoch_, it.first );
     }

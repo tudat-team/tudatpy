@@ -13,8 +13,6 @@
 #include <limits>
 #include <stdexcept>
 
-#include <boost/math/constants/constants.hpp>
-
 #include <Eigen/Core>
 
 #include "tudat/math/basic/mathematicalConstants.h"

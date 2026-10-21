@@ -7,11 +7,13 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_shape.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createBodyShapeModel.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -33,12 +35,11 @@ namespace environment_setup
 namespace shape
 {
 
-void expose_shape_setup( py::module &m )
+void expose_shape_setup( py::module& m )
 {
-    py::class_< tss::BodyShapeSettings, std::shared_ptr< tss::BodyShapeSettings > >(
-            m,
-            "BodyShapeSettings",
-            R"doc(
+    py::class_< tss::BodyShapeSettings, std::shared_ptr< tss::BodyShapeSettings > >( m,
+                                                                                     "BodyShapeSettings",
+                                                                                     R"doc(
 
          Base class for providing settings for body shape model.
 
@@ -76,11 +77,10 @@ void expose_shape_setup( py::module &m )
          :type: float
       )doc" );
 
-    py::class_< tss::OblateSphericalBodyShapeSettings,
-                std::shared_ptr< tss::OblateSphericalBodyShapeSettings >,
-                tss::BodyShapeSettings >( m,
-                                          "OblateSphericalBodyShapeSettings",
-                                          R"doc(
+    py::class_< tss::OblateSphericalBodyShapeSettings, std::shared_ptr< tss::OblateSphericalBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "OblateSphericalBodyShapeSettings",
+            R"doc(
 
          Class for defining model settings of a oblate spherical body shape.
 
@@ -113,11 +113,10 @@ void expose_shape_setup( py::module &m )
          :type: float
       )doc" );
 
-    py::class_< tss::PolyhedronBodyShapeSettings,
-                std::shared_ptr< tss::PolyhedronBodyShapeSettings >,
-                tss::BodyShapeSettings >( m,
-                                          "PolyhedronBodyShapeSettings",
-                                          R"doc(
+    py::class_< tss::PolyhedronBodyShapeSettings, std::shared_ptr< tss::PolyhedronBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "PolyhedronBodyShapeSettings",
+            R"doc(
 
          Class for defining model settings of a polyhedron body shape.
 
@@ -177,11 +176,10 @@ void expose_shape_setup( py::module &m )
          :type: bool, default=False
       )doc" );
 
-    py::class_< tss::HybridBodyShapeSettings,
-                std::shared_ptr< tss::HybridBodyShapeSettings >,
-                tss::BodyShapeSettings >( m,
-                                          "HybridBodyShapeSettings",
-                                          R"doc(
+    py::class_< tss::HybridBodyShapeSettings, std::shared_ptr< tss::HybridBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "HybridBodyShapeSettings",
+            R"doc(
 
          Class for defining model settings of a hybrid body shape.
 
@@ -194,15 +192,33 @@ void expose_shape_setup( py::module &m )
             .def_property( "low_resolution_body_shape_settings",
                            &tss::HybridBodyShapeSettings::getLowResolutionBodyShapeSettings,
                            &tss::HybridBodyShapeSettings::resetLowResolutionBodyShapeSettings,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         Settings for the lower-resolution shape model, used when the altitude computed with this model exceeds the switchover altitude.
+
+         :type: BodyShapeSettings
+
+      )doc" )
             .def_property( "high_resolution_body_shape_settings",
                            &tss::HybridBodyShapeSettings::getHighResolutionBodyShapeSettings,
                            &tss::HybridBodyShapeSettings::resetHighResolutionBodyShapeSettings,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         Settings for the higher-resolution shape model, used close to the body when the lower-resolution altitude does not exceed the switchover altitude.
+
+         :type: BodyShapeSettings
+
+      )doc" )
             .def_property( "switchover_altitude",
                            &tss::HybridBodyShapeSettings::getSwitchoverAltitude,
                            &tss::HybridBodyShapeSettings::resetSwitchoverAltitude,
-                           R"doc(No documentation found.)doc" );
+                           R"doc(
+
+         Altitude threshold, in m, for switching between the lower-resolution and higher-resolution shape models.
+
+         :type: float
+
+      )doc" );
 
     m.def( "spherical",
            &tss::sphericalBodyShapeSettings,
@@ -253,8 +269,6 @@ void expose_shape_setup( py::module &m )
  -------
  BodyShapeSettings
      Instance of :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` class
-
-
 
 
 
@@ -313,7 +327,15 @@ void expose_shape_setup( py::module &m )
 
     m.def( "oblate_spherical_spice",
            &tss::fromSpiceOblateSphericalBodyShapeSettings,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+Function for creating oblate spherical body shape model settings entirely from spice.
+Returns
+-------
+BodyShapeSettings
+    Instance of :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` class
+
+
+)doc" );
 
     m.def( "polyhedron",
            &tss::polyhedronBodyShapeSettings,

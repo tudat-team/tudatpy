@@ -171,7 +171,7 @@ public:
     }
 
     //! Destructor
-    ~CompositeEphemeris( ) { }
+    ~CompositeEphemeris( ) {}
 
     //! Get state from ephemeris.
     /*!

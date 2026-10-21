@@ -11,11 +11,15 @@
 #ifndef TUDAT_CREATEBODYDEFORMATIONMODEL_H
 #define TUDAT_CREATEBODYDEFORMATIONMODEL_H
 
+#include <functional>
+#include <map>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
 namespace tudat
@@ -23,6 +27,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
         const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
@@ -39,9 +45,9 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
 class BodyDeformationSettings
 {
 public:
-    BodyDeformationSettings( const gravitation::BodyDeformationTypes bodyDeformationType ): bodyDeformationType_( bodyDeformationType ) { }
+    BodyDeformationSettings( const gravitation::BodyDeformationTypes bodyDeformationType ): bodyDeformationType_( bodyDeformationType ) {}
 
-    virtual ~BodyDeformationSettings( ) { }
+    virtual ~BodyDeformationSettings( ) {}
 
     gravitation::BodyDeformationTypes getBodyDeformationType( )
     {
@@ -60,7 +66,7 @@ public:
                                        const double bodyReferenceRadius = TUDAT_NAN ):
         BodyDeformationSettings( gravitation::basic_solid_body ), deformingBodies_( deformingBodies ),
         displacementLoveNumbers_( displacementLoveNumbers ), bodyReferenceRadius_( bodyReferenceRadius )
-    { }
+    {}
 
     std::vector< std::string > getDeformingBodies( )
     {
@@ -86,7 +92,7 @@ class OceanTideBodyDeformationSettings : public BodyDeformationSettings
 public:
     OceanTideBodyDeformationSettings( const std::vector< std::string > blqFiles ):
         BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles )
-    { }
+    {}
 
     std::vector< std::string > getBlqFiles( )
     {

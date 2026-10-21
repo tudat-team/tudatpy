@@ -35,6 +35,9 @@ std::string getIntegratedStateTypString( const IntegratedStateType stateType )
         case hybrid:
             stateTypeString = "Multi-type state";
             break;
+        case proper_time:
+            stateTypeString = "Proper time";
+            break;
         default:
             std::string errorMessage = "Did not recognize state type " + std::to_string( stateType ) + "when getting string";
             throw std::runtime_error( errorMessage );
@@ -55,6 +58,9 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
             singleStateSize = 7;
             break;
         case body_mass_state:
+            singleStateSize = 1;
+            break;
+        case proper_time:
             singleStateSize = 1;
             break;
         case custom_state:
@@ -83,6 +89,9 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
         case rotational_state:
             singleStateSize = 1;
             break;
+        case proper_time:
+            singleStateSize = 1;
+            break;
         default:
             std::string errorMessage = "Did not recognize state type " + std::to_string( stateType ) + "when getting order";
             throw std::runtime_error( errorMessage );
@@ -104,6 +113,9 @@ int getGeneralizedAccelerationSize( const IntegratedStateType stateType )
             break;
         case rotational_state:
             accelerationSize = 3;
+            break;
+        case proper_time:
+            accelerationSize = 1;
             break;
         default:
             std::string errorMessage = "Did not recognize state type " + std::to_string( stateType ) + "when getting acceleration sizw";

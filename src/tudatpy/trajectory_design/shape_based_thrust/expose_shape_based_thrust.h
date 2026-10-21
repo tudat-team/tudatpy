@@ -22,7 +22,7 @@ namespace trajectory_design
 namespace shape_based_thrust
 {
 
-void expose_shape_based_thrust( py::module &m );
+void expose_shape_based_thrust( py::module& m );
 
 }  // namespace shape_based_thrust
 }  // namespace trajectory_design

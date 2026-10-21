@@ -46,10 +46,10 @@ public:
             const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection =
                     []( const double ) { return Eigen::Vector3d::UnitX( ); } ):
         thrustMagnitudeWrapper_( thrustMagnitudeWrapper ), engineName_( engineName ), bodyFixedThrustDirection_( bodyFixedThrustDirection )
-    { }
+    {}
 
     //! Destructor.
-    virtual ~EngineModel( ) { }
+    virtual ~EngineModel( ) {}
 
     //! Pure virtual function to update the engine model to the current time
     /*!

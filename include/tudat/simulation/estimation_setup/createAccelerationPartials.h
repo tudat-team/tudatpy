@@ -19,12 +19,14 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/threeCoefficientRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/relativisticAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/empiricalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/einsteinInfeldHoffmannPartials.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h"
@@ -37,6 +39,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h"
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
 
@@ -60,9 +63,11 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
 
     if( numericalCustomPartialSettings != nullptr )
     {
-        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
+        if( !( ( parameter->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
+               ( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state ) ) )
         {
-            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
+            throw std::runtime_error(
+                    "Error, only (single-arc or arc-wise) initial cartesian state supported for custom numerical acceleration partial" );
         }
         std::string bodyName = parameter->getParameterName( ).second.first;
         if( bodies.count( bodyName ) == 0 )
@@ -90,11 +95,6 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
     }
     else if( analyticalCustomPartialSettings != nullptr )
     {
-        //        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
-        //        {
-        //            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
-        //        }
-
         customPartialCalculator = std::make_shared< estimatable_parameters::AnalyticalAccelerationPartialCalculator >(
                 analyticalCustomPartialSettings->accelerationPartialFunction_,
                 parameter->getParameterSize( ),
@@ -129,7 +129,8 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
             {
                 switch( parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ).first )
                 {
-                    case estimatable_parameters::initial_body_state: {
+                    case estimatable_parameters::initial_body_state:
+                    case estimatable_parameters::arc_wise_initial_body_state: {
                         partialCalculatorSet->customInitialStatePartials_
                                 [ parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ) ] =
                                 createCustomAccelerationPartial( customPartialSettings.at( j ),
@@ -537,6 +538,35 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             break;
         }
+        case full_two_body_spherical_harmonic_gravity: {
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > fullTwoBodySphericalHarmonicAcceleration =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >( accelerationModel );
+            if( fullTwoBodySphericalHarmonicAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (mutual extended-body spherical harmonic gravity) "
+                        "set when making acceleration partial." );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces =
+                        createTidalLoveNumberInterfaces( bodies, acceleratedBody.first );
+                std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
+                        acceleratingBodyTidalLoveNumberPartialInterfaces =
+                                createTidalLoveNumberInterfaces( bodies, acceleratingBody.first );
+                tidalLoveNumberPartialInterfaces.insert( tidalLoveNumberPartialInterfaces.end( ),
+                                                         acceleratingBodyTidalLoveNumberPartialInterfaces.begin( ),
+                                                         acceleratingBodyTidalLoveNumberPartialInterfaces.end( ) );
+                accelerationPartial = std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
+                        acceleratedBody.first,
+                        acceleratingBody.first,
+                        fullTwoBodySphericalHarmonicAcceleration,
+                        observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
+                        observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ),
+                        tidalLoveNumberPartialInterfaces );
+            }
+            break;
+        }
         case third_body_mutual_spherical_harmonic_gravity: {
             // Check if identifier is consistent with type.
             if( std::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) ==
@@ -567,6 +597,45 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                                 bodies,
                                 parametersToEstimate ) );
                 accelerationPartial = std::make_shared< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
+                        accelerationPartialForBodyUndergoingAcceleration,
+                        accelerationPartialForCentralBody,
+                        acceleratedBody.first,
+                        acceleratingBody.first,
+                        thirdBodyAccelerationModel,
+                        thirdBodyAccelerationModel->getCentralBodyName( ) );
+            }
+            break;
+        }
+        case third_body_full_two_body_spherical_harmonic_gravity: {
+            if( std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) ==
+                nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type "
+                        "(third_body_full_two_body_spherical_harmonic_gravity) enum set when making acceleration partial." );
+            }
+            else
+            {
+                std::shared_ptr< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel > thirdBodyAccelerationModel =
+                        std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
+                                accelerationModel );
+
+                std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartialForBodyUndergoingAcceleration =
+                        std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                                thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
+                                acceleratedBody,
+                                acceleratingBody,
+                                bodies,
+                                parametersToEstimate ) );
+                std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartialForCentralBody =
+                        std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                                thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
+                                std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
+                                                bodies.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                                acceleratingBody,
+                                bodies,
+                                parametersToEstimate ) );
+                accelerationPartial = std::make_shared< ThirdBodyGravityPartial< FullTwoBodySphericalHarmonicsGravityPartial > >(
                         accelerationPartialForBodyUndergoingAcceleration,
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,
@@ -807,6 +876,18 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             break;
         }
+        case three_coefficient_radiation_pressure: {
+            const auto threeCoefficientAcceleration =
+                    std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >( accelerationModel );
+            if( threeCoefficientAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match three-coefficient radiation-pressure acceleration type." );
+            }
+            accelerationPartial = std::make_shared< ThreeCoefficientRadiationPressureAccelerationPartial >(
+                    threeCoefficientAcceleration, acceleratedBody.first, acceleratingBody.first );
+            break;
+        }
         case thrust_acceleration: {
             // Check if identifier is consistent with type.
             std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration =
@@ -852,23 +933,23 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             break;
         }
         case rtg_acceleration: {
-          // Check if identifier is consistent with type.
-          std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration =
-                  std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel );
-          if( rtgAcceleration == nullptr )
-          {
-            throw std::runtime_error(
-                    "Acceleration class type does not match acceleration type enum (yarkovsky_acceleration) set when making "
-                    "acceleration partial." );
-          }
-          else
-          {
-            // Create partial-calculating object.
-            accelerationPartial = std::make_shared< RTGAccelerationPartial >(
-                    rtgAcceleration, acceleratedBody.first , acceleratingBody.first);
-          }
-          break;
-      }
+            // Check if identifier is consistent with type.
+            std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration =
+                    std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel );
+            if( rtgAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (yarkovsky_acceleration) set when making "
+                        "acceleration partial." );
+            }
+            else
+            {
+                // Create partial-calculating object.
+                accelerationPartial =
+                        std::make_shared< RTGAccelerationPartial >( rtgAcceleration, acceleratedBody.first, acceleratingBody.first );
+            }
+            break;
+        }
         default:
             std::string errorMessage =
                     "Acceleration model " + std::to_string( accelerationType ) + " not found when making acceleration partial";

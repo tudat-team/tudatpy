@@ -55,7 +55,7 @@ public:
     }
 
     //! Destructor
-    ~SphericalHarmonicsSineCoefficients( ) { }
+    ~SphericalHarmonicsSineCoefficients( ) {}
 
     //! Function to retrieve the current values of the sine coefficients that are to be estimated.
     /*!

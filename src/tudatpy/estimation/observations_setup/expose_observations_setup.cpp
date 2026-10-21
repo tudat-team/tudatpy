@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observations_setup.h"
 
 #include <pybind11/chrono.h>
@@ -30,25 +32,19 @@ namespace observations_setup
 
 void expose_observations_setup( py::module& m )
 {
+    auto observations_simulation_settings =
+            py::module_::import( "tudatpy.kernel.estimation.observations_setup.observations_simulation_settings" );
+    auto observations_wrapper = m.def_submodule( "observations_wrapper" );
+    auto random_noise = m.def_submodule( "random_noise" );
+    auto viability = py::module_::import( "tudatpy.kernel.estimation.observations_setup.viability" );
 
-    auto ancillary_settings = m.def_submodule( "ancillary_settings" );
-    ancillary_settings::expose_ancillary_settings( ancillary_settings );
-
-    auto observations_dependent_variables = m.def_submodule( "observations_dependent_variables" );
-    observations_dependent_variables::expose_observations_dependent_variables( observations_dependent_variables );
-
-    auto observations_simulation_settings = m.def_submodule( "observations_simulation_settings" );
     observations_simulation_settings::expose_observations_simulation_settings( observations_simulation_settings );
 
-    auto observations_wrapper = m.def_submodule( "observations_wrapper" );
     observations_wrapper::expose_observations_wrapper( observations_wrapper );
 
-    auto random_noise = m.def_submodule( "random_noise" );
     random_noise::expose_random_noise( random_noise );
 
-    auto viability = m.def_submodule( "viability" );
     viability::expose_viability( viability );
-
 }
 
 }  // namespace observations_setup

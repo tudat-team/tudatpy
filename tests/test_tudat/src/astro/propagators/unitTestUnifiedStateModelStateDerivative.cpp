@@ -8,16 +8,24 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 #include <thread>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
@@ -144,8 +152,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, centralBodyMap );
 
         // Create integrator settings.
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 250.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 250.0 );
 
         // Create propagation settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -353,12 +360,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             // Create spacecraft object.
             bodies.createEmptyBody( "Vehicle" );
             bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-            std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
-                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                            "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth" } );
-            bodies.at( "Vehicle" )
-                    ->setRadiationPressureInterface(
-                            "Sun", createRadiationPressureInterface( vehicleRadiationPressureSettings, "Vehicle", bodies ) );
+            addRadiationPressureTargetModel( bodies, "Vehicle", cannonballRadiationPressureTargetModelSettings( 4.0, 1.2, { "Earth" } ) );
 
             // Define propagator settings variables.
             SelectedAccelerationMap accelerationMap;
@@ -397,7 +399,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                 accelerationsOfVehicle[ "Venus" ].push_back(
                         std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
                 accelerationsOfVehicle[ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+                        std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
             }
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             bodiesToPropagate.push_back( "Vehicle" );
@@ -419,17 +421,24 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                     convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
             // Define propagator settings (Cowell)
-            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                            centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
-
-            // Define integrator settings.
             const double fixedStepSize = 5.0;
             std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+                    std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                            centralBodies,
+                            accelerationModelMap,
+                            bodiesToPropagate,
+                            vehicleInitialState,
+                            0.0,
+                            integratorSettings,
+                            std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+            // Define integrator settings.
 
             // Propagate orbit with Cowell method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
             // Define ephemeris interrogation settings.
             double initialTestTime = simulationStartEpoch;
@@ -448,15 +457,20 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             }
 
             // Create propagation settings
-            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                                     accelerationModelMap,
-                                                                                                     bodiesToPropagate,
-                                                                                                     vehicleInitialState,
-                                                                                                     simulationEndEpoch,
-                                                                                                     translationalPropagatorType );
+            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    vehicleInitialState,
+                    0.0,
+                    integratorSettings,
+
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    translationalPropagatorType );
 
             // Propagate orbit with USM EOM
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
             // Get resutls of USM integration at given times.
             currentTestTime = initialTestTime;

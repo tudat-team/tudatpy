@@ -8,18 +8,25 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <thread>
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 
 namespace tudat
@@ -103,14 +110,10 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Vehicle",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Create ground stations.
     std::vector< std::string > groundStationNames;
@@ -138,8 +141,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< MomentumWheelDesaturationAccelerationSettings >(
             thrustMidTimes, deltaVValues, totalManeuverTime, maneuverRiseTime ) );
@@ -170,14 +172,21 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
     Eigen::Matrix< double, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( initialStateInKeplerianElements, earthGravitationalParameter );
 
+    // Create integrator settings.
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+            40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
     // Create propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime, cowell );
-
-    // Create integrator settings.
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            initialEphemerisTime, 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell );
 
     // Define link ends.
     std::vector< LinkDefinition > stationReceiverLinkEnds;
@@ -244,8 +253,8 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
     }
 
     // Create orbit determination object.
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Compute list of observation times.
     std::vector< double > baseTimeList;

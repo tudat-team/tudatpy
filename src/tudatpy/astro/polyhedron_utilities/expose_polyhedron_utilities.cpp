@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_polyhedron_utilities.h"
 
 #include <pybind11/eigen.h>
@@ -28,7 +30,7 @@ namespace astro
 namespace polyhedron_utilities
 {
 
-void expose_polyhedron_utilities( py::module &m )
+void expose_polyhedron_utilities( py::module& m )
 {
     m.def( "surface_area",
            &tba::computePolyhedronSurfaceArea,
@@ -160,8 +162,7 @@ void expose_polyhedron_utilities( py::module &m )
      )doc" );
 
     m.def( "inertia_tensor_from_density",
-           py::overload_cast< const Eigen::MatrixXd &, const Eigen::MatrixXi &, const double >(
-                   &tba::computePolyhedronInertiaTensor ),
+           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXi&, const double >( &tba::computePolyhedronInertiaTensor ),
            py::arg( "vertices_coordinates" ),
            py::arg( "vertices_defining_each_facet" ),
            py::arg( "density" ),
@@ -202,10 +203,8 @@ void expose_polyhedron_utilities( py::module &m )
      )doc" );
 
     m.def( "inertia_tensor_from_gravitational_parameter",
-           py::overload_cast< const Eigen::MatrixXd &,
-                              const Eigen::MatrixXi &,
-                              const double,
-                              const double >( &tba::computePolyhedronInertiaTensor ),
+           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXi&, const double, const double >(
+                   &tba::computePolyhedronInertiaTensor ),
            py::arg( "vertices_coordinates" ),
            py::arg( "vertices_defining_each_facet" ),
            py::arg( "gravitational_parameter" ),

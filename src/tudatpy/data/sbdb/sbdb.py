@@ -1,13 +1,17 @@
 from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
+from astropy.time import Time
 from typing import Any, Union
 import math
+import numpy as np
+from datetime import datetime
 from tudatpy.constants import GRAVITATIONAL_CONSTANT
+from tudatpy.astro.time_representation import DateTime
 
 
 class SBDBquery:
     """Small-Body Database Query for retrieving various properties of a small body.
-    Usefull for retrieving names and masses in conjunction with the MPC module.
+    Useful for retrieving names and masses in conjunction with the MPC module.
     """
 
     def __init__(self, MPCcode: Union[str, int], *args, **kwargs) -> None:
@@ -48,6 +52,16 @@ class SBDBquery:
         return self.query["object"]["spkid"]
 
     @property
+    def moid(self):
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with the Earth [m], if available"""
+        return self.query["orbit"]["moid"].to(u.meter).value
+
+    @property
+    def moid_jup(self):
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with Jupiter [m], if available"""
+        return self.query["orbit"]["moid_jup"].to(u.meter).value
+
+    @property
     def codes_300_spkid(self):
         """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel.
 
@@ -77,9 +91,7 @@ class SBDBquery:
             res = self.query["phys_par"]["GM"].to(u.meter**3 / u.second**2)
             return res.value
         except Exception as _:
-            raise ValueError(
-                f"Gravitational parameter is not available for object {self.name}"
-            )
+            raise ValueError(f"Gravitational parameter is not available for object {self.name}")
 
     @property
     def object_info(self):
@@ -98,12 +110,77 @@ class SBDBquery:
             res = self.query["phys_par"]["diameter"].to(u.meter)
             return res.value
         except Exception as _:
-            raise ValueError(
-                f"Gravitational parameter is not available for object {self.name}"
-            )
+            raise ValueError(f"Diameter is not available for object {self.name}")
 
-    def estimated_spherical_mass(self, density:float):
-        """Calculate a very simple mass by estimating the object's mass using a given density. 
+    @property
+    def nongrav_params(self):
+        """Returns cometary non-gravitational model parameters for the small body in [m/s^2].
+        If one or more parameter is unavailable a corresponding value of 0 is returned in the array
+        """
+        try:
+            A1 = (self.query["orbit"]["model_pars"]["A1"]).to(u.m / u.s**2).value
+        except Exception as _:
+            A1 = 0
+        try:
+            A2 = (self.query["orbit"]["model_pars"]["A2"]).to(u.m / u.s**2).value
+        except Exception as _:
+            A2 = 0
+        try:
+            A3 = (self.query["orbit"]["model_pars"]["A3"]).to(u.m / u.s**2).value
+        except Exception as _:
+            A3 = 0
+        return np.array([A1, A2, A3])
+
+    @property
+    def Dt(self):
+        """If available, returns asymmetric cometary non-gravitational model Dt (see Yeomans and Chodas, 1989) of the small body in [seconds]"""
+        try:
+            DT = (self.query["orbit"]["model_pars"]["DT"]).to(u.s).value
+            return DT  # a positive Dt will need to evaluate the position at (t-Dt)
+        except Exception as _:
+            raise ValueError(f"Asymmetry parameter DT is not available for object {self.name}")
+
+    @property
+    def first_obs(self):
+        """If available, returns date of the first observation used for the orbit estimation of the small body in [seconds since J2000]"""
+        try:
+            first_obs = self.query["orbit"]["first_obs"]
+            observation_start = datetime.strptime(first_obs, "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_start).to_epoch()
+        except Exception as _:
+            raise ValueError(f"Date of first observation is not available for object {self.name}")
+
+    @property
+    def last_obs(self):
+        """If available, returns date of the last observation used for the orbit estimation of the small body in [seconds since J2000]"""
+        try:
+            last_obs = self.query["orbit"]["last_obs"]
+            observation_end = datetime.strptime(last_obs, "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_end).to_epoch()
+        except Exception as _:
+            raise ValueError(f"Date of last observation is not available for object {self.name}")
+
+    @property
+    def perihelion(self):
+        """If available, returns perihelion of the small body in [m]"""
+        try:
+            q = (self.query["orbit"]["elements"]["q"]).to(u.m).value
+            return q
+        except Exception as _:
+            raise ValueError(f"Perihelion distance is not available for object {self.name}")
+
+    @property
+    def time_perihelion(self):
+        """If available, returns time of perihelion of the small body in [seconds since J2000]"""
+        try:
+            tp = self.query["orbit"]["elements"]["tp"].value
+            tp = DateTime.from_julian_day(tp).to_epoch()
+            return tp
+        except Exception as _:
+            raise ValueError(f"Perihelion time is not available for object {self.name}")
+
+    def estimated_spherical_mass(self, density: float) -> float:
+        """Calculate a very simple mass by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 
         Parameters
@@ -120,8 +197,8 @@ class SBDBquery:
         mass = volume * density
         return mass
 
-    def estimated_spherical_gravitational_parameter(self, density:float):
-        """Calculate a very simple gravitational parameter by estimating the object's mass using a given density. 
+    def estimated_spherical_gravitational_parameter(self, density: float) -> float:
+        """Calculate a very simple gravitational parameter by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 
         Parameters

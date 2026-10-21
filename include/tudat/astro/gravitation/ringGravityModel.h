@@ -83,7 +83,7 @@ public:
         isMutualAttractionUsed_( isMutualAttractionUsed ),
         ringCache_( std::make_shared< RingGravityCache >( aRingRadius, ellipticIntegralSFromDAndB_ ) ), currentPotential_( TUDAT_NAN ),
         updatePotential_( updateGravitationalPotential )
-    { }
+    {}
 
     //! Constructor taking position-functions for bodies, and constant parameters of ring parameters.
     /*!
@@ -130,9 +130,9 @@ public:
         isMutualAttractionUsed_( isMutualAttractionUsed ),
         ringCache_( std::make_shared< RingGravityCache >( ringRadiusFunction( ), ellipticIntegralSFromDAndB_ ) ),
         currentPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential )
-    { }
+    {}
 
-    ~RingGravitationalAccelerationModel( ) { }
+    ~RingGravitationalAccelerationModel( ) {}
 
     //! Update class members.
     /*!

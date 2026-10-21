@@ -36,10 +36,10 @@ public:
      */
     RotationRate( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel, const std::string& associatedBody ):
         EstimatableParameter< double >( constant_rotation_rate, associatedBody ), rotationModel_( rotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~RotationRate( ) { }
+    ~RotationRate( ) {}
 
     //! Get value of rotation rate.
     /*!

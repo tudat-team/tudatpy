@@ -8,11 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <memory>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -24,10 +23,10 @@
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 
 namespace tudat
@@ -104,8 +103,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState( const int 
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Define integrator settings
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(

@@ -46,6 +46,7 @@ set(propagators_HEADERS
         "nBodyUnifiedStateModelExponentialMapStateDerivative.h"
         "dynamicsStateDerivativeModel.h"
         "singleStateTypeDerivative.h"
+        "relativisticTimeStateDerivative.h"
         "integrateEquations.h"
         "bodyMassStateDerivative.h"
         "variationalEquations.h"
@@ -64,6 +65,6 @@ set(propagators_HEADERS
 TUDAT_ADD_LIBRARY("propagators"
         "${propagators_SOURCES}"
         "${propagators_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

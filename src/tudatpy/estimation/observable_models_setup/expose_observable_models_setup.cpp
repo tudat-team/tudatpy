@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observable_models_setup.h"
 
 #include <pybind11/chrono.h>
@@ -18,6 +20,10 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "biases/expose_biases.h"
+#include "links/expose_links.h"
+#include "light_time_corrections/expose_light_time_corrections.h"
+#include "model_settings/expose_model_settings.h"
 
 namespace py = pybind11;
 
@@ -28,22 +34,27 @@ namespace estimation
 namespace observable_models_setup
 {
 
+void expose_observable_models_setup_types( py::module& m )
+{
+    auto links = m.def_submodule( "links" );
+    auto model_settings = m.def_submodule( "model_settings" );
+
+    model_settings::expose_observable_type( model_settings );
+    links::expose_links( links );
+    // Register the bias enum before the parameter factory that accepts it is exposed.
+    auto biases = m.def_submodule( "biases" );
+    biases::expose_bias_types( biases );
+}
+
 void expose_observable_models_setup( py::module& m )
 {
-
-    // ************** Modules ***************
-    auto biases = m.def_submodule( "biases" );
-    biases::expose_biases( biases );
-
-    auto links = m.def_submodule( "links" );
-    links::expose_links( links );
-
     auto light_time_corrections = m.def_submodule( "light_time_corrections" );
+    auto model_settings = py::module_::import( "tudatpy.kernel.estimation.observable_models_setup.model_settings" );
+    auto biases = m.def_submodule( "biases" );
+
+    biases::expose_biases( biases );
     light_time_corrections::expose_light_time_corrections( light_time_corrections );
-
-    auto model_settings = m.def_submodule( "model_settings" );
     model_settings::expose_model_settings( model_settings );
-
 }
 
 }  // namespace observable_models_setup

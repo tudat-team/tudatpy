@@ -11,6 +11,13 @@
 #ifndef TUDAT_READBINARYFILE_H
 #define TUDAT_READBINARYFILE_H
 
+#include <bitset>
+#include <stdexcept>
+#include <vector>
+#include <istream>
+#include <cstdint>
+#include <string>
+
 namespace tudat
 {
 namespace input_output

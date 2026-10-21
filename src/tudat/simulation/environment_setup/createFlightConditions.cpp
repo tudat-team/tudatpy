@@ -12,13 +12,12 @@
 #include <string>
 #include <iostream>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
-#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -94,19 +93,24 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator = createAerodynamicAngleCalculator(
             bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration );
 
-    // Add wind model if present
-    if( centralBody->getAtmosphereModel( )->getWindModel( ) != nullptr )
+    // Add wind model (always exists)
+    if( centralBody->getShapeModel( ) == nullptr )
     {
-        if( centralBody->getShapeModel( ) == nullptr )
-        {
-            std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration
-                      << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
-        }
-        else
-        {
-            aerodynamicAngleCalculator->setWindModel( centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
-        }
+        std::cerr << "Warning, body " << nameOfBodyExertingAcceleration
+                  << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
     }
+    else
+    {
+        aerodynamicAngleCalculator->setWindModel( centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
+    }
+
+    // Set rotation matrix derivative function for proper handling of non-rotating atmosphere
+    aerodynamicAngleCalculator->setRotationMatrixDerivativeFunction(
+            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody ) );
+
+    // Set atmospheric rotation flag from wind model
+    aerodynamicAngleCalculator->setIncludeAtmosphericRotation(
+            centralBody->getAtmosphereModel( )->getWindModel( )->getIncludeCorotation( ) );
 
     // Create flight conditions.
     std::function< double( const std::string& ) > controlSurfaceDeflectionFunction;
@@ -216,46 +220,6 @@ void addAtmosphericFlightConditions( const SystemOfBodies& bodies, const std::st
                                       ", conditions could not be created" );
         }
     }
-}
-
-void setGuidanceAnglesFunctions( const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-                                 const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
-                                 const bool silenceWarnings )
-{
-    utilities::printDeprecationError( "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_guidance",
-                                      "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                      "thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
-}
-
-void setGuidanceAnglesFunctions( const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-                                 const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
-                                 const bool silenceWarnings )
-{
-    utilities::printDeprecationError( "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_guidance",
-                                      "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                      "thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
-}
-
-void setAerodynamicOrientationFunctions( const std::shared_ptr< simulation_setup::Body > body,
-                                         const std::function< double( ) > angleOfAttackFunction,
-                                         const std::function< double( ) > angleOfSideslipFunction,
-                                         const std::function< double( ) > bankAngleFunction,
-                                         const std::function< void( const double ) > updateFunction )
-{
-    utilities::printDeprecationError( "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_orientation_functions",
-                                      "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                      "thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
-}
-
-void setConstantAerodynamicOrientation( const std::shared_ptr< simulation_setup::Body > body,
-                                        const double angleOfAttack,
-                                        const double sideslipAngle,
-                                        const double bankAngle,
-                                        const bool silenceWarnings )
-{
-    utilities::printDeprecationError( "tudatpy.numerical_simulation.environment_setup.set_constant_aerodynamic_orientation",
-                                      "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                      "thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
 }
 
 }  // namespace simulation_setup

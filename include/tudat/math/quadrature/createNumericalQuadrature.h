@@ -12,7 +12,6 @@
 #define TUDAT_CREATENUMERICALQUADRATURE_H
 
 #include <memory>
-#include <boost/lexical_cast.hpp>
 
 #include "tudat/math/quadrature/gaussianQuadrature.h"
 #include "tudat/math/quadrature/numericalQuadrature.h"
@@ -40,13 +39,13 @@ public:
      *  Constructor for quadrature settings.
      *  \param quadratureType Type of numerical quadrature.
      */
-    QuadratureSettings( const AvailableQuadratures quadratureType ): quadratureType_( quadratureType ) { }
+    QuadratureSettings( const AvailableQuadratures quadratureType ): quadratureType_( quadratureType ) {}
 
     //! Virtual destructor.
     /*!
      *  Virtual destructor.
      */
-    virtual ~QuadratureSettings( ) { }
+    virtual ~QuadratureSettings( ) {}
 
     //! Type of numerical quadrature
     /*!
@@ -83,7 +82,7 @@ public:
     /*!
      *  Destructor.
      */
-    ~GaussianQuadratureSettings( ) { }
+    ~GaussianQuadratureSettings( ) {}
 
     //! Starting independent variable of numerical quadrature.
     IndependentVariableType initialIndependentVariable_;
@@ -107,13 +106,13 @@ public:
      */
     TrapezoidQuadratureSettings( const std::vector< IndependentVariableType >& independentVariables ):
         QuadratureSettings< double >( trapezoidal ), independentVariables_( independentVariables )
-    { }
+    {}
 
     //! Destructor.
     /*!
      *  Destructor.
      */
-    ~TrapezoidQuadratureSettings( ) { }
+    ~TrapezoidQuadratureSettings( ) {}
 
     //! Vector of independent variables at which the values of the derivative function will be given.
     const std::vector< IndependentVariableType > independentVariables_;

@@ -24,7 +24,7 @@ namespace environment_setup
 namespace rigid_body
 {
 
-void expose_rigid_body_setup( py::module &m );
+void expose_rigid_body_setup( py::module& m );
 
 }  // namespace rigid_body
 }  // namespace environment_setup

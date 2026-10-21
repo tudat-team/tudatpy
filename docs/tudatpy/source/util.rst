@@ -29,8 +29,6 @@ Functions
 
    pareto_optimums
 
-   split_history
-
    vector2matrix
 
 
@@ -40,8 +38,6 @@ Functions
 .. autofunction:: tudatpy.util.compare_results
 
 .. autofunction:: tudatpy.util.pareto_optimums
-
-.. autofunction:: tudatpy.util.split_history
 
 .. autofunction:: tudatpy.util.vector2matrix
 

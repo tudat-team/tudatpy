@@ -36,7 +36,7 @@ RingGravityPartial::RingGravityPartial( const std::string& acceleratedBody,
     updateFunction_(
             std::bind( &gravitation::RingGravitationalAccelerationModel::updateMembers, accelerationModel, std::placeholders::_1 ) ),
     rotationMatrixPartials_( rotationMatrixPartials )
-{ }
+{}
 
 void RingGravityPartial::update( const double currentTime )
 {

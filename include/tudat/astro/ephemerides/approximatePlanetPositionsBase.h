@@ -55,10 +55,10 @@ public:
     ApproximateJplSolarSystemEphemerisBase( const double sunGravitationalParameter ):
         Ephemeris( "Sun", "ECLIPJ2000" ), sunGravitationalParameter_( sunGravitationalParameter ), planetGravitationalParameter_( 0.0 ),
         julianDate_( -0.0 ), meanLongitudeAtGivenJulianDate_( -0.0 ), numberOfCenturiesPastJ2000_( -0.0 ), ephemerisLineData_( )
-    { }
+    {}
 
     //! Default destructor.
-    virtual ~ApproximateJplSolarSystemEphemerisBase( ) { }
+    virtual ~ApproximateJplSolarSystemEphemerisBase( ) {}
 
     //! Parse ephemeris line data.
     /*!

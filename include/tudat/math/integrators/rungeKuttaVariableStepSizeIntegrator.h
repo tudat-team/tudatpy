@@ -603,9 +603,9 @@ public:
      */
     MinimumStepSizeExceededError( TimeStepType minimumStepSize_, TimeStepType requestedStepSize_ ):
         std::runtime_error( "Minimum step size exceeded." ), minimumStepSize( minimumStepSize_ ), requestedStepSize( requestedStepSize_ )
-    { }
+    {}
 
-    ~MinimumStepSizeExceededError( ) { }
+    ~MinimumStepSizeExceededError( ) {}
 
     //! The minimum step size allowed by the integrator.
     /*!

@@ -11,6 +11,8 @@
 #ifndef TUDAT_EQUIVALENCEPRINCIPLEVIOLATIONPARAMETER_H
 #define TUDAT_EQUIVALENCEPRINCIPLEVIOLATIONPARAMETER_H
 
+#include <functional>
+
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
@@ -28,12 +30,15 @@ public:
     /*!
      * Constuctor
      */
-    EquivalencePrincipleLpiViolationParameter( ):
-        EstimatableParameter< double >( equivalence_principle_lpi_violation_parameter, "global_metric" )
-    { }
+    EquivalencePrincipleLpiViolationParameter(
+            const std::function< double( ) >& parameterGetter = []( ) { return 0.0; },
+            const std::function< void( const double ) >& parameterSetter = []( const double ) {} ):
+        EstimatableParameter< double >( equivalence_principle_lpi_violation_parameter, "global_metric" ),
+        parameterGetter_( parameterGetter ), parameterSetter_( parameterSetter )
+    {}
 
     //! Destructor
-    ~EquivalencePrincipleLpiViolationParameter( ) { }
+    ~EquivalencePrincipleLpiViolationParameter( ) {}
 
     //! Function to get the current value of the equivalence principle LPI violation parametera.
     /*!
@@ -42,7 +47,7 @@ public:
      */
     double getParameterValue( )
     {
-        return relativity::equivalencePrincipleLpiViolationParameter;
+        return parameterGetter_( );
     }
 
     //! Function to reset the value of the equivalence principle LPI violation parametera.
@@ -52,7 +57,7 @@ public:
      */
     void setParameterValue( double parameterValue )
     {
-        relativity::equivalencePrincipleLpiViolationParameter = parameterValue;
+        parameterSetter_( parameterValue );
     }
 
     //! Function to retrieve the size of the parameter (always 1).
@@ -67,6 +72,9 @@ public:
 
 protected:
 private:
+    std::function< double( ) > parameterGetter_;
+
+    std::function< void( const double ) > parameterSetter_;
 };
 
 }  // namespace estimatable_parameters

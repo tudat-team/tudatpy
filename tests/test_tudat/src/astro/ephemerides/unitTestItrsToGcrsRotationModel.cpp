@@ -8,18 +8,18 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/earth_orientation/sofaEarthOrientationCookbookExamples.h"
+#include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
@@ -182,6 +182,70 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
     }
 }
 
+//! Test rotations between IERS intermediate frames.
+BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
+{
+    double testTime = 1.0E8;
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
+            std::make_shared< GcrsToItrsRotationModel >( createStandardEarthOrientationCalculator( ) );
+
+    std::pair< Eigen::Vector5d, double > rotationAnglesAndUt1 =
+            earthRotationModel->getAnglesCalculator( )->getRotationAnglesFromItrsToGcrs< double >( testTime, tdb_scale );
+    Eigen::Vector5d rotationAngles = rotationAnglesAndUt1.first;
+
+    Eigen::Matrix3d expectedItrsToTirs =
+            calculateRotationFromItrsToTirs( rotationAngles[ 3 ], rotationAngles[ 4 ], getApproximateTioLocator( testTime ) )
+                    .toRotationMatrix( );
+    Eigen::Matrix3d expectedTirsToCirs =
+            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) )
+                    .toRotationMatrix( );
+    Eigen::Matrix3d expectedCirsToIcrs =
+            calculateRotationFromCirsToGcrs( rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ] ).toRotationMatrix( );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::tirs, testTime )
+                    .toRotationMatrix( ),
+            expectedItrsToTirs,
+            ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::cirs, testTime )
+                    .toRotationMatrix( ),
+            expectedTirsToCirs,
+            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::cirs, EarthOrientationIntermediateFrame::icrs, testTime )
+                    .toRotationMatrix( ),
+            expectedCirsToIcrs,
+            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::icrs, testTime )
+                    .toRotationMatrix( ),
+            earthRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
+            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+    Eigen::Matrix3d expectedTirsToItrs = expectedItrsToTirs.transpose( );
+    Eigen::Matrix3d tirsToItrs =
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::itrs, testTime )
+                    .toRotationMatrix( );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( tirsToItrs( i, j ) - expectedTirsToItrs( i, j ) ), 1.0E-15 );
+        }
+    }
+}
+
 //! Test ITRS <-> GCRS rotation by comparing results from different base frames.
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
 {
@@ -252,6 +316,37 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_CLOSE_FRACTION( marsPositionInItrsFromJ2000( i ), marsPositionInItrsFromEclipj2000( i ), 1.0E-15 );
+    }
+}
+
+//! Test ITRS -> GCRS rotation derivative against a numerical derivative of the same model's rotation matrix.
+BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationDerivativeAgainstNumerical )
+{
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
+            std::make_shared< GcrsToItrsRotationModel >( earth_orientation::createStandardEarthOrientationCalculator( ) );
+
+    // The derivative omits the precession-nutation and UT1 rates (up to ~4E-12 /s elementwise); evaluating the Earth
+    // rotation angle 1.42 ms early (as the derivative used to) adds ~7.6E-12 /s.
+    double tolerance = 6.0E-12;
+    for( double initialTime : { 0.0, 1.0E7, 1.0E8, 4.0E8, 7.0E8 } )
+    {
+        for( int hour = 0; hour < 24; hour++ )
+        {
+            double testTime = initialTime + 3600.0 * hour;
+            auto rotation = [ & ]( const double time ) { return earthRotationModel->getRotationToBaseFrame( time ).toRotationMatrix( ); };
+            // Fourth-order central difference
+            Eigen::Matrix3d numericalDerivative = ( 4.0 * ( rotation( testTime + 5.0 ) - rotation( testTime - 5.0 ) ) / 10.0 -
+                                                    ( rotation( testTime + 10.0 ) - rotation( testTime - 10.0 ) ) / 20.0 ) /
+                    3.0;
+            Eigen::Matrix3d analyticalDerivative = earthRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL( analyticalDerivative( i, j ) - numericalDerivative( i, j ), tolerance );
+                }
+            }
+        }
     }
 }
 

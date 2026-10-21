@@ -63,16 +63,6 @@ TUDAT_ADD_TEST_CASE(DirectTidalDissipationAcceleration
     PRIVATE_LINKS
     ${Tudat_PROPAGATION_LIBRARIES})
 
-#TUDAT_ADD_TEST_CASE(CentralAndZonalGravityModel
-#        PRIVATE_LINKS
-#        tudat_gravitation
-#        tudat_basic_astrodynamics
-#        tudat_basic_astrodynamics
-#        tudat_numerical_integrators
-#        SOURCES
-#        "planetTestData.cpp"
-#        )
-
 TUDAT_ADD_TEST_CASE(GravityFieldVariations
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
@@ -83,7 +73,22 @@ TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicAcceleration
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(MutualExtendedBodySphericalHarmonicAcceleration
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(MutualForcePotential
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(GravitationalTorques
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(FullTwoBodyGravitationalTorques
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )

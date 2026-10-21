@@ -13,9 +13,7 @@
 
 #include <vector>
 #include <map>
-
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -68,13 +66,13 @@ enum BodyFixedAngleSource {
 class BodyFixedAerodynamicAngleInterface
 {
 public:
-    BodyFixedAerodynamicAngleInterface( const BodyFixedAngleSource angleSource ): angleSource_( angleSource ) { }
+    BodyFixedAerodynamicAngleInterface( const BodyFixedAngleSource angleSource ): angleSource_( angleSource ) {}
 
-    virtual ~BodyFixedAerodynamicAngleInterface( ) { }
+    virtual ~BodyFixedAerodynamicAngleInterface( ) {}
 
     virtual Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
 
-    virtual void resetCurrentTime( ) { }
+    virtual void resetCurrentTime( ) {}
 
     BodyFixedAngleSource getAngleSource( )
     {
@@ -134,6 +132,26 @@ public:
     {
         windModel_ = windModel;
         shapeModel_ = shapeModel;
+    }
+
+    //! Function to set whether atmospheric rotation should be included
+    /*!
+     * Function to set whether atmospheric rotation should be included in aerodynamic computations
+     * \param includeAtmosphericRotation Boolean indicating if atmospheric rotation is included
+     */
+    void setIncludeAtmosphericRotation( const bool includeAtmosphericRotation )
+    {
+        includeAtmosphericRotation_ = includeAtmosphericRotation;
+    }
+
+    //! Function to set the rotation matrix derivative function
+    /*!
+     * Function to set the rotation matrix derivative function for the central body
+     * \param rotationMatrixDerivativeFunction Function returning the time derivative of rotation matrix from inertial to body-fixed frame
+     */
+    void setRotationMatrixDerivativeFunction( const std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeFunction )
+    {
+        rotationMatrixDerivativeToLocalFrameFunction_ = rotationMatrixDerivativeFunction;
     }
 
     //! Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
@@ -211,33 +229,6 @@ public:
      */
     double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
 
-    //    //! Function to set the trajectory<->body-fixed orientation angles.
-    //    /*!
-    //     * Function to set the trajectory<->body-fixed orientation angles.
-    //     * \param angleOfAttackFunction Function to return the angle of attack.
-    //     * \param angleOfSideslipFunction Function to return the angle of sideslip.
-    //     * \param bankAngleFunction Function to return the bank angle.
-    //     * \param angleUpdateFunction Function to update the angles to the current time.
-    //     */
-    void setOrientationAngleFunctionsRemoved1(
-            const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-            const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-            const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
-            const std::function< void( const double ) > updateFunction = std::function< void( const double ) >( ),
-            const bool silenceWarnings = false );
-
-    //    //! Function to set constant trajectory<->body-fixed orientation angles.
-    //    /*!
-    //     * Function to set constant trajectory<->body-fixed orientation angles.
-    //     * \param angleOfAttack Constant angle of attack (default NaN, used if no angle is to be defined).
-    //     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
-    //     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
-    //     */
-    void setOrientationAngleFunctionsRemoved2( const double angleOfAttack = TUDAT_NAN,
-                                               const double angleOfSideslip = TUDAT_NAN,
-                                               const double bankAngle = TUDAT_NAN,
-                                               const bool silenceWarnings = false );
-
     //! Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
     /*!
      * Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
@@ -286,6 +277,16 @@ public:
     Eigen::Vector3d getCurrentGroundspeedBasedBodyFixedVelocity( )
     {
         return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
+    }
+
+    //! Function to get the current local wind velocity vector, as set by previous call to update( ).
+    /*!
+     * Function to get the current local wind velocity vector, as set by previous call to update( ).
+     * \return Current local wind velocity expressed in the central-body-fixed frame.
+     */
+    Eigen::Vector3d getCurrentLocalWindVelocity( ) const
+    {
+        return currentLocalWindVelocity_;
     }
 
     void resetCurrentTime( )
@@ -381,6 +382,15 @@ private:
     double currentTime_;
 
     bool aerodynamicAngleClosureIsIncomplete_;
+
+    //! Current local wind velocity expressed in the central-body-fixed frame.
+    Eigen::Vector3d currentLocalWindVelocity_ = Eigen::Vector3d::Zero( );
+
+    //! Boolean flag indicating whether atmospheric rotation should be included in aerodynamic computations
+    bool includeAtmosphericRotation_ = true;
+
+    //! Function returning the time derivative of the rotation matrix from inertial to body-fixed frame
+    std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeToLocalFrameFunction_;
 };
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

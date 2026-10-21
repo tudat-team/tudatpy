@@ -39,10 +39,10 @@ class BodyShapeModel
 {
 public:
     //! Default constructor.
-    BodyShapeModel( ) { }
+    BodyShapeModel( ) {}
 
     //! Virtual destructor.
-    virtual ~BodyShapeModel( ) { }
+    virtual ~BodyShapeModel( ) {}
 
     //! Calculates the altitude above the shape
     /*!

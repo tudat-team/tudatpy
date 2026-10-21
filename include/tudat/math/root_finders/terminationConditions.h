@@ -127,7 +127,7 @@ class TerminationCondition
 {
 public:
     //! Virtual destructor.
-    virtual ~TerminationCondition( ) { }
+    virtual ~TerminationCondition( ) {}
 
     //! Check termination condition.
     /*!
@@ -170,7 +170,7 @@ public:
     MaximumIterationsTerminationCondition( const unsigned int maximumNumberOfIterations = 1000,
                                            const MaximumIterationHandling maximumIterationHandling = throw_exception ):
         maximumNumberOfIterations_( maximumNumberOfIterations ), maximumIterationHandling_( maximumIterationHandling )
-    { }
+    {}
 
     //! Check termination condition (wrapper for checkMaximumIterationsExceeded()-function).
     bool checkTerminationCondition( const ScalarType currentRootGuess,
@@ -211,7 +211,7 @@ public:
      * thrown if this number is exceeded (default=true).
      * \param anAbsoluteTolerance An absolute tolerance (default=1.0e-15).
      */
-    RootAbsoluteToleranceTerminationCondition( const ScalarType absoluteTolerance = 1.0e-15 ): absoluteTolerance_( absoluteTolerance ) { }
+    RootAbsoluteToleranceTerminationCondition( const ScalarType absoluteTolerance = 1.0e-15 ): absoluteTolerance_( absoluteTolerance ) {}
 
     //! Check termination condition (combined abs. tolerance and max. itetations)
     /*!
@@ -261,7 +261,7 @@ public:
      * thrown if this number is exceeded (default=true).
      * \param relativeTolerance A relative tolerance (default=1.0e-12).
      */
-    RootRelativeToleranceTerminationCondition( const ScalarType relativeTolerance = 1.0e-12 ): relativeTolerance_( relativeTolerance ) { }
+    RootRelativeToleranceTerminationCondition( const ScalarType relativeTolerance = 1.0e-12 ): relativeTolerance_( relativeTolerance ) {}
 
     //! Check termination condition (combined rel. tolerance and max. itetations)
     /*!
@@ -294,8 +294,7 @@ template< typename ScalarType = double >
 class RootFunctionTerminationCondition : public TerminationCondition< ScalarType >
 {
 public:
-    RootFunctionTerminationCondition( const ScalarType rootFunctionTolerance = 1.0e-12 ):
-        rootFunctionTolerance_( rootFunctionTolerance ) { }
+    RootFunctionTerminationCondition( const ScalarType rootFunctionTolerance = 1.0e-12 ): rootFunctionTolerance_( rootFunctionTolerance ) {}
 
     bool checkTerminationCondition( const ScalarType currentRootGuess,
                                     const ScalarType previousRootGuess,
@@ -316,7 +315,7 @@ class CombinedTerminationCondition : public TerminationCondition< ScalarType >
 public:
     CombinedTerminationCondition( const std::vector< std::shared_ptr< TerminationCondition< ScalarType > > > terminationList ):
         terminationList_( terminationList )
-    { }
+    {}
 
     bool checkTerminationCondition( const ScalarType currentRootGuess,
                                     const ScalarType previousRootGuess,

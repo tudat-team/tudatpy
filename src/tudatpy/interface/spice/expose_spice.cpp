@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "tudat/interface/spice.h"
 
 #include <Eigen/Core>
@@ -17,7 +19,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/astro/basic_astro.h>
 
 #include "expose_spice.h"
 
@@ -31,8 +32,7 @@ namespace tudat
 namespace spice_interface
 {
 
-void loadStandardDepracatedSpiceKernels(
-        const std::vector< std::string > alternativeEphemerisKernels )
+void loadStandardDepracatedSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels )
 {
     std::string kernelPath = paths::getSpiceKernelPath( );
     loadSpiceKernelInTudat( kernelPath + "/pck00010.tpc" );
@@ -63,7 +63,7 @@ namespace interface
 namespace spice
 {
 
-void expose_spice( py::module &m )
+void expose_spice( py::module& m )
 {
     // time related
     m.def( "convert_julian_date_to_ephemeris_time",
@@ -80,11 +80,12 @@ void expose_spice( py::module &m )
 
  Parameters
  ----------
- julian_date : int
+ julian_date : float
      Julian date that is to be converted to ephemeris time.
  Returns
  -------
- ephemeris_time : float    Julian date calculated from ephemeris time.
+ float
+     Ephemeris time corresponding to the given Julian date.
 
 
 
@@ -93,15 +94,14 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-
     m.def( "get_approximate_utc_from_tdb",
-       &tudat::spice_interface::getApproximateUtcFromTdb,
-       py::arg( "ephemeris_time" ),
-       R"doc(
+           &tudat::spice_interface::getApproximateUtcFromTdb,
+           py::arg( "ephemeris_time" ),
+           R"doc(
 
  Get an approximate UTC time from ephemeris time (TDB).
 
- This function computes an approximate UTC time from the given ephemeris time (TDB). 
+ This function computes an approximate UTC time from the given ephemeris time (TDB).
  It uses the `deltet_c` Spice function to calculate the offset between TDB and UTC.
 
  Parameters
@@ -111,7 +111,7 @@ void expose_spice( py::module &m )
 
  Returns
  -------
- utc_time : float
+ float
      Approximate UTC time corresponding to the given ephemeris time.
 
      )doc" );
@@ -137,7 +137,8 @@ void expose_spice( py::module &m )
      Ephemeris time that is to be converted to Julian date.
  Returns
  -------
- julian_date : float    Julian date calculated from ephemeris time.
+ float
+     Julian date calculated from ephemeris time.
 
 
 
@@ -170,7 +171,8 @@ void expose_spice( py::module &m )
 
  Returns
  -------
- ephemeris_time : str    Ephemeris time corresponding to given date_string.
+ float
+     Ephemeris time corresponding to the given date string.
 
 
 
@@ -235,6 +237,11 @@ void expose_spice( py::module &m )
      Observation time (or transmission time of observed light, see description
      of aberrationCorrections).
 
+ Returns
+ -------
+ numpy.ndarray[3, 1]
+     Cartesian position vector of the target body relative to the observer.
+
 
 
 
@@ -296,7 +303,8 @@ void expose_spice( py::module &m )
 
  Returns
  -------
- cartesian_state_vector : numpy.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
+ numpy.ndarray[6, 1]
+     Cartesian state vector containing position and velocity.
 
 
 
@@ -323,11 +331,12 @@ void expose_spice( py::module &m )
  ----------
  epoch : float
      Time in seconds since J2000 at which the state is to be retrieved.
- tle : :class:`~tudatpy.kernel.astro.ephemerides.Tle`
-     Shared pointer to a Tle object containing the SGP/SDP model parameters as derived from the element set.
+ tle : :class:`~tudatpy.dynamics.environment.Tle`
+     Tle object containing the SGP/SDP model parameters as derived from the element set.
  Returns
  -------
- cartesian_state_vector : numpy.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
+ numpy.ndarray[6, 1]
+     Cartesian state vector containing position and velocity.
 
 
 
@@ -363,7 +372,44 @@ void expose_spice( py::module &m )
      Value of ephemeris time at which rotation is to be determined.
  Returns
  -------
- Rotation matrix from original to new frame at given time.
+ numpy.ndarray[3, 3]
+     Rotation matrix from the original to the new frame at the given time.
+
+
+
+
+
+
+     )doc" );
+
+    m.def( "compute_state_rotation_matrix_between_frames",
+           &tudat::spice_interface::computeStateRotationMatrixBetweenFrames,
+           py::arg( "original_frame" ),
+           py::arg( "new_frame" ),
+           py::arg( "ephemeris_time" ),
+           R"doc(
+
+ Computes state rotation matrix between two frames.
+
+ This function computes the 6-by-6 state rotation matrix between
+ two frames at a given time instant. Kernels defining the two frames,
+ as well as any required intermediate frames, at the requested time
+ must have been loaded. Wrapper for `sxform_c`_ spice function.
+
+ .. _`sxform_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/sxform_c.html
+
+ Parameters
+ ----------
+ original_frame
+     Reference frame from which the rotation is made.
+ new_frame
+     Reference frame to which the rotation is made.
+ ephemeris_time
+     Value of ephemeris time at which rotation is to be determined.
+ Returns
+ -------
+ numpy.ndarray[6, 6]
+     State rotation matrix from the original to the new frame at the given time.
 
 
 
@@ -405,7 +451,8 @@ void expose_spice( py::module &m )
      Value of ephemeris time at which rotation is to be determined.
  Returns
  -------
- Time derivative of rotation matrix from original to new frame at given time.
+ numpy.ndarray[3, 3]
+     Time derivative of the rotation matrix from the original to the new frame at the given time.
 
 
 
@@ -442,18 +489,11 @@ void expose_spice( py::module &m )
      Value of ephemeris time at which rotation is to be determined.
  Returns
  -------
- Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
+ numpy.ndarray[3, 1]
+     Angular velocity of the new frame with respect to the original frame, expressed in the original frame.
 
 
      )doc" );
-
-    m.def( "compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames",
-           &tudat::spice_interface::
-                   computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames,
-           py::arg( "original_frame" ),
-           py::arg( "new_frame" ),
-           py::arg( "ephemeris_time" ),
-           R"doc(No documentation found.)doc" );
 
     m.def( "get_body_properties",
            &tudat::spice_interface::getBodyProperties,
@@ -484,7 +524,8 @@ void expose_spice( py::module &m )
 
  Returns
  -------
- Property value(s) expressed in an STL vector of doubles.
+ list[float]
+     Requested property values.
 
 
 
@@ -511,7 +552,7 @@ void expose_spice( py::module &m )
 
      The gravitational parameter returned is directly retrieved from the loaded SPICE kernels.
      This value does *not* necessarily correspond to the gravitational parameter used in Tudat's default models, as retrieved from e.g. :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings`.
-     For more information on the default gravity models, see the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html#gravity-field>`_.
+     For more information on the default gravity models, see the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html#gravity-field>`__.
 
  .. _`bodvrd_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html
 
@@ -522,7 +563,8 @@ void expose_spice( py::module &m )
      Name of the body of which the parameter is to be retrieved.
  Returns
  -------
- Gravitational parameter of requested body.
+ float
+     Gravitational parameter of the requested body.
 
 
 
@@ -550,7 +592,8 @@ void expose_spice( py::module &m )
      Name of the body of which the average radius is to be retrieved.
  Returns
  -------
- Arithmetic mean of principal axes of tri-axial ellipsoid shape model of body.
+ float
+     Arithmetic mean of the principal axes of the body's tri-axial ellipsoid shape model.
 
 
 
@@ -579,7 +622,8 @@ void expose_spice( py::module &m )
      Name of the body for which NAIF id is to be retrieved.
  Returns
  -------
- NAIF id number for the body with bodyName.
+ int
+     NAIF identification number for the body.
 
 
 
@@ -606,9 +650,6 @@ void expose_spice( py::module &m )
      Name of body corresponding to provided ID
 
      )doc" );
-
-
-
 
     m.def( "load_standard_kernels",
            &tudat::spice_interface::loadStandardSpiceKernels,
@@ -645,36 +686,7 @@ void expose_spice( py::module &m )
 
     m.def( "load_standard_deprecated_kernels",
            &tudat::spice_interface::loadStandardDepracatedSpiceKernels,
-           py::arg( "alternative_kernels" ) = std::vector< std::string >( ),  // <pybind11/stl.h>
-           R"doc(
-
- Loads the default spice kernels shopped with tudat.
-
- Loads the default spice kernels shopped with tudat. The kernels that are loaded are (in order):
-
- - pck00010.tpc - Orientation and size/shape data for natural bodies, based mainly on  IAU Working Group on Cartographic Coordinates and Rotational Elements, obtained from `here <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/>`_
- - inpop19a_TDB_m100_p100_spice.tpc - Masses of solar system planets and large asteroids, as determined in INPOP19a ephemerides, obtained from `here <https://www.imcce.fr/recherche/equipes/asd/inpop/download19a>`_
- - NOE-4-2020.tpc - Mars and Martian moon masses; Mars rotation model, as determined/used in NOE Martian satellite ephemerides, obtained from `here <ftp://ftp.imcce.fr/pub/ephem/satel/NOE/MARS/2020/>`_
- - NOE-5-2021.tpc - Jupiter and selected Jovian moon (Io, Europa, Ganymede, Callisto, Amalthea) masses; Jupiter rotation model, as determined/used in NOE Jovian satellite ephemerides, obtained from `here <ftp://ftp.imcce.fr/pub/ephem/satel/NOE/JUPITER/2021/>`_
- - NOE-6-2018-MAIN-v2.tpc - Saturn and selected Saturnian moon (Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Hyperion, Iapetus) masses; Saturn rotation model, as determined/used in NOE Saturnian satellite ephemerides, obtained from `here <ftp://ftp.imcce.fr/pub/ephem/satel/NOE/SATURNE/2018/>`_
- - codes_300ast_20100725.bsp - Ephemerides of 300 of of the largest asteroids, obtained from `here <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/asteroids/>`_
- - inpop19a_TDB_m100_p100_spice.bsp - Ephemerides of Solar system planetary system barycenters, Sun, Moon, Earth and Pluto, as determined in INPOP19a ephemerides, obtained from `here <https://www.imcce.fr/recherche/equipes/asd/inpop/download19a>`_
- - NOE-4-2020.bsp - Mars, Phobos and Deimos ephemerides (w.r.t. Martian system barycenter), as determined/used in NOE Martian satellite ephemerides, obtained from  `here <ftp://ftp.imcce.fr/pub/ephem/satel/NOE/MARS/2020/>`_
- - NOE-5-2021.bsp - Jupiter, Io, Europa, Ganymede, Callisto, Amalthea ephemerides (w.r.t. Jovian system barycenter), as determined/used in NOE Jovian satellite ephemerides, obtained from  `here <ftp://ftp.imcce.fr/pub/ephem/satel/NOE/JUPITER/2021/>`_
- - NOE-6-2018-MAIN-v2.bsp - Saturn, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Hyperion, Iapetus ephemerides (w.r.t. Saturnian system barycenter), as determined/used in NOE Saturnian satellite ephemerides, obtained from  `here <ftp://ftp.imcce.fr/pub/ephem/satel/NOE/SATURNE/2018/>`_
- - naif0012.tls - Leap second kernel, obtained from `here <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/>`_
-
-
- Parameters
- ----------
- kernel_paths : list[str], default = None
-     Optional alternative ephemeris kernels to be loaded, instead of the default ephemeris kernels. Note that using this input automatically prevents all of the above .bsp (ephemeris) kernels from loading.
-
-
-
-
-
-     )doc" );
+           py::arg( "alternative_kernels" ) = std::vector< std::string >( ) );
 
     m.def( "get_total_count_of_kernels_loaded",
            &tudat::spice_interface::getTotalCountOfKernelsLoaded,
@@ -690,8 +702,8 @@ void expose_spice( py::module &m )
 
  Returns
  -------
- n_kernels : int    Number of spice kernels currently loaded.
-
+ int
+     Number of Spice kernels currently loaded.
 
 
 
@@ -786,11 +798,19 @@ void expose_spice( py::module &m )
 
     m.def( "continue_after_errors",
            &tudat::spice_interface::toggleErrorReturn,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure SPICE to return control to the caller after an error instead of aborting the process.
+
+      )doc" );
 
     m.def( "suppress_error_output",
            &tudat::spice_interface::suppressErrorOutput,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Suppress SPICE error messages emitted to its output stream.
+
+      )doc" );
 
     //      py::class_<tudat::ephemerides::SpiceEphemeris,
     //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m,

@@ -12,7 +12,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
@@ -21,7 +20,7 @@
 #include <iostream>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -52,7 +51,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         // Check if data input file matrix matches expected matrix.
         try
         {
-            for( auto ent: inputFileMap )
+            for( auto ent : inputFileMap )
             {
                 auto key = ent.first;
                 auto values = ent.second;
@@ -73,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
                 }
             }
         }
-        catch( std::runtime_error &inconsistentSizes )
+        catch( std::runtime_error& inconsistentSizes )
         {
             std::cout << "Maps have different keys or inconsistent sizes." << std::endl;
             allEqual = false;
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         // Check if data input file matrix matches expected matrix.
         try
         {
-            for( auto ent: inputFileMap )
+            for( auto ent : inputFileMap )
             {
                 auto key = ent.first;
                 auto values = ent.second;
@@ -117,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
                 }
             }
         }
-        catch( std::runtime_error &inconsistentSizes )
+        catch( std::runtime_error& inconsistentSizes )
         {
             std::cout << "Maps have different keys or inconsistent sizes." << std::endl;
             allEqual = false;
@@ -141,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         // Check if data input file matrix matches expected matrix.
         try
         {
-            for( auto ent: inputFileMap )
+            for( auto ent : inputFileMap )
             {
                 auto key = ent.first;
                 auto values = ent.second;
@@ -162,7 +161,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
                 }
             }
         }
-        catch( std::runtime_error &inconsistentSizes )
+        catch( std::runtime_error& inconsistentSizes )
         {
             std::cout << "Maps have different keys or inconsistent sizes." << std::endl;
             allEqual = false;

@@ -40,10 +40,10 @@ class TorqueModel
 {
 public:
     //! Constructor
-    TorqueModel( ): currentTime_( TUDAT_NAN ) { }
+    TorqueModel( ): currentTime_( TUDAT_NAN ) {}
 
     //! Destructor
-    virtual ~TorqueModel( ) { }
+    virtual ~TorqueModel( ) {}
 
     //! Function to retrieve the current value of the torque
     /*!
@@ -101,10 +101,10 @@ public:
     InertialTorqueModel( const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
                          const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction ):
         TorqueModel( ), angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction )
-    { }
+    {}
 
     //! Destructor
-    ~InertialTorqueModel( ) { }
+    ~InertialTorqueModel( ) {}
 
     //! Get inertial torque.
     /*!

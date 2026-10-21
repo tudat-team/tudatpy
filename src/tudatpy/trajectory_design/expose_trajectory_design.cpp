@@ -7,10 +7,15 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_trajectory_design.h"
 
 #include <pybind11/pybind11.h>
+
+#include "shape_based_thrust/expose_shape_based_thrust.h"
+#include "transfer_trajectory/expose_transfer_trajectory.h"
 
 namespace py = pybind11;
 
@@ -19,7 +24,7 @@ namespace tudatpy
 namespace trajectory_design
 {
 
-void expose_trajectory_design( py::module &m )
+void expose_trajectory_design( py::module& m )
 {
     auto shape_based_thrust = m.def_submodule( "shape_based_thrust" );
     shape_based_thrust::expose_shape_based_thrust( shape_based_thrust );

@@ -15,9 +15,9 @@
 #include <cstdarg>
 #include <iostream>
 #include <map>
+#include <regex>
 #include <vector>
 
-#include <boost/regex.hpp>
 #include <memory>
 
 #include "tudat/io/fieldType.h"
@@ -134,10 +134,9 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
  * for that dataline is on the date of 2000-1-1 (J2000). This means epoch can range from
  * 2000-1-1 00h to 2000-1-1 23h59m59.999...
  *
- * Note: the regular expression is in the form of char* and not boost::regex because that
+ * Note: the regular expression is in the form of char* and not std::regex because that
  * yields the followong stdargs incompatibility:
- * error: cannot receive objects of non-trivially-copyable type 'boost::regex {aka struct
- * boost::basic_regex<char, boost::regex_traits<char> >}' through '...';
+ * error: cannot receive objects of non-trivially-copyable type 'std::regex' through '...';
  *
  * \param datavector Data vector to be checked for all the requested FieldTypes.
  * \param nrFields   Number of field that each entry must contain.

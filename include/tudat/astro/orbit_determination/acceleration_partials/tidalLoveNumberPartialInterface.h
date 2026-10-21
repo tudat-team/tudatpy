@@ -11,8 +11,6 @@
 #ifndef TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 #define TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 
-#include <boost/math/special_functions/factorials.hpp>
-
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
@@ -58,7 +56,8 @@ public:
                                      const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
                                      const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
                                      const std::string& deformedBody ):
-        deformedBodyPositionFunction_( deformedBodyPositionFunction ), deformingBodyStateFunctions_( deformingBodyStateFunctions ),
+        gravityFieldVariations_( gravityFieldVariations ), deformedBodyPositionFunction_( deformedBodyPositionFunction ),
+        deformingBodyStateFunctions_( deformingBodyStateFunctions ),
         rotationToDeformedBodyFrameFrameFunction_( rotationToDeformedBodyFrameFrameFunction ), deformedBody_( deformedBody )
     {
         // Get members from input objects.
@@ -67,6 +66,10 @@ public:
         deformedBodyReferenceRadius_ = gravityFieldVariations->getDeformedBodyReferenceRadius( );
         deformedBodyGravitationalParameterFunction_ = gravityFieldVariations->getDeformedBodyMassFunction( );
         deformingBodies_ = gravityFieldVariations->getDeformingBodies( );
+
+        // useful only if tidal model is BasicSolidBodyTideGravityFieldVariations, else nullptr
+        gravityFieldVariationsCast_ =
+                std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >( gravityFieldVariations );
 
         realLoveNumberScaler_ =
                 std::make_pair( ( Eigen::Vector2d( ) << 1.0, 0.0 ).finished( ), ( Eigen::Vector2d( ) << 0.0, 1.0 ).finished( ) );
@@ -79,7 +82,7 @@ public:
     }
 
     //! Destructor
-    virtual ~TidalLoveNumberPartialInterface( ) { }
+    virtual ~TidalLoveNumberPartialInterface( ) {}
 
     //! Function to obtain the indices of given list of body names in deformingBodies_ member vector
     /*!
@@ -378,6 +381,12 @@ public:
         return deformingBodies_;
     }
 
+    //! Function to retrieve the underlying tidal variation model used by this interface
+    std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > getGravityFieldVariations( ) const
+    {
+        return gravityFieldVariations_;
+    }
+
 protected:
     //! Function to compute Love number partials from pre-computed partials and provided scaling values
     /*!
@@ -436,6 +445,9 @@ protected:
 
     //! Reference radius used by tidal deformation model.
     double deformedBodyReferenceRadius_;
+
+    //! Underlying tidal gravity field variation model associated with this interface
+    std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations_;
 
     //! Function to retrieve current state of body being tidally deformed
     /*!
@@ -508,6 +520,9 @@ protected:
 
     //! List of current positions of bodies causing deformation
     std::vector< Eigen::Vector3d > positionsOfDeformingBodies_;
+
+    //! SolidBodyTideGravityFieldVariations cast to BasicSolidBodyTideGravityFieldVariations - if cast successful, members are used for computation of partials, accounting for offset of possible mean forcing values
+    std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationsCast_;
 
     //! List of functions to compute values of partials w.r.t. double parameter partials
     std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, std::pair< int, int > >,

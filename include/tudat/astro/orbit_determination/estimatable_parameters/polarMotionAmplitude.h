@@ -13,7 +13,6 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat
@@ -43,10 +42,10 @@ public:
                 rotationModel->getPlanetaryOrientationAngleCalculator( )->getXpolarMotionCoefficients( ).size( ) ),
         maxOrderYpolarMotionCoefficients_(
                 rotationModel->getPlanetaryOrientationAngleCalculator( )->getYpolarMotionCoefficients( ).size( ) )
-    { }
+    {}
 
     //! Destructor
-    ~PolarMotionAmplitude( ) { }
+    ~PolarMotionAmplitude( ) {}
 
     //! Get value of the amplitudes of the polar motion (starting from the lowest order to the highest one, first cosinus
     //! coefficient directly followed by sinus coefficient for the x- polar motion, and then same order

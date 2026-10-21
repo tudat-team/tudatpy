@@ -12,7 +12,6 @@
 #define TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
@@ -182,7 +181,7 @@ public:
         centalBodyAngularMomentumFunction_( centalBodyAngularMomentumFunction ), ppnParameterGammaFunction_( ppnParameterGammaFunction ),
         ppnParameterBetaFunction_( ppnParameterBetaFunction ), calculateSchwarzschildCorrection_( calculateSchwarzschildCorrection ),
         calculateDeSitterCorrection_( true ), calculateLenseThirringCorrection_( !( centalBodyAngularMomentumFunction == nullptr ) )
-    { }
+    {}
 
     //! Constructor, used when including Lense-Thirring, but not de Sitter, acceleration
     /*!
@@ -211,7 +210,7 @@ public:
         centalBodyAngularMomentumFunction_( centalBodyAngularMomentumFunction ), ppnParameterGammaFunction_( ppnParameterGammaFunction ),
         ppnParameterBetaFunction_( ppnParameterBetaFunction ), calculateSchwarzschildCorrection_( calculateSchwarzschildCorrection ),
         calculateDeSitterCorrection_( false ), calculateLenseThirringCorrection_( true )
-    { }
+    {}
 
     //! Constructor, used for Schwarzschild term only
     /*!
@@ -234,10 +233,10 @@ public:
         gravitationalParameterFunctionOfCentralBody_( gravitationalParameterFunctionOfCentralBody ),
         ppnParameterGammaFunction_( ppnParameterGammaFunction ), ppnParameterBetaFunction_( ppnParameterBetaFunction ),
         calculateSchwarzschildCorrection_( true ), calculateDeSitterCorrection_( false ), calculateLenseThirringCorrection_( false )
-    { }
+    {}
 
     //! Destructor
-    ~RelativisticAccelerationCorrection( ) { }
+    ~RelativisticAccelerationCorrection( ) {}
 
     //! Update member variables used by the relativistic correction acceleration model.
     /*!

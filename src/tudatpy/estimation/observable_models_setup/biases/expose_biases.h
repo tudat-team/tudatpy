@@ -11,12 +11,7 @@
 #ifndef TUDATPY_EXPOSE_BIASES_H
 #define TUDATPY_EXPOSE_BIASES_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 
 namespace py = pybind11;
 
@@ -30,7 +25,10 @@ namespace observable_models_setup
 namespace biases
 {
 
-void expose_biases( py::module &m );
+void expose_biases( py::module& m );
+
+//! Expose all observation-bias model types before the parameter factory bindings are created.
+void expose_bias_types( py::module& m );
 
 }  // namespace biases
 }  // namespace observable_models_setup

@@ -20,8 +20,6 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 
-#include <boost/function.hpp>
-
 namespace tudat
 {
 
@@ -40,9 +38,15 @@ double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix );
 /*!
  *  Function to get condition number of matrix from SVD decomposition
  * \param singularValueDecomposition SVD decomposition of matrix
+ * \tparam Options Options for the underlying Eigen JacobiSVD decomposition
  * \return Condition number of matrix
  */
-double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd >& singularValueDecomposition );
+template< int Options >
+double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd, Options >& singularValueDecomposition )
+{
+    Eigen::VectorXd singularValues = singularValueDecomposition.singularValues( );
+    return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
+}
 
 //! Solve system of equations with SVD decomposition, checking condition number in the process
 /*!
@@ -120,6 +124,8 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::
  * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
  * \param constraintMultiplier Multiplier for estimated parameter that defines linear constraint
  * \param constraintRightHandside Right-hand side estimation linear constraint
+ * \param aprioriParameterDeviation Deviation of the current parameter estimate from the a priori parameter vector, expressed in
+ * the same normalized coordinates as the parameter correction
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
@@ -131,7 +137,10 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ),
+        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
@@ -225,6 +234,21 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         const double initialScaling = 1.0e-6,
         const double convergenceTolerance = 1.0e-8,
         const unsigned int maximumNumberOfIterations = 25 );
+
+//! Perform a non-linear least-squares estimation and return iteration diagnostics by reference.
+/*!
+ * This overload uses the same Levenberg-Marquardt implementation as nonLinearLeastSquaresFit, while additionally
+ * returning the number of iterations and whether the update-norm convergence criterion was met.
+ */
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
+        const double initialScaling,
+        const double convergenceTolerance,
+        const unsigned int maximumNumberOfIterations,
+        unsigned int& numberOfIterations,
+        bool& converged );
 
 }  // namespace linear_algebra
 

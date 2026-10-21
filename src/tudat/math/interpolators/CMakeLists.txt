@@ -15,7 +15,12 @@ set(interpolators_SOURCES
         "lagrangeInterpolator.cpp"
         "interpolator.cpp"
         "multiLinearInterpolator.cpp"
+        "chebyshevApproximation.cpp"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND interpolators_SOURCES "interpolatorSettingsSerialization.cpp")
+endif ()
 
 # Add header files.
 set(interpolators_HEADERS
@@ -31,12 +36,14 @@ set(interpolators_HEADERS
         "piecewiseConstantInterpolator.h"
         "jumpDataLinearInterpolator.h"
         "createInterpolator.h"
+        "chebyshevApproximation.h"
         )
 
 # Add library.
 TUDAT_ADD_LIBRARY("interpolators"
         "${interpolators_SOURCES}"
         "${interpolators_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PUBLIC_SERIALIZATION
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

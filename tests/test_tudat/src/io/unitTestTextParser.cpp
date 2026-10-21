@@ -13,10 +13,9 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/io/textParser.h"
 
@@ -30,10 +29,10 @@ class dummyTextParser : public TextParser
 {
 public:
     // Default constructor with parseAsStream == false.
-    dummyTextParser( bool parseAsStream = false ): TextParser( parseAsStream ) { }
+    dummyTextParser( bool parseAsStream = false ): TextParser( parseAsStream ) {}
 
     // Default destructor.
-    ~dummyTextParser( ) { }
+    ~dummyTextParser( ) {}
 
 protected:
     // Parse line functionality.

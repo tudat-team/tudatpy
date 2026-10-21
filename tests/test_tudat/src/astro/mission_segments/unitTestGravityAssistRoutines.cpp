@@ -45,14 +45,13 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
 #include <Eigen/Dense>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/basics/testMacros.h"
@@ -779,7 +778,7 @@ BOOST_AUTO_TEST_CASE( testGravityInfinitePeriapsis )
     // Define pericenter radius.
     const double pericenterRadius = std::numeric_limits< double >::infinity( );
 
-    for( unsigned int deltaVCase: { 0, 1 } )
+    for( unsigned int deltaVCase : { 0, 1 } )
     {
         double deltaV;
         Eigen::Vector3d expectedOutgoingVelocity;

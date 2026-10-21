@@ -17,9 +17,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Tudat C++'
-copyright = '2021, Tudat Team'
-author = 'Tudat Team'
+project = "Tudat C++"
+copyright = "2021, Tudat Team"
+author = "Tudat Team"
 
 # -- General configuration ---------------------------------------------------
 
@@ -27,27 +27,29 @@ author = 'Tudat Team'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    'sphinxcontrib.napoleon',
-    'breathe',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.todo",
+    "sphinx.ext.coverage",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.githubpages",
+    "sphinxcontrib.napoleon",
+    "breathe",
 ]
 import os
 
 # Breathe
 breathe_default_project = "Tudat"
 breathe_projects = {}
-breathe_projects["Tudat"] = os.path.join(os.environ.pop("DOXYGEN_OUTPUT_DIRECTORY", "../doxygen"), "xml")
+breathe_projects["Tudat"] = os.path.join(
+    os.environ.pop("DOXYGEN_OUTPUT_DIRECTORY", "../doxygen"), "xml"
+)
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -59,9 +61,9 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'furo'
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]

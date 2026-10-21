@@ -15,7 +15,6 @@
 #include <memory>
 #include <functional>
 
-#include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -54,13 +53,13 @@ public:
      */
     Ephemeris( const std::string& referenceFrameOrigin = "", const std::string& referenceFrameOrientation = "" ):
         referenceFrameOrigin_( referenceFrameOrigin ), referenceFrameOrientation_( referenceFrameOrientation )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~Ephemeris( ) { }
+    virtual ~Ephemeris( ) {}
 
     //! Get state from ephemeris.
     /*!
@@ -191,7 +190,7 @@ public:
                      const bool isScalingAbsolute = true ):
         Ephemeris( baseEphemeris->getReferenceFrameOrigin( ), baseEphemeris->getReferenceFrameOrientation( ) ),
         baseEphemeris_( baseEphemeris ), stateScalingFunction_( stateScalingFunction ), isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     Eigen::Vector6d getCartesianState( const double secondsSinceEpoch )
     {

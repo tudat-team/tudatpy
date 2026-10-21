@@ -34,7 +34,7 @@ void setTransmissionFrequency( const std::shared_ptr< LightTimeCalculator< Obser
                                const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
                                const TimeType observationTime,
                                const LinkEndType linkEndAssociatedWithTime,
-                               const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+                               const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
 {
     TimeType approximateTransmissionTime;
     if( linkEndAssociatedWithTime == receiver )
@@ -61,12 +61,12 @@ void setTransmissionFrequency( const std::shared_ptr< LightTimeCalculator< Obser
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
 void setTransmissionReceptionFrequencies(
-        const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
+        const std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator,
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
         const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
         const TimeType receptionTdbTime,
         const LinkEndType referenceLinkEndType,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const double turnAroundratio )
 {
     if( referenceLinkEndType != receiver )
@@ -74,7 +74,7 @@ void setTransmissionReceptionFrequencies(
         throw std::runtime_error( "Error when getting n-way transmission frequency, reference link end is incompatible. " );
     }
     TimeType approximateTdbTransmissionTime =
-            receptionTdbTime - multiLegLightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, receiver );
+            receptionTdbTime - fullLinkLightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, receiver );
 
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );

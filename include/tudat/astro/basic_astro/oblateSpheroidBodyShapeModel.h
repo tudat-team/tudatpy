@@ -47,7 +47,7 @@ public:
     }
 
     //! Destructor
-    ~OblateSpheroidBodyShapeModel( ) { }
+    ~OblateSpheroidBodyShapeModel( ) {}
 
     //! Calculates the altitude above the oblate spheroid
     /*!

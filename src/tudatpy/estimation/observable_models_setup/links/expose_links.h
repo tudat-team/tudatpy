@@ -11,12 +11,7 @@
 #ifndef TUDATPY_EXPOSE_LINKS_H
 #define TUDATPY_EXPOSE_LINKS_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 
 namespace py = pybind11;
 
@@ -30,7 +25,7 @@ namespace observable_models_setup
 namespace links
 {
 
-void expose_links( py::module &m );
+void expose_links( py::module& m );
 
 }  // namespace links
 }  // namespace observable_models_setup

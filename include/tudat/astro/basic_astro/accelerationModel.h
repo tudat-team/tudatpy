@@ -40,13 +40,13 @@ class AccelerationModel
 {
 public:
     //! Constructor.
-    AccelerationModel( ): currentTime_( TUDAT_NAN ), currentAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ) { }
+    AccelerationModel( ): currentTime_( TUDAT_NAN ), currentAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ) {}
 
     //! Virtual destructor.
     /*!
      * Virtual destructor, necessary to ensure that derived class destructors get called correctly.
      */
-    virtual ~AccelerationModel( ) { }
+    virtual ~AccelerationModel( ) {}
 
     //    //! Get acceleration.
     //    /*!
@@ -97,7 +97,6 @@ public:
     {
         return currentAcceleration_;
     }
-
 
     void getAccelerationByReference( AccelerationDataType& acceleration ) const
     {

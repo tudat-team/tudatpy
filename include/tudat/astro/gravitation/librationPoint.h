@@ -59,7 +59,7 @@ public:
                     const double aSecondaryGravitationalParameter,
                     const root_finders::RootFinderPointer aRootFinder ):
         massParameter( computeMassParameter( aPrimaryGravitationalParameter, aSecondaryGravitationalParameter ) ), rootFinder( aRootFinder )
-    { }
+    {}
 
     //! Default constructor.
     /*!
@@ -70,7 +70,7 @@ public:
      */
     LibrationPoint( const double aMassParameter, const root_finders::RootFinderPointer aRootFinder ):
         massParameter( aMassParameter ), rootFinder( aRootFinder )
-    { }
+    {}
 
     //! Get dimensionless mass parameter.
     /*!

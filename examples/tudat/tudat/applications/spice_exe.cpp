@@ -43,7 +43,7 @@ int main( )
     //    furnsh_c("/home/dominik/dev/tudat-bundle/spice/lro/data/spk/lrorg_2010001_2010091_v01.bsp");
 
     std::string path = "/home/dominik/dev/tudat-bundle/spice/lro/data/spk";
-    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path ), { } ) )
+    for( auto& entry : boost::make_iterator_range( boost::filesystem::directory_iterator( path ), {} ) )
     {
         if( entry.path( ).extension( ) == ".bsp" )
         {

@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/array.hpp>
+#include <array>
 
 #include <memory>
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -25,7 +24,17 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/geometric/capsule.h"
 #include "tudat/math/geometric/sphereSegment.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
@@ -54,7 +63,7 @@ public:
         controlSurfaceFunction_( "TestSurface", 0.2 );
     }
 
-    ~DummyGuidanceSystem( ) { }
+    ~DummyGuidanceSystem( ) {}
 
     Eigen::Vector3d computeAndGetAerodynamicAngles( const double currentTime )
     {
@@ -298,8 +307,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
             createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Create propagation and integrtion settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodies,

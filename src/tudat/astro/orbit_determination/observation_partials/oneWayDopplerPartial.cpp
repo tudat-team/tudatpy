@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 
 namespace tudat
@@ -102,7 +104,7 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
         if( computeStatePartials_ )
         {
             partialWrtPerturbedPositions_[ i ] = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) * currentGravitationalParameter_ /
+                    ( 1.0 + properTimeRateModel_->getEquivalencePrincipleLpiViolationParameter( ) ) * currentGravitationalParameter_ /
                     ( currentDistance_ * currentDistance_ ) *
                     ( ( computationPointState - perturberRelativeState ).segment( 0, 3 ).normalized( ) ).transpose( );
             if( !( static_cast< int >( i ) == skipBodyIndex_ ) )
@@ -273,6 +275,12 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     // Update proper time scaling objects.
     currentLinkEndType_ = fixedLinkEnd;
 
+    if( !relativisticLightTimeCorrectionPartials_.empty( ) )
+    {
+        currentLinkEndStates_ = linkEndStates;
+        currentLinkEndTimes_ = times;
+    }
+
     if( transmitterProperTimePartials_ != nullptr )
     {
         transmitterProperTimePartials_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
@@ -371,23 +379,105 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize( const estimatabl
     return totalDependencySize;
 }
 
-//! Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials
+//! Whether getLinkIndependentPartials can return a non-empty contribution for the given parameter.
+bool OneWayDopplerScaling::useLinkIndependentPartialsForParameter(
+        const estimatable_parameters::EstimatebleParameterIdentifier& parameterType )
+{
+    if( getProperTimeParameterDependencySize( parameterType ) > 0 )
+    {
+        return true;
+    }
+    else if( parameterType.first == estimatable_parameters::ppn_parameter_gamma )
+    {
+        return !relativisticLightTimeCorrectionPartials_.empty( );
+    }
+    else if( parameterType.first == estimatable_parameters::gravitational_parameter )
+    {
+        for( const auto& correctionPartial : relativisticLightTimeCorrectionPartials_ )
+        {
+            const std::vector< std::string > perturbingBodies = correctionPartial->getPerturbingBodies( );
+            if( std::find( perturbingBodies.begin( ), perturbingBodies.end( ), parameterType.second.first ) != perturbingBodies.end( ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//! Direct parameter partials of proper time and explicit light-time time derivatives.
 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > totalPartial;
 
-    if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
+    if( parameterType.first == estimatable_parameters::ppn_parameter_gamma )
     {
+        for( const auto& correctionPartial : relativisticLightTimeCorrectionPartials_ )
+        {
+            auto transmitterPartial = correctionPartial->timeDerivativeWrtPpnParameterGamma(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::transmitter );
+            auto receiverPartial = correctionPartial->timeDerivativeWrtPpnParameterGamma(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::receiver );
+            transmitterPartial.first *= -transmitterPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            receiverPartial.first *= receiverPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            totalPartial.push_back( transmitterPartial );
+            totalPartial.push_back( receiverPartial );
+        }
+    }
+    else if( parameterType.first == estimatable_parameters::gravitational_parameter )
+    {
+        for( const auto& correctionPartial : relativisticLightTimeCorrectionPartials_ )
+        {
+            const std::vector< std::string > perturbingBodies = correctionPartial->getPerturbingBodies( );
+            const auto findIterator = std::find( perturbingBodies.begin( ), perturbingBodies.end( ), parameterType.second.first );
+            if( findIterator == perturbingBodies.end( ) )
+            {
+                continue;
+            }
+            const int bodyIndex = static_cast< int >( std::distance( perturbingBodies.begin( ), findIterator ) );
+
+            // Same scaling as the gamma time-derivative partials above.
+            auto transmitterPartial = correctionPartial->timeDerivativeWrtBodyGravitationalParameter(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::transmitter, bodyIndex );
+            auto receiverPartial = correctionPartial->timeDerivativeWrtBodyGravitationalParameter(
+                    currentLinkEndStates_, currentLinkEndTimes_, observation_models::receiver, bodyIndex );
+            transmitterPartial.first *= -transmitterPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            receiverPartial.first *= receiverPartialScalingTerm_ * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+            totalPartial.push_back( transmitterPartial );
+            totalPartial.push_back( receiverPartial );
+        }
+    }
+    else if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter &&
+             ( transmitterProperTimePartials_ != nullptr || receiverProperTimePartials_ != nullptr ) )
+    {
+        // A missing proper-time model contributes nothing (empty partial).
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
-                transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
-        transmitterPartial.first /= divisionTerm_;
+                std::make_pair( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 0 ), TUDAT_NAN );
+        if( transmitterProperTimePartials_ != nullptr )
+        {
+            transmitterPartial = transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
+            transmitterPartial.first /= divisionTerm_;
+        }
 
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > receiverPartial =
-                receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
-        receiverPartial.first /= divisionTerm_;
+                std::make_pair( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 0 ), TUDAT_NAN );
+        if( receiverProperTimePartials_ != nullptr )
+        {
+            receiverPartial = receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
+            receiverPartial.first /= divisionTerm_;
+        }
 
-        if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
+        if( transmitterProperTimePartials_ == nullptr )
+        {
+            totalPartial.push_back( receiverPartial );
+            totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
+        }
+        else if( receiverProperTimePartials_ == nullptr )
+        {
+            totalPartial.push_back( transmitterPartial );
+        }
+        else if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
         {
             totalPartial.push_back( transmitterPartial );
             totalPartial.push_back( receiverPartial );

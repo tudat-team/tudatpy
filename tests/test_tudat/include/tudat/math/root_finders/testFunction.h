@@ -31,7 +31,7 @@ namespace unit_tests
 //! Simple definition of a test function, so that it can be used by all root-finder unit tests.
 struct TestFunction {
     //! Default destructor.
-    virtual ~TestFunction( ) { }
+    virtual ~TestFunction( ) {}
 
     //! Expected true location of the root.
     virtual double getTrueRootLocation( ) = 0;

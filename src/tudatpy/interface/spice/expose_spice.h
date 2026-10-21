@@ -22,7 +22,7 @@ namespace interface
 namespace spice
 {
 
-void expose_spice( py::module &m );
+void expose_spice( py::module& m );
 
 }
 }  // namespace interface

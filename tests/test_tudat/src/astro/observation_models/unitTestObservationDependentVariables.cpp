@@ -8,18 +8,19 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/utilities.h"
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -28,10 +29,8 @@ namespace unit_tests
 
 using namespace tudat;
 using namespace tudat::observation_models;
-using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::interpolators;
-using namespace tudat::numerical_integrators;
 using namespace tudat::spice_interface;
 using namespace tudat::simulation_setup;
 using namespace tudat::orbital_element_conversions;
@@ -65,7 +64,7 @@ void compareAgainstReference( const std::shared_ptr< ObservationCollection<> > s
             int variableSize = referenceDependentVariables.begin( )->second.rows( );
             auto referenceIterator = referenceDependentVariables.begin( );
             auto computedIterator = computedDependentVariables.begin( );
-            for( auto it: referenceDependentVariables )
+            for( auto it : referenceDependentVariables )
             {
                 BOOST_CHECK_CLOSE_FRACTION( computedIterator->first - referenceIterator->first,
                                             expectedTimeOffset,
@@ -122,6 +121,7 @@ double computeLineSegmentToCenterOfMassDistance( const Eigen::Vector3d lineSegme
  *  corresponding link in other observables yields identical results
  */
 BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
+// int main( )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -491,19 +491,19 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
                         createObservationSimulators( observationSettingsList, bodies );
 
-                // Define ancilliary settings
-                std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr;
+                // Define ancillary settings
+                std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr;
                 double integrationTime = 60.0;
                 double referenceTimeShift = 0.0;
                 if( currentObservableType == dsn_n_way_averaged_doppler )
                 {
-                    ancilliarySettings = getDsnNWayAveragedDopplerAncillarySettings(
+                    ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings(
                             std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, integrationTime );
                 }
                 else if( isDifferencedObservable )
                 {
-                    ancilliarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
-                    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+                    ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+                    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
                 }
 
                 // For differenced observables; shift reference time by half the integration time
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                                 referenceLinkEnd,
                                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
                                 nullptr,
-                                ancilliarySettings ) );
+                                ancillarySettings ) );
                     }
                 }
 
@@ -750,7 +750,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     // Iterate over all times
                     std::vector< double > linkEndTimes;
                     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
-                    for( auto it: elevationAngles1 )
+                    for( auto it : elevationAngles1 )
                     {
                         double currentTime = it.first;
                         double currentElevation = elevationAngles1.at( currentTime )( 0 );
@@ -979,14 +979,14 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
     // Define observation simulation times and ancillary settings
     std::map< ObservableType, std::vector< double > > baseTimeListPerObservable;
-    std::map< ObservableType, std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettingsPerObservable;
-    for( auto linkEndIterator: linkEndsPerObservable )
+    std::map< ObservableType, std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettingsPerObservable;
+    for( auto linkEndIterator : linkEndsPerObservable )
     {
         ObservableType currentObservable = linkEndIterator.first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator.second;
 
-        // Define ancilliary settings
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr;
+        // Define ancillary settings
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr;
         double integrationTime = 60.0;
         double referenceTimeShift = 0.0;
         if( currentObservable == dsn_n_way_averaged_doppler )
@@ -997,11 +997,11 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         }
         else if( currentObservable == n_way_differenced_range )
         {
-            ancillarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
-            ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+            ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+            ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
 
             std::vector< double > delays = std::vector< double >( { 1.0e-3 } );
-            ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, delays );
+            ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, delays );
         }
         ancillarySettingsPerObservable[ currentObservable ] = ancillarySettings;
 
@@ -1134,7 +1134,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
     {
         // Define observation simulation settings
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        for( auto linkEndIt: linkEndsPerObservable )
+        for( auto linkEndIt : linkEndsPerObservable )
         {
             ObservableType observableType = linkEndIt.first;
             std::vector< LinkEnds > linkEndsList = linkEndIt.second;
@@ -1163,21 +1163,23 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
         if( testCase == 1 )
         {
+            idealObservationsAndTimes->clearDependentVariableValues( );
+
             // Add dependent variables after observation collection is created
             std::shared_ptr< ObservationCollectionParser > elevationAngleParser =
-                    idealObservationsAndTimes->addDependentVariable( elevationAngleSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( elevationAngleSettings );
             std::shared_ptr< ObservationCollectionParser > azimuthAngleParser1 =
-                    idealObservationsAndTimes->addDependentVariable( azimuthStationSettings1, bodies );
+                    idealObservationsAndTimes->addDependentVariable( azimuthStationSettings1 );
             std::shared_ptr< ObservationCollectionParser > azimuthAngleParser2 = idealObservationsAndTimes->addDependentVariable(
-                    azimuthStationSettings2, bodies, observationParser( n_way_differenced_range ) );
+                    azimuthStationSettings2, observationParser( n_way_differenced_range ) );
             std::shared_ptr< ObservationCollectionParser > limbDistanceParser =
-                    idealObservationsAndTimes->addDependentVariable( limbDistanceSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( limbDistanceSettings );
             std::shared_ptr< ObservationCollectionParser > moonAngleParser = idealObservationsAndTimes->addDependentVariable(
-                    moonAvoidanceAngleSettings, bodies, observationParser( std::make_pair( "Earth", "Station1" ) ) );
+                    moonAvoidanceAngleSettings, observationParser( std::make_pair( "Earth", "Station1" ) ) );
             std::shared_ptr< ObservationCollectionParser > integrationTimeParser =
-                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings );
             std::shared_ptr< ObservationCollectionParser > retransmissionDelaysParser =
-                    idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings );
 
             // Compute dependent variables
             computeResidualsAndDependentVariables< double, double >( idealObservationsAndTimes, observationSimulators, bodies );
@@ -1195,10 +1197,10 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         }
 
         // Parse all dependent variable types
-        for( auto variableIt: expectedNumberOfSettings )
+        for( auto variableIt : expectedNumberOfSettings )
         {
             // Parse all observable types
-            for( auto observableIt: variableIt.second )
+            for( auto observableIt : variableIt.second )
             {
                 // Retrieve single observation sets for given observable
                 std::vector< std::shared_ptr< SingleObservationSet< double, double > > > observationSets =
@@ -1229,16 +1231,16 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         // Save dependent variables values from first test case
         if( testCase == 0 )
         {
-            for( auto currentSettings: dependentVariablesList )
+            for( auto currentSettings : dependentVariablesList )
             {
                 ObservationDependentVariables variableType = currentSettings->variableType_;
 
                 std::vector< std::vector< Eigen::MatrixXd > > currentDependentVariablesSortedPerSet;
 
-                for( auto set: idealObservationsAndTimes->getSingleObservationSets( ) )
+                for( auto set : idealObservationsAndTimes->getSingleObservationSets( ) )
                 {
                     std::vector< std::pair< int, int > > compatibleIndicesAndSizes;
-                    for( auto it: set->getDependentVariableCalculator( )->getSettingsIndicesAndSizes( ) )
+                    for( auto it : set->getDependentVariableBookkeeping( )->getSettingsIndicesAndSizes( ) )
                     {
                         if( it.second->areSettingsCompatible( currentSettings ) )
                         {
@@ -1248,7 +1250,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
                     std::vector< Eigen::MatrixXd > currentSetDependentVariablesPerSettings;
                     Eigen::MatrixXd currentSetFullDependentVariables = set->getObservationsDependentVariablesMatrix( );
-                    for( auto indicesIt: compatibleIndicesAndSizes )
+                    for( auto indicesIt : compatibleIndicesAndSizes )
                     {
                         Eigen::MatrixXd singleDependentVariableValues =
                                 Eigen::MatrixXd::Zero( currentSetFullDependentVariables.rows( ), indicesIt.second );
@@ -1273,7 +1275,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         // Compare dependent variable values w.r.t. first test case
         if( testCase == 1 )
         {
-            for( auto currentSettings: dependentVariablesList )
+            for( auto currentSettings : dependentVariablesList )
             {
                 std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > > compatibleSettingsList =
                         idealObservationsAndTimes->getCompatibleDependentVariablesSettingsList( currentSettings ).first;
@@ -1324,6 +1326,72 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                 }
             }
         }
+    }
+}
+
+//! Test whether link-end epochs dependent variable returns the internally computed n-way link-end times.
+BOOST_AUTO_TEST_CASE( testNWayRangeLinkEndEpochDependentVariable )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames = { "Earth", "Moon" };
+    const double initialEphemerisTime = 1.0E7;
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth" );
+
+    bodySettings.addSettings( "MoonOrbiter" );
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
+    keplerElements( 0 ) = 2.0E6;
+    keplerElements( 1 ) = 0.1;
+    keplerElements( 2 ) = 1.0;
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings =
+            keplerEphemerisSettings( keplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Moon" ), "Moon" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = LinkEndId( "Earth", "Station1" );
+    twoWayLinkEnds[ reflector1 ] = LinkEndId( "MoonOrbiter", "" );
+    twoWayLinkEnds[ receiver ] = LinkEndId( "Earth", "Station1" );
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( n_way_range, twoWayLinkEnds ) );
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
+            createObservationSimulators( observationSettingsList, bodies );
+
+    std::vector< double > observationTimes = { initialEphemerisTime + 1000.0,
+                                               initialEphemerisTime + 2000.0,
+                                               initialEphemerisTime + 3000.0 };
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back(
+            std::make_shared< TabulatedObservationSimulationSettings<> >( n_way_range, twoWayLinkEnds, observationTimes, receiver ) );
+
+    std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsSettings = linkEndEpochsDependentVariable( n_way_range );
+    addDependentVariablesToObservationSimulationSettings(
+            measurementSimulationInput,
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > >( { linkEndEpochsSettings } ),
+            bodies );
+
+    std::shared_ptr< ObservationCollection<> > simulatedObservations =
+            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+
+    std::map< double, Eigen::VectorXd > linkEndEpochsHistory = simulatedObservations->getDependentVariableHistory( linkEndEpochsSettings );
+    BOOST_CHECK_EQUAL( linkEndEpochsHistory.size( ), observationTimes.size( ) );
+
+    std::shared_ptr< ObservationSimulator< 1, double, double > > nWayRangeObservationSimulator =
+            std::dynamic_pointer_cast< ObservationSimulator< 1, double, double > >( observationSimulators.at( 0 ) );
+    std::shared_ptr< ObservationModel< 1, double, double > > nWayRangeObservationModel =
+            nWayRangeObservationSimulator->getObservationModel( twoWayLinkEnds );
+
+    for( const auto& epochsEntry : linkEndEpochsHistory )
+    {
+        std::vector< double > manualLinkEndTimes;
+        std::vector< Eigen::Vector6d > manualLinkEndStates;
+        nWayRangeObservationModel->computeIdealObservationsWithLinkEndData(
+                epochsEntry.first, receiver, manualLinkEndTimes, manualLinkEndStates );
+
+        BOOST_CHECK_EQUAL( manualLinkEndTimes.size( ), 4 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( epochsEntry.second, utilities::convertStlVectorToEigenVector( manualLinkEndTimes ), 1.0e-14 );
     }
 }
 

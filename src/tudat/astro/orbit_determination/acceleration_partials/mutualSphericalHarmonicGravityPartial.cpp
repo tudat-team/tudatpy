@@ -17,7 +17,8 @@ namespace acceleration_partials
 {
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+MutualSphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > parameterPartial;
@@ -53,7 +54,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmo
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+MutualSphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =

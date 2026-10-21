@@ -11,3 +11,8 @@
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
          )
+
+ TUDAT_ADD_TEST_CASE(FullTwoBodyTorquePartials
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+         )

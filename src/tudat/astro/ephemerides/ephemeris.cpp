@@ -35,9 +35,8 @@ Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const d
     }
     catch( std::runtime_error& caughtException )
     {
-        throw exceptions::EphemerisError< double >( time, caughtException.what() );
+        throw exceptions::EphemerisError< double >( time, caughtException.what( ) );
     }
-
 }
 
 //! Get state from ephemeris, with state scalar as template type (long double specialization).
@@ -50,9 +49,8 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
     }
     catch( std::runtime_error& caughtException )
     {
-        throw exceptions::EphemerisError< double >( time, caughtException.what() );
+        throw exceptions::EphemerisError< double >( time, caughtException.what( ) );
     }
-
 }
 
 //! Get state from ephemeris, with state scalar as template type (double specialization with Time input).
@@ -65,9 +63,8 @@ Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const T
     }
     catch( std::runtime_error& caughtException )
     {
-        throw exceptions::EphemerisError< Time >( time, caughtException.what() );
+        throw exceptions::EphemerisError< Time >( time, caughtException.what( ) );
     }
-
 }
 
 //! Get state from ephemeris, with state scalar as template type (long double specialization with Time input).
@@ -76,14 +73,12 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
 {
     try
     {
-            return getCartesianLongStateFromExtendedTime( time );
+        return getCartesianLongStateFromExtendedTime( time );
     }
     catch( std::runtime_error& caughtException )
     {
-        throw exceptions::EphemerisError< Time >( time, caughtException.what() );
+        throw exceptions::EphemerisError< Time >( time, caughtException.what( ) );
     }
-
-
 }
 
 //! Function to compute the relative state from two state functions.

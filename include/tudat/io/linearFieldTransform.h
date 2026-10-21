@@ -36,10 +36,10 @@ public:
      * \param aSlope Slope of the linear field transform.
      * \param anIntercept Intercept of the linear field transform.
      */
-    LinearFieldTransform( const double aSlope, const double anIntercept ): slope( aSlope ), intercept( anIntercept ) { }
+    LinearFieldTransform( const double aSlope, const double anIntercept ): slope( aSlope ), intercept( anIntercept ) {}
 
     //! Default destructor.
-    ~LinearFieldTransform( ) { }
+    ~LinearFieldTransform( ) {}
 
     //! Transform input string.
     /*!

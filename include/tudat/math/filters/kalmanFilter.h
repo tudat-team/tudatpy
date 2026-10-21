@@ -65,10 +65,10 @@ public:
                                                                       initialStateVector,
                                                                       initialCovarianceMatrix,
                                                                       integratorSettings )
-    { }
+    {}
 
     //! Destructor.
-    virtual ~KalmanFilterBase( ) { }
+    virtual ~KalmanFilterBase( ) {}
 
 protected:
     //! Function to predict the state for the next time step.

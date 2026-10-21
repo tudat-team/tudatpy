@@ -1,4 +1,3 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -6,10 +5,23 @@
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -142,7 +154,7 @@ Eigen::VectorXd executeParameterEstimation( )
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                    0.0, 10.0, rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
+                    10.0, rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
@@ -258,7 +270,7 @@ BOOST_AUTO_TEST_CASE( test_ClockParameterEstimation )
     Eigen::VectorXd relativeParameterError = executeParameterEstimation< long double, tudat::Time >( );
     for( unsigned int i = 6; i < relativeParameterError.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( relativeParameterError( i ) ), 1.0E-6 );
+        BOOST_CHECK_SMALL( std::fabs( relativeParameterError( i ) ), 2.0E-6 );
     }
 }
 

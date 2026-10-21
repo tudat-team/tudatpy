@@ -46,7 +46,7 @@ public:
      */
     explicit OccultationModel( const std::vector< std::string >& occultingBodyNames ):
         numberOfOccultingBodies( occultingBodyNames.size( ) ), occultingBodyNames_( occultingBodyNames )
-    { }
+    {}
 
     virtual ~OccultationModel( ) = default;
 
@@ -87,7 +87,7 @@ public:
     }
 
 private:
-    virtual void updateMembers_( double currentTime ) { }
+    virtual void updateMembers_( double currentTime ) {}
 
     double currentTime_{ TUDAT_NAN };
     unsigned int numberOfOccultingBodies;
@@ -100,7 +100,7 @@ private:
 class NoOccultingBodyOccultationModel : public OccultationModel
 {
 public:
-    explicit NoOccultingBodyOccultationModel( ): OccultationModel( { } ) { }
+    explicit NoOccultingBodyOccultationModel( ): OccultationModel( {} ) {}
 
     double evaluateReceivedFractionFromExtendedSource(
             const Eigen::Vector3d& occultedSourcePosition,
@@ -129,7 +129,7 @@ public:
                                          const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& occultingBodyShapeModel ):
         OccultationModel( { occultingBodyName } ), occultingBodyPositionFunction_( occultingBodyPositionFunction ),
         occultingBodyShapeModel_( occultingBodyShapeModel )
-    { }
+    {}
 
     double evaluateReceivedFractionFromExtendedSource(
             const Eigen::Vector3d& occultedSourcePosition,
@@ -163,7 +163,7 @@ public:
             const std::vector< std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& occultingBodyShapeModels ):
         OccultationModel( occultingBodyNames ), occultingBodyPositionFunctions_( occultingBodyPositionFunctions ),
         occultingBodyShapeModels_( occultingBodyShapeModels ), occultingBodyPositions( occultingBodyNames.size( ) )
-    { }
+    {}
 
     double evaluateReceivedFractionFromExtendedSource(
             const Eigen::Vector3d& occultedSourcePosition,

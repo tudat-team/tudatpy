@@ -16,12 +16,19 @@
 #include <memory>
 #include <vector>
 
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
+
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
@@ -39,35 +46,38 @@ template< typename ObservationScalarType = double,
 class SingleObservationSet
 {
 public:
-    SingleObservationSet(
-            const ObservableType observableType,
-            const LinkDefinition& linkEnds,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType > observationTimes,
-            const LinkEndType referenceLinkEnd,
-            const std::vector< Eigen::VectorXd >& observationsDependentVariables = std::vector< Eigen::VectorXd >( ),
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr ):
+    SingleObservationSet( const ObservableType observableType,
+                          const LinkDefinition& linkEnds,
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+                          const std::vector< TimeType > observationTimes,
+                          const LinkEndType referenceLinkEnd,
+                          const std::vector< Eigen::VectorXd >& observationsDependentVariables = std::vector< Eigen::VectorXd >( ),
+                          const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping = nullptr,
+                          const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
+                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = {},
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
+                          const bool eraseDuplicates = false ):
+
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( observationsDependentVariables ),
-        dependentVariableCalculator_( dependentVariableCalculator ), ancilliarySettings_( ancilliarySettings ),
-        numberOfObservations_( observations_.size( ) )
+        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
+        numberOfObservations_( observations_.size( ) ), weights_( weights ), residuals_( residuals )
     {
-        if( dependentVariableCalculator_ != nullptr )
+        if( dependentVariableBookkeeping_ != nullptr )
         {
-            if( dependentVariableCalculator_->getObservableType( ) != observableType_ )
+            if( dependentVariableBookkeeping_->getObservableType( ) != observableType_ )
             {
-                std::cout << dependentVariableCalculator_->getObservableType( ) << " " << observableType_ << std::endl;
+                std::cout << dependentVariableBookkeeping_->getObservableType( ) << " " << observableType_ << std::endl;
                 throw std::runtime_error(
                         "Error when creating SingleObservationSet, "
-                        "ObservationDependentVariableCalculator has incompatible type " );
+                        "ObservationDependentVariableBookkeeping has incompatible type " );
             }
 
-            if( !( dependentVariableCalculator_->getLinkEnds( ) == linkEnds ) )
+            if( !( dependentVariableBookkeeping_->getLinkEnds( ) == linkEnds ) )
             {
                 throw std::runtime_error(
                         "Error when creating SingleObservationSet, "
-                        "ObservationDependentVariableCalculator has incompatible link ends " );
+                        "ObservationDependentVariableBookkeeping has incompatible link ends " );
             }
         }
 
@@ -88,17 +98,63 @@ public:
         }
 
         singleObservationSize_ = getObservableSize( observableType );
-
-        // Initialise weights
-        for( unsigned int k = 0; k < numberOfObservations_; k++ )
+        if( getObservableSize( observableType ) > 0 && !observations_.empty( ) )
         {
-            weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
+            if( static_cast< unsigned int >( observations_.at( 0 ).rows( ) ) != singleObservationSize_ )
+            {
+                throw std::runtime_error( "Error when making SingleObservationSet, input observable size (" +
+                                          std::to_string( observations_.at( 0 ).rows( ) ) + ") is inconsistent with observable type " +
+                                          getObservableName( observableType ) + " (expected size " +
+                                          std::to_string( singleObservationSize_ ) + ")." );
+            }
+        }
+        // Initialise weights
+        if( weights.size( ) == 0 )
+        {
+            for( unsigned int k = 0; k < numberOfObservations_; k++ )
+            {
+                weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
+            }
+        }
+        else
+        {
+            if( weights.size( ) != observationTimes.size( ) )
+            {
+                throw std::runtime_error( "Error when creating observation set with weights; size is incompatible" );
+            }
+
+            for( std::size_t k = 0; k < weights.size( ); ++k )
+            {
+                if( weights.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
+                {
+                    throw std::runtime_error( "Error when creating observation set with weights; individual weight size is incompatible" );
+                }
+            }
         }
 
-        // Initialise residuals
-        for( unsigned int k = 0; k < numberOfObservations_; k++ )
+        if( residuals.size( ) == 0 )
         {
-            residuals_.push_back( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 ) );
+            // Initialise residuals
+            for( unsigned int k = 0; k < numberOfObservations_; k++ )
+            {
+                residuals_.push_back( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 ) );
+            }
+        }
+        else
+        {
+            if( residuals.size( ) != observationTimes.size( ) )
+            {
+                throw std::runtime_error( "Error when creating observation set with residuals; size is incompatible" );
+            }
+
+            for( std::size_t k = 0; k < residuals.size( ); ++k )
+            {
+                if( residuals.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating observation set with residuals; individual residual size is incompatible" );
+                }
+            }
         }
 
         // Check observation dependent variables size
@@ -111,7 +167,7 @@ public:
                         "dependent variables input should be consistent "
                         "with the number of observations." );
             }
-            if( observationsDependentVariables_[ 0 ].size( ) != dependentVariableCalculator_->getTotalDependentVariableSize( ) )
+            if( observationsDependentVariables_[ 0 ].size( ) != dependentVariableBookkeeping_->getTotalDependentVariableSize( ) )
             {
                 throw std::runtime_error(
                         "Error when creating SingleObservationSet, the size of the observation "
@@ -122,6 +178,12 @@ public:
 
         // Sort observations and metadata per observation time
         orderObservationsAndMetadata( );
+
+        // Erase duplicate observations if requested
+        if( eraseDuplicates )
+        {
+            eraseDuplicateObservations( );
+        }
 
         // Initialise time bounds
         updateTimeBounds( );
@@ -304,11 +366,18 @@ public:
 
     Eigen::MatrixXd getObservationsDependentVariablesMatrix( )
     {
+        // No dependent variable bookkeeping is configured for this set (e.g. sets created without
+        // dependent variables). Return an empty matrix rather than dereferencing a null pointer.
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            return Eigen::MatrixXd::Zero( numberOfObservations_, 0 );
+        }
+
         Eigen::MatrixXd dependentVariablesMatrix =
-                Eigen::MatrixXd::Zero( numberOfObservations_, dependentVariableCalculator_->getTotalDependentVariableSize( ) );
+                Eigen::MatrixXd::Zero( numberOfObservations_, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables_.size( ); i++ )
         {
-            dependentVariablesMatrix.block( i, 0, 1, dependentVariableCalculator_->getTotalDependentVariableSize( ) ) =
+            dependentVariablesMatrix.block( i, 0, 1, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) ) =
                     observationsDependentVariables_[ i ].transpose( );
         }
         return dependentVariablesMatrix;
@@ -330,14 +399,21 @@ public:
     Eigen::MatrixXd getSingleDependentVariable( std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
                                                 const bool returnFirstCompatibleSettings = false )
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting dependent variable, no dependent variable bookkeeping is "
+                    "configured for this observation set." );
+        }
+
         // Retrieve full map of dependent variables start indices and sizes based on settings
         std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > >
-                settingsIndicesAndSizes = dependentVariableCalculator_->getSettingsIndicesAndSizes( );
+                settingsIndicesAndSizes = dependentVariableBookkeeping_->getSettingsIndicesAndSizes( );
 
         // Get the start indices and sizes of all dependent variables that would be compatible with
         // the settings provided as inputs.
         std::vector< std::pair< int, int > > indicesAndSizes;
-        for( auto it: settingsIndicesAndSizes )
+        for( auto it : settingsIndicesAndSizes )
         {
             if( dependentVariableSettings->areSettingsCompatible( it.second ) )
             {
@@ -369,13 +445,16 @@ public:
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getCompatibleDependentVariablesSettingsList(
             std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
     {
-        // Retrieve all dependent variables settings for this observation set
-        std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > allDependentVariablesSettings =
-                dependentVariableCalculator_->getDependentVariableSettings( );
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting compatible dependent variable settings, no dependent variable "
+                    "bookkeeping is configured for this observation set." );
+        }
 
         // Check which settings are compatible with the input settings object
         std::vector< std::shared_ptr< ObservationDependentVariableSettings > > compatibleSettings;
-        for( auto it: allDependentVariablesSettings )
+        for( auto it : dependentVariableBookkeeping_->getDependentVariableSettings( ) )
         {
             if( dependentVariableSettings->areSettingsCompatible( it ) )
             {
@@ -390,13 +469,20 @@ public:
     std::vector< Eigen::MatrixXd > getAllCompatibleDependentVariables(
             std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting compatible dependent variables, no dependent variable "
+                    "bookkeeping is configured for this observation set." );
+        }
+
         // Retrieve start indices and sizes for each dependent variable settings
         std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > >
-                settingsIndicesAndSizes = dependentVariableCalculator_->getSettingsIndicesAndSizes( );
+                settingsIndicesAndSizes = dependentVariableBookkeeping_->getSettingsIndicesAndSizes( );
 
         // Retrieve all relevant dependent variables
         std::vector< Eigen::MatrixXd > dependentVariablesList;
-        for( auto it: settingsIndicesAndSizes )
+        for( auto it : settingsIndicesAndSizes )
         {
             if( dependentVariableSettings->areSettingsCompatible( it.second ) )
             {
@@ -424,8 +510,8 @@ public:
                         "SingleObservationSet, the input size should be consistent "
                         "with the number of observations." );
             }
-            if( ( dependentVariableCalculator_ != nullptr ) &&
-                ( dependentVariables[ 0 ].size( ) != dependentVariableCalculator_->getTotalDependentVariableSize( ) ) )
+            if( ( dependentVariableBookkeeping_ != nullptr ) &&
+                ( dependentVariables[ 0 ].size( ) != dependentVariableBookkeeping_->getTotalDependentVariableSize( ) ) )
             {
                 throw std::runtime_error(
                         "Error when resetting observation dependent variables in "
@@ -437,9 +523,9 @@ public:
         observationsDependentVariables_ = dependentVariables;
     }
 
-    std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > getDependentVariableCalculator( )
+    std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > getDependentVariableBookkeeping( )
     {
-        return dependentVariableCalculator_;
+        return dependentVariableBookkeeping_;
     }
 
     //! Function that returns the time history of all observation dependent variables. It must be noted that the reported epochs are the times at which the
@@ -467,9 +553,9 @@ public:
         return singleDependentVariableMap;
     }
 
-    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > getAncilliarySettings( )
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > getAncillarySettings( )
     {
-        return ancilliarySettings_;
+        return ancillarySettings_;
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
@@ -672,10 +758,43 @@ public:
     void removeObservations( const std::vector< unsigned int >& indicesToRemove )
     {
         unsigned int counter = 0;
-        for( auto ind: indicesToRemove )
+        for( auto ind : indicesToRemove )
         {
             removeSingleObservation( ind - counter );  // observations are already filtered and sorted
             counter += 1;
+        }
+    }
+
+    void eraseDuplicateObservations( )
+    {
+        std::vector< unsigned int > indicesToRemove;
+
+        // Single pass through sorted observations
+        for( unsigned int i = 1; i < numberOfObservations_; i++ )
+        {
+            // Check if current observation time equals previous observation time
+            if( observationTimes_[ i ] == observationTimes_[ i - 1 ] )
+            {
+                const double currentObsValue = observationTimes_[ i ];
+                const double previousObsValue = observationTimes_[ i - 1 ];
+
+                // Check if observation values are also identical (with relative tolerance)
+                if( std::abs( currentObsValue - previousObsValue ) <=
+                    1e-12 * std::max( std::abs( currentObsValue ), std::abs( previousObsValue ) ) )
+                {
+                    // Mark current observation for removal
+                    indicesToRemove.push_back( i );
+                }
+            }
+        }
+
+        // Remove duplicates if any were found
+        if( indicesToRemove.size( ) > 0 )
+        {
+            int beforeCount = numberOfObservations_;
+            removeObservations( indicesToRemove );
+            std::cerr << "[WARNING] Detected and removed " << beforeCount - numberOfObservations_
+                      << "duplicate observations when creating instance of SingleObservationSet" << std::endl;
         }
     }
 
@@ -691,8 +810,8 @@ public:
                     std::vector< TimeType >( ),
                     referenceLinkEnd_,
                     std::vector< Eigen::VectorXd >( ),
-                    dependentVariableCalculator_,
-                    ancilliarySettings_ );
+                    dependentVariableBookkeeping_,
+                    ancillarySettings_ );
         }
         if( !observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
         {
@@ -896,9 +1015,9 @@ public:
 
     void addObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                           const std::vector< TimeType >& times,
-                          const std::vector< Eigen::VectorXd >& dependentVariables = { },
-                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = { },
-                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = { },
+                          const std::vector< Eigen::VectorXd >& dependentVariables = {},
+                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = {},
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
                           const bool sortObservations = true )
     {
         if( ( observations.size( ) != times.size( ) ) || ( weights.size( ) > 0 && ( observations.size( ) != weights.size( ) ) ) ||
@@ -974,78 +1093,78 @@ public:
     }
 
     void addDependentVariables(
-            const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings,
-            const simulation_setup::SystemOfBodies& bodies )
+            const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings )
     {
-        if( dependentVariableCalculator_ == nullptr )
+        if( dependentVariableBookkeeping_ == nullptr )
         {
-            dependentVariableCalculator_ =
-                    std::make_shared< ObservationDependentVariableCalculator >( observableType_, linkEnds_.linkEnds_ );
+            dependentVariableBookkeeping_ =
+                    std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, linkEnds_.linkEnds_ );
         }
-        dependentVariableCalculator_->addDependentVariables( dependentVariableSettings, bodies );
+        else if( observationsDependentVariables_.size( ) != 0 )
+        {
+            throw std::runtime_error(
+                    "Error, cannot add dependent variable settings to SingleObservationSet that has dependent variables calculated "
+                    "already" );
+        }
+        dependentVariableBookkeeping_->addDependentVariables( dependentVariableSettings );
+    }
+
+    void clearDependentVariableValues( )
+    {
+        observationsDependentVariables_.clear( );
     }
 
 private:
+    static std::vector< std::size_t > getTimeSortingPermutation( const std::vector< TimeType >& observationTimes )
+    {
+        const std::size_t numberOfObservations = observationTimes.size( );
+
+        std::vector< std::size_t > permutation( numberOfObservations );
+        for( std::size_t i = 0; i < numberOfObservations; ++i )
+        {
+            permutation[ i ] = i;
+        }
+
+        std::sort( permutation.begin( ), permutation.end( ), [ &observationTimes ]( const std::size_t i, const std::size_t j ) {
+            return observationTimes.at( i ) < observationTimes.at( j );
+        } );
+
+        return permutation;
+    }
+
+    template< typename T >
+    void reorderVectorInPlace( std::vector< T >& data, const std::vector< std::size_t >& permutation )
+    {
+        const std::size_t numberOfElements = data.size( );
+
+        std::vector< T > reorderedData( numberOfElements );
+        for( std::size_t i = 0; i < numberOfElements; ++i )
+        {
+            reorderedData[ i ] = data.at( permutation.at( i ) );
+        }
+
+        data.swap( reorderedData );
+    }
+
     void orderObservationsAndMetadata( )
     {
-        if( !std::is_sorted( observationTimes_.begin( ), observationTimes_.end( ) ) )
+        const std::size_t numberOfObservations = observationTimes_.size( );
+
+        if( numberOfObservations < 2 )
         {
-            if( observations_.size( ) != numberOfObservations_ )
-            {
-                throw std::runtime_error(
-                        "Error when making SingleObservationSet, number of observations is "
-                        "incompatible after time ordering" );
-            }
+            return;
+        }
 
-            std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsMap;
-            for( unsigned int i = 0; i < observations_.size( ); i++ )
-            {
-                observationsMap.insert( { observationTimes_.at( i ), observations_.at( i ) } );
-            }
-            observationTimes_ = utilities::createVectorFromMultiMapKeys( observationsMap );
-            observations_ = utilities::createVectorFromMultiMapValues( observationsMap );
+        const std::vector< std::size_t > permutation = getTimeSortingPermutation( observationTimes_ );
 
-            if( observationsDependentVariables_.size( ) > 0 )
-            {
-                if( observationsDependentVariables_.size( ) != numberOfObservations_ )
-                {
-                    throw std::runtime_error(
-                            "Error when making SingleObservationSet, dependent variables vector "
-                            "size is incompatible after time ordering" );
-                }
-                std::multimap< TimeType, Eigen::VectorXd > observationsDependentVariablesMap;
-                for( unsigned int i = 0; i < observationsDependentVariables_.size( ); i++ )
-                {
-                    observationsDependentVariablesMap.insert( { observationTimes_.at( i ), observationsDependentVariables_.at( i ) } );
-                }
-                observationsDependentVariables_ = utilities::createVectorFromMultiMapValues( observationsDependentVariablesMap );
-            }
+        reorderVectorInPlace( observationTimes_, permutation );
+        reorderVectorInPlace( observations_, permutation );
+        reorderVectorInPlace( weights_, permutation );
+        reorderVectorInPlace( residuals_, permutation );
 
-            if( weights_.size( ) != numberOfObservations_ )
-            {
-                throw std::runtime_error(
-                        "Error when making SingleObservationSet, weights size is incompatible "
-                        "after time ordering" );
-            }
-            std::multimap< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > weightsMap;
-            for( unsigned int i = 0; i < weights_.size( ); i++ )
-            {
-                weightsMap.insert( { observationTimes_.at( i ), weights_.at( i ) } );
-            }
-            weights_ = utilities::createVectorFromMultiMapValues( weightsMap );
-
-            if( residuals_.size( ) != numberOfObservations_ )
-            {
-                throw std::runtime_error(
-                        "Error when making SingleObservationSet, residuals size is incompatible "
-                        "after time ordering" );
-            }
-            std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residualsMap;
-            for( unsigned int i = 0; i < residuals_.size( ); i++ )
-            {
-                residualsMap.insert( { observationTimes_.at( i ), residuals_.at( i ) } );
-            }
-            residuals_ = utilities::createVectorFromMultiMapValues( residualsMap );
+        if( !observationsDependentVariables_.empty( ) )
+        {
+            reorderVectorInPlace( observationsDependentVariables_, permutation );
         }
     }
 
@@ -1074,7 +1193,7 @@ private:
 
         if( moveInFilteredSet )
         {
-            for( auto index: indices )
+            for( auto index : indices )
             {
                 if( index >= numberOfObservations_ )
                 {
@@ -1103,7 +1222,7 @@ private:
         }
         else
         {
-            for( auto index: indices )
+            for( auto index : indices )
             {
                 if( getNumberOfFilteredObservations( ) == 0 )
                 {
@@ -1158,7 +1277,7 @@ private:
         return singleDependentVariable;
     }
 
-    const ObservableType observableType_;
+    ObservableType observableType_;
 
     LinkDefinition linkEnds_;
 
@@ -1168,13 +1287,13 @@ private:
 
     std::vector< TimeType > observationTimes_;
 
-    const LinkEndType referenceLinkEnd_;
+    LinkEndType referenceLinkEnd_;
 
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
-    std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator_;
+    std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
-    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings_;
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     unsigned int numberOfObservations_;
 
@@ -1187,6 +1306,83 @@ private:
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals_;
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
+
+public:
+    bool operator==( const SingleObservationSet& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SingleObservationSet& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const SingleObservationSet& rhs ) const
+    {
+        const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
+            return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
+        };
+
+        return observableType_ == rhs.observableType_ && linkEnds_ == rhs.linkEnds_ && timeBounds_ == rhs.timeBounds_ &&
+                observations_ == rhs.observations_ && observationTimes_ == rhs.observationTimes_ &&
+                referenceLinkEnd_ == rhs.referenceLinkEnd_ && observationsDependentVariables_ == rhs.observationsDependentVariables_ &&
+                pointedObjectsEqual( dependentVariableBookkeeping_, rhs.dependentVariableBookkeeping_ ) &&
+                pointedObjectsEqual( ancillarySettings_, rhs.ancillarySettings_ ) && numberOfObservations_ == rhs.numberOfObservations_ &&
+                singleObservationSize_ == rhs.singleObservationSize_ && weights_ == rhs.weights_ && residuals_ == rhs.residuals_ &&
+                pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ );
+    }
+
+    TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
+
+protected:
+    // Default constructor for serialization
+    SingleObservationSet( ):
+        observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), numberOfObservations_( 0 ),
+        singleObservationSize_( 0 )
+    {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( CEREAL_NVP( weights_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( CEREAL_NVP( weights_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
+    }
 };
 
 template< typename ObservationScalarType = double,
@@ -1212,8 +1408,8 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
                     singleObservationSet->getObservationTimesReference( ),
                     singleObservationSet->getReferenceLinkEnd( ),
                     singleObservationSet->getObservationsDependentVariablesReference( ),
-                    singleObservationSet->getDependentVariableCalculator( ),
-                    singleObservationSet->getAncilliarySettings( ) );
+                    singleObservationSet->getDependentVariableBookkeeping( ),
+                    singleObservationSet->getAncillarySettings( ) );
     newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
     newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
@@ -1253,7 +1449,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
             std::vector< double > timeTags =
                     std::dynamic_pointer_cast< ObservationSetSplitter< std::vector< double > > >( observationSetSplitter )
                             ->getSplitterValue( );
-            for( auto currentTimeTag: timeTags )
+            for( auto currentTimeTag : timeTags )
             {
                 if( currentTimeTag > observationSet->getTimeBounds( ).first )
                 {
@@ -1356,8 +1552,8 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                         utilities::getStlVectorSegment( observationSet->getObservationTimesReference( ), startIndex, sizeCurrentSet ),
                         observationSet->getReferenceLinkEnd( ),
                         newDependentVariables,
-                        observationSet->getDependentVariableCalculator( ),
-                        observationSet->getAncilliarySettings( ) );
+                        observationSet->getDependentVariableBookkeeping( ),
+                        observationSet->getAncillarySettings( ) );
 
         Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
                 weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );

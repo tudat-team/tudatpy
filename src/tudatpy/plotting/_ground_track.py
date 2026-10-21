@@ -1,13 +1,14 @@
 import os
 
 if bool(os.getenv("READTHEDOCS")):
-    os.environ['PROJ_LIB'] = "/home/docs/checkouts/readthedocs.org/user_builds/tudatpy/share/proj"
+    os.environ["PROJ_LIB"] = "/home/docs/checkouts/readthedocs.org/user_builds/tudatpy/share/proj"
 else:
-    os.environ['PROJ_LIB'] = os.environ['CONDA_PREFIX'] + '/share/proj'
+    os.environ["PROJ_LIB"] = os.environ["CONDA_PREFIX"] + "/share/proj"
 
 import numpy as np
 import matplotlib.pyplot as plt
-#from mpl_toolkits.basemap import Basemap
+
+# from mpl_toolkits.basemap import Basemap
 
 #
 # def plot_blue_marble_ground_track(lon: np.ndarray, lat: np.ndarray, lat_0: float = 0, lon_0: float = 0):

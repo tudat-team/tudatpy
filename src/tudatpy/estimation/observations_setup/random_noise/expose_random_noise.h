@@ -11,12 +11,7 @@
 #ifndef TUDATPY_EXPOSE_RANDOM_NOISE_H
 #define TUDATPY_EXPOSE_RANDOM_NOISE_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 
 namespace py = pybind11;
 
@@ -30,7 +25,7 @@ namespace observations_setup
 namespace random_noise
 {
 
-void expose_random_noise( py::module &m );
+void expose_random_noise( py::module& m );
 
 }  // namespace random_noise
 }  // namespace observations_setup

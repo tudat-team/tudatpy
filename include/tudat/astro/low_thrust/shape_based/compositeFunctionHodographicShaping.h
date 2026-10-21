@@ -30,13 +30,13 @@ public:
             const std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >& compositeFunctionComponents,
             const Eigen::VectorXd& compositeFunctionCoefficients ):
         compositeFunctionComponents_( compositeFunctionComponents ), compositeFunctionCoefficients_( compositeFunctionCoefficients )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CompositeFunctionHodographicShaping( ) { }
+    ~CompositeFunctionHodographicShaping( ) {}
 
     //! Return coefficients.
     /*!

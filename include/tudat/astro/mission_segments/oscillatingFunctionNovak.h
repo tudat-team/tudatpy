@@ -76,13 +76,13 @@ public:
      */
     OscillatingFunctionNovak( const std::function< std::pair< Eigen::Vector2d, const Eigen::Vector2d >( ) > aSetOfBoundaryParameters ):
         boundaryParameters_( aSetOfBoundaryParameters )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~OscillatingFunctionNovak( ) { }
+    ~OscillatingFunctionNovak( ) {}
 
     //! Evaluate the function value for a given (in-plane) azimuthal angle.
     /*!

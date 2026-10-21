@@ -15,5 +15,7 @@
 #include "relativity/relativisticAccelerationCorrection.h"
 #include "relativity/relativisticLightTimeCorrection.h"
 #include "relativity/relativisticTimeConversion.h"
+#include "relativity/relativisticPotentials.h"
+#include "relativity/relativisticEquationsOfMotion.h"
 
 #endif  // TUDAT_RELATIVITY_H

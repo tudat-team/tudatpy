@@ -47,24 +47,39 @@ public:
                     lightTimeCalculators,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                    std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator )
-    {
-        multiLegLightTimeCalculator_ =
-                std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
-                        lightTimeCalculators, lightTimeConvergenceCriteria );
-    }
+                    std::make_shared< LightTimeConvergenceCriteria >( ),
+            const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
+            const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                n_way_range,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                                lightTimeCalculators,
+                                lightTimeConvergenceCriteria ) } ),
+        scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates )
+    {}
 
     NWayRangeObservationModel( const LinkEnds& linkEnds,
-                               const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-                                       multiLegLightTimeCalculator,
-                               const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
-        multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
-    { }
+                               const std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
+                                       fullLinkLightTimeCalculator,
+                               const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+                               const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
+                               const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+                                       std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                n_way_range,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        fullLinkLightTimeCalculator } ),
+        scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates )
+    {}
 
     //! Destructor
-    ~NWayRangeObservationModel( ) { }
+    ~NWayRangeObservationModel( ) {}
 
     //! Function to compute n-way range observable without any corrections.
     /*!
@@ -89,10 +104,35 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) override
     {
-        ObservationScalarType totalLightTime = multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsToUse;
+        std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator =
+                getFullLinkLightTimeCalculator( );
+        this->setFrequencyProperties(
+                time, linkEndAssociatedWithTime, fullLinkLightTimeCalculator, ancillarySetings, ancillarySetingsToUse );
+
+        ObservationScalarType totalLightTime = fullLinkLightTimeCalculator->calculateLightTimeWithLinkEndsStates(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetingsToUse );
+
+        if( scaleForTimeDifference_ != basic_astrodynamics::tdb_scale )
+        {
+            Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( receiver )->getNominalCartesianPosition( );
+
+            Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( transmitter )->getNominalCartesianPosition( );
+
+            TimeType transmissionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.front( ), nominalTransmittingStationState );
+            TimeType receptionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.back( ), nominalReceivingStationState );
+
+            totalLightTime += static_cast< ObservationScalarType >( receptionTimeDifference );
+            totalLightTime -= static_cast< ObservationScalarType >( transmissionTimeDifference );
+        }
 
         // Return total range observation.
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
@@ -102,17 +142,33 @@ public:
 
     std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )
     {
-        return multiLegLightTimeCalculator_->getLightTimeCalculators( );
+        return this->getLightTimeCalculatorsFromBase( );
     }
 
-    std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > getMultiLegLightTimeCalculator( )
+    std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getFullLinkLightTimeCalculator( )
     {
-        return multiLegLightTimeCalculator_;
+        return this->getFullLinkLightTimeCalculatorFromBase( );
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
+        const auto legCalculators = this->getLightTimeCalculatorsFromBase( );
+        const int numberOfLinkEnds = static_cast< int >( legCalculators.size( ) ) + 1;
+        for( unsigned int i = 0; i < legCalculators.size( ); i++ )
+        {
+            const auto fromType = getNWayLinkEnumFromIndex( static_cast< int >( i ), numberOfLinkEnds );
+            const auto toType = getNWayLinkEnumFromIndex( static_cast< int >( i ) + 1, numberOfLinkEnds );
+            legMap[ std::make_pair( fromType, toType ) ].push_back( legCalculators.at( i ) );
+        }
+        return legMap;
     }
 
 private:
-    // Object that iteratively computes the light time of multiple legs
-    std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
+    basic_astrodynamics::TimeScales scaleForTimeDifference_;
+
+    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 };
 
 }  // namespace observation_models

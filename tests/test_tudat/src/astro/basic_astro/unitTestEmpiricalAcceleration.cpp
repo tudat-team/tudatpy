@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 #include <thread>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -25,9 +24,9 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 
@@ -137,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
 
         // Define integrator settings
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                0.0, fixedStepSize, rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
+                fixedStepSize, rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
         // Define propagator settings
         TranslationalPropagatorType propagatorType = encke;

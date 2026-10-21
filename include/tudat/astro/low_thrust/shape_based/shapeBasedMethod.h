@@ -33,10 +33,10 @@ public:
     //! Empty constructor.
     ShapeBasedMethod( const Eigen::Vector6d& stateAtDeparture, const Eigen::Vector6d& stateAtArrival, const double timeOfFlight ):
         LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, false )
-    { }
+    {}
 
     //! Default destructor.
-    virtual ~ShapeBasedMethod( ) { }
+    virtual ~ShapeBasedMethod( ) {}
 
     //! Returns initial value of the independent variable.
     virtual double getInitialValueInpendentVariable( ) = 0;

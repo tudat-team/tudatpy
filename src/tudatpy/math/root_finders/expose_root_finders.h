@@ -23,7 +23,7 @@ namespace math
 namespace root_finders
 {
 
-void expose_root_finders( py::module &m );
+void expose_root_finders( py::module& m );
 
 }
 

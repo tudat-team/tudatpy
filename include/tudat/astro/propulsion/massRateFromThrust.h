@@ -57,10 +57,10 @@ public:
      */
     FromThrustMassRateModel( const std::vector< std::shared_ptr< ThrustAcceleration > > thrustAccelerations ):
         thrustAccelerations_( thrustAccelerations )
-    { }
+    {}
 
     //! Destructor.
-    ~FromThrustMassRateModel( ) { }
+    ~FromThrustMassRateModel( ) {}
 
     //! Update member variables used by the mass rate model and compute the mass rate
     /*!

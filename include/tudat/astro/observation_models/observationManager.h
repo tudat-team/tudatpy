@@ -17,7 +17,6 @@
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
-#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -64,7 +63,7 @@ public:
     }
 
     //! Virtual destructor
-    virtual ~ObservationManagerBase( ) { }
+    virtual ~ObservationManagerBase( ) {}
 
     //! Pure virtual function to return the size of the observable for a given set of link ends
     /*!
@@ -88,7 +87,7 @@ public:
             const std::vector< TimeType >& times,
             const LinkEnds linkEnds,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
             Eigen::MatrixXd& partialsMatrix,
             const bool calculateObservations = true,
@@ -172,18 +171,15 @@ public:
                     std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >
                     observationPartials,
             const std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling > > observationPartialScalers,
-            const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
-            const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
-                    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) ):
+            const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface ):
         ObservationManagerBase< ObservationScalarType, TimeType >( observableType,
                                                                    stateTransitionMatrixInterface,
                                                                    observationPartialScalers ),
-        observationSimulator_( observationSimulator ), observationPartials_( observationPartials ),
-        dependentVariablesInterface_( dependentVariablesInterface )
-    { }
+        observationSimulator_( observationSimulator ), observationPartials_( observationPartials )
+    {}
 
     //! Virtual destructor
-    virtual ~ObservationManager( ) { }
+    virtual ~ObservationManager( ) {}
 
     //! Function to return the size of the observable for a given set of link ends
     /*!
@@ -231,7 +227,7 @@ public:
             const std::vector< TimeType >& times,
             const LinkEnds linkEnds,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
             Eigen::MatrixXd& partialsMatrix,
             const bool calculateObservations = true,
@@ -250,6 +246,7 @@ public:
         std::vector< double > vectorOfTimes;
 
         Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation;
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation;
 
         // Iterate over all observation times
         int currentObservationSize;
@@ -262,14 +259,15 @@ public:
             {
                 // Compute observation
                 currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, idealObservation, ancillarySettings );
             }
-            catch ( std::runtime_error& caughtException )
+            catch( std::runtime_error& caughtException )
             {
                 throw std::runtime_error( "Error computing observation of type " +
-                    observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
-                    " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( static_cast< double >( times[ i ] ) ) +
-                    ".\nOriginal error: " + std::string( caughtException.what( ) ) );
+                                          observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
+                                          " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " +
+                                          std::to_string( static_cast< double >( times[ i ] ) ) +
+                                          ".\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
 
             TimeType saveTime = times[ i ];
@@ -288,24 +286,23 @@ public:
 
             if( calculatePartials )
             {
-
                 try
                 {
                     partialsMatrices[ saveTime ] = determineObservationPartialMatrix( currentObservationSize,
-                                                                                  vectorOfStates,
-                                                                                  vectorOfTimes,
-                                                                                  linkEnds,
-                                                                                  currentObservation,
-                                                                                  linkEndAssociatedWithTime,
-                                                                                  ancilliarySettings );
+                                                                                      vectorOfStates,
+                                                                                      vectorOfTimes,
+                                                                                      linkEnds,
+                                                                                      idealObservation,
+                                                                                      linkEndAssociatedWithTime,
+                                                                                      ancillarySettings );
                 }
-                catch ( std::runtime_error& caughtException )
+                catch( std::runtime_error& caughtException )
                 {
                     throw std::runtime_error( "Error computing partials for observation of type " +
-                        observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
-                        " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( static_cast< double >( times[ i ] ) ) +
-                        ".\nOriginal error: " + std::string( caughtException.what( ) ) );
-
+                                              observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
+                                              " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " +
+                                              std::to_string( static_cast< double >( times[ i ] ) ) +
+                                              ".\nOriginal error: " + std::string( caughtException.what( ) ) );
                 }
             }
         }
@@ -356,7 +353,7 @@ protected:
      *  \param times List of states at each link end during observation
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  \param currentObservation Value of observation for which partial scaling is to be computed
+     *  \param currentObservation Ideal value of observation for which partial scaling is to be computed
      */
     virtual void updatePartials( const std::vector< Eigen::Vector6d >& states,
                                  const std::vector< double >& times,
@@ -380,7 +377,7 @@ protected:
      *  \param times Times at link ends (reception, transmission, reflection, etc. ), order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
-     *  \param currentObservation Value of observation for which partials are to be computed
+     *  \param currentObservation Ideal value of observation for which partials are to be computed
      *  \param linkEndAssociatedWithTime Reference link end for observations
      *  \return Matrix of partial derivative of observation w.r.t. parameter vector.
      */
@@ -391,7 +388,7 @@ protected:
             const LinkEnds& linkEnds,
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings )
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
     {
         // Initialize partial vector of observation w.r.t. all parameter.
         int fullParameterVector = stateTransitionMatrixInterface_->getFullParameterVectorSize( );
@@ -409,7 +406,7 @@ protected:
 
         // Get list of bodies involved in linkEnds
         std::vector< std::string > bodiesInLinkEnds;
-        for( auto itr: linkEnds )
+        for( auto itr : linkEnds )
         {
             if( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), itr.second.bodyName_ ) == 0 )
             {
@@ -444,7 +441,7 @@ protected:
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
                     partialIterator->second->calculatePartial(
-                            states, times, linkEndAssociatedWithTime, ancilliarySettings, currentObservation.template cast< double >( ) );
+                            states, times, linkEndAssociatedWithTime, ancillarySettings, currentObservation.template cast< double >( ) );
 
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.
@@ -495,8 +492,6 @@ protected:
     //! Pre-declared map used in computation of partials.
     std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
             currentLinkEndPartials;
-
-    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface_;
 };
 
 //

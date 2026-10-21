@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -16,7 +15,7 @@
 #include <numeric>
 #include <map>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -72,9 +71,9 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModelPositionInvariance )
     const auto radius = 3;
 
     // Iterate over arbitrary values for zenith and azimuth angles
-    for( double zenithAngle: { 0., 0.743, 1.903, PI } )
+    for( double zenithAngle : { 0., 0.743, 1.903, PI } )
     {
-        for( double azimuthAngle: { 0., 0.984, 2.579, 2 * PI } )
+        for( double azimuthAngle : { 0., 0.984, 2.579, 2 * PI } )
         {
             auto targetPosition =
                     coordinate_conversions::convertSphericalToCartesian( Eigen::Vector3d( radius, zenithAngle, azimuthAngle ) );
@@ -88,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModelPositionInvariance )
     }
 
     // Check that all calculated irradiances are identical
-    for( auto& e: actualIrradiances )
+    for( auto& e : actualIrradiances )
     {
         BOOST_CHECK_CLOSE_FRACTION( e, actualIrradiances.front( ), 1e-15 );
     }
@@ -104,13 +103,13 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Generation )
     const auto n = 10;
     const auto radius = 1000;
 
-    const std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels{ };
+    const std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels{};
 
     // Does not depend on original source
-    const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels{ };
-    const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels{ };
-    const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions{ };
-    const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels{ };
+    const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels{};
+    const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels{};
+    const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions{};
+    const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels{};
     auto sourcePanelRadiosityModelUpdater =
             std::make_unique< SourcePanelRadiosityModelUpdater >( [] { return Eigen::Vector3d::Zero( ); },
                                                                   [] { return Eigen::Quaterniond::Identity( ); },
@@ -129,7 +128,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Generation )
     BOOST_CHECK_EQUAL( panels.size( ), n );
 
     // Check radial position and normal of all panels
-    for( auto& panel: panels )
+    for( auto& panel : panels )
     {
         BOOST_CHECK_CLOSE( panel.getRelativeCenter( ).norm( ), radius, 1.0e-10 );
 
@@ -339,10 +338,10 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_CentralCapOnly 
     baseRadiosityModels.push_back( std::make_unique< ConstantSourcePanelRadiosityModel >( radiosity ) );
 
     // Constant radiosity does not depend on original source
-    const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels{ };
-    const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels{ };
-    const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions{ };
-    const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels{ };
+    const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels{};
+    const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels{};
+    const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions{};
+    const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels{};
     auto sourcePanelRadiosityModelUpdater =
             std::make_unique< SourcePanelRadiosityModelUpdater >( [] { return Eigen::Vector3d::Zero( ); },
                                                                   [] { return Eigen::Quaterniond::Identity( ); },
@@ -354,7 +353,7 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_CentralCapOnly 
     DynamicallyPaneledRadiationSourceModel radiationSourceModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( radius ),
                                                                  std::move( sourcePanelRadiosityModelUpdater ),
                                                                  baseRadiosityModels,
-                                                                 { } );
+                                                                 {} );
 
     // Timestep 1
     const auto altitude1 = 2;
@@ -391,10 +390,10 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_PanelMoving )
     baseRadiosityModels.push_back( std::make_unique< ConstantSourcePanelRadiosityModel >( 1 ) );
 
     // Constant radiosity does not depend on original source
-    const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels{ };
-    const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels{ };
-    const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions{ };
-    const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels{ };
+    const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels{};
+    const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels{};
+    const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions{};
+    const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels{};
     auto sourcePanelRadiosityModelUpdater =
             std::make_unique< SourcePanelRadiosityModelUpdater >( [] { return Eigen::Vector3d::Zero( ); },
                                                                   [] { return Eigen::Quaterniond::Identity( ); },
@@ -413,7 +412,7 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_PanelMoving )
     radiationSourceModel.updateMembers( 0 );
     radiationSourceModel.evaluateIrradianceAtPosition( targetPosition1 );
 
-    for( const auto& panel: radiationSourceModel.getPanels( ) )
+    for( const auto& panel : radiationSourceModel.getPanels( ) )
     {
         // Panel normal should point towards north
         BOOST_CHECK( panel.getSurfaceNormal( ).dot( north ) > 0 );
@@ -426,7 +425,7 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_PanelMoving )
     radiationSourceModel.updateMembers( 1 );
     radiationSourceModel.evaluateIrradianceAtPosition( targetPosition2 );
 
-    for( const auto& panel: radiationSourceModel.getPanels( ) )
+    for( const auto& panel : radiationSourceModel.getPanels( ) )
     {
         // Panel normal should point towards south
         BOOST_CHECK( panel.getSurfaceNormal( ).dot( north ) < 0 );
@@ -457,7 +456,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         // North pole
         const auto expectedLatitude = PI / 2;
 
-        std::vector< std::unique_ptr< SourcePanelRadiosityModel > > emptyRadiosityModels{ };
+        std::vector< std::unique_ptr< SourcePanelRadiosityModel > > emptyRadiosityModels{};
         const auto panel =
                 RadiationSourcePanel( 1, Eigen::Vector3d( 0, 0, 100 ), Eigen::Vector3d( 0, 0, 1 ), std::move( emptyRadiosityModels ) );
 
@@ -469,7 +468,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         // South pole
         const auto expectedLatitude = -PI / 2;
 
-        std::vector< std::unique_ptr< SourcePanelRadiosityModel > > emptyRadiosityModels{ };
+        std::vector< std::unique_ptr< SourcePanelRadiosityModel > > emptyRadiosityModels{};
         const auto panel =
                 RadiationSourcePanel( 1, Eigen::Vector3d( 0, 0, -100 ), Eigen::Vector3d( 00, 0, -1 ), std::move( emptyRadiosityModels ) );
 
@@ -482,7 +481,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         const auto expectedLatitude = 0;
         const auto expectedLongitude = -PI / 4;
 
-        std::vector< std::unique_ptr< SourcePanelRadiosityModel > > emptyRadiosityModels{ };
+        std::vector< std::unique_ptr< SourcePanelRadiosityModel > > emptyRadiosityModels{};
         const auto panel = RadiationSourcePanel(
                 1, Eigen::Vector3d( 100, -100, 0 ), Eigen::Vector3d( 1, -1, 0 ).normalized( ), std::move( emptyRadiosityModels ) );
 

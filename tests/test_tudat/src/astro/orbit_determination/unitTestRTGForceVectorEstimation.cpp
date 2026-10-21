@@ -8,18 +8,26 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include <thread>
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 
 namespace tudat
@@ -53,7 +61,6 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
     double initialEphemerisTime = 1E07;
     double finalEphemerisTime = initialEphemerisTime + numberOfDaysOfData * 86400.0;
 
-
     // Create bodies needed in simulation
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -69,45 +76,44 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
 
-
     ///////////// DYNAMICAL MODEL SETUP /////////////////////////////////////////////////
 
     // Define Relevant Epochs
     double referenceEpoch = initialEphemerisTime;
 
     // Define function describing rotational ephemeris of vehicle
-    std::function<Eigen::Matrix3d(double)> timeDependentRotationFunction =
-    [](double epoch) {
-        double angleRad = 1/70. * epoch * mathematical_constants::PI / 180.0;
-        return Eigen::AngleAxisd(angleRad, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    std::function< Eigen::Matrix3d( double ) > timeDependentRotationFunction = []( double epoch ) {
+        double angleRad = 1 / 70. * epoch * mathematical_constants::PI / 180.0;
+        return Eigen::AngleAxisd( angleRad, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
     };
 
     // Assign and update
     bodies.at( "Vehicle" )
-            ->setRotationalEphemeris( createRotationModel( std::make_shared< CustomRotationModelSettings >(
-                                                                   "ECLIPJ2000",
-                                                                   "VehicleFixed",
-                                                                   timeDependentRotationFunction,
-                                                                   1.0 ),
-                                                           "Vehicle",
-                                                           bodies ) );
+            ->setRotationalEphemeris( createRotationModel(
+                    std::make_shared< CustomRotationModelSettings >( "ECLIPJ2000", "VehicleFixed", timeDependentRotationFunction, 1.0 ),
+                    "Vehicle",
+                    bodies ) );
     bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrameFromEphemeris( referenceEpoch );
 
     // Define function describing mass function of vehicle
     double initialVehicleMass = 5000;
 
     // Define vehicle mass function
-    std::function<double(double)> vehicleMassFunction =
-        [=](double epoch) {
-            //double delta_epoch = epoch - referenceEpoch;
-            double delta_test = epoch - initialEphemerisTime - 20000;
-            if (delta_test > -1000. && delta_test <= 1000.) {
-                return initialVehicleMass - (delta_test+1000.);
-            } else if (delta_test <= -1000.) {
-                return initialVehicleMass;
-            } else {
-                return initialVehicleMass - 2000.;
-            }
+    std::function< double( double ) > vehicleMassFunction = [ = ]( double epoch ) {
+        // double delta_epoch = epoch - referenceEpoch;
+        double delta_test = epoch - initialEphemerisTime - 20000;
+        if( delta_test > -1000. && delta_test <= 1000. )
+        {
+            return initialVehicleMass - ( delta_test + 1000. );
+        }
+        else if( delta_test <= -1000. )
+        {
+            return initialVehicleMass;
+        }
+        else
+        {
+            return initialVehicleMass - 2000.;
+        }
     };
 
     // Assign and Update
@@ -116,7 +122,7 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
 
     Eigen::Vector3d rtgForceVectorValues;
     rtgForceVectorValues << 0.5E-5, 0.5E-5, 0.5E-5;
-    double decayScaleFactor = 1.5e-05;       // corresponding to a half-life of approximately half a day
+    double decayScaleFactor = 1.5e-05;  // corresponding to a half-life of approximately half a day
 
     // Define origin of integration
     std::vector< std::string > bodiesToPropagate;
@@ -124,7 +130,6 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
 
     bodiesToPropagate.push_back( "Vehicle" );
     centralBodies.push_back( "Earth" );
-
 
     /////////////    /////////////////////////////////////////////////
 
@@ -151,14 +156,15 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
-    accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< RTGAccelerationSettings >(rtgForceVectorValues, decayScaleFactor, referenceEpoch));
+    accelerationsOfVehicle[ "Vehicle" ].push_back(
+            std::make_shared< RTGAccelerationSettings >( rtgForceVectorValues, decayScaleFactor, referenceEpoch ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel = accelerationModelMap[ "Vehicle"] ["Vehicle"][ 0 ];
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel = accelerationModelMap[ "Vehicle" ][ "Vehicle" ][ 0 ];
 
     // Dynamic cast acceleration settings to required type and check consistency.
     std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
@@ -182,14 +188,21 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
     Eigen::Matrix< double, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( initialStateInKeplerianElements, earthGravitationalParameter );
 
+    // Create integrator settings.
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+            40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
     // Create propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, cowell );
-
-    // Create integrator settings.
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            initialEphemerisTime, 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell );
 
     // Define link ends.
     std::vector< LinkDefinition > stationReceiverLinkEnds;
@@ -218,22 +231,22 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
     linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
     linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
 
-
-    for (int i=0; i<=1; i++)
-
+    for( int i = 0; i <= 1; i++ )
 
     {
         // Define parameters to be estimated.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
                 getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-        int parameter_size;
-        if (i==0){
+        int parameterSize;
+        if( i == 0 )
+        {
             parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", rtg_force_vector ) );
-            parameter_size=3;
+            parameterSize = 3;
         }
-        else if (i==1){
+        else if( i == 1 )
+        {
             parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", rtg_force_vector_magnitude ) );
-            parameter_size=1;
+            parameterSize = 1;
         }
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", rotation_pole_position ) );
@@ -261,8 +274,8 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
         }
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         // Compute list of observation times.
         std::vector< double > baseTimeList;
@@ -315,7 +328,7 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
         parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
 
         // Perturb deltaVs estimate.
-        for( unsigned int i = 6; i < 6 + parameter_size; i++ )
+        for( int i = 6; i < 6 + parameterSize; i++ )
         {
             parameterPerturbation[ i ] = 1.0e-6;
         }
@@ -346,23 +359,23 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - estimationOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
         }
         // Radiation pressure and drag coefficients.
-        //BOOST_CHECK_SMALL( std::fabs( truthParameters( 6 ) - estimationOutput->parameterEstimate_( 6 ) ), 1.0e-4 );
-        //BOOST_CHECK_SMALL( std::fabs( truthParameters( 7 ) - estimationOutput->parameterEstimate_( 7 ) ), 1.0e-4 );
+        // BOOST_CHECK_SMALL( std::fabs( truthParameters( 6 ) - estimationOutput->parameterEstimate_( 6 ) ), 1.0e-4 );
+        // BOOST_CHECK_SMALL( std::fabs( truthParameters( 7 ) - estimationOutput->parameterEstimate_( 7 ) ), 1.0e-4 );
 
         // rtg parameter values.
-        for( unsigned int i = 6; i < 6 + parameter_size; i++ )
+        for( int i = 6; i < 6 + parameterSize; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-9 );
         }
 
         // Earth pole position.
-        for( unsigned int i = 6 + parameter_size; i < 8+parameter_size; i++ )
+        for( int i = 6 + parameterSize; i < 8 + parameterSize; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-12 );
         }
 
         // Ground station position.
-        for( unsigned int i = 8+parameter_size; i < 11+parameter_size; i++ )
+        for( int i = 8 + parameterSize; i < 11 + parameterSize; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-6 );
         }

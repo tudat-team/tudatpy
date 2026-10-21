@@ -18,7 +18,6 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/rotationRepresentations.h"
-#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -115,21 +114,81 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         currentAerodynamicAngles_[ latitude_angle ] = mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
         currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
 
-        // Compute wind velocity vector
+        // Compute wind velocity vector (used in both cases)
         Eigen::Vector3d localWindVelocity = Eigen::Vector3d::Zero( );
         if( windModel_ != nullptr )
         {
+            // Determine whether to use radius or altitude based on wind model configuration
+            double altitudeOrRadius;
+            if( windModel_->getUseRadius( ) )
+            {
+                // Use radius (norm of position vector)
+                altitudeOrRadius = currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ).norm( );
+            }
+            else
+            {
+                // Use altitude (from shape model)
+                altitudeOrRadius = shapeModel_->getAltitude( currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) );
+            }
+
             localWindVelocity = getRotationQuaternionBetweenFrames( windModel_->getAssociatedFrame( ), corotating_frame ) *
-                    windModel_->getCurrentBodyFixedCartesianWindVelocity(
-                            shapeModel_->getAltitude( currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) ),
-                            currentAerodynamicAngles_[ longitude_angle ],
-                            currentAerodynamicAngles_[ latitude_angle ],
-                            currentTime );
+                    windModel_->getCurrentBodyFixedCartesianWindVelocity( altitudeOrRadius,
+                                                                          currentAerodynamicAngles_[ longitude_angle ],
+                                                                          currentAerodynamicAngles_[ latitude_angle ],
+                                                                          currentTime );
         }
 
+        currentLocalWindVelocity_ = localWindVelocity;
+
         // Compute airspeed-based velocity vector
-        currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
-        currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= localWindVelocity;
+        if( includeAtmosphericRotation_ )
+        {
+            // Standard behavior: atmosphere co-rotates with the body
+            // The body-fixed velocity already includes the rotational component
+            // Airspeed = groundspeed - wind
+            currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
+            currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= localWindVelocity;
+        }
+        else
+        {
+            // NOTE: IDEs may falsely flag this block as "unreachable code" because all C++ wind model
+            // constructors default includeCorotation to true. However, this block IS reachable when users
+            // set include_corotation=False via Python bindings:
+            //
+            // Flow diagram when co-rotation is disabled:
+            //   Python: include_corotation=False (in custom_wind_model() or coma_settings.wind_settings)
+            //       ↓
+            //   C++ WindModel: includeCorotation_ = false
+            //       ↓
+            //   createFlightConditions.cpp: reads flag from wind model
+            //       ↓
+            //   AerodynamicAngleCalculator: includeAtmosphericRotation_ = false
+            //       ↓
+            //   THIS BLOCK EXECUTES: computes airspeed = groundspeed - Ṙ*r - wind
+            //
+            // Atmospheric rotation disabled: atmosphere does NOT co-rotate with the body
+            // The body-fixed groundspeed velocity contains: v_bodyfixed = Ṙ*r + R*v_inertial
+            // For non-rotating atmosphere, we need airspeed = R*v_inertial (velocity relative to inertial atmosphere)
+            // Therefore: v_airspeed = v_bodyfixed - Ṙ*r - wind
+
+            // Compute rotational velocity component Ṙ*r_inertial
+            // Note: transformStateToFrameFromRotations uses Ṙ*r_inertial, not Ṙ*r_bodyfixed
+            Eigen::Vector3d rotationalVelocity = Eigen::Vector3d::Zero( );
+            if( rotationMatrixDerivativeToLocalFrameFunction_ )
+            {
+                // First convert position from body-fixed to inertial frame
+                Eigen::Vector3d r_inertial =
+                        currentRotationFromCorotatingToInertialFrame_ * currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 );
+                // Then compute Ṙ*r_inertial (rotational velocity in body-fixed frame)
+                Eigen::Matrix3d rotationMatrixDerivative = rotationMatrixDerivativeToLocalFrameFunction_( );
+                rotationalVelocity = rotationMatrixDerivative * r_inertial;
+            }
+
+            // Compute airspeed by removing rotational velocity and wind
+            currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
+            currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= rotationalVelocity;
+            currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= localWindVelocity;
+        }
 
         // Calculate vertical <-> aerodynamic <-> body-fixed angles if neede.
         if( calculateVerticalToAerodynamicFrame_ )
@@ -351,31 +410,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
 double AerodynamicAngleCalculator::getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId )
 {
     return currentAerodynamicAngles_.at( angleId );
-}
-
-//! Function to set the trajectory<->body-fixed orientation angles.
-void AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved1( const std::function< double( ) > angleOfAttackFunction,
-                                                                       const std::function< double( ) > angleOfSideslipFunction,
-                                                                       const std::function< double( ) > bankAngleFunction,
-                                                                       const std::function< void( const double ) > updateFunction,
-                                                                       const bool silenceWarnings )
-{
-    utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.environment.AerodynamicAngleCalculator.set_body_orientation_angle_functions",
-            "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#aerodynamic-guidance" );
-}
-
-////! Function to set constant trajectory<->body-fixed orientation angles.
-void AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved2( const double angleOfAttack,
-                                                                       const double angleOfSideslip,
-                                                                       const double bankAngle,
-                                                                       const bool silenceWarnings )
-{
-    utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.environment.AerodynamicAngleCalculator.set_body_orientation_angle_functions",
-            "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#aerodynamic-guidance" );
 }
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

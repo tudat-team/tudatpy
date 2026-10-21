@@ -8,16 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
-
-#include "tudat/simulation/estimation.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -29,11 +26,12 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 
@@ -76,11 +74,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcStateTransitionMatrixInterface )
 
     std::shared_ptr< IntegratorSettings<> > singleArcIntegratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    initialEpoch, 60.0, CoefficientSets::rungeKuttaFehlberg78, 60.0, 60.0, 1.0e3, 1.0e3 );
+                    60.0, CoefficientSets::rungeKuttaFehlberg78, 60.0, 60.0, 1.0e3, 1.0e3 );
 
     std::shared_ptr< IntegratorSettings<> > multiArcIntegratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    TUDAT_NAN, 60.0, CoefficientSets::rungeKuttaFehlberg78, 60.0, 60.0, 1.0e3, 1.0e3 );
+                    60.0, CoefficientSets::rungeKuttaFehlberg78, 60.0, 60.0, 1.0e3, 1.0e3 );
 
     // test case 0 : Ganymede as multi-arc body ; test case 1 : Ganymede as single-arc body
     for( unsigned int testCase = 0; testCase < 2; testCase++ )

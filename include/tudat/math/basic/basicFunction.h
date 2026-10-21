@@ -46,10 +46,10 @@ public:
     unsigned int integrationSteps;
 
     //! Constructor with definition of the number of steps.
-    BasicFunction( unsigned int numberOfIntegrationSteps = 1000 ): integrationSteps( numberOfIntegrationSteps ) { }
+    BasicFunction( unsigned int numberOfIntegrationSteps = 1000 ): integrationSteps( numberOfIntegrationSteps ) {}
 
     //! Default destructor.
-    virtual ~BasicFunction( ) { }
+    virtual ~BasicFunction( ) {}
 
     //! Derivative (of a given order) of a function.
     /*!

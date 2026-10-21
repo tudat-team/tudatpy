@@ -7,14 +7,23 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_parameters_setup.h"
 
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace py = pybind11;
 namespace tep = tudat::estimatable_parameters;
+namespace tom = tudat::observation_models;
 namespace tp = tudat::propagators;
 namespace tss = tudat::simulation_setup;
 namespace tba = tudat::basic_astrodynamics;
@@ -26,8 +35,55 @@ namespace dynamics
 namespace parameters_setup
 {
 
-void expose_parameters_setup( py::module& m )
+void expose_parameters_setup_types( py::module& m )
 {
+    py::enum_< tp::EnvironmentModelsToUpdate >( m, "EnvironmentModelsToUpdate", R"doc(
+
+         Enumeration of physical environment models that can be updated.
+
+      )doc" )
+            .value( "body_translational_state_update",
+                    tp::EnvironmentModelsToUpdate::body_translational_state_update,
+                    R"doc(Update the body translational state model after a state or parameter perturbation.)doc" )
+            .value( "body_rotational_state_update",
+                    tp::EnvironmentModelsToUpdate::body_rotational_state_update,
+                    R"doc(Update the body rotational state model after a state or parameter perturbation.)doc" )
+            .value( "spherical_harmonic_gravity_field_update",
+                    tp::EnvironmentModelsToUpdate::spherical_harmonic_gravity_field_update,
+                    R"doc(Update the spherical harmonic gravity field model after a state or parameter perturbation.)doc" )
+            .value( "body_mass_update",
+                    tp::EnvironmentModelsToUpdate::body_mass_update,
+                    R"doc(Update the body mass model after a state or parameter perturbation.)doc" )
+            .value( "body_mass_distribution_update",
+                    tp::EnvironmentModelsToUpdate::body_mass_distribution_update,
+                    R"doc(Update the body mass distribution model after a state or parameter perturbation.)doc" )
+            .value( "body_segment_orientation_update",
+                    tp::EnvironmentModelsToUpdate::body_segment_orientation_update,
+                    R"doc(Update the body segment orientation model after a state or parameter perturbation.)doc" )
+            .value( "vehicle_flight_conditions_update",
+                    tp::EnvironmentModelsToUpdate::vehicle_flight_conditions_update,
+                    R"doc(Update the vehicle flight conditions model after a state or parameter perturbation.)doc" )
+            .value( "radiation_source_model_update",
+                    tp::EnvironmentModelsToUpdate::radiation_source_model_update,
+                    R"doc(Update the radiation source model model after a state or parameter perturbation.)doc" )
+            .value( "cannonball_radiation_pressure_target_model_update",
+                    tp::EnvironmentModelsToUpdate::cannonball_radiation_pressure_target_model_update,
+                    R"doc(
+
+         Update the cannonball radiation pressure target model model after a state or parameter perturbation.
+
+      )doc" )
+            .value( "panelled_radiation_pressure_target_model_update",
+                    tp::EnvironmentModelsToUpdate::panelled_radiation_pressure_target_model_update,
+                    R"doc(Update the panelled radiation pressure target model model after a state or parameter perturbation.)doc" )
+            .value( "climate_model_update",
+                    tp::EnvironmentModelsToUpdate::climate_model_update,
+                    R"doc(Update the climate model model after a state or parameter perturbation.)doc" )
+            .value( "space_time_metric_update",
+                    tp::EnvironmentModelsToUpdate::space_time_metric_update,
+                    R"doc(Update the space time metric model after a state or parameter perturbation.)doc" )
+            .export_values( );
+
     py::enum_< tep::EstimatebleParametersEnum >( m, "EstimatableParameterTypes", R"doc(
 
          Enumeration of model parameters that are available for estimation.
@@ -35,96 +91,228 @@ void expose_parameters_setup( py::module& m )
          Note that not all of the listed types might be accessible via functions in the python interface yet.
 
 
+      )doc" )
+            .value( "arc_wise_initial_body_state_type",
+                    tep::EstimatebleParametersEnum::arc_wise_initial_body_state,
+                    R"doc(Estimatable parameter for arc-wise initial body state.)doc" )
+            .value( "initial_body_state_type",
+                    tep::EstimatebleParametersEnum::initial_body_state,
+                    R"doc(Estimatable parameter for initial body state.)doc" )
+            .value( "initial_rotational_body_state_type",
+                    tep::EstimatebleParametersEnum::initial_rotational_body_state,
+                    R"doc(Estimatable parameter for initial rotational body state.)doc" )
+            .value( "gravitational_parameter_type",
+                    tep::EstimatebleParametersEnum::gravitational_parameter,
+                    R"doc(Estimatable parameter for gravitational parameter.)doc" )
+            .value( "constant_drag_coefficient_type",
+                    tep::EstimatebleParametersEnum::constant_drag_coefficient,
+                    R"doc(Estimatable parameter for constant drag coefficient.)doc" )
+            .value( "radiation_pressure_coefficient_type",
+                    tep::EstimatebleParametersEnum::radiation_pressure_coefficient,
+                    R"doc(Estimatable parameter for radiation pressure coefficient.)doc" )
+            .value( "three_coefficient_radiation_pressure_coefficients_type",
+                    tep::EstimatebleParametersEnum::three_coefficient_radiation_pressure_coefficients,
+                    R"doc(Estimatable parameter for three coefficient radiation pressure coefficients.)doc" )
+            .value( "arc_wise_radiation_pressure_coefficient_type",
+                    tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient,
+                    R"doc(Estimatable parameter for arc-wise radiation pressure coefficient.)doc" )
+            .value( "spherical_harmonics_cosine_coefficient_block_type",
+                    tep::EstimatebleParametersEnum::spherical_harmonics_cosine_coefficient_block,
+                    R"doc(Estimatable parameter for spherical harmonics cosine coefficient block.)doc" )
+            .value( "spherical_harmonics_sine_coefficient_block_type",
+                    tep::EstimatebleParametersEnum::spherical_harmonics_sine_coefficient_block,
+                    R"doc(Estimatable parameter for spherical harmonics sine coefficient block.)doc" )
+            .value( "constant_rotation_rate_type",
+                    tep::EstimatebleParametersEnum::constant_rotation_rate,
+                    R"doc(Estimatable parameter for constant rotation rate.)doc" )
+            .value( "rotation_pole_position_type",
+                    tep::EstimatebleParametersEnum::rotation_pole_position,
+                    R"doc(Estimatable parameter for rotation pole position.)doc" )
+            .value( "constant_additive_observation_bias_type",
+                    tep::EstimatebleParametersEnum::constant_additive_observation_bias,
+                    R"doc(Estimatable parameter for constant additive observation bias.)doc" )
+            .value( "shared_observation_bias_type",
+                    tep::EstimatebleParametersEnum::shared_observation_bias,
+                    R"doc(Estimatable parameter for shared observation bias.)doc" )
+            .value( "arcwise_constant_additive_observation_bias_type",
+                    tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias,
+                    R"doc(Estimatable parameter for arc-wise constant additive observation bias.)doc" )
+            .value( "constant_relative_observation_bias_type",
+                    tep::EstimatebleParametersEnum::constant_relative_observation_bias,
+                    R"doc(Estimatable parameter for constant relative observation bias.)doc" )
+            .value( "arcwise_constant_relative_observation_bias_type",
+                    tep::EstimatebleParametersEnum::arcwise_constant_relative_observation_bias,
+                    R"doc(Estimatable parameter for arc-wise constant relative observation bias.)doc" )
+            .value( "ppn_parameter_gamma_type",
+                    tep::EstimatebleParametersEnum::ppn_parameter_gamma,
+                    R"doc(Estimatable parameter for PPN parameter gamma.)doc" )
+            .value( "ppn_parameter_beta_type",
+                    tep::EstimatebleParametersEnum::ppn_parameter_beta,
+                    R"doc(Estimatable parameter for PPN parameter beta.)doc" )
+            .value( "ground_station_position_type",
+                    tep::EstimatebleParametersEnum::ground_station_position,
+                    R"doc(Estimatable parameter for ground station position.)doc" )
+            .value( "equivalence_principle_lpi_violation_parameter_type",
+                    tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter,
+                    R"doc(Estimatable parameter for equivalence principle lpi violation parameter.)doc" )
+            .value( "empirical_acceleration_coefficients_type",
+                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients,
+                    R"doc(Estimatable parameter for empirical acceleration coefficients.)doc" )  // TO EXPOSE
+            .value( "arc_wise_empirical_acceleration_coefficients_type",
+                    tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients,
+                    R"doc(Estimatable parameter for arc-wise empirical acceleration coefficients.)doc" )  // TO EXPOSE
+            .value( "full_degree_tidal_love_number_type",
+                    tep::EstimatebleParametersEnum::full_degree_tidal_love_number,
+                    R"doc(Estimatable parameter for full degree tidal love number.)doc" )  // TO EXPOSE
+            .value( "single_degree_variable_tidal_love_number_type",
+                    tep::EstimatebleParametersEnum::single_degree_variable_tidal_love_number,
+                    R"doc(Estimatable parameter for single degree variable tidal love number.)doc" )
+            .value( "direct_dissipation_tidal_time_lag_type",
+                    tep::EstimatebleParametersEnum::direct_dissipation_tidal_time_lag,
+                    R"doc(Estimatable parameter for direct dissipation tidal time lag.)doc" )
+            .value( "mean_moment_of_inertia_type",
+                    tep::EstimatebleParametersEnum::mean_moment_of_inertia,
+                    R"doc(Estimatable parameter for mean moment of inertia.)doc" )
+            .value( "arc_wise_constant_drag_coefficient_type",
+                    tep::EstimatebleParametersEnum::arc_wise_constant_drag_coefficient,
+                    R"doc(Estimatable parameter for arc-wise constant drag coefficient.)doc" )
+            .value( "periodic_spin_variation_type",
+                    tep::EstimatebleParametersEnum::periodic_spin_variation,
+                    R"doc(Estimatable parameter for periodic spin variation.)doc" )
+            .value( "polar_motion_amplitude_type",
+                    tep::EstimatebleParametersEnum::polar_motion_amplitude,
+                    R"doc(Estimatable parameter for polar motion amplitude.)doc" )
+            .value( "core_factor_type", tep::EstimatebleParametersEnum::core_factor, R"doc(Estimatable parameter for core factor.)doc" )
+            .value( "free_core_nutation_rate_type",
+                    tep::EstimatebleParametersEnum::free_core_nutation_rate,
+                    R"doc(Estimatable parameter for free core nutation rate.)doc" )
+            .value( "desaturation_delta_v_values_type",
+                    tep::EstimatebleParametersEnum::desaturation_delta_v_values,
+                    R"doc(Estimatable parameter for desaturation delta v values.)doc" )
+            .value( "constant_time_drift_observation_bias_type",
+                    tep::EstimatebleParametersEnum::constant_time_drift_observation_bias,
+                    R"doc(Estimatable parameter for constant time drift observation bias.)doc" )
+            .value( "arc_wise_time_drift_observation_bias_type",
+                    tep::EstimatebleParametersEnum::arc_wise_time_drift_observation_bias,
+                    R"doc(Estimatable parameter for arc-wise time drift observation bias.)doc" )
+            .value( "global_polynomial_clock_corrections_type",
+                    tep::EstimatebleParametersEnum::global_polynomial_clock_corrections,
+                    R"doc(Estimatable parameter for global polynomial clock corrections.)doc" )
+            .value( "arc_wise_polynomial_clock_corrections_type",
+                    tep::EstimatebleParametersEnum::arc_wise_polynomial_clock_corrections,
+                    R"doc(Estimatable parameter for arc-wise polynomial clock corrections.)doc" )
+            .value( "inverse_tidal_quality_factor_type",
+                    tep::EstimatebleParametersEnum::inverse_tidal_quality_factor,
+                    R"doc(Estimatable parameter for inverse tidal quality factor.)doc" )
+            .value( "radiation_pressure_target_perpendicular_direction_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::source_perpendicular_direction_radiation_pressure_scaling_factor,
+                    R"doc(Estimatable parameter for radiation pressure target perpendicular direction scaling factor.)doc" )
+            .value( "radiation_pressure_target_direction_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::source_direction_radiation_pressure_scaling_factor,
+                    R"doc(Estimatable parameter for radiation pressure target direction scaling factor.)doc" )
+            .value( "drag_component_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::drag_component_scaling_factor,
+                    R"doc(Estimatable parameter for drag component scaling factor.)doc" )
+            .value( "side_component_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::side_component_scaling_factor,
+                    R"doc(Estimatable parameter for side component scaling factor.)doc" )
+            .value( "lift_component_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::lift_component_scaling_factor,
+                    R"doc(Estimatable parameter for lift component scaling factor.)doc" )
+            .value( "arc_wise_drag_component_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::arc_wise_drag_component_scaling_factor,
+                    R"doc(Estimatable parameter for arc-wise drag component scaling factor.)doc" )
+            .value( "arc_wise_side_component_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::arc_wise_side_component_scaling_factor,
+                    R"doc(Estimatable parameter for arc-wise side component scaling factor.)doc" )
+            .value( "arc_wise_lift_component_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::arc_wise_lift_component_scaling_factor,
+                    R"doc(Estimatable parameter for arc-wise lift component scaling factor.)doc" )
+            .value( "rtg_force_vector_type",
+                    tep::EstimatebleParametersEnum::rtg_force_vector,
+                    R"doc(Estimatable parameter for RTG force vector.)doc" )
+            .value( "area_to_mass_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::area_to_mass_scaling_factor,
+                    R"doc(Estimatable parameter for area-to-mass scaling factor.)doc" )
+            .value( "rtg_force_vector_magnitude_type",
+                    tep::EstimatebleParametersEnum::rtg_force_vector_magnitude,
+                    R"doc(Estimatable parameter for RTG force vector magnitude.)doc" )
+            .value( "exponential_atmosphere_base_density_type",
+                    tep::EstimatebleParametersEnum::exponential_atmosphere_base_density,
+                    R"doc(Estimatable parameter for exponential atmosphere base density.)doc" )
+            .value( "exponential_atmosphere_scale_height_type",
+                    tep::EstimatebleParametersEnum::exponential_atmosphere_scale_height,
+                    R"doc(Estimatable parameter for exponential atmosphere scale height.)doc" )
+            .value( "arc_wise_exponential_atmosphere_base_density_type",
+                    tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density,
+                    R"doc(Estimatable parameter for arc-wise exponential atmosphere base density.)doc" )
+            .value( "arc_wise_exponential_atmosphere_scale_height_type",
+                    tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height,
+                    R"doc(Estimatable parameter for arc-wise exponential atmosphere scale height.)doc" )
+            .value( "specular_reflectivity_type",
+                    tep::EstimatebleParametersEnum::specular_reflectivity,
+                    R"doc(Estimatable parameter for specular reflectivity.)doc" )
+            .value( "diffuse_reflectivity_type",
+                    tep::EstimatebleParametersEnum::diffuse_reflectivity,
+                    R"doc(Estimatable parameter for diffuse reflectivity.)doc" )
+            .value( "energy_accommodation_coefficient_type",
+                    tep::EstimatebleParametersEnum::energy_accommodation_coefficient,
+                    R"doc(Estimatable parameter for energy accommodation coefficient.)doc" )
+            .value( "normal_accommodation_coefficient_type",
+                    tep::EstimatebleParametersEnum::normal_accommodation_coefficient,
+                    R"doc(Estimatable parameter for normal accommodation coefficient.)doc" )
+            .value( "tangential_accommodation_coefficient_type",
+                    tep::EstimatebleParametersEnum::tangential_accommodation_coefficient,
+                    R"doc(Estimatable parameter for tangential accommodation coefficient.)doc" )
+            .value( "normal_velocity_at_wall_ratio_type",
+                    tep::EstimatebleParametersEnum::normal_velocity_at_wall_ratio,
+                    R"doc(Estimatable parameter for normal velocity at wall ratio.)doc" )
 
+            .export_values( );
 
+    py::enum_< tba::EmpiricalAccelerationComponents >( m,
+                                                       "EmpiricalAccelerationComponents",
+                                                       R"doc(
 
+         Enumeration of radial, along-track and cross-track empirical acceleration components.
 
       )doc" )
-            .value( "arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state )
-            .value( "initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state )
-            .value( "initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state )
-            .value( "gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter )
-            .value( "constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient )
-            .value( "radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::radiation_pressure_coefficient )
-            .value( "arc_wise_radiation_pressure_coefficient_type",
-                    tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient )
-            .value( "spherical_harmonics_cosine_coefficient_block_type",
-                    tep::EstimatebleParametersEnum::spherical_harmonics_cosine_coefficient_block )
-            .value( "spherical_harmonics_sine_coefficient_block_type",
-                    tep::EstimatebleParametersEnum::spherical_harmonics_sine_coefficient_block )
-            .value( "constant_rotation_rate_type", tep::EstimatebleParametersEnum::constant_rotation_rate )
-            .value( "rotation_pole_position_type", tep::EstimatebleParametersEnum::rotation_pole_position )
-            .value( "constant_additive_observation_bias_type", tep::EstimatebleParametersEnum::constant_additive_observation_bias )
-            .value( "arcwise_constant_additive_observation_bias_type",
-                    tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias )
-            .value( "constant_relative_observation_bias_type", tep::EstimatebleParametersEnum::constant_relative_observation_bias )
-            .value( "arcwise_constant_relative_observation_bias_type",
-                    tep::EstimatebleParametersEnum::arcwise_constant_relative_observation_bias )
-            .value( "ppn_parameter_gamma_type", tep::EstimatebleParametersEnum::ppn_parameter_gamma )
-            .value( "ppn_parameter_beta_type", tep::EstimatebleParametersEnum::ppn_parameter_beta )
-            .value( "ground_station_position_type", tep::EstimatebleParametersEnum::ground_station_position )
-            .value( "equivalence_principle_lpi_violation_parameter_type",
-                    tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter )
-            .value( "empirical_acceleration_coefficients_type",
-                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO
-                                                                                           // EXPOSE
-            .value( "arc_wise_empirical_acceleration_coefficients_type",
-                    tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients )  // TO EXPOSE
-            .value( "full_degree_tidal_love_number_type",
-                    tep::EstimatebleParametersEnum::full_degree_tidal_love_number )  // TO EXPOSE
-            .value( "single_degree_variable_tidal_love_number_type",
-                    tep::EstimatebleParametersEnum::single_degree_variable_tidal_love_number )
-            .value( "direct_dissipation_tidal_time_lag_type", tep::EstimatebleParametersEnum::direct_dissipation_tidal_time_lag )
-            .value( "mean_moment_of_inertia_type", tep::EstimatebleParametersEnum::mean_moment_of_inertia )
-            .value( "arc_wise_constant_drag_coefficient_type", tep::EstimatebleParametersEnum::arc_wise_constant_drag_coefficient )
-            .value( "periodic_spin_variation_type", tep::EstimatebleParametersEnum::periodic_spin_variation )
-            .value( "polar_motion_amplitude_type", tep::EstimatebleParametersEnum::polar_motion_amplitude )
-            .value( "core_factor_type", tep::EstimatebleParametersEnum::core_factor )
-            .value( "free_core_nutation_rate_type", tep::EstimatebleParametersEnum::free_core_nutation_rate )
-            .value( "desaturation_delta_v_values_type", tep::EstimatebleParametersEnum::desaturation_delta_v_values )
-            .value( "constant_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::constant_time_drift_observation_bias )
-            .value( "arc_wise_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::arc_wise_time_drift_observation_bias )
-            .value( "global_polynomial_clock_corrections_type", tep::EstimatebleParametersEnum::global_polynomial_clock_corrections )
-            .value( "arc_wise_polynomial_clock_corrections_type", tep::EstimatebleParametersEnum::arc_wise_polynomial_clock_corrections )
-            .value( "inverse_tidal_quality_factor_type", tep::EstimatebleParametersEnum::inverse_tidal_quality_factor )
-            .value( "radiation_pressure_target_perpendicular_direction_scaling_factor_type",
-                    tep::EstimatebleParametersEnum::source_perpendicular_direction_radiation_pressure_scaling_factor )
-            .value( "radiation_pressure_target_direction_scaling_factor_type",
-                    tep::EstimatebleParametersEnum::source_direction_radiation_pressure_scaling_factor )
-            .value( "drag_component_scaling_factor_type", tep::EstimatebleParametersEnum::drag_component_scaling_factor )
-            .value( "side_component_scaling_factor_type", tep::EstimatebleParametersEnum::side_component_scaling_factor )
-            .value( "lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::lift_component_scaling_factor )
-            .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
-            .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
-
-            .export_values( );
-
-    py::enum_< tba::EmpiricalAccelerationComponents >(
-            m,
-            "EmpiricalAccelerationComponents",
-            R"doc(Enumeration of the available empirical acceleration components that are available to estimate.
-            
-            These are used in the :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations` function to specify which components of the empirical acceleration are to be estimated.
-            )doc" )
             .value( "radial_empirical_acceleration_component",
-                    tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component )
+                    tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component,
+                    R"doc(Radial empirical acceleration component in the local orbital frame.)doc" )
             .value( "along_track_empirical_acceleration_component",
-                    tba::EmpiricalAccelerationComponents::along_track_empirical_acceleration_component )
+                    tba::EmpiricalAccelerationComponents::along_track_empirical_acceleration_component,
+                    R"doc(Along track empirical acceleration component in the local orbital frame.)doc" )
             .value( "across_track_empirical_acceleration_component",
-                    tba::EmpiricalAccelerationComponents::across_track_empirical_acceleration_component )
+                    tba::EmpiricalAccelerationComponents::across_track_empirical_acceleration_component,
+                    R"doc(Across track empirical acceleration component in the local orbital frame.)doc" )
             .export_values( );
 
-    py::enum_< tba::EmpiricalAccelerationFunctionalShapes >(
-            m,
-            "EmpiricalAccelerationFunctionalShapes",
-            R"doc(Enumeration of the available empirical acceleration shapes that are available per component
-            
-            These are used in the :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations` function to specify the signature of the estimated empirical acceleration component.
-            .)doc" )
-            .value( "constant_empirical", tba::EmpiricalAccelerationFunctionalShapes::constant_empirical )
-            .value( "sine_empirical", tba::EmpiricalAccelerationFunctionalShapes::sine_empirical )
-            .value( "cosine_empirical", tba::EmpiricalAccelerationFunctionalShapes::cosine_empirical )
+    py::enum_< tba::EmpiricalAccelerationFunctionalShapes >( m,
+                                                             "EmpiricalAccelerationFunctionalShapes",
+                                                             R"doc(
+
+         Enumeration of constant, sine and cosine time dependence of an empirical acceleration component.
+
+      )doc" )
+            .value( "constant_empirical",
+                    tba::EmpiricalAccelerationFunctionalShapes::constant_empirical,
+                    R"doc(Constant empirical time dependence of an empirical acceleration.)doc" )
+            .value( "sine_empirical",
+                    tba::EmpiricalAccelerationFunctionalShapes::sine_empirical,
+                    R"doc(Sine empirical time dependence of an empirical acceleration.)doc" )
+            .value( "cosine_empirical",
+                    tba::EmpiricalAccelerationFunctionalShapes::cosine_empirical,
+                    R"doc(Cosine empirical time dependence of an empirical acceleration.)doc" )
             .export_values( );
+
+    py::class_< tep::CustomAccelerationPartialSettings, std::shared_ptr< tep::CustomAccelerationPartialSettings > >(
+            m, "CustomAccelerationPartialSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.parameters_setup.custom_analytical_partial`,
+         :func:`~tudatpy.dynamics.parameters_setup.custom_numerical_partial`.
+
+      )doc" );
 
     py::class_< tep::EstimatableParameterSettings, std::shared_ptr< tep::EstimatableParameterSettings > >( m,
                                                                                                            "EstimatableParameterSettings",
@@ -141,27 +329,39 @@ void expose_parameters_setup( py::module& m )
 
 
       )doc" )
-            .def_readwrite( "custom_partial_settings", &tep::EstimatableParameterSettings::customPartialSettings_ )
+            .def_readwrite( "custom_partial_settings",
+                            &tep::EstimatableParameterSettings::customPartialSettings_,
+                            R"doc(
+
+         Custom acceleration partial settings associated with this estimatable parameter.
+
+         :type: list[CustomAccelerationPartialSettings]
+
+      )doc" )
             .def_readwrite( "parameter_identifier",
                             &tep::EstimatableParameterSettings::parameterType_,
                             R"doc(
-                            
+
 Type and associated body of the parameter.
 
 The identifier contains the type of the parameter, defined by the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes` enumeration, the body and (if applicable) the reference point to which the parameter is associated.
 The identifier is represented by a tuple of the form ``(parameter_type, (body_name, reference_point_name))``.
 
 :type: tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
-                            
-                            )doc" );
 
+                            )doc" );
+}
+
+void expose_parameters_setup( py::module& m )
+{
     // # EstimatableParameterSettings --> EstimatableParameterSet #
     m.def( "create_parameter_set",
            &tss::createParametersToEstimate< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "parameter_settings" ),
            py::arg( "bodies" ),
-           py::arg( "propagator_settings" ) = nullptr,
+           py::arg_v( "propagator_settings", std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >( ), "None" ),
            py::arg( "consider_parameters_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+           py::arg( "print_parameter_order_warning" ) = true,
            R"doc(
 
  Function for creating a consolidated parameter from the given estimatable parameter settings.
@@ -172,14 +372,22 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- parameter_settings : list( :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` )
-     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module
+ parameter_settings : list[:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`]
+     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module.
 
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
 
  propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
      Object containing the consolidated propagation settings of the simulation.
+
+ consider_parameters_names : list[:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`] = []
+     List of objects that define the settings for the considered parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module.
+
+ print_parameter_order_warning : bool = True
+     Flag to determine whether a warning is printed to the console if there are both scalar and vector parameters found.
+
+
 
  Returns
  -------
@@ -221,7 +429,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  e.g. if a single-arc translational state propagator is defined, the function will automatically create the parameters for the associated initial state parameter
 
  .. note::
- 
+
     This function return lists of parameter settings objects.
     This means that the return of this function cannot simply be added to the parameter settings objects of single parameters in a list creation statement.
     Instead, list concatenation is recommended. Please see the following example:
@@ -239,7 +447,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
     # better: list concatenation --> will result in simple list, desired!
     list_of_all_parameters = dynamics.parameters_setup.initial_states(...) + [single_parameter_1, single_parameter_2, ...]
 
-
  Parameters
  ----------
  propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
@@ -255,12 +462,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  List[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` ]
      List of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
-
-
-
-
-
-
 
      )doc" );
 
@@ -308,7 +509,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Function for creating parameter settings for arc-wise constant drag coefficients.
 
- Function for creating parameter settings object for arc-wise constant drag coefficients :math:`C_{D}` 
+ Function for creating parameter settings object for arc-wise constant drag coefficients :math:`C_{D}`
  (arc-wise version of :func:`~tudatpy.dynamics.parameters_setup.constant_drag_coefficient`).
  Using the arc-wise constant drag coefficient as an estimatable parameter requires:
 
@@ -320,7 +521,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  and the parameter entry representing :math:`C_{D,i}` will be used.
 
  .. note:: This parameter may be estimated for a single-arc propagation, or a multi-arc propagation. In the latter case, the arcs selected for the estimation of the drag coefficient may, but need not, correspond to the arcs used for a multi-arc propagation.
-
 
  Parameters
  ----------
@@ -335,10 +535,11 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseDragCoefficientEstimatableParameterSettings` class
      for arc-wise treatment of the specified body's constant drag coefficient.
 
-
      )doc" );
 
-    m.def( "drag_component_scaling", &tep::dragComponentScaling, py::arg( "body" ),
+    m.def( "drag_component_scaling",
+           &tep::dragComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic drag scaling factor
@@ -352,7 +553,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Note that, unlike the :func:`constant_drag_coefficient` parameter, this parameter does not modify the drag coefficient itself, but works
  regardless of the type of aerodynamic coefficients (in any frame, and with any dependencies). Using this parameter, the aerodynamic
- force along the drag directon is scaled (multiplied) by the factor :math:`K` during each function evaluation.
+ force along the drag direction is scaled (multiplied) by the factor :math:`K` during each function evaluation.
 
  Parameters
  ----------
@@ -364,7 +565,42 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
-    m.def( "side_component_scaling", &tep::sideComponentScaling, py::arg( "body" ),
+    m.def( "arcwise_drag_component_scaling",
+           &tep::arcwiseDragComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic drag scaling factor
+
+ Function for creating parameter settings object for an arcwise scaling factor :math:`K` (initialized to 1.0) for the aerodynamic force along the drag direction
+ (effectively scaling the drag coefficient :math:`C_{D}` (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` )
+
+ Using the arc-wise drag component scaling as an estimatable parameter requires:
+
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
+
+ Note that, unlike the :func:`constant_drag_coefficient` parameter, this parameter does not modify the drag coefficient itself, but works
+ regardless of the type of aerodynamic coefficients (in any frame, and with any dependencies). Using this parameter, the aerodynamic
+ force along the drag direction is scaled (multiplied) by the factor :math:`K` during each function evaluation.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
+
+    m.def( "side_component_scaling",
+           &tep::sideComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic side force scaling factor
@@ -381,7 +617,33 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
-    m.def( "lift_component_scaling", &tep::liftComponentScaling, py::arg( "body" ),
+    m.def( "arcwise_side_component_scaling",
+           &tep::arcwiseSideComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic side force scaling factor
+
+ As :func:`~arcwise_drag_component_scaling`, but scales the force along the :math:`C_{S}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
+
+    m.def( "lift_component_scaling",
+           &tep::liftComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic lift force scaling factor
@@ -397,6 +659,30 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
+
+    m.def( "arcwise_lift_component_scaling",
+           &tep::arcwiseLiftComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic lift force scaling factor
+
+ As :func:`~arcwise_drag_component_scaling`, but scales the force along the :math:`C_{L}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,
@@ -424,6 +710,33 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
 
      )doc" );
+
+    m.def( "three_coefficient_radiation_pressure_coefficients",
+           &tep::threeCoefficientRadiationPressureCoefficients,
+           py::arg( "body" ),
+           py::arg( "radiation_source" ),
+           R"doc(
+
+Creates settings for estimating the three constants of a three-coefficient radiation-pressure acceleration.
+
+The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square metres. It is
+linked to every matching acceleration created with
+:func:`~tudatpy.dynamics.propagation_setup.acceleration.three_coefficient_radiation_pressure` from
+``radiation_source`` acting on ``body`` in the supplied propagator settings.
+
+Parameters
+----------
+body : str
+    Body undergoing the three-coefficient radiation-pressure acceleration.
+radiation_source : str
+    Body emitting the radiation and exerting the acceleration.
+
+Returns
+-------
+EstimatableParameterSettings
+    Settings for the size-three coefficient parameter.
+
+)doc" );
 
     m.def( "arcwise_radiation_pressure_coefficient",
            &tep::arcwiseRadiationPressureCoefficient,
@@ -458,7 +771,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseRadiationPressureCoefficientEstimatableParameterSettings` class
      for arc-wise treatment of the specified body's radiation pressure coefficient.
-           
+
      )doc" );
 
     m.def( "radiation_pressure_target_direction_scaling",
@@ -473,16 +786,16 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  a component :math:`\mathbf{a}_{\parallel}` and :math:`\mathbf{a}_{\perp}, such that :math:`\mathbf{a}=\mathbf{a}_{\parallel}+\mathbf{a}_{\perp}`,
  where the parallel direction is computed as the component parallel with the vector from the center of mass of the source direction to the center of mass of the target direction.
  The radiation pressure model has parameters :math:`c_{\parallel}` and :math:`c_{\perp}` (nominally set to unity) that modify the acceleration as:
-           
+
  .. math::
     \mathbf{a}=c_{\parallel}\mathbf{a}_{\parallel}+c_{\perp}\mathbf{a}_{\perp}
 
- The present function creates settings for a parameter defining :math:`c_{\parallel}` 
+ The present function creates settings for a parameter defining :math:`c_{\parallel}`
 
  Using this parameter requires:
 
  * The body specified by the ``target_body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration exerted by ``source_body``
-           
+
  Parameters
  ----------
  target_body : str
@@ -493,7 +806,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Returns
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class defining parallel radiation pressure scaling
 
      )doc" );
 
@@ -504,7 +817,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            R"doc(
  Function for creating parameter settings for a radiation pressure acceleration scaling factor perpendicular to target direction.
 
- Function for creating parameter settings for scaling the radiation pressure acceleration component perpenedicular to the direction from the body
+ Function for creating parameter settings for scaling the radiation pressure acceleration component perpendicular to the direction from the body
  undergoing the acceleration to the source model. The present function creates settings for a parameter defining :math:`c_{\perp}`,
  see :func:`~radiation_pressure_target_direction_scaling`
 
@@ -522,7 +835,157 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Returns
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class defining parallel radiation pressure scaling
+
+     )doc" );
+
+    m.def( "specular_reflectivity",
+           &tep::specularReflectivity,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the specular reflectivity of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel specular reflectivity is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for specular reflectivity estimation.
+
+     )doc" );
+
+    m.def( "energy_accommodation_coefficient",
+           &tep::energyAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the energy accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Sentman and Cook gas-surface
+ interaction models. Its aerodynamic-coefficient partial is zero for the Storch,
+ Newton, and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel energy accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for energy accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_accommodation_coefficient",
+           &tep::normalAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for normal accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "tangential_accommodation_coefficient",
+           &tep::tangentialAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the tangential accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel tangential accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for tangential accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_velocity_at_wall_ratio",
+           &tep::normalVelocityAtWallRatio,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal velocity at wall ratio of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal velocity at wall ratio is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless ratio is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for normal velocity at wall ratio estimation.
+
+     )doc" );
+
+    m.def( "diffuse_reflectivity",
+           &tep::diffuseReflectivity,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the diffuse reflectivity of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel diffuse reflectivity is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for diffuse reflectivity estimation.
 
      )doc" );
 
@@ -771,11 +1234,11 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Function for creating parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
 
- Function for creating parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+ Function for creating parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both ascending, i.e., :math:`\bar{C}_{20}, \bar{C}_{21}, \bar{C}_{22}, \bar{C}_{30}, \bar{C}_{31}, ...`).
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
- * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic` acceleration
+ * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity` acceleration
 
 
  Parameters
@@ -821,7 +1284,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -850,11 +1313,11 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Function for creating parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
 
- Function for creating parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+ Function for creating parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both ascending, i.e., :math:`\bar{S}_{21}, \bar{S}_{22}, \bar{S}_{31}, ...`).
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
- * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic` acceleration
+ * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity` acceleration
 
 
  Parameters
@@ -900,7 +1363,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -1132,7 +1595,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's polar motion amplitudes.
      )doc" );
 
-        m.def( "iau_rotation_model_pole",
+    m.def( "iau_rotation_model_pole",
            &tep::iauRotationModelNominalPoleParameterSettings,
            py::arg( "body" ),
            R"doc(
@@ -1160,8 +1623,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-
-        m.def( "iau_rotation_model_pole_rate",
+    m.def( "iau_rotation_model_pole_rate",
            &tep::iauRotationModelPoleRateParameterSettings,
            py::arg( "body" ),
            R"doc(
@@ -1189,7 +1651,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-        m.def( "iau_rotation_model_longitudinal_librations",
+    m.def( "iau_rotation_model_longitudinal_librations",
            &tep::iauRotationModelLongitudinalLibrationParameterSettings,
            py::arg( "body" ),
            py::arg( "libration_angular_frequencies" ),
@@ -1212,6 +1674,8 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  ----------
  body : str
      Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{W_i}`) at which longitudinal libration amplitudes (:math:`W_{i}`) are to be included in estimatable parameter.
 
  Returns
  -------
@@ -1221,10 +1685,107 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
+    m.def( "iau_rotation_model_pole_librations",
+           &tep::iauRotationModelPoleLibrationParameterSettings,
+           py::arg( "body" ),
+           py::arg( "libration_angular_frequencies" ),
+           R"doc(
 
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates the libration amplitude :math:`\alpha_{i}` and :math:`\delta_{i}` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model.
+ The values of :math:`i` for which the amplitudes is estimated is defined by the ``libration_angular_frequencies`` input, which defines the
+ corresponding :math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`) values for which the amplitudes are to be estimated.
+ Note that the parameters are ordered [:math:`\alpha_{i}`, :math:`\delta_{i}`, :math:`\alpha_{i+1}`, :math:`\alpha_{i+1}`, ...], where the index :math:`i` follows the order of the frequency terms provided in the ``libration_angular_frequencies`` input argument.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`)) at which pole libration amplitudes (:math:`\alpha_{i}`, :math:`\delta_{i}`) are to be included in estimatable parameter.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
 
     // ###############   Observation Model Parameters
     // ################################
+
+    m.def(
+            "shared_observation_bias",
+            // Convert optional Python arguments to the defaults used by the C++ shared-bias factory.
+            []( tom::ObservationBiasTypes biasType,
+                tom::ObservableType observableType,
+                tom::LinkEndType linkEndType,
+                const tom::LinkEndId& linkEndId,
+                const py::object& arcStartTimes,
+                const py::object& timeLinkEnd ) {
+                return tep::sharedObservationBias(
+                        biasType,
+                        observableType,
+                        linkEndType,
+                        linkEndId,
+                        arcStartTimes.is_none( ) ? std::vector< double >( ) : arcStartTimes.cast< std::vector< double > >( ),
+                        timeLinkEnd.is_none( ) ? tom::unidentified_link_end : timeLinkEnd.cast< tom::LinkEndType >( ) );
+            },
+            py::arg( "bias_type" ),
+            py::arg( "observable_type" ),
+            py::arg( "link_end_type" ),
+            py::arg( "link_end_id" ),
+            py::arg( "arc_start_times" ) = py::none( ),
+            py::arg( "time_link_end" ) = py::none( ),
+            R"doc(
+Create one estimatable bias shared by all observation links matching a selector.
+
+Each selected observation model must already contain exactly one bias of the
+requested type, optionally within a combined bias. Initial values must agree
+unless the shared parameter value is explicitly set before its first binding.
+This assignment initializes the first set of models only. Reusing the parameter
+set for another estimator takes initial values from the new model settings;
+updates made while bound, including estimation updates, do not override them.
+A bias component can be owned by only one estimated parameter: overlapping
+ordinary or shared bias parameters are rejected.
+The matching body and reference-point name are both compared exactly.
+
+Parameters
+----------
+bias_type : tudatpy.estimation.observable_models_setup.biases.ObservationBiasTypes
+    Supports constant_absolute_bias, constant_relative_bias,
+    arc_wise_constant_absolute_bias, constant_time_bias, and arc_wise_time_bias.
+    Relative biases are component-wise fractions.
+observable_type : ObservableType
+    Observable whose biases are shared.
+link_end_type : LinkEndType
+    Role of the shared link end, e.g. receiver.
+link_end_id : LinkEndId
+    Body and reference point of the shared link end.
+arc_start_times : list[float], optional
+    Required for arc-wise biases; finite, strictly increasing start times.
+    Every matching model must use these same arcs.
+time_link_end : LinkEndType, optional
+    Event time used to select the active arc, defaulting to link_end_type.
+    Reception and transmission times differ by the light travel time.
+    For time biases, this is also the event whose time is shifted, and every
+    matching model must use the same link end. Omit for other constant biases.
+
+Returns
+-------
+EstimatableParameterSettings
+    One vector parameter of observable size, or observable size times the number
+    of arcs. Values are ordered by arc, then by observable component. Time biases
+    have a single value (in seconds) per arc, independent of the observable size.
+)doc" );
 
     m.def( "absolute_observation_bias",
            &tep::observationBias,
@@ -1242,7 +1803,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1279,7 +1840,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1306,14 +1867,60 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            &tep::globalPolynomialClockCorrections,
            py::arg( "associated_body" ),
            py::arg( "associated_station" ),
-           py::arg( "correction_powers" ) );
+           py::arg( "correction_powers" ),
+           R"doc(
+
+         Configure estimation of polynomial clock correction coefficients shared across clock arcs.
+
+         ``associated_body`` and ``associated_station`` identify the clock; ``correction_powers`` lists the polynomial
+         powers whose coefficients are estimated.
+
+         Parameters
+         ----------
+         associated_body : str
+             Name of the body whose clock parameters are estimated.
+         associated_station : str
+             Identifier of the ground station whose clock is estimated; an empty string selects the body's clock.
+         correction_powers : list[int]
+             Polynomial powers whose clock-correction coefficients are estimated.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "arc_wise_polynomial_clock_corrections",
            &tep::multiArcPolynomialClockCorrections,
            py::arg( "associated_body" ),
            py::arg( "associated_station" ),
            py::arg( "correction_powers" ),
-           py::arg( "arc_indices" ) );
+           py::arg( "arc_indices" ),
+           R"doc(
+
+         Configure estimation of separate polynomial clock corrections on selected arcs.
+
+         ``associated_body`` and ``associated_station`` identify the clock, ``correction_powers`` selects polynomial
+         terms and ``arc_indices`` selects clock arcs.
+
+         Parameters
+         ----------
+         associated_body : str
+             Name of the body whose clock parameters are estimated.
+         associated_station : str
+             Identifier of the ground station whose clock is estimated; an empty string selects the body's clock.
+         correction_powers : list[int]
+             Polynomial powers whose clock-correction coefficients are estimated.
+         arc_indices : list[int]
+             Indices of the clock arcs whose correction coefficients are estimated.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "relative_observation_bias",
            &tep::relativeObservationBias,
@@ -1330,7 +1937,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1369,7 +1976,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1391,7 +1998,31 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            py::arg( "link_ends" ),
            py::arg( "observable_type" ),
            py::arg( "ref_epoch" ),
-           py::arg( "time_link_end" ) );
+           py::arg( "time_link_end" ),
+           R"doc(
+
+         Configure estimation of an observation bias growing linearly with elapsed time from ``ref_epoch``.
+
+         ``link_ends`` and ``observable_type`` identify the observations. ``time_link_end`` specifies the link end at
+         which times are evaluated; ``ref_epoch`` is in seconds since J2000.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         ref_epoch : float
+             Reference epoch for the linear bias drift, in seconds since J2000.
+         time_link_end : LinkEndType
+             Link end whose time is used when evaluating the bias drift.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "arcwise_time_drift_observation_bias",
            &tep::arcwiseTimeDriftObservationBias,
@@ -1399,20 +2030,91 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            py::arg( "observable_type" ),
            py::arg( "arc_start_times" ),
            py::arg( "ref_epochs" ),
-           py::arg( "time_link_end" ) );
+           py::arg( "time_link_end" ),
+           R"doc(
+
+         Configure estimation of a separate linear observation-bias drift on each time arc.
+
+         ``link_ends`` and ``observable_type`` identify the observations. ``arc_start_times`` and ``ref_epochs`` give
+         arc boundaries and drift reference epochs in seconds since J2000; ``time_link_end`` defines their time
+         reference.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         arc_start_times : list[float]
+             Start epochs of the bias arcs, in seconds since J2000.
+         ref_epochs : list[float]
+             Reference epoch for the linear bias drift in each arc, in seconds since J2000.
+         time_link_end : LinkEndType
+             Link end whose time is used when evaluating the bias drift.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "constant_time_bias",
            &tep::timeObservationBias,
            py::arg( "link_ends" ),
            py::arg( "observable_type" ),
-           py::arg( "reference_link_end" ) );
+           py::arg( "reference_link_end" ),
+           R"doc(
+
+         Configure estimation of a constant time-tag bias for ``link_ends`` and ``observable_type``.
+
+         ``reference_link_end`` identifies the link end whose observation time tags are shifted.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "arcwise_time_bias",
            &tep::arcwiseTimeObservationBias,
            py::arg( "link_ends" ),
            py::arg( "observable_type" ),
            py::arg( "arc_start_times" ),
-           py::arg( "reference_link_end" ) );
+           py::arg( "reference_link_end" ),
+           R"doc(
+
+         Configure estimation of a separate time-tag bias on each arc for ``link_ends`` and ``observable_type``.
+
+         ``arc_start_times`` gives arc boundaries in seconds since J2000, referenced to ``reference_link_end``.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         arc_start_times : list[float]
+             Start epochs of the bias arcs, in seconds since J2000.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "ground_station_position",
            &tep::groundStationPosition,
@@ -1446,7 +2148,23 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            &tep::referencePointPosition,
            py::arg( "body" ),
            py::arg( "reference_point_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure estimation of the body-fixed Cartesian position of ``reference_point_name`` on ``body``, in metres.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         reference_point_name : str
+             Identifier of the body-fixed reference point whose position is estimated.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     // ###############  Tidal Model Parameters
     // ################################
@@ -1455,25 +2173,99 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            py::overload_cast< const std::string&, const std::string& >( &tep::directTidalDissipationLagTime ),
            py::arg( "body" ),
            py::arg( "deforming_body" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure estimation of the direct tidal dissipation time lag of ``body``, in seconds.
+
+         ``deforming_body`` is the name, or list of names, of bodies raising the tides associated with the estimated
+         lag.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "direct_tidal_dissipation_time_lag",
            py::overload_cast< const std::string&, const std::vector< std::string >& >( &tep::directTidalDissipationLagTime ),
            py::arg( "body" ),
            py::arg( "deforming_body" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure estimation of the direct tidal dissipation time lag of ``body``, in seconds.
+
+         ``deforming_body`` is the name, or list of names, of bodies raising the tides associated with the estimated
+         lag.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "inverse_tidal_quality_factor",
            py::overload_cast< const std::string&, const std::string& >( &tep::inverseTidalQualityFactor ),
            py::arg( "body" ),
            py::arg( "deforming_body" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure estimation of the dimensionless inverse tidal quality factor of ``body``.
+
+         ``deforming_body`` is the name, or list of names, of bodies raising the associated tides.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "inverse_tidal_quality_factor",
            py::overload_cast< const std::string&, const std::vector< std::string >& >( &tep::inverseTidalQualityFactor ),
            py::arg( "body" ),
            py::arg( "deforming_body" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure estimation of the dimensionless inverse tidal quality factor of ``body``.
+
+         ``deforming_body`` is the name, or list of names, of bodies raising the associated tides.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         deforming_body : str
+             Name of the body raising the tide.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "order_invariant_k_love_number",
            py::overload_cast< const std::string&, const int, const std::vector< std::string >&, const bool >(
@@ -1503,7 +2295,11 @@ deformed_body : str
 degree : int
     Degree :math:`l` of the Love number :math:`k_{l}` that is to be estimated
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the value of :math:`k_{l}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used.
+    The bodies may belong to one or more separate ``solid_body_tide`` variation models.
+    If the list is left empty, all compatible basic solid-body tide-raising bodies/models of ``deformed_body`` will be used.
+    By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once
+    parameter values are reset, even if they were different upon environment initialization
 use_complex_love_number: bool
     Boolean defining whether the estimated Love number is real or imaginary
 
@@ -1543,10 +2339,10 @@ deformed_body : str
     Name of the body that is undergoing tidal deformation
 degree : int
     Degree :math:`l` of the Love numbers :math:`k_{lm}` that are to be estimated
-degree : list[int]
+orders : list[int]
     Orders :math:`m` of the Love numbers :math:`k_{lm}` that are to be estimated
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
 use_complex_love_number: bool
     Boolean defining whether the estimated Love number is real or imaginary
 
@@ -1580,12 +2376,12 @@ Parameters
 ----------
 deformed_body : str
     Name of the body that is undergoing tidal deformation
-love_number_per_degree : dict[tuple[int, int], list[int,int]]]
+love_number_indices : dict[tuple[int, int], list[tuple[int, int]]]
     Dictionary of Love number indices for each combination for forcing and response degree and order.
     The first tuple (key) is the forcing degree and order :math:`l,m`, the list of tuples (key) is the list of associated response degrees and orders :math:`l',m'`
     for which the Love numbers are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` for mathematical definition))
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
 
 Returns
 -------
@@ -1617,9 +2413,9 @@ Parameters
 ----------
 body_name : str
     Name of the body that is undergoing gravity field variation
-cosine_indices_per_power : dict[int, list[int,int]]
+cosine_indices_per_power : dict[int, list[tuple[int, int]]]
     Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
-sine_indices_per_power : dict[int, list[int,int]]
+sine_indices_per_power : dict[int, list[tuple[int, int]]]
     Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns
@@ -1654,9 +2450,9 @@ Parameters
 ----------
 body_name : str
     Name of the body that is undergoing gravity field variation
-cosine_indices_per_period : dict[int, list[int,int]]
+cosine_indices_per_period : dict[int, list[tuple[int, int]]]
     Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{C}_{lm}}` and :math:`B_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.periodic` for mathematical definition)
-sine_indices_per_period : dict[int, list[int,int]]
+sine_indices_per_period : dict[int, list[tuple[int, int]]]
     Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.periodic` for mathematical definition)
 
 Returns
@@ -1683,9 +2479,9 @@ body_name : str
     Name of the body that is undergoing gravity field variation
 power: int
     Power :math:`i` for which to estimate polynomial gravity field variations
-cosine_indices: list[int,int]
+cosine_indices: list[tuple[int, int]]
     List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
-sine_indices: list[int,int]
+sine_indices: list[tuple[int, int]]
     List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns
@@ -1707,7 +2503,7 @@ Returns
 
 Function for creating parameter settings for a body's polynomial gravity field amplitudes at a single power.
 
-Identical to :func:`~polynomial`, but for only a single power, and a full block of spherical harminic coefficient degrees :math:`l` and orders :math`m`
+Identical to :func:`~polynomial`, but for only a single power, and a full block of spherical harmonic coefficient degrees :math:`l` and orders :math`m`
 For each degree :math:`l_{\text{min}}\le l \le l_{\text{max}}`, variations are estimated for all orders :math:`m_{\text{min}}\le m \le \left( \text{min}(m_{\text{max}},l) \right)`
 
 Parameters
@@ -1735,7 +2531,21 @@ Returns
     m.def( "scaled_longitude_libration_amplitude",
            &tep::scaledLongitudeLibrationAmplitude,
            py::arg( "body_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure estimation of the scaled longitude libration amplitude of ``body_name``.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     m.def( "yarkovsky_parameter",
            &tep::yarkovskyParameter,
@@ -1772,6 +2582,28 @@ Returns
            py::arg( "body_name" ),
            R"doc(Force model parameter associated with the RTG radiation acceleration. This parameter allows for estimation of RTG force magnitude at the acceleration model reference epoch.)doc" );
 
+    m.def( "exponential_atmosphere_base_density",
+           &tep::exponentialAtmosphereBaseDensity,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "exponential_atmosphere_scale_height",
+           &tep::exponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_base_density",
+           &tep::arcwiseExponentialAtmosphereBaseDensity,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_scale_height",
+           &tep::arcwiseExponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
+
     m.def( "area_to_mass_ratio_scaling_parameter",
            &tep::areaToMassScaling,
            py::arg( "body_name" ),
@@ -1783,7 +2615,7 @@ Returns
  Upon initialization, the value of this parameter :math:`p` is equal to 1. When using it, it effectively scales the acceleration formulation such that
  :math:`A/m\rightarrow p(A/m)`. Estimating an area-to-mass ratio is typical in, for instance, orbit estimation of near-Earth space debris.
 
- However, since the mass of a body is not (necesarilly) a constant, and the reference area of a body is not (necesarilly) related to a physical surface area, so
+ However, since the mass of a body is not (necessarily) a constant, and the reference area of a body is not (necessarily) related to a physical surface area, so
  we have opted to implement an :math:`A/m` scaling factor as parameter instead. This scaling factor applies to both aerodynamics and radiation pressure, regardless of
  whether their reference areas are identical. It is also by definition comaptible with an object of varying mass.
 
@@ -1840,7 +2672,30 @@ Returns
            py::arg( "parameter_size" ),
            py::arg( "get_parameter_function" ),
            py::arg( "set_parameter_function" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure a custom estimatable parameter vector identified by ``custom_id``.
+
+         ``parameter_size`` is the vector length. ``get_parameter_function`` returns its current values and
+         ``set_parameter_function`` assigns a supplied vector.
+
+         Parameters
+         ----------
+         custom_id : str
+             Identifier of the user-defined estimatable parameter.
+         parameter_size : int
+             Number of scalar entries in the parameter vector.
+         get_parameter_function : Callable[[], numpy.ndarray[numpy.float64[m, 1]]]
+             Function without arguments returning the current parameter vector.
+         set_parameter_function : Callable[[numpy.ndarray[numpy.float64[m, 1]]], None]
+             Function that applies the supplied parameter vector to the environment.
+
+         Returns
+         -------
+         EstimatableParameterSettings
+             Settings for the requested estimatable parameter.
+
+      )doc" );
 
     // ###############  Global (GR) Model Parameters
     // ################################
@@ -1897,16 +2752,37 @@ Returns
 
     // CUSTOM AND ANALYTICAL ACCELERATION PARTIALS
 
-    py::class_< tep::CustomAccelerationPartialSettings, std::shared_ptr< tep::CustomAccelerationPartialSettings > >(
-            m, "CustomAccelerationPartialSettings", R"doc(No documentation found.)doc" );
-
     m.def( "custom_analytical_partial",
            &tep::analyticalAccelerationPartialSettings,
            py::arg( "analytical_partial_function" ),
            py::arg( "body_undergoing_acceleration" ),
            py::arg( "body_exerting_acceleration" ),
            py::arg( "acceleration_type" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure a user-supplied acceleration partial for the specified accelerating body, source body and
+         acceleration type.
+
+         ``analytical_partial_function`` receives the epoch in seconds since J2000 and the current three-component
+         acceleration, and returns the acceleration derivative matrix.
+
+         Parameters
+         ----------
+         analytical_partial_function : Callable[[float, numpy.ndarray[numpy.float64[3, 1]]], numpy.ndarray[numpy.float64[m, n]]]
+             Function of time returning the analytical acceleration partial with respect to the parameter.
+         body_undergoing_acceleration : str
+             Name of the body undergoing the acceleration.
+         body_exerting_acceleration : str
+             Name of the body exerting the acceleration.
+         acceleration_type : AvailableAcceleration
+             Type of acceleration to which the settings apply.
+
+         Returns
+         -------
+         CustomAccelerationPartialSettings
+             Settings defining how to compute the acceleration partial with respect to the parameter.
+
+      )doc" );
 
     m.def( "custom_numerical_partial",
            &tep::numericalAccelerationPartialSettings,
@@ -1915,7 +2791,32 @@ Returns
            py::arg( "body_exerting_acceleration" ),
            py::arg( "acceleration_type" ),
            py::arg( "environment_updates" ) = std::map< tp::EnvironmentModelsToUpdate, std::vector< std::string > >( ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Configure numerical acceleration partials using the component-wise ``parameter_perturbation`` vector.
+
+         ``body_undergoing_acceleration``, ``body_exerting_acceleration`` and ``acceleration_type`` identify the model.
+         ``environment_updates`` maps environment model types to bodies to refresh after a perturbation.
+
+         Parameters
+         ----------
+         parameter_perturbation : numpy.ndarray[numpy.float64[m, 1]]
+             Perturbation magnitude used to compute the numerical partial derivative.
+         body_undergoing_acceleration : str
+             Name of the body undergoing the acceleration.
+         body_exerting_acceleration : str
+             Name of the body exerting the acceleration.
+         acceleration_type : AvailableAcceleration
+             Type of acceleration to which the settings apply.
+         environment_updates : dict[EnvironmentModelsToUpdate, list[str]], default = {}
+             Environment models to refresh for each perturbed parameter value, with the corresponding body names.
+
+         Returns
+         -------
+         CustomAccelerationPartialSettings
+             Settings defining how to compute the acceleration partial with respect to the parameter.
+
+      )doc" );
 }
 
 }  // namespace parameters_setup

@@ -14,14 +14,13 @@
 #include <vector>
 #include <utility>
 #include <limits>
+#include <functional>
 
 #include <Eigen/Core>
 
 #include "pagmo/island.hpp"
 #include "pagmo/io.hpp"
 #include "pagmo/problem.hpp"
-
-#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {
@@ -34,7 +33,7 @@ struct SimsFlanaganProblem {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    SimsFlanaganProblem( ) { }
+    SimsFlanaganProblem( ) {}
 
     //! Constructor.
     SimsFlanaganProblem( const Eigen::Vector6d& stateAtDeparture,

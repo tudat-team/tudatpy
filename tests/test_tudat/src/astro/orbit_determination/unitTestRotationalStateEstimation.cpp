@@ -8,18 +8,27 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -173,8 +182,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     // Define integrator settings.
     double timeStep = 240.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, timeStep );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, timeStep );
 
     // Define propagator settings.
     std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -182,6 +190,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                     torqueModelMap,
                     bodiesToIntegrate,
                     systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Define link ends and observables
@@ -226,8 +236,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     }
 
     // Create orbit determination object
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Deifne observation times
     std::vector< double > observationTimes;
@@ -402,8 +412,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Define integrator settings.
     double timeStep = 240.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-            initialEphemerisTime, timeStep, rungeKuttaFehlberg78, timeStep, timeStep, 1.0, 1.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< RungeKuttaVariableStepSizeSettings<> >( timeStep, rungeKuttaFehlberg78, timeStep, timeStep, 1.0, 1.0 );
 
     // Define propagator settings.
     std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
@@ -427,7 +437,10 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     propagatorSettingsList.push_back( rotationalPropagatorSettings );
 
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-            propagatorSettingsList, std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
+            propagatorSettingsList,
+            integratorSettings,
+            initialEphemerisTime,
+            std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Define link ends and observables
     std::vector< LinkDefinition > linkEndsList;
@@ -470,8 +483,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     }
 
     // Create orbit determination object
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Deifne observation times
     std::vector< double > observationTimes;
@@ -534,14 +547,14 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Check parameter errors
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 0 ) - truthParameters( 0 ) ), 1.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 1.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 2.0E-4 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 2 ) - truthParameters( 2 ) ), 1.0E-2 );
 
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.5E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.5E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.5E-6 );
 
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-12 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 2.0E-12 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-9 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-9 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-9 );

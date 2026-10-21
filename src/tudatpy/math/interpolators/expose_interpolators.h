@@ -13,8 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "tudat/math/interpolators.h"
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -24,7 +22,7 @@ namespace math
 namespace interpolators
 {
 
-void expose_interpolators( py::module &m );
+void expose_interpolators( py::module& m );
 
 }
 }  // namespace math

@@ -35,5 +35,6 @@
 #include "propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 #include "propagators/stateTransitionMatrixInterface.h"
 #include "propagators/variationalEquations.h"
+#include "propagators/relativisticTimeStateDerivative.h"
 
 #endif  // TUDAT_PROPAGATORS_H

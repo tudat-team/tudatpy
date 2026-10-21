@@ -62,13 +62,13 @@ public:
     NumericalIntegrator( const StateDerivativeFunction& stateDerivativeFunction ):
         stateDerivativeFunction_( stateDerivativeFunction ),
         propagationTerminationFunction_( [ = ]( const double, const double, const Eigen::MatrixXd& ) { return false; } )
-    { }
+    {}
 
     //! Default virtual destructor.
     /*!
      * Default virtual destructor.
      */
-    virtual ~NumericalIntegrator( ) { }
+    virtual ~NumericalIntegrator( ) {}
 
     //! Get step size of the next step.
     /*!
@@ -195,7 +195,7 @@ public:
      * Function to toggle the use of step-size control. To be implemented in derived classes with variable step sizes
      * \param useStepSizeControl Boolean denoting whether step size control is to be used
      */
-    virtual void setStepSizeControl( const bool useStepSizeControl ) { }
+    virtual void setStepSizeControl( const bool useStepSizeControl ) {}
 
     //! Replace the state with a new value.
     /*!

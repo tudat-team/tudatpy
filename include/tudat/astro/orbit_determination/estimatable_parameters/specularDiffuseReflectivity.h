@@ -17,7 +17,8 @@
 
 #include "tudat/basics/utilities.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
+#include "tudat/astro/electromagnetism/reflectionLaw.h"
+#include "tudat/astro/system_models/vehicleExteriorPanels.h"
 
 namespace tudat
 {
@@ -42,7 +43,7 @@ public:
                                           const EstimatebleParametersEnum parameterType );
 
     //! Destructor.
-    ~SpecularDiffuseReflectivityParameter( ) { }
+    ~SpecularDiffuseReflectivityParameter( ) {}
 
     double normalizeValue( );
 

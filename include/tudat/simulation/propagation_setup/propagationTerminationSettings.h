@@ -18,6 +18,9 @@
 #include "tudat/math/root_finders/createRootFinder.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
+
 namespace tudat
 {
 
@@ -52,10 +55,10 @@ public:
     PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
                                     const bool checkTerminationToExactCondition = false ):
         terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition )
-    { }
+    {}
 
     //! Destructor
-    virtual ~PropagationTerminationSettings( ) { }
+    virtual ~PropagationTerminationSettings( ) {}
 
     //! Type of stopping condition that is to be used.
     PropagationTerminationTypes terminationType_;
@@ -63,6 +66,46 @@ public:
     //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
     //! on the first step where it is violated.
     bool checkTerminationToExactCondition_;
+
+    // Used for serialization testing
+    bool operator==( const PropagationTerminationSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const PropagationTerminationSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+    //! Save termination settings to a JSON file
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( PropagationTerminationSettings )
+
+public:
+    //! Default constructor for cereal deserialization
+    PropagationTerminationSettings( ): terminationType_( time_stopping_condition ), checkTerminationToExactCondition_( false ) {}
+
+    // Each derived class should implement this function such that it returns true if a deserialized object is
+    // equal to the original object.
+    virtual bool equals( const PropagationTerminationSettings& rhs ) const
+    {
+        return terminationType_ == rhs.terminationType_ && checkTerminationToExactCondition_ == rhs.checkTerminationToExactCondition_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( terminationType_ ), CEREAL_NVP( checkTerminationToExactCondition_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( terminationType_ ), CEREAL_NVP( checkTerminationToExactCondition_ ) );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time
@@ -82,13 +125,42 @@ public:
      */
     PropagationTimeTerminationSettings( const double terminationTime, const bool checkTerminationToExactCondition = false ):
         PropagationTerminationSettings( time_stopping_condition, checkTerminationToExactCondition ), terminationTime_( terminationTime )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationTimeTerminationSettings( ) { }
+    ~PropagationTimeTerminationSettings( ) {}
 
     //! Maximum time for the propagation, upon which the propagation is to be stopped
     double terminationTime_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationTimeTerminationSettings( ): PropagationTerminationSettings( ), terminationTime_( 0.0 ) {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationTimeTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        return terminationTime_ == derived->terminationTime_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationTime_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationTime_ ) );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time
@@ -106,13 +178,42 @@ public:
      */
     PropagationCPUTimeTerminationSettings( const double cpuTerminationTime ):
         PropagationTerminationSettings( cpu_time_stopping_condition ), cpuTerminationTime_( cpuTerminationTime )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationCPUTimeTerminationSettings( ) { }
+    ~PropagationCPUTimeTerminationSettings( ) {}
 
     //! Maximum cpu time for the propagation, upon which the propagation is to be stopped
     double cpuTerminationTime_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationCPUTimeTerminationSettings( ): PropagationTerminationSettings( ), cpuTerminationTime_( 0.0 ) {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationCPUTimeTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        return cpuTerminationTime_ == derived->cpuTerminationTime_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( cpuTerminationTime_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( cpuTerminationTime_ ) );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a
@@ -156,7 +257,7 @@ public:
     }
 
     //! Destructor
-    ~PropagationDependentVariableTerminationSettings( ) { }
+    ~PropagationDependentVariableTerminationSettings( ) {}
 
     //! Settings for dependent variable that is to be checked
     std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
@@ -170,6 +271,56 @@ public:
 
     //! Settings to create root finder used to converge on exact final condition.
     std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationDependentVariableTerminationSettings( ):
+        PropagationTerminationSettings( ), dependentVariableSettings_( nullptr ), limitValue_( 0.0 ), useAsLowerLimit_( false ),
+        terminationRootFinderSettings_( nullptr )
+    {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationDependentVariableTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        if( limitValue_ != derived->limitValue_ ) return false;
+        if( useAsLowerLimit_ != derived->useAsLowerLimit_ ) return false;
+        // Compare shared_ptr targets by value so independently deserialized settings can be equal.
+        if( static_cast< bool >( terminationRootFinderSettings_ ) != static_cast< bool >( derived->terminationRootFinderSettings_ ) )
+            return false;
+        if( terminationRootFinderSettings_ && derived->terminationRootFinderSettings_ &&
+            *terminationRootFinderSettings_ != *derived->terminationRootFinderSettings_ )
+            return false;
+        if( static_cast< bool >( dependentVariableSettings_ ) != static_cast< bool >( derived->dependentVariableSettings_ ) ) return false;
+        if( dependentVariableSettings_ && derived->dependentVariableSettings_ &&
+            *dependentVariableSettings_ != *derived->dependentVariableSettings_ )
+            return false;
+        return true;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( dependentVariableSettings_ ) );
+        ar( CEREAL_NVP( limitValue_ ) );
+        ar( CEREAL_NVP( useAsLowerLimit_ ) );
+        ar( CEREAL_NVP( terminationRootFinderSettings_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( dependentVariableSettings_ ) );
+        ar( CEREAL_NVP( limitValue_ ) );
+        ar( CEREAL_NVP( useAsLowerLimit_ ) );
+        ar( CEREAL_NVP( terminationRootFinderSettings_ ) );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation based on custom requirements
@@ -189,17 +340,49 @@ public:
     PropagationCustomTerminationSettings( const std::function< bool( const double ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ),
         checkStopCondition_( [ = ]( const double time, const Eigen::MatrixXd& ) { return checkStopCondition( time ); } )
-    { }
+    {}
 
     PropagationCustomTerminationSettings( const std::function< bool( const double, const Eigen::MatrixXd& ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ), checkStopCondition_( checkStopCondition )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationCustomTerminationSettings( ) { }
+    ~PropagationCustomTerminationSettings( ) {}
 
     //! Custom temination function.
     std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationCustomTerminationSettings( ): PropagationTerminationSettings( ), checkStopCondition_( nullptr ) {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        // Custom termination settings contain std::function (lambdas) which cannot be compared.
+        // Always return false, as two instances are never guaranteed to be equal.
+        return false;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "PropagationCustomTerminationSettings cannot be serialized: "
+                "std::function member 'checkStopCondition_' is not serializable." );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "PropagationCustomTerminationSettings cannot be serialized: "
+                "std::function member 'checkStopCondition_' is not serializable." );
+    }
 };
 
 //! Class for propagation stopping conditions settings: combination of other stopping conditions.
@@ -234,7 +417,7 @@ public:
     }
 
     //! Destructor
-    ~PropagationHybridTerminationSettings( ) { }
+    ~PropagationHybridTerminationSettings( ) {}
 
     //! List of termination settings for which stopping conditions are created.
     std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings_;
@@ -242,6 +425,47 @@ public:
     //! Boolean denoting whether a single (if true) or all (if false) of the conditions
     //! defined by the entries in the terminationSettings list should be met.
     bool fulfillSingleCondition_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationHybridTerminationSettings( ): PropagationTerminationSettings( ), terminationSettings_( ), fulfillSingleCondition_( false ) {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationHybridTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        if( fulfillSingleCondition_ != derived->fulfillSingleCondition_ ) return false;
+        if( terminationSettings_.size( ) != derived->terminationSettings_.size( ) ) return false;
+        for( std::size_t i = 0; i < terminationSettings_.size( ); ++i )
+        {
+            if( static_cast< bool >( terminationSettings_[ i ] ) != static_cast< bool >( derived->terminationSettings_[ i ] ) )
+                return false;
+            if( terminationSettings_[ i ] && derived->terminationSettings_[ i ] &&
+                !( *terminationSettings_[ i ] == *derived->terminationSettings_[ i ] ) )
+                return false;
+        }
+        return true;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationSettings_ ) );
+        ar( CEREAL_NVP( fulfillSingleCondition_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationSettings_ ) );
+        ar( CEREAL_NVP( fulfillSingleCondition_ ) );
+    }
 };
 
 //! Class for propagation stopping conditions settings: combination of two stopping conditions.
@@ -267,13 +491,58 @@ public:
     }
 
     //! Destructor
-    ~NonSequentialPropagationTerminationSettings( ) { }
+    ~NonSequentialPropagationTerminationSettings( ) {}
 
     //! Termination settings for forward propagation leg.
     std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings_;
 
     //! Termination settings for backward propagation leg.
     std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    NonSequentialPropagationTerminationSettings( ):
+        PropagationTerminationSettings( ), forwardTerminationSettings_( nullptr ), backwardTerminationSettings_( nullptr )
+    {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const NonSequentialPropagationTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        // Compare forward termination settings
+        if( static_cast< bool >( forwardTerminationSettings_ ) != static_cast< bool >( derived->forwardTerminationSettings_ ) )
+            return false;
+        if( forwardTerminationSettings_ && derived->forwardTerminationSettings_ &&
+            !( *forwardTerminationSettings_ == *derived->forwardTerminationSettings_ ) )
+            return false;
+        // Compare backward termination settings
+        if( static_cast< bool >( backwardTerminationSettings_ ) != static_cast< bool >( derived->backwardTerminationSettings_ ) )
+            return false;
+        if( backwardTerminationSettings_ && derived->backwardTerminationSettings_ &&
+            !( *backwardTerminationSettings_ == *derived->backwardTerminationSettings_ ) )
+            return false;
+        return true;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( forwardTerminationSettings_ ) );
+        ar( CEREAL_NVP( backwardTerminationSettings_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( forwardTerminationSettings_ ) );
+        ar( CEREAL_NVP( backwardTerminationSettings_ ) );
+    }
 };
 
 inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVariableTerminationSettings(

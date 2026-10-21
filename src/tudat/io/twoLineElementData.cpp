@@ -39,7 +39,7 @@ TwoLineElementData::TwoLineElementData( ):
     exponentOfBStar( -0 ), bStar( -0.0 ), orbitalModel( 1 ), tleNumber( -0 ), modulo10CheckSumLine1( 10 ), lineNumberLine2( 0 ),
     objectIdentificationNumberLine2( -0 ), meanAnomaly( -0.0 ), meanMotionInRevolutionsPerDay( -0.0 ), revolutionNumber( -0 ),
     totalRevolutionNumber( -0 ), modulo10CheckSumLine2( 10 ), perigee( -0.0 ), apogee( -0.0 )
-{ }
+{}
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, TwoLineElementData& twoLineElementData )

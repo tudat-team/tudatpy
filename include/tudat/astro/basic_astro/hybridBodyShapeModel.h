@@ -39,10 +39,10 @@ public:
                           double switchoverAltitude ):
         lowResolutionBodyShapeModel_( lowResolutionBodyShapeModel ), highResolutionBodyShapeModel_( highResolutionBodyShapeModel ),
         switchoverAltitude_( switchoverAltitude )
-    { }
+    {}
 
     //! Destructor
-    ~HybridBodyShapeModel( ) { }
+    ~HybridBodyShapeModel( ) {}
 
     //! Calculates the altitude above the body.
     /*!

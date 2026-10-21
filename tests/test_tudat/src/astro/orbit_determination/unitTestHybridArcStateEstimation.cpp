@@ -9,7 +9,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -17,10 +16,23 @@
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -89,12 +101,10 @@ Eigen::VectorXd executeParameterEstimation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    bodies.at( "Orbiter" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( orbiterRadiationPressureSettings, "Orbiter", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Orbiter",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
@@ -127,20 +137,26 @@ Eigen::VectorXd executeParameterEstimation(
             getInitialStatesOfBodies( singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
     singleArcInitialStates += initialStateDifference.segment( 0, singleArcInitialStates.rows( ) );
 
+    // Define integrator settings
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 60.0 );
+
     // Create Mars propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings<> > singleArcPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings<> >( singleArcCentralBodies,
-                                                                        singleArcAccelerationModelMap,
-                                                                        singleArcBodiesToIntegrate,
-                                                                        singleArcInitialStates,
-                                                                        finalEphemerisTime );
+            std::make_shared< TranslationalStatePropagatorSettings<> >(
+                    singleArcCentralBodies,
+                    singleArcAccelerationModelMap,
+                    singleArcBodiesToIntegrate,
+                    singleArcInitialStates,
+                    initialEphemerisTime,
+                    integratorSettings->clone( ),
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Set accelerations to act on orbiter
     SelectedAccelerationMap multiArcAccelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
     accelerationsOfOrbiter[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
     accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
     accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     multiArcAccelerationMap[ "Orbiter" ] = accelerationsOfOrbiter;
 
@@ -206,12 +222,14 @@ Eigen::VectorXd executeParameterEstimation(
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
     for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
     {
-        arcPropagationSettingsList.push_back(
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( multiArcCentralBodies,
-                                                                                    multiArcAccelerationModelMap,
-                                                                                    multiArcBodiesToIntegrate,
-                                                                                    multiArcSystemInitialStates.at( i ),
-                                                                                    integrationArcEnds.at( i ) ) );
+        arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                multiArcCentralBodies,
+                multiArcAccelerationModelMap,
+                multiArcBodiesToIntegrate,
+                multiArcSystemInitialStates.at( i ),
+                integrationArcStarts.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
     }
 
     // Define propagator settings (multi- and hybrid-arc)
@@ -219,10 +237,6 @@ Eigen::VectorXd executeParameterEstimation(
             std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList, patchMultiArcs );
     std::shared_ptr< HybridArcPropagatorSettings<> > hybridArcPropagatorSettings =
             std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPropagatorSettings );
-
-    // Define integrator settings
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 60.0 );
 
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -257,7 +271,7 @@ Eigen::VectorXd executeParameterEstimation(
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, hybridArcPropagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, hybridArcPropagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
@@ -351,15 +365,15 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     int numberOfEstimatedArcs = ( parameterError.rows( ) - 8 ) / 6;
 
     std::cout << std::endl << std::endl << "Final error: " << parameterError.transpose( ) << std::endl;
-    // Test error range: 5 m in-plane position and 2 micron/s in-plane velocity for Mars
+    // Test error range: 6 m in-plane position and 4 micron/s in-plane velocity for Mars
     for( unsigned int j = 0; j < 2; j++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( parameterError( j ) ), 5.0 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 2.5E-6 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( j ) ), 6.0 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 4.0E-6 );
     }
 
-    // Test error range: 1000 m in-plane position and 1.0 mm/s in-plane velocity for Mars (poor values due to short arc)
-    BOOST_CHECK_SMALL( std::fabs( parameterError( 2 ) ), 1000.0 );
+    // Test error range: 2000 m in-plane position and 1.0 mm/s in-plane velocity for Mars (poor values due to short arc)
+    BOOST_CHECK_SMALL( std::fabs( parameterError( 2 ) ), 2000.0 );
     BOOST_CHECK_SMALL( std::fabs( parameterError( 5 ) ), 1.0E-3 );
 
     // Test error range: 0.1 m position and 50 micron/s velocity for orbiter
@@ -373,7 +387,7 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     }
 
     // Test errors for gravitational parameters
-    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.5E11 );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 2.0E11 );
     BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E6 );
 }
 

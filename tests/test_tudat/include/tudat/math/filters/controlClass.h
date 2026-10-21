@@ -13,7 +13,6 @@
 #define TUDAT_CONTROL_CLASS_H
 
 #include <Eigen/Core>
-#include <boost/function.hpp>
 
 namespace tudat
 {
@@ -44,7 +43,7 @@ public:
     }
 
     //! Default destructor.
-    ~ControlWrapper( ) { }
+    ~ControlWrapper( ) {}
 
     //! Function to retireve the current control vector.
     /*!

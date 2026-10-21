@@ -20,9 +20,7 @@
 
 #include <cmath>
 
-#include <boost/math/special_functions.hpp>  // For asinh and acosh
-#include <boost/exception/all.hpp>           // For exceptions in sanity checks
-#include <Eigen/Dense>                       // for cross product issues (can someone explain why, exactly?)
+#include <Eigen/Dense>  // for cross product issues (can someone explain why, exactly?)
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -268,21 +266,19 @@ double ZeroRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPar
     else
     {
         // Alpha parameter in Lagrange's equation (no explanation available).
-        const double alphaParameter = 2.0 * boost::math::acosh( xParameter );
+        const double alphaParameter = 2.0 * std::acosh( xParameter );
 
         // Beta parameter in Lagrange's equation (no explanation available).
         double betaParameter;
         // If long transfer arc
         if( isLongway )
         {
-            betaParameter =
-                    -2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
+            betaParameter = -2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
         // Otherwise short transfer arc
         else
         {
-            betaParameter =
-                    2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
+            betaParameter = 2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
 
         // Time-of-flight according to Lagrange.
@@ -384,11 +380,10 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
     else
     {
         // Alpha parameter in Lagrange's equation (no explanation available).
-        const double alphaParameter = 2.0 * boost::math::acosh( xParameter );
+        const double alphaParameter = 2.0 * std::acosh( xParameter );
 
         // Beta parameter in Lagrange's equation (no explanation available).
-        double betaParameter =
-                2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
+        double betaParameter = 2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
 
         if( isLongway )
         {

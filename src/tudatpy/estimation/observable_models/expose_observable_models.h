@@ -11,13 +11,7 @@
 #ifndef TUDATPY_EXPOSE_OBSERVABLE_MODELS_H
 #define TUDATPY_EXPOSE_OBSERVABLE_MODELS_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
-#include "observables_simulation/expose_observables_simulation.h"
 
 namespace py = pybind11;
 
@@ -28,7 +22,7 @@ namespace estimation
 namespace observable_models
 {
 
-void expose_observable_models( py::module &m );
+void expose_observable_models( py::module& m );
 
 }  // namespace observable_models
 }  // namespace estimation

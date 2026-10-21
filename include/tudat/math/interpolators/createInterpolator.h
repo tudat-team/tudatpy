@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include <memory>
+#include <utility>
 
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
@@ -24,6 +25,9 @@
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 
 #include "tudat/io/mapTextFileReader.h"
+
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -53,8 +57,9 @@ public:
     InterpolatorSettings( const InterpolatorTypes interpolatorType,
                           const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                           const bool useLongDoubleTimeStep = false,
-                          const std::vector< BoundaryInterpolationType >& boundaryHandling = std::vector< BoundaryInterpolationType >( ) ):
-        interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ), boundaryHandling_( boundaryHandling )
+                          std::vector< BoundaryInterpolationType > boundaryHandling = std::vector< BoundaryInterpolationType >( ) ):
+        interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ),
+        boundaryHandling_( std::move( boundaryHandling ) )
     {
         // Check that if interpolator type matches with number of dimensions
         std::vector< bool > isMethodOneDimensional = std::vector< bool >( 6, true );
@@ -91,10 +96,10 @@ public:
                               selectedLookupScheme,
                               useLongDoubleTimeStep,
                               std::vector< BoundaryInterpolationType >( 1, boundaryHandling ) )
-    { }
+    {}
 
     //! Virtual destructor.
-    virtual ~InterpolatorSettings( ) { }
+    virtual ~InterpolatorSettings( ) {}
 
     //! Function to get the selected type of interpolator.
     /*!
@@ -141,7 +146,39 @@ public:
         }
     }
 
+    //! Equality operator for serialization testing
+    bool operator==( const InterpolatorSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const InterpolatorSettings& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Virtual equals function to be overridden by derived classes. Base class implementation
+     * compares base class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    virtual bool equals( const InterpolatorSettings& rhs ) const
+    {
+        return interpolatorType_ == rhs.interpolatorType_ && selectedLookupScheme_ == rhs.selectedLookupScheme_ &&
+                boundaryHandling_ == rhs.boundaryHandling_;
+    }
+
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( InterpolatorSettings )
+
 protected:
+    //! Default constructor for serialization.
+    InterpolatorSettings( ):
+        interpolatorType_( linear_interpolator ), selectedLookupScheme_( huntingAlgorithm ),
+        boundaryHandling_( std::vector< BoundaryInterpolationType >( 1, extrapolate_at_boundary ) )
+    {}
+
     //! Selected type of interpolator.
     InterpolatorTypes interpolatorType_;
 
@@ -150,6 +187,25 @@ protected:
 
     //! Boundary handling method.
     std::vector< BoundaryInterpolationType > boundaryHandling_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( interpolatorType_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( interpolatorType_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+    }
 };
 
 //! Class for providing settings to creating a Lagrange interpolator.
@@ -176,10 +232,10 @@ public:
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep, boundaryHandling ),
         interpolatorOrder_( interpolatorOrder ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
-    { }
+    {}
 
     //! Destructor
-    ~LagrangeInterpolatorSettings( ) { }
+    ~LagrangeInterpolatorSettings( ) {}
 
     //! Function to get the order of the Lagrange interpolator that is to be created.
     /*!
@@ -201,12 +257,50 @@ public:
         return lagrangeBoundaryHandling_;
     }
 
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const InterpolatorSettings& rhs ) const override
+    {
+        const auto* derivedRhs = dynamic_cast< const LagrangeInterpolatorSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return InterpolatorSettings::equals( rhs ) && interpolatorOrder_ == derivedRhs->interpolatorOrder_ &&
+                lagrangeBoundaryHandling_ == derivedRhs->lagrangeBoundaryHandling_;
+    }
+
 protected:
+    //! Default constructor for serialization.
+    LagrangeInterpolatorSettings( ):
+        InterpolatorSettings( ), interpolatorOrder_( 6 ), lagrangeBoundaryHandling_( lagrange_cubic_spline_boundary_interpolation )
+    {}
+
     //! Order of the Lagrange interpolator that is to be created.
     int interpolatorOrder_;
 
     //! Lagrange boundary handling method.
     LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
+        ar( CEREAL_NVP( interpolatorOrder_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
+        ar( CEREAL_NVP( interpolatorOrder_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+    }
 };
 
 inline std::shared_ptr< InterpolatorSettings > linearInterpolation(
@@ -260,17 +354,17 @@ public:
     /*!
      * Empty constructor.
      */
-    DataMapSettings( ) { }
+    DataMapSettings( ) {}
 
     //! Constructor with a data map.
     /*!
      * Constructor to be used when the data map is provided directly.
      * \param dataMap The data map containing values for the independent and dependent variables.
      */
-    DataMapSettings( const std::map< IndependentType, DependentType >& dataMap ): dataMap_( dataMap ) { }
+    DataMapSettings( const std::map< IndependentType, DependentType >& dataMap ): dataMap_( dataMap ) {}
 
     //! Virtual destructor
-    virtual ~DataMapSettings( ) { }
+    virtual ~DataMapSettings( ) {}
 
     //! Get the data map associated to the current setting object.
     /*!
@@ -306,10 +400,10 @@ public:
                                          const std::vector< DependentType >& dependentVariableValues ):
         DataMapSettings< IndependentType, DependentType >( ), independentVariableValues_( independentVariableValues ),
         dependentVariableValues_( dependentVariableValues )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~IndependentDependentDataMapSettings( ) { }
+    virtual ~IndependentDependentDataMapSettings( ) {}
 
     //! Vector containing the values of the indepedent variable.
     std::vector< IndependentType > independentVariableValues_;
@@ -357,10 +451,10 @@ public:
      */
     FromFileDataMapSettings( const std::string& relativeFilePath ):
         DataMapSettings< typename EigenVectorType::Scalar, EigenVectorType >( ), relativeFilePath_( relativeFilePath )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~FromFileDataMapSettings( ) { }
+    virtual ~FromFileDataMapSettings( ) {}
 
     //! Relative path to the file from which the map is to be loaded.
     std::string relativeFilePath_;
@@ -396,10 +490,10 @@ public:
                          const std::vector< DependentType >& firstDerivativeOfDependentVariables ):
         DataMapSettings< IndependentType, DependentType >( dataToInterpolate ),
         firstDerivativeOfDependentVariables_( firstDerivativeOfDependentVariables )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~HermiteDataSettings( ) { }
+    virtual ~HermiteDataSettings( ) {}
 
     //! Vector containing the first derivatives of the depedent variables.
     std::vector< DependentType > firstDerivativeOfDependentVariables_;
@@ -414,7 +508,7 @@ public:
                                     const IndependentType finalTime,
                                     const IndependentType timeStep ):
         interpolatorSettings_( interpolatorSettings ), initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep )
-    { }
+    {}
 
     const std::shared_ptr< InterpolatorSettings > interpolatorSettings_;
     const IndependentType initialTime_;
@@ -450,10 +544,10 @@ public:
     DataInterpolationSettings( const std::shared_ptr< DataMapSettings< IndependentType, DependentType > >& dataSettings,
                                const std::shared_ptr< InterpolatorSettings >& interpolatorSettings ):
         dataSettings_( dataSettings ), interpolatorSettings_( interpolatorSettings )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~DataInterpolationSettings( ) { }
+    virtual ~DataInterpolationSettings( ) {}
 
     //! Object containing (the settings to create) the data needed for the interpolation.
     std::shared_ptr< DataMapSettings< IndependentType, DependentType > > dataSettings_;

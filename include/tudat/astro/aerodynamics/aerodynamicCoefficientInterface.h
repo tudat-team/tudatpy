@@ -23,7 +23,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/utilities.h"
 
@@ -144,7 +144,7 @@ struct AerodynamicMomentContributionInterface {
                                             const double signMultiplier ):
         forceToMomentFrameRotation_( forceToMomentFrameRotation ), bodyFixedToMomentFrameRotation_( bodyFixedToMomentFrameRotation ),
         centerOfMassPosition_( centerOfMassPosition ), signMultiplier_( signMultiplier )
-    { }
+    {}
 
     Eigen::Vector3d getMomentCoefficientsCorrection( const Eigen::Vector3d& momentReferencePoint,
                                                      const Eigen::Vector3d& forceCoefficients,
@@ -202,7 +202,7 @@ public:
     }
 
     //! Default destructor.
-    virtual ~AerodynamicCoefficientInterface( ) { }
+    virtual ~AerodynamicCoefficientInterface( ) {}
 
     //! Get reference area.
     /*!
@@ -649,7 +649,7 @@ public:
                                          baseCoefficientInterface->getMomentCoefficientsFrame( ) ),
         baseCoefficientInterface_( baseCoefficientInterface ), forceCoefficientScalingFunction_( forceCoefficientScalingFunction ),
         momentCoefficientScalingFunction_( momentCoefficientScalingFunction ), isScalingRelative_( isScalingRelative )
-    { }
+    {}
 
     void updateCurrentCoefficients( const std::vector< double >& independentVariables, const double currentTime = TUDAT_NAN )
     {

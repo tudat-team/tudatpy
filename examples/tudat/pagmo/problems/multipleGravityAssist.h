@@ -24,7 +24,7 @@ using namespace tudat::input_output;
 
 //! Test function for a new interplanetary trajectory class in Tudat
 struct MultipleGravityAssist {
-    MultipleGravityAssist( ) { }
+    MultipleGravityAssist( ) {}
 
     MultipleGravityAssist( const SystemOfBodies& bodyMap,
                            const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,

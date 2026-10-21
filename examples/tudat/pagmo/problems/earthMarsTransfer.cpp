@@ -10,9 +10,9 @@
 
 #include "earthMarsTransfer.h"
 
-EarthMarsTransfer::EarthMarsTransfer( std::vector< std::vector< double > > &bounds, const bool useTripTime ):
+EarthMarsTransfer::EarthMarsTransfer( std::vector< std::vector< double > >& bounds, const bool useTripTime ):
     problemBounds_( bounds ), useTripTime_( useTripTime )
-{ }
+{}
 
 //! Descriptive name of the problem
 std::string EarthMarsTransfer::get_name( ) const
@@ -27,7 +27,7 @@ std::pair< std::vector< double >, std::vector< double > > EarthMarsTransfer::get
 }
 
 //! Implementation of the fitness function (return delta-v)
-std::vector< double > EarthMarsTransfer::fitness( const std::vector< double > &xv ) const
+std::vector< double > EarthMarsTransfer::fitness( const std::vector< double >& xv ) const
 {
     using tudat::mission_segments::MultiRevolutionLambertTargeterIzzo;
 

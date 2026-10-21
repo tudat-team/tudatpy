@@ -7,10 +7,21 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observations_dependent_variables.h"
+
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_estimation.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;
@@ -51,10 +62,9 @@ void addDependentVariablesToObservationSimulationSettingsPy(
             observationSimulationSettings, dependentVariableList, bodies, observableType, linkEnds );
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
-
+}  // namespace tudat
 
 namespace tudatpy
 {
@@ -66,7 +76,7 @@ namespace observations_setup
 namespace observations_dependent_variables
 {
 
-void expose_observations_dependent_variables( py::module& m )
+void expose_observations_dependent_variable_types( py::module& m )
 {
     py::class_< tss::ObservationDependentVariableSettings, std::shared_ptr< tss::ObservationDependentVariableSettings > >(
             m,
@@ -95,8 +105,67 @@ void expose_observations_dependent_variables( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE( tss::ObservationDependentVariableSettings ) TUDATPY_DEF_EQ_NE( tss::ObservationDependentVariableSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::ObservationDependentVariableSettings );
 
+    py::class_< tss::ObservationDependentVariableBookkeeping, std::shared_ptr< tss::ObservationDependentVariableBookkeeping > >(
+            m,
+            "ObservationDependentVariableBookkeeping",
+            R"doc(
+
+         Class containing the layout and settings of observation dependent variables.
+
+         Instances of this class are created as part of observation simulation
+         settings and can be reused when constructing a SingleObservationSet.
+      )doc" )
+            .def_property_readonly( "observable_type",
+                                    &tss::ObservationDependentVariableBookkeeping::getObservableType,
+                                    R"doc(
+
+         **read-only**
+
+         Observable type associated with these observation dependent variables.
+
+         :type: ObservableType
+
+      )doc" )
+            .def_property_readonly( "link_ends",
+                                    &tss::ObservationDependentVariableBookkeeping::getLinkEnds,
+                                    R"doc(
+
+         **read-only**
+
+         Observation link definition associated with the dependent variables.
+
+         :type: LinkDefinition
+
+      )doc" )
+            .def_property_readonly( "dependent_variable_settings",
+                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings,
+                                    R"doc(
+
+         **read-only**
+
+         Settings for the dependent variables stored alongside observations.
+
+         :type: list[ObservationDependentVariableSettings]
+
+      )doc" )
+            .def_property_readonly( "total_dependent_variable_size",
+                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize,
+                                    R"doc(
+
+         **read-only**
+
+         Total number of scalar entries in the observation dependent variable vector.
+
+         :type: int
+
+      )doc" );
+}
+
+void expose_observations_dependent_variables( py::module& m )
+{
     m.def( "add_dependent_variables_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
@@ -124,7 +193,7 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
 
@@ -148,7 +217,7 @@ void expose_observations_dependent_variables( py::module& m )
  Function for including dependent variables into selected existing observation simulation settings.
 
  As :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all`, except that the function only adds includes the
- computation and reporting of dependent variables to entries of the `observation_simulation_settings` list that matches the specified `observable_type`.
+ computation and reporting of dependent variables to entries of the ``observation_simulation_settings`` list that matches the specified `observable_type`.
 
 
  Parameters
@@ -159,10 +228,10 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
 
 
@@ -183,98 +252,407 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "bodies" ),
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+ Function for including dependent variables into selected existing observation simulation settings.
+
+ As :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all`, except that the function only adds includes the
+ computation and reporting of dependent variables to entries of the ``observation_simulation_settings`` list that matches the specified `observable_type` and `link_ends`.
+
+
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
+
+ dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
+     List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
+
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+     Object consolidating all bodies and environment models that constitute the physical environment.
+
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
+     Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
+
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+     Identifies the link ends in the observation simulation settings for which the dependent variables are to be included.
+
+     )doc" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // DEPENDENT VARIABLES
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
-    py::enum_< tss::IntegratedObservationPropertyHandling >(
-            m, "IntegratedObservationPropertyHandling", R"doc(No documentation found.)doc" )
-            .value( "interval_start", tss::IntegratedObservationPropertyHandling::interval_start )
-            .value( "interval_end", tss::IntegratedObservationPropertyHandling::interval_end )
-            .value( "interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined )
+    py::enum_< tss::IntegratedObservationPropertyHandling >( m, "IntegratedObservationPropertyHandling", R"doc(
+        Enum defining how to handle dependent variables for integrated observations.
+
+        For observables that are integrated over a time interval (like Doppler), this enum specifies at which end of the integration interval the dependent variable should be evaluated.
+        )doc" )
+            .value( "interval_start",
+                    tss::IntegratedObservationPropertyHandling::interval_start,
+                    R"doc(Evaluate the dependent variable at the start of the observation integration interval.)doc" )
+            .value( "interval_end",
+                    tss::IntegratedObservationPropertyHandling::interval_end,
+                    R"doc(Evaluate the dependent variable at the end of the observation integration interval.)doc" )
+            .value( "interval_undefined",
+                    tss::IntegratedObservationPropertyHandling::interval_undefined,
+                    R"doc(No observation integration interval endpoint is specified.)doc" )
             .export_values( );
 
     m.def( "elevation_angle_dependent_variable",
            &tss::elevationAngleDependentVariable,
            py::arg( "link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v(
+                   "link_end_id", tom::linkEndId( "" ), "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v( "originating_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function to create a dependent variable for the elevation angle of a station.
+
+        Parameters
+        ----------
+        link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the link end for which the elevation angle is computed.
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the link end for which the elevation angle is computed.
+        originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the other link end.
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the other link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "azimuth_angle_dependent_variable",
            &tss::azimuthAngleDependentVariable,
            py::arg( "link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v(
+                   "link_end_id", tom::linkEndId( "" ), "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v( "originating_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function to create a dependent variable for the azimuth angle of a station.
+
+        Parameters
+        ----------
+        link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the link end for which the azimuth angle is computed.
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the link end for which the azimuth angle is computed.
+        originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the other link end.
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the other link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "target_range_between_link_ends_dependent_variable",
            &tss::targetRangeBetweenLinkEndsDependentVariable,
            py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v( "start_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "end_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function to create a dependent variable for the range between link ends.
+        The range is evaluated from the states of the link ends at the epoch(s) of the observation:
+
+        .. math::
+
+            r = || \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||
+
+        Parameters
+        ----------
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the starting link end.
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the ending link end.
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the starting link end.
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the ending link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "avoidance_angle_dependent_variable",
            &tss::bodyAvoidanceAngleDependentVariable,
            py::arg( "body_name" ),
            py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v( "start_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "end_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function to create a dependent variable for the body avoidance angle of the link.
+
+        Parameters
+        ----------
+        body_name : str
+            Name of the body to which the avoidance angle is calculated.
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the starting link end.
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the ending link end.
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the starting link end.
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the ending link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "body_center_distance_dependent_variable",
            &tss::linkBodyCenterDistanceDependentVariable,
            py::arg( "body_name" ),
            py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v( "start_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "end_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function to create a dependent variable for the minimum distance between the link and a body's center.
+
+        Parameters
+        ----------
+        body_name : str
+            Name of the body to which the distance is calculated.
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the starting link end.
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the ending link end.
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the starting link end.
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the ending link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "body_limb_distance_dependent_variable",
            &tss::linkLimbDistanceDependentVariable,
            py::arg( "body_name" ),
            py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v( "start_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "end_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function to create a dependent variable for the minimum distance between the link and a body's limb.
+
+        Parameters
+        ----------
+        body_name : str
+            Name of the body to which the distance is calculated.
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the starting link end.
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the ending link end.
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the starting link end.
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the ending link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "angle_wrt_orbital_plane_dependent_variable",
            &tss::linkAngleWrtOrbitalPlaneDependentVariable,
            py::arg( "body_name" ),
            py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
-           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg_v( "start_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "end_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function to create a dependent variable for the angle of the link with respect to a body's orbital plane.
+
+        Parameters
+        ----------
+        body_name : str
+            Name of the body defining the orbital plane.
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the starting link end.
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the ending link end.
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the starting link end.
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            ID of the ending link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "integration_time_dependent_variable",
            &tss::integrationTimeDependentVariable,
-           py::arg( "observable_type" ) = tom::undefined_observation_model,
-           R"doc(No documentation found.)doc" );
+           py::arg_v( "observable_type", tom::undefined_observation_model, "..." ),
+           R"doc(
+        Function to create a dependent variable for the integration time of an observable.
+
+        Parameters
+        ----------
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, default = undefined_observation_model
+            Observable type for which to retrieve the integration time.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 
     m.def( "retransmission_delays_dependent_variable",
            &tss::retransmissionDelaysDependentVariable,
-           py::arg( "observable_type" ) = tom::undefined_observation_model,
-           R"doc(No documentation found.)doc" );
+           py::arg_v( "observable_type", tom::undefined_observation_model, "..." ),
+           R"doc(
+        Function to create a dependent variable for the retransmission delays of an observable.
+
+        Parameters
+        ----------
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, default = undefined_observation_model
+            Observable type for which to retrieve the retransmission delays.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
+    m.def( "link_end_epochs_dependent_variable",
+           &tss::linkEndEpochsDependentVariable,
+           py::arg_v( "observable_type", tom::undefined_observation_model, "..." ),
+           R"doc(
+        Function to create a dependent variable for the link-end epochs of an n-way range observable.
+
+        The returned vector contains the internally computed link-end epochs for each leg in chronological solution order.
+        This setting is currently available for :class:`~tudatpy.estimation.observable_models.n_way_range`
+        and :class:`~tudatpy.estimation.observable_models.dsn_n_way_range`.
+
+        Parameters
+        ----------
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, default = undefined_observation_model
+            Observable type for which to retrieve the link-end epochs.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
+    m.def( "light_time_correction_components_dependent_variable",
+           &tss::lightTimeCorrectionComponentsDependentVariable,
+           py::arg( "transmitter_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "receiver_link_end_type" ) = tom::unidentified_link_end,
+           py::arg_v( "transmitter_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "receiver_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg( "correction_type_filter" ) = std::vector< tom::LightTimeCorrectionType >( ),
+           R"doc(
+        Function to create a dependent variable that saves each light-time correction contribution
+        individually for a single leg (transmitter -> receiver) of the observable.
+
+        The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
+        on the selected leg, in light-time-calculator order and registration order within each calculator. If ``correction_type_filter`` is supplied,
+        all registered contributions whose type matches any requested type are returned.
+        Matching contributions are grouped by the order in which each distinct type first appears
+        in the filter; repeated occurrences of the same type in the filter do not duplicate output
+        entries. Consequently, the returned vector does not necessarily have the same length as
+        ``correction_type_filter`` and may be longer if multiple registered corrections share a
+        requested type.
+
+        Supported for observables that expose their light-time leg calculators through the
+        observation-model interface. Requesting this dependent variable for an unsupported
+        observable, or for a transmitter/receiver pair that does not correspond to an actual
+        leg of the chosen observable, raises a ``RuntimeError`` when the observation is
+        simulated (i.e. on the first call to
+        :func:`~tudatpy.estimation.observations.simulate_observations` for that
+        :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings`),
+        not silently dropped.
+
+        Parameters
+        ----------
+        transmitter_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the transmitting side of the leg (e.g. ``transmitter``, ``retransmitter``).
+        receiver_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the receiving side of the leg.
+        transmitter_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            Optional specific link-end ID for the transmitting side (body/station).
+        receiver_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            Optional specific link-end ID for the receiving side.
+        correction_type_filter : list[tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionType], optional
+            Subset of correction types to save. Empty list = save all registered corrections.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 }
 
-}
-}
-}
-}
+}  // namespace observations_dependent_variables
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy

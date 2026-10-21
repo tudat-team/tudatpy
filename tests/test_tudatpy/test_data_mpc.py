@@ -1,18 +1,14 @@
-
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
-
 from tudatpy.dynamics import environment_setup
 from tudatpy.interface import spice
-
 import numpy as np
-import pytest
 import datetime
-
-from astroquery.mpc import MPC as astroquery_MPC
-
+import pytest
 
 spice.load_standard_kernels()
+
+pytestmark = pytest.mark.remote_data
 
 # coverage = 88%
 # TESTS DO NOT CHECK/VALIDATE:
@@ -61,7 +57,7 @@ filter_test_input = [
 ]
 
 
-# for the weights tests 
+# for the weights tests
 observatory_set_single = ["M22"]
 observatory_set_multi = ["K19", "D67", "089", "706"]
 weights_test_combinations = [
@@ -71,22 +67,68 @@ weights_test_combinations = [
     (None, False),  # all data
 ]
 
-
-#@pytest.mark.parametrize("inp,expected", get_observations_input)
-#def test_BatchMPC_getobservations(inp, expected):
+# @pytest.mark.parametrize("inp,expected", get_observations_input)
+# def test_BatchMPC_getobservations(inp, expected):
 #    query = BatchMPC()
 #    query.get_observations(inp)
 #    assert set(query.MPC_objects) == expected
 
 
-#@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
-#def test_BatchMPC_getobservations2(inp, errtype, errvalue):
+# @pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
+# def test_BatchMPC_getobservations2(inp, errtype, errvalue):
 #    query = BatchMPC()
 #    with pytest.raises(Exception) as exc_info:
 #        query.get_observations(inp)
 #
 #    assert exc_info.type is errtype
 #    assert str(exc_info.value) == errvalue
+
+
+@pytest.mark.parametrize("mpc_code", mpc_codes_test)
+def test_create_observations_from_astropy_table(mpc_code):
+    """Check if observatory table matches observation_collection"""
+    query = BatchMPC()
+    query.get_observations([mpc_code])
+    query.filter(observatories=["T05", "T08"])
+    # table values are sorted for easier comparison
+    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
+
+    RADEC = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
+    times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
+    times = np.array([times, times])  # concat times are doubled due to RA + DEC
+
+    # we created a table by using get_observations.
+    # This yields observations in radians, so we have to set
+    # in_degrees = False
+    observation_collection = query.create_observations_from_astropy_table(
+        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
+    )
+
+    # reshape to [2, ...] where 2 is RA + DEC
+    obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
+        2, -1, order="F"
+    )
+    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
+
+    # max error between the two should be zero
+    assert (np.max(obscol_times - times)) == pytest.approx(0.00)
+    assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
+
+
+@pytest.mark.parametrize("mpc_code", mpc_codes_test)
+def test_mpc_custom_name_metadata(mpc_code):
+    batch = BatchMPC()
+    # Use a real MPC code but provide a custom name
+    custom_name = "Death_Star"
+    batch.get_observations([mpc_code], custom_name=custom_name)
+
+    # Verify the custom_name column exists and has the correct value
+    assert "custom_name" in batch.table.columns
+    assert (batch.table["custom_name"] == custom_name).all()
+
+    # Verify MPC_objects returns the custom name instead of mpc code
+    assert custom_name in batch.MPC_objects
+    assert mpc_code not in batch.MPC_objects
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -97,10 +139,10 @@ def test_BatchMPC_to_tudat(mpc_code):
     query.filter(observatories=["T05", "T08"])
 
     # table values are sorted for easier comparison
-    query._table = query._table.sort_values(["observatory", "epochJ2000secondsTDB"])
+    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
 
     RADEC = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
-    times = query.table.loc[:, ["epochJ2000secondsTDB"]].to_numpy().T[0]
+    times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
     times = np.array([times, times])  # concat times are doubled due to RA + DEC
 
     # to_tudat needs a system of bodies with earth in it as input
@@ -115,18 +157,14 @@ def test_BatchMPC_to_tudat(mpc_code):
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     observation_collection = query.to_tudat(
-        bodies=bodies,
-        included_satellites=None,
-        apply_star_catalog_debias=False
+        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
     obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
         2, -1, order="F"
     )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(
-        2, -1, order="F"
-    )
+    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
 
     # max error between the two should be zero
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
@@ -141,10 +179,10 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     query.filter(observatories=["C51"])
 
     # table values are sorted for easier comparison
-    query._table = query._table.sort_values(["observatory", "epochJ2000secondsTDB"])
+    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
 
     RADEC = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
-    times = query.table.loc[:, ["epochJ2000secondsTDB"]].to_numpy().T[0]
+    times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
     times = np.array([times, times])  # concat times are doubled due to RA + DEC
 
     # to_tudat needs a system of bodies with earth in it as input
@@ -160,18 +198,14 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     bodies.create_empty_body("Wise")
 
     observation_collection = query.to_tudat(
-        bodies=bodies,
-        included_satellites={"C51": "Wise"},
-        apply_star_catalog_debias=False
+        bodies=bodies, included_satellites={"C51": "Wise"}, apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
     obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
         2, -1, order="F"
     )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(
-        2, -1, order="F"
-    )
+    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
 
     # max error between the two should be zero
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
@@ -182,25 +216,28 @@ def test_compare_mpc_horizons_eph():
     """Compares true observations from BatchMPC to interpolated simulated RA/DEC from JPL Horizons"""
     batch = BatchMPC()
     batch.get_observations([433])
+
+    # batch.filter takes python datetimes in UTC!
     batch.filter(
         epoch_start=datetime.datetime(2017, 1, 1),
         epoch_end=datetime.datetime(2022, 1, 1),
         observatories=["T08"],
     )
-    batch_times = batch.table.epochJ2000secondsTDB.to_list()
 
+    # Horizons Query wants batch_times (or start_epoch, end_epoch) in UTC!!!
+    batch_times = batch.table.epoch_seconds_UTC.to_numpy()
     eros = HorizonsQuery(
         query_id="433;", location="T08@399", epoch_list=batch_times, extended_query=True
     )
 
+    # interpolated_observations returns times in TDB!!!
     radec_horizons = eros.interpolated_observations(degrees=False)
-    radec_mpc = batch.table.loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]].reset_index(
-        drop=True
-    )
+
+    # the retrieved batch.table has time columns: epoch [julian days in UTC], epoch_seconds_UTC [UTC datetime], epoch_seconds_TDB [TDB seconds]
+    radec_mpc = batch.table.loc[:, ["epoch_seconds_TDB", "RA", "DEC"]].reset_index(drop=True)
 
     diff = (radec_horizons - radec_mpc).to_numpy()
     diff = np.abs(diff).max(axis=0)
-
     time_diff = diff[0]
     RA_diff = diff[1]
     DEC_diff = diff[2]

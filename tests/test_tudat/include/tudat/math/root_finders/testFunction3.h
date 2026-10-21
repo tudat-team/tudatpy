@@ -45,7 +45,7 @@ struct TestFunction3 : public TestFunction, public basic_mathematics::BasicFunct
     unsigned int maximumDerivativeOrder;
 
     //! Create a function, where aMaximumDerivativeOrder is the maximum order of the derivative.
-    TestFunction3( unsigned int aMaximumDerivativeOrder ): maximumDerivativeOrder( aMaximumDerivativeOrder ) { }
+    TestFunction3( unsigned int aMaximumDerivativeOrder ): maximumDerivativeOrder( aMaximumDerivativeOrder ) {}
 
     //! Mathematical test function.
     double evaluate( const double inputValue )

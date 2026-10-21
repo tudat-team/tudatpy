@@ -116,6 +116,11 @@ public:
         return transmittingFrequencyCalculator_;
     }
 
+    bool hasFrequencyCalculator( )
+    {
+        return ( !( transmittingFrequencyCalculator_ == nullptr ) );
+    }
+
     //! Function to set the object used to compute the ground station's transmitting frequency at a given time
     void setTransmittingFrequencyCalculator( std::shared_ptr< StationFrequencyInterpolator > transmittingFrequencyCalculator )
     {
@@ -179,6 +184,10 @@ public:
      */
     std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
     {
+        if( vehicleSystems_ == nullptr )
+        {
+            vehicleSystems_ = std::make_shared< system_models::VehicleSystems >( );
+        }
         return vehicleSystems_;
     }
 

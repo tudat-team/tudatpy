@@ -11,11 +11,7 @@
 #ifndef TUDATPY_EXPOSE_TRANSFER_TRAJECTORY_H
 #define TUDATPY_EXPOSE_TRANSFER_TRAJECTORY_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -26,7 +22,7 @@ namespace trajectory_design
 namespace transfer_trajectory
 {
 
-void expose_transfer_trajectory( py::module &m );
+void expose_transfer_trajectory( py::module& m );
 
 }  // namespace transfer_trajectory
 }  // namespace trajectory_design

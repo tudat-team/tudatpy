@@ -16,9 +16,6 @@
 
 #include <functional>
 #include <memory>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
-#include <boost/tuple/tuple_io.hpp>
 
 #include <Eigen/Core>
 
@@ -26,6 +23,7 @@
 #include "tudat/astro/propagators/bodyMassStateDerivative.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
 #include "tudat/astro/propagators/variationalEquations.h"
 
@@ -235,7 +233,20 @@ public:
 
         // Update counters
         functionEvaluationCounter_++;
-        cumulativeFunctionEvaluationCounter_[ time ] = functionEvaluationCounter_;
+
+        if( stateDerivativeModifierFunction_ )
+        {
+            StateType modifiedStateDerivative = stateDerivativeModifierFunction_( state, stateDerivative_ );
+            if( modifiedStateDerivative.rows( ) != stateDerivative_.rows( ) || modifiedStateDerivative.cols( ) != stateDerivative_.cols( ) )
+            {
+                throw std::runtime_error( "Error when applying state derivative modifier function: modified state derivative has size (" +
+                                          std::to_string( modifiedStateDerivative.rows( ) ) + ", " +
+                                          std::to_string( modifiedStateDerivative.cols( ) ) + "), but expected (" +
+                                          std::to_string( stateDerivative_.rows( ) ) + ", " + std::to_string( stateDerivative_.cols( ) ) +
+                                          ")." );
+            }
+            stateDerivative_ = modifiedStateDerivative;
+        }
 
         return stateDerivative_;
     }
@@ -499,12 +510,15 @@ public:
                                 break;
                         }
                     }
+                    break;
                 }
                 case rotational_state:
                     break;
                 case body_mass_state:
                     break;
                 case custom_state:
+                    break;
+                case proper_time:
                     break;
                 default:
                     throw std::runtime_error( "Error when updating state derivative model settings, did not recognize dynamics type" );
@@ -591,6 +605,40 @@ public:
     std::shared_ptr< VariationalEquations > getVariationalEquationsCalculator( )
     {
         return variationalEquations_;
+    }
+
+    //! Function to set a modifier function for the full state derivative.
+    /*!
+     * Function to set a modifier function for the full state derivative. When set, this function is called at the end of
+     * computeStateDerivative, after the nominal dynamics and variational derivatives have been computed.
+     * \param stateDerivativeModifierFunction Function taking the current state and nominal state derivative, and returning
+     * the state derivative to be used by the integrator.
+     */
+    void setStateDerivativeModifierFunction(
+            const std::function< StateType( const StateType&, const StateType& ) >& stateDerivativeModifierFunction )
+    {
+        stateDerivativeModifierFunction_ = stateDerivativeModifierFunction;
+    }
+
+    //! Function to retrieve the modifier function for the full state derivative.
+    /*!
+     * Function to retrieve the modifier function for the full state derivative.
+     * \return Function taking the current state and nominal state derivative, and returning the modified state derivative.
+     */
+    std::function< StateType( const StateType&, const StateType& ) > getStateDerivativeModifierFunction( )
+    {
+        return stateDerivativeModifierFunction_;
+    }
+
+    //! Function to reset the state derivative modifier function.
+    void resetStateDerivativeModifierFunction( )
+    {
+        stateDerivativeModifierFunction_ = std::function< StateType( const StateType&, const StateType& ) >( );
+    }
+
+    void signalEndOfMajorStep( const double majorStepEndTime )
+    {
+        cumulativeFunctionEvaluationCounter_[ majorStepEndTime ] = functionEvaluationCounter_;
     }
 
 private:
@@ -719,6 +767,8 @@ private:
 
     //! Variable to keep track of the number of calls to the computeStateDerivative function per time step
     std::map< TimeType, unsigned int > cumulativeFunctionEvaluationCounter_;
+
+    std::function< StateType( const StateType&, const StateType& ) > stateDerivativeModifierFunction_;
 };
 
 // extern template class DynamicsStateDerivativeModel< double, double >;
@@ -798,7 +848,7 @@ inline std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > getEihEqua
         const basic_astrodynamics::AccelerationMap& accelerationModelList )
 {
     std::vector< std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations;
-    for( auto it: accelerationModelList )
+    for( auto it : accelerationModelList )
     {
         try
         {
@@ -822,7 +872,7 @@ inline std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > getEihEqua
             }
         }
         catch( ... )
-        { }
+        {}
     }
 
     if( eihAccelerations.size( ) == 0 )

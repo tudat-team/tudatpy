@@ -9,14 +9,13 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
 #include <iostream>
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -61,7 +60,7 @@ public:
     DummyNumericalIntegrator( const double intervalStart, const Eigen::VectorXd& initialState ):
         NumericalIntegrator<>( &computeZeroStateDerivative ), numberOfSteps( 0 ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState )
-    { }
+    {}
 
     //! Get step size of the next step.
     /*!
@@ -191,7 +190,8 @@ bool testIntegrateToFunction( const double intervalStart,
 BOOST_AUTO_TEST_CASE( testNumberOfStepsUsingNumericalIntegrator )
 {
     // Set random initial state.
-    Eigen::VectorXd initialState = ( Eigen::VectorXd( 4 ) << 0.34, 0.24, 0.76, 0.10 ).finished( );
+    Eigen::VectorXd initialState( 4 );
+    initialState << 0.34, 0.24, 0.76, 0.10;
 
     // Case 1: test number of steps for different start and end times.
     {

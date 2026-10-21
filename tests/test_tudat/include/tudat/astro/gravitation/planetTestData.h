@@ -72,13 +72,13 @@ public:
         planetName( aPlanetName ), gravitationalParameter( aGravitationalParameter ), equatorialRadius( anEquatorialRadius ),
         zonalCoefficients( someZonalCoefficients ), body1Positions( positionsOfBodyExertingAcceleration ),
         body2Positions( positionsOfBodySubjectToAcceleration ), expectedAcceleration( IndexedVector3d( ) )
-    { }
+    {}
 
     //! Empty constructor.
     PlanetTestData( ):
         planetName( "" ), gravitationalParameter( TUDAT_NAN ), equatorialRadius( TUDAT_NAN ), zonalCoefficients( KeyIntValueDoubleMap( ) ),
         body1Positions( VectorOfVector3ds( ) ), body2Positions( VectorOfVector3ds( ) ), expectedAcceleration( IndexedVector3d( ) )
-    { }
+    {}
 
     //! Planet name.
     /*!

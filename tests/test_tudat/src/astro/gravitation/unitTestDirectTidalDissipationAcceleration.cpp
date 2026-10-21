@@ -7,13 +7,21 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/io/basicInputOutput.h"
 
@@ -74,7 +82,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation( const Sys
     // Define propagation settings.
     const double fixedStepSize = 450.0;
     std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-            0.0, fixedStepSize, rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
+            fixedStepSize, rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
 
     std::map< double, Eigen::VectorXd > integrationResultWithDissipation;
     std::map< double, Eigen::VectorXd > integrationResultWithDissipationKepler;

@@ -45,13 +45,13 @@ public:
                               const std::string& spiceFrameName = "" ):
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
         spiceFrameName_( ( spiceFrameName != "" ) ? spiceFrameName : targetFrameOrientation )
-    { }
+    {}
 
     //! Destructor
     /*!
      *  Destructor.
      */
-    ~SpiceRotationalEphemeris( ) { }
+    ~SpiceRotationalEphemeris( ) {}
 
     //! Function to calculate the rotation quaternion from target frame to original frame.
     /*!

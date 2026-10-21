@@ -8,18 +8,18 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat

@@ -13,14 +13,16 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationBias.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
-#include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
@@ -31,355 +33,6 @@ namespace tudat
 
 namespace observation_models
 {
-
-enum ObservationAncilliarySimulationVariable {
-    link_ends_delays,
-    frequency_bands,
-    reception_reference_frequency_band,
-    doppler_integration_time,
-    doppler_reference_frequency,
-    sequential_range_lowest_ranging_component,
-    range_conversion_factor,
-};
-
-enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
-
-struct ObservationAncilliarySimulationSettings {
-public:
-    ObservationAncilliarySimulationSettings( ) { }
-
-    virtual ~ObservationAncilliarySimulationSettings( ) { }
-
-    void setAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType, const double variable )
-    {
-        switch( variableType )
-        {
-            case doppler_integration_time:
-            case doppler_reference_frequency:
-            case reception_reference_frequency_band:
-            case sequential_range_lowest_ranging_component:
-            case range_conversion_factor:
-                doubleData_[ variableType ] = variable;
-                break;
-            default:
-                throw std::runtime_error(
-                        "Error when setting double ancilliary observation "
-                        "data; could not set type " +
-                        getAncillaryDataName( variableType ) );
-        }
-    }
-
-    void setAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable &variableType, const std::vector< double > &variable )
-    {
-        switch( variableType )
-        {
-            case link_ends_delays:
-            case frequency_bands:
-                doubleVectorData_[ variableType ] = variable;
-                break;
-            default:
-                throw std::runtime_error(
-                        "Error when setting double vector ancilliary "
-                        "observation data; could not set type " +
-                        getAncillaryDataName( variableType ) );
-        }
-    }
-
-    double getAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType, const bool throwException = true )
-    {
-        double returnVariable = TUDAT_NAN;
-        try
-        {
-            switch( variableType )
-            {
-                case doppler_integration_time:
-                case doppler_reference_frequency:
-                case reception_reference_frequency_band:
-                case sequential_range_lowest_ranging_component:
-                case range_conversion_factor:
-                    returnVariable = doubleData_.at( variableType );
-                    break;
-                default:
-                    if( throwException )
-                    {
-                        throw std::runtime_error(
-                                "Error when getting double ancilliary observation "
-                                "data; could not retrieve type " +
-                                getAncillaryDataName( variableType ) );
-                    }
-                    break;
-            }
-        }
-        catch( ... )
-        {
-            if( throwException )
-            {
-                throw std::runtime_error(
-                        "Error when getting double ancilliary observation "
-                        "data; could not retrieve type " +
-                        getAncillaryDataName( variableType ) );
-            }
-        }
-        return returnVariable;
-    }
-
-    std::vector< double > getAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable &variableType,
-                                                         const bool throwException = true )
-    {
-        std::vector< double > returnVariable;
-        try
-        {
-            switch( variableType )
-            {
-                case link_ends_delays:
-                case frequency_bands:
-                    returnVariable = doubleVectorData_.at( variableType );
-                    break;
-                default:
-                    if( throwException )
-                    {
-                        throw std::runtime_error(
-                                "Error when getting double vector ancilliary "
-                                "observation data; could not retrieve type " +
-                                getAncillaryDataName( variableType ) );
-                    }
-                    break;
-            }
-        }
-        catch( ... )
-        {
-            if( throwException )
-            {
-                throw std::runtime_error(
-                        "Error when getting double vector ancilliary observation "
-                        "data; could not retrieve type " +
-                        getAncillaryDataName( variableType ) );
-            }
-        }
-        return returnVariable;
-    }
-
-    std::string getAncillaryDataName( const ObservationAncilliarySimulationVariable &variableType )
-    {
-        std::string name;
-
-        switch( variableType )
-        {
-            case link_ends_delays:
-                name = "link ends time delays";
-                break;
-            case frequency_bands:
-                name = "frequency bands";
-                break;
-            case doppler_integration_time:
-                name = "Doppler observable integration time";
-                break;
-            case doppler_reference_frequency:
-                name = "DSN Doppler reference frequency";
-                break;
-            case reception_reference_frequency_band:
-                name = "DSN reference frequency band at reception";
-                break;
-            case sequential_range_lowest_ranging_component:
-                name = "DSN sequential range lowest ranging component";
-                break;
-            case range_conversion_factor:
-                name = "DSN range conversion factor from RU to meter";
-                break;
-            default:
-                throw std::runtime_error(
-                        "Error when getting ancillary observation data name; "
-                        "variable type not recognized." );
-                break;
-        }
-
-        return name;
-    }
-
-    void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const double variable )
-    {
-        switch( variableType )
-        {
-            case transmitter_frequency_intermediate:
-            case received_frequency_intermediate:
-                doubleIntermediateData_[ variableType ] = variable;
-                break;
-            default:
-                throw std::runtime_error(
-                        "Error when setting double intermediate observation "
-                        "data; could not set type " +
-                        std::to_string( static_cast< int >( variableType ) ) );
-        }
-    }
-
-    double getIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const bool throwException = true )
-    {
-        double returnVariable = TUDAT_NAN;
-        try
-        {
-            switch( variableType )
-            {
-                case transmitter_frequency_intermediate:
-                case received_frequency_intermediate:
-                    returnVariable = doubleIntermediateData_.at( variableType );
-                    break;
-                default:
-                    if( throwException )
-                    {
-                        throw std::runtime_error(
-                                "Error when getting double intermediate observation "
-                                "data; could not retrieve type " +
-                                std::to_string( static_cast< int >( variableType ) ) );
-                    }
-                    break;
-            }
-        }
-        catch( ... )
-        {
-            if( throwException )
-            {
-                throw std::runtime_error(
-                        "Error when getting double intermediate observation "
-                        "data; could not retrieve type " +
-                        std::to_string( static_cast< int >( variableType ) ) );
-            }
-        }
-        return returnVariable;
-    }
-
-    bool operator==( const ObservationAncilliarySimulationSettings &rightSettings )
-    {
-        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
-    }
-
-    std::map< ObservationAncilliarySimulationVariable, double > getDoubleData( ) const
-    {
-        return doubleData_;
-    }
-
-    std::map< ObservationAncilliarySimulationVariable, std::vector< double > > getDoubleVectorData( ) const
-    {
-        return doubleVectorData_;
-    }
-
-protected:
-    std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
-    std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
-
-    std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
-};
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDopplerAncilliarySettings(
-        const double integrationTime = 60.0 )
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    return ancilliarySettings;
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayRangeAncilliarySettings(
-        const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands > &frequencyBands = std::vector< FrequencyBands >( ) )
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    return ancilliarySettings;
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayAveragedDopplerAncilliarySettings(
-        const double integrationTime = 60.0,
-        const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands > &frequencyBands = std::vector< FrequencyBands >( ) )
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    return ancilliarySettings;
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayRangeAncilliarySettings( const double retransmissionTime )
-{
-    return getNWayRangeAncilliarySettings( std::vector< double >( { retransmissionTime } ) );
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayAveragedDopplerAncilliarySettings(
-        const double integrationTime = 60.0,
-        const double retransmissionTime = 0.0 )
-{
-    return getNWayAveragedDopplerAncilliarySettings( integrationTime, std::vector< double >( { retransmissionTime } ) );
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
-        const std::vector< FrequencyBands > &frequencyBands,
-        const FrequencyBands receptionReferenceFrequencyBand,
-        const double referenceFrequency,
-        const double integrationTime = 60.0,
-        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-
-    ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    ancillarySettings->setAncilliaryDoubleData( doppler_reference_frequency, referenceFrequency );
-    ancillarySettings->setAncilliaryDoubleData( reception_reference_frequency_band,
-                                                convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
-
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-
-    return ancillarySettings;
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRangeAncillarySettings(
-        const std::vector< FrequencyBands > &frequencyBands,
-        const double lowestRangingComponent,
-        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
-
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-
-    ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
-
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-
-    return ancillarySettings;
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDopplerMeasuredFrequencyAncilliarySettings(
-        const std::vector< FrequencyBands > &frequencyBands )
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-
-    return ancillarySettings;
-}
-
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDefaultAncilliaryObservationSettings(
-        const observation_models::ObservableType observableType )
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr;
-    switch( observableType )
-    {
-        case observation_models::one_way_differenced_range:
-            ancilliarySettings = getAveragedDopplerAncilliarySettings( 60.0 );
-            break;
-        case observation_models::n_way_differenced_range:
-            ancilliarySettings = getAveragedDopplerAncilliarySettings( 60.0 );
-            break;
-        default:
-            break;
-    }
-    return ancilliarySettings;
-}
 
 //! Base class for models of observables (i.e. range, range-rate, etc.).
 /*!
@@ -410,10 +63,14 @@ public:
      * deviations from the physically ideal observable between reference points
      * (default none).
      */
-    ObservationModel( const ObservableType observableType,
-                      const LinkEnds linkEnds,
-                      const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr ):
-        observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator )
+    ObservationModel(
+            const ObservableType observableType,
+            const LinkEnds linkEnds,
+            const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr,
+            const std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators =
+                    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >( ) ):
+        observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator ),
+        lightTimeCalculators_( lightTimeCalculators )
     {
         // Check if bias is empty
         if( observationBiasCalculator_ != nullptr )
@@ -433,7 +90,7 @@ public:
     }
 
     //! Virtual destructor
-    virtual ~ObservationModel( ) { }
+    virtual ~ObservationModel( ) {}
 
     //! Function to return the type of observable.
     /*!
@@ -448,6 +105,31 @@ public:
     LinkEnds getLinkEnds( )
     {
         return linkEnds_;
+    }
+
+    //! Function to retrieve model-dependent residual wrapping settings.
+    virtual ResidualWrappingSettings getResidualWrappingSettings( ) const
+    {
+        return ResidualWrappingSettings( );
+    }
+
+    virtual std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const = 0;
+
+    std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getObservationLightTimeCalculator(
+            const unsigned int pathIndex = 0 )
+    {
+        return getFullLinkLightTimeCalculatorFromBase( pathIndex );
+    }
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > getTimeScaleConverter( )
+    {
+        return timeScaleConverter_;
+    }
+
+    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > getObservationLightTimeCalculators( )
+    {
+        return lightTimeCalculators_;
     }
 
     //! Function to compute the observable without any corrections
@@ -470,9 +152,9 @@ public:
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            std::vector< double > &linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr ) = 0;
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) = 0;
 
     //! Function to compute full observation at given time.
     /*!
@@ -490,15 +172,30 @@ public:
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            std::vector< double > &linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
+    {
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation;
+        return computeObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, idealObservation, ancillarySetings );
+    }
+
+    //! Compute the full observation and return its ideal value at the effective observation time by reference.
+    Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >& idealObservation,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
-            return computeIdealObservationsWithLinkEndData(
-                    time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+            idealObservation = computeIdealObservationsWithLinkEndData(
+                    time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
+            return idealObservation;
         }
         else
         {
@@ -511,13 +208,13 @@ public:
             }
 
             // Compute ideal observable
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
-                    observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+            idealObservation = computeIdealObservationsWithLinkEndData(
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
             // Add correction
-            return currentObservation +
+            return idealObservation +
                     this->observationBiasCalculator_
-                            ->getObservationBias( linkEndTimes, linkEndStates, currentObservation.template cast< double >( ) )
+                            ->getObservationBias( linkEndTimes, linkEndStates, idealObservation.template cast< double >( ) )
                             .template cast< ObservationScalarType >( );
         }
     }
@@ -538,11 +235,11 @@ public:
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Compute ideal observable from derived class.
         return this->computeIdealObservationsWithLinkEndData(
-                time, linkEndAssociatedWithTime, this->linkEndTimes_, this->linkEndStates_, ancilliarySetings );
+                time, linkEndAssociatedWithTime, this->linkEndTimes_, this->linkEndStates_, ancillarySetings );
     }
 
     //! Function to compute full observation at given time.
@@ -556,13 +253,13 @@ public:
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
             return computeIdealObservationsWithLinkEndData(
-                    time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
+                    time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancillarySetings );
         }
         else
         {
@@ -576,7 +273,7 @@ public:
 
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
-                    observationTime, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancillarySetings );
 
             // Add correction
             return currentObservation +
@@ -601,11 +298,11 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             const int observationEntry,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         if( observationEntry < ObservationSize )
         {
-            return computeObservations( time, linkEndAssociatedWithTime, ancilliarySetings )( observationEntry );
+            return computeObservations( time, linkEndAssociatedWithTime, ancillarySetings )( observationEntry );
         }
         else
         {
@@ -636,7 +333,181 @@ public:
         return observationBiasCalculator_;
     }
 
+    virtual void setFrequencyInterpolator( std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator )
+    {
+        frequencyInterpolator_ = frequencyInterpolator;
+        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+    }
+
+    virtual void setFrequencyInterpolatorAndTurnaroundRatio(
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
+            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+    {
+        frequencyInterpolator_ = frequencyInterpolator;
+        turnaroundRatio_ = turnaroundRatio;
+        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+    }
+
+    virtual void setTimeScaleConverter( )
+    {
+        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+    }
+
+    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    {
+        for( auto lightTimeCalculator : lightTimeCalculators_ )
+        {
+            if( lightTimeCalculator != nullptr )
+            {
+                lightTimeCalculator->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions );
+            }
+        }
+    }
+
 protected:
+    std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > getSingleLegLightTimeCalculator(
+            const unsigned int pathIndex = 0,
+            const unsigned int legIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving single-leg light-time calculator: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex )->getSingleLegLightTimeCalculator( legIndex );
+    }
+
+    std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getFullLinkLightTimeCalculatorFromBase(
+            const unsigned int pathIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving full-link light-time calculator: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex );
+    }
+
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculatorsFromBase(
+            const unsigned int pathIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving light-time calculators: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex )->getLightTimeCalculators( );
+    }
+
+    bool setFrequencyProperties( const TimeType time,
+                                 const LinkEndType linkEndAssociatedWithTime,
+                                 const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
+                                 const std::shared_ptr< ObservationAncillarySimulationSettings > inputAncillarySetings,
+                                 std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySetingsToUse )
+    {
+        if( frequencyInterpolator_ != nullptr )
+        {
+            if( linkEndAssociatedWithTime != receiver )
+            {
+                throw std::runtime_error(
+                        "Error when computing one-way range, frequency interpolator use is only compatible with transmitter reference "
+                        "frrquency at present" );
+            }
+            else
+            {
+                if( inputAncillarySetings == nullptr )
+                {
+                    ancillarySetingsToUse = std::make_shared< ObservationAncillarySimulationSettings >( );
+                }
+                else
+                {
+                    ancillarySetingsToUse = inputAncillarySetings;
+                }
+                setTransmissionFrequency( lightTimeCalculator,
+                                          timeScaleConverter_,
+                                          frequencyInterpolator_,
+                                          time,
+                                          linkEndAssociatedWithTime,
+                                          ancillarySetingsToUse );
+            }
+            return true;
+        }
+        else
+        {
+            ancillarySetingsToUse = inputAncillarySetings;
+            return false;
+        }
+    }
+
+    bool setFrequencyProperties(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > inputAncillarySetings,
+            std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySetingsToUse )
+    {
+        if( frequencyInterpolator_ != nullptr )
+        {
+            if( linkEndAssociatedWithTime != receiver )
+            {
+                throw std::runtime_error(
+                        "Error when computing n-way range, frequency interpolator use is only compatible with transmitter reference "
+                        "frequency at present" );
+            }
+            else
+            {
+                if( inputAncillarySetings == nullptr )
+                {
+                    ancillarySetingsToUse = std::make_shared< ObservationAncillarySimulationSettings >( );
+                }
+                else
+                {
+                    ancillarySetingsToUse = inputAncillarySetings;
+                }
+
+                setTransmissionReceptionFrequencies( fullLinkLightTimeCalculator,
+                                                     timeScaleConverter_,
+                                                     frequencyInterpolator_,
+                                                     time,
+                                                     linkEndAssociatedWithTime,
+                                                     ancillarySetingsToUse,
+                                                     getTurnaroundRatio( ancillarySetingsToUse ) );
+            }
+            return true;
+        }
+        else
+        {
+            ancillarySetingsToUse = inputAncillarySetings;
+            return false;
+        }
+    }
+
+    ObservationScalarType getTurnaroundRatio( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
+    {
+        std::vector< FrequencyBands > frequencyBands;
+        FrequencyBands referenceUplinkBand;
+        try
+        {
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when retrieving ancillary settings for N-way range observable: " +
+                                      std::string( caughtException.what( ) ) );
+        }
+
+        if( frequencyBands.size( ) != linkEnds_.size( ) - 1 )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving frequency bands ancillary settings for N-way range observable: "
+                    "size (" +
+                    std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
+                    std::to_string( linkEnds_.size( ) - 1 ) + ")." );
+        }
+        FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+
+        // Set approximate up- and down-link frequencies.
+        return static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
+    }
+
     //! Type of observable, used for derived class type identification without explicit casts.
     ObservableType observableType_;
 
@@ -649,6 +520,8 @@ protected:
      */
     std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
 
+    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators_;
+
     //! Boolean set by constructor to denote whether observationBiasCalculator_ is nullptr.
     bool isBiasNullptr_;
 
@@ -657,6 +530,12 @@ protected:
 
     //! Pre-define list of states used when calling function returning link-end states/times from interface function.
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
+
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator_ = nullptr;
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_ = nullptr;
+
+    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_ = nullptr;
 };
 //
 // extern template class ObservationModel< 1, double, double >;

@@ -2,17 +2,13 @@
 
 ``torque``
 ==========
-This module provides the functionality for creating torque settings.
+Here, you will find a list of all torque models available in Tudat. The functions here all create settings
+objects for torques that are provided as input to the :func:`~tudatpy.dynamics.propagation_setup.create_torque_models`
+function. For more details on how these torques interface with the rest of the Tudat propagation framework,
+see our user guide page on `rotational dynamics <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/rotational.html>`_
 
-
-
-
-
-
-
-
-
-
+The functions in this submodule create objects of type :class:`~TorqueSettings` or (in case more information than only
+the type of torque is needed to create the torque), one of its derived classes.
 
 
 Functions
@@ -25,19 +21,35 @@ Functions
 
    spherical_harmonic_gravitational
 
+   full_two_body_spherical_harmonic_gravitational
+
+   full_two_body_spherical_harmonic_gravitational_from_coefficient_combinations
+
+   fourth_degree_full_two_body_gravitational
+
    second_degree_gravitational
 
    custom_torque
 
 
 
+
+   radiation_pressure_torque
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.aerodynamic
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.spherical_harmonic_gravitational
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.full_two_body_spherical_harmonic_gravitational
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.full_two_body_spherical_harmonic_gravitational_from_coefficient_combinations
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.fourth_degree_full_two_body_gravitational
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.second_degree_gravitational
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.custom_torque
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.radiation_pressure_torque
 
 
 
@@ -68,6 +80,10 @@ Classes
 
    SphericalHarmonicTorqueSettings
 
+   FullTwoBodySphericalHarmonicTorqueSettings
+
+   FourthDegreeFullTwoBodyGravitationalTorqueSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.torque.TorqueSettings
@@ -76,5 +92,10 @@ Classes
 .. autoclass:: tudatpy.dynamics.propagation_setup.torque.SphericalHarmonicTorqueSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.propagation_setup.torque.FullTwoBodySphericalHarmonicTorqueSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.torque.FourthDegreeFullTwoBodyGravitationalTorqueSettings
+   :members:
 
 

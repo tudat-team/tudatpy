@@ -14,7 +14,12 @@ set(relativity_SOURCES
         "relativisticAccelerationCorrection.cpp"
         "relativisticTimeConversion.cpp"
         "metric.cpp"
+        "SolarSystemMetric.cpp"
+        "schwarzschildMetric.cpp"
+        "relativisticPotentials.cpp"
         "einsteinInfeldHoffmannEquations.cpp"
+        "relativisticEquationsOfMotion.cpp"
+
         )
 
 # Set the header files.
@@ -23,13 +28,17 @@ set(relativity_HEADERS
         "relativisticAccelerationCorrection.h"
         "relativisticTimeConversion.h"
         "metric.h"
+        "solarSystemMetric.h"
+        "schwarzschildMetric.h"
+        "relativisticPotentials.h"
         "einsteinInfeldHoffmannEquations.h"
         "einsteinInfeldHoffmannAcceleration.h"
+        "relativisticEquationsOfMotion.h"
         )
 
 TUDAT_ADD_LIBRARY("relativity"
         "${relativity_SOURCES}"
         "${relativity_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

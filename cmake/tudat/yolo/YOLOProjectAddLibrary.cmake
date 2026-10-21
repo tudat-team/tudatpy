@@ -7,7 +7,7 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
     # Design function parser.
     cmake_parse_arguments(
             PARSED_ARGS
-            ""
+            "PUBLIC_SERIALIZATION"
             ""
             "PUBLIC_LINKS;PRIVATE_LINKS;INTERFACE_LINKS;PRIVATE_INCLUDES"
             ${ARGN})
@@ -35,9 +35,23 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${Boost_INCLUDE_DIRS} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS} ${TudatResources_INCLUDE_DIRS}
             )
 
+    # Public headers conditionally expose archive/file-I/O methods. Export the selected value so
+    # build-tree and installed consumers see the same interface as the library itself.
+    target_compile_definitions("${target_name}"
+            PUBLIC TUDAT_BUILD_WITH_SERIALIZATION=$<BOOL:${TUDAT_BUILD_WITH_SERIALIZATION}>)
+
+    # Keep Cereal private unless the library's installed headers expose Tudat serialization APIs.
+    if(PARSED_ARGS_PUBLIC_SERIALIZATION)
+        set(serialization_public_link cereal::cereal)
+        set(serialization_private_link "")
+    else()
+        set(serialization_public_link "")
+        set(serialization_private_link cereal::cereal)
+    endif()
+
     target_link_libraries("${target_name}"
-            PUBLIC    ${PARSED_ARGS_PUBLIC_LINKS}
-            PRIVATE   ${PARSED_ARGS_PRIVATE_LINKS}
+            PUBLIC    ${serialization_public_link} ${PARSED_ARGS_PUBLIC_LINKS}
+            PRIVATE   ${serialization_private_link} ${PARSED_ARGS_PRIVATE_LINKS}
             INTERFACE ${PARSED_ARGS_INTERFACE_LINKS}
             )
     #==========================================================================
@@ -50,6 +64,25 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
+    if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY)
+        # Cereal's header-defined registries and RTTI must have the same visibility
+        # in every static library that produces or consumes serialized types. Mixed
+        # visibility creates distinct weak symbols on Apple platforms, breaking
+        # polymorphic cast registration at runtime.
+        if (TUDAT_BUILD_WITH_SERIALIZATION)
+            set_target_properties("${target_name}"
+                    PROPERTIES
+                    CXX_VISIBILITY_PRESET default
+                    VISIBILITY_INLINES_HIDDEN FALSE
+                    )
+        else ()
+            set_target_properties("${target_name}"
+                    PROPERTIES
+                    CXX_VISIBILITY_PRESET hidden
+                    VISIBILITY_INLINES_HIDDEN TRUE
+                    )
+        endif ()
+    endif ()
 
     add_library(Tudat::${target_name} ALIAS "${target_name}")
     #==========================================================================
@@ -82,6 +115,13 @@ function(TUDAT_ADD_TEST_LIBRARY arg1 arg2 arg3)
         add_library(${target_name} STATIC "${arg2}")
     else ()
         add_library(${target_name} SHARED "${arg2}")
+    endif ()
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options("${target_name}" PRIVATE
+                -Wno-overloaded-virtual
+                -Wno-sign-compare
+                -Wno-dangling-reference
+                )
     endif ()
     #==========================================================================
     # TARGET-CONFIGURATION.

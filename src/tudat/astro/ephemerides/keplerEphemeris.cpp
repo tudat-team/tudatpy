@@ -70,7 +70,7 @@ KeplerEphemeris::KeplerEphemeris( const Eigen::Vector6d& initialStateInKeplerian
                 initialStateInKeplerianElements_( eccentricityIndex ) );
     }
 
-    // Calculate ancilliary variables for conversion to Cartesian elements
+    // Calculate ancillary variables for conversion to Cartesian elements
     eccentricity_ = initialStateInKeplerianElements_( eccentricityIndex );
     semiMajorAxis_ = initialStateInKeplerianElements_( semiMajorAxisIndex );
     semiLatusRectum_ = initialStateInKeplerianElements_( semiMajorAxisIndex ) *

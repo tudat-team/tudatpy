@@ -48,9 +48,9 @@ class GroundStationState;
 
 struct StationMotionModel {
 public:
-    StationMotionModel( ) { }
+    StationMotionModel( ) {}
 
-    virtual ~StationMotionModel( ) { }
+    virtual ~StationMotionModel( ) {}
 
     virtual Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                        const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
@@ -75,7 +75,7 @@ public:
             const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface = nullptr,
             const std::shared_ptr< StationMotionModel > stationMotionModel = nullptr );
 
-    virtual ~GroundStationState( ) { }
+    virtual ~GroundStationState( ) {}
 
     //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
     /*!
@@ -307,9 +307,9 @@ public:
     LinearStationMotionModel( const Eigen::Vector3d& linearVelocity,
                               const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
         linearVelocity_( linearVelocity ), referenceEpoch_( referenceEpoch )
-    { }
+    {}
 
-    ~LinearStationMotionModel( ) { }
+    ~LinearStationMotionModel( ) {}
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
@@ -336,7 +336,7 @@ public:
         timeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( displacementTimes_ );
     }
 
-    ~PiecewiseConstantStationMotionModel( ) { }
+    ~PiecewiseConstantStationMotionModel( ) {}
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
@@ -377,7 +377,7 @@ public:
         }
     }
 
-    ~BodyCentricToBarycentricRelativisticStationMotion( ) { }
+    ~BodyCentricToBarycentricRelativisticStationMotion( ) {}
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
@@ -407,9 +407,9 @@ struct CustomStationMotionModel : public StationMotionModel {
 public:
     CustomStationMotionModel( const std::function< Eigen::Vector6d( const double ) > customDisplacementModel ):
         customDisplacementModel_( customDisplacementModel )
-    { }
+    {}
 
-    ~CustomStationMotionModel( ) { }
+    ~CustomStationMotionModel( ) {}
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
@@ -424,7 +424,7 @@ protected:
 
 struct CombinedStationMotionModel : public StationMotionModel {
 public:
-    CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList ): modelList_( modelList ) { }
+    CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList ): modelList_( modelList ) {}
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,

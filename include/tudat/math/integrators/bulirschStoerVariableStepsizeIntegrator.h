@@ -14,8 +14,6 @@
 
 #include <cmath>
 
-#include <boost/assign/std/vector.hpp>
-
 #include <Eigen/Core>
 
 #include <tudat/math/integrators/stepSizeController.h>
@@ -250,7 +248,7 @@ public:
         stepSizeValidator_ = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize, maximumStepSize );
     }
 
-    ~BulirschStoerVariableStepSizeIntegrator( ) { }
+    ~BulirschStoerVariableStepSizeIntegrator( ) {}
 
     // Get step size of the next step.
     /*

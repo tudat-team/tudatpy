@@ -20,12 +20,19 @@ set(observation_models_SOURCES
         "corrections/firstOrderRelativisticCorrection.cpp"
         "corrections/atmosphereCorrection.cpp"
         "corrections/solarCoronaCorrection.cpp"
+        "corrections/neQuick2IonosphericCorrection.cpp"
         "observationFrequencies.cpp"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND observation_models_SOURCES "observationSettingsSerialization.cpp")
+endif ()
 
 # Set the header files.
 set(observation_models_HEADERS
         "angularPositionObservationModel.h"
+        "pixelCoordinatesObservationModel.h"
+        "azimuthElevationObservationModel.h"
         "lightTimeSolution.h"
         "linkTypeDefs.h"
         "observableTypes.h"
@@ -57,6 +64,7 @@ set(observation_models_HEADERS
 TUDAT_ADD_LIBRARY("observation_models"
         "${observation_models_SOURCES}"
         "${observation_models_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PUBLIC_SERIALIZATION
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

@@ -8,10 +8,12 @@ objects for accelerations that are provided as input to the :func:`~tudatpy.dyna
 function. For more details on how these accelerations interface with the rest of the Tudat propagation framework,
 see our user guide page on `translational dynamics <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/translational.html>`_
 
-Mathematical model descriptions are provided either directly here per acceleration, or on a dedicated page of the Tudat user guide for
- * `Gravitational accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_
- * `Thrust accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
- * `Radiation pressure accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
+Mathematical model descriptions are provided either directly here per acceleration, and several accelerations are discusse in more detail
+on a dedicated page:
+
+* `Gravitational accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_
+* `Thrust accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+* `Radiation pressure accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
 
 The functions in this submodule create objects of type :class:`~AccelerationSettings` or (in case more information than only
 the type of acceleration is needed to create the acceleration), one of its derived classes.
@@ -28,15 +30,23 @@ Functions
 
    mutual_spherical_harmonic_gravity
 
+   full_two_body_spherical_harmonic_gravity
+
+   full_two_body_spherical_harmonic_gravity_from_coefficient_combinations
+
    aerodynamic
 
    radiation_pressure
+
+   three_coefficient_radiation_pressure
 
    polyhedron_gravity
 
    ring_gravity
 
    relativistic_correction
+
+   relativistic_from_metric
 
    einstein_infeld_hofmann
 
@@ -58,15 +68,24 @@ Functions
 
 
 
+
+   rtg
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.point_mass_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.mutual_spherical_harmonic_gravity
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.full_two_body_spherical_harmonic_gravity
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.full_two_body_spherical_harmonic_gravity_from_coefficient_combinations
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.aerodynamic
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.three_coefficient_radiation_pressure
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.polyhedron_gravity
 
@@ -75,6 +94,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.einstein_infeld_hofmann
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.relativistic_correction
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.relativistic_from_metric
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.empirical
 
@@ -92,8 +113,7 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.yarkovsky
 
-
-
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.rtg
 
 Enumerations
 ------------
@@ -119,9 +139,13 @@ Classes
 
    AccelerationSettings
 
+   ThreeCoefficientRadiationPressureAccelerationSettings
+
    SphericalHarmonicAccelerationSettings
 
    MutualSphericalHarmonicAccelerationSettings
+
+   FullTwoBodySphericalHarmonicAccelerationSettings
 
    RelativisticAccelerationCorrectionSettings
 
@@ -140,10 +164,16 @@ Classes
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.AccelerationSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.ThreeCoefficientRadiationPressureAccelerationSettings
+   :members:
+
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.SphericalHarmonicAccelerationSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.MutualSphericalHarmonicAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.FullTwoBodySphericalHarmonicAccelerationSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.RelativisticAccelerationCorrectionSettings

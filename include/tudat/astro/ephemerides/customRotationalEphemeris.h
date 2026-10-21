@@ -25,13 +25,13 @@ public:
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
         targetToBaseFrameOrientationFunction_( targetToBaseFrameOrientationFunction ),
         numericalDerivativeTimeStep_( numericalDerivativeTimeStep )
-    { }
+    {}
 
     //! Virtual destructor.
     /*!
      * Virtual destructor.
      */
-    virtual ~CustomRotationalEphemeris( ) { }
+    virtual ~CustomRotationalEphemeris( ) {}
 
     virtual Eigen::Quaterniond getRotationToBaseFrame( const double secondsSinceEpoch )
     {

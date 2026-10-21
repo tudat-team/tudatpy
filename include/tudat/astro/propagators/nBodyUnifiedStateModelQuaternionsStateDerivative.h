@@ -13,6 +13,7 @@
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -118,7 +119,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyUnifiedStateModelQuaternionsStateDerivative( ) { }
+    ~NBodyUnifiedStateModelQuaternionsStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system, using the equations of motion for the
     //! unified state model with quaternions (USM7).

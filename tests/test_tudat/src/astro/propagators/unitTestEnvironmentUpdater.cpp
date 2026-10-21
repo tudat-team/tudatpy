@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -22,14 +21,14 @@
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat
@@ -442,8 +441,8 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     double area = 2.34;
     double coefficient = 1.2;
     bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+    bodySettings.at( "Vehicle" )->radiationPressureTargetModelSettings =
+            cannonballRadiationPressureTargetModelSettings( area, coefficient );
     bodySettings.at( "Vehicle" )->ephemerisSettings =
             std::make_shared< KeplerEphemerisSettings >( ( Eigen::Vector6d( ) << 7000.0E3, 0.05, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                                                          0.0,
@@ -466,8 +465,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     {
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
-        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
 
         // Define origin of integration
         std::map< std::string, std::string > centralBodies;
@@ -521,8 +519,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     {
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
-        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+        accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
         accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
 
         // Define origin of integration

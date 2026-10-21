@@ -59,7 +59,7 @@ public:
             const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
                 return sofa_interface::calculateDoodsonFundamentalArguments( time );
             } ): OceanTideEarthDeformation( std::vector< std::string >( { blqFile } ), doodsonArgumentFunction )
-    { }
+    {}
 
     void addBlqFile( const std::string& blqFile );
 

@@ -11,6 +11,9 @@
 #ifndef TUDAT_OBSERVATIONBIAS_H
 #define TUDAT_OBSERVATIONBIAS_H
 
+#include <cmath>
+#include <stdexcept>
+#include <string>
 #include <vector>
 #include <iostream>
 
@@ -51,6 +54,94 @@ enum ObservationBiasTypes {
     two_way_range_time_scale_bias
 };
 
+//! Return the symbolic name of an observation-bias type for diagnostics and parameter identifiers.
+inline std::string getObservationBiasTypeString( const ObservationBiasTypes biasType )
+{
+    switch( biasType )
+    {
+        case multiple_observation_biases:
+            return "multiple_observation_biases";
+        case constant_absolute_bias:
+            return "constant_absolute_bias";
+        case constant_relative_bias:
+            return "constant_relative_bias";
+        case arc_wise_constant_absolute_bias:
+            return "arc_wise_constant_absolute_bias";
+        case arc_wise_constant_relative_bias:
+            return "arc_wise_constant_relative_bias";
+        case constant_time_drift_bias:
+            return "constant_time_drift_bias";
+        case arc_wise_time_drift_bias:
+            return "arc_wise_time_drift_bias";
+        case constant_time_bias:
+            return "constant_time_bias";
+        case arc_wise_time_bias:
+            return "arc_wise_time_bias";
+        case clock_induced_bias:
+            return "clock_induced_bias";
+        case two_way_range_time_scale_bias:
+            return "two_way_range_time_scale_bias";
+        default:
+            throw std::runtime_error( "Unknown observation bias type: " + std::to_string( biasType ) );
+    }
+}
+
+//! Return whether a shared bias of the given type is a time bias, with one scalar value per arc.
+inline bool isSharedObservationBiasTimeBias( const ObservationBiasTypes biasType )
+{
+    return biasType == constant_time_bias || biasType == arc_wise_time_bias;
+}
+
+//! Return whether a shared bias of the given type has one value block per arc.
+inline bool isSharedObservationBiasArcWise( const ObservationBiasTypes biasType )
+{
+    return biasType == arc_wise_constant_absolute_bias || biasType == arc_wise_time_bias;
+}
+
+//! Validate the bias type, link selector, and arc settings supported by a shared bias parameter.
+inline void validateSharedObservationBiasSettings( const ObservationBiasTypes biasType,
+                                                   const LinkEndType linkEndType,
+                                                   const LinkEndId& linkEndId,
+                                                   const std::vector< double >& arcStartTimes,
+                                                   const LinkEndType timeLinkEnd )
+{
+    if( biasType != constant_absolute_bias && biasType != constant_relative_bias && biasType != arc_wise_constant_absolute_bias &&
+        !isSharedObservationBiasTimeBias( biasType ) )
+    {
+        throw std::runtime_error( "Unsupported shared observation bias type: " + getObservationBiasTypeString( biasType ) +
+                                  ". Supported types are constant_absolute_bias, constant_relative_bias, "
+                                  "arc_wise_constant_absolute_bias, constant_time_bias, and arc_wise_time_bias." );
+    }
+    if( linkEndType == unidentified_link_end || linkEndId.bodyName_.empty( ) )
+    {
+        throw std::runtime_error( "Shared observation bias requires a link-end role and body." );
+    }
+    // Time biases also use the time link end to define the event whose time is shifted.
+    if( timeLinkEnd != unidentified_link_end && !isSharedObservationBiasArcWise( biasType ) &&
+        !isSharedObservationBiasTimeBias( biasType ) )
+    {
+        throw std::runtime_error( "A time link end can only be supplied for an arc-wise or time shared bias." );
+    }
+    if( isSharedObservationBiasArcWise( biasType ) )
+    {
+        if( arcStartTimes.empty( ) )
+        {
+            throw std::runtime_error( "Shared arc-wise observation bias requires arc start times." );
+        }
+        for( unsigned int i = 0; i < arcStartTimes.size( ); ++i )
+        {
+            if( !std::isfinite( arcStartTimes.at( i ) ) || ( i > 0 && arcStartTimes.at( i ) <= arcStartTimes.at( i - 1 ) ) )
+            {
+                throw std::runtime_error( "Shared bias arc start times must be finite and strictly increasing." );
+            }
+        }
+    }
+    else if( !arcStartTimes.empty( ) )
+    {
+        throw std::runtime_error( "Arc start times can only be supplied for an arc-wise shared bias." );
+    }
+}
+
 //! Base class (non-functional) for describing observation biases
 /*!
  * Base class (non-functional) for describing observation biases. In this context, an observation bias denotes any deviation
@@ -61,10 +152,10 @@ class ObservationBias
 {
 public:
     //! Constructor
-    ObservationBias( const bool hasTimeBias = false ): hasTimeBias_( hasTimeBias ) { }
+    ObservationBias( const bool hasTimeBias = false ): hasTimeBias_( hasTimeBias ) {}
 
     //! Destructor
-    virtual ~ObservationBias( ) { }
+    virtual ~ObservationBias( ) {}
 
     //! Pure virtual function to retrieve the observation bias.
     /*!
@@ -124,10 +215,10 @@ public:
      * Constructor
      * \param observationBias Constant (entry-wise) observation bias.
      */
-    ConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > observationBias ): observationBias_( observationBias ) { }
+    ConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > observationBias ): observationBias_( observationBias ) {}
 
     //! Destructor
-    ~ConstantObservationBias( ) { }
+    ~ConstantObservationBias( ) {}
 
     //! Function to retrieve the constant observation bias.
     /*!
@@ -226,7 +317,7 @@ public:
     }
 
     //! Destructor
-    ~ConstantArcWiseObservationBias( ) { }
+    ~ConstantArcWiseObservationBias( ) {}
 
     //! Function to retrieve the observation bias, determining the current arc from linkEndTimes.
     /*!
@@ -373,10 +464,10 @@ public:
      */
     ConstantRelativeObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > relativeObservationBias ):
         relativeObservationBias_( relativeObservationBias )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantRelativeObservationBias( ) { }
+    ~ConstantRelativeObservationBias( ) {}
 
     //! Function to retrieve the constant relative observation bias.
     /*!
@@ -482,7 +573,7 @@ public:
     }
 
     //! Destructor
-    ~ConstantRelativeArcWiseObservationBias( ) { }
+    ~ConstantRelativeArcWiseObservationBias( ) {}
 
     //! Function to retrieve the constant observation bias, determining the current arc from linkEndTimes.
     /*!
@@ -617,7 +708,7 @@ public:
     }
 
     //! Destructor
-    ~MultiTypeObservationBias( ) { }
+    ~MultiTypeObservationBias( ) {}
 
     //! Function to retrieve the total observation bias.
     /*!
@@ -691,10 +782,10 @@ public:
                            const int linkEndIndexForTime,
                            const double referenceEpoch ):
         timeDriftBias_( timeDriftBias ), linkEndIndexForTime_( linkEndIndexForTime ), referenceEpoch_( referenceEpoch )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantTimeDriftBias( ) { }
+    ~ConstantTimeDriftBias( ) {}
 
     //! Function to retrieve the constant time drift bias.
     /*!
@@ -811,7 +902,7 @@ public:
     }
 
     //! Destructor
-    ~ArcWiseTimeDriftBias( ) { }
+    ~ArcWiseTimeDriftBias( ) {}
 
     //! Function to retrieve the arc-wise time drift bias, determining the current arc from linkEndTimes.
     /*!
@@ -941,10 +1032,10 @@ public:
      */
     ConstantTimeBias( const double timeBias, const int linkEndIndexForTime ):
         ObservationBias< ObservationSize >( true ), timeBias_( timeBias ), linkEndIndexForTime_( linkEndIndexForTime )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantTimeBias( ) { }
+    ~ConstantTimeBias( ) {}
 
     //! Function to retrieve the constant time drift bias.
     /*!
@@ -1049,7 +1140,7 @@ public:
     }
 
     //! Destructor
-    ~ArcWiseTimeBias( ) { }
+    ~ArcWiseTimeBias( ) {}
 
     //! Function to retrieve the arc-wise time bias, determining the current arc from linkEndTimes.
     /*!
@@ -1180,7 +1271,7 @@ public:
     }
 
     //! Destructor
-    ~ClockInducedRangeBias( ) { }
+    ~ClockInducedRangeBias( ) {}
 
     Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
             const std::vector< double >& linkEndTimes,
@@ -1241,10 +1332,10 @@ public:
                               const std::shared_ptr< ground_stations::GroundStationState > receivingStationState ):
         ObservationBias< ObservationSize >( false ), timeScaleConverter_( timeScaleConverter ),
         transmittingStationState_( transmittingStationState ), receivingStationState_( receivingStationState )
-    { }
+    {}
 
     //! Destructor
-    ~TwoWayTimeScaleRangeBias( ) { }
+    ~TwoWayTimeScaleRangeBias( ) {}
 
     //! Function to retrieve the constant time drift bias.
     /*!

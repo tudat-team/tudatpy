@@ -173,7 +173,7 @@ public:
                                 const double bendingAngle ):
         absoluteIncomingSemiMajorAxis_( absoluteIncomingSemiMajorAxis ), absoluteOutgoingSemiMajorAxis_( absoluteOutgoingSemiMajorAxis ),
         bendingAngle_( bendingAngle )
-    { }
+    {}
 
     //! Compute pericenter radius function.
     /*!
@@ -242,7 +242,7 @@ public:
      */
     EccentricityFindingFunctions( const double incomingSemiMajorAxis, const double outgoingSemiMajorAxis, const double bendingAngle ):
         incomingSemiMajorAxis_( incomingSemiMajorAxis ), outgoingSemiMajorAxis_( outgoingSemiMajorAxis ), bendingAngle_( bendingAngle )
-    { }
+    {}
 
     //! Compute incoming eccentricity function.
     /*!

@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -29,9 +28,9 @@
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/propagators/nBodyCowellStateDerivative.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 

@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -29,9 +28,9 @@
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/propagators/nBodyCowellStateDerivative.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
@@ -110,7 +109,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin( const std::string&
 
     // Define settings for numerical integrator.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialEphemerisTime, 300.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 300.0 );
 
     // Create acceleration models and propagation settings.
     Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState =
@@ -120,11 +119,16 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin( const std::string&
     AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-            bodies, integratorSettings, propagatorSettings, true, false, true );
+    SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
 
     return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 }

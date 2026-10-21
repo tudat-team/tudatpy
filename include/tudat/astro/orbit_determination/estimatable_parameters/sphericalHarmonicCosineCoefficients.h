@@ -54,7 +54,7 @@ public:
     }
 
     //! Destructor
-    ~SphericalHarmonicsCosineCoefficients( ) { }
+    ~SphericalHarmonicsCosineCoefficients( ) {}
 
     //! Function to retrieve the current values of the cosine coefficients that are to be estimated.
     /*!

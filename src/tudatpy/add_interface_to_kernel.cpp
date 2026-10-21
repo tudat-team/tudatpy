@@ -3,7 +3,7 @@
 
 namespace py = pybind11;
 
-void add_interface_to_kernel(py::module_& m)
+void add_interface_to_kernel( py::module_& m )
 {
-    tudatpy::interface::expose_interface(m);
+    tudatpy::interface::expose_interface( m );
 }

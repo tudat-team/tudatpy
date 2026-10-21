@@ -60,7 +60,7 @@ public:
                          const double timeToAzimuthInterpolatorStepSize = physical_constants::JULIAN_DAY );
 
     //! Default destructor.
-    ~SphericalShapingLeg( ) { }
+    ~SphericalShapingLeg( ) {}
 
     //! Compute dimensional current cartesian state.
     Eigen::Vector6d computeStateFromAzimuth( const double currentAzimuthAngle );
@@ -179,7 +179,7 @@ protected:
                               std::function< double( ) > getRequiredTimeOfFlightfunction ):
             satisfyBoundaryConditionsFunction_( satisfyBoundaryConditionsFunction ),
             computeTimeOfFlightFunction_( computeTimeOfFlightFunction ), getRequiredTimeOfFlightfunction_( getRequiredTimeOfFlightfunction )
-        { }
+        {}
 
         //! Evaluate the difference between the current and required time of flight values, from the current value of the free coefficient.
         double evaluate( const double inputValue )

@@ -674,17 +674,17 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
             }
             int i = numberOfThreads - 1;
             std::vector< int > indexes( toBePixelated.begin( ) + i * chunk, toBePixelated.end( ) );
-            threads.emplace_back( [ &, i, indexes ]( ) {
+            threads.emplace_back( [ &, indexes ]( ) {
                 results[ numberOfThreads - 1 ] =
                         computeFractionWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections, indexes );
             } );
-            for( auto& th: threads )
+            for( auto& th : threads )
             {
                 th.join( );
             }
             // merge results
             std::vector< double > finalResults;
-            for( const auto& res: results )
+            for( const auto& res : results )
             {
                 finalResults.insert( finalResults.end( ), res.begin( ), res.end( ) );
             }

@@ -35,9 +35,9 @@ public:
                            const double vehicle_mass = 5.0E3,
                            const double vehicle_isp = 5000.0,
                            const double vehicle_thrust = 25.0,
-                           const std::string &vehicle_name = "Vehicle",
-                           const std::string &mission_body = "Earth",
-                           const std::vector< std::string > &spice_bodies = { "Sun", "Earth", "Moon" } )
+                           const std::string& vehicle_name = "Vehicle",
+                           const std::string& mission_body = "Earth",
+                           const std::vector< std::string >& spice_bodies = { "Sun", "Earth", "Moon" } )
     {
         this->_global_initial_epoch = initial_epoch;
         this->_global_final_epoch = termination_epoch;
@@ -61,8 +61,8 @@ public:
         this->_body_system = createBodies( body_settings );
 
         // Create vehicle objects.
-        this->_body_system[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-        this->_body_system[ "Vehicle" ]->setConstantBodyMass( vehicle_mass );
+        this->_body_system[ this->_vehicle_name ] = std::make_shared< simulation_setup::Body >( );
+        this->_body_system[ this->_vehicle_name ]->setConstantBodyMass( vehicle_mass );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
@@ -81,8 +81,14 @@ public:
         // Finalize body creation.
         setGlobalFrameBodyEphemerides( this->_body_system, "SSB", "ECLIPJ2000" );
 
+        this->_body_system.at( this->_vehicle_name )
+                ->setRotationalEphemeris( createRotationModel(
+                        orbitalStateBasedRotationSettings( this->_mission_body, true, false, "ECLIPJ2000", this->_vehicle_name + "Fixed" ),
+                        this->_vehicle_name,
+                        this->_body_system ) );
+
         // Define point mass gravity accelerations of system bodies.
-        for( auto body: spice_bodies )
+        for( auto body : spice_bodies )
         {
             this->_base_accelerations_vehicle[ body ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         }
@@ -102,7 +108,7 @@ public:
         this->_current_vehicle_mass = this->_vehicle_mass;
     }
 
-    void step( std::vector< double > &action, double time_step )
+    void step( std::vector< double >& action, double time_step )
     {
         bool done = this->_current_initial_epoch + time_step > this->_global_final_epoch;
         this->_current_final_epoch = done ? this->_global_final_epoch : this->_current_initial_epoch + time_step;
@@ -115,22 +121,21 @@ public:
         // actions
         double along_track_thrust_normed = action[ 0 ] < -1.0 ? -1.0 : action[ 0 ] > 1.0 ? 1.0 : action[ 0 ];
 
-        // along-track thrust guidance
-        std::shared_ptr< ThrustDirectionGuidanceSettings > along_track_thrust_direction_settings =
-                std::make_shared< ThrustDirectionFromStateGuidanceSettings >( this->_mission_body, true, false );
-
         std::shared_ptr< ThrustMagnitudeSettings > along_track_thrust_magnitude_settings =
-                std::make_shared< ConstantThrustMagnitudeSettings >( this->_vehicle_thrust * along_track_thrust_normed,
+                std::make_shared< ConstantThrustMagnitudeSettings >( this->_vehicle_thrust * std::fabs( along_track_thrust_normed ),
                                                                      this->_vehicle_isp );
+        const Eigen::Vector3d body_fixed_thrust_direction =
+                ( along_track_thrust_normed < 0.0 ) ? -Eigen::Vector3d::UnitX( ) : Eigen::Vector3d::UnitX( );
+        addEngineModel(
+                this->_vehicle_name, "MainEngine", along_track_thrust_magnitude_settings, this->_body_system, body_fixed_thrust_direction );
 
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerations_of_vehicle(
                 this->_base_accelerations_vehicle );
 
-        accelerations_of_vehicle[ this->_vehicle_name ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                along_track_thrust_direction_settings, along_track_thrust_magnitude_settings ) );
+        accelerations_of_vehicle[ this->_vehicle_name ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
 
         SelectedAccelerationMap acceleration_map;
-        acceleration_map[ "Vehicle" ] = accelerations_of_vehicle;
+        acceleration_map[ this->_vehicle_name ] = accelerations_of_vehicle;
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap acceleration_model_map =
@@ -166,19 +171,20 @@ public:
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        // Create propagation settings for mass and translational dynamics concurrently
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-                std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, termination_settings );
-
         // Define integrator settings
-        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 30.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 30.0 );
+
+        // Create propagation settings for mass and translational dynamics concurrently
+        std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< MultiTypePropagatorSettings< double > >(
+                        propagatorSettingsVector, integratorSettings, 0.0, termination_settings );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator<> dynamicsSimulator( this->_body_system, integratorSettings, propagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( this->_body_system, propagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =

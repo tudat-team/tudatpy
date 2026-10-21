@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/observation_models/observationBias.h"
 
 namespace tudat
 {
@@ -43,13 +44,13 @@ public:
                                   const EstimatebleParametersEnum parameterType,
                                   const std::string pointOnBodyId = "" ):
         parameterType_( std::make_pair( parameterType, std::make_pair( associatedBody, pointOnBodyId ) ) )
-    { }
+    {}
 
     //! Virtual destructor
     /*!
      *  Virtual destructor
      */
-    virtual ~EstimatableParameterSettings( ) { }
+    virtual ~EstimatableParameterSettings( ) {}
 
     //! Identifier for parameter.
     /*!
@@ -220,6 +221,55 @@ public:
     int maximumOrder_;
 };
 
+//! Settings for a bias shared by all models matching an observable and one link end.
+class SharedObservationBiasEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Store the selection and arc settings, rejecting unsupported or inconsistent combinations.
+    SharedObservationBiasEstimatableParameterSettings(
+            observation_models::ObservationBiasTypes biasType,
+            observation_models::ObservableType observableType,
+            observation_models::LinkEndType linkEndType,
+            const observation_models::LinkEndId& linkEndId,
+            const std::vector< double >& arcStartTimes = {},
+            observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end ):
+        EstimatableParameterSettings( linkEndId.bodyName_, shared_observation_bias, linkEndId.getReferencePointName( ) ),
+        biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
+        arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd )
+    {
+        // Validate at the public factory boundary, using the same rules as the parameter.
+        validate( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Validate settings without constructing an estimatable parameter or binding any models.
+    static void validate( observation_models::ObservationBiasTypes biasType,
+                          observation_models::LinkEndType linkEndType,
+                          const observation_models::LinkEndId& linkEndId,
+                          const std::vector< double >& arcStartTimes,
+                          observation_models::LinkEndType timeLinkEnd )
+    {
+        observation_models::validateSharedObservationBiasSettings( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Bias model type that each selected observation model must contain.
+    observation_models::ObservationBiasTypes biasType_;
+
+    //! Observable type for which the bias parameter is shared.
+    observation_models::ObservableType observableType_;
+
+    //! Link-end role used to select matching observation links.
+    observation_models::LinkEndType linkEndType_;
+
+    //! Body and reference point required at the selected link-end role.
+    observation_models::LinkEndId linkEndId_;
+
+    //! Shared arc boundaries; empty for constant biases.
+    std::vector< double > arcStartTimes_;
+
+    //! Event time used for arc selection; unidentified_link_end defaults to linkEndType_.
+    observation_models::LinkEndType timeLinkEnd_;
+};
+
 //! Class to define settings for estimation of constant observation biases (absolute or relative)
 class ConstantObservationBiasEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -236,12 +286,12 @@ public:
                                                          const bool isBiasAdditive ):
         EstimatableParameterSettings( linkEnds.linkEnds_.begin( )->second.bodyName_,
                                       isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                      linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                                      linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantObservationBiasEstimatableParameterSettings( ) { }
+    ~ConstantObservationBiasEstimatableParameterSettings( ) {}
 
     //! Observation link ends for which the bias is to be estimated.
     observation_models::LinkDefinition linkEnds_;
@@ -271,12 +321,12 @@ public:
         EstimatableParameterSettings(
                 linkEnds.linkEnds_.begin( )->second.bodyName_,
                 isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
-    { }
+    {}
 
     //! Destructor
-    ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ) { }
+    ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ) {}
 
     //! Observation link ends for which the bias is to be estimated.
     observation_models::LinkDefinition linkEnds_;
@@ -309,12 +359,12 @@ public:
                                                        const double referenceEpoch ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantTimeDriftBiasEstimatableParameterSettings( ) { }
+    ~ConstantTimeDriftBiasEstimatableParameterSettings( ) {}
 
     //! Observation link ends for which the bias is to be estimated.
     observation_models::LinkEnds linkEnds_;
@@ -349,13 +399,13 @@ public:
                                                       const std::vector< double > referenceEpochs ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ),
         referenceEpochs_( referenceEpochs )
-    { }
+    {}
 
     //! Destructor
-    ~ArcWiseTimeDriftBiasEstimatableParameterSettings( ) { }
+    ~ArcWiseTimeDriftBiasEstimatableParameterSettings( ) {}
 
     //! Observation link ends for which the bias is to be estimated.
     observation_models::LinkEnds linkEnds_;
@@ -389,12 +439,12 @@ public:
                                                   const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantTimeBiasEstimatableParameterSettings( ) { }
+    ~ConstantTimeBiasEstimatableParameterSettings( ) {}
 
     //! Observation link ends for which the bias is to be estimated.
     observation_models::LinkEnds linkEnds_;
@@ -425,12 +475,12 @@ public:
                                                  const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
-    { }
+    {}
 
     //! Destructor
-    ~ArcWiseTimeBiasEstimatableParameterSettings( ) { }
+    ~ArcWiseTimeBiasEstimatableParameterSettings( ) {}
 
     //! Observation link ends for which the bias is to be estimated.
     observation_models::LinkEnds linkEnds_;
@@ -464,7 +514,7 @@ public:
                                                            const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, initial_body_state ), initialTime_( TUDAT_NAN ),
         initialStateValue_( initialStateValue ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
-    { }
+    {}
 
     //! Constructor, without initial value of translational state.
     /*!
@@ -481,7 +531,7 @@ public:
                                                            const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, initial_body_state ), initialTime_( initialTime ), centralBody_( centralBody ),
         frameOrientation_( frameOrientation )
-    { }
+    {}
 
     //! Time at which initial state is defined (NaN for user-defined initial state value).
     double initialTime_;
@@ -494,6 +544,10 @@ public:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating an arcwise initial translational state.
@@ -542,7 +596,7 @@ public:
             const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), initialStateValue_( initialStateValue ),
         arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation ), isStateSet_( 1 )
-    { }
+    {}
 
     //! Constructor, without initial value of translational state, for a single central body
     /*!
@@ -582,7 +636,7 @@ public:
                                                                   const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), arcStartTimes_( arcStartTimes ),
         centralBodies_( centralBodies ), frameOrientation_( frameOrientation ), isStateSet_( 0 )
-    { }
+    {}
 
     //! Current value of initial arc states (concatenated in same order as arcs)
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue_;
@@ -598,6 +652,12 @@ public:
 
     //! Boolean to denote whether initial states are set, or if they need to be computed
     bool isStateSet_;
+
+    std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions_;
+
+    std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions_;
+
+    std::function< void( ) > initialStateSetClosure_;
 };
 
 //! Class to define settings for estimating an initial rotational state.
@@ -618,7 +678,7 @@ public:
                                                         const std::string& baseOrientation = "SSB" ):
         EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( TUDAT_NAN ),
         initialStateValue_( initialStateValue ), baseOrientation_( baseOrientation )
-    { }
+    {}
 
     //! Constructor, without initial value of rotational state.
     /*!
@@ -634,7 +694,7 @@ public:
                                                         const std::string& baseOrientation = "SSB" ):
         EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( initialTime ),
         baseOrientation_( baseOrientation )
-    { }
+    {}
 
     //! Time at which initial state is defined (NaN for user-defined initial state value).
     double initialTime_;
@@ -644,6 +704,10 @@ public:
 
     //! Orientation w.r.t. which the initial state is to be estimated.
     std::string baseOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating an initial rotational state.
@@ -653,9 +717,13 @@ class InitialMassEstimatableParameterSettings : public EstimatableParameterSetti
 public:
     InitialMassEstimatableParameterSettings( const std::string& associatedBody, const InitialStateParameterType initialStateValue ):
         EstimatableParameterSettings( associatedBody, initial_mass_state ), initialStateValue_( initialStateValue )
-    { }
+    {}
 
     InitialStateParameterType initialStateValue_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating time-independent empirical acceleration components
@@ -676,7 +744,7 @@ public:
                             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
         EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients, centralBody ),
         componentsToEstimate_( componentsToEstimate )
-    { }
+    {}
 
     //!  List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
@@ -704,7 +772,7 @@ public:
             const std::vector< double > arcStartTimeList ):
         EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients, centralBody ),
         componentsToEstimate_( componentsToEstimate ), arcStartTimeList_( arcStartTimeList )
-    { }
+    {}
 
     //! List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
@@ -728,7 +796,7 @@ public:
     ArcWiseRadiationPressureCoefficientEstimatableParameterSettings( const std::string associatedBody,
                                                                      const std::vector< double > arcStartTimeList ):
         EstimatableParameterSettings( associatedBody, arc_wise_radiation_pressure_coefficient ), arcStartTimeList_( arcStartTimeList )
-    { }
+    {}
 
     //! List of times at which radiation pressure coefficient arcs are to start
     std::vector< double > arcStartTimeList_;
@@ -746,7 +814,50 @@ public:
      */
     ArcWiseDragCoefficientEstimatableParameterSettings( const std::string associatedBody, const std::vector< double > arcStartTimeList ):
         EstimatableParameterSettings( associatedBody, arc_wise_constant_drag_coefficient ), arcStartTimeList_( arcStartTimeList )
-    { }
+    {}
+
+    //! List of times at which drag coefficient arcs are to start
+    std::vector< double > arcStartTimeList_;
+};
+
+//! Class to define settings for estimating time-dependent (arcwise) aerodynamic component scaling coefficients
+class ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param parameterType type of parameter ,
+     * \param associatedBody Name of body undergoing acceleration
+     * \param arcStartTimeList List of times at which drag coefficient arcs are to start
+     */
+    ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings( const EstimatebleParametersEnum parameterType,
+                                                                      const std::string associatedBody,
+                                                                      const std::vector< double > arcStartTimeList ):
+        EstimatableParameterSettings( associatedBody, parameterType ), arcStartTimeList_( arcStartTimeList )
+    {}
+
+    //! List of times at which drag coefficient arcs are to start
+    std::vector< double > arcStartTimeList_;
+};
+
+//! Class to define settings for estimating time-dependent (arcwise) atmosphere parameter settings
+class ArcWiseExponentialAtmosphereParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param parameterType Type of exponential atmosphere parameter
+     * \param associatedBody Name of body associated with the (exponential) atmosphere
+     * \param arcStartTimeList List of times at which drag coefficient arcs are to start
+     */
+
+    ArcWiseExponentialAtmosphereParameterSettings( const EstimatebleParametersEnum parameterType,
+                                                   const std::string& associatedBody,
+                                                   const std::vector< double > arcStartTimeList ):
+        EstimatableParameterSettings( associatedBody, parameterType ), arcStartTimeList_( arcStartTimeList )
+    {}
 
     //! List of times at which drag coefficient arcs are to start
     std::vector< double > arcStartTimeList_;
@@ -756,9 +867,9 @@ public:
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class FullDegreeTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -798,7 +909,7 @@ public:
                                                            const bool useComplexValue = 0 ):
         EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ),
         deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue )
-    { }
+    {}
 
     //! Degree of Love number that is to be estimated
     int degree_;
@@ -815,9 +926,9 @@ public:
  *  Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree and a set of orders at this
  *  degree. The estimation will provide separate Love numbers for each order
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -861,7 +972,7 @@ public:
                                                                      const bool useComplexValue = 0 ):
         EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ), orders_( orders ),
         deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue )
-    { }
+    {}
 
     //! Degree of Love number that is to be estimated
     int degree_;
@@ -916,7 +1027,7 @@ public:
             const bool useComplexValue = 0 ):
         EstimatableParameterSettings( associatedBody, mode_coupled_tidal_love_numbers ), loveNumberIndices_( loveNumberIndices ),
         deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue )
-    { }
+    {}
 
     std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
 
@@ -959,7 +1070,7 @@ public:
      */
     DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody, const std::vector< std::string >& deformingBodies ):
         EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag ), deformingBodies_( deformingBodies )
-    { }
+    {}
 
     //! Names of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
@@ -999,7 +1110,7 @@ public:
     InverseTidalQualityFactorEstimatableParameterSettings( const std::string& associatedBody,
                                                            const std::vector< std::string >& deformingBodies ):
         EstimatableParameterSettings( associatedBody, inverse_tidal_quality_factor ), deformingBodies_( deformingBodies )
-    { }
+    {}
 
     //! Names of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
@@ -1020,7 +1131,7 @@ public:
             const std::map< int, std::vector< std::pair< int, int > > >& sineBlockIndicesPerPower ):
         EstimatableParameterSettings( associatedBody, polynomial_gravity_field_variation_amplitudes ),
         cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ), sineBlockIndicesPerPower_( sineBlockIndicesPerPower )
-    { }
+    {}
 
     std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower_;
     std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower_;
@@ -1041,7 +1152,7 @@ public:
             const std::map< int, std::vector< std::pair< int, int > > >& sineBlockIndicesPerPower ):
         EstimatableParameterSettings( associatedBody, periodic_gravity_field_variation_amplitudes ),
         cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ), sineBlockIndicesPerPower_( sineBlockIndicesPerPower )
-    { }
+    {}
 
     std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower_;
     std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower_;
@@ -1056,7 +1167,7 @@ public:
                                         const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
         EstimatableParameterSettings( "", custom_estimated_parameter, customId ), parameterSize_( parameterSize ),
         getParameterFunction_( getParameterFunction ), setParameterFunction_( setParameterFunction )
-    { }
+    {}
 
     int parameterSize_;
 
@@ -1073,7 +1184,7 @@ public:
                                                        const std::vector< int > correctionPowers ):
         EstimatableParameterSettings( associatedBody, global_polynomial_clock_corrections, associatedStation ),
         correctionPowers_( correctionPowers )
-    { }
+    {}
 
     std::vector< int > correctionPowers_;
 };
@@ -1087,7 +1198,7 @@ public:
                                                          const std::vector< int > arcIndices ):
         EstimatableParameterSettings( associatedBody, arc_wise_polynomial_clock_corrections, associatedStation ),
         correctionPowers_( correctionPowers ), arcIndices_( arcIndices )
-    { }
+    {}
 
     std::vector< int > correctionPowers_;
     std::vector< int > arcIndices_;
@@ -1100,7 +1211,18 @@ public:
                                                 const std::vector< double > librationAngularFrequencies ):
         EstimatableParameterSettings( associatedBody, rotation_longitudinal_libration_terms ),
         librationAngularFrequencies_( librationAngularFrequencies )
-    { }
+    {}
+
+    std::vector< double > librationAngularFrequencies_;
+};
+
+class PoleLibrationTermsParameterSettings : public EstimatableParameterSettings
+{
+public:
+    PoleLibrationTermsParameterSettings( const std::string& associatedBody, const std::vector< double > librationAngularFrequencies ):
+        EstimatableParameterSettings( associatedBody, rotation_pole_libration_terms ),
+        librationAngularFrequencies_( librationAngularFrequencies )
+    {}
 
     std::vector< double > librationAngularFrequencies_;
 };
@@ -1109,15 +1231,14 @@ class FullAccelerationScalingFactorParameterSettings : public EstimatableParamet
 {
 public:
     FullAccelerationScalingFactorParameterSettings( const std::string& bodyUndergoingAcceleration,
-                                                const std::string& bodyExertingAcceleration,
-                                                const basic_astrodynamics::AvailableAcceleration accelerationType ):
-        EstimatableParameterSettings( bodyUndergoingAcceleration, full_acceleration_scaling_factor,bodyExertingAcceleration  ),
+                                                    const std::string& bodyExertingAcceleration,
+                                                    const basic_astrodynamics::AvailableAcceleration accelerationType ):
+        EstimatableParameterSettings( bodyUndergoingAcceleration, full_acceleration_scaling_factor, bodyExertingAcceleration ),
         accelerationType_( accelerationType )
-    { }
+    {}
 
     basic_astrodynamics::AvailableAcceleration accelerationType_;
 };
-
 
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
@@ -1130,18 +1251,17 @@ inline std::shared_ptr< EstimatableParameterSettings > constantDragCoefficient( 
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > fullAccelerationScaling(
-        const std::string& bodyUndergoingAcceleration, const std::string& bodyExertingAcceleration,
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
         const basic_astrodynamics::AvailableAcceleration accelerationType )
 {
     return std::make_shared< FullAccelerationScalingFactorParameterSettings >(
             bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > areaToMassScaling(
-        const std::string& bodyUndergoingAcceleration )
+inline std::shared_ptr< EstimatableParameterSettings > areaToMassScaling( const std::string& bodyUndergoingAcceleration )
 {
-    return std::make_shared< EstimatableParameterSettings >(
-            bodyUndergoingAcceleration, area_to_mass_scaling_factor );
+    return std::make_shared< EstimatableParameterSettings >( bodyUndergoingAcceleration, area_to_mass_scaling_factor );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > dragComponentScaling( const std::string bodyName )
@@ -1149,9 +1269,23 @@ inline std::shared_ptr< EstimatableParameterSettings > dragComponentScaling( con
     return std::make_shared< EstimatableParameterSettings >( bodyName, drag_component_scaling_factor );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseDragComponentScaling( const std::string bodyName,
+                                                                                    const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >(
+            arc_wise_drag_component_scaling_factor, bodyName, arcStartTimes );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > sideComponentScaling( const std::string bodyName )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyName, side_component_scaling_factor );
+    return std::make_shared< EstimatableParameterSettings >( bodyName, arc_wise_side_component_scaling_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseSideComponentScaling( const std::string bodyName,
+                                                                                    const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >(
+            arc_wise_side_component_scaling_factor, bodyName, arcStartTimes );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > liftComponentScaling( const std::string bodyName )
@@ -1159,9 +1293,53 @@ inline std::shared_ptr< EstimatableParameterSettings > liftComponentScaling( con
     return std::make_shared< EstimatableParameterSettings >( bodyName, lift_component_scaling_factor );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseLiftComponentScaling( const std::string bodyName,
+                                                                                    const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >(
+            arc_wise_lift_component_scaling_factor, bodyName, arcStartTimes );
+}
+
+// factory function parameter settings for arcwise ExponentialAtmosphereBaseDensity parameter
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereBaseDensity( const std::string& associatedBody,
+                                                                                                const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >(
+            arc_wise_exponential_atmosphere_base_density, associatedBody, arcStartTimes );
+}
+
+// factory function parameter settings for arcwise ExponentialAtmosphereScaleHeight parameter
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereScaleHeight( const std::string& associatedBody,
+                                                                                                const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >(
+            arc_wise_exponential_atmosphere_scale_height, associatedBody, arcStartTimes );
+}
+
+// factory function parameter settings for ExponentialAtmosphereBaseDensity parameter
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereBaseDensity( const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >( associatedBody, exponential_atmosphere_base_density );
+}
+
+// factory function parameter settings for ExponentialAtmosphereScaleHeight parameter
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereScaleHeight( const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >( associatedBody, exponential_atmosphere_scale_height );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, radiation_pressure_coefficient );
+}
+
+//! Settings for estimating the three area coefficients of a three-coefficient radiation-pressure acceleration.
+inline std::shared_ptr< EstimatableParameterSettings > threeCoefficientRadiationPressureCoefficients(
+        const std::string& bodyName,
+        const std::string& radiationSourceName )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+            bodyName, three_coefficient_radiation_pressure_coefficients, radiationSourceName );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineBlock( const std::string bodyName,
@@ -1220,6 +1398,19 @@ inline std::shared_ptr< EstimatableParameterSettings > constantRotationRate( std
 inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition( std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position );
+}
+
+//! Create settings for one bias vector shared by all observation links matching the selector.
+inline std::shared_ptr< EstimatableParameterSettings > sharedObservationBias(
+        observation_models::ObservationBiasTypes biasType,
+        observation_models::ObservableType observableType,
+        observation_models::LinkEndType linkEndType,
+        const observation_models::LinkEndId& linkEndId,
+        const std::vector< double >& arcStartTimes = {},
+        observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end )
+{
+    return std::make_shared< SharedObservationBiasEstimatableParameterSettings >(
+            biasType, observableType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > observationBias( const observation_models::LinkDefinition& linkEnds,
@@ -1394,9 +1585,9 @@ inline std::shared_ptr< EstimatableParameterSettings > rtgForceVector( const std
     return std::make_shared< EstimatableParameterSettings >( associatedBody, rtg_force_vector );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > rtgForceVectorMagnitude( const std::string bodyName)
+inline std::shared_ptr< EstimatableParameterSettings > rtgForceVectorMagnitude( const std::string bodyName )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyName, rtg_force_vector_magnitude);
+    return std::make_shared< EstimatableParameterSettings >( bodyName, rtg_force_vector_magnitude );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
@@ -1572,6 +1763,62 @@ inline std::shared_ptr< EstimatableParameterSettings > specularReflectivity( con
     return std::make_shared< EstimatableParameterSettings >( bodyName, specular_reflectivity, panel_group_id );
 }
 
+//! Create settings to estimate the energy accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Sentman and Cook gas-surface interaction models; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless energy accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > energyAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, energy_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the tangential accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless tangential accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > tangentialAccommodationCoefficient( const std::string bodyName,
+                                                                                           const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, tangential_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal velocity at wall ratio shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal velocity at wall ratio.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalVelocityAtWallRatio( const std::string bodyName,
+                                                                                  const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_velocity_at_wall_ratio, panel_group_id );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(
         const std::string bodyName,
         const std::map< int, std::vector< std::pair< int, int > > >& cosineBlockIndicesPerPower,
@@ -1643,6 +1890,13 @@ inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelLongitudi
         const std::vector< double >& librationAngularFrequencies )
 {
     return std::make_shared< LongitdinalLibrationTermsParameterSettings >( bodyName, librationAngularFrequencies );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelPoleLibrationParameterSettings(
+        const std::string& bodyName,
+        const std::vector< double >& librationAngularFrequencies )
+{
+    return std::make_shared< PoleLibrationTermsParameterSettings >( bodyName, librationAngularFrequencies );
 }
 
 }  // namespace estimatable_parameters

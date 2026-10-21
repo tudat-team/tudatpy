@@ -1,6 +1,6 @@
 """
 Copyright (c) 2010-2023, Delft University of Technology
-All rigths reserved
+All rights reserved
 
 This file is part of the Tudat. Redistribution and use in source and
 binary forms, with or without modification, are permitted exclusively
@@ -135,15 +135,11 @@ class DependentVariableDictionary(dict):
         keyword-value pairs (`kwargs`).
         """
         if mapping is not None:
-            mapping = {
-                self.__read_key(key): value for key, value in mapping.items()
-            }
+            mapping = {self.__read_key(key): value for key, value in mapping.items()}
         else:
             mapping = {}
         if kwargs:
-            mapping.update(
-                {self.__read_key(key): value for key, value in kwargs.items()}
-            )
+            mapping.update({self.__read_key(key): value for key, value in kwargs.items()})
         super().__init__(mapping)
 
         # Create a time history attribute to easily retrieve the time history
@@ -169,9 +165,7 @@ class DependentVariableDictionary(dict):
         """
         return super().__setitem__(self.__read_key(__key), __value)
 
-    def __getitem__(
-        self, __key: VariableSettings
-    ):  # -> dict[float: np.ndarray]:
+    def __getitem__(self, __key: VariableSettings):  # -> dict[float: np.ndarray]:
         """
         Retrieve the time history corresponding to a dependent variable, identified either by
         the dependent variable settings object corresponding to the dependent variable
@@ -207,12 +201,7 @@ class DependentVariableDictionary(dict):
         summary_string = (
             "Index   String ID\n"
             + f'{"-"*width}\n'
-            + "".join(
-                [
-                    f'{f"[{i}]":<7} "{ID}"\n'
-                    for i, (ID, value) in enumerate(self.items())
-                ]
-            )
+            + "".join([f'{f"[{i}]":<7} "{ID}"\n' for i, (ID, value) in enumerate(self.items())])
             + f'{"="*width}\n'
         )
 
@@ -224,11 +213,9 @@ class DependentVariableDictionary(dict):
         """
 
         width = max([len(ID) for ID in self.keys()]) + 10
-        title = f'{"Depent Variable Dictionary Summary":^{width}}'
+        title = f'{"Dependent Variable Dictionary Summary":^{width}}'
 
-        representation_string = (
-            f'\n{"="*width}\n' + title + f'\n{"="*width}\n' + self.__summary__()
-        )
+        representation_string = f'\n{"="*width}\n' + title + f'\n{"="*width}\n' + self.__summary__()
 
         return representation_string
 
@@ -278,12 +265,10 @@ def create_dependent_variable_dictionary(
     )
 
     # Retrieve /transposed/ time and dependent variable histories
-    time_history = result2array(
-        dynamics_simulator.dependent_variable_history
-    ).T[0, :]
-    dependent_variable_history = result2array(
-        dynamics_simulator.dependent_variable_history
-    ).T[1:, :]
+    time_history = result2array(dynamics_simulator.dependent_variable_history).T[0, :]
+    dependent_variable_history = result2array(dynamics_simulator.dependent_variable_history).T[
+        1:, :
+    ]
 
     # Calculate total number of epochs of propagation
     n = len(time_history)
@@ -297,9 +282,7 @@ def create_dependent_variable_dictionary(
     for (i, m), dependent_variable in dependent_variable_settings.items():
 
         # Retrieve dependent variable shape
-        A, B = get_dependent_variable_shape(
-            dependent_variable, dynamics_simulator.bodies
-        )
+        A, B = get_dependent_variable_shape(dependent_variable, dynamics_simulator.bodies)
 
         # Save dependent variable history as a tensor of (A, B)-sized
         # matrices with `n` entries, where `n` is the number of epochs
@@ -318,9 +301,7 @@ def create_dependent_variable_dictionary(
                 epoch: dependent_variable_matrices[i_depv][i_epoch].squeeze()
                 for i_epoch, epoch in enumerate(time_history)
             }
-            for i_depv, dependent_variable in enumerate(
-                dependent_variable_settings.values()
-            )
+            for i_depv, dependent_variable in enumerate(dependent_variable_settings.values())
         }
     )
 

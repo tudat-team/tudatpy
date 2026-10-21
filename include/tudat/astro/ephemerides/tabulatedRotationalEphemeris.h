@@ -58,10 +58,10 @@ public:
                                   const std::string& baseFrameOrientation = "ECLIPJ2000",
                                   const std::string& targetFrameOrientation = "" ):
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), interpolator_( interpolator ), currentTime_( TUDAT_NAN )
-    { }
+    {}
 
     //! Destructor
-    ~TabulatedRotationalEphemeris( ) { }
+    ~TabulatedRotationalEphemeris( ) {}
 
     //! Function to reset the rotational state interpolator.
     /*!
@@ -178,16 +178,15 @@ private:
         {
             // Retrieve data from interpolator
 
-
             try
             {
                 currentRotationalState_ = interpolator_->interpolate( time );
             }
             catch( std::runtime_error& caughtException )
             {
-                throw std::runtime_error( "Error in tabulated rotational state.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                throw std::runtime_error( "Error in tabulated rotational state.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
             }
-
 
             // Normalize quaternion and set current rotation quaternion
             double quaternionNorm = ( currentRotationalState_.block( 0, 0, 4, 1 ) ).norm( );

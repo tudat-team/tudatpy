@@ -8,15 +8,17 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <boost/test/included/unit_test.hpp>
+
 #include <vector>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
-#include "tudat/simulation/estimation.h"
 
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"

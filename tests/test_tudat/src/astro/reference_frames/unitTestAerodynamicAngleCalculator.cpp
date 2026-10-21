@@ -7,10 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -18,7 +17,6 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
@@ -38,9 +36,9 @@ class ManualAerodynamicAngleInterface : public BodyFixedAerodynamicAngleInterfac
 public:
     ManualAerodynamicAngleInterface( const std::function< Eigen::Vector3d( const double ) > manualAngleFuncion ):
         BodyFixedAerodynamicAngleInterface( custom_body_fixed_angles ), manualAngleFuncion_( manualAngleFuncion )
-    { }
+    {}
 
-    virtual ~ManualAerodynamicAngleInterface( ) { }
+    virtual ~ManualAerodynamicAngleInterface( ) {}
 
     Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame )
     {

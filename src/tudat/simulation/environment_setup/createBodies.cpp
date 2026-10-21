@@ -12,15 +12,15 @@
 #include <cmath>
 #include <memory>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
@@ -49,21 +49,6 @@ void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
     bodies.at( bodyName )
             ->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName, bodies ) );
-}
-
-// RP-OLD
-void addRadiationPressureInterface( const SystemOfBodies& bodies,
-                                    const std::string bodyName,
-                                    const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
-{
-    if( bodies.count( bodyName ) == 0 )
-    {
-        throw std::runtime_error( "Error when setting radiation pressure interface for body " + bodyName +
-                                  ", body is not found in system of bodies" );
-    }
-    bodies.at( bodyName )
-            ->setRadiationPressureInterface( radiationPressureSettings->getSourceBody( ),
-                                             createRadiationPressureInterface( radiationPressureSettings, bodyName, bodies ) );
 }
 
 void addRadiationPressureTargetModel( const SystemOfBodies& bodies,

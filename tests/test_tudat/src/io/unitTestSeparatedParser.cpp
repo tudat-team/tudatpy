@@ -9,16 +9,14 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <iostream>
 #include <sstream>
 #include <string>
 
-#include <boost/assign.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
 
@@ -47,10 +45,10 @@ public:
                 input_output::field_types::state::cartesianXCoordinate,
                 input_output::field_types::state::cartesianYCoordinate,
                 input_output::field_types::state::cartesianZCoordinate )
-    { }
+    {}
 
     //! Default destructor.
-    ~test_separated_parser_fixture( ) { }
+    ~test_separated_parser_fixture( ) {}
 
     //! A separated parser.
     input_output::SeparatedParser parser;

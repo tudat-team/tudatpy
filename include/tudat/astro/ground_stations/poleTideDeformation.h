@@ -27,9 +27,9 @@ public:
      */
     PoleTideDeformation( const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator ):
         polarMotionCalculator_( polarMotionCalculator )
-    { }
+    {}
 
-    ~PoleTideDeformation( ) { }
+    ~PoleTideDeformation( ) {}
 
     Eigen::Vector3d calculateEnuDisplacement( const double ephemerisTime,
                                               const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );

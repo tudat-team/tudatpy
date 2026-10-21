@@ -62,7 +62,7 @@ public:
         gravitationalParameterFunction( [ = ]( ) { return aGravitationalParameter; } ),
         sourcePositionFunction( positionOfBodyExertingAccelerationFunction ), isMutualAttractionUsed_( isMutualAttractionUsed ),
         currentPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential )
-    { }
+    {}
 
     //! Default constructor taking position of body subject to acceleration, variable
     //! gravitational parameter, and position of body exerting acceleration.
@@ -92,13 +92,13 @@ public:
         gravitationalParameterFunction( aGravitationalParameterFunction ),
         sourcePositionFunction( positionOfBodyExertingAccelerationFunction ), isMutualAttractionUsed_( isMutualAttractionUsed ),
         currentPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential )
-    { }
+    {}
 
     //! Virtual destructor.
     /*!
      * Base class virtual destructor.
      */
-    virtual ~SphericalHarmonicsGravitationalAccelerationModelBase( ) { }
+    virtual ~SphericalHarmonicsGravitationalAccelerationModelBase( ) {}
 
     //! Update base class members.
     /*!

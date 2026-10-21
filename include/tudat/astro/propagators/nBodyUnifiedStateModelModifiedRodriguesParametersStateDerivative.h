@@ -13,6 +13,7 @@
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
 
@@ -124,7 +125,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative( ) { }
+    ~NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system, using the equations of motion for the
     //! unified state model with modified rodrigues parameters (USM6).

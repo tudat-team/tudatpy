@@ -31,7 +31,7 @@ class NumericalQuadrature
 {
 public:
     //! Destructor.
-    virtual ~NumericalQuadrature( ) { }
+    virtual ~NumericalQuadrature( ) {}
 
     //! This function returns the value of the numerical integration performed by quadrature.
     /*!

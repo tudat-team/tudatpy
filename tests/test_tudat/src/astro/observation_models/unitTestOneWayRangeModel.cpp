@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -22,9 +21,9 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 namespace tudat
 {
@@ -301,8 +300,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModelWithFrequencyDependentCorrections )
         double correctedObservation = observationModelCorrected->computeIdealObservations( testTime, receiver )( 0 );
 
         // Compute correction
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                std::make_shared< ObservationAncilliarySimulationSettings >( );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                std::make_shared< ObservationAncillarySimulationSettings >( );
         if( test == 0 )
         {
             ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, earthFrequency );
@@ -320,7 +319,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModelWithFrequencyDependentCorrections )
 
         // Compute correction with ancillary settings input
         correctedObservation = observationModelCorrected->computeIdealObservations(
-                testTime, receiver, std::make_shared< ObservationAncilliarySimulationSettings >( ) )( 0 );
+                testTime, receiver, std::make_shared< ObservationAncillarySimulationSettings >( ) )( 0 );
         BOOST_CHECK_SMALL( ionosphereCorrection * physical_constants::SPEED_OF_LIGHT + ( uncorrectedObservation - correctedObservation ),
                            1.0E-3 );
     }

@@ -9,23 +9,20 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
-
-#include <boost/lambda/lambda.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
@@ -130,7 +127,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
                                           true,
                                           1.0,
                                           ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ),
-                                          getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
+                                          getNWayRangeAncillarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
         }
 
         // Test partials with real ephemerides (without test of position partials)
@@ -167,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
                                           true,
                                           1.0,
                                           ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ),
-                                          getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
+                                          getNWayRangeAncillarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
         }
     }
 }

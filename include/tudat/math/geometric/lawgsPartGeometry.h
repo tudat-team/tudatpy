@@ -40,13 +40,13 @@ public:
     /*!
      * Default constructor.
      */
-    LawgsPartGeometry( ): name_( "" ) { }
+    LawgsPartGeometry( ): name_( "" ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~LawgsPartGeometry( ) { }
+    virtual ~LawgsPartGeometry( ) {}
 
     //! Create a mesh surface on a single-surface geometry.
     /*!

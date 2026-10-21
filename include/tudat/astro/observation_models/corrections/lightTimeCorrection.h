@@ -13,7 +13,7 @@
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 
 namespace tudat
 {
@@ -28,10 +28,12 @@ enum LightTimeCorrectionType {
     tabulated_tropospheric,
     saastamoinen_tropospheric,
     vmf3_tropospheric,
+    vmf3o_tropospheric,
     tabulated_ionospheric,
     jakowski_vtec_ionospheric,
     inverse_power_series_solar_corona,
-    ionex_vtec_ionospheric
+    ionex_vtec_ionospheric,
+    nequick2_ionospheric
 };
 
 bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );
@@ -53,10 +55,10 @@ public:
      */
     LightTimeCorrection( const LightTimeCorrectionType lightTimeCorrectionType ):
         lightTimeCorrectionType_( lightTimeCorrectionType ), timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 )
-    { }
+    {}
 
     //! Destructor
-    virtual ~LightTimeCorrection( ) { }
+    virtual ~LightTimeCorrection( ) {}
 
     //! Pure virtual function to compute the light-time correction
     /*!
@@ -75,7 +77,7 @@ public:
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         std::vector< Eigen::Vector6d > linkEndsStates = { transmitterState, receiverState };
         std::vector< double > linkEndsTimes = { transmissionTime, receptionTime };
@@ -97,7 +99,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex = 0,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) = 0;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) = 0;
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!
@@ -117,7 +119,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings );
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings );
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. link end position
     /*!
@@ -136,7 +138,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings );
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings );
 
     //! Function to retrieve the type of light-time correction represented by instance of class.
     /*!

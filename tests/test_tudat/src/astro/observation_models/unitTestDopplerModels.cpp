@@ -8,23 +8,24 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 
@@ -114,7 +115,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     // Create observation settings
-    for( int useCorrections = 0; useCorrections < 3; useCorrections++ )
+    for( int useCorrections = 0; useCorrections < 4; useCorrections++ )
     {
         double toleranceScaling = 1.0;
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > correctionSettings;
@@ -127,6 +128,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         else if( useCorrections == 2 )
         {
             correctionSettings.push_back( saastamoinenTroposphericCorrectionSettings( ) );
+        }
+        else if( useCorrections == 3 )
+        {
+            // Perturbing body that moves fast w.r.t. the link ends' frame (Earth, ~30 km/s): its motion during the
+            // observation must enter the Shapiro time derivative
+            correctionSettings.push_back(
+                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Earth" } ) ) );
         }
         std::shared_ptr< ObservationModelSettings > observableSettings =
                 std::make_shared< ObservationModelSettings >( one_way_doppler, linkEnds, correctionSettings );
@@ -169,6 +177,19 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
             // Compute observable
             double dopplerObservable = observationModel->computeObservationsWithLinkEndData(
                     observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
+
+            if( useCorrections == 1 || useCorrections == 3 )
+            {
+                const auto relativisticCorrection = std::dynamic_pointer_cast< FirstOrderLightTimeCorrectionCalculator >(
+                        dopplerObservationModel->getLightTimeCalculator( )->getLightTimeCorrection( ).at( 0 ) );
+                BOOST_REQUIRE( relativisticCorrection != nullptr );
+                const double cachedCorrection = relativisticCorrection->getCurrentTotalLightTimeCorrection( );
+                const double cachedComponent = relativisticCorrection->getCurrentLightTimeCorrectionComponent( 0 );
+                const double nominalCorrection = relativisticCorrection->calculateLightTimeCorrection(
+                        linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
+                BOOST_CHECK_EQUAL( cachedCorrection, nominalCorrection );
+                BOOST_CHECK_EQUAL( cachedComponent, nominalCorrection );
+            }
 
             // Creare independent light time calculator object
             std::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
@@ -228,10 +249,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 // Compute light time
                 double lightTimeDown = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                         receiverStateDown, transmitterStateDown, observationTime - timePerturbation, true );
-                double lightTimeCorrectionDown = correction->calculateLightTimeCorrection( transmitterStateDown,
-                                                                                           receiverStateDown,
-                                                                                           observationTime - timePerturbation - lightTimeUp,
-                                                                                           observationTime - timePerturbation );
+                double lightTimeCorrectionDown =
+                        correction->calculateLightTimeCorrection( transmitterStateDown,
+                                                                  receiverStateDown,
+                                                                  observationTime - timePerturbation - lightTimeDown,
+                                                                  observationTime - timePerturbation );
 
                 Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtReceiver =
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
@@ -246,12 +268,15 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                         transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
 
                 double numericalCorrectionPartial = ( lightTimeCorrectionUp - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation );
-                double analyticalCorrectionPartial = lightTimeCorrectionWrtTransmitterTime + lightTimeCorrectionWrtReceiverTime +
-                        lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) +
-                        lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) );
+                // The numerical derivative follows the solved link: transmission time changes by dt_T/dt_R.
+                // In this case Doppler is normalized and has no proper-time correction, so it equals dt_T/dt_R - 1.
+                const double transmissionTimeWrtReceptionTime = 1.0 + dopplerObservable;
+                double analyticalCorrectionPartial = ( lightTimeCorrectionWrtTransmitterTime +
+                                                       lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) ) ) *
+                                transmissionTimeWrtReceptionTime +
+                        lightTimeCorrectionWrtReceiverTime + lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) );
 
-                BOOST_CHECK_CLOSE_FRACTION(
-                        numericalCorrectionPartial, analyticalCorrectionPartial, ( useCorrections == 1 ? 1.0E2 : 1.0 ) * 1.0E-5 );
+                BOOST_CHECK_CLOSE_FRACTION( numericalCorrectionPartial, analyticalCorrectionPartial, 1.0E-5 );
             }
         }
     }
@@ -608,10 +633,10 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithCorrections );
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithoutCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithoutCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithoutCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithoutCorrections );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithCorrections =
@@ -681,6 +706,41 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
             BOOST_CHECK_SMALL( std::fabs( static_cast< double >( observableDifference ) ), 1.0E-6 );
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testTwoWayDopplerVehicleSystemTransponderDelay )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEnds[ retransmitter ] = std::make_pair< std::string, std::string >( "Mars", "" );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "" );
+
+    const double vehicleSystemDelay = 5.0E-6;
+    const double ancillaryDelay = 3.0E-6;
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( vehicleSystemDelay );
+
+    std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel(
+                    std::make_shared< ObservationModelSettings >( two_way_doppler, linkEnds ), bodies );
+
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    const double observationTime = 2.0E5;
+
+    observationModel->computeIdealObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, getNWayRangeAncillarySettings( { ancillaryDelay } ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

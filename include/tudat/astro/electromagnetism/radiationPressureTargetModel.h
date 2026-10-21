@@ -39,9 +39,9 @@ namespace electromagnetism
 class RadiationPressureTargetModel
 {
 public:
-    explicit RadiationPressureTargetModel( const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+    explicit RadiationPressureTargetModel( const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         sourceToTargetOccultingBodies_( sourceToTargetOccultingBodies ), computeTorques_( false ), centerOfMassFunction_( nullptr )
-    { }
+    {}
 
     virtual ~RadiationPressureTargetModel( ) = default;
 
@@ -96,7 +96,7 @@ public:
         return currentRadiationPressureTorque_.at( sourceName );
     }
 
-    virtual void resetDerivedComputations( const std::string sourceName ) { }
+    virtual void resetDerivedComputations( const std::string sourceName ) {}
 
     void resetComputations( const std::string& sourceName )
     {
@@ -106,7 +106,7 @@ public:
         resetDerivedComputations( sourceName );
     }
 
-    virtual void saveLocalComputations( const std::string sourceName, const bool saveCosines ) { }
+    virtual void saveLocalComputations( const std::string sourceName, const bool saveCosines ) {}
 
 protected:
     virtual void updateMembers_( const double currentTime ) {};
@@ -138,21 +138,19 @@ public:
      * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
      *      to occult sources as seen from this target
      */
-    CannonballRadiationPressureTargetModel(
-            double area,
-            double coefficient,
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+    CannonballRadiationPressureTargetModel( double area,
+                                            double coefficient,
+                                            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), area_( area ), coefficientFunction_( nullptr ),
         currentCoefficient_( coefficient )
-    { }
+    {}
 
-    CannonballRadiationPressureTargetModel(
-            double area,
-            std::function< double( const double ) > coefficientFunction,
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+    CannonballRadiationPressureTargetModel( double area,
+                                            std::function< double( const double ) > coefficientFunction,
+                                            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), area_( area ), coefficientFunction_( coefficientFunction ),
         currentCoefficient_( TUDAT_NAN )
-    { }
+    {}
 
     void enableTorqueComputation( const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
     {
@@ -241,8 +239,8 @@ public:
                     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >( ),
             const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations =
                     std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { },
-            const std::map< std::string, int > maximumNumberOfPixelsPerSource = { },
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {},
+            const std::map< std::string, int > maximumNumberOfPixelsPerSource = {},
             bool panelGeometryDefined = false ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
         segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
@@ -262,7 +260,7 @@ public:
             panelTypeIdList_[ i ] = allPanels_[ i ]->getPanelTypeId( );
         }
         // create map of self-shadowing objects per source
-        for( auto it: maximumNumberOfPixelsPerSource_ )
+        for( auto it : maximumNumberOfPixelsPerSource_ )
         {
             if( it.second < 0 || it.second == 1 )
             {
@@ -308,11 +306,12 @@ public:
                                          const std::string sourceName = "" ) override;
 
     Eigen::Vector3d evaluateRadiationPressureForcePartialWrtDiffuseReflectivity( double sourceIrradiance,
-                                                                                 const Eigen::Vector3d& sourceToTargetDirectionLocalFrame );
+                                                                                 const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+                                                                                 const std::string& panelTypeId );
 
-    Eigen::Vector3d evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
-            double sourceIrradiance,
-            const Eigen::Vector3d& sourceToTargetDirectionLocalFrame );
+    Eigen::Vector3d evaluateRadiationPressureForcePartialWrtSpecularReflectivity( double sourceIrradiance,
+                                                                                  const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+                                                                                  const std::string& panelTypeId );
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getBodyFixedPanels( )
     {
@@ -414,7 +413,7 @@ private:
             illuminatedPanelFractions_.at( i ) = 0.0;
         }
         illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
-        for( auto it: selfShadowingPerSource_ )
+        for( auto it : selfShadowingPerSource_ )
         {
             it.second->reset( );
         }

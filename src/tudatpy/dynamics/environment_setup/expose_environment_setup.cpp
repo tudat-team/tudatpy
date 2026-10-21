@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_environment_setup.h"
 
 #include <pybind11/complex.h>
@@ -16,7 +18,18 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/basics/deprecationWarnings.h>
+#include <tudat/simulation/environment_setup/createRelativisticTimeConverter.h>
+#include <tudat/simulation/environment_setup/body.h>
+#include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
+#include <tudat/simulation/environment_setup/createBodiesFactory.h>
+#include <tudat/simulation/environment_setup/createEphemeris.h>
+#include <tudat/simulation/environment_setup/createFlightConditions.h>
+#include <tudat/simulation/environment_setup/createGroundStations.h>
+#include <tudat/simulation/environment_setup/createCameras.h>
+#include <tudat/simulation/environment_setup/createSystemModel.h>
+#include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
+#include <tudat/simulation/environment_setup/defaultBodies.h>
 
 #include "aerodynamic_coefficients/expose_aerodynamic_coefficients.h"
 #include "atmosphere/expose_atmosphere.h"
@@ -30,6 +43,7 @@
 #include "scalarTypes.h"
 #include "shape/expose_shape.h"
 #include "shape_deformation/expose_shape_deformation.h"
+#include "space_time/expose_space_time.h"
 #include "vehicle_systems/expose_vehicle_systems.h"
 
 namespace py = pybind11;
@@ -50,12 +64,46 @@ namespace dynamics
 namespace environment_setup
 {
 
-void expose_environment_setup( py::module& m )
+void expose_environment_setup_types( py::module& m )
 {
     auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
-    aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
+    aerodynamic_coefficients::expose_aerodynamic_coefficient_types( aerodynamic_coefficient_setup );
 
     auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    radiation_pressure::expose_radiation_pressure_types( radiation_pressure_setup );
+
+    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    gravity_field_variation::expose_gravity_field_variation_types( gravity_variation_setup );
+
+    auto space_time_setup = m.def_submodule( "space_time" );
+    space_time::expose_space_time_types( space_time_setup );
+}
+
+std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > directRelativisticTimeConverterSettings(
+        const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >&
+                barycentric_to_bodycentric_settings,
+        const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >& integrator_settings,
+        const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                bodycentric_to_topocentric_settings )
+{
+    return std::make_shared< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
+}
+
+void setRelativisticTimeConverters(
+        const tss::SystemOfBodies& bodies,
+        const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                settings )
+{
+    tss::setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >( bodies, settings );
+}
+
+void expose_environment_setup( py::module& m )
+{
+    auto aerodynamic_coefficient_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients" );
+    aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
+
+    auto radiation_pressure_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.radiation_pressure" );
     radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
 
     auto rotation_model_setup = m.def_submodule( "rotation_model" );
@@ -73,7 +121,7 @@ void expose_environment_setup( py::module& m )
     auto shape_setup = m.def_submodule( "shape" );
     shape::expose_shape_setup( shape_setup );
 
-    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    auto gravity_variation_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.gravity_field_variation" );
     gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
 
     auto shape_deformation_setup = m.def_submodule( "shape_deformation" );
@@ -88,6 +136,9 @@ void expose_environment_setup( py::module& m )
     auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
     vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
 
+    auto space_time_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.space_time" );
+    space_time::expose_space_time_setup( space_time_setup );
+
     //        m.def("get_body_gravitational_parameter",
     //              &tss::getBodyGravitationalParameter,
     //              py::arg("body_collection"),
@@ -98,7 +149,7 @@ void expose_environment_setup( py::module& m )
          Class for defining settings for the creation of a single body.
 
          Class for defining settings for the creation of a single body, this object is typically stored inside a
-         :class:`BodyListSettings` object.
+         :class:`BodyListSettings` object (see module-level description :ref:`environment_setup` for details on interfaces with rest of tudat)
 
       )doc" )
             .def_readwrite( "constant_mass", &tss::BodySettings::constantMass, R"doc(
@@ -190,6 +241,13 @@ void expose_environment_setup( py::module& m )
 
          :type: list[BodyDeformationSettings]
       )doc" )
+            .def_readwrite( "camera_settings",
+                            &tss::BodySettings::cameraSettings,
+                            R"doc(
+            List of objects that define the settings of the cameras on the body, which are used as link ends of observations
+            Entries in this list are typically created with
+            :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.pinhole_camera`.
+            )doc" )
             .def_readwrite( "ground_station_settings",
                             &tss::BodySettings::groundStationSettings,
                             R"doc(
@@ -232,8 +290,7 @@ void expose_environment_setup( py::module& m )
 
          :type: RadiationSourceModelSettings
       )doc" )
-            .def_readwrite(
-                    "vehicle_shape_settings", &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
+            .def_readwrite( "vehicle_shape_settings", &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
 
          Object that defines the settings of an exterior panelled vehicle shape that is to be created. A variable of this type is typically
          assigned by using a function from the :ref:`vehicle_systems` module.
@@ -241,27 +298,24 @@ void expose_environment_setup( py::module& m )
 
          :type: FullPanelledBodySettings
       )doc" )
-            .def_readwrite( "radiation_pressure_settings",
-                            &tss::BodySettings::radiationPressureSettings,
+            .def_readwrite( "climate_model_settings",
+                            &tss::BodySettings::climateModelSettings,
                             R"doc(
 
-         .. warning::
+         Object that defines the settings of the climate model that is to be created. Currently it only supports
+         the Mars Climate Database (MCD; only available when users have a local copy and have built tudatpy locally), configured with
+         :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model`.
 
-             This interface is deprecated and will be removed in a future release. Use :attr:`~tudatpy.dynamics.environment_setup.BodySettings.radiation_source_settings` and :attr:`~tudatpy.dynamics.environment_setup.BodySettings.radiation_pressure_target_settings` instead.
 
-
+         :type: ClimateModelSettings
       )doc" );
 
-    py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >(
-            m, "BodyListSettings", R"doc(
+    py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >( m, "BodyListSettings", R"doc(
 
          Class for defining settings for the creation of a system of bodies.
 
          Class for defining settings for the creation of a system of bodies. This object is typically created from default settings, and
-         then adapted to the user's specific needs.
-
-
-
+         then adapted to the user's specific needs (see module-level description :ref:`environment_setup` for details on interfaces with rest of tudat).
 
 
       )doc" )
@@ -283,9 +337,9 @@ void expose_environment_setup( py::module& m )
          Parameters
          ----------
          frame_origin : str
-             Definition of the global frame origin for the bodies.
+             Definition of the global frame origin for the bodies  See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`__ for more information.
          frame_orientation : str
-             Definition of the global frame orientation for the bodies.
+             Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`__ for more information.
 
 
       )doc" )
@@ -308,8 +362,7 @@ void expose_environment_setup( py::module& m )
 
      )doc" )
             .def( "add_settings",
-                  py::overload_cast< std::shared_ptr< tss::BodySettings >, const std::string >(
-                          &tss::BodyListSettings::addSettings ),
+                  py::overload_cast< std::shared_ptr< tss::BodySettings >, const std::string >( &tss::BodyListSettings::addSettings ),
                   py::arg( "settings_to_add" ),
                   py::arg( "body_name" ),
                   R"doc(
@@ -320,7 +373,7 @@ void expose_environment_setup( py::module& m )
 
              This method is rarely called by the user, as :class:`BodySettings` objects cannot be created directly but only be extracted from a BodyListSettings instance.
              Instead, users are recommended to use the :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` to create settings for major celestial bodies, and the :func:`~tudatpy.dynamics.environment_setup.BodyListSettings.add_empty_settings` function to create settings for custom bodies.
-             See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
+             See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`__ for more information.
 
 
          Parameters
@@ -342,7 +395,7 @@ void expose_environment_setup( py::module& m )
          This method adds empty settings to the :class:`BodyListSettings` instance.
 
          Adds empty settings to the :class:`BodyListSettings` instance. This is typically used to add settings for custom bodies, for which no default settings are available.
-         See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
+         See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`__ for more information.
 
          Parameters
          ----------
@@ -353,30 +406,37 @@ void expose_environment_setup( py::module& m )
 
 
      )doc" )
+            .def_property( "space_time_settings",
+                           &tss::BodyListSettings::getSpaceTimeSettings,
+                           &tss::BodyListSettings::setSpaceTimeSettings,
+                           R"doc(
+
+         Settings used to initialize :attr:`SystemOfBodies.space_time_properties`
+         when calling :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`.
+
+         :type: SpaceTimePropertiesSettings
+      )doc" )
             .def_property_readonly( "frame_origin",
                                     &tss::BodyListSettings::getFrameOrigin,
                                     R"doc(
 
          **read-only**
 
-         Definition of the global frame origin for the bodies
+         Definition of the global frame origin for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`__ for more information.
 
          :type: str
       )doc" )
-            .def_property_readonly(
-                    "frame_orientation", &tss::BodyListSettings::getFrameOrientation, R"doc(
+            .def_property_readonly( "frame_orientation", &tss::BodyListSettings::getFrameOrientation, R"doc(
 
          **read-only**
 
-         Definition of the global frame orientation for the bodies
+         Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`__ for more information.
 
          :type: str
       )doc" );
 
     m.def( "get_default_body_settings",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::string,
-                              const std::string >( &tss::getDefaultBodySettings ),
+           py::overload_cast< const std::vector< std::string >&, const std::string, const std::string >( &tss::getDefaultBodySettings ),
            py::arg( "bodies" ),
            py::arg( "base_frame_origin" ) = "SSB",
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
@@ -410,13 +470,10 @@ void expose_environment_setup( py::module& m )
 
 
 
-
-
-
      )doc" );
 
     m.def( "get_default_body_settings_time_limited",
-           py::overload_cast< const std::vector< std::string > &,
+           py::overload_cast< const std::vector< std::string >&,
                               const double,
                               const double,
                               const std::string,
@@ -464,8 +521,7 @@ void expose_environment_setup( py::module& m )
      )doc" );
 
     m.def( "get_default_single_body_settings",
-           py::overload_cast< const std::string &, const std::string & >(
-                   &tss::getDefaultSingleBodySettings ),
+           py::overload_cast< const std::string&, const std::string& >( &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
            R"doc(
@@ -494,11 +550,8 @@ void expose_environment_setup( py::module& m )
      )doc" );
 
     m.def( "get_default_single_body_settings_time_limited",
-           py::overload_cast< const std::string &,
-                              const double,
-                              const double,
-                              const std::string &,
-                              const double >( &tss::getDefaultSingleBodySettings ),
+           py::overload_cast< const std::string&, const double, const double, const std::string&, const double >(
+                   &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
@@ -536,7 +589,7 @@ void expose_environment_setup( py::module& m )
      )doc" );
 
     m.def( "get_default_single_alternate_body_settings",
-           py::overload_cast< const std::string &, const std::string &, const std::string & >(
+           py::overload_cast< const std::string&, const std::string&, const std::string& >(
                    &tss::getDefaultSingleAlternateNameBodySettings ),
            py::arg( "body_name" ),
            py::arg( "source_body_name" ),
@@ -572,12 +625,8 @@ void expose_environment_setup( py::module& m )
      )doc" );
 
     m.def( "get_default_single_alternate_body_settings_time_limited",
-           py::overload_cast< const std::string &,
-                              const std::string &,
-                              const double,
-                              const double,
-                              const std::string &,
-                              const double >( &tss::getDefaultSingleAlternateNameBodySettings ),
+           py::overload_cast< const std::string&, const std::string&, const double, const double, const std::string&, const double >(
+                   &tss::getDefaultSingleAlternateNameBodySettings ),
            py::arg( "body_name" ),
            py::arg( "source_body_name" ),
            py::arg( "initial_time" ),
@@ -643,9 +692,6 @@ void expose_environment_setup( py::module& m )
 
 
 
-
-
-
      )doc" );
 
     m.def( "create_system_of_bodies",
@@ -655,9 +701,10 @@ void expose_environment_setup( py::module& m )
 
  Function that creates a System of bodies from associated settings.
 
- Function that creates a System of bodies from associated settings. This function creates the separate :class:`~tudatpy.dynamics.environment.Body`
- objects and stores them in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. This object represents the full
- physical environment in the simulation.
+ Function that creates a :class:`~tudatpy.dynamics.environment.SystemOfBodies` of bodies from associated settings in a :class:`~tudatpy.dynamics.environment_setup.BodyListSettings` object.
+ This function creates the separate :class:`~tudatpy.dynamics.environment.Body`
+ objects and stores them in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. This :class:`~tudatpy.dynamics.environment.SystemOfBodies` object represents the full
+ physical environment in the simulation, and this function is responsible for creating this environment from the user-defined settings.
 
 
  Parameters
@@ -682,7 +729,22 @@ void expose_environment_setup( py::module& m )
            py::arg( "body_name" ),
            py::arg( "ephemeris_origin" ) = "",
            py::arg( "is_part_of_multi_arc" ) = false,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Function that adds an empty tabulated ephemeris to an existing body.
+
+         Parameters
+         ----------
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
+             Object containing the physical environment.
+         body_name : str
+             Name of the body to which the ephemeris is assigned.
+         ephemeris_origin : str, default=""
+             Origin of the ephemeris frame. If empty, the global frame origin of ``bodies`` is used.
+         is_part_of_multi_arc : bool, default=False
+             If True, place the empty tabulated ephemeris inside a multi-arc ephemeris.
+
+      )doc" );
 
     m.def( "create_tabulated_ephemeris_from_spice",
            &tss::createTabulatedEphemerisFromSpice< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -692,8 +754,27 @@ void expose_environment_setup( py::module& m )
            py::arg( "time_step" ),
            py::arg( "observer_name" ),
            py::arg( "reference_frame_name" ),
-           py::arg( "interpolator_settings" ) =
-                   std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ) );
+           py::arg_v( "interpolator_settings", std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ), "..." ),
+           R"doc(
+Create a tabulated ephemeris from SPICE data.
+
+Parameters
+----------
+body : dynamics.environment.Body
+    Body for which the tabulated ephemeris is created.
+initial_time : float
+    Start epoch of the tabulation.
+end_time : float
+    End epoch of the tabulation.
+time_step : float
+    Time interval between consecutive tabulated states.
+observer_name : str
+    Name of the SPICE observer.
+reference_frame_name : str
+    Name of the SPICE reference frame.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(8, boundary_interpolation=math.interpolators.extrapolate_at_boundary)
+    Settings used to interpolate the tabulated ephemeris.
+)doc" );
 
     m.def( "create_body_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -726,16 +807,30 @@ void expose_environment_setup( py::module& m )
      )doc" );
 
     m.def( "create_ground_station_ephemeris",
-           py::overload_cast< const std::shared_ptr< tss::Body >,
-                              const std::string &,
-                              const tss::SystemOfBodies & >(
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string&, const tss::SystemOfBodies& >(
                    &tss::createReferencePointEphemerisFromId< TIME_TYPE, STATE_SCALAR_TYPE > ),
            "body_with_ground_station",
            "station_name" );
 
     m.def( "get_safe_interpolation_interval",
-           &tss::getSafeInterpolationInterval,
-           py::arg( "ephemeris_model" ) );
+           &tudat::ephemerides::getSafeEphemerisEvaluationInterval,
+           py::arg( "ephemeris_model" ),
+           R"doc(
+ Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
+ this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
+ on which the interpolator inside this object is valid is checked and returned.
+
+
+ Parameters
+ ----------
+ ephemeris_model : Ephemeris
+    Ephemeris object, retrieved as get.body('BODY_NAME').ephemeris
+
+Returns
+---------
+Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
+
+    )doc" );
 
     m.def( "add_aerodynamic_coefficient_interface",
            &tss::addAerodynamicCoefficientInterface,
@@ -763,29 +858,32 @@ void expose_environment_setup( py::module& m )
  coefficient_settings : AerodynamicCoefficientSettings
      Settings defining the coefficient interface that is to be created.
 
-
-
-
-
      )doc" );
-
-    m.def( "create_aerodynamic_coefficient_interface",
-           &tss::createAerodynamicCoefficientInterfaceDeprecated,
-           py::arg( "coefficient_settings" ),
-           py::arg( "body" ) );
 
     m.def( "create_aerodynamic_coefficient_interface",
            &tss::createAerodynamicCoefficientInterface,
            py::arg( "coefficient_settings" ),
            py::arg( "body" ),
            py::arg( "bodies" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
 
-    m.def( "add_radiation_pressure_interface",
-           &tss::addRadiationPressureInterface,
-           py::arg( "bodies" ),
-           py::arg( "body_name" ),
-           py::arg( "radiation_pressure_settings" ) );
+         Function for creating an aerodynamic coefficient interface from settings.
+
+         Parameters
+         ----------
+         coefficient_settings : tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings
+             Settings defining the aerodynamic coefficient model.
+         body : str
+             Name of the body for which the coefficient interface is created.
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
+             Object containing the physical environment.
+
+         Returns
+         -------
+         tudatpy.dynamics.environment.AerodynamicCoefficientInterface
+             Aerodynamic coefficient interface created from the specified settings.
+
+      )doc" );
 
     m.def( "add_radiation_pressure_target_model",
            &tss::addRadiationPressureTargetModel,
@@ -812,10 +910,6 @@ void expose_environment_setup( py::module& m )
      Name of the body to which the radiation pressure interface is to be assigned
  radiation_pressure_target_settings : RadiationPressureTargetModelSettings
     Settings defining the radiation pressure target model that is to be created.
-
-
-
-
 
      )doc" );
 
@@ -858,15 +952,36 @@ void expose_environment_setup( py::module& m )
            py::arg( "bodies" ),
            py::arg( "body_name" ),
            py::arg( "gravity_field_settings" ),
-           py::arg( "gravity_field_variation_settings" ) =
-                   std::vector< std::shared_ptr< tss::GravityFieldVariationSettings > >( ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "gravity_field_variation_settings" ) = std::vector< std::shared_ptr< tss::GravityFieldVariationSettings > >( ),
+           R"doc(
 
-    m.def( "add_mass_properties_model",
-           &tss::addRigidBodyProperties,
-           py::arg( "bodies" ),
-           py::arg( "body_name" ),
-           py::arg( "mass_property_settings" ) );
+         Function that creates a gravity field model from settings, and adds it to an existing body.
+
+         Parameters
+         ----------
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
+             Object containing the physical environment.
+         body_name : str
+             Name of the body to which the gravity field is assigned.
+         gravity_field_settings : tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings
+             Settings defining the gravity field model.
+         gravity_field_variation_settings : list[tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings], default=[]
+             Settings defining variations of the gravity field coefficients, such as those due to tides.
+
+      )doc" );
+
+    m.def(
+            "add_mass_properties_model",
+            []( const tss::SystemOfBodies& bodies,
+                const std::string& bodyName,
+                const std::shared_ptr< tss::RigidBodyPropertiesSettings >& massPropertySettings ) {
+                tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment_setup.add_mass_properties_model",
+                                                           "tudatpy.dynamics.environment_setup.add_rigid_body_properties" );
+                tss::addRigidBodyProperties( bodies, bodyName, massPropertySettings );
+            },
+            py::arg( "bodies" ),
+            py::arg( "body_name" ),
+            py::arg( "mass_property_settings" ) );
 
     m.def( "add_rigid_body_properties",
            &tss::addRigidBodyProperties,
@@ -893,10 +1008,6 @@ void expose_environment_setup( py::module& m )
      Name of the body to which the model is to be assigned
  rigid_body_property_settings : RigidBodyPropertiesSettings
      Settings defining the rigid body properties model that is to be created.
-
-
-
-
 
      )doc" );
 
@@ -962,7 +1073,7 @@ void expose_environment_setup( py::module& m )
      Settings for computing the thrust magnitude (and specific impulse) as a function of time
  bodies : SystemOfBodies
      Object defining the physical environment, with all properties of artificial and natural bodies.
- body_fixed_thrust_direction_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
+ body_fixed_thrust_direction_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
      Function returning a unit vector, as a function of time, along which the thrust from the engine will point in a body-fixed frame
 
 
@@ -1011,38 +1122,284 @@ void expose_environment_setup( py::module& m )
            py::arg( "epoch" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Convert a ground station Cartesian state between two ITRF realizations.
+
+         The transformation accounts for the frame translation, rotation and scale, including their rates. The station
+         velocity is assumed constant when transferring its state to and from the transformation reference epoch.
+
+         Parameters
+         ----------
+         ground_station_state : numpy.ndarray[numpy.float64[6, 1]]
+             Station position in m and velocity in m/s, expressed in the input ITRF realization at ``epoch``.
+         epoch : float
+             Epoch at which the input station state is defined, in seconds since J2000.
+         base_frame : str
+             Input ITRF realization, for instance ``"ITRF2008"``.
+         target_frame : str
+             Output ITRF realization, for instance ``"ITRF2014"``.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[6, 1]]
+             Station position and velocity at the same epoch, expressed in the output ITRF realization.
+
+      )doc" );
 
     m.def( "add_ground_station",
-           py::overload_cast<
-                   const std::shared_ptr< tss::Body >,
-                   const std::string,
-                   const Eigen::Vector3d,
-                   const tcc::PositionElementTypes,
-                   const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >(
-                   &tss::createGroundStation ),
+           py::overload_cast< const std::shared_ptr< tss::Body >,
+                              const std::string,
+                              const Eigen::Vector3d,
+                              const tcc::PositionElementTypes,
+                              const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >( &tss::createGroundStation ),
            py::arg( "body" ),
            py::arg( "ground_station_name" ),
            py::arg( "ground_station_position" ),
            py::arg( "position_type" ) = tcc::cartesian_position,
-           py::arg( "station_motion_settings" ) =
-                   std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+           R"doc(
+
+         Function that creates a ground station at a specified body-fixed position.
+
+         Parameters
+         ----------
+         body : tudatpy.dynamics.environment.Body
+             Body to which the ground station is added.
+         ground_station_name : str
+             Name by which the station is identified on the body.
+         ground_station_position : numpy.ndarray[numpy.float64[3, 1]]
+             Station position in the coordinate representation specified by ``position_type``. Cartesian coordinates are in m;
+             spherical coordinates contain radius in m, latitude in rad and longitude in rad; geodetic coordinates contain
+             altitude in m, geodetic latitude in rad and longitude in rad.
+         position_type : tudatpy.astro.element_conversion.PositionElementTypes, default=cartesian_position_type
+             Coordinate representation of the station position.
+         station_motion_settings : list[tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings], default=[]
+             Settings for station displacements relative to the nominal body-fixed position.
+
+      )doc" );
 
     m.def( "add_ground_station",
-           py::overload_cast< const std::shared_ptr< tss::Body >,
-                              const std::shared_ptr< tss::GroundStationSettings > >(
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::GroundStationSettings > >(
                    &tss::createGroundStation ),
            py::arg( "body" ),
            py::arg( "ground_station_settings" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
 
-    m.def( "create_radiation_pressure_interface",
-           &tss::createRadiationPressureInterface,
-           py::arg( "radiationPressureInterfaceSettings" ),
-           py::arg( "body_name" ),
-           py::arg( "body_dict" ) );
+         Function that creates a ground station from settings, and adds it to a body.
 
-    m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ) );
+         Parameters
+         ----------
+         body : tudatpy.dynamics.environment.Body
+             Body to which the ground station is added.
+         ground_station_settings : tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings
+             Settings defining the station name, position, motion and weather data.
+
+      )doc" );
+    //
+    //
+    //    .. code-block:: python
+    //
+    // # Create ground station settings
+    //                     ground_station_settings = environment_setup.ground_station.basic_station(
+    //                                                                                       "TrackingStation",
+    //                                                                                       [station_altitude, delft_latitude,
+    //                                                                                       delft_longitude],
+    //                                                                                       element_conversion.geodetic_position_type)
+    //
+    // # Add the ground station to the environment
+    //                                                       environment_setup.add_ground_station(
+    //                                                                                bodies.get("Earth"),
+    //                                                                                ground_station_settings )
+
+    m.def( "add_camera",
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::CameraSettings > >( &tss::createCamera ),
+           py::arg( "body" ),
+           py::arg( "camera_settings" ),
+           R"doc(
+
+           Function to add a camera to an existing body.
+
+           Parameters
+           ----------
+           body : Body
+               Body to which the camera is added. The camera is added to the vehicle systems of this body.
+           camera_settings : CameraSettings
+               Settings defining the camera that is to be created and added to the body.
+
+           Examples
+           --------
+           In this example, we add a camera aligned with the y axis:
+
+           .. code-block:: python
+
+                    from tudatpy.dynamics.environment_setup import add_camera
+                    from tudatpy.dynamics.environment_setup.vehicle_systems import pinhole_camera
+                    camera_settings = pinhole_camera("Camera", [np.pi/2.0, 0.0, 0.0])
+                    add_camera(body, camera_settings)
+
+        )doc" );
+
+    m.def( "add_camera",
+           py::overload_cast< const std::shared_ptr< tss::Body >,
+                              const std::string&,
+                              const Eigen::Vector3d&,
+                              const std::pair< double, double >,
+                              const std::pair< double, double >,
+                              const Eigen::Vector3d& >( &tss::createCamera ),
+           py::arg( "body" ),
+           py::arg( "camera_name" ),
+           py::arg( "boresight_euler_angles" ),
+           py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
+           py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
+           py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
+           R"doc(
+
+           Function to add a camera to an existing body.
+
+           Parameters
+           ----------
+           body : Body
+               Body to which the camera is added. The camera is added to the vehicle systems of this body.
+           camera_name : str
+               Name of the camera to be created.
+           boresight_euler_angles : numpy.ndarray[numpy.float64[3, 1]]
+               Euler angles (in radians) defining the camera boresight direction. The rotation sequence RA, DEC, Twist. A zero twist angle will result in the x-axis being aligned with the horizontal direction in the focal plane.
+           focal_lengths : tuple[float, float], default = (1.0, 1.0)
+               Focal lengths of the camera in the x and y directions, in pixels. To obtain this value from focal length in meters and pixel size, do f_px = f_m / pixel_size. Default is (1.0, 1.0).
+           optical_center : tuple[float, float], default = (0.0, 0.0)
+               Optical center of the camera in the x and y directions, in pixels. Default is (0.0, 0.0).
+           body_fixed_position : numpy.ndarray[numpy.float64[3, 1]], default = numpy.array([0.0, 0.0, 0.0])
+               Position of the camera in the body-fixed frame, in meters. Default is (0.0, 0.0, 0.0).
+
+           Examples
+           --------
+           In this example, we add a camera aligned with the y axis:
+
+           .. code-block:: python
+
+                    from tudatpy.dynamics.environment_setup import add_camera
+                    add_camera(body, "Camera", [np.pi/2.0, 0.0, 0.0])
+
+        )doc" );
+
+    m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ), R"doc(
+
+         Retrieve the link-end identifiers of the ground stations on a body.
+
+         Parameters
+         ----------
+         body : tudatpy.dynamics.environment.Body
+             Body on which the ground stations are defined.
+
+         Returns
+         -------
+         list[tuple[str, str]]
+             List of body-name and station-name pairs, with one entry for each ground station.
+
+      )doc" );
+
+    // Relativistic time converter helpers
+    py::class_< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m, "DirectRelativisticTimeConverterSettings", R"doc(
+
+        Settings container for constructing a direct relativistic time converter.
+
+     )doc" );
+
+    m.def( "direct_relativistic_time_converter_settings",
+           &directRelativisticTimeConverterSettings,
+           py::arg( "barycentric_to_bodycentric_settings" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "bodycentric_to_topocentric_settings" ) =
+                   std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< double, double > > >( ),
+           R"doc(
+
+ Create settings for a direct relativistic time converter.
+
+ This function combines:
+
+ 1. One barycentric↔body-centered conversion settings object, and
+ 2. Zero or more body-centered↔topocentric conversion settings objects
+
+ into a single converter-settings object for one body.
+
+ The ``barycentric_to_bodycentric_settings`` input should be created with:
+
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`.
+
+ Each entry in ``bodycentric_to_topocentric_settings`` should typically be created with:
+
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`.
+
+ This function only assembles converter settings. Use
+ :func:`~set_relativistic_time_converters` to attach them to bodies.
+
+ Parameters
+ ----------
+ barycentric_to_bodycentric_settings : RelativisticTimePropagatorSettings
+     Settings object defining the barycentric↔body-centered leg.
+ integrator_settings : IntegratorSettings
+     Numerical integrator settings used when creating the direct converter.
+ bodycentric_to_topocentric_settings : list[RelativisticTimePropagatorSettings], optional
+     Optional list of settings objects defining body-centered↔topocentric legs.
+     Each list entry typically corresponds to one reference point/station.
+
+ Returns
+ -------
+ DirectRelativisticTimeConverterSettings
+     Settings object used by :func:`~set_relativistic_time_converters`.
+
+        )doc" );
+
+    m.def( "set_relativistic_time_converters",
+           &setRelativisticTimeConverters,
+           py::arg( "bodies" ),
+           py::arg( "converter_settings" ),
+           R"doc(
+
+ Attach relativistic time converters to bodies.
+
+ This function takes the converter settings assembled with
+ :func:`~direct_relativistic_time_converter_settings` and instantiates the
+ corresponding converter models in the provided system of bodies.
+
+ For each entry in ``converter_settings``, Tudat sets up:
+
+ - one barycentric↔body-centered conversion leg (first- or second-order), and
+ - zero or more body-centered↔topocentric conversion legs.
+
+ The key of each dictionary entry is typically the associated body name, while
+ the converter content is defined by the corresponding
+ :class:`~DirectRelativisticTimeConverterSettings` object.
+
+ The converter settings used here are typically created from:
+
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`
+   for the barycentric↔body-centered leg, and
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`
+   for optional topocentric legs.
+
+ After this function returns, each configured body can provide time-scale
+ differences through
+ :func:`~tudatpy.dynamics.environment.Body.get_time_scale_converter`.
+
+ Parameters
+ ----------
+ bodies : SystemOfBodies
+     The system of bodies to which time converters are attached.
+ converter_settings : dict[str, DirectRelativisticTimeConverterSettings]
+     Mapping from identifiers (typically body names) to direct converter
+     settings objects. Each entry creates one relativistic time converter
+     configuration.
+
+ Returns
+ -------
+ None
+     This function modifies ``bodies`` in place by attaching converter models.
+
+        )doc" );
 
     //        m.def("get_target_elevation_angles",
     //              &tss::getTargetElevationAngles,
@@ -1051,39 +1408,9 @@ void expose_environment_setup( py::module& m )
     //              py::arg( "station_name" ),
     //              py::arg( "times" ) );
 
-
-
     //        auto system_model_setup =
     //        m.def_submodule("system_models");
     //        gravity_field_variation::expose_system_model_setup(system_model_setup);
-
-    // Function removed; error is shown
-    m.def( "set_aerodynamic_guidance",
-           py::overload_cast< const std::shared_ptr< ta::AerodynamicGuidance >,
-                              const std::shared_ptr< tss::Body >,
-                              const bool >( &tss::setGuidanceAnglesFunctions ),
-           py::arg( "aerodynamic_guidance" ),
-           py::arg( "body" ),
-           py::arg( "silence_warnings" ) = false );
-
-    // Function removed; error is shown
-    m.def( "set_aerodynamic_orientation_functions",
-           &tss::setAerodynamicOrientationFunctions,
-           py::arg( "body" ),
-           py::arg( "angle_of_attack_function" ) = std::function< double( ) >( ),
-           py::arg( "sideslip_angle_function" ) = std::function< double( ) >( ),
-           py::arg( "bank_angle_function" ) = std::function< double( ) >( ),
-           py::arg( "update_function" ) = std::function< void( const double ) >( ) );
-
-    // Function removed; error is shown
-    m.def( "set_constant_aerodynamic_orientation",
-           &tss::setConstantAerodynamicOrientation,
-           py::arg( "body" ),
-           py::arg( "angle_of_attack" ),
-           py::arg( "sideslip_angle" ),
-           py::arg( "bank_angle" ),
-           py::arg( "silence_warnings" ) = false );
-
 }
 
 }  // namespace environment_setup

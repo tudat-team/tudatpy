@@ -18,7 +18,7 @@
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -29,6 +29,41 @@ namespace tudat
 namespace observation_models
 {
 
+//! Bias-component owners for one observation simulator's parameter-binding pass.
+template< int ObservationSize >
+using ObservationBiasParameterOwners = std::map< std::shared_ptr< ObservationBias< ObservationSize > >,
+                                                 std::string,
+                                                 std::owner_less< std::shared_ptr< ObservationBias< ObservationSize > > > >;
+
+//! Reject a second parameter for a bias component before installing its get/set callbacks.
+template< int ObservationSize >
+void registerObservationBiasParameterOwner( const std::shared_ptr< ObservationBias< ObservationSize > >& bias,
+                                            const std::string& parameterDescription,
+                                            ObservationBiasParameterOwners< ObservationSize >& owners )
+{
+    const auto result = owners.emplace( bias, parameterDescription );
+    if( !result.second )
+    {
+        throw std::runtime_error( "Observation bias component already owned by " + result.first->second + "; cannot also bind " +
+                                  parameterDescription + ". Only one parameter may own a bias component." );
+    }
+}
+
+//! Return the index of the link-end time shifted by a constant or arc-wise time bias.
+template< int ObservationSize >
+int getTimeBiasLinkEndIndex( const std::shared_ptr< ObservationBias< ObservationSize > >& bias )
+{
+    if( const auto constantBias = std::dynamic_pointer_cast< ConstantTimeBias< ObservationSize > >( bias ) )
+    {
+        return constantBias->getLinkEndIndexForTime( );
+    }
+    if( const auto arcWiseBias = std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( bias ) )
+    {
+        return arcWiseBias->getLinkEndIndexForTime( );
+    }
+    throw std::runtime_error( "Error when retrieving time link end: bias is not a time bias." );
+}
+
 //! Function to perform the closure a single observation bias and a single estimated bias parameter.
 /*!
  *  Function to perform the closure a single observation bias and a single estimated bias parameter. Estimated parameter objects
@@ -36,13 +71,17 @@ namespace observation_models
  *  to be finalized, in the case link properties are estimated (e.g. observation biases).
  */
 template< int ObservationSize = 1 >
-void performObservationParameterEstimationClosureForSingleModelSet(
+bool performObservationParameterEstimationClosureForSingleModelSet(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
         const std::shared_ptr< ObservationBias< ObservationSize > > observationBias,
         const LinkEnds linkEnds,
-        const ObservableType observableType )
+        const ObservableType observableType,
+        ObservationBiasParameterOwners< ObservationSize >& biasOwners,
+        const std::string& ownerDescription = "" )
 {
+    const std::string parameterDescription = ownerDescription.empty( ) ? parameter->getParameterDescription( ) : ownerDescription;
     ObservationBiasTypes biasType = getObservationBiasType( observationBias );
+    bool isParameterLinked = false;
 
     // Check if bias type is multi-type
     if( biasType == multiple_observation_biases )
@@ -58,8 +97,13 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         // Perform closure for each constituent bias object
         for( unsigned int i = 0; i < multiTypeBias->getBiasList( ).size( ); i++ )
         {
-            performObservationParameterEstimationClosureForSingleModelSet(
-                    parameter, multiTypeBias->getBiasList( ).at( i ), linkEnds, observableType );
+            isParameterLinked = performObservationParameterEstimationClosureForSingleModelSet( parameter,
+                                                                                               multiTypeBias->getBiasList( ).at( i ),
+                                                                                               linkEnds,
+                                                                                               observableType,
+                                                                                               biasOwners,
+                                                                                               parameterDescription ) ||
+                    isParameterLinked;
         }
     }
     else
@@ -69,8 +113,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         {
             case estimatable_parameters::constant_additive_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
@@ -84,20 +128,22 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            constantBiasObject ),
                                 std::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            constantBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
             }
             case estimatable_parameters::arcwise_constant_additive_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for arc-wise additive bias, inconsistent bias types" );
@@ -126,6 +172,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             biasParameter->setObservationBiasFunctions(
                                     std::bind( &ConstantArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                constantBiasObject ),
@@ -133,6 +180,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                constantBiasObject,
                                                std::placeholders::_1 ) );
                             biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
@@ -140,8 +188,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             case estimatable_parameters::constant_relative_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
@@ -155,20 +203,22 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            constantBiasObject ),
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            constantBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
             }
             case estimatable_parameters::arcwise_constant_relative_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for arc-wise relative bias, inconsistent bias types" );
@@ -197,6 +247,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             biasParameter->setObservationBiasFunctions(
                                     std::bind( &ConstantRelativeArcWiseObservationBias<
                                                        ObservationSize >::getTemplateFreeConstantObservationBias,
@@ -206,6 +257,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                constantBiasObject,
                                                std::placeholders::_1 ) );
                             biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
@@ -228,12 +280,14 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            timeBiasObject ),
                                 std::bind( &ConstantTimeDriftBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            timeBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
@@ -273,6 +327,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             timeBiasParameter->setObservationBiasFunctions(
                                     std::bind( &ArcWiseTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                timeBiasObject ),
@@ -280,6 +335,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                timeBiasObject,
                                                std::placeholders::_1 ) );
                             timeBiasParameter->setLookupScheme( timeBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
@@ -287,8 +343,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             case estimatable_parameters::constant_time_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ConstantTimeBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::SingleArcTimeBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::SingleArcTimeBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for time bias, inconsistent bias types" );
@@ -302,19 +358,21 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     // Check if bias and parameter link properties are equal
                     if( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
                     {
+                        registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                         biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantTimeBias< ObservationSize >::getTemplateFreeConstantObservationBias, timeBiasObject ),
                                 std::bind( &ConstantTimeBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            timeBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
             }
             case estimatable_parameters::arc_wise_time_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > timeBiasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::MultiArcTimeBiasParameter > timeBiasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::MultiArcTimeBiasParameter >( parameter );
 
                 if( timeBiasParameter == nullptr )
                 {
@@ -346,6 +404,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
 
                         if( doTimesMatch == true )
                         {
+                            registerObservationBiasParameterOwner( observationBias, parameterDescription, biasOwners );
                             timeBiasParameter->setObservationBiasFunctions(
                                     std::bind( &ArcWiseTimeBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                timeBiasObject ),
@@ -353,20 +412,97 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                timeBiasObject,
                                                std::placeholders::_1 ) );
                             timeBiasParameter->setLookupScheme( timeBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
                 break;
             }
             case estimatable_parameters::global_polynomial_clock_corrections:
+                isParameterLinked = true;
                 break;
             case estimatable_parameters::arc_wise_polynomial_clock_corrections:
+                isParameterLinked = true;
                 break;
             default:
                 std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
                         std::to_string( parameter->getParameterName( ).first );
                 throw std::runtime_error( errorMessage );
         }
+    }
+
+    return isParameterLinked;
+}
+
+inline bool doesObservationParameterRequireBiasModelLinkage( const estimatable_parameters::EstimatebleParametersEnum parameterType )
+{
+    switch( parameterType )
+    {
+        case estimatable_parameters::global_polynomial_clock_corrections:
+        case estimatable_parameters::arc_wise_polynomial_clock_corrections:
+            return false;
+        default:
+            return true;
+    }
+}
+
+//! Check if a bias parameter belongs to the observable currently handled by an observation simulator.
+inline bool doesObservationParameterMatchObservable(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >& parameter,
+        const ObservableType observableType )
+{
+    switch( parameter->getParameterName( ).first )
+    {
+        case estimatable_parameters::shared_observation_bias: {
+            const auto sharedBias = std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter );
+            if( sharedBias == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for shared observation bias parameter." );
+            }
+            return sharedBias->getObservableType( ) == observableType;
+        }
+        case estimatable_parameters::constant_additive_observation_bias:
+        case estimatable_parameters::constant_relative_observation_bias:
+        case estimatable_parameters::constant_time_drift_observation_bias: {
+            std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for single-arc bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        case estimatable_parameters::arcwise_constant_additive_observation_bias:
+        case estimatable_parameters::arcwise_constant_relative_observation_bias:
+        case estimatable_parameters::arc_wise_time_drift_observation_bias: {
+            std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for arc-wise bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        case estimatable_parameters::constant_time_observation_bias: {
+            std::shared_ptr< estimatable_parameters::SingleArcTimeBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::SingleArcTimeBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for single-arc time bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        case estimatable_parameters::arc_wise_time_observation_bias: {
+            std::shared_ptr< estimatable_parameters::MultiArcTimeBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::MultiArcTimeBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for arc-wise time bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        default:
+            return true;
     }
 }
 
@@ -375,6 +511,13 @@ void performTimeBiasPartialClosure(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > timeBiasPartial,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface )
 {
+    if( dependentVariablesInterface == nullptr )
+    {
+        // Time-bias observation partials obtain accelerations from the link-end ephemerides.
+        // The optional propagated-acceleration callback is not needed when no dependent-variable interface is available.
+        return;
+    }
+
     std::string bodyName = timeBiasPartial->getParameterName( ).second.first;
     std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable =
             std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable,
@@ -437,18 +580,120 @@ void performObservationParameterEstimationClosure(
         std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > observationBiases =
                 extractObservationBiasList( observationModels );
 
+        // Ownership is local to this binding pass, so reusing parameters with new models remains valid.
+        ObservationBiasParameterOwners< ObservationSize > biasOwners;
+
         // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
         for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
         {
+            const estimatable_parameters::EstimatebleParametersEnum parameterType = vectorBiasParameters.at( i )->getParameterName( ).first;
+            const bool requiresBiasModelLinkage = doesObservationParameterRequireBiasModelLinkage( parameterType );
+
+            // Skip parameters belonging to other observables; they are linked by the corresponding simulator.
+            if( requiresBiasModelLinkage &&
+                !doesObservationParameterMatchObservable( vectorBiasParameters.at( i ), observationSimulator->getObservableType( ) ) )
+            {
+                continue;
+            }
+
+            if( parameterType == estimatable_parameters::shared_observation_bias )
+            {
+                const auto sharedBias =
+                        std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( vectorBiasParameters.at( i ) );
+                if( sharedBias == nullptr )
+                {
+                    throw std::runtime_error( "Error when linking shared observation bias parameter: inconsistent parameter type." );
+                }
+                // Rebuild the member list for this simulator rather than keeping bindings to previous models.
+                sharedBias->clearMembers( );
+                for( const auto& model : observationModels )
+                {
+                    if( !sharedBias->doesObservationMatch( model.first, observationSimulator->getObservableType( ) ) )
+                    {
+                        continue;
+                    }
+                    // Require exactly one component of the requested type, also within combined biases.
+                    std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > matches;
+                    std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > biasesToCheck = {
+                        model.second->getObservationBiasCalculator( )
+                    };
+                    while( !biasesToCheck.empty( ) )
+                    {
+                        const auto bias = biasesToCheck.back( );
+                        biasesToCheck.pop_back( );
+                        if( bias == nullptr )
+                        {
+                            continue;
+                        }
+                        const auto combinedBias = std::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( bias );
+                        if( combinedBias != nullptr )
+                        {
+                            // Visit every component, including any nested combined biases.
+                            for( const auto& component : combinedBias->getBiasList( ) )
+                            {
+                                biasesToCheck.push_back( component );
+                            }
+                        }
+                        else if( getObservationBiasType( bias ) == sharedBias->getBiasType( ) )
+                        {
+                            matches.push_back( bias );
+                        }
+                    }
+                    if( matches.size( ) != 1 )
+                    {
+                        throw std::runtime_error( "Expected exactly one matching bias component for " +
+                                                  sharedBias->getParameterDescription( ) + " at " + getLinkEndsString( model.first ) );
+                    }
+                    // Time-bias partials use the shared time link end, so each model must shift the same event.
+                    if( isSharedObservationBiasTimeBias( sharedBias->getBiasType( ) ) &&
+                        getTimeBiasLinkEndIndex( matches.front( ) ) !=
+                                getLinkEndIndicesForLinkEndTypeAtObservable(
+                                        observationSimulator->getObservableType( ), sharedBias->getTimeLinkEnd( ), model.first.size( ) )
+                                        .at( 0 ) )
+                    {
+                        throw std::runtime_error( "Time link end of bias model at " + getLinkEndsString( model.first ) +
+                                                  " is inconsistent with " + sharedBias->getParameterDescription( ) );
+                    }
+                    // Bind the ordinary per-link parameter using the existing model and arc-consistency checks.
+                    const auto member = sharedBias->createMember( model.first );
+                    if( !performObservationParameterEstimationClosureForSingleModelSet( member,
+                                                                                        matches.front( ),
+                                                                                        model.first,
+                                                                                        observationSimulator->getObservableType( ),
+                                                                                        biasOwners,
+                                                                                        sharedBias->getParameterDescription( ) ) )
+                    {
+                        throw std::runtime_error( "Incompatible arc definitions for " + sharedBias->getParameterDescription( ) );
+                    }
+                    sharedBias->addMember( model.first, member );
+                }
+                if( sharedBias->getMembers( ).empty( ) )
+                {
+                    throw std::runtime_error( "No observation models match " + sharedBias->getParameterDescription( ) );
+                }
+                sharedBias->completeBinding( );
+                continue;
+            }
+
+            bool isCurrentBiasParameterLinked = !requiresBiasModelLinkage;
             for( typename std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > >::const_iterator biasIterator =
                          observationBiases.begin( );
                  biasIterator != observationBiases.end( );
                  biasIterator++ )
             {
-                performObservationParameterEstimationClosureForSingleModelSet( vectorBiasParameters.at( i ),
-                                                                               biasIterator->second,
-                                                                               biasIterator->first,
-                                                                               observationSimulator->getObservableType( ) );
+                isCurrentBiasParameterLinked =
+                        performObservationParameterEstimationClosureForSingleModelSet( vectorBiasParameters.at( i ),
+                                                                                       biasIterator->second,
+                                                                                       biasIterator->first,
+                                                                                       observationSimulator->getObservableType( ),
+                                                                                       biasOwners ) ||
+                        isCurrentBiasParameterLinked;
+            }
+
+            if( !isCurrentBiasParameterLinked )
+            {
+                throw std::runtime_error( "Error, failed to link estimated observation bias parameter " +
+                                          vectorBiasParameters.at( i )->getParameterDescription( ) + " to any observation bias model." );
             }
         }
     }
@@ -474,7 +719,7 @@ template< int ObservationSize = 1, typename ObservationScalarType, typename Time
 std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
@@ -499,6 +744,28 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     {
         observationPartialsAndScaler = createObservablePartialsList(
                 observationSimulator->getObservationModels( ), bodies, parametersToEstimate, false, false, dependentVariablesInterface );
+
+        // Verify that partials exist for every shared relative- and time-bias member.
+        for( const auto& parameter : parametersToEstimate->getVectorParameters( ) )
+        {
+            const auto sharedBias = std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter.second );
+            if( sharedBias != nullptr && sharedBias->getObservableType( ) == observableType &&
+                ( sharedBias->getBiasType( ) == constant_relative_bias || isSharedObservationBiasTimeBias( sharedBias->getBiasType( ) ) ) )
+            {
+                const auto parameterIndices = std::make_pair( parameter.first, sharedBias->getParameterSize( ) );
+                for( const auto& member : sharedBias->getMembers( ) )
+                {
+                    const auto linkPartials = observationPartialsAndScaler.find( member.first );
+                    if( linkPartials == observationPartialsAndScaler.end( ) || linkPartials->second.first.count( parameterIndices ) == 0 ||
+                        linkPartials->second.first.at( parameterIndices ) == nullptr )
+                    {
+                        throw std::runtime_error( "No observation partial was created for " + sharedBias->getParameterDescription( ) +
+                                                  " at " + getLinkEndsString( member.first ) +
+                                                  ". This observable's partial builder must support link-property partials." );
+                    }
+                }
+            }
+        }
     }
 
     // Split position partial scaling and observation partial objects.
@@ -507,12 +774,8 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling > > observationPartialScalers;
     splitObservationPartialsAndScalers( observationPartialsAndScaler, observationPartials, observationPartialScalers );
 
-    return std::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType > >( observableType,
-                                                                                                       observationSimulator,
-                                                                                                       observationPartials,
-                                                                                                       observationPartialScalers,
-                                                                                                       stateTransitionMatrixInterface,
-                                                                                                       dependentVariablesInterface );
+    return std::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType > >(
+            observableType, observationSimulator, observationPartials, observationPartialScalers, stateTransitionMatrixInterface );
 }
 
 //! Function to create an object to simulate observations of a given type and associated partials
@@ -530,7 +793,7 @@ template< typename ObservationScalarType, typename TimeType >
 std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
@@ -549,6 +812,9 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
         case dsn_n_way_averaged_doppler:
         case doppler_measured_frequency:
         case dsn_n_way_range:
+        case differenced_time_of_arrival:
+        case differenced_frequency_of_arrival:
+        case one_way_doppler_measured_frequency:
             observationManager = createObservationManager< 1, ObservationScalarType, TimeType >( observableType,
                                                                                                  observationModelSettingsList,
                                                                                                  bodies,
@@ -558,6 +824,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
             break;
         case angular_position:
         case relative_angular_position:
+        case pixel_coordinates:
             observationManager = createObservationManager< 2, ObservationScalarType, TimeType >( observableType,
                                                                                                  observationModelSettingsList,
                                                                                                  bodies,
@@ -592,8 +859,8 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
 
 template< typename ObservationScalarType, typename TimeType >
 std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > > createObservationManagersBase(
-        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > &observationSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > fullParameters,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
@@ -603,7 +870,17 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
             sortObservationModelSettingsByType( observationSettingsList );
 
-    for( auto it: sortedObservationSettingsList )
+    // Fail here if no simulator will be created for a shared parameter's observable type.
+    for( const auto& parameter : fullParameters->getEstimatedVectorParameters( ) )
+    {
+        const auto sharedBias = std::dynamic_pointer_cast< estimatable_parameters::SharedObservationBiasParameter >( parameter );
+        if( sharedBias != nullptr && sortedObservationSettingsList.count( sharedBias->getObservableType( ) ) == 0 )
+        {
+            throw std::runtime_error( "No observation models match " + sharedBias->getParameterDescription( ) );
+        }
+    }
+
+    for( auto it : sortedObservationSettingsList )
     {
         // Call createObservationSimulator of required observation size
         ObservableType observableType = it.first;
@@ -614,6 +891,24 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     }
     return observationManagers;
 }
+
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
+        const ObservableType observableType,
+        const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
+        const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+
+extern template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< double, double > > >
+createObservationManagersBase< double, double >(
+        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > fullParameters,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
+        const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+#endif
 
 }  // namespace observation_models
 

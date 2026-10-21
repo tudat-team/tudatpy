@@ -11,6 +11,7 @@
 #ifndef TUDAT_SYSTEM_MODELS_H
 #define TUDAT_SYSTEM_MODELS_H
 
+#include "system_models/camera.h"
 #include "system_models/engineModel.h"
 #include "system_models/vehicleSystems.h"
 

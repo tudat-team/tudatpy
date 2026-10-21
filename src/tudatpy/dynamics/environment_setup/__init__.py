@@ -1,6 +1,7 @@
 from tudatpy.kernel.dynamics.environment_setup import (
     BodySettings,
     BodyListSettings,
+    DirectRelativisticTimeConverterSettings,
     get_default_body_settings,
     get_default_body_settings_time_limited,
     get_default_single_body_settings,
@@ -9,6 +10,8 @@ from tudatpy.kernel.dynamics.environment_setup import (
     get_default_single_alternate_body_settings_time_limited,
     create_simplified_system_of_bodies,
     create_system_of_bodies,
+    direct_relativistic_time_converter_settings,
+    set_relativistic_time_converters,
     add_empty_tabulated_ephemeris,
     create_tabulated_ephemeris_from_spice,
     create_body_ephemeris,
@@ -16,7 +19,6 @@ from tudatpy.kernel.dynamics.environment_setup import (
     get_safe_interpolation_interval,
     add_aerodynamic_coefficient_interface,
     create_aerodynamic_coefficient_interface,
-    add_radiation_pressure_interface,
     add_radiation_pressure_target_model,
     add_rotation_model,
     add_gravity_field_model,
@@ -27,11 +29,8 @@ from tudatpy.kernel.dynamics.environment_setup import (
     add_flight_conditions,
     convert_ground_station_state_between_itrf_frames,
     add_ground_station,
-    create_radiation_pressure_interface,
     get_ground_station_list,
-    set_aerodynamic_guidance,
-    set_aerodynamic_orientation_functions,
-    set_constant_aerodynamic_orientation,
+    add_camera,
 )
 from . import (
     aerodynamic_coefficients,
@@ -45,5 +44,6 @@ from . import (
     rotation_model,
     shape,
     shape_deformation,
+    space_time,
     vehicle_systems,
 )

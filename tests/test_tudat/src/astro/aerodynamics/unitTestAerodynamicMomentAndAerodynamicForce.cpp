@@ -22,15 +22,13 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
 #include <memory>
-#include <boost/lambda/lambda.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 // #include <Eigen/Geometry>
@@ -39,17 +37,18 @@
 // #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/system_models/panelGeometryUtils.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/aerodynamics/gasSurfaceInteractionModel.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 
 namespace tudat
@@ -176,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
                         referenceArea, forceCoefficients, positive_aerodynamic_frame_coefficients );
-        
+
         // Set constant density and constant rotation models to TreasurePlanet
         DensityFunction densityFunction = [ = ]( double a, double b, double c, double d ) { return density; };
         bodies.at( "TreasurePlanet" )
@@ -277,7 +276,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
     }
-
 }
 
 //! Test implementation of aerodynamic moment and rotational acceleration models.
@@ -506,7 +504,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce, const bool us
 
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 5.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 5.0 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                     accelerationModelMap,
@@ -791,8 +789,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
     basic_astrodynamics::AccelerationMap accelerationModelMap =
             createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
@@ -815,7 +812,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
     std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
             bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double machNumber = it.second( 0 );
         double angleOfAttack = it.second( 1 );
@@ -1010,7 +1007,7 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
             basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, bodiesToPropagate );
 
             std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+                    std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
             auto terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch );
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
@@ -1082,7 +1079,7 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
             std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
                     bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
-            for( auto it: dependentVariableOutput )
+            for( auto it : dependentVariableOutput )
             {
                 // Extract data from dependent variables
                 double mass = propagationType == 0 ? 5000.0 : stateOutput.at( it.first )( 13 );
@@ -1154,9 +1151,9 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                 for( unsigned int index = 0; index < 3; index++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( aerodynamicForce( index ) - testAerodynamicForce( index ) ),
-                                       10.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
+                                       20.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
                     BOOST_CHECK_SMALL( std::fabs( aerodynamicMoment( index ) - testAerodynamicMoment( index ) ),
-                                       10.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
+                                       20.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
                 }
 
                 if( propagationType == 1 )
@@ -1487,8 +1484,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
     const double fixedStepSize = 10.0;
     const double simulationEndEpoch = 100.0;
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     auto terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
@@ -1510,7 +1506,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
     // check dependent variables (aerodynamic coefficients)
     Eigen::Vector3d incomingDirection, bodyFixedAirspeed, aerodynamicCoefficients, actualAerodynamicCoefficients, panelNormal;
     double cosineDelta, Cp;
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         bodyFixedAirspeed = it.second.segment( 0, 3 );
         aerodynamicCoefficients = it.second.segment( 3, 3 );

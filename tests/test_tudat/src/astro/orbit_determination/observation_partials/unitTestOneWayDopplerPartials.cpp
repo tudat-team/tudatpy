@@ -9,23 +9,20 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
-
-#include <boost/lambda/lambda.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
@@ -34,6 +31,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/support/observationPartialTestFunctions.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 
 namespace tudat
 {
@@ -87,7 +85,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
-    // Test ancilliary functions
+    // Test ancillary functions
     {
         double nominalEvaluationTime = 1.1E7;
 
@@ -423,10 +421,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             partialScalingObject->update( linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservable );
 
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutput =
-                    earthStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                    earthStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutput =
-                    marsStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                    marsStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             // Compute numerical proper time rate partials and compare to analytical results
             {
@@ -542,10 +540,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                     linkEndStatesWithoutProperTime, linkEndTimesWithoutProperTime, referenceLinkEnd, nominalObservableWithoutProperTime );
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutputWithoutProperTime =
                     earthStatePartialWithoutProperTime->calculatePartial(
-                            linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                            linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutputWithoutProperTime =
                     marsStatePartialWithoutProperTime->calculatePartial(
-                            linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                            linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             Eigen::MatrixXd partialWrtEarthState = earthStatePartialOutput.at( 0 ).first;
             Eigen::MatrixXd partialWrtEarthStateWithoutProperTime = earthStatePartialOutputWithoutProperTime.at( 0 ).first;
@@ -578,6 +576,95 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
                                                properTimePartialWrtEarthVelocity,
                                                1.0E-5 );
+        }
+    }
+}
+
+//! Test GM and gamma partials of the Shapiro part of one-way Doppler, for perturbing bodies evaluated at the transmission
+//! time (w=0), reception time (w=1) and mid-way (w=0.5), for both link directions, against numerical partials.
+BOOST_AUTO_TEST_CASE( testOneWayDopplerShapiroParameterPartials )
+{
+    using namespace tudat::observation_models;
+    using namespace tudat::simulation_setup;
+    using namespace tudat::estimatable_parameters;
+
+    std::vector< std::pair< std::string, std::string > > groundStations = { { "Earth", "Graz" }, { "Mars", "MSL" } };
+
+    // Real ephemerides: the perturbing bodies move, so the explicit time terms are non-zero.
+    SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+
+    const std::vector< std::string > perturbingBodies = { "Earth", "Sun", "Mars" };
+
+    // No proper-time models: their GM dependence is not (yet) included in the partials.
+    for( unsigned int normalizeObservable = 0; normalizeObservable < 2; normalizeObservable++ )
+    {
+        for( unsigned int reverseLink = 0; reverseLink < 2; reverseLink++ )
+        {
+            LinkDefinition linkEnds;
+            linkEnds[ transmitter ] = groundStations[ reverseLink ? 0 : 1 ];
+            linkEnds[ receiver ] = groundStations[ reverseLink ? 1 : 0 ];
+
+            std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel =
+                    ObservationModelCreator< 1, double, double >::createObservationModel(
+                            std::make_shared< OneWayDopplerObservationModelSettings >(
+                                    linkEnds,
+                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
+                                    nullptr,
+                                    nullptr,
+                                    nullptr,
+                                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                                    static_cast< bool >( normalizeObservable ) ),
+                            bodies );
+
+            std::vector< double > parameterPerturbations;
+            std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
+                    createShapiroParameters( bodies, perturbingBodies, true, parameterPerturbations );
+
+            BOOST_TEST_CONTEXT( "normalized=" << normalizeObservable << ", reversed link=" << reverseLink )
+            {
+                testDirectDoubleParameterPartials< 1 >(
+                        oneWayDopplerModel, bodies, parameterSet, { transmitter, receiver }, parameterPerturbations, 1.0E-6 );
+            }
+        }
+    }
+
+    // LPI partial with only one proper-time model (transmitter or receiver). The LPI partial itself agrees with numerical
+    // partials to ~2E-5 with real ephemerides (as in testOneWayDopplerPartials), hence the tolerance.
+    for( unsigned int properTimeLinkEnd = 0; properTimeLinkEnd < 2; properTimeLinkEnd++ )
+    {
+        LinkDefinition linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 1 ];
+        linkEnds[ receiver ] = groundStations[ 0 ];
+
+        std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel = ObservationModelCreator< 1, double, double >::createObservationModel(
+                std::make_shared< OneWayDopplerObservationModelSettings >(
+                        linkEnds,
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
+                        properTimeLinkEnd == 0 ? std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) : nullptr,
+                        properTimeLinkEnd == 1 ? std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) : nullptr,
+                        nullptr,
+                        std::make_shared< LightTimeConvergenceCriteria >( ) ),
+                bodies );
+
+        std::shared_ptr< SpaceTimeProperties > spaceTimeProperties = bodies.getSpaceTimeProperties( );
+        std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters = {
+            std::make_shared< EquivalencePrincipleLpiViolationParameter >(
+                    [ spaceTimeProperties ]( ) { return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( ); },
+                    [ spaceTimeProperties ]( const double parameterValue ) {
+                        spaceTimeProperties->setEquivalencePrincipleLpiViolationParameter( parameterValue );
+                    } )
+        };
+
+        BOOST_TEST_CONTEXT( "LPI, proper time at " << ( properTimeLinkEnd == 0 ? "transmitter" : "receiver" ) )
+        {
+            testDirectDoubleParameterPartials< 1 >(
+                    oneWayDopplerModel,
+                    bodies,
+                    std::make_shared< EstimatableParameterSet< double > >(
+                            doubleParameters, std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) ),
+                    { transmitter, receiver },
+                    { 1.0E4 },
+                    1.0E-4 );
         }
     }
 }

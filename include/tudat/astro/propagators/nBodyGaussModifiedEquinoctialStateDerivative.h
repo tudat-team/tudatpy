@@ -14,6 +14,7 @@
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/basic_astro/stateRepresentationConversions.h"
 #include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -102,7 +103,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyGaussModifiedEquinictialStateDerivative( ) { }
+    ~NBodyGaussModifiedEquinictialStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for MEE
     /*!

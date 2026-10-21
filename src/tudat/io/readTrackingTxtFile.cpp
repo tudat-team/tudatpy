@@ -10,10 +10,113 @@
 
 #include "tudat/io/readTrackingTxtFile.h"
 
+#include <cmath>
+#include <limits>
+
 namespace tudat
 {
 namespace input_output
 {
+
+static const std::vector< std::string >& getDefaultFdetsDatetimeStringColumnTypes( )
+{
+    static const std::vector< std::string > columnTypes = {
+        "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz"
+    };
+    return columnTypes;
+}
+
+static std::vector< std::string > getFdetsColumnTypes( FdetDateFormat dateFormat )
+{
+    switch( dateFormat )
+    {
+        case FdetDateFormat::datetime_string:
+            return getDefaultFdetsDatetimeStringColumnTypes( );
+        case FdetDateFormat::pair_of_numbers:
+            throw std::runtime_error( "Fdet files with dates as a pair of values are not currently supported." );
+        default:
+            throw std::runtime_error( "Invalid Fdet date format." );
+    }
+}
+
+static std::size_t getFirstFdetsDataLineColumnCount( const std::string& fileName )
+{
+    std::ifstream dataFile( fileName );
+    if( !dataFile.good( ) )
+    {
+        throw std::runtime_error( "Error when opening Fdets file: file " + fileName + " could not be opened." );
+    }
+
+    std::string currentLine;
+    while( std::getline( dataFile, currentLine ) )
+    {
+        boost::algorithm::trim( currentLine );
+        if( currentLine.empty( ) || currentLine.at( 0 ) == '#' )
+        {
+            continue;
+        }
+
+        std::vector< std::string > currentSplitRawLine;
+        boost::algorithm::split( currentSplitRawLine, currentLine, boost::is_any_of( ", \t" ), boost::algorithm::token_compress_on );
+        return currentSplitRawLine.size( );
+    }
+
+    return 0;
+}
+
+static std::vector< std::string > addOptionalFdetsScanColumnType( const std::string& fileName,
+                                                                  const std::vector< std::string >& columnTypes )
+{
+    if( columnTypes == getDefaultFdetsDatetimeStringColumnTypes( ) && getFirstFdetsDataLineColumnCount( fileName ) == 6 )
+    {
+        std::vector< std::string > columnTypesWithScanNumber = { "scan_number" };
+        columnTypesWithScanNumber.insert( columnTypesWithScanNumber.end( ), columnTypes.begin( ), columnTypes.end( ) );
+        return columnTypesWithScanNumber;
+    }
+
+    return columnTypes;
+}
+
+double getNominalTimeStepFromUtcTimes( const std::vector< double >& observationTimesUtc, const double cadenceTolerance )
+{
+    if( observationTimesUtc.size( ) < 2 )
+    {
+        throw std::runtime_error( "Error when getting nominal time step from tracking file contents, size is < 2" );
+    }
+
+    double firstObservationTimeStep = std::numeric_limits< double >::infinity( );
+    double minimumObservationTimeStep = std::numeric_limits< double >::infinity( );
+    for( unsigned int i = 1; i < observationTimesUtc.size( ); i++ )
+    {
+        double testObservationTimeStep = observationTimesUtc.at( i ) - observationTimesUtc.at( i - 1 );
+        if( std::isfinite( testObservationTimeStep ) && testObservationTimeStep > cadenceTolerance )
+        {
+            if( !std::isfinite( firstObservationTimeStep ) )
+            {
+                firstObservationTimeStep = testObservationTimeStep;
+            }
+            if( testObservationTimeStep < minimumObservationTimeStep )
+            {
+                minimumObservationTimeStep = testObservationTimeStep;
+            }
+        }
+    }
+
+    if( !std::isfinite( minimumObservationTimeStep ) )
+    {
+        throw std::runtime_error(
+                "Error when getting nominal time step from tracking file contents, no positive cadence could be inferred" );
+    }
+
+    if( firstObservationTimeStep > minimumObservationTimeStep + cadenceTolerance )
+    {
+        return minimumObservationTimeStep;
+    }
+    else
+    {
+        return firstObservationTimeStep;
+    }
+}
 
 void TrackingTxtFileContents::parseData( const TrackingTxtFileReadFilterType dataFilterMethod )
 {
@@ -22,11 +125,11 @@ void TrackingTxtFileContents::parseData( const TrackingTxtFileReadFilterType dat
     {
         throw std::runtime_error( "Error when opening Tracking txt file: file " + fileName_ + " could not be opened." );
     }
-    readRawDataMap( dataFile );
+    readRawDataMap( dataFile, dataFilterMethod );
     convertDataMap( dataFilterMethod );
 }
 
-void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile )
+void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile, const TrackingTxtFileReadFilterType dataFilterMethod )
 {
     std::string currentLine;
 
@@ -34,12 +137,67 @@ void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile )
     {
         if( !currentLine.empty( ) && currentLine.at( 0 ) != commentSymbol_ )
         {
-            addLineToRawDataMap( currentLine );
+            addLineToRawDataMap( currentLine, dataFilterMethod );
         }
     }
 }
 
-void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine )
+bool isIfmsEntryValid( const std::string ifmsFileEntry )
+{
+    if( ifmsFileEntry.size( ) == 0 )
+    {
+        return false;
+    }
+    else
+    {
+        if( ifmsFileEntry.at( 0 ) != '-' )
+        {
+            return true;
+        }
+        else
+        {
+            bool seenNonNine = false;
+            bool seenDot = false;
+            for( unsigned int i = 1; i < ifmsFileEntry.size( ); i++ )
+            {
+                if( ifmsFileEntry.at( i ) == '.' )
+                {
+                    seenDot = true;
+                }
+                else if( ifmsFileEntry.at( i ) != '9' )
+                {
+                    seenNonNine = true;
+                }
+            }
+            return !( seenDot == true && seenNonNine == false );
+        }
+    }
+}
+
+bool TrackingTxtFileContents::validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod,
+                                                             const std::vector< std::string >& rawVector )
+{
+    bool addLine = true;
+
+    if( dataFilterMethod == ifms_tracking_txt_file_filter )
+    {
+        for( unsigned int i = 0; i < rawVector.size( ); i++ )
+        {
+            if( ( i == 6 ) || ( i == 8 ) || ( i == 10 ) )
+            {
+                addLine = isIfmsEntryValid( rawVector.at( i ) );
+                if( !addLine )
+                {
+                    return addLine;
+                }
+            }
+        }
+    }
+
+    return addLine;
+}
+
+void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine, const TrackingTxtFileReadFilterType dataFilterMethod )
 {
     size_t numberOfColumns = getNumColumns( );
     std::vector< std::string > currentSplitRawLine_;
@@ -54,7 +212,7 @@ void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine )
         if( !( currentSplitRawLine_.size( ) > numberOfColumns && ignoreOmittedColumns_ ) )
         {
             unsigned int columnsFound = currentSplitRawLine_.size( );
-            for( auto a: currentSplitRawLine_ )
+            for( auto a : currentSplitRawLine_ )
             {
                 std::cout << a << "\n";
             }
@@ -64,54 +222,21 @@ void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine )
     }
 
     // Populate the dataMap_ with a new row on each of the vectors
-    for( std::size_t i = 0; i < numberOfColumns; ++i )
+    if( validateCurrentLineProcessing( dataFilterMethod, currentSplitRawLine_ ) )
     {
-        std::string currentFieldType = columnFieldTypes_.at( i );
-        std::string currentValue = currentSplitRawLine_.at( i );
-        rawDataMap_[ currentFieldType ].push_back( currentValue );
-    }
-}
-
-bool TrackingTxtFileContents::validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod,
-                                                             const std::vector< std::string >& rawVector )
-{
-    bool addLine = true;
-
-    if( dataFilterMethod == ifms_tracking_txt_file_filter )
-    {
-        for( unsigned int i = 0; i < rawVector.size( ); i++ )
+        for( std::size_t i = 0; i < numberOfColumns; ++i )
         {
-            bool currentEntryIsValid = false;
-            if( rawVector.at( 0 ) != "-" )
-            {
-                currentEntryIsValid = true;
-            }
-            else
-            {
-                for( unsigned int j = 1; j < rawVector.at( j ).size( ); j++ )
-                {
-                    if( ( rawVector.at( j ) != "9" ) && ( rawVector.at( j ) != "." ) )
-                    {
-                        currentEntryIsValid = true;
-                        break;
-                    }
-                }
-            }
-            if( currentEntryIsValid == false )
-            {
-                addLine = false;
-                break;
-            }
+            std::string currentFieldType = columnFieldTypes_.at( i );
+            std::string currentValue = currentSplitRawLine_.at( i );
+            rawDataMap_[ currentFieldType ].push_back( currentValue );
         }
     }
-
-    return addLine;
 }
 
 void TrackingTxtFileContents::convertDataMap( const TrackingTxtFileReadFilterType dataFilterMethod )
 {
     // Loop over all the column types to convert them to doubles
-    for( std::string columnType: columnFieldTypes_ )
+    for( std::string columnType : columnFieldTypes_ )
     {
         // If the columnType (requested by the user) does not have a known converter in tudat, it is skipped here and only stored as raw
         // string
@@ -128,15 +253,12 @@ void TrackingTxtFileContents::convertDataMap( const TrackingTxtFileReadFilterTyp
         const TrackingDataType& dataType = converter->getTrackingDataType( );
 
         // Convert and store double vector
-        if( validateCurrentLineProcessing( dataFilterMethod, rawVector ) )
+        std::vector< double > dataVector;
+        for( std::string rawValue : rawVector )
         {
-            std::vector< double > dataVector;
-            for( std::string rawValue: rawVector )
-            {
-                dataVector.push_back( converter->toDouble( rawValue ) );
-            }
-            doubleDataMap_[ dataType ] = dataVector;
+            dataVector.push_back( converter->toDouble( rawValue ) );
         }
+        doubleDataMap_[ dataType ] = dataVector;
     }
 }
 
@@ -171,12 +293,12 @@ const std::vector< TrackingDataType > TrackingTxtFileContents::getMetaDataTypes(
 {
     std::vector< TrackingDataType > metaDataTypes;
 
-    for( const auto& pair: metaDataMapDouble_ )
+    for( const auto& pair : metaDataMapDouble_ )
     {
         metaDataTypes.push_back( pair.first );
     }
 
-    for( const auto& pair: metaDataMapStr_ )
+    for( const auto& pair : metaDataMapStr_ )
     {
         metaDataTypes.push_back( pair.first );
     }
@@ -217,6 +339,31 @@ void TrackingTxtFileContents::subtractColumnType( const TrackingDataType& column
     {
         doubleDataMap_[ columnToSubtractFrom ][ i ] -= doubleDataMap_[ columnToSubtract ][ i ];
     }
+}
+
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName, FdetDateFormat dateFormat )
+{
+    const std::vector< std::string > columnTypes = addOptionalFdetsScanColumnType( fileName, getFdetsColumnTypes( dateFormat ) );
+    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t" );
+    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    return rawFileContents;
+}
+
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName, const std::vector< std::string >& columnTypes )
+{
+    static bool hasPrintedDeprecationWarning = false;
+    if( !hasPrintedDeprecationWarning )
+    {
+        std::cerr << "Warning: readFdetsFile(fileName, columnTypes) is deprecated. Use readFdetsFile(fileName, FdetDateFormat) "
+                     "instead."
+                  << std::endl;
+        hasPrintedDeprecationWarning = true;
+    }
+
+    const std::vector< std::string > resolvedColumnTypes = addOptionalFdetsScanColumnType( fileName, columnTypes );
+    auto rawFileContents = createTrackingTxtFileContents( fileName, resolvedColumnTypes, '#', ", \t" );
+    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    return rawFileContents;
 }
 
 }  // namespace input_output

@@ -83,7 +83,7 @@ SystemOfBodies createSimulationBodies( )
             throw std::runtime_error( "Invalid thermal_type_moon" );
         }
 
-        std::vector< std::string > occultingBodiesForMoon{ };
+        std::vector< std::string > occultingBodiesForMoon{};
         if( settings.useOccultation )
         {
             occultingBodiesForMoon = { "Earth" };
@@ -100,7 +100,7 @@ SystemOfBodies createSimulationBodies( )
         }
     }
 
-    std::map< std::string, std::vector< std::string > > occultingBodiesForLRO{ };
+    std::map< std::string, std::vector< std::string > > occultingBodiesForLRO{};
     if( settings.useOccultation )
     {
         // Moon is never occulted as seen from LRO
@@ -120,7 +120,7 @@ SystemOfBodies createSimulationBodies( )
     {
         // Sun is only tracked for beta < 30 deg (Mazarico 2018)
         bool trackSun = false;
-        for( const auto& month: { "MAR", "APR", "SEP", "OCT" } )
+        for( const auto& month : { "MAR", "APR", "SEP", "OCT" } )
         {
             if( settings.simulationStart.find( month ) != std::string::npos )
             {

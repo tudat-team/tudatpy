@@ -1,4 +1,1 @@
-from .discos import (
-    DiscosQuery
-)
-
+from .discos import DiscosQuery

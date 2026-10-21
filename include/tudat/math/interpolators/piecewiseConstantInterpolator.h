@@ -120,7 +120,7 @@ public:
     }
 
     //! Destructor
-    ~PiecewiseConstantInterpolator( ) { }
+    ~PiecewiseConstantInterpolator( ) {}
 
     //! Function interpolates dependent variable value at given independent variable value.
     /*!

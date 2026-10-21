@@ -38,17 +38,32 @@ public:
 
         estimatable_parameters::EstimatebleParameterIdentifier undergoingBodyIdentifier =
                 std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratedBody, "" ) );
+        estimatable_parameters::EstimatebleParameterIdentifier arcwiseUndergoingBodyIdentifier =
+                std::make_pair( estimatable_parameters::arc_wise_initial_body_state, std::make_pair( acceleratedBody, "" ) );
+
         if( customAccelerationPartialSet->customInitialStatePartials_.count( undergoingBodyIdentifier ) > 0 )
         {
             bodyUndergoingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( undergoingBodyIdentifier );
         }
+        else if( customAccelerationPartialSet->customInitialStatePartials_.count( arcwiseUndergoingBodyIdentifier ) > 0 )
+        {
+            bodyUndergoingPositionPartial_ =
+                    customAccelerationPartialSet->customInitialStatePartials_.at( arcwiseUndergoingBodyIdentifier );
+        }
 
         estimatable_parameters::EstimatebleParameterIdentifier exertingBodyIdentifier =
                 std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratingBody, "" ) );
+        estimatable_parameters::EstimatebleParameterIdentifier arcWiseExertingBodyIdentifier =
+                std::make_pair( estimatable_parameters::arc_wise_initial_body_state, std::make_pair( acceleratingBody, "" ) );
         if( customAccelerationPartialSet->customInitialStatePartials_.count( exertingBodyIdentifier ) > 0 &&
             ( exertingBodyIdentifier != undergoingBodyIdentifier ) )
         {
             bodyExertingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( exertingBodyIdentifier );
+        }
+        else if( customAccelerationPartialSet->customInitialStatePartials_.count( arcWiseExertingBodyIdentifier ) > 0 &&
+                 ( arcWiseExertingBodyIdentifier != arcwiseUndergoingBodyIdentifier ) )
+        {
+            bodyExertingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( arcWiseExertingBodyIdentifier );
         }
     }
 

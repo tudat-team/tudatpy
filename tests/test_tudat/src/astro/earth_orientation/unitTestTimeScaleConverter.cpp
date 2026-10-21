@@ -9,14 +9,13 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/utilityMacros.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -377,7 +376,7 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
 BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
 {
     std::vector< basic_astrodynamics::DateTime > testDateTimes = { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
-                                                                   basic_astrodynamics::DateTime( 1962, 1, 1, 0, 0, 60.0 ),
+                                                                   basic_astrodynamics::DateTime( 1962, 1, 1, 0, 1, 0.0 ),
                                                                    basic_astrodynamics::DateTime( 1961, 12, 31, 23, 0, 0.0 ) };
 
     std::vector< double > referenceUTDifference = { -0.0454859, 0.0326338, 0.0 };

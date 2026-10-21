@@ -97,7 +97,7 @@ SystemOfBodies createSimulationBodies( )
 
     // Sun is only tracked for beta < 30 deg (Mazarico 2018)
     bool trackSun = false;
-    for( const auto& month: { "MAR", "APR", "SEP", "OCT" } )
+    for( const auto& month : { "MAR", "APR", "SEP", "OCT" } )
     {
         if( simulationStart.find( month ) != std::string::npos )
         {

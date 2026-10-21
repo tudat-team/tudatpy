@@ -54,7 +54,7 @@ public:
     }
 
     //! Destructor.
-    virtual ~StateDerivativePartial( ) { }
+    virtual ~StateDerivativePartial( ) {}
 
     //! Pure virtual function to retrieve the function that returns the partial derivative w.r.t. a propagated state.
     /*!
@@ -396,7 +396,7 @@ protected:
      *  performed. For certain derived classed (i.e. ThirdBodyGravityPartial), there are member StateDerivativePartial
      *  objects that need to be updated when calling updateParameterPartials, for which this function should be redefined.
      */
-    virtual void updateParameterPartialsOfMemberObjects( ) { }
+    virtual void updateParameterPartialsOfMemberObjects( ) {}
 
     //! Function to reset the member object to the current time
     /*!
@@ -404,7 +404,7 @@ protected:
      *  For certain derived classed (i.e. ThirdBodyGravityPartial), there are member StateDerivativePartial objects that
      *  need to be updated when calling resetCurrentTime, for which this function should be redefined.
      */
-    virtual void resetCurrentTimeOfMemberObjects( ) { }
+    virtual void resetCurrentTimeOfMemberObjects( ) {}
 
     //! Function to define all current parameter partials as 'not computed'
     void resetCurrentParameterValues( )

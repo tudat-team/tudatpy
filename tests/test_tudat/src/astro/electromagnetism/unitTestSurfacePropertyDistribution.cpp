@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <memory>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -117,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeZonalPeriodicSurfacePropertyDistribution_Z
             0.34, 0, 0.1, 0, 0.29, referenceEpoch, physical_constants::JULIAN_YEAR_IN_DAYS );
     distributionModel.updateMembers( spice_interface::convertDateStringToEphemerisTime( "2005 AUG 19 13:46:17" ) );
 
-    for( double latitude: { -PI / 2, 0., 1.403, PI / 2 } )
+    for( double latitude : { -PI / 2, 0., 1.403, PI / 2 } )
     {
         std::vector< double > values;
         for( int longitude = -180; longitude <= 180; longitude += 40 )
@@ -126,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeZonalPeriodicSurfacePropertyDistribution_Z
         }
 
         // Check that all calculated values are identical
-        for( auto& v: values )
+        for( auto& v : values )
         {
             BOOST_CHECK_CLOSE_FRACTION( v, values.front( ), 1e-15 );
         }

@@ -130,7 +130,7 @@ std::shared_ptr< propagators::SingleArcSimulationResults<> > createAndRunSimulat
                                                                                      const AccelerationMap& accelerations,
                                                                                      const Eigen::VectorXd& initialState )
 {
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList{ };
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList{};
 
     auto integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances( stepSize,
                                                                               rungeKuttaFehlberg78,

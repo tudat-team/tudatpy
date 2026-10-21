@@ -58,6 +58,18 @@ Functions
 
 
 
+
+   hodograph_scaled_exponential
+
+   hodograph_scaled_exponential_cosine
+
+   hodograph_scaled_exponential_sine
+
+   hodograph_scaled_power
+
+   hodograph_scaled_power_cosine
+
+   hodograph_scaled_power_sine
 .. autofunction:: tudatpy.trajectory_design.shape_based_thrust.recommended_radial_hodograph_functions
 
 .. autofunction:: tudatpy.trajectory_design.shape_based_thrust.recommended_normal_hodograph_functions
@@ -81,6 +93,18 @@ Functions
 .. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_power_sine
 
 .. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_power_cosine
+
+.. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_scaled_exponential
+
+.. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_scaled_exponential_cosine
+
+.. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_scaled_exponential_sine
+
+.. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_scaled_power
+
+.. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_scaled_power_cosine
+
+.. autofunction:: tudatpy.trajectory_design.shape_based_thrust.hodograph_scaled_power_sine
 
 
 

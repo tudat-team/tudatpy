@@ -15,13 +15,14 @@
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 void computeLowThrustLegSemiAnalyticalAndFullPropagation(
         const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,

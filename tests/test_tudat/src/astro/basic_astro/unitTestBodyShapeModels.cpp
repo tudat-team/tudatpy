@@ -8,15 +8,24 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000.
+ *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000, doi:10.1007/978-3-642-58351-3.
+ *      Baumgardner J R, Frederickson P O. Icosahedral Discretization of the Two-Sphere, SIAM Journal on Numerical
+ *          Analysis, 22(6):1107-1115, 1985, doi:10.1137/0722066.
+ *      Ericson C. Real-Time Collision Detection, Morgan Kaufmann, 2005, doi:10.1201/b14581.
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/lambda/lambda.hpp>
-#include <boost/test/unit_test.hpp>
+#include <array>
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <map>
+#include <utility>
+#include <vector>
+
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -29,6 +38,169 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+namespace
+{
+
+//! Create a ball-shaped test body made of 80 triangles (an "icosphere").
+/*!
+ *  The starting shape is an icosahedron: the solid with 20 identical triangular faces, like a 20-sided
+ *  die. Its 12 corners are the points (0, +/-1, +/-phi) and their cyclic permutations, with phi the
+ *  golden ratio. To make the shape rounder, each triangle is cut into four smaller ones by connecting
+ *  the midpoints of its sides. All corners are then pushed outwards so that they lie exactly on a
+ *  sphere of the given radius. This is the construction of Baumgardner and Frederickson (1985).
+ *
+ *  The result is a closed surface with 42 corners (vertices), 80 triangles (facets) and 120 sides
+ *  (edges), which meets the input requirements of PolyhedronBodyShapeModel. All triangles have nearly
+ *  the same size and shape.
+ *  \param radius Radius of the sphere onto which the vertices are projected.
+ *  \param verticesCoordinates Coordinates of each vertex, one row per vertex (returned by reference).
+ *  \param verticesDefiningEachFacet Indices of the vertices of each facet, counterclockwise as seen
+ *      from outside the polyhedron, one row per facet (returned by reference).
+ */
+void createSubdividedIcosphere( const double radius, Eigen::MatrixXd& verticesCoordinates, Eigen::MatrixXi& verticesDefiningEachFacet )
+{
+    const double goldenRatio = ( 1.0 + std::sqrt( 5.0 ) ) / 2.0;
+
+    std::vector< Eigen::Vector3d > vertices{ { -1.0, goldenRatio, 0.0 },  { 1.0, goldenRatio, 0.0 },   { -1.0, -goldenRatio, 0.0 },
+                                             { 1.0, -goldenRatio, 0.0 },  { 0.0, -1.0, goldenRatio },  { 0.0, 1.0, goldenRatio },
+                                             { 0.0, -1.0, -goldenRatio }, { 0.0, 1.0, -goldenRatio },  { goldenRatio, 0.0, -1.0 },
+                                             { goldenRatio, 0.0, 1.0 },   { -goldenRatio, 0.0, -1.0 }, { -goldenRatio, 0.0, 1.0 } };
+
+    const std::vector< std::array< int, 3 > > icosahedronFacets{ { 0, 11, 5 }, { 0, 5, 1 },  { 0, 1, 7 },   { 0, 7, 10 }, { 0, 10, 11 },
+                                                                 { 1, 5, 9 },  { 5, 11, 4 }, { 11, 10, 2 }, { 10, 7, 6 }, { 7, 1, 8 },
+                                                                 { 3, 9, 4 },  { 3, 4, 2 },  { 3, 2, 6 },   { 3, 6, 8 },  { 3, 8, 9 },
+                                                                 { 4, 9, 5 },  { 2, 4, 11 }, { 6, 2, 10 },  { 8, 6, 7 },  { 9, 8, 1 } };
+
+    // Split each facet into four, re-using the midpoint of each edge shared between two facets.
+    std::map< std::pair< int, int >, int > midpointIndices;
+    auto getMidpointIndex = [ &vertices, &midpointIndices ]( const int first, const int second ) {
+        const std::pair< int, int > edgeKey( std::min( first, second ), std::max( first, second ) );
+        if( midpointIndices.count( edgeKey ) == 0 )
+        {
+            vertices.push_back( 0.5 * ( vertices.at( first ) + vertices.at( second ) ) );
+            midpointIndices[ edgeKey ] = static_cast< int >( vertices.size( ) ) - 1;
+        }
+        return midpointIndices.at( edgeKey );
+    };
+
+    std::vector< std::array< int, 3 > > facets;
+    for( const std::array< int, 3 >& facet : icosahedronFacets )
+    {
+        const int firstMidpoint = getMidpointIndex( facet.at( 0 ), facet.at( 1 ) );
+        const int secondMidpoint = getMidpointIndex( facet.at( 1 ), facet.at( 2 ) );
+        const int thirdMidpoint = getMidpointIndex( facet.at( 2 ), facet.at( 0 ) );
+
+        facets.push_back( { facet.at( 0 ), firstMidpoint, thirdMidpoint } );
+        facets.push_back( { facet.at( 1 ), secondMidpoint, firstMidpoint } );
+        facets.push_back( { facet.at( 2 ), thirdMidpoint, secondMidpoint } );
+        facets.push_back( { firstMidpoint, secondMidpoint, thirdMidpoint } );
+    }
+
+    verticesCoordinates = Eigen::MatrixXd( vertices.size( ), 3 );
+    for( unsigned int i = 0; i < vertices.size( ); ++i )
+    {
+        verticesCoordinates.row( i ) = radius * vertices.at( i ).normalized( );
+    }
+
+    verticesDefiningEachFacet = Eigen::MatrixXi( facets.size( ), 3 );
+    for( unsigned int i = 0; i < facets.size( ); ++i )
+    {
+        verticesDefiningEachFacet.row( i ) << facets.at( i ).at( 0 ), facets.at( i ).at( 1 ), facets.at( i ).at( 2 );
+    }
+}
+
+//! Find the point on a triangle that is closest to a given point in space.
+/*!
+ *  The closest point is either one of the triangle's three corners, a point on one of its three sides,
+ *  or a point inside the triangle. The function works out which of these cases applies and returns
+ *  that point. Copied from the ClosestPtPointTriangle routine in Ericson (2005), Sec. 5.1.5.
+ */
+Eigen::Vector3d computeClosestPointOnTriangle( const Eigen::Vector3d& fieldPoint,
+                                               const Eigen::Vector3d& vertex0,
+                                               const Eigen::Vector3d& vertex1,
+                                               const Eigen::Vector3d& vertex2 )
+{
+    const Eigen::Vector3d firstEdge = vertex1 - vertex0;
+    const Eigen::Vector3d secondEdge = vertex2 - vertex0;
+
+    // Vertex region of vertex0
+    const Eigen::Vector3d vector0 = fieldPoint - vertex0;
+    const double d1 = firstEdge.dot( vector0 );
+    const double d2 = secondEdge.dot( vector0 );
+    if( d1 <= 0.0 && d2 <= 0.0 )
+    {
+        return vertex0;
+    }
+
+    // Vertex region of vertex1
+    const Eigen::Vector3d vector1 = fieldPoint - vertex1;
+    const double d3 = firstEdge.dot( vector1 );
+    const double d4 = secondEdge.dot( vector1 );
+    if( d3 >= 0.0 && d4 <= d3 )
+    {
+        return vertex1;
+    }
+
+    // Edge region of vertex0-vertex1
+    const double vc = d1 * d4 - d3 * d2;
+    if( vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0 )
+    {
+        return vertex0 + ( d1 / ( d1 - d3 ) ) * firstEdge;
+    }
+
+    // Vertex region of vertex2
+    const Eigen::Vector3d vector2 = fieldPoint - vertex2;
+    const double d5 = firstEdge.dot( vector2 );
+    const double d6 = secondEdge.dot( vector2 );
+    if( d6 >= 0.0 && d5 <= d6 )
+    {
+        return vertex2;
+    }
+
+    // Edge region of vertex0-vertex2
+    const double vb = d5 * d2 - d1 * d6;
+    if( vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0 )
+    {
+        return vertex0 + ( d2 / ( d2 - d6 ) ) * secondEdge;
+    }
+
+    // Edge region of vertex1-vertex2
+    const double va = d3 * d6 - d5 * d4;
+    if( va <= 0.0 && ( d4 - d3 ) >= 0.0 && ( d5 - d6 ) >= 0.0 )
+    {
+        return vertex1 + ( ( d4 - d3 ) / ( ( d4 - d3 ) + ( d5 - d6 ) ) ) * ( vertex2 - vertex1 );
+    }
+
+    // Interior of the facet
+    const double inverseDenominator = 1.0 / ( va + vb + vc );
+    return vertex0 + firstEdge * ( vb * inverseDenominator ) + secondEdge * ( vc * inverseDenominator );
+}
+
+//! Compute the distance from a point in space to a surface made of triangles, by checking every triangle.
+/*!
+ *  For each triangle, the closest point is found and the smallest of these distances is kept. This
+ *  is slow, but it cannot miss a triangle, so it gives the correct answer against which
+ *  PolyhedronBodyShapeModel::getAltitude is checked.
+ */
+double computeExactDistanceToPolyhedronSurface( const Eigen::Vector3d& fieldPoint,
+                                                const Eigen::MatrixXd& verticesCoordinates,
+                                                const Eigen::MatrixXi& verticesDefiningEachFacet )
+{
+    double distance = std::numeric_limits< double >::infinity( );
+    for( int facet = 0; facet < verticesDefiningEachFacet.rows( ); ++facet )
+    {
+        const Eigen::Vector3d closestPoint =
+                computeClosestPointOnTriangle( fieldPoint,
+                                               verticesCoordinates.row( verticesDefiningEachFacet( facet, 0 ) ),
+                                               verticesCoordinates.row( verticesDefiningEachFacet( facet, 1 ) ),
+                                               verticesCoordinates.row( verticesDefiningEachFacet( facet, 2 ) ) );
+        distance = std::min( distance, ( fieldPoint - closestPoint ).norm( ) );
+    }
+    return distance;
+}
+
+}  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_geodetic_coordinate_conversions )
 
@@ -244,6 +416,86 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
         testCartesianPosition << 10.0, -1.0, 11.0;
         BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt( 2 ), tolerance );
     }
+}
+
+//! Test that the altitude of a polyhedron shape model is computed from the right triangles and edges.
+/*!
+ *  A polyhedron shape model describes the surface of a body as a mesh of flat triangles. To save time,
+ *  getAltitude does not check every triangle. It first finds the mesh corner (vertex) closest to the
+ *  point, and then only checks the triangles and edges that touch this vertex or one of its direct
+ *  neighbours (Avillez, 2022). If this step leaves out a triangle or edge that it should include, the
+ *  computed altitude comes out too large.
+ *
+ *  How the test works: the body is the ball-shaped mesh from createSubdividedIcosphere. For many points
+ *  around it, the altitude from getAltitude is compared with the distance found by checking every
+ *  triangle (computeExactDistanceToPolyhedronSurface). The two must agree. The points lie straight
+ *  above every vertex, every triangle centre and every edge midpoint, at heights from 0.1% of the
+ *  radius up to nine radii. These are the places where a missing triangle or edge is most likely to
+ *  change the result.
+ */
+BOOST_AUTO_TEST_CASE( testPolyhedronShapeModelFacetAndEdgeSelection )
+{
+    using namespace tudat::basic_astrodynamics;
+
+    const double radius = 1.0E3;
+
+    Eigen::MatrixXd verticesCoordinates;
+    Eigen::MatrixXi verticesDefiningEachFacet;
+    createSubdividedIcosphere( radius, verticesCoordinates, verticesDefiningEachFacet );
+
+    // Check the number of vertices and triangles, so that a later change to the mesh cannot silently
+    // weaken the test.
+    const int numberOfVertices = verticesCoordinates.rows( );
+    BOOST_CHECK_EQUAL( numberOfVertices, 42 );
+    BOOST_CHECK_EQUAL( verticesDefiningEachFacet.rows( ), 2 * numberOfVertices - 4 );
+
+    // Compute the distance to vertices, edges and triangles (not just vertices), since only then does
+    // getAltitude select which triangles and edges to check.
+    PolyhedronBodyShapeModel shapeModel( verticesCoordinates, verticesDefiningEachFacet, false, false );
+
+    // Place test points straight above every vertex, every triangle centre and every edge midpoint,
+    // at several heights.
+    std::vector< Eigen::Vector3d > directions;
+    for( int vertex = 0; vertex < numberOfVertices; ++vertex )
+    {
+        directions.push_back( verticesCoordinates.row( vertex ) );
+    }
+    for( int facet = 0; facet < verticesDefiningEachFacet.rows( ); ++facet )
+    {
+        const Eigen::Vector3d firstVertex = verticesCoordinates.row( verticesDefiningEachFacet( facet, 0 ) );
+        const Eigen::Vector3d secondVertex = verticesCoordinates.row( verticesDefiningEachFacet( facet, 1 ) );
+        const Eigen::Vector3d thirdVertex = verticesCoordinates.row( verticesDefiningEachFacet( facet, 2 ) );
+        directions.push_back( ( firstVertex + secondVertex + thirdVertex ) / 3.0 );
+        directions.push_back( 0.5 * ( firstVertex + secondVertex ) );
+        directions.push_back( 0.5 * ( secondVertex + thirdVertex ) );
+        directions.push_back( 0.5 * ( thirdVertex + firstVertex ) );
+    }
+
+    const std::vector< double > radiusFactors{ 1.001, 1.01, 1.1, 1.5, 3.0, 10.0 };
+
+    for( const Eigen::Vector3d& direction : directions )
+    {
+        for( const double radiusFactor : radiusFactors )
+        {
+            const Eigen::Vector3d fieldPoint = radiusFactor * radius * direction.normalized( );
+
+            const double expectedAltitude =
+                    computeExactDistanceToPolyhedronSurface( fieldPoint, verticesCoordinates, verticesDefiningEachFacet );
+
+            BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( fieldPoint ), expectedAltitude, 1.0E-12 );
+        }
+    }
+
+    // Compress the mesh so vertex 25 is closest to the centre of facet 1 (11, 13, 12).
+    // Only vertex 13 of that facet is adjacent to vertex 25; the old lookup misses it.
+    const Eigen::Vector3d facetCentre =
+            ( verticesCoordinates.row( 11 ) + verticesCoordinates.row( 13 ) + verticesCoordinates.row( 12 ) ) / 3.0;
+    const Eigen::Vector3d compressionAxis = ( verticesCoordinates.row( 25 ).transpose( ) - facetCentre ).normalized( );
+    verticesCoordinates = ( verticesCoordinates.rowwise( ) - facetCentre.transpose( ) ) *
+            ( Eigen::Matrix3d::Identity( ) - ( 1.0 - 1.0E-3 ) * compressionAxis * compressionAxis.transpose( ) );
+
+    PolyhedronBodyShapeModel compressedShapeModel( verticesCoordinates, verticesDefiningEachFacet, false, false );
+    BOOST_CHECK_SMALL( compressedShapeModel.getAltitude( Eigen::Vector3d::Zero( ) ), 1.0E-10 );
 }
 
 BOOST_AUTO_TEST_CASE( testHybridShapeModel )

@@ -11,6 +11,8 @@
 #ifndef TUDAT_PPNPARAMETERS_H
 #define TUDAT_PPNPARAMETERS_H
 
+#include <stdexcept>
+
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
@@ -29,12 +31,17 @@ public:
      * Constuctor
      * \param ppnParameterSet Object used to store PPN parameters
      */
-    PPNParameterGamma( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = relativity::ppnParameterSet ):
+    PPNParameterGamma( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet ):
         EstimatableParameter< double >( ppn_parameter_gamma, "global_metric" ), ppnParameterSet_( ppnParameterSet )
-    { }
+    {
+        if( ppnParameterSet_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating PPNParameterGamma: input PPN parameter set is nullptr." );
+        }
+    }
 
     //! Destructor
-    ~PPNParameterGamma( ) { }
+    ~PPNParameterGamma( ) {}
 
     //! Function to get the current value of the PPN parameter gamma.
     /*!
@@ -81,12 +88,17 @@ public:
      * Constuctor
      * \param ppnParameterSet Object used to store PPN parameters
      */
-    PPNParameterBeta( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = relativity::ppnParameterSet ):
+    PPNParameterBeta( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet ):
         EstimatableParameter< double >( ppn_parameter_beta, "global_metric" ), ppnParameterSet_( ppnParameterSet )
-    { }
+    {
+        if( ppnParameterSet_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating PPNParameterBeta: input PPN parameter set is nullptr." );
+        }
+    }
 
     //! Destructor
-    ~PPNParameterBeta( ) { }
+    ~PPNParameterBeta( ) {}
 
     //! Function to get the current value of the PPN parameter beta.
     /*!

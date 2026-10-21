@@ -10,6 +10,7 @@
  */
 
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <stdexcept>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -17,8 +18,31 @@
 
 namespace tudat
 {
+
 namespace basic_astrodynamics
 {
+
+//! Function to determine whether a time scale is a general, relativistic time scale.
+bool isTimeScaleRelativistic( const TimeScales originalTimeScale )
+{
+    bool isRelativistic = 0;
+    switch( originalTimeScale )
+    {
+        case body_centered_coordinate_time_scale:
+            isRelativistic = 1;
+            break;
+        case barycentric_coordinate_time_scale:
+            isRelativistic = 1;
+            break;
+        case local_proper_time_scale:
+            isRelativistic = 1;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting relativistic time scale, input was " +
+                                      std::to_string( static_cast< int >( originalTimeScale ) ) );
+    }
+    return isRelativistic;
+}
 
 //! Function to get the Julian day on J2000, in double precision.
 template<>
@@ -110,32 +134,6 @@ bool isLeapYear( const int year )
     return isLeapYear;
 }
 
-//! Function that returns number of days in given month number
-int getDaysInMonth( const int month, const int year )
-{
-    // Declare number of days per month
-    static const int daysPerMonth[ 12 ] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-    int numberOfDays = 0;
-
-    // Check input consistency
-    if( month < 1 || month > 12 )
-    {
-        throw std::runtime_error( "Error, month number " + std::to_string( month ) +
-                                  " does not exist, value must be gretaer than 0 and smaller than 13" );
-    }
-    else
-    {
-        numberOfDays = daysPerMonth[ month - 1 ];
-
-        // Check for leap year.
-        if( month == 2 && isLeapYear( year ) )
-        {
-            numberOfDays++;
-        }
-    }
-    return numberOfDays;
-}
-
 //! Determine number of full days that have passed in current year
 int convertDayMonthYearToDayOfYear( const int day, const int month, const int year )
 {
@@ -154,49 +152,6 @@ double calculateSecondsInCurrentJulianDay( const double julianDay )
 {
     // Calculate and return result, taking into accoun the fact that julian day 0.0 is at 12:00 and result starts counting at 00:00
     return ( julianDay + 0.5 - std::floor( julianDay + 0.5 ) ) * physical_constants::JULIAN_DAY;
-}
-
-//! Function to create the calendar date from the year and the number of days in the year
-boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int daysInYear )
-{
-    // Go to day 1 at 01-01 convention
-    int daysLeft = daysInYear + 1;
-
-    // Loop over all months (starting at January until month in which daysinYear is situated is found)
-    int currentMonth = 1;
-    int daysInCurrentMonth;
-    bool isConverged = 0;
-    while( !isConverged )
-    {
-        // Determine days in current month
-        daysInCurrentMonth = getDaysInMonth( currentMonth, year );
-        if( daysInCurrentMonth < daysLeft )
-        {
-            // Subtract days in current month from days left.
-            daysLeft -= daysInCurrentMonth;
-
-            // Update month and check consistency
-            currentMonth++;
-            if( currentMonth > 12 )
-            {
-                throw std::runtime_error( "Error when converting year and days in year to date, month number has exceeded 12" );
-            }
-        }
-        else
-        {
-            isConverged = 1;
-        }
-    }
-
-    // Create date and return
-    boost::gregorian::date date( year, currentMonth, daysLeft );
-
-    if( date.day_of_year( ) != daysInYear + 1 )
-    {
-        throw std::runtime_error( "Error when converting year and days in year to date, inconsistent output" );
-    }
-
-    return date;
 }
 
 //! Perform apprixmate conversion of TT to TDB

@@ -17,4 +17,4 @@
 #include <tudat/resource/resource.h>
 #include <tudat/config.hpp>
 
-#endif //TUDAT_PATHS_HPP
+#endif  // TUDAT_PATHS_HPP

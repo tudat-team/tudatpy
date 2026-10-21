@@ -30,7 +30,7 @@ public:
                                       const int minimumDegree = 2,
                                       const int minimumOrder = 0 );
 
-    virtual ~PolynomialGravityFieldVariations( ) { }
+    virtual ~PolynomialGravityFieldVariations( ) {}
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
 

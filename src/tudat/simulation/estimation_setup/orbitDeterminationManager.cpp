@@ -6,8 +6,10 @@ namespace tudat
 namespace simulation_setup
 {
 
-// template class OrbitDeterminationManager< double, double >;
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+template class OrbitDeterminationManager< double, double >;
+#endif
 
-}
+}  // namespace simulation_setup
 
 }  // namespace tudat

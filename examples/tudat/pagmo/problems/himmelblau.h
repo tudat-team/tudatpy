@@ -7,15 +7,15 @@ struct HimmelblauFunction {
     // Empty constructor
     // Without an empty constructor the problem is not accepted
     // as a multithreading type
-    HimmelblauFunction( ) { }
+    HimmelblauFunction( ) {}
 
     // Actual constructor allowing the user to define the boundaries
     HimmelblauFunction( const double x_min, const double x_max, const double y_min, const double y_max ):
         x_min_( x_min ), x_max_( x_max ), y_min_( y_min ), y_max_( y_max )
-    { }
+    {}
 
     // Mandatory, computes the fitness, i.e. the Himmelblau's function
-    std::vector< double > fitness( const std::vector< double > &x ) const
+    std::vector< double > fitness( const std::vector< double >& x ) const
     {
         std::vector< double > return_value;
 

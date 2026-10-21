@@ -137,7 +137,7 @@ public:
     }
 
     //! Destructor
-    ~HermiteCubicSplineInterpolator( ) { }
+    ~HermiteCubicSplineInterpolator( ) {}
 
     // Using statement to prevent compiler warning.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::interpolate;

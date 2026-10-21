@@ -32,7 +32,7 @@ class FieldTransform
 {
 public:
     //! Default destructor.
-    virtual ~FieldTransform( ) { }
+    virtual ~FieldTransform( ) {}
 
     //! Transform input string.
     /*!

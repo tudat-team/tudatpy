@@ -106,9 +106,9 @@ Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime,
  * @param terrestrialTime Epoch in seconds since reference day at which the angles are to be retrieved from SOFA.
  * @param referenceJulianDay Reference epoch for the former parameter, given in Julian Days (default = J2000).
  */
-void getPrecessionAngles( double &zeta,
-                          double &z,
-                          double &theta,
+void getPrecessionAngles( double& zeta,
+                          double& z,
+                          double& theta,
                           const double terrestrialTime,
                           const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 

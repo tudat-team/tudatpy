@@ -30,7 +30,7 @@ class Function
 {
 public:
     //! Default destructor.
-    virtual ~Function( ) { }
+    virtual ~Function( ) {}
 
     //! Compute mathematical function value. This implementation is a pure virtual function.
     /*!

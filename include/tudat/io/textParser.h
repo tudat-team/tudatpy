@@ -35,7 +35,7 @@ public:
     /*!
      * The default constructor for TextParser causes the parser to behave as a line based parser.
      */
-    TextParser( ): parsedData( std::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ), parseAsStream( false ) { }
+    TextParser( ): parsedData( std::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ), parseAsStream( false ) {}
 
     //! Create the TextParser in the given process mode.
     /*!
@@ -45,10 +45,10 @@ public:
      */
     TextParser( bool processAsStream ):
         parsedData( std::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ), parseAsStream( processAsStream )
-    { }
+    {}
 
     //! Default destructor, no new objects besides smart ones.
-    virtual ~TextParser( ) { }
+    virtual ~TextParser( ) {}
 
     //! Implementation of parse for strings.
     /*!

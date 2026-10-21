@@ -58,7 +58,7 @@ public:
     }
 
     //! Destructor.
-    ~FirstOrderRelativisticLightTimeCorrectionPartial( ) { }
+    ~FirstOrderRelativisticLightTimeCorrectionPartial( ) {}
 
     //! Function to compute partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
     /*!
@@ -109,6 +109,62 @@ public:
                                        states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), gradientLinkEnd, nullptr ) /
                                        ( correctionCalculator_->getPpnParameterGammaFunction_( )( ) + 1.0 ),
                                gradientLinkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
+    }
+
+    //! Gamma partial of the explicit link-end time derivative, at fixed link-end states.
+    SingleOneWayRangePartialReturnType timeDerivativeWrtPpnParameterGamma( const std::vector< Eigen::Vector6d >& states,
+                                                                           const std::vector< double >& times,
+                                                                           const observation_models::LinkEndType linkEnd )
+    {
+        // Use the same first-order gamma dependence as the delay and position-gradient partials.
+        const double partial = correctionCalculator_->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                       states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), linkEnd, nullptr ) /
+                ( correctionCalculator_->getPpnParameterGammaFunction_( )( ) + 1.0 );
+        return std::make_pair( ( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 1 ) << partial ).finished( ),
+                               linkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
+    }
+
+    //! Gravitational-parameter partial of a single body's light-time correction gradient w.r.t. link-end position.
+    /*!
+     * Uses the first-order mu dependence of the delay (as wrtBodyGravitationalParameter), which is not exact when bending
+     * is included.
+     * \param states States of link ends for observation for which partial is to be computed
+     * \param times Times of link ends for observation for which partial is to be computed
+     * \param gradientLinkEnd Link end at which the position gradient is evaluated
+     * \param bodyIndex Index of the perturbing body for which partial is to be computed
+     * \return Partial derivative of the position gradient w.r.t. the body's gravitational parameter, and associated time
+     */
+    SingleOneWayRangeGradientPartialReturnType gradientWrtBodyGravitationalParameter( const std::vector< Eigen::Vector6d >& states,
+                                                                                      const std::vector< double >& times,
+                                                                                      const observation_models::LinkEndType gradientLinkEnd,
+                                                                                      const int bodyIndex )
+    {
+        return std::make_pair( correctionCalculator_->calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                                       states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), gradientLinkEnd, bodyIndex ) /
+                                       perturbingBodyGravitationalParameterFunctions_.at( bodyIndex )( ),
+                               gradientLinkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
+    }
+
+    //! Gravitational-parameter partial of a single body's explicit link-end time derivative, at fixed link-end states.
+    /*!
+     * Uses the first-order mu dependence of the delay (as wrtBodyGravitationalParameter), which is not exact when bending
+     * is included.
+     * \param states States of link ends for observation for which partial is to be computed
+     * \param times Times of link ends for observation for which partial is to be computed
+     * \param linkEnd Link end whose time is differentiated
+     * \param bodyIndex Index of the perturbing body for which partial is to be computed
+     * \return Partial derivative of the time derivative w.r.t. the body's gravitational parameter, and associated time
+     */
+    SingleOneWayRangePartialReturnType timeDerivativeWrtBodyGravitationalParameter( const std::vector< Eigen::Vector6d >& states,
+                                                                                    const std::vector< double >& times,
+                                                                                    const observation_models::LinkEndType linkEnd,
+                                                                                    const int bodyIndex )
+    {
+        const double partial = correctionCalculator_->calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                       states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), linkEnd, bodyIndex ) /
+                perturbingBodyGravitationalParameterFunctions_.at( bodyIndex )( );
+        return std::make_pair( ( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 1 ) << partial ).finished( ),
+                               linkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
     }
 
     //! Function to get the names of bodies causing light-time correction.

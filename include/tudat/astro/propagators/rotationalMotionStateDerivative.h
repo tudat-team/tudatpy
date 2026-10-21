@@ -22,7 +22,6 @@
 #include "tudat/astro/basic_astro/torqueModel.h"
 
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -126,14 +125,14 @@ public:
     }
 
     // Destructor
-    virtual ~RotationalMotionStateDerivative( ) { }
+    virtual ~RotationalMotionStateDerivative( ) {}
 
     // Function to clear any reference/cached values of state derivative model
     /*
      * Function to clear any reference/cached values of state derivative model, in addition to those performed in the
      * clearTranslationalStateDerivativeModel function. Default implementation is empty.
      */
-    virtual void clearDerivedRotationalStateDerivativeModel( ) { }
+    virtual void clearDerivedRotationalStateDerivativeModel( ) {}
 
     // Function to clear reference/cached values of acceleration models
     /*
@@ -299,7 +298,7 @@ protected:
             }
         }
 
-        for( auto it: torqueModelsPerBody_ )
+        for( auto it : torqueModelsPerBody_ )
         {
             if( std::find( bodiesToPropagate_.begin( ), bodiesToPropagate_.end( ), it.first ) == bodiesToPropagate_.end( ) )
             {

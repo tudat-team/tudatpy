@@ -16,6 +16,9 @@
 #include <string>
 #include <vector>
 
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
+
 namespace tudat
 {
 
@@ -43,49 +46,64 @@ enum LinkEndType {
     receiver = 5,
     observed_body = 6,
     transmitter2 = 7,
-    observer = 8
+    observer = 8,
+    receiver2 = 9,
 };
 
 ////! Typedef for the identifier of a given link-end (body and reference points)
 // typedef std::pair< std::string, std::string > LinkEndId;
 
 struct LinkEndId {
-    LinkEndId( ) { }
+    LinkEndId( ): bodyName_( "" ), stationName_( "" ) {}
 
-    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), stationName_( linkEnd.second ) { }
+    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), stationName_( linkEnd.second ) {}
 
-    LinkEndId( const std::string& bodyName, const std::string& stationName ): bodyName_( bodyName ), stationName_( stationName ) { }
+    LinkEndId( const std::string& bodyName, const std::string& referencePointName ):
+        bodyName_( bodyName ), stationName_( referencePointName )
+    {}
 
-    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), stationName_( "" ) { }
+    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), stationName_( "" ) {}
 
     std::pair< std::string, std::string > getDualStringLinkEnd( ) const
     {
-        return std::make_pair( bodyName_, stationName_ );
+        return std::make_pair( bodyName_, getReferencePointName( ) );
     }
 
-    friend bool operator==( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    bool operator==( const LinkEndId& rhs ) const
     {
-        return ( ( linkEnd1.bodyName_ == linkEnd2.bodyName_ ) && ( linkEnd1.stationName_ == linkEnd2.stationName_ ) );
+        return equals( rhs );
     }
 
-    friend bool operator!=( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    bool operator!=( const LinkEndId& rhs ) const
     {
-        return !operator==( linkEnd1, linkEnd2 );
+        return !operator==( rhs );
     }
 
-    friend bool operator<( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    //! Equality comparison for LinkEndId
+    bool equals( const LinkEndId& rhs ) const
     {
-        if( linkEnd1.bodyName_ < linkEnd2.bodyName_ )
+        return bodyName_ == rhs.bodyName_ && stationName_ == rhs.stationName_;
+    }
+
+    TUDAT_DECLARE_FILE_IO( LinkEndId )
+
+    bool operator<( const LinkEndId& rhs ) const
+    {
+        if( bodyName_ < rhs.bodyName_ )
         {
             return true;
         }
-        else if( linkEnd1.bodyName_ > linkEnd2.bodyName_ )
+        else if( bodyName_ > rhs.bodyName_ )
         {
             return false;
         }
-        else if( linkEnd1.stationName_ < linkEnd2.stationName_ )
+        else if( stationName_ < rhs.stationName_ )
         {
             return true;
+        }
+        else if( stationName_ > rhs.stationName_ )
+        {
+            return false;
         }
         else
         {
@@ -102,15 +120,42 @@ struct LinkEndId {
         return bodyName_;
     }
 
+    std::string getReferencePointName( ) const
+    {
+        return stationName_;
+    }
+
     std::string getStationName( ) const
     {
         return stationName_;
     }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( bodyName_ ) );
+        ar( CEREAL_NVP( stationName_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( bodyName_ ) );
+        ar( CEREAL_NVP( stationName_ ) );
+    }
 };
 
-inline LinkEndId linkEndId( const std::string& bodyName, const std::string& stationName )
+inline LinkEndId linkEndId( const std::string& bodyName, const std::string& referencePointName )
 {
-    return LinkEndId( bodyName, stationName );
+    return LinkEndId( bodyName, referencePointName );
+}
+
+inline LinkEndId linkEndId( const std::pair< std::string, std::string >& linkEnd )
+{
+    return LinkEndId( linkEnd );
 }
 
 inline LinkEndId linkEndId( const std::string& bodyName )
@@ -130,13 +175,13 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType );
 typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 
 struct LinkDefinition {
-    LinkDefinition( ) { }
+    LinkDefinition( ) {}
 
-    LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ): linkEnds_( linkEnds ) { }
+    LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ): linkEnds_( linkEnds ) {}
 
     LinkDefinition( const std::map< LinkEndType, std::pair< std::string, std::string > >& linkEnds )
     {
-        for( auto it: linkEnds )
+        for( auto it : linkEnds )
         {
             linkEnds_[ it.first ] = LinkEndId( it.second );
         }
@@ -169,11 +214,27 @@ struct LinkDefinition {
         return static_cast< unsigned int >( linkEnds_.size( ) );
     }
 
-    friend bool operator==( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
+    bool operator==( const LinkDefinition& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const LinkDefinition& rhs ) const
+    {
+        return !operator==( rhs );
+    }
+
+    //    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+    //    {
+    //        return linkEnds1.linkEnds_ < linkEnds2.linkEnds_;
+    //    }
+
+    //! Equality comparison for LinkDefinition
+    bool equals( const LinkDefinition& rhs ) const
     {
         bool isEqual = true;
-        std::map< LinkEndType, LinkEndId > firstLinkEnds = linkEnds1.linkEnds_;
-        std::map< LinkEndType, LinkEndId > secondLinkEnds = linkEnds2.linkEnds_;
+        std::map< LinkEndType, LinkEndId > firstLinkEnds = linkEnds_;
+        std::map< LinkEndType, LinkEndId > secondLinkEnds = rhs.linkEnds_;
 
         std::map< LinkEndType, LinkEndId >::iterator firstLinkEndIterator = firstLinkEnds.begin( );
         std::map< LinkEndType, LinkEndId >::iterator secondLinkEndIterator = secondLinkEnds.begin( );
@@ -201,14 +262,21 @@ struct LinkDefinition {
         return isEqual;
     }
 
-    //    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
-    //    {
-    //        return linkEnds1.linkEnds_ < linkEnds2.linkEnds_;
-    //    }
+    TUDAT_DECLARE_FILE_IO( LinkDefinition )
 
-    friend bool operator!=( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
     {
-        return !operator==( linkEnds1, linkEnds2 );
+        ar( CEREAL_NVP( linkEnds_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( linkEnds_ ) );
     }
 };
 

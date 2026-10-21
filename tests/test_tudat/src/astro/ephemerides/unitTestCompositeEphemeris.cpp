@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -25,7 +24,7 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 namespace tudat
 {

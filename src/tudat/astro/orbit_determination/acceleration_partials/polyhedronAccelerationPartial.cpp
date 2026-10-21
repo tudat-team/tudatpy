@@ -40,7 +40,7 @@ PolyhedronGravityPartial::PolyhedronGravityPartial(
     updateFunction_(
             std::bind( &gravitation::PolyhedronGravitationalAccelerationModel::updateMembers, accelerationModel, std::placeholders::_1 ) ),
     rotationMatrixPartials_( rotationMatrixPartials )
-{ }
+{}
 
 void PolyhedronGravityPartial::update( const double currentTime )
 {

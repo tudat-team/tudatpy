@@ -8,11 +8,24 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include "tudat/simulation/estimation.h"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
+
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 //! Test suite for astro functions.
 BOOST_AUTO_TEST_SUITE( test_propagation_termination_reason )
@@ -87,14 +100,10 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Asterix" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Asterix",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -111,8 +120,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -140,8 +148,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     const double fixedStepSize = 30.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
@@ -262,14 +269,10 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Asterix" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Asterix",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -286,8 +289,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
     accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -336,8 +338,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
             std::make_shared< propagators::PropagationHybridTerminationSettings >( constituentSettings, 1 );
 
     const double fixedStepSize = 30.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
@@ -448,14 +449,10 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Asterix" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Asterix",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -472,8 +469,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -501,8 +497,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     const double fixedStepSize = 30.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(

@@ -16,8 +16,8 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-SimsFlanaganProblem::SimsFlanaganProblem( const Eigen::Vector6d &stateAtDeparture,
-                                          const Eigen::Vector6d &stateAtArrival,
+SimsFlanaganProblem::SimsFlanaganProblem( const Eigen::Vector6d& stateAtDeparture,
+                                          const Eigen::Vector6d& stateAtArrival,
                                           const double centralBodyGravitationalParameter,
                                           const double initialSpacecraftMass,
                                           const double maximumThrust,
@@ -122,7 +122,7 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
 }
 
 //! Fitness function.
-std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > &designVariables ) const
+std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double >& designVariables ) const
 {
     // Transform vector of design variables into 3D vector of throttles.
     std::vector< Eigen::Vector3d > throttles;

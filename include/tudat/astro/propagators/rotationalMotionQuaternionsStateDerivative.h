@@ -87,10 +87,10 @@ public:
                                                                       bodiesToPropagate,
                                                                       bodyInertiaTensorFunctions,
                                                                       bodyInertiaTensorTimeDerivativeFunctions )
-    { }
+    {}
 
     //! Destructor
-    ~RotationalMotionQuaternionsStateDerivative( ) { }
+    ~RotationalMotionQuaternionsStateDerivative( ) {}
 
     //! Calculates the state derivative of the rotational motion of the system.
     /*!

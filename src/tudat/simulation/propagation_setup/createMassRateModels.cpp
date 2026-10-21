@@ -9,6 +9,7 @@
  */
 
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {

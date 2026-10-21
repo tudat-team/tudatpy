@@ -108,9 +108,9 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > TabulatedGravityFieldVariations::c
     }
     catch( std::runtime_error& caughtException )
     {
-        throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " +
+                                  std::string( caughtException.what( ) ) );
     }
-
 }
 
 }  // namespace gravitation

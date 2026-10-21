@@ -55,13 +55,13 @@ public:
         cartesianPositionAtDeparture( aCartesianPositionAtDeparture ), cartesianPositionAtArrival( aCartesianPositionAtArrival ),
         timeOfFlight( aTimeOfFlight ), gravitationalParameter( aGravitationalParameter ),
         cartesianVelocityAtDeparture( Eigen::Vector3d::Zero( ) ), cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) ), solved( false )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~LambertTargeter( ) { }
+    virtual ~LambertTargeter( ) {}
 
     //! Get inertial velocity at departure.
     /*!

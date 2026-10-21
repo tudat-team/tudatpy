@@ -8,10 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 //
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <memory>
 
@@ -21,7 +20,7 @@
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
@@ -29,8 +28,9 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include <limits>
 #include <string>
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )
             dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >( body_center_of_mass, "Vehicle" ) );
             dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >( body_inertia_tensor, "Vehicle" ) );
 
-            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
             std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + 1000.0 );
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )
 
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
                     dynamicsSimulator->getDependentVariableHistory( );
-            for( auto it: dependentVariableSolution )
+            for( auto it : dependentVariableSolution )
             {
                 double currentMass = it.second( 0 );
                 Eigen::Vector3d currentCenterOfMass = it.second.segment( 1, 3 );

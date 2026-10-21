@@ -36,7 +36,7 @@ struct TestFunctionWithZeroRoot : public TestFunction, public basic_mathematics:
     unsigned int maximumDerivativeOrder;
 
     //! Create a function, where aMaximumDerivativeOrder is the maximum order of the derivative.
-    TestFunctionWithZeroRoot( unsigned int aMaximumDerivativeOrder ): maximumDerivativeOrder( aMaximumDerivativeOrder ) { }
+    TestFunctionWithZeroRoot( unsigned int aMaximumDerivativeOrder ): maximumDerivativeOrder( aMaximumDerivativeOrder ) {}
 
     //! Mathematical test function.
     double evaluate( double inputValue )

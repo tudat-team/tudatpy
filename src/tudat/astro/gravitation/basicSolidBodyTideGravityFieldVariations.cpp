@@ -26,11 +26,19 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
                                                                                           const double amplitude,
                                                                                           const std::complex< double > tideArgument,
                                                                                           const int degree,
-                                                                                          const int order )
+                                                                                          const int order,
+                                                                                          const double meanCosineForcing,
+                                                                                          const double meanSineForcing )
 {
-    // Calculate and return corrections.
-    return loveNumber / ( 2.0 * static_cast< double >( degree ) + 1.0 ) * massRatio * radiusRatioPowerN * amplitude *
+    std::complex< double > tidalForcing = 1 / ( 2.0 * static_cast< double >( degree ) + 1.0 ) * massRatio * radiusRatioPowerN * amplitude *
             basic_mathematics::calculateLegendreGeodesyNormalizationFactor( degree, order ) * std::exp( -tideArgument );
+
+    // subtract mean tidal forcing terms
+    tidalForcing.real( tidalForcing.real( ) - meanCosineForcing );
+    tidalForcing.imag( tidalForcing.imag( ) + meanSineForcing );  // sine correspons to -i, thus plus.
+
+    // Calculate and return corrections.
+    return loveNumber * tidalForcing;
 }
 
 //! Function to calculate solid body tide gravity field variations due to single body at single degree and order directly
@@ -40,7 +48,9 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
                                                                                           const double referenceRadius,
                                                                                           const Eigen::Vector3d& relativeBodyFixedPosition,
                                                                                           const int degree,
-                                                                                          const int order )
+                                                                                          const int order,
+                                                                                          const double meanCosineForcing,
+                                                                                          const double meanSineForcing )
 {
     // Calculate spherical position of perturbing body.
     Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical( relativeBodyFixedPosition );
@@ -51,21 +61,85 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
             basic_mathematics::calculateLegendreGeodesyNormalizationFactor( degree, order );
     std::complex< double > tideArgument = static_cast< double >( order ) * std::complex< double >( 0.0, sphericalPosition( 2 ) );
 
-    // Calculate tidal corrections.
-    return loveNumber / ( 2.0 * static_cast< double >( degree ) + 1.0 ) * massRatio *
+    std::complex< double > tidalForcing = 1 / ( 2.0 * static_cast< double >( degree ) + 1.0 ) * massRatio *
             std::pow( referenceRadius / sphericalPosition( 0 ), degree + 1 ) * tideAmplitude * std::exp( -tideArgument );
+
+    // subtract mean tidal forcing terms
+    tidalForcing.real( tidalForcing.real( ) - meanCosineForcing );
+    tidalForcing.imag( tidalForcing.imag( ) + meanSineForcing );  // sine correspons to -i, thus plus.
+
+    // Calculate tidal corrections.
+    return loveNumber * tidalForcing;
+}
+
+std::map< int, std::vector< double > > generateZeroMeanTermsFromReference(
+        const std::map< int, std::vector< std::complex< double > > >& loveNumbersReference )
+{
+    std::map< int, std::vector< double > > zeroMap;
+
+    for( const auto& it : loveNumbersReference )
+    {
+        const int degree = it.first;
+        const std::size_t numberOfOrders = it.second.size( );
+        zeroMap[ degree ] = std::vector< double >( numberOfOrders, 0.0 );
+    }
+
+    return zeroMap;
+}
+
+// This function takes a map with key=degree and value=a vector of coefficients,
+// and maps it onto an n x n matrix.
+Eigen::MatrixXd convertSphericalHarmonicCoefficientMapToMatrix( const std::map< int, std::vector< double > >& inputMap, int maximumDegree )
+{
+    Eigen::MatrixXd matrix = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumDegree + 1 );  // Initialize with zeros
+
+    for( const auto& it : inputMap )
+    {
+        const int degree = it.first;
+        const std::vector< double >& vec = it.second;
+
+        if( degree >= ( maximumDegree + 1 ) )
+        {
+            continue;  // Skip out-of-bounds rows
+        }
+
+        for( std::size_t order = 0; order < vec.size( ) && order < static_cast< std::size_t >( maximumDegree + 1 ); ++order )
+        {
+            matrix( degree, order ) = vec[ order ];
+        }
+    }
+
+    return matrix;
 }
 
 //! Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders
 //! from perturbing body's Cartesian state.
+// (is this overload even used currently?)
+//
+// meanForcingCosineTerms argument do not have defaults, assuming function is called from within a BasicSolidBodyTideGravityFieldVariations
+// object which defaults to zero mean forcing and populates these fields meanForcingSineTerms argument do not have defaults, assuming
+// function is called from within a BasicSSolidBodyTideGravityFieldVariations object which defaults to zero mean forcing and populates these
+// fields
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
         const std::map< int, std::vector< std::complex< double > > > loveNumbers,
         const double massRatio,
         const double referenceRadius,
         const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree,
-        const int maximumOrder )
+        const int maximumOrder,
+        std::map< int, std::vector< double > > meanCosineForcing,
+        std::map< int, std::vector< double > > meanSineForcing )
+
 {
+    if( meanCosineForcing.empty( ) )
+    {
+        meanCosineForcing = generateZeroMeanTermsFromReference( loveNumbers );
+    }
+    if( meanSineForcing.empty( ) )
+    {
+        meanSineForcing = generateZeroMeanTermsFromReference( loveNumbers );
+    }
+
     // Initialize results.
     Eigen::MatrixXd cosineCorrections = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
     Eigen::MatrixXd sineCorrections = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
@@ -73,14 +147,20 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
     std::complex< double > currentCorrections;
 
     // Iterate over all requested degrees and orders
-    for( auto loveNumberIt: loveNumbers )
+    for( auto loveNumberIt : loveNumbers )
     {
         int n = loveNumberIt.first;
         for( int m = 0; ( m <= maximumOrder && m <= n ); m++ )
         {
             // Calculate and set corrections at current degree and order.
-            currentCorrections = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                    loveNumbers.at( n ).at( m ), massRatio, referenceRadius, relativeBodyFixedPosition, n, m );
+            currentCorrections = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude( loveNumbers.at( n ).at( m ),
+                                                                                                    massRatio,
+                                                                                                    referenceRadius,
+                                                                                                    relativeBodyFixedPosition,
+                                                                                                    n,
+                                                                                                    m,
+                                                                                                    meanCosineForcing.at( n ).at( m ),
+                                                                                                    meanSineForcing.at( n ).at( m ) );
             cosineCorrections( n, m ) = currentCorrections.real( );
             if( m > 0 )
             {
@@ -152,7 +232,7 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
     //    // Iterate over all love
     std::complex< double > stokesCoefficientCorrection( 0.0, 0.0 );
 
-    for( auto loveNumberIt: loveNumbers_ )
+    for( auto loveNumberIt : loveNumbers_ )
     {
         unsigned int n = static_cast< unsigned int >( loveNumberIt.first );
         radiusRatioPower = basic_mathematics::raiseToIntegerPower( radiusRatio, n + 1 );
@@ -162,8 +242,16 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
             updateTidalAmplitudeAndArgument( n, m );
 
             // Calculate and add coefficients.
-            stokesCoefficientCorrection = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                    loveNumbers_[ n ][ m ], massRatio, radiusRatioPower, tideAmplitude, tideArgument, n, m );
+            stokesCoefficientCorrection =
+                    calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude( loveNumbers_[ n ][ m ],
+                                                                                       massRatio,
+                                                                                       radiusRatioPower,
+                                                                                       tideAmplitude,
+                                                                                       tideArgument,
+                                                                                       n,
+                                                                                       m,
+                                                                                       meanForcingCosineTerms_[ n ][ m ],
+                                                                                       meanForcingSineTerms_[ n ][ m ] );
 
             currentCosineCorrections_( n - 2, m ) += stokesCoefficientCorrection.real( );
             if( m != 0 )
@@ -180,9 +268,9 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
 int getModeCoupledMaximumResponseDegree( const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers )
 {
     int maximumDegree = 0;
-    for( auto it: loveNumbers )
+    for( auto it : loveNumbers )
     {
-        for( auto it2: it.second )
+        for( auto it2 : it.second )
         {
             if( it2.first.first > maximumDegree )
             {
@@ -196,9 +284,9 @@ int getModeCoupledMaximumResponseDegree( const std::map< std::pair< int, int >, 
 int getModeCoupledMaximumResponseOrder( const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers )
 {
     int maximumOrder = 0;
-    for( auto it: loveNumbers )
+    for( auto it : loveNumbers )
     {
-        for( auto it2: it.second )
+        for( auto it2 : it.second )
         {
             if( it2.first.second > maximumOrder )
             {
@@ -221,7 +309,7 @@ void ModeCoupledSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrec
     //    // Iterate over all love
     std::complex< double > stokesCoefficientCorrection( 0.0, 0.0 );
 
-    for( auto loveNumberIt: loveNumbers_ )
+    for( auto loveNumberIt : loveNumbers_ )
     {
         // Retrieve forcing degree/order
         std::pair< int, int > forcingDegreeOrder = loveNumberIt.first;
@@ -238,7 +326,7 @@ void ModeCoupledSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrec
                         std::complex< double >( 1.0, 0.0 ), massRatio, radiusRatioPower, tideAmplitude, tideArgument, n, m );
 
         // Compute response at required degrees/orders with required love numbers
-        for( auto responseIt: loveNumberIt.second )
+        for( auto responseIt : loveNumberIt.second )
         {
             int nResponse = responseIt.first.first;
             int mResponse = responseIt.first.second;

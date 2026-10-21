@@ -27,9 +27,9 @@ public:
                                       const std::string& associatedBody,
                                       const std::string& engineId ):
         EstimatableParameter< double >( constant_thrust_magnitude_parameter, associatedBody, engineId ), thrustWrapper_( thrustWrapper )
-    { }
+    {}
 
-    ~ConstantThrustMagnitudeParameter( ) { }
+    ~ConstantThrustMagnitudeParameter( ) {}
 
     double getParameterValue( )
     {
@@ -59,9 +59,9 @@ public:
                                       const std::string& associatedBody,
                                       const std::string& engineId ):
         EstimatableParameter< double >( constant_specific_impulse, associatedBody, engineId ), thrustWrapper_( thrustWrapper )
-    { }
+    {}
 
-    ~ConstantSpecificImpulseParameter( ) { }
+    ~ConstantSpecificImpulseParameter( ) {}
 
     double getParameterValue( )
     {

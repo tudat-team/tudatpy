@@ -15,7 +15,7 @@
 
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace tudat
 {
@@ -34,7 +34,6 @@ namespace simulation_setup
  *  this function provides the degree to which a change (e.g. uncertainty) in the environment can be mimicked by a change in the
  *  bodies initial conditions.
  *  \param bodies List of body objects that comprises the environment
- *  \param integratorSettings Settings for numerical integrator.
  *  \param propagatorSettings Settings for propagator.
  *  \param perturbedParameterSettings Type of parameter that is to be adjusted in analysis.
  *  \param simulatedObservationInterval Time interval between consecutive simulated 3-dimensional position observations
@@ -47,7 +46,6 @@ namespace simulation_setup
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
         const SystemOfBodies& bodies,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
         const double simulatedObservationInterval,
@@ -67,6 +65,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
         throw std::runtime_error(
                 "Error in determinePostfitParameterInfluence, only single-arc translational dynamics currently supported" );
     }
+    const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
+            translationalPropagatorSettings->getIntegratorSettings( );
 
     // Getlist of bodies for which the dynamics is to be fit
     std::vector< std::string > observedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
@@ -93,21 +93,23 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, initialStateParametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, initialStateParametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Retrieve nominal (e.g. pre-fit) body states
     Eigen::VectorXd nominalBodyStates = initialStateParametersToEstimate->template getFullParameterValues< double >( );
 
     // Get range over which observations are to be simulated.
     std::pair< double, double > dataTimeInterval =
-            getTabulatedEphemerisSafeInterval( bodies.at( observedBodies.at( 0 ) )->getEphemeris( ) );
+            getTabulatedEphemerisSafeInterval( bodies.at( observedBodies.at( 0 ) )->getEphemeris( ), false );
     double startTime = dataTimeInterval.first;
     double endTime = dataTimeInterval.second;
 
     // Define list of times at which observations are to be simulated
     std::vector< TimeType > baseTimeList;
-    double currentTime = startTime;
-    while( currentTime < endTime )
+
+    // Add buffer in case variable time step integrator changes valid domain after first iteration
+    double currentTime = startTime + integratorSettings->initialTimeStep_;
+    while( currentTime < endTime - integratorSettings->initialTimeStep_ )
     {
         baseTimeList.push_back( currentTime );
         currentTime += simulatedObservationInterval;
@@ -122,6 +124,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     // Simulate ideal observations
     std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
     // input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input

@@ -21,6 +21,8 @@
 #ifndef TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H
 #define TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H
 
+#include <array>
+
 #include <boost/multi_array.hpp>
 
 #include <Eigen/Core>
@@ -43,13 +45,13 @@ public:
     /*!
      * Default constructor.
      */
-    QuadrilateralMeshedSurfaceGeometry( ): numberOfLines_( -0 ), numberOfPoints_( -0 ), reversalOperator_( 1 ), totalArea_( -0.0 ) { }
+    QuadrilateralMeshedSurfaceGeometry( ): numberOfLines_( -0 ), numberOfPoints_( -0 ), reversalOperator_( 1 ), totalArea_( -0.0 ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~QuadrilateralMeshedSurfaceGeometry( ) { }
+    virtual ~QuadrilateralMeshedSurfaceGeometry( ) {}
 
     //! Get surface point.
     /*!
@@ -180,7 +182,7 @@ public:
 
     void clear( )
     {
-        boost::array< int, 2 > numberOfPointsPerIndependentVariables;
+        std::array< int, 2 > numberOfPointsPerIndependentVariables;
         numberOfPointsPerIndependentVariables[ 0 ] = 0;
         numberOfPointsPerIndependentVariables[ 1 ] = 0;
 

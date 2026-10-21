@@ -15,6 +15,8 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/relativity/relativisticPotentials.h"
+
 namespace tudat
 {
 
@@ -25,7 +27,7 @@ namespace relativity
 const static Eigen::Matrix4d minkowskiMetric =
         ( Eigen::Matrix4d( ) << -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ).finished( );
 
-//! Class that stores the PPN parameters, typically used as a 'global' environment property stored in ppnParameterSet variable
+//! Class that stores the PPN parameters used by relativity models.
 class PPNParameterSet
 {
 public:
@@ -35,12 +37,16 @@ public:
      * \param parameterGamma Value of PPN parameter gamma.
      * \param parameterBeta Value of PPN parameter beta.
      */
-    PPNParameterSet( const double parameterGamma, const double parameterBeta ):
-        parameterGamma_( parameterGamma ), parameterBeta_( parameterBeta )
-    { }
+    PPNParameterSet( const double parameterGamma,
+                     const double parameterBeta,
+                     const double parameterDelta = 0.0,
+                     const double parameterEpsilon = 0.0 ):
+        parameterGamma_( parameterGamma ), parameterBeta_( parameterBeta ), parameterDelta_( parameterDelta ),
+        parameterEpsilon_( parameterEpsilon )
+    {}
 
     //! Destructor
-    ~PPNParameterSet( ) { }
+    ~PPNParameterSet( ) {}
 
     //! Function to retrieve value of PPN parameter gamma.
     /*!
@@ -60,6 +66,26 @@ public:
     double getParameterBeta( )
     {
         return parameterBeta_;
+    }
+
+    //! Function to retrieve value of PPN parameter epsilon.
+    /*!
+     * Function to retrieve value of PPN parameter epsilon.
+     * \return Value of PPN parameter epsilon.
+     */
+    double getParameterEpsilon( )
+    {
+        return parameterEpsilon_;
+    }
+
+    //! Function to retrieve value of PPN parameter delta.
+    /*!
+     * Function to retrieve value of PPN parameter delta.
+     * \return Value of PPN parameter delta.
+     */
+    double getParameterDelta( )
+    {
+        return parameterDelta_;
     }
 
     //! Function to reset value of PPN parameter gamma.
@@ -82,19 +108,100 @@ public:
         parameterBeta_ = parameterBeta;
     }
 
+    //! Function to reset value of PPN parameter epsilon.
+    /*!
+     * Function to reset value of PPN parameter epsilon.
+     * \param parameterEpsilon New value of PPN parameter epsilon.
+     */
+    void setParameterEpsilon( const double parameterEpsilon )
+    {
+        parameterEpsilon_ = parameterEpsilon;
+    }
+
+    //! Function to reset value of PPN parameter delta.
+    /*!
+     * Function to reset value of PPN parameter delta.
+     * \param parameterDelta New value of PPN parameter delta.
+     */
+    void setParameterDelta( const double parameterDelta )
+    {
+        parameterDelta_ = parameterDelta;
+    }
+
 protected:
     //! Value of PPN parameter gamma.
     double parameterGamma_;
 
     //! Value of PPN parameter beta.
     double parameterBeta_;
+
+    double parameterDelta_;
+
+    double parameterEpsilon_;
 };
 
-//! Global PPN parameter set, initialized upon compilation (with values equal to GR).
-extern std::shared_ptr< PPNParameterSet > ppnParameterSet;
+class Metric
+{
+public:
+    Metric( )
+    {
+        currentChristoffelSymbols_.resize( 4 );
+    }
 
-//! Global parameter denoting EP violation in proper time rate, initialized to GR value of 0 upon compilation.
-extern double equivalencePrincipleLpiViolationParameter;
+    virtual ~Metric( ) {}
+
+    virtual std::shared_ptr< Metric > Clone( ) = 0;
+
+    Eigen::Matrix< double, 4, 4 > getCurrentCovariantMetric( )
+    {
+        return minkowskiMetric + getCurrentCovariantMetricPeturbation( );
+    }
+
+    Eigen::Matrix< double, 4, 4 > getCurrentContravariantMetric( )
+    {
+        return getCurrentCovariantMetric( ).inverse( );
+    }
+
+    Eigen::Matrix< double, 4, 4 > getCurrentCovariantMetricPeturbation( )
+    {
+        return currentCovariantMetricContribution_;
+    }
+
+    Eigen::Matrix< double, 4, 4 > getCurrentContravariantMetricPeturbation( )
+    {
+        return -( getCurrentContravariantMetric( ) -
+                  minkowskiMetric );  // minkowskiMetric * currentCovariantMetricContribution_ * minkowskiMetric;
+    }
+
+    std::vector< Eigen::Matrix< double, 4, 4 > > getCurrentChristoffelSymbols( )
+    {
+        return currentChristoffelSymbols_;
+    }
+
+    Eigen::Matrix< double, 6, 1 > getCurrentEvaluationState( )
+    {
+        return currentEvaluationState_;
+    }
+
+    double getCurrentTime( )
+    {
+        return currentTime_;
+    }
+
+    virtual void update( const Eigen::Matrix< double, 6, 1 >& state,
+                         const double time,
+                         const bool updateCurrentMetric,
+                         const bool updateCurrentChristoffelSymbols ) = 0;
+
+protected:
+    Eigen::Matrix< double, 4, 4 > currentCovariantMetricContribution_;
+
+    std::vector< Eigen::Matrix< double, 4, 4 > > currentChristoffelSymbols_;
+
+    Eigen::Matrix< double, 6, 1 > currentEvaluationState_;
+
+    double currentTime_;
+};
 
 }  // namespace relativity
 

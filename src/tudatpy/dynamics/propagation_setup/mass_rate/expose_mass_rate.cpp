@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_mass_rate.h"
 
 #include <pybind11/chrono.h>
@@ -16,8 +18,23 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/propagation_setup.h>
+#include <tudat/simulation/environment_setup/thrustSettings.h>
+
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/propagation_setup/createMassRateModels.h"
+#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
+#include "tudat/simulation/propagation_setup/propagationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -29,31 +46,6 @@ namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
-namespace tudat
-{
-namespace simulation_setup
-{
-
-inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated(
-        const std::function< double( const double ) > massRateFunction )
-
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.propagation_setup.mass_rate."
-                "custom",
-                "tudatpy.dynamics.propagation_setup.mass_rate."
-                "custom_mass_rate" );
-        isWarningPrinted = true;
-    }
-
-    return customMassRate( massRateFunction );
-}
-}  // namespace simulation_setup
-}  // namespace tudat
-
 namespace tudatpy
 {
 namespace dynamics
@@ -63,7 +55,7 @@ namespace propagation_setup
 namespace mass_rate
 {
 
-void expose_mass_rate_setup( py::module &m )
+void expose_mass_rate_setup( py::module& m )
 {
     // Enums
 
@@ -96,10 +88,9 @@ void expose_mass_rate_setup( py::module &m )
 
     // Classes
 
-    py::class_< tss::MassRateModelSettings, std::shared_ptr< tss::MassRateModelSettings > >(
-            m,
-            "MassRateModelSettings",
-            R"doc(
+    py::class_< tss::MassRateModelSettings, std::shared_ptr< tss::MassRateModelSettings > >( m,
+                                                                                             "MassRateModelSettings",
+                                                                                             R"doc(
 
          Functional base class to define settings for mass rates.
 
@@ -116,11 +107,10 @@ void expose_mass_rate_setup( py::module &m )
     //                tudat::basic_astrodynamics::AvailableMassRateModels>(),
     //                     py::arg("mass_rate_type"));
 
-    py::class_< tss::FromThrustMassRateSettings,
-                std::shared_ptr< tss::FromThrustMassRateSettings >,
-                tss::MassRateModelSettings >( m,
-                                              "FromThrustMassRateSettings",
-                                              R"doc(
+    py::class_< tss::FromThrustMassRateSettings, std::shared_ptr< tss::FromThrustMassRateSettings >, tss::MassRateModelSettings >(
+            m,
+            "FromThrustMassRateSettings",
+            R"doc(
 
          `MassRateModelSettings`-derived class to define settings for a mass rate model derived from a thrust model.
 
@@ -137,11 +127,10 @@ void expose_mass_rate_setup( py::module &m )
     //                     py::arg("associated_thrust_source") =
     //                     "");
 
-    py::class_< tss::CustomMassRateSettings,
-                std::shared_ptr< tss::CustomMassRateSettings >,
-                tss::MassRateModelSettings >( m,
-                                              "CustomMassRateSettings",
-                                              R"doc(
+    py::class_< tss::CustomMassRateSettings, std::shared_ptr< tss::CustomMassRateSettings >, tss::MassRateModelSettings >(
+            m,
+            "CustomMassRateSettings",
+            R"doc(
 
          `MassRateModelSettings`-derived class to define settings for a custom mass rate model.
 
@@ -185,8 +174,6 @@ void expose_mass_rate_setup( py::module &m )
 
      )doc" );
 
-    m.def( "custom", &tss::customMassRateDeprecated, py::arg( "mass_rate_function" ) );
-
     m.def( "custom_mass_rate",
            &tss::customMassRate,
            py::arg( "mass_rate_function" ),
@@ -197,10 +184,16 @@ void expose_mass_rate_setup( py::module &m )
  Creates the settings for a custom mass rate model defined through a mass rate function. The function must have
  time as an independent variable.
 
+ NOTE: the ``mass_rate_function`` is called with a ``NaN`` input at the start of each function evaluation of the full state derivative.
+ This signals the start of a new evaluation and can be used to make custom models more efficient if multiple (related) custom functions are
+ implemented in a single class `custom model user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/custom-models.html>`_.
+ However, this does require that calling the ``mass_rate_function`` with NaN input does not result in an exception.
+
+
 
  Parameters
  ----------
- mass_rate_function : callable[[astro.time_representation.Time], float]
+ mass_rate_function : callable[[float], float]
      Function of time defining the custom mass rate.
  Returns
  -------

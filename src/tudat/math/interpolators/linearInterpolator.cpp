@@ -13,8 +13,6 @@
  *
  */
 
-#include <boost/multi_array.hpp>
-
 #include "tudat/math/interpolators/linearInterpolator.h"
 
 namespace tudat

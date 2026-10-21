@@ -4,8 +4,6 @@
 #include <iomanip>
 #include <functional>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/astro/basic_astro/torqueModel.h"
 
 namespace tudat
@@ -34,10 +32,10 @@ public:
                             const double bodyMeanRotationRate ):
         bodyFixedRotationVectorFunction_( bodyFixedRotationVectorFunction ), dampingMatrixFunction_( dampingMatrixFunction ),
         bodyMeanRotationRate_( bodyMeanRotationRate )
-    { }
+    {}
 
     //! Destructor
-    ~DissipativeTorqueModel( ) { }
+    ~DissipativeTorqueModel( ) {}
 
     //! Get dissipative torque.
     /*!

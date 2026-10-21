@@ -1,7 +1,6 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <iostream>
 
 #include "tudat/io/basicInputOutput.h"
@@ -27,11 +26,6 @@ BOOST_AUTO_TEST_CASE( testPoleTideSiteDisplacement )
     // Retrieve polar motion calculator
     std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel = createStandardEarthOrientationCalculator( );
     std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator = standardEarthRotationModel->getPolarMotionCalculator( );
-
-    std::bind( static_cast< Eigen::Vector2d ( OneDimensionalInterpolator< double, Eigen::Vector2d >::* )( const double ) >(
-                       &OneDimensionalInterpolator< double, Eigen::Vector2d >::interpolate ),
-               standardPolarMotionCalculator->getDailyIersValueInterpolator( ),
-               std::placeholders::_1 );
 
     PoleTideDeformation poleTideDeformationModel = PoleTideDeformation( standardPolarMotionCalculator );
 

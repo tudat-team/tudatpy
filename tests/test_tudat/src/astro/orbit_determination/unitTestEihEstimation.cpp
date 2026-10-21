@@ -8,14 +8,31 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/simulation.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -210,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
 
         if( test == 0 )
         {
-            BOOST_CHECK_EQUAL( estimationOutput->residualStandardDeviation_ < 15.0, true );
+            BOOST_CHECK_EQUAL( estimationOutput->residualStandardDeviation_ < 1.0E1, true );
         }
         else
         {
@@ -229,11 +246,12 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
         //        input_output::writeMatrixToFile( bestResiduals, "residuals_eih_" + std::to_string( test ) + ".dat", 16 );
     }
 
-    BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 0, 3 ).norm( ) / parameterCorrections.at( 1 ).segment( 0, 3 ).norm( ), 0.025 );
+    BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 0, 3 ).norm( ) / parameterCorrections.at( 1 ).segment( 0, 3 ).norm( ),
+                       1.0E-2 );
 
     BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 3, 3 ).norm( ) / parameterCorrections.at( 1 ).segment( 3, 3 ).norm( ), 0.025 );
 
-    BOOST_CHECK_SMALL( parameterCorrections.at( 0 )( 6 ) / parameterCorrections.at( 1 )( 6 ), 0.00025 );
+    BOOST_CHECK_SMALL( parameterCorrections.at( 0 )( 6 ) / parameterCorrections.at( 1 )( 6 ), 2.0E-4 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

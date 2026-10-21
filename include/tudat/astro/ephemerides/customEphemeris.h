@@ -11,7 +11,6 @@
 #define TUDAT_CUSTOMEPHEMERIS_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include "tudat/astro/ephemerides/ephemeris.h"
 
@@ -40,7 +39,7 @@ public:
                      const std::string& referenceFrameOrigin = "SSB",
                      const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), stateFunction_( stateFunction )
-    { }
+    {}
 
     Eigen::Vector6d getCartesianState( const double secondsSinceEpoch )
     {

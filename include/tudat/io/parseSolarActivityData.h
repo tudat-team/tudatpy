@@ -91,7 +91,7 @@ public:
     /*!
      * Default constructor.
      */
-    ParseSolarActivityData( ): TextParser( true ) { }
+    ParseSolarActivityData( ): TextParser( true ) {}
 
 protected:
     //! Parses the stream of text.

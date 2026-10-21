@@ -15,7 +15,6 @@
 #include <string>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/smart_ptr/make_shared.hpp>
 
 #include "tudat/io/fieldTransform.h"
 #include "tudat/io/fieldType.h"

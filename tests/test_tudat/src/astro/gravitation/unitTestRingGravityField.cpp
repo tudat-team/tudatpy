@@ -9,13 +9,12 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/gravitation/ringGravityField.h"
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testEllipticIntegralsComputation )
         expectedEllipticIntegralS += taylorCoefficients.at( taylorOrder ) * std::pow( m - m0, taylorOrder );
     }
 
-    for( bool ellipticIntegralSFromDAndB: { true, false } )
+    for( bool ellipticIntegralSFromDAndB : { true, false } )
     {
         gravitation::RingGravityCache gravityCache2 = gravitation::RingGravityCache( ringRadius, ellipticIntegralSFromDAndB );
         gravityCache2.update( bodyFixedPosition );
@@ -117,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
     const double gravitationalParameter = 2.39e21 * physical_constants::GRAVITATIONAL_CONSTANT;
     const double ringRadius = 2.7 * physical_constants::ASTRONOMICAL_UNIT;
 
-    for( bool ellipticIntegralSFromDAndB: { true, false } )
+    for( bool ellipticIntegralSFromDAndB : { true, false } )
     {
         gravitation::RingGravityField gravityField =
                 gravitation::RingGravityField( gravitationalParameter, ringRadius, ellipticIntegralSFromDAndB );

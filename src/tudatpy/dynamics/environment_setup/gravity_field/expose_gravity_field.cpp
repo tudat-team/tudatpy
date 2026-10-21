@@ -7,11 +7,15 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_gravity_field.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/rigidBodyProperties.h>
+#include <tudat/simulation/environment_setup/createGravityField.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/complex.h>
@@ -40,52 +44,13 @@ inline std::shared_ptr< GravityFieldSettings > fromFileSphericalHarmonicsGravity
         const int referenceRadiusIndex = 1 )
 {
     return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
-            filePath,
-            associatedReferenceFrame,
-            maximumDegree,
-            maximumOrder,
-            gravitationalParameterIndex,
-            referenceRadiusIndex );
+            filePath, associatedReferenceFrame, maximumDegree, maximumOrder, gravitationalParameterIndex, referenceRadiusIndex );
 }
 
-inline std::shared_ptr< GravityFieldSettings > predefinedSphericalHarmonic(
-        const SphericalHarmonicsModel sphericalHarmonicsModel,
-        const int maximumDegree = -1 )
+inline std::shared_ptr< GravityFieldSettings > predefinedSphericalHarmonic( const SphericalHarmonicsModel sphericalHarmonicsModel,
+                                                                            const int maximumDegree = -1 )
 {
-    return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
-            sphericalHarmonicsModel, maximumDegree );
-}
-
-inline std::shared_ptr< GravityFieldSettings >
-createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
-        const double axisA,
-        const double axisB,
-        const double axisC,
-        const double ellipsoidDensity,
-        const int maximumDegree,
-        const int maximumOrder,
-        const std::string& associatedReferenceFrame,
-        const double gravitationalConstant = tpc::GRAVITATIONAL_CONSTANT )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.environment_setup.gravity_"
-                "field.spherical_harmonic_triaxial_body",
-                "tudatpy.dynamics.environment_setup.gravity_"
-                "field.sh_triaxial_ellipsoid_from_density" );
-        isWarningPrinted = true;
-    }
-
-    return createHomogeneousTriAxialEllipsoidGravitySettings( axisA,
-                                                              axisB,
-                                                              axisC,
-                                                              ellipsoidDensity,
-                                                              maximumDegree,
-                                                              maximumOrder,
-                                                              associatedReferenceFrame,
-                                                              gravitationalConstant );
+    return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( sphericalHarmonicsModel, maximumDegree );
 }
 
 }  // namespace simulation_setup
@@ -119,17 +84,11 @@ void expose_gravity_field_setup( py::module& m )
 
 
       )doc" )
-            .value( "central_gravity", tss::GravityFieldType::central, R"doc(
-      )doc" )
-            .value( "central_spice_gravity", tss::GravityFieldType::central_spice, R"doc(
-      )doc" )
-            .value( "spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic, R"doc(
-      )doc" )
-            .value( "polyhedron_gravity", tss::GravityFieldType::polyhedron, R"doc(
-      )doc" )
-            .value( "ring_gravity",
-                    tss::GravityFieldType::one_dimensional_ring,
-                    R"doc(No documentation found.)doc" )
+            .value( "central_gravity", tss::GravityFieldType::central )
+            .value( "central_spice_gravity", tss::GravityFieldType::central_spice )
+            .value( "spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic )
+            .value( "polyhedron_gravity", tss::GravityFieldType::polyhedron )
+            .value( "ring_gravity", tss::GravityFieldType::one_dimensional_ring )
             .export_values( );
 
     py::enum_< tss::SphericalHarmonicsModel >( m,
@@ -204,10 +163,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 )doc" )
             .export_values( );
 
-    py::class_< tss::GravityFieldSettings, std::shared_ptr< tss::GravityFieldSettings > >(
-            m,
-            "GravityFieldSettings",
-            R"doc(
+    py::class_< tss::GravityFieldSettings, std::shared_ptr< tss::GravityFieldSettings > >( m,
+                                                                                           "GravityFieldSettings",
+                                                                                           R"doc(
 
          Base class for providing settings for automatic gravity field model creation.
 
@@ -233,11 +191,10 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
          :type: GravityFieldType
       )doc" );
 
-    py::class_< tss::CentralGravityFieldSettings,
-                std::shared_ptr< tss::CentralGravityFieldSettings >,
-                tss::GravityFieldSettings >( m,
-                                             "CentralGravityFieldSettings",
-                                             R"doc(
+    py::class_< tss::CentralGravityFieldSettings, std::shared_ptr< tss::CentralGravityFieldSettings >, tss::GravityFieldSettings >(
+            m,
+            "CentralGravityFieldSettings",
+            R"doc(
 
          `GravityFieldSettings` derived class defining settings of point mass gravity field.
 
@@ -348,16 +305,17 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     py::class_< tss::FromFileSphericalHarmonicsGravityFieldSettings,
                 std::shared_ptr< tss::FromFileSphericalHarmonicsGravityFieldSettings >,
-                tss::SphericalHarmonicsGravityFieldSettings >(
-            m,
-            "FromFileSphericalHarmonicsGravityFieldSettings",
-            R"doc(No documentation found.)doc" );
+                tss::SphericalHarmonicsGravityFieldSettings >( m, "FromFileSphericalHarmonicsGravityFieldSettings", R"doc(
 
-    py::class_< tss::PolyhedronGravityFieldSettings,
-                std::shared_ptr< tss::PolyhedronGravityFieldSettings >,
-                tss::GravityFieldSettings >( m,
-                                             "PolyhedronGravityFieldSettings",
-                                             R"doc(
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`,
+         :func:`~tudatpy.dynamics.environment_setup.gravity_field.predefined_spherical_harmonic`.
+
+      )doc" );
+
+    py::class_< tss::PolyhedronGravityFieldSettings, std::shared_ptr< tss::PolyhedronGravityFieldSettings >, tss::GravityFieldSettings >(
+            m,
+            "PolyhedronGravityFieldSettings",
+            R"doc(
 
          `GravityFieldSettings` derived class defining settings of a polyhedron gravity field representation.
 
@@ -405,10 +363,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
          :type: numpy.ndarray
       )doc" )
-            .def_property_readonly(
-                    "vertices_defining_each_facet",
-                    &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachFacet,
-                    R"doc(
+            .def_property_readonly( "vertices_defining_each_facet",
+                                    &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachFacet,
+                                    R"doc(
 
          Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
          the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
@@ -472,7 +429,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Parameters
  ----------
  body_name_to_use : str, default = ""
-     Body from which Spice gravitational paramerer is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
+     Body from which Spice gravitational parameter is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
 
  Returns
  -------
@@ -496,11 +453,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
      )doc" );
 
     m.def( "spherical_harmonic",
-           py::overload_cast< const double,
-                              const double,
-                              const Eigen::MatrixXd,
-                              const Eigen::MatrixXd,
-                              const std::string& >( &tss::sphericalHarmonicsGravitySettings ),
+           py::overload_cast< const double, const double, const Eigen::MatrixXd, const Eigen::MatrixXd, const std::string& >(
+                   &tss::sphericalHarmonicsGravitySettings ),
            py::arg( "gravitational_parameter" ),
            py::arg( "reference_radius" ),
            py::arg( "normalized_cosine_coefficients" ),
@@ -511,7 +465,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a spherical harmonics gravity field settings object.
 
  Function for settings object, defining a gravity field model through spherical harmonic expansion.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the spherical harmonic field is defined.
 
  The gravitational potential is the defined as:
@@ -710,11 +664,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
      )doc" );
 
     m.def( "polyhedron_from_mu",
-           py::overload_cast< const double,
-                              const Eigen::MatrixXd,
-                              const Eigen::MatrixXi,
-                              const std::string&,
-                              const double >( &tss::polyhedronGravitySettingsFromMu ),
+           py::overload_cast< const double, const Eigen::MatrixXd, const Eigen::MatrixXi, const std::string&, const double >(
+                   &tss::polyhedronGravitySettingsFromMu ),
            py::arg( "gravitational_parameter" ),
            py::arg( "vertices_coordinates" ),
            py::arg( "vertices_defining_each_facet" ),
@@ -725,7 +676,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the gravitational parameter.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
@@ -769,11 +720,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
      )doc" );
 
     m.def( "polyhedron_from_density",
-           py::overload_cast< const double,
-                              const Eigen::MatrixXd,
-                              const Eigen::MatrixXi,
-                              const std::string&,
-                              const double >( &tss::polyhedronGravitySettings ),
+           py::overload_cast< const double, const Eigen::MatrixXd, const Eigen::MatrixXi, const std::string&, const double >(
+                   &tss::polyhedronGravitySettings ),
            py::arg( "density" ),
            py::arg( "vertices_coordinates" ),
            py::arg( "vertices_defining_each_facet" ),
@@ -784,7 +732,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the density.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
@@ -834,8 +782,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
                               const int,
                               const int,
                               const std::string&,
-                              const double >(
-                   &tss::createHomogeneousTriAxialEllipsoidGravitySettings ),
+                              const double >( &tss::createHomogeneousTriAxialEllipsoidGravitySettings ),
            py::arg( "axis_a" ),
            py::arg( "axis_b" ),
            py::arg( "axis_c" ),
@@ -902,13 +849,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     // Triaxial ellipsoid: overload 2
     m.def( "sh_triaxial_ellipsoid_from_gravitational_parameter",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::string&,
-                              const double >(
+           py::overload_cast< const double, const double, const double, const int, const int, const std::string&, const double >(
                    &tss::createHomogeneousTriAxialEllipsoidGravitySettings ),
            py::arg( "axis_a" ),
            py::arg( "axis_b" ),
@@ -957,26 +898,6 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
      )doc" );
 
-    m.def( "spherical_harmonic_triaxial_body",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::string&,
-                              const double >(
-                   &tss::createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated ),
-           py::arg( "axis_a" ),
-           py::arg( "axis_b" ),
-           py::arg( "axis_c" ),
-           py::arg( "density" ),
-           py::arg( "maximum_degree" ),
-           py::arg( "maximum_order" ),
-           py::arg( "associated_reference_frame" ),
-           py::arg( "gravitational_constant" ) =
-                   tudat::physical_constants::GRAVITATIONAL_CONSTANT );
-
     m.def( "ring_model",
            &tss::ringGravitySettings,
            py::arg( "gravitational_parameter" ),
@@ -1001,7 +922,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  elliptic_integral_s_from_d_and_b : bool, default = True
      Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
-     
+
  Returns
  -------
  GravityFieldSettings

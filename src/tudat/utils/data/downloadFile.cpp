@@ -21,7 +21,7 @@ namespace data
 {
 
 // verbose level argument
-std::string download_file( const char *remote_url, const char *cache, const int verbosity, bool try_unzip, const char *prefix )
+std::string download_file( const char* remote_url, const char* cache, const int verbosity, bool try_unzip, const char* prefix )
 {
     // prefix_str variable of size MAX_LEN
     char prefix_str[ MAX_PATH ];

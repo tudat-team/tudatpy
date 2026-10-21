@@ -16,8 +16,8 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-HybridMethodProblem::HybridMethodProblem( const Eigen::Vector6d &stateAtDeparture,
-                                          const Eigen::Vector6d &stateAtArrival,
+HybridMethodProblem::HybridMethodProblem( const Eigen::Vector6d& stateAtDeparture,
+                                          const Eigen::Vector6d& stateAtArrival,
                                           const double maximumThrust,
                                           const double specificImpulse,
                                           const double timeOfFlight,
@@ -102,7 +102,7 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethodProblem::g
 }
 
 //! Fitness function.
-std::vector< double > HybridMethodProblem::fitness( const std::vector< double > &designVariables ) const
+std::vector< double > HybridMethodProblem::fitness( const std::vector< double >& designVariables ) const
 {
     // Re-initialise mass of the spacecraft.
     bodies_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );

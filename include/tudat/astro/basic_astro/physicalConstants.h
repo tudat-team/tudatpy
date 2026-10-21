@@ -148,8 +148,9 @@ constexpr long double getSpeedOfLight< long double >( )
     return SPEED_OF_LIGHT_LONG;
 }
 
-//! Gravitational constant in meter^3 per kilogram per second^2, (Standish, 1995).
-constexpr static double GRAVITATIONAL_CONSTANT = 6.67259e-11;
+//! Gravitational constant in meter^3 per kilogram per second^2,
+// (P. J. Mohr, 2025, CODATA recommended values of the fundamental physical constants: 2022)
+constexpr static double GRAVITATIONAL_CONSTANT = 6.67430e-11;
 
 //! Astronomical Unit in meters (IAU 2012, Resolution B2).
 constexpr static double ASTRONOMICAL_UNIT = 1.49597870700E11;

@@ -13,14 +13,12 @@
 
 #include <pybind11/pybind11.h>
 
-#include "tudat/math/statistics.h"
-
 namespace py = pybind11;
 
 namespace tudatpy
 {
 
-void expose_statistics( py::module &m );
+void expose_statistics( py::module& m );
 
 }
 

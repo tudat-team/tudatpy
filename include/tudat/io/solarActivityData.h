@@ -167,7 +167,7 @@ typedef std::shared_ptr< SolarActivityData > SolarActivityDataPtr;
 typedef std::map< double, SolarActivityDataPtr > SolarActivityDataMap;
 
 struct SolarActivityContainer {
-    SolarActivityContainer( ): currentJulianDay_( TUDAT_NAN ), nearestJulianDay_( TUDAT_NAN ) { }
+    SolarActivityContainer( ): currentJulianDay_( TUDAT_NAN ), nearestJulianDay_( TUDAT_NAN ) {}
 
     SolarActivityContainer( const std::map< double, SolarActivityDataPtr >& solarActivityDataMap ):
         solarActivityDataMap_( solarActivityDataMap ), currentJulianDay_( TUDAT_NAN ), nearestJulianDay_( TUDAT_NAN )

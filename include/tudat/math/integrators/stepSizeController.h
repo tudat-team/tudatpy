@@ -41,9 +41,9 @@ class IntegratorStepSizeValidator
 public:
     IntegratorStepSizeValidator( const bool acceptInfinityStep = false, const bool acceptNanStep = false ):
         acceptInfinityStep_( acceptInfinityStep ), acceptNanStep_( acceptNanStep )
-    { }
+    {}
 
-    virtual ~IntegratorStepSizeValidator( ) { }
+    virtual ~IntegratorStepSizeValidator( ) {}
 
     virtual std::pair< TimeStepType, bool > validateStep( const std::pair< TimeStepType, bool > recommendedStep,
                                                           const double currentStep ) = 0;
@@ -83,9 +83,9 @@ public:
             const bool acceptNanStep = false ):
         IntegratorStepSizeValidator< TimeStepType >( acceptInfinityStep, acceptNanStep ), minimumStep_( minimumStep ),
         maximumStep_( maximumStep ), minimumIntegrationTimeStepHandling_( minimumIntegrationTimeStepHandling )
-    { }
+    {}
 
-    virtual ~BasicIntegratorStepSizeValidator( ) { }
+    virtual ~BasicIntegratorStepSizeValidator( ) {}
 
     std::pair< TimeStepType, bool > validateStep( const std::pair< TimeStepType, bool > recommendedStep, const double currentStep )
     {
@@ -172,11 +172,11 @@ public:
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ), integratorOrder_( static_cast< double >( integratorOrder ) ),
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
         maximumFactorDecreaseForNextStepSize_( maximumFactorDecreaseForNextStepSize )
-    { }
+    {}
 
-    virtual ~IntegratorStepSizeController( ) { }
+    virtual ~IntegratorStepSizeController( ) {}
 
-    virtual void initialize( const StateType& state ) { }
+    virtual void initialize( const StateType& state ) {}
 
     virtual std::pair< TimeStepType, bool > computeNewStepSize( const StateType& firstStateEstimate,
                                                                 const StateType& secondStateEstimate,
@@ -230,7 +230,7 @@ public:
                                                                  minimumFactorDecreaseForNextStepSize,
                                                                  maximumFactorDecreaseForNextStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ), tolerancesSet_( true )
-    { }
+    {}
 
     PerElementIntegratorStepSizeController( const double relativeErrorTolerance,
                                             const double absoluteErrorTolerance,
@@ -244,9 +244,9 @@ public:
                                                                  maximumFactorDecreaseForNextStepSize ),
         scalarRelativeErrorTolerance_( relativeErrorTolerance ), scalarAbsoluteErrorTolerance_( absoluteErrorTolerance ),
         tolerancesSet_( false )
-    { }
+    {}
 
-    virtual ~PerElementIntegratorStepSizeController( ) { }
+    virtual ~PerElementIntegratorStepSizeController( ) {}
 
     void initialize( const StateType& state )
     {
@@ -321,7 +321,7 @@ public:
                                                                  maximumFactorDecreaseForNextStepSize ),
         blocksToCheckFunction_( blocksToCheckFunction ), relativeErrorTolerance_( relativeErrorTolerance ),
         absoluteErrorTolerance_( absoluteErrorTolerance ), tolerancesSet_( true )
-    { }
+    {}
 
     PerBlockIntegratorStepSizeController(
             const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) > blocksToCheckFunction,
@@ -337,7 +337,7 @@ public:
                                                                  maximumFactorDecreaseForNextStepSize ),
         blocksToCheckFunction_( blocksToCheckFunction ), scalarRelativeErrorTolerance_( relativeErrorTolerance ),
         scalarAbsoluteErrorTolerance_( absoluteErrorTolerance ), tolerancesSet_( false )
-    { }
+    {}
 
     void initialize( const StateType& state )
     {
@@ -397,7 +397,7 @@ public:
         }
     }
 
-    virtual ~PerBlockIntegratorStepSizeController( ) { }
+    virtual ~PerBlockIntegratorStepSizeController( ) {}
 
     std::pair< TimeStepType, bool > computeNewStepSize( const StateType& firstStateEstimate,
                                                         const StateType& secondStateEstimate,
@@ -468,9 +468,9 @@ public:
                                                                  minimumFactorDecreaseForNextStepSize,
                                                                  maximumFactorDecreaseForNextStepSize ),
         customErrorFunction_( customErrorFunction )
-    { }
+    {}
 
-    virtual ~CustomIntegratorStepSizeController( ) { }
+    virtual ~CustomIntegratorStepSizeController( ) {}
 
     std::pair< TimeStepType, bool > computeNewStepSize( const StateType& firstStateEstimate,
                                                         const StateType& secondStateEstimate,

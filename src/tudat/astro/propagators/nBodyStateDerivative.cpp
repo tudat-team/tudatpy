@@ -9,6 +9,8 @@
  */
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
+#include "tudat/astro/gravitation/polyhedronGravityModel.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 
 namespace tudat
 {

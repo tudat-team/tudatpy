@@ -17,6 +17,8 @@
 
 #include "scalarTypes.h"
 #include "expose_exceptions.h"
+#include "spice_exceptions/expose_spice_exceptions.h"
+
 #include <tudat/basics/tudatExceptions.h>
 #include <tudat/interface/spice/spiceException.h>
 

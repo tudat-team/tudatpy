@@ -33,25 +33,25 @@ std::shared_ptr< propagators::SingleArcSimulationResults<> > createAndRunSimulat
                                                                                      const Eigen::VectorXd& );
 
 struct Settings {
-    std::string id{ };
-    std::string saveDir{ };
-    std::string simulationStart{ };
-    double simulationDuration{ };
-    double simulationStartEpoch{ };
-    double simulationEndEpoch{ };
-    double printInterval{ };
-    std::string targetType{ };
-    bool withInstantaneousReradiation{ };
-    bool useOccultation{ };
-    bool useSolarRadiation{ };
-    bool useMoonRadiation{ };
-    std::string panelingMoon{ };
-    std::string albedoDistributionMoon{ };
-    unsigned int numberOfPanelsMoon{ };
-    std::vector< int > numberOfPanelsPerRingMoon{ };
-    std::string thermalTypeMoon{ };
-    double stepSize{ };
-    bool saveResults{ };
+    std::string id{};
+    std::string saveDir{};
+    std::string simulationStart{};
+    double simulationDuration{};
+    double simulationStartEpoch{};
+    double simulationEndEpoch{};
+    double printInterval{};
+    std::string targetType{};
+    bool withInstantaneousReradiation{};
+    bool useOccultation{};
+    bool useSolarRadiation{};
+    bool useMoonRadiation{};
+    std::string panelingMoon{};
+    std::string albedoDistributionMoon{};
+    unsigned int numberOfPanelsMoon{};
+    std::vector< int > numberOfPanelsPerRingMoon{};
+    std::string thermalTypeMoon{};
+    double stepSize{};
+    bool saveResults{};
 };
 
 Settings loadSettings( char* path )

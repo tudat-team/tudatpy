@@ -8,18 +8,25 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <thread>
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
 
 namespace tudat
@@ -85,14 +92,10 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Vehicle",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -102,8 +105,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -145,7 +147,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    double( initialEphemerisTime ), 90.0, CoefficientSets::rungeKuttaFehlberg78, 90.0, 90.0, 1.0, 1.0 );
+                    90.0, CoefficientSets::rungeKuttaFehlberg78, 90.0, 90.0, 1.0, 1.0 );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
@@ -213,7 +215,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Test whether arc-wise coefficients are correctly used.
     double testDragCoefficient = 0.0;
     double testRadiationPressureCoefficient = 0.0;
-    for( auto variableIterator: dependentVariableData )
+    for( auto variableIterator : dependentVariableData )
     {
         double currentTime = variableIterator.first;
 

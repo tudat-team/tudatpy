@@ -92,6 +92,16 @@ Eigen::Quaterniond getQuaternionFrom313EulerAngles( const Eigen::Vector3d& euler
                                -cosineHalfTheta * std::sin( ( eulerAngles( 0 ) + eulerAngles( 2 ) ) / 2.0 ) );
 }
 
+//! Get quaternion from associated 3-2-1 Euler angles
+Eigen::Quaterniond getQuaternionFrom321EulerAngles( const Eigen::Vector3d& eulerAngles )
+{
+    Eigen::Quaterniond roll = Eigen::Quaterniond( Eigen::AngleAxisd( -eulerAngles( 0 ), Eigen::Vector3d::UnitX( ) ) );
+    Eigen::Quaterniond pitch = Eigen::Quaterniond( Eigen::AngleAxisd( -eulerAngles( 1 ), Eigen::Vector3d::UnitY( ) ) );
+    Eigen::Quaterniond yaw = Eigen::Quaterniond( Eigen::AngleAxisd( -eulerAngles( 2 ), Eigen::Vector3d::UnitZ( ) ) );
+
+    return roll * pitch * yaw;
+}
+
 //! Get classical 1-3-2 Euler angles set from rotation matrix
 Eigen::Vector3d get132EulerAnglesFromRotationMatrix( const Eigen::Matrix3d& rotationMatrix )
 {

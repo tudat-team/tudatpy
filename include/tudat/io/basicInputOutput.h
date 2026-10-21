@@ -18,6 +18,7 @@
 #define TUDAT_BASIC_INPUT_OUTPUT_H
 
 #include <fstream>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -27,8 +28,6 @@
 #include <utility>
 
 #include <Eigen/Core>
-
-#include <boost/filesystem.hpp>
 
 #include <tudat/io/streamFilters.h>
 
@@ -115,6 +114,11 @@ static inline std::string getStationLocationDataPath( )
     return std::string( get_resource_path( ) ) + "/station_locations";
 }
 
+static inline std::string getNeQuick2DataPath( )
+{
+    return std::string( get_resource_path( ) ) + "/ionosphere/nequick2";
+}
+
 }  // namespace paths
 
 namespace input_output
@@ -145,10 +149,10 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
  * \param directory Absolute directory path.
  * \param isRecurseIntoSubdirectories Flag to set if algorithm should recurse
  * through subdirectories. Set to false by default. \return Container of
- * filenames in directory, stored as Boost path variables.
+ * filenames in directory, stored as filesystem paths.
  */
-std::vector< boost::filesystem::path > listAllFilesInDirectory( const boost::filesystem::path &directory,
-                                                                const bool isRecurseIntoSubdirectories = false );
+std::vector< std::filesystem::path > listAllFilesInDirectory( const std::filesystem::path& directory,
+                                                              const bool isRecurseIntoSubdirectories = false );
 
 //! Write a value to a stream.
 /*!
@@ -161,7 +165,7 @@ std::vector< boost::filesystem::path > listAllFilesInDirectory( const boost::fil
  * with. \param delimiter Delimiter to precede the value.
  */
 template< typename OutputStream, typename ValueType >
-void writeValueToStream( OutputStream &stream, const ValueType &value, const int precision, const std::string &delimiter )
+void writeValueToStream( OutputStream& stream, const ValueType& value, const int precision, const std::string& delimiter )
 {
     stream << delimiter << " " << std::setprecision( precision ) << std::left << std::setw( precision + 1 ) << value << std::endl;
 }
@@ -184,10 +188,10 @@ void writeValueToStream( OutputStream &stream, const ValueType &value, const int
  * whether a new line is to be started after each row of the matrix
  */
 template< typename OutputStream, typename ScalarType, int NumberOfRows, int NumberOfColumns, int Options, int MaximumRows, int MaximumCols >
-void writeValueToStream( OutputStream &stream,
-                         const Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns, Options, MaximumRows, MaximumCols > &value,
+void writeValueToStream( OutputStream& stream,
+                         const Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns, Options, MaximumRows, MaximumCols >& value,
                          const int precision,
-                         const std::string &delimiter,
+                         const std::string& delimiter,
                          const bool endLineAfterRow = 0 )
 {
     for( int i = 0; i < value.rows( ); i++ )
@@ -240,17 +244,17 @@ std::string toStringWithPrecision( const ValueType valueToBeConverted, const int
 template< typename InputIterator >
 void writeDataMapToTextFile( InputIterator iteratorDataMap,
                              InputIterator last,
-                             const std::string &outputFilename,
-                             const boost::filesystem::path &outputDirectory,
-                             const std::string &fileHeader,
+                             const std::string& outputFilename,
+                             const std::filesystem::path& outputDirectory,
+                             const std::string& fileHeader,
                              const int precisionOfKeyType,
                              const int precisionOfValueType,
-                             const std::string &delimiter )
+                             const std::string& delimiter )
 {
     // Check if output directory exists; create it if it doesn't.
-    if( !boost::filesystem::exists( outputDirectory ) )
+    if( !std::filesystem::exists( outputDirectory ) )
     {
-        boost::filesystem::create_directories( outputDirectory );
+        std::filesystem::create_directories( outputDirectory );
     }
 
     // Open output file.
@@ -290,13 +294,13 @@ void writeDataMapToTextFile( InputIterator iteratorDataMap,
  * delimit data entries in file.
  */
 template< typename KeyType, typename ValueType >
-void writeDataMapToTextFile( const std::map< KeyType, ValueType > &dataMap,
-                             const std::string &outputFilename,
-                             const boost::filesystem::path &outputDirectory,
-                             const std::string &fileHeader = "",
+void writeDataMapToTextFile( const std::map< KeyType, ValueType >& dataMap,
+                             const std::string& outputFilename,
+                             const std::filesystem::path& outputDirectory,
+                             const std::string& fileHeader = "",
                              const int precisionOfKeyType = 16,
                              const int precisionOfValueType = 16,
-                             const std::string &delimiter = "\t" )
+                             const std::string& delimiter = "\t" )
 {
     writeDataMapToTextFile( dataMap.begin( ),
                             dataMap.end( ),
@@ -321,7 +325,7 @@ void writeDataMapToTextFile( const std::map< KeyType, ValueType > &dataMap,
  * outputFilename Output filename.
  */
 template< typename InputIterator >
-void writeDataMapToTextFile( InputIterator first, InputIterator last, const std::string &outputFilename )
+void writeDataMapToTextFile( InputIterator first, InputIterator last, const std::string& outputFilename )
 {
     writeDataMapToTextFile( first,
                             last,
@@ -342,7 +346,7 @@ void writeDataMapToTextFile( InputIterator first, InputIterator last, const std:
  * with data. \param outputFilename Output filename.
  */
 template< typename KeyType, typename ValueType >
-void writeDataMapToTextFile( const std::map< KeyType, ValueType > &dataMap, const std::string &outputFilename )
+void writeDataMapToTextFile( const std::map< KeyType, ValueType >& dataMap, const std::string& outputFilename )
 {
     return writeDataMapToTextFile( dataMap.begin( ),
                                    dataMap.end( ),
@@ -370,8 +374,8 @@ void writeDataMapToTextFile( const std::map< KeyType, ValueType > &dataMap, cons
  */
 template< typename KeyType, typename ScalarType, int NumberOfRows, int NumberOfColumns, int Options, int MaximumRows, int MaximumCols >
 void writeDataMapToTextFile(
-        const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns, Options, MaximumRows, MaximumCols > > &dataMap,
-        const std::string &outputFilename )
+        const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns, Options, MaximumRows, MaximumCols > >& dataMap,
+        const std::string& outputFilename )
 {
     return writeDataMapToTextFile( dataMap.begin( ),
                                    dataMap.end( ),
@@ -396,9 +400,9 @@ void writeDataMapToTextFile(
  * of significant digits of KeyType-data and ValueType-data to output.
  */
 template< typename KeyType, typename ValueType >
-void writeDataMapToTextFile( const std::map< KeyType, ValueType > &dataMap,
-                             const boost::filesystem::path &outputPath,
-                             const std::string &fileHeader,
+void writeDataMapToTextFile( const std::map< KeyType, ValueType >& dataMap,
+                             const std::filesystem::path& outputPath,
+                             const std::string& fileHeader,
                              const int precision )
 {
     writeDataMapToTextFile( dataMap.begin( ),
@@ -426,16 +430,16 @@ void writeDataMapToTextFile( const std::map< KeyType, ValueType > &dataMap,
  */
 template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
 void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
-                        const std::string &outputFilename,
+                        const std::string& outputFilename,
                         const int precisionOfMatrixEntries = 16,
-                        const boost::filesystem::path &outputDirectory = get_tudat_path( ),
-                        const std::string &delimiter = "\t",
-                        const std::string &header = "" )
+                        const std::filesystem::path& outputDirectory = get_tudat_path( ),
+                        const std::string& delimiter = "\t",
+                        const std::string& header = "" )
 {
     // Check if output directory exists; create it if it doesn't.
-    if( !boost::filesystem::exists( outputDirectory ) )
+    if( !std::filesystem::exists( outputDirectory ) )
     {
-        boost::filesystem::create_directories( outputDirectory );
+        std::filesystem::create_directories( outputDirectory );
     }
 
     // Open output file.
@@ -463,10 +467,10 @@ void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns
  * well. It will be created if it does not exist.
  * \param delimiter Delimiter character, to delimit data entries in file.
  */
-void writeIdMapToTextFile( const std::map< std::pair< int, int >, std::string > &idMap,
-                           const std::string &outputFilename,
-                           const boost::filesystem::path &outputDirectory,
-                           const std::string &delimiter = "\t" );
+void writeIdMapToTextFile( const std::map< std::pair< int, int >, std::string >& idMap,
+                           const std::string& outputFilename,
+                           const std::filesystem::path& outputDirectory,
+                           const std::string& delimiter = "\t" );
 
 //! Typedef for double-KeyType, double-ValueType map.
 /*!

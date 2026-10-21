@@ -37,7 +37,7 @@ public:
      * Default constructor that defines the state derivative for a given CRTBP system.
      * \param aMassParameter A value for mass parameter of CRTBP.
      */
-    StateDerivativeCircularRestrictedThreeBodyProblem( const double aMassParameter ): massParameter( aMassParameter ) { }
+    StateDerivativeCircularRestrictedThreeBodyProblem( const double aMassParameter ): massParameter( aMassParameter ) {}
 
     //! Compute state derivative.
     /*!

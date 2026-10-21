@@ -23,18 +23,38 @@ class CustomAccelerationModel : public basic_astrodynamics::AccelerationModel3d
 public:
     CustomAccelerationModel( const std::function< Eigen::Vector3d( const double ) > accelerationFunction ):
         accelerationFunction_( accelerationFunction )
-    { }
+    {}
 
     virtual void updateMembers( const double currentTime = TUDAT_NAN )
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-            currentAcceleration_ = accelerationFunction_( currentTime );
+            if( isUpdating_ )
+            {
+                throw std::runtime_error(
+                        "Recursive update detected in custom acceleration model. Check for self-dependencies or circular acceleration "
+                        "dependencies." );
+            }
+
+            isUpdating_ = true;
+            try
+            {
+                currentAcceleration_ = accelerationFunction_( currentTime );
+                this->currentTime_ = currentTime;
+                isUpdating_ = false;
+            }
+            catch( ... )
+            {
+                isUpdating_ = false;
+                throw;
+            }
         }
     }
 
 private:
     std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
+
+    bool isUpdating_ = false;
 };
 
 }  // namespace basic_astrodynamics

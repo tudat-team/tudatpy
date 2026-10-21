@@ -2,18 +2,12 @@
 
 ``estimation_analysis``
 ========================
-This module contains the functionality for managing the inputs and outputs of an estimation.
 
+This module contains the top-level functionality for performing a covariance analysis or state/parameter estimation in Tudat. The class through which these procedures are performed is the :class:`~tudatpy.estimation.estimation_analysis.Estimator` class, with dedicated classes for input and output for both a covariance analysis and estimation (:class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput`, :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput`, :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`, :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`). The procedure for state estimation is described in detail on a `series of user guide pages <https://docs.tudat.space/en/latest/user-guide/state-estimation.html>`_, with the final step of using the ``Estimator`` class described `here <https://docs.tudat.space/en/latest/user-guide/state-estimation/estimation-settings.html>`_.
 
+In addition to functionality to perform and support the estimation, this module also contains functionality to propagate the covariance that is obtained at the initial epoch :math:`t_{0}` to any other epoch (see :func:`tudatpy.estimation.estimation_analysis.propagate_covariance`).
 
-
-
-
-
-
-
-
-
+Finally, this module also contains functions of convenience to perform the estimation of state and parameters based on pseudo-observations using the :func:`~tudatpy.estimation.estimation_analysis.create_best_fit_to_ephemeris` function.
 
 Functions
 ---------
@@ -23,41 +17,50 @@ Functions
 
    propagate_covariance
 
-   propagate_covariance_split_output
-
-   propagate_covariance_rsw_split_output
+   propagate_covariance_from_analysis_objects
 
    propagate_formal_errors
 
-   propagate_formal_errors_split_output
-
-   propagate_formal_errors_rsw_split_output
-
    estimation_convergence_checker
 
+   create_covariance_from_diagonal_entries
+
+   add_covariance_diagonal_entries
+
    create_best_fit_to_ephemeris
+
+   full_state_continuity
+
+   position_only_continuity
+
+   velocity_only_continuity
+
+   general_continuity
+
 
 
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance
 
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_split_output
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_rsw_split_output
+.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_from_analysis_objects
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors
 
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors_split_output
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors_rsw_split_output
-
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.add_covariance_diagonal_entries
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_best_fit_to_ephemeris
 
+.. autofunction:: tudatpy.estimation.estimation_analysis.full_state_continuity
 
+.. autofunction:: tudatpy.estimation.estimation_analysis.position_only_continuity
 
+.. autofunction:: tudatpy.estimation.estimation_analysis.velocity_only_continuity
 
+.. autofunction:: tudatpy.estimation.estimation_analysis.general_continuity
 
 Classes
 -------
@@ -77,16 +80,20 @@ Classes
 
    EstimationConvergenceChecker
 
+   InterArcStateContinuityConstraintSettings
+
 
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 
@@ -105,3 +112,5 @@ Classes
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker
    :members:
 
+.. autoclass:: tudatpy.estimation.estimation_analysis.InterArcStateContinuityConstraintSettings
+   :members:

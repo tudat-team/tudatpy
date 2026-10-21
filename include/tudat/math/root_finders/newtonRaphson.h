@@ -55,7 +55,7 @@ public:
      *  \param terminationFunction The function specifying the termination conditions of the
      *  root-finding process \sa RootFinderCore::terminationFunction
      */
-    NewtonRaphson( TerminationFunction terminationFunction ): RootFinder< DataType >( terminationFunction ) { }
+    NewtonRaphson( TerminationFunction terminationFunction ): RootFinder< DataType >( terminationFunction ) {}
 
     //! Constructor taking typical convergence criteria.
     /*!
@@ -69,13 +69,13 @@ public:
      */
     NewtonRaphson( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations ):
         RootFinder< DataType >( createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~NewtonRaphson( ) { }
+    ~NewtonRaphson( ) {}
 
     //! Find a root of the function provided as input.
     /*!

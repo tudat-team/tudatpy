@@ -3,12 +3,11 @@
 
 #include <vector>
 #include <map>
-
-#include <boost/shared_ptr.hpp>
+#include <iostream>
+#include <stdexcept>
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -37,7 +36,7 @@ std::map< int, std::shared_ptr< TimingPartial > > createTimingPartialWrtClockPro
          linkEndIterator++ )
     {
         if( ( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first ) &&
-            ( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second ) )
+            ( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second ) )
         {
             for( unsigned int j = 0; j < clockInducedBiases.size( ); j++ )
             {

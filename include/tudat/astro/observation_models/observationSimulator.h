@@ -39,10 +39,10 @@ public:
      * Constructor
      * \param observableType Type of observable for which this object computes observations.
      */
-    ObservationSimulatorBase( const ObservableType observableType ): observableType_( observableType ) { }
+    ObservationSimulatorBase( const ObservableType observableType ): observableType_( observableType ) {}
 
     //! Destructor
-    virtual ~ObservationSimulatorBase( ) { }
+    virtual ~ObservationSimulatorBase( ) {}
 
     //! Function to get the type of observable for which this object computes observations
     /*!
@@ -61,12 +61,19 @@ public:
      */
     virtual int getObservationSize( ) = 0;
 
-    virtual void computeObservations(
-            const std::vector< TimeType >& times,
-            const LinkEnds linkEnds,
-            const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
+    //! Function to retrieve residual wrapping settings for the model with the specified link ends.
+    /*!
+     * Function to retrieve residual wrapping settings for the model with the specified link ends.
+     * \param linkEnds Link ends identifying the observation model.
+     * \return Residual wrapping settings for the observation model.
+     */
+    virtual ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& linkEnds ) = 0;
+
+    virtual void computeObservations( const std::vector< TimeType >& times,
+                                      const LinkEnds linkEnds,
+                                      const LinkEndType linkEndAssociatedWithTime,
+                                      const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+                                      Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
 
 protected:
     //! Type of observable for which this object computes observations
@@ -90,19 +97,24 @@ public:
             const std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >&
                     observationModels ):
         ObservationSimulatorBase< ObservationScalarType, TimeType >( observableType ), observationModels_( observationModels )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~ObservationSimulator( ) { }
+    virtual ~ObservationSimulator( ) {}
 
     //! Function to get the size of the observable for a given set of link ends
     /*!
      * Function to get the size of the observable for a given set of link ends
      * \return Size of the observable for a given set of link ends
      */
-    int getObservationSize( )
+    int getObservationSize( ) override
     {
         return observationModels_.begin( )->second->getObservationSize( );
+    }
+
+    ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& linkEnds ) override
+    {
+        return getObservationModel( linkEnds )->getResidualWrappingSettings( );
     }
 
     //! Function to get the observation model for a given set of link ends
@@ -137,8 +149,8 @@ public:
     void computeObservations( const std::vector< TimeType >& times,
                               const LinkEnds linkEnds,
                               const LinkEndType linkEndAssociatedWithTime,
-                              const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
-                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
+                              const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) override
     {
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
@@ -162,7 +174,7 @@ public:
 
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                    times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                    times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancillarySettings );
             TimeType saveTime = times[ i ];
             while( observations.count( saveTime ) != 0 )
             {

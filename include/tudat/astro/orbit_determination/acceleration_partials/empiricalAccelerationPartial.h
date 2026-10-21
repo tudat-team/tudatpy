@@ -12,7 +12,6 @@
 #define TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 #include <memory>
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
@@ -42,7 +41,6 @@ Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState( co
 class EmpiricalAccelerationPartial : public AccelerationPartial
 {
 public:
-
     EmpiricalAccelerationPartial( std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
                                   std::string acceleratedBody,
                                   std::string acceleratingBody ):
@@ -162,7 +160,6 @@ public:
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         return std::make_pair( partialFunction, 0 );
     }
-
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!

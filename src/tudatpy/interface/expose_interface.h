@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -19,7 +19,7 @@ namespace tudatpy
 {
 namespace interface
 {
-void expose_interface( py::module &m );
+void expose_interface( py::module& m );
 }  // namespace interface
 }  // namespace tudatpy
 

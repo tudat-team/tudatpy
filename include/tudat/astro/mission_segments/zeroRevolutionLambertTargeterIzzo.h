@@ -84,7 +84,7 @@ public:
         LambertTargeter( aCartesianPositionAtDeparture, aCartesianPositionAtArrival, aTimeOfFlight, aGravitationalParameter ),
         isRetrograde( aIsRetrograde ), convergenceTolerance( aConvergenceTolerance ),
         maximumNumberOfIterations( aMaximumNumberOfIterations ), transformed( false )
-    { }
+    {}
 
     //! Get radial velocity at departure.
     /*!

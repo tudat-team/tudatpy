@@ -11,6 +11,7 @@
 #ifndef TUDAT_MASSRATEPARTIAL_H
 #define TUDAT_MASSRATEPARTIAL_H
 
+#include "tudat/astro/propulsion/massRateFromThrust.h"
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
 
 namespace tudat
@@ -24,10 +25,10 @@ class MassRatePartial : public StateDerivativePartial
 public:
     MassRatePartial( const std::string& body, const basic_astrodynamics::AvailableMassRateModels massRateType ):
         StateDerivativePartial( propagators::body_mass_state, std::make_pair( body, "" ) ), body_( body ), massRateType_( massRateType )
-    { }
+    {}
 
     //! Virtual destructor.
-    virtual ~MassRatePartial( ) { }
+    virtual ~MassRatePartial( ) {}
 
     std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
@@ -95,11 +96,11 @@ public:
         return partialFunction;
     }
 
-    virtual void wrtMassOfBody( Eigen::Block< Eigen::MatrixXd > partialMatrix ) { }
+    virtual void wrtMassOfBody( Eigen::Block< Eigen::MatrixXd > partialMatrix ) {}
 
-    virtual void wrtTranslationalStateOfBody( Eigen::Block< Eigen::MatrixXd > partialMatrix ) { }
+    virtual void wrtTranslationalStateOfBody( Eigen::Block< Eigen::MatrixXd > partialMatrix ) {}
 
-    virtual void wrtTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix, const std::string& bodyName ) { }
+    virtual void wrtTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix, const std::string& bodyName ) {}
 
     virtual bool isMassRatePartialWrtMassNonZero( ) = 0;
 

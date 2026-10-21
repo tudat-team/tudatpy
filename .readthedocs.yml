@@ -16,6 +16,8 @@ build:
   tools:
     python: "miniconda-latest"
   jobs:
+    post_create_environment:
+      - conda list
     pre_install:
       - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo Downloading $LATEST_TAG ;
        wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip; unzip $LATEST_TAG.zip; rm -rf docs/; LT=$(echo $LATEST_TAG | cut -c 2-); mv tudatpy-$LT/docs/ .

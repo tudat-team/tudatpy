@@ -42,6 +42,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case radiation_pressure_coefficient:
             parameterDescription = "radiation pressure coefficient ";
             break;
+        case three_coefficient_radiation_pressure_coefficients:
+            parameterDescription = "three-coefficient radiation-pressure areas ";
+            break;
         case arc_wise_radiation_pressure_coefficient:
             parameterDescription = "arc-wise radiation pressure coefficient ";
             break;
@@ -59,6 +62,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             break;
         case rotation_pole_position:
             parameterDescription = "pole position ";
+            break;
+        case shared_observation_bias:
+            parameterDescription = "shared observation bias ";
             break;
         case constant_additive_observation_bias:
             parameterDescription = "absolute observation bias ";
@@ -171,6 +177,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case diffuse_reflectivity:
             parameterDescription = " diffuse reflectivity for panel group ";
             break;
+        case energy_accommodation_coefficient:
+            parameterDescription = " energy accommodation coefficient for panel group ";
+            break;
+        case normal_accommodation_coefficient:
+            parameterDescription = " normal accommodation coefficient for panel group ";
+            break;
+        case tangential_accommodation_coefficient:
+            parameterDescription = " tangential accommodation coefficient for panel group ";
+            break;
+        case normal_velocity_at_wall_ratio:
+            parameterDescription = " normal velocity at wall ratio for panel group ";
+            break;
         case mode_coupled_tidal_love_numbers:
             parameterDescription = " Mode-coupled tidal Love numbers";
             break;
@@ -183,6 +201,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_longitudinal_libration_terms:
             parameterDescription = "longitudinal libration terms ";
             break;
+        case rotation_pole_libration_terms:
+            parameterDescription = "rotation pole libration terms ";
+            break;
         case drag_component_scaling_factor:
             parameterDescription = "drag component scaling factor ";
             break;
@@ -192,17 +213,38 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case lift_component_scaling_factor:
             parameterDescription = "lift component scaling factor ";
             break;
+        case arc_wise_drag_component_scaling_factor:
+            parameterDescription = "arc-wise drag component scaling factor ";
+            break;
+        case arc_wise_side_component_scaling_factor:
+            parameterDescription = "arc-wise side component scaling factor ";
+            break;
+        case arc_wise_lift_component_scaling_factor:
+            parameterDescription = "arc-wise lift component scaling factor ";
+            break;
         case rtg_force_vector:
             parameterDescription = "force vector from anisotropic RTG radiation in body-fixed frame ";
             break;
         case rtg_force_vector_magnitude:
             parameterDescription = "magnitude of force vector from anisotropic RTG radiation ";
-        break;
+            break;
         case area_to_mass_scaling_factor:
             parameterDescription = "area-to-mass scaling factor ";
             break;
         case full_acceleration_scaling_factor:
             parameterDescription = "full acceleration scaling factor ";
+            break;
+        case exponential_atmosphere_base_density:
+            parameterDescription = "base density of exponential atmosphere model ";
+            break;
+        case exponential_atmosphere_scale_height:
+            parameterDescription = "scale height of exponential atmosphere model ";
+            break;
+        case arc_wise_exponential_atmosphere_base_density:
+            parameterDescription = "arc-wise base density of exponential atmosphere model ";
+            break;
+        case arc_wise_exponential_atmosphere_scale_height:
+            parameterDescription = "arc-wise scale height of exponential atmosphere model ";
             break;
         default:
             std::string errorMessage =
@@ -252,6 +294,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case radiation_pressure_coefficient:
             isDoubleParameter = true;
             break;
+        case three_coefficient_radiation_pressure_coefficients:
+            isDoubleParameter = false;
+            break;
         case arc_wise_radiation_pressure_coefficient:
             isDoubleParameter = false;
             break;
@@ -270,6 +315,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_pole_position:
             isDoubleParameter = false;
             break;
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             isDoubleParameter = false;
             break;
@@ -384,6 +430,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case diffuse_reflectivity:
             isDoubleParameter = true;
             break;
+        case energy_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case normal_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case tangential_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case normal_velocity_at_wall_ratio:
+            isDoubleParameter = true;
+            break;
         case mode_coupled_tidal_love_numbers:
             isDoubleParameter = false;
             break;
@@ -396,14 +454,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_longitudinal_libration_terms:
             isDoubleParameter = false;
             break;
+        case rotation_pole_libration_terms:
+            isDoubleParameter = false;
+            break;
         case drag_component_scaling_factor:
-            isDoubleParameter = true;
-            break;
         case side_component_scaling_factor:
-            isDoubleParameter = true;
-            break;
         case lift_component_scaling_factor:
             isDoubleParameter = true;
+            break;
+        case arc_wise_drag_component_scaling_factor:
+        case arc_wise_side_component_scaling_factor:
+        case arc_wise_lift_component_scaling_factor:
+            isDoubleParameter = false;
             break;
         case rtg_force_vector:
             isDoubleParameter = false;
@@ -416,6 +478,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case full_acceleration_scaling_factor:
             isDoubleParameter = true;
+            break;
+        case exponential_atmosphere_base_density:
+            isDoubleParameter = true;
+            break;
+        case exponential_atmosphere_scale_height:
+            isDoubleParameter = true;
+            break;
+        case arc_wise_exponential_atmosphere_base_density:
+            isDoubleParameter = false;
+            break;
+        case arc_wise_exponential_atmosphere_scale_height:
+            isDoubleParameter = false;
             break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
@@ -463,6 +537,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         case rotation_longitudinal_libration_terms:
             flag = true;
             break;
+        case rotation_pole_libration_terms:
+            flag = true;
+            break;
         default:
             flag = false;
             break;
@@ -476,6 +553,7 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     bool flag;
     switch( parameterType )
     {
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             flag = true;
             break;

@@ -14,13 +14,12 @@
  *          Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <memory>
 #include <tuple>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 
 #include "tudat/math/basic/rotationRepresentations.h"
@@ -36,7 +35,8 @@
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
@@ -49,6 +49,158 @@ using namespace tudat;
 using namespace tudat::electromagnetism;
 
 BOOST_AUTO_TEST_SUITE( test_radiation_pressure_acceleration )
+
+BOOST_AUTO_TEST_CASE( testThreeCoefficientRadiationPressureAccelerationCannonballLimitAndFrameCovariance )
+{
+    Eigen::Vector3d sourcePosition( 2.0e9, -3.0e9, 7.0e8 );
+    Eigen::Vector3d sourceVelocity( 110.0, -75.0, 30.0 );
+    Eigen::Vector3d sourceToReferencePosition( 1.2e11, 8.0e10, -2.0e9 );
+    Eigen::Vector3d sourceToReferenceVelocity( -1.4e4, 2.3e4, 1.1e3 );
+    Eigen::Vector3d referencePosition = sourcePosition + sourceToReferencePosition;
+    Eigen::Vector3d referenceVelocity = sourceVelocity + sourceToReferenceVelocity;
+    Eigen::Vector3d targetPosition = referencePosition;
+
+    const double area = 37.14;
+    const double radiationPressureCoefficient = 1.3;
+    const double targetMass = 5000.0;
+    const Eigen::Vector3d coefficients( -area * radiationPressureCoefficient, 0.0, 0.0 );
+
+    const auto sourceModel = std::make_shared< IsotropicPointRadiationSourceModel >( std::make_shared< ConstantLuminosityModel >(
+            computeLuminosityFromIrradiance( 1361.0, physical_constants::ASTRONOMICAL_UNIT ) ) );
+    const auto sourceShapeModel = std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( 6.96e8 );
+    const auto targetModel = std::make_shared< CannonballRadiationPressureTargetModel >( area, radiationPressureCoefficient );
+    const auto noOccultation = std::make_shared< NoOccultingBodyOccultationModel >( );
+
+    BOOST_CHECK_THROW( ThreeCoefficientRadiationPressureAcceleration(
+                               nullptr,
+                               sourceShapeModel,
+                               [ & ] { return sourcePosition; },
+                               [ & ] { return sourceVelocity; },
+                               targetModel,
+                               [ & ] { return targetPosition; },
+                               [ = ] { return targetMass; },
+                               noOccultation,
+                               [ & ] { return referencePosition; },
+                               [ & ] { return referenceVelocity; },
+                               coefficients,
+                               "Earth" ),
+                       std::runtime_error );
+
+    ThreeCoefficientRadiationPressureAcceleration threeCoefficientModel(
+            sourceModel,
+            sourceShapeModel,
+            [ & ] { return sourcePosition; },
+            [ & ] { return sourceVelocity; },
+            targetModel,
+            [ & ] { return targetPosition; },
+            [ = ] { return targetMass; },
+            noOccultation,
+            [ & ] { return referencePosition; },
+            [ & ] { return referenceVelocity; },
+            coefficients,
+            "Earth" );
+    IsotropicPointSourceRadiationPressureAcceleration cannonballModel(
+            sourceModel,
+            sourceShapeModel,
+            [ & ] { return sourcePosition; },
+            targetModel,
+            [ & ] { return targetPosition; },
+            []( ) { return Eigen::Quaterniond::Identity( ); },
+            [ = ] { return targetMass; },
+            noOccultation );
+
+    sourceModel->updateMembers( 0.0 );
+    targetModel->updateMembers( 0.0 );
+    threeCoefficientModel.updateMembers( 0.0 );
+    cannonballModel.updateMembers( 0.0 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( threeCoefficientModel.getAcceleration( ), cannonballModel.getAcceleration( ), 2.0e-15 );
+    const Eigen::Matrix3d basisInnerProduct =
+            threeCoefficientModel.getCurrentBasis( ).transpose( ) * threeCoefficientModel.getCurrentBasis( );
+    BOOST_CHECK_SMALL( ( basisInnerProduct - Eigen::Matrix3d::Identity( ) ).norm( ), 2.0e-15 );
+
+    const Eigen::Vector3d originalAcceleration = threeCoefficientModel.getAcceleration( );
+    const Eigen::Vector3d translation( -8.0e10, 4.0e9, 3.0e10 );
+    sourcePosition += translation;
+    referencePosition += translation;
+    targetPosition += translation;
+    threeCoefficientModel.updateMembers( 1.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( threeCoefficientModel.getAcceleration( ), originalAcceleration, 2.0e-15 );
+
+    const Eigen::Quaterniond inertialFrameRotation( Eigen::AngleAxisd( 0.73, Eigen::Vector3d( 1.0, -2.0, 0.5 ).normalized( ) ) );
+    sourcePosition = inertialFrameRotation * sourcePosition;
+    sourceVelocity = inertialFrameRotation * sourceVelocity;
+    referencePosition = inertialFrameRotation * referencePosition;
+    referenceVelocity = inertialFrameRotation * referenceVelocity;
+    targetPosition = inertialFrameRotation * targetPosition;
+    threeCoefficientModel.updateMembers( 2.0 );
+    const Eigen::Vector3d rotatedOriginalAcceleration = inertialFrameRotation * originalAcceleration;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( threeCoefficientModel.getAcceleration( ), rotatedOriginalAcceleration, 3.0e-15 );
+}
+
+BOOST_AUTO_TEST_CASE( testThreeCoefficientRadiationPressureReferenceBodySettings )
+{
+    const double area = 37.14;
+    const double radiationPressureCoefficient = 1.3;
+    const Eigen::Vector3d cannonballCoefficients( -area * radiationPressureCoefficient, 0.0, 0.0 );
+
+    const auto vehicle = std::make_shared< simulation_setup::Body >( );
+    const auto earth = std::make_shared< simulation_setup::Body >( );
+    const auto sun = std::make_shared< simulation_setup::Body >( );
+    vehicle->setConstantBodyMass( 2800.0 );
+    sun->setState( ( Eigen::Vector6d( ) << 2.0e9, -3.0e9, 7.0e8, 110.0, -75.0, 30.0 ).finished( ) );
+    earth->setState( ( Eigen::Vector6d( ) << 1.22e11, 7.7e10, -1.3e9, -1.389e4, 2.2925e4, 1.13e3 ).finished( ) );
+    vehicle->setState( ( Eigen::Vector6d( ) << 1.2203e11, 7.704e10, -1.29e9, -1.1e4, 2.5e4, 1.0e3 ).finished( ) );
+
+    const auto sourceModel = std::make_shared< IsotropicPointRadiationSourceModel >(
+            std::make_shared< ConstantLuminosityModel >( computeLuminosityFromIrradiance( 1361.0, physical_constants::ASTRONOMICAL_UNIT ) ),
+            "Sun" );
+    sun->setRadiationSourceModel( sourceModel );
+    sun->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( 6.96e8 ) );
+    const auto targetModel = std::make_shared< CannonballRadiationPressureTargetModel >( area, radiationPressureCoefficient );
+    vehicle->addRadiationPressureTargetModel( targetModel );
+
+    simulation_setup::SystemOfBodies bodies;
+    bodies.addBody( vehicle, "Vehicle" );
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( sun, "Sun" );
+
+    const auto defaultReferenceModel = simulation_setup::createThreeCoefficientRadiationPressureAccelerationModel(
+            vehicle,
+            sun,
+            "Vehicle",
+            "Sun",
+            earth,
+            "Earth",
+            bodies,
+            simulation_setup::threeCoefficientRadiationPressureAcceleration( cannonballCoefficients ) );
+    const auto targetReferenceModel = simulation_setup::createThreeCoefficientRadiationPressureAccelerationModel(
+            vehicle,
+            sun,
+            "Vehicle",
+            "Sun",
+            earth,
+            "Earth",
+            bodies,
+            simulation_setup::threeCoefficientRadiationPressureAcceleration( cannonballCoefficients, "Vehicle" ) );
+    const auto cannonballModel = simulation_setup::createRadiationPressureAccelerationModel( vehicle, sun, "Vehicle", "Sun", bodies );
+
+    sourceModel->updateMembers( 0.0 );
+    targetModel->updateMembers( 0.0 );
+    defaultReferenceModel->updateMembers( 0.0 );
+    targetReferenceModel->updateMembers( 0.0 );
+    cannonballModel->updateMembers( 0.0 );
+
+    BOOST_CHECK_EQUAL( defaultReferenceModel->getReferenceBodyName( ), "Earth" );
+    BOOST_CHECK_EQUAL( targetReferenceModel->getReferenceBodyName( ), "Vehicle" );
+    const Eigen::Vector3d expectedSourceToEarthPosition = earth->getPosition( ) - sun->getPosition( );
+    const Eigen::Vector3d expectedSourceToVehiclePosition = vehicle->getPosition( ) - sun->getPosition( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            defaultReferenceModel->getCurrentSourceToReferencePosition( ), expectedSourceToEarthPosition, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            targetReferenceModel->getCurrentSourceToReferencePosition( ), expectedSourceToVehiclePosition, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( targetReferenceModel->getAcceleration( ), cannonballModel->getAcceleration( ), 2.0e-15 );
+}
 
 //! Test acceleration for idealized GOCE spacecraft (Noomen 2022)
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
@@ -92,11 +244,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
     std::vector< Eigen::Vector3d > actualAccelerations;
 
     // Iterate over arbitrary values for Euler angles
-    for( double x: { 0., 0.984, 2.579, 2 * PI } )
+    for( double x : { 0., 0.984, 2.579, 2 * PI } )
     {
-        for( double y: { 0., 0.743, 1.903, PI } )
+        for( double y : { 0., 0.743, 1.903, PI } )
         {
-            for( double z: { 0., 0.646, 5.634, 2 * PI } )
+            for( double z : { 0., 0.646, 5.634, 2 * PI } )
             {
                 auto rotation = basic_mathematics::getQuaternionFrom313EulerAngles( Eigen::Vector3d( x, y, z ) );
 
@@ -271,7 +423,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
     auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels );
-    for( auto it: panels )
+    for( auto it : panels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }
@@ -391,7 +543,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
 
     for( int testCase = 0; testCase < 4; testCase++ )
     {
-        double inclination{ };
+        double inclination{};
         if( testCase == 0 || testCase == 3 )
         {
             // Put vehicle on circular orbit around the Sun with i = 0 deg
@@ -491,11 +643,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
         std::vector< Eigen::Vector3d > panelSurfaceNormals;
         std::vector< double > specularReflectivities;
         std::vector< double > diffuseReflectivities;
-        for( auto it: panels )
+        for( auto it : panels )
         {
             it->updatePanel( Eigen::Quaterniond::Identity( ) );
         }
-        for( auto& panel: panels )
+        for( auto& panel : panels )
         {
             areas.push_back( panel->getPanelArea( ) );
             panelSurfaceNormals.push_back( panel->getFrameFixedSurfaceNormal( )( ) );
@@ -863,7 +1015,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             // Compute radiation pressure acceleration for different Sun positions.
             Eigen::Vector3d sunCenteredVehiclePosition;
             std::shared_ptr< Ephemeris > vehicleEphemeris = bodies.at( "Vehicle" )->getEphemeris( );
-            for( auto it: panels )
+            for( auto it : panels )
             {
                 it->updatePanel( Eigen::Quaterniond::Identity( ) );
             }
@@ -937,7 +1089,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             auto accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, std::vector< std::string >{ "Vehicle" }, std::vector< std::string >{ "Sun" } );
             auto accelerationModelTimeVaryingPanelSurfaceNormal = accelerationModelMap.at( "Vehicle" ).at( "Sun" ).at( 0 );
-            for( auto it: panels )
+            for( auto it : panels )
             {
                 it->updatePanel( Eigen::Quaterniond::Identity( ) );
             }
@@ -1023,7 +1175,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
     auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( targetPanels, targetPanels );
-    for( auto it: targetPanels )
+    for( auto it : targetPanels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }

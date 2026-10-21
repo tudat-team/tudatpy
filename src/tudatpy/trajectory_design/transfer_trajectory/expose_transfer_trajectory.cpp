@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_transfer_trajectory.h"
 
 #include <pybind11/eigen.h>
@@ -15,10 +17,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
+#include <tudat/simulation/environment_setup/body.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
-#include "tudat/math/root_finders.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
@@ -34,7 +37,7 @@ namespace trajectory_design
 namespace transfer_trajectory
 {
 
-void expose_transfer_trajectory( py::module &m )
+void expose_transfer_trajectory( py::module& m )
 {
     m.attr( "DEFAULT_MINIMUM_PERICENTERS" ) = tms::DEFAULT_MINIMUM_PERICENTERS;
 
@@ -88,13 +91,30 @@ void expose_transfer_trajectory( py::module &m )
             .def( "state_along_trajectory",
                   py::overload_cast< const double >( &tms::TransferLeg::getStateAlongTrajectory ),
                   py::arg( "time_since_leg_beginning" ),
-                  R"doc(No documentation found.)doc" );
+                  R"doc(
 
-    py::class_< tsbm::SphericalShapingLeg,
-                std::shared_ptr< tsbm::SphericalShapingLeg >,
-                tms::TransferLeg >( m,
-                                    "SphericalShapingLeg",
-                                    R"doc(
+         Return the six-component Cartesian state at the requested epoch in seconds since J2000.
+
+         The state uses the same frame origin and inertial orientation as the departure and arrival body ephemerides
+         used to create the leg. For a trajectory created with :func:`~create_transfer_trajectory`, these ephemerides
+         must be centred on the specified ``central_body`` and use a common inertial orientation, such as J2000 or
+         ECLIPJ2000. Position is in metres and velocity is in metres per second.
+
+         Parameters
+         ----------
+         time_since_leg_beginning : float
+             Absolute epoch at which to evaluate the state, in seconds since J2000.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[6, 1]]
+             Cartesian position and velocity in the frame defined above, in metres and metres per second.
+
+      )doc" );
+
+    py::class_< tsbm::SphericalShapingLeg, std::shared_ptr< tsbm::SphericalShapingLeg >, tms::TransferLeg >( m,
+                                                                                                             "SphericalShapingLeg",
+                                                                                                             R"doc(
 
          Class for defining low-thrust spherical-shaping leg.
 
@@ -104,11 +124,9 @@ void expose_transfer_trajectory( py::module &m )
 
       )doc" );
 
-    py::class_< tsbm::HodographicShapingLeg,
-                std::shared_ptr< tsbm::HodographicShapingLeg >,
-                tms::TransferLeg >( m,
-                                    "HodographicShapingLeg",
-                                    R"doc(
+    py::class_< tsbm::HodographicShapingLeg, std::shared_ptr< tsbm::HodographicShapingLeg >, tms::TransferLeg >( m,
+                                                                                                                 "HodographicShapingLeg",
+                                                                                                                 R"doc(
 
          Class for defining low-thrust hodographic-shaping leg.
 
@@ -120,10 +138,9 @@ void expose_transfer_trajectory( py::module &m )
 
       )doc" );
 
-    py::class_< tms::TransferNodeSettings, std::shared_ptr< tms::TransferNodeSettings > >(
-            m,
-            "TransferNodeSettings",
-            R"doc(
+    py::class_< tms::TransferNodeSettings, std::shared_ptr< tms::TransferNodeSettings > >( m,
+                                                                                           "TransferNodeSettings",
+                                                                                           R"doc(
 
          Base class for providing settings for transfer nodes.
 
@@ -136,11 +153,9 @@ void expose_transfer_trajectory( py::module &m )
 
       )doc" );
 
-    py::class_< tms::SwingbyNodeSettings,
-                std::shared_ptr< tms::SwingbyNodeSettings >,
-                tms::TransferNodeSettings >( m,
-                                             "SwingbyNodeSettings",
-                                             R"doc(
+    py::class_< tms::SwingbyNodeSettings, std::shared_ptr< tms::SwingbyNodeSettings >, tms::TransferNodeSettings >( m,
+                                                                                                                    "SwingbyNodeSettings",
+                                                                                                                    R"doc(
 
          Class for defining settings of swingby node.
 
@@ -153,11 +168,10 @@ void expose_transfer_trajectory( py::module &m )
 
       )doc" );
 
-    py::class_< tms::EscapeAndDepartureNodeSettings,
-                std::shared_ptr< tms::EscapeAndDepartureNodeSettings >,
-                tms::TransferNodeSettings >( m,
-                                             "EscapeAndDepartureNodeSettings",
-                                             R"doc(
+    py::class_< tms::EscapeAndDepartureNodeSettings, std::shared_ptr< tms::EscapeAndDepartureNodeSettings >, tms::TransferNodeSettings >(
+            m,
+            "EscapeAndDepartureNodeSettings",
+            R"doc(
 
          Class for defining settings of escape and departure node.
 
@@ -170,11 +184,10 @@ void expose_transfer_trajectory( py::module &m )
 
       )doc" );
 
-    py::class_< tms::CaptureAndInsertionNodeSettings,
-                std::shared_ptr< tms::CaptureAndInsertionNodeSettings >,
-                tms::TransferNodeSettings >( m,
-                                             "CaptureAndInsertionNodeSettings",
-                                             R"doc(
+    py::class_< tms::CaptureAndInsertionNodeSettings, std::shared_ptr< tms::CaptureAndInsertionNodeSettings >, tms::TransferNodeSettings >(
+            m,
+            "CaptureAndInsertionNodeSettings",
+            R"doc(
 
          Class for defining settings of capture and insertion node.
 
@@ -187,10 +200,9 @@ void expose_transfer_trajectory( py::module &m )
 
       )doc" );
 
-    py::class_< tms::TransferLegSettings, std::shared_ptr< tms::TransferLegSettings > >(
-            m,
-            "TransferLegSettings",
-            R"doc(
+    py::class_< tms::TransferLegSettings, std::shared_ptr< tms::TransferLegSettings > >( m,
+                                                                                         "TransferLegSettings",
+                                                                                         R"doc(
 
          Base class for providing settings for transfer legs.
 
@@ -203,18 +215,17 @@ void expose_transfer_trajectory( py::module &m )
       )doc" );
 
     m.def( "mga_settings_unpowered_unperturbed_legs",
-           py::overload_cast< const std::vector< std::string > &,
+           py::overload_cast< const std::vector< std::string >&,
                               const std::pair< double, double >,
                               const std::pair< double, double >,
-                              const std::map< std::string, double > >(
-                   &tms::getMgaTransferTrajectorySettingsWithoutDsm ),
+                              const std::map< std::string, double > >( &tms::getMgaTransferTrajectorySettingsWithoutDsm ),
            py::arg( "body_order" ),
            py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
            py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
            py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
            R"doc(
 
- Function to get the legs and nodes settings of a transfer with just upowered legs.
+ Function to get the legs and nodes settings of a transfer with just unpowered legs.
 
 
  Function determines the legs and nodes settings of a multi-gravity assist transfer trajectory consisting of:
@@ -254,11 +265,10 @@ void expose_transfer_trajectory( py::module &m )
      )doc" );
 
     m.def( "mga_settings_dsm_position_based_legs",
-           py::overload_cast< const std::vector< std::string > &,
+           py::overload_cast< const std::vector< std::string >&,
                               const std::pair< double, double >,
                               const std::pair< double, double >,
-                              const std::map< std::string, double > >(
-                   &tms::getMgaTransferTrajectorySettingsWithPositionBasedDsm ),
+                              const std::map< std::string, double > >( &tms::getMgaTransferTrajectorySettingsWithPositionBasedDsm ),
            py::arg( "body_order" ),
            py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
            py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
@@ -306,11 +316,10 @@ void expose_transfer_trajectory( py::module &m )
      )doc" );
 
     m.def( "mga_settings_dsm_velocity_based_legs",
-           py::overload_cast< const std::vector< std::string > &,
+           py::overload_cast< const std::vector< std::string >&,
                               const std::pair< double, double >,
                               const std::pair< double, double >,
-                              const std::map< std::string, double > >(
-                   &tms::getMgaTransferTrajectorySettingsWithVelocityBasedDsm ),
+                              const std::map< std::string, double > >( &tms::getMgaTransferTrajectorySettingsWithVelocityBasedDsm ),
            py::arg( "body_order" ),
            py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
            py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
@@ -358,15 +367,14 @@ void expose_transfer_trajectory( py::module &m )
      )doc" );
 
     m.def( "mga_settings_spherical_shaping_legs",
-           py::overload_cast< const std::vector< std::string > &,
+           py::overload_cast< const std::vector< std::string >&,
                               const std::shared_ptr< trf::RootFinderSettings >,
                               const std::pair< double, double >,
                               const std::pair< double, double >,
                               const double,
                               const double,
                               const double,
-                              const std::map< std::string, double > >(
-                   &tms::getMgaTransferTrajectorySettingsWithSphericalShapingThrust ),
+                              const std::map< std::string, double > >( &tms::getMgaTransferTrajectorySettingsWithSphericalShapingThrust ),
            py::arg( "body_order" ),
            py::arg( "root_finder_settings" ),
            py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
@@ -433,14 +441,13 @@ void expose_transfer_trajectory( py::module &m )
      )doc" );
 
     m.def( "mga_settings_hodographic_shaping_legs",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::vector< tsbm::HodographicBasisFunctionList > &,
-                              const std::vector< tsbm::HodographicBasisFunctionList > &,
-                              const std::vector< tsbm::HodographicBasisFunctionList > &,
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::vector< tsbm::HodographicBasisFunctionList >&,
+                              const std::vector< tsbm::HodographicBasisFunctionList >&,
+                              const std::vector< tsbm::HodographicBasisFunctionList >&,
                               const std::pair< double, double >,
                               const std::pair< double, double >,
-                              const std::map< std::string, double > >(
-                   &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
+                              const std::map< std::string, double > >( &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
            py::arg( "body_order" ),
            py::arg( "radial_velocity_function_components_per_leg" ),
            py::arg( "normal_velocity_function_components_per_leg" ),
@@ -501,13 +508,12 @@ void expose_transfer_trajectory( py::module &m )
 
     m.def( "mga_settings_hodographic_shaping_legs_with_recommended_"
            "functions",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::vector< double > &,
-                              const std::vector< double > &,
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::vector< double >&,
+                              const std::vector< double >&,
                               const std::pair< double, double >,
                               const std::pair< double, double >,
-                              const std::map< std::string, double > >(
-                   &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
+                              const std::map< std::string, double > >( &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
            py::arg( "body_order" ),
            py::arg( "time_of_flight_per_leg" ),
            py::arg( "number_of_revolutions_per_leg" ),
@@ -565,14 +571,13 @@ void expose_transfer_trajectory( py::module &m )
 
      )doc" );
 
-    py::class_< tms::TransferTrajectory, std::shared_ptr< tms::TransferTrajectory > >(
-            m,
-            "TransferTrajectory",
-            R"doc(
+    py::class_< tms::TransferTrajectory, std::shared_ptr< tms::TransferTrajectory > >( m,
+                                                                                       "TransferTrajectory",
+                                                                                       R"doc(
 
          Class defining a transfer trajectory constituted by transfer legs and nodes.
 
-         Class defining a transfer trajectory constituted by transfer legs and nodes. The object is tipically created using the `create_transfer_trajectory` function.
+         Class defining a transfer trajectory constituted by transfer legs and nodes. The object is typically created using the `create_transfer_trajectory` function.
 
 
 
@@ -615,15 +620,15 @@ void expose_transfer_trajectory( py::module &m )
          ----------
          node_times : list[float]
              List of the time at each node.
-         leg_parameters : list[list[float]]
-             List of lists with the parameters characterizing each leg. Each inner list corresponds to the
-             parameters of one leg; if a leg does not require any parameter, its list can contain any value(s),
-             therefore it is recommended to leave it empty.
+         leg_parameters : list[numpy.ndarray]
+             List of arrays with the parameters characterizing each leg. Each array corresponds to the
+             parameters of one leg; if a leg does not require any parameters, the corresponding array may contain any values,
+             but an empty array is recommended.
 
-         node_parameters : list[list[float]]
-             List of lists with the parameters characterizing each node. Each inner list corresponds to the
-             parameters of one node; if a node does not require any parameter, its list can contain any value(s),
-             therefore it is recommended to leave it empty.
+         node_parameters : list[numpy.ndarray]
+             List of arrays with the parameters characterizing each node. Each array corresponds to the
+             parameters of one node; if a node does not require any parameters, the corresponding array may contain any values,
+             but an empty array is recommended.
 
          Returns
          -------
@@ -680,8 +685,7 @@ void expose_transfer_trajectory( py::module &m )
 
      )doc" )
             .def( "states_along_trajectory",
-                  py::overload_cast< const int >(
-                          &tms::TransferTrajectory::getStatesAlongTrajectory ),
+                  py::overload_cast< const int >( &tms::TransferTrajectory::getStatesAlongTrajectory ),
                   py::arg( "number_of_data_points_per_leg" ),
                   R"doc(
 
@@ -697,8 +701,8 @@ void expose_transfer_trajectory( py::module &m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             State history keyed by time.
 
 
 
@@ -706,8 +710,7 @@ void expose_transfer_trajectory( py::module &m )
 
      )doc" )
             .def( "inertial_thrust_accelerations_along_trajectory",
-                  py::overload_cast< const int >(
-                          &tms::TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory ),
+                  py::overload_cast< const int >( &tms::TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory ),
                   py::arg( "number_of_data_points_per_leg" ),
                   R"doc(
 
@@ -724,8 +727,8 @@ void expose_transfer_trajectory( py::module &m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             Inertial thrust acceleration history keyed by time.
 
 
 
@@ -733,8 +736,7 @@ void expose_transfer_trajectory( py::module &m )
 
      )doc" )
             .def( "rsw_thrust_accelerations_along_trajectory",
-                  py::overload_cast< const int >(
-                          &tms::TransferTrajectory::getRswThrustAccelerationsAlongTrajectory ),
+                  py::overload_cast< const int >( &tms::TransferTrajectory::getRswThrustAccelerationsAlongTrajectory ),
                   py::arg( "number_of_data_points_per_leg" ),
                   R"doc(
 
@@ -751,8 +753,8 @@ void expose_transfer_trajectory( py::module &m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             RSW-frame thrust acceleration history keyed by time.
 
 
 
@@ -760,8 +762,7 @@ void expose_transfer_trajectory( py::module &m )
 
      )doc" )
             .def( "tnw_thrust_accelerations_along_trajectory",
-                  py::overload_cast< const int >(
-                          &tms::TransferTrajectory::getTnwThrustAccelerationsAlongTrajectory ),
+                  py::overload_cast< const int >( &tms::TransferTrajectory::getTnwThrustAccelerationsAlongTrajectory ),
                   py::arg( "number_of_data_points_per_leg" ),
                   R"doc(
 
@@ -778,8 +779,8 @@ void expose_transfer_trajectory( py::module &m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             TNW-frame thrust acceleration history keyed by time.
 
 
 
@@ -826,8 +827,15 @@ void expose_transfer_trajectory( py::module &m )
 
          :type: float
       )doc" )
-            .def_property_readonly(
-                    "legs", &tms::TransferTrajectory::getLegs, R"doc(No documentation found.)doc" );
+            .def_property_readonly( "legs", &tms::TransferTrajectory::getLegs, R"doc(
+
+         **read-only**
+
+         Transfer leg models, ordered from departure to arrival.
+
+         :type: list[TransferLeg]
+
+      )doc" );
 
     m.def( "unpowered_leg",
            &tms::unpoweredLeg,
@@ -1195,7 +1203,27 @@ void expose_transfer_trajectory( py::module &m )
            py::arg( "bodies" ),
            py::arg( "body_name" ),
            py::arg( "engine_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Apply the acceleration from a low-thrust ``transfer_leg`` to the engine named ``engine_name`` on
+         ``body_name`` in ``bodies``.
+
+         The engine must already exist and use a custom thrust-magnitude model. The body must have a direction-based
+         rotation model with a custom inertial direction function. This function sets the thrust magnitude and direction
+         functions from the transfer-leg acceleration.
+
+         Parameters
+         ----------
+         transfer_leg : TransferLeg
+             Low-thrust transfer leg supplying the thrust acceleration as a function of epoch.
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         body_name : str
+             Name of the body in the system of bodies.
+         engine_name : str
+             Identifier of the existing engine whose thrust-magnitude function is updated.
+
+      )doc" );
 };
 
 }  // namespace transfer_trajectory

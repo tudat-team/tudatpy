@@ -73,7 +73,7 @@ PropagationTargetingProblem::PropagationTargetingProblem(
     setGlobalFrameBodyEphemerides( bodies_, "Earth", "J2000" );
 }
 
-std::vector< double > PropagationTargetingProblem::fitness( const std::vector< double > &x ) const
+std::vector< double > PropagationTargetingProblem::fitness( const std::vector< double >& x ) const
 {
     using namespace tudat;
     using namespace tudat::simulation_setup;
@@ -126,19 +126,21 @@ std::vector< double > PropagationTargetingProblem::fitness( const std::vector< d
             createAccelerationModelsMap( bodies_, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Setup propagator (cowell) and integrator (RK4 fixed stepsize)
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                accelerationModelMap,
-                                                                                bodiesToPropagate,
-                                                                                systemInitialState,
-                                                                                simulationEndEpoch_,
-                                                                                cowell,
-                                                                                dependentVariablesToSave_ );
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch_, fixedStepSize );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    simulationStartEpoch_,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch_ ),
+                    cowell,
+                    dependentVariablesToSave_ );
 
     // Start simulation
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, propagatorSettings, true );
 
     // Retrieve results
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );

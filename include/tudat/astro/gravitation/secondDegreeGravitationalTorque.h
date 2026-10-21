@@ -89,7 +89,7 @@ public:
         inertiaTensorOfRotatingBodyFunction_( inertiaTensorOfRotatingBodyFunction ),
         positionOfBodyExertingTorqueFunction_( positionOfBodyExertingTorqueFunction ),
         rotationToBodyFixedFrameFunction_( rotationToBodyFixedFrameFunction )
-    { }
+    {}
 
     //! Get gravitational torque.
     /*!

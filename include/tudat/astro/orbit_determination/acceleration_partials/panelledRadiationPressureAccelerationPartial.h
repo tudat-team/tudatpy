@@ -46,7 +46,7 @@ public:
             }
         }
 
-        for( auto it: panelledTargetModel_->getSegmentFixedPanels( ) )
+        for( auto it : panelledTargetModel_->getSegmentFixedPanels( ) )
         {
             for( unsigned int i = 0; i < it.second.size( ); i++ )
             {
@@ -62,11 +62,11 @@ public:
             }
         }
 
-        unityIlluminationFraction_ = std::vector< double >( panelledTargetModel_->getTotalNumberOfPanels( ), 1.0);
+        unityIlluminationFraction_ = std::vector< double >( panelledTargetModel_->getTotalNumberOfPanels( ), 1.0 );
     }
 
     //! Destructor.
-    ~PanelledRadiationPressurePartial( ) { }
+    ~PanelledRadiationPressurePartial( ) {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
     /*!

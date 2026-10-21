@@ -7,11 +7,13 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_gravity_field_variation.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createGravityFieldVariations.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -20,6 +22,9 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_environment.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -31,44 +36,38 @@ namespace tudat
 namespace simulation_setup
 {
 
-inline std::shared_ptr< GravityFieldVariationSettings >
-degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::vector< std::string >& deformingBodies,
         const std::map< int, std::vector< double > > loveNumber )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
-    for( auto loveNumberIt: loveNumber )
+    for( auto loveNumberIt : loveNumber )
     {
         for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
         {
-            loveNumbers[ loveNumberIt.first ].push_back(
-                    std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
         }
     }
-    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-            deformingBodies, loveNumbers, nullptr );
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers, nullptr );
 }
 
-inline std::shared_ptr< GravityFieldVariationSettings >
-degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::string deformingBody,
         const std::map< int, std::vector< double > > loveNumber )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
-    for( auto loveNumberIt: loveNumber )
+    for( auto loveNumberIt : loveNumber )
     {
         for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
         {
-            loveNumbers[ loveNumberIt.first ].push_back(
-                    std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
         }
     }
     return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
             std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
 }
 
-inline std::shared_ptr< GravityFieldVariationSettings >
-degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::string deformingBody,
         const std::map< int, std::vector< std::complex< double > > > loveNumber )
 {
@@ -88,62 +87,71 @@ namespace environment_setup
 namespace gravity_field_variation
 {
 
-void expose_gravity_field_variation_setup( py::module& m )
+void expose_gravity_field_variation_types( py::module& m )
 {
-    py::enum_< tg::BodyDeformationTypes >( m, "BodyDeformationTypes",
+    py::enum_< tg::BodyDeformationTypes >( m,
+                                           "BodyDeformationTypes",
                                            R"doc(
 
 Enumeration listing the different types of gravity and/or shape field variation models available in tudat.
 Note that for some types, only one of the two types of variations is available
 
       )doc" )
-            .value( "basic_solid_body", tg::basic_solid_body,
+            .value( "basic_solid_body",
+                    tg::basic_solid_body,
                     R"doc(
 
 Basic tidal variation model, assuming a single constant Love number for the variation
 
 )doc" )
-        .value( "iers_2010_tidal", tg::iers_2010,
-                R"doc(
+            .value( "iers_2010_tidal",
+                    tg::iers_2010,
+                    R"doc(
 
 High-fidelity Earth tidal variation model based on IERS 2010 conventions
 
 )doc" )
-            .value( "tabulated_deformation", tg::tabulated_variation,
-        R"doc(
+            .value( "tabulated_deformation",
+                    tg::tabulated_variation,
+                    R"doc(
 
 Variation model using interpolated tabular data for the variation model
 
 )doc" )
-        .value( "periodic_variation", tg::periodic_variation,
-                R"doc(
+            .value( "periodic_variation",
+                    tg::periodic_variation,
+                    R"doc(
 
 Variation model using purely sinusoidal variations (as a function of time) for gravity field coefficients
 
 )doc" )
-        .value( "polynomial_variation", tg::polynomial_variation,
-                R"doc(
+            .value( "polynomial_variation",
+                    tg::polynomial_variation,
+                    R"doc(
 
 Variation model using polynomial functions of time for gravity field coefficients variations
 
 )doc" )
-        .value( "ocean_tide", tg::ocean_tide,
-                R"doc(
+            .value( "ocean_tide",
+                    tg::ocean_tide,
+                    R"doc(
 
 Variation model due to ocean tides
 
 )doc" )
-        .value( "pole_tide", tg::pole_tide,
-                R"doc(
+            .value( "pole_tide",
+                    tg::pole_tide,
+                    R"doc(
 
 Variation model due to pole tides
 
       )doc" )
             .export_values( );
+}
 
-
-    py::class_< tss::GravityFieldVariationSettings,
-                std::shared_ptr< tss::GravityFieldVariationSettings > >(
+void expose_gravity_field_variation_setup( py::module& m )
+{
+    py::class_< tss::GravityFieldVariationSettings, std::shared_ptr< tss::GravityFieldVariationSettings > >(
             m,
             "GravityFieldVariationSettings",
             R"doc(
@@ -151,7 +159,7 @@ Variation model due to pole tides
          Base class for providing settings for gravity field variations.
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( tss::GravityFieldVariationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::GravityFieldVariationSettings );
 
     py::class_< tss::BasicSolidBodyGravityFieldVariationSettings,
                 std::shared_ptr< tss::BasicSolidBodyGravityFieldVariationSettings >,
@@ -161,11 +169,45 @@ Variation model due to pole tides
 
          Class for providing settings for solid body tidal gravity field variations, derived from GravityFieldVariationSettings.
 
+      )doc" ) TUDATPY_DEF_EQ_NE( tss::BasicSolidBodyGravityFieldVariationSettings )
+            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::GravityFieldVariationSettings, tss::BasicSolidBodyGravityFieldVariationSettings )
+                    .def( "set_mean_tidal_forcing_terms_to_subtract",
+                          &tss::BasicSolidBodyGravityFieldVariationSettings::setMeanTidalForcingTerms,
+                          py::arg( "mean_tidal_forcing_cosine_terms" ),
+                          py::arg( "mean_tidal_forcing_sine_terms" ),
+                          R"doc(
 
+         Function to set mean tidal forcing terms to be subtracted from tidally induced gravity field variations. This is typically
+         used for tides raised on synchronously rotating satellites, where the variation in longitude :math:`\theta` (see :func:`~solid_body_tide`) is
+         small and the main part of the associated computed gravity field variations is a permanent tide.
 
+         Denoting the cosine and sine forcing as :math:`F_{C,lm}` and :math:`F_{S,lm}`, we can reformulate the gravity field variation in :func:`~solid_body_tide` as:
 
+         .. math::
+            \Delta \bar{C}_{lm}&=k_{l.m}F_{C,lm}(r,\theta,\phi)\\
+            \Delta \bar{S}_{lm}&=k_{l.m}F_{S,lm}(r,\theta,\phi)
 
-      )doc" );
+         (where we have added the order dependent Love number :math:`k_{l,m}` and have retained only a single tide-raising body for the sake of brevity).
+
+         In this function, one can provide mean forcing values per degree/order combination for both cosine and sine coefficients, denoted
+         :math:`\overline{F_{C,lm}}` and :math:`\overline{F_{S,lm}}`, which modifies the computation of the gravity field variations to:
+
+         .. math::
+            \Delta \bar{C}_{lm}&=k_{l.m}\left(F_{C,lm}(r,\theta,\phi) - \overline{F_{C,lm}} \right)\\
+            \Delta \bar{S}_{lm}&=k_{l.m}\left(F_{S,lm}(r,\theta,\phi) - \overline{F_{S,lm}} \right)
+
+         This option can be used for any of the solid-body tide gravity field variation options.
+
+         Parameters
+         ----------
+
+         mean_tidal_forcing_cosine_terms : dict[int, list[float]]
+             Dictionary in which key represents degree :math:`l` and the value a vector (with index in the vector equal to order :math:`m`) of mean forcing for the cosine coefficient variations
+
+         mean_tidal_forcing_sine_terms : dict[int, list[float]]
+             Dictionary in which key represents degree :math:`l` and the value a vector (with index in the vector equal to order :math:`m`) of mean forcing for the sine coefficient variations
+
+    )doc" );
 
     m.def( "solid_body_tide",
            py::overload_cast< const std::string, const double, const int >(
@@ -272,7 +314,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree : dict( int, float )
+love_number_per_degree : dict[int, float]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself
 
 Returns
@@ -315,7 +357,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree : dict( int, complex )
+love_number_per_degree : dict[int, complex]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself.
 
 Returns
@@ -351,7 +393,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree_and_order : dict( int, list( float ) )
+love_number_per_degree_and_order : dict[int, list[float]]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
 
 Returns
@@ -381,8 +423,7 @@ In this example, we create gravity field variations of the Moon, for a tide rais
      )doc" );
 
     m.def( "solid_multi_body_tide_degree_order_variable_k",
-           py::overload_cast< const std::vector< std::string >&,
-                              const std::map< int, std::vector< double > > >(
+           py::overload_cast< const std::vector< std::string >&, const std::map< int, std::vector< double > > >(
                    &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
            py::arg( "tide_raising_bodies" ),
            py::arg( "love_number_per_degree_and_order" ),
@@ -397,7 +438,7 @@ Parameters
 ----------
 tide_raising_bodies : list[str]
     Names of bodies raising the tide.
-love_number_per_degree_and_order : dict( int, list( float ) )
+love_number_per_degree_and_order : dict[int, list[float]]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
 
 Returns
@@ -409,10 +450,8 @@ BasicSolidBodyGravityFieldVariationSettings
 
      )doc" );
 
-
     m.def( "solid_body_tide_degree_order_variable_complex_k",
-           py::overload_cast< const std::string,
-                              const std::map< int, std::vector< std::complex< double > > > >(
+           py::overload_cast< const std::string, const std::map< int, std::vector< std::complex< double > > > >(
                    &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
            py::arg( "tide_raising_body" ),
            py::arg( "love_number_per_degree_and_order" ),
@@ -427,7 +466,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree : dict( int, list( complex ) )
+love_number_per_degree_and_order : dict[int, list[complex]]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
 
 Returns
@@ -437,7 +476,6 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
      )doc" );
-
 
     m.def( "mode_coupled_solid_body_tide",
            &tss::modeCoupledSolidBodyGravityFieldVariationSettings,
@@ -464,9 +502,9 @@ response
 
 Parameters
 ----------
-tide_raising_body : str
-    Name of body raising the tide.
-love_number_per_degree : dict[tuple[int, int], dict[tuple[int,int],float]]
+deforming_bodies : list[str]
+    Names of the bodies raising the tide.
+love_numbers : dict[tuple[int, int], dict[tuple[int, int], float]]
     Double dictionary of Love numbers for each combination for forcing and response degree and order, and the value (``float``) the associated
     mode-coupled Love number :math:`k_{lm}^{l'm'}`. The first tuple is the forcing degree and order :math:`l,m`, the second tuple is the response degree and order :math:`l',m'`
 
@@ -478,7 +516,6 @@ GravityFieldVariationSettings
 
 
      )doc" );
-
 
     m.def( "periodic",
            &tss::periodicGravityFieldVariationsSettings,
@@ -572,10 +609,10 @@ sine_coefficient_amplitude_cosine_time : np.array
 sine_coefficient_amplitude_sine_time : np.array
     Coefficient amplitude block :math:`B_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
-angular_frequency : list[float]
-    Angular frequencies (in rad/s) at which variations are to be added
-reference_epoch: astro.time_representation.Time
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+angular_frequency : float
+    Angular frequency (in rad/s) at which variations are to be added
+reference_epoch: float
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -588,7 +625,6 @@ GravityFieldVariationSettings
 
 
 )doc" );
-
 
     m.def( "polynomial",
            &tss::polynomialGravityFieldVariationsSettings,
@@ -620,14 +656,14 @@ amplitudes make of the variations in :math:`l,m=2,0`, :math:`l,m=2,1` and :math:
 Parameters
 ----------
 cosine_amplitudes_per_power : dict[int, np.array]
-    Dictionary of cosine coefficient amplitude blocks, with each key in the list corresponding to the polynomial power :math:`p_{i}`, and
+    Dictionary of cosine coefficient amplitude blocks, with each key corresponding to the polynomial power :math:`p_{i}`, and
     the dictionary value the corresponding :math:`K_{i,\bar{C}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-sine_amplitudes_per_power : list[np.array]
-    Dictionary of sine coefficient amplitude blocks, with each key in the list corresponding to the polynomial power :math:`p_{i}`, and
+sine_amplitudes_per_power : dict[int, np.array]
+    Dictionary of sine coefficient amplitude blocks, with each key corresponding to the polynomial power :math:`p_{i}`, and
     the dictionary value the corresponding :math:`K_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
-reference_epoch: astro.time_representation.Time
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+reference_epoch: float
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -654,19 +690,19 @@ GravityFieldVariationSettings
 Function for creating polynomial gravity field variations at a single variation period.
 
 Function for creating polynomial gravity field variations at a single variation period, same as :math:`~polynomial`, but with a single
-polynmial power :math:`p`.
+polynomial power :math:`p`.
 
 Parameters
 ----------
-cosine_amplitudes_per_power : np.array
+cosine_amplitudes : np.array
     Cosine coefficient amplitude block :math:`K_{\bar{C}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-sine_amplitudes_per_power : list[np.array]
+sine_amplitudes : np.array
     Sine coefficient amplitude block :math:`K_{\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
-polynomial_power: float
+polynomial_power: int
     Polynomial power :math:`p` used in the computation
-reference_epoch: astro.time_representation.Time
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+reference_epoch: float
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -678,9 +714,6 @@ GravityFieldVariationSettings
     Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 )doc" );
-
-
-
 
     m.def( "tabulated",
            &tss::tabulatedGravityFieldVariationSettings,
@@ -706,12 +739,12 @@ amplitudes make of the variations in :math:`l,m=2,0`, :math:`l,m=2,1` and :math:
 
 Parameters
 ----------
-cosine_variations_table : dict[astro.time_representation.Time, np.array]
-    Dictionary of cosine coefficient variations, with each key in list corresponding to epoch :math:`t_{i}` (as Time object) and the value to the corresponding variation
+cosine_variations_table : dict[float, np.array]
+    Dictionary of cosine coefficient variations, with each key an epoch :math:`t_{i}` in seconds since J2000 TDB and the value the corresponding variation
     :math:`\Delta \bar{C}_{lm}(t_{i})`. The first entry in each matrix block provides the coefficient variation at degree equal to ``minimum_degree`` and order equal to
     ``minimum_order``.
-sine_amplitudes_per_power : dict[astro.time_representation.Time, np.array]
-    Dictionary of sine coefficient variations, with each key in list corresponding to epoch :math:`t_{i}` (as Time object) and the value to the corresponding variation
+sine_variations_table : dict[float, np.array]
+    Dictionary of sine coefficient variations, with each key an epoch :math:`t_{i}` in seconds since J2000 TDB and the value the corresponding variation
     :math:`\Delta \bar{C}_{lm}(t_{i})`. The first entry in each matrix block provides the coefficient variation at degree equal to ``minimum_degree`` and order equal to
     ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).

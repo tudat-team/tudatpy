@@ -11,7 +11,6 @@
 #ifndef TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 #define TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
-#include <boost/lambda/lambda.hpp>
 #include <functional>
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
@@ -119,7 +118,7 @@ public:
                                          forceCoefficientsFrame,
                                          momentCoefficientsFrame ),
         coefficientFunction_( coefficientFunction )
-    { }
+    {}
 
     //! Compute the aerodynamic coefficients at current flight condition.
     /*!

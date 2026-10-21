@@ -67,10 +67,10 @@ public:
                                                                       bodiesToPropagate,
                                                                       bodyInertiaTensorFunctions,
                                                                       bodyInertiaTensorTimeDerivativeFunctions )
-    { }
+    {}
 
     //! Destructor
-    ~RotationalMotionExponentialMapStateDerivative( ) { }
+    ~RotationalMotionExponentialMapStateDerivative( ) {}
 
     //! Calculates the state derivative of the rotational motion of the system.
     /*!

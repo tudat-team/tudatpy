@@ -12,13 +12,17 @@
 #ifndef TUDAT_SIMS_FLANAGAN_H
 #define TUDAT_SIMS_FLANAGAN_H
 
-#include <tudat/simulation/simulation.h>
 #include <cmath>
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/low_thrust/lowThrustLeg.h"
 #include "tudat/astro/low_thrust/simsFlanaganModel.h"
-#include "tudat/simulation/optimisation.h"
+#include "tudat/simulation/optimisation_setup/optimisationSettings.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/math/integrators/numericalIntegrator.h"
 #include "tudat/astro/low_thrust/shape_based/shapeBasedMethod.h"
 
 namespace tudat
@@ -111,7 +115,7 @@ public:
     }
 
     //! Default destructor.
-    ~SimsFlanagan( ) { }
+    ~SimsFlanagan( ) {}
 
     //! Convert time to independent variable.
     double convertTimeToIndependentVariable( const double time )

@@ -131,7 +131,7 @@ std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType,
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > createMultiLegLightTimeCalculator(
+std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > createFullLinkLightTimeCalculator(
         const LinkEnds& linkEnds,
         const simulation_setup::SystemOfBodies& bodies,
         const ObservableType observableType = undefined_observation_model,
@@ -145,11 +145,11 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
     // Check if link ends contain a receiver and a transmitter
     if( linkEnds.count( receiver ) == 0 )
     {
-        throw std::runtime_error( "Error when making multi-leg light time calculator, no receiver found" );
+        throw std::runtime_error( "Error when making full-link light-time calculator, no receiver found" );
     }
     if( linkEnds.count( transmitter ) == 0 )
     {
-        throw std::runtime_error( "Error when making multi-leg light time calculator, no transmitter found" );
+        throw std::runtime_error( "Error when making full-link light-time calculator, no transmitter found" );
     }
 
     // Check link end consistency.
@@ -162,7 +162,7 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
 
             if( linkEnds.count( previousLinkEndType ) == 0 )
             {
-                throw std::runtime_error( "Error when making multi-leg light time calculator, did not find link end type " +
+                throw std::runtime_error( "Error when making full-link light-time calculator, did not find link end type " +
                                           std::to_string( previousLinkEndType ) );
             }
         }
@@ -172,13 +172,13 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
     unsigned int numberOfLinks = linkEnds.size( ) - 1;
     if( !( lightTimeCorrections.size( ) == numberOfLinks || lightTimeCorrections.empty( ) ) )
     {
-        throw std::runtime_error( "Error when making multi-leg light time calculator: size of single-leg light time corrections (" +
+        throw std::runtime_error( "Error when making full-link light-time calculator: size of single-leg light time corrections (" +
                                   std::to_string( lightTimeCorrections.size( ) ) + ") are inconsistent with number of links (" +
                                   std::to_string( numberOfLinks ) + ")." );
     }
     else if( !( singleLegsLightTimeConvergenceCriteria.size( ) == numberOfLinks || singleLegsLightTimeConvergenceCriteria.empty( ) ) )
     {
-        throw std::runtime_error( "Error when making multi-leg light time calculator: size of single-leg convergence criteria (" +
+        throw std::runtime_error( "Error when making full-link light-time calculator: size of single-leg convergence criteria (" +
                                   std::to_string( singleLegsLightTimeConvergenceCriteria.size( ) ) +
                                   ") are inconsistent with number of links (" + std::to_string( numberOfLinks ) + ")." );
     }
@@ -239,12 +239,12 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
         receiverIterator++;
     }
 
-    // Create multi-leg light time calculator
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator =
-            std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
+    // Create full-link light-time calculator
+    std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator =
+            std::make_shared< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
                     lightTimeCalculators, multiLegLightTimeConvergenceCriteria, multiLegIterationsRequired );
 
-    return multiLegLightTimeCalculator;
+    return fullLinkLightTimeCalculator;
 }
 
 }  // namespace observation_models

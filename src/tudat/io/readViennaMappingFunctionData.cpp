@@ -32,7 +32,7 @@ void VMFData::validate( )
         throw std::runtime_error( "Error, gradient data is of incompatible size in VMF data" );
     }
 
-    for( auto it: delayData )
+    for( auto it : delayData )
     {
         if( meteoData.size( ) > 0 )
         {
@@ -64,7 +64,7 @@ void VMFData::getFullDataSet( std::map< double, Eigen::VectorXd >& processedTrop
     Eigen::VectorXd currentData = Eigen::VectorXd::Zero( singleEntrySize );
     double mjdAtJ2000 = basic_astrodynamics::getModifiedJulianDayOnJ2000< double >( );
 
-    for( auto it: delayData )
+    for( auto it : delayData )
     {
         double currentMjd = it.first;
         double currentTt = ( it.first - mjdAtJ2000 ) * physical_constants::JULIAN_DAY;

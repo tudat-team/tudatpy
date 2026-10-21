@@ -3,6 +3,24 @@
 ``light_time_corrections``
 ===========================
 
+This module contains a set of factory functions for setting up the
+light-time corrections for observation models.
+
+Most functions in this module create objects of type :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`,
+which define settings for a type of light-time correction. The main interface with Tudat is that these objects are used
+as input to the observation model functions created in the :ref:`model_settings` module.
+
+When not applying any light-time corrections, a signal is assumed to travel in a straight line (in Euclidean space) with
+the speed of light :math:`c`. The light-time corrections defined through this module are used to compute corrections
+:math:`\Delta t` to the light time, such that:
+
+.. math::
+
+   \frac{||\mathbf{r}_{1}(t_{1}) - \mathbf{r}_{0}(t_{0})||}{c}=\left(t_{1}-t_{0}\right)+\Delta t(t_{0},t_{1};\mathbf{r}_{1}(t_{1}),\mathbf{r}_{0}(t_{0}))
+
+for a signal transmitted from link end :math:`0` at :math:`t_{0}` and received by link end :math:`1` at :math:`t_{1}`. More details on the
+link with the observation model, and the manner in which this equation is solved, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html>`_ .
+
 Functions
 ---------
 .. currentmodule:: tudatpy.estimation.observable_models_setup.light_time_corrections
@@ -25,7 +43,11 @@ Functions
 
    ionex_ionospheric_light_time_correction
 
+   nequick2_ionospheric_light_time_correction
+
    vmf3_tropospheric_light_time_correction
+
+   vmf3o_tropospheric_light_time_correction
 
    inverse_power_series_solar_corona_light_time_correction
 
@@ -49,7 +71,11 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.ionex_ionospheric_light_time_correction
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.nequick2_ionospheric_light_time_correction
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.vmf3_tropospheric_light_time_correction
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.vmf3o_tropospheric_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.inverse_power_series_solar_corona_light_time_correction
 

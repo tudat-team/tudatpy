@@ -113,9 +113,9 @@ public:
             }
             catch( std::runtime_error& caughtException )
             {
-                throw std::runtime_error( "Error in short period EOP calculator.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                throw std::runtime_error( "Error in short period EOP calculator.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
             }
-
         }
     }
 

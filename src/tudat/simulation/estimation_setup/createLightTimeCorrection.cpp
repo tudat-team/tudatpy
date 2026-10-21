@@ -9,11 +9,16 @@
  */
 
 #include "tudat/io/readViennaMappingFunctionData.h"
+#include "tudat/io/readSinexFile.h"
 #include "tudat/io/readIonexFile.h"
+#include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
+#include "tudat/astro/observation_models/corrections/neQuick2IonosphericCorrection.h"
+#include "tudat/io/readNeQuick2Data.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
@@ -80,13 +85,14 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 }
 
                 // Create light-time correction function
+                std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
                 lightTimeCorrection = std::make_shared< FirstOrderLightTimeCorrectionCalculator >(
                         perturbingBodyStateFunctions,
                         perturbingBodyGravitationalParameterFunctions,
                         perturbingBodies,
                         transmitter.bodyName_,
                         receiver.bodyName_,
-                        std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ),
+                        std::bind( &relativity::PPNParameterSet::getParameterGamma, ppnParameterSet ),
                         std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )
                                 ->getBendingFlag( ) );
             }
@@ -139,46 +145,35 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 ObservableType baseObservableType = getBaseObservableType( observableType );
 
                 std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryCorrectionCalculator, wetCorrectionCalculator;
-                std::pair< std::string, std::string > stationSpacecraftPair = std::make_pair( groundStation.stationName_, "" );
+                std::pair< std::string, std::string > stationSpacecraftPair = std::make_pair( groundStation.getReferencePointName( ), "" );
 
-                if( troposphericCorrectionSettings->getTroposphericDryCorrection( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericDryCorrection( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrection( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrection( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) &&
-                    troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) )
+                auto const& dryTroposphericCorrection = troposphericCorrectionSettings->getTroposphericDryCorrection( );
+                auto const& wetTroposphericCorrection = troposphericCorrectionSettings->getTroposphericWetCorrection( );
+                auto const& dryTroposphericCorrectionAdjustment = troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( );
+                auto const& wetTroposphericCorrectionAdjustment = troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( );
+
+                if( dryTroposphericCorrection.count( stationSpacecraftPair ) &&
+                    dryTroposphericCorrection.at( stationSpacecraftPair ).count( baseObservableType ) &&
+                    wetTroposphericCorrection.count( stationSpacecraftPair ) &&
+                    wetTroposphericCorrection.at( stationSpacecraftPair ).count( baseObservableType ) &&
+                    dryTroposphericCorrectionAdjustment.count( stationSpacecraftPair ) &&
+                    dryTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).count( baseObservableType ) &&
+                    wetTroposphericCorrectionAdjustment.count( stationSpacecraftPair ) &&
+                    wetTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).count( baseObservableType ) )
                 {
                     lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
-                            troposphericCorrectionSettings->getTroposphericDryCorrection( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
-                            troposphericCorrectionSettings->getTroposphericWetCorrection( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
-                            troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
-                            troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
+                            dryTroposphericCorrection.at( stationSpacecraftPair ).at( baseObservableType ),
+                            wetTroposphericCorrection.at( stationSpacecraftPair ).at( baseObservableType ),
+                            dryTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).at( baseObservableType ),
+                            wetTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).at( baseObservableType ),
                             troposphericElevationMapping,
                             isUplinkCorrection );
                 }
                 else
                 {
-                    throw std::runtime_error( "Error when creating tabulated tropospheric corrections for " + groundStation.stationName_ +
-                                              "ground station and " + getObservableName( observableType ) +
-                                              " observable: tabulated data not available. " );
+                    throw std::runtime_error( "Error when creating tabulated tropospheric corrections for " +
+                                              groundStation.getReferencePointName( ) + "ground station and " +
+                                              getObservableName( observableType ) + " observable: tabulated data not available. " );
                 }
             }
             // Set correction to nullptr if correction isn't valid for selected link ends
@@ -232,24 +227,24 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getNominalStationState( ) );
 
                 std::function< double( const double ) > waterVaporPartialPressureFunction;
                 if( troposphericCorrectionSettings->getWaterVaporPartialPressureModelType( ) == tabulated )
                 {
                     waterVaporPartialPressureFunction = bodies.getBody( groundStation.bodyName_ )
-                                                                ->getGroundStation( groundStation.stationName_ )
+                                                                ->getGroundStation( groundStation.getReferencePointName( ) )
                                                                 ->getWaterVaporPartialPressureFunction( );
                 }
                 else if( troposphericCorrectionSettings->getWaterVaporPartialPressureModelType( ) == bean_and_dutton )
                 {
                     waterVaporPartialPressureFunction = ground_stations::getBeanAndDuttonWaterVaporPartialPressureFunction(
                             bodies.getBody( groundStation.bodyName_ )
-                                    ->getGroundStation( groundStation.stationName_ )
+                                    ->getGroundStation( groundStation.getReferencePointName( ) )
                                     ->getRelativeHumidityFunction( ),
                             bodies.getBody( groundStation.bodyName_ )
-                                    ->getGroundStation( groundStation.stationName_ )
+                                    ->getGroundStation( groundStation.getReferencePointName( ) )
                                     ->getTemperatureFunction( ) );
                 }
                 else
@@ -261,9 +256,11 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
                 lightTimeCorrection = std::make_shared< SaastamoinenTroposphericCorrection >(
                         groundStationGeodeticPositionFunction,
-                        bodies.getBody( groundStation.bodyName_ )->getGroundStation( groundStation.stationName_ )->getPressureFunction( ),
                         bodies.getBody( groundStation.bodyName_ )
-                                ->getGroundStation( groundStation.stationName_ )
+                                ->getGroundStation( groundStation.getReferencePointName( ) )
+                                ->getPressureFunction( ),
+                        bodies.getBody( groundStation.bodyName_ )
+                                ->getGroundStation( groundStation.getReferencePointName( ) )
                                 ->getTemperatureFunction( ),
                         waterVaporPartialPressureFunction,
                         troposphericElevationMapping,
@@ -277,7 +274,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
             break;
         }
-        case vmf3_tropospheric: {
+        case vmf3_tropospheric:
+        case vmf3o_tropospheric: {
             // Cast correction settings
             std::shared_ptr< VMF3TroposphericCorrectionSettings > vmf3Settings =
                     std::dynamic_pointer_cast< VMF3TroposphericCorrectionSettings >( correctionSettings );
@@ -312,19 +310,26 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 }
 
                 // Create elevation mapping (currently fixed to Niell)
-                std::shared_ptr< TroposhericElevationMapping > troposphericElevationMapping = createTroposphericElevationMapping(
-                        vmf3Settings->getTroposphericMappingModelType( ), bodies, transmitter, receiver, isUplinkCorrection );
+                std::shared_ptr< TroposhericElevationMapping > troposphericElevationMapping =
+                        createTroposphericElevationMapping( vmf3Settings->getTroposphericMappingModelType( ),
+                                                            bodies,
+                                                            transmitter,
+                                                            receiver,
+                                                            isUplinkCorrection,
+                                                            vmf3Settings->getCorrectionType( ) );
 
                 // Get geodetic position function
                 std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getNominalStationState( ) );
 
                 // Get tropospheric data
                 std::shared_ptr< ground_stations::StationTroposphereData > troposphereData =
-                        bodies.getBody( groundStation.bodyName_ )->getGroundStation( groundStation.stationName_ )->getTroposphereData( );
+                        bodies.getBody( groundStation.bodyName_ )
+                                ->getGroundStation( groundStation.getReferencePointName( ) )
+                                ->getTroposphereData( );
 
                 if( troposphereData == nullptr )
                 {
@@ -340,14 +345,18 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                     if( interpolatedData == nullptr || !interpolatedData->hasGradientData( ) )
                     {
                         std::cerr << "Warning: VMF3 gradient correction requested, but no gradient data available for station "
-                                  << groundStation.stationName_ << ". Proceeding without gradient terms." << std::endl;
+                                  << groundStation.getReferencePointName( ) << ". Proceeding without gradient terms." << std::endl;
                         useGradientCorrection = false;
                     }
                 }
 
                 // Create the light-time correction object
-                lightTimeCorrection = std::make_shared< VMF3TroposphericCorrection >(
-                        troposphericElevationMapping, isUplinkCorrection, troposphereData, useGradientCorrection );
+                lightTimeCorrection = std::make_shared< VMF3TroposphericCorrection >( troposphericElevationMapping,
+                                                                                      isUplinkCorrection,
+                                                                                      troposphereData,
+                                                                                      useGradientCorrection,
+                                                                                      vmf3Settings->getCorrectionType( ),
+                                                                                      vmf3Settings->getObservationWavelengthNm( ) );
             }
             else
             {
@@ -388,7 +397,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
                 std::shared_ptr< TabulatedMediaReferenceCorrectionManager > correctionCalculator;
                 std::pair< std::string, std::string > stationSpacecraftPair =
-                        std::make_pair( groundStation.stationName_, spacecraft.bodyName_ );
+                        std::make_pair( groundStation.getReferencePointName( ), spacecraft.bodyName_ );
 
                 if( ionosphericCorrectionSettings->getReferenceRangeCorrection( ).count( stationSpacecraftPair ) &&
                     ionosphericCorrectionSettings->getReferenceRangeCorrection( ).at( stationSpacecraftPair ).count( baseObservableType ) )
@@ -403,9 +412,10 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 }
                 else
                 {
-                    throw std::runtime_error( "Error when creating tabulated ionospheric corrections for " + groundStation.stationName_ +
-                                              " ground station, " + spacecraft.bodyName_ + " spacecraft, and " +
-                                              getObservableName( observableType ) + " observable: tabulated data not available. " );
+                    throw std::runtime_error( "Error when creating tabulated ionospheric corrections for " +
+                                              groundStation.getReferencePointName( ) + " ground station, " + spacecraft.bodyName_ +
+                                              " spacecraft, and " + getObservableName( observableType ) +
+                                              " observable: tabulated data not available. " );
                 }
             }
             // Set correction to nullptr if correction isn't valid for selected link ends
@@ -448,7 +458,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
                 std::shared_ptr< TabulatedMediaReferenceCorrectionManager > correctionCalculator;
                 std::pair< std::string, std::string > stationSpacecraftPair =
-                        std::make_pair( groundStation.stationName_, spacecraft.bodyName_ );
+                        std::make_pair( groundStation.getReferencePointName( ), spacecraft.bodyName_ );
 
                 // Create Jakowski VTEC calculator
                 std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
@@ -485,14 +495,14 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                         std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getPointingAnglesCalculator( ),
                                    std::placeholders::_1,
                                    std::placeholders::_2 );
                 std::function< double( Eigen::Vector3d, double ) > azimuthFunction =
                         std::bind( &ground_stations::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getPointingAnglesCalculator( ),
                                    std::placeholders::_1,
                                    std::placeholders::_2 );
@@ -501,7 +511,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getNominalStationState( ) );
 
                 // Get equatorial radius
@@ -582,14 +592,14 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                         std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getPointingAnglesCalculator( ),
                                    std::placeholders::_1,
                                    std::placeholders::_2 );
                 std::function< double( Eigen::Vector3d, double ) > azimuthFunction =
                         std::bind( &ground_stations::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getPointingAnglesCalculator( ),
                                    std::placeholders::_1,
                                    std::placeholders::_2 );
@@ -598,7 +608,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
                                    bodies.getBody( groundStation.bodyName_ )
-                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getGroundStation( groundStation.getReferencePointName( ) )
                                            ->getNominalStationState( ) );
 
                 // Get equatorial radius
@@ -673,6 +683,100 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
             break;
         }
+        case nequick2_ionospheric: {
+            std::shared_ptr< NeQuick2IonosphericCorrectionSettings > nequick2Settings =
+                    std::dynamic_pointer_cast< NeQuick2IonosphericCorrectionSettings >( correctionSettings );
+            if( nequick2Settings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating NeQuick-2 ionospheric correction: incompatible settings type." );
+            }
+
+            std::string bodyName = nequick2Settings->getBodyWithIonosphere( );
+
+            // Determine CCIR data path
+            std::string ccirDataPath = nequick2Settings->getCcirDataPath( );
+            if( ccirDataPath.empty( ) )
+            {
+                ccirDataPath = paths::getNeQuick2DataPath( );
+            }
+
+            // Load CCIR coefficients and MODIP grid
+            input_output::CcirData ccirData = input_output::readCcirCoefficients( ccirDataPath );
+            Eigen::MatrixXd modipGrid = input_output::readModipGrid( ccirDataPath );
+
+            // Create solar flux function from space weather data
+            std::string solarActivityPath = nequick2Settings->getSolarActivityDataPath( );
+            if( solarActivityPath.empty( ) )
+            {
+                solarActivityPath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
+            }
+            input_output::solar_activity::SolarActivityDataMap solarActivityData =
+                    input_output::solar_activity::readSolarActivityData( solarActivityPath );
+            std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
+                    std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
+            std::function< double( double ) > fluxFunction = [ solarActivityContainer ]( double time ) {
+                return solarActivityContainer->getSolarActivityData( time )->solarRadioFlux107Observed;
+            };
+
+            // Create NeQuick-2 model
+            std::shared_ptr< environment::NeQuick2Model > neQuick2Model =
+                    std::make_shared< environment::NeQuick2Model >( ccirData, modipGrid, fluxFunction );
+
+            // Get IONEX model (used for rescaling and uncertainty)
+            std::shared_ptr< environment::IonosphereModel > ionexModel = bodies.getBody( bodyName )->getIonosphereModel( );
+
+            // Optionally create IONEX-constrained wrapper
+            std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel = nullptr;
+            if( nequick2Settings->getUseIonexRescaling( ) && ionexModel != nullptr )
+            {
+                rescaledModel = std::make_shared< environment::IonexConstrainedNeQuick2Model >( neQuick2Model, ionexModel );
+            }
+
+            // Create Earth state function
+            std::function< Eigen::Vector6d( const double ) > earthStateFunction =
+                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                               bodies.at( bodyName ),
+                               std::placeholders::_1 );
+
+            // Create Earth rotation-to-body-fixed function
+            std::function< Eigen::Matrix3d( const double ) > earthRotationFunction = [ &bodies, bodyName ]( double time ) {
+                return bodies.getBody( bodyName )->getRotationalEphemeris( )->getRotationMatrixToTargetFrame( time );
+            };
+
+            // Get equatorial radius from shape model
+            double equatorialRadius;
+            std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel = bodies.getBody( bodyName )->getShapeModel( );
+            if( std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel ) != nullptr )
+            {
+                equatorialRadius =
+                        std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel )->getAverageRadius( );
+            }
+            else if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
+            {
+                equatorialRadius = std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel )
+                                           ->getEquatorialRadius( );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when creating NeQuick-2 ionospheric correction for body " + bodyName +
+                                          ": shape model not recognized." );
+            }
+
+            ObservableType baseObservableType = getBaseObservableType( observableType );
+
+            lightTimeCorrection = std::make_shared< NeQuick2IonosphericCorrection >( neQuick2Model,
+                                                                                     rescaledModel,
+                                                                                     ionexModel,
+                                                                                     baseObservableType,
+                                                                                     earthStateFunction,
+                                                                                     earthRotationFunction,
+                                                                                     equatorialRadius,
+                                                                                     nequick2Settings->getFirstOrderDelayCoefficient( ),
+                                                                                     nequick2Settings->getQuadratureOrder( ),
+                                                                                     nequick2Settings->getIonexRmsBiasTecu( ) );
+
+            break;
+        }
         default: {
             std::string errorMessage =
                     "Error, light time correction type " + std::to_string( correctionSettings->getCorrectionType( ) ) + " not recognized.";
@@ -689,7 +793,8 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEndId& transmitter,
         const LinkEndId& receiver,
-        const bool isUplinkCorrection )
+        const bool isUplinkCorrection,
+        const LightTimeCorrectionType vmfCorrectionType )
 {
     std::shared_ptr< TroposhericElevationMapping > troposphericMappingModel;
 
@@ -709,7 +814,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
             std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                     std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                bodies.getBody( groundStation.bodyName_ )
-                                       ->getGroundStation( groundStation.stationName_ )
+                                       ->getGroundStation( groundStation.getReferencePointName( ) )
                                        ->getPointingAnglesCalculator( ),
                                std::placeholders::_1,
                                std::placeholders::_2 );
@@ -722,15 +827,17 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
             std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                     std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                bodies.getBody( groundStation.bodyName_ )
-                                       ->getGroundStation( groundStation.stationName_ )
+                                       ->getGroundStation( groundStation.getReferencePointName( ) )
                                        ->getPointingAnglesCalculator( ),
                                std::placeholders::_1,
                                std::placeholders::_2 );
 
             // Using nominal geodetic position, i.e. ignoring station motion
-            std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction = std::bind(
-                    &ground_stations::GroundStationState::getNominalGeodeticPosition,
-                    bodies.getBody( groundStation.bodyName_ )->getGroundStation( groundStation.stationName_ )->getNominalStationState( ) );
+            std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
+                    std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                               bodies.getBody( groundStation.bodyName_ )
+                                       ->getGroundStation( groundStation.getReferencePointName( ) )
+                                       ->getNominalStationState( ) );
 
             troposphericMappingModel = std::make_shared< NiellTroposphericMapping >(
                     elevationFunction, groundStationGeodeticPositionFunction, isUplinkCorrection );
@@ -741,7 +848,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
             std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                     std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                bodies.getBody( groundStation.bodyName_ )
-                                       ->getGroundStation( groundStation.stationName_ )
+                                       ->getGroundStation( groundStation.getReferencePointName( ) )
                                        ->getPointingAnglesCalculator( ),
                                std::placeholders::_1,
                                std::placeholders::_2 );
@@ -749,17 +856,19 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
             std::function< double( Eigen::Vector3d, double ) > azimuthFunction =
                     std::bind( &ground_stations::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector,
                                bodies.getBody( groundStation.bodyName_ )
-                                       ->getGroundStation( groundStation.stationName_ )
+                                       ->getGroundStation( groundStation.getReferencePointName( ) )
                                        ->getPointingAnglesCalculator( ),
                                std::placeholders::_1,
                                std::placeholders::_2 );
 
-            std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction = std::bind(
-                    &ground_stations::GroundStationState::getNominalGeodeticPosition,
-                    bodies.getBody( groundStation.bodyName_ )->getGroundStation( groundStation.stationName_ )->getNominalStationState( ) );
+            std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
+                    std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                               bodies.getBody( groundStation.bodyName_ )
+                                       ->getGroundStation( groundStation.getReferencePointName( ) )
+                                       ->getNominalStationState( ) );
 
             troposphericMappingModel = std::make_shared< VMF3MappingModel >(
-                    elevationFunction, azimuthFunction, groundStationGeodeticPositionFunction, isUplinkCorrection );
+                    elevationFunction, azimuthFunction, groundStationGeodeticPositionFunction, isUplinkCorrection, vmfCorrectionType );
 
             break;
         }
@@ -779,15 +888,92 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
                                    const simulation_setup::SystemOfBodies& bodies,
                                    const bool setTropospherData,
                                    const bool setMeteoData,
-                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                   const bool retrieveMappingInternally )
 {
     std::map< std::string, input_output::VMFData > vmfData;
     input_output::readVMFFiles( dataFiles, vmfData, fileHasMeteo, fileHasGradient );
 
-    for( auto it: vmfData )
+    const auto trimString = []( const std::string& input ) -> std::string {
+        const std::string whiteSpace = " \t\n\r\f\v";
+        const std::size_t first = input.find_first_not_of( whiteSpace );
+        if( first == std::string::npos )
+        {
+            return "";
+        }
+        const std::size_t last = input.find_last_not_of( whiteSpace );
+        return input.substr( first, last - first + 1 );
+    };
+
+    std::map< std::string, std::string > stationNameMapping;
+    if( retrieveMappingInternally )
     {
-        std::string currentStationName = it.first;
-        if( bodies.at( "Earth" )->getGroundStationMap( ).count( currentStationName ) > 0 )
+        const std::map< int, input_output::IlrsStationRegistryEntry > stationRegistry =
+                input_output::readIlrsStationRegistryFromSinexSiteId( simulation_setup::getDefaultIlrsSinexStateFilePath( ) );
+
+        for( const auto& stationEntry : stationRegistry )
+        {
+            const std::string stationCode = std::to_string( stationEntry.first );
+            const std::string domesId = trimString( stationEntry.second.domesId_ );
+
+            if( domesId.empty( ) || domesId == "---" )
+            {
+                continue;
+            }
+            stationNameMapping[ stationCode ] = domesId;
+            stationNameMapping[ domesId ] = stationCode;
+        }
+    }
+
+    const auto resolveStationName = [ & ]( const std::string& vmfStationName ) -> std::string {
+        const std::string trimmedStationName = trimString( vmfStationName );
+        const auto& stationMap = bodies.at( "Earth" )->getGroundStationMap( );
+
+        if( stationMap.count( trimmedStationName ) > 0 )
+        {
+            return trimmedStationName;
+        }
+        if( !retrieveMappingInternally )
+        {
+            return "";
+        }
+
+        auto mappingIterator = stationNameMapping.find( trimmedStationName );
+        if( mappingIterator != stationNameMapping.end( ) && stationMap.count( mappingIterator->second ) > 0 )
+        {
+            return mappingIterator->second;
+        }
+
+        try
+        {
+            std::size_t parsedCharacters = 0;
+            const int stationCode = std::stoi( trimmedStationName, &parsedCharacters );
+            if( parsedCharacters == trimmedStationName.size( ) )
+            {
+                const std::string normalizedCode = std::to_string( stationCode );
+                if( stationMap.count( normalizedCode ) > 0 )
+                {
+                    return normalizedCode;
+                }
+                mappingIterator = stationNameMapping.find( normalizedCode );
+                if( mappingIterator != stationNameMapping.end( ) && stationMap.count( mappingIterator->second ) > 0 )
+                {
+                    return mappingIterator->second;
+                }
+            }
+        }
+        catch( ... )
+        {
+            // Non-integer station names are handled by direct/map-based lookup only.
+        }
+
+        return "";
+    };
+
+    for( auto it : vmfData )
+    {
+        const std::string currentStationName = resolveStationName( it.first );
+        if( !currentStationName.empty( ) )
         {
             std::shared_ptr< ground_stations::GroundStation > currentStation =
                     bodies.at( "Earth" )->getGroundStationMap( ).at( currentStationName );
@@ -824,7 +1010,9 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
 
 void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
                                   const simulation_setup::SystemOfBodies& bodies,
-                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                  const std::vector< std::pair< std::string, std::string > >& stationSubset,
+                                  double subsetPaddingDeg )
 {
     // Use default interpolator if none provided
     if( interpolatorSettings == nullptr )
@@ -836,13 +1024,85 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
                 std::vector< interpolators::BoundaryInterpolationType >( 3, interpolators::use_boundary_value_with_warning ) );
     }
 
-    // Read TEC maps from IONEX file(s)
+    // Read TEC and RMS maps from IONEX file(s)
     input_output::IonexTecMap tecData;
-    readIonexFiles( dataFiles, tecData );
+    readIonexFiles( dataFiles, tecData, true );
 
     const std::vector< double >& times = tecData.epochs;
-    const std::vector< double >& latitudes = tecData.latitudes;
-    const std::vector< double >& longitudes = tecData.longitudes;
+    std::vector< double > latitudes = tecData.latitudes;
+    std::vector< double > longitudes = tecData.longitudes;
+
+    // Determine latitude/longitude index ranges for subsetting
+    std::size_t latStart = 0, latEnd = latitudes.size( );
+    std::size_t lonStart = 0, lonEnd = longitudes.size( );
+
+    if( !stationSubset.empty( ) )
+    {
+        // Collect geodetic positions of all specified stations
+        double minLat = 90.0, maxLat = -90.0, minLon = 180.0, maxLon = -180.0;
+        for( const auto& bodyStation : stationSubset )
+        {
+            const std::string& bodyName = bodyStation.first;
+            const std::string& stationName = bodyStation.second;
+            Eigen::Vector3d geodeticPos =
+                    bodies.getBody( bodyName )->getGroundStation( stationName )->getNominalStationState( )->getNominalGeodeticPosition( );
+            // geodeticPos = [altitude_m, latitude_rad, longitude_rad]
+            double latDeg = geodeticPos( 1 ) * 180.0 / mathematical_constants::PI;
+            double lonDeg = geodeticPos( 2 ) * 180.0 / mathematical_constants::PI;
+            minLat = std::min( minLat, latDeg );
+            maxLat = std::max( maxLat, latDeg );
+            minLon = std::min( minLon, lonDeg );
+            maxLon = std::max( maxLon, lonDeg );
+        }
+
+        // Expand bounding box by padding
+        minLat = std::max( -87.5, minLat - subsetPaddingDeg );
+        maxLat = std::min( 87.5, maxLat + subsetPaddingDeg );
+        minLon = std::max( -180.0, minLon - subsetPaddingDeg );
+        maxLon = std::min( 180.0, maxLon + subsetPaddingDeg );
+
+        // Find index ranges in the sorted lat/lon arrays
+        for( std::size_t i = 0; i < latitudes.size( ); ++i )
+        {
+            if( latitudes[ i ] >= minLat )
+            {
+                latStart = i;
+                break;
+            }
+        }
+        for( std::size_t i = latitudes.size( ); i > 0; --i )
+        {
+            if( latitudes[ i - 1 ] <= maxLat )
+            {
+                latEnd = i;
+                break;
+            }
+        }
+        for( std::size_t j = 0; j < longitudes.size( ); ++j )
+        {
+            if( longitudes[ j ] >= minLon )
+            {
+                lonStart = j;
+                break;
+            }
+        }
+        for( std::size_t j = longitudes.size( ); j > 0; --j )
+        {
+            if( longitudes[ j - 1 ] <= maxLon )
+            {
+                lonEnd = j;
+                break;
+            }
+        }
+
+        // Extract subset vectors
+        latitudes = std::vector< double >( latitudes.begin( ) + latStart, latitudes.begin( ) + latEnd );
+        longitudes = std::vector< double >( longitudes.begin( ) + lonStart, longitudes.begin( ) + lonEnd );
+
+        std::cerr << "IONEX subset: lat [" << latitudes.front( ) << ", " << latitudes.back( ) << "] (" << latitudes.size( )
+                  << " pts), lon [" << longitudes.front( ) << ", " << longitudes.back( ) << "] (" << longitudes.size( ) << " pts)"
+                  << std::endl;
+    }
 
     // Initialize 3D TEC grid: [time][lat][lon]
     boost::multi_array< double, 3 > tecGrid( boost::extents[ times.size( ) ][ latitudes.size( ) ][ longitudes.size( ) ] );
@@ -854,19 +1114,43 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
         {
             for( std::size_t j = 0; j < longitudes.size( ); ++j )
             {
-                tecGrid[ t ][ i ][ j ] = map( i, j );
+                tecGrid[ t ][ i ][ j ] = map( latStart + i, lonStart + j );
             }
         }
     }
 
-    // Create interpolator
+    // Create TEC interpolator
     std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > > interpolator =
             interpolators::createMultiDimensionalInterpolator< double, double, 3 >(
                     { times, latitudes, longitudes }, tecGrid, interpolatorSettings );
 
     // Create model and assign to Earth
-    std::shared_ptr< environment::IonosphereModel > ionosphereModel =
+    std::shared_ptr< environment::TabulatedIonosphereModel > ionosphereModel =
             std::make_shared< environment::TabulatedIonosphereModel >( interpolator, tecData.referenceIonosphereHeight_ );
+
+    // Build RMS interpolator if RMS maps are available
+    if( !tecData.rmsMaps.empty( ) && tecData.rmsMaps.size( ) == tecData.tecMaps.size( ) )
+    {
+        boost::multi_array< double, 3 > rmsGrid( boost::extents[ times.size( ) ][ latitudes.size( ) ][ longitudes.size( ) ] );
+
+        for( std::size_t t = 0; t < times.size( ); ++t )
+        {
+            const Eigen::MatrixXd& rmsMap = tecData.rmsMaps.at( times.at( t ) );
+            for( std::size_t i = 0; i < latitudes.size( ); ++i )
+            {
+                for( std::size_t j = 0; j < longitudes.size( ); ++j )
+                {
+                    rmsGrid[ t ][ i ][ j ] = rmsMap( latStart + i, lonStart + j );
+                }
+            }
+        }
+
+        std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > > rmsInterpolator =
+                interpolators::createMultiDimensionalInterpolator< double, double, 3 >(
+                        { times, latitudes, longitudes }, rmsGrid, interpolatorSettings );
+
+        ionosphereModel->setRmsInterpolator( rmsInterpolator );
+    }
 
     bodies.at( "Earth" )->setIonosphereModel( ionosphereModel );
 }
@@ -879,21 +1163,22 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
 {
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator;
 
-    if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( transmitter ).stationName_ ) >
-        0 )
+    if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
+                ->getGroundStationMap( )
+                .count( linkEnds.at( transmitter ).getReferencePointName( ) ) > 0 )
     {
         if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
-                    ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                    ->getGroundStation( linkEnds.at( transmitter ).getReferencePointName( ) )
                     ->getTransmittingFrequencyCalculator( ) != nullptr )
         {
             transmittedFrequencyCalculator = bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
-                                                     ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                                                     ->getGroundStation( linkEnds.at( transmitter ).getReferencePointName( ) )
                                                      ->getTransmittingFrequencyCalculator( );
         }
         else
         {
             throw std::runtime_error( "Error when creating link frequency function, no transmitter found in station " +
-                                      linkEnds.at( transmitter ).bodyName_ + "; " + linkEnds.at( transmitter ).stationName_ );
+                                      linkEnds.at( transmitter ).bodyName_ + "; " + linkEnds.at( transmitter ).getReferencePointName( ) );
         }
     }
     else if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getVehicleSystems( ) != nullptr )
@@ -912,7 +1197,7 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
     else
     {
         throw std::runtime_error( "Error when creating link frequency function, " + linkEnds.at( transmitter ).bodyName_ + "; " +
-                                  linkEnds.at( transmitter ).stationName_ +
+                                  linkEnds.at( transmitter ).getReferencePointName( ) +
                                   " has not transmitter in either the vehicle systems of station" );
     }
 
@@ -923,9 +1208,9 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
     {
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems;
         // Check if retransmitter is a body
-        if( retransmitterLinkEndsIt->second.stationName_ == "" ||
+        if( retransmitterLinkEndsIt->second.getReferencePointName( ) == "" ||
             !simulation_setup::isReferencePointGroundStation(
-                    bodies, retransmitterLinkEndsIt->second.bodyName_, retransmitterLinkEndsIt->second.stationName_ ) )
+                    bodies, retransmitterLinkEndsIt->second.bodyName_, retransmitterLinkEndsIt->second.getReferencePointName( ) ) )
         {
             vehicleSystems = bodies.getBody( retransmitterLinkEndsIt->second.bodyName_ )->getVehicleSystems( );
         }
@@ -933,15 +1218,15 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
         else
         {
             vehicleSystems = bodies.getBody( retransmitterLinkEndsIt->second.bodyName_ )
-                                     ->getGroundStation( retransmitterLinkEndsIt->second.stationName_ )
+                                     ->getGroundStation( retransmitterLinkEndsIt->second.getReferencePointName( ) )
                                      ->getVehicleSystems( );
         }
 
         if( vehicleSystems == nullptr )
         {
             throw std::runtime_error( "Error when creating link frequency function: vehicle systems are not defined for " +
-                                      retransmitterLinkEndsIt->second.bodyName_ + "/" + retransmitterLinkEndsIt->second.stationName_ +
-                                      " link end." );
+                                      retransmitterLinkEndsIt->second.bodyName_ + "/" +
+                                      retransmitterLinkEndsIt->second.getReferencePointName( ) + " link end." );
         }
 
         turnaroundRatioFunctions.push_back( vehicleSystems->getTransponderTurnaroundRatio( ) );

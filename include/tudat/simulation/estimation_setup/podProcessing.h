@@ -11,7 +11,10 @@
 #ifndef TUDAT_PODPROCESSING_H
 #define TUDAT_PODPROCESSING_H
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/basics/utilities.h"
 
 namespace tudat
 {

@@ -7,12 +7,14 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_ephemeris.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createEphemeris.h>
 
 #include "scalarTypes.h"
 
@@ -35,24 +37,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-inline std::shared_ptr< EphemerisSettings > customEphemerisSettingsDeprecated(
-        const std::function< Eigen::Vector6d( const double ) > customStateFunction,
-        const std::string& frameOrigin = "SSB",
-        const std::string& frameOrientation = "ECLIPJ2000" )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.environment_setup.ephemeris."
-                "custom",
-                "tudatpy.dynamics.environment_setup.ephemeris."
-                "custom_ephemeris" );
-        isWarningPrinted = true;
-    }
-
-    return customEphemerisSettings( customStateFunction, frameOrigin, frameOrientation );
-}
 }  // namespace simulation_setup
 }  // namespace tudat
 
@@ -134,7 +118,10 @@ void expose_ephemeris_setup( py::module& m )
                            &tss::EphemerisSettings::resetMakeMultiArcEphemeris,
                            R"doc(
 
-         Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris.
+         Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris. If this is set to ``true`` (default is ``false``),
+         the ephemeris settings object will be processed as though it were a :func:`~multi_arc_ephemeris` object initialized with a single arc
+         (with that single arc defined using this object). This is required when doing a multi-arc propagation/estimation (:func:`~tudatpy.dynamics.propagation_setup.propagator.multi_arc`)
+         in which the ephemeris of this body is to be reset.
 
          :type: bool
       )doc" )
@@ -148,6 +135,25 @@ void expose_ephemeris_setup( py::module& m )
 
          :type: EphemerisType
       )doc" );
+
+    py::class_< tss::DirectTleEphemerisSettings, std::shared_ptr< tss::DirectTleEphemerisSettings >, tss::EphemerisSettings >(
+            m, "DirectTleEphemerisSettings", R"doc(
+
+         Class for defining settings of an ephemeris linked directly to TLE data.
+
+         `EphemerisSettings` derived class for ephemeris which are directly linked to TLE data.
+         This is typically created through the :func:`~tudatpy.dynamics.environment_setup.ephemeris.sgp4` function, which creates TLE ephemeris settings objects from TLE data.
+
+         )doc" )
+            .def_property_readonly( "tle", &tss::DirectTleEphemerisSettings::getTle, R"doc(
+
+            **read-only**
+
+            TLE object containing the TLE data from which the ephemeris is to be created.
+
+            :type: Tle
+
+                )doc" );
 
     py::class_< tss::DirectSpiceEphemerisSettings, std::shared_ptr< tss::DirectSpiceEphemerisSettings >, tss::EphemerisSettings >(
             m,
@@ -280,7 +286,15 @@ void expose_ephemeris_setup( py::module& m )
 
 
       )doc" )
-            .def_property_readonly( "body_name", &tss::ApproximateJplEphemerisSettings::getBodyName, R"doc(No documentation found.)doc" );
+            .def_property_readonly( "body_name", &tss::ApproximateJplEphemerisSettings::getBodyName, R"doc(
+
+         **read-only**
+
+         Name of the body for which the approximate planetary ephemeris is defined.
+
+         :type: str
+
+      )doc" );
 
     py::class_< tss::ScaledEphemerisSettings, std::shared_ptr< tss::ScaledEphemerisSettings >, tss::EphemerisSettings >(
             m,
@@ -341,10 +355,23 @@ void expose_ephemeris_setup( py::module& m )
             //                "ECLIPJ2000")
             .def_property_readonly( "get_custom_state_function",
                                     &tss::CustomEphemerisSettings::getCustomStateFunction,
-                                    R"doc(No documentation found.)doc" );
+                                    R"doc(
+
+         **read-only**
+
+         User-defined function returning the Cartesian state (position in m and velocity in m/s) at the requested time in seconds since J2000.
+
+         :type: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]]
+
+      )doc" );
 
     py::class_< tss::KeplerEphemerisSettings, std::shared_ptr< tss::KeplerEphemerisSettings >, tss::EphemerisSettings >(
-            m, "KeplerEphemerisSettings", R"doc(No documentation found.)doc" )
+            m, "KeplerEphemerisSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.ephemeris.keplerian`,
+         :func:`~tudatpy.dynamics.environment_setup.ephemeris.keplerian_from_spice`.
+
+      )doc" )
             //            .def(py::init<const Eigen::Vector6d &,
             //            const double, const double,
             //                 const std::string &, const
@@ -364,18 +391,57 @@ void expose_ephemeris_setup( py::module& m )
             //                 = 1000.0)
             .def_property_readonly( "initial_state_in_keplerian_elements",
                                     &tss::KeplerEphemerisSettings::getInitialStateInKeplerianElements,
-                                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "epoch_of_initial_state", &tss::KeplerEphemerisSettings::getEpochOfInitialState, R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Initial Keplerian state, with entries semi-major axis, eccentricity, inclination, argument of periapsis, longitude of ascending node and true anomaly. The semi-major axis is in m and the angles are in rad.
+
+         :type: numpy.ndarray[numpy.float64[6, 1]]
+
+      )doc" )
+            .def_property_readonly( "epoch_of_initial_state", &tss::KeplerEphemerisSettings::getEpochOfInitialState, R"doc(
+
+         **read-only**
+
+         Epoch of the initial Keplerian state, in seconds since J2000.
+
+         :type: float
+
+      )doc" )
             .def_property_readonly( "central_body_gravitational_parameter",
                                     &tss::KeplerEphemerisSettings::getCentralBodyGravitationalParameter,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Gravitational parameter used for the two-body motion, in m^3/s^2.
+
+         :type: float
+
+      )doc" )
             .def_property_readonly( "root_finder_absolute_tolerance",
                                     &tss::KeplerEphemerisSettings::getRootFinderAbsoluteTolerance,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Absolute convergence tolerance used when solving Kepler's equation for the eccentric anomaly.
+
+         :type: float
+
+      )doc" )
             .def_property_readonly( "root_finder_maximum_number_of_iterations",
                                     &tss::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations,
-                                    R"doc(No documentation found.)doc" );
+                                    R"doc(
+
+         **read-only**
+
+         Maximum number of iterations used when solving Kepler's equation.
+
+         :type: float
+
+      )doc" );
 
     py::class_< tss::TabulatedEphemerisSettings, std::shared_ptr< tss::TabulatedEphemerisSettings >, tss::EphemerisSettings >(
             m,
@@ -408,7 +474,27 @@ void expose_ephemeris_setup( py::module& m )
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "ephemeris_settings" ),
            py::arg( "body_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Function for creating an ephemeris model from ephemeris settings.
+
+         Function for creating a :class:`~tudatpy.dynamics.environment.Ephemeris` object from the provided settings.
+         The resulting ephemeris can be used to query Cartesian states without adding the body to a system of bodies.
+
+         Parameters
+         ----------
+         ephemeris_settings : EphemerisSettings
+             Settings defining the ephemeris model to create.
+         body_name : str
+             Name of the body for which the ephemeris is created. For models that retrieve external ephemeris data,
+             this name is used when no alternative body name is specified in the settings.
+
+         Returns
+         -------
+         tudatpy.dynamics.environment.Ephemeris
+             Ephemeris object created from the specified settings.
+
+      )doc" );
 
     m.def( "keplerian",
            &tss::keplerEphemerisSettings,
@@ -433,8 +519,8 @@ void expose_ephemeris_setup( py::module& m )
  initial_state_in_keplerian_elements : numpy.ndarray[numpy.float64[6, 1]]
      Kepler elements at epoch given by ``initial_state_epoch``.
 
- initial_state_epoch : astro.time_representation.Time
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
+ initial_state_epoch : float
+     Epoch at which ``initial_state_in_keplerian_elements`` represents the Keplerian state, in seconds since J2000 TDB.
 
  central_body_gravitational_parameter : float
      Effective gravitational parameter of the central body that is used in the computations. Note that when
@@ -507,8 +593,8 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  body : str
      Name of body for which to create ephemeris settings and infer initial state from Spice.
- initial_state_epoch : astro.time_representation.Time
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
+ initial_state_epoch : float
+     Epoch at which the initial state is defined, in seconds since J2000 TDB.
 
  central_body_gravitational_parameter : float
      Gravitational parameter of the central body that is used in the computations.
@@ -671,7 +757,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "time_step" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           py::arg( "interpolator_settings" ) = std::make_shared< ti::LagrangeInterpolatorSettings >( 6 ),
+           py::arg_v( "interpolator_settings", std::make_shared< ti::LagrangeInterpolatorSettings >( 6 ), "..." ),
            py::arg( "body_name_to_use" ) = "",
            R"doc(
 
@@ -687,17 +773,17 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- initial_time : astro.time_representation.Time
-     Initial time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
- final_time : astro.time_representation.Time
-     Final time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
+ initial_time : float
+     Initial epoch from which interpolated data from Spice should be created, in seconds since J2000 TDB.
+ final_time : float
+     Final epoch through which interpolated data from Spice should be created, in seconds since J2000 TDB.
  time_step : float
      Time step with which interpolated data from Spice should be created.
  frame_origin : str, default="SSB"
      Origin of frame in which ephemeris data is defined.
  frame_orientation : str, default="ECLIPJ2000"
      Orientation of frame in which ephemeris data is defined.
- interpolator_settings : std::make_shared< interpolators::InterpolatorSettings >, default=std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 )
+ interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(6, boundary_interpolation=math.interpolators.extrapolate_at_boundary)
      Settings to be used for the state interpolation.
  body_name_to_use : str, default = ""
      Body from which Spice ephemeris is to be created.
@@ -751,7 +837,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- body_state_history : dict
+ body_state_history : dict[float, numpy.ndarray[numpy.float64[6, 1]]]
      Dictionary of the discrete state history data from which ephemeris is to be created. Keys representing the time (float) and values representing Cartesian states (numpy.ndarray).
  frame_origin : str, default="SSB"
      Origin of frame in which ephemeris data is defined.
@@ -801,7 +887,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "start_time" ),
            py::arg( "end_time" ),
            py::arg( "time_step" ),
-           py::arg( "interpolator_settings" ) = std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ),
+           py::arg_v( "interpolator_settings", std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ), "..." ),
            R"doc(
 
  Function for creating tabulated ephemeris model settings from existing ephemeris.
@@ -818,13 +904,13 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  ephemeris_settings : tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings
      Existing ephemeris settings that have to be tabulated.
- start_time : astro.time_representation.Time
-     Initial time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
- end_time : astro.time_representation.Time
-     Final time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
+ start_time : float
+     Initial epoch for which to create the tabulated ephemeris, in seconds since J2000 TDB.
+ end_time : float
+     Final epoch for which to create the tabulated ephemeris, in seconds since J2000 TDB.
  time_step : float
      Time step to use to tabulate the existing ephemeris.
- interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default=tudatpy.math.interpolators.lagrange_interpolation(8)
+ interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default = tudatpy.math.interpolators.lagrange_interpolation(8, boundary_interpolation=tudatpy.math.interpolators.extrapolate_at_boundary)
      Interpolator settings to use when interpolating between two tabulated ephemeris.
  Returns
  -------
@@ -1119,7 +1205,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- custom_state_function : Callable[[float], numpy.ndarray[numpy.float64[6, 1]]]
+ custom_state_function : callable[[float], numpy.ndarray[numpy.float64[6, 1]]]
      Function returning the state as a function of time.
  frame_origin : str, default="SSB"
      Origin of frame in which ephemeris data is defined.
@@ -1156,7 +1242,7 @@ void expose_ephemeris_setup( py::module& m )
    frame_origin = "SSB"
    frame_orientation = "J2000"
    # Make the ephemeris settings
-   body_settings.get("Earth").ephemeris_settings = environment_setup.ephemeris.custom(
+   body_settings.get("Earth").ephemeris_settings = environment_setup.ephemeris.custom_ephemeris(
        custom_state_function,
        frame_origin,
        frame_orientation)
@@ -1164,12 +1250,67 @@ void expose_ephemeris_setup( py::module& m )
 
      )doc" );
 
-    m.def( "custom",
-           &tss::customEphemerisSettingsDeprecated,
-           py::arg( "custom_state_function" ),
+    m.def( "multi_arc_ephemeris",
+           &tss::multiArcEphemerisSettings,
+           py::arg( "single_arc_ephemeris_settings" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           R"doc(Deprecated function. Use custom_ephemeris instead.)doc" );
+           py::arg_v( "default_ephemeris_settings", std::shared_ptr< tss::EphemerisSettings >( ), "None" ),
+           R"doc(
+
+ Function for creating multi-arc ephemeris model settings.
+
+ Function for creating multi-arc ephemeris model settings, in which different ephemerides are used over different time
+ intervals to compute the state of a given object. This object is typically used in conjunction with
+ a multi-arc propagation (settings for which are defined using :func:`~tudatpy.dynamics.propagation_setup.propagator.multi_arc`)
+ and/or estimation. Then, the propagation results of the different arcs can be used to reset the ephemeris of the body, using this
+ multi-arc ephemeris model
+
+ The ``single_arc_ephemeris_settings`` input is a dictionary to define the arc ephemeris settings,
+ with key the arc initial epoch :math:`t_{i,0}` of arc :math:`i`, and with value the
+ ephemeris settings defining the state function :math:`\mathbf{x}_{i}(t)` of the associated arc :math:`i`. The time interval during
+ which the arc is 'valid' (e.g during which the state function :math:`\mathbf{x}_{i}(t)` can be queried) depends on the underlying
+ ephemeris model. If :math:`\mathbf{x}_{i}(t)` is an ephemeris model that does not have any specific boundaries of validity (such
+ as a Keplerian ephemeris or a constant ephemeris), then arc :math:`i` is defined to be the time interval :math:`[t_{i}, t_{i+1})`
+ for all but the first and last arc. For the first arc, the boundary is then :math:`[-\infty, t_{i+1})` final arc, the
+ boundary in this case becomes :math:`[t_{i}, \infty)`. As a result, if the underlying arc-wise ephemerides are defined everywhere, the
+ multi-arc ephemeris is defined everywhere.
+
+ For the case where the underlying ephemeris is not defined everywhere (for instance a tabulated ephemeris), the minimum and maximum
+ epoch of the underlying ephemeris :math:`t_{\min,i},t_{\max,i}` are extracted, and the valid time interval of arc :math:`i` becomes
+ :math:`[\max(t_{0,i},t_{\min,i}),\min(t_{0,i+1},t_{\max,i})`. Note that, for a Lagrange interpolator underlying the tabulated ephemeris
+ (as is the default for a numerical propagation result stored in an ephemeris), the interpolator can use a cubic spline interpolator at
+ the boundaries of the domain to avoid Runge's phenomenon (see :func:`~tudatpy.math.interpolators.lagrange_interpolation`). In this case,
+ the interpolator is defined to be valid over the full propagation domain (even if the cubic spine interpolator will be much less accurate than
+ the Lagrange interpolator).
+
+ For cases where there are 'gaps' in the coverage of the multi-arc ephemeris, we provide the option to set a default ephemeris that gets
+ queried if a state is requested at an epoch that is not a valid epoch for any of the arcs (using the ``default_ephemeris_settings`` input).
+ If the state is queried at an epoch where not arc is valid, and no default ephemeris is provided, an exception is thrown.
+
+ Note that, when resetting the arc-wise ephemerides (for instance as a result of a repropagation and resetting of the dynamics), both
+ the number of arcs and the initial/final epochs of the arc may change.
+
+
+ Parameters
+ ----------
+ single_arc_ephemeris_settings : dict[float, EphemerisSettings]
+     Dictionary of underlying single-arc ephemeris, with the key providing :math:`t_{i,0}` and the value the settings
+     for the ephemeris settings from which the state function :math:`\mathbf{x}(t_{i})` is created
+ frame_origin : str, default="SSB"
+     Origin of frame in which ephemeris data is defined.
+ frame_orientation : str, default="ECLIPJ2000"
+     Orientation of frame in which ephemeris data is defined.
+ default_ephemeris_settings: EphemerisSettings, default = None
+     Settings to create a default ephemeris model that is use when the multi-arc ephemeris is queried at an epoch at which none of the
+     arcs are valid
+ Returns
+ -------
+ EphemerisSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` class with the required settings
+
+
+     )doc" );
 }
 
 }  // namespace ephemeris

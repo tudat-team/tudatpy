@@ -62,7 +62,7 @@ public:
     /*!
      * \param realFunction C++ function that will be used to evaluate this mathematical function.
      */
-    FunctionProxy( FunctionSignature realFunction ): realFunction_( realFunction ) { }
+    FunctionProxy( FunctionSignature realFunction ): realFunction_( realFunction ) {}
 
     //! Evaluate the mathematical function.
     /*!

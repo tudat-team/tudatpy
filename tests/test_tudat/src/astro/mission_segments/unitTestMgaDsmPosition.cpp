@@ -14,13 +14,12 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -103,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
 
         // Check if Keplerian state (slow elements) is the same for each output point
         Eigen::Vector6d previousKeplerianState = Eigen::Vector6d::Constant( TUDAT_NAN );
-        for( auto it: statesAlongTrajectory )
+        for( auto it : statesAlongTrajectory )
         {
             Eigen::Vector6d currentCartesianState = it.second;
             Eigen::Vector6d currentKeplerianState = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
@@ -132,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, dsmTime - timeTolerance, 1.0E-14 );
 
         // Check if thrust acceleration is zero
-        for( auto it: thrustAccelerationsAlongTrajectory )
+        for( auto it : thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
             BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm( ), 1.0E-14 );
@@ -152,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
 
         // Check if Keplerian state (slow elements) is the same for each output point
         Eigen::Vector6d previousKeplerianState = Eigen::Vector6d::Constant( TUDAT_NAN );
-        for( auto it: statesAlongTrajectory )
+        for( auto it : statesAlongTrajectory )
         {
             Eigen::Vector6d currentCartesianState = it.second;
             Eigen::Vector6d currentKeplerianState = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
@@ -181,7 +180,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, timeOfFlight, 1.0E-14 );
 
         // Check if thrust acceleration is zero
-        for( auto it: thrustAccelerationsAlongTrajectory )
+        for( auto it : thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
             BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm( ), 1.0E-14 );

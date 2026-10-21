@@ -8,13 +8,14 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {
@@ -120,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testEihPropagation )
         Eigen::Vector6d rmsDifference = Eigen::Vector6d::Zero( );
         Eigen::Vector6d maximumDifference = Eigen::Vector6d::Zero( );
 
-        for( auto it: integrationResult )
+        for( auto it : integrationResult )
         {
             currentDifference = ( it.second - getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, it.first ) );
             rmsDifference += currentDifference.cwiseProduct( currentDifference );

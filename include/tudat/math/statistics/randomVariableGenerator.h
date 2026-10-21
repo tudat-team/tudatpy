@@ -36,10 +36,10 @@ public:
      *  Constructor, sets the seed for the base random number generator.
      *  \param seed Seed of random number generator (default is pseudo-random time(0))
      */
-    RandomVariableGenerator( const double seed ): randomNumberGenerator_( seed ) { }
+    RandomVariableGenerator( const double seed ): randomNumberGenerator_( seed ) {}
 
     //! Destructor
-    virtual ~RandomVariableGenerator( ) { }
+    virtual ~RandomVariableGenerator( ) {}
 
     //! Function to generate random number
     /*!
@@ -76,7 +76,7 @@ public:
     ContinuousRandomVariableGenerator( const std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable,
                                        const double seed ):
         RandomVariableGenerator< double >( seed ), randomVariable_( randomVariable ), randomUniformCdfGenerator_( randomNumberGenerator_ )
-    { }
+    {}
 
     //! Function to generate random number
     /*!

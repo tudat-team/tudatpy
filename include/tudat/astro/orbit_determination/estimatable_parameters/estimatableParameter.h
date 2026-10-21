@@ -17,12 +17,15 @@
 #include <vector>
 #include <map>
 
+#include <functional>
 #include <type_traits>
 #include <memory>
+#include <stdexcept>
 #include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 
 namespace tudat
@@ -88,13 +91,27 @@ enum EstimatebleParametersEnum {
     nominal_rotation_pole_position,
     rotation_pole_position_rate,
     rotation_longitudinal_libration_terms,
+    rotation_pole_libration_terms,
     drag_component_scaling_factor,
     side_component_scaling_factor,
     lift_component_scaling_factor,
+    arc_wise_drag_component_scaling_factor,
+    arc_wise_side_component_scaling_factor,
+    arc_wise_lift_component_scaling_factor,
     rtg_force_vector,
     rtg_force_vector_magnitude,
     area_to_mass_scaling_factor,
-    full_acceleration_scaling_factor
+    full_acceleration_scaling_factor,
+    exponential_atmosphere_base_density,
+    exponential_atmosphere_scale_height,
+    arc_wise_exponential_atmosphere_base_density,
+    arc_wise_exponential_atmosphere_scale_height,
+    energy_accommodation_coefficient,
+    normal_accommodation_coefficient,
+    tangential_accommodation_coefficient,
+    normal_velocity_at_wall_ratio,
+    three_coefficient_radiation_pressure_coefficients,
+    shared_observation_bias
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -172,9 +189,9 @@ public:
                                        const basic_astrodynamics::AvailableAcceleration accelerationType ):
         bodyUndergoingAcceleration_( bodyUndergoingAcceleration ), bodyExertingAcceleration_( bodyExertingAcceleration ),
         accelerationType_( accelerationType )
-    { }
+    {}
 
-    virtual ~CustomAccelerationPartialSettings( ) { }
+    virtual ~CustomAccelerationPartialSettings( ) {}
 
     std::string bodyUndergoingAcceleration_;
 
@@ -203,7 +220,7 @@ public:
                     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
         CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ),
         parameterPerturbation_( parameterPerturbation ), environmentUpdateSettings_( environmentUpdateSettings )
-    { }
+    {}
 
     Eigen::VectorXd parameterPerturbation_;
 
@@ -220,7 +237,7 @@ public:
             const basic_astrodynamics::AvailableAcceleration accelerationType ):
         CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ),
         accelerationPartialFunction_( accelerationPartialFunction )
-    { }
+    {}
 
     std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction_;
 };
@@ -247,13 +264,12 @@ inline std::shared_ptr< CustomAccelerationPartialSettings > numericalAcceleratio
             parameterPerturbation, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, environmentUpdateSettings );
 }
 
-//! Base class for a parameter that is to be estimated.
+//! Untemplated base class for a parameter that is to be estimated.
 /*!
- *  Base class for a parameter that is to be estimated. A separate derived class is to be made for each type of parameter
- *  (i.e. gravitational parameter, initial translational state, etc. ).
+ * Base class containing all type-independent behavior for estimatable parameters.
+ * Derived classes provide type-specific get/set and conversion to/from Eigen::VectorXd.
  */
-template< typename ParameterType >
-class EstimatableParameter
+class EstimatableParameterBase
 {
 public:
     //! Constructor.
@@ -264,28 +280,14 @@ public:
      *  \param associatedBody Name of body associated with patameters
      *  \param pointOnBodyId Reference point on body associated with parameter (empty by default).
      */
-    EstimatableParameter( const EstimatebleParametersEnum parameterName,
-                          const std::string& associatedBody,
-                          const std::string& pointOnBodyId = "" ):
+    EstimatableParameterBase( const EstimatebleParametersEnum parameterName,
+                              const std::string& associatedBody,
+                              const std::string& pointOnBodyId = "" ):
         parameterName_( std::make_pair( parameterName, std::make_pair( associatedBody, pointOnBodyId ) ) )
-    { }
+    {}
 
     //! Virtual destructor.
-    virtual ~EstimatableParameter( ) { }
-
-    //! Pure virtual function to retrieve the value of the parameter
-    /*!
-     *  Pure virtual function to retrieve the value of the parameter
-     *  \return Current value of parameter.
-     */
-    virtual ParameterType getParameterValue( ) = 0;
-
-    //! Pure virtual function to (re)set the value of the parameter.
-    /*!
-     *  Pure virtual function to (re)set the value of the parameter.
-     *  \param parameterValue to which the parameter is to be set.
-     */
-    virtual void setParameterValue( const ParameterType parameterValue ) = 0;
+    virtual ~EstimatableParameterBase( ) {}
 
     //! Function to retrieve the type and associated body of the parameter.
     /*!
@@ -317,6 +319,12 @@ public:
      *  \return Size of parameter value.
      */
     virtual int getParameterSize( ) = 0;
+
+    //! Retrieve parameter value through untemplated vector interface.
+    virtual Eigen::VectorXd getParameterValueBase( ) = 0;
+
+    //! Set parameter value through untemplated vector interface.
+    virtual void setParameterValueBase( const Eigen::VectorXd& parameterValue ) = 0;
 
     //! Function to return additional identifier for parameter
     /*!
@@ -359,7 +367,7 @@ public:
         return Eigen::VectorXd::Zero( 0 );
     }
 
-    virtual void throwExceptionIfNotFullyDefined( ) { }
+    virtual void throwExceptionIfNotFullyDefined( ) {}
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > getCustomPartialSettings( )
     {
@@ -421,6 +429,77 @@ protected:
     }
 };
 
+template< typename ParameterType >
+Eigen::VectorXd convertEstimatableParameterToVector( const ParameterType& parameterValue )
+{
+    return parameterValue.template cast< double >( );
+}
+
+template< typename ParameterType >
+ParameterType convertEstimatableParameterFromVector( const Eigen::VectorXd& parameterValue )
+{
+    return parameterValue.template cast< typename ParameterType::Scalar >( );
+}
+
+template<>
+inline Eigen::VectorXd convertEstimatableParameterToVector< double >( const double& parameterValue )
+{
+    return Eigen::VectorXd::Constant( 1, parameterValue );
+}
+
+template<>
+inline double convertEstimatableParameterFromVector< double >( const Eigen::VectorXd& parameterValue )
+{
+    if( parameterValue.rows( ) != 1 )
+    {
+        throw std::runtime_error(
+                "Error when setting scalar estimatable parameter through untemplated vector interface, expected vector size 1, got " +
+                std::to_string( parameterValue.rows( ) ) + "." );
+    }
+    return parameterValue( 0 );
+}
+
+//! Templated parameter class containing only typed get/set and vector conversion.
+template< typename ParameterType >
+class EstimatableParameter : public EstimatableParameterBase
+{
+public:
+    EstimatableParameter( const EstimatebleParametersEnum parameterName,
+                          const std::string& associatedBody,
+                          const std::string& pointOnBodyId = "" ): EstimatableParameterBase( parameterName, associatedBody, pointOnBodyId )
+    {}
+
+    virtual ~EstimatableParameter( ) {}
+
+    //! Pure virtual function to retrieve the value of the parameter
+    virtual ParameterType getParameterValue( ) = 0;
+
+    //! Pure virtual function to (re)set the value of the parameter.
+    virtual void setParameterValue( const ParameterType parameterValue ) = 0;
+
+    Eigen::VectorXd getParameterValueBase( ) override
+    {
+        Eigen::VectorXd parameterValueVector = convertEstimatableParameterToVector< ParameterType >( getParameterValue( ) );
+        if( parameterValueVector.rows( ) != getParameterSize( ) )
+        {
+            throw std::runtime_error( "Error when getting estimatable parameter through untemplated vector interface, expected size " +
+                                      std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValueVector.rows( ) ) +
+                                      "." );
+        }
+        return parameterValueVector;
+    }
+
+    void setParameterValueBase( const Eigen::VectorXd& parameterValue ) override
+    {
+        if( parameterValue.rows( ) != getParameterSize( ) )
+        {
+            throw std::runtime_error( "Error when setting estimatable parameter through untemplated vector interface, expected size " +
+                                      std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValue.rows( ) ) + "." );
+        }
+        setParameterValue( convertEstimatableParameterFromVector< ParameterType >( parameterValue ) );
+    }
+};
+
 class CustomEstimatableParameter : public EstimatableParameter< Eigen::VectorXd >
 {
 public:
@@ -438,10 +517,10 @@ public:
                                 const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
         EstimatableParameter< Eigen::VectorXd >( custom_estimated_parameter, "", customId ), parameterSize_( parameterSize ),
         getParameterFunction_( getParameterFunction ), setParameterFunction_( setParameterFunction )
-    { }
+    {}
 
     //! Virtual destructor.
-    ~CustomEstimatableParameter( ) { }
+    ~CustomEstimatableParameter( ) {}
 
     //! Pure virtual function to retrieve the value of the parameter
     /*!
@@ -495,9 +574,9 @@ protected:
 class CustomAccelerationPartialCalculator
 {
 public:
-    CustomAccelerationPartialCalculator( ) { }
+    CustomAccelerationPartialCalculator( ) {}
 
-    virtual ~CustomAccelerationPartialCalculator( ) { }
+    virtual ~CustomAccelerationPartialCalculator( ) {}
 
     virtual Eigen::MatrixXd computePartial( const double currentTime,
                                             const Eigen::Vector3d& currentAcceleration,
@@ -596,7 +675,7 @@ public:
             const int parameterSize,
             const std::string parameterName ):
         accelerationPartialFunction_( accelerationPartialFunction ), parameterSize_( parameterSize ), parameterName_( parameterName )
-    { }
+    {}
 
     Eigen::MatrixXd computePartial( const double currentTime,
                                     const Eigen::Vector3d& currentAcceleration,
@@ -623,7 +702,7 @@ protected:
 class CustomSingleAccelerationPartialCalculatorSet
 {
 public:
-    CustomSingleAccelerationPartialCalculatorSet( ) { }
+    CustomSingleAccelerationPartialCalculatorSet( ) {}
 
     std::map< estimatable_parameters::EstimatebleParameterIdentifier,
               std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > >

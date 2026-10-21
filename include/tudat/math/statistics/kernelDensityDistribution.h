@@ -33,7 +33,7 @@ public:
      * \param mean Kernel mean
      * \param bandWidth Kernel bandwidth
      */
-    EpanechnikovKernelDistribution( const double mean, const double bandWidth ): mean_( mean ), bandWidth_( bandWidth ) { }
+    EpanechnikovKernelDistribution( const double mean, const double bandWidth ): mean_( mean ), bandWidth_( bandWidth ) {}
 
     //! Function to evaluate pdf of distribution
     /*!

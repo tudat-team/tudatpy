@@ -115,8 +115,7 @@ int main( )
     double initialTime = 0.0;
     double fixedStepSize = 1000.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings<> >(
-                    numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, fixedStepSize );
 
     /// Ideal case
 
@@ -173,7 +172,7 @@ int main( )
                                                          dependentVariablesTrajectory,
                                                          false );
 
-    for( auto itr: patchedConicsTrajectory )
+    for( auto itr : patchedConicsTrajectory )
     {
         std::cout << "Leg " << itr.first << "\n\n";
         std::cout << "Departure: "
@@ -228,7 +227,7 @@ int main( )
                                                          dependentVariablesPerturbedCase,
                                                          true );
 
-    for( auto itr: patchedConicsTrajectoryPerturbedCase )
+    for( auto itr : patchedConicsTrajectoryPerturbedCase )
     {
         std::cout << "Leg " << itr.first << "\n\n";
         std::cout << "Departure: "

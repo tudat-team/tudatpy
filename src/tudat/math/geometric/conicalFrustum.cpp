@@ -200,7 +200,7 @@ double ConicalFrustum::getParameter( const int index )
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream, ConicalFrustum &conicalFrustum )
+std::ostream& operator<<( std::ostream& stream, ConicalFrustum& conicalFrustum )
 {
     stream << "This is a conical frustum geometry." << std::endl;
     stream << "The circumferential angle runs from: " << conicalFrustum.getMinimumAzimuthAngle( ) * 180.0 / PI << " degrees to "

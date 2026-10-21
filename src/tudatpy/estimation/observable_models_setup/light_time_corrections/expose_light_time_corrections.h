@@ -11,12 +11,7 @@
 #ifndef TUDATPY_EXPOSE_LIGHT_TIME_CORRECTIONS_H
 #define TUDATPY_EXPOSE_LIGHT_TIME_CORRECTIONS_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 
 namespace py = pybind11;
 
@@ -30,7 +25,7 @@ namespace observable_models_setup
 namespace light_time_corrections
 {
 
-void expose_light_time_corrections( py::module &m );
+void expose_light_time_corrections( py::module& m );
 
 }  // namespace light_time_corrections
 }  // namespace observable_models_setup

@@ -28,7 +28,7 @@ class RelativeAngularPositionScaling : public PositionPartialScaling
 {
 public:
     //! Destructor
-    ~RelativeAngularPositionScaling( ) { }
+    ~RelativeAngularPositionScaling( ) {}
 
     //! Update the scaling object to the current times and states
     /*!

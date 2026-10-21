@@ -79,7 +79,7 @@ public:
     }
 
     //! Destructor
-    ~EmpiricalAccelerationCoefficientsParameter( ) { }
+    ~EmpiricalAccelerationCoefficientsParameter( ) {}
 
     //! Get value of empirical acceleration components
     /*!
@@ -184,8 +184,8 @@ public:
 
     std::string getParameterDescription( )
     {
-        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "acting on " + parameterName_.second.first + " w.r.t. "  + parameterName_.second.second +
-            + ", components in RSW frame, functional shapes; ";
+        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "acting on " + parameterName_.second.first +
+                " w.r.t. " + parameterName_.second.second + +", components in RSW frame, functional shapes; ";
 
         for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator indexIterator =
                      accelerationIndices_.begin( );
@@ -297,7 +297,8 @@ public:
         {
             currentTimeInvariantEmpiricalAccelerations = empiricalAcceleration.at( 0 )->getAccelerationComponents( );
         }
-        catch( ... ){ }
+        catch( ... )
+        {}
 
         for( unsigned int i = 1; i < empiricalAcceleration.size( ); i++ )
         {
@@ -306,7 +307,8 @@ public:
             {
                 comparisonAccelerations = empiricalAcceleration.at( i )->getAccelerationComponents( );
             }
-            catch( ... ){ }
+            catch( ... )
+            {}
             if( comparisonAccelerations != currentTimeInvariantEmpiricalAccelerations )
             {
                 std::cerr << "Warning when initializing arc-wise empirical acceleration parameter, list of input acceleration models do "
@@ -331,7 +333,7 @@ public:
     }
 
     //! Destructor
-    ~ArcWiseEmpiricalAccelerationCoefficientsParameter( ) { }
+    ~ArcWiseEmpiricalAccelerationCoefficientsParameter( ) {}
 
     //! Get value of arcwise empirical acceleration components
     /*!

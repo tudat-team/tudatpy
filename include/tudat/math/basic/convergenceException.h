@@ -34,13 +34,13 @@ namespace basic_mathematics
 struct ConvergenceException : public virtual boost::exception, public virtual std::exception {
 public:
     //! Constructor that sets exception message to default string.
-    ConvergenceException( ): message( "Failed to converge to a solution." ) { }
+    ConvergenceException( ): message( "Failed to converge to a solution." ) {}
 
     //! Constructor that sets exception message based on input character array.
-    ConvergenceException( const char* errMessage ): message( errMessage ) { }
+    ConvergenceException( const char* errMessage ): message( errMessage ) {}
 
     //! Constructor that sets exception message based on input string.
-    ConvergenceException( const std::string& errMessage ): message( errMessage.c_str( ) ) { }
+    ConvergenceException( const std::string& errMessage ): message( errMessage.c_str( ) ) {}
 
     //! Return what the exception message stored is.
     const char* what( ) const throw( )

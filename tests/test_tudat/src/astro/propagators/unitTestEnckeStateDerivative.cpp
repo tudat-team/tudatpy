@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 #include <thread>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -26,9 +25,9 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
@@ -138,8 +137,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, centralBodyMap );
 
         // Create integrator settings.
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 250.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 250.0 );
 
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
 
@@ -158,16 +156,21 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    systemInitialState,
-                                                                                    finalEphemerisTime,
-                                                                                    cowell,
-                                                                                    dependentVariables );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                        cowell,
+                        dependentVariables );
 
         // Propagate orbit with Cowell method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime + 10.0 * maximumTimeStep;
@@ -193,10 +196,19 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Encke)
         propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, encke, dependentVariables );
+                centralBodies,
+                accelerationModelMap,
+                bodiesToPropagate,
+                systemInitialState,
+                initialEphemerisTime,
+                integratorSettings,
+                std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                encke,
+                dependentVariables );
 
         // Propagate orbit with Encke method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -324,12 +336,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
-        std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth", "Moon" } );
-        bodies.at( "Vehicle" )
-                ->setRadiationPressureInterface( "Sun",
-                                                 createRadiationPressureInterface( vehicleRadiationPressureSettings, "Vehicle", bodies ) );
+        addRadiationPressureTargetModel(
+                bodies, "Vehicle", cannonballRadiationPressureTargetModelSettings( 4.0, 1.2, { "Earth", "Moon" } ) );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -368,7 +376,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
             accelerationsOfVehicle[ "Venus" ].push_back(
                     std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
             accelerationsOfVehicle[ "Sun" ].push_back(
-                    std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+                    std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
         }
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
         bodiesToPropagate.push_back( "Vehicle" );
@@ -422,22 +430,26 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
                 std::make_shared< SingleDependentVariableSaveSettings >( keplerian_state_dependent_variable, "Vehicle", "Earth" ) );
 
         // Define propagator settings (Cowell)
+        const double fixedStepSize = 5.0;
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    vehicleInitialState,
-                                                                                    simulationEndEpoch,
-                                                                                    cowell,
-                                                                                    dependentVariables );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        vehicleInitialState,
+                        0.0,
+                        integratorSettings,
+
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        cowell,
+                        dependentVariables );
 
         // Define integrator settings.
-        const double fixedStepSize = 5.0;
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
         // Propagate orbit with Cowell method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = simulationStartEpoch + 10.0 * fixedStepSize;
@@ -457,16 +469,21 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
         }
 
         // Create propagation settings (Encke)
-        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                                 accelerationModelMap,
-                                                                                                 bodiesToPropagate,
-                                                                                                 vehicleInitialState,
-                                                                                                 simulationEndEpoch,
-                                                                                                 encke,
-                                                                                                 dependentVariables );
+        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies,
+                accelerationModelMap,
+                bodiesToPropagate,
+                vehicleInitialState,
+                0.0,
+                integratorSettings,
+
+                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                encke,
+                dependentVariables );
 
         // Propagate orbit with Encke method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;

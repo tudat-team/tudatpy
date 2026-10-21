@@ -11,15 +11,7 @@
 #ifndef TUDATPY_EXPOSE_OBSERVATIONS_H
 #define TUDATPY_EXPOSE_OBSERVATIONS_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
-#include "observations_processing/expose_observations_processing.h"
-#include "observations_geometry/expose_observations_geometry.h"
-
 
 namespace py = pybind11;
 
@@ -30,7 +22,7 @@ namespace estimation
 namespace observations
 {
 
-void expose_observations( py::module &m );
+void expose_observations( py::module& m );
 
 }  // namespace observations
 }  // namespace estimation

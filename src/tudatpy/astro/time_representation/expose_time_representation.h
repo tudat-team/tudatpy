@@ -23,7 +23,7 @@ namespace astro
 namespace time_representation
 {
 
-void expose_time_representation( py::module &m );
+void expose_time_representation( py::module& m );
 
 }  // namespace time_representation
 }  // namespace astro

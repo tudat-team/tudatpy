@@ -17,6 +17,7 @@
 #ifndef TUDAT_AERODYNAMIC_COEFFICIENT_GENERATOR_H
 #define TUDAT_AERODYNAMIC_COEFFICIENT_GENERATOR_H
 
+#include <array>
 #include <vector>
 
 #include <boost/multi_array.hpp>
@@ -98,7 +99,7 @@ public:
             throw std::runtime_error( "Error in AerodynamicCoefficientGenerator, input data is inconsistent" );
         }
 
-        boost::array< int, NumberOfIndependentVariables > numberOfPointsPerIndependentVariables;
+        std::array< int, NumberOfIndependentVariables > numberOfPointsPerIndependentVariables;
         for( unsigned int i = 0; i < NumberOfIndependentVariables; i++ )
         {
             numberOfPointsPerIndependentVariables[ i ] = dataPointsOfIndependentVariables_[ i ].size( );
@@ -108,7 +109,7 @@ public:
     }
 
     //! Default destructor.
-    virtual ~AerodynamicCoefficientGenerator( ) { }
+    virtual ~AerodynamicCoefficientGenerator( ) {}
 
     //! Get the number of points for an independent variable.
     /*!
@@ -145,7 +146,7 @@ public:
      * \return vector of coefficients at specified independent variable indices.
      */
     virtual Eigen::Matrix< double, NumberOfCoefficients, 1 > getAerodynamicCoefficientsDataPoint(
-            const boost::array< int, NumberOfIndependentVariables > independentVariables ) = 0;
+            const std::array< int, NumberOfIndependentVariables > independentVariables ) = 0;
 
     //! Function to return the complete set of aerodynamic coefficients that have been calculated.
     /*!
@@ -242,14 +243,14 @@ public:
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error in tabulated aerodynamic coefficients.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            throw std::runtime_error( "Error in tabulated aerodynamic coefficients.\nOriginal error: " +
+                                      std::string( caughtException.what( ) ) );
         }
-
     }
 
     void clearBaseData( )
     {
-        boost::array< int, NumberOfCoefficients > numberOfPointsPerIndependentVariables;
+        std::array< int, NumberOfCoefficients > numberOfPointsPerIndependentVariables;
         for( unsigned int i = 0; i < NumberOfCoefficients; i++ )
         {
             numberOfPointsPerIndependentVariables[ i ] = 0;

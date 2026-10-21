@@ -84,18 +84,113 @@
      endif ()
  endif ()
 
+ # clang-cl identifies itself as Clang, but accepts the MSVC command-line
+ # interface. Keep it in the Clang code path while selecting MSVC-style flags.
+ set(TUDAT_BUILD_CLANG_CL OFF)
+ if (TUDAT_BUILD_CLANG AND WIN32
+         AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+         AND "${CMAKE_CXX_SIMULATE_ID}" STREQUAL "MSVC")
+     set(TUDAT_BUILD_CLANG_CL ON)
+ endif ()
+
+ macro(tudat_apply_optimization_policy)
+     if (TUDAT_BUILD_MSVC OR TUDAT_BUILD_CLANG_CL)
+         set(TUDAT_OPTIMIZATION_REGEX "(^| )[/-]O[d123x]?([ ]|$)")
+
+        if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+            set(TUDAT_OPT_DEBUG "/O1")
+            set(TUDAT_OPT_RELEASE "/O1")
+            set(TUDAT_OPT_RELWITHDEBINFO "/O1")
+            set(TUDAT_OPT_MINSIZEREL "/O1")
+            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON: forcing reduced optimization flags.")
+        else ()
+            set(TUDAT_OPT_DEBUG "/Od")
+            set(TUDAT_OPT_RELEASE "/O2")
+            set(TUDAT_OPT_RELWITHDEBINFO "/O2")
+            set(TUDAT_OPT_MINSIZEREL "/O1")
+            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=OFF: using default optimization policy (Debug=/Od).")
+        endif ()
+     else ()
+         set(TUDAT_OPTIMIZATION_REGEX "(^| )-O[^ ]*([ ]|$)")
+
+        if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+            set(TUDAT_OPT_DEBUG "-O1")
+            set(TUDAT_OPT_RELEASE "-O1")
+            set(TUDAT_OPT_RELWITHDEBINFO "-O1")
+            set(TUDAT_OPT_MINSIZEREL "-O1")
+            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON: forcing reduced optimization flags.")
+        else ()
+            set(TUDAT_OPT_DEBUG "-Og")
+            set(TUDAT_OPT_RELEASE "-O3")
+            set(TUDAT_OPT_RELWITHDEBINFO "-O2")
+            set(TUDAT_OPT_MINSIZEREL "-Os")
+            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=OFF: using default optimization policy (Debug=-Og).")
+        endif ()
+     endif ()
+
+     foreach (flag_var
+             CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG
+             CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE
+             CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO
+             CMAKE_C_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_MINSIZEREL)
+         if (DEFINED ${flag_var})
+             if (flag_var MATCHES "_DEBUG$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_DEBUG}")
+             elseif (flag_var MATCHES "_RELEASE$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_RELEASE}")
+             elseif (flag_var MATCHES "_RELWITHDEBINFO$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_RELWITHDEBINFO}")
+             elseif (flag_var MATCHES "_MINSIZEREL$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_MINSIZEREL}")
+             else ()
+                 continue()
+             endif ()
+             string(REGEX REPLACE "${TUDAT_OPTIMIZATION_REGEX}" " " ${flag_var} "${${flag_var}}")
+             set(${flag_var} "${${flag_var}} ${TUDAT_OPTIMIZATION_VALUE}")
+         endif ()
+     endforeach ()
+ endmacro()
+
  # Set the compile flags
  if (TUDAT_BUILD_CLANG)
      # add compile definition and print status
      add_compile_definitions(TUDAT_BUILD_CLANG)
-     message(STATUS "Using clang compiler.")
+     if (TUDAT_BUILD_CLANG_CL)
+         message(STATUS "Using clang-cl compiler.")
+     else ()
+         message(STATUS "Using clang compiler.")
+     endif ()
 
-     # set default cmake c flags for clang
-     set(CMAKE_C_FLAGS "-Wall -std=c11")
-     set(CMAKE_C_FLAGS_DEBUG "-g")
-     set(CMAKE_C_FLAGS_MINSIZEREL "-Os -DNDEBUG")
-     set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-     set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+     # Optimization is configured centrally via tudat_apply_optimization_policy().
+     if (TUDAT_BUILD_CLANG_CL)
+         set(CMAKE_CXX_FLAGS_DEBUG "/Zi")
+         set(CMAKE_CXX_FLAGS_MINSIZEREL "/DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi")
+
+         # Let CMake select clang-cl's /std:c11 spelling.
+         set(CMAKE_C_STANDARD 11)
+         set(CMAKE_C_STANDARD_REQUIRED ON)
+         set(CMAKE_C_EXTENSIONS OFF)
+         set(CMAKE_C_FLAGS "/W4")
+         set(CMAKE_C_FLAGS_DEBUG "/Zi")
+         set(CMAKE_C_FLAGS_MINSIZEREL "/DNDEBUG")
+         set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG")
+         set(CMAKE_C_FLAGS_RELWITHDEBINFO "/Zi")
+     else ()
+         set(CMAKE_CXX_FLAGS_DEBUG "-g")
+         set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g")
+
+         # set default cmake c flags for clang
+         set(CMAKE_C_FLAGS "-Wall -std=c11")
+         set(CMAKE_C_FLAGS_DEBUG "-g")
+         set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG")
+         set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
+         set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g")
+     endif ()
+     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
      if (APPLE)
          # standard apple clang compiler flags
@@ -105,15 +200,8 @@
                  " -stdlib=libc++"
                  " -Wall "
                  " -Wextra"
-                 )
-         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-         # disabled warnings for warnings coming from legacy tudat code
-         set(CMAKE_CXX_FLAGS
-                 "${CMAKE_CXX_FLAGS}"
                  " -Wno-unused-parameter"
                  " -Wno-unused-variable"
-                 " -Wno-enum-constexpr-conversion"
                  )
          string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
@@ -134,20 +222,34 @@
          # fixes an issue [reference this]
          add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
 
-         # standard windows clang c++ compiler flags
-         set(CMAKE_CXX_FLAGS
-                 "${CMAKE_CXX_FLAGS}"
-                 " -std=c++1z"
-                 " -Wall"
-                 " -Wextra"
-                 " -Wno-unused-parameter"
-                 " -Wno-unused-variable"
-                 " -Wno-unused-result"
-                 )
-         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+         if (TUDAT_BUILD_CLANG_CL)
+             # In clang-cl, -Wall is the spelling of MSVC's /Wall and enables
+             # -Weverything. /W4 provides Clang's intended -Wall -Wextra level.
+             # CMAKE_CXX_STANDARD supplies the correct /std:c++17 option.
+             set(CMAKE_CXX_FLAGS
+                     "${CMAKE_CXX_FLAGS}"
+                     " /W4"
+                     " -Wno-unused-parameter"
+                     " -Wno-unused-variable"
+                     " -Wno-unused-result"
+                     )
+             string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+         else ()
+             # standard windows clang c++ compiler flags
+             set(CMAKE_CXX_FLAGS
+                     "${CMAKE_CXX_FLAGS}"
+                     " -std=c++1z"
+                     " -Wall"
+                     " -Wextra"
+                     " -Wno-unused-parameter"
+                     " -Wno-unused-variable"
+                     " -Wno-unused-result"
+                     )
+             string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+         endif ()
 
          # if the clang msvc-like command line interface is being used
-         if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
+         if (TUDAT_BUILD_CLANG_CL)
              if (NOT TUDAT_DISABLE_MSVC_CLANG_CL_FLAGS)
 #                 set(CMAKE_CXX_FLAGS
 #                          "${CMAKE_CXX_FLAGS}"
@@ -219,10 +321,6 @@
                  endif ()
              endif ()
          endif ()
-         set(CMAKE_CXX_FLAGS_DEBUG "-g")
-         set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
-         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
      endif ()
 
  elseif (TUDAT_BUILD_GNU)
@@ -239,11 +337,13 @@
          endif ()
      endif ()
 
-     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_DEBUG "-Og -g")
+     # Optimization is configured centrally via tudat_apply_optimization_policy().
+     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g")
+     set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
+     set(CMAKE_CXX_FLAGS_DEBUG "-g")
+     set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare -Wno-maybe-uninitialized -Wno-stringop-overflow")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
@@ -271,6 +371,11 @@
 
  elseif (TUDAT_BUILD_MSVC)
      add_compile_definitions(TUDAT_BUILD_MSVC)
+     if (WIN32 AND TUDAT_FORCE_DYNAMIC_RUNTIME)
+         # Avoid unresolved MSVC STL vectorized helper symbols when the conda
+         # toolchain's runtime does not match the Visual Studio compiler.
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/D_USE_STD_VECTOR_ALGORITHMS=0>")
+     endif ()
      add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
      message(STATUS "Using MSVC compiler.")
      # problem: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=95&view=logs&j=00f5923e-fdef-5026-5091-0d5a0b3d5a2c&t=3cc4a9ed-60e1-5810-6eb3-5f9cd4a26dba
@@ -296,12 +401,14 @@
      endif ()
      if (MSVC_VERSION GREATER 1500)
          # Multiprocessor support during compilation
-         add_definitions("/MP")
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/MP>")
      endif ()
  else ()
      message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}")
      message(STATUS "  Path: ${CMAKE_CXX_COMPILER}")
  endif ()
+
+ tudat_apply_optimization_policy()
 
  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -360,14 +467,16 @@
      endif ()
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
      message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
-     add_definitions(${MSVC_DISABLED_WARNINGS_STR})
+     foreach (MSVC_DISABLED_WARNING ${MSVC_DISABLED_WARNINGS_LIST})
+         string(REGEX REPLACE "^C" "" MSVC_DISABLED_WARNING_NUMBER "${MSVC_DISABLED_WARNING}")
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-wd${MSVC_DISABLED_WARNING_NUMBER}>")
+     endforeach ()
  endif ()
 
 if (MSVC)
   message(STATUS "Setting /bigobj")
-  add_compile_options(/bigobj)
+  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/bigobj>")
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
 endif ()
 
@@ -376,4 +485,3 @@ endif ()
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
 message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}}.")
-

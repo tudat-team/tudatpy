@@ -25,12 +25,14 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
         case tabulated_tropospheric:
         case saastamoinen_tropospheric:
         case vmf3_tropospheric:
+        case vmf3o_tropospheric:
             requiresMultiLegIterations = false;
             break;
         case tabulated_ionospheric:
         case jakowski_vtec_ionospheric:
         case ionex_vtec_ionospheric:
         case inverse_power_series_solar_corona:
+        case nequick2_ionospheric:
             requiresMultiLegIterations = true;
             break;
         default:
@@ -64,6 +66,9 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
         case vmf3_tropospheric:
             name = "VMF3 tropospheric";
             break;
+        case vmf3o_tropospheric:
+            name = "VMF3o tropospheric";
+            break;
         case jakowski_vtec_ionospheric:
             name = "Jakowski VTEC ionospheric";
             break;
@@ -72,6 +77,9 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
             break;
         case ionex_vtec_ionospheric:
             name = "global IGS TEC maps ionospheric";
+            break;
+        case nequick2_ionospheric:
+            name = "NeQuick-2 path-integrated ionospheric";
             break;
         default:
             throw std::runtime_error(
@@ -89,7 +97,7 @@ double LightTimeCorrection::calculateLightTimeCorrectionPartialDerivativeWrtLink
         const double transmissionTime,
         const double receptionTime,
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     double upPerturbedCorrection = 0.0, downPerturbedCorrection = 0.0;
     if( ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
@@ -133,7 +141,7 @@ Eigen::Matrix< double, 3, 1 > LightTimeCorrection::calculateLightTimeCorrectionP
         const double transmissionTime,
         const double receptionTime,
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
 

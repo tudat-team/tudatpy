@@ -19,9 +19,8 @@
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
-#include "tudat/math/statistics/multiVariateGaussianProbabilityDistributions.h"
-#include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
+#include "tudat/simulation/estimation_setup/createObservationViability.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 
@@ -30,6 +29,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 extern int noiseSeed;
 
@@ -41,9 +42,9 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
 
 struct ObservationNoiseModel {
 public:
-    ObservationNoiseModel( ): observationSize_( -1 ) { }
+    ObservationNoiseModel( ): observationSize_( -1 ) {}
 
-    virtual ~ObservationNoiseModel( ) { }
+    virtual ~ObservationNoiseModel( ) {}
 
     virtual Eigen::VectorXd getObservationNoise( const double& observationTime,
                                                  const Eigen::VectorXd& calculatedObservation,
@@ -75,7 +76,7 @@ public:
                 statistics::normal_boost_distribution, { noiseMean, noiseAmplitude }, gaussianNoiseSeed );
     }
 
-    virtual ~UnivariateGaussianObservationNoiseModel( ) { }
+    virtual ~UnivariateGaussianObservationNoiseModel( ) {}
 
     Eigen::VectorXd getObservationNoise( const double& observationTime,
                                          const Eigen::VectorXd& calculatedObservation,
@@ -125,23 +126,24 @@ public:
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
                     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
             const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr ):
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ):
         observableType_( observableType ), linkEnds_( linkEnds ),
         linkEndType_( linkEndType == observation_models::unidentified_link_end
                               ? observation_models::getDefaultReferenceLinkEndType( observableType )
                               : linkEndType ),
         viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction ),
-        ancilliarySettings_( ancilliarySettings )
+        scaleAngularPositionNoise_( false ), ancillarySettings_( ancillarySettings ),
+        observationDependentVariableBookkeeping_(
+                std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, linkEnds_ ) )
     {
-        if( ancilliarySettings_ == nullptr )
+        if( ancillarySettings_ == nullptr )
         {
-            ancilliarySettings_ = observation_models::getDefaultAncilliaryObservationSettings( observableType );
+            ancillarySettings_ = observation_models::getDefaultAncillaryObservationSettings( observableType );
         }
-        dependentVariableCalculator_ = std::make_shared< ObservationDependentVariableCalculator >( observableType_, linkEnds_ );
     }
 
     //! Destructor.
-    virtual ~ObservationSimulationSettings( ) { }
+    virtual ~ObservationSimulationSettings( ) {}
 
     observation_models::ObservableType getObservableType( )
     {
@@ -182,26 +184,65 @@ public:
     void setObservationNoiseFunction( const std::function< Eigen::VectorXd( const double ) >& observationNoiseFunction )
     {
         observationNoiseFunction_ = observationNoiseFunction;
+        scaleAngularPositionNoise_ = false;
     }
 
     void setObservationNoiseFunction( const std::function< double( const double ) >& observationNoiseFunction )
     {
         observationNoiseFunction_ = getNoiseFunctionForObservable( observationNoiseFunction, observableType_ );
+        scaleAngularPositionNoise_ = false;
     }
 
-    std::shared_ptr< ObservationDependentVariableCalculator > getDependentVariableCalculator( )
+    bool getScaleAngularPositionNoise( ) const
     {
-        return dependentVariableCalculator_;
+        return scaleAngularPositionNoise_;
     }
 
-    void setAncilliarySettings( std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& ancilliarySettings )
+    //! Enable conversion of RA*cos(DEC) noise to RA noise using the simulated declination.
+    void setScaleAngularPositionNoise( const bool scaleAngularPositionNoise )
     {
-        ancilliarySettings_ = ancilliarySettings;
+        if( scaleAngularPositionNoise && observableType_ != observation_models::angular_position )
+        {
+            throw std::runtime_error( "Error, declination scaling of noise is only supported for angular position observations." );
+        }
+        scaleAngularPositionNoise_ = scaleAngularPositionNoise;
     }
 
-    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > getAncilliarySettings( )
+    void setAncillarySettings( std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings )
     {
-        return ancilliarySettings_;
+        ancillarySettings_ = ancillarySettings;
+    }
+
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > getAncillarySettings( )
+    {
+        return ancillarySettings_;
+    }
+
+    // Settings for variables that are to be saved along with the observables.
+    std::shared_ptr< ObservationDependentVariableBookkeeping > getObservationDependentVariableBookkeeping( )
+    {
+        return observationDependentVariableBookkeeping_;
+    }
+
+    void addDependentVariableSettings( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
+    {
+        observationDependentVariableBookkeeping_->addDependentVariables( settingsList );
+    }
+
+    void setDependentVariableSettings( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
+    {
+        observationDependentVariableBookkeeping_->clearSettings( );
+        observationDependentVariableBookkeeping_->addDependentVariables( settingsList );
+    }
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getDependentVariableSettings( )
+    {
+        return observationDependentVariableBookkeeping_->getDependentVariableSettings( );
+    }
+
+    void clearDependentVariableSettings( )
+    {
+        observationDependentVariableBookkeeping_->clearSettings( );
     }
 
 protected:
@@ -217,15 +258,16 @@ protected:
     // Settings used to check whether observtion is possible (non-viable observations are not simulated)
     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsList_;
 
-    // Settings for variables that are to be saved along with the observables.
-    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > observationDependentVariableSettings_;
-
     // Function to generate noise to add to observations that are to be simulated
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 
-    std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator_;
+    // Divide the RA noise by cos(DEC) before adding it to an angular position observation.
+    bool scaleAngularPositionNoise_;
 
-    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings_;
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
+
+    // Settings for variables that are to be saved along with the observables.
+    std::shared_ptr< ObservationDependentVariableBookkeeping > observationDependentVariableBookkeeping_;
 };
 
 //! Struct to define a list of observation times, fully defined before simulating the observations
@@ -251,18 +293,28 @@ public:
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
                     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
             const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr ):
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ):
         ObservationSimulationSettings< TimeType >( observableType,
                                                    linkEnds,
                                                    linkEndType,
                                                    viabilitySettingsList,
                                                    observationNoiseFunction,
-                                                   ancilliarySettings ),
+                                                   ancillarySettings ),
         simulationTimes_( simulationTimes )
-    { }
+    {}
 
     //! Destructor
-    ~TabulatedObservationSimulationSettings( ) { }
+    ~TabulatedObservationSimulationSettings( ) {}
+
+    std::vector< TimeType > getSimulationTimes( )
+    {
+        return simulationTimes_;
+    }
+
+    void setSimulationTimes( std::vector< TimeType > newSimulationTimes )
+    {
+        simulationTimes_ = newSimulationTimes;
+    }
 
     //! List of times at which to perform the observation simulation
     std::vector< TimeType > simulationTimes_;
@@ -286,20 +338,20 @@ public:
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& additionalViabilitySettingsList =
                     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
             const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr ):
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ):
         ObservationSimulationSettings< TimeType >( observableType,
                                                    linkEnds,
                                                    linkEndType,
                                                    additionalViabilitySettingsList,
                                                    observationNoiseFunction,
-                                                   ancilliarySettings ),
+                                                   ancillarySettings ),
         startTime_( startTime ), endTime_( endTime ), intervalBetweenObservations_( intervalBetweenObservations ),
         arcDefiningConstraint_( arcDefiningConstraint ), minimumArcDuration_( minimumArcDuration ),
         maximumArcDuration_( maximumArcDuration ), minimumTimeBetweenArcs_( minimumTimeBetweenArcs ),
         additionalViabilitySettingsList_( additionalViabilitySettingsList )
-    { }
+    {}
 
-    ~PerArcObservationSimulationSettings( ) { }
+    ~PerArcObservationSimulationSettings( ) {}
 
     TimeType startTime_;
 
@@ -341,7 +393,8 @@ std::shared_ptr< ObservationSimulationSettings< TimeType > > perturbObservationT
                 originalTabulatedSettings->getReferenceLinkEndType( ),
                 originalTabulatedSettings->getViabilitySettingsList( ),
                 originalTabulatedSettings->getObservationNoiseFunction( ),
-                originalTabulatedSettings->getAncilliarySettings( ) );
+                originalTabulatedSettings->getAncillarySettings( ) );
+        newSettings->setScaleAngularPositionNoise( originalTabulatedSettings->getScaleAngularPositionNoise( ) );
     }
     else
     {
@@ -359,10 +412,10 @@ inline std::shared_ptr< ObservationSimulationSettings< TimeType > > tabulatedObs
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
         const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     return std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
-            observableType, linkEnds, simulationTimes, linkEndType, viabilitySettingsList, observationNoiseFunction, ancilliarySettings );
+            observableType, linkEnds, simulationTimes, linkEndType, viabilitySettingsList, observationNoiseFunction, ancillarySettings );
 }
 
 template< typename TimeType = double >
@@ -404,7 +457,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > crea
                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) )
 {
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > observationSimulationSettingsList;
-    for( auto observableIterator: linkEndsPerObservable )
+    for( auto observableIterator : linkEndsPerObservable )
     {
         for( unsigned int i = 0; i < observableIterator.second.size( ); i++ )
         {
@@ -430,7 +483,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > perA
                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) )
 {
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > observationSimulationSettingsList;
-    for( auto observableIterator: linkEndsPerObservable )
+    for( auto observableIterator : linkEndsPerObservable )
     {
         for( unsigned int i = 0; i < observableIterator.second.size( ); i++ )
         {
@@ -464,8 +517,7 @@ void clearNoiseFunctionFromObservationSimulationSettings(
 template< typename TimeType = double >
 void addDependentVariableToSingleObservationSimulationSettings(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
-        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
-        const SystemOfBodies& bodies )
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList )
 {
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > extendedDependentVariablesList;
 
@@ -476,19 +528,20 @@ void addDependentVariableToSingleObservationSimulationSettings(
             getInterlinks( observableType, linkEnds );
 
     // Parse all dependent variable settings
-    for( auto settings: dependentVariableList )
+    for( auto settings : dependentVariableList )
     {
         // Create complete list of all dependent variable settings compatible with the original settings (possibly not fully defined, i.e.
         // with missing information on link ends, etc.) for the given observable type and link ends
         std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allSettingsToCreate =
                 createAllCompatibleDependentVariableSettings( observableType, linkEnds, settings );
-        for( auto it: allSettingsToCreate )
+        for( auto it : allSettingsToCreate )
         {
             extendedDependentVariablesList.push_back( it );
         }
     }
     // Add all relevant dependent variables
-    observationSimulationSettings->getDependentVariableCalculator( )->addDependentVariables( extendedDependentVariablesList, bodies );
+
+    observationSimulationSettings->getObservationDependentVariableBookkeeping( )->addDependentVariables( extendedDependentVariablesList );
 }
 
 template< typename TimeType = double >
@@ -536,12 +589,11 @@ void addGaussianNoiseToSingleObservationSimulationSettings(
 }
 
 template< typename TimeType = double >
-void addAncilliarySettingsToSingleObservationSimulationSettings(
+void addAncillarySettingsToSingleObservationSimulationSettings(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
-        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& ancilliarySettings )
+        std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings )
 {
-    observationSimulationSettings->setAncilliarySettings(
-            const_cast< std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& >( ancilliarySettings ) );
+    observationSimulationSettings->setAncillarySettings( ancillarySettings );
 }
 
 template< typename TimeType = double >
@@ -620,6 +672,20 @@ void addGaussianNoiseFunctionToObservationSimulationSettings(
     modifyObservationSimulationSettings( observationSimulationSettings, modificationFunction, args... );
 }
 
+//! Add independent Gaussian noise in RA*cos(DEC) and DEC to angular position simulation settings.
+template< typename TimeType = double >
+void addGaussianNoiseToAngularPositionObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const double observationNoiseAmplitude )
+{
+    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
+            [ observationNoiseAmplitude ]( const std::shared_ptr< ObservationSimulationSettings< TimeType > > settings ) {
+                addGaussianNoiseToSingleObservationSimulationSettings( settings, observationNoiseAmplitude );
+                settings->setScaleAngularPositionNoise( true );
+            };
+    modifyObservationSimulationSettings( observationSimulationSettings, modificationFunction, observation_models::angular_position );
+}
+
 template< typename TimeType = double, typename... ArgTypes >
 void addDependentVariablesToObservationSimulationSettings(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
@@ -628,18 +694,18 @@ void addDependentVariablesToObservationSimulationSettings(
         ArgTypes... args )
 {
     std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction = std::bind(
-            &addDependentVariableToSingleObservationSimulationSettings< TimeType >, std::placeholders::_1, dependentVariableList, bodies );
+            &addDependentVariableToSingleObservationSimulationSettings< TimeType >, std::placeholders::_1, dependentVariableList );
     modifyObservationSimulationSettings( observationSimulationSettings, modificationFunction, args... );
 }
 
 template< typename TimeType = double, typename... ArgTypes >
-void addAncilliarySettingsToObservationSimulationSettings(
+void addAncillarySettingsToObservationSimulationSettings(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& ancilliarySettings,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings,
         ArgTypes... args )
 {
     std::function< void( std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
-            std::bind( &addAncilliarySettingsToSingleObservationSimulationSettings< TimeType >, std::placeholders::_1, ancilliarySettings );
+            std::bind( &addAncillarySettingsToSingleObservationSimulationSettings< TimeType >, std::placeholders::_1, ancillarySettings );
     modifyObservationSimulationSettings( observationSimulationSettings, modificationFunction, args... );
 }
 
@@ -700,7 +766,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > getO
         const observation_models::LinkEndType referenceLinkEnd = observation_models::receiver )
 {
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
-    for( auto it: linkEndsPerObservable )
+    for( auto it : linkEndsPerObservable )
     {
         observation_models::ObservableType currentObservable = it.first;
         std::vector< observation_models::LinkDefinition > currentLinkEndsList = it.second;
@@ -720,7 +786,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > getO
         const observation_models::LinkEndType referenceLinkEnd = observation_models::receiver )
 {
     std::map< observation_models::ObservableType, std::vector< observation_models::LinkDefinition > > linkDefsPerObservable;
-    for( auto it: linkEndsPerObservable )
+    for( auto it : linkEndsPerObservable )
     {
         for( unsigned int i = 0; i < it.second.size( ); i++ )
         {
@@ -728,6 +794,36 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > getO
         }
     }
     return getObservationSimulationSettings( linkDefsPerObservable, observationTimes, referenceLinkEnd );
+}
+
+/*!
+ * Function modifies the observable types used in the provided observation simulation settings.
+ * It can be used to replace a real observable (extracted from the ODF data, e.g. n-way Doppler)
+ * with an idealized observable (e.g. n-way differenced range), since the latter might allows an
+ * easier physical interpretation of the problem. This setup only works if the real and idealized
+ * observables require the same ancillary settings (or if the ancillary settings required by the
+ * latter are a subset of the ones required by the former). If that is not the case, the user should
+ * manually modify the observation simulation settigns as needed.
+ *
+ * @param observationSimulationSettings Observation simulation settings for which the observable types should be modified.
+ * @param replacementObservableTypes Map having as keys the observable types to replace and as values the replacement observable types.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+void changeObservableTypesOfObservationSimulationSettings(
+        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::map< ObservableType, ObservableType >& replacementObservableTypes = {
+                { dsn_n_way_averaged_doppler, n_way_differenced_range },
+                { dsn_one_way_averaged_doppler, one_way_differenced_range } } )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); ++i )
+    {
+        ObservableType currentObservableType = observationSimulationSettings.at( i )->getObservableType( );
+
+        if( replacementObservableTypes.count( currentObservableType ) )
+        {
+            observationSimulationSettings.at( i )->setObservableType( replacementObservableTypes.at( currentObservableType ) );
+        }
+    }
 }
 
 // extern template class ObservationSimulationSettings< double >;

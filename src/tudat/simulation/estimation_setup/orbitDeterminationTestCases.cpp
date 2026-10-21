@@ -1,4 +1,4 @@
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
 
 namespace tudat
 {

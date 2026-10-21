@@ -35,7 +35,7 @@ std::false_type test( ... );
 }  // namespace is_eigen_matrix_detail
 
 template< typename T >
-struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) ){ };
+struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) ){};
 
 // template< typename T,
 //           enable_if_t< is_eigen_matrix< T >::value, int > = 0 >
@@ -141,6 +141,16 @@ struct is_direct_gravity_partial< acceleration_partials::MutualSphericalHarmonic
 
 namespace acceleration_partials
 {
+class FullTwoBodySphericalHarmonicsGravityPartial;
+}
+
+template<>
+struct is_direct_gravity_partial< acceleration_partials::FullTwoBodySphericalHarmonicsGravityPartial > {
+    static const bool value = true;
+};
+
+namespace acceleration_partials
+{
 class PolyhedronGravityPartial;
 }
 
@@ -192,6 +202,16 @@ class MutualSphericalHarmonicsGravitationalAccelerationModel;
 
 template<>
 struct is_direct_gravity_acceleration< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > {
+    static const bool value = true;
+};
+
+namespace gravitation
+{
+class FullTwoBodySphericalHarmonicAcceleration;
+}
+
+template<>
+struct is_direct_gravity_acceleration< gravitation::FullTwoBodySphericalHarmonicAcceleration > {
     static const bool value = true;
 };
 

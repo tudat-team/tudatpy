@@ -97,12 +97,15 @@ public:
     DirectTidalDissipationAccelerationPartial( const std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
                                                const std::string acceleratedBody,
                                                const std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, tidalAcceleration, basic_astrodynamics::getAccelerationModelType( tidalAcceleration ) ),
+        AccelerationPartial( acceleratedBody,
+                             acceleratingBody,
+                             tidalAcceleration,
+                             basic_astrodynamics::getAccelerationModelType( tidalAcceleration ) ),
         tidalAcceleration_( tidalAcceleration )
-    { }
+    {}
 
     //! Destructor
-    ~DirectTidalDissipationAccelerationPartial( ) { }
+    ~DirectTidalDissipationAccelerationPartial( ) {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

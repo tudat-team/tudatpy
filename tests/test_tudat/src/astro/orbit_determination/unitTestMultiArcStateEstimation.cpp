@@ -9,7 +9,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -17,16 +16,29 @@
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/compareEstimationAndCovarianceResultsTestCase.h"
 
 namespace tudat
 {
@@ -197,7 +209,7 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
 
     TimeType observationTime;
     int numberOfObservationsPerArc = 5000;
-    double timeBuffer = 9000.0;
+    double timeBuffer = 12000.0;
 
     std::vector< TimeType > initialObservationTimes;
     initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStartTimes.size( ) );
@@ -424,7 +436,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, TimeType( initialEphemerisTime ), 30.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 30.0 );
 
     // Define propagator settings.
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
@@ -435,10 +447,10 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
                 accelerationModelMap,
                 bodiesToIntegrate,
                 allBodiesPerArcInitialStates.at( i ),
-                integrationArcEndTimes.at( i ),
-                cowell,
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                60.0 ) );
+                integrationArcStartTimes.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( integrationArcEndTimes.at( i ) ),
+                cowell ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList );
@@ -464,7 +476,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

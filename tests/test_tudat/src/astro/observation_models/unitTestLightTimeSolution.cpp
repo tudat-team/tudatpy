@@ -8,10 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/testLightTimeCorrections.h"
@@ -62,7 +61,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     const double testTime = 1.0E6;
 
     // Define Spice output variables.
-    double spiceOutputState[ 6 ] = { };
+    double spiceOutputState[ 6 ] = {};
     double spiceMoonLightTime = 0.0;
 
     // Calculate observed (i.e. relative) position of Earth, and 'light time' at 'testTime' on

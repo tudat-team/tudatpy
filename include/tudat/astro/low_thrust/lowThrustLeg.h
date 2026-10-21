@@ -49,9 +49,9 @@ public:
                   const bool legModelIsForceBased ):
         stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight ),
         legModelIsForceBased_( legModelIsForceBased )
-    { }
+    {}
 
-    virtual ~LowThrustLeg( ) { }
+    virtual ~LowThrustLeg( ) {}
 
     bool getLegModelIsForceBased( )
     {

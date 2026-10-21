@@ -36,7 +36,7 @@ public:
                                   const std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, yarkovskyAcceleration, basic_astrodynamics::yarkovsky_acceleration ),
         yarkovskyAcceleration_( yarkovskyAcceleration )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

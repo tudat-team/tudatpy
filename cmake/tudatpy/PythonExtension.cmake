@@ -39,8 +39,7 @@ macro (add_extension import_path)
     # )
 
     target_link_libraries(${extension_name} PRIVATE
-        ${Boost_LIBRARIES}
-        ${Boost_SYSTEM_LIBRARY}
+        Boost::boost
         ${Tudat_PROPAGATION_LIBRARIES}
         ${Tudat_ESTIMATION_LIBRARIES}
     )
@@ -98,18 +97,25 @@ endmacro()
 
 macro (copy_python_in_build)
 
-    # Copy python files to build directory
-    file(GLOB_RECURSE py_files "${TUDATPY_SOURCE_DIR}/**/*.py")
+    # Copy all python source files to build directory
+    file(GLOB_RECURSE py_files "${TUDATPY_SOURCE_DIR}/*.py")
     foreach(py_file ${py_files})
         file(RELATIVE_PATH py_file_name ${TUDATPY_SOURCE_DIR} ${py_file})
         get_filename_component(parents ${py_file_name} DIRECTORY)
         file(COPY ${py_file_name} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${parents})
     endforeach()
 
-    # Copy __init__.py in base directory
-    file(
-        COPY ${TUDATPY_SOURCE_DIR}/__init__.py
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+    # Copy package data needed by Python modules at runtime as well. This is
+    # required for in-tree builds, where the install(DIRECTORY ...) rule below
+    # has not yet run.
+    file(GLOB_RECURSE package_data_files
+        "${TUDATPY_SOURCE_DIR}/*.csv"
+        "${TUDATPY_SOURCE_DIR}/*.json"
     )
+    foreach(package_data_file ${package_data_files})
+        file(RELATIVE_PATH package_data_file_name ${TUDATPY_SOURCE_DIR} ${package_data_file})
+        get_filename_component(parents ${package_data_file_name} DIRECTORY)
+        file(COPY ${package_data_file_name} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${parents})
+    endforeach()
 
 endmacro()

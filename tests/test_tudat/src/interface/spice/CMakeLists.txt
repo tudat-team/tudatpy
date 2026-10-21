@@ -14,6 +14,7 @@ TUDAT_ADD_TEST_CASE(SpiceInterface
         tudat_basic_mathematics
         tudat_spice_interface
         tudat_basic_astrodynamics
+        tudat_sofa_interface
         )
 
 TUDAT_ADD_TEST_CASE(SpiceException

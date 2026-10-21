@@ -8,15 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
 #include <memory>
-#include <boost/lambda/lambda.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -25,13 +23,14 @@
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 namespace tudat
 {
@@ -150,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         // Set propagation/integration settings
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 5.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 5.0 );
         std::shared_ptr< tudat::propagators::TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                     accelerationModelMap,

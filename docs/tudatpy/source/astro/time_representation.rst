@@ -33,7 +33,7 @@ References
 
 .. *  Chapter 2 of: Kaplan, G. `United States Naval Observatory Circular No. 179 <https://www.usno.navy.mil/USNO/astronomical-applications/publications/Circular_179.pdf/view>`_, The IAU Resolutions on Astronomical Reference Systems, Time Scales, and Earth Rotation Models.
 .. *  SOFA Documentation - `SOFA Time Scale and Calendar Tools <https://www.iausofa.org/sofa_ts_c.pdf>`_, disseminated by the International Astronomical Union
-.. *  Secions 5.5.3 and Chapter 10 of the `IERS 2010 Conventions <https://www.iers.org/SharedDocs/Publikationen/EN/IERS/Publications/tn/TechnNote36/tn36.pdf>`_, disseminated by the International Earth Rotation Service
+.. *  Sections 5.5.3 and Chapter 10 of the `IERS 2010 Conventions <https://www.iers.org/SharedDocs/Publikationen/EN/IERS/Publications/tn/TechnNote36/tn36.pdf>`_, disseminated by the International Earth Rotation Service
 
 
 
@@ -88,6 +88,12 @@ Functions
    
    default_time_scale_converter
 
+   date_time_components_to_epoch_time_object
+
+   iso_string_to_epoch_time_object
+
+
+
 
 .. autofunction:: tudatpy.astro.time_representation.date_time_components_to_epoch
 
@@ -131,6 +137,10 @@ Functions
 
 .. autofunction:: tudatpy.astro.time_representation.default_time_scale_converter
 
+.. autofunction:: tudatpy.astro.time_representation.date_time_components_to_epoch_time_object
+
+.. autofunction:: tudatpy.astro.time_representation.iso_string_to_epoch_time_object
+
 
 Enumerations
 ------------
@@ -155,9 +165,15 @@ Classes
 
 .. autosummary::
 
+   Time
+
    DateTime
-   
+
    TimeScaleConverter
+
+.. autoclass:: tudatpy.astro.time_representation.Time
+   :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.astro.time_representation.DateTime
    :members:
@@ -166,7 +182,4 @@ Classes
 
 .. autoclass:: tudatpy.astro.time_representation.TimeScaleConverter
    :members:
-
-
-
 

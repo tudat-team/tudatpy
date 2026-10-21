@@ -69,7 +69,7 @@ public:
                                         fixedReferenceFrame,
                                         scaledMeanMomentOfInertia ),
         nominalSineCoefficients_( nominalSineCoefficients ), nominalCosineCoefficients_( nominalCosineCoefficients )
-    { }
+    {}
 
     //! Full class constructor.
     /*!
@@ -108,7 +108,7 @@ public:
     /*!
      *  Destructor
      */
-    ~TimeDependentSphericalHarmonicsGravityField( ) { }
+    ~TimeDependentSphericalHarmonicsGravityField( ) {}
 
     //! Update gravity field to current time.
     /*!

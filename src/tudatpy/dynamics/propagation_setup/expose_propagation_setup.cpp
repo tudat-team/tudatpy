@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_propagation_setup.h"
 
 #include <pybind11/chrono.h>
@@ -16,6 +18,11 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/simulation/propagation_setup/createAccelerationModels.h>
+#include <tudat/simulation/propagation_setup/createMassRateModels.h>
+#include <tudat/simulation/propagation_setup/createStateDerivativeModel.h>
+#include <tudat/simulation/propagation_setup/createTorqueModel.h>
+#include <tudat/simulation/propagation_setup/dynamicsSimulator.h>
 
 #include "acceleration/expose_acceleration.h"
 #include "dependent_variable/expose_dependent_variable.h"
@@ -44,7 +51,6 @@ namespace propagation_setup
 
 void expose_propagation_setup( py::module& m )
 {
-
     auto thrust_setup = m.def_submodule( "thrust" );
     thrust::expose_thrust_setup( thrust_setup );
 
@@ -66,13 +72,11 @@ void expose_propagation_setup( py::module& m )
     auto mass_setup = m.def_submodule( "mass_rate" );
     mass_rate::expose_mass_rate_setup( mass_setup );
 
-
     m.def( "create_acceleration_models",
-           py::overload_cast< const tss::SystemOfBodies &,
-                              const tss::SelectedAccelerationMap &,
-                              const std::vector< std::string > &,
-                              const std::vector< std::string > & >(
-                   &tss::createAccelerationModelsMap ),
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const tss::SelectedAccelerationMap&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >& >( &tss::createAccelerationModelsMap ),
            py::arg( "body_system" ),
            py::arg( "selected_acceleration_per_body" ),
            py::arg( "bodies_to_propagate" ),
@@ -91,13 +95,13 @@ void expose_propagation_setup( py::module& m )
      System of bodies to be used in the propagation.
  selected_acceleration_per_body : Dict[str, Dict[str, List[AccelerationSettings]]]
      Key-value container, with key denoting the body undergoing the acceleration, and the value containing an additional key-value container, with the body exerting acceleration, and list of acceleration settings exerted by this body.
- bodies_to_propagate : list
+ bodies_to_propagate : list[str]
      List of bodies to propagate.
- central_bodies : list
+ central_bodies : list[str]
      List of central bodies, each referred to each propagated body in the same order.
  Returns
  -------
- AccelerationMap : dict[str, list[AccelerationModel]]
+ dict[str, dict[str, list[AccelerationModel]]]
     Set of accelerations acting on the bodies to propagate, provided as dual key-value container (dictionary), similar to the acceleration settings input, but now with ``AccelerationModel`` lists as inner value
 
 
@@ -157,11 +161,11 @@ void expose_propagation_setup( py::module& m )
      System of bodies to be used in the propagation.
  selected_torque_per_body : Dict[str, Dict[str, List[TorqueSettings]]]
      Key-value container, with key denoting the body undergoing the torque, and the value containing an additional key-value container, with the body exerting torque, and list of torque settings exerted by this body.
- bodies_to_propagate : list
+ bodies_to_propagate : list[str]
      List of bodies to propagate.
  Returns
  -------
- TorqueModelMap
+ dict[str, dict[str, list[TorqueModel]]]
      Set of torques acting on the bodies to propagate, provided as dual key-value container, similar to the torque settings input, but now with ``TorqueModel`` lists as inner value
 
 
@@ -205,7 +209,7 @@ void expose_propagation_setup( py::module& m )
            &tss::createMassRateModelsMap,
            py::arg( "body_system" ),
            py::arg( "selected_mass_rates_per_body" ),
-           py::arg( "acceleration_models" ) = nullptr,
+           py::arg( "acceleration_models" ) = tba::AccelerationMap( ),
            R"doc(
 
  Function to create a set of mass-rate models from associated settings.
@@ -221,11 +225,11 @@ void expose_propagation_setup( py::module& m )
      System of bodies to be used in the propagation.
  selected_mass_rates_per_body : Dict[str, List[MassRateModelSettings]]
      Key-value container, with key denoting the body with changing mass, and the value containing a list of mass rate settings (in most cases, this list will have only a single entry)
- acceleration_models : dict[str, list[AccelerationModel]]
+ acceleration_models : dict[str, dict[str, list[AccelerationModel]]]
      Sorted list of acceleration models, as created by :func:`create_acceleration_models`
  Returns
  -------
- MassRateModelMap
+ dict[str, list[MassRateModel]]
      Set of mass-rate models, as key-value container, same as the settings input, with the difference that the rate settings objects have been processed into the associated objects calculating the actual mass-rate changes.
 
 
@@ -234,7 +238,6 @@ void expose_propagation_setup( py::module& m )
 
 
      )doc" );
-
 }
 
 }  // namespace propagation_setup

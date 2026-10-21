@@ -8,16 +8,15 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
+#include "tudat/simulation/estimation_setup/executeEarthOrbiterParameterEstimationTestCase.h"
 
 namespace tudat
 {
@@ -55,47 +54,64 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
         std::cout << "Total error: " << totalError.transpose( ) << std::endl;
     }
-//
-//    std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
-//               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
-//            podDataOutput;
-//    Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >( podDataOutput );
-//
-//    std::vector< std::shared_ptr< propagators::SimulationResults< double, double > > > stateHistories =
-//            podDataOutput.first->getSimulationResults( );
-//
-//    for( unsigned int i = 0; i < stateHistories.size( ); i++ )
-//    {
-//        Eigen::VectorXd currentParameterEstimate = podDataOutput.first->parameterHistory_.at( i ).segment( 0, 6 );
-//        auto currentHistory =
-//                std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< double, double > >( stateHistories.at( i ) );
-//        Eigen::VectorXd currentInitialState =
-//                currentHistory->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( ).begin( )->second;
-//        //        std::cout<<std::setprecision( 16 )<<currentParameterEstimate.transpose( )<<std::endl;
-//        //        std::cout<<currentInitialState.transpose( )<<std::endl<<std::endl;
-//
-//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                currentInitialState, currentParameterEstimate, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
-//    }
-//    for( unsigned int i = 0; i < 3; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-5 );
-//        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-8 );
-//        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 18 ) ), 1.0E-4 );
-//    }
-//
-//    BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-7 );
-//    BOOST_CHECK_SMALL( std::fabs( estimationError( 7 ) ), 5.0E-7 );
-//    BOOST_CHECK_SMALL( std::fabs( estimationError( 8 ) ), 5.0E-7 );
-//
-//    BOOST_CHECK_SMALL( std::fabs( estimationError( 9 ) ), 5.0E-13 );
-//    BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 5.0E-13 );
-//    BOOST_CHECK_SMALL( std::fabs( estimationError( 11 ) ), 5.0E-13 );
-//
-//    for( unsigned int i = 0; i < 6; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 12 ) ), 5.0E-13 );
-//    }
+
+    std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
+               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
+            podDataOutput;
+    Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >( podDataOutput );
+
+    std::vector< std::shared_ptr< propagators::SimulationResults< double, double > > > stateHistories =
+            podDataOutput.first->getSimulationResults( );
+
+    for( unsigned int i = 0; i < stateHistories.size( ); i++ )
+    {
+        Eigen::VectorXd currentParameterEstimate = podDataOutput.first->parameterHistory_.at( i ).segment( 0, 6 );
+        auto currentHistory =
+                std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< double, double > >( stateHistories.at( i ) );
+        Eigen::VectorXd currentInitialState =
+                currentHistory->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( ).begin( )->second;
+        //        std::cout<<std::setprecision( 16 )<<currentParameterEstimate.transpose( )<<std::endl;
+        //        std::cout<<currentInitialState.transpose( )<<std::endl<<std::endl;
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                currentInitialState, currentParameterEstimate, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    }
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-5 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-8 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 18 ) ), 1.0E-4 );
+    }
+
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-7 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 7 ) ), 5.0E-7 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 8 ) ), 5.0E-7 );
+
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 9 ) ), 5.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 5.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 11 ) ), 5.0E-13 );
+
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 12 ) ), 5.0E-13 );
+    }
+}
+
+//! Test whether estimation applies custom integrated-state interpolation both initially and when reintegrating the dynamics.
+BOOST_AUTO_TEST_CASE( testIntegratedStateInterpolatorAfterPropagationAndEstimation )
+{
+    std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
+               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
+            podDataOutput;
+    std::pair< int, int > interpolatorOrders{ -1, -1 };
+
+    // Run estimation with eighth-order interpolation and record the order of each generated environment ephemeris.
+    executeEarthOrbiterParameterEstimation< double, double >(
+            podDataOutput, interpolatorOrders, 1.0E7, 1, 1, false, false, interpolators::lagrangeInterpolation( 8 ) );
+
+    // Verify that the initial propagation and the estimation reintegration both use the requested order.
+    BOOST_CHECK_EQUAL( interpolatorOrders.first, 8 );
+    BOOST_CHECK_EQUAL( interpolatorOrders.second, 8 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

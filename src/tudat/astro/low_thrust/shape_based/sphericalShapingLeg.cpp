@@ -203,8 +203,6 @@ double SphericalShapingLeg::convertTimeToAzimuth( const double timeSinceDepartur
     {
         throw std::runtime_error( "Error spherical shaping leg.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 double SphericalShapingLeg::convertAzimuthToTime( const double currentAzimuthAngle )

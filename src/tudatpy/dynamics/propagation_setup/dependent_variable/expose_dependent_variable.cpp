@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_dependent_variable.h"
 
 #include <pybind11/chrono.h>
@@ -16,44 +18,37 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/propagation_setup.h>
+
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/propagation_setup/createMassRateModels.h"
+#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
+#include "tudat/simulation/propagation_setup/propagationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
+
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_propagation.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
+namespace tep = tudat::estimatable_parameters;
 namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
-
-namespace tudat
-{
-namespace propagators
-{
-
-std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVariableDeprecated(
-        const std::function< Eigen::VectorXd( ) > customDependentVariableFunction,
-        const int dependentVariableSize )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.propagation_setup.dependent_"
-                "variable.custom",
-                "tudatpy.dynamics.propagation_setup.dependent_"
-                "variable.custom_dependent_variable" );
-        isWarningPrinted = true;
-    }
-
-    return customDependentVariable( customDependentVariableFunction, dependentVariableSize );
-}
-
-}  // namespace propagators
-}  // namespace tudat
+namespace tse = tudat::serialization;
 
 namespace tudatpy
 {
@@ -64,7 +59,7 @@ namespace propagation_setup
 namespace dependent_variable
 {
 
-void expose_dependent_variable_setup( py::module &m )
+void expose_dependent_variable_setup( py::module& m )
 {
     //////////////////////////////////////////////////////////////////////////////////////
     /// ENUMS
@@ -167,7 +162,7 @@ void expose_dependent_variable_setup( py::module &m )
       )doc" )
             .value( "stagnation_point_heat_flux_type",
                     tp::PropagationDependentVariables::stagnation_point_heat_flux_dependent_variable,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(Heat flux at the vehicle stagnation point.)doc" )
             .value( "local_temperature_type",
                     tp::PropagationDependentVariables::local_temperature_dependent_variable,
                     R"doc(
@@ -220,6 +215,10 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable,
                     R"doc(
       )doc" )
+            .value( "local_wind_velocity_type",
+                    tp::PropagationDependentVariables::local_wind_velocity_dependent_variable,
+                    R"doc(
+      )doc" )
             .value( "keplerian_state_type",
                     tp::PropagationDependentVariables::keplerian_state_dependent_variable,
                     R"doc(
@@ -262,6 +261,18 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::acceleration_partial_wrt_body_translational_state,
                     R"doc(
       )doc" )
+            .value( "total_acceleration_partial_wrt_body_translational_state_type",
+                    tp::PropagationDependentVariables::total_acceleration_partial_wrt_body_translational_state,
+                    R"doc(
+      )doc" )
+            .value( "acceleration_derivative_partial_wrt_parameter_type",
+                    tp::PropagationDependentVariables::acceleration_derivative_partial_wrt_parameter,
+                    R"doc(
+      )doc" )
+            .value( "total_acceleration_derivative_partial_wrt_parameter_type",
+                    tp::PropagationDependentVariables::total_acceleration_derivative_partial_wrt_parameter,
+                    R"doc(
+      )doc" )
             .value( "local_dynamic_pressure_type",
                     tp::PropagationDependentVariables::local_dynamic_pressure_dependent_variable,
                     R"doc(
@@ -281,13 +292,27 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable,
                     R"doc(
       )doc" )
-            .value( "custom_type", tp::PropagationDependentVariables::custom_dependent_variable, R"doc(No documentation found.)doc" )
+            .value( "custom_type",
+                    tp::PropagationDependentVariables::custom_dependent_variable,
+                    R"doc(Dependent variable evaluated by a user-supplied function.)doc" )
             .value( "gravity_field_potential_type",
                     tp::PropagationDependentVariables::gravity_field_potential_dependent_variable,
                     R"doc(
       )doc" )
             .value( "gravity_field_laplacian_of_potential_type",
                     tp::PropagationDependentVariables::gravity_field_laplacian_of_potential_dependent_variable,
+                    R"doc(
+      )doc" )
+            .value( "vehicle_part_rotation_matrix_type",
+                    tp::PropagationDependentVariables::vehicle_part_rotation_matrix_dependent_variable,
+                    R"doc(
+      )doc" )
+            .value( "solar_longitude_type",
+                    tp::PropagationDependentVariables::solar_longitude,
+                    R"doc(
+      )doc" )
+            .value( "number_density_type",
+                    tp::PropagationDependentVariables::number_density,
                     R"doc(
       )doc" )
             .export_values( );
@@ -311,12 +336,58 @@ void expose_dependent_variable_setup( py::module &m )
 
 
 
+    )doc" ) TUDATPY_DEF_EQ_NE( tp::VariableSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::VariableSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::VariableSettings );
+
+    auto single_dependent_variable_save_settings = py::class_< tp::SingleDependentVariableSaveSettings,
+                                                               std::shared_ptr< tp::SingleDependentVariableSaveSettings >,
+                                                               tp::VariableSettings >( m,
+                                                                                       "SingleDependentVariableSaveSettings",
+                                                                                       R"doc(
+
+         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.dependent_variable`.
+
       )doc" );
 
-    py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
-            m,
-            "SingleDependentVariableSaveSettings",
-            R"doc(
+    m.def( "local_wind_velocity",
+           &tp::localWindVelocityVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           py::arg( "target_frame" ) = trf::corotating_frame,
+           R"doc(
+
+Function to add the local wind velocity vector to the dependent variables to save.
+
+Function to add the local wind velocity vector to the dependent variables to save. The wind velocity represents the atmospheric wind removed from the groundspeed when deriving the airspeed. The calculation uses the wind model of the body with atmosphere, and the current state of the body for which the wind velocity is to be calculated. The wind velocity can be expressed in any aerodynamic reference frame.
+
+Parameters
+----------
+body : str
+    Body whose dependent variable should be saved.
+body_with_atmosphere : str
+    Body with atmosphere with respect to which the local wind velocity is computed.
+target_frame : AerodynamicsReferenceFrames, default=corotating_frame
+    Reference frame in which the wind velocity should be expressed. Available frames:
+    - corotating_frame: Body-fixed corotating frame (default)
+    - vertical_frame: Local vertical frame
+    - trajectory_frame: Velocity-aligned trajectory frame
+    - aerodynamic_frame: Aerodynamic frame
+    - body_frame: Vehicle body frame
+    - inertial_frame: Inertial frame
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Dependent variable settings object.
+Variable Size
+-------------
+3
+
+
+
+
+    )doc" );
+
+    single_dependent_variable_save_settings.doc( ) = R"doc(
 
          `VariableSettings`-derived class to define settings for dependent variables that are to be saved during propagation.
 
@@ -328,11 +399,12 @@ void expose_dependent_variable_setup( py::module &m )
 
 
 
-      )doc" )
+      )doc";
+    single_dependent_variable_save_settings
             .def_property_readonly( "dependent_variable_type",
                                     &tp::SingleDependentVariableSaveSettings::getDependentVariableType,
                                     R"doc(
-                                    
+
 Type of the dependent variable that is being saved.
 
 :type: PropagationDependentVariables
@@ -349,29 +421,30 @@ Body associated with variable.
             .def_property_readonly( "secondary_body",
                                     &tp::SingleDependentVariableSaveSettings::getSecondaryBody,
                                     R"doc(
-                                    
+
 Secondary body w.r.t. which parameter is defined, e.g. relative position is defined for the associated body w.r.t. secondary body.
 
 .. note::
 
-    This parameter is not necessarily defined. In this case an empty string is returned.                    
-                                    
+    This parameter is not necessarily defined. In this case an empty string is returned.
+
 :type: str
 
                                     )doc" )
             .def_property_readonly( "component_index",
                                     &tp::SingleDependentVariableSaveSettings::getComponentIndex,
                                     R"doc(
-                                    
+
 Index of the component to be saved.
 
 .. note::
 
-    This parameter is only applicable for vectorial dependent variables. If negative, all components of the vector are saved.                    
-                                    
+    This parameter is only applicable for vectorial dependent variables. If negative, all components of the vector are saved.
+
 :type: int
 
-                                    )doc" );
+                                    )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleDependentVariableSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleDependentVariableSaveSettings );
     //            .def(py::init<
     //                 const tp::PropagationDependentVariables,
     //                 const std::string &,
@@ -399,14 +472,13 @@ Index of the component to be saved.
             .def_property_readonly( "acceleration_model_type",
                                     &tp::SingleAccelerationDependentVariableSaveSettings::getAccelerationModelType,
                                     R"doc(
-                                    
+
 The type of the acceleration that is to be saved.
 
 :type: AvailableAcceleration
 
-)doc" );
-
-    //            .def(py::init<
+)doc" ) TUDATPY_DEF_EQ_NE( tp::SingleAccelerationDependentVariableSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleAccelerationDependentVariableSaveSettings );
     //                 const
     //                 tudat::basic_astrodynamics::AvailableAcceleration,
     //                 const std::string &,
@@ -1069,6 +1141,144 @@ The type of the acceleration that is to be saved.
 
      )doc" );
 
+    m.def(
+            "acceleration_partial_wrt_body_translational_state",
+            []( const tba::AvailableAcceleration accelerationType,
+                const std::string& bodyUndergoingAcceleration,
+                const std::string& bodyExertingAcceleration,
+                const std::string& bodyWrtState ) -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::accelerationPartialWrtBodyTranslationalStateDependentVariable(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, bodyWrtState );
+            },
+            py::arg( "acceleration_type" ),
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "body_exerting_acceleration" ),
+            py::arg( "body_wrt_state" ),
+            R"doc(
+
+ Function to add the partial derivative of a single acceleration model with respect to a body's translational state to the dependent variables to save.
+
+ Function to add the partial derivative of a single acceleration model acting on a body, exerted by another body, with respect to the Cartesian translational state of a selected body. The returned dependent variable is the flattened 3x6 matrix containing the acceleration partial with respect to position and velocity.
+
+ Parameters
+ ----------
+ acceleration_type : AvailableAcceleration
+     Acceleration type for which the partial is to be saved.
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ body_exerting_acceleration : str
+     Body exerting acceleration.
+ body_wrt_state : str
+     Body with respect to whose translational state the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 18
+
+
+     )doc" );
+
+    m.def(
+            "total_acceleration_partial_wrt_body_translational_state",
+            []( const std::string& bodyUndergoingAcceleration,
+                const std::string& bodyWrtState ) -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::totalAccelerationPartialWrtBodyTranslationalStateDependentVariable( bodyUndergoingAcceleration, bodyWrtState );
+            },
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "body_wrt_state" ),
+            R"doc(
+
+ Function to add the partial derivative of the total acceleration with respect to a body's translational state to the dependent variables to save.
+
+ Function to add the partial derivative of the total acceleration acting on a body with respect to the Cartesian translational state of a selected body. The returned dependent variable is the flattened 3x6 matrix containing the total acceleration partial with respect to position and velocity.
+
+ Parameters
+ ----------
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ body_wrt_state : str
+     Body with respect to whose translational state the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 18
+
+
+     )doc" );
+
+    m.def(
+            "acceleration_derivative_partial_wrt_parameter",
+            []( const tba::AvailableAcceleration accelerationType,
+                const std::string& bodyUndergoingAcceleration,
+                const std::string& bodyExertingAcceleration,
+                const std::shared_ptr< tep::EstimatableParameterSettings > parameterSettings )
+                    -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::accelerationDerivativePartialWrtParameterDependentVariable(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, parameterSettings );
+            },
+            py::arg( "acceleration_type" ),
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "body_exerting_acceleration" ),
+            py::arg( "parameter_settings" ),
+            R"doc(
+
+ Function to add the partial derivative of a single acceleration derivative model with respect to an estimatable parameter to the dependent variables to save.
+
+ Function to add the partial derivative of a single acceleration derivative model acting on a body, exerted by another body, with respect to an estimatable parameter. The parameter must be included in the estimatable parameter set used to create the variational-equation solver. The returned dependent variable is the flattened matrix containing the acceleration partial with respect to the selected parameter.
+
+ Parameters
+ ----------
+ acceleration_type : AvailableAcceleration
+     Acceleration type for which the partial is to be saved.
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ body_exerting_acceleration : str
+     Body exerting acceleration.
+ parameter_settings : EstimatableParameterSettings
+     Settings identifying the estimatable parameter with respect to which the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+
+
+     )doc" );
+
+    m.def(
+            "total_acceleration_derivative_partial_wrt_parameter",
+            []( const std::string& bodyUndergoingAcceleration,
+                const std::shared_ptr< tep::EstimatableParameterSettings > parameterSettings )
+                    -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::totalAccelerationDerivativePartialWrtParameterDependentVariable( bodyUndergoingAcceleration, parameterSettings );
+            },
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "parameter_settings" ),
+            R"doc(
+
+ Function to add the partial derivative of the total acceleration derivative with respect to an estimatable parameter to the dependent variables to save.
+
+ Function to add the summed partial derivative of all acceleration derivative models acting on a body with respect to an estimatable parameter. The parameter must be included in the estimatable parameter set used to create the variational-equation solver. The returned dependent variable is the flattened matrix containing the total acceleration partial with respect to the selected parameter.
+
+ Parameters
+ ----------
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ parameter_settings : EstimatableParameterSettings
+     Settings identifying the estimatable parameter with respect to which the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+
+
+     )doc" );
+
     m.def( "single_torque_norm",
            &tp::singleTorqueNormVariable,
            py::arg( "torque_type" ),
@@ -1202,7 +1412,7 @@ The type of the acceleration that is to be saved.
      Body undergoing acceleration.
  body_exerting_acceleration : str
      Body exerting acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  Returns
  -------
@@ -1251,7 +1461,7 @@ The type of the acceleration that is to be saved.
      Body undergoing acceleration.
  body_exerting_acceleration : str
      Body exerting acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  Returns
  -------
@@ -1345,13 +1555,59 @@ The type of the acceleration that is to be saved.
            &tp::aerodynamicForceCoefficientControlSurfaceFreeDependentVariable,
            py::arg( "body" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three aerodynamic force coefficients excluding control-surface increments for
+         ``body``.
+
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         central_body : str, default = ""
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
+
+      )doc" );
 
     m.def( "aerodynamic_moment_coefficients_control_surface_free",
            &tp::aerodynamicMomentCoefficientControlSurfaceFreeDependentVariable,
            py::arg( "body" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three aerodynamic moment coefficients excluding control-surface increments for
+         ``body``.
+
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         central_body : str, default = ""
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
+
+      )doc" );
 
     m.def( "aerodynamic_force_coefficients_control_surface_"
            "increment",
@@ -1359,7 +1615,31 @@ The type of the acceleration that is to be saved.
            py::arg( "body" ),
            py::arg( "control_surface_name" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three force-coefficient increments of ``control_surface_name`` on ``body``.
+
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         control_surface_name : str
+             Identifier of the control surface whose coefficient increment is saved.
+         central_body : str, default = ""
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
+
+      )doc" );
 
     m.def( "aerodynamic_moment_coefficients_control_surface_"
            "increment",
@@ -1367,7 +1647,31 @@ The type of the acceleration that is to be saved.
            py::arg( "body" ),
            py::arg( "control_surface_name" ),
            py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the three moment-coefficient increments of ``control_surface_name`` on ``body``.
+
+         ``central_body`` identifies the atmospheric body when required.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         control_surface_name : str
+             Identifier of the control surface whose coefficient increment is saved.
+         central_body : str, default = ""
+             Name of the body relative to which the state or aerodynamic quantity is defined.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
+
+      )doc" );
 
     m.def( "latitude",
            &tp::latitudeDependentVariable,
@@ -1721,7 +2025,7 @@ The type of the acceleration that is to be saved.
      Body whose dependent variable should be saved.
  body_exerting_acceleration : str
      Body exerting the acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  deformation_type : BodyDeformationTypes
      Type of gravity field variation for which the acceleration contribution is to be saved
@@ -1748,7 +2052,36 @@ The type of the acceleration that is to be saved.
            py::arg( "maximum_degree" ),
            py::arg( "minimum_order" ),
            py::arg( "maximum_order" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total time-dependent variations of the cosine gravity coefficients of ``body``.
+
+         The inclusive ``minimum_degree``, ``maximum_degree``, ``minimum_order`` and ``maximum_order`` bounds select
+         the coefficient block.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         minimum_degree : int
+             Minimum spherical harmonic degree to include.
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+         minimum_order : int
+             Minimum spherical harmonic order to include.
+         maximum_order : int
+             Maximum spherical harmonic order to include in the calculation.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of selected coefficients with order no greater than degree
+
+      )doc" );
 
     m.def( "total_spherical_harmonic_sine_coefficient_variations",
            &tp::totalSphericalHarmonicSineCoefficientVariation,
@@ -1757,21 +2090,92 @@ The type of the acceleration that is to be saved.
            py::arg( "maximum_degree" ),
            py::arg( "minimum_order" ),
            py::arg( "maximum_order" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total time-dependent variations of the sine gravity coefficients of ``body``.
+
+         The inclusive ``minimum_degree``, ``maximum_degree``, ``minimum_order`` and ``maximum_order`` bounds select
+         the coefficient block.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         minimum_degree : int
+             Minimum spherical harmonic degree to include.
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+         minimum_order : int
+             Minimum spherical harmonic order to include.
+         maximum_order : int
+             Maximum spherical harmonic order to include in the calculation.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of selected coefficients with order no greater than degree
+
+      )doc" );
 
     m.def( "total_spherical_harmonic_cosine_coefficient_variations_"
            "from_indices",
            &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
            py::arg( "body" ),
            py::arg( "component_indices" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total cosine gravity-coefficient variations of ``body`` for the (degree, order) pairs
+         in ``component_indices``.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         component_indices : list[tuple[int, int]]
+             Spherical harmonic degree and order pairs identifying the coefficients to save, in output order.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         len(component_indices)
+
+      )doc" );
 
     m.def( "total_spherical_harmonic_sine_coefficient_variations_"
            "from_indices",
            &tp::totalSphericalHarmonicSineCoefficientVariationFromIndices,
            py::arg( "body" ),
            py::arg( "component_indices" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save total sine gravity-coefficient variations of ``body`` for the (degree, order) pairs in
+         ``component_indices``.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         component_indices : list[tuple[int, int]]
+             Spherical harmonic degree and order pairs identifying the coefficients to save, in output order.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         len(component_indices)
+
+      )doc" );
 
     m.def( "body_fixed_airspeed_velocity",
            &tp::bodyFixedAirspeedBasedVelocityVariable,
@@ -1840,14 +2244,14 @@ The type of the acceleration that is to be saved.
 
  Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save.
 
- Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector). 
- 
- .. note:: 
- 
+ Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector).
+
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -1872,10 +2276,6 @@ The type of the acceleration that is to be saved.
  -------------
  9
 
-
-
-
-
      )doc" );
 
     m.def( "tnw_to_inertial_rotation_matrix",
@@ -1887,13 +2287,13 @@ The type of the acceleration that is to be saved.
  Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save.
 
  Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the velocity vector, the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
- 
- .. note:: 
- 
+
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -1919,10 +2319,6 @@ The type of the acceleration that is to be saved.
  Variable Size
  -------------
  9
-
-
-
-
 
      )doc" );
 
@@ -1936,12 +2332,12 @@ The type of the acceleration that is to be saved.
 
  Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the position vector (away from the central body), the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
 
- .. note:: 
- 
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -1967,10 +2363,6 @@ The type of the acceleration that is to be saved.
  Variable Size
  -------------
  9
-
-
-
-
 
      )doc" );
 
@@ -2013,12 +2405,12 @@ The type of the acceleration that is to be saved.
 
  Function to add the rotation matrix between any two reference frames used in aerodynamic calculations. The list of available frames is defined by the :class:`AerodynamicsReferenceFrames` enum.
 
- .. note:: 
- 
+ .. note::
+
      A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
 
      You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
-     
+
      .. code-block:: python
 
         import numpy as np
@@ -2048,10 +2440,6 @@ The type of the acceleration that is to be saved.
  Variable Size
  -------------
  9
-
-
-
-
 
      )doc" );
 
@@ -2119,7 +2507,27 @@ The type of the acceleration that is to be saved.
            &tp::controlSurfaceDeflectionDependentVariable,
            py::arg( "body" ),
            py::arg( "control_surface" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the deflection angle of ``control_surface`` on ``body``, in radians.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+         control_surface : str
+             Identifier of the control surface whose deflection is saved.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         1
+
+      )doc" );
 
     m.def( "central_body_fixed_spherical_position",
            &tp::centralBodyFixedSphericalPositionVariable,
@@ -2274,7 +2682,7 @@ The type of the acceleration that is to be saved.
 
  Parameters
  ----------
- custom_function : Callable[[], numpy.ndarray].
+ custom_function : callable[[], numpy.ndarray].
      Function taking no input, and returning the custom dependent variable (as a numpy Nx1 array).
  variable_size : int
      Size N of the array returned by the ``custom_function``
@@ -2291,8 +2699,6 @@ The type of the acceleration that is to be saved.
 
 
      )doc" );
-
-    m.def( "custom", &tp::customDependentVariableDeprecated, py::arg( "custom_function" ), py::arg( "variable_size" ) );
 
     m.def( "gravity_field_potential",
            &tp::gravityFieldPotentialDependentVariable,
@@ -2394,7 +2800,7 @@ The type of the acceleration that is to be saved.
 
  Function to compute the minimum distance between a ground station, and a set of other bodies visible from that station.
 
- Function to compute the minimum distance between a ground station, and a set of other bodies visible from that station This function takes the instantaneous position of the ground station ``station_name`` on ``body_name``, and each body in the list ``bodies_to_check``, and computes the body from this list closest to this ground station, only taking into account those bodies from this list which are visible from teh ground station. For this function, visibility is defined by a single elevation angle cutoff (at the ground station) below which a body is deemed to not be visible. In this calculation, the positions of the bodies are evaluated at the current propagation time, and therefore **light time is ignored**. The dependent variable is of size 3, and consists of: (0) The distance between the ground station, and the closest visible body; (1) The index from ``bodies_to_check`` for which the distance (given by the first index) is closest to thee ground station, and the body is visible. (2) Elevation angle for closest body. In case, no body is visible from the station, this function returns [NaN, -1, NaN]. Typically, this function is used to compute the closest body between a ground station and a constellation of satellites.
+ Function to compute the minimum distance between a ground station, and a set of other bodies visible from that station This function takes the instantaneous position of the ground station ``station_name`` on ``body_name``, and each body in the list ``bodies_to_check``, and computes the body from this list closest to this ground station, only taking into account those bodies from this list which are visible from the ground station. For this function, visibility is defined by a single elevation angle cutoff (at the ground station) below which a body is deemed to not be visible. In this calculation, the positions of the bodies are evaluated at the current propagation time, and therefore **light time is ignored**. The dependent variable is of size 3, and consists of: (0) The distance between the ground station, and the closest visible body; (1) The index from ``bodies_to_check`` for which the distance (given by the first index) is closest to thee ground station, and the body is visible. (2) Elevation angle for closest body. In case, no body is visible from the station, this function returns [NaN, -1, NaN]. Typically, this function is used to compute the closest body between a ground station and a constellation of satellites.
 
  Parameters
  ----------
@@ -2420,9 +2826,45 @@ The type of the acceleration that is to be saved.
 
      )doc" );
 
-    m.def( "center_of_mass", &tp::centerOfMassVariableSaveSettings, py::arg( "body" ), R"doc(No documentation found.)doc" );
+    m.def( "center_of_mass", &tp::centerOfMassVariableSaveSettings, py::arg( "body" ), R"doc(
 
-    m.def( "inertia_tensor", &tp::inertiaTensorVariableSaveSettings, py::arg( "body" ), R"doc(No documentation found.)doc" );
+         Create settings to save the three-component body-fixed centre of mass of ``body``, in metres.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
+
+      )doc" );
+
+    m.def( "inertia_tensor", &tp::inertiaTensorVariableSaveSettings, py::arg( "body" ), R"doc(
+
+         Create settings to save the body-fixed inertia tensor of ``body``, in kilograms times square metres.
+
+         Parameters
+         ----------
+         body : str
+             Name of the body for which the settings are created.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         9
+
+      )doc" );
 
     m.def( "received_irradiance",
            &tp::receivedIrradianceDependentVariable,
@@ -2518,63 +2960,462 @@ The type of the acceleration that is to be saved.
            &tp::vehiclePanelInertialSurfaceNormals,
            py::arg( "body_name" ),
            py::arg( "part_name" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save inertial-frame unit surface normals for the panels of ``body_name``.
+
+         ``part_name`` optionally selects a vehicle part.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+         part_name : str, default = ""
+             Identifier of the vehicle part whose panels are used; an empty string selects all panels.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3 * number of selected vehicle panels
+
+      )doc" );
 
     m.def( "vehicle_panel_surface_normals_body_fixed_frame",
            &tp::vehiclePanelInertialSurfaceNormals,
            py::arg( "body_name" ),
            py::arg( "part_name" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create panel surface-normal output settings for ``body_name`` and optional ``part_name``.
+
+         This binding currently calls the inertial-frame surface-normal factory and therefore produces inertial-frame
+         normals.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+         part_name : str, default = ""
+             Identifier of the vehicle part whose panels are used; an empty string selects all panels.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3 * number of selected vehicle panels
+
+      )doc" );
 
     m.def( "per_target_panel_radiation_pressure_force",
            &tp::vehiclePanelInertialSurfaceNormals,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create panel surface-normal output settings through the current compatibility binding.
+
+         This binding currently calls the inertial-frame surface-normal factory: ``target_name`` is used as the body
+         name and ``source_name`` as the vehicle part name. It returns SingleDependentVariableSaveSettings for normals
+         rather than panel radiation forces.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body whose panel surface normals are saved.
+         source_name : str
+             Vehicle part identifier passed to the surface-normal factory by this compatibility binding.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3 * number of selected vehicle panels
+
+      )doc" );
 
     m.def( "radiation_pressure_source_panel_irradiance",
            &tp::paneledRadiationSourcePerPanelIrradiance,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save irradiance contributions from individual panels of ``source_name`` at ``target_name``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of panels on the radiation source
+
+      )doc" );
 
     m.def( "radiation_pressure_source_panel_geometry",
            &tp::paneledRadiationSourceGeometry,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the panel geometry of ``source_name`` as seen from ``target_name``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         7 * number of panels on the radiation source
+
+      )doc" );
 
     m.def( "illuminated_panel_fraction",
            &tp::illuminatedPanelFractionDependentVariable,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
            py::arg( "panel_type" ) = "",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the illuminated fraction of panels on ``target_name`` due to ``source_name``.
+
+         ``panel_type`` optionally restricts the selected panels.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+         panel_type : str, default = ""
+             Panel type for which the illuminated fractions are saved; an empty string includes all panel types.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         Number of selected target panels
+
+      )doc" );
 
     m.def( "cross_section_change",
            &tp::crossSectionChangeDependentVariable,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the change in effective cross section of ``target_name`` for ``source_name`` and the
+         selected ``acceleration_type``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         source_name : str
+             Name of the radiation source body.
+         acceleration_type : str, default = "radiation_pressure"
+             Type of acceleration to which the settings apply.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         1
+
+      )doc" );
 
     m.def( "full_body_paneled_geometry",
            &tp::fullBodyPaneledGeometryDependentVariable,
            py::arg( "target_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the full panel geometry of ``target_name``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         9 * number of vehicle panels
+
+      )doc" );
 
     m.def( "aerodynamic_coefficients",
            &tp::aerodynamicCoefficientsDependentVariable,
            py::arg( "target_name" ),
            py::arg( "central_body_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the aerodynamic coefficients of ``target_name`` in the environment of
+         ``central_body_name``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         central_body_name : str
+             Name of the body defining the atmosphere or the source of the selected acceleration.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         3
+
+      )doc" );
 
     m.def( "actual_cross_section",
            &tp::actualCrossSectionDependentVariable,
            py::arg( "target_name" ),
            py::arg( "central_body_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+         Create settings to save the actual cross section of ``target_name`` with respect to ``central_body_name`` for
+         ``acceleration_type``.
+
+         Parameters
+         ----------
+         target_name : str
+             Name of the body receiving the radiation or aerodynamic force.
+         central_body_name : str
+             Name of the body defining the atmosphere or the source of the selected acceleration.
+         acceleration_type : str, default = "radiation_pressure"
+             Type of acceleration to which the settings apply.
+
+         Returns
+         -------
+         SingleDependentVariableSaveSettings
+             Settings for saving the requested dependent variable.
+
+         Variable Size
+         -------------
+         1
+
+      )doc" );
+
+    m.def( "vehicle_part_rotation_matrix",
+           &tp::vehiclePartRotationMatrixVariable,
+           py::arg( "body" ),
+           py::arg( "part_name" ) = "",
+           R"doc(
+
+ Function to add the vehicle part rotation matrix to the dependent variables to save.
+
+ Function to add the rotation matrix of a vehicle part (relative to the body-fixed frame) to the dependent variables to save.
+ The rotation matrix is stored at each time step and represents the orientation of the specified vehicle part.
+
+ Parameters
+ ----------
+ body : str
+     Body (vehicle) whose part rotation should be saved.
+ part_name : str
+     Name of the vehicle part whose rotation is to be saved. Empty string for main body.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 9 (3x3 matrix stored as vector)
+
+
+
+
+     )doc" );
+
+    m.def( "solar_longitude",
+           &tp::solarLongitudeDependentVariable,
+           py::arg( "body" ),
+           R"doc(
+
+ Function to add the solar longitude to the dependent variables to save.
+
+ Function to add the solar longitude (angle from body-fixed X-axis to Sun direction in the XY plane) to the dependent variables to save.
+ This dependent variable is available for bodies with a ComaModel or MarsDtmAtmosphereModel atmosphere.
+ For ComaModel, the solar longitude is computed from the Sun-comet direction in the comet body-fixed frame.
+ The value is cached during atmosphere density computations for efficiency.
+
+ Parameters
+ ----------
+ body : str
+     Body whose solar longitude is to be saved (must have ComaModel or MarsDtmAtmosphereModel atmosphere).
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+ Examples
+ --------
+
+ To create settings for saving the solar longitude of a comet with a coma model:
+
+ .. code-block:: python
+
+    # Define save settings for solar longitude
+    propagation_setup.dependent_variable.solar_longitude( "Comet" )
+
+
+     )doc" );
+
+    m.def( "number_density",
+           &tp::numberDensityDependentVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           R"doc(
+
+ Function to add the local freestream number density to the dependent variables to save.
+
+ Function to add the freestream number density (at a body's position) to the dependent variables to save. The calculation of the number density uses the atmosphere model of the central body, and the current state of the body for which the number density is to be calculated.
+
+ Parameters
+ ----------
+ body : str
+     Body whose dependent variable should be saved.
+ body_with_atmosphere : str
+     Body with atmosphere with respect to which the number density is computed.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+
+
+
+     )doc" );
+
+    m.def( "proper_time_rate_kinematic_term",
+           &tp::properTimeRateKinematicTermDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "reference_point" ) = "",
+           R"doc(Save the kinematic (special-relativistic, second-order Doppler) contribution
+to the proper-time-rate integrand of an observer that is being propagated as a
+relativistic-time state.
+
+The propagator setting determines which integrand the dependent variable refers to:
+
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`
+  (and the second-order variant) - integrand from Soffel et al. 2003 Eq. (58),
+  :math:`d\Delta_{BC}/dt_B = -(v_C^2/2 + w_{0,\text{ext}})/c^2`.
+  This dependent variable returns the :math:`-v_C^2/(2c^2)` piece, where
+  :math:`v_C` is the body's BCRS speed.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings`
+  - series expansion :math:`d\tau/dt - 1 = -\varepsilon/2 - \varepsilon^2/8`,
+  :math:`\varepsilon = (u^\mu h_{\mu\nu} u^\nu + v^2)/c^2`. This dependent
+  variable returns :math:`-v^2/(2c^2)` evaluated at the reference-point BCRS
+  speed.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`
+  - integrand from Turyshev et al. 2013 Eq. (22). This dependent variable returns
+  :math:`-v_0^2/(2c^2)` evaluated at the topocentric reference-point velocity in
+  the body-centred non-rotating frame.
+
+Parameters
+----------
+body_name : str
+    Body whose relativistic-time state is being propagated.
+reference_point : str, optional
+    Topocentric reference-point name (ground station) on the body, when relevant.
+    Leave empty (default) for the body centre itself (TCG-like conversions).
+
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Settings to save the kinematic term at every integrator step.
+)doc" );
+
+    m.def( "proper_time_rate_potential_term",
+           &tp::properTimeRatePotentialTermDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "reference_point" ) = "",
+           R"doc(Save the potential (general-relativistic, gravitational redshift) contribution
+to the proper-time-rate integrand of an observer.
+
+As for the kinematic term, the propagator setting determines the integrand the
+dependent variable refers to; this dependent variable returns the
+:math:`-U/c^2` piece:
+
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`
+  (and the second-order variant): :math:`U = w_{0,\text{ext}}`, the external
+  scalar potential at the body centre summed over the configured perturbing
+  bodies.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings`:
+  :math:`U` is the SolarSystemMetric's current total scalar potential at the
+  reference-point BCRS position.
+
+  .. warning::
+
+     This dependent variable currently requires that the underlying metric is a
+     :class:`~tudatpy.dynamics.environment_setup.space_time.SolarSystemSpaceTimeMetricSettings`-
+     created metric. With any other Metric subclass (for example a Schwarzschild
+     metric) the dependent-variable creation **raises a runtime error** rather
+     than returning an undefined value.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`:
+  :math:`U = U_E(\mathbf{y}) + \sum_i \frac{GM_i}{2 r_i^3} (3(\hat{\mathbf{n}}_i\cdot
+  \mathbf{y})^2 - \mathbf{y}^2) + \mathbf{a}_E\cdot\mathbf{y}`, the local body
+  potential plus the third-body tidal sum and (optional) acceleration term from
+  Turyshev et al. 2013 Eq. (22).
+
+Parameters
+----------
+body_name : str
+    Body whose relativistic-time state is being propagated.
+reference_point : str, optional
+    Topocentric reference-point name (ground station) on the body, when relevant.
+    Leave empty (default) for the body centre itself (TCG-like conversions).
+
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Settings to save the potential term at every integrator step.
+)doc" );
 }
 
 }  // namespace dependent_variable

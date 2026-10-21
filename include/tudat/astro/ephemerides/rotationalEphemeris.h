@@ -178,13 +178,13 @@ public:
      */
     RotationalEphemeris( const std::string& baseFrameOrientation = "", const std::string& targetFrameOrientation = "" ):
         baseFrameOrientation_( baseFrameOrientation ), targetFrameOrientation_( targetFrameOrientation )
-    { }
+    {}
 
     //! Virtual destructor.
     /*!
      * Virtual destructor.
      */
-    virtual ~RotationalEphemeris( ) { }
+    virtual ~RotationalEphemeris( ) {}
 
     //! Get rotation quaternion from target frame to base frame.
     /*!
@@ -449,9 +449,9 @@ public:
         return targetFrameOrientation_;
     }
 
-    virtual void resetCurrentTime( ) { }
+    virtual void resetCurrentTime( ) {}
 
-    virtual void setIsBodyInPropagation( const bool isBodyInPropagation ) { }
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation ) {}
 
 protected:
     //! Base reference frame orientation.

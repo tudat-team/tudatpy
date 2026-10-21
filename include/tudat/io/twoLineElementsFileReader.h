@@ -51,7 +51,7 @@ public:
         numberOfHeaderLines_( numberOfHeaderLines ), dataFile_( ), fileName_( fileName ), stringOfData_( "" ), absoluteFilePath_( "" ),
         absoluteDirectoryPath_( absoluteDirectoryPath ), relativeDirectoryPath_( "" ), lineCommentChar_( lineCommentChar ),
         numberOfObjects_( 0 )
-    { }
+    {}
 
     //! Default destructor
     virtual ~TwoLineElementsFileReader( )

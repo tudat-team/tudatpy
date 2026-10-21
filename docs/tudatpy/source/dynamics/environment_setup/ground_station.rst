@@ -4,40 +4,32 @@
 ==================
 This module contains a set of factory functions for setting up ground
 stations and associated models. Note that in Tudat, no distinction is
-made between a ground station/lander on Earth or a different body. 
+made between a ground station/lander on Earth or a different body.
+
+The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.ground_station_settings` list
+attribute (with entries of type :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings`) of the body settings, which defines settings for the ground stations of a body.
+The functions in this submodule are used to create these settings objects. When creating a body (typically using the
+:func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), a list of objects of type
+:class:`~tudatpy.dynamics.environment.GroundStation` (or a derived class) is created
+and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
+be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.ground_station_list` attribute. The ground station
+can also be safely added to the :class:`~tudatpy.dynamics.environment.Body` after its creation using the :func:`~tudatpy.dynamics.environment_setup.add_ground_station` function.
+
 A ground station defines a reference point (and other relevant properties)
 on a celestial body. Although ground stations are considered part of the 
-environment in Tudat (as properties of a ``Body`` object), they do not 
+environment in Tudat (as properties of a :class:`~tudatpy.dynamics.environment.Body` object), they do not 
 influence the numerical propagation (unless a custom model imposing this 
-is implemented by the user). Ground stations can be defined through the 
-``BodySettings`` as any other model. But, as the rest of the environment 
-does not depend on them, they can safely be added to a body after it is 
-created. Specifically, ground station settings are created, and these are then used 
-to create a ground station and add it to the body. The specifics of creating
-ground station settings is described 
-`in the API documentation <https://py.api.tudat.space/en/latest/ground_stations.html>`_. 
-An example is given below:
+is implemented by the user).
 
-.. code-block:: python 
+Properties such as a transmitting frequency of the station is added after its creation (to the :class:`~tudatpy.dynamics.environment.GroundStation` object). When creating the settings for a ground stations (using the functions in this module)
+the body may be endowed with a list of :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings`
+settings, which define station dependent models to define the station-specific motion of a ground station (such as plate motion).
+Models for the deformation of the full body (such as tidal shape variations) are to be defined through the :ref:`shape_deformation`
+module.
 
-  # Create ground station settings 
-  ground_station_settings = environment_setup.ground_station.basic_station( 
-      "TrackingStation", 
-      [station_altitude, delft_latitude, delft_longitude], 
-      element_conversion.geodetic_position_type) 
+For Earth, we provide several options to create default stations, such as the :func:`~tudatpy.dynamics.environment_setup.ground_station.dsn_stations` and
+:func:`~tudatpy.dynamics.environment_setup.ground_station.evn_stations`.
 
-  # Add the ground station to the environment 
-  environment_setup.add_ground_station( 
-      bodies.get_body("Earth"), 
-      ground_station_settings ) 
-
-
-where a simple ground station is created (with only a name and a position), with its position defined in geodetic elements. The position of a ground station in a body-fixed frame can have two sources of time-variability:
-
-* From `shape deformation models <https://py.api.tudat.space/en/latest/shape_deformation.html>`_ of the body on which it is located
-* From a list of :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` objects, which can be assigned to the ground station settings (see e.g. :func:`~tudatpy.dynamics.environment_setup.ground_station.basic_station`). These models define time-variability of individual ground stations, in addition to the global shape deformation.
-
-To automatically create a list of settings for all DSN stations (which are then typically assigned to the ``ground_station_settings`` of Earth), the :func:`~tudatpy.dynamics.environment_setup.ground_station.dsn_station_settings` can be used.
 
 
 
@@ -66,13 +58,27 @@ Functions
 
     evn_stations
 
+    default_ilrs_sinex_state_file
+
+    default_ilrs_sinex_eccentricity_file
+
+    ilrs_stations_from_sinex_domes
+
     linear_station_motion
 
     piecewise_constant_station_motion
 
     custom_station_motion
 
+    get_approximate_dsn_ground_station_positions
 
+    get_vlbi_station_positions
+
+    get_vlbi_station_velocities
+
+    get_radio_telescope_positions
+
+    optical_telescope_stations
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.basic_station
 
@@ -84,11 +90,27 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.evn_stations
 
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.default_ilrs_sinex_state_file
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.default_ilrs_sinex_eccentricity_file
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.ilrs_stations_from_sinex_domes
+
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.linear_station_motion
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.piecewise_constant_station_motion
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.custom_station_motion
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_positions
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_velocities
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.optical_telescope_stations
 
 
 
@@ -121,12 +143,11 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.LinearGroundStationMotionSettings
    :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.PiecewiseConstantGroundStationMotionSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.CustomGroundStationMotionSettings
    :members:
-
-
 

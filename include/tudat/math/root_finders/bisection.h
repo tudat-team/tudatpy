@@ -74,7 +74,7 @@ public:
      */
     Bisection( const TerminationFunction terminationFunction, const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ):
         RootFinder< DataType >( terminationFunction ), lowerBound_( lowerBound ), upperBound_( upperBound )
-    { }
+    {}
 
     //! Constructor taking typical convergence criteria and the bracket of the solution.
     /*!
@@ -96,10 +96,10 @@ public:
                const DataType upperBound = 1.0 ):
         RootFinder< DataType >( createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) ),
         lowerBound_( lowerBound ), upperBound_( upperBound )
-    { }
+    {}
 
     //! Default destructor.
-    ~Bisection( ) { }
+    ~Bisection( ) {}
 
     //! Find a root of the function provided as input.
     /*!

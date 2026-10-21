@@ -14,7 +14,7 @@ TUDAT_ADD_TEST_CASE(LinearAlgebra PRIVATE_LINKS tudat_basic_mathematics)
 
 TUDAT_ADD_TEST_CASE(CoordinateConversions PRIVATE_LINKS tudat_basic_mathematics)
 
-TUDAT_ADD_TEST_CASE(NearestNeighbourSearch PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(NearestNeighbourSearch PRIVATE_LINKS tudat_interpolators tudat_basic_mathematics)
 
 TUDAT_ADD_TEST_CASE(NumericalDerivative PRIVATE_LINKS tudat_basic_mathematics)
 
@@ -26,3 +26,11 @@ TUDAT_ADD_TEST_CASE(RotationAboutArbitraryAxis PRIVATE_LINKS tudat_basic_mathema
 
 TUDAT_ADD_TEST_CASE(RotationPartials PRIVATE_LINKS tudat_basic_mathematics tudat_reference_frames)
 
+TUDAT_ADD_TEST_CASE(CayleyKleinParameters PRIVATE_LINKS tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(SphericalHarmonicTransformation
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(WignerDMatrices PRIVATE_LINKS tudat_basic_mathematics)

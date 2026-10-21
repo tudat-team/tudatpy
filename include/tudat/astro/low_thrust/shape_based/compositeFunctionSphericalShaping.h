@@ -27,13 +27,13 @@ class CompositeFunctionSphericalShaping
 {
 public:
     //! Constructor.
-    CompositeFunctionSphericalShaping( ) { }
+    CompositeFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CompositeFunctionSphericalShaping( ) { }
+    ~CompositeFunctionSphericalShaping( ) {}
 
     //! Return coefficients.
     /*!
@@ -110,7 +110,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~CompositeRadialFunctionSphericalShaping( ) { }
+    ~CompositeRadialFunctionSphericalShaping( ) {}
 
     //! Return coefficients.
     /*!
@@ -174,7 +174,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~CompositeElevationFunctionSphericalShaping( ) { }
+    ~CompositeElevationFunctionSphericalShaping( ) {}
 
     //! Return coefficients.
     /*!

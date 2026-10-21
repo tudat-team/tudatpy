@@ -17,8 +17,12 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
+
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #endif
 
 namespace tudat
@@ -52,13 +56,50 @@ public:
      *  Constructor.
      *  \param variableType Type of variable.
      */
-    VariableSettings( const VariableType variableType ): variableType_( variableType ) { }
+    VariableSettings( const VariableType variableType ): variableType_( variableType ) {}
 
     // Destructor.
-    virtual ~VariableSettings( ) { }
+    virtual ~VariableSettings( ) {}
 
     // Type of dependent variable that is to be saved.
     VariableType variableType_;
+
+    bool operator==( const VariableSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const VariableSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+    //! Save variable settings to a JSON file (preserves polymorphic type)
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( VariableSettings )
+
+protected:
+    // Default constructor for cereal deserialization
+    VariableSettings( ): variableType_( independentVariable ) {}
+
+    virtual bool equals( const VariableSettings& rhs ) const
+    {
+        return variableType_ == rhs.variableType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( variableType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( variableType_ ) );
+    }
 };
 
 // Enum listing the dependent variables that can be saved during the propagation.
@@ -142,7 +183,14 @@ enum PropagationDependentVariables {
     full_body_paneled_geometry = 75,
     aerodynamic_coefficients = 76,
     actual_cross_section = 77,
-    solar_longitude = 78
+    solar_longitude = 78,
+    proper_time_rate_kinematic_term = 79,
+    proper_time_rate_potential_term = 80,
+    vehicle_part_rotation_matrix_dependent_variable = 81,
+    number_density = 82,
+    local_wind_velocity_dependent_variable = 83,
+    acceleration_derivative_partial_wrt_parameter = 84,
+    total_acceleration_derivative_partial_wrt_parameter = 85
 
 };
 
@@ -172,7 +220,7 @@ public:
                                          const int componentIndex = -1 ):
         VariableSettings( dependentVariable ), dependentVariableType_( dependentVariableType ), associatedBody_( associatedBody ),
         secondaryBody_( secondaryBody ), componentIndex_( componentIndex )
-    { }
+    {}
 
     PropagationDependentVariables getDependentVariableType( )
     {
@@ -194,6 +242,14 @@ public:
         return componentIndex_;
     }
 
+protected:
+    //! Default constructor for cereal deserialization
+    SingleDependentVariableSaveSettings( ):
+        VariableSettings( dependentVariable ), dependentVariableType_( mach_number_dependent_variable ), associatedBody_( "" ),
+        secondaryBody_( "" ), componentIndex_( -1 )
+    {}
+
+public:
     // Type of dependent variable that is to be saved.
     PropagationDependentVariables dependentVariableType_;
 
@@ -208,6 +264,46 @@ public:
     // Only applicable to vectorial dependent variables.
     // If negative, all the components of the vector are saved.
     int componentIndex_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( VariableSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return variableType_ == rhsCast->variableType_ && dependentVariableType_ == rhsCast->dependentVariableType_ &&
+                associatedBody_ == rhsCast->associatedBody_ && secondaryBody_ == rhsCast->secondaryBody_ &&
+                componentIndex_ == rhsCast->componentIndex_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< VariableSettings >( this ) );
+        ar( CEREAL_NVP( dependentVariableType_ ),
+            CEREAL_NVP( associatedBody_ ),
+            CEREAL_NVP( secondaryBody_ ),
+            CEREAL_NVP( componentIndex_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< VariableSettings >( this ) );
+        ar( CEREAL_NVP( dependentVariableType_ ),
+            CEREAL_NVP( associatedBody_ ),
+            CEREAL_NVP( secondaryBody_ ),
+            CEREAL_NVP( componentIndex_ ) );
+    }
 };
 
 // Class to define settings for saving a single acceleration (norm or vector) during propagation
@@ -240,7 +336,7 @@ public:
                 bodyExertingAcceleration,
                 componentIndex ),
         accelerationModelType_( accelerationModelType )
-    { }
+    {}
 
     basic_astrodynamics::AvailableAcceleration getAccelerationModelType( )
     {
@@ -249,6 +345,43 @@ public:
 
     // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleAccelerationDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return accelerationModelType_ == rhsCast->accelerationModelType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SingleAccelerationDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_acceleration_norm_dependent_variable, "", "" ),
+        accelerationModelType_( basic_astrodynamics::undefined_acceleration )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
+    }
 };
 
 // Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration.
@@ -275,7 +408,7 @@ public:
                                              bodyExertingAcceleration,
                                              componentIndex ),
         componentIndices_( componentIndices )
-    { }
+    {}
 
     // Constructor.
     /*
@@ -310,6 +443,42 @@ public:
 
     // List of degree/order terms that are to be saved
     std::vector< std::pair< int, int > > componentIndices_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SphericalHarmonicAccelerationTermsDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return componentIndices_ == rhsCast->componentIndices_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SphericalHarmonicAccelerationTermsDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( spherical_harmonic_acceleration_terms_dependent_variable, "", "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+    }
 };
 
 // Class to define settings for saving a single torque (norm or vector) during propagation.
@@ -337,10 +506,47 @@ public:
                 bodyExertingTorque,
                 componentIndex ),
         torqueModelType_( torqueModelType )
-    { }
+    {}
 
     // Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
     basic_astrodynamics::AvailableTorque torqueModelType_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleTorqueDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return torqueModelType_ == rhsCast->torqueModelType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SingleTorqueDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_torque_norm_dependent_variable, "", "" ),
+        torqueModelType_( basic_astrodynamics::underfined_torque )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( torqueModelType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( torqueModelType_ ) );
+    }
 };
 
 // Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames.
@@ -366,13 +572,52 @@ public:
                                              centralBody,
                                              componentIndex ),
         baseFrame_( baseFrame ), targetFrame_( targetFrame )
-    { }
+    {}
 
     // Frame from which rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames baseFrame_;
 
     // Frame to which the rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames targetFrame_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const IntermediateAerodynamicRotationVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return baseFrame_ == rhsCast->baseFrame_ && targetFrame_ == rhsCast->targetFrame_;
+    }
+
+private:
+    friend class cereal::access;
+
+    IntermediateAerodynamicRotationVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, "", "" ),
+        baseFrame_( reference_frames::inertial_frame ), targetFrame_( reference_frames::inertial_frame )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( baseFrame_ ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( baseFrame_ ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
+    }
 };
 
 // Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
@@ -392,10 +637,110 @@ public:
                                               const std::string& centralBody = "" ):
         SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody, centralBody ),
         angle_( angle )
-    { }
+    {}
 
     // Orientation angle that is to be saved.
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const BodyAerodynamicAngleVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return angle_ == rhsCast->angle_;
+    }
+
+private:
+    friend class cereal::access;
+
+    BodyAerodynamicAngleVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, "", "" ),
+        angle_( reference_frames::latitude_angle )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( angle_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( angle_ ) );
+    }
+};
+
+// Class to define settings for saving local wind velocity in a specified reference frame.
+class LocalWindVelocityDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    // Constructor.
+    /*
+     *  Constructor.
+     *  \param associatedBody Body for which the wind velocity is to be saved.
+     *  \param bodyWithAtmosphere Body with atmosphere/wind model with respect to which the wind velocity is computed.
+     *  \param targetFrame Frame in which the wind velocity is to be expressed (default: corotating_frame).
+     *  \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     *  By default -1, i.e. all the components are saved.
+     */
+    LocalWindVelocityDependentVariableSaveSettings(
+            const std::string& associatedBody,
+            const std::string& bodyWithAtmosphere,
+            const reference_frames::AerodynamicsReferenceFrames targetFrame = reference_frames::corotating_frame,
+            const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings( local_wind_velocity_dependent_variable, associatedBody, bodyWithAtmosphere, componentIndex ),
+        targetFrame_( targetFrame )
+    {}
+
+    // Frame in which the wind velocity is to be expressed.
+    reference_frames::AerodynamicsReferenceFrames targetFrame_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const LocalWindVelocityDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return targetFrame_ == rhsCast->targetFrame_;
+    }
+
+private:
+    friend class cereal::access;
+
+    LocalWindVelocityDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( local_wind_velocity_dependent_variable, "", "" ),
+        targetFrame_( reference_frames::corotating_frame )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
+    }
 };
 
 class ControlSurfaceCoefficientDependentVariableSettings : public SingleDependentVariableSaveSettings
@@ -417,6 +762,43 @@ public:
 
     // Orientation angle that is to be saved.
     std::string controlSurfaceName_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const ControlSurfaceCoefficientDependentVariableSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return controlSurfaceName_ == rhsCast->controlSurfaceName_;
+    }
+
+private:
+    friend class cereal::access;
+
+    ControlSurfaceCoefficientDependentVariableSettings( ):
+        SingleDependentVariableSaveSettings( aerodynamic_control_surface_force_coefficients_increment_dependent_variable, "", "" ),
+        controlSurfaceName_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( controlSurfaceName_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( controlSurfaceName_ ) );
+    }
 };
 
 // Class to define variations in spherical harmonic acceleration due to single gravity field variation.
@@ -439,13 +821,52 @@ public:
                                              bodyUndergoingAcceleration,
                                              bodyExertingAcceleration ),
         deformationType_( deformationType ), identifier_( identifier )
-    { }
+    {}
 
     // Type of gravity field variation.
     gravitation::BodyDeformationTypes deformationType_;
 
     // Identifier for gravity field variation.
     std::string identifier_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleVariationSphericalHarmonicAccelerationSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return deformationType_ == rhsCast->deformationType_ && identifier_ == rhsCast->identifier_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SingleVariationSphericalHarmonicAccelerationSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration, "", "" ),
+        deformationType_( gravitation::basic_solid_body ), identifier_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
+    }
 };
 
 // Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders.
@@ -470,7 +891,7 @@ public:
                                              bodyUndergoingAcceleration,
                                              bodyExertingAcceleration ),
         componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier )
-    { }
+    {}
 
     // Constructor.
     /*
@@ -510,6 +931,48 @@ public:
 
     // Identifier for gravity field variation.
     std::string identifier_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return componentIndices_ == rhsCast->componentIndices_ && deformationType_ == rhsCast->deformationType_ &&
+                identifier_ == rhsCast->identifier_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, "", "" ),
+        deformationType_( gravitation::basic_solid_body ), identifier_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
+    }
 };
 
 // Class to define .
@@ -534,13 +997,52 @@ public:
                                              bodyUndergoingAcceleration,
                                              bodyExertingAcceleration ),
         accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody )
-    { }
+    {}
 
     // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
 
     // String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const AccelerationPartialWrtStateSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return accelerationModelType_ == rhsCast->accelerationModelType_ && derivativeWrtBody_ == rhsCast->derivativeWrtBody_;
+    }
+
+private:
+    friend class cereal::access;
+
+    AccelerationPartialWrtStateSaveSettings( ):
+        SingleDependentVariableSaveSettings( acceleration_partial_wrt_body_translational_state, "", "" ),
+        accelerationModelType_( basic_astrodynamics::undefined_acceleration ), derivativeWrtBody_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
+    }
 };
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
@@ -560,11 +1062,94 @@ public:
     TotalAccelerationPartialWrtStateSaveSettings( const std::string& bodyUndergoingAcceleration, const std::string& derivativeWrtBody ):
         SingleDependentVariableSaveSettings( total_acceleration_partial_wrt_body_translational_state, bodyUndergoingAcceleration ),
         derivativeWrtBody_( derivativeWrtBody )
-    { }
+    {}
 
     //! String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const TotalAccelerationPartialWrtStateSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return derivativeWrtBody_ == rhsCast->derivativeWrtBody_;
+    }
+
+private:
+    friend class cereal::access;
+
+    TotalAccelerationPartialWrtStateSaveSettings( ):
+        SingleDependentVariableSaveSettings( total_acceleration_partial_wrt_body_translational_state, "" ), derivativeWrtBody_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
+    }
 };
+
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+//! Class to define partial of a single acceleration derivative model w.r.t. an estimatable parameter.
+class AccelerationDerivativePartialWrtParameterSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    //! Constructor.
+    AccelerationDerivativePartialWrtParameterSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings ):
+        SingleDependentVariableSaveSettings( acceleration_derivative_partial_wrt_parameter,
+                                             bodyUndergoingAcceleration,
+                                             bodyExertingAcceleration ),
+        accelerationModelType_( accelerationModelType ), parameterSettings_( parameterSettings ), dependentVariableSize_( -1 )
+    {}
+
+    //! Type of acceleration for which the partial is to be saved.
+    basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+
+    //! Settings identifying the parameter w.r.t. which the partial is to be saved.
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings_;
+
+    //! Dependent variable size, resolved from the estimatable parameter set during output setup.
+    int dependentVariableSize_;
+};
+
+//! Class to define partial of the total acceleration derivative of a given body w.r.t. an estimatable parameter.
+class TotalAccelerationDerivativePartialWrtParameterSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    //! Constructor.
+    TotalAccelerationDerivativePartialWrtParameterSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings ):
+        SingleDependentVariableSaveSettings( total_acceleration_derivative_partial_wrt_parameter, bodyUndergoingAcceleration ),
+        parameterSettings_( parameterSettings ), dependentVariableSize_( -1 )
+    {}
+
+    //! Settings identifying the parameter w.r.t. which the partial is to be saved.
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings_;
+
+    //! Dependent variable size, resolved from the estimatable parameter set during output setup.
+    int dependentVariableSize_;
+};
+#endif
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
 class MinimumConstellationDistanceDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -573,9 +1158,44 @@ public:
     MinimumConstellationDistanceDependentVariableSaveSettings( const std::string& mainBody,
                                                                const std::vector< std::string >& bodiesToCheck ):
         SingleDependentVariableSaveSettings( minimum_constellation_distance, mainBody ), bodiesToCheck_( bodiesToCheck )
-    { }
+    {}
 
     std::vector< std::string > bodiesToCheck_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const MinimumConstellationDistanceDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return bodiesToCheck_ == rhsCast->bodiesToCheck_;
+    }
+
+private:
+    friend class cereal::access;
+
+    MinimumConstellationDistanceDependentVariableSaveSettings( ): SingleDependentVariableSaveSettings( minimum_constellation_distance, "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
+    }
 };
 
 class MinimumConstellationStationDistanceDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -587,11 +1207,49 @@ public:
                                                                       const double elevationAngleLimit ):
         SingleDependentVariableSaveSettings( minimum_constellation_ground_station_distance, bodyName, stationName ),
         bodiesToCheck_( bodiesToCheck ), elevationAngleLimit_( elevationAngleLimit )
-    { }
+    {}
 
     std::vector< std::string > bodiesToCheck_;
 
     double elevationAngleLimit_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const MinimumConstellationStationDistanceDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return bodiesToCheck_ == rhsCast->bodiesToCheck_ && elevationAngleLimit_ == rhsCast->elevationAngleLimit_;
+    }
+
+private:
+    friend class cereal::access;
+
+    MinimumConstellationStationDistanceDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( minimum_constellation_ground_station_distance, "", "" ), elevationAngleLimit_( 0.0 )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
+        ar( CEREAL_NVP( elevationAngleLimit_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
+        ar( CEREAL_NVP( elevationAngleLimit_ ) );
+    }
 };
 
 class CustomDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -601,11 +1259,54 @@ public:
                                          const int dependentVariableSize ):
         SingleDependentVariableSaveSettings( custom_dependent_variable, "", "" ),
         customDependentVariableFunction_( customDependentVariableFunction ), dependentVariableSize_( dependentVariableSize )
-    { }
+    {}
 
     const std::function< Eigen::VectorXd( ) > customDependentVariableFunction_;
 
-    const int dependentVariableSize_;
+    int dependentVariableSize_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const CustomDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        // Warn user that function cannot be compared
+        std::cerr << "Warning, comparing custom dependent variable settings, but function cannot be compared. Only size is compared."
+                  << std::endl;
+        return dependentVariableSize_ == rhsCast->dependentVariableSize_;
+    }
+
+private:
+    friend class cereal::access;
+
+    CustomDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( custom_dependent_variable, "", "" ), dependentVariableSize_( 0 )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomDependentVariableSaveSettings cannot be serialized: "
+                "std::function member 'customDependentVariableFunction_' is not serializable." );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomDependentVariableSaveSettings cannot be serialized: "
+                "std::function member 'customDependentVariableFunction_' is not serializable." );
+    }
 };
 
 class TotalGravityFieldVariationSettings : public SingleDependentVariableSaveSettings
@@ -655,6 +1356,42 @@ public:
     }
 
     std::vector< std::pair< int, int > > componentIndices_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const TotalGravityFieldVariationSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return componentIndices_ == rhsCast->componentIndices_;
+    }
+
+private:
+    friend class cereal::access;
+
+    TotalGravityFieldVariationSettings( ):
+        SingleDependentVariableSaveSettings( total_spherical_harmonic_cosine_coefficient_variation, "", "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+    }
 };
 
 class IlluminatedPanelFractionDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -664,9 +1401,45 @@ public:
                                                            const std::string& sourceName,
                                                            const std::string& panelTypeId = "" ):
         SingleDependentVariableSaveSettings( illuminated_panel_fraction, bodyName, sourceName ), panelTypeId_( panelTypeId )
-    { }
+    {}
 
     std::string panelTypeId_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const IlluminatedPanelFractionDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return panelTypeId_ == rhsCast->panelTypeId_;
+    }
+
+private:
+    friend class cereal::access;
+
+    IlluminatedPanelFractionDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( illuminated_panel_fraction, "", "" ), panelTypeId_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( panelTypeId_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( panelTypeId_ ) );
+    }
 };
 
 class CrossSectionDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -677,9 +1450,45 @@ public:
                                                const std::string& sourceName,
                                                const std::string& accelerationType ):
         SingleDependentVariableSaveSettings( type, bodyName, sourceName ), accelerationType_( accelerationType )
-    { }
+    {}
 
     std::string accelerationType_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const CrossSectionDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return accelerationType_ == rhsCast->accelerationType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    CrossSectionDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( cross_section_change, "", "" ), accelerationType_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( accelerationType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( accelerationType_ ) );
+    }
 };
 
 // Function to get a string representing a 'named identification' of a variable type.
@@ -1018,6 +1827,15 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedGroundspe
             body_fixed_groundspeed_based_velocity_variable, associatedBody, centralBody );
 }
 
+//! @get_docstring(localWindVelocityVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > localWindVelocityVariable(
+        const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere,
+        const reference_frames::AerodynamicsReferenceFrames targetFrame = reference_frames::corotating_frame )
+{
+    return std::make_shared< LocalWindVelocityDependentVariableSaveSettings >( associatedBody, bodyWithAtmosphere, targetFrame );
+}
+
 //! @get_docstring(tnwToInertialFrameRotationMatrixVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > tnwToInertialFrameRotationMatrixVariable( const std::string& associatedBody,
                                                                                                         const std::string& centralBody )
@@ -1255,6 +2073,26 @@ inline std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > totalAcce
     return std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( bodyUndergoingAcceleration, derivativeWrtBody );
 }
 
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+inline std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > accelerationDerivativePartialWrtParameterDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
+{
+    return std::make_shared< AccelerationDerivativePartialWrtParameterSaveSettings >(
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelType, parameterSettings );
+}
+
+inline std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings >
+totalAccelerationDerivativePartialWrtParameterDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
+{
+    return std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( bodyUndergoingAcceleration, parameterSettings );
+}
+#endif
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation( const std::string& bodyName,
                                                                                                               const int minimumDegree,
                                                                                                               const int maximumDegree,
@@ -1392,6 +2230,83 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > actualCrossSection
 {
     return std::make_shared< CrossSectionDependentVariableSaveSettings >(
             actual_cross_section, bodyName, centralBodyName, accelerationType );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePartRotationMatrixVariable( const std::string& bodyName,
+                                                                                                 const std::string& partName = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( vehicle_part_rotation_matrix_dependent_variable, bodyName, partName );
+}
+
+//! @get_docstring(solarLongitudeDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > solarLongitudeDependentVariable( const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( solar_longitude, bodyName, "" );
+}
+
+//! @get_docstring(numberDensityDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > numberDensityDependentVariable( const std::string& associatedBody,
+                                                                                              const std::string& bodyWithAtmosphere )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( number_density, associatedBody, bodyWithAtmosphere );
+}
+
+//! Build a SingleDependentVariableSaveSettings for the kinematic (special-relativistic,
+//! second-order Doppler) contribution to the proper-time-rate integrand of an observer.
+//!
+//! The observer is the reference point of one of the relativistic-time propagator settings:
+//!   - \ref FirstOrderBodycentricRelativisticTimePropagatorSettings (and its second-order
+//!     subclass) for a body centre, where the integrand follows Soffel et al. 2003 Eq. (58):
+//!     \f$ d\Delta_{BC}/dt_B = -(v_C^2/2 + w_{0,\mathrm{ext}})/c^2 \f$. This dependent variable
+//!     returns the \f$-v_C^2/(2c^2)\f$ contribution.
+//!   - \ref DirectRelativisticTimePropagatorSettings, where the integrand is the series
+//!     expansion \f$ d\tau/dt - 1 = -\varepsilon/2 - \varepsilon^2/8 \f$ with
+//!     \f$\varepsilon = (u^\mu h_{\mu\nu} u^\nu + v^2)/c^2\f$. This dependent variable returns
+//!     the leading kinematic part \f$-v^2/(2c^2)\f$ where \f$v\f$ is the reference-point BCRS
+//!     speed.
+//!   - \ref BodycenteredToTopocentricTimePropagatorSettings for a ground station, where the
+//!     integrand follows Turyshev et al. 2013 Eq. (22). This dependent variable returns the
+//!     \f$-v_0^2/(2c^2)\f$ contribution where \f$v_0\f$ is the reference-point velocity in
+//!     the body-centred frame.
+//!
+//! \param bodyName Body whose relativistic-time state is being propagated.
+//! \param referencePoint Optional ground-station / topocentric reference point on the body.
+//!        Leave empty (default) for body-centre proper time (TCG-like conversions).
+//! @get_docstring(properTimeRateKinematicTermDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRateKinematicTermDependentVariable(
+        const std::string& bodyName,
+        const std::string& referencePoint = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( proper_time_rate_kinematic_term, bodyName, referencePoint );
+}
+
+//! Build a SingleDependentVariableSaveSettings for the potential (general-relativistic,
+//! gravitational redshift) contribution to the proper-time-rate integrand of an observer.
+//!
+//! As for the kinematic term, the observer is the reference point of one of the
+//! relativistic-time propagator settings; the variable returns the \f$-U/c^2\f$ piece of the
+//! corresponding integrand:
+//!   - \ref FirstOrderBodycentricRelativisticTimePropagatorSettings (and its second-order
+//!     subclass): \f$U = w_{0,\mathrm{ext}}\f$, the cached external scalar potential at the
+//!     body centre summed over all configured perturbing bodies.
+//!   - \ref DirectRelativisticTimePropagatorSettings: \f$U\f$ is the SolarSystemMetric's
+//!     current total scalar potential at the reference-point BCRS position. **Throws** at
+//!     run time if the metric is not a SolarSystemMetric (e.g. SchwarzschildMetric is not
+//!     supported by this dependent variable).
+//!   - \ref BodycenteredToTopocentricTimePropagatorSettings: \f$U = U_E(\mathbf{y}) +
+//!     \sum_i \frac{GM_i}{2 r_i^3}(3(\hat{\mathbf{n}}_i\cdot\mathbf{y})^2 - \mathbf{y}^2) +
+//!     \mathbf{a}_E\cdot\mathbf{y}\f$, the local scalar plus tidal plus optional
+//!     centre-of-mass acceleration term from Turyshev et al. 2013 Eq. (22).
+//!
+//! \param bodyName Body whose relativistic-time state is being propagated.
+//! \param referencePoint Optional ground-station / topocentric reference point on the body.
+//!        Leave empty (default) for body-centre proper time (TCG-like conversions).
+//! @get_docstring(properTimeRatePotentialTermDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRatePotentialTermDependentVariable(
+        const std::string& bodyName,
+        const std::string& referencePoint = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( proper_time_rate_potential_term, bodyName, referencePoint );
 }
 
 }  // namespace propagators

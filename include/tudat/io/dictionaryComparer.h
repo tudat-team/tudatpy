@@ -43,7 +43,7 @@ public:
     /*!
      * Constructor that initializes all members with zombie state.
      */
-    DictionaryComparer( ): dictionaryEntry( ), parameterName( "" ) { }
+    DictionaryComparer( ): dictionaryEntry( ), parameterName( "" ) {}
 
     //! Constructor taking dictionary entry.
     /*!
@@ -54,7 +54,7 @@ public:
      */
     DictionaryComparer( const input_output::dictionary::DictionaryEntryPointer aDictionaryEntry ):
         dictionaryEntry( aDictionaryEntry ), parameterName( "" )
-    { }
+    {}
 
     //! Constructor taking parameter name.
     /*!
@@ -62,7 +62,7 @@ public:
      * The dictionary entry is initialized with zombie state.
      * \param aParameterName Parameter-name.
      */
-    DictionaryComparer( const std::string& aParameterName ): dictionaryEntry( ), parameterName( aParameterName ) { }
+    DictionaryComparer( const std::string& aParameterName ): dictionaryEntry( ), parameterName( aParameterName ) {}
 
     //! Overload ()-operator to compare dictionary entries.
     /*!

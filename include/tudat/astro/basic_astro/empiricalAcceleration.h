@@ -16,7 +16,6 @@
 #define TUDAT_EMPIRICALACCELERATION_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
@@ -103,7 +102,7 @@ public:
     }
 
     //! Destructor
-    ~EmpiricalAcceleration( ) { }
+    ~EmpiricalAcceleration( ) {}
 
     //! Function to update constituent elements of empirical acceleration to current time
     /*!

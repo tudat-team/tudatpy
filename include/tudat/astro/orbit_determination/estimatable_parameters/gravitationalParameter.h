@@ -32,10 +32,10 @@ public:
      */
     GravitationalParameter( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel, const std::string& associatedBody ):
         EstimatableParameter< double >( gravitational_parameter, associatedBody ), gravityFieldModel_( gravityFieldModel )
-    { }
+    {}
 
     //! Destructor
-    ~GravitationalParameter( ) { }
+    ~GravitationalParameter( ) {}
 
     //! Function to get the current value of the gravitational parameter that is to be estimated.
     /*!

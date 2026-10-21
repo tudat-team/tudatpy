@@ -15,6 +15,8 @@
 
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -84,10 +86,10 @@ public:
     PropagationTerminationCondition( const PropagationTerminationTypes terminationType,
                                      const bool checkTerminationToExactCondition = false ):
         terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition )
-    { }
+    {}
 
     //! Destructor
-    virtual ~PropagationTerminationCondition( ) { }
+    virtual ~PropagationTerminationCondition( ) {}
 
     //! (Pure virtual) function to check whether the propagation should be stopped
     /*!
@@ -126,6 +128,11 @@ public:
         return checkTerminationToExactCondition_;
     }
 
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return false;
+    }
+
 protected:
     //! Type of termination condition
     PropagationTerminationTypes terminationType_;
@@ -153,7 +160,7 @@ public:
                                               const bool checkTerminationToExactCondition = false ):
         PropagationTerminationCondition( time_stopping_condition, checkTerminationToExactCondition ), stopTime_( stopTime ),
         propagationDirectionIsPositive_( propagationDirectionIsPositive )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -194,7 +201,7 @@ public:
      */
     FixedCPUTimePropagationTerminationCondition( const double cpuStopTime ):
         PropagationTerminationCondition( cpu_time_stopping_condition, false ), cpuStopTime_( cpuStopTime )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -253,7 +260,7 @@ public:
     }
 
     //! Destructor.
-    ~SingleVariableLimitPropagationTerminationCondition( ) { }
+    ~SingleVariableLimitPropagationTerminationCondition( ) {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -283,6 +290,11 @@ public:
     std::shared_ptr< root_finders::RootFinderSettings > getTerminationRootFinderSettings( )
     {
         return terminationRootFinderSettings_;
+    }
+
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return true;
     }
 
 private:
@@ -318,7 +330,7 @@ public:
                                 const bool checkTerminationToExactCondition = false ):
         PropagationTerminationCondition( custom_stopping_condition, checkTerminationToExactCondition ),
         checkStopCondition_( checkStopCondition )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -331,6 +343,11 @@ public:
     {
         TUDAT_UNUSED_PARAMETER( cpuTime );
         return checkStopCondition_( time, currentState );
+    }
+
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return true;
     }
 
 private:
@@ -360,6 +377,15 @@ public:
         propagationTerminationCondition_( propagationTerminationCondition ), fulfillSingleCondition_( fulfillSingleCondition )
     {
         isConditionMetWhenStopping_.resize( propagationTerminationCondition.size( ) );
+
+        requiresEnvironmentUpdate_ = false;
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
+        {
+            if( propagationTerminationCondition_.at( i )->requiresEnvironmentUpdate( ) )
+            {
+                requiresEnvironmentUpdate_ = true;
+            }
+        }
     }
 
     //! Function to check whether the propagation is to be be stopped
@@ -400,6 +426,11 @@ public:
         return isConditionMetWhenStopping_;
     }
 
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return requiresEnvironmentUpdate_;
+    }
+
 private:
     //! List of termination conditions that are checked when calling checkStopCondition is called.
     std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition_;
@@ -409,6 +440,8 @@ private:
     bool fulfillSingleCondition_;
 
     std::vector< bool > isConditionMetWhenStopping_;
+
+    bool requiresEnvironmentUpdate_;
 };
 
 //! Class for stopping the propagation when one or all of a given set of stopping conditions is reached.
@@ -432,7 +465,7 @@ public:
                                          forwardPropagationTerminationCondition->getcheckTerminationToExactCondition( ) ),
         forwardPropagationTerminationCondition_( forwardPropagationTerminationCondition ),
         backwardPropagationTerminationCondition_( backwardPropagationTerminationCondition )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -616,10 +649,10 @@ public:
     PropagationTerminationDetails( const PropagationTerminationReason propagationTerminationReason,
                                    const bool terminationOnExactCondition = 0 ):
         propagationTerminationReason_( propagationTerminationReason ), terminationOnExactCondition_( terminationOnExactCondition )
-    { }
+    {}
 
     //! Destructor
-    virtual ~PropagationTerminationDetails( ) { }
+    virtual ~PropagationTerminationDetails( ) {}
 
     //! Function to retrieve reason for termination
     /*!
@@ -647,6 +680,15 @@ public:
         return baseString;
     }
 
+    bool operator==( const PropagationTerminationDetails& rhs ) const
+    {
+        return equals( rhs );
+    }
+    bool operator!=( const PropagationTerminationDetails& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
     //! Reason for termination
     PropagationTerminationReason propagationTerminationReason_;
@@ -657,6 +699,36 @@ protected:
      *  false if not, -1 if neither is relevant.
      */
     bool terminationOnExactCondition_;
+
+    //! Protected default constructor for deserialization (also accessible by derived classes)
+    PropagationTerminationDetails( ): propagationTerminationReason_( propagation_never_run ), terminationOnExactCondition_( false ) {}
+
+    virtual bool equals( const PropagationTerminationDetails& rhs ) const
+    {
+        return ( propagationTerminationReason_ == rhs.propagationTerminationReason_ ) &&
+                ( terminationOnExactCondition_ == rhs.terminationOnExactCondition_ );
+    }
+
+public:
+    //! Save termination details to a binary file
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( PropagationTerminationDetails )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( terminationOnExactCondition_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( terminationOnExactCondition_ ) );
+    }
 };
 
 //! Class for storing details on the propagation termination when using hybrid termination conditions
@@ -673,10 +745,10 @@ public:
                                                       const std::shared_ptr< HybridPropagationTerminationCondition > terminationCondition ):
         PropagationTerminationDetails( termination_condition_reached, terminationOnExactCondition ),
         isConditionMetWhenStopping_( terminationCondition->getIsConditionMetWhenStopping( ) )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationTerminationDetailsFromHybridCondition( ) { }
+    ~PropagationTerminationDetailsFromHybridCondition( ) {}
 
     //! Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     /*!
@@ -695,9 +767,44 @@ public:
         return isConditionMetWhenStopping_;
     }
 
+protected:
+    bool equals( const PropagationTerminationDetails& rhs ) const override
+    {
+        if( !PropagationTerminationDetails::equals( rhs ) )
+        {
+            return false;
+        }
+
+        const auto* rhsCast = dynamic_cast< const PropagationTerminationDetailsFromHybridCondition* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+
+        return ( isConditionMetWhenStopping_ == rhsCast->isConditionMetWhenStopping_ );
+    }
+
 private:
     //! List of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     std::vector< bool > isConditionMetWhenStopping_;
+
+    friend class cereal::access;
+
+    PropagationTerminationDetailsFromHybridCondition( ): PropagationTerminationDetails( ) {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagationTerminationDetails >( this ) );
+        ar( CEREAL_NVP( isConditionMetWhenStopping_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationDetails >( this ) );
+        ar( CEREAL_NVP( isConditionMetWhenStopping_ ) );
+    }
 };
 
 }  // namespace propagators

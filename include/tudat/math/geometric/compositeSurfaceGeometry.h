@@ -44,7 +44,7 @@ public:
     /*!
      * Default constructor.
      */
-    CompositeSurfaceGeometry( ) { }
+    CompositeSurfaceGeometry( ) {}
 
     //! Constructor, sets constituent surface geometries of objects.
     /*!
@@ -59,7 +59,7 @@ public:
     /*!
      * Default destructor.
      */
-    virtual ~CompositeSurfaceGeometry( ) { }
+    virtual ~CompositeSurfaceGeometry( ) {}
 
     //! Get pointer to stored SingleSurfaceGeometry object.
     /*!
@@ -120,7 +120,7 @@ public:
      * \param compositeSurfaceGeometry compositeSurfaceGeometry object.
      * \return Stream object.
      */
-    friend std::ostream &operator<<( std::ostream &stream, CompositeSurfaceGeometry &compositeSurfaceGeometry );
+    friend std::ostream& operator<<( std::ostream& stream, CompositeSurfaceGeometry& compositeSurfaceGeometry );
 
 protected:
     //! Set pointer to SingleSurfaceGeometry object.

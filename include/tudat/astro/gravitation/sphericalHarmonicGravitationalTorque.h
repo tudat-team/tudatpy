@@ -11,9 +11,6 @@
 #ifndef TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
 #define TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
 
-#include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
-
 #include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -50,7 +47,7 @@ public:
             const std::function< double( ) > perturberMassFunction ):
         sphericalHarmonicAcceleration_( sphericalHarmonicAcceleration ), rotationToBodyUndergoingTorque_( rotationToBodyUndergoingTorque ),
         perturberMassFunction_( perturberMassFunction )
-    { }
+    {}
 
     //! Get gravitational torque.
     /*!
@@ -98,6 +95,11 @@ public:
     {
         sphericalHarmonicAcceleration_->resetCurrentTime( );
         currentTime_ = TUDAT_NAN;
+    }
+
+    std::function< double( ) > perturberMassFunction( )
+    {
+        return perturberMassFunction_;
     }
 
 protected:

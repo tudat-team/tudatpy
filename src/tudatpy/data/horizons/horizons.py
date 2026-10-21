@@ -23,7 +23,7 @@
 # class HorizonsQuery:
 #     """This class provides an interface to JPL's Horizon System.
 #     JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
-#     including asteriuds, comets, planets, moons and select spacecraft.
+#     including asteroids, comets, planets, moons and select spacecraft.
 #     The class extends astroquery's to cater to the needs of Tudat users,
 #     while maintaining compatibility with all of astroquery's features.
 
@@ -309,7 +309,7 @@
 #             raise ValueError(txt)
 
 #         # query is smaller than limit -> one batch
-#         # seperate check for list as the num lines is smaller
+#         # separate check for list as the num lines is smaller
 #         elif (
 #             (self.epoch_type != "list")
 #             and (num_lines < HorizonsQuery.query_limit)
@@ -452,10 +452,10 @@
 #     @property
 #     def name(self) -> Union[str, None]:
 #         """Retrieve the name of the query's object.
-#         The name is infered from the data retrieved and will return none
+#         The name is inferred from the data retrieved and will return none
 #         if data has not been retrieved yet.
 #         Unnamed minor planets will use their designation instead.
-#         If a name can not be infered, the raw name from Horizons will be returned.
+#         If a name can not be inferred, the raw name from Horizons will be returned.
 #         Please consider raising an issue on the Tudat github in such cases."""
 #         try:
 #             self._infer_name()
@@ -469,7 +469,7 @@
 #     @property
 #     def MPC_number(self) -> Union[str, None]:
 #         """Retrieve the MPC (Minor Planet Centre) number of the object.
-#         The MPC number is infered from data retrieved and will return none
+#         The MPC number is inferred from data retrieved and will return none
 #         if data has not been retrieved yet.
 #         The MPC number is only relevant to minor planets such as asteroids, TNOs and
 #         Near-Earth Asteroids."""
@@ -482,7 +482,7 @@
 #     @property
 #     def designation(self) -> Union[str, None]:
 #         """Retrieve the relevant designation of the query's object.
-#         The designation is infered from the data retrieved and will return none
+#         The designation is inferred from the data retrieved and will return none
 #         if data has not been retrieved yet.
 #         Minor planets and Comets will return their provisional designation
 #         (1898 DQ for Eros, 1982 HG1 for Halley).
@@ -629,7 +629,7 @@
 
 #         ambiguoustxt = (
 #             "Time intervals like month and year "
-#             + "are ambigious, please reformulate the timestep in days instead"
+#             + "are ambiguous, please reformulate the timestep in days instead"
 #         )
 #         if alpha_part.startswith("y") or alpha_part.startswith("mo"):
 #             raise ValueError(ambiguoustxt)
@@ -782,7 +782,7 @@
 #                 )
 #             )
 #             .assign(
-#                 epochJ2000secondsTDB=lambda x: (
+#                 epoch_seconds_TDB=lambda x: (
 #                     (
 #                         Time(x.epoch_dt, format="datetime64").jd1
 #                         - constants.JULIAN_DAY_ON_J2000
@@ -812,7 +812,7 @@
 #                 * constants.ASTRONOMICAL_UNIT
 #                 / constants.JULIAN_DAY
 #             )
-#             .loc[:, ["epochJ2000secondsTDB", "x", "y", "z", "vx", "vy", "vz"]]
+#             .loc[:, ["epoch_seconds_TDB", "x", "y", "z", "vx", "vy", "vz"]]
 #         )
 
 #         return tab.to_numpy()
@@ -962,7 +962,7 @@
 #             res["datetime_jd"] = (
 #                 new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
 #             )
-#             res["epochJ2000secondsTDB"] = (
+#             res["epoch_seconds_TDB"] = (
 #                 (new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000)
 #                 * constants.JULIAN_DAY
 #             ) + (new_actual_time_tdb.jd2 * constants.JULIAN_DAY)
@@ -1029,7 +1029,7 @@
 #             **kwargs,
 #         )
 
-#         res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
+#         res = raw.to_pandas().loc[:, ["epoch_seconds_TDB", "RA", "DEC"]]
 
 #         if not degrees:
 #             res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
@@ -1078,7 +1078,7 @@
 #             **kwargs,
 #         )
 
-#         res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "AZ", "EL"]]
+#         res = raw.to_pandas().loc[:, ["epoch_seconds_TDB", "AZ", "EL"]]
 
 #         if not degrees:
 #             res[["AZ", "EL"]] = res[["AZ", "EL"]].apply(np.radians)
@@ -1176,7 +1176,7 @@
 #         frame_orientation: str = "ECLIPJ2000",
 #         aberations: str = "geometric",
 #     ) -> None:
-#         """Uses the data queried to add ephemerides of the bodies querried
+#         """Uses the data queried to add ephemerides of the bodies queried
 #         to the body_settings. The names of the bodies added can be retrieved
 #         using the names property.
 

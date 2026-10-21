@@ -65,7 +65,7 @@ public:
     }
 
     //! Destructor
-    ~SecondDegreeGravitationalTorquePartial( ) { }
+    ~SecondDegreeGravitationalTorquePartial( ) {}
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!

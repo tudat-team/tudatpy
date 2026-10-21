@@ -41,7 +41,7 @@ struct TestFunctionWithLargeRootDifference : public TestFunction, public basic_m
                                          const double aBendingAngle ):
         maximumDerivativeOrder( aMaximumDerivativeOrder ), incomingSemiMajorAxis( anIncomingSemiMajorAxis ),
         outgoingSemiMajorAxis( anOutgoingSemiMajorAxis ), bendingAngle( aBendingAngle )
-    { }
+    {}
 
     //! Mathematical test function.
     double evaluate( const double inputValue )

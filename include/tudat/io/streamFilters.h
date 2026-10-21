@@ -13,11 +13,11 @@
 #define TUDAT_STREAM_FILTERS_H
 
 #include <string>
+#include <regex>
 
 #include <boost/iostreams/filter/line.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/stream_buffer.hpp>
-#include <boost/regex.hpp>
 
 namespace tudat
 {
@@ -50,7 +50,7 @@ public:
      */
     RemoveComment( char skipCharacter = '#', bool isOmitIfEmpty = true ):
         boost::iostreams::line_filter( true ), skipCharacter_( skipCharacter ), isOmitIfEmpty_( isOmitIfEmpty )
-    { }
+    {}
 
     //! Remove comments in a single line.
     /*!
@@ -96,7 +96,7 @@ public:
      */
     SkipFirstLines( unsigned int linesToSkip = 0, bool isOmitIfEmpty = true ):
         boost::iostreams::line_filter( true ), linesToSkip_( linesToSkip ), numberOfSkippedLines_( 0 ), isOmitIfEmpty_( isOmitIfEmpty )
-    { }
+    {}
 
     //! Execute filter on the input line by skipping if required.
     /*!
@@ -134,7 +134,7 @@ private:
  * This filter allows the user to perform a search&replace operation on a stream (line based).
  * If a match is found, it is replaced by the given replace string.
  *
- * The search pattern is created using a regex expression (boost::regex). The following are example
+ * The search pattern is created using a regular expression (std::regex). The following are example
  * search queries:
  *
  * Search for keyword:                      'myKeyWord'
@@ -146,7 +146,7 @@ private:
  * Search for numbers with two decimals:    '[\+\-]*[0-9]*\.[0-9]{2}'
  *      This will match numbers up to two decimals (including preceding + and -).
  *
- * More examples: http://www.boost.org/libs/regex/
+ * More examples: https://en.cppreference.com/w/cpp/regex
  *                http://www.regular-expressions.info/examples.html
  */
 class ReplaceElements : public boost::iostreams::line_filter
@@ -163,10 +163,10 @@ public:
      * \param isOmitIfEmpty True if a line should be removed when a complete line is filtered away.
      *              (If true, if an entire line is removed, no newline character will be returned.)
      */
-    ReplaceElements( boost::regex searchFilter, std::string replaceString = "", bool isOmitIfEmpty = true ):
+    ReplaceElements( std::regex searchFilter, std::string replaceString = "", bool isOmitIfEmpty = true ):
         boost::iostreams::line_filter( true ), searchFilter_( searchFilter ), replaceString_( replaceString ),
         isOmitIfEmpty_( isOmitIfEmpty )
-    { }
+    {}
 
     //! Create filter with a basic search and replace string.
     /*!
@@ -197,7 +197,7 @@ private:
      * Search pattern used to find matches to replace.
      * This is an encapsulated regular expression, see http://www.regular-expressions.info/
      */
-    boost::regex searchFilter_;
+    std::regex searchFilter_;
 
     //! Replace string.
     /*!
