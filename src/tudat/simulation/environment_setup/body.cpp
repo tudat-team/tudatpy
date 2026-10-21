@@ -300,11 +300,6 @@ void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFiel
         throw std::runtime_error( "Error when setting a null gravity field on a body with gravity-derived rigid-body properties." );
     }
 
-    if( gravityFieldModel_ != nullptr )
-    {
-        // Remove the reverse link before replacing the gravity model.
-        gravityFieldModel_->setRigidBodyProperties( nullptr );
-    }
     gravityFieldModel_ = gravityFieldModel;
 
     if( massProperties_ == nullptr )
@@ -318,7 +313,6 @@ void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFiel
     {
         gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel );
     }
-    linkGravityFieldAndRigidBodyProperties( );
 }
 
 void Body::setAtmosphereModel( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
@@ -536,24 +530,9 @@ void Body::setMassProperties( const std::shared_ptr< RigidBodyProperties > massP
             std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
     if( gravityLinkedRigidBodyProperties != nullptr && gravityFieldModel_ != nullptr )
     {
-        // Body is authoritative for the association: direct callers cannot accidentally leave
-        // its gravity model linked to rigid-body properties derived from a different field.
+        // Ensure that gravity-derived properties are derived from the gravity field of this body
         gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel_ );
     }
-    linkGravityFieldAndRigidBodyProperties( );
-}
-
-void Body::linkGravityFieldAndRigidBodyProperties( )
-{
-    if( gravityFieldModel_ == nullptr )
-    {
-        return;
-    }
-
-    // Body and gravity field refer to the same rigid-body-properties object. Gravity-derived
-    // properties override the synchronization hooks; explicitly prescribed properties retain
-    // precedence through the base-class no-op implementations.
-    gravityFieldModel_->setRigidBodyProperties( massProperties_ );
 }
 
 void Body::setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction )

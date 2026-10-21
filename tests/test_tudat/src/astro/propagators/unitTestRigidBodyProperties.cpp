@@ -178,9 +178,6 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
             std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( fromGravityFieldBody->getMassProperties( ) );
     BOOST_REQUIRE( legacyProperties != nullptr );
     BOOST_REQUIRE( fromGravityFieldProperties != nullptr );
-    BOOST_CHECK_EQUAL( legacyBody->getGravityFieldModel( )->getRigidBodyProperties( ), legacyBody->getMassProperties( ) );
-    BOOST_CHECK_EQUAL( fromGravityFieldBody->getGravityFieldModel( )->getRigidBodyProperties( ),
-                       fromGravityFieldBody->getMassProperties( ) );
     BOOST_CHECK_CLOSE_FRACTION( legacyProperties->getScaledMeanMomentOfInertia( ), scaledMeanMomentOfInertia, 5.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( fromGravityFieldProperties->getScaledMeanMomentOfInertia( ), scaledMeanMomentOfInertia, 5.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( legacyBody->getBodyMass( ), fromGravityFieldBody->getBodyMass( ), 5.0e-15 );
@@ -199,7 +196,6 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
 
     // Check that explicit rigid body settings take precedence over deprecated gravity field settings
     BOOST_CHECK( std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( explicitBody->getMassProperties( ) ) == nullptr );
-    BOOST_CHECK_EQUAL( explicitBody->getGravityFieldModel( )->getRigidBodyProperties( ), explicitBody->getMassProperties( ) );
     BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyFixedCenterOfMass( ), explicitCenterOfMass, 5.0e-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
@@ -208,6 +204,7 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     const double initialMass = fromGravityFieldBody->getBodyMass( );
     const Eigen::Matrix3d initialInertia = fromGravityFieldBody->getBodyInertiaTensor( );
     fromGravityFieldBody->getGravityFieldModel( )->resetGravitationalParameter( 2.0 * gravitationalParameter );
+    fromGravityFieldBody->getMassProperties( )->update( 0.0 );
     BOOST_CHECK_CLOSE_FRACTION( fromGravityFieldBody->getBodyMass( ), 2.0 * initialMass, 5.0e-15 );
     const Eigen::Matrix3d expectedInertiaAfterMassUpdate = 2.0 * initialInertia;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyInertiaTensor( ), expectedInertiaAfterMassUpdate, 5.0e-15 );
@@ -220,6 +217,7 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     modifiedCosineCoefficients( 1, 1 ) *= 2.0;
     modifiedCosineCoefficients( 2, 0 ) *= 1.5;
     fromGravityFieldGravityField->setCosineCoefficients( modifiedCosineCoefficients );
+    fromGravityFieldBody->getMassProperties( )->update( 0.0 );
     Eigen::Vector3d expectedUpdatedCenterOfMass = expectedCenterOfMass;
     expectedUpdatedCenterOfMass.x( ) *= 2.0;
     const double inertiaChangeScale = fromGravityFieldBody->getBodyMass( ) * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
@@ -231,6 +229,7 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
 
     // Check that explicit rigid body properties are not changed by changing the gravity field
     explicitBody->getGravityFieldModel( )->resetGravitationalParameter( 3.0 * gravitationalParameter );
+    explicitBody->getMassProperties( )->update( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
 }
@@ -278,15 +277,22 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative 
     body->setCurrentRotationalStateToLocalFrame( rotationalState );
     const auto inertialTorque = createInertialTorqueModel( body, "TestBody" );
 
+    // Update gravity field, and rigid body properties derived from it, to given time
+    std::function< void( const double ) > updateEnvironment = [ = ]( const double time ) {
+        gravityField->update( time );
+        body->getMassProperties( )->resetCurrentTime( );
+        body->getMassProperties( )->update( time );
+    };
+
     for( const double time : { 0.0, 10.0, 40.0 } )
     {
         const double step = 1.0;
-        gravityField->update( time - step );
+        updateEnvironment( time - step );
         const Eigen::Matrix3d previousInertia = body->getBodyInertiaTensor( );
-        gravityField->update( time + step );
+        updateEnvironment( time + step );
         const Eigen::Matrix3d nextInertia = body->getBodyInertiaTensor( );
         const Eigen::Matrix3d numericalDerivative = ( nextInertia - previousInertia ) / ( 2.0 * step );
-        gravityField->update( time );
+        updateEnvironment( time );
         const Eigen::Matrix3d inertiaDerivative = body->getBodyInertiaTensorDerivative( );
 
         // Compare inertia tensor derivative with numerical derivative

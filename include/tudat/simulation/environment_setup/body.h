@@ -739,6 +739,12 @@ public:
      */
     Eigen::Matrix3d getBodyInertiaTensor( );
 
+    //! Function to retrieve the time derivative of the body moment-of-inertia tensor.
+    /*!
+     * Function to retrieve the time derivative of the body moment-of-inertia tensor, as computed by the latest update of the body
+     * mass properties.
+     * \return Time derivative of the body moment-of-inertia tensor.
+     */
     Eigen::Matrix3d getBodyInertiaTensorDerivative( );
 
     //! Function to (re)set the body moment-of-inertia tensor.
@@ -843,9 +849,6 @@ public:
 
 protected:
 private:
-    //! Keep the gravity model's non-owning rigid-body link and change callbacks synchronized.
-    void linkGravityFieldAndRigidBodyProperties( );
-
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
     int bodyIsGlobalFrameOrigin_;
 

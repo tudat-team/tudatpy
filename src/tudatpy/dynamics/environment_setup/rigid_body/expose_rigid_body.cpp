@@ -104,7 +104,7 @@ void expose_rigid_body_setup( py::module& m )
  The mass is computed from the gravitational parameter. For a spherical harmonic gravity field, the center of mass is computed from the
  degree 1 coefficients, and the inertia tensor from the degree 2 coefficients and the scaled mean moment of inertia (if this is not set, no inertia tensor is defined).
  For a polyhedron gravity field, the inertia tensor is computed from the homogeneous mass distribution inside the polyhedron.
- When the gravity field changes (for instance due to gravity field variations, or during an estimation), these properties are updated accordingly.
+ These properties are recomputed from the gravity field whenever they are updated (for instance at each time step of a propagation), so that changes in the gravity field (for instance due to gravity field variations, or during an estimation) are reflected in these properties.
  If no rigid body properties are specified for a body that has a gravity field, these settings (without a scaled mean moment of inertia) are used by default.
 
 

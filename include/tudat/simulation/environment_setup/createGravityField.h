@@ -899,21 +899,25 @@ protected:
 class FromGravityFieldRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
 {
 public:
+    //! Constructor, with scaled mean moment of inertia (required to compute inertia tensor from spherical harmonic gravity field)
     explicit FromGravityFieldRigidBodyPropertiesSettings( const double scaledMeanMomentOfInertia = TUDAT_NAN ):
         RigidBodyPropertiesSettings( from_gravity_field_rigid_body_properties ), scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
     {}
 
+    //! Function to retrieve the scaled mean moment of inertia
     double getScaledMeanMomentOfInertia( ) const
     {
         return scaledMeanMomentOfInertia_;
     }
 
+    //! Function to reset the scaled mean moment of inertia
     void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
     {
         scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
     }
 
 private:
+    //! Scaled mean moment of inertia (I_xx + I_yy + I_zz) / ( 3 M R^2 )
     double scaledMeanMomentOfInertia_;
 };
 

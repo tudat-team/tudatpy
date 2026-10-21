@@ -516,7 +516,6 @@ public:
         }
 
         cosineCoefficients_ = cosineCoefficients;
-        notifyMassDistributionUpdate( );
     }
 
     //! Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
@@ -533,7 +532,6 @@ public:
         }
 
         sineCoefficients_ = sineCoefficients;
-        notifyMassDistributionUpdate( );
     }
 
     //! Function to get a cosine spherical harmonic coefficient block (geodesy normalized)

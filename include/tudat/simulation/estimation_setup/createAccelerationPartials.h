@@ -194,11 +194,14 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
  * Function to create a list of objects that can be used to compute partials of tidal gravity field variations
  * \param bodies List of all body objects
  * \param acceleratingBodyName Name of body for which tidal gravity field variation objects are to be created
+ * \param computeTimeDerivatives Boolean denoting whether partials of the time derivatives of the coefficients (instead of the
+ * coefficients themselves) are to be computed
  * \return List of tidal gravity field variation objects, one for each such field variation object of bodyacceleratingBodyName
  */
 std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
         const SystemOfBodies& bodies,
-        const std::string& acceleratingBodyName );
+        const std::string& acceleratingBodyName,
+        const bool computeTimeDerivatives = false );
 
 std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > getDefaultPanelledSurfaceRadiationPressurePartialSettings(
         const std::string bodyUndergoingAcceleration,

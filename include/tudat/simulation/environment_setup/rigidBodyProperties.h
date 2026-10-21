@@ -45,6 +45,8 @@ public:
 
     virtual void updateMassDistribution( const double currentTime ) = 0;
 
+    //! Function to set the inertia tensor derivative from the time derivatives of the degree two gravity field coefficients
+    //! (only used for properties derived from a gravity field)
     virtual void updateInertiaTensorDerivative( const Eigen::Vector5d& ) {}
 
     virtual void resetCurrentTime( );
@@ -55,29 +57,18 @@ public:
 
     Eigen::Matrix3d getCurrentInertiaTensor( );
 
+    //! Function to retrieve the time derivative of the inertia tensor, as set by the latest call to update function
     Eigen::Matrix3d getCurrentDerivativeInertiaTensor( );
 
+    //! Function to retrieve whether these properties define an inertia tensor
     bool isInertiaTensorAvailable( ) const;
 
+    //! Function to retrieve whether these properties define a time derivative of the inertia tensor
     bool isInertiaTensorDerivativeAvailable( ) const;
 
     virtual void setCurrentMass( const double currentMass ) = 0;
 
     virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
-
-    //! Synchronize gravity-derived mass after the linked gravity field changes.
-    /*!
-     * The base implementation intentionally does nothing: explicitly prescribed rigid-body
-     * properties are independent of the body's gravity field.
-     */
-    virtual void synchronizeMassFromGravityField( ) {}
-
-    //! Synchronize gravity-derived center of mass and inertia after gravity data change.
-    /*!
-     * The base implementation intentionally does nothing: explicitly prescribed rigid-body
-     * properties are independent of the body's gravity field.
-     */
-    virtual void synchronizeMassDistributionFromGravityField( ) {}
 
 protected:
     double currentMass_;
@@ -86,6 +77,7 @@ protected:
 
     Eigen::Matrix3d currentInertiaTensor_;
 
+    //! Time derivative of inertia tensor, as set by the latest call to update function
     Eigen::Matrix3d currentDerivativeInertiaTensor_;
 
     bool isBodyInPropagation_;
@@ -96,10 +88,13 @@ protected:
 
     bool isInertiaTensorComputed_;
 
+    //! Boolean denoting whether the inertia tensor derivative has been computed for the current time
     bool isDerivativeInertiaTensorComputed_;
 
+    //! Boolean denoting whether these properties define an inertia tensor
     bool isInertiaTensorAvailable_;
 
+    //! Boolean denoting whether these properties define a time derivative of the inertia tensor
     bool isDerivativeInertiaTensorAvailable_;
 };
 
@@ -161,13 +156,14 @@ protected:
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
 
+    //! Function returning the time derivative of the inertia tensor as a function of time
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
 //! Rigid-body properties (mass, center of mass, inertia tensor and its derivative) derived from a body's gravity field.
 /*!
- * Rigid-body properties derived from a body's gravity field. The gravity field keeps a (non-owning) link to these properties,
- * set by the Body, so that changes to the gravity field are passed on to these properties.
+ * Rigid-body properties derived from a body's gravity field. The properties are recomputed from the gravity field when updated
+ * (for a time-dependent gravity field, once per time step during propagation).
  */
 class FromGravityFieldRigidBodyProperties : public RigidBodyProperties
 {
@@ -191,23 +187,28 @@ public:
 
     void setIsBodyInPropagation( const bool isBodyInPropagation ) override;
 
-    //! Reset the gravity field from which these properties are derived, retaining their owned configuration.
+    //! Reset the gravity field from which these properties are derived
     void resetGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
 
-    //! Immediately synchronize mass after the linked gravity field's gravitational parameter changes.
-    void synchronizeMassFromGravityField( ) override;
-
-    //! Immediately synchronize center of mass and inertia after linked gravity data change.
-    void synchronizeMassDistributionFromGravityField( ) override;
-
-    //! Return the mean principal moment divided by mass times squared gravity reference radius.
+    //! Return the scaled mean moment of inertia (I_xx + I_yy + I_zz) / ( 3 M R^2 )
     double getScaledMeanMomentOfInertia( ) const;
 
-    //! Reset the owned scaled mean moment and immediately refresh gravity-derived inertia.
+    //! Reset the scaled mean moment of inertia, and recompute the inertia tensor
     void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia );
 
 protected:
-    //! Gravity data source retained by these derived properties.
+    //! Function to compute the mass from the gravity field
+    void computeMassFromGravityField( );
+
+    //! Function to compute the center of mass, inertia tensor and (for a time-dependent field) its time derivative from the gravity field
+    /*!
+     * Function to compute the center of mass, inertia tensor and (for a time-dependent field) its time derivative from the gravity
+     * field
+     * \param currentTime Time at which the inertia tensor derivative is to be computed (not computed if NaN)
+     */
+    void computeMassDistributionFromGravityField( const double currentTime );
+
+    //! Gravity field from which properties are derived.
     std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
 
     //! Scaled mean moment of inertia, used with the degree-two coefficients to compute the inertia tensor.
@@ -215,7 +216,7 @@ protected:
 
     bool modelIsTimeDependent_;
 
-    //! Fixed polyhedron geometry, scaled by the current mass during synchronization.
+    //! Inertia tensor per unit mass of (homogeneous) polyhedron
     Eigen::Matrix3d polyhedronInertiaTensorPerUnitMass_;
 };
 

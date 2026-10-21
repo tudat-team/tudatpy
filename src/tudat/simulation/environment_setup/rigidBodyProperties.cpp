@@ -337,15 +337,16 @@ void FromGravityFieldRigidBodyProperties::updateMass( const double currentTime )
 {
     if( ( modelIsTimeDependent_ && !isMassComputed_ ) || !isBodyInPropagation_ )
     {
-        synchronizeMassFromGravityField( );
+        computeMassFromGravityField( );
     }
 }
 
 void FromGravityFieldRigidBodyProperties::updateMassDistribution( const double currentTime )
 {
-    if( ( modelIsTimeDependent_ && ( !isComComputed_ || !isInertiaTensorComputed_ ) ) || !isBodyInPropagation_ )
+    if( ( modelIsTimeDependent_ && ( !isComComputed_ || !isInertiaTensorComputed_ || !isDerivativeInertiaTensorComputed_ ) ) ||
+        !isBodyInPropagation_ )
     {
-        synchronizeMassDistributionFromGravityField( );
+        computeMassDistributionFromGravityField( currentTime );
     }
 }
 
@@ -390,8 +391,8 @@ void FromGravityFieldRigidBodyProperties::setCurrentMass( const double currentMa
 
 void FromGravityFieldRigidBodyProperties::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
-    synchronizeMassFromGravityField( );
-    synchronizeMassDistributionFromGravityField( );
+    computeMassFromGravityField( );
+    computeMassDistributionFromGravityField( TUDAT_NAN );
     isBodyInPropagation_ = isBodyInPropagation;
 }
 
@@ -418,27 +419,20 @@ void FromGravityFieldRigidBodyProperties::resetGravityFieldModel(
         }
     }
     currentDerivativeInertiaTensor_.setZero( );
-    isDerivativeInertiaTensorComputed_ = false;
-    synchronizeMassFromGravityField( );
-    synchronizeMassDistributionFromGravityField( );
-    // Every gravity-derived inertia has a rate provider: zero for a static field,
-    // or the variation models (including their warning/zero fallback) for a time-dependent field.
+    computeMassFromGravityField( );
+    computeMassDistributionFromGravityField( TUDAT_NAN );
+
+    // Inertia tensor derivative is zero for a static field, and computed from gravity field variations for a time-dependent field
     isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_;
 }
 
-void FromGravityFieldRigidBodyProperties::synchronizeMassFromGravityField( )
+void FromGravityFieldRigidBodyProperties::computeMassFromGravityField( )
 {
-    const double mass = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
-    if( modelIsTimeDependent_ && mass != currentMass_ )
-    {
-        // Changing mu changes the inertia-rate scale; the coefficient-rate update must refresh it.
-        isDerivativeInertiaTensorComputed_ = false;
-    }
-    currentMass_ = mass;
+    currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
     isMassComputed_ = true;
 }
 
-void FromGravityFieldRigidBodyProperties::synchronizeMassDistributionFromGravityField( )
+void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityField( const double currentTime )
 {
     const gravitation::GravityFieldModel& gravityFieldReference = *gravityFieldModel_;
     if( const auto sphericalHarmonicsGravityField =
@@ -468,12 +462,33 @@ void FromGravityFieldRigidBodyProperties::synchronizeMassDistributionFromGravity
     isComComputed_ = true;
     isInertiaTensorComputed_ = isInertiaTensorAvailable_;
 
-    // A resynchronization does not remove a time-dependent model's rate provider or
-    // invalidate an already computed rate. Only an epoch reset invalidates that rate.
+    // Compute inertia tensor derivative from time derivatives of degree two coefficients (zero for a static field)
     if( !modelIsTimeDependent_ )
     {
         currentDerivativeInertiaTensor_.setZero( );
         isDerivativeInertiaTensorComputed_ = isInertiaTensorAvailable_;
+    }
+    else if( isInertiaTensorAvailable_ && !std::isnan( currentTime ) )
+    {
+        Eigen::MatrixXd sineCoefficientDerivatives = Eigen::MatrixXd::Zero( 3, 3 );
+        Eigen::MatrixXd cosineCoefficientDerivatives = Eigen::MatrixXd::Zero( 3, 3 );
+        std::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationsSet =
+                std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ )
+                        ->getGravityFieldVariationsSet( );
+        if( gravityFieldVariationsSet != nullptr )
+        {
+            gravityFieldVariationsSet->addSphericalHarmonicsCorrectionTimeDerivatives(
+                    currentTime, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+        }
+
+        Eigen::Vector5d degreeTwoCoefficientDerivatives;
+        degreeTwoCoefficientDerivatives << cosineCoefficientDerivatives( 2, 0 ), cosineCoefficientDerivatives( 2, 1 ),
+                cosineCoefficientDerivatives( 2, 2 ), sineCoefficientDerivatives( 2, 1 ), sineCoefficientDerivatives( 2, 2 );
+        updateInertiaTensorDerivative( degreeTwoCoefficientDerivatives );
+    }
+    else
+    {
+        isDerivativeInertiaTensorComputed_ = false;
     }
 }
 
@@ -485,7 +500,7 @@ double FromGravityFieldRigidBodyProperties::getScaledMeanMomentOfInertia( ) cons
 void FromGravityFieldRigidBodyProperties::setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
 {
     scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
-    synchronizeMassDistributionFromGravityField( );
+    computeMassDistributionFromGravityField( TUDAT_NAN );
     isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_;
     if( !isDerivativeInertiaTensorAvailable_ )
     {

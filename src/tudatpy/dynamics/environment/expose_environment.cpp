@@ -1694,7 +1694,7 @@ bool
 
          Object that defines the mass, center of mass, and inertia tensor (and its time derivative) as a function of time, typically used for evaluation of torques and non-conservative forces
          in numerical state propagation. Note that this object does *not* define properties of a gravity field (it defines the inertial mass rather than the gravitational mass).
-         When these properties are derived from the body's gravity field, they are updated automatically when the gravity field changes.
+         When these properties are derived from the body's gravity field, they are recomputed from the gravity field by the ``update`` function.
 
       )doc" )
             .def( "update",

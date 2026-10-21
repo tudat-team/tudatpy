@@ -50,7 +50,7 @@ In Tudat, the gravity field itself is not directly responsible for providing the
 * Polyhedron gravity field: mass computed from gravitational parameter, center of mass and inertia tensor computed from homogeneous mas distribution inside body
 * Ring gravity field model: mass computed from gravitational parameter; no inertia tensor, and center of mass at origin of body-fixed frame
 
-When the gravity field changes (for instance due to gravity field variations, or during an estimation), these rigid body properties are updated accordingly.
+These rigid body properties are recomputed from the gravity field whenever they are updated (for instance at each time step of a propagation), so that changes in the gravity field (for instance due to gravity field variations, or during an estimation) are reflected in them.
 
 
 
