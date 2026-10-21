@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ades version="2017">
+  <obsBlock>
+    <obsContext>
+      <observatory>
+        <mpcCode>F51</mpcCode>
+        <name>Pan-STARRS 1</name>
+      </observatory>
+      <submitter>
+        <name>P. Villa</name>
+        <institution>Ej?rcito Constitucionalista</institution>
+      </submitter>
+      <telescope>
+        <aperture>1.5</aperture>
+        <design>Reflector</design>
+        <detector>CCD</detector>
+      </telescope>
+      <observers>
+        <name>P. Villa</name>
+        <name>F. Madero</name>
+      </observers>
+      <measurers>
+        <name>P. Villa</name>
+        <name>F. Madero</name>
+      </measurers>
+      <comment>
+        <line>This is a comment</line>
+      </comment>
+    </obsContext>
+    <obsData>
+      <optical>
+        <permID>1234456</permID>
+        <trkSub>aa</trkSub>
+        <mode>CCD</mode>
+        <stn>F51</stn>
+        <obsTime>2016-08-29T12:32:34Z</obsTime>
+        <ra>0</ra>
+        <dec>90</dec>
+        <rmsRA>0.15</rmsRA>
+        <rmsDec>0.13</rmsDec>
+        <rmsCorr>0.21</rmsCorr>
+        <astCat>2MASS</astCat>
+        <mag>21.9</mag>
+        <rmsMag>0.25</rmsMag>
+        <band>w</band>
+        <photCat>2MASS</photCat>
+        <logSNR>0.775</logSNR>
+        <notes>klmn</notes>
+        <remarks>High winds affected tracking</remarks>
+      </optical>
+      <optical>
+        <permID>1234457</permID>
+        <trkSub>aa</trkSub>
+        <mode>CCD</mode>
+        <stn>F51</stn>
+        <obsTime>2016-08-29T12:32:34Z</obsTime>
+        <ra>0.1</ra>
+        <dec>30.0</dec>
+        <rmsRA>0.15</rmsRA>
+        <rmsDec>0.13</rmsDec>
+        <rmsCorr>0.21</rmsCorr>
+        <astCat>2MASS</astCat>
+        <mag>21.9</mag>
+        <rmsMag>0.25</rmsMag>
+        <band>w</band>
+        <photCat>2MASS</photCat>
+        <logSNR>0.775</logSNR>
+        <notes>klmn</notes>
+        <remarks>High winds affected tracking</remarks>
+      </optical>
+      <optical>
+        <permID>1234458</permID>
+        <trkSub>aa</trkSub>
+        <mode>CCD</mode>
+        <stn>F51</stn>
+        <obsTime>2016-08-29T12:32:34Z</obsTime>
+        <ra>0.1</ra>
+        <dec>-30.0</dec>
+        <rmsRA>0.15</rmsRA>
+        <rmsDec>0.13</rmsDec>
+        <rmsCorr>0.21</rmsCorr>
+        <astCat>2MASS</astCat>
+        <mag>21.9</mag>
+        <rmsMag>0.25</rmsMag>
+        <band>w</band>
+        <photCat>2MASS</photCat>
+        <logSNR>0.775</logSNR>
+        <notes>klmn</notes>
+        <remarks>High winds affected tracking</remarks>
+      </optical>
+      <optical>
+        <permID>1234459</permID>
+        <trkSub>aa</trkSub>
+        <mode>CCD</mode>
+        <stn>F51</stn>
+        <obsTime>2016-08-29T12:32:34Z</obsTime>
+        <ra>+0.1</ra>
+        <dec>+30.0</dec>
+        <rmsRA>0.15</rmsRA>
+        <rmsDec>0.13</rmsDec>
+        <rmsCorr>0.21</rmsCorr>
+        <astCat>2MASS</astCat>
+        <mag>21.9</mag>
+        <rmsMag>0.25</rmsMag>
+        <band>w</band>
+        <photCat>2MASS</photCat>
+        <logSNR>0.775</logSNR>
+        <notes>klmn</notes>
+        <remarks>High winds affected tracking</remarks>
+      </optical>
+    </obsData>
+  </obsBlock>
+</ades>
