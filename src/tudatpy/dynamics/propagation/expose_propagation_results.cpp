@@ -503,6 +503,19 @@ void expose_propagation_results_bindings( py::module& m )
          Boolean indicating whether the propagation for which this object stores the results has been performed or not
 
          :type: int
+)doc" )
+            .def_property_readonly(
+                    "dynamics_results",
+                    []( std::shared_ptr< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > self ) { return self; },
+                    R"doc(
+         **read-only**
+
+         This object itself. :class:`~SingleArcVariationalSimulationResults` has an attribute of the same name, so
+         ``dynamics_results.state_history`` works on both types. This is useful when the type of the results object
+         depends on a setting, as for the entries of
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.simulation_results_per_iteration`.
+
+         :type: SingleArcSimulationResults
 )doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
             .def( "clear_data",
                   py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),

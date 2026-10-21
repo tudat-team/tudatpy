@@ -183,10 +183,11 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
                     dynamicsSimulatorOriginal.getSingleArcPropagationResults( )->getDependentVariableHistory( );
             auto recomputedDependentVariableHistory =
                     dynamicsSimulatorRecomputed.getSingleArcPropagationResults( )->getDependentVariableHistory( );
-            auto estimatedDependentVariableHistory = std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< double, double > >(
-                                                             estimationOutput->getSimulationResults( ).at( numberOfIterations - 1 ) )
-                                                             ->getDynamicsResults( )
-                                                             ->getDependentVariableHistory( );
+            // With the default estimation settings, only the propagated dynamics are retained per iteration.
+            auto estimatedIterationResults = std::dynamic_pointer_cast< SingleArcSimulationResults< double, double > >(
+                    estimationOutput->getSimulationResults( ).at( numberOfIterations - 1 ) );
+            BOOST_REQUIRE( estimatedIterationResults != nullptr );
+            auto estimatedDependentVariableHistory = estimatedIterationResults->getDependentVariableHistory( );
 
             Eigen::VectorXd originalAccelerationRatios = ( originalDependentVariableHistory.begin( )->second )
                                                                  .cwiseQuotient( estimatedDependentVariableHistory.begin( )->second );
