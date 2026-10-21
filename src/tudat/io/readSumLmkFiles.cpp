@@ -612,10 +612,12 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
     }
 
     std::map< double, Eigen::Quaterniond > pointingHistory;
+    std::map< double, std::string > pictureIdHistory;
     std::map< double, Eigen::Vector3d > pointingUncertaintyHistory;
     for( const SumImageData& image : sumImages )
     {
         pointingHistory[ getSumImageObservationTime( image ) ] = getSumImageRotationFromBodyFixedToCameraFrame( image );
+        pictureIdHistory[ getSumImageObservationTime( image ) ] = image.imageId_;
         if( !image.pointingSigma_.array( ).isNaN( ).all( ) )
         {
             pointingUncertaintyHistory[ getSumImageObservationTime( image ) ] = image.pointingSigma_;
@@ -635,6 +637,7 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
             Eigen::Vector3d::Zero( ),
             pointingHistory );
     camera->setPointingReferenceBodyName( targetBodyName );
+    camera->setPictureIdHistory( pictureIdHistory );
     camera->setPointingUncertaintyHistory( pointingUncertaintyHistory );
 
     auto cameraData = std::make_shared< data::TrackingSupplementaryData >( receiverBodyName, cameraName );

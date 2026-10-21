@@ -3564,7 +3564,41 @@ bool
             :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction` parameter. Defaults to zero.
 
             :type: numpy.ndarray[numpy.float64[m, 1]]
-            )doc" );
+            )doc" )
+            .def_property_readonly( "picture_ids", &tsm::Camera::getPictureIds, R"doc(
+
+            **read-only**
+
+            Identifier of each picture taken by the camera, in time order. Empty if the pictures have no identifier.
+
+            :type: list[str]
+            )doc" )
+            .def_property_readonly( "picture_epochs", &tsm::Camera::getPictureEpochs, R"doc(
+
+            **read-only**
+
+            Epoch of each picture taken by the camera, in time order. Empty for a camera without pictures.
+
+            :type: numpy.ndarray[numpy.float64[m, 1]]
+            )doc" )
+            .def( "get_picture_index",
+                  &tsm::Camera::getPictureIndex,
+                  py::arg( "time" ),
+                  R"doc(
+
+         Function to get the picture closest in time to a given time.
+
+         Parameters
+         ----------
+         time : float
+             Time, for example the epoch of an observation made with this camera.
+
+         Returns
+         -------
+         int
+             Index of the closest picture in :attr:`~Camera.picture_ids` and :attr:`~Camera.picture_epochs` (0 for a
+             camera without pictures).
+        )doc" );
     /*
      **************   GROUND STATION FUNCTIONALITY
      *******************

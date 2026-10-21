@@ -156,8 +156,8 @@ std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageDa
 //! Create the supplementary data for SUM/LMK observations.
 /*!
  *  Create the supplementary data for SUM/LMK observations. Each landmark becomes a reference point on the target body. The
- *  images become one camera on the receiver body, with the pointing of each image relative to the target body-fixed frame and
- *  its SUM SIGMA_PTG pointing uncertainty.
+ *  images become one camera on the receiver body, with the ID of each image, its pointing relative to the target body-fixed
+ *  frame and its SUM SIGMA_PTG pointing uncertainty.
  *  \param sumImages SUM images to convert (output of getSumImagesToConvert).
  *  \param landmarks Raw LMK landmark contents, with the landmark ID as key.
  *  \param targetBodyName Name of the body on which the landmarks are located.

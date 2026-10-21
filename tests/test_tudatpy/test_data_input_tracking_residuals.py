@@ -962,6 +962,8 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     )
     expected_epoch = spice.convert_date_string_to_ephemeris_time("2015 JUN 05 07:24:42.053 UTC")
     np.testing.assert_allclose(collection.concatenated_times, expected_epoch, rtol=0.0, atol=1e-3)
+    camera = bodies.get("Spacecraft").system_models.get_camera("Camera")
+    assert camera.picture_ids[camera.get_picture_index(expected_epoch)] == "IMG001"
 
     link_definitions = collection.get_link_definitions_for_observables(
         model_settings.pixel_coordinates_type

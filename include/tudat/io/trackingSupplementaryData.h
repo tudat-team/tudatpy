@@ -199,6 +199,17 @@ public:
         pointingReferenceBodyName_ = pointingReferenceBodyName;
     }
 
+    //! Identifier of each picture, per picture epoch of the pointing history. Empty when not provided.
+    const std::map< double, std::string >& getPictureIdHistory( ) const
+    {
+        return pictureIdHistory_;
+    }
+
+    void setPictureIdHistory( const std::map< double, std::string >& pictureIdHistory )
+    {
+        pictureIdHistory_ = pictureIdHistory;
+    }
+
     //! A-priori uncertainty of the camera pointing about the three camera axes [rad], per picture epoch of the pointing history.
     //! Empty when not provided.
     const std::map< double, Eigen::Vector3d >& getPointingUncertaintyHistory( ) const
@@ -211,7 +222,8 @@ public:
         pointingUncertaintyHistory_ = pointingUncertaintyHistory;
     }
 
-    //! Merge compatible camera histories; conflicting calibration, attitudes or pointing uncertainties are errors.
+    //! Merge compatible camera histories; conflicting calibration, attitudes, picture identifiers or pointing uncertainties are
+    //! errors.
     void merge( const CameraInstrumentSupplementaryData& other )
     {
         if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
@@ -230,6 +242,15 @@ public:
                 throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
             }
         }
+        auto mergedPictureIdHistory = pictureIdHistory_;
+        for( const auto& entry : other.pictureIdHistory_ )
+        {
+            const auto inserted = mergedPictureIdHistory.emplace( entry );
+            if( !inserted.second && inserted.first->second != entry.second )
+            {
+                throw std::runtime_error( "Conflicting picture identifiers for PSF camera " + cameraId_ );
+            }
+        }
         auto mergedUncertaintyHistory = pointingUncertaintyHistory_;
         for( const auto& entry : other.pointingUncertaintyHistory_ )
         {
@@ -240,6 +261,7 @@ public:
             }
         }
         rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
+        pictureIdHistory_.swap( mergedPictureIdHistory );
         pointingUncertaintyHistory_.swap( mergedUncertaintyHistory );
     }
 
@@ -261,6 +283,8 @@ private:
     std::map< double, Eigen::Quaterniond > rotationFromInertialToCameraFrameHistory_;
 
     std::string pointingReferenceBodyName_;
+
+    std::map< double, std::string > pictureIdHistory_;
 
     std::map< double, Eigen::Vector3d > pointingUncertaintyHistory_;
 };

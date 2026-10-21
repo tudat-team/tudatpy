@@ -210,6 +210,8 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
             BOOST_REQUIRE_EQUAL( pointingHistory.size( ), 1 );
             BOOST_CHECK_SMALL( pointingHistory.begin( )->first - expectedEpoch, 1.0E-6 );
             BOOST_CHECK_SMALL( ( pointingHistory.begin( )->second.toRotationMatrix( ) - image.cameraAxes_ ).norm( ), 1.0E-7 );
+            BOOST_CHECK( camera->getPictureIdHistory( ) ==
+                         ( std::map< double, std::string >{ { pointingHistory.begin( )->first, image.imageId_ } } ) );
         }
     }
     BOOST_CHECK_EQUAL( numberOfLandmarks, 3 );

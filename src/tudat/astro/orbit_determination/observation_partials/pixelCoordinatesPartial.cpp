@@ -152,10 +152,10 @@ std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > P
     if( pointingCamera_ != nullptr && parameterIdentifier == pointingCorrectionParameterIdentifier_ )
     {
         // For r_camera = Exp(correction) * r_nominal, differentiate additive changes of the rotation vector. Only the correction
-        // of the arc that contains the observation affects it.
+        // of the picture closest to the observation affects it.
         Eigen::Matrix< double, 2, Eigen::Dynamic > partial =
-                Eigen::Matrix< double, 2, Eigen::Dynamic >::Zero( 2, 3 * pointingCamera_->getNumberOfPointingCorrectionArcs( ) );
-        partial.block< 2, 3 >( 0, 3 * pointingCamera_->getPointingCorrectionArcIndex( currentReceiverTime_ ) ) =
+                Eigen::Matrix< double, 2, Eigen::Dynamic >::Zero( 2, 3 * pointingCamera_->getNumberOfPointingCorrections( ) );
+        partial.block< 2, 3 >( 0, 3 * pointingCamera_->getPictureIndex( currentReceiverTime_ ) ) =
                 -currentPixelLinePartialWrtCameraFramePosition_ *
                 linear_algebra::getCrossProductMatrix( currentRelativeRangeVectorCameraFrame_ ) *
                 getLeftJacobianOfSO3( pointingCamera_->getPointingCorrection( currentReceiverTime_ ) );

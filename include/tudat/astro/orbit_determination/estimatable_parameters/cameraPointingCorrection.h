@@ -60,10 +60,10 @@ public:
         systemModels_->getCamera( parameterName_.second.second )->setPointingCorrection( parameterValue );
     }
 
-    //! Function to get the parameter size: three per pointing correction arc of the camera.
+    //! Function to get the parameter size: three per picture of the camera.
     int getParameterSize( )
     {
-        return 3 * systemModels_->getCamera( parameterName_.second.second )->getNumberOfPointingCorrectionArcs( );
+        return 3 * systemModels_->getCamera( parameterName_.second.second )->getNumberOfPointingCorrections( );
     }
 
 private:

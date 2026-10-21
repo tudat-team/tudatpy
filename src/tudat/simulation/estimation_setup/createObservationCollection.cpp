@@ -4,6 +4,7 @@
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/math/basic/nearestNeighbourSearch.h"
 
 #include <cmath>
 #include <iterator>
@@ -79,56 +80,48 @@ bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancilla
     return ancillarySetting == "Doppler base frequency" || data::isOpticalObservationMetadata( ancillarySetting );
 }
 
-std::map< double, Eigen::Quaterniond > getTdbCameraPointingHistory(
-        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
+std::vector< double > getTdbPictureEpochs( const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
 {
-    std::map< double, Eigen::Quaterniond > tdbRotationFromInertialToCameraFrameHistory;
+    std::vector< double > tdbPictureEpochs;
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
             earth_orientation::createDefaultTimeConverter( );
     for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory )
     {
-        tdbRotationFromInertialToCameraFrameHistory[ timeScaleConverter->getCurrentTime< double >(
-                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) ] =
-                rotationEntry.second;
+        tdbPictureEpochs.push_back( timeScaleConverter->getCurrentTime< double >(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) );
     }
-    return tdbRotationFromInertialToCameraFrameHistory;
+    return tdbPictureEpochs;
 }
 
 std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
-        const std::map< double, Eigen::Quaterniond >& tdbRotationFromInertialToCameraFrameHistory )
+        const std::vector< double >& tdbPictureEpochs,
+        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
 {
-    if( tdbRotationFromInertialToCameraFrameHistory.empty( ) )
+    if( tdbPictureEpochs.empty( ) )
     {
         return nullptr;
     }
 
+    // The same nearest-picture search as Camera::getPictureIndex, so the nominal pointing and the pointing correction always
+    // belong to the same picture.
+    const Eigen::VectorXd pictureEpochs = Eigen::Map< const Eigen::VectorXd >( tdbPictureEpochs.data( ), tdbPictureEpochs.size( ) );
+    std::vector< Eigen::Quaterniond > pictureRotations;
+    for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory )
+    {
+        pictureRotations.push_back( rotationEntry.second );
+    }
     return [ = ]( const double time ) {
-        auto upperIterator = tdbRotationFromInertialToCameraFrameHistory.lower_bound( time );
-        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.begin( ) )
-        {
-            return upperIterator->second;
-        }
-        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.end( ) )
-        {
-            return std::prev( upperIterator )->second;
-        }
-
-        auto lowerIterator = std::prev( upperIterator );
-        if( std::fabs( time - lowerIterator->first ) <= std::fabs( upperIterator->first - time ) )
-        {
-            return lowerIterator->second;
-        }
-        return upperIterator->second;
+        return pictureRotations.at( basic_mathematics::computeNearestNeighborUsingBinarySearch( pictureEpochs, time ) );
     };
 }
 
 std::function< Eigen::Quaterniond( const double ) > createCameraPointingFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const data::CameraInstrumentSupplementaryData& cameraSupplementaryData,
-        const std::map< double, Eigen::Quaterniond >& tdbRotationFromInertialToCameraFrameHistory )
+        const std::vector< double >& tdbPictureEpochs )
 {
     std::function< Eigen::Quaterniond( const double ) > nearestPointingFunction =
-            createNearestCameraPointingFunction( tdbRotationFromInertialToCameraFrameHistory );
+            createNearestCameraPointingFunction( tdbPictureEpochs, cameraSupplementaryData.getRotationFromInertialToCameraFrameHistory( ) );
     const std::string& referenceBodyName = cameraSupplementaryData.getPointingReferenceBodyName( );
     if( referenceBodyName.empty( ) || nearestPointingFunction == nullptr )
     {
@@ -728,29 +721,36 @@ void setInstrumentSupplementaryDataInBodies(
                                                                                      cameraSupplementaryData->getMountingOffsets( ),
                                                                                      cameraSupplementaryData->getFieldOfViewBounds( ) );
 
-                const std::map< double, Eigen::Quaterniond > tdbPointingHistory =
-                        getTdbCameraPointingHistory( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) );
+                const std::vector< double > tdbPictureEpochs =
+                        getTdbPictureEpochs( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) );
                 std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
                         cameraSupplementaryData->getCameraId( ),
                         Eigen::Vector3d::Zero( ),
                         projectionModel,
                         Eigen::Vector3d::Zero( ),
-                        createCameraPointingFunction( bodies, *cameraSupplementaryData, tdbPointingHistory ) );
+                        createCameraPointingFunction( bodies, *cameraSupplementaryData, tdbPictureEpochs ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
                 const std::shared_ptr< system_models::Camera > camera =
                         bodies.at( bodyName )->getVehicleSystems( )->getCamera( cameraSupplementaryData->getCameraId( ) );
                 camera->setPointingReferenceBodyName( cameraSupplementaryData->getPointingReferenceBodyName( ) );
 
-                // One pointing correction per picture. Each arc covers the times closest to its picture, which are the times for
-                // which the nominal pointing of that picture is used.
-                std::vector< double > arcStartTimes;
-                for( auto pictureIterator = tdbPointingHistory.begin( ); pictureIterator != tdbPointingHistory.end( ); ++pictureIterator )
+                // One pointing correction per picture, with the picture identifiers in time order.
+                std::vector< std::string > pictureIds;
+                const std::map< double, std::string >& pictureIdHistory = cameraSupplementaryData->getPictureIdHistory( );
+                for( const auto& rotationEntry : cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) )
                 {
-                    arcStartTimes.push_back( pictureIterator == tdbPointingHistory.begin( )
-                                                     ? pictureIterator->first
-                                                     : 0.5 * ( std::prev( pictureIterator )->first + pictureIterator->first ) );
+                    if( !pictureIdHistory.empty( ) )
+                    {
+                        if( pictureIdHistory.count( rotationEntry.first ) == 0 )
+                        {
+                            throw std::runtime_error( "Error when setting camera supplementary data for camera " +
+                                                      cameraSupplementaryData->getCameraId( ) +
+                                                      ": picture identifiers must be given for all pictures or none." );
+                        }
+                        pictureIds.push_back( pictureIdHistory.at( rotationEntry.first ) );
+                    }
                 }
-                camera->setPointingCorrectionArcStartTimes( arcStartTimes );
+                camera->setPictures( tdbPictureEpochs, pictureIds );
             }
             else
             {

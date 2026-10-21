@@ -392,6 +392,12 @@ BOOST_AUTO_TEST_CASE( testPixelPointingPartialWithAberration )
         BOOST_REQUIRE_EQUAL( partials.first.size( ), 1 );
         BOOST_REQUIRE( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( partials.first.begin( )->second ) != nullptr );
         const double epoch = loaded.observationCollection_->getConcatenatedTimeVector( ).front( );
+
+        // The camera finds the picture of an observation from its epoch.
+        const std::shared_ptr< system_models::Camera > camera =
+                bodies.at( "Spacecraft" )->getVehicleSystems( )->getCamera( sumLmkTestCameraName );
+        BOOST_CHECK( camera->getPictureIds( ) == ( std::vector< std::string >{ "IMGFIRST", "IMGSECOND" } ) );
+        BOOST_CHECK_EQUAL( camera->getPictureIds( ).at( camera->getPictureIndex( epoch ) ), "IMGFIRST" );
         const std::function< Eigen::VectorXd( const double ) > observable = [ & ]( const double time ) {
             return Eigen::VectorXd( model->computeObservations( time, receiver ) );
         };
