@@ -1103,7 +1103,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
     }
 }
 
-//! Test if rotational dynamics propagation correctly produces in-plane libration
+//! Test if rotational dynamics propagation correctly includes tidally varying inertia tensor (and its derivative)
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTensor )
 {
     // Load spice kernels.
@@ -1151,7 +1151,8 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, bodiesToIntegrate );
 
     // Define integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 60.0 );
+    const double integrationStep = 10.0;
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationStep );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
     dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >( body_inertia_tensor, "Phobos" ) );
@@ -1163,6 +1164,13 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     dependentVariablesList.push_back( std::make_shared< TotalGravityFieldVariationSettings >( "Phobos", 2, 2, 1, 2, false ) );
     dependentVariablesList.push_back(
             std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_relative_cartesian_position, "Mars", "Phobos" ) );
+    dependentVariablesList.push_back( customDependentVariable(
+            [ body = bodies.at( "Phobos" ) ]( ) -> Eigen::VectorXd {
+                return getVectorRepresentationForRotationMatrix( body->getBodyInertiaTensorDerivative( ) );
+            },
+            9 ) );
+    dependentVariablesList.push_back(
+            std::make_shared< SingleTorqueDependentVariableSaveSettings >( inertial_torque, "Phobos", "Phobos", false ) );
 
     // Define propagator settings.
     std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -1197,6 +1205,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     double normalization21 = calculateLegendreGeodesyNormalizationFactor( 2, 1 );
     double normalization22 = calculateLegendreGeodesyNormalizationFactor( 2, 2 );
 
+    std::map< double, Eigen::Vector3d > angularMomentumHistory;
+    std::map< double, Eigen::Vector3d > physicalTorqueHistory;
+    double maximumDerivativeTorque = 0.0;
     for( auto it : dependentVariableHistory )
     {
         Eigen::Matrix3d inertiaTensor = getMatrixFromVectorRotationRepresentation( it.second.segment( 0, 9 ) );
@@ -1206,6 +1217,13 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         Eigen::Vector2d sineCorrection = it.second.segment( 18, 2 );
         Eigen::Vector3d relativePosition = it.second.segment( 20, 3 );
         Eigen::Vector3d angularVelocity = stateHistory.at( it.first ).segment( 4, 3 );
+        const Eigen::Matrix3d inertiaDerivative = getMatrixFromVectorRotationRepresentation( it.second.segment( 23, 9 ) );
+        const Eigen::Vector3d savedInertialTorque = it.second.segment( 32, 3 );
+        const Eigen::Matrix3d rotationToInertial =
+                linear_algebra::convertVectorToQuaternionFormat( Eigen::Vector4d( stateHistory.at( it.first ).head( 4 ) ) )
+                        .toRotationMatrix( );
+        angularMomentumHistory[ it.first ] = rotationToInertial * inertiaTensor * angularVelocity;
+        physicalTorqueHistory[ it.first ] = rotationToInertial * secondDegreeTorque;
 
         if( it.first == dependentVariableHistory.begin( )->first )
         {
@@ -1228,6 +1246,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
                 phobosGravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
                 phobosGravityField->getReferenceRadius( ) );
 
+        // Check inertia tensor changes against degree two coefficient changes
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertiaCorrectionWrtStart, computedInertiaCorrectionWrtStart, 1.0E-8 );
 
         Eigen::Vector3d computedTorque = gravitation::calculateSecondDegreeGravitationalTorque(
@@ -1236,9 +1255,48 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedTorque, secondDegreeTorque, ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         Eigen::Vector3d inertialTorque = totalTorque - secondDegreeTorque;
-        Eigen::Vector3d computedInertialTorque = -angularVelocity.cross( inertiaTensor * angularVelocity );
+        const Eigen::Vector3d computedInertialTorque =
+                -angularVelocity.cross( inertiaTensor * angularVelocity ) - inertiaDerivative * angularVelocity;
+        // Check inertial torque (including -dI/dt * omega term)
+        BOOST_CHECK_SMALL( ( inertialTorque - savedInertialTorque ).norm( ) / ( totalTorque.norm( ) + secondDegreeTorque.norm( ) ),
+                           1.0e-13 );
+        BOOST_CHECK_SMALL( ( savedInertialTorque - computedInertialTorque ).norm( ) / computedInertialTorque.norm( ), 1.0e-13 );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialTorque, computedInertialTorque, ( 1000.0 * std::numeric_limits< double >::epsilon( ) ) );
+        const Eigen::Vector3d derivativeTorque = savedInertialTorque + angularVelocity.cross( inertiaTensor * angularVelocity );
+        const Eigen::Vector3d expectedDerivativeTorque = -inertiaDerivative * angularVelocity;
+        maximumDerivativeTorque = std::max( maximumDerivativeTorque, expectedDerivativeTorque.norm( ) );
+        BOOST_CHECK_SMALL( ( derivativeTorque - expectedDerivativeTorque ).norm( ) /
+                                   ( savedInertialTorque.norm( ) + expectedDerivativeTorque.norm( ) ),
+                           1.0e-13 );
+    }
+
+    // Check inertia tensor derivative against numerical derivative, and that the angular momentum derivative equals the torque
+    BOOST_REQUIRE_GT( maximumDerivativeTorque, 0.0 );
+    BOOST_REQUIRE_GT( dependentVariableHistory.size( ), 4 );
+    std::function< Eigen::VectorXd( const double ) > inertiaTensorFunction = [ & ]( const double time ) -> Eigen::VectorXd {
+        return dependentVariableHistory.at( time ).head( 9 );
+    };
+    std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = [ & ]( const double time ) {
+        return angularMomentumHistory.at( time );
+    };
+    for( const auto& entry : dependentVariableHistory )
+    {
+        const double time = entry.first;
+        if( time < initialEphemerisTime + 2.0 * integrationStep || time > finalEphemerisTime - 2.0 * integrationStep )
+        {
+            continue;
+        }
+        const Eigen::VectorXd numericalInertiaDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                inertiaTensorFunction, time, integrationStep, numerical_derivatives::order4 );
+        const Eigen::VectorXd savedInertiaDerivative = entry.second.segment( 23, 9 );
+        BOOST_CHECK_SMALL( ( numericalInertiaDerivative - savedInertiaDerivative ).norm( ) / savedInertiaDerivative.norm( ), 1.0e-7 );
+
+        const Eigen::Vector3d numericalAngularMomentumDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                angularMomentumFunction, time, integrationStep, numerical_derivatives::order4 );
+        const double angularMomentumRoundoff =
+                10.0 * std::numeric_limits< double >::epsilon( ) * angularMomentumHistory.at( time ).norm( ) / integrationStep;
+        BOOST_CHECK_LE( ( numericalAngularMomentumDerivative - physicalTorqueHistory.at( time ) ).norm( ),
+                        1.0e-7 * physicalTorqueHistory.at( time ).norm( ) + angularMomentumRoundoff );
     }
 }
 

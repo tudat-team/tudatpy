@@ -11,6 +11,8 @@
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/legendrePolynomials.h"
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat
 {
@@ -172,6 +174,119 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
     return std::make_pair( cosineCorrections, sineCorrections );
 }
 
+//! Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number
+std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcingTimeDerivative(
+        const int degree,
+        const int order,
+        const Eigen::Vector6d& bodyFixedRelativeState )
+{
+    // The forcing (R/r)^(n+1) * Pnm * exp( -i * m * longitude ) is the potential of a single spherical harmonic term (with
+    // mu = R), so that its time derivative is the gradient of this term, multiplied by the body-fixed velocity.
+    const Eigen::Vector3d cosineTermGradient =
+            computeSingleGeodesyNormalizedGravitationalAcceleration( bodyFixedRelativeState.segment( 0, 3 ),
+                                                                     deformedBodyReferenceRadius_,
+                                                                     deformedBodyReferenceRadius_,
+                                                                     degree,
+                                                                     order,
+                                                                     1.0,
+                                                                     0.0,
+                                                                     sphericalHarmonicsCache_ );
+    const Eigen::Vector3d sineTermGradient =
+            computeSingleGeodesyNormalizedGravitationalAcceleration( bodyFixedRelativeState.segment( 0, 3 ),
+                                                                     deformedBodyReferenceRadius_,
+                                                                     deformedBodyReferenceRadius_,
+                                                                     degree,
+                                                                     order,
+                                                                     0.0,
+                                                                     1.0,
+                                                                     sphericalHarmonicsCache_ );
+    return massRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
+            std::complex< double >( cosineTermGradient.dot( bodyFixedRelativeState.segment( 3, 3 ) ),
+                                    -sineTermGradient.dot( bodyFixedRelativeState.segment( 3, 3 ) ) );
+}
+
+//! Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame
+Eigen::Vector6d SolidBodyTideGravityFieldVariations::getBodyFixedRelativeState( const int bodyIndex, const double time )
+{
+    // Set mass ratio of current body causing deformation
+    massRatio = deformingBodyMasses_[ bodyIndex ]( ) / deformedBodyMass_( );
+
+    return ephemerides::transformStateToFrameFromRotations< double >(
+            deformingBodyStateFunctions_[ bodyIndex ]( time ) - deformedBodyStateFunction_( time ),
+            deformedBodyOrientationFunction_( time ),
+            rotationDerivativeFunction_( time ) );
+}
+
+//! Function for calculating time derivatives of spherical harmonic coefficient corrections.
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative(
+        const double time )
+{
+    if( rotationDerivativeFunction_ == nullptr )
+    {
+        return GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
+    }
+
+    Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
+    {
+        const Eigen::Vector6d bodyFixedRelativeState = getBodyFixedRelativeState( i, time );
+        addTidalCorrectionTimeDerivatives(
+                [ & ]( const int degree, const int order ) {
+                    return calculateTidalForcingTimeDerivative( degree, order, bodyFixedRelativeState );
+                },
+                cosineRates,
+                sineRates );
+    }
+    return std::make_pair( cosineRates, sineRates );
+}
+
+//! Function to add time derivatives of corrections due to the current body causing deformation.
+void BasicSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDerivatives(
+        const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
+        Eigen::MatrixXd& cosineRates,
+        Eigen::MatrixXd& sineRates )
+{
+    // Mean forcing terms are constant, and do not contribute
+    for( auto loveNumberIt : loveNumbers_ )
+    {
+        int n = loveNumberIt.first;
+        for( int m = 0; ( m <= n && m < static_cast< int >( loveNumberIt.second.size( ) ) ); m++ )
+        {
+            std::complex< double > stokesCoefficientCorrectionRate = loveNumberIt.second[ m ] * unitLoveNumberForcingRateFunction( n, m );
+            cosineRates( n - minimumDegree_, m ) += stokesCoefficientCorrectionRate.real( );
+            if( m != 0 )
+            {
+                sineRates( n - minimumDegree_, m ) -= stokesCoefficientCorrectionRate.imag( );
+            }
+        }
+    }
+}
+
+//! Function to add time derivatives of corrections due to the current body causing deformation.
+void ModeCoupledSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDerivatives(
+        const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
+        Eigen::MatrixXd& cosineRates,
+        Eigen::MatrixXd& sineRates )
+{
+    for( auto loveNumberIt : loveNumbers_ )
+    {
+        std::complex< double > unityLoveNumberForcingRate =
+                unitLoveNumberForcingRateFunction( loveNumberIt.first.first, loveNumberIt.first.second );
+        for( auto responseIt : loveNumberIt.second )
+        {
+            int nResponse = responseIt.first.first;
+            int mResponse = responseIt.first.second;
+            std::complex< double > stokesCoefficientCorrectionRate = responseIt.second * unityLoveNumberForcingRate;
+            cosineRates( nResponse - minimumDegree_, mResponse ) += stokesCoefficientCorrectionRate.real( );
+            if( mResponse != 0 )
+            {
+                sineRates( nResponse - minimumDegree_, mResponse ) -= stokesCoefficientCorrectionRate.imag( );
+            }
+        }
+    }
+}
+
 //! Sets current properties (mass state) of body involved in tidal deformation.
 void SolidBodyTideGravityFieldVariations::setBodyGeometryParameters( const int bodyIndex, const double evaluationTime )
 {
@@ -265,8 +380,21 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
     sTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 ) += currentSineCorrections_;
 }
 
+int getBasicTideMaximumDegree( const std::map< int, std::vector< std::complex< double > > >& loveNumbers )
+{
+    if( loveNumbers.empty( ) )
+    {
+        throw std::runtime_error( "Error creating basic tidal variation: Love numbers are empty." );
+    }
+    return loveNumbers.rbegin( )->first;
+}
+
 int getModeCoupledMaximumResponseDegree( const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers )
 {
+    if( loveNumbers.empty( ) )
+    {
+        throw std::runtime_error( "Error creating mode-coupled tidal variation: Love numbers are empty." );
+    }
     int maximumDegree = 0;
     for( auto it : loveNumbers )
     {

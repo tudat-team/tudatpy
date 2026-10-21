@@ -11,6 +11,7 @@
 #ifndef TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 #define TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 
+#include <algorithm>
 #include <functional>
 
 #include <Eigen/Core>
@@ -23,6 +24,7 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/legendrePolynomials.h"
+#include "tudat/math/basic/sphericalHarmonics.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
 namespace tudat
@@ -141,6 +143,9 @@ public:
      *  \param deformingBodyMasses List of functions returning masses (or gravitational parameters)
      *  of bodies causing deformation.
      *  \param deformingBodies List of names of bodies causing deformation
+     *  \param maximumDegree Highest degree of the resulting coefficient correction.
+     *  \param maximumOrder Highest order of the resulting coefficient correction.
+     *  \param rotationDerivativeFunction Time derivative of the inertial-to-body rotation; needed for coefficient rates.
      */
     SolidBodyTideGravityFieldVariations( const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
                                          const std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction,
@@ -150,9 +155,11 @@ public:
                                          const std::vector< std::function< double( ) > > deformingBodyMasses,
                                          const std::vector< std::string > deformingBodies,
                                          const int maximumDegree,
-                                         const int maximumOrder ):
+                                         const int maximumOrder,
+                                         const std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction = nullptr ):
         // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
-        GravityFieldVariations( 2, 0, maximumDegree, maximumOrder ), deformedBodyStateFunction_( deformedBodyStateFunction ),
+        GravityFieldVariations( 2, 0, maximumDegree, maximumOrder ), rotationDerivativeFunction_( rotationDerivativeFunction ),
+        sphericalHarmonicsCache_( maximumDegree + 2, maximumDegree + 2 ), deformedBodyStateFunction_( deformedBodyStateFunction ),
         deformedBodyOrientationFunction_( deformedBodyOrientationFunction ), deformingBodyStateFunctions_( deformingBodyStateFunctions ),
         deformedBodyReferenceRadius_( deformedBodyReferenceRadius ), deformedBodyMass_( deformedBodyMass ),
         deformingBodyMasses_( deformingBodyMasses ), deformingBodies_( deformingBodies )
@@ -181,10 +188,19 @@ public:
      *  \param time Time at which variations are to be calculated.
      *  \return Pair of matrices containing variations in (cosine,sine) coefficients.
      */
-    virtual std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time )
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) override
     {
         return calculateBasicSphericalHarmonicsCorrections( time );
     }
+
+    //! Function for calculating time derivatives of spherical harmonic coefficient corrections.
+    /*!
+     *  Function for calculating time derivatives of spherical harmonic coefficient corrections, for constant Love numbers
+     *  and masses. Requires the time derivative of the rotation to the deformed body-fixed frame to be defined.
+     *  \param time Time at which time derivatives of variations are to be calculated.
+     *  \return Pair of matrices containing time derivatives of variations in (cosine,sine) coefficients.
+     */
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
 
     //! Function to return reference radius the spherical harmonic gravity field of deformed body.
     /*!
@@ -305,6 +321,49 @@ public:
     }
 
 protected:
+    //! Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number
+    /*!
+     *  Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number,
+     *  due to the body causing deformation with the current mass ratio, from the gradient of the associated spherical harmonic term.
+     *  \param degree Degree of tide.
+     *  \param order Order of tide.
+     *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     *  \return Time derivative of tidal forcing (cosine coefficient minus i times sine coefficient)
+     */
+    std::complex< double > calculateTidalForcingTimeDerivative( const int degree,
+                                                                const int order,
+                                                                const Eigen::Vector6d& bodyFixedRelativeState );
+
+    //! Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame
+    /*!
+     *  Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame,
+     *  and set the associated mass ratio
+     *  \param bodyIndex Index (in list of deforming bodies) of body causing deformation
+     *  \param time Time at which state is to be calculated.
+     *  \return State of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     */
+    Eigen::Vector6d getBodyFixedRelativeState( const int bodyIndex, const double time );
+
+    //! Function to add time derivatives of corrections due to the current body causing deformation.
+    /*!
+     *  Function to add time derivatives of corrections due to the current body causing deformation, from the time derivatives of the
+     *  tidal forcing for unit Love number.
+     *  \param unitLoveNumberForcingRateFunction Function returning the time derivative of the tidal forcing for unit Love number, as
+     *  a function of degree and order
+     *  \param cosineRates Time derivatives of cosine coefficient corrections (correction added to input value).
+     *  \param sineRates Time derivatives of sine coefficient corrections (correction added to input value).
+     */
+    virtual void addTidalCorrectionTimeDerivatives(
+            const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
+            Eigen::MatrixXd& cosineRates,
+            Eigen::MatrixXd& sineRates ) = 0;
+
+    //! Function returning time derivative of rotation matrix from inertial to deformed body-fixed frame
+    std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction_;
+
+    //! Cache for computing gradients of spherical harmonic tidal forcing terms
+    basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
+
     //! List of functions to call for calculating spherical harmonic corrections.
     /*!
      *  List of functions to call for calculating spherical harmonic corrections. Each function
@@ -457,6 +516,9 @@ protected:
     Eigen::MatrixXd currentSineCorrections_;
 };
 
+//! Validate a nonempty set of basic Love numbers and return its maximum degree.
+int getBasicTideMaximumDegree( const std::map< int, std::vector< std::complex< double > > >& loveNumbers );
+
 //! Class to calculate first-order solid body tide gravity field variations on a single body raised
 //! by any number of bodies up to any degree and order.
 class BasicSolidBodyTideGravityFieldVariations : public SolidBodyTideGravityFieldVariations
@@ -479,6 +541,9 @@ public:
      *  denotes degree (index 0 = degree 2), second vector level denotes order and must be of maximum size
      *  (loveNumbers.size( ) + 2, i.e. maximum degree >= maximum order)
      *  \param deformingBodies List of names of bodies causing deformation
+     *  \param meanForcingCosineTerms Constant mean cosine forcing to subtract.
+     *  \param meanForcingSineTerms Constant mean sine forcing to subtract.
+     *  \param rotationDerivativeFunction Time derivative of the inertial-to-body rotation; needed for coefficient rates.
      */
     BasicSolidBodyTideGravityFieldVariations(
             const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
@@ -490,7 +555,8 @@ public:
             const std::map< int, std::vector< std::complex< double > > > loveNumbers,
             const std::vector< std::string > deformingBodies,
             std::map< int, std::vector< double > > meanForcingCosineTerms = {},
-            std::map< int, std::vector< double > > meanForcingSineTerms = {} ):
+            std::map< int, std::vector< double > > meanForcingSineTerms = {},
+            const std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction = nullptr ):
         // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
         SolidBodyTideGravityFieldVariations( deformedBodyStateFunction,
                                              deformedBodyOrientationFunction,
@@ -499,8 +565,9 @@ public:
                                              deformedBodyMass,
                                              deformingBodyMasses,
                                              deformingBodies,
-                                             loveNumbers.rbegin( )->first,
-                                             loveNumbers.rbegin( )->first ),
+                                             getBasicTideMaximumDegree( loveNumbers ),
+                                             getBasicTideMaximumDegree( loveNumbers ),
+                                             rotationDerivativeFunction ),
         loveNumbers_( loveNumbers ), meanForcingCosineTerms_( meanForcingCosineTerms ), meanForcingSineTerms_( meanForcingSineTerms )
     {
         // Set basic deformation functon as function to be evaluated when requesting variations.
@@ -581,6 +648,9 @@ public:
         {
             if( loveNumbers.size( ) <= static_cast< unsigned int >( degree + 1 ) )
             {
+                // Newly enabled orders have zero mean forcing unless explicitly configured at construction.
+                meanForcingCosineTerms_[ degree ].resize( std::max( meanForcingCosineTerms_[ degree ].size( ), loveNumbers.size( ) ), 0.0 );
+                meanForcingSineTerms_[ degree ].resize( std::max( meanForcingSineTerms_[ degree ].size( ), loveNumbers.size( ) ), 0.0 );
                 loveNumbers_[ degree ] = loveNumbers;
             }
             else
@@ -618,7 +688,11 @@ protected:
      *
      *  (passed by reference; correction added to input value).
      */
-    virtual void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections );
+    void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections ) override;
+    void addTidalCorrectionTimeDerivatives(
+            const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
+            Eigen::MatrixXd& cosineRates,
+            Eigen::MatrixXd& sineRates ) override;
 
     // LOVE NUMBER TODO: FIX DOCS
     //! List of love numbers for each degree and order
@@ -651,7 +725,8 @@ public:
             const std::function< double( ) > deformedBodyMass,
             const std::vector< std::function< double( ) > > deformingBodyMasses,
             const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers,
-            const std::vector< std::string > deformingBodies ):
+            const std::vector< std::string > deformingBodies,
+            const std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction = nullptr ):
         SolidBodyTideGravityFieldVariations( deformedBodyStateFunction,
                                              deformedBodyOrientationFunction,
                                              deformingBodyStateFunctions,
@@ -660,7 +735,8 @@ public:
                                              deformingBodyMasses,
                                              deformingBodies,
                                              getModeCoupledMaximumResponseDegree( loveNumbers ),
-                                             getModeCoupledMaximumResponseOrder( loveNumbers ) ),
+                                             getModeCoupledMaximumResponseOrder( loveNumbers ),
+                                             rotationDerivativeFunction ),
         loveNumbers_( loveNumbers )
     {
         // Set basic deformation functon as function to be evaluated when requesting variations.
@@ -668,6 +744,21 @@ public:
                                                   this,
                                                   std::placeholders::_1,
                                                   std::placeholders::_2 ) );
+        int maximumForcingDegree = 0;
+        for( const auto& forcing : loveNumbers_ )
+        {
+            if( forcing.first.first < 0 || forcing.first.second < 0 || forcing.first.second > forcing.first.first )
+            {
+                throw std::runtime_error( "Error creating mode-coupled tidal variation: invalid forcing degree/order." );
+            }
+            maximumForcingDegree = std::max( maximumForcingDegree, forcing.first.first );
+        }
+
+        // Forcing degree may exceed response degree
+        if( maximumForcingDegree > maximumDegree_ )
+        {
+            sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumForcingDegree + 2, maximumForcingDegree + 2 );
+        }
     }
 
     //! Destructor
@@ -702,7 +793,11 @@ public:
     }
 
 protected:
-    virtual void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections );
+    void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections ) override;
+    void addTidalCorrectionTimeDerivatives(
+            const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
+            Eigen::MatrixXd& cosineRates,
+            Eigen::MatrixXd& sineRates ) override;
 
     std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers_;
 };

@@ -336,7 +336,26 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + 1.5 * tableStep, 10.0, 1.0e-10 );
 }
 
-std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityFieldVariation( )
+//! Function to get state function of body, either from Spice, or linearized around a reference epoch (with velocity consistent with
+//! position, required for numerical differentiation of tidal variations)
+std::function< Eigen::Vector6d( double ) > getGravityVariationTestStateFunction( const std::string& body, const bool useLinearizedStates )
+{
+    if( !useLinearizedStates )
+    {
+        return std::bind( &getBodyCartesianStateAtEpoch, body, "SSB", "J2000", "None", std::placeholders::_1 );
+    }
+
+    const double referenceTime = 1.0e7;
+    const Eigen::Vector6d referenceState = getBodyCartesianStateAtEpoch( body, "SSB", "J2000", "None", referenceTime );
+    return [ referenceTime, referenceState ]( const double time ) {
+        Eigen::Vector6d state = referenceState;
+        state.head< 3 >( ) += ( time - referenceTime ) * referenceState.tail< 3 >( );
+        return state;
+    };
+}
+
+std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityFieldVariation( const bool useLinearizedStates = false,
+                                                                                           const bool includeHigherDegrees = false )
 {
     // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
@@ -348,8 +367,7 @@ std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityField
     std::vector< std::function< double( ) > > deformingBodyMasses;
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
     {
-        deformingBodyStateFunctions.push_back(
-                std::bind( &getBodyCartesianStateAtEpoch, deformingBodies.at( i ), "SSB", "J2000", "None", std::placeholders::_1 ) );
+        deformingBodyStateFunctions.push_back( getGravityVariationTestStateFunction( deformingBodies.at( i ), useLinearizedStates ) );
         deformingBodyMasses.push_back( std::bind( &getBodyGravitationalParameter, deformingBodies.at( i ) ) );
     }
 
@@ -360,19 +378,36 @@ std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityField
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
     loveNumbers[ 2 ] = degreeTwoLoveNumber;
 
+    std::map< int, std::vector< double > > meanCosineForcing, meanSineForcing;
+    if( includeHigherDegrees )
+    {
+        loveNumbers[ 3 ] = { 0.1, 0.2, 0.3, 0.4 };
+        loveNumbers[ 4 ] = { 0.1, std::complex< double >( 0.2, 0.03 ), 0.3, 0.4 };
+        meanCosineForcing = generateZeroMeanTermsFromReference( loveNumbers );
+        meanSineForcing = generateZeroMeanTermsFromReference( loveNumbers );
+        meanCosineForcing[ 4 ][ 1 ] = 1.0e-12;
+        meanSineForcing[ 4 ][ 1 ] = -2.0e-12;
+    }
+
     // Set up gravity field variation of Jupiter due to Galilean moons.
-    return std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
-            std::bind( &getBodyCartesianStateAtEpoch, "Jupiter", "SSB", "J2000", "None", std::placeholders::_1 ),
+    const auto variation = std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+            getGravityVariationTestStateFunction( "Jupiter", useLinearizedStates ),
             std::bind( &computeRotationQuaternionBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ),
             deformingBodyStateFunctions,
             getAverageRadius( "Jupiter" ),
             std::bind( &getBodyGravitationalParameter, "Jupiter" ),
             deformingBodyMasses,
             loveNumbers,
-            deformingBodies );
+            deformingBodies,
+            meanCosineForcing,
+            meanSineForcing,
+            std::bind( &computeRotationMatrixDerivativeBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ) );
+    return variation;
 }
 
-std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupledGravityFieldVariation( const int index )
+std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupledGravityFieldVariation(
+        const int index,
+        const bool useLinearizedStates = false )
 {
     // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
@@ -384,8 +419,7 @@ std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupled
     std::vector< std::function< double( ) > > deformingBodyMasses;
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
     {
-        deformingBodyStateFunctions.push_back(
-                std::bind( &getBodyCartesianStateAtEpoch, deformingBodies.at( i ), "SSB", "J2000", "None", std::placeholders::_1 ) );
+        deformingBodyStateFunctions.push_back( getGravityVariationTestStateFunction( deformingBodies.at( i ), useLinearizedStates ) );
         deformingBodyMasses.push_back( std::bind( &getBodyGravitationalParameter, deformingBodies.at( i ) ) );
     }
 
@@ -411,17 +445,20 @@ std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupled
     }
 
     // Set up gravity field variation of Jupiter due to Galilean moons.
-    return std::make_shared< ModeCoupledSolidBodyTideGravityFieldVariations >(
-            std::bind( &getBodyCartesianStateAtEpoch, "Jupiter", "SSB", "J2000", "None", std::placeholders::_1 ),
+    const auto variation = std::make_shared< ModeCoupledSolidBodyTideGravityFieldVariations >(
+            getGravityVariationTestStateFunction( "Jupiter", useLinearizedStates ),
             std::bind( &computeRotationQuaternionBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ),
             deformingBodyStateFunctions,
             getAverageRadius( "Jupiter" ),
             std::bind( &getBodyGravitationalParameter, "Jupiter" ),
             deformingBodyMasses,
             loveNumbers,
-            deformingBodies );
+            deformingBodies,
+            std::bind( &computeRotationMatrixDerivativeBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ) );
+    return variation;
 }
 
+//! Test mode-coupled and basic tidal gravity field variations, and their time derivatives
 BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
 {
     std::cout << std::endl << std::endl << std::endl;
@@ -479,6 +516,52 @@ BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
     BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.first( 1, 3 ) - basicVariations.first( 0, 0 ), 1.0E-19 );
     BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.second( 1, 1 ) - basicVariations.second( 0, 1 ), 1.0E-19 );
     BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.second( 1, 2 ) - basicVariations.second( 0, 2 ), 1.0E-19 );
+
+    // Check time derivatives of all variation models against numerical derivatives (using linearized states of bodies)
+    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > basicRateTestModel = getBasicGravityFieldVariation( true );
+    for( const double time : { testTime, testTime + 3600.0 } )
+    {
+        checkGravityFieldVariationDerivative( basicRateTestModel, time, 1.0, 5.0e-8 );
+        for( int index = 0; index < 3; index++ )
+        {
+            checkGravityFieldVariationDerivative( getModeCoupledGravityFieldVariation( index, true ), time, 1.0, 5.0e-8 );
+        }
+    }
+
+    // Check time derivatives after resetting a Love number to a complex value
+    auto loveNumbers = basicRateTestModel->getLoveNumbersOfDegree( 2 );
+    loveNumbers[ 1 ] = std::complex< double >( 0.2, 0.03 );
+    basicRateTestModel->resetLoveNumbersOfDegree( loveNumbers, 2 );
+    checkGravityFieldVariationDerivative( basicRateTestModel, testTime, 1.0, 5.0e-8 );
+
+    // Check time derivatives and C41/S41 for degrees three and four, with complex Love numbers and constant mean forcing
+    const auto higherDegreeVariation = getBasicGravityFieldVariation( true, true );
+    checkGravityFieldVariationDerivative( higherDegreeVariation, testTime, 1.0, 5.0e-8 );
+    const auto raisingStates = higherDegreeVariation->getDeformingBodyStateFunctions( );
+    const auto raisingMasses = higherDegreeVariation->getDeformingBodyMasses( );
+    const Eigen::Vector3d deformedPosition = higherDegreeVariation->getDeformedBodyStateFunction( )( testTime ).head< 3 >( );
+    const Eigen::Quaterniond rotation = higherDegreeVariation->getDeformedBodyOrientationFunction( )( testTime );
+    std::complex< double > expectedCoefficient41( 0.0, 0.0 );
+    for( unsigned int i = 0; i < raisingStates.size( ); ++i )
+    {
+        expectedCoefficient41 += calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                higherDegreeVariation->getLoveNumbersOfDegree( 4 ).at( 1 ),
+                raisingMasses[ i ]( ) / higherDegreeVariation->getDeformedBodyMassFunction( )( ),
+                higherDegreeVariation->getDeformedBodyReferenceRadius( ),
+                rotation * ( raisingStates[ i ]( testTime ).head< 3 >( ) - deformedPosition ),
+                4,
+                1,
+                higherDegreeVariation->getMeanForcingCosineTerms( ).at( 4 ).at( 1 ),
+                higherDegreeVariation->getMeanForcingSineTerms( ).at( 4 ).at( 1 ) );
+    }
+    const auto higherDegreeValues = higherDegreeVariation->calculateSphericalHarmonicsCorrections( testTime );
+    BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.first( 2, 1 ), expectedCoefficient41.real( ), 1.0e-12 );
+    BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.second( 2, 1 ), -expectedCoefficient41.imag( ), 1.0e-12 );
+    auto degreeFourLoveNumbers = higherDegreeVariation->getLoveNumbersOfDegree( 4 );
+    degreeFourLoveNumbers.push_back( 0.5 );
+    higherDegreeVariation->resetLoveNumbersOfDegree( degreeFourLoveNumbers, 4 );
+    // Check time derivatives after adding Love number of additional order
+    checkGravityFieldVariationDerivative( higherDegreeVariation, testTime + 3600.0, 1.0, 5.0e-8 );
 }
 
 void getPeriodicGravityFieldVariationSettings( std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime,
