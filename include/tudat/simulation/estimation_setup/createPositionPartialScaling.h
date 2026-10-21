@@ -82,51 +82,6 @@ inline std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerP
     return properTimeRateDopplerPartial;
 }
 
-//! Function to create partials of the rotation from a body-fixed to the inertial frame, w.r.t. estimated rotation parameters
-/*!
- *  Function to create partials of the rotation from a body-fixed to the inertial frame, w.r.t. those estimated parameters that
- *  define the rotation of the given body. The partials are evaluated at a given time, as required for observation partials.
- *  \param parametersToEstimate Set of all parameters which are to be estimated.
- *  \param bodyName Name of body for which to create partials of rotation from body-fixed to inertial frame.
- *  \param bodies Map of body objects, used in the creation of the partials.
- *  \return Rotation matrix partial objects for all rotation parameters of bodyName in parametersToEstimate.
- */
-template< typename ParameterType >
-RotationMatrixPartialNamedList createObservationRotationMatrixPartials(
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::string& bodyName,
-        const simulation_setup::SystemOfBodies& bodies )
-{
-    RotationMatrixPartialNamedList rotationMatrixPartials;
-    const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel = bodies.at( bodyName )->getRotationalEphemeris( );
-    for( const auto& parameter : parametersToEstimate->getEstimatedInitialStateParameters( ) )
-    {
-        if( parameter->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state &&
-            parameter->getParameterName( ).second.first == bodyName )
-        {
-            rotationMatrixPartials[ std::make_pair( estimatable_parameters::initial_rotational_body_state, "" ) ] =
-                    std::make_shared< RotationMatrixPartialWrtRotationalState >(
-                            [ rotationModel ]( const double time ) { return rotationModel->getRotationToBaseFrame( time ); } );
-        }
-    }
-
-    auto addParameterPartials = [ & ]( const auto& parameters ) {
-        for( const auto& parameter : parameters )
-        {
-            if( parameter.second->getParameterName( ).second.first == bodyName &&
-                estimatable_parameters::isParameterRotationMatrixProperty( parameter.second->getParameterName( ).first ) )
-            {
-                rotationMatrixPartials[ std::make_pair( parameter.second->getParameterName( ).first,
-                                                        parameter.second->getSecondaryIdentifier( ) ) ] =
-                        createRotationMatrixPartialsWrtParameter( bodies, parameter.second );
-            }
-        }
-    };
-    addParameterPartials( parametersToEstimate->getDoubleParameters( ) );
-    addParameterPartials( parametersToEstimate->getVectorParameters( ) );
-    return rotationMatrixPartials;
-}
-
 //! Function to create the position partial scaling object for position angle and/or separation distance observables
 template< int ObservationSize, typename ParameterType, typename TimeType >
 std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > createPositionAngleAndSeparationScaling(
