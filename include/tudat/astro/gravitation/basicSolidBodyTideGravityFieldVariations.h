@@ -202,6 +202,95 @@ public:
      */
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
 
+    //! Function for calculating time derivatives of spherical harmonic coefficient corrections due to a single body causing deformation
+    /*!
+     *  Function for calculating time derivatives of spherical harmonic coefficient corrections due to a single body causing
+     *  deformation, for constant Love numbers and masses.
+     *  \param time Time at which time derivatives of variations are to be calculated.
+     *  \param bodyIndex Index (in list of deforming bodies) of body causing deformation
+     *  \param maximumDegree Maximum degree of coefficients for which time derivatives are to be calculated
+     *  \return Pair of matrices containing time derivatives of variations in (cosine,sine) coefficients.
+     */
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivativeDueToBody( const double time,
+                                                                                                                 const int bodyIndex,
+                                                                                                                 const int maximumDegree );
+
+    //! Function for calculating partials of time derivatives of coefficient corrections w.r.t. angular velocity of deformed body
+    /*!
+     *  Function for calculating partials of time derivatives of coefficient corrections w.r.t. a single component of the angular
+     *  velocity (in the body-fixed frame) of the deformed body, through its influence on the velocity of the bodies causing
+     *  deformation in the body-fixed frame.
+     *  \param time Time at which partials are to be calculated.
+     *  \param angularVelocityComponent Index of angular velocity component (0, 1, 2 for x, y, z)
+     *  \param maximumDegree Maximum degree of coefficients for which partials are to be calculated
+     *  \return Pair of matrices containing partials of time derivatives of variations in (cosine,sine) coefficients.
+     */
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtAngularVelocity(
+            const double time,
+            const int angularVelocityComponent,
+            const int maximumDegree );
+
+    //! Function for calculating partials of coefficient corrections w.r.t. orientation of deformed body
+    /*!
+     *  Function for calculating partials of coefficient corrections w.r.t. orientation (through the body-fixed position of the bodies
+     *  causing deformation) of the deformed body
+     *  \param time Time at which partials are to be calculated.
+     *  \param rotationToBodyFixedFramePartials Partials of rotation matrix from inertial to body-fixed frame w.r.t. orientation
+     *  parameters
+     *  \param maximumDegree Maximum degree of coefficients for which partials are to be calculated
+     *  \return Pair of matrices containing partials of variations in (cosine,sine) coefficients, per orientation parameter.
+     */
+    std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > calculateSphericalHarmonicsCorrectionsPartialWrtOrientation(
+            const double time,
+            const std::vector< Eigen::Matrix3d >& rotationToBodyFixedFramePartials,
+            const int maximumDegree );
+
+    //! Function for calculating partials of time derivatives of coefficient corrections w.r.t. orientation of deformed body
+    /*!
+     *  Function for calculating partials of time derivatives of coefficient corrections w.r.t. orientation (through the body-fixed
+     *  position and velocity of the bodies causing deformation) of the deformed body, for constant angular velocity
+     *  \param time Time at which partials are to be calculated.
+     *  \param rotationToBodyFixedFramePartials Partials of rotation matrix from inertial to body-fixed frame w.r.t. orientation
+     *  parameters
+     *  \param forcingHessianFunction Function returning the Hessian of the potential of a single (geodesy-normalized, unit
+     *  coefficient) spherical harmonic term with mu = R, as a function of degree, order, cosine (true) or sine (false) term, and
+     *  body-fixed position
+     *  \param maximumDegree Maximum degree of coefficients for which partials are to be calculated
+     *  \return Pair of matrices containing partials of time derivatives of variations in (cosine,sine) coefficients, per orientation
+     *  parameter.
+     */
+    std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtOrientation(
+            const double time,
+            const std::vector< Eigen::Matrix3d >& rotationToBodyFixedFramePartials,
+            const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction,
+            const int maximumDegree );
+
+    //! Function for calculating partials of coefficient corrections w.r.t. gravitational parameter of a body causing deformation
+    /*!
+     *  Function for calculating partials of coefficient corrections w.r.t. gravitational parameter of a body causing deformation
+     *  \param time Time at which partials are to be calculated.
+     *  \param bodyIndex Index (in list of deforming bodies) of body causing deformation
+     *  \return Pair of matrices containing partials of variations in (cosine,sine) coefficients.
+     */
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsPartialWrtDeformingBodyGravitationalParameter(
+            const double time,
+            const int bodyIndex );
+
+    //! Function to compute the time derivative of the tidal forcing of a single degree, order and body, for unit Love number
+    /*!
+     *  Function to compute the time derivative of the tidal forcing of a single degree, order and body causing deformation, for
+     *  unit Love number (cosine coefficient minus i times sine coefficient)
+     *  \param degree Degree of tide.
+     *  \param order Order of tide.
+     *  \param bodyIndex Index (in list of deforming bodies) of body causing deformation
+     *  \param time Time at which time derivative is to be calculated.
+     *  \return Time derivative of tidal forcing for unit Love number
+     */
+    std::complex< double > calculateUnitLoveNumberTidalForcingTimeDerivative( const int degree,
+                                                                              const int order,
+                                                                              const int bodyIndex,
+                                                                              const double time );
+
     //! Function to return reference radius the spherical harmonic gravity field of deformed body.
     /*!
      *  Function to return reference radius (typically equatorial)  the spherical harmonic gravity
@@ -334,6 +423,25 @@ protected:
                                                                 const int order,
                                                                 const Eigen::Vector6d& bodyFixedRelativeState );
 
+    //! Function to compute the partial of the time derivative of the tidal forcing w.r.t. the body-fixed position of the deforming body
+    /*!
+     *  Function to compute the partial of the time derivative of the tidal forcing of a single degree and order (for unit Love
+     *  number) w.r.t. the body-fixed position of the body causing deformation, multiplied by a given position variation
+     *  \param degree Degree of tide.
+     *  \param order Order of tide.
+     *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     *  \param bodyFixedPositionVariation Variation of body-fixed position by which the partial is multiplied
+     *  \param forcingHessianFunction Function returning the Hessian of the potential of a single spherical harmonic term (see
+     *  calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtOrientation)
+     *  \return Partial of time derivative of tidal forcing w.r.t. position, multiplied by the position variation
+     */
+    std::complex< double > calculateTidalForcingTimeDerivativePartialWrtPosition(
+            const int degree,
+            const int order,
+            const Eigen::Vector6d& bodyFixedRelativeState,
+            const Eigen::Vector3d& bodyFixedPositionVariation,
+            const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction );
+
     //! Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame
     /*!
      *  Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame,
@@ -344,19 +452,37 @@ protected:
      */
     Eigen::Vector6d getBodyFixedRelativeState( const int bodyIndex, const double time );
 
+    //! Function for calculating time derivatives of spherical harmonic coefficient corrections due to selected bodies.
+    /*!
+     *  Function for calculating time derivatives of spherical harmonic coefficient corrections due to selected bodies causing
+     *  deformation, or their partials w.r.t. a component of the angular velocity of the deformed body.
+     *  \param time Time at which time derivatives of variations are to be calculated.
+     *  \param bodyIndices Indices (in list of deforming bodies) of bodies causing deformation that are to be included
+     *  \param maximumDegree Maximum degree of coefficients for which time derivatives (or their partials) are to be calculated
+     *  \param angularVelocityComponent Index of angular velocity component w.r.t. which partial is to be computed (-1 if time
+     *  derivatives themselves are to be computed)
+     *  \return Pair of matrices containing time derivatives (or their partials) of variations in (cosine,sine) coefficients.
+     */
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateTimeDerivativeOfCorrections( const double time,
+                                                                                        const std::vector< int >& bodyIndices,
+                                                                                        const int maximumDegree,
+                                                                                        const int angularVelocityComponent = -1 );
+
     //! Function to add time derivatives of corrections due to the current body causing deformation.
     /*!
-     *  Function to add time derivatives of corrections due to the current body causing deformation, from the time derivatives of the
-     *  tidal forcing for unit Love number.
-     *  \param unitLoveNumberForcingRateFunction Function returning the time derivative of the tidal forcing for unit Love number, as
-     *  a function of degree and order
+     *  Function to add time derivatives of corrections due to the current body causing deformation (or their partials), from the
+     *  time derivatives (or their partials) of the tidal forcing for unit Love number.
+     *  \param unitLoveNumberForcingRateFunction Function returning the time derivative (or its partial) of the tidal forcing for unit
+     *  Love number, as a function of degree and order
      *  \param cosineRates Time derivatives of cosine coefficient corrections (correction added to input value).
      *  \param sineRates Time derivatives of sine coefficient corrections (correction added to input value).
+     *  \param maximumDegree Maximum degree of coefficient corrections that are to be added
      */
     virtual void addTidalCorrectionTimeDerivatives(
             const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
             Eigen::MatrixXd& cosineRates,
-            Eigen::MatrixXd& sineRates ) = 0;
+            Eigen::MatrixXd& sineRates,
+            const int maximumDegree ) = 0;
 
     //! Function returning time derivative of rotation matrix from inertial to deformed body-fixed frame
     std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction_;
@@ -692,7 +818,8 @@ protected:
     void addTidalCorrectionTimeDerivatives(
             const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
             Eigen::MatrixXd& cosineRates,
-            Eigen::MatrixXd& sineRates ) override;
+            Eigen::MatrixXd& sineRates,
+            const int maximumDegree ) override;
 
     // LOVE NUMBER TODO: FIX DOCS
     //! List of love numbers for each degree and order
@@ -797,7 +924,8 @@ protected:
     void addTidalCorrectionTimeDerivatives(
             const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
             Eigen::MatrixXd& cosineRates,
-            Eigen::MatrixXd& sineRates ) override;
+            Eigen::MatrixXd& sineRates,
+            const int maximumDegree ) override;
 
     std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers_;
 };
