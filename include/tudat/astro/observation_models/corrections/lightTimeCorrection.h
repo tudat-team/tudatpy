@@ -181,7 +181,7 @@ protected:
      * Derived classes for which the correction is discontinuous in time (e.g. at the boundaries of tabulated data)
      * should override this function, such that the perturbed times do not cross a discontinuity.
      * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
+     * \param receptionTime Time of signal reception
      * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
      * \return Pair with forward (first) and backward (second) time perturbation (both non-negative)
      */

@@ -126,10 +126,9 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         const auto lightTimeCalculator = currentDopplerModel->getLightTimeCalculator( );
         if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
         {
-            // The scaler re-evaluates individual legs without ancillary frequency
-            // settings. Keep its existing approximate partials by omitting the
-            // frequency-dependent corrections only from these callbacks. The
-            // observation model and its light-time calculators remain untouched.
+            // The partial scaling evaluates the one-way Doppler of the individual legs without ancillary settings, so
+            // without link frequencies. Frequency-dependent corrections are therefore omitted from these (scaling-only)
+            // one-way Doppler models; their contribution to the scaling is neglected.
             std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > scalingCorrections;
             for( const auto& correction : lightTimeCalculator->getLightTimeCorrection( ) )
             {

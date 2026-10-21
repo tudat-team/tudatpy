@@ -1434,7 +1434,8 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
-                // Station states are also needed for TDB observables, to convert the transmission time to UTC
+                // Retrieve ground station states, used to convert the transmission time to UTC when evaluating the
+                // transmitted frequency
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
                 for( auto it : linkEnds )
                 {

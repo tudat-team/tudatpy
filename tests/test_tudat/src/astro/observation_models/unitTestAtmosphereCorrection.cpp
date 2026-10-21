@@ -581,7 +581,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
                            2.1 );
     }
 
-    // A linear CHPART range delay gives an independent ionospheric Doppler prediction.
+    // Check ionospheric correction of two-way and measured-frequency Doppler, for which the frequencies are provided by the
+    // ancillary settings, against an analytical prediction. A single CHPART card with a range delay that is linear in time
+    // (offset 100 m, slope 1000 m over half of the 1-day validity interval) gives a constant Doppler shift.
     const auto card =
             std::make_shared< CspRawFile >( std::vector< std::string >{ "ADJUST(DOPRNG)BY NRMPOW(100.0, 1000.0) MODEL(CHPART)"
                                                                         "FROM(17/04/07,00:00)TO(17/04/08,00:00)DSN(C10)SCID(74)." } );
@@ -589,6 +591,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
         std::make_shared< TabulatedIonosphericCorrectionSettings >(
                 extractIonosphericCorrection( { card }, spacecraftNamePerSpacecraftId ) )
     };
+    // Two-way link from the station to MRO and back, with S-band uplink and Ka-band downlink
     LinkEnds twoWayLinkEnds = { { transmitter, linkEnds.at( transmitter ) },
                                 { reflector1, linkEnds.at( receiver ) },
                                 { receiver, linkEnds.at( transmitter ) } };
@@ -596,15 +599,19 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
     const double observationTime = initialTime + 6.0 * 3600.0;
     const double downlinkFrequency = frequency * getDsnDefaultTurnaroundRatios( s_band, ka_band );
 
+    // Expected shift (in Hz at the downlink frequency): range-rate of the delay, scaled from the 2295 MHz reference
+    // frequency to the uplink and downlink frequencies (1/f^2) and summed over both legs
     const double expectedShift = downlinkFrequency / SPEED_OF_LIGHT * ( 2000.0 / 86400.0 ) *
             ( std::pow( 2295.0e6 / frequency, 2 ) + std::pow( 2295.0e6 / downlinkFrequency, 2 ) );
     ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { s_band, ka_band } );
+    // Empty parameter set, only needed to create the observation partials
     const auto parameters = std::make_shared< estimatable_parameters::EstimatableParameterSet< double > >(
             std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >{},
             std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >{} );
 
     for( const auto observable : { two_way_doppler, doppler_measured_frequency } )
     {
+        // Models with and without ionospheric correction
         const auto model = ObservationModelCreator< 1, double, Time >::createObservationModel(
                 std::make_shared< ObservationModelSettings >( observable, twoWayLinkEnds, corrections ), bodies );
         const auto vacuum = ObservationModelCreator< 1, double, Time >::createObservationModel(
@@ -613,15 +620,20 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
         std::vector< Eigen::Vector6d > states;
         const auto observation =
                 model->computeObservationsWithLinkEndData( Time( observationTime ), receiver, times, states, ancillarySettings );
+        // Compare difference between the models with the expected shift (two-way Doppler is a range-rate, the measured
+        // frequency is in Hz)
         const double toHertz = ( observable == two_way_doppler ) ? downlinkFrequency / SPEED_OF_LIGHT : 1.0;
         BOOST_CHECK_SMALL(
                 toHertz * ( observation( 0 ) - vacuum->computeObservations( Time( observationTime ), receiver, ancillarySettings )( 0 ) ) -
                         expectedShift,
                 0.5e-3 );
+        // Check that the partials (which evaluate the ionospheric correction of the individual legs) can be computed
         const auto partials = observation_partials::createTwoWayDopplerPartials< double, Time >( model, bodies, parameters );
         BOOST_CHECK_NO_THROW( partials.second->update( states, times, receiver, observation ) );
     }
 
+    // Check that one-way Doppler models, which retrieve the transmitted frequency from the station, give the same result
+    // without ancillary settings as with ancillary settings that contain no frequencies
     const std::vector< std::shared_ptr< ObservationModelSettings > > oneWaySettings = {
         std::make_shared< ObservationModelSettings >( one_way_doppler, linkEnds, corrections ),
         oneWayDopplerMeasuredFrequencySettings( linkEnds, corrections )
@@ -853,9 +865,13 @@ BOOST_AUTO_TEST_CASE( testTabulatedIonosphericTimeDerivativeAtValidityBoundaries
     for( const double timeFromBoundary : timesFromBoundary )
     {
         const std::vector< double >& coefficients = cardCoefficients.at( timeFromBoundary < 0.0 ? 0 : 1 );
+        // Analytical derivative: slope of the card (per unit normalised time, which spans the card duration from -1 to 1),
+        // scaled to the transmitted frequency and converted to light time
         const double expectedTimeDerivative = 2.0 * coefficients.at( 1 ) / cardDuration * std::pow( referenceFrequency / frequency, 2.0 ) /
                 physical_constants::SPEED_OF_LIGHT;
 
+        // Numerical derivative w.r.t. transmission time (station is transmitter of the uplink). At 5 s from a boundary,
+        // the default 15 s time perturbation would cross the boundary
         const double transmissionTime = boundaryTime + timeFromBoundary;
         const double computedTimeDerivative =
                 ionosphericCorrection.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( Eigen::Vector6d::Zero( ),

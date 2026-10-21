@@ -361,6 +361,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyRampedStation )
                             linkEnds, {}, nullptr, nullptr, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), true ),
                     bodies );
 
+    // Compute measured frequency, and the fractional Doppler of the same link
     Time observationTime( 3600.0 );
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
