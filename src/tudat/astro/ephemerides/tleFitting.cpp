@@ -298,6 +298,18 @@ TleFitResult fitTleToCartesianStateHistory( const std::map< double, Eigen::Vecto
         throw std::runtime_error( "TLE fit ended at invalid TLE parameters." );
     }
 
+    // Apply any user-supplied catalog identity (NORAD number, international designator, ...) - none of this is
+    // derivable from the Cartesian state history itself - then serialize the fitted numerical elements into
+    // standard TLE text so that fittedTle_->raw_line_1/2 are usable (e.g. for exporting the fit result or feeding
+    // it to tools that expect TLE text).
+    fittedTle->setIdentification( settings.noradCatalogNumber_,
+                                  settings.classification_,
+                                  settings.internationalDesignatorLaunchYear_,
+                                  settings.internationalDesignatorLaunchNumber_,
+                                  settings.internationalDesignatorPiece_,
+                                  settings.elementSetNumber_ );
+    fittedTle->computeRawLines( );
+
     // Return unweighted physical diagnostics; positionRms_ is the RMS of per-epoch three-dimensional error norms.
     TleFitResult result;
     result.fittedTle_ = fittedTle;

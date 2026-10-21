@@ -18,9 +18,9 @@
 #include <limits>
 #include <algorithm>
 #include <sstream>
+#include <variant>
 
 #include <memory>
-#include <boost/date_time/posix_time/time_period.hpp>
 
 #include "body.h"
 #include "tudat/io/basicInputOutput.h"
@@ -31,7 +31,6 @@
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/basics/identityElements.h"
 #include "tudat/io/comaModelInputOutput.h"
-#include <boost/variant.hpp>
 
 namespace tudat
 {
@@ -221,7 +220,7 @@ class ComaWindModelSettings : public WindModelSettings
 {
 public:
     // Type alias for cleaner code
-    using DataVariant = boost::variant< ComaPolyDataset, ComaStokesDataset >;
+    using DataVariant = std::variant< ComaPolyDataset, ComaStokesDataset >;
 
     /**
      * \brief Constructor from ComaWindDatasetCollection
@@ -322,7 +321,7 @@ public:
      */
     bool xHasPolyData( ) const
     {
-        return xData_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( xData_ );
     }
 
     /**
@@ -330,7 +329,7 @@ public:
      */
     bool yHasPolyData( ) const
     {
-        return yData_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( yData_ );
     }
 
     /**
@@ -338,7 +337,7 @@ public:
      */
     bool zHasPolyData( ) const
     {
-        return zData_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( zData_ );
     }
 
     /**
@@ -347,7 +346,7 @@ public:
      */
     const ComaPolyDataset& getXPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &xData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain polynomial data" );
     }
 
@@ -357,7 +356,7 @@ public:
      */
     const ComaPolyDataset& getYPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &yData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain polynomial data" );
     }
 
@@ -367,7 +366,7 @@ public:
      */
     const ComaPolyDataset& getZPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &zData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain polynomial data" );
     }
 
@@ -377,7 +376,7 @@ public:
      */
     const ComaStokesDataset& getXStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &xData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain Stokes data" );
     }
 
@@ -387,7 +386,7 @@ public:
      */
     const ComaStokesDataset& getYStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &yData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain Stokes data" );
     }
 
@@ -397,7 +396,7 @@ public:
      */
     const ComaStokesDataset& getZStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &zData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain Stokes data" );
     }
 
@@ -457,9 +456,9 @@ private:
      */
     static int getMaxDegreeFromData( const DataVariant& data )
     {
-        if( data.type( ) == typeid( ComaPolyDataset ) )
+        if( std::holds_alternative< ComaPolyDataset >( data ) )
         {
-            const auto& poly = boost::get< ComaPolyDataset >( data );
+            const auto& poly = std::get< ComaPolyDataset >( data );
             int maxDeg = 0;
             for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
             {
@@ -467,9 +466,9 @@ private:
             }
             return maxDeg;
         }
-        else if( data.type( ) == typeid( ComaStokesDataset ) )
+        else if( std::holds_alternative< ComaStokesDataset >( data ) )
         {
-            const auto& stokes = boost::get< ComaStokesDataset >( data );
+            const auto& stokes = std::get< ComaStokesDataset >( data );
             return stokes.nmax( );
         }
         return 0;
@@ -480,9 +479,9 @@ private:
      */
     static int getMaxOrderFromData( const DataVariant& data )
     {
-        if( data.type( ) == typeid( ComaPolyDataset ) )
+        if( std::holds_alternative< ComaPolyDataset >( data ) )
         {
-            const auto& poly = boost::get< ComaPolyDataset >( data );
+            const auto& poly = std::get< ComaPolyDataset >( data );
             int maxOrd = 0;
             for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
             {
@@ -492,9 +491,9 @@ private:
             }
             return maxOrd;
         }
-        else if( data.type( ) == typeid( ComaStokesDataset ) )
+        else if( std::holds_alternative< ComaStokesDataset >( data ) )
         {
-            const auto& stokes = boost::get< ComaStokesDataset >( data );
+            const auto& stokes = std::get< ComaStokesDataset >( data );
             // For Stokes data, order equals degree in the triangular storage
             return stokes.nmax( );
         }
@@ -1397,7 +1396,7 @@ class ComaSettings final : public AtmosphereSettings
 {
 public:
     // Type alias for cleaner code
-    using DataVariant = boost::variant< ComaPolyDataset, ComaStokesDataset >;
+    using DataVariant = std::variant< ComaPolyDataset, ComaStokesDataset >;
 
     /**
      * \brief Constructor with polynomial coefficient data
@@ -1451,7 +1450,7 @@ public:
      */
     bool hasPolyData( ) const
     {
-        return data_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( data_ );
     }
 
     /**
@@ -1459,7 +1458,7 @@ public:
      */
     bool hasStokesData( ) const
     {
-        return data_.type( ) == typeid( ComaStokesDataset );
+        return std::holds_alternative< ComaStokesDataset >( data_ );
     }
 
     /**
@@ -1468,7 +1467,7 @@ public:
      */
     const ComaPolyDataset& getPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &data_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &data_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain polynomial data" );
     }
 
@@ -1478,7 +1477,7 @@ public:
      */
     const ComaStokesDataset& getStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &data_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &data_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain Stokes data" );
     }
 
@@ -1581,7 +1580,7 @@ public:
      */
     bool hasTemperaturePolyData( ) const
     {
-        return hasTemperatureModel_ && temperatureData_.type( ) == typeid( ComaPolyDataset );
+        return hasTemperatureModel_ && std::holds_alternative< ComaPolyDataset >( temperatureData_ );
     }
 
     /**
@@ -1589,7 +1588,7 @@ public:
      */
     bool hasTemperatureStokesData( ) const
     {
-        return hasTemperatureModel_ && temperatureData_.type( ) == typeid( ComaStokesDataset );
+        return hasTemperatureModel_ && std::holds_alternative< ComaStokesDataset >( temperatureData_ );
     }
 
     /**
@@ -1598,7 +1597,7 @@ public:
      */
     const ComaPolyDataset& getTemperaturePolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &temperatureData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &temperatureData_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain temperature polynomial data" );
     }
 
@@ -1608,7 +1607,7 @@ public:
      */
     const ComaStokesDataset& getTemperatureStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &temperatureData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &temperatureData_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain temperature Stokes data" );
     }
 

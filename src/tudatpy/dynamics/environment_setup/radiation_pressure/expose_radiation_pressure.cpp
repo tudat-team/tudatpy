@@ -14,7 +14,6 @@
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/createOccultationModel.h>
-#include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
 #include <tudat/simulation/environment_setup/createRadiationPressureTargetModel.h>
 #include <tudat/simulation/environment_setup/createRadiationSourceModel.h>
 #include <tudat/simulation/environment_setup/createSurfacePropertyDistribution.h>
@@ -54,45 +53,32 @@ void expose_radiation_pressure_types( py::module& m )
 
 void expose_radiation_pressure_setup( py::module& m )
 {
-    /////////////////////////////////////////////////////////////////////////////
-    // createRadiationPressureInterface.h
-    /////////////////////////////////////////////////////////////////////////////
-
-    // DEPRECATED //
-    py::enum_< tss::RadiationPressureType >( m, "RadiationPressureType" )
-            .value( "cannonball_radiation_pressure_interface", tss::RadiationPressureType::cannon_ball_radiation_pressure_interface )
-            .export_values( );
-
-    // DEPRECATED //
-    py::class_< tss::RadiationPressureInterfaceSettings, std::shared_ptr< tss::RadiationPressureInterfaceSettings > >(
-            m, "RadiationPressureInterfaceSettings" );
-
-    // DEPRECATED //
-    py::class_< tss::CannonBallRadiationPressureInterfaceSettings,
-                std::shared_ptr< tss::CannonBallRadiationPressureInterfaceSettings >,
-                tss::RadiationPressureInterfaceSettings >( m, "CannonBallRadiationPressureInterfaceSettings" );
-
-    // DEPRECATED //
-    m.def( "cannonball",
-           py::overload_cast< const std::string&, const double, const double, const std::vector< std::string >& >(
-                   &tss::cannonBallRadiationPressureSettings ),
-           py::arg( "source_body" ),
-           py::arg( "reference_area" ),
-           py::arg( "radiation_pressure_coefficient" ),
-           py::arg( "occulting_bodies" ) = std::vector< std::string >( ) );
-
     ///////////////////////////////////////////////////////////
     ///////////   ENUMS
     ///////////////////////////////////////////////////////////
 
-    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel" )
-            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom )
-            .value( "albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke )
-            .value( "emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke )
+    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel", R"doc(
+
+         Enumeration of predefined and custom Earth albedo and emissivity distributions.
+
+      )doc" )
+            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom, R"doc(Custom surface property distribution.)doc" )
+            .value( "albedo_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke,
+                    R"doc(Earth albedo distribution from :cite:p:`knocke1988`.)doc" )
+            .value( "emissivity_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke,
+                    R"doc(Earth emissivity distribution from :cite:p:`knocke1988`.)doc" )
             .export_values( );
 
-    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel" )
-            .value( "albedo_dlam1", tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1 )
+    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel", R"doc(
+
+         Enumeration of predefined spherical harmonic surface property distributions.
+
+      )doc" )
+            .value( "albedo_dlam1",
+                    tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1,
+                    R"doc(DLAM-1 lunar albedo distribution from :cite:p:`floberghagen1999`.)doc" )
             .export_values( );
 
     enum class SphericalHarmonicsSurfacePropertyDistributionModel {
@@ -218,8 +204,8 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- luminosity_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
-     Function returning source luminosity (in Watt) as a function of time (Time object)
+ luminosity_function : callable[[float], float]
+     Function returning source luminosity (in Watt) as a function of time in seconds since J2000 TDB.
  Returns
  -------
  LuminosityModelSettings
@@ -247,8 +233,8 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- irradiance_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
-     Function returning irradiance at reference distance from center of source (in :math:`W/m^{2}`) as a function of time (Time object)
+ irradiance_function : callable[[float], float]
+     Function returning irradiance at reference distance from the center of the source (in :math:`W/m^{2}`) as a function of time in seconds since J2000 TDB.
  reference_distance : float
      Distance from center of source at which the irradiance is defined
  Returns
@@ -281,7 +267,13 @@ void expose_radiation_pressure_setup( py::module& m )
       )doc" );
     py::class_< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings,
                 std::shared_ptr< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >,
-                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings" );
+                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings", R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.knocke_type_surface_property_distribution`,
+         :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.predefined_knocke_type_surface_property_distribution`.
+
+      )doc" );
 
     m.def( "constant_surface_property_distribution",
            &tss::constantSurfacePropertyDistributionSettings,
@@ -412,8 +404,8 @@ void expose_radiation_pressure_setup( py::module& m )
      Value of :math:`c_{2}` in above formulation.
  constant_degree_two_contribution : float
      Value of :math:`a_{2}` in above formulation.
- reference_epoch : astro.time_representation.Time
-     Reference epoch :math:`t_{0}` of the periodic variation (Time object representing seconds since J2000 TDB).
+reference_epoch : float
+     Reference epoch :math:`t_{0}` of the periodic variation, in seconds since J2000 TDB.
  period : float
      Period :math:`T` of the periodic variation.
  Returns
@@ -468,8 +460,8 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- custom_function : callable[[float, float, astro.time_representation.Time], float]
-     Function providing surface property as a function of latitude, longitude and time (in that order, with time as a Time object).
+ custom_function : callable[[float, float, float], float]
+     Function providing surface property as a function of latitude, longitude, and time in seconds since J2000 TDB, in that order.
  Returns
  -------
  SurfacePropertyDistributionSettings

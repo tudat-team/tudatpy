@@ -143,6 +143,21 @@ public:
         return classification_;
     }
 
+    int getInternationalDesignatorLaunchYear( ) const
+    {
+        return internationalDesignatorLaunchYear_;
+    }
+
+    int getInternationalDesignatorLaunchNumber( ) const
+    {
+        return internationalDesignatorLaunchNumber_;
+    }
+
+    std::string getInternationalDesignatorPiece( ) const
+    {
+        return internationalDesignatorPiece_;
+    }
+
     int getElementSetNumber( ) const
     {
         return elementSetNumber_;
@@ -176,6 +191,45 @@ public:
     std::string getRawLine2( ) const
     {
         return rawLine2_;
+    }
+
+    //! (Re)compute the raw two-line-element text representation from the stored numerical parameters.
+    /*!
+     * Formats the current numerical TLE parameters (epoch, mean elements, B*, identification fields, ...) into a
+     * standard fixed-width, checksummed 69-character two-line element set, and stores the result in rawLine1_ /
+     * rawLine2_. This is needed whenever a Tle was built from numerical elements rather than parsed from TLE text
+     * (e.g. the constructor taking epoch/bStar/inclination/.../meanMotion, or a TLE produced by
+     * fitTleToCartesianStateHistory), since those construction paths never populate the raw lines themselves.
+     * Identification fields that were never set (NORAD catalog number, international designator, element set
+     * number, ...) are serialized using their default values.
+     */
+    void computeRawLines( );
+
+    //! Set identification/administrative fields that cannot be derived from orbital elements alone (e.g. by
+    //! fitTleToCartesianStateHistory, which fits only a Cartesian state history and has no catalog to consult).
+    /*!
+     * Does not itself refresh rawLine1_/rawLine2_: call computeRawLines() afterwards to serialize the new values.
+     * @param noradCatalogNumber NORAD catalog number.
+     * @param classification Security classification character (typically 'U', 'C' or 'S').
+     * @param internationalDesignatorLaunchYear International designator launch year (2- or 4-digit; only the last
+     * two digits are serialized).
+     * @param internationalDesignatorLaunchNumber International designator launch number.
+     * @param internationalDesignatorPiece International designator launch piece (up to 3 characters).
+     * @param elementSetNumber Element set number.
+     */
+    void setIdentification( const int noradCatalogNumber,
+                            const char classification,
+                            const int internationalDesignatorLaunchYear,
+                            const int internationalDesignatorLaunchNumber,
+                            const std::string& internationalDesignatorPiece,
+                            const int elementSetNumber )
+    {
+        noradCatalogNumber_ = noradCatalogNumber;
+        classification_ = classification;
+        internationalDesignatorLaunchYear_ = internationalDesignatorLaunchYear;
+        internationalDesignatorLaunchNumber_ = internationalDesignatorLaunchNumber;
+        internationalDesignatorPiece_ = internationalDesignatorPiece;
+        elementSetNumber_ = elementSetNumber;
     }
 
 private:

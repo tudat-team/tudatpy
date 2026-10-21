@@ -19,6 +19,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
@@ -103,7 +105,8 @@ void expose_observations_dependent_variable_types( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE( tss::ObservationDependentVariableSettings ) TUDATPY_DEF_EQ_NE( tss::ObservationDependentVariableSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::ObservationDependentVariableSettings );
 
     py::class_< tss::ObservationDependentVariableBookkeeping, std::shared_ptr< tss::ObservationDependentVariableBookkeeping > >(
             m,
@@ -115,12 +118,50 @@ void expose_observations_dependent_variable_types( py::module& m )
          Instances of this class are created as part of observation simulation
          settings and can be reused when constructing a SingleObservationSet.
       )doc" )
-            .def_property_readonly( "observable_type", &tss::ObservationDependentVariableBookkeeping::getObservableType )
-            .def_property_readonly( "link_ends", &tss::ObservationDependentVariableBookkeeping::getLinkEnds )
+            .def_property_readonly( "observable_type",
+                                    &tss::ObservationDependentVariableBookkeeping::getObservableType,
+                                    R"doc(
+
+         **read-only**
+
+         Observable type associated with these observation dependent variables.
+
+         :type: ObservableType
+
+      )doc" )
+            .def_property_readonly( "link_ends",
+                                    &tss::ObservationDependentVariableBookkeeping::getLinkEnds,
+                                    R"doc(
+
+         **read-only**
+
+         Observation link definition associated with the dependent variables.
+
+         :type: LinkDefinition
+
+      )doc" )
             .def_property_readonly( "dependent_variable_settings",
-                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings )
+                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings,
+                                    R"doc(
+
+         **read-only**
+
+         Settings for the dependent variables stored alongside observations.
+
+         :type: list[ObservationDependentVariableSettings]
+
+      )doc" )
             .def_property_readonly( "total_dependent_variable_size",
-                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize );
+                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize,
+                                    R"doc(
+
+         **read-only**
+
+         Total number of scalar entries in the observation dependent variable vector.
+
+         :type: int
+
+      )doc" );
 }
 
 void expose_observations_dependent_variables( py::module& m )
@@ -246,9 +287,15 @@ void expose_observations_dependent_variables( py::module& m )
 
         For observables that are integrated over a time interval (like Doppler), this enum specifies at which end of the integration interval the dependent variable should be evaluated.
         )doc" )
-            .value( "interval_start", tss::IntegratedObservationPropertyHandling::interval_start )
-            .value( "interval_end", tss::IntegratedObservationPropertyHandling::interval_end )
-            .value( "interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined )
+            .value( "interval_start",
+                    tss::IntegratedObservationPropertyHandling::interval_start,
+                    R"doc(Evaluate the dependent variable at the start of the observation integration interval.)doc" )
+            .value( "interval_end",
+                    tss::IntegratedObservationPropertyHandling::interval_end,
+                    R"doc(Evaluate the dependent variable at the end of the observation integration interval.)doc" )
+            .value( "interval_undefined",
+                    tss::IntegratedObservationPropertyHandling::interval_undefined,
+                    R"doc(No observation integration interval endpoint is specified.)doc" )
             .export_values( );
 
     m.def( "elevation_angle_dependent_variable",
@@ -328,6 +375,11 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
            R"doc(
         Function to create a dependent variable for the range between link ends.
+        The range is evaluated from the states of the link ends at the epoch(s) of the observation:
+
+        .. math::
+
+            r = || \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||
 
         The range is the Euclidean distance between the positions of two consecutive link ends, each
         evaluated at its own link-end time (as determined by the light-time solution). Light-time
@@ -605,7 +657,7 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "correction_type_filter" ) = std::vector< tom::LightTimeCorrectionType >( ),
            R"doc(
         Function to create a dependent variable that saves each light-time correction contribution
-        individually for a single leg (transmitter → receiver) of the observable.
+        individually for a single leg (transmitter -> receiver) of the observable.
 
         The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
         on the selected leg, in light-time-calculator order and registration order within each calculator. If ``correction_type_filter`` is supplied,

@@ -42,6 +42,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case radiation_pressure_coefficient:
             parameterDescription = "radiation pressure coefficient ";
             break;
+        case three_coefficient_radiation_pressure_coefficients:
+            parameterDescription = "three-coefficient radiation-pressure areas ";
+            break;
         case arc_wise_radiation_pressure_coefficient:
             parameterDescription = "arc-wise radiation pressure coefficient ";
             break;
@@ -59,6 +62,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             break;
         case rotation_pole_position:
             parameterDescription = "pole position ";
+            break;
+        case shared_observation_bias:
+            parameterDescription = "shared observation bias ";
             break;
         case constant_additive_observation_bias:
             parameterDescription = "absolute observation bias ";
@@ -288,6 +294,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case radiation_pressure_coefficient:
             isDoubleParameter = true;
             break;
+        case three_coefficient_radiation_pressure_coefficients:
+            isDoubleParameter = false;
+            break;
         case arc_wise_radiation_pressure_coefficient:
             isDoubleParameter = false;
             break;
@@ -306,6 +315,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_pole_position:
             isDoubleParameter = false;
             break;
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             isDoubleParameter = false;
             break;
@@ -543,6 +553,7 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     bool flag;
     switch( parameterType )
     {
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             flag = true;
             break;

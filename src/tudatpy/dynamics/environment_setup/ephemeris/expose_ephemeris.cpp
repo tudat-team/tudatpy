@@ -14,7 +14,6 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup/createEphemeris.h>
 
 #include "scalarTypes.h"
@@ -38,24 +37,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-inline std::shared_ptr< EphemerisSettings > customEphemerisSettingsDeprecated(
-        const std::function< Eigen::Vector6d( const double ) > customStateFunction,
-        const std::string& frameOrigin = "SSB",
-        const std::string& frameOrientation = "ECLIPJ2000" )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.environment_setup.ephemeris."
-                "custom",
-                "tudatpy.dynamics.environment_setup.ephemeris."
-                "custom_ephemeris" );
-        isWarningPrinted = true;
-    }
-
-    return customEphemerisSettings( customStateFunction, frameOrigin, frameOrientation );
-}
 }  // namespace simulation_setup
 }  // namespace tudat
 
@@ -162,16 +143,16 @@ void expose_ephemeris_setup( py::module& m )
 
          `EphemerisSettings` derived class for ephemeris which are directly linked to TLE data.
          This is typically created through the :func:`~tudatpy.dynamics.environment_setup.ephemeris.sgp4` function, which creates TLE ephemeris settings objects from TLE data.
-         
+
          )doc" )
             .def_property_readonly( "tle", &tss::DirectTleEphemerisSettings::getTle, R"doc(
-                
+
             **read-only**
 
             TLE object containing the TLE data from which the ephemeris is to be created.
 
             :type: Tle
-                
+
                 )doc" );
 
     py::class_< tss::DirectSpiceEphemerisSettings, std::shared_ptr< tss::DirectSpiceEphemerisSettings >, tss::EphemerisSettings >(
@@ -305,7 +286,15 @@ void expose_ephemeris_setup( py::module& m )
 
 
       )doc" )
-            .def_property_readonly( "body_name", &tss::ApproximateJplEphemerisSettings::getBodyName, R"doc(No documentation found.)doc" );
+            .def_property_readonly( "body_name", &tss::ApproximateJplEphemerisSettings::getBodyName, R"doc(
+
+         **read-only**
+
+         Name of the body for which the approximate planetary ephemeris is defined.
+
+         :type: str
+
+      )doc" );
 
     py::class_< tss::ScaledEphemerisSettings, std::shared_ptr< tss::ScaledEphemerisSettings >, tss::EphemerisSettings >(
             m,
@@ -366,10 +355,23 @@ void expose_ephemeris_setup( py::module& m )
             //                "ECLIPJ2000")
             .def_property_readonly( "get_custom_state_function",
                                     &tss::CustomEphemerisSettings::getCustomStateFunction,
-                                    R"doc(No documentation found.)doc" );
+                                    R"doc(
+
+         **read-only**
+
+         User-defined function returning the Cartesian state (position in m and velocity in m/s) at the requested time in seconds since J2000.
+
+         :type: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]]
+
+      )doc" );
 
     py::class_< tss::KeplerEphemerisSettings, std::shared_ptr< tss::KeplerEphemerisSettings >, tss::EphemerisSettings >(
-            m, "KeplerEphemerisSettings", R"doc(No documentation found.)doc" )
+            m, "KeplerEphemerisSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.ephemeris.keplerian`,
+         :func:`~tudatpy.dynamics.environment_setup.ephemeris.keplerian_from_spice`.
+
+      )doc" )
             //            .def(py::init<const Eigen::Vector6d &,
             //            const double, const double,
             //                 const std::string &, const
@@ -389,18 +391,57 @@ void expose_ephemeris_setup( py::module& m )
             //                 = 1000.0)
             .def_property_readonly( "initial_state_in_keplerian_elements",
                                     &tss::KeplerEphemerisSettings::getInitialStateInKeplerianElements,
-                                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "epoch_of_initial_state", &tss::KeplerEphemerisSettings::getEpochOfInitialState, R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Initial Keplerian state, with entries semi-major axis, eccentricity, inclination, argument of periapsis, longitude of ascending node and true anomaly. The semi-major axis is in m and the angles are in rad.
+
+         :type: numpy.ndarray[numpy.float64[6, 1]]
+
+      )doc" )
+            .def_property_readonly( "epoch_of_initial_state", &tss::KeplerEphemerisSettings::getEpochOfInitialState, R"doc(
+
+         **read-only**
+
+         Epoch of the initial Keplerian state, in seconds since J2000.
+
+         :type: float
+
+      )doc" )
             .def_property_readonly( "central_body_gravitational_parameter",
                                     &tss::KeplerEphemerisSettings::getCentralBodyGravitationalParameter,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Gravitational parameter used for the two-body motion, in m^3/s^2.
+
+         :type: float
+
+      )doc" )
             .def_property_readonly( "root_finder_absolute_tolerance",
                                     &tss::KeplerEphemerisSettings::getRootFinderAbsoluteTolerance,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Absolute convergence tolerance used when solving Kepler's equation for the eccentric anomaly.
+
+         :type: float
+
+      )doc" )
             .def_property_readonly( "root_finder_maximum_number_of_iterations",
                                     &tss::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations,
-                                    R"doc(No documentation found.)doc" );
+                                    R"doc(
+
+         **read-only**
+
+         Maximum number of iterations used when solving Kepler's equation.
+
+         :type: float
+
+      )doc" );
 
     py::class_< tss::TabulatedEphemerisSettings, std::shared_ptr< tss::TabulatedEphemerisSettings >, tss::EphemerisSettings >(
             m,
@@ -432,7 +473,28 @@ void expose_ephemeris_setup( py::module& m )
     m.def( "create_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "ephemeris_settings" ),
-           py::arg( "body_name" ) );
+           py::arg( "body_name" ),
+           R"doc(
+
+         Function for creating an ephemeris model from ephemeris settings.
+
+         Function for creating a :class:`~tudatpy.dynamics.environment.Ephemeris` object from the provided settings.
+         The resulting ephemeris can be used to query Cartesian states without adding the body to a system of bodies.
+
+         Parameters
+         ----------
+         ephemeris_settings : EphemerisSettings
+             Settings defining the ephemeris model to create.
+         body_name : str
+             Name of the body for which the ephemeris is created. For models that retrieve external ephemeris data,
+             this name is used when no alternative body name is specified in the settings.
+
+         Returns
+         -------
+         tudatpy.dynamics.environment.Ephemeris
+             Ephemeris object created from the specified settings.
+
+      )doc" );
 
     m.def( "keplerian",
            &tss::keplerEphemerisSettings,
@@ -457,8 +519,8 @@ void expose_ephemeris_setup( py::module& m )
  initial_state_in_keplerian_elements : numpy.ndarray[numpy.float64[6, 1]]
      Kepler elements at epoch given by ``initial_state_epoch``.
 
- initial_state_epoch : astro.time_representation.Time
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
+ initial_state_epoch : float
+     Epoch at which ``initial_state_in_keplerian_elements`` represents the Keplerian state, in seconds since J2000 TDB.
 
  central_body_gravitational_parameter : float
      Effective gravitational parameter of the central body that is used in the computations. Note that when
@@ -531,8 +593,8 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  body : str
      Name of body for which to create ephemeris settings and infer initial state from Spice.
- initial_state_epoch : astro.time_representation.Time
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
+ initial_state_epoch : float
+     Epoch at which the initial state is defined, in seconds since J2000 TDB.
 
  central_body_gravitational_parameter : float
      Gravitational parameter of the central body that is used in the computations.
@@ -711,10 +773,10 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- initial_time : astro.time_representation.Time
-     Initial time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
- final_time : astro.time_representation.Time
-     Final time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
+ initial_time : float
+     Initial epoch from which interpolated data from Spice should be created, in seconds since J2000 TDB.
+ final_time : float
+     Final epoch through which interpolated data from Spice should be created, in seconds since J2000 TDB.
  time_step : float
      Time step with which interpolated data from Spice should be created.
  frame_origin : str, default="SSB"
@@ -775,7 +837,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- body_state_history : dict
+ body_state_history : dict[float, numpy.ndarray[numpy.float64[6, 1]]]
      Dictionary of the discrete state history data from which ephemeris is to be created. Keys representing the time (float) and values representing Cartesian states (numpy.ndarray).
  frame_origin : str, default="SSB"
      Origin of frame in which ephemeris data is defined.
@@ -842,10 +904,10 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  ephemeris_settings : tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings
      Existing ephemeris settings that have to be tabulated.
- start_time : astro.time_representation.Time
-     Initial time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
- end_time : astro.time_representation.Time
-     Final time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
+ start_time : float
+     Initial epoch for which to create the tabulated ephemeris, in seconds since J2000 TDB.
+ end_time : float
+     Final epoch for which to create the tabulated ephemeris, in seconds since J2000 TDB.
  time_step : float
      Time step to use to tabulate the existing ephemeris.
  interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default = tudatpy.math.interpolators.lagrange_interpolation(8, boundary_interpolation=tudatpy.math.interpolators.extrapolate_at_boundary)
@@ -1180,7 +1242,7 @@ void expose_ephemeris_setup( py::module& m )
    frame_origin = "SSB"
    frame_orientation = "J2000"
    # Make the ephemeris settings
-   body_settings.get("Earth").ephemeris_settings = environment_setup.ephemeris.custom(
+   body_settings.get("Earth").ephemeris_settings = environment_setup.ephemeris.custom_ephemeris(
        custom_state_function,
        frame_origin,
        frame_orientation)
@@ -1249,12 +1311,6 @@ void expose_ephemeris_setup( py::module& m )
 
 
      )doc" );
-
-    m.def( "custom",
-           &tss::customEphemerisSettingsDeprecated,
-           py::arg( "custom_state_function" ),
-           py::arg( "frame_origin" ) = "SSB",
-           py::arg( "frame_orientation" ) = "ECLIPJ2000" );
 }
 
 }  // namespace ephemeris

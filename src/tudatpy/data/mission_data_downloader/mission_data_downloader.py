@@ -20,6 +20,7 @@ import shutil
 import time
 
 _REQUEST_TIMEOUT = 30  # seconds
+_ROSETTA_RSI_MAPPING_TIMEOUT = 120  # seconds
 
 
 ### Class for Loading PDS files
@@ -796,7 +797,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def match_type_extension(self, data_type, filename):
+    def match_type_extension(self, data_type, filename) -> bool:
         """
         Checks if the extension of a given file matches the expected extension for the specified data type.
 
@@ -822,7 +823,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_extension_for_data_type(self, data_type, first_only=True):
+    def get_extension_for_data_type(self, data_type, first_only=True) -> str | list[str] | None:
         """
         Returns one or more file extensions for the given data type.
 
@@ -1565,7 +1566,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def extract_kernels_from_meta_kernel(self, input_mission):
+    def extract_kernels_from_meta_kernel(self, input_mission) -> dict:
         """
         Fetches a meta-kernel file from an HTTPS URL and categorizes kernel files by type
         using the type-to-extension mapping.
@@ -1734,7 +1735,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_latest_meta_kernel(self, input_mission):
+    def get_latest_meta_kernel(self, input_mission) -> str:
         """
         Finds the most recent meta-kernel file URL based on year and version.
 
@@ -4317,7 +4318,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict):
+    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict) -> list[str]:
         """
         Given a start_date and end_date, iterate over the mapping_dict (which is keyed by rsi_volume_id)
         and return a list of rsi_volume_id values whose associated record's start_date_utc falls within the interval.
@@ -4496,7 +4497,7 @@ class LoadPDS:
         max_retries = 3
         for attempt in range(1, max_retries + 1):
             try:
-                response = requests.get(url, timeout=_REQUEST_TIMEOUT)
+                response = requests.get(url, timeout=_ROSETTA_RSI_MAPPING_TIMEOUT)
                 response.raise_for_status()
                 break
             except requests.exceptions.RequestException as e:

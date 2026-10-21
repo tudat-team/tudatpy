@@ -29,6 +29,14 @@ Functions
 
    create_best_fit_to_ephemeris
 
+   full_state_continuity
+
+   position_only_continuity
+
+   velocity_only_continuity
+
+   general_continuity
+
 
 
 
@@ -45,6 +53,14 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.add_covariance_diagonal_entries
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_best_fit_to_ephemeris
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.full_state_continuity
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.position_only_continuity
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.velocity_only_continuity
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.general_continuity
 
 Classes
 -------
@@ -64,16 +80,20 @@ Classes
 
    EstimationConvergenceChecker
 
+   InterArcStateContinuityConstraintSettings
+
 
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationInput
    :members:
+   :exclude-members: set_constant_weight
    :special-members: __init__
 
 
@@ -90,4 +110,7 @@ Classes
    :special-members: __init__
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker
+   :members:
+
+.. autoclass:: tudatpy.estimation.estimation_analysis.InterArcStateContinuityConstraintSettings
    :members:

@@ -107,6 +107,12 @@ public:
         return linkEnds_;
     }
 
+    //! Function to retrieve model-dependent residual wrapping settings.
+    virtual ResidualWrappingSettings getResidualWrappingSettings( ) const
+    {
+        return ResidualWrappingSettings( );
+    }
+
     virtual std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
     getLegLightTimeCalculators( ) const = 0;
 
@@ -170,11 +176,26 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation;
+        return computeObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, idealObservation, ancillarySetings );
+    }
+
+    //! Compute the full observation and return its ideal value at the effective observation time by reference.
+    Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >& idealObservation,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
+    {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
-            return computeIdealObservationsWithLinkEndData(
+            idealObservation = computeIdealObservationsWithLinkEndData(
                     time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
+            return idealObservation;
         }
         else
         {
@@ -187,13 +208,13 @@ public:
             }
 
             // Compute ideal observable
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
+            idealObservation = computeIdealObservationsWithLinkEndData(
                     observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
             // Add correction
-            return currentObservation +
+            return idealObservation +
                     this->observationBiasCalculator_
-                            ->getObservationBias( linkEndTimes, linkEndStates, currentObservation.template cast< double >( ) )
+                            ->getObservationBias( linkEndTimes, linkEndStates, idealObservation.template cast< double >( ) )
                             .template cast< ObservationScalarType >( );
         }
     }

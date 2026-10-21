@@ -62,7 +62,6 @@ namespace low_thrust_trajectories
 //                std::make_shared< propagators::PropagationTimeTerminationSettings >( timeFinalEpoch, true ) );
 
 //    // Re-initialise integrator settings.
-//    integratorSettings->initialTime_ = timeInitialEpoch;
 //    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
 
 //    // Create dynamics simulation object.

@@ -77,11 +77,32 @@ struct TleFitSettings {
 
     //! Scaled B* step; with bStarScale_=1.0e-4 this is 1.0e-7 in B*, Vallado and Crawford's absolute fallback size.
     double bStarStep_ = 1.0e-3;
+
+    //! NORAD catalog number to embed in the fitted TLE's identification fields. Not derivable from a Cartesian
+    //! state history; defaults to 0 (serialized as "00000") when left unset.
+    int noradCatalogNumber_ = 0;
+
+    //! Security classification character to embed (typically 'U' for unclassified, or 'C'/'S').
+    char classification_ = 'U';
+
+    //! International designator launch year to embed (either 2- or 4-digit; only the last two digits are used).
+    int internationalDesignatorLaunchYear_ = 0;
+
+    //! International designator launch number to embed.
+    int internationalDesignatorLaunchNumber_ = 0;
+
+    //! International designator launch piece to embed (up to 3 characters, space-padded if shorter).
+    std::string internationalDesignatorPiece_ = "";
+
+    //! Element set number to embed in the fitted TLE.
+    int elementSetNumber_ = 0;
 };
 
 //! Result of a Cartesian-state-history-to-TLE fit.
 struct TleFitResult {
-    //! Full-precision fitted TLE. Its raw line strings are empty because no TLE text serialization is performed.
+    //! Full-precision fitted TLE. Its raw line strings are populated (via Tle::computeRawLines) from the fitted
+    //! numerical elements once fitting completes; identification fields that were never set (NORAD catalog number,
+    //! international designator, element set number, ...) are serialized using their default values.
     std::shared_ptr< Tle > fittedTle_;
 
     //! Position residuals (input state position minus fitted SGP4 position), in metres.

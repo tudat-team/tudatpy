@@ -11,7 +11,6 @@
 
 #include <vector>
 
-#include <boost/assign.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "tudat/io/streamFilters.h"
 
@@ -76,14 +75,14 @@ ReplaceElements::ReplaceElements( std::string searchFilter, std::string replaceS
     }
 
     // Save the escaped version of the input string as the regex search query.
-    searchFilter_ = boost::regex( searchFilter );
+    searchFilter_ = std::regex( searchFilter );
 }
 
 //! Execute filter on a single line to replace matched elements with replace string.
 std::string ReplaceElements::do_filter( const std::string& line )
 {
     // Perform the regex search & replace
-    std::string filteredString = boost::regex_replace( line, searchFilter_, replaceString_ );
+    std::string filteredString = std::regex_replace( line, searchFilter_, replaceString_ );
 
     // Check if filtered string is empty and return empty string if true.
     if( filteredString.size( ) == 0 && isOmitIfEmpty_ )

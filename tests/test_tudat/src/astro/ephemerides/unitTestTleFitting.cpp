@@ -2,12 +2,11 @@
  *    All rights reserved
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/equinoctialElementConversions.h"
 #include "tudat/astro/ephemerides/tleFitting.h"
@@ -83,10 +82,16 @@ std::map< double, Eigen::Vector6d > propagateTleWithExtendedDynamics( const std:
     const Eigen::Vector6d initialState = initialTleEphemeris.getCartesianState( initialEpoch );
 
     // Integrate at 30-second fixed steps and retain a state every 30 minutes for the batch fit.
+    const auto integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 30.0 );
     const auto propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
-            centralBodies, accelerationModels, bodiesToPropagate, initialState, finalEpoch );
-    const auto integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEpoch, 30.0 );
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+            centralBodies,
+            accelerationModels,
+            bodiesToPropagate,
+            initialState,
+            initialEpoch,
+            integratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ) );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
     std::map< double, Eigen::Vector6d > stateHistory;
     unsigned int outputIndex = 0;

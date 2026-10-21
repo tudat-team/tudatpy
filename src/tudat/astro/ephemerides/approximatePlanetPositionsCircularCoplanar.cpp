@@ -32,7 +32,7 @@ namespace ephemerides
 Eigen::Vector6d ApproximateJplCircularCoplanarEphemeris::getCartesianState( const double secondsSinceEpoch )
 {
     // Set Julian date.
-    julianDate_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay( secondsSinceEpoch, referenceJulianDate_ );
+    julianDate_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay( secondsSinceEpoch, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     // Compute number of centuries past J2000.
     numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;

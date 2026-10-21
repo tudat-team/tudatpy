@@ -19,6 +19,7 @@
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
@@ -29,7 +30,6 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
@@ -1357,81 +1357,102 @@ std::shared_ptr< RadiationPressureAcceleration > createRadiationPressureAccelera
     }
 }
 
-//! Function to create a cannonball radiation pressure acceleration model.
-// RP-OLD
-std::shared_ptr< AccelerationModel3d > createCannonballRadiationPressureAcceleratioModel(
+std::shared_ptr< ThreeCoefficientRadiationPressureAcceleration > createThreeCoefficientRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const SystemOfBodies& bodies )
+        const std::shared_ptr< Body > referenceBody,
+        const std::string& referenceBodyName,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings )
 {
-    std::cerr << "Warning, you are using the deprecated (as of tudatpy v0.8) version of the cannonball radiation pressure model"
-              << ", the interface you are using will be dropped from v0.9 onwards. To learn how to convert your code to the new interfaces"
-              << ", and be able to use the powerful new radiation pressure framework, see "
-              << "https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/"
-                 "radiation_pressure_acceleration.html#backwards-compatibility"
-              << std::endl;
-    // Retrieve radiation pressure interface
-    if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count( nameOfBodyExertingAcceleration ) == 0 )
+    const auto modelSettings = std::dynamic_pointer_cast< ThreeCoefficientRadiationPressureAccelerationSettings >( accelerationSettings );
+    if( modelSettings == nullptr )
     {
-        throw std::runtime_error( "Error when making radiation pressure, no radiation pressure interface found  in " +
-                                  nameOfBodyUndergoingAcceleration + " for body " + nameOfBodyExertingAcceleration );
+        throw std::runtime_error( "Error when creating three-coefficient radiation-pressure acceleration: settings type is inconsistent." );
     }
-    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-            bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration );
 
-    std::map< std::string, std::vector< std::string > > occultingBodies;
-    occultingBodies[ nameOfBodyExertingAcceleration ] = radiationPressureInterface->getOccultingBodies( );
-    std::shared_ptr< CannonballRadiationPressureTargetModel > cannonBallTargetModel =
-            std::make_shared< CannonballRadiationPressureTargetModel >( radiationPressureInterface->getArea( ),
-                                                                        radiationPressureInterface->getRadiationPressureCoefficient( ),
-                                                                        occultingBodies );
+    std::shared_ptr< Body > selectedReferenceBody = referenceBody;
+    std::string selectedReferenceBodyName = referenceBodyName;
+    if( !modelSettings->referenceBody_.empty( ) )
+    {
+        selectedReferenceBodyName = modelSettings->referenceBody_;
+        if( bodies.count( selectedReferenceBodyName ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating three-coefficient radiation-pressure acceleration on " +
+                                      nameOfBodyUndergoingAcceleration + ": explicitly selected reference body " +
+                                      selectedReferenceBodyName + " does not exist." );
+        }
+        selectedReferenceBody = bodies.at( selectedReferenceBodyName );
+    }
 
-    std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > targetModels =
-            bodyUndergoingAcceleration->getRadiationPressureTargetModels( );
-    bool addModel = false;
-    if( targetModels.size( ) == 0 )
+    if( bodyUndergoingAcceleration == nullptr || bodyExertingAcceleration == nullptr || selectedReferenceBody == nullptr )
     {
-        addModel = true;
+        throw std::runtime_error( "Error when creating three-coefficient radiation-pressure acceleration on " +
+                                  nameOfBodyUndergoingAcceleration + ": target, source, and reference bodies must exist." );
     }
-    else if( targetModels.size( ) == 1 )
-    {
-        std::shared_ptr< CannonballRadiationPressureTargetModel > existingCannonBallTargetModel =
-                std::dynamic_pointer_cast< CannonballRadiationPressureTargetModel >( targetModels.at( 0 ) );
-        if( existingCannonBallTargetModel == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when create deprecated cannonball radiation pressure model; existing target model found of non-cannonball "
-                    "type." );
-        }
-        else if( !( cannonBallTargetModel->getArea( ) == existingCannonBallTargetModel->getArea( ) &&
-                    cannonBallTargetModel->getCoefficient( ) == existingCannonBallTargetModel->getCoefficient( ) &&
-                    cannonBallTargetModel->getSourceToTargetOccultingBodies( ) ==
-                            existingCannonBallTargetModel->getSourceToTargetOccultingBodies( ) ) )
-        {
-            throw std::runtime_error(
-                    "Error when create deprecated cannonball radiation pressure model; existing target model found of cannonball type with "
-                    "inconsistent settings." );
-        }
-    }
-    else
+    if( selectedReferenceBodyName == nameOfBodyExertingAcceleration )
     {
         throw std::runtime_error(
-                "Error when create deprecated cannonball radiation pressure model; deprecated interface does not permit multiple existing "
-                "target models." );
+                "Error when creating three-coefficient radiation-pressure acceleration: reference and source bodies must differ." );
     }
 
-    if( addModel )
+    const auto isotropicPointSource =
+            std::dynamic_pointer_cast< IsotropicPointRadiationSourceModel >( bodyExertingAcceleration->getRadiationSourceModel( ) );
+    if( isotropicPointSource == nullptr )
     {
-        bodyUndergoingAcceleration->addRadiationPressureTargetModel( cannonBallTargetModel );
+        throw std::runtime_error( "Error when creating three-coefficient radiation-pressure acceleration due to " +
+                                  nameOfBodyExertingAcceleration + ": an isotropic point radiation source is required." );
+    }
+    if( bodyExertingAcceleration->getShapeModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when creating three-coefficient radiation-pressure acceleration due to " +
+                                  nameOfBodyExertingAcceleration + ": source body has no shape model." );
+    }
+    if( bodyUndergoingAcceleration->getRadiationPressureTargetModels( ).empty( ) )
+    {
+        throw std::runtime_error( "Error when creating three-coefficient radiation-pressure acceleration on " +
+                                  nameOfBodyUndergoingAcceleration + ": body has no cannonball radiation-pressure target model." );
     }
 
-    return createRadiationPressureAccelerationModel( bodyUndergoingAcceleration,
-                                                     bodyExertingAcceleration,
-                                                     nameOfBodyUndergoingAcceleration,
-                                                     nameOfBodyExertingAcceleration,
-                                                     bodies );
+    const auto targetModel = getRadiationPressureTargetModelOfType(
+            bodyUndergoingAcceleration,
+            cannonball_target,
+            " when making three-coefficient radiation-pressure acceleration due to " + nameOfBodyExertingAcceleration + " " );
+
+    const auto occultingBodiesMap = targetModel->getSourceToTargetOccultingBodies( );
+    std::vector< std::string > occultingBodies;
+    if( occultingBodiesMap.count( nameOfBodyExertingAcceleration ) > 0 )
+    {
+        occultingBodies = occultingBodiesMap.at( nameOfBodyExertingAcceleration );
+    }
+    else if( occultingBodiesMap.count( "" ) > 0 )
+    {
+        occultingBodies = occultingBodiesMap.at( "" );
+    }
+    for( const std::string& occultingBody : occultingBodies )
+    {
+        if( occultingBody == nameOfBodyExertingAcceleration || occultingBody == nameOfBodyUndergoingAcceleration )
+        {
+            throw std::runtime_error(
+                    "Error when creating three-coefficient radiation-pressure acceleration: source and target cannot occult the source." );
+        }
+    }
+
+    return std::make_shared< ThreeCoefficientRadiationPressureAcceleration >(
+            isotropicPointSource,
+            bodyExertingAcceleration->getShapeModel( ),
+            [ bodyExertingAcceleration ] { return bodyExertingAcceleration->getPosition( ); },
+            [ bodyExertingAcceleration ] { return bodyExertingAcceleration->getVelocity( ); },
+            targetModel,
+            [ bodyUndergoingAcceleration ] { return bodyUndergoingAcceleration->getPosition( ); },
+            [ bodyUndergoingAcceleration ] { return bodyUndergoingAcceleration->getBodyMass( ); },
+            createOccultationModel( occultingBodies, bodies ),
+            [ selectedReferenceBody ] { return selectedReferenceBody->getPosition( ); },
+            [ selectedReferenceBody ] { return selectedReferenceBody->getVelocity( ); },
+            modelSettings->coefficients_,
+            selectedReferenceBodyName );
 }
 
 //! Function to create Yarkovsky acceleration model, based on the simplified model of https://doi.org/10.1038/s43247-021-00337-x.
@@ -2051,12 +2072,15 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                                                                                  bodies,
                                                                                  accelerationSettings );
             break;
-        case cannon_ball_radiation_pressure:
-            accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel( bodyUndergoingAcceleration,
-                                                                                          bodyExertingAcceleration,
-                                                                                          nameOfBodyUndergoingAcceleration,
-                                                                                          nameOfBodyExertingAcceleration,
-                                                                                          bodies );
+        case three_coefficient_radiation_pressure:
+            accelerationModelPointer = createThreeCoefficientRadiationPressureAccelerationModel( bodyUndergoingAcceleration,
+                                                                                                 bodyExertingAcceleration,
+                                                                                                 nameOfBodyUndergoingAcceleration,
+                                                                                                 nameOfBodyExertingAcceleration,
+                                                                                                 centralBody,
+                                                                                                 nameOfCentralBody,
+                                                                                                 bodies,
+                                                                                                 accelerationSettings );
             break;
         case thrust_acceleration:
             accelerationModelPointer = createThrustAcceleratioModel( accelerationSettings, bodies, nameOfBodyUndergoingAcceleration );

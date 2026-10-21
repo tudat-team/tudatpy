@@ -1,8 +1,0 @@
-{
-  "kernels": [
-    "foo.txt"
-  ],
-  "preloadEphemeris": true,
-  "interpolationStep": 9,
-  "useStandardKernels": false
-}

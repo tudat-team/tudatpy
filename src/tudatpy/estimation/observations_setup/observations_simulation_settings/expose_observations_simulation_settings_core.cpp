@@ -60,25 +60,52 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
             .def_property( "ancillary_settings",
                            &tss::ObservationSimulationSettings< TIME_TYPE >::getAncillarySettings,
                            &tss::ObservationSimulationSettings< TIME_TYPE >::setAncillarySettings,
-                           R"doc( No documentation found
+                           R"doc(
+
+         Observable-specific ancillary data used when simulating the observations.
+
+         :type: ObservationAncillarySimulationSettings
+
       )doc" )
             .def_property_readonly( "dependent_variable_bookkeeping",
                                     &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationDependentVariableBookkeeping,
-                                    R"doc( No documentation found
+                                    R"doc(
+
+         **read-only**
+
+         Bookkeeping that maps observation dependent variables to their saved vector entries.
+
+         :type: ObservationDependentVariableBookkeeping
+
       )doc" )
             .def_property( "dependent_variable_settings_list",
                            &tss::ObservationSimulationSettings< TIME_TYPE >::getDependentVariableSettings,
                            &tss::ObservationSimulationSettings< TIME_TYPE >::setDependentVariableSettings,
-                           R"doc( No documentation found
+                           R"doc(
+
+         Settings for dependent variables to save during observation simulation.
+
+         :type: list[ObservationDependentVariableSettings]
 
       )doc" )
             .def( "add_dependent_variables",
                   &tss::ObservationSimulationSettings< TIME_TYPE >::addDependentVariableSettings,
-                  R"doc( No documentation found
+                  R"doc(
+
+         Append the supplied observation dependent variable settings to the variables saved during simulation.
+
+         Parameters
+         ----------
+         dependent_variable_settings : list[ObservationDependentVariableSettings]
+             Dependent-variable settings to append to the simulation settings.
+
       )doc" )
             .def( "clear_dependent_variables",
                   &tss::ObservationSimulationSettings< TIME_TYPE >::clearDependentVariableSettings,
-                  R"doc( No documentation found
+                  R"doc(
+
+         Remove all observation dependent variables currently configured for this simulation.
+
       )doc" );
     //            .def_property("observable_type",
     //                         &tss::ObservationSimulationSettings<double>::getObservableType,
@@ -147,7 +174,14 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
       )doc" )
             .def_property( "simulation_times",
                            &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::getSimulationTimes,
-                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes );
+                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes,
+                           R"doc(
+
+         Requested simulation epochs, in seconds since J2000, associated with the reference link end.
+
+         :type: list[Time]
+
+      )doc" );
 
     m.def( "tabulated_simulation_settings",
            &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
@@ -227,7 +261,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Returns
  -------
- List[ TabulatedObservationSimulationSettings ]
+ list[TabulatedObservationSimulationSettings]
      List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
 
 
@@ -303,8 +337,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
      Function providing the observation noise factors as a function of observation time.
  Returns
  -------
- :class:`TabulatedObservationSimulationSettings`
-     Instance of the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` class.
+ ObservationSimulationSettings
+     Settings defining continuous observation arcs.
 
 
 
@@ -361,8 +395,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Returns
  -------
- List[ :class:`TabulatedObservationSimulationSettings` ]
-     List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
+ list[ObservationSimulationSettings]
+     List of settings defining continuous observation arcs.
 
 
 

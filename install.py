@@ -12,14 +12,17 @@ class InstallParser(argparse.ArgumentParser):
 
         super().__init__(
             prog="install.py",
-            usage="Install tudat and tudatpy in the active conda environment.\n Note: The use without the -e flag, which performs an editable installation, is currently discouraged",
+            usage="Install tudat and tudatpy in the active conda environment.",
         )
 
         self.add_argument(
             "-e",
             dest="editable",
             action="store_true",
-            help="Install in editable mode",
+            help=(
+                "Install using links to the source checkout. Changes or branch switches "
+                "in this checkout immediately affect the installed Python package."
+            ),
         )
 
         self.add_argument(

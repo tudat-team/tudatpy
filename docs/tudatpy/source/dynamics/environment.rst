@@ -31,11 +31,15 @@ Functions
    
    save_vehicle_mesh_to_file
 
+   fit_tle_to_cartesian_state_history
+
 
 
 .. autofunction:: tudatpy.dynamics.environment.save_vehicle_mesh_to_file
 
 .. autofunction:: tudatpy.dynamics.environment.transform_to_inertial_orientation
+
+.. autofunction:: tudatpy.dynamics.environment.fit_tle_to_cartesian_state_history
 
 
 Enums
@@ -65,6 +69,8 @@ Classes
 
    Tle
 
+   TleFitResult
+
    RotationalEphemeris
 
    GcrsToItrsRotationModel
@@ -84,6 +90,8 @@ Classes
    RigidBodyProperties
       
    AtmosphereModel
+
+   NRLMSISE00Atmosphere
    
    RadiationSourceModel
 
@@ -128,6 +136,9 @@ Classes
    :members:
    :special-members: __init__
 
+.. autoclass:: tudatpy.dynamics.environment.TleFitResult
+   :members:
+
 .. autoclass:: tudatpy.dynamics.environment.RotationalEphemeris
    :members:
 
@@ -157,6 +168,11 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.AtmosphereModel
    :members:     
+
+.. autoclass:: tudatpy.dynamics.environment.NRLMSISE00Atmosphere
+   :members:
+   :special-members: __init__
+   :show-inheritance:
 
 .. autoclass:: tudatpy.dynamics.environment.RadiationSourceModel
    :members:   
@@ -206,3 +222,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.SystemOfBodies
    :members:
+   :exclude-members: get_body

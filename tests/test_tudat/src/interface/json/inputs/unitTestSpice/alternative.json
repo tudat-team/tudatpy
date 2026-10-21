@@ -1,8 +1,0 @@
-{
-  "alternativeKernels": [
-    "foo.txt",
-    "oof.txt"
-  ],
-  "preloadEphemeris": false,
-  "useStandardKernels": true
-}

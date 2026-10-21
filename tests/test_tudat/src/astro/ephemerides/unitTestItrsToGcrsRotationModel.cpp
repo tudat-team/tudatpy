@@ -8,10 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -317,6 +316,37 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_CLOSE_FRACTION( marsPositionInItrsFromJ2000( i ), marsPositionInItrsFromEclipj2000( i ), 1.0E-15 );
+    }
+}
+
+//! Test ITRS -> GCRS rotation derivative against a numerical derivative of the same model's rotation matrix.
+BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationDerivativeAgainstNumerical )
+{
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
+            std::make_shared< GcrsToItrsRotationModel >( earth_orientation::createStandardEarthOrientationCalculator( ) );
+
+    // The derivative omits the precession-nutation and UT1 rates (up to ~4E-12 /s elementwise); evaluating the Earth
+    // rotation angle 1.42 ms early (as the derivative used to) adds ~7.6E-12 /s.
+    double tolerance = 6.0E-12;
+    for( double initialTime : { 0.0, 1.0E7, 1.0E8, 4.0E8, 7.0E8 } )
+    {
+        for( int hour = 0; hour < 24; hour++ )
+        {
+            double testTime = initialTime + 3600.0 * hour;
+            auto rotation = [ & ]( const double time ) { return earthRotationModel->getRotationToBaseFrame( time ).toRotationMatrix( ); };
+            // Fourth-order central difference
+            Eigen::Matrix3d numericalDerivative = ( 4.0 * ( rotation( testTime + 5.0 ) - rotation( testTime - 5.0 ) ) / 10.0 -
+                                                    ( rotation( testTime + 10.0 ) - rotation( testTime - 10.0 ) ) / 20.0 ) /
+                    3.0;
+            Eigen::Matrix3d analyticalDerivative = earthRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL( analyticalDerivative( i, j ) - numericalDerivative( i, j ), tolerance );
+                }
+            }
+        }
     }
 }
 

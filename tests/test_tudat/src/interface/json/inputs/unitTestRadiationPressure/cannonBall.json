@@ -1,9 +1,0 @@
-{
-  "referenceArea": 2,
-  "radiationPressureCoefficient": 1.5,
-  "sourceBody": "Sun",
-  "occultingBodies": [
-    "Earth",
-    "Moon"
-  ]
-}
