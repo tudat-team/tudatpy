@@ -929,11 +929,10 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     """Load SUM/LMK files and process their cameras, landmarks, epochs and pixels."""
     data_directory = _test_data_path() / "sum_lmk"
     tracking_data, supplementary_data = read_sum_lmk_data(
-        [str(data_directory / "sample.sum")],
+        {"Camera": [str(data_directory / "sample.sum")]},
         [str(data_directory / "LMK0001.lmk"), str(data_directory / "LMK0002.lmk")],
         "Target",
         "Spacecraft",
-        "Camera",
     )
     assert len(tracking_data) == 2
 

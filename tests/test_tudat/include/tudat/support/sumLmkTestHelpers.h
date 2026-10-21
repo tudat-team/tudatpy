@@ -102,7 +102,7 @@ inline LoadedPixelTestData loadPixelTestData( const std::vector< input_output::s
                                               const bool skipMissingLandmarks = false )
 {
     const auto loaded = input_output::sum_lmk::convertSumLmkData< double, double >(
-            images, landmarks, targetBody, receiverBody, sumLmkTestCameraName, skipMissingLandmarks );
+            { { sumLmkTestCameraName, images } }, landmarks, targetBody, receiverBody, skipMissingLandmarks );
     observation_models::setTrackingSupplementaryDataInBodies( bodies, loaded.second );
     LoadedPixelTestData result;
     result.supplementaryData_ = loaded.second;
