@@ -208,6 +208,13 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( ( observableType == observation_models::position_angle || observableType == observation_models::separation_distance ||
+              observableType == observation_models::position_angle_and_separation ) &&
+            ( linkEndIterator->first != receiver ) )
+        {
+            runSimulation = false;
+        }
+
         if( ( observableType == observation_models::n_way_differenced_range ) && ( linkEndIterator->first == retransmitter ) )
         {
             runSimulation = false;
@@ -283,8 +290,11 @@ void testObservationPartials(
             // Calculate analytical observation partials.
             if( positionPartialScaler != nullptr )
             {
-                positionPartialScaler->update(
-                        vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ), currentObservation );
+                positionPartialScaler->update( vectorOfStates,
+                                               vectorOfTimes,
+                                               static_cast< LinkEndType >( linkEndIterator->first ),
+                                               currentObservation,
+                                               modifiedAncillarySettings );
             }
 
             typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > >

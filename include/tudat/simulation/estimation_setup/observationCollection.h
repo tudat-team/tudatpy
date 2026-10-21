@@ -1653,6 +1653,7 @@ public:
                             {
                                 bool identicalAncillarySettings = false;
                                 if( ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleData( ) == setting->getDoubleData( ) ) &&
+                                    ( linkEndsIt.second.at( k )->getAncillarySettings( )->getIntData( ) == setting->getIntData( ) ) &&
                                     ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleVectorData( ) ==
                                       setting->getDoubleVectorData( ) ) )
                                 {

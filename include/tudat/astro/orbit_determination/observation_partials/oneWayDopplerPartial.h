@@ -116,7 +116,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation );
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr );
 
     //! Function to retrieve the scaling factor for the derivative w.r.t. the position of a given link end
     /*!
@@ -263,7 +264,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation = Eigen::VectorXd::Constant( 1, TUDAT_NAN ) );
+                 const Eigen::VectorXd currentObservation = Eigen::VectorXd::Constant( 1, TUDAT_NAN ),
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Function to retrieve the position scaling factor for specific link end
     /*!
@@ -271,9 +273,9 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType );
+    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) override;
 
-    Eigen::Matrix< double, 1, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType );
+    Eigen::Matrix< double, 1, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType ) override;
 
     //! Function to retrieve the velocity scaling factor for specific link end
     /*!
@@ -281,16 +283,16 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Velocity partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType );
+    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override;
 
-    Eigen::Matrix< double, 1, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType );
+    Eigen::Matrix< double, 1, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override;
 
     //! Function to get the fixed link end for last computation of update() function.
     /*!
      * Fixed link end for last computation of update() function.
      * \return Function to get the fixed link end for last computation of update() function.
      */
-    observation_models::LinkEndType getCurrentLinkEndType( )
+    observation_models::LinkEndType getCurrentLinkEndType( ) override
     {
         return currentLinkEndType_;
     }
@@ -300,12 +302,12 @@ public:
      *  Function to return factor by which light-time correction state partial is to be scaled to be added to one-way
      *  \return Factor by which light-time correction state partial is to be scaled for  one-way Doppler partial
      */
-    Eigen::Vector1d getLightTimePartialScalingFactor( )
+    Eigen::Vector1d getLightTimePartialScalingFactor( ) override
     {
         return ( Eigen::Vector1d( ) << lightTimeEffectPositionScalingFactor_ ).finished( );
     }
 
-    Eigen::Matrix< double, 1, 3 > getLightTimeGradientPartialScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getLightTimeGradientPartialScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         if( linkEndType == observation_models::transmitter )
         {
@@ -322,7 +324,7 @@ public:
         }
     }
 
-    bool isVelocityScalingNonZero( )
+    bool isVelocityScalingNonZero( ) override
     {
         return true;
     }
@@ -365,9 +367,9 @@ public:
      *  \return Direct partial derivatives, and associated times, of proper time components of Doppler partials
      */
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > getLinkIndependentPartials(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) override;
 
-    bool useLinkIndependentPartials( )
+    bool useLinkIndependentPartials( ) override
     {
         return ( transmitterProperTimePartials_ != nullptr ) || ( receiverProperTimePartials_ != nullptr ) ||
                 !relativisticLightTimeCorrectionPartials_.empty( );
@@ -376,7 +378,7 @@ public:
     //! Whether getLinkIndependentPartials can return a non-empty contribution for the given parameter.
     bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterType ) override;
 
-    virtual bool useLightTimeGradientPartials( )
+    virtual bool useLightTimeGradientPartials( ) override
     {
         return true;
     }
@@ -506,10 +508,11 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation = Eigen::VectorXd::Constant( 1, TUDAT_NAN ) )
+                 const Eigen::VectorXd currentObservation = Eigen::VectorXd::Constant( 1, TUDAT_NAN ),
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
     {
         // Update the underlying one-way Doppler scaling
-        oneWayDopplerScaling_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
+        oneWayDopplerScaling_->update( linkEndStates, times, fixedLinkEnd, currentObservation, ancillarySettings );
 
         // Get the transmitted frequency at transmission time (index 0) using the transmitter state for TDB->UTC conversion.
         currentTransmittedFrequency_ = transmittedFrequencyFunction_( times.at( 0 ), linkEndStates.at( 0 ) );
@@ -522,12 +525,12 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return currentTransmittedFrequency_ * oneWayDopplerScaling_->getPositionScalingFactor( linkEndType );
     }
 
-    Eigen::Matrix< double, 1, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return currentTransmittedFrequency_ * oneWayDopplerScaling_->getFixedTimePositionScalingFactor( linkEndType );
     }
@@ -539,34 +542,34 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Velocity partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return currentTransmittedFrequency_ * oneWayDopplerScaling_->getVelocityScalingFactor( linkEndType );
     }
 
-    Eigen::Matrix< double, 1, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return currentTransmittedFrequency_ * oneWayDopplerScaling_->getFixedTimeVelocityScalingFactor( linkEndType );
     }
 
     //! Function to get the fixed link end for last computation of update() function.
-    observation_models::LinkEndType getCurrentLinkEndType( )
+    observation_models::LinkEndType getCurrentLinkEndType( ) override
     {
         return oneWayDopplerScaling_->getCurrentLinkEndType( );
     }
 
     //! Function to return factor by which light-time correction state partial is to be scaled
-    Eigen::Vector1d getLightTimePartialScalingFactor( )
+    Eigen::Vector1d getLightTimePartialScalingFactor( ) override
     {
         return currentTransmittedFrequency_ * oneWayDopplerScaling_->getLightTimePartialScalingFactor( );
     }
 
-    Eigen::Matrix< double, 1, 3 > getLightTimeGradientPartialScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getLightTimeGradientPartialScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return currentTransmittedFrequency_ * oneWayDopplerScaling_->getLightTimeGradientPartialScalingFactor( linkEndType );
     }
 
-    bool isVelocityScalingNonZero( )
+    bool isVelocityScalingNonZero( ) override
     {
         return true;
     }
@@ -591,7 +594,7 @@ public:
 
     //! Function to get the direct partial derivatives, and associated times, of proper time components
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > getLinkIndependentPartials(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) override
     {
         // Get the underlying Doppler partials and scale by transmitted frequency
         auto dopplerPartials = oneWayDopplerScaling_->getLinkIndependentPartials( parameterType );
@@ -602,7 +605,7 @@ public:
         return dopplerPartials;
     }
 
-    bool useLinkIndependentPartials( )
+    bool useLinkIndependentPartials( ) override
     {
         return oneWayDopplerScaling_->useLinkIndependentPartials( );
     }
@@ -612,7 +615,7 @@ public:
         return oneWayDopplerScaling_->useLinkIndependentPartialsForParameter( parameterType );
     }
 
-    virtual bool useLightTimeGradientPartials( )
+    virtual bool useLightTimeGradientPartials( ) override
     {
         return oneWayDopplerScaling_->useLightTimeGradientPartials( );
     }
