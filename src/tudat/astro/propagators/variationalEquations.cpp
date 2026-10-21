@@ -31,29 +31,6 @@ void VariationalEquations::setBodyStatePartialMatrix( )
     // Initialize partial matrix
     variationalMatrix_.setZero( );
 
-    if( dynamicalStatesToEstimate_.count( propagators::translational_state ) > 0 )
-    {
-        int startIndex = stateTypeStartIndices_.at( propagators::translational_state );
-        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::translational_state ).size( ); i++ )
-        {
-            variationalMatrix_.block( startIndex + i * 6, startIndex + i * 6 + 3, 3, 3 ).setIdentity( );
-        }
-    }
-
-    if( dynamicalStatesToEstimate_.count( propagators::rotational_state ) > 0 )
-    {
-        Eigen::VectorXd rotationalStates = currentStatesPerTypeInConventionalRepresentation_.at( propagators::rotational_state );
-
-        int startIndex = stateTypeStartIndices_.at( propagators::rotational_state );
-        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::rotational_state ).size( ); i++ )
-        {
-            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7, 4, 4 ) =
-                    getQuaterionToQuaternionRateMatrix( rotationalStates.segment( 7 * i + 4, 3 ) );
-            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7 + 4, 4, 3 ) =
-                    getAngularVelocityToQuaternionRateMatrix( rotationalStates.segment( 7 * i, 4 ) );
-        }
-    }
-
     // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
     for( std::map< IntegratedStateType,
                    std::vector< std::multimap< std::pair< int, int >, std::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::
@@ -80,10 +57,36 @@ void VariationalEquations::setBodyStatePartialMatrix( )
         }
     }
 
+    // Add partials w.r.t. state of body propagated w.r.t. other propagated body to partials w.r.t. state of its central body.
+    // Both position and velocity are added, since the absolute state of the body is its relative state plus the central body
+    // state. This is done before setting the kinematic (r'=v) entries below, which do not depend on the central body state.
     for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
     {
-        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 3 ) +=
-                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 3 );
+        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 6 ) +=
+                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 6 );
+    }
+
+    if( dynamicalStatesToEstimate_.count( propagators::translational_state ) > 0 )
+    {
+        int startIndex = stateTypeStartIndices_.at( propagators::translational_state );
+        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::translational_state ).size( ); i++ )
+        {
+            variationalMatrix_.block( startIndex + i * 6, startIndex + i * 6 + 3, 3, 3 ).setIdentity( );
+        }
+    }
+
+    if( dynamicalStatesToEstimate_.count( propagators::rotational_state ) > 0 )
+    {
+        Eigen::VectorXd rotationalStates = currentStatesPerTypeInConventionalRepresentation_.at( propagators::rotational_state );
+
+        int startIndex = stateTypeStartIndices_.at( propagators::rotational_state );
+        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::rotational_state ).size( ); i++ )
+        {
+            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7, 4, 4 ) =
+                    getQuaterionToQuaternionRateMatrix( rotationalStates.segment( 7 * i + 4, 3 ) );
+            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7 + 4, 4, 3 ) =
+                    getAngularVelocityToQuaternionRateMatrix( rotationalStates.segment( 7 * i, 4 ) );
+        }
     }
 
     for( unsigned int i = 0; i < inertiaTensorsForMultiplication_.size( ); i++ )
