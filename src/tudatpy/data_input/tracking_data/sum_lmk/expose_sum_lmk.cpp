@@ -97,6 +97,7 @@ void expose_sum_lmk( py::module& m )
            py::arg( "landmarks" ),
            py::arg( "target_body_name" ),
            py::arg( "receiver_body_name" ),
+           py::arg( "camera_name" ),
            py::arg( "skip_observations_with_missing_landmarks" ) = false,
            py::arg( "validate_spacecraft_object_geometry" ) = true,
            R"doc(
@@ -114,7 +115,9 @@ void expose_sum_lmk( py::module& m )
          target_body_name : str
              Name of the body the landmarks are on.
          receiver_body_name : str
-             Name of the body that carries the cameras.
+             Name of the body that carries the camera.
+         camera_name : str
+             Name of the camera that took the images.
          skip_observations_with_missing_landmarks : bool, default=False
              If True, measurements of landmarks without an LMK file are skipped.
              If False, they raise an error.
@@ -134,6 +137,7 @@ void expose_sum_lmk( py::module& m )
            py::arg( "lmk_files" ),
            py::arg( "target_body_name" ),
            py::arg( "receiver_body_name" ),
+           py::arg( "camera_name" ),
            py::arg( "skip_observations_with_missing_landmarks" ) = false,
            py::arg( "validate_spacecraft_object_geometry" ) = true,
            R"doc(
@@ -146,14 +150,14 @@ void expose_sum_lmk( py::module& m )
          target body.
 
          Every (image, landmark) pair becomes one pixel-coordinate observation,
-         sent by the landmark and received by the camera of the image. The
+         sent by the landmark and received by the camera. All images must be
+         taken by one camera, so they must share its calibration. The
          supplementary data adds each landmark as a ground station on the
-         target body, and one camera per image on the receiver body. Each
-         camera is named ``Camera_<image ID>``, so its pointing can be
-         estimated separately with
+         target body, and the camera on the receiver body, with the pointing
+         of each image. The pointing of each image can be estimated with
          :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction`.
-         The SUM ``SIGMA_PTG`` value is stored as the camera's
-         ``pointing_uncertainty``.
+         The SUM ``SIGMA_PTG`` values are stored as the camera's
+         ``pointing_uncertainty_history``.
 
          Apply the supplementary data with
          :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`
@@ -169,7 +173,9 @@ void expose_sum_lmk( py::module& m )
          target_body_name : str
              Name of the body the landmarks are on.
          receiver_body_name : str
-             Name of the body that carries the cameras.
+             Name of the body that carries the camera.
+         camera_name : str
+             Name of the camera that took the images.
          skip_observations_with_missing_landmarks : bool, default=False
              If True, measurements of landmarks without an LMK file are skipped.
              If False, they raise an error.

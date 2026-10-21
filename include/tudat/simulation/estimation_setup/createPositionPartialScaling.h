@@ -438,7 +438,7 @@ public:
                                         "ephemeris." );
                             }
                             return camera->getRotationFromInertialToCameraFrame(
-                                    receiverBody->getRotationalEphemeris( )->getRotationToTargetFrame( time ) );
+                                    receiverBody->getRotationalEphemeris( )->getRotationToTargetFrame( time ), time );
                         },
                         [ camera ]( const Eigen::Vector3d& cameraFramePosition ) {
                             return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
@@ -446,8 +446,7 @@ public:
                         pixelCoordinatesModel != nullptr && pixelCoordinatesModel->getCorrectForStellarAberration( ) );
                 const std::shared_ptr< PixelCoordinatesScaling > pixelCoordinatesScaling =
                         std::static_pointer_cast< PixelCoordinatesScaling >( positionPartialScaler );
-                pixelCoordinatesScaling->setPointingCorrectionFunction( linkEnds.at( observation_models::receiver ),
-                                                                        [ camera ]( ) { return camera->getPointingCorrection( ); } );
+                pixelCoordinatesScaling->setPointingCamera( linkEnds.at( observation_models::receiver ), camera );
 
                 // If the camera pointing is given relative to a body-fixed frame, the camera orientation depends on that body's rotation.
                 const std::string& referenceBodyName = camera->getPointingReferenceBodyName( );

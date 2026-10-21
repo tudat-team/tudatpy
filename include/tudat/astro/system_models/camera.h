@@ -10,6 +10,7 @@
 #ifndef TUDAT_CAMERA_H
 #define TUDAT_CAMERA_H
 
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <limits>
@@ -17,6 +18,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU>
@@ -349,31 +351,28 @@ public:
         pointingReferenceBodyName_ = pointingReferenceBodyName;
     }
 
-    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame, including the
-     *  current pointing correction.
-     *  \return The effective rotation from body-fixed to camera frame.
+    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame.
+     *  \return The rotation from body-fixed to camera frame.
      */
     Eigen::Quaterniond getRotationFromBodyFixedToCameraFrame( ) const
     {
-        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ );
+        return rotationFromBodyFixedToCameraFrame_;
     }
 
-    Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
+    //! Function to get the rotation from inertial to camera frame of a camera fixed to its host body, including the pointing
+    //! correction of the arc that contains the given time.
+    /*!
+     *  \param rotationFromInertialToBodyFixedFrame Rotation from inertial frame to the body-fixed frame of the camera host body.
+     *  \param secondsSinceEpoch Time at which the rotation is evaluated.
+     *  \return The rotation from inertial to camera frame.
+     */
+    Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame,
+                                                             const double secondsSinceEpoch ) const
     {
-        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame );
+        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame, secondsSinceEpoch );
     }
 
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
-    {
-        return applyPointingCorrection_( getNominalRotationFromInertialToCameraFrame( secondsSinceEpoch ) );
-    }
-
-    /*! \brief Get the rotation from inertial to camera frame from the picture-specific pointing data, excluding
-     *  the current pointing correction.
-     *  \param secondsSinceEpoch Epoch at which the rotation is to be evaluated.
-     *  \return The nominal rotation from inertial to camera frame.
-     */
-    Eigen::Quaterniond getNominalRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
     {
         if( !rotationFromInertialToCameraFrameFunction_ )
         {
@@ -381,7 +380,7 @@ public:
                     "Error when calculating rotation from inertial to camera frame: no direct inertial-to-camera rotation function was "
                     "provided for the camera." );
         }
-        return rotationFromInertialToCameraFrameFunction_( secondsSinceEpoch );
+        return applyPointingCorrection_( rotationFromInertialToCameraFrameFunction_( secondsSinceEpoch ), secondsSinceEpoch );
     }
 
     /*! \brief Calculate the observable position of a body in the camera frame.
@@ -428,14 +427,51 @@ public:
                                                                positionOfObservedBodyInInertialFrame );
     }
 
-    Eigen::Vector3d getPointingCorrection( ) const
+    //! Function to set the start times of the pointing correction arcs, and reset all corrections to zero.
+    /*!
+     *  The camera has one pointing correction per arc. Without arc start times, a single correction applies at all times.
+     *  \param arcStartTimes Start time of each arc, in increasing order.
+     */
+    void setPointingCorrectionArcStartTimes( const std::vector< double >& arcStartTimes )
+    {
+        pointingCorrectionArcStartTimes_ = arcStartTimes;
+        pointingCorrection_ = Eigen::VectorXd::Zero( 3 * getNumberOfPointingCorrectionArcs( ) );
+    }
+
+    int getNumberOfPointingCorrectionArcs( ) const
+    {
+        return std::max( 1, static_cast< int >( pointingCorrectionArcStartTimes_.size( ) ) );
+    }
+
+    //! Function to get the index of the pointing correction arc that contains the given time.
+    /*!
+     *  \param secondsSinceEpoch Time for which the arc is retrieved. Times before the first arc start use the first arc.
+     *  \return Index of the arc.
+     */
+    int getPointingCorrectionArcIndex( const double secondsSinceEpoch ) const
+    {
+        const auto nextArcIterator =
+                std::upper_bound( pointingCorrectionArcStartTimes_.begin( ), pointingCorrectionArcStartTimes_.end( ), secondsSinceEpoch );
+        return ( nextArcIterator == pointingCorrectionArcStartTimes_.begin( ) )
+                ? 0
+                : static_cast< int >( nextArcIterator - pointingCorrectionArcStartTimes_.begin( ) ) - 1;
+    }
+
+    //! Function to get the pointing corrections of all arcs, as consecutive rotation vectors (axis times angle, in radians).
+    Eigen::VectorXd getPointingCorrection( ) const
     {
         return pointingCorrection_;
     }
 
-    void setPointingCorrection( const Eigen::Vector3d& pointingCorrection )
+    void setPointingCorrection( const Eigen::VectorXd& pointingCorrection )
     {
         pointingCorrection_ = pointingCorrection;
+    }
+
+    //! Function to get the pointing correction of the arc that contains the given time.
+    Eigen::Vector3d getPointingCorrection( const double secondsSinceEpoch ) const
+    {
+        return pointingCorrection_.segment< 3 >( 3 * getPointingCorrectionArcIndex( secondsSinceEpoch ) );
     }
 
 private:
@@ -445,24 +481,26 @@ private:
      */
     Eigen::Vector3d bodyFixedToCameraFrame_( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
     {
-        return getRotationFromBodyFixedToCameraFrame( ) * positionOfObservedBodyInBodyFrame;
+        return rotationFromBodyFixedToCameraFrame_ * positionOfObservedBodyInBodyFrame;
     }
 
-    /*! \brief Apply the current pointing correction to a nominal rotation to the camera frame.
+    /*! \brief Apply the pointing correction of the arc that contains the given time to a nominal rotation to the camera frame.
      *  The correction is a small rotation expressed in the camera frame, and is therefore applied on the left:
      *  a direction that nominally maps to r_cam maps to Exp(theta) * r_cam once the correction is applied. This
      *  convention is the one differentiated by PixelCoordinatesScaling, and must be kept consistent with it.
      *  \param nominalRotationToCameraFrame Rotation to the camera frame without pointing correction.
+     *  \param secondsSinceEpoch Time at which the rotation is evaluated.
      *  \return The rotation to the camera frame including the pointing correction.
      */
-    Eigen::Quaterniond applyPointingCorrection_( const Eigen::Quaterniond& nominalRotationToCameraFrame ) const
+    Eigen::Quaterniond applyPointingCorrection_( const Eigen::Quaterniond& nominalRotationToCameraFrame,
+                                                 const double secondsSinceEpoch ) const
     {
-        if( pointingCorrection_.isZero( 0.0 ) )
+        const Eigen::Vector3d pointingCorrection = getPointingCorrection( secondsSinceEpoch );
+        if( pointingCorrection.isZero( 0.0 ) )
         {
             return nominalRotationToCameraFrame;
         }
-        return Eigen::Quaterniond( basic_mathematics::getQuaternionFromRotationVector( pointingCorrection_ ) *
-                                   nominalRotationToCameraFrame )
+        return Eigen::Quaterniond( basic_mathematics::getQuaternionFromRotationVector( pointingCorrection ) * nominalRotationToCameraFrame )
                 .normalized( );
     }
 
@@ -481,8 +519,11 @@ private:
     //! Reference body used by a body-relative direct pointing function.
     std::string pointingReferenceBodyName_;
 
-    //! Small rotation-vector correction applied by camera-specific pointing estimation.
-    Eigen::Vector3d pointingCorrection_ = Eigen::Vector3d::Zero( );
+    //! Start time of each pointing correction arc. Empty for a single arc.
+    std::vector< double > pointingCorrectionArcStartTimes_;
+
+    //! Small rotation-vector correction of each arc, applied by camera pointing estimation.
+    Eigen::VectorXd pointingCorrection_ = Eigen::VectorXd::Zero( 3 );
 };
 }  // namespace system_models
 }  // namespace tudat

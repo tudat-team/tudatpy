@@ -24,6 +24,9 @@ namespace tudat
 namespace unit_tests
 {
 
+//! Name of the camera that takes the SUM images in the tests.
+const std::string sumLmkTestCameraName = "Camera";
+
 //! Shared fixture setup; all conversion and environment changes use the public tracking-data interface.
 struct LoadedPixelTestData {
     std::shared_ptr< observation_models::ObservationCollection< double, double > > observationCollection_;
@@ -98,8 +101,8 @@ inline LoadedPixelTestData loadPixelTestData( const std::vector< input_output::s
                                               const std::string& receiverBody = "Spacecraft",
                                               const bool skipMissingLandmarks = false )
 {
-    const auto loaded =
-            input_output::sum_lmk::convertSumLmkData< double, double >( images, landmarks, targetBody, receiverBody, skipMissingLandmarks );
+    const auto loaded = input_output::sum_lmk::convertSumLmkData< double, double >(
+            images, landmarks, targetBody, receiverBody, sumLmkTestCameraName, skipMissingLandmarks );
     observation_models::setTrackingSupplementaryDataInBodies( bodies, loaded.second );
     LoadedPixelTestData result;
     result.supplementaryData_ = loaded.second;

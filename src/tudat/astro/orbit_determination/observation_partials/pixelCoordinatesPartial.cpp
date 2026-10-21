@@ -133,7 +133,7 @@ void PixelCoordinatesScaling::update(
 bool PixelCoordinatesScaling::useLinkIndependentPartialsForParameter(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
 {
-    return ( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ ) ||
+    return ( pointingCamera_ != nullptr && parameterIdentifier == pointingCorrectionParameterIdentifier_ ) ||
             ( parameterIdentifier.second.first == pointingReferenceBodyName_ &&
               rotationMatrixPartials_.count( std::make_pair( parameterIdentifier.first, parameterIdentifier.second.second ) ) != 0 );
 }
@@ -149,12 +149,16 @@ std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > P
     {
         throw std::runtime_error( "Error when computing pixel-coordinate orientation partial: scaling object has not been updated." );
     }
-    if( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ )
+    if( pointingCamera_ != nullptr && parameterIdentifier == pointingCorrectionParameterIdentifier_ )
     {
-        // For r_camera = Exp(correction) * r_nominal, differentiate additive changes of the rotation vector.
-        const Eigen::Matrix< double, 2, Eigen::Dynamic > partial = -currentPixelLinePartialWrtCameraFramePosition_ *
+        // For r_camera = Exp(correction) * r_nominal, differentiate additive changes of the rotation vector. Only the correction
+        // of the arc that contains the observation affects it.
+        Eigen::Matrix< double, 2, Eigen::Dynamic > partial =
+                Eigen::Matrix< double, 2, Eigen::Dynamic >::Zero( 2, 3 * pointingCamera_->getNumberOfPointingCorrectionArcs( ) );
+        partial.block< 2, 3 >( 0, 3 * pointingCamera_->getPointingCorrectionArcIndex( currentReceiverTime_ ) ) =
+                -currentPixelLinePartialWrtCameraFramePosition_ *
                 linear_algebra::getCrossProductMatrix( currentRelativeRangeVectorCameraFrame_ ) *
-                getLeftJacobianOfSO3( pointingCorrectionFunction_( ) );
+                getLeftJacobianOfSO3( pointingCamera_->getPointingCorrection( currentReceiverTime_ ) );
         return { std::make_pair( partial, currentReceiverTime_ ) };
     }
 

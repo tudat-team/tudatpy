@@ -14,7 +14,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <functional>
-#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -200,27 +199,25 @@ public:
         pointingReferenceBodyName_ = pointingReferenceBodyName;
     }
 
-    //! A-priori uncertainty of the camera pointing about the three camera axes [rad]. NaN when not provided.
-    const Eigen::Vector3d& getPointingUncertainty( ) const
+    //! A-priori uncertainty of the camera pointing about the three camera axes [rad], per picture epoch of the pointing history.
+    //! Empty when not provided.
+    const std::map< double, Eigen::Vector3d >& getPointingUncertaintyHistory( ) const
     {
-        return pointingUncertainty_;
+        return pointingUncertaintyHistory_;
     }
 
-    void setPointingUncertainty( const Eigen::Vector3d& pointingUncertainty )
+    void setPointingUncertaintyHistory( const std::map< double, Eigen::Vector3d >& pointingUncertaintyHistory )
     {
-        pointingUncertainty_ = pointingUncertainty;
+        pointingUncertaintyHistory_ = pointingUncertaintyHistory;
     }
 
-    //! Merge compatible camera histories; conflicting calibration or attitudes are errors.
+    //! Merge compatible camera histories; conflicting calibration, attitudes or pointing uncertainties are errors.
     void merge( const CameraInstrumentSupplementaryData& other )
     {
         if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
             !fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) || !kMatrix_.isApprox( other.kMatrix_ ) ||
             !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) ||
-            pointingReferenceBodyName_ != other.pointingReferenceBodyName_ ||
-            !( ( pointingUncertainty_.array( ) == other.pointingUncertainty_.array( ) ) ||
-               ( pointingUncertainty_.array( ).isNaN( ) && other.pointingUncertainty_.array( ).isNaN( ) ) )
-                     .all( ) )
+            pointingReferenceBodyName_ != other.pointingReferenceBodyName_ )
         {
             throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
         }
@@ -233,7 +230,17 @@ public:
                 throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
             }
         }
+        auto mergedUncertaintyHistory = pointingUncertaintyHistory_;
+        for( const auto& entry : other.pointingUncertaintyHistory_ )
+        {
+            const auto inserted = mergedUncertaintyHistory.emplace( entry );
+            if( !inserted.second && inserted.first->second != entry.second )
+            {
+                throw std::runtime_error( "Conflicting pointing uncertainties for PSF camera " + cameraId_ );
+            }
+        }
         rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
+        pointingUncertaintyHistory_.swap( mergedUncertaintyHistory );
     }
 
 private:
@@ -255,7 +262,7 @@ private:
 
     std::string pointingReferenceBodyName_;
 
-    Eigen::Vector3d pointingUncertainty_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
+    std::map< double, Eigen::Vector3d > pointingUncertaintyHistory_;
 };
 
 class TranslationalStateSupplementaryData

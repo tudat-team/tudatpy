@@ -519,11 +519,6 @@ std::map< std::string, LmkLandmarkData > readLmkFiles( const std::vector< std::s
     return landmarks;
 }
 
-std::string getSumImageCameraName( const std::string& imageId )
-{
-    return "Camera_" + imageId;
-}
-
 double getSumImageObservationTime( const SumImageData& image )
 {
     return parseTrackingDateTime( image.utcEpochString_ ).epoch< double >( );
@@ -573,6 +568,25 @@ std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageDa
             imagesToConvert.push_back( image );
         }
     }
+
+    // All images are taken by one camera, so they must share its calibration and have distinct epochs.
+    std::sort( imagesToConvert.begin( ), imagesToConvert.end( ), []( const SumImageData& first, const SumImageData& second ) {
+        return getSumImageObservationTime( first ) < getSumImageObservationTime( second );
+    } );
+    for( unsigned int i = 1; i < imagesToConvert.size( ); ++i )
+    {
+        const SumImageData& firstImage = imagesToConvert.front( );
+        const SumImageData& image = imagesToConvert.at( i );
+        if( image.focalLengthMm_ != firstImage.focalLengthMm_ || image.opticalCenter_ != firstImage.opticalCenter_ ||
+            image.kMatrix_ != firstImage.kMatrix_ || image.imageSize_ != firstImage.imageSize_ ||
+            image.pointingSigma_.array( ).isNaN( ).all( ) != firstImage.pointingSigma_.array( ).isNaN( ).all( ) ||
+            !( getSumImageObservationTime( image ) > getSumImageObservationTime( imagesToConvert.at( i - 1 ) ) ) )
+        {
+            throw std::runtime_error( "Error when converting SUM image " + image.imageId_ +
+                                      ": all images must share MMFL, CTR, K-MATRIX and image size, have distinct epochs, and either "
+                                      "all or none must give SIGMA_PTG." );
+        }
+    }
     return imagesToConvert;
 }
 
@@ -580,7 +594,8 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
         const std::vector< SumImageData >& sumImages,
         const std::map< std::string, LmkLandmarkData >& landmarks,
         const std::string& targetBodyName,
-        const std::string& receiverBodyName )
+        const std::string& receiverBodyName,
+        const std::string& cameraName )
 {
     std::vector< std::shared_ptr< data::TrackingSupplementaryData > > supplementaryData;
     for( const auto& landmarkEntry : landmarks )
@@ -591,26 +606,40 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
         supplementaryData.push_back( landmarkData );
     }
 
+    if( sumImages.empty( ) )
+    {
+        return supplementaryData;
+    }
+
+    std::map< double, Eigen::Quaterniond > pointingHistory;
+    std::map< double, Eigen::Vector3d > pointingUncertaintyHistory;
     for( const SumImageData& image : sumImages )
     {
-        const std::string cameraName = getSumImageCameraName( image.imageId_ );
-        auto camera = std::make_shared< data::CameraInstrumentSupplementaryData >(
-                cameraName,
-                image.focalLengthMm_,
-                image.opticalCenter_,
-                Eigen::Vector4d( 0.0, static_cast< double >( image.imageSize_( 0 ) ), 0.0, static_cast< double >( image.imageSize_( 1 ) ) ),
-                image.kMatrix_,
-                Eigen::Matrix< double, 6, 1 >::Zero( ),
-                Eigen::Vector3d::Zero( ),
-                std::map< double, Eigen::Quaterniond >(
-                        { { getSumImageObservationTime( image ), getSumImageRotationFromBodyFixedToCameraFrame( image ) } } ) );
-        camera->setPointingReferenceBodyName( targetBodyName );
-        camera->setPointingUncertainty( image.pointingSigma_ );
-
-        auto cameraData = std::make_shared< data::TrackingSupplementaryData >( receiverBodyName, cameraName );
-        cameraData->setInstrumentSupplementaryData( { camera } );
-        supplementaryData.push_back( cameraData );
+        pointingHistory[ getSumImageObservationTime( image ) ] = getSumImageRotationFromBodyFixedToCameraFrame( image );
+        if( !image.pointingSigma_.array( ).isNaN( ).all( ) )
+        {
+            pointingUncertaintyHistory[ getSumImageObservationTime( image ) ] = image.pointingSigma_;
+        }
     }
+
+    // The images share their calibration (see getSumImagesToConvert), so it is taken from the first one.
+    const SumImageData& firstImage = sumImages.front( );
+    auto camera = std::make_shared< data::CameraInstrumentSupplementaryData >(
+            cameraName,
+            firstImage.focalLengthMm_,
+            firstImage.opticalCenter_,
+            Eigen::Vector4d(
+                    0.0, static_cast< double >( firstImage.imageSize_( 0 ) ), 0.0, static_cast< double >( firstImage.imageSize_( 1 ) ) ),
+            firstImage.kMatrix_,
+            Eigen::Matrix< double, 6, 1 >::Zero( ),
+            Eigen::Vector3d::Zero( ),
+            pointingHistory );
+    camera->setPointingReferenceBodyName( targetBodyName );
+    camera->setPointingUncertaintyHistory( pointingUncertaintyHistory );
+
+    auto cameraData = std::make_shared< data::TrackingSupplementaryData >( receiverBodyName, cameraName );
+    cameraData->setInstrumentSupplementaryData( { camera } );
+    supplementaryData.push_back( cameraData );
     return supplementaryData;
 }
 

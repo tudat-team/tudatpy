@@ -79,14 +79,9 @@ bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancilla
     return ancillarySetting == "Doppler base frequency" || data::isOpticalObservationMetadata( ancillarySetting );
 }
 
-std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
+std::map< double, Eigen::Quaterniond > getTdbCameraPointingHistory(
         const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
 {
-    if( rotationFromInertialToCameraFrameHistory.empty( ) )
-    {
-        return nullptr;
-    }
-
     std::map< double, Eigen::Quaterniond > tdbRotationFromInertialToCameraFrameHistory;
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
             earth_orientation::createDefaultTimeConverter( );
@@ -95,6 +90,16 @@ std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingF
         tdbRotationFromInertialToCameraFrameHistory[ timeScaleConverter->getCurrentTime< double >(
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) ] =
                 rotationEntry.second;
+    }
+    return tdbRotationFromInertialToCameraFrameHistory;
+}
+
+std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
+        const std::map< double, Eigen::Quaterniond >& tdbRotationFromInertialToCameraFrameHistory )
+{
+    if( tdbRotationFromInertialToCameraFrameHistory.empty( ) )
+    {
+        return nullptr;
     }
 
     return [ = ]( const double time ) {
@@ -119,10 +124,11 @@ std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingF
 
 std::function< Eigen::Quaterniond( const double ) > createCameraPointingFunction(
         const simulation_setup::SystemOfBodies& bodies,
-        const data::CameraInstrumentSupplementaryData& cameraSupplementaryData )
+        const data::CameraInstrumentSupplementaryData& cameraSupplementaryData,
+        const std::map< double, Eigen::Quaterniond >& tdbRotationFromInertialToCameraFrameHistory )
 {
     std::function< Eigen::Quaterniond( const double ) > nearestPointingFunction =
-            createNearestCameraPointingFunction( cameraSupplementaryData.getRotationFromInertialToCameraFrameHistory( ) );
+            createNearestCameraPointingFunction( tdbRotationFromInertialToCameraFrameHistory );
     const std::string& referenceBodyName = cameraSupplementaryData.getPointingReferenceBodyName( );
     if( referenceBodyName.empty( ) || nearestPointingFunction == nullptr )
     {
@@ -722,17 +728,29 @@ void setInstrumentSupplementaryDataInBodies(
                                                                                      cameraSupplementaryData->getMountingOffsets( ),
                                                                                      cameraSupplementaryData->getFieldOfViewBounds( ) );
 
+                const std::map< double, Eigen::Quaterniond > tdbPointingHistory =
+                        getTdbCameraPointingHistory( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) );
                 std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
                         cameraSupplementaryData->getCameraId( ),
                         Eigen::Vector3d::Zero( ),
                         projectionModel,
                         Eigen::Vector3d::Zero( ),
-                        createCameraPointingFunction( bodies, *cameraSupplementaryData ) );
+                        createCameraPointingFunction( bodies, *cameraSupplementaryData, tdbPointingHistory ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
-                bodies.at( bodyName )
-                        ->getVehicleSystems( )
-                        ->getCamera( cameraSupplementaryData->getCameraId( ) )
-                        ->setPointingReferenceBodyName( cameraSupplementaryData->getPointingReferenceBodyName( ) );
+                const std::shared_ptr< system_models::Camera > camera =
+                        bodies.at( bodyName )->getVehicleSystems( )->getCamera( cameraSupplementaryData->getCameraId( ) );
+                camera->setPointingReferenceBodyName( cameraSupplementaryData->getPointingReferenceBodyName( ) );
+
+                // One pointing correction per picture. Each arc covers the times closest to its picture, which are the times for
+                // which the nominal pointing of that picture is used.
+                std::vector< double > arcStartTimes;
+                for( auto pictureIterator = tdbPointingHistory.begin( ); pictureIterator != tdbPointingHistory.end( ); ++pictureIterator )
+                {
+                    arcStartTimes.push_back( pictureIterator == tdbPointingHistory.begin( )
+                                                     ? pictureIterator->first
+                                                     : 0.5 * ( std::prev( pictureIterator )->first + pictureIterator->first ) );
+                }
+                camera->setPointingCorrectionArcStartTimes( arcStartTimes );
             }
             else
             {

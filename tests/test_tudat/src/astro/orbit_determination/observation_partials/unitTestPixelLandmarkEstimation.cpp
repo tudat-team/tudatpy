@@ -288,18 +288,20 @@ SyntheticOrbitScenario buildSyntheticOrbitScenario( const double pointingSigmaRa
     return scenario;
 }
 
-//! Get the start index of each image's pointing correction in the estimated parameter vector.
+//! Get the start index of each image's pointing correction in the estimated parameter vector. The camera has one correction per
+//! image, in time order.
 std::vector< int > getPointingStartIndices( const std::shared_ptr< EstimatableParameterSet< double > >& parametersToEstimate,
-                                            const std::vector< std::string >& imageIds )
+                                            const int numberOfImages )
 {
+    const EstimatebleParameterIdentifier parameterIdentifier( camera_pointing_correction,
+                                                              std::make_pair( "Spacecraft", sumLmkTestCameraName ) );
+    const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType( parameterIdentifier );
+    BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
+    BOOST_REQUIRE_EQUAL( indices.at( 0 ).second, 3 * numberOfImages );
     std::vector< int > startIndices;
-    for( const std::string& imageId : imageIds )
+    for( int imageIndex = 0; imageIndex < numberOfImages; ++imageIndex )
     {
-        const EstimatebleParameterIdentifier parameterIdentifier(
-                camera_pointing_correction, std::make_pair( "Spacecraft", input_output::sum_lmk::getSumImageCameraName( imageId ) ) );
-        const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType( parameterIdentifier );
-        BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
-        startIndices.push_back( indices.at( 0 ).first );
+        startIndices.push_back( indices.at( 0 ).first + 3 * imageIndex );
     }
     return startIndices;
 }
@@ -427,9 +429,10 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
     const std::vector< std::string > imageIds = { "IMGA", "IMGB", "IMGC" };
     SystemOfBodies bodies = createSyntheticSumLmkBodies( );
     std::vector< input_output::sum_lmk::SumImageData > images;
-    for( const std::string& imageId : imageIds )
+    for( unsigned int imageIndex = 0; imageIndex < imageIds.size( ); ++imageIndex )
     {
-        images.push_back( makeSyntheticSumImage( imageId, landmarkIds ) );
+        images.push_back( makeSyntheticSumImage( imageIds.at( imageIndex ), landmarkIds ) );
+        images.back( ).utcEpochString_ = "2015 JUN 05 07:2" + std::to_string( imageIndex ) + ":42.053";
     }
     LoadedPixelTestData conversionResult = loadPixelTestData( images, makeLandmarks( ), bodies );
 
@@ -438,7 +441,7 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
     const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parametersToEstimate, conversionResult.observationModelSettings_, nullPropagatorSettings );
-    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, imageIds );
+    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, imageIds.size( ) );
 
     // Simulate observations with a distinct correction per image, and estimate starting from zero corrections.
     Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
@@ -537,7 +540,7 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
             createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parametersToEstimate, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
-    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_ );
+    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_.size( ) );
 
     // Simulate observations with the truth state and a distinct correction per image.
     Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
@@ -592,7 +595,7 @@ BOOST_AUTO_TEST_CASE( testPointingApriori )
             createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parametersToEstimate, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
-    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_ );
+    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_.size( ) );
 
     Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
     for( unsigned int imageIndex = 0; imageIndex < pointingStartIndices.size( ); ++imageIndex )

@@ -154,11 +154,11 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
     const SumImageData image = readSumFile( sumFiles.at( 0 ) );
     const std::map< std::string, LmkLandmarkData > landmarks = readLmkFiles( lmkFiles );
 
-    const auto convertedData = readSumLmkData< double, double >( sumFiles, lmkFiles, "Comet", "Spacecraft" );
+    const auto convertedData = readSumLmkData< double, double >( sumFiles, lmkFiles, "Comet", "Spacecraft", "OSIRIS_WAC" );
 
     // Calendar epoch of the image, computed independently of the epoch string parser.
     const double expectedEpoch = basic_astrodynamics::DateTime( 2015, 4, 14, 16, 26, 27.974 ).epoch< double >( );
-    const std::string cameraName = "Camera_W48230079013";
+    const std::string cameraName = "OSIRIS_WAC";
 
     BOOST_REQUIRE_EQUAL( convertedData.first.size( ), 3 );
     for( unsigned int i = 0; i < convertedData.first.size( ); ++i )
@@ -203,7 +203,8 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
             BOOST_CHECK_SMALL( camera->getFocalLength( ) - image.focalLengthMm_, 1.0E-12 );
             BOOST_CHECK_SMALL( ( camera->getPrincipalPoint( ) - image.opticalCenter_ ).norm( ), 1.0E-12 );
             BOOST_CHECK_SMALL( ( camera->getKMatrix( ) - image.kMatrix_ ).norm( ), 1.0E-12 );
-            BOOST_CHECK_SMALL( ( camera->getPointingUncertainty( ) - image.pointingSigma_ ).norm( ), 1.0E-15 );
+            BOOST_REQUIRE_EQUAL( camera->getPointingUncertaintyHistory( ).size( ), 1 );
+            BOOST_CHECK_SMALL( ( camera->getPointingUncertaintyHistory( ).begin( )->second - image.pointingSigma_ ).norm( ), 1.0E-15 );
 
             const std::map< double, Eigen::Quaterniond >& pointingHistory = camera->getRotationFromInertialToCameraFrameHistory( );
             BOOST_REQUIRE_EQUAL( pointingHistory.size( ), 1 );

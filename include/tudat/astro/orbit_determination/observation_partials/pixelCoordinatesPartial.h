@@ -144,16 +144,16 @@ public:
     }
 
     //! Whether the camera orientation depends on the given parameter (pointing correction, or reference-body rotation).
-    bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
+    bool useLinkIndependentPartialsForParameter(
+            const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
 
-    //! Identify the receiver camera and supply its current rotation-vector correction.
-    void setPointingCorrectionFunction( const observation_models::LinkEndId& cameraLinkEnd,
-                                        const std::function< Eigen::Vector3d( ) >& pointingCorrectionFunction )
+    //! Identify the receiver camera, whose pointing corrections are used for the pointing correction partials.
+    void setPointingCamera( const observation_models::LinkEndId& cameraLinkEnd, const std::shared_ptr< system_models::Camera >& camera )
     {
         pointingCorrectionParameterIdentifier_ =
                 std::make_pair( estimatable_parameters::camera_pointing_correction,
                                 std::make_pair( cameraLinkEnd.bodyName_, cameraLinkEnd.getReferencePointName( ) ) );
-        pointingCorrectionFunction_ = pointingCorrectionFunction;
+        pointingCamera_ = camera;
     }
 
     std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > getLinkIndependentPartials(
@@ -196,7 +196,7 @@ private:
     std::function< Eigen::Quaterniond( const double ) > rotationFromReferenceFrameToInertialFunction_;
     RotationMatrixPartialNamedList rotationMatrixPartials_;
     estimatable_parameters::EstimatebleParameterIdentifier pointingCorrectionParameterIdentifier_;
-    std::function< Eigen::Vector3d( ) > pointingCorrectionFunction_;
+    std::shared_ptr< system_models::Camera > pointingCamera_;
     observation_models::LinkEndType currentLinkEndType_;
     int observerIndex_;
     int observedBodyIndex_;
