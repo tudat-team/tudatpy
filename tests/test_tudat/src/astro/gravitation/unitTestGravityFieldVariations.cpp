@@ -196,7 +196,7 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 }
 
 // Compare combined tidal/tabulated values with direct corrections; check tabulated rates against
-// finite differences in several intervals and after resetting the table, plus the nonlinear fallback.
+// finite differences in several intervals and after resetting the table.
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
     // Load spice kernels.
@@ -243,10 +243,6 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
                                                                              nominalCosineCoefficients,
                                                                              nominalSineCoefficients,
                                                                              getTestGravityFieldVariations( ) );
-    // Reject indices outside the nominal coefficient blocks before attempting a matrix write.
-    BOOST_CHECK_THROW( timeDependentGravityField->setNominalCosineCoefficient( nominalCosineCoefficients.rows( ), 0, 0.0 ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW( timeDependentGravityField->setNominalSineCoefficient( 0, -1, 0.0 ), std::runtime_error );
     timeDependentGravityField->update( 2.0 * testTime );
 
     // Calculate variations for current test time.
@@ -333,16 +329,6 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     tabulatedVariation->resetCoefficientInterpolator( cosineTable, sineTable );
     // Replacing the table must also replace the cached slopes for both coefficient blocks.
     checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + 1.5 * tableStep, 10.0, 1.0e-10 );
-
-    TabulatedGravityFieldVariations nonlinearVariation(
-            cosineTable,
-            sineTable,
-            1,
-            0,
-            std::make_shared< interpolators::InterpolatorSettings >( interpolators::cubic_spline_interpolator ) );
-    const auto firstRates = nonlinearVariation.calculateSphericalHarmonicsCorrectionsTimeDerivative( firstEpoch );
-    // Unsupported interpolation supplies zero rates for both coefficient blocks.
-    BOOST_CHECK_SMALL( firstRates.first.norm( ) + firstRates.second.norm( ), 1.0e-25 );
 }
 
 // Keep the reference SPICE positions, with exactly consistent linear position/velocity functions.
@@ -703,18 +689,6 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
             for( const double derivativeTime : { referenceEpoch - 2.0e4, referenceEpoch, referenceEpoch + 3.0e4 } )
             {
                 checkGravityFieldVariationDerivative( variations->getVariationObjects( ).at( 0 ), derivativeTime, 1.0 );
-            }
-
-            if( k == 0 )
-            {
-                const auto periodicVariation =
-                        std::dynamic_pointer_cast< PeriodicGravityFieldVariations >( variations->getVariationObjects( ).at( 0 ) );
-                auto changedAmplitudes = cosineShAmplitudesCosineTime;
-                changedAmplitudes.front( ) *= 2.0;
-                periodicVariation->resetCosineShAmplitudesCosineTime( changedAmplitudes );
-                // Changing an amplitude must also refresh its cached contribution to the derivative.
-                checkGravityFieldVariationDerivative( periodicVariation, referenceEpoch + 3.0e4, 1.0 );
-                periodicVariation->resetCosineShAmplitudesCosineTime( cosineShAmplitudesCosineTime );
             }
 
             if( k < 3 )

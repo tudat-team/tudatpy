@@ -113,20 +113,15 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator( const std::m
         }
         coefficientRates.emplace( sineCosinePairMap.rbegin( )->first, coefficientRates.rbegin( )->second );
 
-        // A constant value outside the table has zero rate; extrapolation retains the end slope.
+        // Extrapolation retains the end slope; any other (constant) value outside the table has zero rate.
         auto derivativeBoundaryHandling = variationInterpolator_->getBoundaryHandling( );
-        const bool useNan = derivativeBoundaryHandling == interpolators::use_nan_value ||
-                derivativeBoundaryHandling == interpolators::use_nan_value_with_warning;
-        if( derivativeBoundaryHandling == interpolators::use_boundary_value || derivativeBoundaryHandling == interpolators::use_nan_value )
+        if( derivativeBoundaryHandling != interpolators::throw_exception_at_boundary &&
+            derivativeBoundaryHandling != interpolators::extrapolate_at_boundary &&
+            derivativeBoundaryHandling != interpolators::extrapolate_at_boundary_with_warning )
         {
             derivativeBoundaryHandling = interpolators::use_default_value;
         }
-        else if( derivativeBoundaryHandling == interpolators::use_boundary_value_with_warning ||
-                 derivativeBoundaryHandling == interpolators::use_nan_value_with_warning )
-        {
-            derivativeBoundaryHandling = interpolators::use_default_value_with_warning;
-        }
-        const Eigen::MatrixXd defaultRates = Eigen::MatrixXd::Constant( numberOfDegrees_, 2 * numberOfOrders_, useNan ? TUDAT_NAN : 0.0 );
+        const Eigen::MatrixXd defaultRates = Eigen::MatrixXd::Zero( numberOfDegrees_, 2 * numberOfOrders_ );
         derivativeInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, Eigen::MatrixXd > >(
                 coefficientRates,
                 variationInterpolator_->getSelectedLookupScheme( ),

@@ -895,7 +895,7 @@ protected:
     RigidBodyPropertiesType rigidBodyPropertiesType_;
 };
 
-//! Canonical settings for rigid-body properties derived from an associated gravity field.
+//! Settings for rigid-body properties derived from the body's gravity field.
 class FromGravityFieldRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
 {
 public:

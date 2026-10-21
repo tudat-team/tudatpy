@@ -12,7 +12,6 @@
 #ifndef TUDAT_GRAVITY_FIELD_MODEL_H
 #define TUDAT_GRAVITY_FIELD_MODEL_H
 
-#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <Eigen/Core>
@@ -129,14 +128,6 @@ protected:
 
     //! Non-owning link avoids a cycle: gravity-derived rigid-body properties retain their gravity field.
     std::weak_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties_;
-
-public:
-    // Deprecated Python constructor compatibility. Keep this block together for later removal.
-    void setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction );
-
-private:
-    void notifyLegacyMassDistributionUpdate( );
-    std::function< void( ) > legacyMassDistributionUpdateFunction_;
 };
 
 //! List of bodies for which predefined central gravity fields may be created through the

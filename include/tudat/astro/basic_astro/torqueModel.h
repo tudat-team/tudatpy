@@ -112,9 +112,12 @@ public:
         {
             throw std::runtime_error( "Error when creating inertial torque: inertia tensor is not available." );
         }
-        if( !rigidBodyProperties_->isInertiaTensorDerivativeAvailable( ) )
+        includeInertiaTensorDerivative_ = rigidBodyProperties_->isInertiaTensorDerivativeAvailable( );
+        if( !includeInertiaTensorDerivative_ )
         {
-            throw std::runtime_error( "Error when creating inertial torque: inertia tensor derivative is not available." );
+            std::cerr << "Warning when creating inertial torque: inertia tensor derivative is not available, "
+                         "its contribution to the inertial torque is neglected."
+                      << std::endl;
         }
     }
 
@@ -145,8 +148,11 @@ public:
         {
             const Eigen::Vector3d angularVelocity = angularVelocityFunction_( );
             const Eigen::Matrix3d inertiaTensor = rigidBodyProperties_->getCurrentInertiaTensor( );
-            currentTorque_ = -angularVelocity.cross( inertiaTensor * angularVelocity ) -
-                    rigidBodyProperties_->getCurrentDerivativeInertiaTensor( ) * angularVelocity;
+            currentTorque_ = -angularVelocity.cross( inertiaTensor * angularVelocity );
+            if( includeInertiaTensorDerivative_ )
+            {
+                currentTorque_ -= rigidBodyProperties_->getCurrentDerivativeInertiaTensor( ) * angularVelocity;
+            }
             currentTime_ = currentTime;
         }
     }
@@ -157,6 +163,9 @@ protected:
 
     //! Properties providing the current inertia tensor and its time derivative
     std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties_;
+
+    //! Boolean denoting whether the inertia tensor derivative is included in the torque
+    bool includeInertiaTensorDerivative_;
 
     //! Current torque, as computed by last call to updateMembers function
     Eigen::Vector3d currentTorque_;

@@ -164,20 +164,15 @@ protected:
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
-//! Rigid-body properties whose mass distribution is derived from an associated gravity model.
+//! Rigid-body properties (mass, center of mass, inertia tensor and its derivative) derived from a body's gravity field.
 /*!
- * This class is the runtime owner of the scaled mean moment of inertia and of all derived
- * inertia state. The gravity model supplies only gravitational data and keeps a non-owning
- * reverse link, installed by Body, so changes to that data can trigger synchronization.
+ * Rigid-body properties derived from a body's gravity field. The gravity field keeps a (non-owning) link to these properties,
+ * set by the Body, so that changes to the gravity field are passed on to these properties.
  */
 class FromGravityFieldRigidBodyProperties : public RigidBodyProperties
 {
 public:
-    //! Create properties from gravity data, optionally enabling spherical-harmonic inertia.
-    /*!
-     * Direct C++ construction of a spherical-harmonic gravity field does not accept or retain a
-     * scaled mean moment. Supply it here and install these properties on the same Body.
-     */
+    //! Constructor, with scaled mean moment of inertia required to compute an inertia tensor from a spherical harmonic gravity field.
     FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel,
                                          const double scaledMeanMomentOfInertia = TUDAT_NAN );
 
@@ -189,6 +184,7 @@ public:
 
     void updateMassDistribution( const double currentTime ) override;
 
+    //! Set the inertia tensor derivative from the time derivatives of the (C20, C21, C22, S21, S22) coefficients.
     void updateInertiaTensorDerivative( const Eigen::Vector5d& derivativeDegreeTwoCoefficients ) override;
 
     void setCurrentMass( const double currentMass ) override;
@@ -214,15 +210,13 @@ protected:
     //! Gravity data source retained by these derived properties.
     std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
 
-    //! Canonical runtime value; the gravity model does not retain a copy.
+    //! Scaled mean moment of inertia, used with the degree-two coefficients to compute the inertia tensor.
     double scaledMeanMomentOfInertia_;
 
     bool modelIsTimeDependent_;
 
     //! Fixed polyhedron geometry, scaled by the current mass during synchronization.
     Eigen::Matrix3d polyhedronInertiaTensorPerUnitMass_;
-
-    bool hasWarnedUnrecognizedGravityField_ = false;
 };
 
 }  // namespace simulation_setup

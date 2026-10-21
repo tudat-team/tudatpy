@@ -11,7 +11,6 @@
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 #include <cmath>
-#include <iostream>
 #include <typeinfo>
 
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
@@ -60,6 +59,24 @@ void computeSphericalHarmonicMassDistribution( const std::shared_ptr< gravitatio
     {
         inertiaTensor = gravitation::getInertiaTensorFromGravityField( gravityField, scaledMeanMomentOfInertia );
     }
+}
+
+void computePolyhedronMassDistribution( const Eigen::Matrix3d& inertiaTensorPerUnitMass,
+                                        const double mass,
+                                        Eigen::Vector3d& centerOfMass,
+                                        Eigen::Matrix3d& inertiaTensor,
+                                        bool& inertiaTensorAvailable )
+{
+    centerOfMass.setZero( );
+    inertiaTensor = mass * inertiaTensorPerUnitMass;
+    inertiaTensorAvailable = true;
+}
+
+// Point mass and ring gravity fields: center of mass at origin, no inertia tensor
+void computePointMassDistribution( Eigen::Vector3d& centerOfMass, bool& inertiaTensorAvailable )
+{
+    centerOfMass.setZero( );
+    inertiaTensorAvailable = false;
 }
 
 }  // namespace
@@ -386,7 +403,6 @@ void FromGravityFieldRigidBodyProperties::resetGravityFieldModel(
             ( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ ) != nullptr );
     if( gravityFieldChanged )
     {
-        hasWarnedUnrecognizedGravityField_ = false;
         if( const auto polyhedronGravityField = std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) )
         {
             // The shape is fixed. Integrate over the facets only when linking a new model;
@@ -418,12 +434,9 @@ void FromGravityFieldRigidBodyProperties::synchronizeMassFromGravityField( )
 
 void FromGravityFieldRigidBodyProperties::synchronizeMassDistributionFromGravityField( )
 {
-    currentCenterOfMass_.setZero( );
-    isInertiaTensorAvailable_ = false;
     const gravitation::GravityFieldModel& gravityFieldReference = *gravityFieldModel_;
-    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
-            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
-    if( sphericalHarmonicsGravityField != nullptr )
+    if( const auto sphericalHarmonicsGravityField =
+                std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ) )
     {
         computeSphericalHarmonicMassDistribution( sphericalHarmonicsGravityField,
                                                   scaledMeanMomentOfInertia_,
@@ -431,27 +444,19 @@ void FromGravityFieldRigidBodyProperties::synchronizeMassDistributionFromGravity
                                                   currentInertiaTensor_,
                                                   isInertiaTensorAvailable_ );
     }
-    else if( const std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
-                     std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) )
+    else if( std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) != nullptr )
     {
-        currentInertiaTensor_ = currentMass_ * polyhedronInertiaTensorPerUnitMass_;
-        isInertiaTensorAvailable_ = true;
+        computePolyhedronMassDistribution(
+                polyhedronInertiaTensorPerUnitMass_, currentMass_, currentCenterOfMass_, currentInertiaTensor_, isInertiaTensorAvailable_ );
     }
-    else if( std::dynamic_pointer_cast< gravitation::RingGravityField >( gravityFieldModel_ ) != nullptr )
+    else if( std::dynamic_pointer_cast< gravitation::RingGravityField >( gravityFieldModel_ ) != nullptr ||
+             typeid( gravityFieldReference ) == typeid( gravitation::GravityFieldModel ) )
     {
-        // A ring field has its center of mass at the origin; no inertia is inferred here.
+        computePointMassDistribution( currentCenterOfMass_, isInertiaTensorAvailable_ );
     }
-    else if( typeid( gravityFieldReference ) == typeid( gravitation::GravityFieldModel ) )
+    else
     {
-        // A central field gives a center of mass but does not determine inertia.
-    }
-    else if( !hasWarnedUnrecognizedGravityField_ )
-    {
-        std::cerr << "Warning when deriving rigid-body properties: unrecognized gravity field type. "
-                     "Mass is derived from the gravitational parameter; the center of mass defaults to the origin "
-                     "and the inertia tensor is unavailable. Supply explicit rigid-body properties if needed."
-                  << std::endl;
-        hasWarnedUnrecognizedGravityField_ = true;
+        throw std::runtime_error( "Error when deriving rigid body properties from gravity field: gravity field type not recognized." );
     }
 
     isComComputed_ = true;

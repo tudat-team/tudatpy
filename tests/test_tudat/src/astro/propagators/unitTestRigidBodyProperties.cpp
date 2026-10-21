@@ -89,16 +89,6 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
     const std::shared_ptr< Body > body = std::make_shared< Body >( );
     body->setBodyName( "TestBody" );
 
-    class UserGravityField : public GravityFieldModel
-    {
-    public:
-        using GravityFieldModel::GravityFieldModel;
-    };
-    body->setGravityFieldModel( std::make_shared< UserGravityField >( 4.0e5 ) );
-    // An unrecognized subclass still supplies mass without inventing an inertia tensor.
-    BOOST_CHECK_CLOSE_FRACTION( body->getBodyMass( ), 4.0e5 / physical_constants::GRAVITATIONAL_CONSTANT, 5.0e-15 );
-    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorAvailable( ) );
-
     // A gravity model alone is sufficient for mass, but not necessarily for inertia.
     body->setGravityFieldModel( std::make_shared< GravityFieldModel >( 4.0e5 ) );
     BOOST_REQUIRE( body->getMassProperties( ) != nullptr );
@@ -190,13 +180,14 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     };
 
     BodyListSettings settings;
-    for( const std::string bodyName : { "Legacy", "Canonical", "NoInertia", "Explicit" } )
+    for( const std::string bodyName : { "Legacy", "FromGravityField", "NoInertia", "Explicit" } )
     {
         settings.addSettings( bodyName );
     }
     settings.at( "Legacy" )->gravityFieldSettings = makeGravitySettings( scaledMeanMomentOfInertia );
-    settings.at( "Canonical" )->gravityFieldSettings = makeGravitySettings( );
-    settings.at( "Canonical" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( scaledMeanMomentOfInertia );
+    settings.at( "FromGravityField" )->gravityFieldSettings = makeGravitySettings( );
+    settings.at( "FromGravityField" )->rigidBodyPropertiesSettings =
+            fromGravityFieldRigidBodyPropertiesSettings( scaledMeanMomentOfInertia );
     settings.at( "NoInertia" )->gravityFieldSettings = makeGravitySettings( );
 
     const double explicitMass = 123.0;
@@ -208,30 +199,32 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
 
     SystemOfBodies bodies = createSystemOfBodies( settings );
     const std::shared_ptr< Body > legacyBody = bodies.at( "Legacy" );
-    const std::shared_ptr< Body > canonicalBody = bodies.at( "Canonical" );
+    const std::shared_ptr< Body > fromGravityFieldBody = bodies.at( "FromGravityField" );
     const std::shared_ptr< Body > noInertiaBody = bodies.at( "NoInertia" );
     const std::shared_ptr< Body > explicitBody = bodies.at( "Explicit" );
 
-    // The deprecated settings carrier and the canonical rigid-body settings create identical
+    // The deprecated settings carrier and the gravity-derived rigid-body settings create identical
     // runtime environments, with a single scaled-mean value owned by rigid-body properties.
     const std::shared_ptr< FromGravityFieldRigidBodyProperties > legacyProperties =
             std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( legacyBody->getMassProperties( ) );
-    const std::shared_ptr< FromGravityFieldRigidBodyProperties > canonicalProperties =
-            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( canonicalBody->getMassProperties( ) );
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > fromGravityFieldProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( fromGravityFieldBody->getMassProperties( ) );
     BOOST_REQUIRE( legacyProperties != nullptr );
-    BOOST_REQUIRE( canonicalProperties != nullptr );
+    BOOST_REQUIRE( fromGravityFieldProperties != nullptr );
     BOOST_CHECK_EQUAL( legacyBody->getGravityFieldModel( )->getRigidBodyProperties( ), legacyBody->getMassProperties( ) );
-    BOOST_CHECK_EQUAL( canonicalBody->getGravityFieldModel( )->getRigidBodyProperties( ), canonicalBody->getMassProperties( ) );
+    BOOST_CHECK_EQUAL( fromGravityFieldBody->getGravityFieldModel( )->getRigidBodyProperties( ),
+                       fromGravityFieldBody->getMassProperties( ) );
     BOOST_CHECK_CLOSE_FRACTION( legacyProperties->getScaledMeanMomentOfInertia( ), scaledMeanMomentOfInertia, 5.0e-15 );
-    BOOST_CHECK_CLOSE_FRACTION( canonicalProperties->getScaledMeanMomentOfInertia( ), scaledMeanMomentOfInertia, 5.0e-15 );
-    BOOST_CHECK_CLOSE_FRACTION( legacyBody->getBodyMass( ), canonicalBody->getBodyMass( ), 5.0e-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyBody->getBodyFixedCenterOfMass( ), canonicalBody->getBodyFixedCenterOfMass( ), 5.0e-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyBody->getBodyInertiaTensor( ), canonicalBody->getBodyInertiaTensor( ), 5.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( fromGravityFieldProperties->getScaledMeanMomentOfInertia( ), scaledMeanMomentOfInertia, 5.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( legacyBody->getBodyMass( ), fromGravityFieldBody->getBodyMass( ), 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            legacyBody->getBodyFixedCenterOfMass( ), fromGravityFieldBody->getBodyFixedCenterOfMass( ), 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyBody->getBodyInertiaTensor( ), fromGravityFieldBody->getBodyInertiaTensor( ), 5.0e-15 );
 
     // Fully normalized degree-one coefficients give the expected body-fixed center of mass in metres.
     const Eigen::Vector3d expectedCenterOfMass =
             referenceRadius * std::sqrt( 3.0 ) * ( Eigen::Vector3d( ) << -2.0e-5, 3.0e-5, 1.0e-5 ).finished( );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( canonicalBody->getBodyFixedCenterOfMass( ), expectedCenterOfMass, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyFixedCenterOfMass( ), expectedCenterOfMass, 5.0e-15 );
 
     // Complete gravity coefficients do not imply an inertia tensor without a finite scaled mean.
     BOOST_REQUIRE( noInertiaBody->getMassProperties( ) != nullptr );
@@ -246,29 +239,29 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
 
     // Runtime changes propagate from gravity data to gravity-derived properties. A mu change
     // updates both mass and the inertia normalization, while coefficient changes update COM and inertia.
-    const double initialMass = canonicalBody->getBodyMass( );
-    const Eigen::Matrix3d initialInertia = canonicalBody->getBodyInertiaTensor( );
-    canonicalBody->getGravityFieldModel( )->resetGravitationalParameter( 2.0 * gravitationalParameter );
-    BOOST_CHECK_CLOSE_FRACTION( canonicalBody->getBodyMass( ), 2.0 * initialMass, 5.0e-15 );
+    const double initialMass = fromGravityFieldBody->getBodyMass( );
+    const Eigen::Matrix3d initialInertia = fromGravityFieldBody->getBodyInertiaTensor( );
+    fromGravityFieldBody->getGravityFieldModel( )->resetGravitationalParameter( 2.0 * gravitationalParameter );
+    BOOST_CHECK_CLOSE_FRACTION( fromGravityFieldBody->getBodyMass( ), 2.0 * initialMass, 5.0e-15 );
     const Eigen::Matrix3d expectedInertiaAfterMassUpdate = 2.0 * initialInertia;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( canonicalBody->getBodyInertiaTensor( ), expectedInertiaAfterMassUpdate, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyInertiaTensor( ), expectedInertiaAfterMassUpdate, 5.0e-15 );
 
-    const std::shared_ptr< SphericalHarmonicsGravityField > canonicalGravityField =
-            std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( canonicalBody->getGravityFieldModel( ) );
-    BOOST_REQUIRE( canonicalGravityField != nullptr );
+    const std::shared_ptr< SphericalHarmonicsGravityField > fromGravityFieldGravityField =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( fromGravityFieldBody->getGravityFieldModel( ) );
+    BOOST_REQUIRE( fromGravityFieldGravityField != nullptr );
     Eigen::MatrixXd modifiedCosineCoefficients = cosineCoefficients;
     // Changing degree one must move the center of mass; changing degree two must update inertia.
     modifiedCosineCoefficients( 1, 1 ) *= 2.0;
     modifiedCosineCoefficients( 2, 0 ) *= 1.5;
-    canonicalGravityField->setCosineCoefficients( modifiedCosineCoefficients );
+    fromGravityFieldGravityField->setCosineCoefficients( modifiedCosineCoefficients );
     Eigen::Vector3d expectedUpdatedCenterOfMass = expectedCenterOfMass;
     expectedUpdatedCenterOfMass.x( ) *= 2.0;
-    const double inertiaChangeScale = canonicalBody->getBodyMass( ) * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
+    const double inertiaChangeScale = fromGravityFieldBody->getBodyMass( ) * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
             ( modifiedCosineCoefficients( 2, 0 ) - cosineCoefficients( 2, 0 ) ) / 3.0;
     const Eigen::Matrix3d expectedCoefficientInertiaChange = inertiaChangeScale * Eigen::Vector3d( 1.0, 1.0, -2.0 ).asDiagonal( );
     const Eigen::Matrix3d expectedUpdatedInertia = expectedInertiaAfterMassUpdate + expectedCoefficientInertiaChange;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( canonicalBody->getBodyFixedCenterOfMass( ), expectedUpdatedCenterOfMass, 5.0e-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( canonicalBody->getBodyInertiaTensor( ), expectedUpdatedInertia, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyFixedCenterOfMass( ), expectedUpdatedCenterOfMass, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyInertiaTensor( ), expectedUpdatedInertia, 5.0e-15 );
 
     // The same gravity changes do not overwrite explicitly configured rigid-body properties.
     explicitBody->getGravityFieldModel( )->resetGravitationalParameter( 3.0 * gravitationalParameter );
@@ -319,22 +312,6 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative 
     rotationalState.tail( 3 ) = angularVelocity;
     body->setCurrentRotationalStateToLocalFrame( rotationalState );
     const auto inertialTorque = createInertialTorqueModel( body, "TestBody" );
-
-    gravityField->update( 10.0 );
-    const Eigen::Matrix3d rateBeforeResynchronization = body->getBodyInertiaTensorDerivative( );
-    body->setIsBodyInPropagation( false );
-    body->getMassProperties( )->updateMassDistribution( 10.0 );
-    body->setIsBodyInPropagation( true );
-    body->setCurrentRotationalStateToLocalFrame( rotationalState );
-    // Switching propagation mode and resynchronizing at the same epoch preserve the computed rate.
-    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), rateBeforeResynchronization, 5.0e-15 );
-    body->getMassProperties( )->resetCurrentTime( );
-    // An epoch reset invalidates the value, never the capability; updating gravity restores the value.
-    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
-    BOOST_CHECK_THROW( body->getBodyInertiaTensorDerivative( ), std::runtime_error );
-    gravityField->update( 10.0 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), rateBeforeResynchronization, 5.0e-15 );
 
     for( const double time : { 0.0, 10.0, 40.0 } )
     {

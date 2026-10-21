@@ -282,6 +282,16 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( bodiesToIntegrate.at( i ) );
+
+        // Inertia tensor (derivative) derived from time-dependent gravity field requires gravity field update
+        std::shared_ptr< simulation_setup::Body > currentBody = bodies.at( bodiesToIntegrate.at( i ) );
+        if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) ) !=
+                    nullptr &&
+            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( currentBody->getMassProperties( ) ) !=
+                    nullptr )
+        {
+            singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodiesToIntegrate.at( i ) );
+        }
     }
     addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
 

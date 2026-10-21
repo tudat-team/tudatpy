@@ -193,13 +193,6 @@ public:
         return calculateBasicSphericalHarmonicsCorrections( time );
     }
 
-    //! Set the derivative of the rotation from the inertial frame to the body frame.
-    void resetRotationDerivativeFunction( const std::function< Eigen::Matrix3d( double ) >& rotationDerivativeFunction )
-    {
-        rotationDerivativeFunction_ = rotationDerivativeFunction;
-        canComputeTimeDerivative_ = static_cast< bool >( rotationDerivativeFunction_ );
-    }
-
     //! Differentiate the tidal forcing for fixed Love numbers and gravitational parameters.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
 
