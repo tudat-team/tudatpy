@@ -68,10 +68,12 @@ OneWayDopplerDirectFirstOrderProperTimeComponentScaling::OneWayDopplerDirectFirs
 }
 
 //! Update the scaling object to the current times and states
-void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                                                      const std::vector< double >& times,
-                                                                      const observation_models::LinkEndType fixedLinkEnd,
-                                                                      const Eigen::VectorXd currentObservation )
+void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update(
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType fixedLinkEnd,
+        const Eigen::VectorXd currentObservation,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Get state of computation point
     Eigen::Vector6d computationPointState = properTimeRateModel_->getComputationPointState( times, linkEndStates );
@@ -190,7 +192,8 @@ int OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getParameterDepende
 void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                    const std::vector< double >& times,
                                    const observation_models::LinkEndType fixedLinkEnd,
-                                   const Eigen::VectorXd currentObservation )
+                                   const Eigen::VectorXd currentObservation,
+                                   const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Compute geometry.
     double distance = ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ).norm( );

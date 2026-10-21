@@ -14,6 +14,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
+#include "tudat/basics/utilities.h"
 
 namespace tudat
 {
@@ -36,18 +37,25 @@ public:
      * \param positionPartialScaler Scaling object used for mapping partials of positions to partials of observable
      * \param positionPartialList List of position partials per link end.
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
-     * \param lighTimeCorrectionPartials List if light-time correction partial objects.
+     * \param lighTimeCorrectionPartials List if light-time correction partial objects, per light-time leg (in the order of
+     * getLightTimeLegStateEntryIndices).
      */
     DirectObservationPartial(
             const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
             const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lighTimeCorrectionPartials =
-                    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
+            const std::vector< std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > >&
+                    lighTimeCorrectionPartials = {} ):
         ObservationPartial< ObservationSize >( parameterIdentifier ), positionPartialScaler_( positionPartialScaler ),
         positionPartialList_( positionPartialList )
     {
         stateEntryIndices_ = observation_models::getSingleLinkStateEntryIndices( positionPartialScaler->getObservableType( ) );
+        lightTimeLegStateEntryIndices_ =
+                observation_models::getLightTimeLegStateEntryIndices( positionPartialScaler->getObservableType( ) );
+        if( lighTimeCorrectionPartials.size( ) > lightTimeLegStateEntryIndices_.size( ) )
+        {
+            throw std::runtime_error( "Error when creating direct observation partial, light-time correction list has an incorrect size." );
+        }
 
         std::pair< std::function< SingleLightTimePartialReturnType( const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
                    bool >
@@ -60,19 +68,30 @@ public:
         // Create light time correction partial functions
         for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
         {
-            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction( parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
-            if( lightTimeCorrectionPartial.second != 0 )
+            for( unsigned int j = 0; j < lighTimeCorrectionPartials.at( i ).size( ); j++ )
             {
-                lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
-            }
-
-            if( positionPartialScaler->useLightTimeGradientPartials( ) )
-            {
-                lightTimeCorrectionGradientPartial =
-                        getLightTimeGradientParameterPartialFunction( parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
-                if( lightTimeCorrectionGradientPartial.second != 0 )
+                lightTimeCorrectionPartial =
+                        getLightTimeParameterPartialFunction( parameterIdentifier, lighTimeCorrectionPartials.at( i ).at( j ) );
+                if( lightTimeCorrectionPartial.second != 0 )
                 {
-                    lighTimeCorrectionGradientPartialsFunctions_.push_back( lightTimeCorrectionGradientPartial.first );
+                    lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
+                    lighTimeCorrectionPartialsLegIndices_.push_back( i );
+                }
+
+                if( positionPartialScaler->useLightTimeGradientPartials( ) )
+                {
+                    if( i > 0 )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating direct observation partial, light-time gradient partials only supported for single "
+                                "leg." );
+                    }
+                    lightTimeCorrectionGradientPartial =
+                            getLightTimeGradientParameterPartialFunction( parameterIdentifier, lighTimeCorrectionPartials.at( i ).at( j ) );
+                    if( lightTimeCorrectionGradientPartial.second != 0 )
+                    {
+                        lighTimeCorrectionGradientPartialsFunctions_.push_back( lightTimeCorrectionGradientPartial.first );
+                    }
                 }
             }
         }
@@ -160,11 +179,14 @@ public:
             }
         }
 
-        // Add scaled light-time correcion partials.
+        // Add scaled light-time correcion partials, using the states and times of the leg to which they apply.
         for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
         {
-            currentLinkTimeCorrectionPartial_ = lighTimeCorrectionPartialsFunctions_.at( i )( states, times );
-            returnPartial.push_back( std::make_pair( positionPartialScaler_->getLightTimePartialScalingFactor( ) *
+            const int legIndex = lighTimeCorrectionPartialsLegIndices_.at( i );
+            const std::vector< int >& legIndices = lightTimeLegStateEntryIndices_.at( legIndex );
+            currentLinkTimeCorrectionPartial_ = lighTimeCorrectionPartialsFunctions_.at( i )(
+                    utilities::getVectorEntries( states, legIndices ), utilities::getVectorEntries( times, legIndices ) );
+            returnPartial.push_back( std::make_pair( positionPartialScaler_->getLegLightTimePartialScalingFactor( legIndex ) *
                                                              physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionPartial_.first,
                                                      currentLinkTimeCorrectionPartial_.second ) );
         }
@@ -248,6 +270,9 @@ protected:
     std::vector< std::function< SingleLightTimePartialReturnType( const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
             lighTimeCorrectionPartialsFunctions_;
 
+    //! Index of light-time leg for each entry of lighTimeCorrectionPartialsFunctions_
+    std::vector< int > lighTimeCorrectionPartialsLegIndices_;
+
     std::vector< std::function< SingleLightTimeGradientPartialReturnType( const std::vector< Eigen::Vector6d >&,
                                                                           const std::vector< double >&,
                                                                           const observation_models::LinkEndType ) > >
@@ -267,6 +292,9 @@ protected:
     std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > currentLinkTimeCorrectionGradientPartial_;
 
     std::map< observation_models::LinkEndType, int > stateEntryIndices_;
+
+    //! Indices in link end states/times of the transmitter and receiver of each light-time leg
+    std::vector< std::vector< int > > lightTimeLegStateEntryIndices_;
 
     bool fixLinkEndTime_ = false;
 };

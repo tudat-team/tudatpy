@@ -354,6 +354,11 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 
                         if( matchLinkEnds && matchObservationType )
                         {
+                            if( linkEnds.count( observation_models::transmitter2 ) > 0 )
+                            {
+                                throw std::runtime_error( "Error, time bias partials not supported for observable " +
+                                                          observation_models::getObservableName( observableType ) );
+                            }
                             std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial =
                                     std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
                                             getPartialWrtBodyTranslationalState( observationPartials,
@@ -459,6 +464,11 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 
                         if( matchLinkEnds && matchObservationType )
                         {
+                            if( linkEnds.count( observation_models::transmitter2 ) > 0 )
+                            {
+                                throw std::runtime_error( "Error, time bias partials not supported for observable " +
+                                                          observation_models::getObservableName( observableType ) );
+                            }
                             std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial =
                                     std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
                                             getPartialWrtBodyTranslationalState( observationPartials,
