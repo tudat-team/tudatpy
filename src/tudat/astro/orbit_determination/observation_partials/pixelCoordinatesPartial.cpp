@@ -75,10 +75,12 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfPixelsWrtLinkEndPositionCameraFr
     return partial;
 }
 
-void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                      const std::vector< double >& times,
-                                      const observation_models::LinkEndType fixedLinkEnd,
-                                      const Eigen::VectorXd )
+void PixelCoordinatesScaling::update(
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType fixedLinkEnd,
+        const Eigen::VectorXd,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     if( fixedLinkEnd != observation_models::receiver )
     {
@@ -144,7 +146,7 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
     currentLinkEndType_ = fixedLinkEnd;
 }
 
-bool PixelCoordinatesScaling::useLinkIndependentPartials(
+bool PixelCoordinatesScaling::useLinkIndependentPartialsForParameter(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
 {
     return ( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ ) ||
@@ -155,7 +157,7 @@ bool PixelCoordinatesScaling::useLinkIndependentPartials(
 std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > PixelCoordinatesScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
 {
-    if( !useLinkIndependentPartials( parameterIdentifier ) )
+    if( !useLinkIndependentPartialsForParameter( parameterIdentifier ) )
     {
         return {};
     }

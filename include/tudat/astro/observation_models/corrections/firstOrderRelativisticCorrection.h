@@ -34,7 +34,10 @@ namespace observation_models
  *  and times of  receiver and transmitter as input each time a light time is to be calculated.
  *  NOTE: If the perturbing body is equal to the transmitting or receiving body, the transmission or reception time,
  *  respectively, are used to evaluate this perturbing body's state when computing the correction. For all other bodies,
- *  the mid-way point of the light time is used.
+ *  the mid-way point of the light time is used. Alternatively (computeMassiveBodyAtClosestApproach), the state of each
+ *  perturbing body can be evaluated at its closest approach to the signal path, within the light-time leg.
+ *  NOTE: in either case, the partial derivatives do not account for the dependency of the evaluation epoch on the link
+ *  end states.
  */
 class FirstOrderLightTimeCorrectionCalculator : public LightTimeCorrection
 {
@@ -52,6 +55,8 @@ public:
      *  \param ppnParameterGammaFunction Function returning the parametric post-Newtonian parameter gamma, a measure
      *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
      *  \param useBending Boolean flag to determine if light bending should be included.
+     *  \param computeMassiveBodyAtClosestApproach Boolean denoting whether the perturbing body states are evaluated at their
+     *  closest approach to the signal path (instead of the link end or light-time midpoint)
      */
     FirstOrderLightTimeCorrectionCalculator(
             const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
@@ -60,10 +65,12 @@ public:
             const std::string transmittingBody,
             const std::string receivingBody,
             const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; },
-            const bool useBending = false ):
+            const bool useBending = false,
+            const bool computeMassiveBodyAtClosestApproach = false ):
         LightTimeCorrection( first_order_relativistic ), perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
-        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), useBending_( useBending )
+        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), useBending_( useBending ),
+        computeMassiveBodyAtClosestApproach_( computeMassiveBodyAtClosestApproach )
     {
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
@@ -107,17 +114,17 @@ public:
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
-    //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
+    //! Partial derivative with respect to link-end time, holding both link-end states fixed.
     /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. observation time, equal to zero in this
-     * model.
-     * \param transmitterState State of transmitted at transmission time
+     * Accounts for the motion of each perturbing body at its prescribed evaluation epoch.
+     * Does not modify the cached nominal light-time correction or its individual components.
+     * \param transmitterState State of transmitter at transmission time
      * \param receiverState State of receiver at reception time
      * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param fixedLinkEnd Reference link end for observation
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Light-time correction w.r.t. observation time
+     * \param receptionTime Time of signal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end whose time is differentiated
+     * \param ancillarySettings Ancillary observation settings
+     * \return Partial derivative of the light-time correction with respect to link-end time
      */
     double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
             const Eigen::Vector6d& transmitterState,
@@ -125,10 +132,26 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override
-    {
-        return 0.0;
-    }
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
+
+    //! Partial derivative of a single body's contribution with respect to link-end time, holding both link-end states fixed.
+    /*!
+     * Single-body term of calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime.
+     * Does not modify the cached nominal light-time correction or its individual components.
+     * \param transmitterState State of transmitter at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of signal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end whose time is differentiated
+     * \param bodyIndex Index of the perturbing body (in getPerturbingBodyNames)
+     * \return Partial derivative of the light-time correction due to the given body with respect to link-end time
+     */
+    double calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
+                                                                                  const Eigen::Vector6d& receiverState,
+                                                                                  const double transmissionTime,
+                                                                                  const double receptionTime,
+                                                                                  const LinkEndType linkEndAtWhichPartialIsEvaluated,
+                                                                                  const unsigned int bodyIndex );
 
     //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
     /*!
@@ -147,6 +170,25 @@ public:
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
+
+    //! Function to compute the partial derivative of a single body's light-time correction w.r.t. link end position
+    /*!
+     * Single-body term of calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \param bodyIndex Index of the perturbing body (in getPerturbingBodyNames)
+     * \return Light-time correction due to the given body w.r.t. link end position
+     */
+    Eigen::Matrix< double, 3, 1 > calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated,
+            const unsigned int bodyIndex );
 
     //! Function to get the names of bodies causing light-time correction.
     /*!
@@ -212,7 +254,19 @@ public:
         return useBending_;
     }
 
+    bool getComputeMassiveBodyAtClosestApproach( )
+    {
+        return computeMassiveBodyAtClosestApproach_;
+    }
+
 private:
+    //! Function to compute the epoch at which the state of a perturbing body is evaluated
+    double getPerturbingBodyEvaluationTime( const unsigned int bodyIndex,
+                                            const Eigen::Vector3d& transmitterPosition,
+                                            const Eigen::Vector3d& receiverPosition,
+                                            const double transmissionTime,
+                                            const double receptionTime );
+
     //! Set of function returning the state of the gravitating bodies as a function of time.
     std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
 
@@ -241,6 +295,9 @@ private:
 
     //! Boolean flag to determine if light bending should be included.
     bool useBending_;
+
+    //! Boolean denoting whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool computeMassiveBodyAtClosestApproach_;
 };
 
 }  // namespace observation_models

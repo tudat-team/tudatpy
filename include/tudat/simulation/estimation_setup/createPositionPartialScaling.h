@@ -20,6 +20,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionAngleAndSeparationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/azimuthElevationPartial.h"
 #include "tudat/astro/observation_models/azimuthElevationObservationModel.h"
 #include "tudat/astro/observation_models/pixelCoordinatesObservationModel.h"
@@ -126,6 +127,24 @@ RotationMatrixPartialNamedList createObservationRotationMatrixPartials(
     return rotationMatrixPartials;
 }
 
+//! Function to create the position partial scaling object for position angle and/or separation distance observables
+template< int ObservationSize, typename ParameterType, typename TimeType >
+std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > createPositionAngleAndSeparationScaling(
+        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel )
+{
+    std::shared_ptr< observation_models::PositionAngleAndSeparationObservationModel< ObservationSize, ParameterType, TimeType > >
+            positionAngleModel = std::dynamic_pointer_cast<
+                    observation_models::PositionAngleAndSeparationObservationModel< ObservationSize, ParameterType, TimeType > >(
+                    observationModel );
+    if( positionAngleModel == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when making position angle/separation distance partial scaling, observation model is incompatible" );
+    }
+    return std::make_shared< PositionAngleAndSeparationScaling< ObservationSize > >(
+            positionAngleModel->getObservableType( ), positionAngleModel->getJ2000ToGlobalFrameTransformation( ) );
+}
+
 template< int ObservationSize >
 class ObservationPartialScalingCreator
 {
@@ -205,7 +224,9 @@ public:
                                    std::placeholders::_1 ),
                         dopplerObservationModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
-                        receiverProperTimePartials );
+                        receiverProperTimePartials,
+                        observation_models::one_way_doppler,
+                        dopplerObservationModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
 
                 break;
             }
@@ -261,7 +282,8 @@ public:
                         oneWayDopplerModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
                         receiverProperTimePartials,
-                        observation_models::one_way_doppler );
+                        observation_models::one_way_doppler,
+                        oneWayDopplerModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
 
                 // Get the frequency interpolator from the observation model
                 auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );
@@ -283,6 +305,10 @@ public:
 
                 break;
             }
+            case observation_models::position_angle:
+            case observation_models::separation_distance:
+                positionPartialScaler = createPositionAngleAndSeparationScaling< 1, ParameterType, TimeType >( observationModel );
+                break;
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
@@ -496,6 +522,9 @@ public:
                                                                                      observation_models::receiver );
                 break;
             }
+            case observation_models::position_angle_and_separation:
+                positionPartialScaler = createPositionAngleAndSeparationScaling< 2, ParameterType, TimeType >( observationModel );
+                break;
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +

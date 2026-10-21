@@ -56,7 +56,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createDirectObservation
         const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
         const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartials,
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier,
-        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lightTimeCorrectionPartialObjects )
+        const std::vector< std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > >&
+                lightTimeCorrectionPartialObjects )
 {
     std::shared_ptr< DirectObservationPartial< ObservationSize > > observationPartial =
             std::make_shared< DirectObservationPartial< ObservationSize > >(
@@ -88,8 +89,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
         const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
-        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lightTimeCorrectionPartialObjects =
-                std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
+        const std::vector< std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > >&
+                lightTimeCorrectionPartialObjects = {} )
 {
     return createDirectObservationPartial< ObservationSize >(
             positionPartialScaler,
@@ -116,8 +117,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
-        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lightTimeCorrectionPartialObjects =
-                std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
+        const std::vector< std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > >&
+                lightTimeCorrectionPartialObjects = {} )
 {
     return createDirectObservationPartial< ObservationSize >(
             positionPartialScaler,
@@ -144,7 +145,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
-        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lightTimeCorrectionPartialObjects )
+        const std::vector< std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > >&
+                lightTimeCorrectionPartialObjects )
 {
     return createDirectObservationPartial< ObservationSize >(
             positionPartialScaler,
@@ -181,29 +183,12 @@ createSingleLinkObservationPartials(
 {
     observation_models::LinkEnds oneWayLinkEnds = observationModel->getLinkEnds( );
     observation_models::ObservableType observableType = observationModel->getObservableType( );
-    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > lightTimeCorrections;
 
+    // Create light-time correction partials for each light-time leg
+    std::vector< std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > > lightTimeCorrectionPartialObjects;
+    for( auto lightTimeCorrections : observation_models::getLightTimeCorrections( observationModel ) )
     {
-        auto fullLightTimeCorrections = observation_models::getLightTimeCorrections( observationModel );
-        if( fullLightTimeCorrections.size( ) > 1 )
-        {
-            lightTimeCorrections = fullLightTimeCorrections.at( 0 );
-
-            throw std::runtime_error(
-                    "Error when creatin direct observation partial, light time corrections list is "
-                    "of incorrect size." );
-        }
-        else if( fullLightTimeCorrections.size( ) == 1 )
-        {
-            lightTimeCorrections = fullLightTimeCorrections.at( 0 );
-        }
-    }
-
-    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
-
-    if( lightTimeCorrections.size( ) > 0 )
-    {
-        lightTimeCorrectionPartialObjects = observation_partials::createLightTimeCorrectionPartials( lightTimeCorrections );
+        lightTimeCorrectionPartialObjects.push_back( observation_partials::createLightTimeCorrectionPartials( lightTimeCorrections ) );
     }
 
     // Create scaling object, to be used for all observation partials in current link end.

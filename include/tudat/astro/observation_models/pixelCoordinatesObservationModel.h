@@ -18,10 +18,10 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 #include "tudat/astro/system_models/camera.h"
 
 namespace tudat
@@ -150,9 +150,8 @@ public:
         Eigen::Vector3d inertialDirectionToProject = inertialRelativePosition.template cast< double >( );
         if( correctForStellarAberration_ )
         {
-            inertialDirectionToProject = computeApparentDirectionWithStellarAberration(
-                    inertialDirectionToProject.normalized( ),
-                    observerState.segment( 3, 3 ).template cast< double >( ) / physical_constants::SPEED_OF_LIGHT );
+            inertialDirectionToProject = calculateApparentDirectionWithStellarAberration(
+                    inertialDirectionToProject.normalized( ), observerState.segment( 3, 3 ).template cast< double >( ) );
         }
 
         Eigen::Vector2d pixelCoordinates;

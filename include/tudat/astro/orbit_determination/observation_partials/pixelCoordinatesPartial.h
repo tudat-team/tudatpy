@@ -84,7 +84,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation ) override;
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Get the position scaling factor (accounting for light-time correction) for a given link end type
     /*!
@@ -143,7 +144,7 @@ public:
     }
 
     //! Whether the camera orientation depends on the given parameter (pointing correction, or reference-body rotation).
-    bool useLinkIndependentPartials( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
+    bool useLinkIndependentPartialsForParameter( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
 
     //! Identify the receiver camera and supply its current rotation-vector correction.
     void setPointingCorrectionFunction( const observation_models::LinkEndId& cameraLinkEnd,

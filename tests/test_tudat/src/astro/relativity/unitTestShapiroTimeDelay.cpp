@@ -296,6 +296,218 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayGradient )
     }
 }
 
+//! Test the epochs at which the perturbing body state is evaluated, for a body moving at constant velocity
+BOOST_AUTO_TEST_CASE( testShapiroDelayMassiveBodyAtClosestApproach )
+{
+    const double gravitationalParameter = 1.266865361E17;
+    const double transmissionTime = 1.0E8;
+    const double lightTime = 2500.0;
+
+    Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d junoState = Eigen::Vector6d::Zero( );
+    junoState( 0 ) = 7.0E11;
+    Eigen::Vector3d jupiterPositionAtTransmission( 6.995E11, 7.0E7, 0.0 );
+    Eigen::Vector3d jupiterVelocity( 0.0, -1.3E4, 0.0 );
+
+    double lastEvaluationTime = TUDAT_NAN;
+    std::function< Eigen::Vector6d( const double ) > jupiterStateFunction = [ & ]( const double time ) {
+        lastEvaluationTime = time;
+        Eigen::Vector6d state;
+        state << jupiterPositionAtTransmission + ( time - transmissionTime ) * jupiterVelocity, jupiterVelocity;
+        return state;
+    };
+
+    for( bool useBending : { false, true } )
+    {
+        for( bool computeMassiveBodyAtClosestApproach : { false, true } )
+        {
+            // Check uplink, downlink, and perturbing body as receiver (with legacy settings: midpoint, midpoint, and reception)
+            for( unsigned int test = 0; test < 3; test++ )
+            {
+                std::string transmitterName = ( test == 1 ) ? "JUNO" : "Earth";
+                std::string receiverName = ( test == 0 ) ? "JUNO" : ( test == 1 ? "Earth" : "Jupiter" );
+                Eigen::Vector6d transmitterState = ( test == 1 ) ? junoState : earthState;
+                Eigen::Vector6d receiverState = ( test == 1 ) ? earthState : junoState;
+
+                FirstOrderLightTimeCorrectionCalculator correctionCalculator(
+                        { jupiterStateFunction },
+                        { [ = ]( ) { return gravitationalParameter; } },
+                        { "Jupiter" },
+                        transmitterName,
+                        receiverName,
+                        []( ) { return 1.0; },
+                        useBending,
+                        computeMassiveBodyAtClosestApproach );
+                double lightTimeCorrection = correctionCalculator.calculateLightTimeCorrection(
+                        transmitterState, receiverState, transmissionTime, transmissionTime + lightTime );
+
+                double expectedOffset;
+                if( !computeMassiveBodyAtClosestApproach )
+                {
+                    expectedOffset = ( test == 2 ) ? lightTime : 0.5 * lightTime;
+                }
+                else
+                {
+                    // Closest approach of Jupiter to signal, computed analytically (near Juno, inside the light-time interval)
+                    Eigen::Vector3d relativeVelocity =
+                            ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ) / lightTime - jupiterVelocity;
+                    expectedOffset = ( jupiterPositionAtTransmission - transmitterState.segment( 0, 3 ) ).dot( relativeVelocity ) /
+                            relativeVelocity.squaredNorm( );
+                    BOOST_CHECK( std::fabs( expectedOffset - ( test == 1 ? 0.0 : lightTime ) ) < 10.0 );
+                }
+                BOOST_CHECK_SMALL( lastEvaluationTime - ( transmissionTime + expectedOffset ), 1.0E-5 );
+
+                double expectedLightTimeCorrection = calculateFirstOrderLightTimeCorrectionFromCentralBody(
+                        gravitationalParameter,
+                        transmitterState.segment( 0, 3 ),
+                        receiverState.segment( 0, 3 ),
+                        jupiterPositionAtTransmission + expectedOffset * jupiterVelocity,
+                        1.0,
+                        useBending );
+                BOOST_CHECK_CLOSE_FRACTION( lightTimeCorrection, expectedLightTimeCorrection, 1.0E-12 );
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testShapiroTimePartialsAndCache )
+{
+    Eigen::Vector6d transmitterState;
+    transmitterState << -513.0E3, 120.0E3, 6378.0E3, -100.0, 300.0, 20.0;
+    Eigen::Vector6d receiverState;
+    receiverState << 324.0E3, 1434.0E3, 26600.0E3, 500.0, -200.0, 40.0;
+    const double transmissionTime = 1000.0;
+    const double receptionTime = 1020.0;
+    const double timePerturbation = 0.01;
+    const std::vector< std::string > bodyNames = { "Transmitter", "Receiver", "ThirdBody" };
+
+    for( const bool useBending : { false, true } )
+    {
+        for( const bool movingBodies : { false, true } )
+        {
+            std::vector< std::function< Eigen::Vector6d( const double ) > > stateFunctions;
+            std::vector< std::function< double( ) > > gravitationalParameterFunctions;
+            for( unsigned int i = 0; i < bodyNames.size( ); i++ )
+            {
+                stateFunctions.push_back( [ = ]( const double time ) {
+                    const double elapsedTime = time - transmissionTime;
+                    const double motionScale = movingBodies ? static_cast< double >( i + 1 ) : 0.0;
+                    const Eigen::Vector3d velocity = motionScale * Eigen::Vector3d( 30000.0, -15000.0, 8000.0 );
+                    const Eigen::Vector3d acceleration = motionScale * Eigen::Vector3d( 0.2, -0.1, 0.3 );
+                    Eigen::Vector6d state;
+                    state.head< 3 >( ) = Eigen::Vector3d( -80.0E3, 120.0E3, 1.0E3 ) * static_cast< double >( i + 1 ) +
+                            elapsedTime * velocity + 0.5 * elapsedTime * elapsedTime * acceleration;
+                    state.tail< 3 >( ) = velocity + elapsedTime * acceleration;
+                    return state;
+                } );
+                // Amplify the bending effect so both gradient implementations are exercised meaningfully.
+                gravitationalParameterFunctions.push_back( [ = ]( ) { return 398600.44189E15 / ( i + 1 ); } );
+            }
+
+            // Test each evaluation epoch separately, then the sum of all three bodies.
+            for( unsigned int bodyCase = 0; bodyCase <= bodyNames.size( ); bodyCase++ )
+            {
+                const bool allBodies = bodyCase == bodyNames.size( );
+                const std::vector< std::string > selectedNames =
+                        allBodies ? bodyNames : std::vector< std::string >{ bodyNames.at( bodyCase ) };
+                const std::vector< std::function< Eigen::Vector6d( const double ) > > selectedStates = allBodies
+                        ? stateFunctions
+                        : std::vector< std::function< Eigen::Vector6d( const double ) > >{ stateFunctions.at( bodyCase ) };
+                const std::vector< std::function< double( ) > > selectedParameters = allBodies
+                        ? gravitationalParameterFunctions
+                        : std::vector< std::function< double( ) > >{ gravitationalParameterFunctions.at( bodyCase ) };
+                FirstOrderLightTimeCorrectionCalculator correction(
+                        selectedStates, selectedParameters, selectedNames, "Transmitter", "Receiver", []( ) { return 1.1; }, useBending );
+
+                const double nominalCorrection =
+                        correction.calculateLightTimeCorrection( transmitterState, receiverState, transmissionTime, receptionTime );
+                std::vector< double > nominalComponents;
+                for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                {
+                    nominalComponents.push_back( correction.getCurrentLightTimeCorrectionComponent( i ) );
+                }
+
+                for( const LinkEndType linkEnd : { transmitter, receiver } )
+                {
+                    BOOST_TEST_CONTEXT( "bending=" << useBending << ", moving=" << movingBodies << ", body case=" << bodyCase
+                                                   << ", link end=" << linkEnd )
+                    {
+                        const double analyticalPartial = correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, nullptr );
+
+                        // Single-body helpers must reproduce the summed partials exactly (same operation order).
+                        const Eigen::Vector3d analyticalGradient =
+                                correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                                        transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, nullptr );
+                        std::vector< double > singleBodyTimePartials;
+                        double summedTimePartial = 0.0;
+                        Eigen::Vector3d summedGradient = Eigen::Vector3d::Zero( );
+                        for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                        {
+                            singleBodyTimePartials.push_back(
+                                    correction.calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                            transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, i ) );
+                            summedTimePartial += singleBodyTimePartials.at( i );
+                            summedGradient += correction.calculateSingleBodyLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                                    transmitterState, receiverState, transmissionTime, receptionTime, linkEnd, i );
+                        }
+                        BOOST_CHECK_EQUAL( summedTimePartial, analyticalPartial );
+                        for( unsigned int j = 0; j < 3; j++ )
+                        {
+                            BOOST_CHECK_EQUAL( summedGradient( j ), analyticalGradient( j ) );
+                        }
+                        BOOST_CHECK_EQUAL( correction.getCurrentTotalLightTimeCorrection( ), nominalCorrection );
+                        for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                        {
+                            BOOST_CHECK_EQUAL( correction.getCurrentLightTimeCorrectionComponent( i ), nominalComponents.at( i ) );
+                        }
+
+                        // Only the explicit time dependence is differentiated: both endpoint states remain fixed.
+                        const double transmitterStep = ( linkEnd == transmitter ) ? timePerturbation : 0.0;
+                        const double receiverStep = ( linkEnd == receiver ) ? timePerturbation : 0.0;
+                        const double upCorrection = correction.calculateLightTimeCorrection(
+                                transmitterState, receiverState, transmissionTime + transmitterStep, receptionTime + receiverStep );
+                        std::vector< double > upComponents;
+                        for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                        {
+                            upComponents.push_back( correction.getCurrentLightTimeCorrectionComponent( i ) );
+                        }
+                        const double downCorrection = correction.calculateLightTimeCorrection(
+                                transmitterState, receiverState, transmissionTime - transmitterStep, receptionTime - receiverStep );
+
+                        // Compare each single-body time partial with the numerical derivative of its own component.
+                        for( unsigned int i = 0; i < selectedNames.size( ); i++ )
+                        {
+                            const double numericalSingleBodyPartial =
+                                    ( upComponents.at( i ) - correction.getCurrentLightTimeCorrectionComponent( i ) ) /
+                                    ( 2.0 * timePerturbation );
+                            if( numericalSingleBodyPartial == 0.0 )
+                            {
+                                BOOST_CHECK_EQUAL( singleBodyTimePartials.at( i ), 0.0 );
+                            }
+                            else
+                            {
+                                BOOST_CHECK_CLOSE_FRACTION( singleBodyTimePartials.at( i ), numericalSingleBodyPartial, 1.0E-7 );
+                            }
+                        }
+                        const double numericalPartial = ( upCorrection - downCorrection ) / ( 2.0 * timePerturbation );
+                        if( !movingBodies || ( bodyCase == 0 && linkEnd == receiver ) || ( bodyCase == 1 && linkEnd == transmitter ) )
+                        {
+                            BOOST_CHECK_EQUAL( analyticalPartial, 0.0 );
+                            BOOST_CHECK_EQUAL( numericalPartial, 0.0 );
+                        }
+                        else
+                        {
+                            BOOST_CHECK_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-7 );
+                        }
+                        correction.calculateLightTimeCorrection( transmitterState, receiverState, transmissionTime, receptionTime );
+                    }
+                }
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
