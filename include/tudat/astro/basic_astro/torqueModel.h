@@ -157,6 +157,12 @@ public:
         }
     }
 
+    //! Function to retrieve whether the inertia tensor derivative is included in the torque
+    bool isInertiaTensorDerivativeIncluded( )
+    {
+        return includeInertiaTensorDerivative_;
+    }
+
 protected:
     //! Function that returns body's body-fixed angular velocity vector
     std::function< Eigen::Vector3d( ) > angularVelocityFunction_;
