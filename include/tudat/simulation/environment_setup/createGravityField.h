@@ -553,27 +553,26 @@ protected:
     bool ellipticIntegralSFromDAndB_;
 };
 
-//! @get_docstring(EllipsoidalHarmonicsGravityFieldSettings.__docstring__)
+//! Class for providing settings for an ellipsoidal harmonics gravity field model.
 class EllipsoidalHarmonicsGravityFieldSettings : public GravityFieldSettings
 {
 public:
-    /*! Constructor.
+    //! Constructor.
+    /*!
+     * The gravitational parameter is taken from the degree zero coefficient.
      *
-     * The gravitational parameter is not given separately: it is already contained in the degree
-     * zero coefficient, and the field reads it off from there.
-     *
-     * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
+     * \param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
      *      first and shortest last. The field is valid outside this ellipsoid.
-     * @param coefficients Field coefficients, normalised to the reference ellipsoid surface as
+     * \param coefficients Field coefficients, normalised to the reference ellipsoid surface as
      *      the coefficient files give them.
-     * @param lameFunctionCoefficients Lame polynomial coefficients of every term.
-     * @param transformFactors Factors that mix the terms within each group.
-     * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
-     * @param radialTableGridPoints Number of radii at which to tabulate the radial parts, which
-     *      is what makes repeated evaluation cheap. Zero integrates them exactly every time.
-     * @param radialTableLargestRadius Largest ellipsoidal radius the table covers; beyond it the
+     * \param lameFunctionCoefficients Lame polynomial coefficients of every term.
+     * \param transformFactors Factors that mix the terms within each group.
+     * \param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
+     * \param radialTableGridPoints Number of radii at which to tabulate the radial parts. Zero
+     *      integrates them exactly every time.
+     * \param radialTableLargestRadius Largest ellipsoidal radius the table covers. Beyond it the
      *      radial parts are integrated exactly. Zero uses fifty times the longest semi-axis.
-     * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
+     * \param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
      */
     EllipsoidalHarmonicsGravityFieldSettings( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
                                               const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients,
@@ -596,19 +595,9 @@ public:
         return referenceEllipsoidSemiAxes_;
     }
 
-    void resetReferenceEllipsoidSemiAxes( const Eigen::Vector3d& referenceEllipsoidSemiAxes )
-    {
-        referenceEllipsoidSemiAxes_ = referenceEllipsoidSemiAxes;
-    }
-
     basic_mathematics::EllipsoidalHarmonicCoefficients getCoefficients( )
     {
         return coefficients_;
-    }
-
-    void resetCoefficients( const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients )
-    {
-        coefficients_ = coefficients;
     }
 
     basic_mathematics::EllipsoidalHarmonicMatrices getLameFunctionCoefficients( )
@@ -616,19 +605,9 @@ public:
         return lameFunctionCoefficients_;
     }
 
-    void resetLameFunctionCoefficients( const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients )
-    {
-        lameFunctionCoefficients_ = lameFunctionCoefficients;
-    }
-
     basic_mathematics::EllipsoidalHarmonicMatrices getTransformFactors( )
     {
         return transformFactors_;
-    }
-
-    void resetTransformFactors( const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors )
-    {
-        transformFactors_ = transformFactors;
     }
 
     int getQuadratureOrder( )
@@ -636,19 +615,9 @@ public:
         return quadratureOrder_;
     }
 
-    void resetQuadratureOrder( const int quadratureOrder )
-    {
-        quadratureOrder_ = quadratureOrder;
-    }
-
     int getRadialTableGridPoints( )
     {
         return radialTableGridPoints_;
-    }
-
-    void resetRadialTableGridPoints( const int radialTableGridPoints )
-    {
-        radialTableGridPoints_ = radialTableGridPoints;
     }
 
     double getRadialTableLargestRadius( )
@@ -656,19 +625,9 @@ public:
         return radialTableLargestRadius_;
     }
 
-    void resetRadialTableLargestRadius( const double radialTableLargestRadius )
-    {
-        radialTableLargestRadius_ = radialTableLargestRadius;
-    }
-
     std::string getAssociatedReferenceFrame( )
     {
         return associatedReferenceFrame_;
-    }
-
-    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
-    {
-        associatedReferenceFrame_ = associatedReferenceFrame;
     }
 
 private:
@@ -1001,50 +960,18 @@ inline std::shared_ptr< GravityFieldSettings > ringGravitySettings( const double
             gravitationalParameter, ringRadius, associatedReferenceFrame, ellipticIntegralSFromDAndB );
 }
 
-/*! Settings for an ellipsoidal harmonic gravity field, from coefficients already in memory.
- *
+//! Function to create settings for an ellipsoidal harmonic gravity field from the three input files.
+/*!
  * The gravitational parameter is taken from the degree zero coefficient.
  *
- * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
+ * \param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
  *      first. The field is valid outside this ellipsoid.
- * @param coefficients Field coefficients, normalised to the reference ellipsoid surface.
- * @param lameFunctionCoefficients Lame polynomial coefficients of every term.
- * @param transformFactors Factors that mix the terms within each group.
- * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
- * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
- */
-inline std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettings(
-        const Eigen::Vector3d& referenceEllipsoidSemiAxes,
-        const basic_mathematics::EllipsoidalHarmonicCoefficients& coefficients,
-        const basic_mathematics::EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
-        const basic_mathematics::EllipsoidalHarmonicMatrices& transformFactors,
-        const int quadratureOrder = 24,
-        const int radialTableGridPoints = 3200,
-        const double radialTableLargestRadius = 0.0,
-        const std::string& associatedReferenceFrame = "" )
-{
-    return std::make_shared< EllipsoidalHarmonicsGravityFieldSettings >( referenceEllipsoidSemiAxes,
-                                                                         coefficients,
-                                                                         lameFunctionCoefficients,
-                                                                         transformFactors,
-                                                                         quadratureOrder,
-                                                                         radialTableGridPoints,
-                                                                         radialTableLargestRadius,
-                                                                         associatedReferenceFrame );
-}
-
-/*! Settings for an ellipsoidal harmonic gravity field, reading the three coefficient files.
- *
- * The gravitational parameter is taken from the degree zero coefficient.
- *
- * @param referenceEllipsoidSemiAxes The three semi-axes of the reference ellipsoid, longest
- *      first. The field is valid outside this ellipsoid.
- * @param coefficientFile File holding the field coefficients.
- * @param lameFunctionCoefficientFile File holding the Lame polynomials.
- * @param transformFactorFile File holding the transform factors.
- * @param maximumDegree Highest degree to read from the files.
- * @param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
- * @param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
+ * \param coefficientFile File holding the field coefficients.
+ * \param lameFunctionCoefficientFile File holding the Lame polynomials.
+ * \param transformFactorFile File holding the transform factors.
+ * \param maximumDegree Highest degree to read from the files.
+ * \param quadratureOrder Number of Gauss-Legendre nodes used for the radial parts.
+ * \param associatedReferenceFrame Identifier of the body-fixed frame the field is given in.
  */
 std::shared_ptr< GravityFieldSettings > ellipsoidalHarmonicsGravitySettingsFromFiles( const Eigen::Vector3d& referenceEllipsoidSemiAxes,
                                                                                       const std::string& coefficientFile,

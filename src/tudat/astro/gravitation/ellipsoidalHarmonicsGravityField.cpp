@@ -203,26 +203,17 @@ EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const Eigen:
     lameFunctionCoefficients_( lameFunctionCoefficients ), transformFactors_( transformFactors ),
     fixedReferenceFrame_( fixedReferenceFrame )
 {
-    // The semi-axes must be strictly ordered, otherwise the focal parameters are not real and
-    // the coordinates this model uses are not defined.
+    // The semi-axes must be strictly decreasing for the ellipsoidal coordinates to be defined.
     if( !( referenceEllipsoidSemiAxes( 0 ) > referenceEllipsoidSemiAxes( 1 ) &&
-           referenceEllipsoidSemiAxes( 1 ) > referenceEllipsoidSemiAxes( 2 ) && referenceEllipsoidSemiAxes( 2 ) > 0.0 ) )
+           referenceEllipsoidSemiAxes( 1 ) > referenceEllipsoidSemiAxes( 2 ) && referenceEllipsoidSemiAxes( 2 ) > 0.0 ) ||
+        lameFunctionCoefficients.getMaximumDegree( ) != maximumDegree_ || transformFactors.getMaximumDegree( ) != maximumDegree_ ||
+        quadratureOrder < 1 || ( radialTableGridPoints != 0 && radialTableGridPoints < 4 ) ||
+        ( radialTableLargestRadius != 0.0 && radialTableLargestRadius <= referenceEllipsoidSemiAxes( 0 ) ) )
     {
         throw std::runtime_error(
-                "Error when creating ellipsoidal harmonics gravity field, the reference ellipsoid "
-                "semi-axes must be given longest first and strictly decreasing, but they are " +
-                std::to_string( referenceEllipsoidSemiAxes( 0 ) ) + ", " + std::to_string( referenceEllipsoidSemiAxes( 1 ) ) + ", " +
-                std::to_string( referenceEllipsoidSemiAxes( 2 ) ) + "." );
-    }
-
-    if( lameFunctionCoefficients.getMaximumDegree( ) != maximumDegree_ || transformFactors.getMaximumDegree( ) != maximumDegree_ )
-    {
-        throw std::runtime_error(
-                "Error when creating ellipsoidal harmonics gravity field, the coefficients, the Lame "
-                "polynomials and the transform factors must all have the same maximum degree, but "
-                "they have " +
-                std::to_string( maximumDegree_ ) + ", " + std::to_string( lameFunctionCoefficients.getMaximumDegree( ) ) + " and " +
-                std::to_string( transformFactors.getMaximumDegree( ) ) + "." );
+                "Error when creating ellipsoidal harmonics gravity field, the semi-axes must be positive and strictly decreasing, "
+                "the three inputs must have the same maximum degree, the quadrature order must be at least 1, the radial table "
+                "needs zero or at least four grid points, and its largest radius must be zero or exceed the longest semi-axis." );
     }
 
     gravityCache_ = std::make_shared< EllipsoidalHarmonicsGravityCache >(
@@ -251,21 +242,20 @@ EllipsoidalHarmonicsGravityField::EllipsoidalHarmonicsGravityField( const Eigen:
     resetGravitationalParameter( coefficients_.kTerms.at( 0 )( 0 ) );
     gravitationalParameterOfCoefficients_ = gravitationalParameter_;
 
-    // Tabulating the radial parts against the ellipsoidal radius is what makes repeated
-    // evaluation cheap; outside the tabulated range they are integrated exactly instead.
+    // Tabulate the radial parts against the ellipsoidal radius. Outside the tabulated range they
+    // are integrated exactly instead.
     if( radialTableGridPoints > 0 )
     {
         const double largestRadius =
                 ( radialTableLargestRadius > 0.0 ) ? radialTableLargestRadius : 50.0 * referenceEllipsoidSemiAxes_( 0 );
 
-        radialTable_ = std::make_shared< EllipsoidalHarmonicRadialTable >( lameFunctionCoefficients_,
-                                                                           referenceEllipsoidSemiAxes_( 0 ),
-                                                                           largestRadius,
-                                                                           firstFocalParameter_,
-                                                                           secondFocalParameter_,
-                                                                           quadratureOrder_,
-                                                                           radialTableGridPoints );
-        gravityCache_->setRadialTable( radialTable_ );
+        gravityCache_->setRadialTable( std::make_shared< EllipsoidalHarmonicRadialTable >( lameFunctionCoefficients_,
+                                                                                           referenceEllipsoidSemiAxes_( 0 ),
+                                                                                           largestRadius,
+                                                                                           firstFocalParameter_,
+                                                                                           secondFocalParameter_,
+                                                                                           quadratureOrder_,
+                                                                                           radialTableGridPoints ) );
     }
 }
 

@@ -61,8 +61,8 @@ public:
      */
     void update( const double currentTime = TUDAT_NAN );
 
-    /*! Function returning the partial w.r.t. a double parameter.
-     *
+    //! Function returning the partial w.r.t. a double parameter.
+    /*!
      * Covers the gravitational parameter and the rotation model of the body exerting the
      * acceleration. Throws for a rotation parameter whose rotation matrix partial was not set up,
      * rather than reporting that the acceleration does not depend on it.
@@ -73,8 +73,8 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
-    /*! Function returning the partial w.r.t. a vector parameter.
-     *
+    //! Function returning the partial w.r.t. a vector parameter.
+    /*!
      * Covers the rotation model of the body exerting the acceleration.
      *
      * \param parameter Parameter w.r.t. which partial is to be taken.
@@ -83,8 +83,8 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
-    /*! Partial w.r.t. the gravitational parameter used by the acceleration.
-     *
+    //! Partial w.r.t. the gravitational parameter used by the acceleration.
+    /*!
      * The acceleration is proportional to that parameter, so the partial is the acceleration
      * divided by it. With mutual attraction the parameter is the sum of both bodies', so the
      * partial is the same for either body.
@@ -93,8 +93,8 @@ public:
      */
     void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
 
-    /*! Partial w.r.t. a parameter of the rotation model of the body exerting the acceleration.
-     *
+    //! Partial w.r.t. a parameter of the rotation model of the body exerting the acceleration.
+    /*!
      * \param partialMatrix Output partial, one column per entry of the parameter.
      * \param parameterType Type of the rotation parameter.
      * \param secondaryIdentifier Secondary identifier of the rotation parameter.
@@ -207,39 +207,6 @@ public:
         }
     }
 
-    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in inertial coordinates.
-    /*!
-     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
-     * in inertial coordinates
-     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in inertial coordinates.
-     */
-    Eigen::Matrix3d getCurrentPartialWrtPosition( )
-    {
-        return currentPartialWrtPosition_;
-    }
-
-    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in body-fixed coordinates.
-    /*!
-     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
-     * in body-fixed coordinates
-     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in body-fixed coordinates.
-     */
-    Eigen::Matrix3d getCurrentBodyFixedPartialWrtPosition( )
-    {
-        return currentBodyFixedPartialWrtPosition_;
-    }
-
-    //! Function to retrieve partial of acceleration wrt the velocity of body undergoing acceleration, in inertial coordinates.
-    /*!
-     * Function to retrieve the current partial of the acceleration wrt the velocity of the body undergoing the acceleration,
-     * in inertial coordinates
-     * \return Current partial of the acceleration wrt the velocity of the body undergoing the acceleration, in inertial coordinates.
-     */
-    Eigen::Matrix3d getCurrentPartialWrtVelocity( )
-    {
-        return currentPartialWrtVelocity_;
-    }
-
 private:
     //! Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration
     /*!
@@ -287,13 +254,13 @@ private:
     //! Function returning position of body exerting acceleration.
     std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratingBody_;
 
-    //! Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
     //! Gravity field of the body exerting the acceleration, which supplies the Hessian.
     std::shared_ptr< gravitation::EllipsoidalHarmonicsGravityField > gravityField_;
 
+    //! Function returning current rotation from body-fixed frame to the frame the propagation runs in.
     std::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
 
-    //! Function to retrieve the current spherical harmonic acceleration.
+    //! Function to retrieve the current ellipsoidal harmonics acceleration.
     std::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
 
     //! Function to update the acceleration to the current state and time.

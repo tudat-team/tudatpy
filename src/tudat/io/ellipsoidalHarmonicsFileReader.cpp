@@ -16,9 +16,11 @@
 #include "tudat/io/ellipsoidalHarmonicsFileReader.h"
 
 #include <fstream>
-#include <sstream>
 #include <stdexcept>
 #include <vector>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/math/special_functions/binomial.hpp>
 
 namespace tudat
 {
@@ -30,46 +32,6 @@ using namespace tudat::basic_mathematics;
 
 namespace
 {
-
-//! Opens a file, or throws naming it.
-std::ifstream openOrThrow( const std::string& fileName )
-{
-    std::ifstream stream( fileName );
-    if( !stream.good( ) )
-    {
-        throw std::runtime_error( "Error when reading ellipsoidal harmonics file, could not open " + fileName );
-    }
-    return stream;
-}
-
-//! Splits a line on whitespace.
-std::vector< std::string > splitLine( const std::string& line )
-{
-    std::vector< std::string > fields;
-    std::istringstream stream( line );
-    std::string field;
-    while( stream >> field )
-    {
-        fields.push_back( field );
-    }
-    return fields;
-}
-
-//! Binomial coefficient, for the small values the polynomial conversion needs.
-double binomialCoefficient( const int upper, const int lower )
-{
-    if( lower < 0 || lower > upper )
-    {
-        return 0.0;
-    }
-
-    double value = 1.0;
-    for( int i = 0; i < lower; i++ )
-    {
-        value = value * ( upper - i ) / ( i + 1 );
-    }
-    return value;
-}
 
 //! Letter used in the Lame and transform files for each term group.
 char getGroupLabel( const EllipsoidalHarmonicTermGroup group )
@@ -87,8 +49,8 @@ char getGroupLabel( const EllipsoidalHarmonicTermGroup group )
     }
 }
 
-/*! Allocates one square matrix per group per degree, sized by the number of terms in the group.
- *
+//! Allocates one square matrix per group per degree, sized by the number of terms in the group.
+/*!
  * The Lame polynomials and the transform factors share this shape: a group with t terms has a
  * t by t matrix, holding t polynomials of t coefficients, or a t by t mixing matrix.
  */
@@ -113,14 +75,14 @@ EllipsoidalHarmonicMatrices createSquareMatrixSet( const int maximumDegree )
     return matrices;
 }
 
-/*! Reads one of the two files that hold a line per term, "degree orderIndex label values...".
- *
- * @param fileName File to read.
- * @param maximumDegree Highest degree to read.
- * @param storeAsColumn If true each term's values become a column of its group's matrix, which
- *      is how the Lame polynomials are laid out; if false they become a row, as the transform
+//! Reads one of the two files that hold a line per term, "degree orderIndex label values...".
+/*!
+ * \param fileName File to read.
+ * \param maximumDegree Highest degree to read.
+ * \param storeAsColumn If true each term's values become a column of its group's matrix, which
+ *      is how the Lame polynomials are laid out. If false they become a row, as the transform
  *      factors are.
- * @param convertPolynomial If true the values are converted from powers of (1 - x) to powers
+ * \param convertPolynomial If true the values are converted from powers of (1 - x) to powers
  *      of x, which the Lame polynomials need and the transform factors do not.
  */
 EllipsoidalHarmonicMatrices readPerTermFile( const std::string& fileName,
@@ -138,14 +100,20 @@ EllipsoidalHarmonicMatrices readPerTermFile( const std::string& fileName,
         isTermRead[ degree ].assign( 2 * degree + 1, false );
     }
 
-    std::ifstream stream = openOrThrow( fileName );
+    std::ifstream stream( fileName );
+    if( !stream.good( ) )
+    {
+        throw std::runtime_error( "Error when reading ellipsoidal harmonics file, could not open " + fileName );
+    }
     std::string line;
     int lineNumber = 0;
 
     while( std::getline( stream, line ) )
     {
         lineNumber++;
-        const std::vector< std::string > fields = splitLine( line );
+        std::vector< std::string > fields;
+        boost::algorithm::split(
+                fields, boost::algorithm::trim_copy( line ), boost::algorithm::is_space( ), boost::algorithm::token_compress_on );
         if( fields.size( ) < 4 )
         {
             continue;
@@ -163,29 +131,21 @@ EllipsoidalHarmonicMatrices readPerTermFile( const std::string& fileName,
         int indexInGroup;
         getTermGroupAndIndex( degree, fileOrderIndex, group, indexInGroup );
 
-        // The file also labels the group; disagreement means the file layout is not what this
-        // reader assumes, which would otherwise show up only as a wrong field.
-        if( !fields.at( 2 ).empty( ) && fields.at( 2 ).at( 0 ) != getGroupLabel( group ) )
-        {
-            throw std::runtime_error( "Error when reading ellipsoidal harmonics file " + fileName + ", line " +
-                                      std::to_string( lineNumber ) + ": degree " + std::to_string( degree ) + " order index " +
-                                      std::to_string( fileOrderIndex ) + " should be group " + std::string( 1, getGroupLabel( group ) ) +
-                                      " but the file says " + fields.at( 2 ) + "." );
-        }
-
         Eigen::VectorXd values( fields.size( ) - 3 );
         for( int i = 0; i < values.size( ); i++ )
         {
             values( i ) = parseFortranDouble( fields.at( i + 3 ) );
         }
 
+        // The group label, the number of values and the term itself must match what this reader expects.
         Eigen::MatrixXd& matrix = matrices.getGroup( degree, group );
-        if( values.size( ) != matrix.rows( ) )
+        if( fields.at( 2 ).at( 0 ) != getGroupLabel( group ) || values.size( ) != matrix.rows( ) ||
+            isTermRead[ degree ][ fileOrderIndex - 1 ] )
         {
             throw std::runtime_error( "Error when reading ellipsoidal harmonics file " + fileName + ", line " +
-                                      std::to_string( lineNumber ) + ": expected " + std::to_string( matrix.rows( ) ) +
-                                      " values for degree " + std::to_string( degree ) + " group " +
-                                      std::string( 1, getGroupLabel( group ) ) + " but found " + std::to_string( values.size( ) ) + "." );
+                                      std::to_string( lineNumber ) + " should hold the only entry for degree " + std::to_string( degree ) +
+                                      " order index " + std::to_string( fileOrderIndex ) + ", with group label " +
+                                      std::string( 1, getGroupLabel( group ) ) + " and " + std::to_string( matrix.rows( ) ) + " values." );
         }
 
         if( convertPolynomial )
@@ -225,14 +185,7 @@ EllipsoidalHarmonicMatrices readPerTermFile( const std::string& fileName,
 
 double parseFortranDouble( const std::string& text )
 {
-    std::string converted = text;
-    for( char& character : converted )
-    {
-        if( character == 'D' || character == 'd' )
-        {
-            character = 'E';
-        }
-    }
+    const std::string converted = boost::algorithm::replace_all_copy( boost::algorithm::to_upper_copy( text ), "D", "E" );
 
     try
     {
@@ -256,7 +209,7 @@ Eigen::VectorXd convertPolynomialToPowersOfArgument( const Eigen::VectorXd& coef
         double sum = 0.0;
         for( int j = i; j < numberOfCoefficients; j++ )
         {
-            sum += coefficients( j ) * binomialCoefficient( j, i );
+            sum += coefficients( j ) * boost::math::binomial_coefficient< double >( j, i );
         }
         converted( i ) = ( i % 2 == 0 ) ? sum : -sum;
     }
@@ -277,12 +230,18 @@ EllipsoidalHarmonicCoefficients readEllipsoidalHarmonicCoefficients( const std::
         isOrderRead[ degree ].assign( degree + 1, false );
     }
 
-    std::ifstream stream = openOrThrow( fileName );
+    std::ifstream stream( fileName );
+    if( !stream.good( ) )
+    {
+        throw std::runtime_error( "Error when reading ellipsoidal harmonics file, could not open " + fileName );
+    }
     std::string line;
 
     while( std::getline( stream, line ) )
     {
-        const std::vector< std::string > fields = splitLine( line );
+        std::vector< std::string > fields;
+        boost::algorithm::split(
+                fields, boost::algorithm::trim_copy( line ), boost::algorithm::is_space( ), boost::algorithm::token_compress_on );
         if( fields.size( ) != 4 || fields.at( 0 ).at( 0 ) == '#' )
         {
             continue;
@@ -296,6 +255,12 @@ EllipsoidalHarmonicCoefficients readEllipsoidalHarmonicCoefficients( const std::
             continue;
         }
 
+        if( isOrderRead[ degree ][ order ] )
+        {
+            throw std::runtime_error( "Error when reading ellipsoidal harmonic coefficients from " + fileName + ", degree " +
+                                      std::to_string( degree ) + " order " + std::to_string( order ) + " appears twice." );
+        }
+
         const double cosineTerm = parseFortranDouble( fields.at( 2 ) );
         const double sineTerm = parseFortranDouble( fields.at( 3 ) );
 
@@ -307,7 +272,6 @@ EllipsoidalHarmonicCoefficients readEllipsoidalHarmonicCoefficients( const std::
         isOrderRead[ degree ][ order ] = true;
     }
 
-    // A missing line would silently become a zero coefficient.
     for( int degree = 0; degree <= maximumDegree; degree++ )
     {
         for( int order = 0; order <= degree; order++ )

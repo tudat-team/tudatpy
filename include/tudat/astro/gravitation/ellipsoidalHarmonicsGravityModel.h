@@ -31,8 +31,8 @@ namespace tudat
 namespace gravitation
 {
 
-/*! Acceleration caused by a gravity field described by ellipsoidal harmonics.
- *
+//! Acceleration caused by a gravity field described by ellipsoidal harmonics.
+/*!
  * The acceleration is the gradient of the potential, computed in the body-fixed frame of the
  * body exerting it and then rotated into the frame the propagation runs in.
  */
@@ -43,23 +43,23 @@ protected:
     typedef std::function< void( Eigen::Vector3d& ) > StateFunction;
 
 public:
-    /*! Constructor.
-     *
-     * @param positionOfBodySubjectToAccelerationFunction Function returning the position of the
+    //! Constructor.
+    /*!
+     * \param positionOfBodySubjectToAccelerationFunction Function returning the position of the
      *      body being accelerated.
-     * @param gravityField Gravity field of the body exerting the acceleration.
-     * @param gravitationalParameterFunction Function returning the gravitational parameter to
+     * \param gravityField Gravity field of the body exerting the acceleration.
+     * \param gravitationalParameterFunction Function returning the gravitational parameter to
      *      use. This is the parameter of the body exerting the acceleration, or the sum of both
      *      bodies' parameters when the frame is fixed to the central body.
-     * @param positionOfBodyExertingAccelerationFunction Function returning the position of the
-     *      body exerting the acceleration; the origin by default.
-     * @param rotationFromBodyFixedToIntegrationFrameFunction Function returning the rotation
+     * \param positionOfBodyExertingAccelerationFunction Function returning the position of the
+     *      body exerting the acceleration. The origin by default.
+     * \param rotationFromBodyFixedToIntegrationFrameFunction Function returning the rotation
      *      from the body-fixed frame of the body exerting the acceleration to the frame the
      *      propagation runs in.
-     * @param isMutualAttractionUsed Whether the attraction of the accelerated body on the body
+     * \param isMutualAttractionUsed Whether the attraction of the accelerated body on the body
      *      exerting the acceleration is included, which is what makes the gravitational
      *      parameter above a sum.
-     * @param updateGravitationalPotential Whether to also evaluate the potential on each
+     * \param updateGravitationalPotential Whether to also evaluate the potential on each
      *      update, which is only needed when it is written out as a dependent variable.
      */
     EllipsoidalHarmonicsGravitationalAccelerationModel(
@@ -82,9 +82,9 @@ public:
     //! Destructor.
     ~EllipsoidalHarmonicsGravitationalAccelerationModel( ) {}
 
-    /*! Recomputes the acceleration for the given time.
-     *
-     * @param currentTime Time to update to. Nothing is recomputed if it is the time already set.
+    //! Recomputes the acceleration for the given time.
+    /*!
+     * \param currentTime Time to update to. Nothing is recomputed if it is the time already set.
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
@@ -111,24 +111,6 @@ public:
                 currentPotential_ = scaling * gravityField_->getGravitationalPotential( currentRelativePosition_ );
             }
         }
-    }
-
-    //! Position of the accelerated body relative to the accelerating one, in the body-fixed frame.
-    Eigen::Vector3d getCurrentRelativePosition( )
-    {
-        return currentRelativePosition_;
-    }
-
-    //! Position of the accelerated body relative to the accelerating one, in the inertial frame.
-    Eigen::Vector3d getCurrentInertialRelativePosition( )
-    {
-        return currentInertialRelativePosition_;
-    }
-
-    //! Current rotation from the body-fixed frame to the propagation frame, as a quaternion.
-    Eigen::Quaterniond getCurrentRotationToIntegrationFrame( )
-    {
-        return rotationToIntegrationFrame_;
     }
 
     //! Current rotation from the body-fixed frame to the propagation frame, as a matrix.
@@ -165,12 +147,6 @@ public:
     bool getIsMutualAttractionUsed( )
     {
         return isMutualAttractionUsed_;
-    }
-
-    //! Current acceleration, in the body-fixed frame of the accelerating body.
-    Eigen::Vector3d getAccelerationInBodyFixedFrame( )
-    {
-        return currentAccelerationInBodyFixedFrame_;
     }
 
     //! Potential at the last update, which is only kept if that was asked for.

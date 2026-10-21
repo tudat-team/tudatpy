@@ -73,9 +73,10 @@ EllipsoidalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAccelerati
         if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) ==
             0 )
         {
-            throw std::runtime_error( "Error, no rotation matrix partial available for parameter " +
-                                      std::to_string( parameter->getParameterName( ).first ) + " of " + parameterBody +
-                                      " when making ellipsoidal harmonics acceleration partial." );
+            throw std::runtime_error(
+                    "Error when making ellipsoidal harmonics acceleration partial, no rotation matrix partial "
+                    "available for parameter " +
+                    std::to_string( parameter->getParameterName( ).first ) + " of " + parameterBody + "." );
         }
 
         partialFunction = std::bind( &EllipsoidalHarmonicsGravityPartial::wrtRotationModelParameter,
@@ -104,9 +105,10 @@ EllipsoidalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAccelerati
         if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) ==
             0 )
         {
-            throw std::runtime_error( "Error, no rotation matrix partial available for parameter " +
-                                      std::to_string( parameter->getParameterName( ).first ) + " of " + parameterBody +
-                                      " when making ellipsoidal harmonics acceleration partial." );
+            throw std::runtime_error(
+                    "Error when making ellipsoidal harmonics acceleration partial, no rotation matrix partial "
+                    "available for parameter " +
+                    std::to_string( parameter->getParameterName( ).first ) + " of " + parameterBody + "." );
         }
 
         partialFunction = std::bind( &EllipsoidalHarmonicsGravityPartial::wrtRotationModelParameter,
@@ -122,13 +124,7 @@ EllipsoidalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAccelerati
 
 void EllipsoidalHarmonicsGravityPartial::wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
 {
-    const double gravitationalParameter = gravitationalParameterFunction_( );
-    if( gravitationalParameter == 0.0 )
-    {
-        throw std::runtime_error( "Error, cannot compute partial of ellipsoidal harmonics gravity w.r.t. a zero gravitational parameter." );
-    }
-
-    partialMatrix = accelerationFunction_( ) / gravitationalParameter;
+    partialMatrix = accelerationFunction_( ) / gravitationalParameterFunction_( );
 }
 
 void EllipsoidalHarmonicsGravityPartial::wrtRotationModelParameter( Eigen::MatrixXd& partialMatrix,

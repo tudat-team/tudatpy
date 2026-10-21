@@ -15,10 +15,6 @@
  *          Hu, X., Jekeli, C. (2015), "A numerical comparison of spherical, spheroidal and
  *          ellipsoidal harmonic gravitational field models for small non-spherical bodies: examples
  *          for the Martian moons", Journal of Geodesy, 89(2), 159-177.
- *
- *          Reimond, S., Baur, O. (2016), "Spheroidal and ellipsoidal harmonic expansions of the
- *          gravitational potential of small Solar System bodies. Case study: Comet
- *          67P/Churyumov-Gerasimenko", Journal of Geophysical Research: Planets, 121(5), 497-515.
  */
 
 #include "tudat/math/basic/ellipsoidalHarmonics.h"
@@ -73,13 +69,11 @@ double evaluateAscendingDerivative( const Eigen::VectorXd& coefficients, const d
     return value;
 }
 
-/*! Everything about the second-kind integral that does not depend on which term is evaluated.
- *
+//! Everything about the second-kind integral that does not depend on which term is evaluated.
+/*!
  * The integral runs over s from 0 to h/rho, and all of its terms share the same nodes. Most of
  * the integrand is the same for every term too: only the Lame polynomial and the degree differ.
- * Those shared parts are gathered here once per ellipsoidal radius, which takes the square
- * roots and the powers of s out of the per-term loop. For a degree 15 field that is 256 terms
- * reading one table instead of rebuilding it 256 times.
+ * Those shared parts are gathered here once per ellipsoidal radius.
  *
  * The last entry is the upper limit of the integral rather than a quadrature node. Its weight is
  * zero so it does not contribute to the sum, and the integrand there is what the derivative with
@@ -108,15 +102,15 @@ struct SecondKindIntegralNodes {
     int upperLimitIndex;
 };
 
-/*! Gathers the shared part of the second-kind integral at one ellipsoidal radius.
- *
- * @param rho Ellipsoidal radius, which must be larger than k.
- * @param h First focal parameter of the reference ellipsoid.
- * @param k Second focal parameter of the reference ellipsoid.
- * @param quadratureNodes Gauss-Legendre nodes on [-1, 1].
- * @param quadratureWeights Matching Gauss-Legendre weights.
- * @param maximumDegree Highest degree that will be asked for.
- * @param nodes Output.
+//! Gathers the shared part of the second-kind integral at one ellipsoidal radius.
+/*!
+ * \param rho Ellipsoidal radius, which must be larger than k.
+ * \param h First focal parameter of the reference ellipsoid.
+ * \param k Second focal parameter of the reference ellipsoid.
+ * \param quadratureNodes Gauss-Legendre nodes on [-1, 1].
+ * \param quadratureWeights Matching Gauss-Legendre weights.
+ * \param maximumDegree Highest degree that will be asked for.
+ * \param nodes Output.
  */
 void buildSecondKindIntegralNodes( const double rho,
                                    const double h,
@@ -126,16 +120,6 @@ void buildSecondKindIntegralNodes( const double rho,
                                    const int maximumDegree,
                                    SecondKindIntegralNodes& nodes )
 {
-    if( rho <= k )
-    {
-        // At rho equal to k the integrand is singular at its upper limit, so the two have to stay
-        // well apart rather than merely ordered. The caller guarantees that by staying outside the
-        // reference ellipsoid, whose longest semi-axis exceeds k by a wide margin.
-        throw std::runtime_error( "Error when evaluating ellipsoidal harmonics, the ellipsoidal radius " + std::to_string( rho ) +
-                                  " is not larger than the focal parameter " + std::to_string( k ) +
-                                  "; the point lies inside the reference ellipsoid." );
-    }
-
     const double focalRatioSquared = ( k * k ) / ( h * h );
     const double upperLimit = h / rho;
     const int numberOfQuadratureNodes = static_cast< int >( quadratureNodes.size( ) );
@@ -171,8 +155,8 @@ void buildSecondKindIntegralNodes( const double rho,
     }
 }
 
-/*! The part of the squared Lame factor that the group contributes, from the shared table.
- *
+//! The part of the squared Lame factor that the group contributes, from the shared table.
+/*!
  * The integrand divides by the square of the Lame factor, so the square roots that the groups
  * put in front of their polynomials can be taken squared and never evaluated as roots at all.
  */
@@ -191,15 +175,15 @@ double getSquaredGroupFactor( const EllipsoidalHarmonicTermGroup group, const Se
     }
 }
 
-/*! The second-kind integral of one term, and the integrand at the upper limit.
- *
- * @param polynomialCoefficients Lame polynomial of the term, in ascending powers.
- * @param degree Degree of the term.
- * @param group Group the term belongs to.
- * @param h First focal parameter of the reference ellipsoid.
- * @param nodes Shared table from buildSecondKindIntegralNodes.
- * @param integral Output.
- * @param integrandAtUpperLimit Output, needed only for the derivative.
+//! The second-kind integral of one term, and the integrand at the upper limit.
+/*!
+ * \param polynomialCoefficients Lame polynomial of the term, in ascending powers.
+ * \param degree Degree of the term.
+ * \param group Group the term belongs to.
+ * \param h First focal parameter of the reference ellipsoid.
+ * \param nodes Shared table from buildSecondKindIntegralNodes.
+ * \param integral Output.
+ * \param integrandAtUpperLimit Output, needed only for the derivative.
  */
 void integrateSecondKindTerm( const Eigen::VectorXd& polynomialCoefficients,
                               const int degree,
@@ -241,21 +225,13 @@ int getNumberOfTermsInGroup( const int degree, const EllipsoidalHarmonicTermGrou
             return getNumberOfLTerms( degree );
         case ellipsoidal_harmonic_m_terms:
             return getNumberOfMTerms( degree );
-        case ellipsoidal_harmonic_n_terms:
-            return getNumberOfNTerms( degree );
         default:
-            throw std::runtime_error( "Error when counting ellipsoidal harmonic terms, group not recognised." );
+            return getNumberOfNTerms( degree );
     }
 }
 
 void getTermGroupAndIndex( const int degree, const int fileOrderIndex, EllipsoidalHarmonicTermGroup& group, int& indexInGroup )
 {
-    if( fileOrderIndex < 1 || fileOrderIndex > 2 * degree + 1 )
-    {
-        throw std::runtime_error( "Error when identifying ellipsoidal harmonic term, order index " + std::to_string( fileOrderIndex ) +
-                                  " is out of range for degree " + std::to_string( degree ) + "." );
-    }
-
     const int halfDegree = degree / 2;
 
     if( fileOrderIndex <= halfDegree + 1 )
@@ -340,25 +316,8 @@ Eigen::Vector3d convertCartesianToEllipsoidalCoordinates( const Eigen::Vector3d&
     return ( Eigen::Vector3d( ) << rho, phi, gamma ).finished( );
 }
 
-Eigen::Vector3d convertEllipsoidalToCartesianCoordinates( const Eigen::Vector3d& ellipsoidalCoordinates, const double h, const double k )
-{
-    const double rho = ellipsoidalCoordinates( 0 );
-    const double phi = ellipsoidalCoordinates( 1 );
-    const double gamma = ellipsoidalCoordinates( 2 );
-
-    return ( Eigen::Vector3d( ) << rho * std::sin( phi ),
-             std::sqrt( rho * rho - h * h ) * std::cos( phi ) * std::cos( gamma ),
-             std::sqrt( rho * rho - k * k ) * std::cos( phi ) * std::sin( gamma ) )
-            .finished( );
-}
-
 void computeGaussLegendreNodesAndWeights( const int order, Eigen::VectorXd& nodes, Eigen::VectorXd& weights )
 {
-    if( order < 1 )
-    {
-        throw std::runtime_error( "Error when creating Gauss-Legendre rule, order must be at least 1." );
-    }
-
     nodes = Eigen::VectorXd::Zero( order );
     weights = Eigen::VectorXd::Zero( order );
 
@@ -446,27 +405,6 @@ double evaluateLameFunctionFirstKind( const Eigen::VectorXd& polynomialCoefficie
     }
 
     return value;
-}
-
-double evaluateLameFunctionSecondKind( const Eigen::VectorXd& polynomialCoefficients,
-                                       const int degree,
-                                       const EllipsoidalHarmonicTermGroup group,
-                                       const double rho,
-                                       const double h,
-                                       const double k,
-                                       const Eigen::VectorXd& quadratureNodes,
-                                       const Eigen::VectorXd& quadratureWeights )
-{
-    // Builds the shared table for a single term, so this is the convenient route rather than the
-    // fast one. Anything evaluating many terms at one radius should use computeRadialFunctions.
-    SecondKindIntegralNodes nodes;
-    buildSecondKindIntegralNodes( rho, h, k, quadratureNodes, quadratureWeights, degree, nodes );
-
-    double integral;
-    double integrandAtUpperLimit;
-    integrateSecondKindTerm( polynomialCoefficients, degree, group, h, nodes, integral, integrandAtUpperLimit );
-
-    return ( 2 * degree + 1 ) * evaluateLameFunctionFirstKind( polynomialCoefficients, degree, group, rho, h, k ) * integral;
 }
 
 double evaluateLameFunctionFirstKindDerivative( const Eigen::VectorXd& polynomialCoefficients,
@@ -573,26 +511,6 @@ EllipsoidalHarmonicRadialTable::EllipsoidalHarmonicRadialTable( const Ellipsoida
     maximumDegree_( lameFunctionCoefficients.getMaximumDegree( ) ), smallestRadius_( smallestRadius ), largestRadius_( largestRadius ),
     numberOfGridPoints_( numberOfGridPoints )
 {
-    if( !( smallestRadius > k ) )
-    {
-        throw std::runtime_error( "Error when tabulating ellipsoidal harmonic radial parts, the smallest radius " +
-                                  std::to_string( smallestRadius ) + " is not larger than the focal parameter " + std::to_string( k ) +
-                                  "." );
-    }
-    if( !( largestRadius > smallestRadius ) )
-    {
-        throw std::runtime_error( "Error when tabulating ellipsoidal harmonic radial parts, the largest radius " +
-                                  std::to_string( largestRadius ) + " does not exceed the smallest radius " +
-                                  std::to_string( smallestRadius ) + "." );
-    }
-    if( numberOfGridPoints < 4 )
-    {
-        throw std::runtime_error(
-                "Error when tabulating ellipsoidal harmonic radial parts, at least four grid points "
-                "are needed but " +
-                std::to_string( numberOfGridPoints ) + " were requested." );
-    }
-
     const int numberOfTerms = getTotalNumberOfTerms( maximumDegree_ );
 
     // Interpolate in the reciprocal radius, scaled so that the largest radius maps to the first
@@ -650,24 +568,11 @@ EllipsoidalHarmonicRadialTable::EllipsoidalHarmonicRadialTable( const Ellipsoida
                 }
             }
         }
-
-        if( termIndex != numberOfTerms )
-        {
-            throw std::runtime_error( "Error when tabulating ellipsoidal harmonic radial parts, counted " + std::to_string( termIndex ) +
-                                      " terms but expected " + std::to_string( numberOfTerms ) + "." );
-        }
     }
 }
 
 void EllipsoidalHarmonicRadialTable::interpolate( const double rho, Eigen::VectorXd& scaledValues, Eigen::VectorXd& scaledSlopes ) const
 {
-    if( !isRadiusInRange( rho ) )
-    {
-        throw std::runtime_error( "Error when interpolating ellipsoidal harmonic radial parts, the ellipsoidal radius " +
-                                  std::to_string( rho ) + " lies outside the tabulated range " + std::to_string( smallestRadius_ ) +
-                                  " to " + std::to_string( largestRadius_ ) + "." );
-    }
-
     const double variable = smallestRadius_ / rho;
 
     int cell = static_cast< int >( ( variable - firstVariable_ ) / variableSpacing_ );
@@ -767,13 +672,6 @@ EllipsoidalHarmonicCoefficients normaliseCoefficientsToReferenceSurface(
         const EllipsoidalHarmonicCoefficients& fileCoefficients,
         const EllipsoidalHarmonicCoefficients& radialFunctionsAtReferenceSurface )
 {
-    if( fileCoefficients.getMaximumDegree( ) != radialFunctionsAtReferenceSurface.getMaximumDegree( ) )
-    {
-        throw std::runtime_error(
-                "Error when normalising ellipsoidal harmonic coefficients, the coefficients and "
-                "the reference radial functions have different maximum degrees." );
-    }
-
     EllipsoidalHarmonicCoefficients normalised = fileCoefficients;
 
     for( int degree = 0; degree <= normalised.getMaximumDegree( ); degree++ )
@@ -1219,38 +1117,6 @@ Eigen::Matrix3d computeEllipsoidalHarmonicPotentialHessian( const EllipsoidalHar
     }
 
     return hessian;
-}
-
-double computeEllipsoidalHarmonicGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition,
-                                                         const double h,
-                                                         const double k,
-                                                         const EllipsoidalHarmonicCoefficients& coefficients,
-                                                         const EllipsoidalHarmonicMatrices& lameFunctionCoefficients,
-                                                         const EllipsoidalHarmonicMatrices& transformFactors,
-                                                         const int quadratureOrder )
-{
-    const int maximumDegree = coefficients.getMaximumDegree( );
-
-    const Eigen::Vector3d ellipsoidalCoordinates = convertCartesianToEllipsoidalCoordinates( bodyFixedPosition, h, k );
-
-    Eigen::VectorXd quadratureNodes;
-    Eigen::VectorXd quadratureWeights;
-    computeGaussLegendreNodesAndWeights( quadratureOrder, quadratureNodes, quadratureWeights );
-
-    EllipsoidalHarmonicCoefficients radialFunctions = createEllipsoidalHarmonicCoefficients( maximumDegree );
-    computeRadialFunctions(
-            lameFunctionCoefficients, ellipsoidalCoordinates( 0 ), h, k, quadratureNodes, quadratureWeights, radialFunctions );
-
-    LegendreCache legendreCache( maximumDegree, maximumDegree, true );
-
-    // Only the polynomial values are needed. Their derivatives are singular where the long
-    // axis of the body crosses the surface of constant ellipsoidal radius, and asking for them
-    // there is an error, so they are switched off.
-    legendreCache.setComputeFirstDerivatives( false );
-    legendreCache.setComputeSecondDerivatives( false );
-    legendreCache.update( std::sin( ellipsoidalCoordinates( 1 ) ) );
-
-    return sumEllipsoidalHarmonicTerms( coefficients, radialFunctions, transformFactors, legendreCache, ellipsoidalCoordinates( 2 ) );
 }
 
 }  // namespace basic_mathematics

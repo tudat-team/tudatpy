@@ -44,7 +44,6 @@
 #include <tudat/astro/ephemerides/tleFitting.h>
 #include <tudat/astro/gravitation/gravityFieldModel.h>
 #include <tudat/astro/gravitation/gravityFieldVariations.h>
-#include <tudat/astro/gravitation/ellipsoidalHarmonicsGravityField.h>
 #include <tudat/astro/gravitation/polyhedronGravityField.h>
 #include <tudat/astro/gravitation/sphericalHarmonicsGravityField.h>
 #include <tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h>
@@ -2735,51 +2734,6 @@ bool
             .def_property_readonly( "volume", &tg::PolyhedronGravityField::getVolume )
             .def_property_readonly( "vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
             .def_property_readonly( "vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
-
-    py::class_< tg::EllipsoidalHarmonicsGravityField, std::shared_ptr< tg::EllipsoidalHarmonicsGravityField >, tg::GravityFieldModel >(
-            m,
-            "EllipsoidalHarmonicsGravityField",
-            R"doc(
-
-         Gravity field of a body described by ellipsoidal harmonics.
-
-         Ellipsoidal harmonics are valid outside the smallest ellipsoid that encloses the body, rather than
-         outside the smallest enclosing sphere as spherical harmonics are, so the model stays usable much
-         closer to the surface of an elongated body. This object is typically created using
-         :func:`~tudatpy.dynamics.environment_setup.gravity_field.ellipsoidal_harmonics_from_files`.
-
-     )doc" )
-            .def( "get_gravitational_potential",
-                  &tg::EllipsoidalHarmonicsGravityField::getGravitationalPotential,
-                  py::arg( "body_fixed_position" ),
-                  R"doc(
-
-         Gravitational potential at a position in the body-fixed frame.
-
-         Raises an error if the position lies inside the reference ellipsoid, where the expansion does not
-         converge.
-
-     )doc" )
-            .def_property_readonly( "reference_ellipsoid_semi_axes", &tg::EllipsoidalHarmonicsGravityField::getReferenceEllipsoidSemiAxes )
-            .def_property_readonly( "maximum_degree", &tg::EllipsoidalHarmonicsGravityField::getMaximumDegree )
-            .def( "get_gradient_of_potential",
-                  &tg::EllipsoidalHarmonicsGravityField::getGradientOfPotential,
-                  py::arg( "body_fixed_position" ),
-                  R"doc(
-
-         Gradient of the potential at a position in the body-fixed frame, which is the gravitational
-         acceleration there.
-
-     )doc" )
-            .def( "get_hessian_of_potential",
-                  &tg::EllipsoidalHarmonicsGravityField::getHessianOfPotential,
-                  py::arg( "body_fixed_position" ),
-                  R"doc(
-
-         Second derivatives of the potential at a position in the body-fixed frame.
-
-     )doc" )
-            .def_property_readonly( "quadrature_order", &tg::EllipsoidalHarmonicsGravityField::getQuadratureOrder );
 
     gravity_field_variations.doc( ) = R"doc(
 

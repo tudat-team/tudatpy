@@ -515,13 +515,13 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 
             if( ellipsoidalHarmonicsFieldSettings == nullptr )
             {
-                throw std::runtime_error(
-                        "Error, expected ellipsoidal harmonics gravity settings when making gravity field model for body " + body );
+                throw std::runtime_error( "Error when making gravity field model for body " + body +
+                                          ", expected ellipsoidal harmonics gravity settings." );
             }
             else if( gravityFieldVariationSettings.size( ) != 0 )
             {
-                throw std::runtime_error(
-                        "Error, requested ellipsoidal harmonics gravity field, but field variations settings are not empty." );
+                throw std::runtime_error( "Error when making ellipsoidal harmonics gravity field for body " + body +
+                                          ", field variations are not supported." );
             }
             else
             {

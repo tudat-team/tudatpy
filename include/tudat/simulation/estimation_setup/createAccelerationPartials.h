@@ -781,8 +781,8 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             if( ellipsoidalHarmonicsAccelerationModel == nullptr )
             {
                 throw std::runtime_error(
-                        "Acceleration class type does not match acceleration type enum (ellipsoidal_harmonic_gravity) set when making "
-                        "acceleration partial." );
+                        "Error when making acceleration partial, acceleration class type does not match acceleration type "
+                        "(ellipsoidal_harmonic_gravity)." );
             }
             else
             {
@@ -802,8 +802,8 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             if( std::dynamic_pointer_cast< ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel >( accelerationModel ) == nullptr )
             {
                 throw std::runtime_error(
-                        "Acceleration class type does not match acceleration type "
-                        "(third_body_ellipsoidal_harmonic_gravity) when making acceleration partial." );
+                        "Error when making acceleration partial, acceleration class type does not match acceleration type "
+                        "(third_body_ellipsoidal_harmonic_gravity)." );
             }
             else
             {

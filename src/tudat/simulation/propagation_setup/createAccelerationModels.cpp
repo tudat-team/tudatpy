@@ -810,28 +810,15 @@ std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel
 
     std::shared_ptr< RotationalEphemeris > rotationalEphemeris = bodyExertingAcceleration->getRotationalEphemeris( );
 
-    if( ellipsoidalHarmonicsGravityField == nullptr )
+    if( ellipsoidalHarmonicsGravityField == nullptr || rotationalEphemeris == nullptr ||
+        rotationalEphemeris->getTargetFrameOrientation( ) != ellipsoidalHarmonicsGravityField->getFixedReferenceFrame( ) )
     {
-        throw std::runtime_error( std::string( "Error, ellipsoidal harmonics gravity field model not set when " ) +
-                                  " making ellipsoidal harmonics gravitational acceleration of " + nameOfBodyExertingAcceleration + " on " +
-                                  nameOfBodyUndergoingAcceleration );
+        throw std::runtime_error( "Error when making ellipsoidal harmonics acceleration of " + nameOfBodyExertingAcceleration + " on " +
+                                  nameOfBodyUndergoingAcceleration + ", " + nameOfBodyExertingAcceleration +
+                                  " needs an ellipsoidal harmonics gravity field and a rotation model in the frame of that field." );
     }
     else
     {
-        if( rotationalEphemeris == nullptr )
-        {
-            throw std::runtime_error( "Warning when making ellipsoidal harmonics acceleration on body " + nameOfBodyUndergoingAcceleration +
-                                      ", no rotation model found for " + nameOfBodyExertingAcceleration );
-        }
-
-        if( rotationalEphemeris->getTargetFrameOrientation( ) != ellipsoidalHarmonicsGravityField->getFixedReferenceFrame( ) )
-        {
-            throw std::runtime_error( "Warning when making ellipsoidal harmonics acceleration on body " + nameOfBodyUndergoingAcceleration +
-                                      ", rotation model found for " + nameOfBodyExertingAcceleration +
-                                      " is incompatible, frames are: " + rotationalEphemeris->getTargetFrameOrientation( ) + " and " +
-                                      ellipsoidalHarmonicsGravityField->getFixedReferenceFrame( ) );
-        }
-
         std::function< double( ) > gravitationalParameterFunction;
 
         // Check if mutual acceleration is to be used.

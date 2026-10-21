@@ -879,8 +879,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         else if( thirdBodyAcceleration == nullptr )
                         {
                             throw std::runtime_error(
-                                    "Error, incompatible input (ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel "
-                                    "to createTranslationalEquationsOfMotion EnvironmentUpdaterSettings" );
+                                    "Error when creating environment updater settings, incompatible input "
+                                    "(ThirdBodyEllipsoidalHarmonicsGravitationalAccelerationModel)." );
                         }
                         break;
                     }

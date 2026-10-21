@@ -274,15 +274,16 @@ std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGra
         const std::string& nameOfBodyExertingAcceleration,
         const bool useCentralBodyFixedFrame );
 
-/*! Creates an acceleration from a gravity field described by ellipsoidal harmonics.
- *
- * @param bodyUndergoingAcceleration Body being accelerated.
- * @param bodyExertingAcceleration Body exerting the acceleration, which must carry an
+//! Function to create an acceleration from a gravity field described by ellipsoidal harmonics.
+/*!
+ * \param bodyUndergoingAcceleration Body being accelerated.
+ * \param bodyExertingAcceleration Body exerting the acceleration, which must carry an
  *      ellipsoidal harmonics gravity field and a rotation model in the matching frame.
- * @param nameOfBodyUndergoingAcceleration Name of the body being accelerated.
- * @param nameOfBodyExertingAcceleration Name of the body exerting the acceleration.
- * @param useCentralBodyFixedFrame Whether the attraction of the accelerated body on the body
+ * \param nameOfBodyUndergoingAcceleration Name of the body being accelerated.
+ * \param nameOfBodyExertingAcceleration Name of the body exerting the acceleration.
+ * \param useCentralBodyFixedFrame Whether the attraction of the accelerated body on the body
  *      exerting the acceleration is to be included.
+ * \return Ellipsoidal harmonics acceleration model.
  */
 std::shared_ptr< gravitation::EllipsoidalHarmonicsGravitationalAccelerationModel > createEllipsoidalHarmonicsGravityAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
