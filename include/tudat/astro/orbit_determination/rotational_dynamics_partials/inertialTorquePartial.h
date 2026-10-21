@@ -36,16 +36,21 @@ public:
      * \param inertiaTensorNormalizationFunction Function the inertia tensor normalization factor
      * \param bodyGravitationalParameterFunction Function returning body gravitational parameter
      * \param acceleratedBody Name of body undergoing torque
+     * \param inertiaTensorDerivativeFunction Function that returns time derivative of body's inertia tensor (empty if
+     * this derivative is not included in the inertial torque)
      */
-    InertialTorquePartial( const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
-                           const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
-                           const std::function< double( ) > inertiaTensorNormalizationFunction,
-                           const std::function< double( ) > bodyGravitationalParameterFunction,
-                           const std::string acceleratedBody ):
+    InertialTorquePartial(
+            const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
+            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+            const std::function< double( ) > inertiaTensorNormalizationFunction,
+            const std::function< double( ) > bodyGravitationalParameterFunction,
+            const std::string acceleratedBody,
+            const std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction = std::function< Eigen::Matrix3d( ) >( ) ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction ),
         getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
-        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction )
+        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction ),
+        inertiaTensorDerivativeFunction_( inertiaTensorDerivativeFunction )
     {}
 
     ~InertialTorquePartial( ) {}
@@ -123,8 +128,15 @@ public:
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ );
 
-            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
-            currentGravitationalParameter_ = bodyGravitationalParameterFunction_( );
+            // Gravity field properties are only defined (and needed) for bodies with a (spherical harmonic) gravity field
+            if( getInertiaTensorNormalizationFactor_ != nullptr )
+            {
+                currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            }
+            if( bodyGravitationalParameterFunction_ != nullptr )
+            {
+                currentGravitationalParameter_ = bodyGravitationalParameterFunction_( );
+            }
 
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
@@ -132,6 +144,12 @@ public:
             currentPartialDerivativeWrtAngularVelocity_ =
                     -linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ +
                     linear_algebra::getCrossProductMatrix( currentInertiaTensor_ * currentAngularVelocityVector_ );
+
+            // Add contribution of inertia tensor derivative (-dI/dt * omega) to torque
+            if( inertiaTensorDerivativeFunction_ != nullptr )
+            {
+                currentPartialDerivativeWrtAngularVelocity_ -= inertiaTensorDerivativeFunction_( );
+            }
         }
     }
 
@@ -187,6 +205,9 @@ protected:
 
     //!  Function returning body gravitational parameter
     std::function< double( ) > bodyGravitationalParameterFunction_;
+
+    //! Function returning time derivative of body inertia tensor (empty if not included in torque)
+    std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction_;
 
     //! Current angular velocity vector
     Eigen::Vector3d currentAngularVelocityVector_;

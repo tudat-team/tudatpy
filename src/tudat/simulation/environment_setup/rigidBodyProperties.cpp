@@ -19,6 +19,7 @@
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
 #include "tudat/astro/gravitation/ringGravityField.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/math/basic/legendrePolynomials.h"
 
 namespace tudat
 {
@@ -82,8 +83,9 @@ void computePointMassDistribution( Eigen::Vector3d& centerOfMass, bool& inertiaT
 
 RigidBodyProperties::RigidBodyProperties( ):
     currentMass_( TUDAT_NAN ), currentCenterOfMass_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
-    currentInertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), isBodyInPropagation_( false ), isMassComputed_( false ),
-    isComComputed_( false ), isInertiaTensorComputed_( false ), isInertiaTensorAvailable_( false )
+    currentInertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), currentDerivativeInertiaTensor_( Eigen::Matrix3d::Zero( ) ),
+    isBodyInPropagation_( false ), isMassComputed_( false ), isComComputed_( false ), isInertiaTensorComputed_( false ),
+    isDerivativeInertiaTensorComputed_( false ), isInertiaTensorAvailable_( false ), isDerivativeInertiaTensorAvailable_( false )
 {}
 
 RigidBodyProperties::~RigidBodyProperties( ) {}
@@ -99,6 +101,7 @@ void RigidBodyProperties::resetCurrentTime( )
     isMassComputed_ = false;
     isComComputed_ = false;
     isInertiaTensorComputed_ = false;
+    isDerivativeInertiaTensorComputed_ = false;
 }
 
 double RigidBodyProperties::getCurrentMass( )
@@ -128,9 +131,27 @@ Eigen::Matrix3d RigidBodyProperties::getCurrentInertiaTensor( )
     return currentInertiaTensor_;
 }
 
+Eigen::Matrix3d RigidBodyProperties::getCurrentDerivativeInertiaTensor( )
+{
+    if( !isDerivativeInertiaTensorAvailable_ )
+    {
+        throw std::runtime_error( "Error when retrieving inertia tensor derivative: no derivative model is defined." );
+    }
+    if( !isDerivativeInertiaTensorComputed_ )
+    {
+        throw std::runtime_error( "Error when retrieving inertia tensor derivative: not updated for the current epoch." );
+    }
+    return currentDerivativeInertiaTensor_;
+}
+
 bool RigidBodyProperties::isInertiaTensorAvailable( ) const
 {
     return isInertiaTensorAvailable_;
+}
+
+bool RigidBodyProperties::isInertiaTensorDerivativeAvailable( ) const
+{
+    return isDerivativeInertiaTensorAvailable_;
 }
 
 void RigidBodyProperties::setIsBodyInPropagation( const bool isBodyInPropagation )
@@ -166,6 +187,8 @@ TimeDependentRigidBodyProperties::TimeDependentRigidBodyProperties( const double
         currentInertiaTensor_ = inertiaTensor;
         isInertiaTensorComputed_ = true;
         isInertiaTensorAvailable_ = true;
+        isDerivativeInertiaTensorAvailable_ = true;
+        isDerivativeInertiaTensorComputed_ = true;
     }
 }
 
@@ -210,6 +233,9 @@ void TimeDependentRigidBodyProperties::setInertiaTensor( const Eigen::Matrix3d& 
     currentInertiaTensor_ = inertiaTensor;
     isInertiaTensorComputed_ = true;
     isInertiaTensorAvailable_ = true;
+    currentDerivativeInertiaTensor_.setZero( );
+    isDerivativeInertiaTensorAvailable_ = true;
+    isDerivativeInertiaTensorComputed_ = true;
 }
 
 void TimeDependentRigidBodyProperties::updateMass( const double currentTime )
@@ -264,6 +290,20 @@ void MassDependentRigidBodyProperties::updateMassDistribution( const double curr
         currentInertiaTensor_ = inertiaTensorFunction_( currentMass_ );
         isInertiaTensorComputed_ = true;
     }
+
+    if( isDerivativeInertiaTensorAvailable_ && ( !isDerivativeInertiaTensorComputed_ || !isBodyInPropagation_ ) )
+    {
+        currentDerivativeInertiaTensor_ = inertiaTensorDerivativeFunction_( currentTime );
+        isDerivativeInertiaTensorComputed_ = true;
+    }
+}
+
+void MassDependentRigidBodyProperties::setInertiaTensorDerivativeFunction(
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction )
+{
+    inertiaTensorDerivativeFunction_ = inertiaTensorDerivativeFunction;
+    isDerivativeInertiaTensorAvailable_ = ( inertiaTensorDerivativeFunction_ != nullptr );
+    isDerivativeInertiaTensorComputed_ = false;
 }
 
 void MassDependentRigidBodyProperties::setCurrentMass( const double currentMass )
@@ -289,6 +329,7 @@ void FromGravityFieldRigidBodyProperties::resetCurrentTime( )
         isMassComputed_ = false;
         isComComputed_ = false;
         isInertiaTensorComputed_ = false;
+        isDerivativeInertiaTensorComputed_ = false;
     }
 }
 
@@ -302,10 +343,43 @@ void FromGravityFieldRigidBodyProperties::updateMass( const double currentTime )
 
 void FromGravityFieldRigidBodyProperties::updateMassDistribution( const double currentTime )
 {
-    if( ( modelIsTimeDependent_ && ( !isComComputed_ || !isInertiaTensorComputed_ ) ) || !isBodyInPropagation_ )
+    if( ( modelIsTimeDependent_ && ( !isComComputed_ || !isInertiaTensorComputed_ || !isDerivativeInertiaTensorComputed_ ) ) ||
+        !isBodyInPropagation_ )
     {
-        computeMassDistributionFromGravityField( );
+        computeMassDistributionFromGravityField( currentTime );
     }
+}
+
+void FromGravityFieldRigidBodyProperties::updateInertiaTensorDerivative( const Eigen::Vector5d& derivativeDegreeTwoCoefficients )
+{
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
+    if( !isInertiaTensorAvailable_ || sphericalHarmonicsGravityField == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when updating inertia tensor derivative: gravity field does not provide degree-two inertia data." );
+    }
+
+    // Denormalize coefficient rates, and compute inertia tensor derivative (mean moment of inertia is constant)
+    Eigen::MatrixXd normalizedCosineCoefficientDerivatives = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd normalizedSineCoefficientDerivatives = Eigen::Matrix3d::Zero( );
+    normalizedCosineCoefficientDerivatives( 2, 0 ) = derivativeDegreeTwoCoefficients( 0 );
+    normalizedCosineCoefficientDerivatives( 2, 1 ) = derivativeDegreeTwoCoefficients( 1 );
+    normalizedCosineCoefficientDerivatives( 2, 2 ) = derivativeDegreeTwoCoefficients( 2 );
+    normalizedSineCoefficientDerivatives( 2, 1 ) = derivativeDegreeTwoCoefficients( 3 );
+    normalizedSineCoefficientDerivatives( 2, 2 ) = derivativeDegreeTwoCoefficients( 4 );
+
+    Eigen::MatrixXd unnormalizedCosineCoefficientDerivatives, unnormalizedSineCoefficientDerivatives;
+    basic_mathematics::convertGeodesyNormalizedToUnnormalizedCoefficients( normalizedCosineCoefficientDerivatives,
+                                                                           normalizedSineCoefficientDerivatives,
+                                                                           unnormalizedCosineCoefficientDerivatives,
+                                                                           unnormalizedSineCoefficientDerivatives );
+    currentDerivativeInertiaTensor_ = gravitation::getInertiaTensor( unnormalizedCosineCoefficientDerivatives,
+                                                                     unnormalizedSineCoefficientDerivatives,
+                                                                     0.0,
+                                                                     currentMass_,
+                                                                     sphericalHarmonicsGravityField->getReferenceRadius( ) );
+    isDerivativeInertiaTensorComputed_ = true;
 }
 
 void FromGravityFieldRigidBodyProperties::setCurrentMass( const double currentMass )
@@ -318,7 +392,7 @@ void FromGravityFieldRigidBodyProperties::setCurrentMass( const double currentMa
 void FromGravityFieldRigidBodyProperties::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
     computeMassFromGravityField( );
-    computeMassDistributionFromGravityField( );
+    computeMassDistributionFromGravityField( TUDAT_NAN );
     isBodyInPropagation_ = isBodyInPropagation;
 }
 
@@ -344,8 +418,12 @@ void FromGravityFieldRigidBodyProperties::resetGravityFieldModel(
                     polyhedronGravityField->getVerticesCoordinates( ), polyhedronGravityField->getVerticesDefiningEachFacet( ), 1.0, 1.0 );
         }
     }
+    currentDerivativeInertiaTensor_.setZero( );
     computeMassFromGravityField( );
-    computeMassDistributionFromGravityField( );
+    computeMassDistributionFromGravityField( TUDAT_NAN );
+
+    // Inertia tensor derivative is zero for a static field, and computed from gravity field variations for a time-dependent field
+    isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_;
 }
 
 void FromGravityFieldRigidBodyProperties::computeMassFromGravityField( )
@@ -354,7 +432,7 @@ void FromGravityFieldRigidBodyProperties::computeMassFromGravityField( )
     isMassComputed_ = true;
 }
 
-void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityField( )
+void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityField( const double currentTime )
 {
     const gravitation::GravityFieldModel& gravityFieldReference = *gravityFieldModel_;
     if( const auto sphericalHarmonicsGravityField =
@@ -383,6 +461,35 @@ void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityFiel
 
     isComComputed_ = true;
     isInertiaTensorComputed_ = isInertiaTensorAvailable_;
+
+    // Compute inertia tensor derivative from time derivatives of degree two coefficients (zero for a static field)
+    if( !modelIsTimeDependent_ )
+    {
+        currentDerivativeInertiaTensor_.setZero( );
+        isDerivativeInertiaTensorComputed_ = isInertiaTensorAvailable_;
+    }
+    else if( isInertiaTensorAvailable_ && !std::isnan( currentTime ) )
+    {
+        Eigen::MatrixXd sineCoefficientDerivatives = Eigen::MatrixXd::Zero( 3, 3 );
+        Eigen::MatrixXd cosineCoefficientDerivatives = Eigen::MatrixXd::Zero( 3, 3 );
+        std::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationsSet =
+                std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ )
+                        ->getGravityFieldVariationsSet( );
+        if( gravityFieldVariationsSet != nullptr )
+        {
+            gravityFieldVariationsSet->addSphericalHarmonicsCorrectionTimeDerivatives(
+                    currentTime, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+        }
+
+        Eigen::Vector5d degreeTwoCoefficientDerivatives;
+        degreeTwoCoefficientDerivatives << cosineCoefficientDerivatives( 2, 0 ), cosineCoefficientDerivatives( 2, 1 ),
+                cosineCoefficientDerivatives( 2, 2 ), sineCoefficientDerivatives( 2, 1 ), sineCoefficientDerivatives( 2, 2 );
+        updateInertiaTensorDerivative( degreeTwoCoefficientDerivatives );
+    }
+    else
+    {
+        isDerivativeInertiaTensorComputed_ = false;
+    }
 }
 
 double FromGravityFieldRigidBodyProperties::getScaledMeanMomentOfInertia( ) const
@@ -393,7 +500,12 @@ double FromGravityFieldRigidBodyProperties::getScaledMeanMomentOfInertia( ) cons
 void FromGravityFieldRigidBodyProperties::setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
 {
     scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
-    computeMassDistributionFromGravityField( );
+    computeMassDistributionFromGravityField( TUDAT_NAN );
+    isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_;
+    if( !isDerivativeInertiaTensorAvailable_ )
+    {
+        isDerivativeInertiaTensorComputed_ = false;
+    }
 }
 
 }  // namespace simulation_setup

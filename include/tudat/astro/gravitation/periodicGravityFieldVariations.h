@@ -35,7 +35,10 @@ public:
 
     virtual ~PeriodicGravityFieldVariations( ) {}
 
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) override;
+
+    //! Differentiate the sine and cosine time dependence at each frequency.
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
 
     std::vector< Eigen::MatrixXd > getCosineShAmplitudesCosineTime( )
     {
@@ -59,21 +62,25 @@ public:
 
     void resetCosineShAmplitudesCosineTime( const std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime )
     {
+        checkAmplitudes( cosineShAmplitudesCosineTime );
         cosineShAmplitudesCosineTime_ = cosineShAmplitudesCosineTime;
     }
 
     void resetCosineShAmplitudesSineTime( const std::vector< Eigen::MatrixXd >& cosineShAmplitudesSineTime )
     {
+        checkAmplitudes( cosineShAmplitudesSineTime );
         cosineShAmplitudesSineTime_ = cosineShAmplitudesSineTime;
     }
 
     void resetSineShAmplitudesCosineTime( const std::vector< Eigen::MatrixXd >& sineShAmplitudesCosineTime )
     {
+        checkAmplitudes( sineShAmplitudesCosineTime );
         sineShAmplitudesCosineTime_ = sineShAmplitudesCosineTime;
     }
 
     void resetSineShAmplitudesSineTime( const std::vector< Eigen::MatrixXd >& sineShAmplitudesSineTime )
     {
+        checkAmplitudes( sineShAmplitudesSineTime );
         sineShAmplitudesSineTime_ = sineShAmplitudesSineTime;
     }
 
@@ -88,6 +95,9 @@ public:
     }
 
 protected:
+    //! Validate amplitude counts and block dimensions only when constructing or resetting the model.
+    void checkAmplitudes( const std::vector< Eigen::MatrixXd >& amplitudes ) const;
+
     std::vector< Eigen::MatrixXd > cosineShAmplitudesCosineTime_;
 
     std::vector< Eigen::MatrixXd > cosineShAmplitudesSineTime_;

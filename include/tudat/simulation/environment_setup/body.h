@@ -722,6 +722,14 @@ public:
      */
     Eigen::Matrix3d getBodyInertiaTensor( );
 
+    //! Function to retrieve the time derivative of the body moment-of-inertia tensor.
+    /*!
+     * Function to retrieve the time derivative of the body moment-of-inertia tensor, as computed by the latest update of the body
+     * mass properties.
+     * \return Time derivative of the body moment-of-inertia tensor.
+     */
+    Eigen::Matrix3d getBodyInertiaTensorDerivative( );
+
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.

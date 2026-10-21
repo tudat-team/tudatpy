@@ -980,7 +980,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     }
 }
 
-//! Test if rotational dynamics propagation correctly produces in-plane libration
+//! Test if rotational dynamics propagation correctly produces in-plane libration (and zero inertia tensor derivative)
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
 {
     // Load spice kernels.
@@ -1053,9 +1053,22 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
 
                             std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
+            propagatorSettings->resetDependentVariablesToSave( { customDependentVariable(
+                    [ body = bodies.at( "Phobos" ) ]( ) -> Eigen::VectorXd {
+                        return getVectorRepresentationForRotationMatrix( body->getBodyInertiaTensorDerivative( ) );
+                    },
+                    9 ) } );
+
             // Propagate dynamics
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
+            const auto dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+            // Check that inertia tensor derivative is zero for static gravity field
+            BOOST_REQUIRE_GT( dependentVariableHistory.size( ), 1 );
+            for( const auto& entry : dependentVariableHistory )
+            {
+                BOOST_CHECK_SMALL( entry.second.norm( ), 1.0e-30 );
+            }
 
             // Retrieve Phobos rotation model with reset rotational state
             std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodies.at( "Phobos" )->getRotationalEphemeris( );

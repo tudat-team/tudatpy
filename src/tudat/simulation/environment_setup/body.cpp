@@ -614,6 +614,16 @@ Eigen::Matrix3d Body::getBodyInertiaTensor( )
     return massProperties_->getCurrentInertiaTensor( );
 }
 
+Eigen::Matrix3d Body::getBodyInertiaTensorDerivative( )
+{
+    if( massProperties_ == nullptr )
+    {
+        throw std::runtime_error( "Error when retrieving the time derivative of the inertia tensor of " + bodyName_ +
+                                  ", no mass properties found" );
+    }
+    return massProperties_->getCurrentDerivativeInertiaTensor( );
+}
+
 void Body::setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )
 {
     if( massProperties_ == nullptr )

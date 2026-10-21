@@ -2220,9 +2220,9 @@ bool
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
 
-         Object that defines the mass, center of mass, and inertia tensor as a function of time.
+         Object that defines the mass, center of mass, and inertia tensor (and its time derivative) as a function of time.
 
-         Object that defines the mass, center of mass, and inertia tensor as a function of time, typically used for evaluation of torques and non-conservative forces
+         Object that defines the mass, center of mass, and inertia tensor (and its time derivative) as a function of time, typically used for evaluation of torques and non-conservative forces
          in numerical state propagation. Note that this object does *not* define properties of a gravity field (it defines the inertial mass rather than the gravitational mass).
          When these properties are derived from the body's gravity field, they are recomputed from the gravity field by the ``update`` function.
 
@@ -2267,12 +2267,29 @@ bool
 
         :type: numpy.ndarray[numpy.float64[3, 3]]
       )doc" )
+            .def_property_readonly( "current_inertia_tensor_derivative",
+                                    &tss::RigidBodyProperties::getCurrentDerivativeInertiaTensor,
+                                    R"doc(
+
+        Time derivative of the inertia tensor of the object (with axes along those of the body-fixed frame), as set by the latest call to the ``update`` function of this object.
+        An exception is thrown if no inertia tensor derivative is defined (see ``inertia_tensor_derivative_available``).
+
+        :type: numpy.ndarray[numpy.float64[3, 3]]
+      )doc" )
             .def_property_readonly( "inertia_tensor_available",
                                     &tss::RigidBodyProperties::isInertiaTensorAvailable,
                                     R"doc(
 
         Boolean denoting whether these properties define an inertia tensor. For properties derived from a gravity field, this is
         the case for a polyhedron field, and for a spherical harmonic field with degree 2 coefficients and a defined scaled mean moment of inertia.
+
+        :type: bool
+      )doc" )
+            .def_property_readonly( "inertia_tensor_derivative_available",
+                                    &tss::RigidBodyProperties::isInertiaTensorDerivativeAvailable,
+                                    R"doc(
+
+        Boolean denoting whether these properties define a time derivative of the inertia tensor.
 
         :type: bool
       )doc" );
