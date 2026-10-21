@@ -22,6 +22,50 @@ namespace tudat
 namespace observation_models
 {
 
+MeasuredTroposphericCorrection::MeasuredTroposphericCorrection(
+        const std::map< double, Eigen::Vector2d >& zenithDelays,
+        const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+        const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+        const bool isUplinkCorrection,
+        const double maximumInterpolationGap,
+        const bool useMeasuredDryDelay,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ):
+    MappedTroposphericCorrection( measured_tropospheric, elevationMapping, isUplinkCorrection ), zenithDelays_( zenithDelays ),
+    fallbackCorrection_( fallbackCorrection ), maximumInterpolationGap_( maximumInterpolationGap ),
+    useMeasuredDryDelay_( useMeasuredDryDelay )
+{
+    if( zenithDelays_.size( ) < 2 )
+    {
+        throw std::runtime_error( "Error when creating measured tropospheric correction, at least two measurements are required" );
+    }
+    interpolator_ = interpolators::createOneDimensionalInterpolator( zenithDelays_, interpolatorSettings );
+    dryZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 0 ); };
+    wetZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 1 ); };
+}
+
+bool MeasuredTroposphericCorrection::isMeasurementAvailable( const double time ) const
+{
+    // Check if time is at a measurement, or between two measurements that are at most maximumInterpolationGap apart
+    auto nextMeasurement = zenithDelays_.lower_bound( time );
+    if( nextMeasurement == zenithDelays_.end( ) )
+    {
+        return false;
+    }
+    return nextMeasurement->first == time ||
+            ( nextMeasurement != zenithDelays_.begin( ) &&
+              nextMeasurement->first - std::prev( nextMeasurement )->first <= maximumInterpolationGap_ );
+}
+
+double MeasuredTroposphericCorrection::computeZenithCorrection( const double stationTime, const int component )
+{
+    if( ( component == 1 || useMeasuredDryDelay_ ) && isMeasurementAvailable( stationTime ) )
+    {
+        return interpolator_->interpolate( stationTime )( component );
+    }
+    return component == 0 ? fallbackCorrection_->getDryZenithRangeCorrectionFunction( )( stationTime )
+                          : fallbackCorrection_->getWetZenithRangeCorrectionFunction( )( stationTime );
+}
+
 bool TabulatedMediaReferenceCorrection::isTimeValid( const double time )
 {
     /*

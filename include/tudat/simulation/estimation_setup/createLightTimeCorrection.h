@@ -197,6 +197,83 @@ private:
     TroposphericMappingModel troposphericMappingModelType_;
 };
 
+//! Settings for tropospheric correction from measured zenith path delays per ground station, with a fallback (mapped tropospheric
+//! correction) outside of the measurements
+class MeasuredTroposphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    MeasuredTroposphericCorrectionSettings(
+            const std::map< std::string, std::map< double, Eigen::Vector2d > >& zenithDelaysPerStation,
+            const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
+            const double maximumInterpolationGap,
+            const bool useMeasuredDryDelay = false,
+            const std::string& bodyWithAtmosphere = "Earth",
+            const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        LightTimeCorrectionSettings( measured_tropospheric ), zenithDelaysPerStation_( zenithDelaysPerStation ),
+        fallbackSettings_( fallbackSettings ), maximumInterpolationGap_( maximumInterpolationGap ),
+        useMeasuredDryDelay_( useMeasuredDryDelay ), bodyWithAtmosphere_( bodyWithAtmosphere ),
+        troposphericMappingModelType_( troposphericMappingModel ), interpolatorSettings_( interpolatorSettings )
+    {}
+
+    const std::map< std::string, std::map< double, Eigen::Vector2d > >& getZenithDelaysPerStation( ) const
+    {
+        return zenithDelaysPerStation_;
+    }
+    std::shared_ptr< LightTimeCorrectionSettings > getFallbackSettings( ) const
+    {
+        return fallbackSettings_;
+    }
+    double getMaximumInterpolationGap( ) const
+    {
+        return maximumInterpolationGap_;
+    }
+    bool getUseMeasuredDryDelay( ) const
+    {
+        return useMeasuredDryDelay_;
+    }
+    std::string getBodyWithAtmosphere( ) const
+    {
+        return bodyWithAtmosphere_;
+    }
+    TroposphericMappingModel getTroposphericMappingModelType( ) const
+    {
+        return troposphericMappingModelType_;
+    }
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( ) const
+    {
+        return interpolatorSettings_;
+    }
+
+private:
+    std::map< std::string, std::map< double, Eigen::Vector2d > > zenithDelaysPerStation_;
+    std::shared_ptr< LightTimeCorrectionSettings > fallbackSettings_;
+    double maximumInterpolationGap_;
+    bool useMeasuredDryDelay_;
+    std::string bodyWithAtmosphere_;
+    TroposphericMappingModel troposphericMappingModelType_;
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+};
+
+//! Function to create settings for tropospheric correction from measured zenith path delays per ground station
+inline std::shared_ptr< LightTimeCorrectionSettings > measuredTroposphericCorrectionSettings(
+        const std::map< std::string, std::map< double, Eigen::Vector2d > >& zenithDelaysPerStation,
+        const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
+        const double maximumInterpolationGap,
+        const bool useMeasuredDryDelay = false,
+        const std::string& bodyWithAtmosphere = "Earth",
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) )
+{
+    return std::make_shared< MeasuredTroposphericCorrectionSettings >( zenithDelaysPerStation,
+                                                                       fallbackSettings,
+                                                                       maximumInterpolationGap,
+                                                                       useMeasuredDryDelay,
+                                                                       bodyWithAtmosphere,
+                                                                       troposphericMappingModel,
+                                                                       interpolatorSettings );
+}
+
 class SaastamoinenTroposphericCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
