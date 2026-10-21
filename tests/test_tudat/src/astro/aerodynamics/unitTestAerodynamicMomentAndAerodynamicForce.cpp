@@ -851,8 +851,6 @@ double customMassDerivativeFunction( const double time )
     return -1.0;
 }
 
-// Propagate aerodynamic force and moment with constant and mass-dependent inertia, checking
-// the saved loads against the coefficients and the inertia derivative against the prescribed mass loss.
 BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
 {
     // Load Spice kernels.
@@ -1110,7 +1108,7 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                 dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative( it.first, rawStateOutput.at( it.first ) );
                 aerodynamicCoefficientInterface->updateFullCurrentCoefficients( { machNumber, angleOfAttack, sideslipAngle } );
 
-                // The derivative is zero for constant inertia and includes the actual mass rate for varying inertia.
+                // Check inertia tensor derivative
                 const Eigen::Matrix3d expectedInertiaDerivative = propagationType == 0
                         ? Eigen::Matrix3d::Zero( ).eval( )
                         : ( -customMassDerivativeFunction( it.first ) * Eigen::Matrix3d::Ones( ) ).eval( );

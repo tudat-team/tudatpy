@@ -19,6 +19,7 @@
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_SUITE( test_gravity_field_variations )
 using namespace tudat::gravitation;
 using namespace tudat::spice_interface;
 
-// Compare coefficient rates with a central difference of the model's own variation values.
+//! Function to compare time derivatives of gravity field variations with numerical derivatives
 void checkGravityFieldVariationDerivative( const std::shared_ptr< GravityFieldVariations >& variation,
                                            const double time,
                                            const double timeStep,
@@ -55,7 +56,6 @@ void checkGravityFieldVariationDerivative( const std::shared_ptr< GravityFieldVa
     const Eigen::MatrixXd numericalSineRate =
             numerical_derivatives::computeCentralDifferenceFromFunction( sineCorrectionFunction, time, timeStep );
 
-    // Both coefficient blocks must agree with the numerical rates, including zero sine entries.
     BOOST_CHECK_SMALL( ( rates.first - numericalCosineRate ).norm( ), relativeTolerance * numericalCosineRate.norm( ) + 1.0e-25 );
     BOOST_CHECK_SMALL( ( rates.second - numericalSineRate ).norm( ), relativeTolerance * numericalSineRate.norm( ) + 1.0e-25 );
 }
@@ -202,8 +202,7 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
             std::vector< std::string >{ "BasicTidal", "Tabulated" } );
 }
 
-// Compare combined tidal/tabulated values with direct corrections; check tabulated rates against
-// finite differences in several intervals and after resetting the table.
+//! Test combined tidal and tabulated gravity field variations, and time derivatives of tabulated variations
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
     // Load spice kernels.
@@ -319,7 +318,7 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     auto sineTable = tabulatedVariation->getSineCoefficientCorrections( );
     const double firstEpoch = cosineTable.begin( )->first;
     const double tableStep = 3600.0;
-    // Interior points in three different intervals check the slope without crossing a knot.
+    // Check time derivatives of tabulated variations in three intervals, and after resetting the table
     for( const double intervalOffset : { 0.25, 1.5, 2.75 } )
     {
         checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + intervalOffset * tableStep, 10.0, 1.0e-10 );
@@ -334,14 +333,18 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
         entry.second *= -3.0;
     }
     tabulatedVariation->resetCoefficientInterpolator( cosineTable, sineTable );
-    // Replacing the table must also replace the cached slopes for both coefficient blocks.
     checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + 1.5 * tableStep, 10.0, 1.0e-10 );
 }
 
-// Keep the reference SPICE positions, with exactly consistent linear position/velocity functions.
-// The kernels' separately supplied velocities are not exact derivatives of their interpolated positions.
-std::function< Eigen::Vector6d( double ) > getGravityVariationTestStateFunction( const std::string& body )
+//! Function to get state function of body, either from Spice, or linearized around a reference epoch (with velocity consistent with
+//! position, required for numerical differentiation of tidal variations)
+std::function< Eigen::Vector6d( double ) > getGravityVariationTestStateFunction( const std::string& body, const bool useLinearizedStates )
 {
+    if( !useLinearizedStates )
+    {
+        return std::bind( &getBodyCartesianStateAtEpoch, body, "SSB", "J2000", "None", std::placeholders::_1 );
+    }
+
     const double referenceTime = 1.0e7;
     const Eigen::Vector6d referenceState = getBodyCartesianStateAtEpoch( body, "SSB", "J2000", "None", referenceTime );
     return [ referenceTime, referenceState ]( const double time ) {
@@ -351,7 +354,8 @@ std::function< Eigen::Vector6d( double ) > getGravityVariationTestStateFunction(
     };
 }
 
-std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityFieldVariation( const bool includeHigherDegrees = false )
+std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityFieldVariation( const bool useLinearizedStates = false,
+                                                                                           const bool includeHigherDegrees = false )
 {
     // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
@@ -363,7 +367,7 @@ std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityField
     std::vector< std::function< double( ) > > deformingBodyMasses;
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
     {
-        deformingBodyStateFunctions.push_back( getGravityVariationTestStateFunction( deformingBodies.at( i ) ) );
+        deformingBodyStateFunctions.push_back( getGravityVariationTestStateFunction( deformingBodies.at( i ), useLinearizedStates ) );
         deformingBodyMasses.push_back( std::bind( &getBodyGravitationalParameter, deformingBodies.at( i ) ) );
     }
 
@@ -387,7 +391,7 @@ std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityField
 
     // Set up gravity field variation of Jupiter due to Galilean moons.
     const auto variation = std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
-            getGravityVariationTestStateFunction( "Jupiter" ),
+            getGravityVariationTestStateFunction( "Jupiter", useLinearizedStates ),
             std::bind( &computeRotationQuaternionBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ),
             deformingBodyStateFunctions,
             getAverageRadius( "Jupiter" ),
@@ -401,7 +405,9 @@ std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityField
     return variation;
 }
 
-std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupledGravityFieldVariation( const int index )
+std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupledGravityFieldVariation(
+        const int index,
+        const bool useLinearizedStates = false )
 {
     // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
@@ -413,7 +419,7 @@ std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupled
     std::vector< std::function< double( ) > > deformingBodyMasses;
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
     {
-        deformingBodyStateFunctions.push_back( getGravityVariationTestStateFunction( deformingBodies.at( i ) ) );
+        deformingBodyStateFunctions.push_back( getGravityVariationTestStateFunction( deformingBodies.at( i ), useLinearizedStates ) );
         deformingBodyMasses.push_back( std::bind( &getBodyGravitationalParameter, deformingBodies.at( i ) ) );
     }
 
@@ -440,7 +446,7 @@ std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupled
 
     // Set up gravity field variation of Jupiter due to Galilean moons.
     const auto variation = std::make_shared< ModeCoupledSolidBodyTideGravityFieldVariations >(
-            getGravityVariationTestStateFunction( "Jupiter" ),
+            getGravityVariationTestStateFunction( "Jupiter", useLinearizedStates ),
             std::bind( &computeRotationQuaternionBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ),
             deformingBodyStateFunctions,
             getAverageRadius( "Jupiter" ),
@@ -452,8 +458,7 @@ std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupled
     return variation;
 }
 
-// Compare the existing basic/coupled tide values, and check their analytical rates against
-// central differences at two epochs, including body rotation and forcing/response index changes.
+//! Test mode-coupled and basic tidal gravity field variations, and their time derivatives
 BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
 {
     std::cout << std::endl << std::endl << std::endl;
@@ -512,23 +517,25 @@ BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
     BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.second( 1, 1 ) - basicVariations.second( 0, 1 ), 1.0E-19 );
     BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.second( 1, 2 ) - basicVariations.second( 0, 2 ), 1.0E-19 );
 
-    // Each existing mapping must differentiate its own cosine/sine variations correctly.
+    // Check time derivatives of all variation models against numerical derivatives (using linearized states of bodies)
+    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > basicRateTestModel = getBasicGravityFieldVariation( true );
     for( const double time : { testTime, testTime + 3600.0 } )
     {
-        checkGravityFieldVariationDerivative( basicVariationModel, time, 1.0, 5.0e-8 );
-        checkGravityFieldVariationDerivative( modeCoupledControlVariationModel, time, 1.0, 5.0e-8 );
-        checkGravityFieldVariationDerivative( modeCoupledOrderOffsetVariationModel, time, 1.0, 5.0e-8 );
-        checkGravityFieldVariationDerivative( modeCoupledDegreeOrderOffsetVariationModel, time, 1.0, 5.0e-8 );
+        checkGravityFieldVariationDerivative( basicRateTestModel, time, 1.0, 5.0e-8 );
+        for( int index = 0; index < 3; index++ )
+        {
+            checkGravityFieldVariationDerivative( getModeCoupledGravityFieldVariation( index, true ), time, 1.0, 5.0e-8 );
+        }
     }
 
-    // Changing a Love number must immediately change the rate, including its imaginary component.
-    auto loveNumbers = basicVariationModel->getLoveNumbersOfDegree( 2 );
+    // Check time derivatives after resetting a Love number to a complex value
+    auto loveNumbers = basicRateTestModel->getLoveNumbersOfDegree( 2 );
     loveNumbers[ 1 ] = std::complex< double >( 0.2, 0.03 );
-    basicVariationModel->resetLoveNumbersOfDegree( loveNumbers, 2 );
-    checkGravityFieldVariationDerivative( basicVariationModel, testTime, 1.0, 5.0e-8 );
+    basicRateTestModel->resetLoveNumbersOfDegree( loveNumbers, 2 );
+    checkGravityFieldVariationDerivative( basicRateTestModel, testTime, 1.0, 5.0e-8 );
 
-    // Check rates for degrees three and four, with complex Love numbers and constant mean offsets.
-    const auto higherDegreeVariation = getBasicGravityFieldVariation( true );
+    // Check time derivatives and C41/S41 for degrees three and four, with complex Love numbers and constant mean forcing
+    const auto higherDegreeVariation = getBasicGravityFieldVariation( true, true );
     checkGravityFieldVariationDerivative( higherDegreeVariation, testTime, 1.0, 5.0e-8 );
     const auto raisingStates = higherDegreeVariation->getDeformingBodyStateFunctions( );
     const auto raisingMasses = higherDegreeVariation->getDeformingBodyMasses( );
@@ -548,13 +555,12 @@ BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
                 higherDegreeVariation->getMeanForcingSineTerms( ).at( 4 ).at( 1 ) );
     }
     const auto higherDegreeValues = higherDegreeVariation->calculateSphericalHarmonicsCorrections( testTime );
-    // Check C41/S41 against a direct calculation per body causing deformation, including the complex Love number and the mean offset
     BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.first( 2, 1 ), expectedCoefficient41.real( ), 1.0e-12 );
     BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.second( 2, 1 ), -expectedCoefficient41.imag( ), 1.0e-12 );
     auto degreeFourLoveNumbers = higherDegreeVariation->getLoveNumbersOfDegree( 4 );
     degreeFourLoveNumbers.push_back( 0.5 );
     higherDegreeVariation->resetLoveNumbersOfDegree( degreeFourLoveNumbers, 4 );
-    // Check rates after enabling an additional order (with zero mean forcing)
+    // Check time derivatives after adding Love number of additional order
     checkGravityFieldVariationDerivative( higherDegreeVariation, testTime + 3600.0, 1.0, 5.0e-8 );
 }
 
@@ -612,8 +618,7 @@ void getPeriodicGravityFieldVariationSettings( std::vector< Eigen::MatrixXd >& c
     }
 }
 
-// Check periodic values for the existing frequency/block settings, and compare their rates with
-// central differences before, at, and after the reference epoch.
+//! Test periodic gravity field variations, and their time derivatives
 BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
 {
     using namespace tudat::simulation_setup;
@@ -691,7 +696,7 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
                     createGravityFieldModelVariationsSet( "Jupiter", dummySystem, variationSettingsList );
             timeDependentGravityField->updateCorrectionFunctions( );
 
-            // Exercise the same single-frequency and multiple-frequency models used for the value checks.
+            // Check time derivatives against numerical derivatives
             for( const double derivativeTime : { referenceEpoch - 2.0e4, referenceEpoch, referenceEpoch + 3.0e4 } )
             {
                 checkGravityFieldVariationDerivative( variations->getVariationObjects( ).at( 0 ), derivativeTime, 1.0 );
@@ -787,8 +792,7 @@ void getPolynomialGravityFieldVariationSettings( std::map< int, Eigen::MatrixXd 
     minimumOrder = 0;
 }
 
-// Check polynomial values and rates for constant, linear, quadratic, and cubic terms, including
-// the reference epoch where constant terms must contribute zero rate.
+//! Test polynomial gravity field variations, and their time derivatives
 BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
 {
     using namespace tudat::simulation_setup;
@@ -812,11 +816,6 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
         int minimumOrder;
         getPolynomialGravityFieldVariationSettings( cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder, 0 );
 
-        cosineAmplitudes[ 0 ] = cosineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
-        sineAmplitudes[ 0 ] = sineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
-        cosineAmplitudes[ 2 ] = cosineAmplitudes.at( 1 ) / physical_constants::JULIAN_YEAR;
-        sineAmplitudes[ 3 ] = sineAmplitudes.at( 1 ) / ( physical_constants::JULIAN_YEAR * physical_constants::JULIAN_YEAR );
-
         std::shared_ptr< PolynomialGravityFieldVariationsSettings > variationSettings =
                 std::dynamic_pointer_cast< PolynomialGravityFieldVariationsSettings >( polynomialGravityFieldVariationsSettings(
                         cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder ) );
@@ -836,16 +835,27 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
                 createGravityFieldModelVariationsSet( "Jupiter", dummySystem, variationSettingsList );
         timeDependentGravityField->updateCorrectionFunctions( );
 
-        const auto polynomialVariation = variations->getVariationObjects( ).at( 0 );
-        // Compare both rate blocks with finite differences on either side of, and at, the reference epoch.
-        for( const double timeOffset : { -0.25 * physical_constants::JULIAN_YEAR, 0.0, 0.5 * physical_constants::JULIAN_YEAR } )
+        // Check time derivatives for constant, linear, quadratic and cubic terms against numerical derivatives, before, at and after
+        // the reference epoch, and check that at the reference epoch only the linear terms contribute.
         {
-            checkGravityFieldVariationDerivative( polynomialVariation, referenceEpoch + timeOffset, 100.0 );
+            std::map< int, Eigen::MatrixXd > rateTestCosineAmplitudes = cosineAmplitudes;
+            std::map< int, Eigen::MatrixXd > rateTestSineAmplitudes = sineAmplitudes;
+            rateTestCosineAmplitudes[ 0 ] = cosineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
+            rateTestSineAmplitudes[ 0 ] = sineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
+            rateTestCosineAmplitudes[ 2 ] = cosineAmplitudes.at( 1 ) / physical_constants::JULIAN_YEAR;
+            rateTestSineAmplitudes[ 3 ] = sineAmplitudes.at( 1 ) / ( physical_constants::JULIAN_YEAR * physical_constants::JULIAN_YEAR );
+            std::shared_ptr< gravitation::GravityFieldVariations > polynomialVariation =
+                    std::make_shared< gravitation::PolynomialGravityFieldVariations >(
+                            rateTestCosineAmplitudes, rateTestSineAmplitudes, referenceEpoch, minimumDegree, minimumOrder );
+
+            for( const double timeOffset : { -0.25 * physical_constants::JULIAN_YEAR, 0.0, 0.5 * physical_constants::JULIAN_YEAR } )
+            {
+                checkGravityFieldVariationDerivative( polynomialVariation, referenceEpoch + timeOffset, 100.0 );
+            }
+            const auto referenceRates = polynomialVariation->calculateSphericalHarmonicsCorrectionsTimeDerivative( referenceEpoch );
+            BOOST_CHECK_SMALL( ( referenceRates.first - cosineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
+            BOOST_CHECK_SMALL( ( referenceRates.second - sineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
         }
-        const auto referenceRates = polynomialVariation->calculateSphericalHarmonicsCorrectionsTimeDerivative( referenceEpoch );
-        // At the reference epoch, only the linear terms contribute; constants must not introduce NaNs.
-        BOOST_CHECK_SMALL( ( referenceRates.first - cosineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
-        BOOST_CHECK_SMALL( ( referenceRates.second - sineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
 
         timeDependentGravityField->update( 2.0 * testTime );
 

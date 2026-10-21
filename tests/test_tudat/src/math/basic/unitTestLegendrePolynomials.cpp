@@ -51,8 +51,7 @@ typedef Eigen::Matrix< int, 12, 1 > Vector12i;
 
 BOOST_AUTO_TEST_SUITE( test_LegendreFunctions )
 
-// Compare every supported explicit polynomial with the cached recurrence at positive/negative
-// arguments, the equator and near both poles, including the degree-four odd-order signs.
+//! Test explicit (unnormalized) Legendre polynomials against those computed from the recurrence relations
 BOOST_AUTO_TEST_CASE( test_ExplicitLegendrePolynomialsAgainstRecurrence )
 {
     basic_mathematics::LegendreCache unnormalizedCache( 6, 6, false );
@@ -65,7 +64,6 @@ BOOST_AUTO_TEST_CASE( test_ExplicitLegendrePolynomialsAgainstRecurrence )
         normalizedCache.update( argument );
         for( int degree = 0; degree <= 6; ++degree )
         {
-            // Explicit expressions exist for every order through degree four, and only order zero at five/six.
             const int maximumOrder = degree <= 4 ? degree : 0;
             for( int order = 0; order <= maximumOrder; ++order )
             {
@@ -73,11 +71,10 @@ BOOST_AUTO_TEST_CASE( test_ExplicitLegendrePolynomialsAgainstRecurrence )
                 {
                     const double explicitValue = basic_mathematics::computeLegendrePolynomialExplicit( degree, order, argument );
                     const double recurrenceValue = unnormalizedCache.getLegendrePolynomial( degree, order );
-                    // Check values and signs; the absolute allowance also covers zeros of the polynomials.
+                    // Compare with unnormalized and geodesy-normalized recurrence results
                     BOOST_CHECK_SMALL( explicitValue - recurrenceValue, 5.0e-14 * ( 1.0 + std::abs( recurrenceValue ) ) );
                     const double normalizedValue = normalizedCache.getLegendrePolynomial( degree, order );
                     const double normalization = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( degree, order );
-                    // Applying geodesy normalization must also agree with the separately normalized recurrence.
                     BOOST_CHECK_SMALL( normalization * explicitValue - normalizedValue, 5.0e-13 * ( 1.0 + std::abs( normalizedValue ) ) );
                 }
             }

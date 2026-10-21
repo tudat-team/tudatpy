@@ -237,8 +237,7 @@ SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoc
 
 BOOST_AUTO_TEST_SUITE( test_rotational_dynamics_propagation )
 
-// Manually update a Body at one rotational state, then check both frames, matrix rates and
-// angular velocities against each other and a small finite rotation, without any propagation.
+//! Test consistency of rotation matrices, their time derivatives and angular velocities when setting the rotational state of a body
 BOOST_AUTO_TEST_CASE( testBodyRotationalStateConsistency )
 {
     Body body;
@@ -253,13 +252,12 @@ BOOST_AUTO_TEST_CASE( testBodyRotationalStateConsistency )
     const Eigen::Matrix3d rotationRate = body.getCurrentRotationMatrixDerivativeToGlobalFrame( );
     const Eigen::Matrix3d inverseRotationRate = body.getCurrentRotationMatrixDerivativeToLocalFrame( );
 
-    // The stored rotations are inverses, their rates are transposes, and omega transforms as a vector.
+    // Check consistency of rotations, their derivatives and angular velocities in both frames
     BOOST_CHECK_SMALL( ( rotation - orientation.toRotationMatrix( ) ).norm( ), 1.0e-15 );
     BOOST_CHECK_SMALL( ( inverseRotation * rotation - Eigen::Matrix3d::Identity( ) ).norm( ), 1.0e-15 );
     BOOST_CHECK_SMALL( ( inverseRotationRate - rotationRate.transpose( ) ).norm( ), 1.0e-18 );
     BOOST_CHECK_SMALL( ( body.getCurrentAngularVelocityVectorInLocalFrame( ) - omegaBody ).norm( ), 1.0e-18 );
     BOOST_CHECK_SMALL( ( body.getCurrentAngularVelocityVectorInGlobalFrame( ) - rotation * omegaBody ).norm( ), 1.0e-18 );
-    // Matrix-rate products recover the angular velocities with the appropriate frame and sign.
     BOOST_CHECK_SMALL( ( inverseRotationRate * rotation + linear_algebra::getCrossProductMatrix( omegaBody ) ).norm( ), 1.0e-18 );
     BOOST_CHECK_SMALL( ( rotationRate * inverseRotation -
                          linear_algebra::getCrossProductMatrix( body.getCurrentAngularVelocityVectorInGlobalFrame( ) ) )
@@ -271,8 +269,7 @@ BOOST_AUTO_TEST_CASE( testBodyRotationalStateConsistency )
     const Eigen::Matrix3d numericalRate =
             ( ( orientation * increment ).toRotationMatrix( ) - ( orientation * increment.inverse( ) ).toRotationMatrix( ) ) /
             ( 2.0 * step );
-    // A physical positive rotation independently fixes the derivative sign; the constant-state
-    // ephemeris must return the same instantaneous derivative for the same supplied state.
+    // Compare rotation matrix derivative with numerical derivative, and with derivative from constant rotational ephemeris
     BOOST_CHECK_SMALL( ( rotationRate - numericalRate ).norm( ), 1.0e-12 );
     ConstantRotationalEphemeris constantRotation( state );
     BOOST_CHECK_SMALL( ( constantRotation.getDerivativeOfRotationToTargetFrame( 0.0 ) - inverseRotationRate ).norm( ), 1.0e-18 );
@@ -975,8 +972,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     }
 }
 
-// Compare propagated libration with its analytical solution and verify that static gravity-derived
-// inertia supplies a zero derivative throughout propagation without a derivative provider.
+//! Test if rotational dynamics propagation correctly produces in-plane libration (and zero inertia tensor derivative)
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
 {
     // Load spice kernels.
@@ -1053,10 +1049,10 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
                     },
                     9 ) } );
 
-            // Propagate with gravity-derived static inertia and no coefficient-rate provider.
+            // Propagate dynamics
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
             const auto dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-            // Static gravity supplies an exactly zero inertia derivative at every propagated epoch.
+            // Check that inertia tensor derivative is zero for static gravity field
             BOOST_REQUIRE_GT( dependentVariableHistory.size( ), 1 );
             for( const auto& entry : dependentVariableHistory )
             {
@@ -1096,8 +1092,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
     }
 }
 
-// Propagate tidally varying inertia, compare saved inertia rates with finite differences,
-// and verify both the derivative torque and the inertial angular-momentum balance.
+//! Test if rotational dynamics propagation correctly includes tidally varying inertia tensor (and its derivative)
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTensor )
 {
     // Load spice kernels.
@@ -1241,35 +1236,31 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
                 phobosGravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
                 phobosGravityField->getReferenceRadius( ) );
 
-        // Saved inertia changes agree with the saved degree-two gravity changes.
+        // Check inertia tensor changes against degree two coefficient changes
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertiaCorrectionWrtStart, computedInertiaCorrectionWrtStart, 1.0E-8 );
 
         Eigen::Vector3d computedTorque = gravitation::calculateSecondDegreeGravitationalTorque(
                 relativePosition, marsGravityField->getGravitationalParameter( ), inertiaTensor );
 
-        // The physical gravity torque uses the current, varying inertia tensor.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedTorque, secondDegreeTorque, ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         Eigen::Vector3d inertialTorque = totalTorque - secondDegreeTorque;
         const Eigen::Vector3d computedInertialTorque =
                 -angularVelocity.cross( inertiaTensor * angularVelocity ) - inertiaDerivative * angularVelocity;
-        // The directly saved inertial torque is included in total torque exactly once.
-        // Scale the subtraction check by the original torques to allow roundoff in cancelling components.
+        // Check inertial torque (including -dI/dt * omega term)
         BOOST_CHECK_SMALL( ( inertialTorque - savedInertialTorque ).norm( ) / ( totalTorque.norm( ) + secondDegreeTorque.norm( ) ),
                            1.0e-13 );
-        // The saved torque independently satisfies the rotational equation with the current inertia and its rate.
         BOOST_CHECK_SMALL( ( savedInertialTorque - computedInertialTorque ).norm( ) / computedInertialTorque.norm( ), 1.0e-13 );
 
         const Eigen::Vector3d derivativeTorque = savedInertialTorque + angularVelocity.cross( inertiaTensor * angularVelocity );
         const Eigen::Vector3d expectedDerivativeTorque = -inertiaDerivative * angularVelocity;
         maximumDerivativeTorque = std::max( maximumDerivativeTorque, expectedDerivativeTorque.norm( ) );
-        // Isolating the derivative contribution recovers -I_dot * omega, including its sign.
         BOOST_CHECK_SMALL( ( derivativeTorque - expectedDerivativeTorque ).norm( ) /
                                    ( savedInertialTorque.norm( ) + expectedDerivativeTorque.norm( ) ),
                            1.0e-13 );
     }
 
-    // Ensure the propagation genuinely exercises a changing inertia and a nonzero derivative torque.
+    // Check inertia tensor derivative against numerical derivative, and that the angular momentum derivative equals the torque
     BOOST_REQUIRE_GT( maximumDerivativeTorque, 0.0 );
     BOOST_REQUIRE_GT( dependentVariableHistory.size( ), 4 );
     std::function< Eigen::VectorXd( const double ) > inertiaTensorFunction = [ & ]( const double time ) -> Eigen::VectorXd {
@@ -1288,14 +1279,10 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         const Eigen::VectorXd numericalInertiaDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
                 inertiaTensorFunction, time, integrationStep, numerical_derivatives::order4 );
         const Eigen::VectorXd savedInertiaDerivative = entry.second.segment( 23, 9 );
-        // A fourth-order central difference of saved body-fixed inertia agrees with its saved derivative.
         BOOST_CHECK_SMALL( ( numericalInertiaDerivative - savedInertiaDerivative ).norm( ) / savedInertiaDerivative.norm( ), 1.0e-7 );
 
         const Eigen::Vector3d numericalAngularMomentumDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
                 angularMomentumFunction, time, integrationStep, numerical_derivatives::order4 );
-        // Inertial angular-momentum change equals the physical torque. This independently checks
-        // that the inertia-derivative contribution is actually applied to the integrated rotation.
-        // Allow roundoff from differencing the large angular momentum when the physical torque is small.
         const double angularMomentumRoundoff =
                 10.0 * std::numeric_limits< double >::epsilon( ) * angularMomentumHistory.at( time ).norm( ) / integrationStep;
         BOOST_CHECK_LE( ( numericalAngularMomentumDerivative - physicalTorqueHistory.at( time ) ).norm( ),

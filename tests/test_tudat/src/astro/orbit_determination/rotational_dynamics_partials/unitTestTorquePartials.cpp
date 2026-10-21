@@ -657,6 +657,12 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithInertiaTensorDerivative )
     Eigen::Matrix3d inertiaTensorDerivative;
     inertiaTensorDerivative << -2.0E1, 3.0, 1.0, 3.0, -1.0E1, -4.0, 1.0, -4.0, -3.0E1;
 
+    // Gravity field is required for the inertial torque partial (for partials w.r.t. gravity field parameters)
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    vehicle->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >(
+            1.0E3 * physical_constants::GRAVITATIONAL_CONSTANT, 1.0, cosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ), "Vehicle_Fixed" ) );
+
     std::shared_ptr< MassDependentRigidBodyProperties > rigidBodyProperties =
             std::make_shared< MassDependentRigidBodyProperties >( 1.0E3, nullptr, [ = ]( const double ) { return inertiaTensor; } );
     rigidBodyProperties->setInertiaTensorDerivativeFunction( [ = ]( const double ) { return inertiaTensorDerivative; } );
