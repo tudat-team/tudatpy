@@ -1413,11 +1413,11 @@ BOOST_AUTO_TEST_CASE( testLightTimeDependentVariable )
     linkEnds[ receiver ] = LinkEndId( "Earth", "Station1" );
 
     std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators = createObservationSimulators(
-            { std::make_shared< ObservationModelSettings >(
-                    n_way_range,
-                    linkEnds,
-                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
-                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >{ "Sun" } ) } ) },
+            { std::make_shared< ObservationModelSettings >( n_way_range,
+                                                            linkEnds,
+                                                            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                                            std::vector< std::string >{ "Sun" } ) } ) },
             bodies );
 
     const double retransmissionDelay = 1.0E-3;
@@ -1428,7 +1428,8 @@ BOOST_AUTO_TEST_CASE( testLightTimeDependentVariable )
                                                                       receiver,
                                                                       std::vector< std::shared_ptr< ObservationViabilitySettings > >( ),
                                                                       nullptr,
-                                                                      getTwoWayRangeAncillarySettings( retransmissionDelay ) ) };
+                                                                      getTwoWayRangeAncillarySettings( retransmissionDelay ) )
+    };
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariables = {
         lightTimeBetweenLinkEndsDependentVariable( transmitter, retransmitter ),
