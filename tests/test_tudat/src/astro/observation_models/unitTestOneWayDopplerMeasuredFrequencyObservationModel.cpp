@@ -328,6 +328,58 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyMultipleEpochs )
     }
 }
 
+/*
+ * Test 5: Ramped transmitting ground station (TDB observable)
+ *
+ * Verifies that the transmitted frequency is evaluated at the UTC transmission time, converted from TDB at the
+ * (Earth-fixed) position of the transmitting station.
+ */
+BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyRampedStation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Mars" } );
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Linear uplink ramp of 1 Hz/s, such that errors in the frequency look-up time are visible in the observable
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > rampedFrequency =
+            std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >( std::vector< Time >{ -86400.0 },
+                                                                                       std::vector< Time >{ 86400.0 },
+                                                                                       std::vector< double >{ 1.0 },
+                                                                                       std::vector< double >{ 7.2E9 } );
+    std::shared_ptr< ground_stations::GroundStation > station = bodies.getBody( "Earth" )->getGroundStation( "DSS-13" );
+    station->setTransmittingFrequencyCalculator( rampedFrequency );
+
+    // Measured frequency (TDB observable by default) and fractional one-way Doppler models
+    LinkEnds linkEnds{ { transmitter, LinkEndId( "Earth", "DSS-13" ) }, { receiver, LinkEndId( "Mars" ) } };
+    std::shared_ptr< ObservationModel< 1, double, Time > > measuredFrequencyModel =
+            ObservationModelCreator< 1, double, Time >::createObservationModel( oneWayDopplerMeasuredFrequencySettings( linkEnds ),
+                                                                                bodies );
+    std::shared_ptr< ObservationModel< 1, double, Time > > dopplerModel =
+            ObservationModelCreator< 1, double, Time >::createObservationModel(
+                    oneWayOpenLoopDoppler(
+                            linkEnds, {}, nullptr, nullptr, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), true ),
+                    bodies );
+
+    // Compute measured frequency, and the fractional Doppler of the same link
+    Time observationTime( 3600.0 );
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    double measuredFrequency =
+            measuredFrequencyModel->computeObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates )( 0 );
+    double doppler = dopplerModel->computeObservations( observationTime, receiver )( 0 );
+
+    // Compare with transmitted frequency at the UTC transmission time
+    Time transmissionUtcTime =
+            createDefaultTimeConverter( )->getCurrentTime< Time >( basic_astrodynamics::tdb_scale,
+                                                                   basic_astrodynamics::utc_scale,
+                                                                   Time( linkEndTimes.at( 0 ) ),
+                                                                   station->getNominalStationState( )->getNominalCartesianPosition( ) );
+    double expectedMeasuredFrequency =
+            rampedFrequency->getTemplatedCurrentFrequency< double, Time >( transmissionUtcTime ) * ( 1.0 + doppler );
+    BOOST_CHECK_CLOSE_FRACTION( measuredFrequency, expectedMeasuredFrequency, 1.0E-14 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

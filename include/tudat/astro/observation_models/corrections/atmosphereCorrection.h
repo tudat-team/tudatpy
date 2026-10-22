@@ -25,8 +25,10 @@
 #ifndef TUDAT_TABULATEDMEDIACORRECTION_H
 #define TUDAT_TABULATEDMEDIACORRECTION_H
 
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <utility>
 #include <vector>
 
 #include "tudat/math/interpolators/lookupScheme.h"
@@ -294,6 +296,17 @@ public:
      * @return Atmospheric correction value.
      */
     double computeMediaCorrection( double time );
+
+    /*!
+     * Function to compute the largest forward and backward time steps from the given time for which the set of
+     * corrections that is active does not change (i.e. no validity boundary is crossed), limited to a maximum step.
+     * A margin is kept w.r.t. the boundaries, to be robust to rounding errors in the perturbed times.
+     *
+     * @param time Time from which the steps are computed.
+     * @param maximumTimeStep Maximum (absolute) value of the time steps.
+     * @return Pair with forward (first) and backward (second) time step (both non-negative).
+     */
+    std::pair< double, double > getTimeStepsWithinValidity( const double time, const double maximumTimeStep ) const;
 
 private:
     // Vector with the start validity times of the corrections.
@@ -967,6 +980,13 @@ public:
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
+
+protected:
+    // Limits the time perturbations such that the station time does not cross a validity boundary of the tabulated data,
+    // outside of which the correction is discontinuous
+    std::pair< double, double > getLinkEndTimePerturbations( const double transmissionTime,
+                                                             const double receptionTime,
+                                                             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override;
 
 private:
     // Range correction calculator. Correction determined for referenceFrequency_
