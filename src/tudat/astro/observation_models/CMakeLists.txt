@@ -23,7 +23,6 @@ set(observation_models_SOURCES
         "corrections/atmosphereCorrection.cpp"
         "corrections/solarCoronaCorrection.cpp"
         "corrections/neQuick2IonosphericCorrection.cpp"
-        "observationFrequencies.cpp"
         )
 
 if (TUDAT_BUILD_WITH_SERIALIZATION)
@@ -62,7 +61,6 @@ set(observation_models_HEADERS
         "corrections/tabulatedMediaCorrection.h"
         "corrections/solarCoronaCorrection.h"
         "dsnNWayAveragedDopplerObservationModel.h"
-        "observationFrequencies.h"
         )
 
 TUDAT_ADD_LIBRARY("observation_models"

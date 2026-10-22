@@ -25,7 +25,9 @@
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
+namespace tba = tudat::basic_astrodynamics;
 namespace tom = tudat::observation_models;
+namespace tsm = tudat::system_models;
 namespace tss = tudat::simulation_setup;
 
 namespace tudatpy
@@ -174,7 +176,7 @@ void expose_observations_io_bindings( py::module& m )
            py::arg( "bodies" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            py::arg_v( "turnaround_ratio_function",
-                      std::function< double( tom::FrequencyBands, tom::FrequencyBands ) >( &tom::getDsnDefaultTurnaroundRatios ),
+                      std::function< double( tba::FrequencyBands, tba::FrequencyBands ) >( &tsm::getDsnDefaultTurnaroundRatios ),
                       "tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios" ),
            R"doc(
         Sets the ODF information required for simulating observations into the system of bodies.
@@ -287,9 +289,9 @@ void expose_observations_io_bindings( py::module& m )
             Name of the target spacecraft.
         ground_station_name : str
             Name of the ground station.
-        reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        reception_band : tudatpy.dynamics.environment.FrequencyBands
             Reception frequency band.
-        transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        transmission_band : tudatpy.dynamics.environment.FrequencyBands
             Transmission frequency band.
         apply_troposphere_correction : bool, optional
             Whether to apply troposphere correction, by default True.
@@ -332,9 +334,9 @@ void expose_observations_io_bindings( py::module& m )
             Name of the target spacecraft.
         ground_station_names : list[str]
             List of ground station names, must be same size as ifms_file_names.
-        reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        reception_band : tudatpy.dynamics.environment.FrequencyBands
             Reception frequency band.
-        transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        transmission_band : tudatpy.dynamics.environment.FrequencyBands
             Transmission frequency band.
         apply_troposphere_correction : bool, optional
             Whether to apply troposphere correction, by default True.
@@ -356,8 +358,8 @@ void expose_observations_io_bindings( py::module& m )
                               const std::string&,
                               const std::string&,
                               const std::string&,
-                              const tom::FrequencyBands&,
-                              const tom::FrequencyBands&,
+                              const tba::FrequencyBands&,
+                              const tba::FrequencyBands&,
                               const std::map< std::string, Eigen::Vector3d >& >(
                    &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "fdets_file_name" ),
@@ -390,9 +392,9 @@ void expose_observations_io_bindings( py::module& m )
             Name of the transmitting station.
         receiving_station_name : str
             Name of the receiving station.
-        reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        reception_band : tudatpy.dynamics.environment.FrequencyBands
             Reception frequency band.
-        transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        transmission_band : tudatpy.dynamics.environment.FrequencyBands
             Transmission frequency band.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` will be used.
@@ -406,8 +408,8 @@ void expose_observations_io_bindings( py::module& m )
                               const std::string&,
                               const std::string&,
                               const std::string&,
-                              const tom::FrequencyBands&,
-                              const tom::FrequencyBands&,
+                              const tba::FrequencyBands&,
+                              const tba::FrequencyBands&,
                               const std::map< std::string, Eigen::Vector3d >& >(
                    &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "fdets_file_name" ),

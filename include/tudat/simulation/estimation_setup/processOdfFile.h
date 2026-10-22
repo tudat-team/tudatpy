@@ -23,6 +23,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/system_models/transponderTurnaroundRatios.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/math/interpolators/lookupScheme.h"
@@ -49,7 +50,7 @@ observation_models::ObservableType getObservableTypeForOdfId( const input_output
  * @param odfId ODF frequency band ID
  * @return Frequency band
  */
-observation_models::FrequencyBands getFrequencyBandForOdfId( const int odfId );
+basic_astrodynamics::FrequencyBands getFrequencyBandForOdfId( const int odfId );
 
 /*! Get the ground station name associated with a given ODF network and station ID.
  *
@@ -1116,17 +1117,18 @@ observation_models::ObservationAncillarySimulationSettings createOdfAncillarySet
     observation_models::ObservableType currentObservableType = odfDataContents->getObservableType( );
 
     // Set common ancillary settings
-    std::vector< observation_models::FrequencyBands > frequencyBands = {
+    std::vector< basic_astrodynamics::FrequencyBands > frequencyBands = {
         getFrequencyBandForOdfId( odfDataContents->uplinkBandIds_.at( dataIndex ) ),
         getFrequencyBandForOdfId( odfDataContents->downlinkBandIds_.at( dataIndex ) )
     };
 
     ancillarySettings.setAncillaryDoubleVectorData( observation_models::ObservationAncillarySimulationVariable::frequency_bands,
-                                                    convertFrequencyBandsToDoubleVector( frequencyBands ) );
+                                                    basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
     ancillarySettings.setAncillaryDoubleData(
             observation_models::ObservationAncillarySimulationVariable::reception_reference_frequency_band,
-            convertFrequencyBandToDouble( getFrequencyBandForOdfId( odfDataContents->referenceBandIds_.at( dataIndex ) ) ) );
+            basic_astrodynamics::convertFrequencyBandToDouble(
+                    getFrequencyBandForOdfId( odfDataContents->referenceBandIds_.at( dataIndex ) ) ) );
 
     if( auto dopplerDataBlock = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData< TimeType > >( odfDataContents ) )
     {
@@ -1369,11 +1371,12 @@ inline void setTransmittingFrequenciesInGroundStations( std::shared_ptr< Process
  * @param getTurnaroundRatio Function returning the turnaround ratio as a function of the uplink and downlink bands.
  */
 template< typename TimeType = Time >
-void setOdfInformationInBodies( const std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
-                                simulation_setup::SystemOfBodies& bodies,
-                                const std::string& bodyWithGroundStations = "Earth",
-                                const std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > getTurnaroundRatio =
-                                        &getDsnDefaultTurnaroundRatios )
+void setOdfInformationInBodies(
+        const std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
+        simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyWithGroundStations = "Earth",
+        const std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
+                getTurnaroundRatio = &system_models::getDsnDefaultTurnaroundRatios )
 {
     // Set transmitting frequency objects in ground stations
     setTransmittingFrequenciesInGroundStations< TimeType >( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );

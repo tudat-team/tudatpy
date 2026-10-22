@@ -12,11 +12,12 @@ This module provides two manners in which to create ancillary settings objects:
 .. code-block:: python
 
      # Code snippet to show the creation of an ObservationAncillarySimulationSettings object
+     from tudatpy.dynamics import environment
      from tudatpy.estimation.observations_setup import ancillary_settings
 
      # Example 1: Create ObservationAncillarySimulationSettings object using ancillary_settings.n_way_range_ancillary_settings function
      # In this case the frequency bands of the retransmitter - we set it to x band.
-     n_way_range_ancillary_settings = ancillary_settings.n_way_range_ancillary_settings(frequency_bands=[ancillary_settings.FrequencyBands.x_band])
+     n_way_range_ancillary_settings = ancillary_settings.n_way_range_ancillary_settings(frequency_bands=[environment.FrequencyBands.x_band])
 
      # Show that this is indeed an ObservationAncillarySimulationSettings object
      print(n_way_range_ancillary_settings)
@@ -60,10 +61,6 @@ Functions
 
    add_ancillary_settings_to_observable_for_link_ends
 
-   dsn_default_turnaround_ratios
-
-   cassini_turnaround_ratios
-
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.doppler_ancillary_settings
 
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.two_way_range_ancillary_settings
@@ -88,10 +85,6 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable_for_link_ends
 
-.. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios
-
-.. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.cassini_turnaround_ratios
-
 
 
 Enumerations
@@ -104,10 +97,7 @@ Enumerations
 
    ObservationIntermediateSimulationVariable
 
-   FrequencyBands
-
    PositionAngleReferenceFrame
-
 
 .. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationVariable
    :members:
@@ -115,13 +105,8 @@ Enumerations
 .. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.ObservationIntermediateSimulationVariable
    :members:
 
-.. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-   :members:
-
 .. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.PositionAngleReferenceFrame
    :members:
-
-
 
 Classes
 -------
