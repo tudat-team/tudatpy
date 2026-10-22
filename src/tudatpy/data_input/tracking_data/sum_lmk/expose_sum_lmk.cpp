@@ -156,6 +156,10 @@ void expose_sum_lmk( py::module& m )
          The SUM ``SIGMA_PTG`` values are stored as the camera's
          ``pointing_uncertainty_history``.
 
+         The SUM pixel coordinates are used as they are. Correct them for lens
+         distortion before estimation, since the pixel-coordinate observable
+         does not model it.
+
          Apply the supplementary data with
          :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`
          before creating observations with

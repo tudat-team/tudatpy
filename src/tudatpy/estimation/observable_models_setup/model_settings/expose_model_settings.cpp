@@ -778,6 +778,9 @@ void expose_model_settings( py::module& m )
     lengths of the camera in pixel units, and :math:`c_{x}` and :math:`c_{y}` are the coordinates of the principal point of the camera in pixel units.
     The output observable is then :math:`\mathbf{h}_{_{\text{camera}}}=[u;v]`
 
+ No lens distortion is modelled. Measured pixel coordinates must therefore be corrected for distortion before they
+ are used as observations.
+
 
  Parameters
  ----------
