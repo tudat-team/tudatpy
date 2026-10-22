@@ -51,12 +51,12 @@ Eigen::Vector3d getRotationalVelocityVectorInBaseFrameFromMatrices( const Eigen:
  *  (local) from the rotation matrix between the frames, as well as the angular velocity
  *  vector of frame B w.r.t. frame A.
  *  \param rotationToTargetFrame Rotation matrix from frame A to frame B.
- *  \param rotationalVelocityVectorInTargetFrame Angular velocity vector of frame B,
+ *  \param rotationalVelocityVectorInBaseFrame Angular velocity vector of frame B,
  *  expressed in frame A.
  *  \return Time derivative if rotation matrix from frame A to frame B.
  */
 Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame( const Eigen::Matrix3d& rotationToTargetFrame,
-                                                      const Eigen::Vector3d& rotationalVelocityVectorInTargetFrame );
+                                                      const Eigen::Vector3d& rotationalVelocityVectorInBaseFrame );
 
 //! Transform a state (Cartesian position and velocity) from one frame to another.
 /*!

@@ -173,8 +173,9 @@ void Body::setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentR
     currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 );
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = currentRotationToLocalFrame_.toRotationMatrix( );
+    // For inertial-to-body rotation R, R_dot = -[omega_body x] R.
     currentRotationToLocalFrameDerivative_ =
-            linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
+            -linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
             currentRotationMatrixToLocalFrame;
     isRotationSet_ = true;
 }
@@ -288,17 +289,29 @@ void Body::setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEph
 
 void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
 {
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityFieldModel == nullptr && massProperties_ == nullptr )
+    {
+        throw std::runtime_error( "Error when setting gravity field: both the gravity field and rigid-body properties are absent." );
+    }
+    if( gravityFieldModel == nullptr && gravityLinkedRigidBodyProperties != nullptr )
+    {
+        throw std::runtime_error( "Error when setting a null gravity field on a body with gravity-derived rigid-body properties." );
+    }
+
     gravityFieldModel_ = gravityFieldModel;
 
-    if( massProperties_ != nullptr )
+    if( massProperties_ == nullptr )
     {
-        std::cerr << "Warning when settings gravity field model for body, mass interface already found: overrriding existing mass "
-                     "interface"
-                  << std::endl;
-    }
-    else
-    {
+        // Direct Body construction remains useful: it creates gravity-derived mass and center of
+        // mass, but spherical-harmonic inertia remains unavailable until an explicit scaled mean
+        // moment is supplied through gravity-derived rigid-body properties.
         massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
+    }
+    else if( gravityLinkedRigidBodyProperties != nullptr )
+    {
+        gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel );
     }
 }
 
@@ -488,13 +501,27 @@ std::shared_ptr< RigidBodyProperties > Body::getMassProperties( )
 
 void Body::setMassProperties( const std::shared_ptr< RigidBodyProperties > massProperties )
 {
-    if( gravityFieldModel_ != nullptr )
+    const bool replacingAutomaticallyCreatedProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ ) != nullptr &&
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties ) != nullptr;
+    if( gravityFieldModel_ != nullptr && massProperties != nullptr && !replacingAutomaticallyCreatedProperties )
     {
         std::cerr << "Warning, setting body mass distribution, but existing gravity field model and associated mass properties already "
                      "found; overriding existing body mass properties"
                   << std::endl;
     }
     massProperties_ = massProperties;
+    if( massProperties_ == nullptr && gravityFieldModel_ != nullptr )
+    {
+        massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel_ );
+    }
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityLinkedRigidBodyProperties != nullptr && gravityFieldModel_ != nullptr )
+    {
+        // Ensure that gravity-derived properties are derived from the gravity field of this body
+        gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel_ );
+    }
 }
 
 void Body::setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction )
@@ -585,6 +612,16 @@ Eigen::Matrix3d Body::getBodyInertiaTensor( )
         throw std::runtime_error( "Error when retrieving inertia tensor of " + bodyName_ + ", no mass properties found" );
     }
     return massProperties_->getCurrentInertiaTensor( );
+}
+
+Eigen::Matrix3d Body::getBodyInertiaTensorDerivative( )
+{
+    if( massProperties_ == nullptr )
+    {
+        throw std::runtime_error( "Error when retrieving the time derivative of the inertia tensor of " + bodyName_ +
+                                  ", no mass properties found" );
+    }
+    return massProperties_->getCurrentDerivativeInertiaTensor( );
 }
 
 void Body::setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )

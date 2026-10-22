@@ -10,6 +10,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
+#include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
@@ -282,6 +283,31 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( bodiesToIntegrate.at( i ) );
+
+        // Inertia tensor (derivative) derived from time-dependent gravity field requires gravity field update
+        std::shared_ptr< simulation_setup::Body > currentBody = bodies.at( bodiesToIntegrate.at( i ) );
+        if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) ) !=
+                    nullptr &&
+            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( currentBody->getMassProperties( ) ) !=
+                    nullptr )
+        {
+            singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodiesToIntegrate.at( i ) );
+
+            // Tidal gravity field variations require states of deformed and deforming bodies
+            if( currentBody->getGravityFieldVariationSet( ) != nullptr )
+            {
+                for( auto tidalVariation : currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations( ) )
+                {
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( bodiesToIntegrate.at( i ) );
+                    for( auto deformingBody :
+                         std::dynamic_pointer_cast< gravitation::SolidBodyTideGravityFieldVariations >( tidalVariation )
+                                 ->getDeformingBodies( ) )
+                    {
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( deformingBody );
+                    }
+                }
+            }
+        }
     }
     addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
 

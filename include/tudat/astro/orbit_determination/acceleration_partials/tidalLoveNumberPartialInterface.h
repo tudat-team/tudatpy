@@ -50,15 +50,19 @@ public:
      *  \param rotationToDeformedBodyFrameFrameFunction Function returning the rotation from inertial to body-fixed frame of
      *  deformed body.
      *  \param deformedBody Name of body being tidally deformed.
+     *  \param computeTimeDerivatives Boolean denoting whether partials of the time derivatives of the coefficients (instead of
+     *  the coefficients themselves) are to be computed.
      */
     TidalLoveNumberPartialInterface( const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations,
                                      const std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
                                      const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
                                      const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
-                                     const std::string& deformedBody ):
+                                     const std::string& deformedBody,
+                                     const bool computeTimeDerivatives = false ):
         gravityFieldVariations_( gravityFieldVariations ), deformedBodyPositionFunction_( deformedBodyPositionFunction ),
         deformingBodyStateFunctions_( deformingBodyStateFunctions ),
-        rotationToDeformedBodyFrameFrameFunction_( rotationToDeformedBodyFrameFrameFunction ), deformedBody_( deformedBody )
+        rotationToDeformedBodyFrameFrameFunction_( rotationToDeformedBodyFrameFrameFunction ), deformedBody_( deformedBody ),
+        computeTimeDerivatives_( computeTimeDerivatives )
     {
         // Get members from input objects.
         deformingBodyGravitationalParameters_ = gravityFieldVariations->getDeformingBodyMasses( );
@@ -511,6 +515,9 @@ protected:
 
     //! List of bodies causing deformation
     std::vector< std::string > deformingBodies_;
+
+    //! Boolean denoting whether partials of the time derivatives of the coefficients (instead of the coefficients) are computed
+    bool computeTimeDerivatives_;
 
     //! Current rotation from inertial frame to body-fixed frame of deformed body
     Eigen::Quaterniond rotationToTidallyDeformedBody_;

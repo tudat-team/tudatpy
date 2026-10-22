@@ -19,9 +19,8 @@ namespace simulation_setup
 {
 
 //! Function to create a list of objects that can be used to compute partials of tidal gravity field variations
-std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
-        const SystemOfBodies& bodies,
-        const std::string& acceleratingBodyName )
+std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
+createTidalLoveNumberInterfaces( const SystemOfBodies& bodies, const std::string& acceleratingBodyName, const bool computeTimeDerivatives )
 {
     // Create return map.
     std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > loveNumberInterfaces;
@@ -62,7 +61,8 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
                             deformedBodyPositionFunction,
                             deformingBodyStateFunctions,
                             rotationToDeformedBodyFrameFrameFunction,
-                            acceleratingBodyName );
+                            acceleratingBodyName,
+                            computeTimeDerivatives );
 
                     bool addInterface = true;
                     for( unsigned int j = 0; j < loveNumberInterfaces.size( ); j++ )

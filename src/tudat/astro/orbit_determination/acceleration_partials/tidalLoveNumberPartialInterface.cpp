@@ -426,6 +426,16 @@ std::vector< Eigen::Vector2d > TidalLoveNumberPartialInterface::calculateCoeffic
             {
                 if( orders.at( m ) <= maximumOrder )
                 {
+                    if( computeTimeDerivatives_ )
+                    {
+                        // Calculate time derivatives of coefficients (mean forcing terms are constant)
+                        unitLoveNumberCoefficientVariations = gravityFieldVariations_->calculateUnitLoveNumberTidalForcingTimeDerivative(
+                                degree, orders.at( m ), deformingBodyIndices.at( i ), currentTime_ );
+                        realCoefficientPartials[ m ].x( ) += unitLoveNumberCoefficientVariations.real( );
+                        realCoefficientPartials[ m ].y( ) -= unitLoveNumberCoefficientVariations.imag( );
+                        continue;
+                    }
+
                     // Update member variables to current body, degree and order
                     setCurrentTidalBodyStates( degree, orders.at( m ), deformingBodyIndices.at( i ) );
 

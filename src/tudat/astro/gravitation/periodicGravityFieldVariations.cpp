@@ -33,28 +33,24 @@ PeriodicGravityFieldVariations::PeriodicGravityFieldVariations( const std::vecto
     sineShAmplitudesCosineTime_( sineShAmplitudesCosineTime ), sineShAmplitudesSineTime_( sineShAmplitudesSineTime ),
     frequencies_( frequencies ), referenceEpoch_( referenceEpoch )
 {
-    if( cosineShAmplitudesCosineTime_.size( ) != frequencies_.size( ) )
-    {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input sizes (C_lm * cos time) inconsistent" );
-    }
+    checkAmplitudes( cosineShAmplitudesCosineTime_ );
+    checkAmplitudes( cosineShAmplitudesSineTime_ );
+    checkAmplitudes( sineShAmplitudesCosineTime_ );
+    checkAmplitudes( sineShAmplitudesSineTime_ );
+}
 
-    if( cosineShAmplitudesSineTime_.size( ) != frequencies_.size( ) )
+void PeriodicGravityFieldVariations::checkAmplitudes( const std::vector< Eigen::MatrixXd >& amplitudes ) const
+{
+    if( amplitudes.size( ) != frequencies_.size( ) )
     {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input size (C_lm * sin time) inconsistent" );
+        throw std::runtime_error( "Error configuring periodic gravity variations: amplitude and frequency counts differ." );
     }
-
-    if( sineShAmplitudesCosineTime_.size( ) != frequencies_.size( ) )
+    for( const auto& amplitude : amplitudes )
     {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input size (S_lm * cos time) inconsistent" );
-    }
-
-    if( sineShAmplitudesSineTime_.size( ) != frequencies_.size( ) )
-    {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input size (S_lm * sin time) inconsistent" );
+        if( amplitude.rows( ) != numberOfDegrees_ || amplitude.cols( ) != numberOfOrders_ )
+        {
+            throw std::runtime_error( "Error configuring periodic gravity variations: amplitude block dimensions differ." );
+        }
     }
 }
 
@@ -72,6 +68,25 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PeriodicGravityFieldVariations::ca
     }
 
     return std::make_pair( cosineCorrections, sineCorrections );
+}
+
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PeriodicGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative(
+        const double time )
+{
+    Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    const double timeSinceEpoch = time - referenceEpoch_;
+
+    for( unsigned int i = 0; i < frequencies_.size( ); i++ )
+    {
+        const double argument = frequencies_[ i ] * timeSinceEpoch;
+        const double cosineTimeDerivative = -frequencies_[ i ] * std::sin( argument );
+        const double sineTimeDerivative = frequencies_[ i ] * std::cos( argument );
+        cosineRates += cosineShAmplitudesCosineTime_[ i ] * cosineTimeDerivative + cosineShAmplitudesSineTime_[ i ] * sineTimeDerivative;
+        sineRates += sineShAmplitudesCosineTime_[ i ] * cosineTimeDerivative + sineShAmplitudesSineTime_[ i ] * sineTimeDerivative;
+    }
+
+    return std::make_pair( cosineRates, sineRates );
 }
 
 }  // namespace gravitation

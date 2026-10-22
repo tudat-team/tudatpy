@@ -36,6 +36,8 @@
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
+#include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 
 namespace tudat
 {
@@ -676,13 +678,16 @@ executePhobosRotationSimulation( const Eigen::Matrix< StateScalarType, 13, 1 > i
                                                             phobosSineGravityFieldCoefficients,
                                                             phobosScaledMeanMomentOfInertia );
 
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > phobosGravityField =
+            std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
+                                                                             phobosReferenceRadius,
+                                                                             phobosCosineGravityFieldCoefficients,
+                                                                             phobosSineGravityFieldCoefficients,
+                                                                             "Phobos_Fixed" );
+    bodies.at( "Phobos" )->setGravityFieldModel( phobosGravityField );
     bodies.at( "Phobos" )
-            ->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
-                                                                                                     phobosReferenceRadius,
-                                                                                                     phobosCosineGravityFieldCoefficients,
-                                                                                                     phobosSineGravityFieldCoefficients,
-                                                                                                     "Phobos_Fixed",
-                                                                                                     phobosScaledMeanMomentOfInertia ) );
+            ->setMassProperties( std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                    phobosGravityField, phobosScaledMeanMomentOfInertia ) );
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
@@ -1074,6 +1079,132 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
               << std::endl;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             ( manualPartial.block( 0, 13, 13, 8 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 13, 13, 8 ) ), 7.5E-3 );
+}
+
+//! Function to propagate the rotational dynamics and variational equations of a body with gravity-derived inertia tensor, with only
+//! the inertial torque acting on it. If the gravity field varies linearly in time, the inertia tensor derivative is constant.
+std::pair< Eigen::MatrixXd, Eigen::VectorXd > propagateRotationWithGravityDerivedInertia( const Eigen::Vector7d& initialRotationalState,
+                                                                                          const bool useTimeVaryingGravityField )
+{
+    const double initialTime = 0.0;
+    const double finalTime = 3600.0;
+    const double testTime = 3000.0;
+
+    SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
+    bodies.createEmptyBody( "Body" );
+    bodies.at( "Body" )->setEphemeris(
+            std::make_shared< ephemerides::ConstantEphemeris >( [ = ]( ) { return Eigen::Vector6d::Zero( ); }, "SSB", "ECLIPJ2000" ) );
+    std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
+    dummyRotationMap[ -1.0E100 ] = initialRotationalState;
+    dummyRotationMap[ 1.0E100 ] = initialRotationalState;
+    bodies.at( "Body" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap ),
+            "ECLIPJ2000",
+            "Body_Fixed" ) );
+
+    // Create gravity field with (optionally) linearly varying degree two coefficients
+    Eigen::MatrixXd nominalCosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd nominalSineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    nominalCosineCoefficients( 0, 0 ) = 1.0;
+    nominalCosineCoefficients( 2, 0 ) = -1.0E-2;
+    nominalCosineCoefficients( 2, 2 ) = 4.0E-3;
+
+    Eigen::MatrixXd cosineCoefficientRates = Eigen::MatrixXd::Zero( 1, 3 );
+    Eigen::MatrixXd sineCoefficientRates = Eigen::MatrixXd::Zero( 1, 3 );
+    if( useTimeVaryingGravityField )
+    {
+        cosineCoefficientRates << 1.0E-6, -2.0E-6, 1.5E-6;
+        sineCoefficientRates << 0.0, 1.0E-6, -2.0E-6;
+    }
+    std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet = std::make_shared< gravitation::GravityFieldVariationsSet >(
+            std::vector< std::shared_ptr< gravitation::GravityFieldVariations > >(
+                    { std::make_shared< gravitation::PolynomialGravityFieldVariations >(
+                            std::map< int, Eigen::MatrixXd >( { { 1, cosineCoefficientRates } } ),
+                            std::map< int, Eigen::MatrixXd >( { { 1, sineCoefficientRates } } ),
+                            0.0,
+                            2,
+                            0 ) } ),
+            std::vector< gravitation::BodyDeformationTypes >( { gravitation::polynomial_variation } ),
+            std::vector< std::string >( { "" } ) );
+    std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > gravityField =
+            std::make_shared< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    1.0E6, 1.0E4, nominalCosineCoefficients, nominalSineCoefficients, variationSet, "Body_Fixed" );
+    bodies.at( "Body" )->setGravityFieldModel( gravityField );
+    bodies.at( "Body" )->setMassProperties( std::make_shared< FromGravityFieldRigidBodyProperties >( gravityField, 0.4 ) );
+    bodies.at( "Body" )->setGravityFieldVariationSet( variationSet );
+
+    // Create torque models (inertial torque only), and propagation settings
+    SelectedTorqueMap torqueMap;
+    torqueMap[ "Body" ];
+    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, { "Body" } );
+
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, 10.0 );
+    std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< RotationalStatePropagatorSettings< double > >(
+                    torqueModelMap,
+                    std::vector< std::string >( { "Body" } ),
+                    initialRotationalState,
+                    initialTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+            "Body", initialRotationalState, "ECLIPJ2000" ) );
+    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate( parameterNames, bodies );
+
+    // Propagate dynamics and variational equations, and retrieve state and state transition matrix at test time
+    SingleArcVariationalEquationsSolver< double, double > variationalEquationsSolver(
+            bodies, propagatorSettings, parametersToEstimate, true );
+
+    return std::make_pair(
+            variationalEquationsSolver.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix( testTime ),
+            variationalEquationsSolver.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( ).at( testTime ) );
+}
+
+//! Test state transition matrix of rotational dynamics with only the inertial torque, for a body with a time-varying inertia tensor
+//! derived from a time-varying gravity field, by comparing it with numerical partials w.r.t. the initial angular velocity.
+BOOST_AUTO_TEST_CASE( testRotationalVariationalEquationsWithInertiaTensorDerivative )
+{
+    Eigen::Vector7d initialRotationalState = Eigen::Vector7d::Zero( );
+    initialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond(
+            Eigen::AngleAxisd( 0.3, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 1.2, Eigen::Vector3d::UnitX( ) ) ) );
+    initialRotationalState.segment( 4, 3 ) << 2.0E-4, -1.0E-4, 5.0E-4;
+
+    // Compute state transition matrices for time-varying and constant gravity field
+    Eigen::MatrixXd stateTransitionMatrix = propagateRotationWithGravityDerivedInertia( initialRotationalState, true ).first;
+    Eigen::MatrixXd constantInertiaStateTransitionMatrix =
+            propagateRotationWithGravityDerivedInertia( initialRotationalState, false ).first;
+
+    // Compute numerical partials of state at test time w.r.t. initial angular velocity
+    const double angularVelocityPerturbation = 1.0E-8;
+    Eigen::MatrixXd numericalPartials = Eigen::MatrixXd::Zero( 7, 3 );
+    for( int i = 0; i < 3; i++ )
+    {
+        Eigen::Vector7d perturbedInitialState = initialRotationalState;
+        perturbedInitialState( 4 + i ) += angularVelocityPerturbation;
+        Eigen::VectorXd upPerturbedState = propagateRotationWithGravityDerivedInertia( perturbedInitialState, true ).second;
+
+        perturbedInitialState( 4 + i ) -= 2.0 * angularVelocityPerturbation;
+        Eigen::VectorXd downPerturbedState = propagateRotationWithGravityDerivedInertia( perturbedInitialState, true ).second;
+
+        numericalPartials.block( 0, i, 7, 1 ) = ( upPerturbedState - downPerturbedState ) / ( 2.0 * angularVelocityPerturbation );
+    }
+
+    // Compare partials of quaternion (rows 0-3) and angular velocity (rows 4-6) w.r.t. initial angular velocity with numerical partials,
+    // and check that the inertia tensor derivative changes these partials well above the tolerance of this comparison
+    for( int startRow : { 0, 4 } )
+    {
+        const int numberOfRows = ( startRow == 0 ) ? 4 : 3;
+        Eigen::MatrixXd analyticalBlock = stateTransitionMatrix.block( startRow, 4, numberOfRows, 3 );
+        Eigen::MatrixXd constantInertiaBlock = constantInertiaStateTransitionMatrix.block( startRow, 4, numberOfRows, 3 );
+        Eigen::MatrixXd numericalBlock = numericalPartials.block( startRow, 0, numberOfRows, 3 );
+
+        BOOST_CHECK_SMALL( ( analyticalBlock - numericalBlock ).norm( ) / numericalBlock.norm( ), 1.0E-6 );
+        BOOST_CHECK_GT( ( analyticalBlock - constantInertiaBlock ).norm( ) / numericalBlock.norm( ), 1.0E-3 );
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )

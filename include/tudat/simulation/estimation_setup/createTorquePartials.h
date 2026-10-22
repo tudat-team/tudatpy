@@ -123,7 +123,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                                 bodies,
                                 parametersToEstimate ) ),
                         acceleratedBody.first,
-                        acceleratingBody.first );
+                        acceleratingBody.first,
+                        std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                                acceleratingBody.second->getMassProperties( ) ) != nullptr );
             }
             break;
         case full_two_body_spherical_harmonic_gravitational_torque: {
@@ -201,11 +203,42 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                                            acceleratedBody.second->getGravityFieldModel( ) ) );
             }
 
-            torquePartial = std::make_shared< acceleration_partials::InertialTorquePartial >( angularVelocityFunction,
-                                                                                              inertiaTensorFunction,
-                                                                                              inertiaTensorNormalizationFunction,
-                                                                                              gravitationalParameterFunction,
-                                                                                              acceleratedBody.first );
+            // Inertia tensor derivative is included in partial if it is included in the torque model, including the dependency of
+            // tidal contributions on the rotational state and tidal parameters
+            std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction;
+            std::vector< std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > > tidalGravityFieldVariations;
+            std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces;
+            std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberRatePartialInterfaces;
+            if( std::dynamic_pointer_cast< InertialTorqueModel >( torqueModel )->isInertiaTensorDerivativeIncluded( ) )
+            {
+                inertiaTensorDerivativeFunction = std::bind( &Body::getBodyInertiaTensorDerivative, acceleratedBody.second );
+                if( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                            acceleratedBody.second->getMassProperties( ) ) != nullptr &&
+                    acceleratedBody.second->getGravityFieldVariationSet( ) != nullptr )
+                {
+                    tidalGravityFieldVariations =
+                            utilities::dynamicCastSVectorToTVector< gravitation::GravityFieldVariations,
+                                                                    gravitation::SolidBodyTideGravityFieldVariations >(
+                                    acceleratedBody.second->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations( ) );
+                    if( bodies.count( acceleratedBody.first ) > 0 )
+                    {
+                        tidalLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces( bodies, acceleratedBody.first, false );
+                        tidalLoveNumberRatePartialInterfaces = createTidalLoveNumberInterfaces( bodies, acceleratedBody.first, true );
+                    }
+                }
+            }
+
+            torquePartial = std::make_shared< acceleration_partials::InertialTorquePartial >(
+                    angularVelocityFunction,
+                    inertiaTensorFunction,
+                    inertiaTensorNormalizationFunction,
+                    gravitationalParameterFunction,
+                    acceleratedBody.first,
+                    inertiaTensorDerivativeFunction,
+                    tidalGravityFieldVariations,
+                    tidalLoveNumberPartialInterfaces,
+                    tidalLoveNumberRatePartialInterfaces,
+                    std::bind( &Body::getCurrentRotationToGlobalFrame, acceleratedBody.second ) );
             break;
         }
         case custom_torque:

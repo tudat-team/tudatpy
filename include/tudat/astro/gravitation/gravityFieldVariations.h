@@ -167,6 +167,19 @@ public:
      */
     virtual std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) = 0;
 
+    //! Calculate the time derivative of this model's cosine and sine coefficient corrections.
+    /*!
+     * Derived models override this function when their coefficient rates are available. The
+     * default implementation warns once per object and returns zero corrections. The output
+     * matrices use the same block as the coefficient corrections.
+     */
+    virtual std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time );
+
+    //! Add the portion of this model's coefficient rates inside the supplied matrices.
+    void addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
+                                                         Eigen::MatrixXd& sineCoefficientDerivatives,
+                                                         Eigen::MatrixXd& cosineCoefficientDerivatives );
+
     //! Function to add sine and cosine corrections at given time to coefficient matrices.
     /*!
      *  Function to add sine and cosine corrections at given time to coefficient matrices.
@@ -296,6 +309,10 @@ protected:
 
     //! Latest correction to sine coefficients, as computed by last call to addSphericalHarmonicsCorrections
     Eigen::MatrixXd lastSineCorrection_;
+
+private:
+    //! Prevent repeated warnings from a variation model without a coefficient-rate implementation.
+    bool missingDerivativeWarningIssued_ = false;
 };
 
 //! Function to create a function linearly interpolating the sine and cosine correction coefficients
@@ -389,6 +406,15 @@ public:
      *  GravityFieldVariations::addSphericalHarmonicsCorrections
      */
     std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > > getVariationFunctions( );
+
+    //! Add all model coefficient rates to the supplied matrices.
+    /*!
+     * The matrices may contain only the low-degree coefficients needed by a caller. Each
+     * variation is evaluated and the overlapping part of its rate block is added.
+     */
+    void addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
+                                                         Eigen::MatrixXd& sineCoefficientDerivatives,
+                                                         Eigen::MatrixXd& cosineCoefficientDerivatives );
 
     //! Function to retrieve the complete set of variations to take nto account.
     /*!
