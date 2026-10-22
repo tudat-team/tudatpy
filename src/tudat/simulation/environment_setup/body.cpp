@@ -173,8 +173,9 @@ void Body::setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentR
     currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 );
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = currentRotationToLocalFrame_.toRotationMatrix( );
+    // For inertial-to-body rotation R, R_dot = -[omega_body x] R.
     currentRotationToLocalFrameDerivative_ =
-            linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
+            -linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
             currentRotationMatrixToLocalFrame;
     isRotationSet_ = true;
 }
@@ -222,17 +223,6 @@ Eigen::Matrix3d Body::getCurrentRotationMatrixToLocalFrame( )
         throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
     }
     return Eigen::Matrix3d( currentRotationToLocalFrame_ );
-}
-
-Eigen::Vector7d Body::getCurrentRotationalState( )
-{
-    if( !isRotationSet_ )
-    {
-        throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation quaternion and angular velocity)" );
-    }
-    return ( Eigen::VectorXd( 7 ) << linear_algebra::convertQuaternionToVectorFormat( getCurrentRotationToGlobalFrame( ) ),
-             getCurrentAngularVelocityVectorInGlobalFrame( ) )
-            .finished( );
 }
 
 Eigen::Matrix3d Body::getCurrentRotationMatrixDerivativeToGlobalFrame( )
