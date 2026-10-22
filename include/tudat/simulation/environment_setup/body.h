@@ -433,14 +433,6 @@ public:
 
     Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame( );
 
-    //! Get current rotational state.
-    /*!
-     *  Get current rotational state, expressed as a quaternion from global to body-fixed frame
-     *  (in vector form) and the body's angular velocity vector in inertial frame.
-     *  \return Current rotational state in quaternions and rotational velocity.
-     */
-    Eigen::Vector7d getCurrentRotationalState( );
-
     //! Get current rotation matrix derivative from body-fixed to global frame.
     /*!
      *  Get current rotation matrix derivative from body-fixed frame to global, as set from the

@@ -225,17 +225,6 @@ Eigen::Matrix3d Body::getCurrentRotationMatrixToLocalFrame( )
     return Eigen::Matrix3d( currentRotationToLocalFrame_ );
 }
 
-Eigen::Vector7d Body::getCurrentRotationalState( )
-{
-    if( !isRotationSet_ )
-    {
-        throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation quaternion and angular velocity)" );
-    }
-    return ( Eigen::VectorXd( 7 ) << linear_algebra::convertQuaternionToVectorFormat( getCurrentRotationToGlobalFrame( ) ),
-             getCurrentAngularVelocityVectorInGlobalFrame( ) )
-            .finished( );
-}
-
 Eigen::Matrix3d Body::getCurrentRotationMatrixDerivativeToGlobalFrame( )
 {
     if( !isRotationSet_ )
