@@ -2177,9 +2177,11 @@ EstimatableParameterSettings
 
  Function for creating parameter settings for a per-image camera pointing correction.
 
- Function for creating parameter settings object for a pointing correction of a camera registered on a
- body (e.g. one ``Camera_<imageId>`` per SPC SUM image), represented as a rotation vector (axis times angle,
- in radians) in the camera frame. All pixel-coordinate observations sharing that camera share this correction. Using it as estimatable parameter requires:
+ Function for creating parameter settings object for the pointing corrections of a camera registered on a
+ body. Each correction is a rotation vector (axis times angle, in radians) in the camera frame. A camera with
+ a pointing history per image (such as the camera created from SPC SUM files) has one correction per image,
+ which applies to the observations closest in time to that image. Otherwise, a single correction applies to
+ all observations of the camera. Using it as estimatable parameter requires:
 
  * The body to carry a ``VehicleSystems`` with the named camera.
  * At least one pixel-coordinate observation model to rely on the specified camera.

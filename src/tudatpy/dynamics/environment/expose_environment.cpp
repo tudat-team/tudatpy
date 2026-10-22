@@ -3551,23 +3551,54 @@ bool
                     R"doc(
             **read-only**
 
-            Orientation of the camera w.r.t. its host body, including the current :attr:`~Camera.pointing_correction`.
-            Returns a 4x1 numpy array [w, x, y, z]. For a camera with picture-specific pointing (such as the cameras
-            created from SUM files), the orientation is defined directly w.r.t. the inertial frame, and this property
-            only contains the pointing correction.
+            Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
             )doc" )
             .def_property( "pointing_correction",
-                           &tsm::Camera::getPointingCorrection,
+                           py::overload_cast<>( &tsm::Camera::getPointingCorrection, py::const_ ),
                            &tsm::Camera::setPointingCorrection,
                            R"doc(
 
-            Small pointing correction of this camera, as a rotation vector (axis times angle, in radians)
-            expressed in the camera frame. It is applied on top of the camera's nominal orientation for every
-            observable computed with this camera, and is the quantity estimated by the
+            Pointing corrections of this camera, as consecutive rotation vectors (axis times angle, in radians) expressed
+            in the camera frame. A camera with a pointing history per image has one correction per image, in time order.
+            Otherwise, it has a single correction. This is the quantity estimated by the
             :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction` parameter. Defaults to zero.
 
-            :type: numpy.ndarray[numpy.float64[3, 1]]
-            )doc" );
+            :type: numpy.ndarray[numpy.float64[m, 1]]
+            )doc" )
+            .def_property_readonly( "picture_ids", &tsm::Camera::getPictureIds, R"doc(
+
+            **read-only**
+
+            Identifier of each picture taken by the camera, in time order. Empty if the pictures have no identifier.
+
+            :type: list[str]
+            )doc" )
+            .def_property_readonly( "picture_epochs", &tsm::Camera::getPictureEpochs, R"doc(
+
+            **read-only**
+
+            Epoch of each picture taken by the camera, in time order. Empty for a camera without pictures.
+
+            :type: numpy.ndarray[numpy.float64[m, 1]]
+            )doc" )
+            .def( "get_picture_index",
+                  &tsm::Camera::getPictureIndex,
+                  py::arg( "time" ),
+                  R"doc(
+
+         Function to get the picture closest in time to a given time.
+
+         Parameters
+         ----------
+         time : float
+             Time, for example the epoch of an observation made with this camera.
+
+         Returns
+         -------
+         int
+             Index of the closest picture in :attr:`~Camera.picture_ids` and :attr:`~Camera.picture_epochs` (0 for a
+             camera without pictures).
+        )doc" );
     /*
      **************   GROUND STATION FUNCTIONALITY
      *******************

@@ -257,7 +257,7 @@ void expose_estimation_analysis( py::module& m )
 
  Each camera in ``supplementary_data`` with a pointing uncertainty gives one entry for its
  ``camera_pointing_correction`` parameter. The entry holds the inverse variance of each pointing correction
- component. For SUM/LMK data, the uncertainty is the SUM ``SIGMA_PTG`` value.
+ component, for every picture in time order. For SUM/LMK data, the uncertainty is the SUM ``SIGMA_PTG`` value.
 
  The result can be passed to :func:`create_covariance_from_diagonal_entries` to build an inverse a-priori
  covariance. Use ``require_all_entries_to_match=False`` there if not all cameras are estimated.

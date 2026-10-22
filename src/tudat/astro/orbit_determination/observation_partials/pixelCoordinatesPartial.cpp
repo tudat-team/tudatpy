@@ -9,7 +9,8 @@
  */
 
 #include <cmath>
-#include "tudat/astro/observation_models/pixelCoordinatesObservationModel.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 #include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
@@ -75,10 +76,12 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfPixelsWrtLinkEndPositionCameraFr
     return partial;
 }
 
-void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                      const std::vector< double >& times,
-                                      const observation_models::LinkEndType fixedLinkEnd,
-                                      const Eigen::VectorXd )
+void PixelCoordinatesScaling::update(
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType fixedLinkEnd,
+        const Eigen::VectorXd,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     if( fixedLinkEnd != observation_models::receiver )
     {
@@ -97,33 +100,16 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
     Eigen::Matrix3d directionPartialWrtReceiverVelocity = Eigen::Matrix3d::Zero( );
     if( correctForStellarAberration_ )
     {
-        const Eigen::Vector3d beta = linkEndStates.at( observerIndex_ ).segment( 3, 3 ) / physical_constants::SPEED_OF_LIGHT;
+        const Eigen::Vector3d receiverVelocity = linkEndStates.at( observerIndex_ ).segment( 3, 3 );
         currentInertialDirectionToProject_ =
-                observation_models::computeApparentDirectionWithStellarAberration( normalizedRelativeRangeVector, beta );
-
-        const double directionDotVelocity = normalizedRelativeRangeVector.dot( beta );
-        const double squareRoot = std::sqrt( 1.0 - beta.squaredNorm( ) + directionDotVelocity * directionDotVelocity );
-        const double scaleFactor = squareRoot - directionDotVelocity;
-        const Eigen::Vector3d unnormalizedApparentDirection = scaleFactor * normalizedRelativeRangeVector + beta;
-        const Eigen::Matrix3d normalizationPartial =
-                ( Eigen::Matrix3d::Identity( ) - currentInertialDirectionToProject_ * currentInertialDirectionToProject_.transpose( ) ) /
-                unnormalizedApparentDirection.norm( );
-        const Eigen::Matrix3d apparentDirectionPartialWrtUnitDirection = scaleFactor * Eigen::Matrix3d::Identity( ) +
-                normalizedRelativeRangeVector * ( ( directionDotVelocity / squareRoot - 1.0 ) * beta.transpose( ) );
-        directionPartialWrtRelativePosition = normalizationPartial * apparentDirectionPartialWrtUnitDirection *
-                ( Eigen::Matrix3d::Identity( ) - normalizedRelativeRangeVector * normalizedRelativeRangeVector.transpose( ) ) /
-                relativeRangeVector.norm( );
-        directionPartialWrtReceiverVelocity = normalizationPartial *
-                ( Eigen::Matrix3d::Identity( ) +
-                  normalizedRelativeRangeVector *
-                          ( -normalizedRelativeRangeVector + ( directionDotVelocity * normalizedRelativeRangeVector - beta ) / squareRoot )
-                                  .transpose( ) ) /
-                physical_constants::SPEED_OF_LIGHT;
+                observation_models::calculateApparentDirectionWithStellarAberration( relativeRangeVector, receiverVelocity );
+        observation_models::calculateStellarAberrationPartials(
+                relativeRangeVector, receiverVelocity, directionPartialWrtRelativePosition, directionPartialWrtReceiverVelocity );
     }
 
     currentRelativeRangeVectorCameraFrame_ = currentRotationFromInertialToCameraFrame_ * currentInertialDirectionToProject_;
     currentPixelLinePartialWrtCameraFramePosition_ =
-            pixelLinePartialWrtCameraFramePositionFunction_( currentRelativeRangeVectorCameraFrame_ );
+            pixelLinePartialWrtCameraFramePositionFunction_( currentRelativeRangeVectorCameraFrame_, currentReceiverTime_ );
     hasCurrentCameraFrameQuantities_ = true;
     const Eigen::Matrix< double, 2, 3 > pixelPartialWrtInertialDirection =
             currentPixelLinePartialWrtCameraFramePosition_ * currentRotationFromInertialToCameraFrame_;
@@ -144,10 +130,10 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
     currentLinkEndType_ = fixedLinkEnd;
 }
 
-bool PixelCoordinatesScaling::useLinkIndependentPartials(
+bool PixelCoordinatesScaling::useLinkIndependentPartialsForParameter(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
 {
-    return ( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ ) ||
+    return ( pointingCamera_ != nullptr && parameterIdentifier == pointingCorrectionParameterIdentifier_ ) ||
             ( parameterIdentifier.second.first == pointingReferenceBodyName_ &&
               rotationMatrixPartials_.count( std::make_pair( parameterIdentifier.first, parameterIdentifier.second.second ) ) != 0 );
 }
@@ -155,7 +141,7 @@ bool PixelCoordinatesScaling::useLinkIndependentPartials(
 std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > PixelCoordinatesScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
 {
-    if( !useLinkIndependentPartials( parameterIdentifier ) )
+    if( !useLinkIndependentPartialsForParameter( parameterIdentifier ) )
     {
         return {};
     }
@@ -163,12 +149,16 @@ std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > P
     {
         throw std::runtime_error( "Error when computing pixel-coordinate orientation partial: scaling object has not been updated." );
     }
-    if( pointingCorrectionFunction_ && parameterIdentifier == pointingCorrectionParameterIdentifier_ )
+    if( pointingCamera_ != nullptr && parameterIdentifier == pointingCorrectionParameterIdentifier_ )
     {
-        // For r_camera = Exp(correction) * r_nominal, differentiate additive changes of the rotation vector.
-        const Eigen::Matrix< double, 2, Eigen::Dynamic > partial = -currentPixelLinePartialWrtCameraFramePosition_ *
+        // For r_camera = Exp(correction) * r_nominal, differentiate additive changes of the rotation vector. Only the correction
+        // of the picture closest to the observation affects it.
+        Eigen::Matrix< double, 2, Eigen::Dynamic > partial =
+                Eigen::Matrix< double, 2, Eigen::Dynamic >::Zero( 2, 3 * pointingCamera_->getNumberOfPointingCorrections( ) );
+        partial.block< 2, 3 >( 0, 3 * pointingCamera_->getPictureIndex( currentReceiverTime_ ) ) =
+                -currentPixelLinePartialWrtCameraFramePosition_ *
                 linear_algebra::getCrossProductMatrix( currentRelativeRangeVectorCameraFrame_ ) *
-                getLeftJacobianOfSO3( pointingCorrectionFunction_( ) );
+                getLeftJacobianOfSO3( pointingCamera_->getPointingCorrection( currentReceiverTime_ ) );
         return { std::make_pair( partial, currentReceiverTime_ ) };
     }
 

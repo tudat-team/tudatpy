@@ -990,19 +990,24 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     """Load SUM/LMK files and process their cameras, landmarks, epochs and pixels."""
     data_directory = _test_data_path() / "sum_lmk"
     tracking_data, supplementary_data = read_sum_lmk_data(
-        [str(data_directory / "sample.sum")],
+        {"Camera": [str(data_directory / "sample.sum")]},
         [str(data_directory / "LMK0001.lmk"), str(data_directory / "LMK0002.lmk")],
         "Target",
         "Spacecraft",
     )
     assert len(tracking_data) == 2
 
+    # The camera sits 10 m along Y from the spacecraft centre. This gives a one-pixel line residual at 10 km range.
+    camera_data = next(
+        entry for entry in supplementary_data if entry.instrument_supplementary_data
+    ).instrument_supplementary_data[0]
+    camera_data.body_fixed_position = np.array([0.0, 10.0, 0.0])
+
     spice.load_standard_kernels()
     body_settings = environment_setup.BodyListSettings("SSB", "J2000")
     states = {
         "Target": np.zeros(6),
-        # A 10 m displacement in Y gives a one-pixel line residual at 10 km range.
-        "Spacecraft": np.array([0.0, 10.0, -10000.0, 0.0, 0.0, 0.0]),
+        "Spacecraft": np.array([0.0, 0.0, -10000.0, 0.0, 0.0, 0.0]),
     }
     for name, state in states.items():
         body_settings.add_empty_settings(name)
@@ -1015,7 +1020,7 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     dataset = create_observation_dataset_from_tracking_data(tracking_data, bodies)
 
-    assert "Camera_IMG001" in bodies.get("Spacecraft").system_models.camera_dict
+    assert "Camera" in bodies.get("Spacecraft").system_models.camera_dict
     assert set(bodies.get("Target").ground_station_list) == {"LMK0001", "LMK0002"}
     np.testing.assert_allclose(
         np.concatenate(dataset.get_observations(ordering="estimation")),
@@ -1027,6 +1032,8 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     np.testing.assert_allclose(
         np.asarray(dataset.get_times(), dtype=float), expected_epoch, rtol=0.0, atol=1e-3
     )
+    camera = bodies.get("Spacecraft").system_models.get_camera("Camera")
+    assert camera.picture_ids[camera.get_picture_index(expected_epoch)] == "IMG001"
 
     link_definitions = dataset.link_definitions_for_observable(
         model_settings.pixel_coordinates_type
@@ -1061,7 +1068,7 @@ def test_sum_lmk_landmark_position_helpers():
 
     data_directory = _test_data_path() / "sum_lmk"
     tracking_data, supplementary_data = read_sum_lmk_data(
-        [str(data_directory / "sample.sum")],
+        {"Camera": [str(data_directory / "sample.sum")]},
         [str(data_directory / "LMK0001.lmk"), str(data_directory / "LMK0002.lmk")],
         "Target",
         "Spacecraft",
@@ -1101,7 +1108,7 @@ def test_sum_lmk_landmark_position_helpers():
 
     # Camera pointing estimated: the inverse a-priori covariance is 1 / (1e-4 rad)^2 on the diagonal.
     pointing_set = parameters_setup.create_parameter_set(
-        [parameters_setup.camera_pointing_correction("Spacecraft", "Camera_IMG001")], bodies
+        [parameters_setup.camera_pointing_correction("Spacecraft", "Camera")], bodies
     )
     pointing_entries = get_camera_pointing_inverse_apriori_covariance_entries(supplementary_data)
     assert len(pointing_entries) == 1

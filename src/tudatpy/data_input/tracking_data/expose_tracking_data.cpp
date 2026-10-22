@@ -794,14 +794,25 @@ number of observation events, regardless of the number of scalar components.)doc
 
          :type: str
       )doc" )
-            .def_property( "pointing_uncertainty",
-                           &tdat::CameraInstrumentSupplementaryData::getPointingUncertainty,
-                           &tdat::CameraInstrumentSupplementaryData::setPointingUncertainty,
+            .def_property( "body_fixed_position",
+                           &tdat::CameraInstrumentSupplementaryData::getBodyFixedPosition,
+                           &tdat::CameraInstrumentSupplementaryData::setBodyFixedPosition,
                            R"doc(
-         A-priori uncertainty of the camera pointing about the three camera
-         axes [rad]. Entries are NaN when the source gives no value.
+         Position of the camera in the body-fixed frame of the body that
+         carries it [m]. It is used when the camera is created from this
+         supplementary data. Defaults to zero.
 
          :type: numpy.ndarray[numpy.float64[3, 1]]
+      )doc" )
+            .def_property( "pointing_uncertainty_history",
+                           &tdat::CameraInstrumentSupplementaryData::getPointingUncertaintyHistory,
+                           &tdat::CameraInstrumentSupplementaryData::setPointingUncertaintyHistory,
+                           R"doc(
+         A-priori uncertainty of the camera pointing about the three camera
+         axes [rad], indexed by the picture times of the rotation history.
+         Empty when the source gives no value.
+
+         :type: dict[float, numpy.ndarray[numpy.float64[3, 1]]]
       )doc" );
 
     py::class_< tdat::ReferencePointSupplementaryData, std::shared_ptr< tdat::ReferencePointSupplementaryData > >(

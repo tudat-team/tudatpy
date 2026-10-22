@@ -75,51 +75,6 @@ namespace
 //! few thousand seconds, giving good velocity observability over a short test arc.
 constexpr double targetGravitationalParameter = 1.0E6;
 
-//! Build Target (origin, identity rotation) + Spacecraft (behind, with placeholder attitude) bodies.
-SystemOfBodies makeBodies( const double spacecraftZ )
-{
-    SystemOfBodies bodies( "SSB", "J2000" );
-    bodies.createEmptyBody< double, double >( "Target", false );
-    bodies.createEmptyBody< double, double >( "Spacecraft", false );
-    bodies.at( "Target" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "J2000" ) );
-    Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
-    spacecraftState( 2 ) = spacecraftZ;
-    bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< ConstantEphemeris >( spacecraftState, "SSB", "J2000" ) );
-    bodies.at( "Target" )
-            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
-                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Target_Fixed" ) );
-    bodies.at( "Spacecraft" )
-            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
-                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Spacecraft_Fixed" ) );
-    bodies.processBodyFrameDefinitions< double, double >( );
-    return bodies;
-}
-
-input_output::sum_lmk::SumImageData makeImage( const std::string& imageId,
-                                               const std::vector< std::string >& landmarkIds,
-                                               const double spacecraftZ )
-{
-    input_output::sum_lmk::SumImageData image;
-    image.imageId_ = imageId;
-    image.utcEpochString_ = "2015 JUN 05 07:24:42.053";
-    image.imageSize_ = Eigen::Vector2i( 1024, 1024 );
-    image.focalLengthMm_ = 100.0;
-    image.opticalCenter_ = Eigen::Vector2d( 512.0, 512.0 );
-    // SCOBJ = spacecraft-to-object (target at origin), i.e. the negation of the spacecraft position.
-    image.spacecraftObjectVector_ = Eigen::Vector3d( 0.0, 0.0, -spacecraftZ );
-    image.cameraAxes_ = Eigen::Matrix3d::Identity( );
-    image.kMatrix_ << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
-    image.pointingSigma_ = Eigen::Vector3d::Constant( 1.0E-4 );
-    for( const std::string& landmarkId : landmarkIds )
-    {
-        input_output::sum_lmk::SumLandmarkObservation observation;
-        observation.landmarkId_ = landmarkId;
-        observation.pixelCoordinates_ = Eigen::Vector2d::Zero( );  // simulated below; stored value not used here
-        image.landmarkObservations_.push_back( observation );
-    }
-    return image;
-}
-
 //! Landmarks spread across the field of view so that all three rotation degrees of freedom
 //! (including rotation about the boresight) are observable.
 std::map< std::string, input_output::sum_lmk::LmkLandmarkData > makeLandmarks( )
@@ -339,18 +294,20 @@ SyntheticOrbitScenario buildSyntheticOrbitScenario( const double pointingSigmaRa
     return scenario;
 }
 
-//! Get the start index of each image's pointing correction in the estimated parameter vector.
+//! Get the start index of each image's pointing correction in the estimated parameter vector. The camera has one correction per
+//! image, in time order.
 std::vector< int > getPointingStartIndices( const std::shared_ptr< EstimatableParameterSet< double > >& parametersToEstimate,
-                                            const std::vector< std::string >& imageIds )
+                                            const int numberOfImages )
 {
+    const EstimatebleParameterIdentifier parameterIdentifier( camera_pointing_correction,
+                                                              std::make_pair( "Spacecraft", sumLmkTestCameraName ) );
+    const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType( parameterIdentifier );
+    BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
+    BOOST_REQUIRE_EQUAL( indices.at( 0 ).second, 3 * numberOfImages );
     std::vector< int > startIndices;
-    for( const std::string& imageId : imageIds )
+    for( int imageIndex = 0; imageIndex < numberOfImages; ++imageIndex )
     {
-        const EstimatebleParameterIdentifier parameterIdentifier(
-                camera_pointing_correction, std::make_pair( "Spacecraft", input_output::sum_lmk::getSumImageCameraName( imageId ) ) );
-        const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType( parameterIdentifier );
-        BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
-        startIndices.push_back( indices.at( 0 ).first );
+        startIndices.push_back( indices.at( 0 ).first + 3 * imageIndex );
     }
     return startIndices;
 }
@@ -622,11 +579,12 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
 
     const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
     const std::vector< std::string > imageIds = { "IMGA", "IMGB", "IMGC" };
-    SystemOfBodies bodies = makeBodies( -10000.0 );
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
     std::vector< input_output::sum_lmk::SumImageData > images;
-    for( const std::string& imageId : imageIds )
+    for( unsigned int imageIndex = 0; imageIndex < imageIds.size( ); ++imageIndex )
     {
-        images.push_back( makeImage( imageId, landmarkIds, -10000.0 ) );
+        images.push_back( makeSyntheticSumImage( imageIds.at( imageIndex ), landmarkIds ) );
+        images.back( ).utcEpochString_ = "2015 JUN 05 07:2" + std::to_string( imageIndex ) + ":42.053";
     }
     LoadedPixelTestData conversionResult = loadPixelTestData( images, makeLandmarks( ), bodies );
 
@@ -635,7 +593,7 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
     const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parametersToEstimate, conversionResult.observationModelSettings_, nullPropagatorSettings );
-    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, imageIds );
+    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, imageIds.size( ) );
 
     // Simulate observations with a distinct correction per image, and estimate starting from zero corrections.
     Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
@@ -734,7 +692,7 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
             createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parametersToEstimate, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
-    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_ );
+    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_.size( ) );
 
     // Simulate observations with the truth state and a distinct correction per image.
     Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
@@ -789,7 +747,7 @@ BOOST_AUTO_TEST_CASE( testPointingApriori )
             createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             scenario.bodies_, parametersToEstimate, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
-    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_ );
+    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_.size( ) );
 
     Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
     for( unsigned int imageIndex = 0; imageIndex < pointingStartIndices.size( ); ++imageIndex )
@@ -956,9 +914,9 @@ BOOST_AUTO_TEST_CASE( testObservedLandmarkParameterSettings )
     spice_interface::loadStandardSpiceKernels( );
 
     // makeLandmarks defines L1 to L4, and only L1 and L2 are observed.
-    SystemOfBodies bodies = makeBodies( -10000.0 );
-    input_output::sum_lmk::SumImageData earlyImage = makeImage( "IMGEARLY", { "L1" }, -10000.0 );
-    input_output::sum_lmk::SumImageData lateImage = makeImage( "IMGLATE", { "L2" }, -10000.0 );
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( -10000.0 );
+    input_output::sum_lmk::SumImageData earlyImage = makeSyntheticSumImage( "IMGEARLY", { "L1" }, -10000.0 );
+    input_output::sum_lmk::SumImageData lateImage = makeSyntheticSumImage( "IMGLATE", { "L2" }, -10000.0 );
     lateImage.utcEpochString_ = "2015 JUN 05 08:24:42.053";
     LoadedPixelTestData loaded = loadPixelTestData( { earlyImage, lateImage }, makeLandmarks( ), bodies );
     BOOST_CHECK_EQUAL( landmarkParameterSettings( loaded ).size( ), 2 );

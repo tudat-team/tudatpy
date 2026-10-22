@@ -27,7 +27,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Extract per-camera pointing inverse variances from tracking supplementary data of any source format.
+//! Extract the per-picture camera pointing inverse variances from tracking supplementary data of any source format.
 std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
 getCameraPointingInverseAprioriCovarianceEntries(
         const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );

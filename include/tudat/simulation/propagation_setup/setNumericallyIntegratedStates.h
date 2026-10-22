@@ -69,7 +69,7 @@ void addEmptyTabulatedEphemeris( const simulation_setup::SystemOfBodies& bodies,
                         bodies.getFrameOrientation( ) ) );
     }
 
-    bodies.processBodyFrameDefinitions( );
+    bodies.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 }
 
 template< typename StateScalarType, typename TimeType >

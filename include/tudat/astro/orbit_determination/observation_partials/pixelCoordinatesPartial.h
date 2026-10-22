@@ -42,7 +42,7 @@ class PixelCoordinatesScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
     PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
-                             std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
+                             std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition, const double time ) >
                                      pixelLinePartialWrtCameraFramePositionFunction,
                              const bool correctForStellarAberration = false ):
         DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
@@ -61,7 +61,7 @@ public:
                              const bool correctForStellarAberration = false ):
         PixelCoordinatesScaling(
                 rotationFromInertialToCameraFrameFunction,
-                [ focalLengthsMatrix ]( const Eigen::Vector3d& cameraFramePosition ) {
+                [ focalLengthsMatrix ]( const Eigen::Vector3d& cameraFramePosition, const double ) {
                     return calculatePartialOfPixelsWrtLinkEndPositionCameraFrame( cameraFramePosition, focalLengthsMatrix, false );
                 },
                 correctForStellarAberration )
@@ -84,7 +84,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation ) override;
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Get the position scaling factor (accounting for light-time correction) for a given link end type
     /*!
@@ -143,16 +144,16 @@ public:
     }
 
     //! Whether the camera orientation depends on the given parameter (pointing correction, or reference-body rotation).
-    bool useLinkIndependentPartials( const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
+    bool useLinkIndependentPartialsForParameter(
+            const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
 
-    //! Identify the receiver camera and supply its current rotation-vector correction.
-    void setPointingCorrectionFunction( const observation_models::LinkEndId& cameraLinkEnd,
-                                        const std::function< Eigen::Vector3d( ) >& pointingCorrectionFunction )
+    //! Identify the receiver camera, whose pointing corrections are used for the pointing correction partials.
+    void setPointingCamera( const observation_models::LinkEndId& cameraLinkEnd, const std::shared_ptr< system_models::Camera >& camera )
     {
         pointingCorrectionParameterIdentifier_ =
                 std::make_pair( estimatable_parameters::camera_pointing_correction,
                                 std::make_pair( cameraLinkEnd.bodyName_, cameraLinkEnd.getReferencePointName( ) ) );
-        pointingCorrectionFunction_ = pointingCorrectionFunction;
+        pointingCamera_ = camera;
     }
 
     std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > getLinkIndependentPartials(
@@ -189,13 +190,13 @@ private:
     Eigen::Matrix3d currentRotationFromInertialToCameraFrame_;
     double currentReceiverTime_ = TUDAT_NAN;
     std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction_;
-    std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
+    std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition, const double time ) >
             pixelLinePartialWrtCameraFramePositionFunction_;
     std::string pointingReferenceBodyName_;
     std::function< Eigen::Quaterniond( const double ) > rotationFromReferenceFrameToInertialFunction_;
     RotationMatrixPartialNamedList rotationMatrixPartials_;
     estimatable_parameters::EstimatebleParameterIdentifier pointingCorrectionParameterIdentifier_;
-    std::function< Eigen::Vector3d( ) > pointingCorrectionFunction_;
+    std::shared_ptr< system_models::Camera > pointingCamera_;
     observation_models::LinkEndType currentLinkEndType_;
     int observerIndex_;
     int observedBodyIndex_;

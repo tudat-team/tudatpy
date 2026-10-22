@@ -28,20 +28,30 @@ getCameraPointingInverseAprioriCovarianceEntries(
         for( const std::shared_ptr< data::InstrumentSupplementaryData >& instrument : currentData->getInstrumentSupplementaryData( ) )
         {
             const auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
-            if( camera == nullptr || camera->getPointingUncertainty( ).array( ).isNaN( ).all( ) )
+            if( camera == nullptr || camera->getPointingUncertaintyHistory( ).empty( ) )
             {
                 continue;
             }
-            const Eigen::Vector3d& uncertainty = camera->getPointingUncertainty( );
-            if( !uncertainty.array( ).isFinite( ).all( ) || ( uncertainty.array( ) <= 0.0 ).any( ) )
+
+            // One entry per picture of the pointing history, in time order, which is the order of the pointing correction arcs.
+            const std::map< double, Eigen::Vector3d >& uncertaintyHistory = camera->getPointingUncertaintyHistory( );
+            Eigen::VectorXd inverseVariances( 3 * camera->getRotationFromInertialToCameraFrameHistory( ).size( ) );
+            int pictureIndex = 0;
+            for( const auto& pointingEntry : camera->getRotationFromInertialToCameraFrameHistory( ) )
             {
-                throw std::runtime_error( "Error when creating pointing a-priori for camera " + camera->getCameraId( ) +
-                                          ": uncertainties must be finite and positive." );
+                const auto uncertaintyIterator = uncertaintyHistory.find( pointingEntry.first );
+                if( uncertaintyIterator == uncertaintyHistory.end( ) || !uncertaintyIterator->second.allFinite( ) ||
+                    ( uncertaintyIterator->second.array( ) <= 0.0 ).any( ) )
+                {
+                    throw std::runtime_error( "Error when creating pointing a-priori for camera " + camera->getCameraId( ) +
+                                              ": uncertainties must be finite, positive and given for every picture." );
+                }
+                inverseVariances.segment< 3 >( 3 * pictureIndex++ ) = uncertaintyIterator->second.array( ).square( ).inverse( );
             }
             entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
                                                        estimatable_parameters::camera_pointing_correction,
                                                        std::make_pair( currentData->getBodyName( ), camera->getCameraId( ) ) ),
-                                               Eigen::VectorXd( uncertainty.array( ).square( ).inverse( ) ) ) );
+                                               inverseVariances ) );
         }
     }
     return entries;

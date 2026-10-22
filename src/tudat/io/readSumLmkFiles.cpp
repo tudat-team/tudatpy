@@ -519,11 +519,6 @@ std::map< std::string, LmkLandmarkData > readLmkFiles( const std::vector< std::s
     return landmarks;
 }
 
-std::string getSumImageCameraName( const std::string& imageId )
-{
-    return "Camera_" + imageId;
-}
-
 double getSumImageObservationTime( const SumImageData& image )
 {
     return parseTrackingDateTime( image.utcEpochString_ ).epoch< double >( );
@@ -534,50 +529,88 @@ Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImage
     return Eigen::Quaterniond( image.cameraAxes_ ).normalized( );
 }
 
-std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageData >& sumImages,
-                                                   const std::map< std::string, LmkLandmarkData >& landmarks,
-                                                   const bool skipObservationsWithMissingLandmarks,
-                                                   const bool validateSpacecraftObjectGeometry )
+data::CameraPictureCalibration getSumImageCalibration( const SumImageData& image )
 {
-    std::vector< SumImageData > imagesToConvert;
+    data::CameraPictureCalibration calibration;
+    calibration.focalLength_ = image.focalLengthMm_;
+    calibration.principalPoint_ = image.opticalCenter_;
+    calibration.fieldOfViewBounds_ =
+            Eigen::Vector4d( 0.0, static_cast< double >( image.imageSize_( 0 ) ), 0.0, static_cast< double >( image.imageSize_( 1 ) ) );
+    calibration.kMatrix_ = image.kMatrix_;
+    return calibration;
+}
+
+std::map< std::string, std::vector< SumImageData > > getSumImagesToConvert(
+        const std::map< std::string, std::vector< SumImageData > >& sumImagesPerCamera,
+        const std::map< std::string, LmkLandmarkData >& landmarks,
+        const bool skipObservationsWithMissingLandmarks,
+        const bool validateSpacecraftObjectGeometry )
+{
+    std::map< std::string, std::vector< SumImageData > > imagesToConvertPerCamera;
     std::set< std::string > imageIds;
-    for( SumImageData image : sumImages )
+    for( const auto& cameraEntry : sumImagesPerCamera )
     {
-        if( !imageIds.insert( image.imageId_ ).second )
+        std::vector< SumImageData > imagesToConvert;
+        for( SumImageData image : cameraEntry.second )
         {
-            throw std::runtime_error( "Error when converting SUM/LMK data: image " + image.imageId_ + " is provided more than once." );
-        }
-        validateSumImage( image );
-
-        std::vector< SumLandmarkObservation > landmarkObservations;
-        for( const SumLandmarkObservation& observation : image.landmarkObservations_ )
-        {
-            if( landmarks.count( observation.landmarkId_ ) != 0 )
+            if( !imageIds.insert( image.imageId_ ).second )
             {
-                landmarkObservations.push_back( observation );
+                throw std::runtime_error( "Error when converting SUM/LMK data: image " + image.imageId_ + " is provided more than once." );
             }
-            else if( !skipObservationsWithMissingLandmarks )
-            {
-                throw std::runtime_error( "Error when converting SUM/LMK data: no LMK data for landmark " + observation.landmarkId_ +
-                                          ", observed in image " + image.imageId_ + "." );
-            }
-        }
-        image.landmarkObservations_ = landmarkObservations;
+            validateSumImage( image );
 
-        if( validateSpacecraftObjectGeometry )
-        {
-            validateSumImageGeometry( image, landmarks );
+            std::vector< SumLandmarkObservation > landmarkObservations;
+            for( const SumLandmarkObservation& observation : image.landmarkObservations_ )
+            {
+                if( landmarks.count( observation.landmarkId_ ) != 0 )
+                {
+                    landmarkObservations.push_back( observation );
+                }
+                else if( !skipObservationsWithMissingLandmarks )
+                {
+                    throw std::runtime_error( "Error when converting SUM/LMK data: no LMK data for landmark " + observation.landmarkId_ +
+                                              ", observed in image " + image.imageId_ + "." );
+                }
+            }
+            image.landmarkObservations_ = landmarkObservations;
+
+            if( validateSpacecraftObjectGeometry )
+            {
+                validateSumImageGeometry( image, landmarks );
+            }
+            if( !image.landmarkObservations_.empty( ) )
+            {
+                imagesToConvert.push_back( image );
+            }
         }
-        if( !image.landmarkObservations_.empty( ) )
+
+        // The images of one camera must have distinct epochs. Their calibration may differ (for instance by pixel binning), and is
+        // kept per image.
+        std::sort( imagesToConvert.begin( ), imagesToConvert.end( ), []( const SumImageData& first, const SumImageData& second ) {
+            return getSumImageObservationTime( first ) < getSumImageObservationTime( second );
+        } );
+        for( unsigned int i = 1; i < imagesToConvert.size( ); ++i )
         {
-            imagesToConvert.push_back( image );
+            const SumImageData& firstImage = imagesToConvert.front( );
+            const SumImageData& image = imagesToConvert.at( i );
+            if( image.pointingSigma_.array( ).isNaN( ).all( ) != firstImage.pointingSigma_.array( ).isNaN( ).all( ) ||
+                !( getSumImageObservationTime( image ) > getSumImageObservationTime( imagesToConvert.at( i - 1 ) ) ) )
+            {
+                throw std::runtime_error( "Error when converting SUM image " + image.imageId_ + " of camera " + cameraEntry.first +
+                                          ": the images of a camera must have distinct epochs, and either all or none must give "
+                                          "SIGMA_PTG." );
+            }
+        }
+        if( !imagesToConvert.empty( ) )
+        {
+            imagesToConvertPerCamera[ cameraEntry.first ] = imagesToConvert;
         }
     }
-    return imagesToConvert;
+    return imagesToConvertPerCamera;
 }
 
 std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrackingSupplementaryData(
-        const std::vector< SumImageData >& sumImages,
+        const std::map< std::string, std::vector< SumImageData > >& sumImagesPerCamera,
         const std::map< std::string, LmkLandmarkData >& landmarks,
         const std::string& targetBodyName,
         const std::string& receiverBodyName )
@@ -604,23 +637,39 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
         supplementaryData.push_back( landmarkData );
     }
 
-    for( const SumImageData& image : sumImages )
+    for( const auto& cameraEntry : sumImagesPerCamera )
     {
-        const std::string cameraName = getSumImageCameraName( image.imageId_ );
-        auto camera = std::make_shared< data::CameraInstrumentSupplementaryData >(
-                cameraName,
-                image.focalLengthMm_,
-                image.opticalCenter_,
-                Eigen::Vector4d( 0.0, static_cast< double >( image.imageSize_( 0 ) ), 0.0, static_cast< double >( image.imageSize_( 1 ) ) ),
-                image.kMatrix_,
-                Eigen::Matrix< double, 6, 1 >::Zero( ),
-                Eigen::Vector3d::Zero( ),
-                std::map< double, Eigen::Quaterniond >(
-                        { { getSumImageObservationTime( image ), getSumImageRotationFromBodyFixedToCameraFrame( image ) } } ) );
-        camera->setPointingReferenceBodyName( targetBodyName );
-        camera->setPointingUncertainty( image.pointingSigma_ );
+        std::map< double, Eigen::Quaterniond > pointingHistory;
+        std::map< double, data::CameraPictureCalibration > pictureCalibrationHistory;
+        std::map< double, std::string > pictureIdHistory;
+        std::map< double, Eigen::Vector3d > pointingUncertaintyHistory;
+        for( const SumImageData& image : cameraEntry.second )
+        {
+            pointingHistory[ getSumImageObservationTime( image ) ] = getSumImageRotationFromBodyFixedToCameraFrame( image );
+            pictureCalibrationHistory[ getSumImageObservationTime( image ) ] = getSumImageCalibration( image );
+            pictureIdHistory[ getSumImageObservationTime( image ) ] = image.imageId_;
+            if( !image.pointingSigma_.array( ).isNaN( ).all( ) )
+            {
+                pointingUncertaintyHistory[ getSumImageObservationTime( image ) ] = image.pointingSigma_;
+            }
+        }
 
-        auto cameraData = std::make_shared< data::TrackingSupplementaryData >( receiverBodyName, cameraName );
+        // Each image has its own calibration. The camera-level calibration is that of the first image.
+        const data::CameraPictureCalibration& firstCalibration = pictureCalibrationHistory.begin( )->second;
+        auto camera = std::make_shared< data::CameraInstrumentSupplementaryData >( cameraEntry.first,
+                                                                                   firstCalibration.focalLength_,
+                                                                                   firstCalibration.principalPoint_,
+                                                                                   firstCalibration.fieldOfViewBounds_,
+                                                                                   firstCalibration.kMatrix_,
+                                                                                   Eigen::Matrix< double, 6, 1 >::Zero( ),
+                                                                                   Eigen::Vector3d::Zero( ),
+                                                                                   pointingHistory );
+        camera->setPictureCalibrationHistory( pictureCalibrationHistory );
+        camera->setPointingReferenceBodyName( targetBodyName );
+        camera->setPictureIdHistory( pictureIdHistory );
+        camera->setPointingUncertaintyHistory( pointingUncertaintyHistory );
+
+        auto cameraData = std::make_shared< data::TrackingSupplementaryData >( receiverBodyName, cameraEntry.first );
         cameraData->setInstrumentSupplementaryData( { camera } );
         supplementaryData.push_back( cameraData );
     }

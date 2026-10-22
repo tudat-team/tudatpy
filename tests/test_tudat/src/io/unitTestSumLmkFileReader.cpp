@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testReadRealLmkFile )
 
 //! Conversion of SUM/LMK contents to tracking data and supplementary data: one observation per (image, landmark), with the
 //! measured pixels, the UTC image epoch and the landmark/camera link ends, and a camera carrying the SUM calibration, the
-//! CX/CY/CZ attitude (relative to the target body-fixed frame) and SIGMA_PTG.
+//! CX/CY/CZ attitude (relative to the target body-fixed frame) and SIGMA_PTG. Images of two cameras share the landmarks.
 BOOST_AUTO_TEST_CASE( testSumLmkConversion )
 {
     const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
@@ -154,11 +154,11 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
     const SumImageData image = readSumFile( sumFiles.at( 0 ) );
     const std::map< std::string, LmkLandmarkData > landmarks = readLmkFiles( lmkFiles );
 
-    const auto convertedData = readSumLmkData< double, double >( sumFiles, lmkFiles, "Comet", "Spacecraft" );
+    const auto convertedData = readSumLmkData< double, double >( { { "OSIRIS_WAC", sumFiles } }, lmkFiles, "Comet", "Spacecraft" );
 
     // Calendar epoch of the image, computed independently of the epoch string parser.
     const double expectedEpoch = basic_astrodynamics::DateTime( 2015, 4, 14, 16, 26, 27.974 ).epoch< double >( );
-    const std::string cameraName = "Camera_W48230079013";
+    const std::string cameraName = "OSIRIS_WAC";
 
     BOOST_REQUIRE_EQUAL( convertedData.first.size( ), 3 );
     for( unsigned int i = 0; i < convertedData.first.size( ); ++i )
@@ -203,16 +203,45 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
             BOOST_CHECK_SMALL( camera->getFocalLength( ) - image.focalLengthMm_, 1.0E-12 );
             BOOST_CHECK_SMALL( ( camera->getPrincipalPoint( ) - image.opticalCenter_ ).norm( ), 1.0E-12 );
             BOOST_CHECK_SMALL( ( camera->getKMatrix( ) - image.kMatrix_ ).norm( ), 1.0E-12 );
-            BOOST_CHECK_SMALL( ( camera->getPointingUncertainty( ) - image.pointingSigma_ ).norm( ), 1.0E-15 );
+            BOOST_REQUIRE_EQUAL( camera->getPointingUncertaintyHistory( ).size( ), 1 );
+            BOOST_CHECK_SMALL( ( camera->getPointingUncertaintyHistory( ).begin( )->second - image.pointingSigma_ ).norm( ), 1.0E-15 );
 
             const std::map< double, Eigen::Quaterniond >& pointingHistory = camera->getRotationFromInertialToCameraFrameHistory( );
             BOOST_REQUIRE_EQUAL( pointingHistory.size( ), 1 );
             BOOST_CHECK_SMALL( pointingHistory.begin( )->first - expectedEpoch, 1.0E-6 );
             BOOST_CHECK_SMALL( ( pointingHistory.begin( )->second.toRotationMatrix( ) - image.cameraAxes_ ).norm( ), 1.0E-7 );
+            BOOST_CHECK( camera->getPictureIdHistory( ) ==
+                         ( std::map< double, std::string >{ { pointingHistory.begin( )->first, image.imageId_ } } ) );
         }
     }
     BOOST_CHECK_EQUAL( numberOfLandmarks, 3 );
     BOOST_CHECK_EQUAL( numberOfCameras, 1 );
+
+    // Images of two cameras: the landmarks are created once, and each camera receives the observations of its own image.
+    SumImageData otherImage = image;
+    otherImage.imageId_ = "OTHER";
+    const auto twoCameraData = convertSumLmkData< double, double >(
+            { { "OSIRIS_WAC", { image } }, { "OSIRIS_NAC", { otherImage } } }, landmarks, "Comet", "Spacecraft" );
+    std::map< std::string, int > observationsPerCamera;
+    for( const auto& trackingData : twoCameraData.first )
+    {
+        observationsPerCamera[ trackingData->getLinkEnds( ).at( 1 ).first.second ] += trackingData->getNumberOfObservations( );
+    }
+    BOOST_CHECK( observationsPerCamera == ( std::map< std::string, int >{ { "OSIRIS_NAC", 3 }, { "OSIRIS_WAC", 3 } } ) );
+    std::map< std::string, std::string > pictureOfCamera;
+    unsigned int numberOfLandmarkEntries = 0;
+    for( const auto& supplementaryData : twoCameraData.second )
+    {
+        numberOfLandmarkEntries += ( supplementaryData->getReferencePointSupplementaryData( ) != nullptr );
+        for( const auto& instrument : supplementaryData->getInstrumentSupplementaryData( ) )
+        {
+            const auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
+            pictureOfCamera[ camera->getCameraId( ) ] = camera->getPictureIdHistory( ).begin( )->second;
+        }
+    }
+    BOOST_CHECK_EQUAL( numberOfLandmarkEntries, 3 );
+    BOOST_CHECK( pictureOfCamera ==
+                 ( std::map< std::string, std::string >{ { "OSIRIS_NAC", "OTHER" }, { "OSIRIS_WAC", image.imageId_ } } ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

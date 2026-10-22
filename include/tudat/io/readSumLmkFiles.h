@@ -129,51 +129,53 @@ LmkLandmarkData readLmkFile( const std::string& lmkFile );
  */
 std::map< std::string, LmkLandmarkData > readLmkFiles( const std::vector< std::string >& lmkFiles );
 
-//! Get the name of the camera created for a SUM image: "Camera_" followed by the image ID.
-std::string getSumImageCameraName( const std::string& imageId );
-
 //! Get the observation epoch of a SUM image, in seconds since J2000 in the UTC time scale.
 double getSumImageObservationTime( const SumImageData& image );
 
 //! Get the rotation from the target body-fixed frame to the camera frame, given by the SUM CX/CY/CZ rows.
 Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImageData& image );
 
+//! Get the camera calibration of a SUM image: MMFL, CTR, K-MATRIX and the image size as field-of-view bounds.
+data::CameraPictureCalibration getSumImageCalibration( const SumImageData& image );
+
 //! Check SUM/LMK data before conversion, and return the images to convert.
 /*!
- *  Check SUM/LMK data before conversion, and return the images to convert. Each image may be provided only once, and its
- *  calibration, attitude, pointing uncertainty and pixel coordinates must be valid. Images without landmark observations are
- *  not converted.
- *  \param sumImages Raw SUM image contents.
+ *  Check SUM/LMK data before conversion, and return the images to convert, per camera and sorted by epoch. Each image may be
+ *  provided only once, and its calibration, attitude, pointing uncertainty and pixel coordinates must be valid. The images of
+ *  one camera must have distinct epochs. Images without landmark observations, and cameras without images, are not converted.
+ *  \param sumImagesPerCamera Raw SUM image contents, with the name of the camera that took them as key.
  *  \param landmarks Raw LMK landmark contents, with the landmark ID as key.
  *  \param skipObservationsWithMissingLandmarks If true, observations of landmarks without LMK data are skipped; if false,
  *  they are an error.
  *  \param validateSpacecraftObjectGeometry If true, every landmark must lie in front of the camera when placed with the
  *  SUM SCOBJ vector.
- *  \return Images to convert, containing only the observations of landmarks with LMK data.
+ *  \return Images to convert per camera, containing only the observations of landmarks with LMK data.
  */
-std::vector< SumImageData > getSumImagesToConvert( const std::vector< SumImageData >& sumImages,
-                                                   const std::map< std::string, LmkLandmarkData >& landmarks,
-                                                   const bool skipObservationsWithMissingLandmarks = false,
-                                                   const bool validateSpacecraftObjectGeometry = true );
+std::map< std::string, std::vector< SumImageData > > getSumImagesToConvert(
+        const std::map< std::string, std::vector< SumImageData > >& sumImagesPerCamera,
+        const std::map< std::string, LmkLandmarkData >& landmarks,
+        const bool skipObservationsWithMissingLandmarks = false,
+        const bool validateSpacecraftObjectGeometry = true );
 
 //! Create the supplementary data for SUM/LMK observations.
 /*!
  *  Create the supplementary data for SUM/LMK observations. Each landmark becomes a reference point on the target body,
- *  carrying its SIGMA_LMK position uncertainty when given. Each image becomes a camera on the receiver body, pointed
- *  relative to the target body-fixed frame and carrying the SUM SIGMA_PTG pointing uncertainty.
- *  \param sumImages SUM images to convert (output of getSumImagesToConvert).
+ *  carrying its SIGMA_LMK position uncertainty when given. The images of each camera become one camera on the receiver body,
+ *  with the ID and calibration of each image, its pointing relative to the target body-fixed frame and its SUM SIGMA_PTG
+ *  pointing uncertainty.
+ *  \param sumImagesPerCamera SUM images to convert per camera (output of getSumImagesToConvert).
  *  \param landmarks Raw LMK landmark contents, with the landmark ID as key.
  *  \param targetBodyName Name of the body on which the landmarks are located.
  *  \param receiverBodyName Name of the body carrying the cameras.
- *  \return Supplementary data for the landmarks and cameras.
+ *  \return Supplementary data for the landmarks and the cameras.
  */
 std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrackingSupplementaryData(
-        const std::vector< SumImageData >& sumImages,
+        const std::map< std::string, std::vector< SumImageData > >& sumImagesPerCamera,
         const std::map< std::string, LmkLandmarkData >& landmarks,
         const std::string& targetBodyName,
         const std::string& receiverBodyName );
 
-//! Get the link ends of a SUM/LMK observation: transmitted by a landmark on the target, received by an image's camera.
+//! Get the link ends of a SUM/LMK observation: transmitted by a landmark on the target, received by the camera.
 inline data::PlainLinkDefinition getSumLmkLinkEnds( const std::string& targetBodyName,
                                                     const std::string& landmarkId,
                                                     const std::string& receiverBodyName,
@@ -186,9 +188,10 @@ inline data::PlainLinkDefinition getSumLmkLinkEnds( const std::string& targetBod
 //! Convert raw SUM/LMK data to pixel-coordinate tracking data and supplementary data.
 /*!
  *  Convert raw SUM/LMK data to pixel-coordinate tracking data and supplementary data. Every (image, landmark) pair becomes one
- *  pixel-coordinate observation, sent by the landmark on the target body and received by the image's camera on the receiver
- *  body. Epochs are kept in UTC.
- *  \param sumImages Raw SUM image contents.
+ *  pixel-coordinate observation, sent by the landmark on the target body and received by the camera that took the image, on the
+ *  receiver body. The observations of each (camera, landmark) pair are collected in one tracking data object. Epochs are kept
+ *  in UTC.
+ *  \param sumImagesPerCamera Raw SUM image contents, with the name of the camera that took them as key.
  *  \param landmarks Raw LMK landmark contents, with the landmark ID as key.
  *  \param targetBodyName Name of the body on which the landmarks are located.
  *  \param receiverBodyName Name of the body carrying the cameras.
@@ -196,37 +199,45 @@ inline data::PlainLinkDefinition getSumLmkLinkEnds( const std::string& targetBod
  *  they are an error.
  *  \param validateSpacecraftObjectGeometry If true, every landmark must lie in front of the camera when placed with the
  *  SUM SCOBJ vector.
- *  \return Pair of tracking data (one object per observation) and supplementary data.
+ *  \return Pair of tracking data (one object per camera and landmark) and supplementary data.
  */
 template< typename ObservationScalarType = double, typename TimeType = Time >
 std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > >,
            std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
-convertSumLmkData( const std::vector< SumImageData >& sumImages,
+convertSumLmkData( const std::map< std::string, std::vector< SumImageData > >& sumImagesPerCamera,
                    const std::map< std::string, LmkLandmarkData >& landmarks,
                    const std::string& targetBodyName,
                    const std::string& receiverBodyName,
                    const bool skipObservationsWithMissingLandmarks = false,
                    const bool validateSpacecraftObjectGeometry = true )
 {
-    const std::vector< SumImageData > imagesToConvert =
-            getSumImagesToConvert( sumImages, landmarks, skipObservationsWithMissingLandmarks, validateSpacecraftObjectGeometry );
+    const std::map< std::string, std::vector< SumImageData > > imagesToConvert =
+            getSumImagesToConvert( sumImagesPerCamera, landmarks, skipObservationsWithMissingLandmarks, validateSpacecraftObjectGeometry );
 
     std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataSets;
-    for( const SumImageData& image : imagesToConvert )
+    for( const auto& cameraEntry : imagesToConvert )
     {
-        const TimeType observationTime = static_cast< TimeType >( getSumImageObservationTime( image ) );
-        const std::string cameraName = getSumImageCameraName( image.imageId_ );
-        for( const SumLandmarkObservation& observation : image.landmarkObservations_ )
+        // Images are sorted by epoch, so the observations of each landmark are as well.
+        std::map< std::string, std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > observablesPerLandmark;
+        std::map< std::string, std::vector< TimeType > > timesPerLandmark;
+        for( const SumImageData& image : cameraEntry.second )
         {
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observable( 2 );
-            observable( 0 ) = static_cast< ObservationScalarType >( observation.pixelCoordinates_( 0 ) );
-            observable( 1 ) = static_cast< ObservationScalarType >( observation.pixelCoordinates_( 1 ) );
+            const TimeType observationTime = static_cast< TimeType >( getSumImageObservationTime( image ) );
+            for( const SumLandmarkObservation& observation : image.landmarkObservations_ )
+            {
+                observablesPerLandmark[ observation.landmarkId_ ].push_back(
+                        observation.pixelCoordinates_.cast< ObservationScalarType >( ) );
+                timesPerLandmark[ observation.landmarkId_ ].push_back( observationTime );
+            }
+        }
 
+        for( const auto& landmarkEntry : observablesPerLandmark )
+        {
             trackingDataSets.push_back( std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >(
                     "PixelCoordinates",
-                    getSumLmkLinkEnds( targetBodyName, observation.landmarkId_, receiverBodyName, cameraName ),
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( 1, observable ),
-                    std::vector< TimeType >( 1, observationTime ),
+                    getSumLmkLinkEnds( targetBodyName, landmarkEntry.first, receiverBodyName, cameraEntry.first ),
+                    landmarkEntry.second,
+                    timesPerLandmark.at( landmarkEntry.first ),
                     "receiver",
                     "UTC" ) );
         }
@@ -239,7 +250,7 @@ convertSumLmkData( const std::vector< SumImageData >& sumImages,
 //! Read SUM and LMK files and convert them to pixel-coordinate tracking data and supplementary data.
 /*!
  *  Read SUM and LMK files and convert them to pixel-coordinate tracking data and supplementary data, see convertSumLmkData.
- *  \param sumFiles Paths to the SUM files.
+ *  \param sumFilesPerCamera Paths to the SUM files, with the name of the camera that took the images as key.
  *  \param lmkFiles Paths to the LMK files.
  *  \param targetBodyName Name of the body on which the landmarks are located.
  *  \param receiverBodyName Name of the body carrying the cameras.
@@ -247,19 +258,24 @@ convertSumLmkData( const std::vector< SumImageData >& sumImages,
  *  they are an error.
  *  \param validateSpacecraftObjectGeometry If true, every landmark must lie in front of the camera when placed with the
  *  SUM SCOBJ vector.
- *  \return Pair of tracking data (one object per observation) and supplementary data.
+ *  \return Pair of tracking data (one object per camera and landmark) and supplementary data.
  */
 template< typename ObservationScalarType = double, typename TimeType = Time >
 std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > >,
            std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
-readSumLmkData( const std::vector< std::string >& sumFiles,
+readSumLmkData( const std::map< std::string, std::vector< std::string > >& sumFilesPerCamera,
                 const std::vector< std::string >& lmkFiles,
                 const std::string& targetBodyName,
                 const std::string& receiverBodyName,
                 const bool skipObservationsWithMissingLandmarks = false,
                 const bool validateSpacecraftObjectGeometry = true )
 {
-    return convertSumLmkData< ObservationScalarType, TimeType >( readSumFiles( sumFiles ),
+    std::map< std::string, std::vector< SumImageData > > sumImagesPerCamera;
+    for( const auto& cameraEntry : sumFilesPerCamera )
+    {
+        sumImagesPerCamera[ cameraEntry.first ] = readSumFiles( cameraEntry.second );
+    }
+    return convertSumLmkData< ObservationScalarType, TimeType >( sumImagesPerCamera,
                                                                  readLmkFiles( lmkFiles ),
                                                                  targetBodyName,
                                                                  receiverBodyName,
