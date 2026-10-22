@@ -58,6 +58,7 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         Tudat::tudat_relativity
         Tudat::tudat_gravitation
         Tudat::tudat_mission_segments
+        Tudat::tudat_close_encounters
         Tudat::tudat_electromagnetism
         Tudat::tudat_propulsion
         Tudat::tudat_ephemerides
@@ -103,6 +104,7 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             Tudat::tudat_relativity
             Tudat::tudat_gravitation
             Tudat::tudat_mission_segments
+            Tudat::tudat_close_encounters
             Tudat::tudat_electromagnetism
             Tudat::tudat_propulsion
             Tudat::tudat_ephemerides
