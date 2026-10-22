@@ -38,6 +38,15 @@ On this page, we provide a comprehensive overview of the functionality available
    plotting
    util
 
+Package Updates
+---------------
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Package Updates
+
+   Release Notes <release_notes>
+   Migration Guides <migration_guide>
 
 .. toctree::
    :maxdepth: 2
@@ -53,4 +62,4 @@ Bibliography
 ------------
 
 .. bibliography::
-   
+

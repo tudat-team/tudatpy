@@ -77,41 +77,6 @@ public:
     //! Typedef for vector of parameters.
     typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ParameterVectorType;
 
-    std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > preprocessDeprecatedIntegratorSettings(
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const int integratorIndexOffset = 0 );
-
-    OrbitDeterminationManager(
-            const SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
-            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true );
-
-    //! Constructor
-    /*!
-     *  Constructor
-     *  \param bodies Map of body objects with names of bodies, storing all environment models used in simulation.
-     *  \param parametersToEstimate Container object for all parameters that are to be estimated
-     *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
-     *  per observable type for which measurement data is to be provided in orbit determination process
-     *  (through estimateParameters function)
-     *  \param integratorSettings Settings for numerical integrator.
-     *  \param propagatorSettings Settings for propagator.
-     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
-     *  true)
-     */
-    OrbitDeterminationManager(
-            const SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true );
-
     OrbitDeterminationManager(
             const SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,

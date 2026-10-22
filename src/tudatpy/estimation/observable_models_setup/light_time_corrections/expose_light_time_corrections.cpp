@@ -42,7 +42,10 @@ namespace light_time_corrections
 
 void expose_light_time_corrections( py::module& m )
 {
-    py::class_< tom::LightTimeCorrection, std::shared_ptr< tom::LightTimeCorrection > >( m, "LightTimeCorrection" );
+    py::class_< tom::LightTimeCorrection, std::shared_ptr< tom::LightTimeCorrection > >(
+            m,
+            "LightTimeCorrection",
+            R"doc(Base model for a correction to the propagation time of an electromagnetic signal between link ends.)doc" );
 
     py::enum_< tom::LightTimeCorrectionType >( m,
                                                "LightTimeCorrectionType",
@@ -50,17 +53,37 @@ void expose_light_time_corrections( py::module& m )
 
 Used as a filter by :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.light_time_correction_components_dependent_variable`
 to select which correction contributions are saved individually.)doc" )
-            .value( "first_order_relativistic", tom::first_order_relativistic )
-            .value( "function_wrapper_light_time_correction", tom::function_wrapper_light_time_correction )
-            .value( "tabulated_tropospheric", tom::tabulated_tropospheric )
-            .value( "saastamoinen_tropospheric", tom::saastamoinen_tropospheric )
-            .value( "vmf3_tropospheric", tom::vmf3_tropospheric )
-            .value( "vmf3o_tropospheric", tom::vmf3o_tropospheric )
-            .value( "tabulated_ionospheric", tom::tabulated_ionospheric )
-            .value( "jakowski_vtec_ionospheric", tom::jakowski_vtec_ionospheric )
-            .value( "inverse_power_series_solar_corona", tom::inverse_power_series_solar_corona )
-            .value( "ionex_vtec_ionospheric", tom::ionex_vtec_ionospheric )
-            .value( "nequick2_ionospheric", tom::nequick2_ionospheric )
+            .value( "first_order_relativistic", tom::first_order_relativistic, R"doc(First-order relativistic light-time correction.)doc" )
+            .value( "function_wrapper_light_time_correction",
+                    tom::function_wrapper_light_time_correction,
+                    R"doc(Light-time correction evaluated by a user-supplied function.)doc" )
+            .value( "tabulated_tropospheric",
+                    tom::tabulated_tropospheric,
+                    R"doc(Tropospheric light-time correction from tabulated delays.)doc" )
+            .value( "saastamoinen_tropospheric",
+                    tom::saastamoinen_tropospheric,
+                    R"doc(Tropospheric light-time correction using the Saastamoinen model.)doc" )
+            .value( "vmf3_tropospheric",
+                    tom::vmf3_tropospheric,
+                    R"doc(Tropospheric light-time correction using Vienna Mapping Function 3 products.)doc" )
+            .value( "vmf3o_tropospheric",
+                    tom::vmf3o_tropospheric,
+                    R"doc(Optical tropospheric light-time correction using VMF3o products.)doc" )
+            .value( "tabulated_ionospheric",
+                    tom::tabulated_ionospheric,
+                    R"doc(Ionospheric light-time correction from tabulated delays.)doc" )
+            .value( "jakowski_vtec_ionospheric",
+                    tom::jakowski_vtec_ionospheric,
+                    R"doc(Ionospheric light-time correction using the Jakowski VTEC model.)doc" )
+            .value( "inverse_power_series_solar_corona",
+                    tom::inverse_power_series_solar_corona,
+                    R"doc(Solar-corona light-time correction using an inverse-power electron density model.)doc" )
+            .value( "ionex_vtec_ionospheric",
+                    tom::ionex_vtec_ionospheric,
+                    R"doc(Ionospheric light-time correction using IONEX vertical total electron content maps.)doc" )
+            .value( "nequick2_ionospheric",
+                    tom::nequick2_ionospheric,
+                    R"doc(Ionospheric light-time correction using the NeQuick2 electron density model.)doc" )
             .export_values( );
 
     py::class_< tom::LightTimeCalculatorBase, std::shared_ptr< tom::LightTimeCalculatorBase > >(
@@ -136,7 +159,7 @@ Order corresponds to the values returned by `get_current_light_time_correction_c
              Link_Definition_Object = links.LinkDefinition(link_ends)
 
              # Case 1: perturbing body (Earth) involved in the observations
-             # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
+             # In this case, Earth is a receiver, so the body's state will be evaluated at the reception time.
              perturbing_body = ['Earth']
              doppler_observation_settings = light_time_corrections.first_order_relativistic_light_time_correction(perturbing_body)
 
@@ -180,9 +203,15 @@ Examples
 
 
       )doc" )
-            .value( "accept_without_warning", tom::LightTimeFailureHandling::accept_without_warning )
-            .value( "print_warning_and_accept", tom::LightTimeFailureHandling::print_warning_and_accept )
-            .value( "throw_exception", tom::LightTimeFailureHandling::throw_exception )
+            .value( "accept_without_warning",
+                    tom::LightTimeFailureHandling::accept_without_warning,
+                    R"doc(Accept the last light-time iterate without warning if convergence fails.)doc" )
+            .value( "print_warning_and_accept",
+                    tom::LightTimeFailureHandling::print_warning_and_accept,
+                    R"doc(Warn and accept the last light-time iterate if convergence fails.)doc" )
+            .value( "throw_exception",
+                    tom::LightTimeFailureHandling::throw_exception,
+                    R"doc(Raise an exception if light-time convergence fails.)doc" )
             .export_values( );
 
     m.def( "light_time_convergence_settings",
@@ -369,10 +398,18 @@ Examples
 
      )doc" );
 
-    py::enum_< tom::TroposphericMappingModel >( m, "TroposphericMappingModel", R"doc(No documentation found.)doc" )
-            .value( "simplified_chao", tom::TroposphericMappingModel::simplified_chao )
-            .value( "niell", tom::TroposphericMappingModel::niell )
-            .value( "vmf3", tom::TroposphericMappingModel::vmf3 );
+    py::enum_< tom::TroposphericMappingModel >( m,
+                                                "TroposphericMappingModel",
+                                                R"doc(
+
+         Enumeration of zenith-to-line-of-sight tropospheric mapping functions.
+
+      )doc" )
+            .value( "simplified_chao",
+                    tom::TroposphericMappingModel::simplified_chao,
+                    R"doc(Simplified Chao tropospheric mapping function.)doc" )
+            .value( "niell", tom::TroposphericMappingModel::niell, R"doc(Niell tropospheric mapping function.)doc" )
+            .value( "vmf3", tom::TroposphericMappingModel::vmf3, R"doc(Vienna Mapping Function 3.)doc" );
 
     py::enum_< tom::WaterVaporPartialPressureModel >(
             m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(Enumeration for water vapor partial pressure models.)doc" )
@@ -423,14 +460,14 @@ Examples
            py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
            py::arg( "water_vapor_partial_pressure_model" ) = tom::WaterVaporPartialPressureModel::tabulated,
            R"doc(
-           
+
            Function for creating settings for Saastamoinen tropospheric light-time corrections.
 
            The Saastamoinen tropospheric correction compute the tropospheric zenith delay based on the local meterological conditions at the ground station.
            This requires the meteorological data to be set in the :class:`~tudatpy.dynamics.environment.GroundStation` object.
            The dry delay is computed according to Eq. (12,13) in Estefan and Sovers (1994), while the wet delay is computed according to Eq. (18).
            The zenith delay is then mapped to the slant range using the specified mapping function.
-           
+
            Parameters
            ----------
            body_with_atmosphere_name : str, default = "Earth"
@@ -454,7 +491,7 @@ Examples
            py::arg( "reference_frequency" ) = 2295e6,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            R"doc(
-           
+
            Function for creating settings for DSN tabulated ionospheric light-time corrections.
 
            The tabulated ionospheric correction settings are created based on files according to the TRK-2-23 Media Calibration Interface document.
@@ -478,7 +515,7 @@ Examples
            -------
            :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
                Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated ionospheric corrections.
-           
+
            )doc" );
 
     m.def( "jakowski_ionospheric_light_time_correction",
@@ -582,8 +619,9 @@ first_order_delay_coefficient : float, default = 40.3
 
 Function for creating settings for NeQuick-2 path-integrated ionospheric light-time corrections.
 
-Computes the ionospheric delay by numerically integrating the NeQuick-2 electron density profile (ITU-R P.531)
-along the transmitter-receiver ray path using Gauss-Legendre quadrature. The delay is given by
+Computes the ionospheric delay by numerically integrating the NeQuick-2 electron density profile
+:cite:t:`iturP53115,nava2008` along the transmitter-receiver ray path using Gauss-Legendre quadrature. The delay is
+given by
 :math:`\Delta\tau = c_1 \cdot \text{STEC} / f^2 / c`, where STEC is the path-integrated electron content.
 
 Unlike the MSLM-based corrections (:func:`ionex_ionospheric_light_time_correction`,
@@ -597,7 +635,8 @@ Unlike the MSLM-based corrections (:func:`ionex_ionospheric_light_time_correctio
 When ``use_ionex_rescaling`` is True and an IONEX ionosphere model has been loaded on the body, the NeQuick-2
 F2-layer peak density (NmF2) is rescaled so that the NeQuick-2 vertical TEC column matches the IONEX VTEC at the
 ionospheric pierce point. This preserves the physical profile shape while anchoring the total electron content to
-the GNSS-derived IONEX measurement. When set to False, the model runs in free climatology mode using F10.7 only.
+the GNSS-derived IONEX measurement :cite:t:`hernandezPajares2009`. When set to False, the model runs in free climatology
+mode using F10.7 only.
 
 Parameters
 ----------
@@ -655,16 +694,6 @@ Examples
         use_ionex_rescaling=False
     )
 
-References
-----------
-- ITU-R Recommendation P.531-15 (2023). *Ionospheric propagation data and prediction methods
-  required for the design of satellite networks and systems.*
-- B. Nava, P. Coisson, and S.M. Radicella (2008). A new version of the NeQuick ionosphere
-  electron density model. *J. Atmos. Sol.-Terr. Phys.*, 70(15), 1856-1862.
-  `doi:10.1016/j.jastp.2008.01.015 <https://doi.org/10.1016/j.jastp.2008.01.015>`_
-- M. Hernandez-Pajares et al. (2009). The IGS VTEC maps: a reliable source of ionospheric
-  information since 1998. *J. Geodesy*, 83(3-4). `doi:10.1007/s00190-008-0266-1 <https://doi.org/10.1007/s00190-008-0266-1>`_
-
            )doc" );
 
     // VMF3 Tropospheric correction
@@ -684,7 +713,25 @@ References
            R"doc(
 Create VMF3o (optical) tropospheric light time correction settings.
 
-This uses VMF3 mapping with VMF3o-specific coefficient handling and wavelength-dependent scaling.
+This model applies VMF3o mapping coefficients and wavelength-dependent scaling to the hydrostatic and wet
+tropospheric delays. The required station troposphere data must be configured separately.
+
+Parameters
+----------
+body_with_atmosphere_name : str, default = "Earth"
+    Body carrying the atmosphere and ground station.
+use_gradient_correction : bool, default = True
+    Whether to include the horizontal tropospheric-gradient contribution.
+tropospheric_mapping_model : TroposphericMappingModel, default = vmf3
+    Mapping model used to convert zenith delays to slant delays.
+observation_wavelength_nm : float, default = 532.0
+    Positive observation wavelength in nanometres, used for the VMF3o optical scaling.
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    configured for VMF3o optical tropospheric corrections.
            )doc" );
 
     m.def( "inverse_power_series_solar_corona_light_time_correction",
@@ -693,20 +740,91 @@ This uses VMF3 mapping with VMF3o-specific coefficient handling and wavelength-d
            py::arg( "positive_exponents" ) = std::vector< double >{ 6.0, 2.0 },
            py::arg( "delay_coefficient" ) = 40.3,
            py::arg( "sun_body_name" ) = "Sun",
-           R"doc(No documentation found.)doc" );
+           R"doc(
 
-    py::class_< tom::VtecCalculator, std::shared_ptr< tom::VtecCalculator > >( m, "VtecCalculator" );
+         Create a dispersive solar-corona light-time correction from an inverse-power electron density model.
+
+         ``coefficients`` gives density amplitudes in inverse cubic metres and ``positive_exponents`` gives the
+         corresponding positive powers of distance normalized by the solar radius. ``delay_coefficient`` is the plasma
+         delay constant; ``sun_body_name`` identifies the central star.
+
+         Parameters
+         ----------
+         coefficients : list[float], default = [1.3e14, 0.5e12]
+             Coefficients of the inverse-power series defining solar-corona electron density.
+         positive_exponents : list[float], default = [6.0, 2.0]
+             Positive radial powers for the inverse-power density series, paired with the coefficients.
+         delay_coefficient : float, default = 40.3
+             Coefficient converting the electron-density integral into the light-time correction.
+         sun_body_name : str, default = "Sun"
+             Name of the Sun body in the system of bodies.
+
+         Returns
+         -------
+         LightTimeCorrectionSettings
+             Settings for the model defined above.
+
+      )doc" );
+
+    py::class_< tom::VtecCalculator, std::shared_ptr< tom::VtecCalculator > >( m,
+                                                                               "VtecCalculator",
+                                                                               R"doc(
+
+         Base interface for computing vertical total electron content for ionospheric light-time corrections.
+
+      )doc" );
 
     py::class_< tom::JakowskiVtecCalculator, std::shared_ptr< tom::JakowskiVtecCalculator >, tom::VtecCalculator >(
-            m, "JakowskiVtecCalculator" )
+            m,
+            "JakowskiVtecCalculator",
+            R"doc(
+
+         Jakowski vertical total electron content model using solar declination and F10.7 radio flux functions.
+
+      )doc" )
             .def( py::init< std::function< double( double ) >, std::function< double( double ) >, bool >( ),
                   py::arg( "sun_declination_function" ),
                   py::arg( "f10p7_function" ),
-                  py::arg( "use_utc_time_for_local_time" ) = false )
+                  py::arg( "use_utc_time_for_local_time" ) = false,
+                  R"doc(
+
+         Create a Jakowski VTEC model from epoch-dependent solar declination and F10.7 functions, optionally using UTC
+         for local time.
+
+         Parameters
+         ----------
+         sun_declination_function : Callable[[float], float]
+             Function returning the Sun's declination, in radians, from epoch in seconds since J2000.
+         f10p7_function : Callable[[float], float]
+             Function returning the 10.7 cm solar flux, in solar flux units, from epoch in seconds since J2000.
+         use_utc_time_for_local_time : bool, default = False
+             Whether to interpret the epoch as UTC when computing local time.
+
+      )doc" )
             .def( "calculate_vtec",
                   &tudat::observation_models::JakowskiVtecCalculator::calculateVtec,
                   py::arg( "time" ),
-                  py::arg( "sub_ionospheric_point" ) );
+                  py::arg( "sub_ionospheric_point" ),
+                  R"doc(
+
+         Evaluate vertical total electron content at ``time`` and ``sub_ionospheric_point``.
+
+         The epoch is in TDB seconds since J2000 and the point contains geodetic altitude in metres, latitude in radians and longitude in radians.
+         Returns vertical total electron content in electrons per square metre.
+
+         Parameters
+         ----------
+         time : float
+             Epoch at which to evaluate the model, in seconds since J2000.
+         sub_ionospheric_point : numpy.ndarray[numpy.float64[3, 1]]
+             Geodetic position of the sub-ionospheric point: altitude in metres, latitude and longitude in radians.
+
+         Returns
+         -------
+         float
+             Vertical total electron content at the sub-ionospheric point, in electrons per square metre.
+
+      )doc" );
 
     py::class_< tom::GlobalIonosphereModelVtecCalculator,
                 std::shared_ptr< tom::GlobalIonosphereModelVtecCalculator >,
@@ -730,7 +848,7 @@ Examples
 
     from tudatpy.estimation.observable_models_setup import light_time_corrections
 
-    ionosphere_model = bodies.get_body("Earth").get_ionosphere_model()
+    ionosphere_model = bodies.get("Earth").get_ionosphere_model()
     vtec_calc = light_time_corrections.GlobalIonosphereModelVtecCalculator(ionosphere_model)
 
     # Sample VTEC at 450 km, 45 deg N, 15 deg E
@@ -748,7 +866,7 @@ Construct a VTEC calculator from an ionosphere model.
 Parameters
 ----------
 ionosphere_model : IonosphereModel
-    The ionosphere model to wrap (e.g., from ``bodies.get_body("Earth").get_ionosphere_model()``).
+    The ionosphere model to wrap (e.g., from ``bodies.get("Earth").get_ionosphere_model()``).
 
                   )doc" )
             .def( "calculate_vtec",

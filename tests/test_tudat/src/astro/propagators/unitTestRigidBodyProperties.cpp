@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )
             dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >( body_center_of_mass, "Vehicle" ) );
             dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >( body_inertia_tensor, "Vehicle" ) );
 
-            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
             std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + 1000.0 );
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =

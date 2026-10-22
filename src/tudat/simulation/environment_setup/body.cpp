@@ -173,8 +173,9 @@ void Body::setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentR
     currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 );
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = currentRotationToLocalFrame_.toRotationMatrix( );
+    // For inertial-to-body rotation R, R_dot = -[omega_body x] R.
     currentRotationToLocalFrameDerivative_ =
-            linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
+            -linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
             currentRotationMatrixToLocalFrame;
     isRotationSet_ = true;
 }
@@ -222,17 +223,6 @@ Eigen::Matrix3d Body::getCurrentRotationMatrixToLocalFrame( )
         throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
     }
     return Eigen::Matrix3d( currentRotationToLocalFrame_ );
-}
-
-Eigen::Vector7d Body::getCurrentRotationalState( )
-{
-    if( !isRotationSet_ )
-    {
-        throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation quaternion and angular velocity)" );
-    }
-    return ( Eigen::VectorXd( 7 ) << linear_algebra::convertQuaternionToVectorFormat( getCurrentRotationToGlobalFrame( ) ),
-             getCurrentAngularVelocityVectorInGlobalFrame( ) )
-            .finished( );
 }
 
 Eigen::Matrix3d Body::getCurrentRotationMatrixDerivativeToGlobalFrame( )
@@ -364,12 +354,6 @@ void Body::addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::
     bodyDeformationModels_.push_back( deformationModel );
 }
 
-void Body::setRadiationPressureInterface( const std::string& radiatingBody,
-                                          const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface )
-{
-    radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
-}
-
 void Body::setRadiationSourceModel( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel )
 {
     radiationSourceModel_ = radiationSourceModel;
@@ -435,11 +419,6 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > Body::getAerody
 std::shared_ptr< aerodynamics::FlightConditions > Body::getFlightConditions( )
 {
     return aerodynamicFlightConditions_;
-}
-
-std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > Body::getRadiationPressureInterfaces( )
-{
-    return radiationPressureInterfaces_;
 }
 
 const std::shared_ptr< electromagnetism::RadiationSourceModel > Body::getRadiationSourceModel( ) const

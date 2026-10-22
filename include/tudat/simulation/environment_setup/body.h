@@ -58,7 +58,6 @@ class BodyShapeModel;
 
 namespace electromagnetism
 {
-class RadiationPressureInterface;
 class RadiationPressureTargetModel;
 class RadiationSourceModel;
 }  // namespace electromagnetism
@@ -434,14 +433,6 @@ public:
 
     Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame( );
 
-    //! Get current rotational state.
-    /*!
-     *  Get current rotational state, expressed as a quaternion from global to body-fixed frame
-     *  (in vector form) and the body's angular velocity vector in inertial frame.
-     *  \return Current rotational state in quaternions and rotational velocity.
-     */
-    Eigen::Vector7d getCurrentRotationalState( );
-
     //! Get current rotation matrix derivative from body-fixed to global frame.
     /*!
      *  Get current rotation matrix derivative from body-fixed frame to global, as set from the
@@ -536,15 +527,6 @@ public:
     std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& getBodyDeformationModelsReference( );
 
     void addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel );
-    //! Function to set the radiation pressure interface of the body, for a single radiation source.
-    /*!
-     *  Function to set the radiation pressure interface of the body, for a single radiation source
-     *  \param radiatingBody Name of body that is the source of the radiation.
-     *  \param radiationPressureInterface Radiation pressure interface of the body.
-     */
-    void setRadiationPressureInterface( const std::string& radiatingBody,
-                                        const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface );
-
     //! Function to set the radiation source model of the body.
     /*!
      *  Function to set the radiation source model of the body.
@@ -631,13 +613,6 @@ public:
      * \return Body flight conditions
      */
     std::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( );
-
-    //! Function to retrieve the shape model of the body.
-    /*!
-     *  Function to retrieve the shape model of the body.
-     *  \return Shape model of the body.
-     */
-    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > getRadiationPressureInterfaces( );
 
     //! Function to retrieve the radiation source model of the body.
     /*!
@@ -917,10 +892,6 @@ private:
     std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > > bodyDeformationModels_;
 
     std::shared_ptr< RigidBodyProperties > massProperties_;
-
-    //! List of radiation pressure models for the body, with the sources bodies as key
-    // RP-OLD
-    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > radiationPressureInterfaces_;
 
     //! Radiation source model of the body.
     std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel_;

@@ -26,7 +26,7 @@ dependencies:
   - numpy
   - pytest
   - mypy
-  - pandas     # for tudatpy.io
+  - pandas
   - matplotlib # for tudatpy.plotting
   - tqdm       # for tudatpy.trajectory_design.porkchop
   - astropy    # for tudatpy.data.mpc

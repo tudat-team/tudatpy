@@ -117,8 +117,10 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
                 transmitterPositionWrtSun, receiverPositionWrtSun, ( legReceptionTime + legTransmissionTime ) / 2.0 );
     }
 
+    // Select frequency by the role of the leg in the full link (uplink or downlink)
+    const unsigned int transmitterIndexInFullLink = getTransmitterIndexInFullLink( currentMultiLegTransmitterIndex );
     double currentFrequency = TUDAT_NAN;
-    if( currentMultiLegTransmitterIndex == 0 )
+    if( transmitterIndexInFullLink == 0 )
     {
         try
         {
@@ -129,7 +131,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
             throw std::runtime_error( "Error when computing solar corona correction, uplink frequency not set." );
         }
     }
-    else if( currentMultiLegTransmitterIndex == 2 )
+    else if( transmitterIndexInFullLink == 2 )
     {
         try
         {

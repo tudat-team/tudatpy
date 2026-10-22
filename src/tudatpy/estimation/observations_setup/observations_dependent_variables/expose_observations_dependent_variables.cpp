@@ -118,12 +118,50 @@ void expose_observations_dependent_variable_types( py::module& m )
          Instances of this class are created as part of observation simulation
          settings and can be reused when constructing a SingleObservationSet.
       )doc" )
-            .def_property_readonly( "observable_type", &tss::ObservationDependentVariableBookkeeping::getObservableType )
-            .def_property_readonly( "link_ends", &tss::ObservationDependentVariableBookkeeping::getLinkEnds )
+            .def_property_readonly( "observable_type",
+                                    &tss::ObservationDependentVariableBookkeeping::getObservableType,
+                                    R"doc(
+
+         **read-only**
+
+         Observable type associated with these observation dependent variables.
+
+         :type: ObservableType
+
+      )doc" )
+            .def_property_readonly( "link_ends",
+                                    &tss::ObservationDependentVariableBookkeeping::getLinkEnds,
+                                    R"doc(
+
+         **read-only**
+
+         Observation link definition associated with the dependent variables.
+
+         :type: LinkDefinition
+
+      )doc" )
             .def_property_readonly( "dependent_variable_settings",
-                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings )
+                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings,
+                                    R"doc(
+
+         **read-only**
+
+         Settings for the dependent variables stored alongside observations.
+
+         :type: list[ObservationDependentVariableSettings]
+
+      )doc" )
             .def_property_readonly( "total_dependent_variable_size",
-                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize );
+                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize,
+                                    R"doc(
+
+         **read-only**
+
+         Total number of scalar entries in the observation dependent variable vector.
+
+         :type: int
+
+      )doc" );
 }
 
 void expose_observations_dependent_variables( py::module& m )
@@ -249,9 +287,15 @@ void expose_observations_dependent_variables( py::module& m )
 
         For observables that are integrated over a time interval (like Doppler), this enum specifies at which end of the integration interval the dependent variable should be evaluated.
         )doc" )
-            .value( "interval_start", tss::IntegratedObservationPropertyHandling::interval_start )
-            .value( "interval_end", tss::IntegratedObservationPropertyHandling::interval_end )
-            .value( "interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined )
+            .value( "interval_start",
+                    tss::IntegratedObservationPropertyHandling::interval_start,
+                    R"doc(Evaluate the dependent variable at the start of the observation integration interval.)doc" )
+            .value( "interval_end",
+                    tss::IntegratedObservationPropertyHandling::interval_end,
+                    R"doc(Evaluate the dependent variable at the end of the observation integration interval.)doc" )
+            .value( "interval_undefined",
+                    tss::IntegratedObservationPropertyHandling::interval_undefined,
+                    R"doc(No observation integration interval endpoint is specified.)doc" )
             .export_values( );
 
     m.def( "elevation_angle_dependent_variable",
@@ -331,11 +375,15 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
            R"doc(
         Function to create a dependent variable for the range between link ends.
-        The range is evaluated from the states of the link ends at the epoch(s) of the observation:
+        The range is the Euclidean distance between the positions of two consecutive link ends, each
+        evaluated at its own link-end time :math:`t_{start}` and :math:`t_{end}` (as determined by the light-time solution):
 
         .. math::
 
             r = || \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||
+
+        Light-time corrections affect these times, but the range does *not* include the correction terms
+        themselves (see :func:`light_time_between_link_ends_dependent_variable`).
 
         Parameters
         ----------
@@ -347,6 +395,50 @@ void expose_observations_dependent_variables( py::module& m )
             ID of the starting link end.
         end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the ending link end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
+    m.def( "light_time_between_link_ends_dependent_variable",
+           &tss::lightTimeBetweenLinkEndsDependentVariable,
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg_v( "start_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "end_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(
+        Function to create a dependent variable for the light time between two consecutive link ends.
+
+        The light time is taken directly from the light-time solution of the observation model:
+
+        .. math::
+
+            \Delta t = t_{end} - t_{start} = \frac{|| \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||}{c} + \Delta t_{corr}
+
+        with :math:`\Delta t_{corr}` the sum of all light-time corrections. Link-end (e.g. retransmission) delays are not included.
+        For multi-leg observables, each leg is a separate dependent variable (e.g., uplink and
+        downlink for a two-way observable). For integrated observables, the light time at the start
+        or end of the integration interval is used, as set by ``integrated_observation_handling``.
+
+        Parameters
+        ----------
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the starting (transmitting) link end of the leg.
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the ending (receiving) link end of the leg.
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            Optional specific link-end ID for the starting end (body/station).
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            Optional specific link-end ID for the ending end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
 
@@ -568,7 +660,7 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "correction_type_filter" ) = std::vector< tom::LightTimeCorrectionType >( ),
            R"doc(
         Function to create a dependent variable that saves each light-time correction contribution
-        individually for a single leg (transmitter → receiver) of the observable.
+        individually for a single leg (transmitter -> receiver) of the observable.
 
         The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
         on the selected leg, in light-time-calculator order and registration order within each calculator. If ``correction_type_filter`` is supplied,
