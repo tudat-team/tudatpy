@@ -103,6 +103,8 @@ Classes
    RigidBodyProperties
       
    AtmosphereModel
+
+   NRLMSISE00Atmosphere
    
    RadiationSourceModel
 
@@ -179,6 +181,11 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.AtmosphereModel
    :members:     
+
+.. autoclass:: tudatpy.dynamics.environment.NRLMSISE00Atmosphere
+   :members:
+   :special-members: __init__
+   :show-inheritance:
 
 .. autoclass:: tudatpy.dynamics.environment.RadiationSourceModel
    :members:   

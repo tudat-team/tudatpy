@@ -85,9 +85,14 @@ public:
      * Constructor
      * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
      * \param useBending Boolean flag to determine if light bending should be included, default is true.
+     * \param computeMassiveBodyAtClosestApproach Boolean denoting whether the perturbing body states are evaluated at their
+     * closest approach to the signal path (instead of the link end or light-time midpoint)
      */
-    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies, const bool useBending = false ):
-        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending )
+    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies,
+                                                       const bool useBending = false,
+                                                       const bool computeMassiveBodyAtClosestApproach = false ):
+        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending ),
+        computeMassiveBodyAtClosestApproach_( computeMassiveBodyAtClosestApproach )
     {}
 
     //! Destructor
@@ -113,12 +118,21 @@ public:
         return useBending_;
     }
 
+    //! Function returning whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool getComputeMassiveBodyAtClosestApproach( )
+    {
+        return computeMassiveBodyAtClosestApproach_;
+    }
+
 private:
     //! List of bodies for which the point masses are used to compute the light-time correction.
     std::vector< std::string > perturbingBodies_;
 
     //! Boolean flag to determine if light bending should be included.
     bool useBending_;
+
+    //! Boolean denoting whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool computeMassiveBodyAtClosestApproach_;
 };
 
 // Class defining  settings for tabulated tropospheric corrections
@@ -515,9 +529,11 @@ private:
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
         const std::vector< std::string >& perturbingBodies,
-        const bool useBending = false )
+        const bool useBending = false,
+        const bool computeMassiveBodyAtClosestApproach = false )
 {
-    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, useBending );
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+            perturbingBodies, useBending, computeMassiveBodyAtClosestApproach );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
