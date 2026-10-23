@@ -113,8 +113,7 @@ public:
         // Only the Schwarzschild partials are implemented; the Lense-Thirring term is included in the dynamics, with zero partials
         if( accelerationModel->getCalculateDeSitterCorrection( ) )
         {
-            throw std::runtime_error(
-                    "Error when creating relativistic acceleration correction partial, de Sitter term not implemented" );
+            throw std::runtime_error( "Error when creating relativistic acceleration correction partial, de Sitter term not implemented" );
         }
         centralBodyState_ = accelerationModel->getStateFunctionOfCentralBody( );
         acceleratedBodyState_ = accelerationModel->getStateFunctionOfAcceleratedBody( );

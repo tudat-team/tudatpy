@@ -143,8 +143,11 @@ void RelativisticAccelerationPartial::update( const double currentTime )
     {
         currentRelativeState_ = ( acceleratedBodyState_( ) - centralBodyState_( ) );
         // Schwarzschild term only (the position partial below uses its 1/r^3 scaling)
-        currentAcceleration_ = relativity::calculateScharzschildGravitationalAccelerationCorrection(
-                centralBodyGravitationalParameterFunction_( ), currentRelativeState_, ppnGammaParameterFunction_( ), ppnBetaParameterFunction_( ) );
+        currentAcceleration_ =
+                relativity::calculateScharzschildGravitationalAccelerationCorrection( centralBodyGravitationalParameterFunction_( ),
+                                                                                      currentRelativeState_,
+                                                                                      ppnGammaParameterFunction_( ),
+                                                                                      ppnBetaParameterFunction_( ) );
 
         computePartialOfSchwarzschildAccelerationCorrectionWrtPosition( currentRelativeState_,
                                                                         currentAcceleration_,
