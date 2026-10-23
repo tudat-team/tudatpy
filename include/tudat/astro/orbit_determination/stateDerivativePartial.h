@@ -264,22 +264,28 @@ public:
     void getCurrentParameterPartial( const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
                                      Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        if( currentVectorParameterPartials_.count( parameter ) == 0 )
+        partialMatrix += getCurrentVectorParameterPartialReference( parameter );
+    }
+
+    //! Function to retrieve selected columns of a partial w.r.t. a vector parameter
+    /*!
+     * Function to retrieve selected columns of a partial w.r.t. a vector parameter (see getCurrentParameterPartial). Used when
+     * only a subset of the parameter entries is included in the variational equations.
+     * \param parameter Partial w.r.t. which a parameter is to be computed
+     * \param parameterColumns Indices of the parameter entries for which the partial is to be retrieved
+     * \param partialMatrix Partial of state derivative w.r.t. given parameter entries, with a column for each entry of
+     * parameterColumns (return by 'reference', amking use of Eigen::Block architecture).
+     */
+    void getCurrentParameterPartialColumns(
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+            const std::vector< int >& parameterColumns,
+            Eigen::Block< Eigen::MatrixXd > partialMatrix )
+    {
+        const Eigen::MatrixXd& currentPartial = getCurrentVectorParameterPartialReference( parameter );
+        for( unsigned int i = 0; i < parameterColumns.size( ); i++ )
         {
-            if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
-            {
-                std::string errorMessage = "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
-                        std::string( parameter->getParameterName( ).second.first ) + ", " +
-                        std::string( parameter->getParameterName( ).second.second ) + ", " + " not found in list of existing partials";
-                throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-                std::cerr << "Warning, vector partial should already be calculated" << std::endl;
-                parameterVectorPartialFunctions_.at( parameter )( currentVectorParameterPartials_[ parameter ] );
-            }
+            partialMatrix.col( i ) += currentPartial.col( parameterColumns.at( i ) );
         }
-        partialMatrix += currentVectorParameterPartials_[ parameter ];
     }
 
     //! Function to retrieve a partial w.r.t. a vector parameter
@@ -405,6 +411,28 @@ protected:
      *  need to be updated when calling resetCurrentTime, for which this function should be redefined.
      */
     virtual void resetCurrentTimeOfMemberObjects( ) {}
+
+    //! Function to retrieve the current partial w.r.t. a vector parameter (computing it if needed), see getCurrentParameterPartial
+    const Eigen::MatrixXd& getCurrentVectorParameterPartialReference(
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    {
+        if( currentVectorParameterPartials_.count( parameter ) == 0 )
+        {
+            if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
+            {
+                std::string errorMessage = "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
+                        std::string( parameter->getParameterName( ).second.first ) + ", " +
+                        std::string( parameter->getParameterName( ).second.second ) + ", " + " not found in list of existing partials";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                std::cerr << "Warning, vector partial should already be calculated" << std::endl;
+                parameterVectorPartialFunctions_.at( parameter )( currentVectorParameterPartials_[ parameter ] );
+            }
+        }
+        return currentVectorParameterPartials_[ parameter ];
+    }
 
     //! Function to define all current parameter partials as 'not computed'
     void resetCurrentParameterValues( )

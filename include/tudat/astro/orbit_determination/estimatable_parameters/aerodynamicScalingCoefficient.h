@@ -256,6 +256,12 @@ public:
         return coefficientInterpolator_->getLookUpScheme( );
     }
 
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( ) override
+    {
+        return getArcWiseParameterTimeIntervalsOfInfluence( timeLimits_, getNumberOfArcs( ) );
+    }
+
 protected:
     std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > aerodynamicAccelerations_;
 

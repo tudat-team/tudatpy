@@ -11,6 +11,9 @@
 #ifndef TUDAT_VARIATIONALEQUATIONSSOLVER_BASE_H
 #define TUDAT_VARIATIONALEQUATIONSSOLVER_BASE_H
 
+#include <algorithm>
+#include <cmath>
+
 #include "tudat/basics/utilities.h"
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
@@ -61,7 +64,8 @@ public:
             const bool clearNumericalSolution = 1 ):
         parametersToEstimate_( parametersToEstimate ), bodies_( bodies ),
         stateTransitionMatrixSize_( parametersToEstimate_->getInitialDynamicalStateParameterSize( ) ),
-        parameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ), clearNumericalSolution_( clearNumericalSolution )
+        parameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ),
+        propagatedParameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ), clearNumericalSolution_( clearNumericalSolution )
     {}
 
     //! Destructor
@@ -147,13 +151,13 @@ protected:
         }
 
         // Initialize initial conditions to zeros.
-        MatrixType varSystemInitialState = MatrixType( stateTransitionMatrixSize_, parameterVectorSize_ + 1 ).setZero( );
+        MatrixType varSystemInitialState = MatrixType( stateTransitionMatrixSize_, propagatedParameterVectorSize_ + 1 ).setZero( );
 
         // Set initial state transition matrix to identity
         varSystemInitialState.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).setIdentity( );
 
         // Set initial body states to current estimate of initial body states.
-        varSystemInitialState.block( 0, parameterVectorSize_, stateTransitionMatrixSize_, 1 ) = initialStateEstimate;
+        varSystemInitialState.block( 0, propagatedParameterVectorSize_, stateTransitionMatrixSize_, 1 ) = initialStateEstimate;
 
         return varSystemInitialState;
     }
@@ -167,7 +171,7 @@ protected:
     Eigen::MatrixXd createInitialVariationalEquationsSolution( )
     {
         // Initialize initial conditions to zeros.
-        Eigen::MatrixXd varSystemInitialState = Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, parameterVectorSize_ );
+        Eigen::MatrixXd varSystemInitialState = Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, propagatedParameterVectorSize_ );
 
         // Set initial state transition matrix to identity
         varSystemInitialState.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).setIdentity( );
@@ -186,6 +190,10 @@ protected:
 
     //! Number of rows in sensitivity matrix
     int parameterVectorSize_;
+
+    //! Number of columns of state transition and sensitivity matrix that are propagated (smaller than parameterVectorSize_ if
+    //! sensitivity matrix columns that are zero are omitted, see EstimatableParameterSet::setReduceSensitivityMatrixColumns)
+    int propagatedParameterVectorSize_;
 
     //! Boolean to determine whether to clear the raw numerical solution member variables after propagation
     /*!
@@ -265,6 +273,82 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
         std::map< double, Eigen::MatrixXd >& stateTransitionSolution,
         std::map< double, Eigen::MatrixXd >& sensitivitySolution,
         const bool clearRawSolution = 1 );
+
+//! Function to retrieve the time at which a propagation terminates, if this is known before the propagation starts
+/*!
+ *  Function to retrieve the time at which a propagation terminates, if this is known before the propagation starts. This is
+ *  the case for a time termination condition, or a hybrid termination condition (terminating on a single condition) that
+ *  contains a time termination condition (in which case the time condition closest to the initial time is used).
+ *  \param terminationSettings Settings for the termination of the propagation
+ *  \param initialTime Initial time of the propagation
+ *  \return Time at which the propagation terminates, NaN if this is not known before the propagation starts
+ */
+inline double getPropagationTerminationTime( const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                             const double initialTime )
+{
+    double terminationTime = TUDAT_NAN;
+    if( std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings ) != nullptr )
+    {
+        terminationTime = std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings )->terminationTime_;
+    }
+    else if( std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings ) != nullptr )
+    {
+        std::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+                std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+        if( hybridTerminationSettings->fulfillSingleCondition_ )
+        {
+            for( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); i++ )
+            {
+                double currentTerminationTime =
+                        getPropagationTerminationTime( hybridTerminationSettings->terminationSettings_.at( i ), initialTime );
+                if( !std::isnan( currentTerminationTime ) &&
+                    ( std::isnan( terminationTime ) ||
+                      std::fabs( currentTerminationTime - initialTime ) < std::fabs( terminationTime - initialTime ) ) )
+                {
+                    terminationTime = currentTerminationTime;
+                }
+            }
+        }
+    }
+    return terminationTime;
+}
+
+//! Function to retrieve the time interval covered by a single-arc propagation, if this is known before the propagation starts
+/*!
+ *  Function to retrieve the time interval covered by a single-arc propagation, if this is known before the propagation starts
+ *  (see getPropagationTerminationTime). For a non-sequential propagation, both the forward and backward termination times
+ *  must be known.
+ *  \param propagatorSettings Settings for the single-arc propagation
+ *  \return Minimum and maximum time of the propagation, NaN if this is not known before the propagation starts
+ */
+template< typename StateScalarType, typename TimeType >
+std::pair< double, double > getPropagationTimeInterval(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings )
+{
+    double initialTime = static_cast< double >( propagatorSettings->getInitialTime( ) );
+    std::vector< double > boundaryTimes = { initialTime };
+
+    std::shared_ptr< NonSequentialPropagationTerminationSettings > nonSequentialTerminationSettings =
+            std::dynamic_pointer_cast< NonSequentialPropagationTerminationSettings >( propagatorSettings->getTerminationSettings( ) );
+    if( nonSequentialTerminationSettings != nullptr )
+    {
+        boundaryTimes.push_back(
+                getPropagationTerminationTime( nonSequentialTerminationSettings->forwardTerminationSettings_, initialTime ) );
+        boundaryTimes.push_back(
+                getPropagationTerminationTime( nonSequentialTerminationSettings->backwardTerminationSettings_, initialTime ) );
+    }
+    else
+    {
+        boundaryTimes.push_back( getPropagationTerminationTime( propagatorSettings->getTerminationSettings( ), initialTime ) );
+    }
+
+    if( std::any_of( boundaryTimes.begin( ), boundaryTimes.end( ), []( const double time ) { return std::isnan( time ); } ) )
+    {
+        return std::make_pair( TUDAT_NAN, TUDAT_NAN );
+    }
+    return std::make_pair( *std::min_element( boundaryTimes.begin( ), boundaryTimes.end( ) ),
+                           *std::max_element( boundaryTimes.begin( ), boundaryTimes.end( ) ) );
+}
 
 //! Function to check the consistency between propagation settings of equations of motion, and estimated parameters.
 /*!
@@ -663,6 +747,7 @@ void getParametersToEstimatePerArc(
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > arcWiseEstimatableParamatersSet =
                 std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
                         doubleParameters, vectorParameters, arcWiseStatesParameters );
+        arcWiseEstimatableParamatersSet->setReduceSensitivityMatrixColumns( parametersToEstimate->getReduceSensitivityMatrixColumns( ) );
 
         arcWiseParametersToEstimate.push_back( arcWiseEstimatableParamatersSet );
     }

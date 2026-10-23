@@ -418,6 +418,7 @@ protected:
                 parametersToEstimate_->getEstimatedDoubleParameters( ),
                 parametersToEstimate_->getEstimatedVectorParameters( ),
                 extendedMultiArcParameters );
+        multiArcParametersToEstimate_->setReduceSensitivityMatrixColumns( parametersToEstimate_->getReduceSensitivityMatrixColumns( ) );
         //        std::cout << "TEST: " << "\n\n";
         estimatable_parameters::printEstimatableParameterEntries( multiArcParametersToEstimate_ );
     }

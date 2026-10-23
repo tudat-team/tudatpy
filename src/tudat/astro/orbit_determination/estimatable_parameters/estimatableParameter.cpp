@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <limits>
+
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 namespace tudat
@@ -683,6 +685,48 @@ bool isParameterClockProperty( const EstimatebleParametersEnum parameterType )
             break;
     }
     return flag;
+}
+
+//! Function to determine whether the given parameter can never influence the dynamics (e.g. observation biases)
+bool isParameterWithoutDynamicalInfluence( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case ground_station_position:
+            flag = true;
+            break;
+        case reference_point_position:
+            flag = true;
+            break;
+        default:
+            flag = isParameterObservationLinkProperty( parameterType );
+            break;
+    }
+    return flag;
+}
+
+//! Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active
+std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInfluence( const std::vector< double >& arcStartTimes,
+                                                                                        const int numberOfArcs,
+                                                                                        const int entriesPerArc )
+{
+    if( static_cast< int >( arcStartTimes.size( ) ) < numberOfArcs )
+    {
+        throw std::runtime_error( "Error when getting arc-wise parameter time intervals, number of arc start times is inconsistent" );
+    }
+
+    std::vector< std::pair< double, double > > timeIntervals;
+    for( int i = 0; i < numberOfArcs; i++ )
+    {
+        double arcStartTime = ( i == 0 ) ? -std::numeric_limits< double >::infinity( ) : arcStartTimes.at( i );
+        double arcEndTime = ( i == numberOfArcs - 1 ) ? std::numeric_limits< double >::infinity( ) : arcStartTimes.at( i + 1 );
+        for( int j = 0; j < entriesPerArc; j++ )
+        {
+            timeIntervals.push_back( std::make_pair( arcStartTime, arcEndTime ) );
+        }
+    }
+    return timeIntervals;
 }
 
 }  // namespace estimatable_parameters

@@ -178,6 +178,30 @@ bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum par
 
 bool isParameterClockProperty( const EstimatebleParametersEnum parameterType );
 
+//! Function to determine whether the given parameter can never influence the dynamics (e.g. observation biases)
+/*!
+ * Function to determine whether the given parameter can never influence the dynamics, so that the associated columns
+ * of the sensitivity matrix are always zero. This is the case for observation biases, clock parameters, and ground
+ * station/reference point positions.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter can never influence the dynamics
+ */
+bool isParameterWithoutDynamicalInfluence( const EstimatebleParametersEnum parameterType );
+
+//! Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active
+/*!
+ * Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active.
+ * Arc i is active from arcStartTimes[ i ] to arcStartTimes[ i + 1 ], where the first arc is (conservatively) taken to
+ * be active from minus infinity, and the last arc until infinity.
+ * \param arcStartTimes Start times of the arcs (a sentinel final entry, beyond numberOfArcs, is ignored)
+ * \param numberOfArcs Number of arcs in the parameter
+ * \param entriesPerArc Number of parameter entries for each arc (stored consecutively per arc)
+ * \return Start and end time of the interval in which each parameter entry is active
+ */
+std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInfluence( const std::vector< double >& arcStartTimes,
+                                                                                        const int numberOfArcs,
+                                                                                        const int entriesPerArc = 1 );
+
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
 
@@ -368,6 +392,19 @@ public:
     }
 
     virtual void throwExceptionIfNotFullyDefined( ) {}
+
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    /*!
+     * Function to retrieve the time intervals in which each parameter entry can influence the dynamics, used to determine
+     * which sensitivity matrix columns are zero in a given propagation arc. Overridden for parameters with a limited
+     * time of influence (e.g. arc-wise parameters).
+     * \return Start and end time of the interval in which each parameter entry can influence the dynamics. An empty
+     * vector (default) denotes that all entries can influence the dynamics at all times.
+     */
+    virtual std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( )
+    {
+        return std::vector< std::pair< double, double > >( );
+    }
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > getCustomPartialSettings( )
     {
