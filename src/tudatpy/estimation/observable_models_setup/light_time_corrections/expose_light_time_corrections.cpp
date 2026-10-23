@@ -286,11 +286,13 @@ Examples
 
     m.def(
             "first_order_relativistic_light_time_correction",
-            []( const std::vector< std::string >& perturbingBodies ) {
+            []( const std::vector< std::string >& perturbingBodies, const bool computeMassiveBodyAtClosestApproach ) {
                 // Force bending to always be false
-                return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, false );
+                return tom::firstOrderRelativisticLightTimeCorrectionSettings(
+                        perturbingBodies, false, computeMassiveBodyAtClosestApproach );
             },
             py::arg( "perturbing_bodies" ),
+            py::arg( "compute_massive_body_at_closest_approach" ) = false,
             R"doc(
 
 Function for creating settings for first-order relativistic light-time corrections.
@@ -305,10 +307,15 @@ Function for creating settings for first-order relativistic light-time correctio
 
 * 2. **Perturbing Body Not as a Link End:** If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
 
+This is the default. Alternatively (if ``compute_massive_body_at_closest_approach`` is true), the state of each perturbing body is evaluated at the time of its closest approach to the signal path between transmitter and receiver (within each light-time leg). For a spacecraft close to a planet (e.g. Juno at Jupiter), this choice is more accurate.
+In both cases, the partial derivatives neglect the dependency of the evaluation epoch on the link end states.
+
 Parameters
 ----------
 perturbing_bodies : List[str]
     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+compute_massive_body_at_closest_approach : bool, default = False
+    Boolean denoting whether the states of the perturbing bodies are evaluated at their closest approach to the signal path (instead of at the link end or light-time midpoint).
 
 Returns
 -------
@@ -343,11 +350,13 @@ Examples
 
     m.def(
             "approximated_second_order_relativistic_light_time_correction",
-            []( const std::vector< std::string >& perturbingBodies ) {
+            []( const std::vector< std::string >& perturbingBodies, const bool computeMassiveBodyAtClosestApproach ) {
                 // Force bending to always be true
-                return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, true );
+                return tom::firstOrderRelativisticLightTimeCorrectionSettings(
+                        perturbingBodies, true, computeMassiveBodyAtClosestApproach );
             },
             py::arg( "perturbing_bodies" ),
+            py::arg( "compute_massive_body_at_closest_approach" ) = false,
 
             R"doc(
 
@@ -363,10 +372,15 @@ Function for creating settings for approximated second-order relativistic light-
 
 * 2. **Perturbing Body Not as a Link End:** If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
 
+This is the default. Alternatively (if ``compute_massive_body_at_closest_approach`` is true), the state of each perturbing body is evaluated at the time of its closest approach to the signal path between transmitter and receiver (within each light-time leg). For a spacecraft close to a planet (e.g. Juno at Jupiter), this choice is more accurate.
+In both cases, the partial derivatives neglect the dependency of the evaluation epoch on the link end states.
+
 Parameters
 ----------
 perturbing_bodies : List[str]
     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+compute_massive_body_at_closest_approach : bool, default = False
+    Boolean denoting whether the states of the perturbing bodies are evaluated at their closest approach to the signal path (instead of at the link end or light-time midpoint).
 
 Returns
 -------

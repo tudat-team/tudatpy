@@ -132,7 +132,7 @@ Eigen::Matrix< long double, 6, 1 > MultiArcEphemeris::getCartesianLongStateFromE
     std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
     if( currentArc.first )
     {
-        return singleArcEphemerides_.at( currentArc.second )->getCartesianLongStateFromExtendedTime( double( currentTime ) );
+        return singleArcEphemerides_.at( currentArc.second )->getCartesianLongStateFromExtendedTime( currentTime );
     }
     else
     {

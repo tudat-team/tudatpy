@@ -905,8 +905,7 @@ public:
             const bool iterateMultiLegLightTime = true ):
         lightTimeCalculators_( lightTimeCalculators ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         numberOfLinks_( lightTimeCalculators.size( ) ), numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
-        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( iterateMultiLegLightTime ),
-        ancillaryDelayOverrideWarningPrinted_( false )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( iterateMultiLegLightTime )
     {
         initializeFullLinkLightTimeCalculator( );
     }
@@ -919,7 +918,7 @@ public:
                                  const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                          std::make_shared< LightTimeConvergenceCriteria >( ) ):
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), numberOfLinks_( 1 ), numberOfLinkEnds_( 2 ),
-        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( false ), ancillaryDelayOverrideWarningPrinted_( false )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( false )
     {
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -938,15 +937,6 @@ public:
 
         if( !linkEndsDelays_.empty( ) )
         {
-            if( hasDefaultLinkEndDelayFunctions_ && !ancillaryDelayOverrideWarningPrinted_ )
-            {
-                std::cerr << "Warning when computing observation: transponder delay functions are present in the observation model, "
-                             "but retransmission delays are provided through ancillary settings. The ancillary settings will be used. "
-                             "This warning is printed only once for this light-time calculator."
-                          << std::endl;
-                ancillaryDelayOverrideWarningPrinted_ = true;
-            }
-
             // Delays vector not including delays at receiving and transmitting stations: set them to 0
             if( linkEndsDelays_.size( ) == numberOfLinkEnds_ - 2 )
             {
@@ -958,6 +948,17 @@ public:
                 throw std::runtime_error( "Error when computing multi-leg light time: size of retransmission delays (" +
                                           std::to_string( linkEndsDelays_.size( ) ) + ") is invalid, should be " +
                                           std::to_string( numberOfLinkEnds_ ) + " or " + std::to_string( numberOfLinkEnds_ - 2 ) + "." );
+            }
+
+            if( hasDefaultLinkEndDelayFunctions_ )
+            {
+                for( unsigned int i = 1; i < numberOfLinkEnds_ - 1; i++ )
+                {
+                    if( defaultLinkEndDelayFunctions_.at( i ) != nullptr )
+                    {
+                        linkEndsDelays_.at( i ) = defaultLinkEndDelayFunctions_.at( i )( );
+                    }
+                }
             }
         }
         else
@@ -1303,8 +1304,6 @@ private:
     std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
 
     const bool iterateMultiLegLightTime_;
-
-    bool ancillaryDelayOverrideWarningPrinted_;
 
     bool correctionsNeedFrequency_;
 };

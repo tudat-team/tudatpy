@@ -1042,11 +1042,11 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                     if( globalFrameOrigin == bodyIterator.first )
                     {
                         std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager = createFrameManager( bodies );
-                        frameManager->getEphemeris( globalFrameOrigin, "SSB" );
+                        frameManager->getEphemeris< StateScalarType, TimeType >( globalFrameOrigin, "SSB" );
 
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                 std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >,
-                                           frameManager->getEphemeris( globalFrameOrigin, "SSB" ),
+                                           frameManager->getEphemeris< StateScalarType, TimeType >( globalFrameOrigin, "SSB" ),
                                            std::placeholders::_1 );
 
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
