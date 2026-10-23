@@ -96,6 +96,13 @@ This script compiles `tudatpy`. It will take some time to execute, but you can s
 Once the project is built, all the build output is dumped by default in a directory called `build`, which is not tracked by Git.
 You can add the `--docs` flag to build the API documentation, which will be saved inside the build directory.
 
+> **Note**\
+> The standard build also generates stubs for some kernels, that needs some additional data resources which can only be downloaded (step 8) after you have installed `tudatpy` *once* before.  So if this is the first time you are installing `tudatpy`, instead of the standard build, please do build without stubs like this:
+> ```
+> python build.py --skip-stubs -j4
+> ```
+> You can generate the stubs later after you have downloaded the resources.
+
 7. Install
 
 The `install.py` script installs `tudatpy` in your active conda environment.
@@ -119,7 +126,28 @@ python install.py                    # Frozen installation of the current build
 ```
 
 
-8. Uninstall
+8. Download resource files
+
+To run simulations, or the test suite, you also need to download the standard set of resource files.  This includes ephemerides, gravity field, atmosphere models, etc. You can achieve this using the `tudatpy.resource_installer` module.  By default they are downloaded into `~/.tudat/resource`. First refresh the resource catalog, then download everything that is missing:
+
+```shell
+python -m tudatpy.resource_installer --mode manifest
+python -m tudatpy.resource_installer --mode missing
+```
+
+Note that the additional resources takeup about 2 GB of disk space.  So if you want to download them to an alternate location for your convenience, you may do so with ``--dest`` (or by setting the ``TUDATPY_RESOURCE_DIR`` environment variable):
+
+```shell
+python -m tudatpy.resource_installer --mode missing --dest /path/to/resources
+```
+
+> **Note**\
+> If this was the first time you are installing `tudatpy`, then you should have done the build step with the `--skip-stubs` flag. You can now generate the stubs that were skipped by running:
+> ```
+> python build.py --stubs-only
+> ```
+
+9. Uninstall
 
 This script will remove tudatpy from your conda environment, but it will not delete the build directory.
 

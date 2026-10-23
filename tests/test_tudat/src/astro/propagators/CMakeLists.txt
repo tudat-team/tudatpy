@@ -25,7 +25,6 @@ if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
         "${Boost_INCLUDE_DIRS}"
         "${CSpice_INCLUDE_DIRS}"
         "${Sofa_INCLUDE_DIRS}"
-        "${TudatResources_INCLUDE_DIRS}"
     )
 
     target_link_libraries(tudat_propagators_test_case_support PUBLIC
