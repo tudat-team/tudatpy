@@ -255,10 +255,16 @@ public:
         }
         setRotationalStatePartialScalingFunctions( parametersToEstimate );
 
-        fullNumberOfParameterValues_ = numberOfParameterValues_;
+        // If requested, only propagate the sensitivity matrix columns that can be non-zero in the propagation interval
         if( reduceSensitivityMatrixColumns_ )
         {
-            setReducedSensitivityMatrixColumns( parametersToEstimate, propagationTimeInterval );
+            if( numberOfParameterValues_ - totalDynamicalStateSize_ != parametersToEstimate->getNonDynamicalStateParameterSize( ) )
+            {
+                throw std::runtime_error( "Error when reducing sensitivity matrix columns, parameter sizes are inconsistent." );
+            }
+            reducedSensitivityMatrixColumns_ =
+                    getNonZeroSensitivityMatrixColumns( stateDerivativePartialList_, parametersToEstimate, propagationTimeInterval );
+            numberOfParameterValues_ = totalDynamicalStateSize_ + reducedSensitivityMatrixColumns_.size( );
         }
 
         // Initialize matrix of parameter partials (for propagated sensitivity matrix columns only).
@@ -448,7 +454,8 @@ public:
 
     //! Returns the number of parameter values.
     /*!
-     *  Returns the number of parameter values (i.e. number of columns in state transition matrix).
+     *  Returns the number of parameter values (i.e. number of columns in propagated state transition and sensitivity matrix).
+     *  If sensitivity matrix columns are omitted (see getReduceSensitivityMatrixColumns), only the propagated columns are counted.
      *  \return Number of parameter values.
      */
     double getNumberOfParameterValues( )
@@ -489,35 +496,29 @@ public:
         return reducedSensitivityMatrixColumns_;
     }
 
-    //! Returns the number of parameter values, including the sensitivity matrix columns that are not propagated
-    int getFullNumberOfParameterValues( )
-    {
-        return fullNumberOfParameterValues_;
-    }
-
 protected:
 private:
-    //! Function (called by constructor) to omit the sensitivity matrix columns that are zero in the propagation arc
+    //! Function to retrieve the propagated sensitivity matrix columns of a parameter (if reduceSensitivityMatrixColumns_)
     /*!
-     *  Function (called by constructor) to omit the sensitivity matrix columns that are zero in the propagation arc, as
-     *  determined by the getNonZeroSensitivityMatrixColumns function. Must be called before setParameterPartialFunctionList,
-     *  which then only creates partial functions for the propagated columns.
-     *  \param parametersToEstimate Object containing all parameters that are to be estimated
-     *  \param propagationTimeInterval Minimum and maximum time of the propagation (NaN if not known before propagation)
+     *  Function to retrieve the propagated sensitivity matrix columns of a parameter (if reduceSensitivityMatrixColumns_)
+     *  \param parameterStartColumn Start column of the parameter in the full sensitivity matrix
+     *  \param parameterSize Size of the parameter
+     *  \param parameterColumns Entries of the parameter for which the sensitivity matrix column is propagated (returned by
+     *  reference)
+     *  \return Column of the first propagated parameter entry in the propagated sensitivity matrix
      */
-    template< typename ParameterType >
-    void setReducedSensitivityMatrixColumns(
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const std::pair< double, double >& propagationTimeInterval )
+    int getPropagatedParameterColumns( const int parameterStartColumn, const int parameterSize, std::vector< int >& parameterColumns )
     {
-        if( numberOfParameterValues_ - totalDynamicalStateSize_ != parametersToEstimate->getNonDynamicalStateParameterSize( ) )
+        std::vector< int >::const_iterator firstColumn = std::lower_bound(
+                reducedSensitivityMatrixColumns_.cbegin( ), reducedSensitivityMatrixColumns_.cend( ), parameterStartColumn );
+        parameterColumns.clear( );
+        for( std::vector< int >::const_iterator columnIterator = firstColumn;
+             columnIterator != reducedSensitivityMatrixColumns_.cend( ) && *columnIterator < parameterStartColumn + parameterSize;
+             columnIterator++ )
         {
-            throw std::runtime_error( "Error when reducing sensitivity matrix columns, parameter sizes are inconsistent." );
+            parameterColumns.push_back( *columnIterator - parameterStartColumn );
         }
-
-        reducedSensitivityMatrixColumns_ =
-                getNonZeroSensitivityMatrixColumns( stateDerivativePartialList_, parametersToEstimate, propagationTimeInterval );
-        numberOfParameterValues_ = totalDynamicalStateSize_ + reducedSensitivityMatrixColumns_.size( );
+        return static_cast< int >( std::distance( reducedSensitivityMatrixColumns_.cbegin( ), firstColumn ) );
     }
 
     //! Function to create the function adding the partial w.r.t. selected entries of a vector parameter to a matrix block
@@ -598,31 +599,21 @@ private:
                                    parameterIterator->second,
                                    std::placeholders::_1 );
 
-                // If sensitivity matrix is reduced, retrieve the propagated columns of the current parameter
+                // If sensitivity matrix is reduced, only add the partial for the propagated entries of the current parameter
                 if( reduceSensitivityMatrixColumns_ )
                 {
-                    int parameterStartColumn = indexPair.first - totalDynamicalStateSize_;
-                    std::vector< int >::const_iterator firstColumn = std::lower_bound(
-                            reducedSensitivityMatrixColumns_.cbegin( ), reducedSensitivityMatrixColumns_.cend( ), parameterStartColumn );
-                    std::vector< int >::const_iterator endColumn = std::lower_bound(
-                            firstColumn, reducedSensitivityMatrixColumns_.cend( ), parameterStartColumn + functionToEvaluate );
-                    if( firstColumn == endColumn )
+                    std::vector< int > parameterColumns;
+                    int propagatedStartColumn = getPropagatedParameterColumns(
+                            indexPair.first - totalDynamicalStateSize_, functionToEvaluate, parameterColumns );
+                    if( parameterColumns.size( ) == 0 )
                     {
                         continue;
                     }
 
-                    indexPair = std::make_pair(
-                            totalDynamicalStateSize_ +
-                                    static_cast< int >( std::distance( reducedSensitivityMatrixColumns_.cbegin( ), firstColumn ) ),
-                            static_cast< int >( std::distance( firstColumn, endColumn ) ) );
+                    indexPair = std::make_pair( totalDynamicalStateSize_ + propagatedStartColumn,
+                                                static_cast< int >( parameterColumns.size( ) ) );
                     if( indexPair.second != functionToEvaluate )
                     {
-                        std::vector< int > parameterColumns;
-                        for( std::vector< int >::const_iterator columnIterator = firstColumn; columnIterator != endColumn;
-                             columnIterator++ )
-                        {
-                            parameterColumns.push_back( *columnIterator - parameterStartColumn );
-                        }
                         partialFunction = getParameterPartialColumnsFunction( partialObject, parameterIterator->second, parameterColumns );
                     }
                 }
@@ -873,9 +864,6 @@ private:
 
     //! Index in the full sensitivity matrix of each propagated sensitivity matrix column (if reduceSensitivityMatrixColumns_)
     std::vector< int > reducedSensitivityMatrixColumns_;
-
-    //! Number of parameter values, including the sensitivity matrix columns that are not propagated
-    int fullNumberOfParameterValues_;
 
     //! Total matrix of partial derivatives of state derivatives w.r.t. current states.
     Eigen::MatrixXd variationalMatrix_;

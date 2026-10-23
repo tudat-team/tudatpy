@@ -797,13 +797,7 @@ public:
         fullSensitivitySolution_.clear( );
     }
 
-    //! Function to retrieve whether only a subset of the sensitivity matrix columns is propagated
-    bool getIsSensitivityMatrixReduced( ) const
-    {
-        return isSensitivityMatrixReduced_;
-    }
-
-    //! Function to retrieve the index in the full sensitivity matrix of each propagated column (if getIsSensitivityMatrixReduced)
+    //! Function to retrieve the index in the full sensitivity matrix of each propagated column (empty if all columns are propagated)
     std::vector< int > getReducedSensitivityMatrixColumns( ) const
     {
         return reducedSensitivityMatrixColumns_;
