@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - tudat-team/label/dev
   - tudat-team
+  - nodefaults
 dependencies:
   # All standard tudat-bundle deps are needed for sphinx-documentation for tudatpy.
   # Skipping listing tudat and boost-cpp here because they will be installed as part of tudatpy installation
