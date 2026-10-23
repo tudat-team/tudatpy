@@ -734,11 +734,18 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsHandling )
     Eigen::Matrix< double, 6, 1 > truthState = orbital_element_conversions::convertKeplerianToCartesianElements(
             initialStateInKeplerianElements, earthGravitationalParameter );
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, truthState, finalEphemerisTime, cowell );
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< IntegratorSettings< double > >( rungeKutta4, 20.0 );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    truthState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell );
 
     // Define link ends (multiple per observable type).
     LinkEnds rangeLinkEndsStation1, rangeLinkEndsStation2, angularLinkEndsStation1, angularLinkEndsStation2, angularLinkEndsStation3;
@@ -765,7 +772,6 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsHandling )
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, bodies );
 
-    propagators::setSingleArcIntegrationSettings( propagatorSettings, initialEphemerisTime, integratorSettings );
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
