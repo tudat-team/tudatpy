@@ -13,38 +13,29 @@ from tudatpy.dynamics.environment_setup.shape import (
 from tudatpy.dynamics.environment_setup import rotation_model
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000
 from tudatpy.resource_installer import download_extra_file, DEFAULT_DEST, DEFAULT_CACHE
-import tarfile
-import shutil
 import matplotlib.pyplot as plt
-from functools import cache
-
-try:
-    import trimesh
-
-    TRIMESH_AVAILABLE = True
-except ModuleNotFoundError:
-    TRIMESH_AVAILABLE = False
+from tudatpy.astro.polyhedron_utilities import volume, inertia_tensor_from_density
+from warnings import warn
 
 # File locations
-# - Full archive download stored under .tudat / resource / damit / archive
-# - Individual models and asteroid tables saved under .tudat / resource / damit / models
+# - Shape models .tudat / resource / damit / models
+# - Damit tables .tudat / resource / damit / tables
 _DAMIT_DIR = DEFAULT_DEST / "damit"
-_DAMIT_DIR.mkdir(parents=True, exist_ok=True)
-_DAMIT_MODELS_DIR = DEFAULT_DEST / "damit" / "models"
-_DAMIT_TABLES_DIR = _DAMIT_MODELS_DIR / "tables"
-_DAMIT_ARCHIVE_DIR = DEFAULT_DEST / "damit" / "archive"
-_ARCHIVE_AVAILABLE = (_DAMIT_ARCHIVE_DIR / "tables").is_dir() and (
-    _DAMIT_ARCHIVE_DIR / "files"
-).is_dir()
+_DAMIT_MODELS_DIR = _DAMIT_DIR / "models"
+
+_DAMIT_TABLES_DIR = _DAMIT_DIR / "tables"
+_DAMIT_ASTEROID_MODELS = _DAMIT_TABLES_DIR / "asteroid_models.csv"
+_DAMIT_ASTEROIDS = _DAMIT_TABLES_DIR / "asteroids.csv"
 
 
 def _download_tables(force: bool = False) -> None:
-    """Download DAMIT asteroid and asteroid model tables, containing model metadata such as
-    size information, asteroid designation, and rotational parameters"""
-    # Check if they exist
-    asteroid_models_csv = _DAMIT_TABLES_DIR / "asteroid_models.csv"
-    asteroids_csv = _DAMIT_TABLES_DIR / "asteroids.csv"
-    tables_exist = asteroids_csv.exists() and asteroid_models_csv.exists()
+    """Download DAMIT asteroid and asteroid model tables, necessary for:
+    - Querying models by MPC number
+    - Getting volume-equivalent diameter
+    - Rotational parameters
+    """
+    # Check if tables already exist
+    tables_exist = _DAMIT_ASTEROID_MODELS.is_file() and _DAMIT_ASTEROIDS.is_file()
 
     # Download if tables don't exist yet, or if they should be overwritten
     if not tables_exist or force:
@@ -62,110 +53,49 @@ def _download_tables(force: bool = False) -> None:
             cache_dir=DEFAULT_CACHE,
             force=True,
         )
-        print("DAMIT tables saved.")
+        print(f"DAMIT tables saved at {str(_DAMIT_TABLES_DIR)}.")
 
 
-def _download_model(model_id: int, force: bool = False) -> Path:
-    """Downloads an individual model shape file containing vertex coordinates and facets"""
+def _download_model(model_id: int, force: bool = False) -> tuple[Path, Path]:
+    """Downloads an individual asteroid model
+    - Shape.obj: contains vertices and facets
+    - spin.txt: contains rotational parameters"""
     # Check if model exists on disk
-    model_file = _DAMIT_MODELS_DIR / str(model_id) / "obj.txt"
+    obj_file = _DAMIT_MODELS_DIR / str(model_id) / "shape.obj"
+    spin_file = _DAMIT_MODELS_DIR / str(model_id) / "spin.txt"
+    model_exists = obj_file.is_file() and spin_file.is_file()
 
     # Download if model does not exist yet or if it should be overwritten
-    if not model_file.exists() or force:
+    if not model_exists or force:
+        print(f"Downloading model with model ID {model_id}...")
         _DAMIT_MODELS_DIR.mkdir(parents=True, exist_ok=True)
         base_url = "https://damit.cuni.cz/projects/damit/generated_files/open/AsteroidModel"
-        url_shape_obj = f"{base_url}/{model_id}/shape.obj"
 
-        print(f"Downloading model with model ID {model_id}...")
+        for file_path in (obj_file, spin_file):
+            download_extra_file(
+                url=f"{base_url}/{model_id}/{file_path.name}",
+                dest_path=file_path,
+                cache_dir=DEFAULT_CACHE,
+                force=True,
+            )
 
-        download_extra_file(
-            url=url_shape_obj,
-            dest_path=model_file,
-            cache_dir=DEFAULT_CACHE,
-            force=True,
-        )
         print("Model saved.")
 
-    return model_file
+    return obj_file, spin_file
 
 
-def download_damit_archive(tables_only: bool = True, force: bool = False) -> None:
-    """
-    This function downloads the latest complete DAMIT archive containing shape models for roughly
-    10,000 asteroids. The complete archive takes up roughly 4 GB of disk space.
-
-    Parameters
-    ----------
-    tables_only : bool, optional
-        If true, only downloads the model tables, containing the metadata of all the models. If set to false,
-        it downloads the complete archive, including shape models, images, and light-curve data (±4 GB).
-    force : bool, optional
-        Overwrites any existing files
-    """
-    if tables_only:
-        _download_tables(force=force)
-        return
-
-    global _ARCHIVE_AVAILABLE
-    if _ARCHIVE_AVAILABLE and not force:
-        print("DAMIT archive already downloaded.")
-        return
-
-    while True:
-        user_query = input(
-            "The DAMIT archive (~4 GB) will be downloaded from the internet. Proceed? (y/n) "
-        )
-        if user_query.lower() == "n":
-            return
-        if user_query.lower() == "y":
-            break
-
-    # Download archive compressed tar.gz file
-    url = "https://damit.cuni.cz/projects/damit/exports/complete/latest"
-    tar_path = download_extra_file(
-        url=url, dest_path=_DAMIT_DIR / "damit_latest.tar.gz", cache_dir=DEFAULT_CACHE, force=True
-    )
-
-    # Clean up existing files in damit/archive
-    if _DAMIT_ARCHIVE_DIR.exists():
-        shutil.rmtree(_DAMIT_ARCHIVE_DIR)
-
-    print("Extracting files...")
-    with tarfile.open(tar_path, "r:gz") as tar:
-        tar.extractall(_DAMIT_ARCHIVE_DIR, filter="data")
-
-    # Move contents to archive/
-    top_folder = next(_DAMIT_ARCHIVE_DIR.glob("damit-*"))
-    for folder in ("files", "tables"):
-        shutil.move(top_folder / folder, _DAMIT_ARCHIVE_DIR / folder)
-
-    top_folder.rmdir()  # Remove empty top folder
-    tar_path.unlink()  # Remove compressed gz file
-
-    print(f"DAMIT files saved to {str(_DAMIT_ARCHIVE_DIR)}")
-
-    _ARCHIVE_AVAILABLE = True
-
-
-@cache
-def _load_model_table() -> pd.DataFrame:
+def _load_model_table(force: bool = False) -> pd.DataFrame:
     """Loads all asteroid shape models into a pandas dataframe"""
-    # Find location of asteroid models files
-    if _ARCHIVE_AVAILABLE:
-        table_dir = _DAMIT_ARCHIVE_DIR / "tables"
-    else:
-        #  Will download the tables when run for the first time
-        _download_tables()
-        table_dir = _DAMIT_TABLES_DIR
+    _download_tables(force)
 
     # Asteroid data table containing primarily the DAMIT ID's of the asteroids
-    asteroid_data = pd.read_csv(table_dir / "asteroids.csv", dtype={"number": "Int64"}).rename(
+    asteroid_data = pd.read_csv(_DAMIT_ASTEROIDS, dtype={"number": "Int64"}).rename(
         columns={"number": "mpc_number", "id": "asteroid_id"}
     )
 
     # Model data containing actual models
     asteroid_models = pd.read_csv(
-        table_dir / "asteroid_models.csv",
+        _DAMIT_ASTEROID_MODELS,
     )
 
     # Append the MPC number to the table to query by MPC
@@ -181,6 +111,7 @@ def _load_model_table() -> pd.DataFrame:
 
 def list_damit_models(
     mpc_number: int | None = None,
+    force_refresh: bool = False,
 ) -> pd.DataFrame:
     """
     Returns a table with asteroid models for the queried MPC number. An asteroid may have one or more models,
@@ -190,13 +121,15 @@ def list_damit_models(
     ----------
     mpc_number : int, optional
         MPC number to query. If None, all models are returned.
+    force_refresh : bool, optional
+        If true, redownloads and overwrites existing tables to the latest versions.
 
     Returns
     -------
     pd.DataFrame
         A dataframe containing the models that match the query
     """
-    table = _load_model_table().copy()
+    table = _load_model_table(force_refresh)
 
     if mpc_number is None:
         return table
@@ -207,35 +140,62 @@ def list_damit_models(
 
 class DamitModel:
     """
-    Interface with DAMIT database for asteroid shape models and rotational parameters
+    Initialize a DamitModel object
+
+    Parameters
+    ----------
+    name : str
+        Name of the model, used for the reference frame name
+    vertices : np.ndarray
+        Vertex coordinates
+    facets : np.ndarray
+        Facet coordinates, zero-indexed
+    pole_longitude : float
+        Longitude in ecliptic coords
+    pole_latitude : float
+        Latitude in ecliptic coords
+    period: float
+        Period in seconds
+    initial_rotation_angle: float
+        Initial rotation angle in radians
+    reference_epoch: float
+        Rotation reference epoch in seconds since J2000
     """
 
     def __init__(
         self,
         name: str,
-        rotational_parameters: dict,
         vertices: np.ndarray,
         facets: np.ndarray,
+        pole_longitude: float,
+        pole_latitude: float,
+        period: float,
+        initial_rotation_angle: float,
+        reference_epoch: float,
     ):
-        """
-        Initialize a DamitModel object
+        # Input check
+        if not vertices.shape[1] == 3 or not facets.shape[1] == 3:
+            raise ValueError("Vertices and facets must have three columns")
+        if facets.max() > len(vertices) - 1 or facets.min() < 0:
+            raise ValueError("Facets indices out of range")
 
-        Parameters
-        ----------
-        name : str
-            Name of the model, used for the reference frame name
-        rotational_parameters : dict
-            Dictionary containing rotational parameters
-        vertices : np.ndarray
-            Vertex coordinates
-        facets : np.ndarray
-            Facet coordinates
-        """
+        if period <= 0:
+            raise ValueError("Period must be positive")
+
         # DamitModel attributes
         self._name = name
-        self._rotational_parameters = rotational_parameters
         self._vertices = vertices
         self._facets = facets
+        self._pole_longitude = pole_longitude
+        self._pole_latitude = pole_latitude
+        self._period = period
+        self._initial_rotation_angle = initial_rotation_angle
+        self._reference_epoch = reference_epoch
+
+    @property
+    def volume(self):
+        """Returns the volume of the model in cubic meters"""
+        return volume(self._vertices, self._facets)
 
     @classmethod
     def query(
@@ -243,11 +203,11 @@ class DamitModel:
         mpc_number: int | None = None,
         damit_model_id: int | None = None,
         diameter: float | None = None,
+        force_refresh: bool = False,
     ):
         """
         Queries the DAMIT database by MPC number or model ID. Models are downloaded from the internet and stored on disk
-        for faster subsequent retrieval. Alternatively, the function download_damit_archive can be used to download all
-        available shape models instead.
+        for faster subsequent retrieval.
 
         Parameters
         ----------
@@ -257,14 +217,17 @@ class DamitModel:
         damit_model_id : int, optional
             If given, queries a DamitModel by the Damit model ID
         diameter : float, optional
-            Volume-equivalent diameter to scale the shape model to. This is used as a fall-back option, in case the
-            model has no shape information available."""
-
+            Volume-equivalent diameter to scale the shape model to. If not given, it uses the size that is available
+            in the DAMIT catalog, which may be none in which case the size is garbage
+        force_refresh : bool
+            If true, re-downloads and overwrites models to the latest versions
+        """
         # Get the model metadata (rotational parameters, size info etc.)
         # Query by mpc number and choose best model
         if mpc_number and not damit_model_id:
             available_models = list_damit_models(
                 mpc_number,
+                force_refresh=force_refresh,
             )
             if available_models.empty:
                 raise LookupError(f"No shape models found for {mpc_number}")
@@ -273,7 +236,7 @@ class DamitModel:
         # Retrieve by model ID
         elif damit_model_id and not mpc_number:
             try:
-                model_metadata = list_damit_models().loc[damit_model_id]
+                model_metadata = list_damit_models(force_refresh=force_refresh).loc[damit_model_id]
             except KeyError as e:
                 raise LookupError(f"No shape model found with ID {damit_model_id}") from e
 
@@ -281,37 +244,21 @@ class DamitModel:
             model_metadata = None
             raise ValueError("Must specify either a valid MPC number or Damit Model ID")
 
-        # Get size info
-        if model_metadata["calibrated_size"] == 1:
-            diameter = None
-        elif pd.notna(model_metadata["equiv_diameter"]):
-            diameter = model_metadata["equiv_diameter"] * 1e3  # KM -> M
-        elif diameter is None:
-            raise ValueError(
-                "model has no size information and no diameter was given. "
-                "A shape model cannot be created."
-            )
+        # Get diameter from metadata if size is not calibrated and diameter is not given
+        if diameter is None and model_metadata["calibrated_size"] != 1:
+            if pd.notna(model_metadata["equiv_diameter"]):
+                diameter = model_metadata["equiv_diameter"] * 1e3  # km -> m
+            else:
+                warn(
+                    "Queried model has no size information and no diameter was given. Volume will be unity"
+                )
 
         # Load model
-        asteroid_id, model_id = model_metadata["asteroid_id"], model_metadata["id"]
-        model_file = cls._get_shape_model_file(model_id, asteroid_id)
-        vertices, facets = cls._load_shape_model(model_file, diameter)
+        # Download shape models
+        model_id = model_metadata["id"]
+        shape_file, spin_file = _download_model(model_id, force_refresh)
 
-        # Rotation parameters
-        rotational_parameters = dict(
-            pole_longitude=np.deg2rad(model_metadata["lambda"]),
-            pole_latitude=np.deg2rad(model_metadata["beta"]),
-            period=model_metadata["period"] * 3600,
-            phi0=np.deg2rad(model_metadata["phi0"]),
-            epoch=julian_day_to_seconds_since_epoch(model_metadata["epoch"]),
-        )
-
-        return cls(
-            model_id,
-            rotational_parameters,
-            vertices,
-            facets,
-        )
+        return cls.from_file(spin_file, shape_file, str(model_id), diameter)
 
     @classmethod
     def from_file(
@@ -322,7 +269,10 @@ class DamitModel:
         diameter: float | None = None,
     ):
         """
-        Loads a DAMIT model from files
+        Loads a DAMIT model from files.
+
+        Note: if no diameter is given, the model uses whatever the volume of the shape is already in (scaled for the
+        correct units). To be safe, it is recommended to pass a diameter.
 
         Parameters
         ----------
@@ -345,44 +295,23 @@ class DamitModel:
             ]
             epoch, phi0 = [float(num) for num in f.readline().strip().split()]
 
-        rotational_parameters = dict(
-            pole_longitude=np.deg2rad(pole_longitude),
-            pole_latitude=np.deg2rad(pole_latitude),
-            period=period * 3600,
-            phi0=np.deg2rad(phi0),
-            epoch=julian_day_to_seconds_since_epoch(epoch),
-        )
         vertices, facets = cls._load_shape_model(shape_file, diameter)
 
         return cls(
-            model_name,
-            rotational_parameters,
-            vertices,
-            facets,
+            name=model_name,
+            vertices=vertices,
+            facets=facets,
+            pole_longitude=np.deg2rad(pole_longitude),
+            pole_latitude=np.deg2rad(pole_latitude),
+            period=period * 3600,
+            initial_rotation_angle=np.deg2rad(phi0),
+            reference_epoch=julian_day_to_seconds_since_epoch(epoch),
         )
 
     @staticmethod
-    def _get_shape_model_file(model_id: int, asteroid_id: int) -> Path:
-        """Find shape model files on disk and download if not present"""
-        if _ARCHIVE_AVAILABLE:
-            shape_model_file = (
-                _DAMIT_ARCHIVE_DIR
-                / "files"
-                / f"asteroid_{asteroid_id}"
-                / f"model_{model_id}"
-                / "obj.txt"
-            )
-        else:
-            shape_model_file = _download_model(model_id)
-
-        if not shape_model_file.exists():
-            raise FileNotFoundError("Shape model file for this asteroid model could not be found")
-
-        return shape_model_file
-
-    @staticmethod
     def _load_shape_model(
-        shape_model_file, diameter: float | None
+        shape_model_file,
+        diameter: float | None,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Loads the shape model file and optionally scales by diameter"""
         # Check format
@@ -398,34 +327,37 @@ class DamitModel:
         vertices = vertices_and_facets.loc[
             vertices_and_facets["v/f"] == "v", ["num1", "num2", "num3"]
         ].to_numpy()
-        facets = vertices_and_facets.loc[
-            vertices_and_facets["v/f"] == "f", ["num1", "num2", "num3"]
-        ].to_numpy(dtype=int)
+        facets = (
+            vertices_and_facets.loc[
+                vertices_and_facets["v/f"] == "f", ["num1", "num2", "num3"]
+            ].to_numpy(dtype=int)
+            - 1
+        )  # Apply zero-indexing
 
-        # Scale model for size
-        if diameter is None:
-            # Assume size is in km^3
-            scale_factor = 1e3
-
-        else:
+        # Scale the model size
+        if diameter is not None:
+            current_model_volume = volume(vertices, facets)
+            if current_model_volume <= 0:
+                raise RuntimeError("Broken shape model: shape model has negative volume")
             required_volume = (4 / 3) * np.pi * (diameter / 2) ** 3
-            scale_factor = np.cbrt(required_volume)  # Assumes DAMIT model is unit volume
+            vertices *= np.cbrt(required_volume / current_model_volume)
+        else:
+            vertices *= 1e3  # converts km^3 to m^3 for models that are not scaled
 
-        return vertices * scale_factor, facets - 1  # zero-indexing
+        return vertices, facets
 
     def _approximate_best_fitting_ellipsoid(self):
         """Approximate the best fitting ellipsoid from the moment of inertia"""
-        mesh = trimesh.Trimesh(vertices=self._vertices, faces=self._facets)
         # Principal axes of the equatorial block only
         # -> it is assumed that the shape model z-axis is a principal axis itself to preserve the correct
         # axis of rotation.
 
-        inertia_matrix = mesh.moment_inertia
+        inertia_matrix = inertia_tensor_from_density(self._vertices, self._facets, 1)
         eigenvalues, eigenvectors = np.linalg.eigh(inertia_matrix[:2, :2])
         ixx, iyy, izz = eigenvalues[0], eigenvalues[1], inertia_matrix[2, 2]
 
         # Convert moments of inertia to ellipsoid axes
-        mass = mesh.volume  # Model has unit density
+        mass = volume(self._vertices, self._facets)  # Model has unit density
         a = np.sqrt((5.0 / (2.0 * mass)) * (iyy + izz - ixx))
         b = np.sqrt((5.0 / (2.0 * mass)) * (ixx + izz - iyy))
         c = np.sqrt((5.0 / (2.0 * mass)) * (ixx + iyy - izz))
@@ -454,9 +386,9 @@ class DamitModel:
 
         # Initial orientation ecliptic to body-fixed
         rotation_to_body_fixed = (
-            rotation_z(self._rotational_parameters["phi0"] + extra_rotation).T
-            @ rotation_y(np.pi / 2 - self._rotational_parameters["pole_latitude"]).T
-            @ rotation_z(self._rotational_parameters["pole_longitude"]).T
+            rotation_z(self._initial_rotation_angle + extra_rotation).T
+            @ rotation_y(np.pi / 2 - self._pole_latitude).T
+            @ rotation_z(self._pole_longitude).T
         )
         if base_frame == "J2000":
             rotation_to_body_fixed = rotation_to_body_fixed @ j2000_to_eclipj2000()
@@ -465,8 +397,8 @@ class DamitModel:
             base_frame=base_frame,
             target_frame=f"shape_model_{self._name}",
             initial_orientation=rotation_to_body_fixed,
-            initial_time=self._rotational_parameters["epoch"],
-            rotation_rate=2 * np.pi / self._rotational_parameters["period"],
+            initial_time=self._reference_epoch,
+            rotation_rate=2 * np.pi / self._period,
         )
 
     def polyhedron_rotational_ephemeris_settings(self, base_frame: str) -> RotationModelSettings:
@@ -554,19 +486,11 @@ class DamitModel:
         Creates a triaxial ellipsoid shape model for an ellipsoid with equivalent moment of inertia to the DAMIT
         polyhedron shape model.
 
-        NOTE: this functionality requires the optional dependency ``trimesh`` to be installed, at this time.
-        This can be installed into the conda environment using ``conda install trimesh``.
-
         Returns
         -------
         TriaxialEllipsoidBodyShapeSettings
             Shape settings for the best-fitting triaxial ellipsoid shape model
         """
-        if not TRIMESH_AVAILABLE:
-            raise ModuleNotFoundError(
-                "`trimesh` is required to approximate the best-fitting ellipsoids at this time. "
-                "Install it with `conda install trimesh` in the conda environment"
-            )
         semi_axes, _ = self._approximate_best_fitting_ellipsoid()
         return triaxial_ellipsoid(*semi_axes)
 
@@ -583,9 +507,6 @@ class DamitModel:
         :meth:~`tudatpy.data_input.environment_data.damit.DamitModel.polyhedron_rotational_ephemeris_settings`,
         because an extra offset to the initial phase of rotation is necessary for the ellipsoid model.
 
-        NOTE 2: this functionality requires the optional dependency ``trimesh`` to be installed, at this time.
-        This can be installed into the conda environment using ``conda install trimesh``.
-
         Parameters
         ----------
         base_frame : str
@@ -596,10 +517,5 @@ class DamitModel:
         RotationModelSettings
             Simple rotation model settings for the best fitting ellipsoid
         """
-        if not TRIMESH_AVAILABLE:
-            raise ModuleNotFoundError(
-                "`trimesh` is required to approximate the best-fitting ellipsoids at this time. "
-                "Install it with `conda install trimesh` in the conda environment"
-            )
         _, principal_axis_offset = self._approximate_best_fitting_ellipsoid()
         return self._get_rotational_ephemeris_settings(base_frame, principal_axis_offset)
