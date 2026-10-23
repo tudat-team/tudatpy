@@ -61,8 +61,9 @@ def _download_model(model_id: int, force: bool = False) -> tuple[Path, Path]:
     - Shape.obj: contains vertices and facets
     - spin.txt: contains rotational parameters"""
     # Check if model exists on disk
-    obj_file = _DAMIT_MODELS_DIR / str(model_id) / "shape.obj"
-    spin_file = _DAMIT_MODELS_DIR / str(model_id) / "spin.txt"
+    model_dir = _DAMIT_MODELS_DIR / str(model_id)
+    obj_file = model_dir / "shape.obj"
+    spin_file = model_dir / "spin.txt"
     model_exists = obj_file.is_file() and spin_file.is_file()
 
     # Download if model does not exist yet or if it should be overwritten
@@ -79,7 +80,7 @@ def _download_model(model_id: int, force: bool = False) -> tuple[Path, Path]:
                 force=True,
             )
 
-        print("Model saved.")
+        print(f"Model saved at {str(model_dir)}")
 
     return obj_file, spin_file
 

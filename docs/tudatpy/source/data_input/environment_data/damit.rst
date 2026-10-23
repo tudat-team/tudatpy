@@ -6,9 +6,9 @@
 This module contains an interface to the Database of Asteroid Models from
 Inversion Techniques (DAMIT). This database contains polyhedron shape models
 and rotational parameters for many asteroids. Through this interface, these
-models can be queried and converted into rotational models and shape models.
-When attempting to use the module for the first time, you will be asked to download
-the DAMIT catalog files. This is a one time download of approximately 4 GB.
+models can be queried and automatically downloaded, and then converted into
+shape models and rotational ephemeris settings. It can also approximate a best
+fitting ellipsoid on the shape models.
 
 See https://damit.cuni.cz/projects/damit/pages/documentation for documentation.
 
