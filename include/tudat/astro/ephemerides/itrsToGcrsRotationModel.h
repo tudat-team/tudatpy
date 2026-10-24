@@ -171,9 +171,9 @@ public:
         std::pair< Eigen::Vector5d, Time > currentAngles =
                 anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime, inputTimeScale_ );
         std::pair< Eigen::Vector5d, Time > previousAngles =
-                anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime - DERIVATIVE_TIME_STEP, inputTimeScale_ );
+                anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime - derivativeTimeStep_, inputTimeScale_ );
         std::pair< Eigen::Vector5d, Time > nextAngles =
-                anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime + DERIVATIVE_TIME_STEP, inputTimeScale_ );
+                anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime + derivativeTimeStep_, inputTimeScale_ );
 
         auto getRotationFromCirsToGcrs = []( const Eigen::Vector5d& angles ) {
             return calculateRotationFromCirsToGcrs( angles[ 0 ], angles[ 1 ], angles[ 2 ] ).toRotationMatrix( );
@@ -187,14 +187,14 @@ public:
         const double currentTime = static_cast< double >( ephemerisTime );
         Eigen::Matrix3d rotationFromCirsToGcrsDerivative =
                 ( getRotationFromCirsToGcrs( nextAngles.first ) - getRotationFromCirsToGcrs( previousAngles.first ) ) /
-                ( 2.0 * DERIVATIVE_TIME_STEP );
+                ( 2.0 * derivativeTimeStep_ );
         Eigen::Matrix3d rotationFromItrsToTirsDerivative =
-                ( getRotationFromItrsToTirs( nextAngles.first, currentTime + DERIVATIVE_TIME_STEP ) -
-                  getRotationFromItrsToTirs( previousAngles.first, currentTime - DERIVATIVE_TIME_STEP ) ) /
-                ( 2.0 * DERIVATIVE_TIME_STEP );
+                ( getRotationFromItrsToTirs( nextAngles.first, currentTime + derivativeTimeStep_ ) -
+                  getRotationFromItrsToTirs( previousAngles.first, currentTime - derivativeTimeStep_ ) ) /
+                ( 2.0 * derivativeTimeStep_ );
 
         // Compute derivative due to Earth rotation angle, scaled by rate of UT1 w.r.t. input time scale
-        double ut1Rate = static_cast< double >( nextAngles.second - previousAngles.second ) / ( 2.0 * DERIVATIVE_TIME_STEP );
+        double ut1Rate = static_cast< double >( nextAngles.second - previousAngles.second ) / ( 2.0 * derivativeTimeStep_ );
         Eigen::Matrix3d earthRotationAngleDerivative = calculateRotationRateFromItrsToGcrs< Time >( currentAngles, currentTime ) * ut1Rate;
 
         Eigen::Matrix3d rotationFromTirsToCirs =
@@ -324,13 +324,37 @@ public:
         return inputTimeScale_;
     }
 
-private:
-    //! Time step (in seconds) of the central difference for the precession-nutation and polar motion rotation derivatives.
+    //! Function to retrieve time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
     /*!
-     * Time step (in seconds) of the central difference for the precession-nutation and polar motion rotation derivatives. It is
-     * small compared to the shortest (semi-diurnal) periods in these rotations, and to the (daily) spacing of the EOP data.
+     * Function to retrieve time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
+     * \return Time step (in seconds) of the central difference
      */
-    static constexpr double DERIVATIVE_TIME_STEP = 10.0;
+    double getDerivativeTimeStep( )
+    {
+        return derivativeTimeStep_;
+    }
+
+    //! Function to reset time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
+    /*!
+     * Function to reset time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
+     * \param derivativeTimeStep Time step (in seconds) of the central difference
+     */
+    void setDerivativeTimeStep( const double derivativeTimeStep )
+    {
+        if( !( derivativeTimeStep > 0.0 ) )
+        {
+            throw std::runtime_error( "Error in GCRS<->ITRS model, derivative time step must be positive" );
+        }
+        derivativeTimeStep_ = derivativeTimeStep;
+    }
+
+private:
+    //! Time step (in seconds) of the central difference for the precession-nutation, polar motion and UT1 rates.
+    /*!
+     * Time step (in seconds) of the central difference for the precession-nutation, polar motion and UT1 rates. The default of
+     * 30 s is small compared to the shortest (semi-diurnal) periods in these rotations, and to the (daily) spacing of the EOP data.
+     */
+    double derivativeTimeStep_ = 30.0;
 
     //! Object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)
     /*!
