@@ -110,7 +110,8 @@ public:
                         centralBodyIndex = j;
                         if( i == j )
                         {
-                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] + " cannot be its own central body" );
+                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] + " cannot be propagated w.r.t. " +
+                                                      centralBodies.at( i ) + ", which is (or has an ephemeris w.r.t.) this body itself" );
                         }
                     }
                 }
