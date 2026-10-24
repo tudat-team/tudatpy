@@ -10,6 +10,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
+#include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
@@ -263,6 +264,40 @@ void removePropagatedStatesFomEnvironmentUpdates(
                 default:
                     throw std::runtime_error( "Error when removing propagated states from environment updates, state type " +
                                               std::to_string( it->first ) + " not recognized." );
+            }
+        }
+    }
+}
+
+//! Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables
+void addEphemerisOriginsOfUpdatedStates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( integratedStateList.count( translational_state ) == 0 || environmentModelsToUpdate.count( body_translational_state_update ) == 0 )
+    {
+        return;
+    }
+
+    std::map< std::string, std::string > ephemerisOrigins = simulation_setup::getEphemerisOrigins( bodies );
+    std::map< std::string, std::string > ephemerisDependentBodies = ephemerides::getEphemerisDependentBodies(
+            ephemerisOrigins, utilities::getFirstTupleEntryVector( integratedStateList.at( translational_state ) ) );
+
+    // The state of these origins depends on the propagated state, so it must be recomputed at each update (not only at each new time)
+    std::vector< std::string >& bodiesToUpdate = environmentModelsToUpdate.at( body_translational_state_update );
+    for( unsigned int i = 0; i < bodiesToUpdate.size( ); i++ )
+    {
+        if( ephemerisDependentBodies.count( bodiesToUpdate.at( i ) ) > 0 )
+        {
+            std::string currentOrigin = ephemerisOrigins.at( bodiesToUpdate.at( i ) );
+            while( currentOrigin != ephemerisDependentBodies.at( bodiesToUpdate.at( i ) ) )
+            {
+                if( std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), currentOrigin ) == bodiesToUpdate.end( ) )
+                {
+                    bodiesToUpdate.push_back( currentOrigin );
+                }
+                currentOrigin = ephemerisOrigins.at( currentOrigin );
             }
         }
     }
