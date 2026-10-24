@@ -328,14 +328,15 @@ BOOST_AUTO_TEST_CASE( testParameterActivityDetermination )
     propagatorSettings->resetTerminationSettings( propagationCPUTimeTerminationSettings( 10.0 ) );
     BOOST_CHECK( std::isnan( getPropagationTimeInterval< double, double >( propagatorSettings ).second ) );
 
-    // Check active entries of desaturation maneuvers, which act from 70 to 130 s and 970 to 1030 s
+    // Check active entries of desaturation maneuvers, which act from 70 to 130 s and 970 to 1030 s (conservatively including the
+    // maneuver start time)
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > desaturationParameter = std::make_shared< DesaturationDeltaV >(
             std::make_shared< propulsion::MomentumWheelDesaturationThrustAcceleration >(
                     std::vector< double >( { 100.0, 1000.0 } ), std::vector< Eigen::Vector3d >( 2, Eigen::Vector3d::Zero( ) ), 60.0, 10.0 ),
             "Vehicle" );
-    BOOST_CHECK( getParameterEntriesActiveInTimeInterval( desaturationParameter, std::make_pair( 0.0, 70.0 ) ) ==
+    BOOST_CHECK( getParameterEntriesActiveInTimeInterval( desaturationParameter, std::make_pair( 0.0, 69.0 ) ) ==
                  std::vector< bool >( 6, false ) );
-    BOOST_CHECK( getParameterEntriesActiveInTimeInterval( desaturationParameter, std::make_pair( 0.0, 71.0 ) ) ==
+    BOOST_CHECK( getParameterEntriesActiveInTimeInterval( desaturationParameter, std::make_pair( 0.0, 70.0 ) ) ==
                  std::vector< bool >( { true, true, true, false, false, false } ) );
     BOOST_CHECK( getParameterEntriesActiveInTimeInterval( desaturationParameter, std::make_pair( 130.0, 1500.0 ) ) ==
                  std::vector< bool >( { false, false, false, true, true, true } ) );
@@ -364,10 +365,11 @@ std::vector< double > getEmpiricalAccelerationArcStarts( const unsigned int test
 //! Sensitivity matrix columns are: Sun gravitational parameter (0), empirical accelerations (3 per arc), station position.
 std::vector< std::vector< int > > getExpectedColumns( const ArcTestType arcType, const unsigned int testCase )
 {
-    // Active empirical acceleration arcs in single-arc propagation [0, 1.5], and in multi-arc propagation [0,1], [1,2], [2,3]
-    std::vector< std::vector< std::vector< int > > > activeArcsSingleArc = { { { 0, 1 } }, { { 0, 1, 2 } }, { { 1, 2, 3 } } };
-    std::vector< std::vector< std::vector< int > > > activeArcsMultiArc = { { { 0 }, { 1 }, { 2 } },
-                                                                            { { 0, 1 }, { 2, 3 }, { 4, 5 } },
+    // Active empirical acceleration arcs in single-arc propagation [0, 1.5], and in multi-arc propagation [0,1], [1,2], [2,3]. An arc
+    // that starts at the final time of a propagation is active, since it is used in the final integrator stage.
+    std::vector< std::vector< std::vector< int > > > activeArcsSingleArc = { { { 0, 1 } }, { { 0, 1, 2, 3 } }, { { 1, 2, 3 } } };
+    std::vector< std::vector< std::vector< int > > > activeArcsMultiArc = { { { 0, 1 }, { 1, 2 }, { 2 } },
+                                                                            { { 0, 1, 2 }, { 2, 3, 4 }, { 4, 5 } },
                                                                             { { 1, 2 }, { 2, 3 }, { 3, 4, 5 } } };
     std::vector< std::vector< int > > activeArcs = ( arcType == single_arc_test || arcType == non_sequential_single_arc_test )
             ? activeArcsSingleArc.at( testCase )
@@ -415,15 +417,11 @@ void testReducedVariationalEquations( )
                 checkMatrixColumnsClose( reducedOutput.fullMatrices.at( i ), fullOutput.fullMatrices.at( i ) );
             }
 
-            // Check full sensitivity matrix history, except at the forward final epoch, where (without column reduction) the last
-            // integrator stage evaluates an empirical acceleration arc that starts at the final epoch
+            // Check full sensitivity matrix history
             BOOST_CHECK_EQUAL( reducedOutput.sensitivityHistory.size( ), fullOutput.sensitivityHistory.size( ) );
             for( auto it : fullOutput.sensitivityHistory )
             {
-                if( it.first < fullOutput.sensitivityHistory.rbegin( )->first )
-                {
-                    checkMatrixColumnsClose( reducedOutput.sensitivityHistory.at( it.first ), it.second );
-                }
+                checkMatrixColumnsClose( reducedOutput.sensitivityHistory.at( it.first ), it.second );
             }
         }
     }

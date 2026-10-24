@@ -41,9 +41,9 @@ namespace propagators
 /*!
  * Function to determine which entries of a parameter can influence the dynamics in a given propagation time interval,
  * based on the time intervals of influence of the parameter entries (see
- * EstimatableParameter::getTimeIntervalsOfInfluencePerEntry). An entry that is active from time t_s to t_e is
- * considered to influence the dynamics if t_s < t_max and t_e > t_min (an entry that is only active at the boundary of the
- * propagation interval is not considered to influence the dynamics).
+ * EstimatableParameter::getTimeIntervalsOfInfluencePerEntry). An entry that is active in the interval [t_s, t_e) is
+ * considered to influence the dynamics if t_s <= t_max and t_e > t_min. Note that an entry that becomes active at the final
+ * time of the propagation does influence the propagated state at that time (through the final integrator stage).
  * \param parameter Parameter for which the active entries are to be determined
  * \param propagationTimeInterval Minimum and maximum time of the propagation. If either is NaN, all entries are active.
  * \return Boolean for each parameter entry, denoting whether it can influence the dynamics in the propagation interval
@@ -66,7 +66,7 @@ std::vector< bool > getParameterEntriesActiveInTimeInterval(
 
         for( unsigned int i = 0; i < timeIntervals.size( ); i++ )
         {
-            isEntryActive[ i ] = ( timeIntervals.at( i ).first < propagationTimeInterval.second ) &&
+            isEntryActive[ i ] = ( timeIntervals.at( i ).first <= propagationTimeInterval.second ) &&
                     ( timeIntervals.at( i ).second > propagationTimeInterval.first );
         }
     }
