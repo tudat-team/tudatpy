@@ -20,12 +20,65 @@
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
 {
 
 namespace orbit_determination
 {
+
+//! Function object computing a partial w.r.t. a vector parameter, of which only a single block of columns can be non-zero
+/*!
+ * Function object computing a partial w.r.t. a vector parameter, of which only a single block of consecutive columns can be
+ * non-zero at any given time (e.g. the entries of the current arc of an arc-wise parameter). When called as a regular partial
+ * function, the full partial is computed. When registered in a StateDerivativePartial (see
+ * StateDerivativePartial::setParameterPartialUpdateFunction), only the non-zero block is computed and stored, so that the cost
+ * of the partial does not depend on the total number of parameter entries.
+ */
+struct ParameterPartialBlockFunction
+{
+    //! Constructor
+    /*!
+     * Constructor
+     * \param blockFunction Function computing the non-zero block of the partial (returned by reference), and returning the
+     * first column of the block in the full partial (negative if the full partial is zero)
+     * \param numberOfRows Number of rows of the partial
+     * \param numberOfBlockColumns Number of columns of the non-zero block
+     * \param numberOfColumns Number of columns of the full partial (size of the parameter)
+     */
+    ParameterPartialBlockFunction( const std::function< int( Eigen::MatrixXd& ) > blockFunction,
+                                   const int numberOfRows,
+                                   const int numberOfBlockColumns,
+                                   const int numberOfColumns ):
+        blockFunction_( blockFunction ), numberOfRows_( numberOfRows ), numberOfBlockColumns_( numberOfBlockColumns ),
+        numberOfColumns_( numberOfColumns )
+    { }
+
+    //! Function to compute the full partial (returned by reference)
+    void operator( )( Eigen::MatrixXd& partial ) const
+    {
+        Eigen::MatrixXd block = Eigen::MatrixXd::Zero( numberOfRows_, numberOfBlockColumns_ );
+        int startColumn = blockFunction_( block );
+        partial.setZero( numberOfRows_, numberOfColumns_ );
+        if( startColumn >= 0 )
+        {
+            partial.block( 0, startColumn, numberOfRows_, numberOfBlockColumns_ ) = block;
+        }
+    }
+
+    //! Function computing the non-zero block of the partial, and returning its first column (negative if partial is zero)
+    std::function< int( Eigen::MatrixXd& ) > blockFunction_;
+
+    //! Number of rows of the partial
+    int numberOfRows_;
+
+    //! Number of columns of the non-zero block
+    int numberOfBlockColumns_;
+
+    //! Number of columns of the full partial
+    int numberOfColumns_;
+};
 
 //! Base class for computing the partial derivatives of a state derivative model
 /*!
@@ -264,7 +317,12 @@ public:
     void getCurrentParameterPartial( const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
                                      Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        partialMatrix += getCurrentVectorParameterPartialReference( parameter );
+        int startColumn;
+        const Eigen::MatrixXd& currentPartial = getCurrentVectorParameterPartialReference( parameter, startColumn );
+        if( startColumn >= 0 )
+        {
+            partialMatrix.block( 0, startColumn, currentPartial.rows( ), currentPartial.cols( ) ) += currentPartial;
+        }
     }
 
     //! Function to retrieve selected columns of a partial w.r.t. a vector parameter
@@ -281,10 +339,18 @@ public:
             const std::vector< int >& parameterColumns,
             Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        const Eigen::MatrixXd& currentPartial = getCurrentVectorParameterPartialReference( parameter );
-        for( unsigned int i = 0; i < parameterColumns.size( ); i++ )
+        int startColumn;
+        const Eigen::MatrixXd& currentPartial = getCurrentVectorParameterPartialReference( parameter, startColumn );
+        if( startColumn >= 0 )
         {
-            partialMatrix.col( i ) += currentPartial.col( parameterColumns.at( i ) );
+            for( unsigned int i = 0; i < parameterColumns.size( ); i++ )
+            {
+                int blockColumn = parameterColumns.at( i ) - startColumn;
+                if( blockColumn >= 0 && blockColumn < currentPartial.cols( ) )
+                {
+                    partialMatrix.col( i ) += currentPartial.col( blockColumn );
+                }
+            }
         }
     }
 
@@ -334,7 +400,10 @@ public:
     //! Function to set a dependency of this partial object w.r.t. a given vector parameter.
     /*!
      * Function to set a dependency of this partial object w.r.t. a given vector parameter. If a dependency exists, the given
-     * partial is recomputed on every call of updateParameterPartials.
+     * partial is recomputed on every call of updateParameterPartials. If the partial function is a ParameterPartialBlockFunction,
+     * only its non-zero block is computed and stored. This is required for arc-wise parameters (see
+     * isParameterArcWiseDynamicalProperty), and is achieved by creating their partial function with
+     * createArcWiseParameterPartialFunction.
      * \param parameter Partial w.r.t. which dependency is to be checked and set.
      * \return Size (number of columns) of parameter partial. Zero if no dependency, size of parameter otherwise.
      */
@@ -348,7 +417,23 @@ public:
         // updateParameterPartials.
         if( parameterPartialFunction.second > 0 && currentVectorParameterPartials_.count( parameter ) == 0 )
         {
-            if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
+            const ParameterPartialBlockFunction* blockPartialFunction =
+                    parameterPartialFunction.first.target< ParameterPartialBlockFunction >( );
+            if( blockPartialFunction == nullptr &&
+                estimatable_parameters::isParameterArcWiseDynamicalProperty( parameter->getParameterName( ).first ) )
+            {
+                throw std::runtime_error( "Error when setting partial w.r.t. arc-wise parameter " + parameter->getParameterDescription( ) +
+                                          ", partial function must be created with createArcWiseParameterPartialFunction" );
+            }
+
+            if( blockPartialFunction != nullptr )
+            {
+                parameterVectorPartialBlockFunctions_[ parameter ] = blockPartialFunction->blockFunction_;
+                isCurrentVectorParameterPartialSet_[ parameter ] = 0;
+                currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, blockPartialFunction->numberOfBlockColumns_ );
+                currentVectorParameterPartialStartColumns_[ parameter ] = -1;
+            }
+            else if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
             {
                 parameterVectorPartialFunctions_[ parameter ] = parameterPartialFunction.first;
                 isCurrentVectorParameterPartialSet_[ parameter ] = 0;
@@ -393,6 +478,19 @@ public:
                 isCurrentVectorParameterPartialSet_[ parameterVectorPartialFunctionIterator_->first ] = 1;
             }
         }
+
+        // Update vector parameter partials of which only the non-zero block is computed
+        for( auto blockFunctionIterator = parameterVectorPartialBlockFunctions_.begin( );
+             blockFunctionIterator != parameterVectorPartialBlockFunctions_.end( );
+             blockFunctionIterator++ )
+        {
+            if( isCurrentVectorParameterPartialSet_.at( blockFunctionIterator->first ) == 0 )
+            {
+                currentVectorParameterPartialStartColumns_[ blockFunctionIterator->first ] =
+                        blockFunctionIterator->second( currentVectorParameterPartials_[ blockFunctionIterator->first ] );
+                isCurrentVectorParameterPartialSet_[ blockFunctionIterator->first ] = 1;
+            }
+        }
     }
 
 protected:
@@ -413,8 +511,17 @@ protected:
     virtual void resetCurrentTimeOfMemberObjects( ) {}
 
     //! Function to retrieve the current partial w.r.t. a vector parameter (computing it if needed), see getCurrentParameterPartial
+    /*!
+     * Function to retrieve the current partial w.r.t. a vector parameter (computing it if needed), see getCurrentParameterPartial
+     * \param parameter Partial w.r.t. which a parameter is to be computed
+     * \param startColumn Column of the full partial at which the returned partial starts. For a partial of which only the
+     * non-zero block is computed, the returned matrix is this block, and the start column is negative if the full partial is
+     * zero. For other partials, the full partial is returned, with start column 0 (returned by reference)
+     * \return Current partial w.r.t. parameter (or its non-zero block)
+     */
     const Eigen::MatrixXd& getCurrentVectorParameterPartialReference(
-            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+            int& startColumn )
     {
         if( currentVectorParameterPartials_.count( parameter ) == 0 )
         {
@@ -431,7 +538,76 @@ protected:
                 parameterVectorPartialFunctions_.at( parameter )( currentVectorParameterPartials_[ parameter ] );
             }
         }
+
+        std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, int >::const_iterator
+                startColumnIterator = currentVectorParameterPartialStartColumns_.find( parameter );
+        startColumn = ( startColumnIterator == currentVectorParameterPartialStartColumns_.end( ) ) ? 0 : startColumnIterator->second;
         return currentVectorParameterPartials_[ parameter ];
+    }
+
+    //! Function to create the function computing the partial w.r.t. an arc-wise parameter
+    /*!
+     * Function to create the function computing the partial w.r.t. an arc-wise parameter, from the function computing the
+     * partial w.r.t. the parameter entries of a single arc. The created function only computes the partial for the arc that is
+     * active at the current time (the partial is zero before the first arc start time), so that the cost of the partial does
+     * not depend on the number of arcs (see ParameterPartialBlockFunction). This function must be used for the partials w.r.t. all
+     * arc-wise parameters (see isParameterArcWiseDynamicalProperty).
+     * \param singleArcPartialFunction Function computing the partial w.r.t. the parameter entries of the current arc
+     * (returned by reference)
+     * \param arcTimeLookup Look-up scheme for the start times of the arcs of the parameter
+     * \param parameterSize Total size of the parameter
+     * \param singleArcParameterSize Number of parameter entries per arc (stored consecutively per arc)
+     * \return Function computing the partial w.r.t. the arc-wise parameter
+     */
+    std::function< void( Eigen::MatrixXd& ) > createArcWiseParameterPartialFunction(
+            const std::function< void( Eigen::MatrixXd& ) > singleArcPartialFunction,
+            const std::shared_ptr< interpolators::LookUpScheme< double > > arcTimeLookup,
+            const int parameterSize,
+            const int singleArcParameterSize = 1 )
+    {
+        return ParameterPartialBlockFunction( std::bind( &StateDerivativePartial::computeArcWiseParameterPartialBlock,
+                                                         this,
+                                                         singleArcPartialFunction,
+                                                         arcTimeLookup,
+                                                         parameterSize / singleArcParameterSize,
+                                                         singleArcParameterSize,
+                                                         std::placeholders::_1 ),
+                                              accelerationSize_,
+                                              singleArcParameterSize,
+                                              parameterSize );
+    }
+
+    //! Function to compute the partial w.r.t. the entries of the current arc of an arc-wise parameter
+    /*!
+     * Function to compute the partial w.r.t. the entries of the current arc of an arc-wise parameter, see
+     * createArcWiseParameterPartialFunction
+     * \param singleArcPartialFunction Function computing the partial w.r.t. the parameter entries of the current arc
+     * \param arcTimeLookup Look-up scheme for the start times of the arcs of the parameter
+     * \param numberOfArcs Number of arcs of the parameter
+     * \param singleArcParameterSize Number of parameter entries per arc
+     * \param partial Partial w.r.t. the parameter entries of the current arc (returned by reference)
+     * \return Column of the first entry of the current arc in the full partial (negative if no arc is active)
+     */
+    int computeArcWiseParameterPartialBlock( const std::function< void( Eigen::MatrixXd& ) >& singleArcPartialFunction,
+                                             const std::shared_ptr< interpolators::LookUpScheme< double > > arcTimeLookup,
+                                             const int numberOfArcs,
+                                             const int singleArcParameterSize,
+                                             Eigen::MatrixXd& partial )
+    {
+        if( !( arcTimeLookup->getMinimumValue( ) <= currentTime_ ) )
+        {
+            return -1;
+        }
+
+        int currentArc = arcTimeLookup->findNearestLowerNeighbour( currentTime_ );
+        if( currentArc >= numberOfArcs )
+        {
+            throw std::runtime_error( "Error when getting arc-wise parameter partial, current arc index is inconsistent with number of arcs" );
+        }
+
+        partial.setZero( );
+        singleArcPartialFunction( partial );
+        return currentArc * singleArcParameterSize;
     }
 
     //! Function to define all current parameter partials as 'not computed'
@@ -504,6 +680,15 @@ protected:
     //! Iterator over list of functions to compute values of partials w.r.t. vector parameter partials
     std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
               std::function< void( Eigen::MatrixXd& ) > >::iterator parameterVectorPartialFunctionIterator_;
+
+    //! List of functions to compute (return by reference) the non-zero block of partials w.r.t. vector parameters, returning the
+    //! start column of the block (see ParameterPartialBlockFunction). The block is stored in currentVectorParameterPartials_.
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, std::function< int( Eigen::MatrixXd& ) > >
+            parameterVectorPartialBlockFunctions_;
+
+    //! Start columns of current non-zero blocks of partials w.r.t. vector parameters (negative if partial is zero)
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, int >
+            currentVectorParameterPartialStartColumns_;
 
     double currentTime_;
 };

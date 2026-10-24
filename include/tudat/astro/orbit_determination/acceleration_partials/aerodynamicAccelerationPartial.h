@@ -237,16 +237,6 @@ protected:
      */
     void computeAccelerationPartialWrtCurrentDragCoefficient( Eigen::MatrixXd& accelerationPartial );
 
-    //! Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
-    /*!
-     * Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
-     * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise constant drag coefficient (returned by reference).
-     * \param parameter Parameter object that is associated with the variable of differentiation
-     */
-    void computeAccelerationPartialWrtArcwiseDragCoefficient(
-            Eigen::MatrixXd& accelerationPartial,
-            std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter );
-
     //! Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
@@ -282,16 +272,6 @@ protected:
             Eigen::MatrixXd& accelerationPartial,
             const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
-    //! Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
-    /*!
-     * Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
-     * \param accelerationPartial Derivative of acceleration w.r.t. an aerodynamic component scaling factor (returned by reference).
-     * \param parameter Parameter object that is associated with the variable of differentiation
-     */
-    void computeAccelerationPartialWrtArcWiseAerodynamicScalingCofficient(
-            Eigen::MatrixXd& accelerationPartial,
-            std::shared_ptr< estimatable_parameters::ArcWiseAerodynamicScalingFactor > parameter );
-
     //! Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
@@ -318,16 +298,6 @@ protected:
     void computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(
             Eigen::MatrixXd& accelerationPartial,
             std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel );
-
-    //! Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
-    /*!
-     * Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
-     * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned
-     * by reference).
-     */
-    void computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter(
-            Eigen::MatrixXd& accelerationPartial,
-            const std::shared_ptr< estimatable_parameters::ArcWiseExponentialAtmosphereParameter > parameter );
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of
     //! currentAccelerationStatePartials_
