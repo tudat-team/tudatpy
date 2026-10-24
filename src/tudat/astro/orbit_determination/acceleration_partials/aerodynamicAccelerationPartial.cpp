@@ -455,16 +455,22 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
                     switch( parameter->getParameterName( ).first )
                     {
                         case estimatable_parameters::arc_wise_drag_component_scaling_factor:
-                            singleArcPartialFunction = std::bind(
-                                    &AerodynamicAccelerationPartial::computeAccelerationPartialWrtDragComponent, this, std::placeholders::_1 );
+                            singleArcPartialFunction =
+                                    std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtDragComponent,
+                                               this,
+                                               std::placeholders::_1 );
                             break;
                         case estimatable_parameters::arc_wise_side_component_scaling_factor:
-                            singleArcPartialFunction = std::bind(
-                                    &AerodynamicAccelerationPartial::computeAccelerationPartialWrtSideComponent, this, std::placeholders::_1 );
+                            singleArcPartialFunction =
+                                    std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtSideComponent,
+                                               this,
+                                               std::placeholders::_1 );
                             break;
                         default:
-                            singleArcPartialFunction = std::bind(
-                                    &AerodynamicAccelerationPartial::computeAccelerationPartialWrtLiftComponent, this, std::placeholders::_1 );
+                            singleArcPartialFunction =
+                                    std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtLiftComponent,
+                                               this,
+                                               std::placeholders::_1 );
                             break;
                     }
                     partialFunction = createArcWiseParameterPartialFunction(

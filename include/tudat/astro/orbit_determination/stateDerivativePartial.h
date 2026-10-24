@@ -36,8 +36,7 @@ namespace orbit_determination
  * StateDerivativePartial::setParameterPartialUpdateFunction), only the non-zero block is computed and stored, so that the cost
  * of the partial does not depend on the total number of parameter entries.
  */
-struct ParameterPartialBlockFunction
-{
+struct ParameterPartialBlockFunction {
     //! Constructor
     /*!
      * Constructor
@@ -53,7 +52,7 @@ struct ParameterPartialBlockFunction
                                    const int numberOfColumns ):
         blockFunction_( blockFunction ), numberOfRows_( numberOfRows ), numberOfBlockColumns_( numberOfBlockColumns ),
         numberOfColumns_( numberOfColumns )
-    { }
+    {}
 
     //! Function to compute the full partial (returned by reference)
     void operator( )( Eigen::MatrixXd& partial ) const
@@ -430,7 +429,8 @@ public:
             {
                 parameterVectorPartialBlockFunctions_[ parameter ] = blockPartialFunction->blockFunction_;
                 isCurrentVectorParameterPartialSet_[ parameter ] = 0;
-                currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, blockPartialFunction->numberOfBlockColumns_ );
+                currentVectorParameterPartials_[ parameter ] =
+                        Eigen::MatrixXd( accelerationSize_, blockPartialFunction->numberOfBlockColumns_ );
                 currentVectorParameterPartialStartColumns_[ parameter ] = -1;
             }
             else if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
@@ -602,7 +602,8 @@ protected:
         int currentArc = arcTimeLookup->findNearestLowerNeighbour( currentTime_ );
         if( currentArc >= numberOfArcs )
         {
-            throw std::runtime_error( "Error when getting arc-wise parameter partial, current arc index is inconsistent with number of arcs" );
+            throw std::runtime_error(
+                    "Error when getting arc-wise parameter partial, current arc index is inconsistent with number of arcs" );
         }
 
         partial.setZero( );
