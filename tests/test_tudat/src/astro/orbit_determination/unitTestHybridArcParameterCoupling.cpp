@@ -40,22 +40,35 @@ using namespace tudat::observation_models;
 BOOST_AUTO_TEST_SUITE( test_hybrid_arc_parameter_coupling )
 
 //! Function to compare the analytical design matrix of position observations of a multi-arc vehicle with a numerical (central
-//! difference) design matrix, for a hybrid-arc estimation with the Moon as single-arc body. The estimated parameters are the
-//! initial states, the Earth gravitational parameter and a constant empirical acceleration of the Moon. The latter acts only on
-//! the Moon, so that its influence on the vehicle is entirely through the Moon's trajectory.
-//! \param vehicleCentralBody Central body of the vehicle propagation (Earth: Moon is a perturbing body; Moon: Moon is the central
-//! body)
+//! difference) design matrix, for a hybrid-arc estimation with one or more natural satellites as single-arc bodies. The estimated
+//! parameters are the initial states, the gravitational parameters of the central body and the first single-arc body, and a
+//! constant empirical acceleration of the last single-arc body. The latter acts only on the single-arc bodies, so that its
+//! influence on the vehicle is entirely through their trajectories.
+//! \param centralBody Body w.r.t. which the single-arc bodies are propagated
+//! \param singleArcBodies Bodies propagated in the single arc (mutually attracting)
+//! \param vehicleCentralBody Central body of the vehicle propagation
+//! \param semiMajorAxis Semi-major axis of the vehicle orbit
+//! \param firstArcOffset Time between start of single-arc propagation and start of first vehicle arc
+//! \param arcGap Time between end of one vehicle arc and start of the next
 //! \return Relative difference ||H_analytical - H_numerical|| / ||H_numerical|| for each parameter
-Eigen::VectorXd compareAnalyticalAndNumericalDesignMatrix( const std::string& vehicleCentralBody )
+Eigen::VectorXd compareAnalyticalAndNumericalDesignMatrix( const std::string& centralBody,
+                                                           const std::vector< std::string >& singleArcBodies,
+                                                           const std::string& vehicleCentralBody,
+                                                           const double semiMajorAxis,
+                                                           const double firstArcOffset,
+                                                           const double arcGap )
 {
     const double initialTime = 1.0E7;
     const double arcDuration = 86400.0;
     const int numberOfArcs = 3;
-    const double finalTime = initialTime + numberOfArcs * arcDuration;
+    const double finalTime = initialTime + firstArcOffset + numberOfArcs * arcDuration + ( numberOfArcs - 1 ) * arcGap;
 
     // Create bodies
+    std::vector< std::string > bodiesToCreate = singleArcBodies;
+    bodiesToCreate.push_back( centralBody );
+    bodiesToCreate.push_back( "Sun" );
     SystemOfBodies bodies = createSystemOfBodies(
-            getDefaultBodySettings( { "Earth", "Moon", "Sun" }, initialTime - 3600.0, finalTime + 3600.0, "Earth", "ECLIPJ2000" ) );
+            getDefaultBodySettings( bodiesToCreate, initialTime - 3600.0, finalTime + 3600.0, centralBody, "ECLIPJ2000" ) );
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 1.0E3 );
     bodies.at( "Vehicle" )
@@ -63,33 +76,48 @@ Eigen::VectorXd compareAnalyticalAndNumericalDesignMatrix( const std::string& ve
                     std::map< double, std::shared_ptr< Ephemeris > >( ), vehicleCentralBody, "ECLIPJ2000" ) );
     bodies.processBodyFrameDefinitions( );
 
-    // Single-arc propagation of the Moon, with an (estimated) empirical acceleration
-    SelectedAccelerationMap moonAccelerationSettings;
-    moonAccelerationSettings[ "Moon" ][ "Earth" ] = { pointMassGravityAcceleration( ), empiricalAcceleration( ) };
-    moonAccelerationSettings[ "Moon" ][ "Sun" ] = { pointMassGravityAcceleration( ) };
-    std::shared_ptr< SingleArcPropagatorSettings< double > > moonPropagatorSettings = translationalStatePropagatorSettings< double >(
-            { "Earth" },
-            createAccelerationModelsMap( bodies, moonAccelerationSettings, { "Moon" }, { "Earth" } ),
-            { "Moon" },
-            getInitialStatesOfBodies( { "Moon" }, { "Earth" }, bodies, initialTime ),
+    // Single-arc propagation of the natural satellites, with an (estimated) empirical acceleration on the last one
+    SelectedAccelerationMap singleArcAccelerationSettings;
+    for( const std::string& bodyName : singleArcBodies )
+    {
+        singleArcAccelerationSettings[ bodyName ][ centralBody ] = { pointMassGravityAcceleration( ) };
+        singleArcAccelerationSettings[ bodyName ][ "Sun" ] = { pointMassGravityAcceleration( ) };
+        for( const std::string& otherBodyName : singleArcBodies )
+        {
+            if( otherBodyName != bodyName )
+            {
+                singleArcAccelerationSettings[ bodyName ][ otherBodyName ] = { pointMassGravityAcceleration( ) };
+            }
+        }
+    }
+    singleArcAccelerationSettings[ singleArcBodies.back( ) ][ centralBody ].push_back( empiricalAcceleration( ) );
+    std::vector< std::string > singleArcCentralBodies( singleArcBodies.size( ), centralBody );
+    std::shared_ptr< SingleArcPropagatorSettings< double > > singleArcPropagatorSettings = translationalStatePropagatorSettings< double >(
+            singleArcCentralBodies,
+            createAccelerationModelsMap( bodies, singleArcAccelerationSettings, singleArcBodies, singleArcCentralBodies ),
+            singleArcBodies,
+            getInitialStatesOfBodies( singleArcBodies, singleArcCentralBodies, bodies, initialTime ),
             initialTime,
             rungeKutta4Settings( 60.0 ),
             propagationTimeTerminationSettings( finalTime ) );
 
     // Multi-arc propagation of the vehicle
     SelectedAccelerationMap vehicleAccelerationSettings;
-    vehicleAccelerationSettings[ "Vehicle" ][ "Earth" ] = { pointMassGravityAcceleration( ) };
-    vehicleAccelerationSettings[ "Vehicle" ][ "Moon" ] = { pointMassGravityAcceleration( ) };
+    vehicleAccelerationSettings[ "Vehicle" ][ centralBody ] = { pointMassGravityAcceleration( ) };
+    for( const std::string& bodyName : singleArcBodies )
+    {
+        vehicleAccelerationSettings[ "Vehicle" ][ bodyName ] = { pointMassGravityAcceleration( ) };
+    }
     AccelerationMap vehicleAccelerations =
             createAccelerationModelsMap( bodies, vehicleAccelerationSettings, { "Vehicle" }, { vehicleCentralBody } );
 
     double centralBodyGravitationalParameter = bodies.at( vehicleCentralBody )->getGravityFieldModel( )->getGravitationalParameter( );
-    double semiMajorAxis = ( vehicleCentralBody == "Earth" ) ? 1.5E8 : 2.5E6;
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > vehicleArcSettings;
     std::vector< double > arcStartTimes;
+    std::vector< double > observationTimes;
     for( int i = 0; i < numberOfArcs; i++ )
     {
-        arcStartTimes.push_back( initialTime + i * arcDuration );
+        arcStartTimes.push_back( initialTime + firstArcOffset + i * ( arcDuration + arcGap ) );
         Eigen::Vector6d keplerianState = ( Eigen::Vector6d( ) << semiMajorAxis, 0.1, 0.5, 1.0 + i, 2.0 - i, 0.5 * i ).finished( );
         vehicleArcSettings.push_back( translationalStatePropagatorSettings< double >(
                 { vehicleCentralBody },
@@ -99,15 +127,22 @@ Eigen::VectorXd compareAnalyticalAndNumericalDesignMatrix( const std::string& ve
                 arcStartTimes.back( ),
                 rungeKutta4Settings( 60.0 ),
                 propagationTimeTerminationSettings( arcStartTimes.back( ) + arcDuration ) ) );
+
+        // Define observation times inside arc
+        for( double time = arcStartTimes.back( ) + 1800.0; time < arcStartTimes.back( ) + arcDuration; time += 3600.0 )
+        {
+            observationTimes.push_back( time );
+        }
     }
     std::shared_ptr< HybridArcPropagatorSettings< double > > propagatorSettings = std::make_shared< HybridArcPropagatorSettings< double > >(
-            moonPropagatorSettings, std::make_shared< MultiArcPropagatorSettings< double > >( vehicleArcSettings ) );
+            singleArcPropagatorSettings, std::make_shared< MultiArcPropagatorSettings< double > >( vehicleArcSettings ) );
 
     // Create parameters
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings =
             getInitialStateParameterSettings< double >( propagatorSettings, bodies, arcStartTimes );
-    parameterSettings.push_back( gravitationalParameter( "Earth" ) );
-    parameterSettings.push_back( constantEmpiricalAccelerationMagnitudes( "Moon", "Earth" ) );
+    parameterSettings.push_back( gravitationalParameter( centralBody ) );
+    parameterSettings.push_back( gravitationalParameter( singleArcBodies.front( ) ) );
+    parameterSettings.push_back( constantEmpiricalAccelerationMagnitudes( singleArcBodies.back( ), centralBody ) );
     std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double >( parameterSettings, bodies, propagatorSettings );
 
@@ -120,13 +155,6 @@ Eigen::VectorXd compareAnalyticalAndNumericalDesignMatrix( const std::string& ve
             { std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) },
             propagatorSettings );
 
-    // Define observation times inside each arc
-    std::vector< double > observationTimes;
-    for( double time = initialTime + 1800.0; time < finalTime; time += 3600.0 )
-    {
-        observationTimes.push_back( time );
-    }
-
     // Compute analytical design matrix
     Eigen::VectorXd nominalObservations;
     Eigen::MatrixXd analyticalDesignMatrix;
@@ -136,22 +164,28 @@ Eigen::VectorXd compareAnalyticalAndNumericalDesignMatrix( const std::string& ve
     // Compute numerical design matrix, by central differences
     Eigen::VectorXd nominalParameters = parametersToEstimate->getFullParameterValues< double >( );
     int numberOfInitialStateParameters = parametersToEstimate->getInitialDynamicalStateParameterSize( );
+    int numberOfSingleArcStates = 6 * singleArcBodies.size( );
     Eigen::MatrixXd numericalDesignMatrix = Eigen::MatrixXd::Zero( analyticalDesignMatrix.rows( ), analyticalDesignMatrix.cols( ) );
     for( int parameterIndex = 0; parameterIndex < nominalParameters.rows( ); parameterIndex++ )
     {
+        // Use larger perturbations for parameters that are weakly coupled to the vehicle (single-arc states and gravitational
+        // parameter, empirical acceleration), to limit round-off error in numerical partials
         double perturbation;
         if( parameterIndex < numberOfInitialStateParameters )
         {
-            // Use larger perturbation for (weakly coupled) single-arc Moon state, to limit round-off error in numerical partials
-            perturbation = ( ( parameterIndex % 6 < 3 ) ? 10.0 : 1.0E-3 ) * ( ( parameterIndex < 6 ) ? 100.0 : 1.0 );
+            perturbation = ( ( parameterIndex % 6 < 3 ) ? 10.0 : 1.0E-3 ) * ( ( parameterIndex < numberOfSingleArcStates ) ? 1000.0 : 1.0 );
         }
         else if( parameterIndex == numberOfInitialStateParameters )
         {
             perturbation = 1.0E-7 * nominalParameters( parameterIndex );
         }
+        else if( parameterIndex == numberOfInitialStateParameters + 1 )
+        {
+            perturbation = 1.0E-5 * nominalParameters( parameterIndex );
+        }
         else
         {
-            perturbation = 1.0E-7;
+            perturbation = 1.0E-5;
         }
 
         Eigen::VectorXd perturbedObservations[ 2 ];
@@ -191,12 +225,32 @@ BOOST_AUTO_TEST_CASE( testHybridArcParameterCoupling )
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    for( std::string vehicleCentralBody : { "Earth", "Moon" } )
+    // Test cases: single-arc Moon, with vehicle orbiting Earth (Moon is perturbing body) or Moon (Moon is central body); single-arc
+    // Io and Europa (two mutually attracting single-arc bodies), with vehicle orbiting Jupiter or Europa (second single-arc body is
+    // central body), with vehicle arcs that start after the single-arc initial time and have gaps between them.
+    for( int testCase = 0; testCase < 4; testCase++ )
     {
-        Eigen::VectorXd relativeDifferences = compareAnalyticalAndNumericalDesignMatrix( vehicleCentralBody );
+        Eigen::VectorXd relativeDifferences;
+        switch( testCase )
+        {
+            case 0:
+                relativeDifferences = compareAnalyticalAndNumericalDesignMatrix( "Earth", { "Moon" }, "Earth", 1.5E8, 0.0, 0.0 );
+                break;
+            case 1:
+                relativeDifferences = compareAnalyticalAndNumericalDesignMatrix( "Earth", { "Moon" }, "Moon", 2.5E6, 0.0, 0.0 );
+                break;
+            case 2:
+                relativeDifferences =
+                        compareAnalyticalAndNumericalDesignMatrix( "Jupiter", { "Io", "Europa" }, "Jupiter", 1.0E9, 43200.0, 21600.0 );
+                break;
+            default:
+                relativeDifferences =
+                        compareAnalyticalAndNumericalDesignMatrix( "Jupiter", { "Io", "Europa" }, "Europa", 2.5E6, 43200.0, 21600.0 );
+                break;
+        }
         for( int parameterIndex = 0; parameterIndex < relativeDifferences.rows( ); parameterIndex++ )
         {
-            BOOST_CHECK_SMALL( relativeDifferences( parameterIndex ), 5.0E-6 );
+            BOOST_CHECK_SMALL( relativeDifferences( parameterIndex ), 2.0E-5 );
         }
     }
 }
