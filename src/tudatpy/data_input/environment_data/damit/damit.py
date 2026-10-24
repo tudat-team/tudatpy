@@ -53,12 +53,12 @@ def _download_tables(force: bool = False) -> None:
             cache_dir=DEFAULT_CACHE,
             force=True,
         )
-        print(f"DAMIT tables saved at {str(_DAMIT_TABLES_DIR)}.")
+        print(f"DAMIT tables saved at {str(_DAMIT_TABLES_DIR)}.\n")
 
 
 def _download_model(model_id: int, force: bool = False) -> tuple[Path, Path]:
     """Downloads an individual asteroid model
-    - Shape.obj: contains vertices and facets
+    - shape.obj: contains vertices and facets
     - spin.txt: contains rotational parameters"""
     # Check if model exists on disk
     model_dir = _DAMIT_MODELS_DIR / str(model_id)
@@ -80,7 +80,7 @@ def _download_model(model_id: int, force: bool = False) -> tuple[Path, Path]:
                 force=True,
             )
 
-        print(f"Model saved at {str(model_dir)}")
+        print(f"Model saved at {str(model_dir)}\n")
 
     return obj_file, spin_file
 
@@ -141,24 +141,27 @@ def list_damit_models(
 
 class DamitModel:
     """
-    Initialize a DamitModel object
+    Initialize a DamitModel object from the shape and rotational parameters.
+
+    Normally, use either :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query`
+    or :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.from_file` to initialize a model.
 
     Parameters
     ----------
     name : str
         Name of the model, used for the reference frame name
     vertices : np.ndarray
-        Vertex coordinates
+        Vertex coordinates in meters
     facets : np.ndarray
         Facet coordinates, zero-indexed
     pole_longitude : float
-        Longitude in ecliptic coords
+        Longitude in ecliptic J2000 coordinates (rad)
     pole_latitude : float
-        Latitude in ecliptic coords
+        Latitude in ecliptic J2000 coordinates (rad)
     period: float
-        Period in seconds
+        Period in seconds. Note: changes to rotation rate due to YORP effect are ignored
     initial_rotation_angle: float
-        Initial rotation angle in radians
+        Initial rotation angle in (rad)
     reference_epoch: float
         Rotation reference epoch in seconds since J2000
     """
@@ -194,13 +197,14 @@ class DamitModel:
         self._reference_epoch = reference_epoch
 
     @property
-    def volume(self):
-        """Returns the volume of the model in cubic meters"""
-        return volume(self._vertices, self._facets)
+    def vertices_and_facets(self) -> tuple[np.ndarray, np.ndarray]:
+        """Returns a copy of the vertices and facets of this model"""
+        return self._vertices.copy(), self._facets.copy()
 
     @classmethod
     def query(
         cls,
+        *,
         mpc_number: int | None = None,
         damit_model_id: int | None = None,
         diameter: float | None = None,
@@ -222,6 +226,10 @@ class DamitModel:
             in the DAMIT catalog, which may be none in which case the size is garbage
         force_refresh : bool
             If true, re-downloads and overwrites models to the latest versions
+
+        Returns
+        -------
+        DamitModel
         """
         # Get the model metadata (rotational parameters, size info etc.)
         # Query by mpc number and choose best model
@@ -243,7 +251,9 @@ class DamitModel:
 
         else:
             model_metadata = None
-            raise ValueError("Must specify either a valid MPC number or Damit Model ID")
+            raise ValueError(
+                "Must specify either a valid MPC number or Damit Model ID (and not both)"
+            )
 
         # Get diameter from metadata if size is not calibrated and diameter is not given
         if diameter is None and model_metadata["calibrated_size"] != 1:
@@ -251,7 +261,8 @@ class DamitModel:
                 diameter = model_metadata["equiv_diameter"] * 1e3  # km -> m
             else:
                 warn(
-                    "Queried model has no size information and no diameter was given. Volume will be unity"
+                    "Queried model has no size information and no diameter was given. "
+                    "The asteroid size will be non-physical"
                 )
 
         # Load model
@@ -270,10 +281,11 @@ class DamitModel:
         diameter: float | None = None,
     ):
         """
-        Loads a DAMIT model from files.
+        Loads a DAMIT model from files. It is assumed the files are in the exact same format as those downloaded from
+        the DAMIT database.
 
         Note: if no diameter is given, the model uses whatever the volume of the shape is already in (scaled for the
-        correct units). To be safe, it is recommended to pass a diameter.
+        correct units), which may be non-physical. To be safe, it is recommended to pass a diameter.
 
         Parameters
         ----------
@@ -347,7 +359,7 @@ class DamitModel:
 
         return vertices, facets
 
-    def _approximate_best_fitting_ellipsoid(self):
+    def _approximate_best_fitting_ellipsoid(self) -> tuple[list, float]:
         """Approximate the best fitting ellipsoid from the moment of inertia"""
         # Principal axes of the equatorial block only
         # -> it is assumed that the shape model z-axis is a principal axis itself to preserve the correct
@@ -404,7 +416,8 @@ class DamitModel:
 
     def polyhedron_rotational_ephemeris_settings(self, base_frame: str) -> RotationModelSettings:
         """
-        Create rotational ephemeris settings of the polyhedron shape model
+        Create rotational ephemeris settings of the polyhedron shape model. Rotation is assumed to be around a fixed
+        axis in inertial space with a fixed rate of rotation
 
         Parameters
         ----------
@@ -425,7 +438,7 @@ class DamitModel:
         Parameters
         ----------
         args, kwargs
-            Remaining inputs are passed to shape.polyhedron()
+            Remaining inputs are passed to :func:`~tudatpy.dynamics.environment_setup.shape.polyhedron`
 
         Returns
         -------
@@ -499,13 +512,14 @@ class DamitModel:
         self, base_frame: str
     ) -> RotationModelSettings:
         """
-        Create rotational ephemeris settings of the best fitting ellipsoid shape model
+        Create rotational ephemeris settings of the best fitting ellipsoid shape model.
 
         Creates the rotational ephemeris settings of the best fitting ellipsoid with equivalent moment of inertia
-        to the DAMIT polyhedron shape model.
+        to the DAMIT polyhedron shape model. Rotation is assumed to be around a fixed axis in inertial space with a
+        fixed rate of rotation
 
-        NOTE 1: this rotational model is *not* the same as computed by:
-        :meth:~`tudatpy.data_input.environment_data.damit.DamitModel.polyhedron_rotational_ephemeris_settings`,
+        NOTE: this rotational model is **not** the same as computed by:
+        :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.polyhedron_rotational_ephemeris_settings`,
         because an extra offset to the initial phase of rotation is necessary for the ellipsoid model.
 
         Parameters
